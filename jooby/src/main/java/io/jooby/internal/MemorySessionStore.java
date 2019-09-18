@@ -7,7 +7,7 @@ package io.jooby.internal;
 
 import io.jooby.Context;
 import io.jooby.Session;
-import io.jooby.SessionId;
+import io.jooby.SessionToken;
 import io.jooby.SessionOptions;
 import io.jooby.SessionStore;
 
@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class InMemorySessionStore implements SessionStore {
+public class MemorySessionStore implements SessionStore {
   private static class SessionData {
     private Instant lastAccessedTime;
     private Instant creationTime;
@@ -38,13 +38,13 @@ public class InMemorySessionStore implements SessionStore {
         .setCreationTime(now)
         .setLastAccessedTime(now)
         .setNew(true);
-    options.getSessionId().saveSessionId(ctx, sessionId);
+    options.getSessionToken().saveToken(ctx, sessionId);
     return session;
   }
 
   @Override public Session findSession(Context ctx) {
     SessionOptions options = sessionOptions(ctx);
-    String sessionId = options.getSessionId().findSessionId(ctx);
+    String sessionId = options.getSessionToken().findToken(ctx);
     if (sessionId == null) {
       return null;
     }
@@ -53,7 +53,7 @@ public class InMemorySessionStore implements SessionStore {
       Session session = Session.create(ctx, sessionId, data.hash);
       session.setLastAccessedTime(data.lastAccessedTime);
       session.setCreationTime(data.creationTime);
-      options.getSessionId().saveSessionId(ctx, sessionId);
+      options.getSessionToken().saveToken(ctx, sessionId);
       return session;
     }
     return null;
@@ -63,8 +63,8 @@ public class InMemorySessionStore implements SessionStore {
     String sessionId = ctx.session().getId();
     sessions.remove(sessionId);
     SessionOptions options = sessionOptions(ctx);
-    SessionId store = options.getSessionId();
-    store.deleteSessionId(ctx, sessionId);
+    SessionToken store = options.getSessionToken();
+    store.deleteToken(ctx, sessionId);
   }
 
   @Override public void save(Context ctx) {

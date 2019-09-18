@@ -1748,7 +1748,7 @@ public class FeaturedTest {
     /**********************************************************************************************/
     new JoobyRunner(app -> {
       app.setSessionOptions(
-          new SessionOptions(SessionId.cookie(new Cookie("my.sid").setMaxAge(1L)))
+          new SessionOptions(SessionToken.cookie(new Cookie("my.sid").setMaxAge(1L)))
       );
       app.get("/session", ctx -> ctx.session().toMap());
       app.get("/sessionMaxAge", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
@@ -1825,7 +1825,7 @@ public class FeaturedTest {
   public void sessionHeader() {
     new JoobyRunner(app -> {
 
-      app.setSessionOptions(new SessionOptions(SessionId.header("jooby.sid")));
+      app.setSessionOptions(new SessionOptions(SessionToken.header("jooby.sid")));
 
       app.get("/findSession", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
       app.get("/getSession", ctx -> ctx.session().get("foo").value("none"));

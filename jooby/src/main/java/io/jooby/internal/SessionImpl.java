@@ -112,7 +112,7 @@ public class SessionImpl implements Session {
     ctx.getAttributes().remove(NAME);
     attributes.clear();
     SessionOptions options = ctx.getRouter().getSessionOptions();
-    options.getSessionId().deleteSessionId(ctx, id);
+    options.getSessionToken().deleteToken(ctx, id);
     options.getStore().deleteSession(ctx);
   }
 
@@ -120,6 +120,6 @@ public class SessionImpl implements Session {
     modify = true;
     lastAccessedTime = Instant.now();
     SessionOptions sessionOptions = ctx.getRouter().getSessionOptions();
-    sessionOptions.getSessionId().saveSessionId(ctx, id);
+    sessionOptions.getSessionToken().saveToken(ctx, id);
   }
 }
