@@ -7,7 +7,6 @@ package io.jooby;
 
 import io.jooby.internal.InMemorySessionStore;
 import io.jooby.internal.MultipleSessionId;
-import io.jooby.internal.RequestSessionStore;
 import io.jooby.internal.SecretSessionId;
 
 import javax.annotation.Nonnull;
@@ -73,7 +72,7 @@ public class SessionOptions {
    * @return Session store (defaults uses memory).
    */
   public @Nonnull SessionStore getStore() {
-    return new RequestSessionStore(store);
+    return store;
   }
 
   /**

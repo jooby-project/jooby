@@ -5,7 +5,6 @@
  */
 package io.jooby;
 
-import io.jooby.internal.RequestSession;
 import io.jooby.internal.SessionImpl;
 
 import javax.annotation.Nonnull;
@@ -131,11 +130,6 @@ public interface Session {
    */
   @Nonnull ValueNode remove(@Nonnull String name);
 
-  /**
-   * Read-only attributes.
-   *
-   * @return Read-only attributes.
-   */
   @Nonnull Map<String, String> toMap();
 
   /**
@@ -216,18 +210,11 @@ public interface Session {
    * @param id Session ID.
    * @return A new session.
    */
-  static @Nonnull Session create(@Nonnull String id) {
-    return new SessionImpl(id);
+  static @Nonnull Session create(@Nonnull Context ctx, @Nonnull String id) {
+    return new SessionImpl(ctx, id);
   }
 
-  /**
-   * Creates a new session and attach it to current request.
-   *
-   * @param context Web context.
-   * @param session HTTP session.
-   * @return A request attached session.
-   */
-  static @Nonnull Session create(@Nonnull Context context, @Nonnull Session session) {
-    return new RequestSession(context, session);
+  static @Nonnull Session create(@Nonnull Context ctx, @Nonnull String id, @Nonnull Map<String, String> data) {
+    return new SessionImpl(ctx, id, data);
   }
 }

@@ -5,41 +5,80 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.Session;
+import io.jooby.SessionId;
+import io.jooby.SessionOptions;
 import io.jooby.SessionStore;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemorySessionStore implements SessionStore {
-  private ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
+  private static class SessionData {
+    private Instant lastAccessedTime;
+    private Instant creationTime;
+    private Map hash;
 
-  @Override public Session newSession(String id) {
+    public SessionData(Instant creationTime, Instant lastAccessedTime, Map hash) {
+      this.creationTime = creationTime;
+      this.lastAccessedTime = lastAccessedTime;
+      this.hash = hash;
+    }
+  }
+
+  private ConcurrentHashMap<String, SessionData> sessions = new ConcurrentHashMap<>();
+
+  @Override public Session newSession(Context ctx) {
+    SessionOptions options = sessionOptions(ctx);
+    String sessionId = options.generateId();
     Instant now = Instant.now();
-    Session session = Session.create(id)
+    Session session = Session.create(ctx, sessionId)
         .setCreationTime(now)
         .setLastAccessedTime(now)
         .setNew(true);
+    options.getSessionId().saveSessionId(ctx, sessionId);
     return session;
   }
 
-  @Override public Session findSession(String id) {
-    Session session = sessions.get(id);
-    if (session != null) {
-      session.setLastAccessedTime(Instant.now());
+  @Override public Session findSession(Context ctx) {
+    SessionOptions options = sessionOptions(ctx);
+    String sessionId = options.getSessionId().findSessionId(ctx);
+    if (sessionId == null) {
+      return null;
     }
-    return session;
+    SessionData data = sessions.get(sessionId);
+    if (data != null) {
+      Session session = Session.create(ctx, sessionId, data.hash);
+      session.setLastAccessedTime(data.lastAccessedTime);
+      session.setCreationTime(data.creationTime);
+      options.getSessionId().saveSessionId(ctx, sessionId);
+      return session;
+    }
+    return null;
   }
 
-  @Override public void deleteSession(String id) {
-    sessions.remove(id);
+  @Override public void deleteSession(Context ctx) {
+    String sessionId = ctx.session().getId();
+    sessions.remove(sessionId);
+    SessionOptions options = sessionOptions(ctx);
+    SessionId store = options.getSessionId();
+    store.deleteSessionId(ctx, sessionId);
   }
 
-  @Override public void save(Session session) {
-    sessions.put(session.getId(), session);
-    session
-        .setNew(false)
-        .setModify(false)
-        .setLastAccessedTime(Instant.now());
+  @Override public void save(Context ctx) {
+    Session session = ctx.session();
+    String sessionId = ctx.session().getId();
+    sessions.put(sessionId,
+        new SessionData(session.getCreationTime(), Instant.now(), session.toMap()));
+    //    session
+    //        .setNew(false)
+    //        .setModify(false)
+    //        .setLastAccessedTime(Instant.now());
+  }
+
+  private static SessionOptions sessionOptions(Context ctx) {
+    return ctx.getRouter().getSessionOptions();
   }
 }

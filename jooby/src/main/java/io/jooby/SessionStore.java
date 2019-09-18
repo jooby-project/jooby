@@ -27,7 +27,7 @@ public interface SessionStore {
    * @param id Session ID.
    * @return A new session.
    */
-  @Nonnull Session newSession(@Nonnull String id);
+  @Nonnull Session newSession(@Nonnull Context ctx);
 
   /**
    * Find an existing session by ID. For existing session this method must:
@@ -38,14 +38,14 @@ public interface SessionStore {
    * @param id Session ID.
    * @return An existing session or <code>null</code>.
    */
-  @Nullable Session findSession(@Nonnull String id);
+  @Nullable Session findSession(@Nonnull Context ctx);
 
   /**
    * Delete a session from store. This method must NOT call {@link Session#destroy()}.
    *
    * @param id Session ID.
    */
-  void deleteSession(@Nonnull String id);
+  void deleteSession(@Nonnull Context ctx);
 
   /**
    * Save a session. This method must save:
@@ -55,5 +55,5 @@ public interface SessionStore {
    *
    * @param session Session to save.
    */
-  void save(@Nonnull Session session);
+  void save(@Nonnull Context ctx);
 }

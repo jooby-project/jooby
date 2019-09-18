@@ -91,10 +91,10 @@ public interface DefaultContext extends Context {
     if (session == null) {
       Router router = getRouter();
       SessionOptions options = router.getSessionOptions();
-
-      String sessionId = options.generateId();
-      session = Session.create(this, options.getStore().newSession(sessionId));
-      options.getSessionId().saveSessionId(this, sessionId);
+      SessionStore store = options.getStore();
+      session = store.newSession(this);
+      getAttributes().put(Session.NAME, session);
+//      options.getSessionId().saveSessionId(this, sessionId);
     }
     return session;
   }
@@ -104,17 +104,13 @@ public interface DefaultContext extends Context {
     if (session == null) {
       Router router = getRouter();
       SessionOptions options = router.getSessionOptions();
-      SessionId strategy = options.getSessionId();
-      String sessionId = strategy.findSessionId(this);
-      if (sessionId == null) {
-        return null;
-      }
-      session = options.getStore().findSession(sessionId);
-      if (session == null) {
-        return null;
-      }
-      session = Session.create(this, session);
-      strategy.saveSessionId(this, sessionId);
+      SessionStore store = options.getStore();
+      session = store.findSession(this);
+//      if (session == null) {
+//        return null;
+//      }
+//      session = Session.create(this, session);
+//      strategy.saveSessionId(this, sessionId);
     }
     return session;
   }

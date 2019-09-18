@@ -5,23 +5,26 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.Session;
+import io.jooby.SessionOptions;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionImpl implements Session {
 
+  private Context ctx;
+
   private boolean isNew;
 
   private String id;
 
-  private ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<>();
+  private Map<String, String> attributes;
 
   private Instant creationTime;
 
@@ -29,8 +32,14 @@ public class SessionImpl implements Session {
 
   private boolean modify;
 
-  public SessionImpl(String id) {
+  public SessionImpl(Context ctx, String id) {
+    this(ctx, id, new ConcurrentHashMap<>());
+  }
+
+  public SessionImpl(Context ctx, String id, Map<String, String> attributes) {
+    this.ctx = ctx;
     this.id = id;
+    this.attributes = attributes;
   }
 
   @Override public boolean isNew() {
@@ -56,23 +65,23 @@ public class SessionImpl implements Session {
   }
 
   @Override public @Nonnull ValueNode get(@Nonnull String name) {
-    return Value.create(null, name, attributes.get(name));
+    return Value.create(ctx, name, attributes.get(name));
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, String value) {
     attributes.put(name, value);
-    updateFlags();
+    updateState();
     return this;
   }
 
   @Override public @Nonnull ValueNode remove(@Nonnull String name) {
     String value = attributes.remove(name);
-    updateFlags();
-    return value == null ? Value.missing(name) : Value.value(null, name, value);
+    updateState();
+    return value == null ? Value.missing(name) : Value.value(ctx, name, value);
   }
 
   @Override public @Nonnull Map<String, String> toMap() {
-    return Collections.unmodifiableMap(attributes);
+    return attributes;
   }
 
   @Override public @Nonnull Instant getCreationTime() {
@@ -95,16 +104,22 @@ public class SessionImpl implements Session {
 
   @Override public Session clear() {
     attributes.clear();
-    updateFlags();
+    updateState();
     return this;
   }
 
   @Override public void destroy() {
+    ctx.getAttributes().remove(NAME);
     attributes.clear();
+    SessionOptions options = ctx.getRouter().getSessionOptions();
+    options.getSessionId().deleteSessionId(ctx, id);
+    options.getStore().deleteSession(ctx);
   }
 
-  private void updateFlags() {
+  private void updateState() {
     modify = true;
     lastAccessedTime = Instant.now();
+    SessionOptions sessionOptions = ctx.getRouter().getSessionOptions();
+    sessionOptions.getSessionId().saveSessionId(ctx, id);
   }
 }
