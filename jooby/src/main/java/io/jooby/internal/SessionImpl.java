@@ -6,8 +6,10 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
+import io.jooby.Router;
 import io.jooby.Session;
 import io.jooby.SessionOptions;
+import io.jooby.SessionStore;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 
@@ -111,15 +113,24 @@ public class SessionImpl implements Session {
   @Override public void destroy() {
     ctx.getAttributes().remove(NAME);
     attributes.clear();
-    SessionOptions options = ctx.getRouter().getSessionOptions();
-    options.getSessionToken().deleteToken(ctx, id);
-    options.getStore().deleteSession(ctx);
+    SessionStore store = store(ctx);
+    store.getSessionToken().deleteToken(ctx, id);
+    store.deleteSession(ctx);
   }
 
   private void updateState() {
     modify = true;
     lastAccessedTime = Instant.now();
-    SessionOptions sessionOptions = ctx.getRouter().getSessionOptions();
-    sessionOptions.getSessionToken().saveToken(ctx, id);
+    store(ctx).getSessionToken().saveToken(ctx, id);
   }
+
+  private static SessionOptions options(Context ctx) {
+    Router router = ctx.getRouter();
+    return router.getSessionOptions();
+  }
+
+  private static SessionStore store(Context ctx) {
+    return options(ctx).getStore();
+  }
+
 }

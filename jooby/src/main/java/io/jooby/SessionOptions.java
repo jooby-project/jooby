@@ -5,13 +5,8 @@
  */
 package io.jooby;
 
-import io.jooby.internal.MemorySessionStore;
-import io.jooby.internal.MultipleSessionToken;
-import io.jooby.internal.SecretSessionToken;
-
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
-import java.time.Duration;
 import java.util.Base64;
 
 /**
@@ -25,47 +20,19 @@ import java.util.Base64;
  * @since 2.0.0
  */
 public class SessionOptions {
-  private static final Cookie DEFAULT_COOKIE = new Cookie("jooby.sid")
-      .setMaxAge(Duration.ofSeconds(-1))
-      .setHttpOnly(true)
-      .setPath("/");
-
   private static final int ID_SIZE = 30;
 
   private static final SecureRandom secure = new SecureRandom();
 
-  private SessionStore store = new MemorySessionStore();
+  private final SessionStore store;
 
-  private final SessionToken sessionToken;
-
-  /**
-   * Creates a session options.
-   *
-   * @param secret Secret key. Used to signed the cookie.
-   * @param sessionToken session ID.
-   */
-  public SessionOptions(@Nonnull String secret, @Nonnull SessionToken... sessionToken) {
-    this.sessionToken = new SecretSessionToken(createSessionId(sessionToken), secret);
+  public SessionOptions(SessionStore store) {
+    this.store = store;
   }
 
-  /**
-   * Creates a session options.
-   *
-   * @param sessionToken session ID.
-   */
-  public SessionOptions(@Nonnull SessionToken... sessionToken) {
-    this.sessionToken = createSessionId(sessionToken);
+  public SessionOptions() {
+    this(SessionStore.memory());
   }
-
-  /**
-   * Session token strategy (cookie or header).
-   *
-   * @return Session token strategy (cookie or header).
-   */
-  public SessionToken getSessionToken() {
-    return sessionToken;
-  }
-
   /**
    * Session store (defaults uses memory).
    *
@@ -73,17 +40,6 @@ public class SessionOptions {
    */
   public @Nonnull SessionStore getStore() {
     return store;
-  }
-
-  /**
-   * Set session store.
-   *
-   * @param store Session store.
-   * @return This options.
-   */
-  public @Nonnull SessionOptions setStore(@Nonnull SessionStore store) {
-    this.store = store;
-    return this;
   }
 
   /**
@@ -95,15 +51,5 @@ public class SessionOptions {
     byte[] bytes = new byte[ID_SIZE];
     secure.nextBytes(bytes);
     return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-  }
-
-  private static SessionToken createSessionId(@Nonnull SessionToken[] sessionId) {
-    if (sessionId.length == 0) {
-      return SessionToken.cookie(DEFAULT_COOKIE);
-    } else if (sessionId.length == 1) {
-      return sessionId[0];
-    } else {
-      return new MultipleSessionToken(sessionId);
-    }
   }
 }

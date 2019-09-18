@@ -5,8 +5,11 @@
  */
 package io.jooby;
 
+import io.jooby.internal.MemorySessionStore;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.time.Instant;
 
 /**
@@ -16,6 +19,13 @@ import java.time.Instant;
  * @since 2.0.0
  */
 public interface SessionStore {
+
+  Cookie SID = new Cookie("jooby.sid")
+      .setMaxAge(Duration.ofSeconds(-1))
+      .setHttpOnly(true)
+      .setPath("/");
+
+  @Nonnull SessionToken getSessionToken();
 
   /**
    * Creates a new session. This method must:
@@ -56,4 +66,16 @@ public interface SessionStore {
    * @param session Session to save.
    */
   void save(@Nonnull Context ctx);
+
+  static SessionStore memory() {
+    return memory(SID);
+  }
+
+  static SessionStore memory(Cookie cookie) {
+    return memory(SessionToken.cookie(cookie));
+  }
+
+  static SessionStore memory(SessionToken token) {
+    return new MemorySessionStore(token);
+  }
 }

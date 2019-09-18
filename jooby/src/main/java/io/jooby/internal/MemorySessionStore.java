@@ -6,11 +6,13 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
+import io.jooby.Router;
 import io.jooby.Session;
 import io.jooby.SessionToken;
 import io.jooby.SessionOptions;
 import io.jooby.SessionStore;
 
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +32,16 @@ public class MemorySessionStore implements SessionStore {
 
   private ConcurrentHashMap<String, SessionData> sessions = new ConcurrentHashMap<>();
 
+  private SessionToken token;
+
+  public MemorySessionStore(SessionToken token) {
+    this.token = token;
+  }
+
+  @Nonnull @Override public SessionToken getSessionToken() {
+    return token;
+  }
+
   @Override public Session newSession(Context ctx) {
     SessionOptions options = sessionOptions(ctx);
     String sessionId = options.generateId();
@@ -38,13 +50,12 @@ public class MemorySessionStore implements SessionStore {
         .setCreationTime(now)
         .setLastAccessedTime(now)
         .setNew(true);
-    options.getSessionToken().saveToken(ctx, sessionId);
+    token.saveToken(ctx, sessionId);
     return session;
   }
 
   @Override public Session findSession(Context ctx) {
-    SessionOptions options = sessionOptions(ctx);
-    String sessionId = options.getSessionToken().findToken(ctx);
+    String sessionId = token.findToken(ctx);
     if (sessionId == null) {
       return null;
     }
@@ -53,7 +64,7 @@ public class MemorySessionStore implements SessionStore {
       Session session = Session.create(ctx, sessionId, data.hash);
       session.setLastAccessedTime(data.lastAccessedTime);
       session.setCreationTime(data.creationTime);
-      options.getSessionToken().saveToken(ctx, sessionId);
+      token.saveToken(ctx, sessionId);
       return session;
     }
     return null;
@@ -62,9 +73,7 @@ public class MemorySessionStore implements SessionStore {
   @Override public void deleteSession(Context ctx) {
     String sessionId = ctx.session().getId();
     sessions.remove(sessionId);
-    SessionOptions options = sessionOptions(ctx);
-    SessionToken store = options.getSessionToken();
-    store.deleteToken(ctx, sessionId);
+    token.deleteToken(ctx, sessionId);
   }
 
   @Override public void save(Context ctx) {
@@ -79,6 +88,7 @@ public class MemorySessionStore implements SessionStore {
   }
 
   private static SessionOptions sessionOptions(Context ctx) {
-    return ctx.getRouter().getSessionOptions();
+    Router router = ctx.getRouter();
+    return router.getSessionOptions();
   }
 }
