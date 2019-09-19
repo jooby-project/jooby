@@ -38,10 +38,6 @@ public class MemorySessionStore implements SessionStore {
     this.token = token;
   }
 
-  @Nonnull @Override public SessionToken getSessionToken() {
-    return token;
-  }
-
   @Override public Session newSession(Context ctx) {
     SessionOptions options = sessionOptions(ctx);
     String sessionId = options.generateId();
@@ -70,21 +66,21 @@ public class MemorySessionStore implements SessionStore {
     return null;
   }
 
-  @Override public void deleteSession(Context ctx) {
-    String sessionId = ctx.session().getId();
+  @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
+    String sessionId = session.getId();
     sessions.remove(sessionId);
     token.deleteToken(ctx, sessionId);
   }
 
-  @Override public void save(Context ctx) {
-    Session session = ctx.session();
-    String sessionId = ctx.session().getId();
+  @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
+    // NOOP
+  }
+
+  @Override public void saveSession(Context ctx, @Nonnull Session session) {
+    String sessionId = session.getId();
     sessions.put(sessionId,
         new SessionData(session.getCreationTime(), Instant.now(), session.toMap()));
-    //    session
-    //        .setNew(false)
-    //        .setModify(false)
-    //        .setLastAccessedTime(Instant.now());
+    token.saveToken(ctx, sessionId);
   }
 
   private static SessionOptions sessionOptions(Context ctx) {

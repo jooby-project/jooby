@@ -26,7 +26,11 @@ public class SessionOptions {
 
   private final SessionStore store;
 
-  public SessionOptions(SessionStore store) {
+  /**
+   *
+   * @param store
+   */
+  public SessionOptions(@Nonnull SessionStore store) {
     this.store = store;
   }
 

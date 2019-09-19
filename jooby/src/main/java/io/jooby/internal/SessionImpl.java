@@ -113,15 +113,13 @@ public class SessionImpl implements Session {
   @Override public void destroy() {
     ctx.getAttributes().remove(NAME);
     attributes.clear();
-    SessionStore store = store(ctx);
-    store.getSessionToken().deleteToken(ctx, id);
-    store.deleteSession(ctx);
+    store(ctx).deleteSession(ctx, this);
   }
 
   private void updateState() {
     modify = true;
     lastAccessedTime = Instant.now();
-    store(ctx).getSessionToken().saveToken(ctx, id);
+    store(ctx).touchSession(ctx, this);
   }
 
   private static SessionOptions options(Context ctx) {

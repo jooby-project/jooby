@@ -207,6 +207,7 @@ public interface Session {
   /**
    * Creates a new session.
    *
+   * @param ctx Web context.
    * @param id Session ID.
    * @return A new session.
    */
@@ -214,7 +215,16 @@ public interface Session {
     return new SessionImpl(ctx, id);
   }
 
-  static @Nonnull Session create(@Nonnull Context ctx, @Nonnull String id, @Nonnull Map<String, String> data) {
+  /**
+   * Creates a new session.
+   *
+   * @param ctx Web context.
+   * @param id Session ID.
+   * @param data Session attributes.
+   * @return A new session.
+   */
+  static @Nonnull Session create(@Nonnull Context ctx, @Nonnull String id,
+      @Nonnull Map<String, String> data) {
     return new SessionImpl(ctx, id, data);
   }
 }

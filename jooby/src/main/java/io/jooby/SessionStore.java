@@ -5,11 +5,11 @@
  */
 package io.jooby;
 
+import io.jooby.internal.CookieSessionStore;
 import io.jooby.internal.MemorySessionStore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.time.Duration;
 import java.time.Instant;
 
 /**
@@ -20,21 +20,14 @@ import java.time.Instant;
  */
 public interface SessionStore {
 
-  Cookie SID = new Cookie("jooby.sid")
-      .setMaxAge(Duration.ofSeconds(-1))
-      .setHttpOnly(true)
-      .setPath("/");
-
-  @Nonnull SessionToken getSessionToken();
-
   /**
    * Creates a new session. This method must:
    *
    * - Set session as new {@link Session#setNew(boolean)}
-   * - Set session creation time {@link Session#setCreationTime(Instant)}
-   * - Set session last accessed time {@link Session#setLastAccessedTime(Instant)}
+   * - Optionally, set session creation time {@link Session#setCreationTime(Instant)}
+   * - Optionally, set session last accessed time {@link Session#setLastAccessedTime(Instant)}
    *
-   * @param id Session ID.
+   * @param ctx Web context.
    * @return A new session.
    */
   @Nonnull Session newSession(@Nonnull Context ctx);
@@ -42,10 +35,10 @@ public interface SessionStore {
   /**
    * Find an existing session by ID. For existing session this method must:
    *
-   * - Retrieve/restore session creation time
-   * - Set session last accessed time {@link Session#setLastAccessedTime(Instant)}
+   * - Optionally, Retrieve/restore session creation time
+   * - Optionally, Set session last accessed time {@link Session#setLastAccessedTime(Instant)}
    *
-   * @param id Session ID.
+   * @param ctx Web context.
    * @return An existing session or <code>null</code>.
    */
   @Nullable Session findSession(@Nonnull Context ctx);
@@ -53,29 +46,89 @@ public interface SessionStore {
   /**
    * Delete a session from store. This method must NOT call {@link Session#destroy()}.
    *
-   * @param id Session ID.
+   * @param ctx Web context.
+   * @param session Current session.
    */
-  void deleteSession(@Nonnull Context ctx);
+  void deleteSession(@Nonnull Context ctx, @Nonnull Session session);
+
+  /**
+   * Session attributes/state has changed. Every time a session attribute is put or removed it,
+   * this method is executed as notification callback.
+   *
+   * @param ctx Web context.
+   * @param session Current session.
+   */
+  void touchSession(@Nonnull Context ctx, @Nonnull Session session);
 
   /**
    * Save a session. This method must save:
    *
    * - Session attributes/data
-   * - Session metadata like: creationTime, lastAccessed time, etc.
+   * - Optionally set Session metadata like: creationTime, lastAccessed time, etc.
    *
-   * @param session Session to save.
+   * This method is call after response is send to client, so context and response shouldn't be
+   * modified.
+   *
+   * @param ctx Web context.
+   * @param session Current session.
    */
-  void save(@Nonnull Context ctx);
+  void saveSession(@Nonnull Context ctx, @Nonnull Session session);
 
-  static SessionStore memory() {
-    return memory(SID);
+  /**
+   * Creates a cookie based session and store data in memory. Session data is not keep after
+   * restart.
+   *
+   * It uses the default session cookie: {@link SessionToken#SID}.
+   *
+   * @return Session store.
+   */
+  static @Nonnull SessionStore memory() {
+    return memory(SessionToken.SID);
   }
 
-  static SessionStore memory(Cookie cookie) {
+  /**
+   * Creates a cookie based session and store data in memory. Session data is not keep after
+   * restart.
+   *
+   * @param cookie Cookie to use.
+   * @return Session store.
+   */
+  static @Nonnull SessionStore memory(@Nonnull Cookie cookie) {
     return memory(SessionToken.cookie(cookie));
   }
 
-  static SessionStore memory(SessionToken token) {
+  /**
+   * Creates a session store that save data in memory. Session data is not keep after restart.
+   *
+   * @param token Session token.
+   * @return Session store.
+   */
+  static @Nonnull SessionStore memory(@Nonnull SessionToken token) {
     return new MemorySessionStore(token);
+  }
+
+  /**
+   * Creates a session store that save data into Cookie. Cookie data is signed it using
+   * <code>HMAC_SHA256</code>. See {@link Cookie#sign(String, String)}.
+   *
+   * @param secret Secret token to signed data.
+   * @param cookie Cookie to use.
+   * @return A browser session store.
+   */
+  static @Nonnull SessionStore cookie(@Nonnull String secret, @Nonnull Cookie cookie) {
+    return new CookieSessionStore(secret, cookie);
+  }
+
+  /**
+   * Creates a session store that save data into Cookie. Cookie data is signed it using
+   * <code>HMAC_SHA256</code>. See {@link Cookie#sign(String, String)}.
+   *
+   * It uses the default session cookie: {@link SessionToken#SID}.
+   *
+   * @param secret Secret token to signed data.
+   * @return A browser session store.
+   */
+  static @Nonnull SessionStore cookie(@Nonnull String secret) {
+    return cookie(secret, SessionToken.SID);
   }
 }

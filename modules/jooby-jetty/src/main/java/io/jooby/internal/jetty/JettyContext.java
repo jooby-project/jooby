@@ -495,7 +495,7 @@ public class JettyContext implements Callback, DefaultContext {
     Session session = (Session) getAttributes().get(Session.NAME);
     if (session != null && (session.isNew() || session.isModify())) {
       SessionStore store = getRouter().getSessionOptions().getStore();
-      store.save(this);
+      store.saveSession(this, session);
     }
   }
 

@@ -9,21 +9,22 @@ import io.jooby.Context;
 import io.jooby.SessionToken;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MultipleSessionToken implements SessionToken {
 
-  private SessionToken[] sessionIds;
+  private List<SessionToken> sessionTokens;
 
-  public MultipleSessionToken(SessionToken... sessionIds) {
-    this.sessionIds = sessionIds;
+  public MultipleSessionToken(SessionToken... sessionToken) {
+    this.sessionTokens = Arrays.asList(sessionToken);
   }
 
   @Override public String findToken(Context ctx) {
-    for (SessionToken sessionId : sessionIds) {
-      String sid = sessionId.findToken(ctx);
-      if (sid != null) {
-        return sid;
+    for (SessionToken sessionToken : sessionTokens) {
+      String token = sessionToken.findToken(ctx);
+      if (token != null) {
+        return token;
       }
     }
     return null;
@@ -38,12 +39,12 @@ public class MultipleSessionToken implements SessionToken {
   }
 
   private List<SessionToken> strategy(Context ctx) {
-    List<SessionToken> result = new ArrayList<>(sessionIds.length);
-    for (SessionToken strategy : sessionIds) {
-      if (strategy.findToken(ctx) != null) {
-        result.add(strategy);
+    List<SessionToken> result = new ArrayList<>(sessionTokens.size());
+    for (SessionToken sessionToken : sessionTokens) {
+      if (sessionToken.findToken(ctx) != null) {
+        result.add(sessionToken);
       }
     }
-    return result;
+    return result.isEmpty() ? sessionTokens : result;
   }
 }
