@@ -8,12 +8,12 @@ package examples;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.Session;
-import io.jooby.SessionOptions;
+import io.jooby.SessionStore;
 
 public class SessionApp extends Jooby {
 
   {
-    setSessionOptions(new SessionOptions());
+    setSessionStore(SessionStore.memory());
     get("/exists", ctx -> ctx.sessionOrNull() != null);
 
     get("/create", ctx -> {

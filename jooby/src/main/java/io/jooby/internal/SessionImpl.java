@@ -6,9 +6,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Router;
 import io.jooby.Session;
-import io.jooby.SessionOptions;
 import io.jooby.SessionStore;
 import io.jooby.Value;
 import io.jooby.ValueNode;
@@ -122,13 +120,8 @@ public class SessionImpl implements Session {
     store(ctx).touchSession(ctx, this);
   }
 
-  private static SessionOptions options(Context ctx) {
-    Router router = ctx.getRouter();
-    return router.getSessionOptions();
-  }
-
   private static SessionStore store(Context ctx) {
-    return options(ctx).getStore();
+    return ctx.getRouter().getSessionStore();
   }
 
 }

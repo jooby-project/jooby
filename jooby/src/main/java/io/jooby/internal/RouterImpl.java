@@ -9,6 +9,7 @@ import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.RegistryException;
 import io.jooby.ServiceKey;
+import io.jooby.SessionStore;
 import io.jooby.StatusCodeException;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
@@ -21,7 +22,6 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.RouterOptions;
 import io.jooby.ServiceRegistry;
-import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
 import io.jooby.internal.asm.ClassSource;
@@ -134,7 +134,7 @@ public class RouterImpl implements Router {
 
   private ClassSource source;
 
-  private SessionOptions sessionOptions = new SessionOptions();
+  private SessionStore sessionStore = SessionStore.memory();
 
   private String flashName = "jooby.flash";
 
@@ -304,12 +304,12 @@ public class RouterImpl implements Router {
     return newStack(pattern, action);
   }
 
-  @Nonnull @Override public SessionOptions getSessionOptions() {
-    return sessionOptions;
+  @Nonnull @Override public SessionStore getSessionStore() {
+    return sessionStore;
   }
 
-  @Nonnull @Override public Router setSessionOptions(SessionOptions sessionOptions) {
-    this.sessionOptions = sessionOptions;
+  @Nonnull @Override public Router setSessionStore(SessionStore sessionStore) {
+    this.sessionStore = sessionStore;
     return this;
   }
 

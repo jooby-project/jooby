@@ -517,12 +517,12 @@ public class Jooby implements Router, Registry {
     return System.getProperty(BASE_PACKAGE);
   }
 
-  @Nonnull @Override public SessionOptions getSessionOptions() {
-    return router.getSessionOptions();
+  @Nonnull @Override public SessionStore getSessionStore() {
+    return router.getSessionStore();
   }
 
-  @Nonnull @Override public Jooby setSessionOptions(@Nonnull SessionOptions options) {
-    router.setSessionOptions(options);
+  @Nonnull @Override public Jooby setSessionStore(@Nonnull SessionStore store) {
+    router.setSessionStore(store);
     return this;
   }
 

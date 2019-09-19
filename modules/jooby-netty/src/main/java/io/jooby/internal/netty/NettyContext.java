@@ -500,7 +500,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private void ifSaveSession() {
     Session session = (Session) getAttributes().get(Session.NAME);
     if (session != null && (session.isNew() || session.isModify())) {
-      SessionStore store = getRouter().getSessionOptions().getStore();
+      SessionStore store = router.getSessionStore();
       store.saveSession(this, session);
     }
   }

@@ -89,12 +89,9 @@ public interface DefaultContext extends Context {
   @Override default @Nonnull Session session() {
     Session session = sessionOrNull();
     if (session == null) {
-      Router router = getRouter();
-      SessionOptions options = router.getSessionOptions();
-      SessionStore store = options.getStore();
+      SessionStore store = getRouter().getSessionStore();
       session = store.newSession(this);
       getAttributes().put(Session.NAME, session);
-//      options.getSessionId().saveSessionId(this, sessionId);
     }
     return session;
   }
@@ -103,14 +100,8 @@ public interface DefaultContext extends Context {
     Session session = (Session) getAttributes().get(Session.NAME);
     if (session == null) {
       Router router = getRouter();
-      SessionOptions options = router.getSessionOptions();
-      SessionStore store = options.getStore();
+      SessionStore store = router.getSessionStore();
       session = store.findSession(this);
-//      if (session == null) {
-//        return null;
-//      }
-//      session = Session.create(this, session);
-//      strategy.saveSessionId(this, sessionId);
     }
     return session;
   }

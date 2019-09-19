@@ -1746,9 +1746,7 @@ public class FeaturedTest {
     // Max Age
     /**********************************************************************************************/
     new JoobyRunner(app -> {
-      app.setSessionOptions(
-          new SessionOptions(SessionStore.memory(new Cookie("my.sid").setMaxAge(1L)))
-      );
+      app.setSessionStore((SessionStore.memory(new Cookie("my.sid").setMaxAge(1L))));
       app.get("/session", ctx -> ctx.session().toMap());
       app.get("/sessionMaxAge", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
     }).ready(client -> {
@@ -1763,7 +1761,7 @@ public class FeaturedTest {
   @Test
   public void cookieDataSession() {
     new JoobyRunner(app -> {
-      app.setSessionOptions(new SessionOptions(SessionStore.cookie("ABC123")));
+      app.setSessionStore(SessionStore.cookie("ABC123"));
 
       app.get("/session", ctx -> {
         Session session = ctx.session();
@@ -1815,8 +1813,7 @@ public class FeaturedTest {
   public void sessionIdHeader() {
     new JoobyRunner(app -> {
 
-      app.setSessionOptions(
-          new SessionOptions(SessionStore.memory(SessionToken.header("jooby.sid"))));
+      app.setSessionStore((SessionStore.memory(SessionToken.header("jooby.sid"))));
 
       app.get("/findSession", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
       app.get("/getSession", ctx -> ctx.session().get("foo").value("none"));
@@ -1878,7 +1875,7 @@ public class FeaturedTest {
       SessionToken token = SessionToken
           .combine(SessionToken.header("TOKEN"), SessionToken.cookie(SessionToken.SID.clone().setMaxAge(Duration.ofMinutes(30))));
 
-      app.setSessionOptions(new SessionOptions(SessionStore.memory(token)));
+      app.setSessionStore((SessionStore.memory(token)));
 
       app.get("/session", ctx -> ctx.session().getId());
 

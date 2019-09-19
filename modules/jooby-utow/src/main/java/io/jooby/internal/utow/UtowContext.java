@@ -407,7 +407,7 @@ public class UtowContext implements DefaultContext, IoCallback {
     if (attributes != null) {
       Session session = (Session) attributes.get(Session.NAME);
       if (session != null && (session.isNew() || session.isModify())) {
-        SessionStore store = getRouter().getSessionOptions().getStore();
+        SessionStore store = router.getSessionStore();
         store.saveSession(this, session);
       }
     }

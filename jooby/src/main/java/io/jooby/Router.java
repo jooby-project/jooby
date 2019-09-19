@@ -628,19 +628,21 @@ public interface Router extends Registry {
   @Nonnull Router setRouterOptions(@Nonnull RouterOptions options);
 
   /**
-   * Get session options. Session store defines how HTTP session is managed it.
+   * Session store. Default use a cookie ID with a memory storage.
    *
-   * @return Session options.
+   * See {@link SessionStore#memory()}.
+   *
+   * @return Session store.
    */
-  @Nonnull SessionOptions getSessionOptions();
+  @Nonnull SessionStore getSessionStore();
 
   /**
-   * Set session options.
+   * Set session store.
    *
-   * @param options Session options.
+   * @param store Session store.
    * @return This router.
    */
-  @Nonnull Router setSessionOptions(@Nonnull SessionOptions options);
+  @Nonnull Router setSessionStore(@Nonnull SessionStore store);
 
   /**
    * Get an executor from application registry.

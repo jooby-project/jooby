@@ -6,10 +6,8 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Router;
 import io.jooby.Session;
 import io.jooby.SessionToken;
-import io.jooby.SessionOptions;
 import io.jooby.SessionStore;
 
 import javax.annotation.Nonnull;
@@ -39,8 +37,7 @@ public class MemorySessionStore implements SessionStore {
   }
 
   @Override public Session newSession(Context ctx) {
-    SessionOptions options = sessionOptions(ctx);
-    String sessionId = options.generateId();
+    String sessionId = token.newToken();
     Instant now = Instant.now();
     Session session = Session.create(ctx, sessionId)
         .setCreationTime(now)
@@ -81,10 +78,5 @@ public class MemorySessionStore implements SessionStore {
     sessions.put(sessionId,
         new SessionData(session.getCreationTime(), Instant.now(), session.toMap()));
     token.saveToken(ctx, sessionId);
-  }
-
-  private static SessionOptions sessionOptions(Context ctx) {
-    Router router = ctx.getRouter();
-    return router.getSessionOptions();
   }
 }

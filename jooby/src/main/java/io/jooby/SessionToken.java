@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.util.Base64;
 
 /**
  * Find, save and delete a session token (cookie, header, parameter, etc)
@@ -98,6 +99,24 @@ public interface SessionToken {
       .setMaxAge(Duration.ofSeconds(-1))
       .setHttpOnly(true)
       .setPath("/");
+
+  /** Secure random for default session token generator. */
+  SecureRandom RND = new SecureRandom();
+
+  /** Size of default token generator. */
+  int ID_SIZE = 30;
+
+  /**
+   * Generate a new token. This implementation produces an url encoder ID using a secure random
+   * of {@link #ID_SIZE}.
+   *
+   * @return A new token.
+   */
+  default @Nonnull String newToken() {
+    byte[] bytes = new byte[ID_SIZE];
+    RND.nextBytes(bytes);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+  }
 
   /**
    * Find session ID.
