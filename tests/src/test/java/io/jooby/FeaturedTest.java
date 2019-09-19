@@ -38,6 +38,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1873,7 +1874,8 @@ public class FeaturedTest {
   public void sessionIdMultiple() {
     new JoobyRunner(app -> {
       SessionToken token = SessionToken
-          .combine(SessionToken.header("TOKEN"), SessionToken.cookie(SessionToken.SID.clone().setMaxAge(Duration.ofMinutes(30))));
+          .combine(SessionToken.header("TOKEN"),
+              SessionToken.cookie(SessionToken.SID.clone().setMaxAge(Duration.ofMinutes(30))));
 
       app.setSessionStore((SessionStore.memory(token)));
 
@@ -1899,6 +1901,31 @@ public class FeaturedTest {
           assertEquals(sid, headerCookie.body().string());
           assertNotNull(headerCookie.header("TOKEN"));
           assertNull(headerCookie.header("Set-Cookie"));
+        });
+      });
+    });
+  }
+
+  @Test
+  public void sessionData() {
+    new JoobyRunner(app -> {
+      app.get("/session", ctx -> ctx.session()
+          .put("foo", "1")
+          .put("e", ChronoUnit.DAYS.name())
+          .toMap()
+      );
+
+      app.get("/session/convert", ctx -> ctx.session().get("e").to(ChronoUnit.class));
+
+    }).ready(client -> {
+      client.get("/session", rsp -> {
+        // Cookie version
+        String sid = sid(rsp, "jooby.sid=");
+        assertNotNull(sid);
+
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/session/convert", convert -> {
+          assertEquals("Days", convert.body().string());
         });
       });
     });
