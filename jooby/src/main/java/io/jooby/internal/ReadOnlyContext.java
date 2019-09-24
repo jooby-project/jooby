@@ -27,10 +27,10 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Date;
 
-public class ResponseStartedContext extends ForwardingContext {
+public class ReadOnlyContext extends ForwardingContext {
   private static final String MESSAGE = "The response has already been started";
 
-  public ResponseStartedContext(@Nonnull Context context) {
+  public ReadOnlyContext(@Nonnull Context context) {
     super(context);
   }
 

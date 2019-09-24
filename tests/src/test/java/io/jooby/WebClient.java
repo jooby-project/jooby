@@ -53,7 +53,7 @@ public class WebClient {
 
     public String lastMessage() {
       try {
-        return (String) messages.take();
+        return (String) messages.poll(5, TimeUnit.SECONDS);
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);
       }
@@ -169,13 +169,14 @@ public class WebClient {
     return client.newWebSocket(r, listener);
   }
 
-  public void syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
+  public WebSocket syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.url("ws://localhost:" + port + path);
     okhttp3.Request r = req.build();
     SyncWebSocketListener listener = new SyncWebSocketListener();
     WebSocket webSocket = client.newWebSocket(r, listener);
     consumer.accept(new BlockingWebSocket(webSocket, listener));
+    return webSocket;
   }
 
   public Request options(String path) {

@@ -56,9 +56,6 @@ import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCounted;
-import io.netty.util.concurrent.EventExecutorGroup;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 
 import javax.annotation.Nonnull;
 import java.io.FileInputStream;
@@ -120,7 +117,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Map<String, String> cookies;
   private Map<String, String> responseCookies;
   private Boolean resetHeadersOnError;
-  NettyWebSocket webSocket;
+  NettyWebSocketContext webSocket;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -280,8 +277,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           .maxFramePayloadLength(131072)
           .build();
       responseStarted = true;
-      webSocket = new NettyWebSocket(this);
-      handler.apply(this);
+      webSocket = new NettyWebSocketContext(this);
+      handler.apply(webSocket);
       DefaultFullHttpRequest fullHttpRequest = new DefaultFullHttpRequest(req.protocolVersion(),
           req.method(), req.uri(), Unpooled.EMPTY_BUFFER, req.headers(), EmptyHttpHeaders.INSTANCE);
       WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(webSocketURL,
@@ -290,7 +287,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       handshaker.handshake(ctx.channel(), fullHttpRequest, setHeaders, ctx.newPromise())
           .addListener(future -> {
             if (future.isSuccess()) {
-              webSocket.fireConnect(this);
+              webSocket.fireConnect();
             }
           });
     } catch (Throwable x) {

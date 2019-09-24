@@ -2,7 +2,7 @@ package io.jooby;
 
 public interface WebSocket {
   interface Handler {
-    void apply(Context ctx);
+    void apply(WebSocketContext ctx);
   }
 
   interface OnConnect {
@@ -10,14 +10,22 @@ public interface WebSocket {
   }
 
   interface OnMessage {
-    void onMessage(WebSocket ws);
+    void onMessage(WebSocket ws, WebSocketMessage message);
   }
 
-  void onConnect(OnConnect listener);
+  interface OnClose {
+    void onClose(WebSocket ws, WebSocketCloseStatus closeStatus);
+  }
 
-  void onMessage(OnMessage listener);
+  interface OnError {
+    void onError(WebSocket ws, Throwable cause);
+  }
 
-  void onError(WebSocket ws, Throwable cause, StatusCode statusCode);
+  Context getContext();
 
-  void onClose(WebSocket ws, StatusCode reason);
+  WebSocket send(String message);
+
+  WebSocket send(byte[] bytes);
+
+  WebSocket render(Object message);
 }

@@ -22,17 +22,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class CompositeMessageEncoder implements MessageEncoder {
+public class HttpMessageEncoder implements MessageEncoder {
 
-  private List<MessageEncoder> encoder = new ArrayList<>(2);
+  private List<MessageEncoder> encoderList = new ArrayList<>(2);
 
-  private List<TemplateEngine> templateEngine = new ArrayList<>(2);
+  private List<TemplateEngine> templateEngineList = new ArrayList<>(2);
 
-  public CompositeMessageEncoder add(MessageEncoder encoder) {
+  public HttpMessageEncoder add(MessageEncoder encoder) {
     if (encoder instanceof TemplateEngine) {
-      templateEngine.add((TemplateEngine) encoder);
+      templateEngineList.add((TemplateEngine) encoder);
     } else {
-      this.encoder.add(encoder);
+      this.encoderList.add(encoder);
     }
     return this;
   }
@@ -40,7 +40,7 @@ public class CompositeMessageEncoder implements MessageEncoder {
   @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     if (value instanceof ModelAndView) {
       ModelAndView modelAndView = (ModelAndView) value;
-      for (TemplateEngine engine : templateEngine) {
+      for (TemplateEngine engine : templateEngineList) {
         if (engine.supports(modelAndView)) {
           return engine.encode(ctx, modelAndView);
         }
@@ -85,7 +85,7 @@ public class CompositeMessageEncoder implements MessageEncoder {
       ctx.send((ByteBuffer) value);
       return null;
     }
-    Iterator<MessageEncoder> iterator = encoder.iterator();
+    Iterator<MessageEncoder> iterator = encoderList.iterator();
     /** NOTE: looks like an infinite loop but there is a default renderer at the end of iterator. */
     byte[] result = null;
     while (result == null) {
@@ -93,5 +93,9 @@ public class CompositeMessageEncoder implements MessageEncoder {
       result = next.encode(ctx, value);
     }
     return result;
+  }
+
+  WebSocketEncoder toWebSocketEncoder() {
+    return new WebSocketEncoder(encoderList, templateEngineList);
   }
 }

@@ -6,9 +6,10 @@
 package io.jooby.json;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
@@ -75,6 +76,8 @@ import java.util.Set;
 public class JacksonModule implements Extension, MessageDecoder, MessageEncoder {
   private final ObjectMapper mapper;
 
+  private final TypeFactory typeFactory;
+
   private final Set<Class<? extends Module>> modules = new HashSet<>();
 
   /**
@@ -84,6 +87,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    */
   public JacksonModule(@Nonnull ObjectMapper mapper) {
     this.mapper = mapper;
+    this.typeFactory = mapper.getTypeFactory();
   }
 
   /**
@@ -129,13 +133,20 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   }
 
   @Override public <T> T decode(Context ctx, Type type) throws Exception {
-    JavaType javaType = mapper.getTypeFactory().constructType(type);
     Body body = ctx.body();
     if (body.isInMemory()) {
-      return mapper.readValue(body.bytes(), javaType);
+      if (type == JsonNode.class) {
+        return (T) mapper.readTree(body.bytes());
+      } else {
+        return (T) mapper.readValue(body.bytes(), typeFactory.constructType(type));
+      }
     } else {
       try (InputStream stream = body.stream()) {
-        return mapper.readValue(stream, javaType);
+        if (type == JsonNode.class) {
+          return (T) mapper.readTree(stream);
+        } else {
+          return (T) mapper.readValue(stream, typeFactory.constructType(type));
+        }
       }
     }
   }

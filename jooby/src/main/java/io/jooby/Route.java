@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import io.jooby.internal.ResponseStartedContext;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -249,7 +247,7 @@ public class Route {
       return ctx -> {
         Object result = apply(ctx);
         if (ctx.isResponseStarted()) {
-          Context fwd = new ResponseStartedContext(ctx);
+          Context fwd = Context.readOnly(ctx);
           next.apply(fwd, null);
           return fwd;
         } else {
@@ -582,7 +580,6 @@ public class Route {
         this.produces = new ArrayList<>();
       }
       produces.forEach(this.produces::add);
-      before = before == null ? ACCEPT : ACCEPT.then(before);
     }
     return this;
   }
@@ -620,7 +617,6 @@ public class Route {
         this.consumes = new ArrayList<>();
       }
       consumes.forEach(this.consumes::add);
-      before = before == null ? SUPPORT_MEDIA_TYPE : SUPPORT_MEDIA_TYPE.then(before);
     }
     return this;
   }

@@ -17,7 +17,7 @@ package io.jooby;
  * @see <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes -
  *      Wikipedia</a>
  */
-public final class StatusCode {
+public class StatusCode {
 
   // 1xx Informational
 

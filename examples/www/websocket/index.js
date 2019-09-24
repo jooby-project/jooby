@@ -2,6 +2,7 @@ var webSocket;
 var output = document.getElementById("output");
 var connectBtn = document.getElementById("connectBtn");
 var sendBtn = document.getElementById("sendBtn");
+var closeBtn = document.getElementById("closeBtn");
 var protocol = window.location.pathname === "/secure" ? "wss" : "ws";
 var port = protocol === "wss" ? 8043 : 8080;
 function connect() {
@@ -18,7 +19,7 @@ function connect() {
     updateOutput("Connected!");
     connectBtn.disabled = true;
     sendBtn.disabled = false;
-
+    closeBtn.disabled = false;
   };
 
   webSocket.onmessage = function (event) {

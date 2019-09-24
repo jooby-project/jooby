@@ -5,6 +5,9 @@
  */
 package io.jooby;
 
+import io.jooby.internal.ReadOnlyContext;
+import io.jooby.internal.WebSocketSender;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -1057,4 +1060,16 @@ public interface Context extends Registry {
    * @return This context.
    */
   @Nonnull Context setResetHeadersOnError(boolean value);
+
+  /* **********************************************************************************************
+   * Factory methods
+   * **********************************************************************************************
+   */
+  static @Nonnull Context readOnly(@Nonnull Context ctx) {
+    return new ReadOnlyContext(ctx);
+  }
+
+  static @Nonnull Context websocket(@Nonnull Context ctx, @Nonnull WebSocket ws) {
+    return new WebSocketSender(ctx, ws);
+  }
 }

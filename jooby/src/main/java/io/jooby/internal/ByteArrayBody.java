@@ -24,7 +24,7 @@ import java.util.Map;
 public class ByteArrayBody implements Body {
   private static final byte[] EMPTY = new byte[0];
 
-  private final Context ctx;
+  protected final Context ctx;
 
   private byte[] bytes;
 

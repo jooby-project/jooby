@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -114,7 +115,7 @@ public class RouterImpl implements Router {
 
   private List<Route> routes = new ArrayList<>();
 
-  private CompositeMessageEncoder renderer = new CompositeMessageEncoder();
+  private HttpMessageEncoder encoder = new HttpMessageEncoder();
 
   private String basePath;
 
@@ -126,7 +127,7 @@ public class RouterImpl implements Router {
 
   private Map<Route, Executor> routeExecutor = new HashMap<>();
 
-  private Map<String, MessageDecoder> parsers = new HashMap<>();
+  private Map<String, MessageDecoder> decoders = new HashMap<>();
 
   private Map<String, Object> attributes = new ConcurrentHashMap<>();
 
@@ -232,7 +233,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router encoder(@Nonnull MessageEncoder encoder) {
-    this.renderer.add(encoder);
+    this.encoder.add(encoder);
     return this;
   }
 
@@ -248,7 +249,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public Router decoder(@Nonnull MediaType contentType, @Nonnull
       MessageDecoder decoder) {
-    parsers.put(contentType.getValue(), decoder);
+    decoders.put(contentType.getValue(), decoder);
     return this;
   }
 
@@ -374,8 +375,8 @@ public class RouterImpl implements Router {
     route.setBefore(before);
     route.setAfter(after);
     route.setDecorator(decorator);
-    route.setEncoder(renderer);
-    route.setDecoders(parsers);
+    route.setEncoder(encoder);
+    route.setDecoders(decoders);
 
     decoratorList.forEach(it -> it.setRoute(route));
     handler.setRoute(route);
@@ -393,9 +394,7 @@ public class RouterImpl implements Router {
       tree.insert(Router.OPTIONS, routePattern, route);
     } else if (route.isHttpTrace()) {
       tree.insert(Router.TRACE, routePattern, route);
-    } else if (route.isHttpHead() && route.getMethod().
-
-        equals(GET)) {
+    } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
       tree.insert(Router.HEAD, routePattern, route);
     }
     routes.add(route);
@@ -409,7 +408,7 @@ public class RouterImpl implements Router {
     } else {
       err = err.then(ErrorHandler.DEFAULT);
     }
-    renderer.add(MessageEncoder.TO_STRING);
+    encoder.add(MessageEncoder.TO_STRING);
 
     // Must be last, as fallback
     ValueConverters.addFallbackConverters(converters);
@@ -426,9 +425,9 @@ public class RouterImpl implements Router {
         }
       } else {
         if (executorKey.equals("worker")) {
-          executor = (worker instanceof ForwardingExecutor) ?
-              ((ForwardingExecutor) worker).executor :
-              worker;
+          executor = (worker instanceof ForwardingExecutor)
+              ? ((ForwardingExecutor) worker).executor
+              : worker;
         } else {
           executor = executor(executorKey);
         }
@@ -438,12 +437,31 @@ public class RouterImpl implements Router {
         route.setReturnType(analyzer.returnType(route.getHandle()));
       }
 
+      /** Default web socket values: */
+      if (route.getHandler() instanceof WebSocketHandler) {
+        if (route.getConsumes().isEmpty()) {
+          // default type
+          route.setConsumes(Collections.singletonList(MediaType.json));
+        }
+        if (route.getProduces().isEmpty()) {
+          // default type
+          route.setProduces(Collections.singletonList(MediaType.json));
+        }
+      } else {
+        /** Consumes && Produces (only for HTTP routes (not web socket) */
+        route.setBefore(prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE));
+        route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT));
+      }
       /** Response handler: */
       Route.Handler pipeline = Pipeline
           .compute(source.getLoader(), route, mode, executor, handlers);
       route.setPipeline(pipeline);
       /** Final render */
-      route.setEncoder(renderer);
+      if (route.getHandler() instanceof WebSocketHandler) {
+        route.setEncoder(encoder.toWebSocketEncoder());
+      } else {
+        route.setEncoder(encoder);
+      }
     }
     // router options
     if (options.getIgnoreCase() || options.getIgnoreTrailingSlash()) {
@@ -458,6 +476,14 @@ public class RouterImpl implements Router {
     source.destroy();
     source = null;
     return this;
+  }
+
+  private Route.Before prependMediaType(List<MediaType> contentTypes, Route.Before before,
+      Route.Before prefix) {
+    if (contentTypes.size() > 0) {
+      return before == null ? prefix : prefix.then(before);
+    }
+    return before;
   }
 
   @Override public Logger getLog() {
@@ -489,7 +515,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
-    return chi.find(ctx, ctx.pathString(), renderer, trees);
+    return chi.find(ctx, ctx.pathString(), encoder, trees);
   }
 
   @Nonnull @Override public Router errorCode(@Nonnull Class<? extends Throwable> type,

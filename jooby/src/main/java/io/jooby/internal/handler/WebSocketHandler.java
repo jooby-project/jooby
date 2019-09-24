@@ -15,7 +15,8 @@ public class WebSocketHandler implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    boolean webSocket = ctx.header("Upgrade").value("").equalsIgnoreCase("WebSocket");
+    boolean webSocket = ctx.header("Upgrade").value("")
+        .equalsIgnoreCase("WebSocket");
     if (webSocket) {
       return ctx.upgrade(handler);
     } else {

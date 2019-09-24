@@ -21,7 +21,7 @@
     <handlebars.version>4.1.2</handlebars.version>
     <pebble.version>3.1.0</pebble.version>
     <jackson.version>2.9.9</jackson.version>
-    <jackson-databind.version>2.9.9.2</jackson-databind.version>
+    <jackson-databind.version>2.9.9.3</jackson-databind.version>
     <rocker.version>1.2.1</rocker.version>
 
     <!-- data -->

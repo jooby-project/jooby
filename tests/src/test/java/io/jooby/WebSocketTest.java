@@ -1,5 +1,7 @@
 package io.jooby;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import io.jooby.json.JacksonModule;
 import io.jooby.netty.Netty;
 import org.junit.jupiter.api.Test;
 
@@ -10,15 +12,35 @@ public class WebSocketTest {
   public void webSocket() {
     new JoobyRunner(app -> {
 
-      app.ws("/ws/{key}", ws -> {
-//        ws.onMessage((ctx, value) -> {
-//          ws.send("Hi " + value + "!");
-//        });
+      app.ws("/ws/{key}", ctx -> {
+        ctx.onMessage((ws, message) -> {
+          ws.send("Hi " + message.value() + "!");
+        });
       });
 
     }).ready(client -> {
       client.syncWebSocket("/ws/123", ws -> {
         assertEquals("Hi ws!", ws.send("ws"));
+      });
+    }, Netty::new);
+
+  }
+
+  @Test
+  public void webSocketJson() {
+    new JoobyRunner(app -> {
+      app.install(new JacksonModule());
+
+      app.ws("/wsjson", ctx -> {
+        ctx.onMessage((ws, message) -> {
+          JsonNode node = message.to(JsonNode.class);
+          ws.render(node);
+        });
+      });
+
+    }).ready(client -> {
+      client.syncWebSocket("/wsjson", ws -> {
+        assertEquals("{\"message\":\"Hello JSON!\"}", ws.send("{\"message\" : \"Hello JSON!\"}"));
       });
     }, Netty::new);
 
