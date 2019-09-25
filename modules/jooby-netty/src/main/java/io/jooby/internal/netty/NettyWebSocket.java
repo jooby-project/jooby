@@ -6,7 +6,7 @@ import io.jooby.Server;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
-import io.jooby.WebSocketContext;
+import io.jooby.WebSocketListener;
 import io.jooby.WebSocketMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -17,26 +17,62 @@ import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
-public class NettyWebSocketContext implements WebSocketContext, WebSocket {
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class NettyWebSocket implements WebSocketListener, WebSocket {
+  /** All connected websocket. */
+  private static final ConcurrentMap<String, List<WebSocket>> all = new ConcurrentHashMap<>();
+
   private final NettyContext netty;
   private final boolean dispatch;
+  private final String key;
   private ByteBuf buffer;
   private WebSocket.OnConnect connectCallback;
   private WebSocket.OnMessage messageCallback;
   private OnClose onCloseCallback;
   private OnError onErrorCallback;
 
-  public NettyWebSocketContext(NettyContext ctx) {
+  public NettyWebSocket(NettyContext ctx) {
     this.netty = ctx;
+    this.key = ctx.pathString();
     dispatch = !ctx.isInIoThread();
   }
 
-  public WebSocket send(String text) {
-    return send(new TextWebSocketFrame(text));
+  public WebSocket send(String text, boolean broadcast) {
+    if (broadcast) {
+      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+        ws.send(text, false);
+      }
+    } else {
+      send(new TextWebSocketFrame(text));
+    }
+    return this;
   }
 
-  public WebSocket send(byte[] bytes) {
-    return send(new TextWebSocketFrame(Unpooled.wrappedBuffer(bytes)));
+  public WebSocket send(byte[] bytes, boolean broadcast) {
+    if (broadcast) {
+      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+        ws.send(bytes, false);
+      }
+    } else {
+      send(new TextWebSocketFrame(Unpooled.wrappedBuffer(bytes)));
+    }
+    return this;
+  }
+
+  @Override public WebSocket render(Object message, boolean broadcast) {
+    if (broadcast) {
+      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+        ws.render(message, false);
+      }
+    } else {
+      Context.websocket(netty, this).render(message);
+    }
+    return this;
   }
 
   private WebSocket send(TextWebSocketFrame frame) {
@@ -48,11 +84,6 @@ public class NettyWebSocketContext implements WebSocketContext, WebSocket {
     return this;
   }
 
-  @Override public WebSocket render(Object message) {
-    Context.websocket(netty, this).render(message);
-    return this;
-  }
-
   @Override public Context getContext() {
     return Context.readOnly(netty);
   }
@@ -61,20 +92,24 @@ public class NettyWebSocketContext implements WebSocketContext, WebSocket {
     return netty.ctx.channel().isOpen();
   }
 
-  @Override public void onConnect(WebSocket.OnConnect callback) {
+  @Override public WebSocketListener onConnect(WebSocket.OnConnect callback) {
     connectCallback = callback;
+    return this;
   }
 
-  @Override public void onMessage(WebSocket.OnMessage callback) {
+  @Override public WebSocketListener onMessage(WebSocket.OnMessage callback) {
     messageCallback = callback;
+    return this;
   }
 
-  @Override public void onClose(WebSocket.OnClose callback) {
+  @Override public WebSocketListener onClose(WebSocket.OnClose callback) {
     onCloseCallback = callback;
+    return this;
   }
 
-  @Override public void onError(OnError callback) {
+  @Override public WebSocketListener onError(OnError callback) {
     onErrorCallback = callback;
+    return this;
   }
 
   void handleFrame(WebSocketFrame frame) {
@@ -113,22 +148,26 @@ public class NettyWebSocketContext implements WebSocketContext, WebSocket {
   }
 
   private void handleClose(WebSocketCloseStatus closeStatus) {
-    if (isOpen()) {
-      if (onCloseCallback != null) {
-        Runnable task = webSocketTask(() -> onCloseCallback.onClose(this, closeStatus));
-        Runnable closeCallback = () -> {
-          try {
-            task.run();
-          } finally {
-            netty.ctx.channel()
-                .writeAndFlush(
-                    new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()))
-                .addListener(ChannelFutureListener.CLOSE);
-          }
-        };
+    try {
+      if (isOpen()) {
+        if (onCloseCallback != null) {
+          Runnable task = webSocketTask(() -> onCloseCallback.onClose(this, closeStatus));
+          Runnable closeCallback = () -> {
+            try {
+              task.run();
+            } finally {
+              netty.ctx.channel()
+                  .writeAndFlush(
+                      new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()))
+                  .addListener(ChannelFutureListener.CLOSE);
+            }
+          };
 
-        fireCallback(closeCallback);
+          fireCallback(closeCallback);
+        }
       }
+    } finally {
+      removeSession(this);
     }
   }
 
@@ -150,6 +189,7 @@ public class NettyWebSocketContext implements WebSocketContext, WebSocket {
   }
 
   void fireConnect() {
+    addSession(this);
     if (connectCallback != null) {
       fireCallback(webSocketTask(() -> connectCallback.onConnect(this)));
     }
@@ -191,6 +231,17 @@ public class NettyWebSocketContext implements WebSocketContext, WebSocket {
           .orElseGet(() -> new WebSocketCloseStatus(frame.statusCode(), frame.reasonText()));
     } finally {
       frame.release();
+    }
+  }
+
+  private void addSession(NettyWebSocket ws) {
+    all.computeIfAbsent(ws.key, k -> new CopyOnWriteArrayList<>()).add(ws);
+  }
+
+  private void removeSession(NettyWebSocket ws) {
+    List<WebSocket> sockets = all.get(ws.key);
+    if (sockets != null) {
+      sockets.remove(ws);
     }
   }
 }

@@ -117,7 +117,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Map<String, String> cookies;
   private Map<String, String> responseCookies;
   private Boolean resetHeadersOnError;
-  NettyWebSocketContext webSocket;
+  NettyWebSocket webSocket;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -277,8 +277,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           .maxFramePayloadLength(131072)
           .build();
       responseStarted = true;
-      webSocket = new NettyWebSocketContext(this);
-      handler.apply(webSocket);
+      webSocket = new NettyWebSocket(this);
+      handler.init(Context.readOnly(this), webSocket);
       DefaultFullHttpRequest fullHttpRequest = new DefaultFullHttpRequest(req.protocolVersion(),
           req.method(), req.uri(), Unpooled.EMPTY_BUFFER, req.headers(), EmptyHttpHeaders.INSTANCE);
       WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(webSocketURL,

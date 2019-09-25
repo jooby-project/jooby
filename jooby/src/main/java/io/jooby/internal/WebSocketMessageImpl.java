@@ -5,7 +5,6 @@ import io.jooby.Context;
 import io.jooby.DefaultContext;
 import io.jooby.ForwardingContext;
 import io.jooby.MediaType;
-import io.jooby.SneakyThrows;
 import io.jooby.WebSocketMessage;
 
 import javax.annotation.Nonnull;
@@ -43,26 +42,8 @@ public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMess
     super(ctx, bytes);
   }
 
-  @Override public byte[] bytes() {
-    byte[] bytes = super.bytes();
-    System.out.println(new String(bytes));
-    return bytes;
-  }
-
   @Nonnull @Override public <T> T to(@Nonnull Type type) {
     MediaType contentType = ctx.getRoute().getConsumes().get(0);
     return new WebSocketMessageBody(ctx, this).decode(type, contentType);
-//    try {
-//      MediaType contentType = ctx.getRoute().getConsumes().get(0);
-//      if (MediaType.text.equals(contentType)) {
-//        T result = ValueConverters.convert(this, type, ctx.getRouter());
-//        if (result != null) {
-//          return result;
-//        }
-//      }
-//      return ctx.decoder(contentType).decode(new WebSocketMessageBody(ctx, this), type);
-//    } catch (Exception x) {
-//      throw SneakyThrows.propagate(x);
-//    }
   }
 }

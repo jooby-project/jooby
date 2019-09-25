@@ -13,21 +13,14 @@ public class WebSocketApp extends Jooby {
   {
     assets("/?*", Paths.get(System.getProperty("user.dir"), "examples", "www", "websocket"));
 
-    ScheduledExecutorService executor = Executors
-        .newSingleThreadScheduledExecutor();
-    ws("/ws", ctx -> {
-      AtomicInteger counter = new AtomicInteger();
-      ctx.onConnect(ws -> {
-        executor.scheduleWithFixedDelay(() -> {
-          ws.send("" + counter.incrementAndGet());
-        }, 0, 3, TimeUnit.SECONDS);
+    ws("/ws", (ctx, initializer) -> {
+      initializer.onConnect(ws -> {
+        ws.send("Welcome");
       });
-      ctx.onMessage((ws, msg) -> {
-        System.out.println("msg: " + counter.incrementAndGet() + " => " + msg.value());
-        System.out.println(Thread.currentThread());
-        // ws.send("Got: " + msg.value());
+      initializer.onMessage((ws, msg) -> {
+        ws.send("Got: " + msg.value(), true);
       });
-      ctx.onClose((ws, closeStatus) -> {
+      initializer.onClose((ws, closeStatus) -> {
         System.out.println("Closed " + closeStatus);
       });
 

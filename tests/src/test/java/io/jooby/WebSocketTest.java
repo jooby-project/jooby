@@ -12,8 +12,8 @@ public class WebSocketTest {
   public void webSocket() {
     new JoobyRunner(app -> {
 
-      app.ws("/ws/{key}", ctx -> {
-        ctx.onMessage((ws, message) -> {
+      app.ws("/ws/{key}", (ctx, initializer) -> {
+        initializer.onMessage((ws, message) -> {
           ws.send("Hi " + message.value() + "!");
         });
       });
@@ -31,8 +31,8 @@ public class WebSocketTest {
     new JoobyRunner(app -> {
       app.install(new JacksonModule());
 
-      app.ws("/wsjson", ctx -> {
-        ctx.onMessage((ws, message) -> {
+      app.ws("/wsjson", (ctx, initializer) -> {
+        initializer.onMessage((ws, message) -> {
           JsonNode node = message.to(JsonNode.class);
           ws.render(node);
         });
