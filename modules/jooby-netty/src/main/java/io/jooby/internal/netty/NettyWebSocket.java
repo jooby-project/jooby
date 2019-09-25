@@ -64,13 +64,13 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
     return this;
   }
 
-  @Override public WebSocket render(Object message, boolean broadcast) {
+  @Override public WebSocket render(Object value, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.render(message, false);
+        ws.render(value, false);
       }
     } else {
-      Context.websocket(netty, this).render(message);
+      Context.websocket(netty, this).render(value);
     }
     return this;
   }
@@ -109,6 +109,11 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
 
   @Override public WebSocketConfigurer onError(OnError callback) {
     onErrorCallback = callback;
+    return this;
+  }
+
+  @Override public WebSocket close(WebSocketCloseStatus closeStatus) {
+    handleClose(closeStatus);
     return this;
   }
 
@@ -162,7 +167,6 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
                   .addListener(ChannelFutureListener.CLOSE);
             }
           };
-
           fireCallback(closeCallback);
         }
       }

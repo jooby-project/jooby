@@ -2,6 +2,7 @@ package examples;
 
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
+import io.jooby.WebSocketCloseStatus;
 
 import java.nio.file.Paths;
 import java.util.concurrent.Executors;
@@ -16,6 +17,7 @@ public class WebSocketApp extends Jooby {
     ws("/ws", (ctx, initializer) -> {
       initializer.onConnect(ws -> {
         ws.send("Welcome");
+        ws.close();
       });
       initializer.onMessage((ws, msg) -> {
         ws.send("Got: " + msg.value(), true);

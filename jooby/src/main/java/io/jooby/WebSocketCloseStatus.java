@@ -1,7 +1,15 @@
 package io.jooby;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 
+/**
+ * Collection of websocket close status.
+ *
+ * @author edgar
+ * @since 2.2.0
+ */
 public class WebSocketCloseStatus {
 
   /**
@@ -181,19 +189,41 @@ public class WebSocketCloseStatus {
 
   private String reason;
 
-  public WebSocketCloseStatus(int code, String reason) {
+  /**
+   * Creates a new websocket close status.
+   *
+   * @param code Status code.
+   * @param reason Reason.
+   */
+  public WebSocketCloseStatus(int code, @Nonnull String reason) {
     this.code = code;
     this.reason = reason;
   }
 
+  /**
+   * Status code.
+   *
+   * @return Status code.
+   */
   public int getCode() {
     return code;
   }
 
-  public String getReason() {
+  /**
+   * Reason or <code>null</code>.
+   *
+   * @return Reason or <code>null</code>.
+   */
+  public @Nullable String getReason() {
     return reason;
   }
 
+  /**
+   * Map the status code to one of the existing web socket status.
+   *
+   * @param code Status code.
+   * @return Web socket status or empty.
+   */
   public static Optional<WebSocketCloseStatus> valueOf(int code) {
     switch (code) {
       case -1:

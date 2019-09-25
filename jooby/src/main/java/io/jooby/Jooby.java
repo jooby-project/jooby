@@ -292,7 +292,7 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  public Route ws(String pattern, WebSocket.Initializer handler) {
+  @Nonnull @Override public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
     return router.ws(pattern, handler);
   }
 

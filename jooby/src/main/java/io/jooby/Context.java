@@ -1065,10 +1065,32 @@ public interface Context extends Registry {
    * Factory methods
    * **********************************************************************************************
    */
+
+  /**
+   * Wrap a HTTP context and make read only. Attempt to modify the HTTP response resulted in
+   * exception.
+   *
+   * @param ctx Originating context.
+   * @return Read only context.
+   */
   static @Nonnull Context readOnly(@Nonnull Context ctx) {
     return new ReadOnlyContext(ctx);
   }
 
+  /**
+   * Wrap a HTTP context and make it WebSocket friendly. Attempt to modify the HTTP response
+   * is completely ignored, except for {@link #send(byte[])} and {@link #send(String)} which
+   * are delegated to the given web socket.
+   *
+   * This context is necessary for creating a bridge between {@link MessageEncoder}
+   * and {@link WebSocket}.
+   *
+   * This method is part of Public API, but direct usage is discourage.
+   *
+   * @param ctx Originating context.
+   * @param ws WebSocket.
+   * @return Read only context.
+   */
   static @Nonnull Context websocket(@Nonnull Context ctx, @Nonnull WebSocket ws) {
     return new WebSocketSender(ctx, ws);
   }

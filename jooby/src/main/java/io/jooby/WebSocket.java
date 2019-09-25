@@ -28,6 +28,8 @@ import java.util.Map;
  *
  * }</pre>
  *
+ * NOTE: Websocket API ONLY handles text messages (not binary message).
+ *
  * @author edgar
  * @since 2.2.0
  */
@@ -72,15 +74,43 @@ public interface WebSocket {
     void onMessage(@Nonnull WebSocket ws, @Nonnull WebSocketMessage message);
   }
 
+  /**
+   * On close callback. Generated when client close the connection or when explicit calls to
+   * {@link #close(WebSocketCloseStatus)} or {@link #disconnect()}.
+   */
   interface OnClose {
-    void onClose(WebSocket ws, WebSocketCloseStatus closeStatus);
+    /**
+     * Generated when client close the connection or when explicit calls to
+     * {@link #close(WebSocketCloseStatus)} or {@link #disconnect()}.
+     *
+     * @param ws WebSocket.
+     * @param closeStatus Close status.
+     */
+    void onClose(@Nonnull WebSocket ws, @Nonnull WebSocketCloseStatus closeStatus);
   }
 
+  /**
+   * On error callback. Generated when unexpected error occurs.
+   */
   interface OnError {
-    void onError(WebSocket ws, Throwable cause);
+    /**
+     * Error callback, let you listen for exception. Websocket might or might not be open.
+     *
+     * @param ws Websocket.
+     * @param cause Cause.
+     */
+    void onError(@Nonnull WebSocket ws, @Nonnull Throwable cause);
   }
 
-  Context getContext();
+  /**
+   * Originating HTTP context. Please note this is a read-only context, so you are not allowed
+   * to modify or produces a response from it.
+   *
+   * The context let give you access to originating request (then one that was upgrade it).
+   *
+   * @return Read-only originating HTTP request.
+   */
+  @Nonnull Context getContext();
 
   /**
    * Context attributes (a.k.a request attributes).
@@ -115,22 +145,84 @@ public interface WebSocket {
     return this;
   }
 
-  default WebSocket send(String message) {
+  /**
+   * Send a text message to client.
+   *
+   * @param message Text Message.
+   * @return This websocket.
+   */
+  default @Nonnull WebSocket send(@Nonnull String message) {
     return send(message, false);
   }
 
-  WebSocket send(String message, boolean broadcast);
+  /**
+   * Send a text message to current client (broadcast = false) or to ALL connected clients under the
+   * websocket path (broadcast = true).
+   *
+   * @param message Text Message.
+   * @param broadcast True to send to all connected clients.
+   * @return This websocket.
+   */
+  @Nonnull WebSocket send(@Nonnull String message, boolean broadcast);
 
-  default WebSocket send(byte[] bytes) {
-    return send(bytes, false);
+  /**
+   * Send a text message to client.
+   *
+   * @param message Text Message.
+   * @return This websocket.
+   */
+  default @Nonnull WebSocket send(@Nonnull byte[] message) {
+    return send(message, false);
   }
 
-  WebSocket send(byte[] bytes, boolean broadcast);
+  /**
+   * Send a text message to current client (broadcast = false) or to ALL connected clients under the
+   * websocket path (broadcast = true).
+   *
+   * @param message Text Message.
+   * @param broadcast True to send to all connected clients.
+   * @return This websocket.
+   */
+  @Nonnull WebSocket send(@Nonnull byte[] message, boolean broadcast);
 
-  default WebSocket render(Object message) {
-    return render(message, false);
+  /**
+   * Encode a value and send a text message to client.
+   *
+   * @param value Value to send.
+   * @return This websocket.
+   */
+  default @Nonnull WebSocket render(@Nonnull Object value) {
+    return render(value, false);
   }
 
-  WebSocket render(Object message, boolean broadcast);
+  /**
+   * Encode a value and send a text message to current client (broadcast = false) or to ALL
+   * connected clients under the websocket path (broadcast = true).
+   *
+   * @param value Value to send.
+   * @param broadcast True to send to all connected clients.
+   * @return This websocket.
+   */
+  @Nonnull WebSocket render(@Nonnull Object value, boolean broadcast);
 
+  /**
+   * Close the web socket and send a {@link WebSocketCloseStatus#NORMAL} code to client.
+   *
+   * This method fires a {@link OnClose#onClose(WebSocket, WebSocketCloseStatus)} callback.
+   *
+   * @return This websocket.
+   */
+  default @Nonnull WebSocket close() {
+    return close(WebSocketCloseStatus.NORMAL);
+  }
+
+  /**
+   * Close the web socket and send a close status code to client.
+   *
+   * This method fires a {@link OnClose#onClose(WebSocket, WebSocketCloseStatus)} callback.
+   *
+   * @param closeStatus Close status.
+   * @return This websocket.
+   */
+  @Nonnull WebSocket close(@Nonnull WebSocketCloseStatus closeStatus);
 }

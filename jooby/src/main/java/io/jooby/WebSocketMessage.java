@@ -5,6 +5,12 @@ import io.jooby.internal.WebSocketMessageImpl;
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
 
+/**
+ * Websocket message generated from a {@link WebSocket.OnMessage} callback. Message is a subclass.
+ *
+ * @author edgar
+ * @since 2.2.0
+ */
 public interface WebSocketMessage extends Value {
   /**
    * Convert this value to the given type. Support values are single-value, array-value and
@@ -16,7 +22,14 @@ public interface WebSocketMessage extends Value {
    */
   @Nonnull <T> T to(@Nonnull Type type);
 
-  static WebSocketMessage create(Context ctx, byte[] bytes) {
+  /**
+   * Creates a websocket message.
+   *
+   * @param ctx HTTP context.
+   * @param bytes Text message as byte array.
+   * @return A websocket message.
+   */
+  static @Nonnull WebSocketMessage create(@Nonnull Context ctx, @Nonnull byte[] bytes) {
     return new WebSocketMessageImpl(ctx, bytes);
   }
 }

@@ -27,7 +27,8 @@ function connect() {
   };
 
   webSocket.onclose = function (event) {
-    updateOutput("Connection Closed");
+    console.log(event)
+    updateOutput("Connection Closed: " + event.code + "(" + event.reason + ")");
     connectBtn.disabled = false;
     sendBtn.disabled = true;
   };
