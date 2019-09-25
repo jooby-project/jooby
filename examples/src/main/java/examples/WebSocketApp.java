@@ -15,9 +15,11 @@ public class WebSocketApp extends Jooby {
     assets("/?*", Paths.get(System.getProperty("user.dir"), "examples", "www", "websocket"));
 
     ws("/ws", (ctx, initializer) -> {
+      System.out.println(Thread.currentThread());
+      System.out.println("Response Started: " + ctx.isResponseStarted());
       initializer.onConnect(ws -> {
+        System.out.println("Connected: " + Thread.currentThread());
         ws.send("Welcome");
-        ws.close();
       });
       initializer.onMessage((ws, msg) -> {
         ws.send("Got: " + msg.value(), true);
@@ -26,11 +28,14 @@ public class WebSocketApp extends Jooby {
         System.out.println("Closed " + closeStatus);
       });
 
+      initializer.onError((ws, cause) -> {
+        ws.getContext().getRouter().getLog().error("error ", cause);
+      });
+
     });
   }
 
   public static void main(String[] args) {
     runApp(args, ExecutionMode.DEFAULT, WebSocketApp::new);
-    //    runApp(args, ExecutionMode.EVENT_LOOP, WebSocketApp::new);
   }
 }

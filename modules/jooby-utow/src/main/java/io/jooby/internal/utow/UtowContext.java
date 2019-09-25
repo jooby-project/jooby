@@ -23,6 +23,8 @@ import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
+import io.jooby.WebSocket;
+import io.undertow.Handlers;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
@@ -32,6 +34,9 @@ import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.SameThreadExecutor;
+import io.undertow.websockets.WebSocketConnectionCallback;
+import io.undertow.websockets.core.WebSocketChannel;
+import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -220,6 +225,19 @@ public class UtowContext implements DefaultContext, IoCallback {
       }
     });
     return this;
+  }
+
+  @Nonnull @Override public Context upgrade(@Nonnull WebSocket.Initializer handler) {
+    try {
+      Handlers.websocket((exchange, channel) -> {
+        UtowWebSocket ws = new UtowWebSocket(this, channel);
+        handler.init(Context.readOnly(this), ws);
+        ws.fireConnect();
+      }).handleRequest(exchange);
+      return this;
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 
   @Nonnull @Override public StatusCode getResponseCode() {

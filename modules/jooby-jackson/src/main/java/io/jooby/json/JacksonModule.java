@@ -5,6 +5,7 @@
  */
 package io.jooby.json;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.Module;
@@ -25,8 +26,10 @@ import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
 
 import javax.annotation.Nonnull;
+import java.io.DataOutput;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -129,7 +132,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
 
   @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     ctx.setDefaultResponseType(MediaType.json);
-    return mapper.writeValueAsBytes(value);
+    return mapper.writer().writeValueAsBytes(value);
   }
 
   @Override public <T> T decode(Context ctx, Type type) throws Exception {

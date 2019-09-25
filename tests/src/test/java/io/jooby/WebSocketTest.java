@@ -3,6 +3,7 @@ package io.jooby;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.jooby.json.JacksonModule;
 import io.jooby.netty.Netty;
+import io.jooby.utow.Utow;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,7 +23,7 @@ public class WebSocketTest {
       client.syncWebSocket("/ws/123", ws -> {
         assertEquals("Hi ws!", ws.send("ws"));
       });
-    }, Netty::new);
+    }, Netty::new, Utow::new);
 
   }
 
@@ -42,7 +43,7 @@ public class WebSocketTest {
       client.syncWebSocket("/wsjson", ws -> {
         assertEquals("{\"message\":\"Hello JSON!\"}", ws.send("{\"message\" : \"Hello JSON!\"}"));
       });
-    }, Netty::new);
+    }, Netty::new, Utow::new);
 
   }
 }

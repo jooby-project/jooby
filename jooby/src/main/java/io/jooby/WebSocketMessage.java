@@ -4,6 +4,7 @@ import io.jooby.internal.WebSocketMessageImpl;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Websocket message generated from a {@link WebSocket.OnMessage} callback. Message is a subclass.
@@ -31,5 +32,16 @@ public interface WebSocketMessage extends Value {
    */
   static @Nonnull WebSocketMessage create(@Nonnull Context ctx, @Nonnull byte[] bytes) {
     return new WebSocketMessageImpl(ctx, bytes);
+  }
+
+  /**
+   * Creates a websocket message.
+   *
+   * @param ctx HTTP context.
+   * @param message Text message.
+   * @return A websocket message.
+   */
+  static @Nonnull WebSocketMessage create(@Nonnull Context ctx, @Nonnull String message) {
+    return new WebSocketMessageImpl(ctx, message.getBytes(StandardCharsets.UTF_8));
   }
 }

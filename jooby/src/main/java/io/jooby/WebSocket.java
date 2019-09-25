@@ -1,6 +1,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -76,12 +77,12 @@ public interface WebSocket {
 
   /**
    * On close callback. Generated when client close the connection or when explicit calls to
-   * {@link #close(WebSocketCloseStatus)} or {@link #disconnect()}.
+   * {@link #close(WebSocketCloseStatus)}.
    */
   interface OnClose {
     /**
      * Generated when client close the connection or when explicit calls to
-     * {@link #close(WebSocketCloseStatus)} or {@link #disconnect()}.
+     * {@link #close(WebSocketCloseStatus)}.
      *
      * @param ws WebSocket.
      * @param closeStatus Close status.
@@ -154,6 +155,21 @@ public interface WebSocket {
   default @Nonnull WebSocket send(@Nonnull String message) {
     return send(message, false);
   }
+
+  /**
+   * Web sockets connected to the same path. This method doesn't include the current
+   * websocket.
+   *
+   * @return Web sockets or empty list.
+   */
+  @Nonnull List<WebSocket> getSessions();
+
+  /**
+   * True if websocket is open.
+   *
+   * @return True when open.
+   */
+  boolean isOpen();
 
   /**
    * Send a text message to current client (broadcast = false) or to ALL connected clients under the

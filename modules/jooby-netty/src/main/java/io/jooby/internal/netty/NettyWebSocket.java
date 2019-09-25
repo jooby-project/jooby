@@ -17,6 +17,8 @@ import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,8 +40,8 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
 
   public NettyWebSocket(NettyContext ctx) {
     this.netty = ctx;
-    this.key = ctx.pathString();
-    dispatch = !ctx.isInIoThread();
+    this.key = ctx.getRoute().getPattern();
+    this.dispatch = !ctx.isInIoThread();
   }
 
   public WebSocket send(String text, boolean broadcast) {
@@ -86,6 +88,16 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
 
   @Override public Context getContext() {
     return Context.readOnly(netty);
+  }
+
+  @Nonnull @Override public List<WebSocket> getSessions() {
+    List<WebSocket> sessions = all.get(key);
+    if (sessions == null) {
+      return Collections.emptyList();
+    }
+    List<WebSocket> result = new ArrayList<>(sessions);
+    result.remove(this);
+    return result;
   }
 
   public boolean isOpen() {

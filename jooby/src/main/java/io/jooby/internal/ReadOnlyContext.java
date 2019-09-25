@@ -34,6 +34,10 @@ public class ReadOnlyContext extends ForwardingContext {
     super(context);
   }
 
+  @Override public boolean isResponseStarted() {
+    return true;
+  }
+
   @Nonnull @Override public Context send(@Nonnull Path file) {
     throw new IllegalStateException(MESSAGE);
   }
