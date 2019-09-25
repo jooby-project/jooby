@@ -334,7 +334,7 @@ public class RouterImpl implements Router {
     return beanConverters;
   }
 
-  @Nonnull @Override public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Handler handler) {
+  @Nonnull @Override public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
     return route(GET, pattern, new WebSocketHandler(handler));
   }
 

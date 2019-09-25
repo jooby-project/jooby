@@ -216,7 +216,14 @@ public interface Router extends Registry {
    */
   @Nonnull Router mvc(@Nonnull Object router);
 
-  @Nonnull Route ws(@Nonnull String pattern, @Nonnull WebSocket.Handler handler);
+  /**
+   * Add a websocket handler.
+   *
+   * @param pattern WebSocket path pattern.
+   * @param handler WebSocket handler.
+   * @return This route.
+   */
+  @Nonnull Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler);
 
   /**
    * Returns all routes.

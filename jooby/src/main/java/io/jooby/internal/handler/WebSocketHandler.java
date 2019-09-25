@@ -8,9 +8,9 @@ import io.jooby.WebSocket;
 import javax.annotation.Nonnull;
 
 public class WebSocketHandler implements Route.Handler {
-  private WebSocket.Handler handler;
+  private WebSocket.Initializer handler;
 
-  public WebSocketHandler(WebSocket.Handler handler) {
+  public WebSocketHandler(WebSocket.Initializer handler) {
     this.handler = handler;
   }
 

@@ -267,7 +267,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this.cookies;
   }
 
-  @Nonnull @Override public Context upgrade(WebSocket.Handler handler) {
+  @Nonnull @Override public Context upgrade(WebSocket.Initializer handler) {
     try {
       String webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
       WebSocketDecoderConfig config = WebSocketDecoderConfig.newBuilder()

@@ -3,17 +3,73 @@ package io.jooby;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
+/**
+ * Websocket. Usage:
+ *
+ * <pre>{@code
+ *
+ *     ws("/pattern", (ctx, configurer) -> {
+ *       configurer.onConnect(ws -> {
+ *         // Connect callback
+ *       }):
+ *
+ *       configurer.onMessage((ws, message) -> {
+ *         ws.send("Got: " + message.value());
+ *       });
+ *
+ *       configurer.onClose((ws, closeStatus) -> {
+ *         // Closing websocket
+ *       });
+ *
+ *       configurer.onError((ws, cause) -> {
+ *
+ *       });
+ *     });
+ *
+ * }</pre>
+ *
+ * @author edgar
+ * @since 2.2.0
+ */
 public interface WebSocket {
-  interface Handler {
-    void init(Context ctx, WebSocketConfigurer configurer);
+  /**
+   * Websocket initializer. Give you access to a read-only {@link Context} you are free to access
+   * to request attributes, while attempt to modify a response results in exception.
+   */
+  interface Initializer {
+    /**
+     * Callback with a readonly context and websocket configurer.
+     *
+     * @param ctx Readonly context.
+     * @param configurer WebSocket configurer.
+     */
+    void init(@Nonnull Context ctx, @Nonnull WebSocketConfigurer configurer);
   }
 
+  /**
+   * On connect callback.
+   */
   interface OnConnect {
-    void onConnect(WebSocket ws);
+    /**
+     * On connect callback with recently created web socket.
+     *
+     * @param ws WebSocket.
+     */
+    void onConnect(@Nonnull WebSocket ws);
   }
 
+  /**
+   * On message callback. When a Message is send by a client, this callback allow you to
+   * handle/react to it.
+   */
   interface OnMessage {
-    void onMessage(WebSocket ws, WebSocketMessage message);
+    /**
+     * Generated when a client send a message.
+     *
+     * @param ws WebSocket.
+     * @param message Client message.
+     */
+    void onMessage(@Nonnull WebSocket ws, @Nonnull WebSocketMessage message);
   }
 
   interface OnClose {
