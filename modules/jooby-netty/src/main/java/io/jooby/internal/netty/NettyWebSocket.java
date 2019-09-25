@@ -6,7 +6,7 @@ import io.jooby.Server;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
-import io.jooby.WebSocketListener;
+import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class NettyWebSocket implements WebSocketListener, WebSocket {
+public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<WebSocket>> all = new ConcurrentHashMap<>();
 
@@ -92,22 +92,22 @@ public class NettyWebSocket implements WebSocketListener, WebSocket {
     return netty.ctx.channel().isOpen();
   }
 
-  @Override public WebSocketListener onConnect(WebSocket.OnConnect callback) {
+  @Override public WebSocketConfigurer onConnect(WebSocket.OnConnect callback) {
     connectCallback = callback;
     return this;
   }
 
-  @Override public WebSocketListener onMessage(WebSocket.OnMessage callback) {
+  @Override public WebSocketConfigurer onMessage(WebSocket.OnMessage callback) {
     messageCallback = callback;
     return this;
   }
 
-  @Override public WebSocketListener onClose(WebSocket.OnClose callback) {
+  @Override public WebSocketConfigurer onClose(WebSocket.OnClose callback) {
     onCloseCallback = callback;
     return this;
   }
 
-  @Override public WebSocketListener onError(OnError callback) {
+  @Override public WebSocketConfigurer onError(OnError callback) {
     onErrorCallback = callback;
     return this;
   }

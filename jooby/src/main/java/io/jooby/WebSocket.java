@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface WebSocket {
   interface Handler {
-    void init(Context ctx, WebSocketListener initializer);
+    void init(Context ctx, WebSocketConfigurer configurer);
   }
 
   interface OnConnect {
