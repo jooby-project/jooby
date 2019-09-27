@@ -289,6 +289,11 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  @Nonnull @Override public Context upgrade(@Nonnull WebSocket.Initializer handler) {
+    ctx.upgrade(handler);
+    return this;
+  }
+
   @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull Date value) {
     ctx.setResponseHeader(name, value);
     return this;

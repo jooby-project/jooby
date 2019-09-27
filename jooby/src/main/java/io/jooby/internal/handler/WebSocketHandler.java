@@ -18,9 +18,11 @@ public class WebSocketHandler implements Route.Handler {
     boolean webSocket = ctx.header("Upgrade").value("")
         .equalsIgnoreCase("WebSocket");
     if (webSocket) {
-      return ctx.upgrade(handler);
-    } else {
+      ctx.upgrade(handler);
+    }
+    if (!ctx.isResponseStarted()) {
       return ctx.send(StatusCode.NOT_FOUND);
     }
+    return ctx;
   }
 }

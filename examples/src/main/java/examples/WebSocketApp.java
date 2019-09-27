@@ -22,14 +22,19 @@ public class WebSocketApp extends Jooby {
         ws.send("Welcome");
       });
       initializer.onMessage((ws, msg) -> {
-        ws.send("Got: " + msg.value(), true);
+        throw new UnsupportedOperationException("OnMessage");
+//        ws.send("Got: " + msg.value());
       });
       initializer.onClose((ws, closeStatus) -> {
         System.out.println("Closed " + closeStatus);
       });
 
       initializer.onError((ws, cause) -> {
-        ws.getContext().getRouter().getLog().error("error ", cause);
+        if (ws.isOpen()) {
+          ws.send("error: " + cause.getMessage() );
+        } else {
+          ws.getContext().getRouter().getLog().error("error ", cause);
+        }
       });
 
     });

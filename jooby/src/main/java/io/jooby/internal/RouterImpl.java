@@ -335,7 +335,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
-    return route(GET, pattern, new WebSocketHandler(handler));
+    return route(WS, pattern, new WebSocketHandler(handler));
   }
 
   @Override
@@ -389,13 +389,20 @@ public class RouterImpl implements Router {
     String routePattern = normalizePath(basePath == null
         ? safePattern
         : basePath + safePattern, false, true);
-    tree.insert(route.getMethod(), routePattern, route);
-    if (route.isHttpOptions()) {
-      tree.insert(Router.OPTIONS, routePattern, route);
-    } else if (route.isHttpTrace()) {
-      tree.insert(Router.TRACE, routePattern, route);
-    } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
-      tree.insert(Router.HEAD, routePattern, route);
+
+    if (route.getMethod().equals(WS)) {
+      tree.insert(GET, routePattern, route);
+      route.setReturnType(Context.class);
+    } else {
+      tree.insert(route.getMethod(), routePattern, route);
+
+      if (route.isHttpOptions()) {
+        tree.insert(Router.OPTIONS, routePattern, route);
+      } else if (route.isHttpTrace()) {
+        tree.insert(Router.TRACE, routePattern, route);
+      } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
+        tree.insert(Router.HEAD, routePattern, route);
+      }
     }
     routes.add(route);
 

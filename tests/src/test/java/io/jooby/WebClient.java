@@ -2,6 +2,7 @@ package io.jooby;
 
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -144,14 +145,18 @@ public class WebClient {
   public Request invoke(String method, String path, RequestBody body) {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.method(method, body);
+    setRequestHeaders(req);
+    req.url("http://localhost:" + port + path);
+    return new Request(req);
+  }
+
+  private void setRequestHeaders(okhttp3.Request.Builder req) {
     if (headers != null) {
       req.headers(Headers.of(headers));
       headers = null;
       header("Accept",
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
     }
-    req.url("http://localhost:" + port + path);
-    return new Request(req);
   }
 
   public Request get(String path) {
@@ -165,6 +170,7 @@ public class WebClient {
   public WebSocket webSocket(String path, WebSocketListener listener) {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.url("ws://localhost:" + port + path);
+    setRequestHeaders(req);
     okhttp3.Request r = req.build();
     return client.newWebSocket(r, listener);
   }
@@ -172,6 +178,7 @@ public class WebClient {
   public WebSocket syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.url("ws://localhost:" + port + path);
+    setRequestHeaders(req);
     okhttp3.Request r = req.build();
     SyncWebSocketListener listener = new SyncWebSocketListener();
     WebSocket webSocket = client.newWebSocket(r, listener);

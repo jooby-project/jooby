@@ -14,17 +14,56 @@ public class WebSocketTest {
     new JoobyRunner(app -> {
 
       app.ws("/ws/{key}", (ctx, initializer) -> {
+        StringBuilder buff = new StringBuilder(ctx.path("key").value());
+
+        initializer.onConnect(ws -> {
+          buff.append("/connected");
+        });
+
         initializer.onMessage((ws, message) -> {
-          ws.send("Hi " + message.value() + "!");
+          ws.send(buff + "/" + message.value());
         });
       });
 
     }).ready(client -> {
-      client.syncWebSocket("/ws/123", ws -> {
-        assertEquals("Hi ws!", ws.send("ws"));
+      client.syncWebSocket("/ws/abc", ws -> {
+        assertEquals("abc/connected/ws", ws.send("ws"));
       });
-    }, Netty::new, Utow::new);
+    });
+  }
 
+  @Test
+  public void webSocketWithHttpSession() {
+    new JoobyRunner(app -> {
+
+      app.get("/create", ctx -> ctx.session().put("foo", "session").getId());
+
+      app.ws("/session", (ctx, initializer) -> {
+        StringBuilder buff = new StringBuilder(ctx.session().get("foo").value());
+
+        initializer.onConnect(ws -> {
+          buff.append("/connected");
+        });
+
+        initializer.onMessage((ws, message) -> {
+          ws.send(buff.append("/").append(ctx.session().get("foo").value()).append("/")
+              .append(message.value()).toString());
+        });
+      });
+
+    }).ready(client -> {
+      client.get("/create", rsp -> {
+        String sid = sid(rsp.header("Set-Cookie"));
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.syncWebSocket("/session", ws -> {
+          assertEquals("session/connected/session/ws", ws.send("ws"));
+        });
+      });
+    });
+  }
+
+  private String sid(String setCookie) {
+    return setCookie.substring("jooby.sid=".length(), setCookie.indexOf(';'));
   }
 
   @Test
@@ -43,7 +82,7 @@ public class WebSocketTest {
       client.syncWebSocket("/wsjson", ws -> {
         assertEquals("{\"message\":\"Hello JSON!\"}", ws.send("{\"message\" : \"Hello JSON!\"}"));
       });
-    }, Netty::new, Utow::new);
+    });
 
   }
 }

@@ -1,6 +1,5 @@
 package io.jooby;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
@@ -195,9 +194,11 @@ public class WebSocketCloseStatus {
    * @param code Status code.
    * @param reason Reason.
    */
-  public WebSocketCloseStatus(int code, @Nonnull String reason) {
+  public WebSocketCloseStatus(int code, @Nullable String reason) {
     this.code = code;
-    this.reason = reason;
+    if (reason != null && reason.length() > 0) {
+      this.reason = reason;
+    }
   }
 
   /**

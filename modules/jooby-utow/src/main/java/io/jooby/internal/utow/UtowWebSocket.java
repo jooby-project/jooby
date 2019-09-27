@@ -8,18 +8,16 @@ import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 import io.undertow.websockets.core.AbstractReceiveListener;
-import io.undertow.websockets.core.BufferedBinaryMessage;
 import io.undertow.websockets.core.BufferedTextMessage;
 import io.undertow.websockets.core.CloseMessage;
-import io.undertow.websockets.core.StreamSourceFrameChannel;
 import io.undertow.websockets.core.WebSocketCallback;
 import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
-import io.undertow.websockets.spi.WebSocketHttpExchange;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class UtowWebSocket extends AbstractReceiveListener
-    implements WebSocketConfigurer, WebSocket {
+    implements WebSocketConfigurer, WebSocket, WebSocketCallback<Void> {
 
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<WebSocket>> all = new ConcurrentHashMap<>();
@@ -45,6 +43,10 @@ public class UtowWebSocket extends AbstractReceiveListener
     this.ctx = ctx;
     this.channel = channel;
     this.key = ctx.getRoute().getPattern();
+  }
+
+  @Override protected long getMaxTextBufferSize() {
+    return MAX_BUFFER_SIZE;
   }
 
   @Nonnull @Override public Context getContext() {
@@ -66,14 +68,7 @@ public class UtowWebSocket extends AbstractReceiveListener
   }
 
   @Nonnull @Override public WebSocket send(@Nonnull String message, boolean broadcast) {
-    if (broadcast) {
-      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.send(message, false);
-      }
-    } else {
-      WebSockets.sendText(message, channel, null);
-    }
-    return this;
+    return send(message.getBytes(StandardCharsets.UTF_8), broadcast);
   }
 
   @Nonnull @Override public WebSocket send(@Nonnull byte[] message, boolean broadcast) {
@@ -82,7 +77,15 @@ public class UtowWebSocket extends AbstractReceiveListener
         ws.send(message, false);
       }
     } else {
-      WebSockets.sendText(ByteBuffer.wrap(message), channel, null);
+      if (isOpen()) {
+        try {
+          WebSockets.sendText(ByteBuffer.wrap(message), channel, this);
+        } catch (Throwable x) {
+          onError(channel, x);
+        }
+      } else {
+        onError(channel, new IllegalStateException("Attempt to send a message on closed web socket"));
+      }
     }
     return this;
   }
@@ -93,7 +96,11 @@ public class UtowWebSocket extends AbstractReceiveListener
         ws.render(value, false);
       }
     } else {
-      Context.websocket(ctx, this).render(value);
+      try {
+        Context.websocket(ctx, this).render(value);
+      } catch (Throwable x) {
+        onError(channel, x);
+      }
     }
     return this;
   }
@@ -191,5 +198,13 @@ public class UtowWebSocket extends AbstractReceiveListener
     if (sockets != null) {
       sockets.remove(ws);
     }
+  }
+
+  @Override public void complete(WebSocketChannel channel, Void context) {
+    // NOOP
+  }
+
+  @Override public void onError(WebSocketChannel channel, Void context, Throwable throwable) {
+    ctx.getRouter().getLog().error("WebSocket.send resulted in exception", throwable);
   }
 }

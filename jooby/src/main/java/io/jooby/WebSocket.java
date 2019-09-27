@@ -103,6 +103,9 @@ public interface WebSocket {
     void onError(@Nonnull WebSocket ws, @Nonnull Throwable cause);
   }
 
+  /** Max message size for websocket (13k). */
+  int MAX_BUFFER_SIZE = 131072;
+
   /**
    * Originating HTTP context. Please note this is a read-only context, so you are not allowed
    * to modify or produces a response from it.

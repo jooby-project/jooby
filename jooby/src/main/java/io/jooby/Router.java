@@ -80,6 +80,9 @@ public interface Router extends Registry {
   List<String> METHODS = unmodifiableList(
       asList(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE));
 
+  /** Web socket. */
+  String WS = "WS";
+
   /**
    * Mutable map of application attributes.
    *

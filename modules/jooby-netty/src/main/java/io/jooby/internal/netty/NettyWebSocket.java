@@ -10,6 +10,7 @@ import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -18,6 +19,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import javax.annotation.Nonnull;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,9 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
+public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFutureListener {
   /** All connected websocket. */
-  private static final ConcurrentMap<String, List<WebSocket>> all = new ConcurrentHashMap<>();
+  private static final ConcurrentMap<String, List<NettyWebSocket>> all = new ConcurrentHashMap<>();
 
   private final NettyContext netty;
   private final boolean dispatch;
@@ -45,25 +47,11 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   }
 
   public WebSocket send(String text, boolean broadcast) {
-    if (broadcast) {
-      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.send(text, false);
-      }
-    } else {
-      send(new TextWebSocketFrame(text));
-    }
-    return this;
+    return send(Unpooled.copiedBuffer(text, StandardCharsets.UTF_8), broadcast);
   }
 
   public WebSocket send(byte[] bytes, boolean broadcast) {
-    if (broadcast) {
-      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.send(bytes, false);
-      }
-    } else {
-      send(new TextWebSocketFrame(Unpooled.wrappedBuffer(bytes)));
-    }
-    return this;
+    return send(Unpooled.wrappedBuffer(bytes), broadcast);
   }
 
   @Override public WebSocket render(Object value, boolean broadcast) {
@@ -72,16 +60,26 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
         ws.render(value, false);
       }
     } else {
-      Context.websocket(netty, this).render(value);
+      try {
+        Context.websocket(netty, this).render(value);
+      } catch (Throwable x) {
+        handleError(x);
+      }
     }
     return this;
   }
 
-  private WebSocket send(TextWebSocketFrame frame) {
-    if (isOpen()) {
-      netty.ctx.channel().writeAndFlush(frame);
+  private WebSocket send(ByteBuf buffer, boolean broadcast) {
+    if (broadcast) {
+      for (NettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+        ws.send(buffer, false);
+      }
     } else {
-      handleError(new IllegalStateException("Attempt to send a message on closed web socket"));
+      if (isOpen()) {
+        netty.ctx.channel().writeAndFlush(new TextWebSocketFrame(buffer)).addListener(this);
+      } else {
+        handleError(new IllegalStateException("Attempt to send a message on closed web socket"));
+      }
     }
     return this;
   }
@@ -91,7 +89,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   }
 
   @Nonnull @Override public List<WebSocket> getSessions() {
-    List<WebSocket> sessions = all.get(key);
+    List<NettyWebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();
     }
@@ -255,9 +253,16 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   }
 
   private void removeSession(NettyWebSocket ws) {
-    List<WebSocket> sockets = all.get(ws.key);
+    List<NettyWebSocket> sockets = all.get(ws.key);
     if (sockets != null) {
       sockets.remove(ws);
+    }
+  }
+
+  @Override public void operationComplete(ChannelFuture future) throws Exception {
+    Throwable cause = future.cause();
+    if (cause != null) {
+      netty.getRouter().getLog().error("WebSocket.send resulted in exception", cause);
     }
   }
 }

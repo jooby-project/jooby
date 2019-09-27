@@ -25,6 +25,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
+import io.jooby.WebSocket;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
@@ -35,6 +36,9 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
+import org.eclipse.jetty.websocket.api.WebSocketBehavior;
+import org.eclipse.jetty.websocket.api.WebSocketPolicy;
+import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -251,6 +255,21 @@ public class JettyContext implements Callback, DefaultContext {
     ifStartAsync();
     next.apply(this);
     return this;
+  }
+
+  @Nonnull @Override public Context upgrade(@Nonnull WebSocket.Initializer handler) {
+    try {
+      responseStarted = true;
+      request.setAttribute(JettyContext.class.getName(), this);
+      WebSocketServerFactory wssf = (WebSocketServerFactory) request.getContext()
+          .getAttribute(JettyWebSocket.WEBSOCKET_SERVER_FACTORY);
+      JettyWebSocket ws = new JettyWebSocket(this);
+      handler.init(Context.readOnly(this), ws);
+      wssf.acceptWebSocket((req, rsp) -> ws, request, response);
+      return this;
+    } catch (Throwable x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 
   @Nonnull @Override public StatusCode getResponseCode() {

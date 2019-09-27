@@ -269,14 +269,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public Context upgrade(WebSocket.Initializer handler) {
     try {
+      responseStarted = true;
       String webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
       WebSocketDecoderConfig config = WebSocketDecoderConfig.newBuilder()
           .allowExtensions(true)
           .allowMaskMismatch(false)
           .withUTF8Validator(false)
-          .maxFramePayloadLength(131072)
+          .maxFramePayloadLength(WebSocket.MAX_BUFFER_SIZE)
           .build();
-      responseStarted = true;
       webSocket = new NettyWebSocket(this);
       handler.init(Context.readOnly(this), webSocket);
       DefaultFullHttpRequest fullHttpRequest = new DefaultFullHttpRequest(req.protocolVersion(),

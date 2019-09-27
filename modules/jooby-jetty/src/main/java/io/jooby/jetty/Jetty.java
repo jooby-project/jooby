@@ -8,15 +8,22 @@ package io.jooby.jetty;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
+import io.jooby.WebSocket;
 import io.jooby.internal.jetty.JettyHandler;
+import io.jooby.internal.jetty.JettyWebSocket;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.MultiPartFormDataCompliance;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.DecoratedObjectFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.websocket.api.WebSocketBehavior;
+import org.eclipse.jetty.websocket.api.WebSocketPolicy;
+import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 
 import javax.annotation.Nonnull;
 import java.net.BindException;
@@ -88,16 +95,28 @@ public class Jetty extends io.jooby.Server.Base {
 
       server.addConnector(connector);
 
+      ContextHandler context = new ContextHandler();
+
       AbstractHandler handler = new JettyHandler(applications.get(0), options.getBufferSize(),
           options.getMaxRequestSize(), options.getDefaultHeaders());
 
       if (options.getGzip()) {
         GzipHandler gzipHandler = new GzipHandler();
         gzipHandler.setHandler(handler);
-        handler = gzipHandler;
+        context.setHandler(gzipHandler);
+      } else {
+        context.setHandler(handler);
       }
+      /* ********************************* WebSocket *************************************/
+      context.setAttribute(DecoratedObjectFactory.ATTR, new DecoratedObjectFactory());
+      WebSocketPolicy policy = new WebSocketPolicy(WebSocketBehavior.SERVER);
+      policy.setMaxTextMessageBufferSize(WebSocket.MAX_BUFFER_SIZE);
+      policy.setMaxTextMessageSize(WebSocket.MAX_BUFFER_SIZE);
+      WebSocketServerFactory wssf = new WebSocketServerFactory(context.getServletContext(), policy);
+      context.setAttribute(JettyWebSocket.WEBSOCKET_SERVER_FACTORY, wssf);
+      context.addManaged(wssf);
 
-      server.setHandler(handler);
+      server.setHandler(context);
 
       server.start();
 
