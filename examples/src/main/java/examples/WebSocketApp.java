@@ -5,15 +5,9 @@
  */
 package examples;
 
-import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
-import io.jooby.WebSocketCloseStatus;
 
 import java.nio.file.Paths;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class WebSocketApp extends Jooby {
   {
@@ -27,21 +21,12 @@ public class WebSocketApp extends Jooby {
         ws.send("Got: " + msg.value());
       });
       initializer.onClose((ws, closeStatus) -> {
-        System.out.println("Closed " + closeStatus);
+        getLog().info("Closing with: {}", closeStatus);
       });
-
-      initializer.onError((ws, cause) -> {
-        if (ws.isOpen()) {
-          ws.send("error: " + cause.getMessage() );
-        } else {
-          ws.getContext().getRouter().getLog().error("error ", cause);
-        }
-      });
-
     });
   }
 
   public static void main(String[] args) {
-    runApp(args, ExecutionMode.DEFAULT, WebSocketApp::new);
+    runApp(args, WebSocketApp::new);
   }
 }

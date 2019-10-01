@@ -15,19 +15,19 @@
 
   <build>
     <plugins>
-<!--      <plugin>-->
-<!--        <artifactId>maven-compiler-plugin</artifactId>-->
-<!--        <version>3.8.1</version>-->
-<!--        <configuration>-->
-<!--          <annotationProcessorPaths>-->
-<!--            <path>-->
-<!--              <groupId>io.jooby</groupId>-->
-<!--              <artifactId>jooby-apt</artifactId>-->
-<!--              <version>${jooby.version}</version>-->
-<!--            </path>-->
-<!--          </annotationProcessorPaths>-->
-<!--        </configuration>-->
-<!--      </plugin>-->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>io.jooby</groupId>
+              <artifactId>jooby-apt</artifactId>
+              <version>${jooby.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
