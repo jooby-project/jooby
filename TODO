@@ -1,8 +1,6 @@
-* Session set null context to Value API
+* Make Session.toMap() read-only
 * review toString on Value API (removal of QueryStringValue?)
 * tests and coverage
 * server options from application.conf MUST override hardcoded settings
 * make reset headers on error configurable
 * netty reports a leak in MVC body
-
-* websockets

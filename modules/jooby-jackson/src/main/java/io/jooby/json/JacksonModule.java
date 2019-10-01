@@ -5,7 +5,6 @@
  */
 package io.jooby.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.Module;
@@ -26,10 +25,8 @@ import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
 
 import javax.annotation.Nonnull;
-import java.io.DataOutput;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 

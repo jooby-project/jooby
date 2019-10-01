@@ -240,7 +240,8 @@ public class MockContext implements DefaultContext {
   /**
    * Set mock files.
    *
-   * @param files Mock files.
+   * @param name HTTP name.
+   * @param file Mock files.
    * @return This context.
    */
   public MockContext setFile(@Nonnull String name, @Nonnull FileUpload file) {
@@ -594,6 +595,10 @@ public class MockContext implements DefaultContext {
 
   @Nullable @Override public <T> T convert(ValueNode value, Class<T> type) {
     return DefaultContext.super.convert(value, type);
+  }
+
+  @Nonnull @Override public MockContext upgrade(@Nonnull WebSocket.Initializer handler) {
+    return this;
   }
 
   @Override public String toString() {

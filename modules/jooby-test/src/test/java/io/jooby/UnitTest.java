@@ -3,6 +3,11 @@ package io.jooby;
 import io.reactivex.Single;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
 import static io.jooby.StatusCode.NO_CONTENT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -126,5 +131,63 @@ public class UnitTest {
     MockRouter router = new MockRouter(app);
 
     assertEquals("rx", router.get("/").value(Single.class).blockingGet());
+  }
+
+  @Test
+  public void websocket() {
+    Jooby app = new Jooby();
+
+    app.ws("/ws", (ctx, initializer) -> {
+      initializer.onConnect(ws -> {
+        ws.send("#Connect");
+      });
+      initializer.onMessage((ws, message) -> {
+        ws.send("#" + message.value());
+      });
+      initializer.onClose((ws, status) -> {
+        System.out.println(status);
+      });
+    });
+
+    LinkedList<String> messages = new LinkedList<>(Arrays.asList("#Connect", "#First", "#Second"));
+    MockRouter router = new MockRouter(app);
+    router.ws("/ws", ws -> {
+      ws.send("First");
+      ws.onMessage(message -> {
+        assertEquals(messages.removeFirst(), message);
+      });
+      ws.send("Second");
+
+      ws.close();
+    });
+
+    assertEquals(0, messages.size());
+  }
+
+  @Test
+  public void websocketObjectMessage() {
+    Jooby app = new Jooby();
+
+    app.ws("/ws", (ctx, initializer) -> {
+      initializer.onMessage((ws, message) -> {
+        ws.render(message.to(PojoBody.class));
+      });
+    });
+
+    PojoBody pojo = new PojoBody();
+
+    LinkedList<Object> messages = new LinkedList<>(Arrays.asList(pojo));
+    MockRouter router = new MockRouter(app);
+    router.ws("/ws", ws -> {
+      ws.onMessage(message -> {
+        assertEquals(messages.removeFirst(), message);
+      });
+
+      WebSocketMessage message = mock(WebSocketMessage.class);
+      when(message.to(PojoBody.class)).thenReturn(pojo);
+      ws.send(message);
+    });
+
+    assertEquals(0, messages.size());
   }
 }

@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.jetty;
 
 import io.jooby.Context;
@@ -82,7 +87,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     }
 
     if (onErrorCallback == null) {
-      ctx.getRouter().getLog().error("WS {} resulted in exception", ctx.pathString(), x);
+      ctx.getRouter().getLog().error("Websocket resulted in exception: {}", ctx.pathString(), x);
     } else {
       onErrorCallback.onError(this, x);
     }
@@ -176,7 +181,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   @Override public void writeFailed(Throwable x) {
-    ctx.getRouter().getLog().error("WebSocket.send resulted in exception", x);
+    ctx.getRouter().getLog().error("Websocket resulted in exception: {}", ctx.pathString(), x);
   }
 
   @Override public void writeSuccess() {

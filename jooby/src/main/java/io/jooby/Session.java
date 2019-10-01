@@ -130,6 +130,11 @@ public interface Session {
    */
   @Nonnull ValueNode remove(@Nonnull String name);
 
+  /**
+   * Read-only copy of session attributes.
+   *
+   * @return Read-only attributes.
+   */
   @Nonnull Map<String, String> toMap();
 
   /**

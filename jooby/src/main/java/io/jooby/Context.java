@@ -666,6 +666,12 @@ public interface Context extends Registry {
    */
   @Nonnull Context detach(@Nonnull Route.Handler next) throws Exception;
 
+  /**
+   * Perform a websocket handsake and upgrade a HTTP GET into a websocket protocol.
+   *
+   * @param handler Web socket initializer.
+   * @return This context.
+   */
   @Nonnull Context upgrade(@Nonnull WebSocket.Initializer handler);
 
   /*

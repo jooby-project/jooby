@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.netty;
 
 import io.jooby.Context;
@@ -192,7 +197,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     }
 
     if (onErrorCallback == null) {
-      netty.getRouter().getLog().error("WS {} resulted in exception", netty.pathString(), x);
+      netty.getRouter().getLog().error("Websocket resulted in exception: {}", netty.pathString(), x);
     } else {
       onErrorCallback.onError(this, x);
     }

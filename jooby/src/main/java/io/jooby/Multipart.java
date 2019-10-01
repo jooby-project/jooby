@@ -20,7 +20,13 @@ import java.util.List;
  */
 public interface Multipart extends Formdata {
 
-  void put(String name, FileUpload file);
+  /**
+   * Put/Add a file into this multipart request.
+   *
+   * @param name HTTP name.
+   * @param file File upload.
+   */
+  void put(@Nonnull String name, @Nonnull FileUpload file);
 
   /**
    * All file uploads. Only for <code>multipart/form-data</code> request.

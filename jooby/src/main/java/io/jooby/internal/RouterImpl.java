@@ -335,7 +335,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
-    return route(WS, pattern, new WebSocketHandler(handler));
+    return route(WS, pattern, new WebSocketHandler(handler)).setHandle(handler);
   }
 
   @Override

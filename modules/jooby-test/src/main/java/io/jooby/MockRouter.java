@@ -72,6 +72,50 @@ public class MockRouter {
   }
 
   /**
+   * Execute a GET request and find a websocket, perform the upgrade and produces a websocket client.
+   *
+   * App:
+   * <pre>{@code
+   *   ws("/path", (ctx, initializer) -> {
+   *     initializer.onConnect(ws -> {
+   *       ws.send("OnConnect");
+   *     });
+   *   });
+   * }</pre>
+   *
+   * Test:
+   * <pre>{@code
+   *   MockRouter router = new MockRouter(new App());
+   *   router.ws("/path", ws -> {
+   *
+   *     ws.onMessage(message -> {
+   *       System.out.println("Got: " + message);
+   *     });
+   *
+   *     ws.send("Another message");
+   *   })
+   * }</pre>
+   *
+   *
+   * @param path Path to match.
+   * @param callback Websocket client callback.
+   * @return Web socket client.
+   */
+  public MockWebSocketClient ws(@Nonnull String path, Consumer<MockWebSocketClient> callback) {
+    MockValue value = get(path, new MockContext());
+    if (value.value() instanceof MockWebSocketConfigurer) {
+      MockWebSocketConfigurer configurer = value.value(MockWebSocketConfigurer.class);
+      MockWebSocketClient client = configurer.getClient();
+      configurer.ready();
+      callback.accept(client);
+      client.init();
+      return client;
+    } else {
+      throw new IllegalArgumentException("No websocket fount at: " + path);
+    }
+  }
+
+  /**
    * Execute a GET request to the target application.
    *
    * @param path Path to match. Might includes the queryString.
@@ -352,18 +396,24 @@ public class MockRouter {
     Object value;
     try {
       Route.Handler handler = fullExecution ? route.getPipeline() : route.getHandler();
-      value = handler.apply(ctx);
-      if (ctx instanceof MockContext) {
-        MockResponse response = ((MockContext) ctx).getResponse();
-        if (!(value instanceof Context)) {
-          response.setResult(value);
+      if (route.getMethod().equals(Router.WS)) {
+        WebSocket.Initializer initializer = (WebSocket.Initializer) route.getHandle();
+        MockWebSocketConfigurer configurer = new MockWebSocketConfigurer(ctx, initializer);
+        return new SingleMockValue(configurer);
+      } else {
+        value = handler.apply(ctx);
+        if (ctx instanceof MockContext) {
+          MockResponse response = ((MockContext) ctx).getResponse();
+          if (!(value instanceof Context)) {
+            response.setResult(value);
+          }
+          if (response.getContentLength() <= 0) {
+            response.setContentLength(contentLength(value));
+          }
+          consumer.accept(response);
         }
-        if (response.getContentLength() <= 0) {
-          response.setContentLength(contentLength(value));
-        }
-        consumer.accept(response);
+        return new SingleMockValue(value);
       }
-      return new SingleMockValue(value);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.utow;
 
 import io.jooby.Context;
@@ -161,7 +166,7 @@ public class UtowWebSocket extends AbstractReceiveListener
     }
 
     if (onErrorCallback == null) {
-      ctx.getRouter().getLog().error("WS {} resulted in exception", ctx.pathString(), x);
+      ctx.getRouter().getLog().error("Websocket resulted in exception: {}", ctx.pathString(), x);
     } else {
       onErrorCallback.onError(this, x);
     }
