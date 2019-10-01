@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -283,7 +284,11 @@ public class Jooby implements Router, Registry {
       MvcFactory module = stream(modules.spliterator(), false)
           .filter(it -> it.supports(router))
           .findFirst()
-          .orElseThrow(() -> Usage.mvcRouterNotFound(router));
+          .orElseGet(() ->
+              /** Make happy IDE incremental build: */
+              mvcReflectionFallback(router, getClassLoader())
+                  .orElseThrow(() -> Usage.mvcRouterNotFound(router))
+          );
       Extension extension = module.create(provider);
       extension.install(this);
       return this;
@@ -292,7 +297,8 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  @Nonnull @Override public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
+  @Nonnull @Override
+  public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
     return router.ws(pattern, handler);
   }
 
@@ -1017,6 +1023,26 @@ public class Jooby implements Router, Registry {
           throw SneakyThrows.propagate(x);
         }
       }
+    }
+  }
+
+  /**
+   * This method exists to integrate IDE incremental build with MVC annotation processor. It
+   * fallback to reflection to lookup for a generated mvc factory.
+   *
+   * @param source Controller class.
+   * @param classLoader Class loader.
+   * @return Mvc factory.
+   */
+  private Optional<MvcFactory> mvcReflectionFallback(Class source, ClassLoader classLoader) {
+    try {
+      String moduleName = source.getName() + "$Factory";
+      Class<?> moduleType = classLoader.loadClass(moduleName);
+      Constructor<?> constructor = moduleType.getDeclaredConstructor();
+      getLog().debug("Loading mvc using reflection: " + source);
+      return Optional.of((MvcFactory) constructor.newInstance());
+    } catch (Exception x) {
+      return Optional.empty();
     }
   }
 }
