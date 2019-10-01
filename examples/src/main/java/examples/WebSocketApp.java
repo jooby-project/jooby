@@ -20,15 +20,11 @@ public class WebSocketApp extends Jooby {
     assets("/?*", Paths.get(System.getProperty("user.dir"), "examples", "www", "websocket"));
 
     ws("/ws", (ctx, initializer) -> {
-      System.out.println(Thread.currentThread());
-      System.out.println("Response Started: " + ctx.isResponseStarted());
       initializer.onConnect(ws -> {
-        System.out.println("Connected: " + Thread.currentThread());
         ws.send("Welcome");
       });
       initializer.onMessage((ws, msg) -> {
-        throw new UnsupportedOperationException("OnMessage");
-//        ws.send("Got: " + msg.value());
+        ws.send("Got: " + msg.value());
       });
       initializer.onClose((ws, closeStatus) -> {
         System.out.println("Closed " + closeStatus);
