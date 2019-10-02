@@ -8,6 +8,7 @@ package io.jooby.internal.apt;
 import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
+import io.jooby.Session;
 import io.jooby.apt.Annotations;
 import io.jooby.internal.apt.asm.ContextParamWriter;
 import io.jooby.internal.apt.asm.NamedParamWriter;
@@ -77,7 +78,26 @@ public enum ParamKind {
       return new ContextParamWriter();
     }
   },
+  SESSION_ATTRIBUTE_PARAM {
+    @Override public Set<String> annotations() {
+      return Annotations.SESSION_PARAMS;
+    }
 
+    @Override public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+      if (param.isOptional()) {
+        return Context.class.getDeclaredMethod("sessionOrNull");
+      }
+      return Context.class.getDeclaredMethod("session");
+    }
+
+    @Override public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return Context.class.getDeclaredMethod("session", String.class);
+    }
+
+    @Override public ParamWriter newWriter() {
+      return new NamedParamWriter();
+    }
+  },
   QUERY_PARAM {
     @Override public Set<String> annotations() {
       return Annotations.QUERY_PARAMS;
@@ -163,18 +183,7 @@ public enum ParamKind {
       return new NamedParamWriter();
     }
   },
-  SESSION_PARAM {
-    @Override public Set<String> annotations() {
-      return Collections.emptySet();
-    }
 
-    @Override public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      if (param.isOptional()) {
-        return Context.class.getDeclaredMethod("sessionOrNull");
-      }
-      return Context.class.getDeclaredMethod("session");
-    }
-  },
   ROUTE_PARAM {
     @Override public Set<String> annotations() {
       return Collections.emptySet();

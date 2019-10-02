@@ -128,6 +128,15 @@ public interface Context extends Registry {
   @Nonnull Session session();
 
   /**
+   * Find a session attribute using the given name. If there is no session or attribute under that
+   * name a missing value is returned.
+   *
+   * @param name Attribute's name.
+   * @return Session's attribute or missing.
+   */
+  @Nonnull Value session(@Nonnull String name);
+
+  /**
    * Find an existing session.
    *
    * @return Existing session or <code>null</code>.

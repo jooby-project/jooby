@@ -86,6 +86,14 @@ public interface DefaultContext extends Context {
     return Value.create(this, name, flash().get(name));
   }
 
+  @Override default @Nonnull Value session(@Nonnull String name) {
+    Session session = sessionOrNull();
+    if (session != null) {
+      return session.get(name);
+    }
+    return Value.missing(name);
+  }
+
   @Override default @Nonnull Session session() {
     Session session = sessionOrNull();
     if (session == null) {

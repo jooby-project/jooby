@@ -65,6 +65,10 @@ public class ForwardingContext implements Context {
     return ctx.flash(name);
   }
 
+  @Nonnull @Override public Value session(@Nonnull String name) {
+    return ctx.session(name);
+  }
+
   @Nonnull @Override public Session session() {
     return ctx.session();
   }

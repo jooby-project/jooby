@@ -16,6 +16,7 @@ import java.util.UUID;
  * Mock session.
  */
 public class MockSession implements Session {
+  private MockContext ctx;
   private String sessionId;
 
   private Map<String, String> data = new HashMap<>();
@@ -29,7 +30,8 @@ public class MockSession implements Session {
    *
    * @param sessionId Session ID.
    */
-  public MockSession(@Nonnull String sessionId) {
+  public MockSession(@Nonnull MockContext ctx, @Nonnull String sessionId) {
+    this.ctx = ctx;
     this.sessionId = sessionId;
     this.creationTime = Instant.now();
     this.lastAccessedTime = Instant.now();
@@ -38,8 +40,8 @@ public class MockSession implements Session {
   /**
    * Mock session with a random ID.
    */
-  public MockSession() {
-    this(UUID.randomUUID().toString());
+  public MockSession(@Nonnull MockContext ctx) {
+    this(ctx, UUID.randomUUID().toString());
   }
 
   @Nonnull @Override public String getId() {
@@ -48,7 +50,7 @@ public class MockSession implements Session {
 
   @Nonnull @Override public ValueNode get(@Nonnull String name) {
     return Optional.ofNullable(data.get(name))
-        .map(value -> Value.create(null, name, value))
+        .map(value -> Value.create(ctx, name, value))
         .orElse(Value.missing(name));
   }
 

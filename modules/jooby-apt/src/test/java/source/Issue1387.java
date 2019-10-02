@@ -3,6 +3,7 @@ package source;
 import io.jooby.annotations.ContextParam;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
+import io.jooby.annotations.SessionParam;
 
 import java.util.Map;
 
@@ -29,5 +30,15 @@ public class Issue1387 {
   @GET("/attributes")
   public Map<String, Object> attributes(@ContextParam Map<String, Object> attributes) {
     return attributes;
+  }
+
+  @GET("/session")
+  public String session(@SessionParam String userId) {
+    return userId;
+  }
+
+  @GET("/session/int")
+  public int session(@SessionParam int userId) {
+    return userId;
   }
 }

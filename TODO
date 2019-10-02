@@ -1,3 +1,4 @@
+* review ValueNode return type on Context, some must be Value not ValueNode.
 * Make Session.toMap() read-only
 * review toString on Value API (removal of QueryStringValue?)
 * tests and coverage

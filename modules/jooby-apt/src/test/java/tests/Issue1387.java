@@ -2,6 +2,7 @@ package tests;
 
 import io.jooby.Context;
 import io.jooby.MockContext;
+import io.jooby.Session;
 import io.jooby.apt.MvcHandlerCompilerRunner;
 import io.jooby.internal.MockContextHelper;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,27 @@ public class Issue1387 {
           map.put("b", "dd");
           attributes.put("attributes", map);
           assertEquals(map, handler.apply(ctx));
+        })
+    ;
+  }
+
+  @Test
+  public void shouldInjectSessionParam() throws Exception {
+    new MvcHandlerCompilerRunner(new source.Issue1387())
+        .compile("/1387/session", handler -> {
+          MockContext ctx = MockContextHelper.mockContext();
+          assertEquals(null, handler.apply(ctx));
+
+          Session session = ctx.session();
+          session.put("userId", "abc");
+          assertEquals("abc", handler.apply(ctx));
+        })
+        .compile("/1387/session/int", handler -> {
+          MockContext ctx = MockContextHelper.mockContext();
+          Session session = ctx.session();
+          session.put("userId", 123);
+
+          assertEquals(123, handler.apply(ctx));
         })
     ;
   }

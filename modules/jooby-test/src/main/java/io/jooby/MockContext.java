@@ -87,7 +87,7 @@ public class MockContext implements DefaultContext {
 
   @Nonnull @Override public Session session() {
     if (session == null) {
-      session = new MockSession();
+      session = new MockSession(this);
     }
     return session;
   }

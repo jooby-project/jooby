@@ -23,6 +23,7 @@ import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.Produces;
 import io.jooby.annotations.QueryParam;
+import io.jooby.annotations.SessionParam;
 import io.jooby.annotations.TRACE;
 
 import javax.annotation.Nonnull;
@@ -91,6 +92,10 @@ public interface Annotations {
   Set<String> QUERY_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
       QueryParam.class.getName(),
       javax.ws.rs.QueryParam.class.getName()
+  )));
+
+  Set<String> SESSION_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
+      SessionParam.class.getName()
   )));
 
   /**
