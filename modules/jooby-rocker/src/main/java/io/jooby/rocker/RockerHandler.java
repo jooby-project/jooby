@@ -12,6 +12,7 @@ import io.jooby.MediaType;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 class RockerHandler implements Route.Handler {
   private final Route.Handler next;
@@ -24,9 +25,10 @@ class RockerHandler implements Route.Handler {
     try {
       RockerModel template = (RockerModel) next.apply(ctx);
       ArrayOfByteArraysOutput buff = template.render(ArrayOfByteArraysOutput.FACTORY);
+      List<byte[]> arrays = buff.getArrays();
       ctx.setResponseType(MediaType.html);
       ctx.setResponseLength(buff.getByteLength());
-      ctx.send(buff.asReadableByteChannel());
+      ctx.send(arrays.toArray(new byte[arrays.size()][]));
       return ctx;
     } catch (Throwable x) {
       ctx.sendError(x);
