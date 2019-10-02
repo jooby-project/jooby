@@ -82,7 +82,7 @@ public interface DefaultContext extends Context {
    * @param name Attribute's name.
    * @return Flash attribute.
    */
-  @Override default @Nonnull ValueNode flash(@Nonnull String name) {
+  @Override default @Nonnull Value flash(@Nonnull String name) {
     return Value.create(this, name, flash().get(name));
   }
 
@@ -114,12 +114,12 @@ public interface DefaultContext extends Context {
     return session;
   }
 
-  @Override default @Nonnull ValueNode cookie(@Nonnull String name) {
+  @Override default @Nonnull Value cookie(@Nonnull String name) {
     String value = cookieMap().get(name);
     return value == null ? Value.missing(name) : Value.value(this, name, value);
   }
 
-  @Override @Nonnull default ValueNode path(@Nonnull String name) {
+  @Override @Nonnull default Value path(@Nonnull String name) {
     String value = pathMap().get(name);
     return value == null
         ? new MissingValue(name)
@@ -158,7 +158,7 @@ public interface DefaultContext extends Context {
     return query().toMultimap();
   }
 
-  @Override @Nonnull default ValueNode header(@Nonnull String name) {
+  @Override @Nonnull default Value header(@Nonnull String name) {
     return header().get(name);
   }
 
@@ -171,7 +171,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override default boolean accept(@Nonnull MediaType contentType) {
-    ValueNode accept = header(ACCEPT);
+    Value accept = header(ACCEPT);
     return accept.isMissing() ? true : contentType.matches(accept.value());
   }
 
@@ -196,17 +196,17 @@ public interface DefaultContext extends Context {
   }
 
   @Override @Nullable default MediaType getRequestType() {
-    ValueNode contentType = header("Content-Type");
+    Value contentType = header("Content-Type");
     return contentType.isMissing() ? null : MediaType.valueOf(contentType.value());
   }
 
   @Override @Nonnull default MediaType getRequestType(MediaType defaults) {
-    ValueNode contentType = header("Content-Type");
+    Value contentType = header("Content-Type");
     return contentType.isMissing() ? defaults : MediaType.valueOf(contentType.value());
   }
 
   @Override default long getRequestLength() {
-    ValueNode contentLength = header("Content-Length");
+    Value contentLength = header("Content-Length");
     return contentLength.isMissing() ? -1 : contentLength.longValue();
   }
 

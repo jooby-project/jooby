@@ -211,7 +211,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return multipart;
   }
 
-  @Nonnull @Override public ValueNode header(@Nonnull String name) {
+  @Nonnull @Override public Value header(@Nonnull String name) {
     return Value.create(this, name, req.headers().getAll(name));
   }
 

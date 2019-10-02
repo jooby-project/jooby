@@ -61,7 +61,7 @@ public class ForwardingContext implements Context {
     return ctx.flash();
   }
 
-  @Nonnull @Override public ValueNode flash(@Nonnull String name) {
+  @Nonnull @Override public Value flash(@Nonnull String name) {
     return ctx.flash(name);
   }
 
@@ -77,7 +77,7 @@ public class ForwardingContext implements Context {
     return ctx.sessionOrNull();
   }
 
-  @Nonnull @Override public ValueNode cookie(@Nonnull String name) {
+  @Nonnull @Override public Value cookie(@Nonnull String name) {
     return ctx.cookie(name);
   }
 
@@ -101,7 +101,7 @@ public class ForwardingContext implements Context {
     return ctx.pathString();
   }
 
-  @Nonnull @Override public ValueNode path(@Nonnull String name) {
+  @Nonnull @Override public Value path(@Nonnull String name) {
     return ctx.path(name);
   }
 
@@ -150,7 +150,7 @@ public class ForwardingContext implements Context {
     return ctx.header();
   }
 
-  @Nonnull @Override public ValueNode header(@Nonnull String name) {
+  @Nonnull @Override public Value header(@Nonnull String name) {
     return ctx.header(name);
   }
 

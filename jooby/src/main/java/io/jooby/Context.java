@@ -118,7 +118,7 @@ public interface Context extends Registry {
    * @param name Attribute's name.
    * @return Flash attribute.
    */
-  @Nonnull ValueNode flash(@Nonnull String name);
+  @Nonnull Value flash(@Nonnull String name);
 
   /**
    * Find a session or creates a new session.
@@ -149,7 +149,7 @@ public interface Context extends Registry {
    * @param name Cookie's name.
    * @return Cookie value.
    */
-  @Nonnull ValueNode cookie(@Nonnull String name);
+  @Nonnull Value cookie(@Nonnull String name);
 
   /**
    * Request cookies.
@@ -202,7 +202,7 @@ public interface Context extends Registry {
    * @param name Path key.
    * @return Associated value or a missing value, but never a <code>null</code> reference.
    */
-  @Nonnull ValueNode path(@Nonnull String name);
+  @Nonnull Value path(@Nonnull String name);
 
   /**
    * Convert the {@link #pathMap()} to the given type.
@@ -336,7 +336,7 @@ public interface Context extends Registry {
    * @param name Header name. Case insensitive.
    * @return A header value or missing value, never a <code>null</code> reference.
    */
-  @Nonnull ValueNode header(@Nonnull String name);
+  @Nonnull Value header(@Nonnull String name);
 
   /**
    * Header as single-value map.

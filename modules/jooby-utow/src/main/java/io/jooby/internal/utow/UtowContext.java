@@ -164,7 +164,7 @@ public class UtowContext implements DefaultContext, IoCallback {
     return scheme == null ? "http" : scheme.toLowerCase();
   }
 
-  @Nonnull @Override public ValueNode header(@Nonnull String name) {
+  @Nonnull @Override public Value header(@Nonnull String name) {
     return Value.create(this, name, exchange.getRequestHeaders().get(name));
   }
 

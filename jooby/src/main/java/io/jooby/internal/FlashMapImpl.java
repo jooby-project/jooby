@@ -8,7 +8,7 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.FlashMap;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class FlashMapImpl extends HashMap<String, String> implements FlashMap {
   private Map<String, String> initialScope;
 
   public FlashMapImpl(Context ctx, Cookie template) {
-    ValueNode cookie = ctx.cookie(template.getName());
+    Value cookie = ctx.cookie(template.getName());
     Map<String, String> seed = cookie.isMissing() ? emptyMap() : decode(cookie.value());
     super.putAll(seed);
     this.ctx = ctx;

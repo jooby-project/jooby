@@ -1,5 +1,3 @@
-* review ValueNode return type on Context, some must be Value not ValueNode.
-* Make Session.toMap() read-only
 * review toString on Value API (removal of QueryStringValue?)
 * tests and coverage
 * server options from application.conf MUST override hardcoded settings
@@ -9,3 +7,4 @@
 * doc Session
 * doc WebSocket
 * doc FileUpload change
+* doc ContextParam/SessionParam

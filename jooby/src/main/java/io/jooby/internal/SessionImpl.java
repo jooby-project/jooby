@@ -64,7 +64,7 @@ public class SessionImpl implements Session {
     return id;
   }
 
-  @Override public @Nonnull ValueNode get(@Nonnull String name) {
+  @Override public @Nonnull Value get(@Nonnull String name) {
     return Value.create(ctx, name, attributes.get(name));
   }
 
