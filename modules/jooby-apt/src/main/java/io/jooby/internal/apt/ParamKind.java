@@ -9,6 +9,7 @@ import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.apt.Annotations;
+import io.jooby.internal.apt.asm.ContextParamWriter;
 import io.jooby.internal.apt.asm.NamedParamWriter;
 import io.jooby.internal.apt.asm.BodyWriter;
 import io.jooby.internal.apt.asm.FileUploadWriter;
@@ -55,9 +56,28 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new NamedParamWriter(true);
+      return new NamedParamWriter();
     }
   },
+
+  CONTEXT_PARAM {
+    @Override public Set<String> annotations() {
+      return Annotations.CONTEXT_PARAMS;
+    }
+
+    @Override public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return Context.class.getDeclaredMethod("getAttributes");
+    }
+
+    @Override public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return Context.class.getDeclaredMethod("attribute", String.class);
+    }
+
+    @Override public ParamWriter newWriter() {
+      return new ContextParamWriter();
+    }
+  },
+
   QUERY_PARAM {
     @Override public Set<String> annotations() {
       return Annotations.QUERY_PARAMS;
@@ -72,7 +92,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new NamedParamWriter(true);
+      return new NamedParamWriter();
     }
   },
   COOKIE_PARAM {
@@ -89,7 +109,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new NamedParamWriter(false);
+      return new NamedParamWriter();
     }
   },
   HEADER_PARAM {
@@ -106,7 +126,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new NamedParamWriter(false);
+      return new NamedParamWriter();
     }
   },
   FLASH_PARAM {
@@ -123,7 +143,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new NamedParamWriter(false);
+      return new NamedParamWriter();
     }
   },
   FORM_PARAM {
@@ -140,7 +160,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new NamedParamWriter(true);
+      return new NamedParamWriter();
     }
   },
   SESSION_PARAM {

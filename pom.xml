@@ -829,6 +829,14 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
+        <configuration>
+          <skip>false</skip>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Feature.java</include>
+            <include>**/*Issue*.java</include>
+          </includes>
+        </configuration>
       </plugin>
 
       <!-- Deploy plugin -->
@@ -1133,13 +1141,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <version>${maven-source-plugin.version}</version>
-          </plugin>
-
-          <!-- Surefire: unit test -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${maven-surefire-plugin.version}</version>
           </plugin>
         </plugins>
       </build>

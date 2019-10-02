@@ -50,4 +50,44 @@ public class Primitives {
         return null;
     }
   }
+
+  public static Method toPrimitive(TypeDefinition type) throws NoSuchMethodException {
+    return toPrimitive(type.getType());
+  }
+
+  public static Method toPrimitive(TypeMirror type) throws NoSuchMethodException {
+    return toPrimitive(type.getKind());
+  }
+
+  public static Method toPrimitive(TypeKind type) throws NoSuchMethodException {
+    return toPrimitive(type.name().toLowerCase());
+  }
+
+  public static Method toPrimitive(Class type) throws NoSuchMethodException {
+    return toPrimitive(type.getSimpleName());
+  }
+
+  public static Method toPrimitive(String name) throws NoSuchMethodException {
+    switch (name.toLowerCase()) {
+      case "boolean":
+        return Boolean.class.getDeclaredMethod("booleanValue");
+      case "character":
+        return Character.class.getDeclaredMethod("charValue");
+      case "byte":
+        return Byte.class.getDeclaredMethod("byteValue");
+      case "short":
+        return Short.class.getDeclaredMethod("shortValue");
+      case "int":
+      case "integer":
+        return Integer.class.getDeclaredMethod("intValue");
+      case "long":
+        return Long.class.getDeclaredMethod("longValue");
+      case "float":
+        return Float.class.getDeclaredMethod("floatValue");
+      case "double":
+        return Double.class.getDeclaredMethod("doubleValue");
+      default:
+        return null;
+    }
+  }
 }

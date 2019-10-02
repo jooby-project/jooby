@@ -1,11 +1,14 @@
 package output;
 
 import io.jooby.Context;
+import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 public class MyControllerHandler implements Route.Handler {
 
@@ -16,11 +19,14 @@ public class MyControllerHandler implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().doIt(param(ctx.path(), "p1").to(String.class));
+    return provider.get().doIt(attriubute(ctx,"foo"));
   }
 
-  private static ValueNode param(ValueNode scope, String name) {
-    ValueNode value = scope.get(name);
-    return value.isMissing() && scope.size() > 0 ? scope : value;
+  private static <T> T attriubute(Context ctx, String name) {
+    T value = ctx.attribute(name);
+    if (value == null) {
+      return (T) ctx.getAttributes();
+    }
+    return value;
   }
 }

@@ -11,7 +11,7 @@ import java.util.Map;
 public class MyController {
 
   @GET
-  public String doIt(@PathParam("p1") String p1) {
+  public int doIt(@PathParam("p1") int p1) {
     return p1;
   }
 }

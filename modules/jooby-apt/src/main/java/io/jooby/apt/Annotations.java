@@ -7,6 +7,7 @@ package io.jooby.apt;
 
 import io.jooby.annotations.CONNECT;
 import io.jooby.annotations.Consumes;
+import io.jooby.annotations.ContextParam;
 import io.jooby.annotations.CookieParam;
 import io.jooby.annotations.DELETE;
 import io.jooby.annotations.FlashParam;
@@ -81,6 +82,8 @@ public interface Annotations {
    * Path parameters.
    */
   Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PathParam.class.getName())));
+
+  Set<String> CONTEXT_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(ContextParam.class.getName())));
 
   /**
    * Query parameters.
