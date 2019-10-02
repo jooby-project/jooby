@@ -10,7 +10,7 @@ Templates are available via javadoc:ModelAndView[] and requires a javadoc:Templa
   
   get("/", ctx -> {
     Map<String, Object> model = ...;                <2>
-    return new ModelAndModel("index.html", model);  <3>
+    return new ModelAndView("index.html", model);  <3>
   });
 }
 ----
@@ -23,7 +23,7 @@ Templates are available via javadoc:ModelAndView[] and requires a javadoc:Templa
   
   get("/") { ctx ->
     val model = mapOf(...)                          <2>
-    ModelAndModel("index.html", model)              <3>
+    ModelAndView("index.html", model)              <3>
   }
 }
 ----
@@ -54,11 +54,11 @@ The file extension allow us to use/mix multiple template engines too:
   install(new FreemarkerModule());                 <2>
   
   get("/first", ctx -> {
-    return new ModelAndModel("index.hbs", model);  <3>
+    return new ModelAndView("index.hbs", model);  <3>
   });
   
   get("/second", ctx -> {
-    return new ModelAndModel("index.ftl", model);  <4>
+    return new ModelAndView("index.ftl", model);  <4>
   });
 }
 ----
@@ -71,11 +71,11 @@ The file extension allow us to use/mix multiple template engines too:
   install(FreemarkerModule())                       <2>
   
   get("/first") { ctx ->
-    ModelAndModel("index.hbs", model)               <3>
+    ModelAndView("index.hbs", model)               <3>
   }
   
   get("/second") { ctx ->
-    ModelAndModel("index.ftl", model)               <4>
+    ModelAndView("index.ftl", model)               <4>
   }
 }
 ----

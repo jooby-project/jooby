@@ -672,7 +672,7 @@ Route pipeline (a.k.a route stack) is a composition of one or more decorator(s) 
 Output:
 
 <1> `/1` => `3`
-<2> `/2` => `5`
+<2> `/2` => `4`
 
 Behind the scene, Jooby builds something like:
 
@@ -833,7 +833,7 @@ A `scoped decorator` looks like:
     }
     
     get("/4") { 4 }               // <2>
-  });
+  }
   
   get("/3") { 3 }                 // <3>
 }
@@ -971,7 +971,7 @@ class Bar: Kooby({
 
 })
 
-class Bar: Kooby({
+class App: Kooby({
   use(Foo())                       // <1>
 
   use(Bar())                       // <2>

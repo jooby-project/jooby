@@ -90,7 +90,7 @@ and returns a single result of the given type.
 {
   val lib = FavoriteJson()                 // <1>
 
-  decoder(MediaType.json, { ctx, type ->    // <2>
+  decoder(MediaType.json) { ctx, type ->    // <2>
 
     val body = ctx.body().bytes()          // <3>
 
@@ -105,7 +105,7 @@ and returns a single result of the given type.
 
 <1> Choose your favorite `json` library
 <2> Check if the `Content-Type` header matches `application/json`
-<3> Ready the body as `byte[]`
+<3> Read the body as `byte[]`
 <4> Parse the `body` and use the requested type
 <5> Route handler now call the `body(Type)` function to trigger the decoder function
 
@@ -203,7 +203,7 @@ produces a result.
 {
   val lib = FavoriteJson()                         // <1>
 
-  encoder(MediaType.json, { ctx, result ->        // <2>
+  encoder(MediaType.json) { ctx, result ->        // <2>
 
     val json = lib.toJson(result)                  // <3>
 

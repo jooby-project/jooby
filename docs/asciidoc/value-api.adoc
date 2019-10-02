@@ -80,7 +80,7 @@ The `value()` family methods always retrieve a `value`. If there is no value, a
 Default and optional value are available in two different ways:
 
 - Providing a default value
-- Requesting an `java.uti.Optional` object
+- Requesting an `java.util.Optional` object
 
 .Java
 [source, java,role="primary"]
