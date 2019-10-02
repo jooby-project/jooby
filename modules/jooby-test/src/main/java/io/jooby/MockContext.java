@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Unit test friendly context implementation. Allows to set context properties.
@@ -478,10 +479,24 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
+  @Nonnull @Override public MockContext send(@Nonnull byte[]... data) {
+    responseStarted = true;
+    this.response.setResult(data)
+        .setContentLength(IntStream.range(0, data.length).map(i -> data[i].length).sum());
+    return this;
+  }
+
   @Nonnull @Override public MockContext send(@Nonnull ByteBuffer data) {
     responseStarted = true;
     this.response.setResult(data)
         .setContentLength(data.remaining());
+    return this;
+  }
+
+  @Nonnull @Override public Context send(@Nonnull ByteBuffer[] data) {
+    responseStarted = true;
+    this.response.setResult(data)
+        .setContentLength(IntStream.range(0, data.length).map(i -> data[i].remaining()).sum());
     return this;
   }
 

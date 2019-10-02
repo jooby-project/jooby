@@ -39,6 +39,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2883,6 +2884,32 @@ public class FeaturedTest {
         assertEquals("form", rsp.body().string());
       });
     });
+  }
+
+  @Test
+  public void byteArrayResponse() {
+    new JoobyRunner(app -> {
+      app.get("/bytearray", ctx -> {
+        return ctx.send(partition(_19kb.getBytes(StandardCharsets.UTF_8), 1536));
+      });
+    }).ready(client -> {
+      client.get("/bytearray", rsp -> {
+        assertEquals(_19kb, rsp.body().string());
+      });
+    });
+  }
+
+  private byte[][] partition(byte[] bytes, int size) {
+    List<byte[]> result = new ArrayList<>();
+    int offset = 0;
+    while (offset < bytes.length) {
+      int len = Math.min(size,bytes.length - offset);
+      byte[] b = new byte[len];
+      System.arraycopy(bytes, offset, b, 0, len);
+      result.add(b);
+      offset += size;
+    }
+    return result.toArray(new byte[0][0]);
   }
 
   private static String readText(Path file) {

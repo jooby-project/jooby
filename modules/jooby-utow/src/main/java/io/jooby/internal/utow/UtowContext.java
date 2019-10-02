@@ -25,9 +25,11 @@ import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.undertow.Handlers;
+import io.undertow.connector.PooledByteBuffer;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.ServerConnection;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
@@ -345,6 +347,20 @@ public class UtowContext implements DefaultContext, IoCallback {
 
   @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
     return send(ByteBuffer.wrap(data.getBytes(charset)));
+  }
+
+  @Nonnull @Override public Context send(@Nonnull ByteBuffer[] data) {
+    HeaderMap headers = exchange.getResponseHeaders();
+    if (!headers.contains(CONTENT_LENGTH)) {
+      long len = 0;
+      for (ByteBuffer b : data) {
+        len += b.remaining();
+      }
+      exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(len));
+    }
+
+    exchange.getResponseSender().send(data,this);
+    return this;
   }
 
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {

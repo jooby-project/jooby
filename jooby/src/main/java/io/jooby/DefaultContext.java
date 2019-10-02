@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -399,6 +400,14 @@ public interface DefaultContext extends Context {
       @Nonnull String location) {
     setResponseHeader("location", location);
     return send(redirect);
+  }
+
+  @Override default @Nonnull Context send(@Nonnull byte[]... data) {
+    ByteBuffer[] buffer = new ByteBuffer[data.length];
+    for (int i = 0; i < data.length; i++) {
+      buffer[i] = ByteBuffer.wrap(data[i]);
+    }
+    return send(buffer);
   }
 
   @Override default @Nonnull Context send(@Nonnull String data) {

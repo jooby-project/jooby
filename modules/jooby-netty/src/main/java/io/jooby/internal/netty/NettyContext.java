@@ -401,6 +401,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return send(wrappedBuffer(data));
   }
 
+  @Nonnull @Override public Context send(@Nonnull byte[]... data) {
+    return send(Unpooled.wrappedBuffer(data));
+  }
+
+  @Nonnull @Override public Context send(@Nonnull ByteBuffer[] data) {
+    return send(Unpooled.wrappedBuffer(data));
+  }
+
   @Override public final Context send(ByteBuffer data) {
     return send(wrappedBuffer(data));
   }

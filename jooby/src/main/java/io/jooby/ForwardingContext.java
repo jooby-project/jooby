@@ -471,6 +471,16 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  @Nonnull @Override public Context send(@Nonnull byte[]... data) {
+    ctx.send(data);
+    return this;
+  }
+
+  @Nonnull @Override public Context send(@Nonnull ByteBuffer[] data) {
+    ctx.send(data);
+    return this;
+  }
+
   @Override @Nonnull public Context send(@Nonnull ReadableByteChannel channel) {
     ctx.send(channel);
     return this;

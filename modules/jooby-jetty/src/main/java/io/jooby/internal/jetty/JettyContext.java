@@ -26,6 +26,7 @@ import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
+import org.eclipse.jetty.http.HttpContent;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
@@ -34,6 +35,7 @@ import org.eclipse.jetty.http.MultiPartFormInputStream;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
@@ -43,8 +45,11 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.AsyncContext;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.Part;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -65,6 +70,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
@@ -380,6 +386,17 @@ public class JettyContext implements Callback, DefaultContext {
     return this;
   }
 
+  @Nonnull @Override public Context send(@Nonnull ByteBuffer[] data) {
+    if (response.getContentLength() <= 0) {
+      setResponseLength(BufferUtil.remaining(data));
+    }
+    ifStartAsync();
+    HttpOutput out = response.getHttpOutput();
+    out.setWriteListener(writeListener(request.getAsyncContext(), out, data));
+    responseStarted = true;
+    return this;
+  }
+
   @Nonnull @Override public Context send(@Nonnull byte[] data) {
     return send(ByteBuffer.wrap(data));
   }
@@ -554,4 +571,25 @@ public class JettyContext implements Callback, DefaultContext {
     }
   }
 
+  private static WriteListener writeListener(AsyncContext async, HttpOutput out,
+      ByteBuffer[] data) {
+    return new WriteListener() {
+      int i = 0;
+
+      @Override public void onWritePossible() throws IOException {
+        while (out.isReady()) {
+          if (i < data.length) {
+            out.write(data[i++]);
+          } else {
+            async.complete();
+            return;
+          }
+        }
+      }
+
+      @Override public void onError(Throwable x) {
+        async.complete();
+      }
+    };
+  }
 }
