@@ -10,11 +10,13 @@ import io.jooby.Cookie;
 import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SessionToken;
+import io.jooby.SneakyThrows;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class CookieSessionStore implements SessionStore {
 
@@ -41,11 +43,16 @@ public class CookieSessionStore implements SessionStore {
 
   private static final String NO_ID = "<missing>";
 
-  private final String secret;
+  private final Function<String, Map<String, String>> decoder;
+
+  private final Function<Map<String, String>, String> encoder;
+
   private final SessionToken token;
 
-  public CookieSessionStore(String secret, Cookie cookie) {
-    this.secret = secret;
+  public CookieSessionStore(Cookie cookie, Function<String, Map<String, String>> decoder,
+      Function<Map<String, String>, String> encoder) {
+    this.decoder = decoder;
+    this.encoder = encoder;
     this.token = new CookieToken(cookie);
   }
 
@@ -58,12 +65,8 @@ public class CookieSessionStore implements SessionStore {
     if (signed == null) {
       return null;
     }
-    String unsign = Cookie.unsign(signed, secret);
-    if (unsign == null) {
-      return null;
-    }
-    Map<String, String> attributes = Cookie.decode(unsign);
-    if (attributes.isEmpty()) {
+    Map<String, String> attributes = decoder.apply(signed);
+    if (attributes == null || attributes.size() == 0) {
       return null;
     }
     return Session.create(ctx, NO_ID, new HashMap<>(attributes)).setNew(false);
@@ -74,8 +77,7 @@ public class CookieSessionStore implements SessionStore {
   }
 
   @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
-    String value = Cookie.encode(session.toMap());
-    token.saveToken(ctx, Cookie.sign(value, secret));
+    token.saveToken(ctx, encoder.apply(session.toMap()));
   }
 
   @Override public void saveSession(@Nonnull Context ctx, @Nonnull Session session) {

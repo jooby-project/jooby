@@ -4,6 +4,7 @@ import io.jooby.freemarker.FreemarkerModule;
 import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.jetty.Jetty;
 import io.jooby.json.JacksonModule;
+import io.jooby.jwt.JwtSession;
 import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
 import io.reactivex.Flowable;
@@ -51,6 +52,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -2895,6 +2897,39 @@ public class FeaturedTest {
     }).ready(client -> {
       client.get("/bytearray", rsp -> {
         assertEquals(_19kb, rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void jsonwebtokenSession() {
+    new JoobyRunner(app -> {
+      app.install(new JwtSession("7a85c3b6-3ef0-4625-82d3-a1da36094804"));
+      app.get("/session", ctx -> {
+        Session session = ctx.session();
+        session.put("foo", "bar");
+        return session.toMap();
+      });
+
+      app.get("/ifsession", ctx -> {
+        Session session = ctx.sessionOrNull();
+        return session == null ? "<>" : session.toMap();
+      });
+    }).ready(client -> {
+      client.get("/session", rsp -> {
+        assertEquals("{foo=bar}", rsp.body().string());
+
+        String sid = sid(rsp, "jooby.sid=");
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/ifsession", ifsession -> {
+          assertEquals("{foo=bar}", ifsession.body().string());
+        });
+
+        // Tampering silent ignore the cookie
+        client.header("Cookie", "jooby.sid=" + sid + "x");
+        client.get("/ifsession", ifsession -> {
+          assertEquals("<>", ifsession.body().string());
+        });
       });
     });
   }

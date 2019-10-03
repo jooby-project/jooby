@@ -45,6 +45,8 @@
     <module>jooby-maven-plugin</module>
     <module>jooby-gradle-plugin</module>
 
+    <module>jooby-jwt</module>
+
     <!-- util -->
     <module>jooby-banner</module>
   </modules>

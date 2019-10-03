@@ -70,6 +70,8 @@
 
     <!-- Misc -->
     <okhttp.version>4.1.0</okhttp.version>
+    <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
+    <json.version>20190722</json.version>
 
     <commons-io.version>2.6</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
@@ -307,6 +309,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-apt</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-jwt</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -700,6 +708,25 @@
         <groupId>com.google.truth</groupId>
         <artifactId>truth</artifactId>
         <version>${truth.version}</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.json/json -->
+      <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>${json.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>${jsonwebtoken.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-orgjson</artifactId>
+        <version>${jsonwebtoken.version}</version>
       </dependency>
 
       <!-- Test dependencies -->

@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import com.typesafe.config.Config;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.crypto.Mac;
@@ -22,7 +24,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /**
  * Response cookie implementation. Response are send it back to client using
@@ -458,9 +463,43 @@ public class Cookie {
         start = end + 1;
       } while (start < len);
 
-      return attributes.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(attributes);
+      return attributes.isEmpty()
+          ? Collections.emptyMap()
+          : Collections.unmodifiableMap(attributes);
     } catch (UnsupportedEncodingException x) {
       throw SneakyThrows.propagate(x);
+    }
+  }
+
+  /**
+   * Attempt to create/parse a cookie from application configuration object. The namespace given
+   * must be present and must defined a <code>name</code> property.
+   *
+   * The namespace might optionally defined: value, path, domain, secure, httpOnly and maxAge.
+   *
+   * @param namespace Cookie namespace/prefix.
+   * @param conf Configuration object.
+   * @return Parsed cookie or empty.
+   */
+  public static @Nonnull Optional<Cookie> create(@Nonnull String namespace, @Nonnull Config conf) {
+    if (conf.hasPath(namespace)) {
+      Cookie cookie = new Cookie(conf.getString(namespace + ".name"));
+      value(conf, namespace + ".value", Config::getString, cookie::setValue);
+      value(conf, namespace + ".path", Config::getString, cookie::setPath);
+      value(conf, namespace + ".domain", Config::getString, cookie::setDomain);
+      value(conf, namespace + ".secure", Config::getBoolean, cookie::setSecure);
+      value(conf, namespace + ".httpOnly", Config::getBoolean, cookie::setHttpOnly);
+      value(conf, namespace + ".maxAge", (c, path) -> c.getDuration(path, TimeUnit.SECONDS),
+          cookie::setMaxAge);
+      return Optional.of(cookie);
+    }
+    return Optional.empty();
+  }
+
+  private static <T> void value(Config conf, String name, BiFunction<Config, String, T> mapper,
+      Consumer<T> consumer) {
+    if (conf.hasPath(name)) {
+      consumer.accept(mapper.apply(conf, name));
     }
   }
 

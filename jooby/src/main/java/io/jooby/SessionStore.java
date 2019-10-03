@@ -11,6 +11,8 @@ import io.jooby.internal.MemorySessionStore;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Instant;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Load and save sessions from store (memory, database, etc.).
@@ -112,23 +114,47 @@ public interface SessionStore {
    * <code>HMAC_SHA256</code>. See {@link Cookie#sign(String, String)}.
    *
    * @param secret Secret token to signed data.
-   * @param cookie Cookie to use.
    * @return A browser session store.
    */
-  static @Nonnull SessionStore cookie(@Nonnull String secret, @Nonnull Cookie cookie) {
-    return new CookieSessionStore(secret, cookie);
+  static @Nonnull SessionStore cookie(@Nonnull String secret) {
+    return cookie(secret, SessionToken.SID);
   }
 
   /**
    * Creates a session store that save data into Cookie. Cookie data is signed it using
    * <code>HMAC_SHA256</code>. See {@link Cookie#sign(String, String)}.
    *
-   * It uses the default session cookie: {@link SessionToken#SID}.
-   *
    * @param secret Secret token to signed data.
+   * @param cookie Cookie to use.
    * @return A browser session store.
    */
-  static @Nonnull SessionStore cookie(@Nonnull String secret) {
-    return cookie(secret, SessionToken.SID);
+  static @Nonnull SessionStore cookie(@Nonnull String secret, @Nonnull Cookie cookie) {
+    SneakyThrows.Function<String, Map<String, String>> decoder = value -> {
+      String unsign = Cookie.unsign(value, secret);
+      if (unsign == null) {
+        return null;
+      }
+      return Cookie.decode(unsign);
+    };
+
+    SneakyThrows.Function<Map<String, String>, String> encoder = attributes ->
+        Cookie.sign(Cookie.encode(attributes), secret);
+
+    return new CookieSessionStore(cookie, decoder, encoder);
+  }
+
+  /**
+   * Creates a session store that save data into Cookie. Cookie data is (un)signed it using the given
+   * decoder and encoder.
+   *
+   * @param cookie Cookie to use.
+   * @param decoder Decoder to use.
+   * @param encoder Encoder to use.
+   * @return Cookie session store.
+   */
+  static @Nonnull SessionStore cookie(@Nonnull Cookie cookie,
+      @Nonnull Function<String, Map<String, String>> decoder,
+      @Nonnull Function<Map<String, String>, String> encoder) {
+    return new CookieSessionStore(cookie, decoder, encoder);
   }
 }
