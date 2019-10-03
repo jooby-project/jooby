@@ -453,6 +453,31 @@ File upload are available ONLY for multipart requests.
 
 ====
 
+==== Session
+
+Session parameters are available via javadoc::Context[session] or javadoc::Context[sessionOrNull]
+methods. HTTP Session is covered in his own <<session, chapter>>, but here is a quick look:
+
+.Java
+[source,java,role="primary"]
+----
+  Session session = ctx.session();                      // <1>
+
+  String attribute = ctx.session("attribute").value();  // <2>
+
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+  val session = ctx.session()                             // <1>
+
+  val attribute = session.attribute("attribute").value()  // <2>
+----
+
+<1> Find an existing Session or create one
+<2> Get a session attribute
+
 ==== Flash
 
 Flash parameters are designed to transport success/error messages between requests. It is similar to

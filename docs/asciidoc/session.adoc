@@ -1,1 +1,21 @@
 == Session
+
+Session is accessible via 
+
+- javadoc::Context[sessionOrNull]: which find an existing session
+- javadoc::Context[session]: which find an existing session or create a new one
+
+Sessions have a lot of uses cases but the most commons are: authentication, storing information 
+about current user, etc.
+
+A session attribute must be a String or a primitive. The session doesn't allow storing of arbitrary 
+objects. It's intended as a simple mechanism to store basic data (not an object graph).
+
+Jooby provides two javadoc::SessionStore[] implementation:
+
+- In-Memory sessions - which you should combine with an a sticky sessions proxy if you plan to run multiple instances.
+- Cookie sessions signed with a secret key
+
+=== Working with Sessions
+
+
