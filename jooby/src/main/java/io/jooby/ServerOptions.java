@@ -44,7 +44,7 @@ public class ServerOptions {
 
   /** Number of worker (a.k.a application) threads. It is the number of processors multiply by
    * <code>8</code>. */
-  public static final int WORKER_THREADS = IO_THREADS * 8;
+  public static final int WORKER_THREADS = Runtime.getRuntime().availableProcessors() * 8;
 
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */
   private int port = DEFAULT_PORT;

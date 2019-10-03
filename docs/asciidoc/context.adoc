@@ -362,7 +362,7 @@ Form-data must be present in the HTTP body and encoded as `multipart/form-data`:
     
     String pass = ctx.multipart("pass").value();                      // <4>
     
-    FileUpload pic = ctx.multipart("pic").fileUpload();               // <5>
+    FileUpload pic = ctx.file("pic");                                 // <5>
 
     User user = ctx.multipart(User.class);                            // <6>
 
@@ -399,7 +399,7 @@ class User {
     
     val pass = ctx.multipart("pass").value()     // <4>
     
-    val pic = ctx.multipart("pic").fileUpload()  // <5>
+    val pic = ctx.file("pic")                    // <5>
 
     val user = ctx.multipart<User>()             // <6>
 
@@ -421,11 +421,11 @@ curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://loca
 <5> javadoc:FileUpload[] variable `pic`
 <6> Form as `User` object       => `User(id=root, pass=pwd, pic=profile.png)`
 
-[TIP]
+[NOTE]
 .File Upload
 ====
 
-You may prefer to use one of the utility methods:
+File upload are available ONLY for multipart requests.
 
 .Java
 [source,java,role="primary"]
