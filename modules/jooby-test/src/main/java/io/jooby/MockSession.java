@@ -28,6 +28,7 @@ public class MockSession implements Session {
   /**
    * Creates a mock session.
    *
+   * @param ctx Mock context.
    * @param sessionId Session ID.
    */
   public MockSession(@Nonnull MockContext ctx, @Nonnull String sessionId) {
@@ -39,6 +40,8 @@ public class MockSession implements Session {
 
   /**
    * Mock session with a random ID.
+   *
+   * @param ctx Mock context.
    */
   public MockSession(@Nonnull MockContext ctx) {
     this(ctx, UUID.randomUUID().toString());

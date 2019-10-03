@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
+import javax.ws.rs.core.Context;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -84,7 +85,9 @@ public interface Annotations {
    */
   Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PathParam.class.getName())));
 
-  Set<String> CONTEXT_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(ContextParam.class.getName())));
+  /** Context params. */
+  Set<String> CONTEXT_PARAMS = unmodifiableSet(
+      new LinkedHashSet<>(asList(ContextParam.class.getName(), Context.class.getName())));
 
   /**
    * Query parameters.
@@ -94,6 +97,9 @@ public interface Annotations {
       javax.ws.rs.QueryParam.class.getName()
   )));
 
+  /**
+   * Session parameters.
+   */
   Set<String> SESSION_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
       SessionParam.class.getName()
   )));
@@ -117,7 +123,8 @@ public interface Annotations {
   /**
    * Flash parameters.
    */
-  Set<String> FLASH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(FlashParam.class.getName())));
+  Set<String> FLASH_PARAMS = unmodifiableSet(
+      new LinkedHashSet<>(asList(FlashParam.class.getName())));
 
   /**
    * Form parameters.

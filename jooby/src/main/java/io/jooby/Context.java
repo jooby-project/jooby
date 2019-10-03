@@ -985,8 +985,20 @@ public interface Context extends Registry {
    */
   @Nonnull Context send(@Nonnull ByteBuffer data);
 
+  /**
+   * Send response data.
+   *
+   * @param data Response.
+   * @return This context.
+   */
   @Nonnull Context send(@Nonnull byte[]... data);
 
+  /**
+   * Send response data.
+   *
+   * @param data Response.
+   * @return This context.
+   */
   @Nonnull Context send(@Nonnull ByteBuffer[] data);
 
   /**

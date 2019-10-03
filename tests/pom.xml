@@ -45,6 +45,11 @@
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-jwt</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
     </dependency>
