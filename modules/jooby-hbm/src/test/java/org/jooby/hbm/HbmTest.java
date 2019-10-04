@@ -13,8 +13,9 @@ import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import hbm5.Beer;
-import static org.easymock.EasyMock.expect;
+
 import org.hibernate.Session;
+import org.hibernate.SessionBuilder;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataBuilder;
@@ -27,6 +28,7 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.engine.spi.SessionBuilderImplementor;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -37,13 +39,11 @@ import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Registry;
 import org.jooby.funzy.Throwing;
-import org.jooby.internal.hbm.GuiceBeanManager;
-import org.jooby.internal.hbm.OpenSessionInView;
-import org.jooby.internal.hbm.ScanEnvImpl;
-import org.jooby.internal.hbm.SessionProvider;
-import org.jooby.internal.hbm.UnitOfWorkProvider;
+import org.jooby.internal.hbm.*;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+
+import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -700,6 +700,53 @@ public class HbmTest {
         });
   }
 
+  @Test
+  public void doWithSessionBuilder() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, Integrator.class, SessionBuilderImplementor.class)
+        .expect(env("prod"))
+        .expect(bsrb)
+        .expect(ssrb("none"))
+        .expect(applySettins(ImmutableMap.of(
+                AvailableSettings.SESSION_FACTORY_NAME_IS_JNDI, false,
+                AvailableSettings.SCANNER_DISCOVERY, "class",
+                AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed")))
+        .expect(applyDataSource)
+        .expect(metadataSources())
+        .expect(metadataBuilder())
+        .expect(sessionFactoryBuilder("db"))
+        .expect(beanManager())
+        .expect(bind(null, SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
+        .expect(bind(null, EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
+        .expect(sessionProvider())
+        .expect(bind(null, Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
+        .expect(bind(null, EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
+        .expect(unitOfWork())
+        .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(onStart)
+        .expect(onStop)
+        .expect(unit -> {
+            SessionBuilder builder = unit.get(SessionBuilderImplementor.class);
+            expect(unit.get(SessionFactory.class).withOptions()).andReturn(builder);
+            expect(builder.setQueryParameterValidation(true)).andReturn(builder);
+            expect(builder.openSession()).andReturn(null);
+        })
+        .run(unit -> {
+            new Hbm()
+                    .doWithSessionBuilder((final SessionBuilder builder) -> {
+                        builder.setQueryParameterValidation(true);
+                    })
+                    .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
+
+            // invoke the captured object passed to the SessionProvider / UnitOfWorkProvider
+            unit.captured(SessionBuilderConfigurer.class).get(0).apply(unit.get(SessionFactory.class));
+        });
+  }
+
   @Test(expected = ClassCastException.class)
   public void genericSetupCallbackShouldReportClassCastException() throws Exception {
     String url = "jdbc:h2:target/hbm";
@@ -866,7 +913,8 @@ public class HbmTest {
       SessionFactory sf = unit.get(SessionFactory.class);
 
       SessionProvider sp = unit.constructor(SessionProvider.class)
-          .build(sf);
+          .args(SessionFactory.class, SessionBuilderConfigurer.class)
+          .build(eq(sf), unit.capture(SessionBuilderConfigurer.class));
 
       unit.registerMock(SessionProvider.class, sp);
     };
@@ -877,7 +925,8 @@ public class HbmTest {
       SessionFactory sf = unit.get(SessionFactory.class);
 
       UnitOfWorkProvider sp = unit.constructor(UnitOfWorkProvider.class)
-          .build(sf);
+          .args(SessionFactory.class, SessionBuilderConfigurer.class)
+          .build(eq(sf), unit.capture(SessionBuilderConfigurer.class));
 
       unit.registerMock(UnitOfWorkProvider.class, sp);
     };

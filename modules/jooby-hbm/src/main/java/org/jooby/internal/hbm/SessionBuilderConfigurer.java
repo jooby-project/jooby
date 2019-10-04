@@ -203,25 +203,17 @@
  */
 package org.jooby.internal.hbm;
 
-import javax.inject.Provider;
-
 import org.hibernate.Session;
+import org.hibernate.SessionBuilder;
 import org.hibernate.SessionFactory;
-import org.hibernate.context.internal.ManagedSessionContext;
 
-public class SessionProvider implements Provider<Session> {
+public interface SessionBuilderConfigurer {
 
-  private final SessionFactory sf;
-  private final SessionBuilderConfigurer sbc;
+  void configure(SessionBuilder sessionBuilder);
 
-  public SessionProvider(final SessionFactory sf, final SessionBuilderConfigurer sbc) {
-    this.sf = sf;
-    this.sbc = sbc;
+  default Session apply(SessionFactory sessionFactory) {
+    final SessionBuilder sb = sessionFactory.withOptions();
+    configure(sb);
+    return sb.openSession();
   }
-
-  @Override
-  public Session get() {
-    return ManagedSessionContext.hasBind(sf) ? sf.getCurrentSession() : sbc.apply(sf);
-  }
-
 }

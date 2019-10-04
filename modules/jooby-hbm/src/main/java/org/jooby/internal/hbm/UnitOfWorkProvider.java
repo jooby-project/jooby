@@ -212,9 +212,11 @@ import org.jooby.hbm.UnitOfWork;
 public class UnitOfWorkProvider implements Provider<UnitOfWork> {
 
   private final SessionFactory sf;
+  private final SessionBuilderConfigurer sbc;
 
-  public UnitOfWorkProvider(final SessionFactory sf) {
+  public UnitOfWorkProvider(final SessionFactory sf, final SessionBuilderConfigurer sbc) {
     this.sf = sf;
+    this.sbc = sbc;
   }
 
   @Override
@@ -222,7 +224,7 @@ public class UnitOfWorkProvider implements Provider<UnitOfWork> {
     if (ManagedSessionContext.hasBind(sf)) {
       return new ChildUnitOfWork(sf.getCurrentSession());
     } else {
-      return new RootUnitOfWork(sf.openSession());
+      return new RootUnitOfWork(sbc.apply(sf));
     }
   }
 
