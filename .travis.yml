@@ -19,5 +19,8 @@ branches:
   only:
     - 2.x
 
+install:
+  - ./etc/travis-install.sh
+
 script:
   - ./etc/travis.sh
