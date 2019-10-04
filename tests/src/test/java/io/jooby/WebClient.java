@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class WebClient {
+public class WebClient implements AutoCloseable {
 
   private class SyncWebSocketListener extends WebSocketListener {
 
@@ -252,5 +252,10 @@ public class WebClient {
 
   public int getPort() {
     return port;
+  }
+
+  public void close() {
+    client.dispatcher().executorService().shutdown();
+    client.connectionPool().evictAll();
   }
 }
