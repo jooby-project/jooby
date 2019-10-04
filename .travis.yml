@@ -20,4 +20,4 @@ branches:
     - 2.x
 
 script:
-  - ./etc/build.sh
+  - ./etc/travis.sh

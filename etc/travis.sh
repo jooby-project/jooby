@@ -2,5 +2,5 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd)
 
-sh $DIR/maven.sh -T C1 clean install -DskipTests=true
-sh $DIR/maven.sh -T C1 checkstyle:checkstyle -P checkstyle package
+sh $DIR/maven.sh clean install -q -DskipTests=true
+sh $DIR/maven.sh -Dlogback.configurationFile=$DIR/logback-travis.xml -q checkstyle:checkstyle -P checkstyle package

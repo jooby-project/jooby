@@ -106,7 +106,6 @@ public class JoobyRun {
 
     private void printErr(Throwable source) {
       Throwable cause = withoutReflection(source);
-      System.out.println("CAUSE " + cause);
       StackTraceElement[] stackTrace = cause.getStackTrace();
       int truncateAt = stackTrace.length;
       for (int i = 0; i < stackTrace.length; i++) {
