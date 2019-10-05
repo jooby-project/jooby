@@ -2,8 +2,8 @@
 
 Session is accessible via 
 
-- javadoc::Context[sessionOrNull]: which find an existing session
-- javadoc::Context[session]: which find an existing session or create a new one
+- javadoc:Context[sessionOrNull]: which find an existing session
+- javadoc:Context[session]: which find an existing session or create a new one
 
 Sessions have a lot of uses cases but the most commons are: authentication, storing information 
 about current user, etc.
@@ -11,11 +11,293 @@ about current user, etc.
 A session attribute must be a String or a primitive. The session doesn't allow storing of arbitrary 
 objects. It's intended as a simple mechanism to store basic data (not an object graph).
 
-Jooby provides two javadoc::SessionStore[] implementation:
+Jooby provides the following javadoc::SessionStore[]:
 
 - In-Memory sessions - which you should combine with an a sticky sessions proxy if you plan to run multiple instances.
 - Cookie sessions signed with a secret key
+- JSON Web Token sessions
 
-=== Working with Sessions
+=== In-Memory Session
 
+Default session store uses memory to save session data. This store:
 
+- Uses a cookie/header to read/save the session ID
+- Store session data in-memory
+
+.In-Memory Session
+[source,java,role="primary"]
+----
+{
+  get("/", ctx -> {
+    Session session = ctx.session();   // <1>
+
+    session.put("foo", "bar");         // <2>
+    
+    return session.get("foo").value(); // <3>
+  }); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/") {
+    val session = ctx.session()        // <1>
+
+    session.put("foo", "bar")          // <2>
+
+    session.get("foo").value()         // <3>
+  }
+}
+----
+
+<1> Find an existing session or create a new session
+<2> Set a session attribute
+<3> Get a session attribute
+
+Session token/ID is retrieved it from request cookie. Default session cookie is javadoc::SessionToken[SID, text=jooby.sid]. To customize cookie details:
+
+.In-Memory Session with Custom Cookie
+[source,java,role="primary"]
+----
+{
+  setSessionStore(SessionStore.memory(new Cookie("SESSION")));    // <1>
+
+  get("/", ctx -> {
+    Session session = ctx.session();
+
+    session.put("foo", "bar");
+    
+    return session.get("foo").value();
+  }); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  sessionStore = SessionStore.memory(Cookie("SESSION"))           // <1>
+
+  get("/") {
+    val session = ctx.session()
+
+    session.put("foo", "bar")
+
+    session.get("foo").value()
+  }
+}
+----
+
+<1> Set an `in-memory` session store with a custom cookie named: `SESSION`
+
+Alternative you can use a request header to retrieve a session token/ID:
+
+.In-Memory Session with HTTP Header
+[source,java,role="primary"]
+----
+{
+  setSessionStore(SessionStore.memory(SessionToken.header("TOKEN")));    // <1>
+
+  get("/", ctx -> {
+    Session session = ctx.session();
+
+    session.put("foo", "bar");
+    
+    return session.get("foo").value();
+  }); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  sessionStore = SessionStore.memory(SessionToken.header("TOKEN"))       // <1>
+
+  get("/") {
+    val session = ctx.session()
+
+    session.put("foo", "bar")
+
+    session.get("foo").value()
+  }
+}
+----
+
+<1> Session Token/ID comes from HTTP header `TOKEN`
+
+You can mix cookie and header tokens:
+
+.Java
+[source,java,role="primary"]
+----
+{
+  setSessionStore(SessionStore.memory(SessionToken.comibe(SessionToken.cookie("SESSION"), SessionToken.header("TOKEN"))));    // <1>
+
+  get("/", ctx -> {
+    Session session = ctx.session();
+
+    session.put("foo", "bar");
+    
+    return session.get("foo").value();
+  }); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  sessionStore = SessionStore.memory(SessionToken.combie(SessionToken.cookie("SESSION"), SessionToken.header("TOKEN")))       // <1>
+
+  get("/") {
+    val session = ctx.session()
+
+    session.put("foo", "bar")
+
+    session.get("foo").value()
+  }
+}
+----
+
+<1> Session Token/ID comes from HTTP Cookie `SESSION` or HTTP header `TOKEN` (in that order)
+
+=== Signed Session
+
+This is a stateless session store that expects to find session token on each request. The server doesn't keep any state.
+
+- Session data is retrieve/save from/into HTTP Cookie or Header
+- Session data is (un)signed with `HmacSHA256`. Key must be 256 bits long (32 bytes)
+
+Data sign/unsign is done using javadoc:Cookie[sign, java.lang.String, java.lang.String] and javadoc:Cookie[unsign, java.lang.String, java.lang.String].
+
+.Usage
+[source,java,role="primary"]
+----
+{
+  String secret = "super secret key";              // <1>
+
+  setSessionStore(SessionStore.signed(secret));    // <2>
+
+  get("/", ctx -> {
+    Session session = ctx.session();
+
+    session.put("foo", "bar");
+    
+    return session.get("foo").value();
+  }); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  val secret = "super secret key"                  // <1>
+
+  sessionStore = SessionStore.signed(secret)       // <2>
+
+  get("/") {
+    val session = ctx.session()
+
+    session.put("foo", "bar")
+
+    session.get("foo").value()
+  }
+}
+----
+
+<1> A secret key is required to signed the data
+<2> Creates a cookie session store using the secret
+
+Like with `memory` session store you can use HTTP headers:
+
+.Signed with headers
+[source,java,role="primary"]
+----
+{
+  String secret = "super secret key";                                            // <1>
+
+  setSessionStore(SessionStore.signed(secret, SessionToken.header("TOKEN")));    // <2>
+
+  get("/", ctx -> {
+    Session session = ctx.session();
+
+    session.put("foo", "bar");
+    
+    return session.get("foo").value();
+  }); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  val secret = "super secret key"                                                // <1>
+
+  sessionStore = SessionStore.signed(secret, SessionToken.header("TOKEN"))       // <2>
+
+  get("/") {
+    val session = ctx.session()
+
+    session.put("foo", "bar")
+
+    session.get("foo").value()
+  }
+}
+----
+
+=== JWT Session
+
+The javadoc:JWTSession[] session store works it also a stateless session that 
+uses https://jwt.io[JSON Web Token] standard to decode/encode data.
+
+To use the javadoc:JWTSession[] session store you need to add the `jooby-jwt` dependency:
+
+[dependency, artifactId="jooby-jwt"]
+.
+
+.JWT Session
+[source,java,role="primary"]
+----
+
+import io.jooby.session.JWTSession;
+
+{
+  String secret = "super secret key";         // <1>
+
+  setSessionStore(new JWTSession(secret));    // <2>
+
+  get("/", ctx -> {
+    Session session = ctx.session();
+
+    session.put("foo", "bar");
+    
+    return session.get("foo").value();
+  }); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+
+import io.jooby.session.JWTSession
+
+{
+  val secret = "super secret key"             // <1>
+
+  sessionStore = JWTSession(secret)           // <2>
+
+  get("/") {
+    val session = ctx.session()
+
+    session.put("foo", "bar")
+
+    session.get("foo").value()
+  }
+}
+----

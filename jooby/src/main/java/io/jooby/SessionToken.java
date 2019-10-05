@@ -10,7 +10,6 @@ import io.jooby.internal.MultipleSessionToken;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.SecureRandom;
-import java.time.Duration;
 import java.util.Base64;
 
 /**
@@ -92,11 +91,44 @@ public interface SessionToken {
   }
 
   /**
+   * Looks for a session token from request cookie. This strategy:
+   *
+   * - find a token from a request cookie.
+   * - on save, set a response cookie.
+   * - on destroy, expire the cookie.
+   */
+  class SignedCookie implements SessionToken {
+
+    private final Cookie cookie;
+
+    /**
+     * Creates a Cookie ID.
+     *
+     * @param cookie Cookie to use.
+     */
+    public SignedCookie(@Nonnull Cookie cookie) {
+      this.cookie = cookie;
+    }
+
+    @Nullable @Override public String findToken(@Nonnull Context ctx) {
+      return ctx.cookieMap().get(cookie.getName());
+    }
+
+    @Override public void saveToken(@Nonnull Context ctx, @Nonnull String token) {
+      ctx.setResponseCookie(cookie.clone().setValue(token));
+    }
+
+    @Override public void deleteToken(@Nonnull Context ctx, @Nonnull String token) {
+      ctx.setResponseCookie(cookie.clone().setMaxAge(0));
+    }
+  }
+
+  /**
    * Default cookie for cookie based session stores.
    * Uses <code>jooby.sid</code> as name. It never expires, use the root, only for HTTP.
    */
   Cookie SID = new Cookie("jooby.sid")
-      .setMaxAge(Duration.ofSeconds(-1))
+      .setMaxAge(-1)
       .setHttpOnly(true)
       .setPath("/");
 
@@ -157,8 +189,22 @@ public interface SessionToken {
    * @param cookie Cookie to use.
    * @return Session Token.
    */
-  static @Nonnull SessionToken cookie(@Nonnull Cookie cookie) {
+  static @Nonnull SessionToken cookieId(@Nonnull Cookie cookie) {
     return new CookieID(cookie);
+  }
+
+  /**
+   * Create a signed-cookie-based Session token. This strategy:
+   *
+   * - find a token from a request cookie.
+   * - on save, set a response cookie.
+   * - on destroy, expire the cookie.
+   *
+   * @param cookie Cookie to use.
+   * @return Session Token.
+   */
+  static @Nonnull SessionToken signedCookie(@Nonnull Cookie cookie) {
+    return new SignedCookie(cookie);
   }
 
   /**
