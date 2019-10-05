@@ -3,7 +3,5 @@
 * make reset headers on error configurable
 * netty reports a leak in MVC body
 
-* doc Session
 * doc WebSocket
-* doc FileUpload change
 * doc ContextParam/SessionParam

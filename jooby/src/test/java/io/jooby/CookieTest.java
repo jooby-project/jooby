@@ -27,7 +27,7 @@ public class CookieTest {
   }
 
   @Test
-  public void singUnsign() {
+  public void signUnsign() {
     assertEquals("1bqmVaHYY/O6zMFHI8iwJXLWaNmYKbYkuMX4gnRdO+Y|foo=bar",
         Cookie.sign("foo=bar", "987654345!$009P"));
     assertEquals("foo=bar",

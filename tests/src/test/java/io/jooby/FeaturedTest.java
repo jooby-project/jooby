@@ -4,7 +4,7 @@ import io.jooby.freemarker.FreemarkerModule;
 import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.jetty.Jetty;
 import io.jooby.json.JacksonModule;
-import io.jooby.jwt.JwtSession;
+import io.jooby.jwt.JwtSessionStore;
 import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
 import io.reactivex.Flowable;
@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -1765,7 +1764,7 @@ public class FeaturedTest {
   @Test
   public void cookieDataSession() {
     new JoobyRunner(app -> {
-      app.setSessionStore(SessionStore.cookie("ABC123"));
+      app.setSessionStore(SessionStore.signed("ABC123"));
 
       app.get("/session", ctx -> {
         Session session = ctx.session();
@@ -1878,7 +1877,7 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
       SessionToken token = SessionToken
           .combine(SessionToken.header("TOKEN"),
-              SessionToken.cookie(SessionToken.SID.clone().setMaxAge(Duration.ofMinutes(30))));
+              SessionToken.cookieId(SessionToken.SID.clone().setMaxAge(Duration.ofMinutes(30))));
 
       app.setSessionStore((SessionStore.memory(token)));
 
@@ -2904,7 +2903,7 @@ public class FeaturedTest {
   @Test
   public void jsonwebtokenSession() {
     new JoobyRunner(app -> {
-      app.install(new JwtSession("7a85c3b6-3ef0-4625-82d3-a1da36094804"));
+      app.setSessionStore(new JwtSessionStore("7a85c3b6-3ef0-4625-82d3-a1da36094804"));
       app.get("/session", ctx -> {
         Session session = ctx.session();
         session.put("foo", "bar");
@@ -2914,6 +2913,11 @@ public class FeaturedTest {
       app.get("/ifsession", ctx -> {
         Session session = ctx.sessionOrNull();
         return session == null ? "<>" : session.toMap();
+      });
+
+      app.get("/destroy", ctx -> {
+        ctx.session().destroy();;
+        return "destroy";
       });
     }).ready(client -> {
       client.get("/session", rsp -> {
@@ -2929,6 +2933,13 @@ public class FeaturedTest {
         client.header("Cookie", "jooby.sid=" + sid + "x");
         client.get("/ifsession", ifsession -> {
           assertEquals("<>", ifsession.body().string());
+        });
+
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/destroy", destroy -> {
+          assertEquals(
+              "[jooby.sid=;Path=/;HttpOnly;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT]",
+              destroy.headers("Set-Cookie").toString());
         });
       });
     });

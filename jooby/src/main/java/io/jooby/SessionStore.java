@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import io.jooby.internal.CookieSessionStore;
+import io.jooby.internal.SignedSessionStore;
 import io.jooby.internal.MemorySessionStore;
 
 import javax.annotation.Nonnull;
@@ -96,7 +96,7 @@ public interface SessionStore {
    * @return Session store.
    */
   static @Nonnull SessionStore memory(@Nonnull Cookie cookie) {
-    return memory(SessionToken.cookie(cookie));
+    return memory(SessionToken.cookieId(cookie));
   }
 
   /**
@@ -110,25 +110,43 @@ public interface SessionStore {
   }
 
   /**
-   * Creates a session store that save data into Cookie. Cookie data is signed it using
-   * <code>HMAC_SHA256</code>. See {@link Cookie#sign(String, String)}.
+   * Creates a session store that uses (un)signed data. Session data is signed it using
+   * <code>HMAC_SHA256</code>.
+   *
+   * See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
    *
    * @param secret Secret token to signed data.
    * @return A browser session store.
    */
-  static @Nonnull SessionStore cookie(@Nonnull String secret) {
-    return cookie(secret, SessionToken.SID);
+  static @Nonnull SessionStore signed(@Nonnull String secret) {
+    return signed(secret, SessionToken.SID);
   }
 
   /**
-   * Creates a session store that save data into Cookie. Cookie data is signed it using
-   * <code>HMAC_SHA256</code>. See {@link Cookie#sign(String, String)}.
+   * Creates a session store that uses (un)signed data. Session data is signed it using
+   * <code>HMAC_SHA256</code>.
+   *
+   * See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
    *
    * @param secret Secret token to signed data.
    * @param cookie Cookie to use.
    * @return A browser session store.
    */
-  static @Nonnull SessionStore cookie(@Nonnull String secret, @Nonnull Cookie cookie) {
+  static @Nonnull SessionStore signed(@Nonnull String secret, @Nonnull Cookie cookie) {
+    return signed(secret, SessionToken.signedCookie(cookie));
+  }
+
+  /**
+   * Creates a session store that uses (un)signed data. Session data is signed it using
+   * <code>HMAC_SHA256</code>.
+   *
+   * See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
+   *
+   * @param secret Secret token to signed data.
+   * @param token Session token to use.
+   * @return A browser session store.
+   */
+  static @Nonnull SessionStore signed(@Nonnull String secret, @Nonnull SessionToken token) {
     SneakyThrows.Function<String, Map<String, String>> decoder = value -> {
       String unsign = Cookie.unsign(value, secret);
       if (unsign == null) {
@@ -140,21 +158,21 @@ public interface SessionStore {
     SneakyThrows.Function<Map<String, String>, String> encoder = attributes ->
         Cookie.sign(Cookie.encode(attributes), secret);
 
-    return new CookieSessionStore(cookie, decoder, encoder);
+    return signed(token, decoder, encoder);
   }
 
   /**
    * Creates a session store that save data into Cookie. Cookie data is (un)signed it using the given
    * decoder and encoder.
    *
-   * @param cookie Cookie to use.
+   * @param token Token to use.
    * @param decoder Decoder to use.
    * @param encoder Encoder to use.
    * @return Cookie session store.
    */
-  static @Nonnull SessionStore cookie(@Nonnull Cookie cookie,
+  static @Nonnull SessionStore signed(@Nonnull SessionToken token,
       @Nonnull Function<String, Map<String, String>> decoder,
       @Nonnull Function<Map<String, String>, String> encoder) {
-    return new CookieSessionStore(cookie, decoder, encoder);
+    return new SignedSessionStore(token, decoder, encoder);
   }
 }
