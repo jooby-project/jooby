@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.AttributeKey;
 
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +37,8 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<NettyWebSocket>> all = new ConcurrentHashMap<>();
 
+  static final AttributeKey<NettyWebSocket> WS = AttributeKey.newInstance(NettyWebSocket.class.getName());
+
   private final NettyContext netty;
   private final boolean dispatch;
   private final String key;
@@ -49,6 +52,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     this.netty = ctx;
     this.key = ctx.getRoute().getPattern();
     this.dispatch = !ctx.isInIoThread();
+    this.netty.ctx.channel().attr(WS).set(this);
   }
 
   public WebSocket send(String text, boolean broadcast) {

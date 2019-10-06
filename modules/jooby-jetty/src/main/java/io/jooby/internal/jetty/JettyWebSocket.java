@@ -12,11 +12,11 @@ import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
+import org.eclipse.jetty.websocket.api.CloseException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.WriteCallback;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeoutException;
 
 public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, WebSocket,
     WriteCallback {
@@ -36,6 +37,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
 
   private final JettyContext ctx;
   private final String key;
+  private final String path;
   private Session session;
   private WebSocket.OnConnect onConnectCallback;
   private WebSocket.OnMessage onMessageCallback;
@@ -44,6 +46,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
 
   public JettyWebSocket(JettyContext ctx) {
     this.ctx = ctx;
+    this.path = ctx.pathString();
     this.key = ctx.getRoute().getPattern();
   }
 
@@ -82,19 +85,29 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
 
   @Override public void onWebSocketError(Throwable x) {
     // should close?
-    if (Server.connectionLost(x) || SneakyThrows.isFatal(x)) {
-      handleClose(WebSocketCloseStatus.SERVER_ERROR);
-    }
+    if (!isTimeout(x)) {
+      if (Server.connectionLost(x) || SneakyThrows.isFatal(x)) {
+        handleClose(WebSocketCloseStatus.SERVER_ERROR);
+      }
 
-    if (onErrorCallback == null) {
-      ctx.getRouter().getLog().error("Websocket resulted in exception: {}", ctx.pathString(), x);
-    } else {
-      onErrorCallback.onError(this, x);
-    }
+      if (onErrorCallback == null) {
+        ctx.getRouter().getLog().error("Websocket resulted in exception: {}", path, x);
+      } else {
+        onErrorCallback.onError(this, x);
+      }
 
-    if (SneakyThrows.isFatal(x)) {
-      throw SneakyThrows.propagate(x);
+      if (SneakyThrows.isFatal(x)) {
+        throw SneakyThrows.propagate(x);
+      }
     }
+  }
+
+  private boolean isTimeout(Throwable x) {
+    if (x instanceof CloseException) {
+      Throwable cause = x.getCause();
+      return cause instanceof TimeoutException;
+    }
+    return false;
   }
 
   @Nonnull @Override public WebSocketConfigurer onConnect(
@@ -181,7 +194,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   @Override public void writeFailed(Throwable x) {
-    ctx.getRouter().getLog().error("Websocket resulted in exception: {}", ctx.pathString(), x);
+    ctx.getRouter().getLog().error("Websocket resulted in exception: {}", path, x);
   }
 
   @Override public void writeSuccess() {

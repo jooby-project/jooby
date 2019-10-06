@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.jetty;
 
+import com.typesafe.config.Config;
 import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
@@ -70,6 +71,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;

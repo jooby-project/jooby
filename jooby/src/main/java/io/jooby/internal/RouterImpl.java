@@ -5,6 +5,7 @@
  */
 package io.jooby.internal;
 
+import com.typesafe.config.Config;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.Jooby;
@@ -152,6 +153,10 @@ public class RouterImpl implements Router {
 
     converters = ValueConverters.defaultConverters();
     beanConverters = new ArrayList<>(3);
+  }
+
+  @Nonnull @Override public Config getConfig() {
+    throw new UnsupportedOperationException();
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
