@@ -29,7 +29,7 @@ supports classpath and file-system resources.
 [source, java, role="primary"]
 ----
 {
-  assets("/static/*", Paths.get("static")); <1>
+  assets("/static/*", Paths.get("www")); <1>
 }
 ----
 
