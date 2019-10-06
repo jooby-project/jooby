@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import com.typesafe.config.Config;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -82,6 +83,13 @@ public interface Router extends Registry {
 
   /** Web socket. */
   String WS = "WS";
+
+  /**
+   * Application configuration.
+   *
+   * @return Application configuration.
+   */
+  @Nonnull Config getConfig();
 
   /**
    * Mutable map of application attributes.

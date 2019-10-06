@@ -235,6 +235,11 @@ open class Kooby constructor() : Jooby() {
     return super.route(method, pattern) { ctx -> handler(HandlerContext(ctx)) }.setHandle(handler)
   }
 
+  @RouterDsl
+  fun ws(pattern: String, handler: WebSocketInitContext.() -> Any): Route {
+    return super.ws(pattern) { ctx, initializer -> handler(WebSocketInitContext(ctx, initializer)) }
+  }
+
   @OptionsDsl
   fun serverOptions(configurer: ServerOptions.() -> Unit): Kooby {
     val options = ServerOptions()

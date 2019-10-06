@@ -10,6 +10,7 @@ import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Server;
 import io.jooby.StatusCode;
+import io.jooby.WebSocketCloseStatus;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
@@ -25,6 +26,7 @@ import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
 import io.netty.util.concurrent.FastThreadLocal;
 import org.slf4j.Logger;
@@ -131,6 +133,15 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
     if (context != null) {
       context.flush();
+    }
+  }
+
+  @Override public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+    if (evt instanceof IdleStateEvent) {
+      NettyWebSocket ws = ctx.channel().attr(NettyWebSocket.WS).getAndSet(null);
+      if (ws != null) {
+        ws.close(WebSocketCloseStatus.GOING_AWAY);
+      }
     }
   }
 

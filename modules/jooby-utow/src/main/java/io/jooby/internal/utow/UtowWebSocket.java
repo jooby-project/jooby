@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.utow;
 
+import com.typesafe.config.Config;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.SneakyThrows;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class UtowWebSocket extends AbstractReceiveListener
     implements WebSocketConfigurer, WebSocket, WebSocketCallback<Void> {
@@ -51,6 +53,10 @@ public class UtowWebSocket extends AbstractReceiveListener
   }
 
   @Override protected long getMaxTextBufferSize() {
+    return MAX_BUFFER_SIZE;
+  }
+
+  @Override protected long getMaxBinaryBufferSize() {
     return MAX_BUFFER_SIZE;
   }
 
@@ -138,6 +144,13 @@ public class UtowWebSocket extends AbstractReceiveListener
   void fireConnect() {
     try {
       addSession(this);
+      Config conf = ctx.getRouter().getConfig();
+      long timeout = conf.hasPath("websocket.idleTimeout")
+          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
+          : 5;
+      if (timeout > 0) {
+        channel.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
+      }
       channel.getReceiveSetter().set(this);
       channel.resumeReceives();
       if (onConnectCallback != null) {

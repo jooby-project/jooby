@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.netty;
 
+import com.typesafe.config.Config;
 import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
@@ -55,6 +56,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ReferenceCounted;
 
 import javax.annotation.Nonnull;
@@ -68,6 +71,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,6 +81,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
@@ -290,6 +295,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
               webSocket.fireConnect();
             }
           });
+      Config conf = getRouter().getConfig();
+      long timeout = conf.hasPath("websocket.idleTimeout")
+          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
+          : 5;
+      if (timeout > 0) {
+        IdleStateHandler idle = new IdleStateHandler(timeout, 0, 0, TimeUnit.MINUTES);
+        ctx.pipeline().addBefore("handler", "idle", idle);
+      }
     } catch (Throwable x) {
       sendError(x);
     }

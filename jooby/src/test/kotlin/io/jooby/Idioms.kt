@@ -130,6 +130,13 @@ class Idioms : Kooby({
       ctx.pathString()
     }
   }
+
+  /** WebSocket: */
+  ws("/ws") {
+    configurer.onConnect { ws ->
+      ws.send("SS")
+    }
+  }
 })
 
 class IdiomsController {}

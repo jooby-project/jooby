@@ -5,6 +5,7 @@
  */
 package io.jooby.jetty;
 
+import com.typesafe.config.Config;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
@@ -29,6 +30,7 @@ import javax.annotation.Nonnull;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Web server implementation using <a href="https://www.eclipse.org/jetty/">Jetty</a>.
@@ -112,6 +114,11 @@ public class Jetty extends io.jooby.Server.Base {
       WebSocketPolicy policy = new WebSocketPolicy(WebSocketBehavior.SERVER);
       policy.setMaxTextMessageBufferSize(WebSocket.MAX_BUFFER_SIZE);
       policy.setMaxTextMessageSize(WebSocket.MAX_BUFFER_SIZE);
+      Config conf = application.getConfig();
+      long timeout = conf.hasPath("websocket.idleTimeout")
+          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
+          : 5;
+      policy.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
       WebSocketServerFactory wssf = new WebSocketServerFactory(context.getServletContext(), policy);
       context.setAttribute(JettyWebSocket.WEBSOCKET_SERVER_FACTORY, wssf);
       context.addManaged(wssf);
