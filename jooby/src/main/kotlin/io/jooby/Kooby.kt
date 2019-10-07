@@ -64,11 +64,11 @@ operator fun ValueNode.get(index: Int): ValueNode {
   return this.get(index)
 }
 
-inline fun <reified T> ValueNode.to(): T? {
+inline fun <reified T> Value.to(): T {
   return this.to(T::class.java)
 }
 
-infix fun <T : Any> ValueNode.to(type: KClass<T>): T? {
+infix fun <T : Any> Value.to(type: KClass<T>): T {
   return this.to(type.java)
 }
 

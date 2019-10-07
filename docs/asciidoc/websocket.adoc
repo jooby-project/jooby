@@ -1,0 +1,183 @@
+== Web Sockets
+
+Jooby supports https://developer.mozilla.org/es/docs/Web/API/WebSockets_API[WebSockets].
+A javadoc:WebSocket[] is registered like any other handler:
+
+.WebSocket
+[source,java,role="primary"]
+----
+{
+  ws("/ws", (ctx, configurer) -> {             // <1>
+    configurer.onConnect(ws -> {
+      ws.send("Connected");                    // <2>
+    });
+    
+    configurer.onMessage((ws, message) -> {
+      ws.send("Got " + message.value());       // <3>
+    });
+    
+    configurer.onClose((ws, statusCode) -> {
+                                               // <4>
+    });
+    
+    configurer.onError((ws, cause) -> {
+                                               // 5
+    });
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  ws("/ws") {                                  // <1>
+    configurer.onConnect { ws ->
+      ws.send("Connected")                     // <2>
+    }
+    
+    configurer.onMessage { ws, message ->
+      ws.send("Got " + message.value())        // <3>
+    }
+    
+    configurer.onClose { ws, statusCode ->
+                                               // <4>
+    }
+
+    configurer.onError { ws, cause ->
+                                               // <5>
+    }
+  }
+}
+----
+
+<1> Add a WebSocket handler. Useful to initialize resources
+<2> On WebSocket connect/open send a message back to client. Useful to initialize resources
+<3> On new message send back to client
+<4> WebSocket is about to close, you must free/release any acquire resources
+<5> WebSocket found a exception. Useful to log the error and provide an alternative response is 
+the WebSocket is still open
+
+You are free to access to HTTP context from WebSocket configurer or callback, but it is disallowed
+to modify the HTTP context or produces a response from it:
+
+.Context
+[source,java,role="primary"]
+----
+{
+  ws("/ws/{key}", (ctx, configurer) -> {
+    String key = ctx.path("key").value();           // <1>
+    String foo = ctx.session().get("foo").value();  // <2>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  ws("/ws/{key}") { ctx, configurer ->
+    val key = ctx.path("key").value()               // <1>
+    val foo = ctx.session().get("foo").value()      // <2>
+    ...
+  }
+}
+----
+
+<1> Access to path variable: `key`
+<2> Access to session variable: `foo`
+
+=== Structured data
+
+Structure data is supported using the Value API and the javadoc:WebSocket[render] method:
+
+.JSON example:
+
+.JSON example
+[source,java,role="primary"]
+----
+import io.jooby.json.JacksonModule;
+
+{
+  install(new JackonModule());                         // <1>
+
+  ws("/ws", (ctx, configurer) -> {
+    configurer.onMessage((ws, message) -> {
+      MyObject myobject = message.to(MyObject.class);  // <2>
+      ws.render(myobject);                             // <3>
+    })
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  install(JacksonModule())                             // <1>
+
+  ws("/ws/{key}") { ctx, configurer ->
+    configurer.onMessage { ws, message -> 
+      val myobject = message.to<MyObject>()            // <2>
+      ws.render(myobject)                              // <3>
+    }
+  }
+}
+----
+
+<1> Install Jackson module (required for JSON decoding/encoding)
+<2> Parse/decode message to `MyObject`
+<3> Encode myobject as JSON and send to client
+
+Alternative you explicit tells with decoder/encoder to use using consumes/produces attributes:
+
+.Context
+[source,java,role="primary"]
+----
+import io.jooby.json.JacksonModule;
+
+{
+  install(new JackonModule());                         // <1>
+
+  ws("/ws", (ctx, configurer) -> {
+    configurer.onMessage((ws, message) -> {
+      MyObject myobject = message.to(MyObject.class);  // <2>
+      ws.render(myobject);                             // <3>
+    })
+  })
+    .consumes(MediaType.json)
+    .produces(MediaType.json);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  install(JacksonModule())                             // <1>
+
+  ws("/ws/{key}") { ctx, configurer ->
+    configurer.onMessage { ws, message -> 
+      val myobject = message.to<MyObject>()            // <2>
+      ws.render(myobject)                              // <3>
+    }
+  }.consumes(MediaType.json)
+   .produces(MediaType.json)
+}
+----
+
+Structure messages depends/requires a javadoc:MessageDecoder[] and jadoc:MessageEncoder[]. In this
+example both are provided by the JacksonModule.
+
+=== Connection Timeouts
+By default Jooby will timeout idle connections that have no activity after 5 minutes. You can 
+control this behaviour by setting the `websocket.idleTimeout` property:
+
+.application.conf
+[source, properties]
+----
+websocket.idleTimeout = 1h
+----
+
+See https://github.com/lightbend/config/blob/master/HOCON.md#duration-format[duration format]

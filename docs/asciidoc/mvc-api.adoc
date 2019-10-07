@@ -332,6 +332,123 @@ class MyController {
 
 <1> Access to flash named `success`
 
+==== Session
+
+Provisioning of session attribute is available via javadoc:annotations.SessionParam[] annotation:
+
+.Session Attribute
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @GET
+  public Object provisioning(@SessionParam String userId) {  // <1>
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @GET
+  fun provisioning(@SessionParam userId: String) : Any {  // <1>
+    ...
+  }
+}
+----
+
+<1> Access to session attribute named `userId`
+
+Provisioning of javadoc:Session[] is available too:
+
+.Session Attribute
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @GET
+  public Object provisioning(Session session) {  // <1>
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @GET
+  fun provisioning(session: Session) : Any {  // <1>
+    ...
+  }
+}
+----
+
+<1> If no session exists yet, new session will be created
+
+To avoid this, just use `java.util.Optional<Session>` as type.
+
+==== Context
+
+Provisioning of context attributes is available via javadoc:annotations.ContextParam[] annotation:
+
+.Context Attribute
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @GET
+  public Object provisioning(@ContextParam String userId) {  // <1>
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @GET
+  fun provisioning(@ContextParam userId: String) : Any {  // <1>
+    ...
+  }
+}
+----
+
+<1> Access to context attribute named `userId`
+
+Provisioning of all javadoc:Context[getAttributes, text="attributes"] is available too:
+
+.Context Attributes
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @GET
+  public Object provisioning(@ContextParam Map<String, Object> attributes) {  // <1>
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @GET
+  fun provisioning(@ContextParam attributes: Map<String, Object>) : Any {  // <1>
+    ...
+  }
+}
+----
+
+<1> All context attributes must be set as arguments. They must be declared as `Map<String, Object>`
 
 === Registration
 
