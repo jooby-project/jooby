@@ -71,7 +71,7 @@ public class AssetHandler implements Route.Handler {
       }
       // Still null?
       if (asset == null) {
-        ctx.sendError(new StatusCodeException(StatusCode.NOT_FOUND));
+        ctx.send(StatusCode.NOT_FOUND);
         return ctx;
       }
     }
