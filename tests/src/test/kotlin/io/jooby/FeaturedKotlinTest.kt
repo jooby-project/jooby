@@ -1,6 +1,7 @@
 package io.jooby
 
 import io.jooby.internal.mvc.KotlinMvc
+import io.jooby.netty.Netty
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.delay
@@ -136,7 +137,7 @@ class FeaturedKotlinTest {
               .send(cause.message!!)
         }
       }
-    }.ready { client ->
+    }.ready ({ client ->
       client.get("/") { rsp ->
         assertEquals("Got it!", rsp.body!!.string())
       }
@@ -152,6 +153,6 @@ class FeaturedKotlinTest {
       client.get("/456x") { rsp ->
         assertEquals("Cannot convert value: 'id', to: 'int'", rsp.body!!.string())
       }
-    }
+    })
   }
 }
