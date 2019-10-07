@@ -83,6 +83,6 @@ public class WebSocketTest {
         assertEquals("{\"message\":\"Hello JSON!\"}", ws.send("{\"message\" : \"Hello JSON!\"}"));
       });
     });
-
   }
+
 }

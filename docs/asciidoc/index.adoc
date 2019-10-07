@@ -240,11 +240,13 @@ include::templates.adoc[]
 
 include::session.adoc[]
 
+include::websocket.adoc[]
+
+include::mvc-api.adoc[]
+
 include::execution-model.adoc[]
 
 include::responses.adoc[]
-
-include::mvc-api.adoc[]
 
 include::error-handler.adoc[]
 

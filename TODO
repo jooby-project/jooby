@@ -2,6 +2,3 @@
 * tests and coverage
 * make reset headers on error configurable
 * netty reports a leak in MVC body
-
-* doc WebSocket
-* doc ContextParam/SessionParam

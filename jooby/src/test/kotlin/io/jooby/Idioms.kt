@@ -136,7 +136,13 @@ class Idioms : Kooby({
     configurer.onConnect { ws ->
       ws.send("SS")
     }
+    configurer.onMessage { ws, message ->
+      val value = message.to<IdiomsPojo> ()
+      ws.render(value)
+    }
   }
 })
 
 class IdiomsController {}
+
+class IdiomsPojo {}
