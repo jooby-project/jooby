@@ -66,7 +66,7 @@ public class Utow extends Server.Base {
       }
 
       Undertow.Builder builder = Undertow.builder()
-          .addHttpListener(options.getPort(), "0.0.0.0")
+          .addHttpListener(options.getPort(), options.getHost())
           .setBufferSize(options.getBufferSize())
           /** Socket : */
           .setSocketOption(Options.BACKLOG, BACKLOG)

@@ -106,7 +106,7 @@ public class Netty extends Server.Base {
           .childOption(ChannelOption.SO_REUSEADDR, true)
           .childOption(ChannelOption.TCP_NODELAY, true);
 
-      bootstrap.bind("0.0.0.0", options.getPort()).get();
+      bootstrap.bind(options.getHost(), options.getPort()).get();
 
       fireReady(applications);
     } catch (InterruptedException x) {

@@ -93,7 +93,7 @@ public class Jetty extends io.jooby.Server.Base {
       ServerConnector connector = new ServerConnector(server);
       connector.addConnectionFactory(new HttpConnectionFactory(httpConf));
       connector.setPort(options.getPort());
-      connector.setHost("0.0.0.0");
+      connector.setHost(options.getHost());
 
       server.addConnector(connector);
 

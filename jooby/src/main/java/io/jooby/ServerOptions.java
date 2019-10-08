@@ -73,6 +73,8 @@ public class ServerOptions {
    */
   private int maxRequestSize = _10MB;
 
+  private String host = "0.0.0.0";
+
   /**
    * Creates server options from config object. The configuration options must provided entries
    * like: <code>server.port</code>, <code>server.ioThreads</code>, etc...
@@ -106,6 +108,9 @@ public class ServerOptions {
       }
       if (conf.hasPath("server.workerThreads")) {
         options.setWorkerThreads(conf.getInt("server.workerThreads"));
+      }
+      if (conf.hasPath("server.host")) {
+        options.setHost(conf.getString("server.host"));
       }
       return Optional.of(options);
     }
@@ -318,6 +323,28 @@ public class ServerOptions {
   public @Nonnull ServerOptions setMaxRequestSize(int maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
     return this;
+  }
+
+  /**
+   * Server host, defaults is <code>0.0.0.0</code>.
+   *
+   * @return Server host, defaults is <code>0.0.0.0</code>.
+   */
+  public String getHost() {
+    return host;
+  }
+
+  /**
+   * Set the server host, defaults to <code>0.0.0.0</code>.
+   *
+   * @param host Server host. Localhost, null or empty values fallback to <code>0.0.0.0</code>.
+   */
+  public void setHost(String host) {
+    if (host == null || host.trim().length() == 0 || "localhost".equalsIgnoreCase(host.trim())) {
+      this.host = "0.0.0";
+    } else {
+      this.host = host;
+    }
   }
 
   private int randomPort() {
