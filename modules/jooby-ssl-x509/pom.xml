@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>io.jooby</groupId>
+    <artifactId>modules</artifactId>
+    <version>2.2.1-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>jooby-ssl-x509</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-handler</artifactId>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jacoco</groupId>
+      <artifactId>org.jacoco.agent</artifactId>
+      <classifier>runtime</classifier>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>fat-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <minimizeJar>true</minimizeJar>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <artifactSet>
+                <includes>
+                  <include>io.netty:*</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>io.netty</pattern>
+                  <shadedPattern>io.jooby.internal.\$shaded</shadedPattern>
+                </relocation>
+              </relocations>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/io.netty.versions.properties</exclude>
+                    <exclude>META-INF/maven/io.netty/**</exclude>
+                    <exclude>META-INF/maven/org*/**</exclude>
+                    <exclude>META-INF/native-image/**</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!--  <profiles>-->
+  <!--    <profile>-->
+  <!--      <id>boringssl-linux</id>-->
+  <!--      <activation>-->
+  <!--        <os>-->
+  <!--          <family>linux</family>-->
+  <!--        </os>-->
+  <!--      </activation>-->
+  <!--      <dependencies>-->
+  <!--        <dependency>-->
+  <!--          <groupId>io.netty</groupId>-->
+  <!--          <artifactId>netty-tcnative-boringssl-static</artifactId>-->
+  <!--          <version>${boringssl.version}</version>-->
+  <!--          <classifier>linux-x86_64</classifier>-->
+  <!--        </dependency>-->
+  <!--      </dependencies>-->
+  <!--    </profile>-->
+  <!--    <profile>-->
+  <!--      <id>boringssl-windows_x86</id>-->
+  <!--      <activation>-->
+  <!--        <os>-->
+  <!--          <family>windows</family>-->
+  <!--        </os>-->
+  <!--      </activation>-->
+  <!--      <dependencies>-->
+  <!--        <dependency>-->
+  <!--          <groupId>io.netty</groupId>-->
+  <!--          <artifactId>netty-tcnative-boringssl-static</artifactId>-->
+  <!--          <version>${boringssl.version}</version>-->
+  <!--          <classifier>windows-x86_64</classifier>-->
+  <!--        </dependency>-->
+  <!--      </dependencies>-->
+  <!--    </profile>-->
+  <!--    <profile>-->
+  <!--      <id>boringssl-mac_x86_64</id>-->
+  <!--      <activation>-->
+  <!--        <os>-->
+  <!--          <family>mac</family>-->
+  <!--        </os>-->
+  <!--      </activation>-->
+  <!--      <dependencies>-->
+  <!--        <dependency>-->
+  <!--          <groupId>io.netty</groupId>-->
+  <!--          <artifactId>netty-tcnative-boringssl-static</artifactId>-->
+  <!--          <version>${boringssl.version}</version>-->
+  <!--          <classifier>osx-x86_64</classifier>-->
+  <!--        </dependency>-->
+  <!--      </dependencies>-->
+  <!--    </profile>-->
+  <!--  </profiles>-->
+</project>

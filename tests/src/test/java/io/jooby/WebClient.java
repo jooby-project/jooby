@@ -111,20 +111,26 @@ public class WebClient implements AutoCloseable {
   }
 
   private static RequestBody EMPTY_BODY = RequestBody.create(new byte[0], null);
+  private String scheme;
   private final int port;
   private OkHttpClient client;
   private Map<String, String> headers;
 
-  public WebClient(int port, boolean followRedirects) {
-    this.port = port;
-    client = new OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.MINUTES)
-        .writeTimeout(5, TimeUnit.MINUTES)
-        .readTimeout(5, TimeUnit.MINUTES)
-        .followRedirects(followRedirects)
-        .build();
-    header("Accept",
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+  public WebClient(String scheme, int port, boolean followRedirects) {
+    try {
+      this.scheme = scheme;
+      this.port = port;
+      client = new OkHttpClient.Builder()
+          .connectTimeout(5, TimeUnit.MINUTES)
+          .writeTimeout(5, TimeUnit.MINUTES)
+          .readTimeout(5, TimeUnit.MINUTES)
+          .followRedirects(followRedirects)
+          .build();
+      header("Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 
   public WebClient header(String name, String value) {
@@ -143,7 +149,7 @@ public class WebClient implements AutoCloseable {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.method(method, body);
     setRequestHeaders(req);
-    req.url("http://localhost:" + port + path);
+    req.url(scheme + "://localhost:" + port + path);
     return new Request(req);
   }
 

@@ -237,7 +237,7 @@ public class JettyContext implements Callback, DefaultContext {
   }
 
   @Nonnull @Override public String getScheme() {
-    return request.getScheme();
+    return request.isSecure() ? "https" : "http";
   }
 
   @Override public boolean isInIoThread() {

@@ -595,7 +595,7 @@ public class Jooby implements Router, Registry {
     Server server = servers.get(0);
     try {
       if (serverOptions == null) {
-        serverOptions = ServerOptions.from(getEnvironment().getConfig()).orElse(null);
+        serverOptions = ServerOptions.parse(getEnvironment().getConfig()).orElse(null);
       }
       if (serverOptions != null) {
         serverOptions.setServer(server.getClass().getSimpleName().toLowerCase());
@@ -669,9 +669,26 @@ public class Jooby implements Router, Registry {
     log.info("    app dir: {}", System.getProperty("user.dir"));
     log.info("    tmp dir: {}", tmpdir);
 
-    log.info("routes: \n\n{}\n\nlistening on:\n  http://localhost:{}{}\n", router,
-        server.getOptions().getPort(),
-        router.getContextPath());
+    StringBuilder buff = new StringBuilder();
+    buff.append("routes: \n\n{}\n\nlistening on:\n");
+
+    ServerOptions options = server.getOptions();
+    String host = options.getHost().replace("0.0.0.0", "localhost");
+    List<Object> args = new ArrayList<>();
+    args.add(router);
+    args.add(host);
+    args.add(options.getPort());
+    args.add(router.getContextPath());
+    buff.append("  http://{}:{}{}\n");
+
+    if (options.isSSLEnabled()) {
+      args.add(host);
+      args.add(options.getSecurePort());
+      args.add(router.getContextPath());
+      buff.append("  https://{}:{}{}\n");
+    }
+
+    log.info(buff.toString(), args.toArray(new Object[args.size()]));
     return this;
   }
 

@@ -15,12 +15,15 @@ import io.jooby.internal.jetty.JettyWebSocket;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.MultiPartFormDataCompliance;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
@@ -90,12 +93,27 @@ public class Jetty extends io.jooby.Server.Base {
       httpConf.setSendDateHeader(options.getDefaultHeaders());
       httpConf.setSendServerVersion(false);
       httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
-      ServerConnector connector = new ServerConnector(server);
-      connector.addConnectionFactory(new HttpConnectionFactory(httpConf));
-      connector.setPort(options.getPort());
-      connector.setHost(options.getHost());
+      ServerConnector http = new ServerConnector(server);
+      http.addConnectionFactory(new HttpConnectionFactory(httpConf));
+      http.setPort(options.getPort());
+      http.setHost(options.getHost());
 
-      server.addConnector(connector);
+      server.addConnector(http);
+
+      if (options.isSSLEnabled()) {
+        SslContextFactory sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setSslContext(options.getSSLContext());
+
+        HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
+        httpsConf.addCustomizer(new SecureRequestCustomizer());
+
+        ServerConnector https = new ServerConnector(server, sslContextFactory);
+        https.addConnectionFactory(new HttpConnectionFactory(httpsConf));
+        https.setPort(options.getSecurePort());
+        https.setHost(options.getHost());
+
+        server.addConnector(https);
+      }
 
       ContextHandler context = new ContextHandler();
 
