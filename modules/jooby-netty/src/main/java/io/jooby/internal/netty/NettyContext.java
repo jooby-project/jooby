@@ -99,7 +99,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
-  final DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(false);
+  final DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(true);
   private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
