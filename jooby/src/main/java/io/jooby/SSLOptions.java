@@ -80,30 +80,32 @@ public final class SSLOptions {
     return password;
   }
 
-  public static @Nonnull Optional<SSLOptions> parse(@Nonnull Config conf) {
-    if (conf.hasPath("server.ssl")) {
-      SSLOptions options = new SSLOptions();
-      if (conf.hasPath("sever.ssl.type")) {
-        String type = conf.getString("server.ssl.type").toUpperCase();
-        if (type.equals(PKCS12)) {
-          options.setType(type);
-        } else if (type.equals(X509)) {
-          options.setType(type);
-        } else {
-          throw new IllegalArgumentException("Unsupported SSL type: " + type.toUpperCase());
-        }
-      } else {
-        options.setType(PKCS12);
-      }
-      String type = options.getType();
-      switch (type) {
-
-      }
-
-      return Optional.of(options);
-    }
-    return Optional.empty();
-  }
+//  public static @Nonnull Optional<SSLOptions> parse(@Nonnull Config conf) {
+//    if (conf.hasPath("server.ssl")) {
+//      SSLOptions options = new SSLOptions();
+//      if (conf.hasPath("sever.ssl.type")) {
+//        String type = conf.getString("server.ssl.type").toUpperCase();
+//        if (type.equals(PKCS12)) {
+//          options.setType(type);
+//        } else if (type.equals(X509)) {
+//          options.setType(type);
+//        } else {
+//          throw new IllegalArgumentException("Unsupported SSL type: " + type.toUpperCase());
+//        }
+//      } else {
+//        options.setType(PKCS12);
+//      }
+//      String type = options.getType();
+//      switch (type) {
+//        case X509: {
+//
+//        }
+//      }
+//
+//      return Optional.of(options);
+//    }
+//    return Optional.empty();
+//  }
 
   @Override public String toString() {
     return type;
