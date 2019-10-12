@@ -415,6 +415,15 @@ public interface Context extends Registry {
   @Nonnull String getProtocol();
 
   /**
+   *
+   * Returns a boolean indicating whether this request was made using a secure channel, such as
+   * HTTPS.
+   *
+   * @return a boolean indicating if the request was made using a secure channel
+   */
+  boolean isSecure();
+
+  /**
    * HTTP scheme in lower case.
    *
    * @return HTTP scheme in lower case.

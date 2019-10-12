@@ -40,6 +40,10 @@ public class ForwardingContext implements Context {
     this.ctx = context;
   }
 
+  @Override public boolean isSecure() {
+    return ctx.isSecure();
+  }
+
   @Override @Nonnull public Map<String, Object> getAttributes() {
     return ctx.getAttributes();
   }

@@ -18,9 +18,16 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.IdentityCipherSuiteFilter;
+import io.netty.handler.ssl.JdkSslContext;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import javax.annotation.Nonnull;
+import javax.net.ssl.SSLContext;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,18 +102,21 @@ public class Netty extends Server.Base {
       HttpDataFactory factory = new DefaultHttpDataFactory(options.getBufferSize());
 
       /** Bootstrap: */
-      ServerBootstrap bootstrap = transport.configure(acceptorloop, eventloop)
-          .childHandler(new NettyPipeline(acceptorloop.next(),
-              applications.get(0),
-              factory,
-              options.getDefaultHeaders(),
-              options.getGzip(),
-              options.getBufferSize(),
-              options.getMaxRequestSize()))
+      ServerBootstrap http = transport.configure(acceptorloop, eventloop)
+          .childHandler(newPipeline(factory, null))
           .childOption(ChannelOption.SO_REUSEADDR, true)
           .childOption(ChannelOption.TCP_NODELAY, true);
 
-      bootstrap.bind(options.getHost(), options.getPort()).get();
+      http.bind(options.getHost(), options.getPort()).get();
+
+      if (options.isSSLEnabled()) {
+        ServerBootstrap https = transport.configure(acceptorloop, eventloop)
+            .childHandler(newPipeline(factory, options.getSSLContext()))
+            .childOption(ChannelOption.SO_REUSEADDR, true)
+            .childOption(ChannelOption.TCP_NODELAY, true);
+
+        https.bind(options.getHost(), options.getSecurePort()).get();
+      }
 
       fireReady(applications);
     } catch (InterruptedException x) {
@@ -119,6 +129,19 @@ public class Netty extends Server.Base {
       throw SneakyThrows.propagate(cause);
     }
     return this;
+  }
+
+  private NettyPipeline newPipeline(HttpDataFactory factory, SSLContext sslContext) {
+    return new NettyPipeline(
+            acceptorloop.next(),
+            applications.get(0),
+            factory,
+            wrap(sslContext),
+            options.getDefaultHeaders(),
+            options.getGzip(),
+            options.getBufferSize(),
+            options.getMaxRequestSize()
+        );
   }
 
   @Nonnull @Override public synchronized Server stop() {
@@ -136,5 +159,13 @@ public class Netty extends Server.Base {
       worker = null;
     }
     return this;
+  }
+
+  private SslContext wrap(SSLContext sslContext) {
+    if (sslContext != null) {
+      return new JdkSslContext(sslContext, false, null, IdentityCipherSuiteFilter.INSTANCE,
+          ApplicationProtocolConfig.DISABLED, ClientAuth.NONE, null, false);
+    }
+    return null;
   }
 }

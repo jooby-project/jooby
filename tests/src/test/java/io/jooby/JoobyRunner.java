@@ -80,6 +80,11 @@ public class JoobyRunner {
 
   public void ready(SneakyThrows.Consumer2<WebClient, Server> onReady,
       Supplier<Server>... servers) {
+    ready((http, https, server) -> onReady.accept(http, server), servers);
+  }
+
+  public void ready(SneakyThrows.Consumer3<WebClient, WebClient, Server> onReady,
+      Supplier<Server>... servers) {
     if (modes.size() == 0) {
       modes.add(ExecutionMode.DEFAULT);
     }
@@ -108,9 +113,21 @@ public class JoobyRunner {
           }
           ServerOptions options = server.getOptions();
           options.setPort(Integer.parseInt(System.getenv().getOrDefault("BUILD_PORT", "9999")));
+          WebClient https;
+          if (options.isSSLEnabled()) {
+            options.setSecurePort(
+                Integer.parseInt(System.getenv().getOrDefault("BUILD_SECURE_PORT", "9443")));
+            https = new WebClient("https", options.getSecurePort(), followRedirects);
+          } else {
+            https = null;
+          }
           server.start(app);
-          try (WebClient client = new WebClient(options.getPort(), followRedirects)) {
-            onReady.accept(client, server);
+          try (WebClient http = new WebClient("http", options.getPort(), followRedirects)) {
+            onReady.accept(http, https, server);
+          } finally {
+            if (https != null) {
+              https.close();
+            }
           }
         } catch (Throwable x) {
           x.printStackTrace();

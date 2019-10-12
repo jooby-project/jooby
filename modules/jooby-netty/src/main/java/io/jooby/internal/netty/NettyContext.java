@@ -39,6 +39,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
+import io.netty.handler.codec.http.HttpChunkedInput;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
@@ -53,6 +54,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -230,8 +232,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Nonnull @Override public String getScheme() {
-    // TODO: review if we add websocket or https
-    return "http";
+    return ctx.pipeline().get("ssl") == null ? "http" : "https";
   }
 
   @Nonnull @Override public ValueNode header() {
@@ -501,14 +502,30 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
       responseStarted = true;
-      ctx.channel().eventLoop().execute(() -> {
-        // Headers
-        ctx.write(rsp, ctx.voidPromise());
-        // Body
-        ctx.write(new DefaultFileRegion(file, range.getStart(), range.getEnd()), ctx.voidPromise());
-        // Finish
-        ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
-      });
+
+      if (isSecure()) {
+        prepareChunked();
+
+        HttpChunkedInput chunkedInput = new HttpChunkedInput(
+            new ChunkedNioFile(file, range.getStart(), range.getEnd(), bufferSize));
+
+        ctx.channel().eventLoop().execute(() -> {
+          // Headers
+          ctx.write(rsp, ctx.voidPromise());
+          // Body
+          ctx.writeAndFlush(chunkedInput).addListener(this);
+        });
+      } else {
+        ctx.channel().eventLoop().execute(() -> {
+          // Headers
+          ctx.write(rsp, ctx.voidPromise());
+          // Body
+          ctx.write(new DefaultFileRegion(file, range.getStart(), range.getEnd()),
+              ctx.voidPromise());
+          // Finish
+          ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
+        });
+      }
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }

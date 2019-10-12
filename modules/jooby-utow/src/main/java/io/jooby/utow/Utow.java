@@ -17,6 +17,7 @@ import io.undertow.server.handlers.encoding.EncodingHandler;
 import org.xnio.Options;
 
 import javax.annotation.Nonnull;
+import javax.net.ssl.SSLContext;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,6 +83,11 @@ public class Utow extends Server.Base {
           .setWorkerOption(Options.WORKER_NAME, "worker")
           .setWorkerThreads(options.getWorkerThreads())
           .setHandler(handler);
+
+      SSLContext sslContext = options.getSSLContext();
+      if (sslContext != null) {
+        builder.addHttpsListener(options.getSecurePort(), options.getHost(), sslContext);
+      }
 
       server = builder.build();
       server.start();

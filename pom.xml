@@ -58,6 +58,7 @@
     <undertow.version>2.0.26.Final</undertow.version>
     <jetty.version>9.4.20.v20190813</jetty.version>
     <netty.version>4.1.42.Final</netty.version>
+    <boringssl.version>2.0.26.Final</boringssl.version>
 
     <!-- Reactive -->
     <rxjava.version>2.2.13</rxjava.version>
@@ -188,6 +189,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-ssl-x509</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

@@ -220,6 +220,10 @@ public interface DefaultContext extends Context {
         .orElse(getRemoteAddress());
   }
 
+  @Override default boolean isSecure() {
+    return getScheme().equals("https");
+  }
+
   @Override @Nonnull default Map<String, List<String>> formMultimap() {
     return form().toMultimap();
   }

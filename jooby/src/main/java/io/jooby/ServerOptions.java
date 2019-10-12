@@ -6,11 +6,21 @@
 package io.jooby;
 
 import com.typesafe.config.Config;
+import io.jooby.internal.SSLDefaultProvider;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Stream.concat;
+import static java.util.stream.StreamSupport.stream;
 
 /**
  * Available server options.
@@ -75,6 +85,10 @@ public class ServerOptions {
 
   private String host = "0.0.0.0";
 
+  private SSLOptions ssl;
+
+  private Integer securePort;
+
   /**
    * Creates server options from config object. The configuration options must provided entries
    * like: <code>server.port</code>, <code>server.ioThreads</code>, etc...
@@ -82,7 +96,7 @@ public class ServerOptions {
    * @param conf Configuration object.
    * @return Server options.
    */
-  public static @Nonnull Optional<ServerOptions> from(@Nonnull Config conf) {
+  public static @Nonnull Optional<ServerOptions> parse(@Nonnull Config conf) {
     if (conf.hasPath("server")) {
       ServerOptions options = new ServerOptions();
       if (conf.hasPath("server.port")) {
@@ -172,6 +186,23 @@ public class ServerOptions {
    */
   public @Nonnull ServerOptions setPort(int port) {
     this.port = port == 0 ? randomPort() : port;
+    return this;
+  }
+
+  public Integer getSecurePort() {
+    return securePort;
+  }
+
+  public boolean isSSLEnabled() {
+    return securePort != null || ssl != null;
+  }
+
+  public ServerOptions setSecurePort(Integer securePort) {
+    if (securePort != null && securePort.intValue() == 0) {
+      this.securePort = randomPort();
+    } else {
+      this.securePort = securePort;
+    }
     return this;
   }
 
@@ -345,6 +376,33 @@ public class ServerOptions {
     } else {
       this.host = host;
     }
+  }
+
+  public @Nullable SSLOptions getSsl() {
+    return ssl;
+  }
+
+  public ServerOptions setSsl(@Nullable SSLOptions ssl) {
+    this.ssl = ssl;
+    return this;
+  }
+
+  public @Nullable SSLContext getSSLContext() {
+    if (isSSLEnabled()) {
+      setSecurePort(Optional.ofNullable(securePort).orElse(8443));
+      setSsl(Optional.ofNullable(ssl).orElseGet(SSLOptions::pkcs12));
+      SSLOptions options = getSsl();
+      SSLContextProvider provider = concat(
+          stream(ServiceLoader.load(SSLContextProvider.class).spliterator(), false),
+          Stream.of(new SSLDefaultProvider())
+      )
+          .filter(it -> it.supports(options.getType()))
+          .findFirst()
+          .orElseThrow(
+              () -> new UnsupportedOperationException("KeyStore: " + options.getType()));
+      return provider.create(ServerOptions.class.getClassLoader(), options);
+    }
+    return null;
   }
 
   private int randomPort() {

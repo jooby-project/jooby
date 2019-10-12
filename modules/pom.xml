@@ -15,6 +15,7 @@
   <modules>
     <module>jooby-bom</module>
     <module>jooby-test</module>
+    <module>jooby-ssl-x509</module>
 
     <module>jooby-apt</module>
 
