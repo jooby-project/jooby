@@ -20,7 +20,7 @@ public class Usage extends RuntimeException {
    * @param id Link to detailed section.
    */
   public Usage(@Nonnull String message, @Nonnull String id) {
-    super((message + "\nFor more details, please visit: https://io.jooby/usage#" + id));
+    super((message + "\nFor more details, please visit: https://jooby.io/usage#" + id));
   }
 
   /**
