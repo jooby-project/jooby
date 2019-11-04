@@ -1,0 +1,86 @@
+=== SSLHandler
+
+The javadoc:SSLHandler[] forces client to use HTTPS by redirecting non-HTTPS calls to the HTTPS version.
+
+.Force SSL
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.SSLHandler;
+...
+{
+  
+  setServerOptions(new ServerOptions().setSecurePort(8443));
+
+  before(new SSLHandler(false)); <1>
+  
+  get("/", ctx -> {
+    return ctx.getScheme();
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.SSHandler
+...
+{
+  serverOptions {
+    securePort = 8443
+  }
+
+  before(SSLHandler(false))      <1>
+  
+  get("/") {
+    ...
+  }
+}
+----
+
+<1> Install SSLHandler
+
+The SSL Handler recreates the HTTPs URL version using the `Host` header, if you are behind a proxy
+you will need to use the `X-Forwarded-Host` header. To do that just pass `true` to the SSLHandler.
+
+Optionally, you can specify the host to use:
+
+.Force SSL
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.SSLHandler;
+...
+{
+  
+  setServerOptions(new ServerOptions().setSecurePort(8443));
+
+  before(new SSLHandler("myhost.org")); <1>
+  
+  get("/", ctx -> {
+    return ctx.getScheme();
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.SSHandler
+...
+{
+  serverOptions {
+    securePort = 8443
+  }
+
+  before(SSLHandler("myhost.org"))      <1>
+  
+  get("/") {
+    ctx.scheme
+  }
+}
+----
+
+For more information about SSL, please check the <<server-ssl, configure SSL>> section.

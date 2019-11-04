@@ -729,6 +729,13 @@ public interface Router extends Registry {
   @Nonnull List<BeanConverter> getBeanConverters();
 
   /**
+   * Available server options.
+   *
+   * @return Server options.
+   */
+  @Nonnull ServerOptions getServerOptions();
+
+  /**
    * Normalize a path by removing consecutive <code>/</code>(slashes), make it lower case and
    * removing trailing slash.
    *

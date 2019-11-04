@@ -6,4 +6,6 @@ include::handlers/cors.adoc[]
 
 include::handlers/head.adoc[]
 
+include::handlers/ssl.adoc[]
+
 include::handlers/trace.adoc[]

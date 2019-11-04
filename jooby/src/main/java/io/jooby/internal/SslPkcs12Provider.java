@@ -1,7 +1,11 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal;
 
-import io.jooby.SSLOptions;
-import io.jooby.SSLContextProvider;
+import io.jooby.SslOptions;
 import io.jooby.SneakyThrows;
 
 import javax.net.ssl.KeyManager;
@@ -11,16 +15,14 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 
-public class SSLDefaultProvider implements SSLContextProvider {
-
-  private static final String PKCS12 = "PKCS12";
+public class SslPkcs12Provider implements SslContextProvider {
 
   @Override public boolean supports(String type) {
-    return PKCS12.equalsIgnoreCase(type);
+    return SslOptions.PKCS12.equalsIgnoreCase(type);
   }
 
-  @Override public SSLContext create(ClassLoader loader, SSLOptions options) {
-    try (InputStream crt = SSLContextProvider.loadFile(loader, options.getCert())) {
+  @Override public SSLContext create(ClassLoader loader, SslOptions options) {
+    try (InputStream crt = options.getResource(loader, options.getCert())) {
       KeyStore store = KeyStore.getInstance(options.getType());
       store.load(crt, options.getPassword().toCharArray());
       KeyManagerFactory kmf = KeyManagerFactory

@@ -36,6 +36,12 @@ import java.util.concurrent.Executor;
  */
 public interface Context extends Registry {
 
+  /** Constant for default HTTP port. */
+  int PORT = 80;
+
+  /** Constant for default HTTPS port. */
+  int SECURE_PORT = 443;
+
   /** Constant for <code>Accept</code> header. */
   String ACCEPT = "Accept";
 
@@ -393,6 +399,23 @@ public interface Context extends Registry {
   long getRequestLength();
 
   /**
+   * Recreates full/entire request url using the <code>Host</code> header.
+   *
+   * @return Full/entire request url using the <code>Host</code> header.
+   */
+  @Nonnull String getRequestURL();
+
+  /**
+   * Recreates full/entire request url using the <code>X-Forwarded-Host</code> when present
+   * or fallback to <code>Host</code> header when missing.
+   *
+   * @param useProxy True to trust/use the <code>X-Forwarded-Host</code>.
+   * @return Full/entire request url using the <code>X-Forwarded-Host</code> when present
+   *     or fallback to <code>Host</code> header when missing.
+   */
+  @Nonnull String getRequestURL(boolean useProxy);
+
+  /**
    * The IP address of the client or last proxy that sent the request.
    *
    * @return The IP address of the client or last proxy that sent the request.
@@ -400,12 +423,32 @@ public interface Context extends Registry {
   @Nonnull String getRemoteAddress();
 
   /**
-   * The fully qualified name of the resource being requested, as obtained from the Host HTTP
-   * header.
+   * Return the host that this request was sent to, in general this will be the
+   * value of the Host header, minus the port specifier.
    *
-   * @return The fully qualified name of the server.
+   * @return Return the host that this request was sent to, in general this will be the
+   *     value of the Host header, minus the port specifier.
    */
   @Nonnull String getHost();
+
+  /**
+   * Return the host and port that this request was sent to, in general this will be the
+   * value of the Host or X-Forwarded-Host header.
+   *
+   * @param useProxy When true this method looks for host data in the X-Forwarded-Host header.
+   * @return Return the host that this request was sent to, in general this will be the
+   *     value of the Host header.
+   */
+  @Nullable String getHostAndPort(boolean useProxy);
+
+  /**
+   * Return the port that this request was sent to. In general this will be the value of the Host
+   * header, minus the host name.
+   *
+   * @return Return the port that this request was sent to. In general this will be the value of the Host
+   *     header, minus the host name.
+   */
+  int getPort();
 
   /**
    * The name of the protocol the request. Always in lower-case.
@@ -413,6 +456,20 @@ public interface Context extends Registry {
    * @return The name of the protocol the request. Always in lower-case.
    */
   @Nonnull String getProtocol();
+
+  /**
+   * Server port for current request.
+   *
+   * @return Server port for current request.
+   */
+  int getServerPort();
+
+  /**
+   * Server host.
+   *
+   * @return Server host.
+   */
+  @Nonnull String getServerHost();
 
   /**
    *
@@ -1132,4 +1189,5 @@ public interface Context extends Registry {
   static @Nonnull Context websocket(@Nonnull Context ctx, @Nonnull WebSocket ws) {
     return new WebSocketSender(ctx, ws);
   }
+
 }

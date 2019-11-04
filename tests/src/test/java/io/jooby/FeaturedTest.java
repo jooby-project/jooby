@@ -2945,6 +2945,38 @@ public class FeaturedTest {
     });
   }
 
+  @Test
+  public void requestUrl() {
+    new JoobyRunner(app -> {
+      app.get("/{path}", ctx -> ctx.getRequestURL(ctx.query("useProxy").booleanValue(false)));
+    }).ready(client -> {
+      client.get("/somepath", rsp -> {
+        assertEquals("http://localhost:" + client.getPort() + "/somepath", rsp.body().string());
+      });
+      client.header("X-Forwarded-Host", "myhost");
+      client.get("/somepath", rsp -> {
+        assertEquals("http://localhost:" + client.getPort() + "/somepath", rsp.body().string());
+      });
+      client.header("X-Forwarded-Host", "myhost");
+      client.header("X-Forwarded-Proto", "https");
+      client.get("/somepath?useProxy=true", rsp -> {
+        assertEquals("https://myhost/somepath?useProxy=true", rsp.body().string());
+      });
+      client.header("X-Forwarded-Host", "myhost:80");
+      client.get("/somepath?useProxy=true", rsp -> {
+        assertEquals("http://myhost/somepath?useProxy=true", rsp.body().string());
+      });
+      client.header("X-Forwarded-Host", "myhost:90");
+      client.get("/somepath?useProxy=true", rsp -> {
+        assertEquals("http://myhost:90/somepath?useProxy=true", rsp.body().string());
+      });
+      client.header("X-Forwarded-Host", "first,second");
+      client.get("/somepath?useProxy=true", rsp -> {
+        assertEquals("http://first/somepath?useProxy=true", rsp.body().string());
+      });
+    });
+  }
+
   private byte[][] partition(byte[] bytes, int size) {
     List<byte[]> result = new ArrayList<>();
     int offset = 0;

@@ -10,6 +10,7 @@ import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.RegistryException;
+import io.jooby.ServerOptions;
 import io.jooby.ServiceKey;
 import io.jooby.SessionStore;
 import io.jooby.StatusCodeException;
@@ -594,6 +595,10 @@ public class RouterImpl implements Router {
   @Nonnull @Override public Router setFlashCookie(@Nonnull String name) {
     this.flashName = name;
     return this;
+  }
+
+  @Nonnull @Override public ServerOptions getServerOptions() {
+    throw new UnsupportedOperationException();
   }
 
   @Override public String toString() {

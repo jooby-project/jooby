@@ -132,7 +132,7 @@
     <!-- Jooby  -->
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
-    <javadoc.excludes>io.jooby.internal</javadoc.excludes>
+    <javadoc.excludes>io.jooby.internal.*</javadoc.excludes>
 
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>

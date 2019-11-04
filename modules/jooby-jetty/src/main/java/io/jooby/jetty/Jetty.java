@@ -18,7 +18,6 @@ import org.eclipse.jetty.server.MultiPartFormDataCompliance;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -102,7 +101,7 @@ public class Jetty extends io.jooby.Server.Base {
 
       if (options.isSSLEnabled()) {
         SslContextFactory sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setSslContext(options.getSSLContext());
+        sslContextFactory.setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader()));
 
         HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
         httpsConf.addCustomizer(new SecureRequestCustomizer());

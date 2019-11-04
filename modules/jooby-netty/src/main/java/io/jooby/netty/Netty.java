@@ -23,7 +23,6 @@ import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import javax.annotation.Nonnull;
@@ -111,7 +110,7 @@ public class Netty extends Server.Base {
 
       if (options.isSSLEnabled()) {
         ServerBootstrap https = transport.configure(acceptorloop, eventloop)
-            .childHandler(newPipeline(factory, options.getSSLContext()))
+            .childHandler(newPipeline(factory, options.getSSLContext(application.getEnvironment().getClassLoader())))
             .childOption(ChannelOption.SO_REUSEADDR, true)
             .childOption(ChannelOption.TCP_NODELAY, true);
 

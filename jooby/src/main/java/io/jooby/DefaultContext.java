@@ -196,6 +196,43 @@ public interface DefaultContext extends Context {
     return result;
   }
 
+  @Override default @Nonnull String getRequestURL() {
+    return getRequestURL(false);
+  }
+
+  @Override default @Nonnull String getRequestURL(boolean useProxy) {
+    String scheme, hostAndPort;
+    if (useProxy && !header("X-Forwarded-Host").isMissing()) {
+      scheme = header("X-Forwarded-Proto").value(getScheme());
+      hostAndPort = getHostAndPort(true);
+    } else {
+      scheme = getScheme();
+      hostAndPort = getHostAndPort(false);
+    }
+    String host, port;
+    int i = hostAndPort.lastIndexOf(':');
+    if (i > 0) {
+      host = hostAndPort.substring(0, i).trim();
+      port = hostAndPort.substring(i + 1).trim();
+    } else {
+      host = hostAndPort;
+      port = "";
+    }
+    StringBuilder url = new StringBuilder();
+    url.append(scheme).append("://").append(host);
+    if (port.length() > 0 && !port.endsWith("80") && !hostAndPort.endsWith("443")) {
+      url.append(":").append(port);
+    }
+    String contextPath = getContextPath();
+    if (contextPath.length() > 0 && !contextPath.equals("/")) {
+      url.append(contextPath);
+    }
+    url.append(pathString());
+    url.append(queryString());
+
+    return url.toString();
+  }
+
   @Override @Nullable default MediaType getRequestType() {
     Value contentType = header("Content-Type");
     return contentType.isMissing() ? null : MediaType.valueOf(contentType.value());
@@ -211,13 +248,48 @@ public interface DefaultContext extends Context {
     return contentLength.isMissing() ? -1 : contentLength.longValue();
   }
 
-  @Override default @Nonnull String getHost() {
-    return header("host").toOptional()
-        .map(host -> {
-          int index = host.indexOf(':');
-          return index > 0 ? host.substring(0, index) : host;
+  @Override default @Nullable String getHostAndPort(boolean useProxy) {
+    return header(useProxy ? "X-Forwarded-Host" : "Host").toOptional()
+        .map(value -> {
+          int i = value.indexOf(',');
+          String host = i > 0 ? value.substring(0, i).trim() : value;
+          if (host.startsWith("[") && host.endsWith("]")) {
+            return host.substring(1, host.length() - 1).trim();
+          }
+          return host;
         })
-        .orElse(getRemoteAddress());
+        .orElseGet(() -> getServerHost() + ":" + getServerPort());
+  }
+
+  @Override default @Nonnull String getServerHost() {
+    String host = getRouter().getServerOptions().getHost();
+    return host.equals("0.0.0.0") ? "localhost" : host;
+  }
+
+  @Override default int getServerPort() {
+    ServerOptions options = getRouter().getServerOptions();
+    return isSecure() ? options.getSecurePort() : options.getPort();
+  }
+
+  @Override default int getPort() {
+    String hostAndPort = getHostAndPort(false);
+    if (hostAndPort != null) {
+      int index = hostAndPort.indexOf(':');
+      if (index > 0) {
+        return Integer.parseInt(hostAndPort.substring(index + 1));
+      }
+      return isSecure() ? SECURE_PORT : PORT;
+    }
+    return getServerPort();
+  }
+
+  @Override default @Nonnull String getHost() {
+    String hostAndPort = getHostAndPort(false);
+    if (hostAndPort != null) {
+      int index = hostAndPort.indexOf(':');
+      return index > 0 ? hostAndPort.substring(0, index).trim() : hostAndPort;
+    }
+    return getServerHost();
   }
 
   @Override default boolean isSecure() {

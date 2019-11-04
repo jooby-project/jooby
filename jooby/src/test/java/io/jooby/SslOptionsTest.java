@@ -1,0 +1,84 @@
+package io.jooby;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.junit.jupiter.api.Test;
+
+import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class SslOptionsTest {
+
+  @Test
+  public void shouldDoNothingOnMissingPaths() {
+    Config config = ConfigFactory.empty().resolve();
+
+    assertEquals(false, SslOptions.from(config).isPresent());
+  }
+
+  @Test
+  public void shouldFailOnInvalidSslType() {
+    Config config = ConfigFactory.empty()
+        .withValue("ssl.type", fromAnyRef("xxxx"))
+        .resolve();
+
+    assertThrows(UnsupportedOperationException.class, () -> SslOptions.from(config));
+  }
+
+  @Test
+  public void shouldLoadSelfSigned() {
+    Config config = ConfigFactory.empty()
+        .withValue("ssl.type", fromAnyRef("self-signed"))
+        .resolve();
+
+    SslOptions options = SslOptions.from(config).get();
+    assertEquals(SslOptions.PKCS12, options.getType());
+    assertEquals("io/jooby/ssl/localhost.p12", options.getCert());
+    assertEquals("changeit", options.getPassword());
+  }
+
+  @Test
+  public void shouldLoadPKCS12FromConfig() {
+    Config config = ConfigFactory.empty()
+        .withValue("ssl.type", fromAnyRef("pkcs12"))
+        .withValue("ssl.cert", fromAnyRef("ssl/test.p12"))
+        .withValue("ssl.password", fromAnyRef("changeit"))
+        .resolve();
+
+    SslOptions options = SslOptions.from(config).get();
+    assertEquals(SslOptions.PKCS12, options.getType());
+    assertEquals("ssl/test.p12", options.getCert());
+    assertEquals("changeit", options.getPassword());
+  }
+
+  @Test
+  public void shouldLoadX509FromConfig() {
+    Config config = ConfigFactory.empty()
+        .withValue("ssl.type", fromAnyRef("x509"))
+        .withValue("ssl.cert", fromAnyRef("ssl/test.crt"))
+        .withValue("ssl.key", fromAnyRef("ssl/test.key"))
+        .resolve();
+
+    SslOptions options = SslOptions.from(config).get();
+    assertEquals(SslOptions.X509, options.getType());
+    assertEquals("ssl/test.crt", options.getCert());
+    assertEquals("ssl/test.key", options.getPrivateKey());
+  }
+
+  @Test
+  public void shouldLoadX509WithPasswordFromConfig() {
+    Config config = ConfigFactory.empty()
+        .withValue("ssl.type", fromAnyRef("x509"))
+        .withValue("ssl.cert", fromAnyRef("ssl/test.crt"))
+        .withValue("ssl.key", fromAnyRef("ssl/test.key"))
+        .withValue("ssl.password", fromAnyRef("changeit"))
+        .resolve();
+
+    SslOptions options = SslOptions.from(config).get();
+    assertEquals(SslOptions.X509, options.getType());
+    assertEquals("ssl/test.crt", options.getCert());
+    assertEquals("ssl/test.key", options.getPrivateKey());
+    assertEquals("changeit", options.getPassword());
+  }
+}

@@ -194,6 +194,30 @@ public class ForwardingContext implements Context {
     return ctx.getHost();
   }
 
+  @Override public int getServerPort() {
+    return ctx.getServerPort();
+  }
+
+  @Nonnull @Override public String getServerHost() {
+    return ctx.getServerHost();
+  }
+
+  @Override public int getPort() {
+    return ctx.getPort();
+  }
+
+  @Nullable @Override public String getHostAndPort(boolean useProxy) {
+    return ctx.getHostAndPort(useProxy);
+  }
+
+  @Nonnull @Override public String getRequestURL() {
+    return ctx.getRequestURL();
+  }
+
+  @Nonnull @Override public String getRequestURL(boolean useProxy) {
+    return ctx.getRequestURL(useProxy);
+  }
+
   @Override @Nonnull public String getProtocol() {
     return ctx.getProtocol();
   }

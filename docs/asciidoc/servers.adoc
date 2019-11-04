@@ -45,6 +45,8 @@ Server options are available via javadoc:ServerOptions[] class:
       .setSingleLoop(false)
       .setDefaultHeaders(true)
       .setMaxRequestSize(10485760)
+      .setSecurePort(8433)
+      .setSsl(SslOptions.selfSigned())
   ); 
 }
 ----
@@ -62,6 +64,8 @@ Server options are available via javadoc:ServerOptions[] class:
     singleLoop = false
     defaultHeaders = true
     maxRequestSize = 10485760
+    securePort = 8443
+    ssl = SslOptions.selfSigned()
   }
 }
 ----
@@ -74,6 +78,8 @@ Server options are available via javadoc:ServerOptions[] class:
 - singleLoop: Indicates if the web server should use a single loop/group for doing IO or not. **Netty only**.
 - defaultHeaders: Configure server to set the following headers: `Date`, `Content-Type` and `Server` headers.
 - maxRequestSize: Maximum request size in bytes. Request exceeding this value results in 413(REQUEST_ENTITY_TOO_LARGE) response. Default is `10mb`.
+- securePort: Configure Jooby to do HTTPs. This option is fully convered in next section.
+- ssl: SSL options with certificate details.  This option is fully convered in next section.
 
 Server options are available as application configuration properties too:
 
@@ -88,4 +94,180 @@ server.gzip = false
 server.singleLoop = false
 server.defaultHeaders = true
 server.maxRequestSize = 10485760
+server.securePort = 8443
+server.ssl.type = self-signed
+----
+
+=== SSL
+
+Jooby supports HTTPS out of the box. By default HTTPS is disabled and all requests are served using 
+HTTP. To enable HTTPS support, modify your configuration.
+
+.SSL Options
+[source,java,role="primary"]
+----
+{
+  setServerOptions(new ServerOptions()
+      .setSecurePort(8443)             <1>
+  ); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    securePort = 8443                  <1>
+  }
+}
+----
+
+<1> Set secure port and use a self-signed certificate
+
+Once SSL is enabled application logs print something like:
+
+----
+listening on:
+  http://localhost:8080/
+  https://localhost:8443/
+----
+
+The `self-signed` certificate is useful for development and only works for `localhost`.
+
+Jooby supports two certificate formats:
+
+- PKCS12 (this is the default format)
+- X.509
+
+The javadoc:SslOptions[] class provides options to configure SSL:
+
+- cert: A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a classpath resource. Required.
+- key:  A PKCS#8 private key file in PEM format. It can be an absolute path or a classpath resource. Required when using X.509 certificates.
+- password: Password to use (if any). Optional. Default is: null/empty.
+
+==== Using X.509
+
+It is also possible to configure Jooby to use a X.509 certificate, for example one created with https://letsencrypt.org/[Let’s Encrypt]. You will need the `*.crt` and `*.key` files:
+
+.X509
+[source,java,role="primary"]
+----
+{
+  SslOptions ssl = SslOptions.x509("path/to/server.crt", "path/to/server.key");
+  setServerOptions(new ServerOptions()
+      .setSsl(ssl)                                                    <1>
+  ); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    ssl = SslOptions.x509("path/to/server.crt", "path/to/server.key")  <1>
+  }
+}
+----
+
+<1> Creates a SslOptions using X509 certificates path
+
+Certificate (.crt) and private key (.key) location can be file system or class path locations.
+
+Optionally you can define the SSL options in your application configuration file:
+
+.Ssl options:
+[source,json]
+----
+server {
+  ssl {
+    type: X509,
+    cert: "path/to/server.crt",
+    key: "path/to/server.key"
+  }
+}
+----
+
+.X509 from configuration
+[source,java,role="primary"]
+----
+{
+  setServerOptions(new ServerOptions()
+      .setSsl(SslOptions.from(getConfig()))
+  ); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    ssl = SslOptions.from(config)
+  }
+}
+----
+
+==== Using PKCS12
+
+It is also possible to configure Jooby to use a PKCS12 certificate:
+
+.PKCS12
+[source,java,role="primary"]
+----
+{
+  SslOptions ssl = SslOptions.pkcs12("path/to/server.p12", "password");
+  setServerOptions(new ServerOptions()
+      .setSsl(ssl)                                                      <1>
+  ); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    ssl = SslOptions.x509("path/to/server.p12", "password")             <1>
+  }
+}
+----
+
+<1> Creates SslOptions using PKCS12 certificates path
+
+Certificate (.crt) location can be file system or class path locations.
+
+Optionally you can define the SSL options in your application configuration file:
+
+.Ssl options:
+[source,json]
+----
+server {
+  ssl {
+    type: PKCS12,
+    cert: "path/to/server.p12",
+    password: "password"
+  }
+}
+----
+
+.PKCS12 from configuration
+[source,java,role="primary"]
+----
+{
+  setServerOptions(new ServerOptions()
+      .setSsl(SslOptions.from(getConfig()))
+  ); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    ssl = SslOptions.from(config)
+  }
+}
 ----

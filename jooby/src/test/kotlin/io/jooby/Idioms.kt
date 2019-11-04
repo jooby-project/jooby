@@ -39,6 +39,10 @@ class Idioms : Kooby({
     port = 8080
     server = "server"
     workerThreads = 99
+    securePort = 8443
+    ssl = SslOptions().apply {
+      cert = "/path/to/certificate.crt"
+    }
   }
 
   routerOptions {

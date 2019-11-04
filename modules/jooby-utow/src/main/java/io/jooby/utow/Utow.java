@@ -84,7 +84,7 @@ public class Utow extends Server.Base {
           .setWorkerThreads(options.getWorkerThreads())
           .setHandler(handler);
 
-      SSLContext sslContext = options.getSSLContext();
+      SSLContext sslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
       if (sslContext != null) {
         builder.addHttpsListener(options.getSecurePort(), options.getHost(), sslContext);
       }

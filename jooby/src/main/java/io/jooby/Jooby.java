@@ -595,12 +595,13 @@ public class Jooby implements Router, Registry {
     Server server = servers.get(0);
     try {
       if (serverOptions == null) {
-        serverOptions = ServerOptions.parse(getEnvironment().getConfig()).orElse(null);
+        serverOptions = ServerOptions.from(getEnvironment().getConfig()).orElse(null);
       }
       if (serverOptions != null) {
         serverOptions.setServer(server.getClass().getSimpleName().toLowerCase());
         server.setOptions(serverOptions);
       }
+
       return server.start(this);
     } catch (Throwable x) {
       Logger log = getLog();
@@ -653,6 +654,7 @@ public class Jooby implements Router, Registry {
   public @Nonnull Jooby ready(@Nonnull Server server) {
     Logger log = getLog();
 
+    this.serverOptions = server.getOptions();
     this.readyCallbacks = fire(this.readyCallbacks);
 
     log.info("{} started with:", System.getProperty(APP_NAME, getClass().getSimpleName()));

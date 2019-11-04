@@ -38,11 +38,6 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-ssl-x509</artifactId>
-      <version>${jooby.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jooby</groupId>
       <artifactId>jooby-jackson</artifactId>
       <version>${jooby.version}</version>
     </dependency>
@@ -58,7 +53,7 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-jetty</artifactId>
+      <artifactId>jooby-utow</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
