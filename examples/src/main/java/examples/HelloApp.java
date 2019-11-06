@@ -22,12 +22,8 @@ public class HelloApp extends Jooby {
 
     setRouterOptions(new RouterOptions().setIgnoreCase(false).setIgnoreTrailingSlash(true));
 
-    after((ctx,  result, failure) -> {
-      throw new RuntimeException("after");
-    });
-
     get("/", ctx -> {
-      throw new IllegalArgumentException("handler");
+      return "Hello World";
     });
 
     get("/foo/bar", ctx -> {

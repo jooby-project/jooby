@@ -224,7 +224,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public String getRemoteAddress() {
     InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-    return remoteAddress.getAddress().getHostAddress();
+    String hostAddress = remoteAddress.getAddress().getHostAddress();
+    int i = hostAddress.lastIndexOf('%');
+    return i > 0 ? hostAddress.substring(0, i) : hostAddress;
   }
 
   @Nonnull @Override public String getProtocol() {
