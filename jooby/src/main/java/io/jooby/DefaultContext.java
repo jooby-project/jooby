@@ -223,10 +223,6 @@ public interface DefaultContext extends Context {
     if (port.length() > 0 && !port.endsWith("80") && !hostAndPort.endsWith("443")) {
       url.append(":").append(port);
     }
-    String contextPath = getContextPath();
-    if (contextPath.length() > 0 && !contextPath.equals("/")) {
-      url.append(contextPath);
-    }
     url.append(pathString());
     url.append(queryString());
 

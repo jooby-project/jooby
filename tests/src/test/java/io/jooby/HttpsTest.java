@@ -51,6 +51,30 @@ public class HttpsTest {
   public void forceSSL() {
     new JoobyRunner(app -> {
 
+      app.setContextPath("/secure");
+
+      app.setServerOptions(new ServerOptions().setSecurePort(8433));
+
+      app.before(new SSLHandler(true));
+
+      app.get("/{path}", ctx -> ctx.pathString());
+    }).dontFollowRedirects().ready((http, https, server) -> {
+      http.get("/secure/path", rsp -> {
+        assertEquals("https://localhost:" + https.getPort() + "/secure/path",
+            rsp.header("Location"));
+        assertEquals(302, rsp.code());
+      });
+
+      http.header("X-Forwarded-Host", "myhost.org");
+      http.get("/secure/path?a=b", rsp -> {
+        assertEquals("https://myhost.org/secure/path?a=b",
+            rsp.header("Location"));
+        assertEquals(302, rsp.code());
+      });
+    });
+
+    new JoobyRunner(app -> {
+
       app.setServerOptions(new ServerOptions().setSecurePort(8433));
 
       app.before(new SSLHandler(true));
@@ -70,6 +94,7 @@ public class HttpsTest {
         assertEquals(302, rsp.code());
       });
     });
+
   }
 
   @Test
@@ -91,6 +116,28 @@ public class HttpsTest {
       http.header("X-Forwarded-Host", "myhost.org");
       http.get("/path?a=b", rsp -> {
         assertEquals("https://static.org/path?a=b",
+            rsp.header("Location"));
+        assertEquals(302, rsp.code());
+      });
+    });
+
+    new JoobyRunner(app -> {
+      app.setContextPath("/ppp");
+      app.setServerOptions(new ServerOptions().setSecurePort(8433));
+
+      app.before(new SSLHandler("static.org"));
+
+      app.get("/{path}", ctx -> ctx.pathString());
+    }).dontFollowRedirects().ready(http -> {
+      http.get("/ppp/path", rsp -> {
+        assertEquals("https://static.org/ppp/path",
+            rsp.header("Location"));
+        assertEquals(302, rsp.code());
+      });
+
+      http.header("X-Forwarded-Host", "myhost.org");
+      http.get("/ppp/path?a=b", rsp -> {
+        assertEquals("https://static.org/ppp/path?a=b",
             rsp.header("Location"));
         assertEquals(302, rsp.code());
       });
