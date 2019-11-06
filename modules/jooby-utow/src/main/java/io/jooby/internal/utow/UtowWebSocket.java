@@ -151,11 +151,11 @@ public class UtowWebSocket extends AbstractReceiveListener
       if (timeout > 0) {
         channel.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
       }
-      channel.getReceiveSetter().set(this);
-      channel.resumeReceives();
       if (onConnectCallback != null) {
         onConnectCallback.onConnect(this);
       }
+      channel.getReceiveSetter().set(this);
+      channel.resumeReceives();
     } catch (Throwable x) {
       onError(channel, x);
     }

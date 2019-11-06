@@ -12,10 +12,10 @@ import io.jooby.ServerOptions;
 public class HttpsApp extends Jooby {
 
   {
-    before(new SSLHandler("localhost", 8443));
+    before(new SSLHandler(true));
     setServerOptions(new ServerOptions().setSecurePort(8443));
 
-    get("/path", ctx -> {
+    get("/secure", ctx -> {
       return ctx.getScheme() + "; secure: " + ctx.isSecure();
     });
   }

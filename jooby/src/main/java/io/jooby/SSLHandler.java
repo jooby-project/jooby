@@ -62,7 +62,7 @@ public class SSLHandler implements Route.Before {
   @Override public void apply(@Nonnull Context ctx) {
     if (!ctx.isSecure()) {
       String host;
-      if (this.host == null) {
+        if (this.host == null) {
         String hostAndPort = ctx.getHostAndPort(useProxy);
         int i = hostAndPort.lastIndexOf(':');
         host = i > 0 ? hostAndPort.substring(0, i) : hostAndPort;
@@ -70,11 +70,8 @@ public class SSLHandler implements Route.Before {
         host = this.host;
       }
       StringBuilder buff = new StringBuilder("https://");
-      String contextPath = ctx.getContextPath();
-      if (!contextPath.equals("/")) {
-        buff.append(contextPath);
-      }
       buff.append(host);
+
       if (host.equals("localhost")) {
         int securePort = ctx.getRouter().getServerOptions().getSecurePort();
         buff.append(":").append(securePort);
@@ -82,6 +79,10 @@ public class SSLHandler implements Route.Before {
         if (port > 0 && port != SECURE_PORT) {
           buff.append(":").append(port);
         }
+      }
+      String contextPath = ctx.getContextPath();
+      if (!contextPath.equals("/")) {
+        buff.append(contextPath);
       }
       buff.append(ctx.pathString());
       buff.append(ctx.queryString());

@@ -9,8 +9,18 @@ import okhttp3.WebSocketListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,12 +130,15 @@ public class WebClient implements AutoCloseable {
     try {
       this.scheme = scheme;
       this.port = port;
-      client = new OkHttpClient.Builder()
+      OkHttpClient.Builder builder = new OkHttpClient.Builder()
           .connectTimeout(5, TimeUnit.MINUTES)
           .writeTimeout(5, TimeUnit.MINUTES)
           .readTimeout(5, TimeUnit.MINUTES)
-          .followRedirects(followRedirects)
-          .build();
+          .followRedirects(followRedirects);
+      if (scheme.equalsIgnoreCase("https")) {
+        configureSelfSigned(builder);
+      }
+      this.client = builder.build();
       header("Accept",
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
     } catch (Exception x) {
@@ -260,5 +273,31 @@ public class WebClient implements AutoCloseable {
   public void close() {
     client.dispatcher().executorService().shutdown();
     client.connectionPool().evictAll();
+  }
+
+  private static void configureSelfSigned(OkHttpClient.Builder builder)
+      throws NoSuchAlgorithmException, KeyManagementException {
+    X509TrustManager trustManager = new X509TrustManager() {
+      @Override
+      public X509Certificate[] getAcceptedIssuers() {
+        return new X509Certificate[0];
+      }
+
+      @Override
+      public void checkServerTrusted(final X509Certificate[] chain,
+          final String authType) throws CertificateException {
+      }
+
+      @Override
+      public void checkClientTrusted(final X509Certificate[] chain,
+          final String authType) throws CertificateException {
+      }
+    };
+
+    SSLContext sslContext = SSLContext.getInstance("SSL");
+
+    sslContext.init(null, new TrustManager[]{trustManager}, new java.security.SecureRandom());
+    builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
+    builder.hostnameVerifier((hostname, session) -> true);
   }
 }

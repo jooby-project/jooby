@@ -56,9 +56,9 @@ public class HttpsTest {
       app.before(new SSLHandler(true));
 
       app.get("/{path}", ctx -> ctx.pathString());
-    }).dontFollowRedirects().ready(http -> {
+    }).dontFollowRedirects().ready((http, https, server) -> {
       http.get("/path", rsp -> {
-        assertEquals("https://localhost:9443/path",
+        assertEquals("https://localhost:" + https.getPort() + "/path",
             rsp.header("Location"));
         assertEquals(302, rsp.code());
       });
