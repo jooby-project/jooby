@@ -19,7 +19,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -650,7 +649,7 @@ public class FeaturedTest {
         ctx.attribute("buff", buff);
       });
 
-      app.after((ctx, value) -> {
+      app.after((ctx, value, failure) -> {
         StringBuilder buff = (StringBuilder) value;
         buff.append("after1:" + ctx.isInIoThread()).append(";");
       });
@@ -661,7 +660,7 @@ public class FeaturedTest {
           buff.append("before2:" + ctx.isInIoThread()).append(";");
         });
 
-        app.after((ctx, value) -> {
+        app.after((ctx, value, failure) -> {
           StringBuilder buff = ctx.attribute("buff");
           buff.append("after2:" + ctx.isInIoThread()).append(";");
         });

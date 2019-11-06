@@ -77,7 +77,7 @@ public class UnitTest {
     Jooby app = new Jooby();
 
     app.before(ctx -> ctx.setResponseHeader("before", "<"));
-    app.after((ctx, result) -> ctx.setResponseHeader("after", ">"));
+    app.after((ctx, result, failure) -> ctx.setResponseHeader("after", ">"));
     app.get("/", ctx -> "OK");
 
     MockRouter router = new MockRouter(app)

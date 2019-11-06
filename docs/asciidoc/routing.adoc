@@ -505,15 +505,17 @@ interface Before {
 
 The javadoc:Route.After[text=after] filter runs after a `handler`.
 
-An `after` filter takes two arguments. The first argument is the `HTTP context`, while the second
-argument is the result/response from a **functional handler** or `null` for **side-effects** handler.
+An `after` filter takes three arguments. The first argument is the `HTTP context`, the second
+argument is the result/response from a **functional handler** or `null` for **side-effects** handler,
+the third and last argument is an exception generates from handler.
+
 It expected to operates via side effects, usually modifying the HTTP response (if possible) or
 for cleaning/trace execution.  
 
 [source,java]
 ----
 interface After {
-  void apply(Context ctx, Object result);
+  void apply(Context ctx, Object result, Throwable failure);
 }
 ----
 
@@ -521,7 +523,7 @@ interface After {
 [source,java,role="primary"]
 ----
 {
-  after((ctx, result) -> {
+  after((ctx, result, failure) -> {
     System.out.println(result);          <1>
     ctx.setResponseHeader("foo", "bar"); <2>
   });
@@ -558,7 +560,7 @@ For **side effects** handler the after filter is invoked with a `null` value and
 [source,java,role="primary"]
 ----
 {
-  after((ctx, result) -> {
+  after((ctx, result, failure) -> {
     System.out.println(result);          <1>
     ctx.setResponseHeader("foo", "bar"); <2>
   });
@@ -597,7 +599,7 @@ You can check whenever you can modify the response by checking the state of java
 [source,java,role="primary"]
 ----
 {
-  after((ctx, result) -> {
+  after((ctx, result, failure) -> {
     if (ctx.isResponseStarted()) {
       // Don't modify response
     } else {
@@ -620,6 +622,119 @@ You can check whenever you can modify the response by checking the state of java
   }
 }
 ----
+
+[NOTE]
+====
+An after handler is always invoked.
+====
+
+The next examples demonstrate some use cases for dealing with errored responses, but keep in mind
+that an after handler is not a mechanism for handling and reporting exceptions that's is a task for an <<error-handler, Error Handler>>.
+
+.Run code depending of success or failure responses:
+[source,java,role="primary"]
+----
+{
+  after((ctx, result, failure) -> {
+    if (failure == null) {
+      db.commit();                   <1>
+    } else {
+      db.rollback();                 <2>
+    }
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  after {
+    if (failure == null) {
+      db.commit()                    <1>
+    } else {
+      db.rollback()                  <2>
+    }
+  }
+}
+----
+
+Here the exception is still propagated given the chance to the <<error-handler, Error Handler>> to jump in.
+
+.Recover fom exception and produces an alternative output:
+[source,java,role="primary"]
+----
+{
+  after((ctx, result, failure) -> {
+    if (failure instanceOf MyBusinessException) {
+      ctx.send("Recovering from something");        <1>
+    }
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  after {
+    if (failure is MyBusinessException) {
+      ctx.send("Recovering from something")         <1>
+    }
+  }
+}
+----
+
+<1> Recover and produces an alternative output
+
+Here the exception wont be propagated due we produces a response, so error handler won't be execute it.
+
+In case where the after handler produces a new exception, that exception will be add to the original exception as suppressed exception.
+
+.Suppressed exceptions:
+[source,java,role="primary"]
+----
+{
+  after((ctx, result, failure) -> {
+    ...
+    throw new AnotherException();
+  });
+
+  get("/", ctx -> {
+    ...
+    throw new OriginalException();
+  });
+
+  error((ctx, failure, code) -> {
+    Throwable originalException = failure;                       <1>
+    Throwable anotherException  = failure.getSuppressed()[0];    <2>
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  after {
+    ...
+    throw AnotherException();
+  }
+
+  get("/") { ctx ->
+    ...
+    throw OriginalException()
+  }
+
+  error { ctx, failure, code) ->
+    val originalException = failure                              <1>
+    val anotherException  = failure.getSuppressed()[0]           <2>
+  }
+}
+----
+
+<1> Will be `OriginalException`
+<2> Will be `AnotherException`
 
 === Pipeline
 

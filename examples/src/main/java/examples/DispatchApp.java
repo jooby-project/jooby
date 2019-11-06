@@ -20,9 +20,6 @@ public class DispatchApp extends Jooby {
       return next.apply(ctx);
     });
 
-    after((ctx, value) -> {
-    });
-
     get("/", ctx -> ctx.query("n").intValue(2));
 
     dispatch(() -> {
