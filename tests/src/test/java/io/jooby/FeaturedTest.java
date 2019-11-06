@@ -19,6 +19,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1890,6 +1891,7 @@ public class FeaturedTest {
         assertNotNull(sid);
         String header = rsp.header("TOKEN");
         assertNotNull(header);
+        assertEquals(sid, header);
 
         client.header("Cookie", "jooby.sid=" + sid);
         client.get("/session", sessionCookie -> {
@@ -1905,7 +1907,7 @@ public class FeaturedTest {
           assertNull(headerCookie.header("Set-Cookie"));
         });
       });
-    });
+    }, Jetty::new);
   }
 
   @Test
@@ -2916,7 +2918,8 @@ public class FeaturedTest {
       });
 
       app.get("/destroy", ctx -> {
-        ctx.session().destroy();;
+        ctx.session().destroy();
+        ;
         return "destroy";
       });
     }).ready(client -> {
@@ -2981,7 +2984,7 @@ public class FeaturedTest {
     List<byte[]> result = new ArrayList<>();
     int offset = 0;
     while (offset < bytes.length) {
-      int len = Math.min(size,bytes.length - offset);
+      int len = Math.min(size, bytes.length - offset);
       byte[] b = new byte[len];
       System.arraycopy(bytes, offset, b, 0, len);
       result.add(b);

@@ -15,7 +15,7 @@ public class HttpsApp extends Jooby {
     before(new SSLHandler(true));
     setServerOptions(new ServerOptions().setSecurePort(8443));
 
-    get("/secure", ctx -> {
+    get("/", ctx -> {
       return ctx.getScheme() + "; secure: " + ctx.isSecure();
     });
   }

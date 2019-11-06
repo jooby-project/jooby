@@ -101,9 +101,19 @@ server.ssl.type = self-signed
 === SSL
 
 Jooby supports HTTPS out of the box. By default HTTPS is disabled and all requests are served using 
-HTTP. To enable HTTPS support, modify your configuration.
+HTTP. Jooby supports two certificate formats:
 
-.SSL Options
+- PKCS12 (this is the default format)
+- X.509
+
+The javadoc:SslOptions[] class provides options to configure SSL:
+
+- cert: A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a classpath resource. Required.
+- key:  A PKCS#8 private key file in PEM format. It can be an absolute path or a classpath resource. Required when using X.509 certificates.
+- password: Password to use (if any). Optional. Default is: null/empty.
+
+
+.Hello HTTPS
 [source,java,role="primary"]
 ----
 {
@@ -133,22 +143,30 @@ listening on:
   https://localhost:8443/
 ----
 
-The `self-signed` certificate is useful for development and only works for `localhost`.
+[IMPORTANT]
+====
+The `self-signed` certificate is useful for development but keep in mind it will generate a warning on the browser.
+====
 
-Jooby supports two certificate formats:
+image::self-signed-not-secure.png[Not Secure]
 
-- PKCS12 (this is the default format)
-- X.509
+A better option for development is the https://mkcert.dev[mkcert] tool:
 
-The javadoc:SslOptions[] class provides options to configure SSL:
+.Generates a PKCS12 certificate
+[source,bash,role="primary]
+----
+mkcrt -pkcs12 localhost
+----
 
-- cert: A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a classpath resource. Required.
-- key:  A PKCS#8 private key file in PEM format. It can be an absolute path or a classpath resource. Required when using X.509 certificates.
-- password: Password to use (if any). Optional. Default is: null/empty.
+.Generates a X.509 certificate
+[source,bash,role="secondary"]
+----
+mkcrt localhost
+----
 
 ==== Using X.509
 
-It is also possible to configure Jooby to use a X.509 certificate, for example one created with https://letsencrypt.org/[Let’s Encrypt]. You will need the `*.crt` and `*.key` files:
+To use a valid X.509 certificate, for example one created with https://letsencrypt.org/[Let’s Encrypt]. You will need the `*.crt` and `*.key` files:
 
 .X509
 [source,java,role="primary"]
@@ -211,7 +229,7 @@ server {
 
 ==== Using PKCS12
 
-It is also possible to configure Jooby to use a PKCS12 certificate:
+To use a valid PKCS12 certificate:
 
 .PKCS12
 [source,java,role="primary"]

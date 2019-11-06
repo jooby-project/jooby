@@ -1,5 +1,6 @@
 package io.jooby;
 
+import okhttp3.Cache;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
