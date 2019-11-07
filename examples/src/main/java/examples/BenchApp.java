@@ -37,6 +37,12 @@ public class BenchApp extends Jooby {
   }
 
   {
+    get("/gc", ctx -> {
+      long before = Runtime.getRuntime().freeMemory();
+      System.gc();
+      long after = Runtime.getRuntime().freeMemory();
+      return before + ":" + after + "(" + (before - after) + ")";
+    });
     get("/plaintext", ctx -> {
       return ctx.send(MESSAGE_BYTE);
     });

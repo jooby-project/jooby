@@ -123,8 +123,6 @@ public class RouterImpl implements Router {
 
   private List<RadixTree> trees;
 
-  private RouteAnalyzer analyzer;
-
   private Executor worker = new ForwardingExecutor();
 
   private Map<Route, Executor> routeExecutor = new HashMap<>();
@@ -137,8 +135,6 @@ public class RouterImpl implements Router {
 
   private ServiceRegistry services = new ServiceRegistryImpl();
 
-  private ClassSource source;
-
   private SessionStore sessionStore = SessionStore.memory();
 
   private String flashName = "jooby.flash";
@@ -147,9 +143,10 @@ public class RouterImpl implements Router {
 
   private List<BeanConverter> beanConverters;
 
+  private ClassLoader classLoader;
+
   public RouterImpl(ClassLoader loader) {
-    this.source = new ClassSource(loader);
-    this.analyzer = new RouteAnalyzer(source, false);
+    this.classLoader = loader;
     stack.addLast(new Stack(""));
 
     converters = ValueConverters.defaultConverters();
@@ -427,6 +424,9 @@ public class RouterImpl implements Router {
     ValueConverters.addFallbackConverters(converters);
     ValueConverters.addFallbackBeanConverters(beanConverters);
 
+    ClassSource source = new ClassSource(classLoader);
+    RouteAnalyzer analyzer = new RouteAnalyzer(source, false);
+
     ExecutionMode mode = owner.getExecutionMode();
     for (Route route : routes) {
       String executorKey = route.getExecutorKey();
@@ -487,7 +487,6 @@ public class RouterImpl implements Router {
     routeExecutor.clear();
     routeExecutor = null;
     source.destroy();
-    source = null;
     return this;
   }
 

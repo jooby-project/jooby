@@ -24,32 +24,26 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
-import io.netty.util.concurrent.FastThreadLocal;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ScheduledExecutorService;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
-  private static final FastThreadLocal<DateFormat> FORMAT = new FastThreadLocal<DateFormat>() {
-    @Override
-    protected DateFormat initialValue() {
-      return new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
-    }
-  };
+  private static final AtomicReference<String> cachedDateString = new AtomicReference<>();
+
+  private static final Runnable INVALIDATE_TASK = () -> cachedDateString.set(null);
 
   private static final AsciiString server = AsciiString.cached("N");
-
-  private volatile AsciiString date = new AsciiString(FORMAT.get().format(new Date()));
+  private final ScheduledExecutorService scheduler;
 
   private static final int DATE_INTERVAL = 1000;
 
@@ -68,17 +62,12 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
   public NettyHandler(ScheduledExecutorService scheduler, Router router, long maxRequestSize,
       int bufferSize, HttpDataFactory factory, boolean defaultHeaders) {
-    scheduler
-        .scheduleWithFixedDelay(dateSync(FORMAT.get()), DATE_INTERVAL, DATE_INTERVAL, MILLISECONDS);
+    this.scheduler = scheduler;
     this.router = router;
     this.maxRequestSize = maxRequestSize;
     this.factory = factory;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
-  }
-
-  private Runnable dateSync(DateFormat format) {
-    return () -> date = new AsciiString(format.format(new Date()));
   }
 
   @Override
@@ -88,7 +77,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
 
       if (defaultHeaders) {
-        context.setHeaders.set(HttpHeaderNames.DATE, date);
+        context.setHeaders.set(HttpHeaderNames.DATE, date(scheduler));
         context.setHeaders.set(HttpHeaderNames.SERVER, server);
       }
       context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
@@ -100,6 +89,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         decoder = newDecoder(req, factory);
       } else {
         result.execute(context);
+        result = null;
       }
     } else if (decoder != null && msg instanceof HttpContent) {
       HttpContent chunk = (HttpContent) msg;
@@ -122,6 +112,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         context.decoder = decoder;
         resetDecoderState(false);
         result.execute(context);
+        result = null;
       }
     } else if (msg instanceof WebSocketFrame) {
       if (context.webSocket != null) {
@@ -133,6 +124,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
     if (context != null) {
       context.flush();
+      context = null;
     }
   }
 
@@ -217,6 +209,23 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     } catch (NumberFormatException x) {
       return -1;
     }
+  }
+
+  private static String date(ScheduledExecutorService scheduler) {
+    String dateString = cachedDateString.get();
+    if (dateString == null) {
+      //set the time and register a timer to invalidate it
+      //note that this is racey, it does not matter if multiple threads do this
+      //the perf cost of synchronizing would be more than the perf cost of multiple threads running it
+      long realTime = System.currentTimeMillis();
+      long mod = realTime % DATE_INTERVAL;
+      long toGo = DATE_INTERVAL - mod;
+      dateString = DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneOffset.UTC));
+      if (cachedDateString.compareAndSet(null, dateString)) {
+        scheduler.schedule(INVALIDATE_TASK, toGo, TimeUnit.MILLISECONDS);
+      }
+    }
+    return dateString;
   }
 }
 

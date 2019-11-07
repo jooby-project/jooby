@@ -78,6 +78,10 @@ public class RouterMatch implements Router.Match {
       route.getPipeline().apply(context);
     } catch (Throwable x) {
       context.sendError(x);
+    } finally {
+      this.handler = null;
+      this.route = null;
+      this.vars = null;
     }
   }
 

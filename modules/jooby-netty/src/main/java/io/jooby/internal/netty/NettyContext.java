@@ -33,6 +33,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -58,7 +59,6 @@ import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ReferenceCounted;
 
@@ -73,7 +73,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,7 +100,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
-  final DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(true);
+  DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(true);
   private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -436,9 +435,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
         data, setHeaders, NO_TRAILING);
     if (ctx.channel().eventLoop().inEventLoop()) {
       needsFlush = true;
-      ctx.write(response).addListener(this);
+      ctx.write(response, promise(this));
     } else {
-      ctx.writeAndFlush(response).addListener(this);
+      ctx.writeAndFlush(response, promise(this));
     }
     return this;
   }
@@ -447,6 +446,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     if (needsFlush) {
       needsFlush = false;
       ctx.flush();
+      this.ctx = null;
+      this.req = null;
+      this.route = null;
+      this.router = null;
+      this.headers = null;
     }
   }
 
@@ -461,7 +465,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       // Body
       ctx.write(new ChunkedNioStream(channel, bufferSize), ctx.voidPromise());
       // Finish
-      ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
+      ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
     });
     return this;
   }
@@ -486,7 +490,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
         // Body
         ctx.write(chunkedStream, ctx.voidPromise());
         // Finish
-        ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
+        ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
       });
       return this;
     } catch (Exception x) {
@@ -515,7 +519,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           // Headers
           ctx.write(rsp, ctx.voidPromise());
           // Body
-          ctx.writeAndFlush(chunkedInput).addListener(this);
+          ctx.writeAndFlush(chunkedInput, promise(this));
         });
       } else {
         ctx.channel().eventLoop().execute(() -> {
@@ -525,7 +529,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           ctx.write(new DefaultFileRegion(file, range.getStart(), range.getEnd()),
               ctx.voidPromise());
           // Finish
-          ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
+          ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
         });
       }
     } catch (IOException x) {
@@ -557,7 +561,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
         HttpResponseStatus.valueOf(statusCode.value()), Unpooled.EMPTY_BUFFER, setHeaders,
         NO_TRAILING);
-    ctx.writeAndFlush(rsp).addListener(this);
+    ctx.writeAndFlush(rsp, promise(this));
     return this;
   }
 
@@ -573,17 +577,33 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private void ifSaveSession() {
-    Session session = (Session) getAttributes().get(Session.NAME);
-    if (session != null && (session.isNew() || session.isModify())) {
+    Session session = saveSession();
+    if (session != null) {
       SessionStore store = router.getSessionStore();
       store.saveSession(this, session);
     }
   }
 
-  private NettyOutputStream newOutputStream() {
-    prepareChunked();
-    return new NettyOutputStream(ctx, bufferSize,
-        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
+  private Session saveSession() {
+    Session session = (Session) getAttributes().get(Session.NAME);
+    if (session != null && (session.isNew() || session.isModify())) {
+      return session;
+    }
+    return session;
+  }
+
+  private ChannelPromise promise(ChannelFutureListener listener) {
+    if (pendingTasks()) {
+      return ctx.newPromise().addListener(listener);
+    }
+    return ctx.voidPromise();
+  }
+
+  private boolean pendingTasks() {
+    return (saveSession() != null) ||
+        (files != null && files.size() > 0) ||
+        (decoder != null) ||
+        shouldRelease(req);
   }
 
   void destroy(Throwable cause) {
@@ -617,6 +637,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       decoder = null;
     }
     release(req);
+  }
+
+  private NettyOutputStream newOutputStream() {
+    prepareChunked();
+    return new NettyOutputStream(ctx, bufferSize,
+        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
   }
 
   private FileUpload register(FileUpload upload) {
@@ -653,12 +679,18 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private static void release(HttpRequest req) {
+    if (shouldRelease(req)) {
+      ReferenceCounted ref = (ReferenceCounted) req;
+      ref.release();
+    }
+  }
+
+  private static boolean shouldRelease(HttpRequest req) {
     if (req instanceof ReferenceCounted) {
       ReferenceCounted ref = (ReferenceCounted) req;
-      if (ref.refCnt() > 0) {
-        ref.release();
-      }
+      return ref.refCnt() > 0;
     }
+    return false;
   }
 
   private long responseLength() {

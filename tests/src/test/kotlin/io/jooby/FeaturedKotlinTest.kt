@@ -8,7 +8,7 @@ import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class FeaturedKotlinTest {
+  class FeaturedKotlinTest {
 
   @Test
   fun explicitContext() {
