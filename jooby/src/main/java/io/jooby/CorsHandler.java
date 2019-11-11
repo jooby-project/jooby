@@ -73,7 +73,10 @@ public class CorsHandler implements Route.Decorator {
           if (preflight(ctx, options, origin)) {
             return ctx;
           } else {
-            log.debug("preflight for {} {} with origin: {} failed", ctx.getMethod(), ctx.getContextPath(), origin);
+            log.debug("preflight for {} {} with origin: {} failed",
+                ctx.header(AC_REQUEST_METHOD),
+                ctx.getRequestURL(),
+                    origin);
             return ctx.send(StatusCode.FORBIDDEN);
           }
         } else { // Not in pre-flight
@@ -114,8 +117,8 @@ public class CorsHandler implements Route.Decorator {
   }
 
   private boolean preflight(final Context ctx, final Cors options, final String origin) {
-    /**
-     * Allowed method
+    /*
+      Allowed method
      */
     boolean allowMethod = ctx.header(AC_REQUEST_METHOD).toOptional()
         .map(options::allowMethod)
@@ -124,8 +127,8 @@ public class CorsHandler implements Route.Decorator {
       return false;
     }
 
-    /**
-     * Allowed headers
+    /*
+      Allowed headers
      */
     List<String> headers = ctx.header(AC_REQUEST_HEADERS).toOptional().map(header ->
         Arrays.asList(header.split("\\s*,\\s*"))
@@ -134,8 +137,8 @@ public class CorsHandler implements Route.Decorator {
       return false;
     }
 
-    /**
-     * Allowed methods
+    /*
+      Allowed methods
      */
     ctx.setResponseHeader(AC_ALLOW_METHODS,
         options.getMethods().stream().collect(Collectors.joining(",")));
@@ -144,8 +147,8 @@ public class CorsHandler implements Route.Decorator {
     ctx.setResponseHeader(AC_ALLOW_HEADERS,
         allowedHeaders.stream().collect(Collectors.joining(",")));
 
-    /**
-     * Allow credentials
+    /*
+      Allow credentials
      */
     if (options.getUseCredentials()) {
       ctx.setResponseHeader(AC_ALLOW_CREDENTIALS, true);
