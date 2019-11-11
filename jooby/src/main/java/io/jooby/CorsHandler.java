@@ -5,12 +5,15 @@
  */
 package io.jooby;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,23 +76,51 @@ public class CorsHandler implements Route.Decorator {
           if (preflight(ctx, options, origin)) {
             return ctx;
           } else {
-            log.debug("preflight for {} {} with origin: {} failed",
-                ctx.header(AC_REQUEST_METHOD),
-                ctx.getRequestURL(),
-                    origin);
+            log.debug("preflight for {} {} with origin: {} failed", ctx.header(AC_REQUEST_METHOD),
+                ctx.getRequestURL(), origin);
             return ctx.send(StatusCode.FORBIDDEN);
           }
-        } else { // Not in pre-flight
-          log.debug("handling simple cors for: {}", origin);
-          ctx.setResetHeadersOnError(false);
-          simple(ctx, options, origin);
+        } else {
+          // Origin is present, is Simple CORS?
+          if (isSimple(ctx)) {
+            log.debug("handling simple cors for: {}", origin);
+            ctx.setResetHeadersOnError(false);
+            simple(ctx, options, origin);
+          } else if (ctx.getMethod().equalsIgnoreCase(Router.OPTIONS)) {
+            // handle normal OPTIONS
+            Router router = ctx.getRouter();
+            List<String> allow = new ArrayList<>();
+            for (String method : Router.METHODS) {
+              Router.Match match = router.match(methodContext(ctx, method));
+              if (match.matches()) {
+                allow.add(method);
+              }
+            }
+            ctx.setResponseHeader("Allow", allow.stream().collect(Collectors.joining(",")));
+            return ctx.send(StatusCode.OK);
+          }
+          //
         }
       }
       return next.apply(ctx);
     };
   }
 
-  private void simple(final Context ctx, final Cors options, final String origin) throws Exception {
+  private static Context methodContext(Context ctx, String method) {
+    return new ForwardingContext(ctx) {
+      @Nonnull @Override public String getMethod() {
+        return method;
+      }
+    };
+  }
+
+  private static boolean isSimple(Context ctx) {
+    return ctx.getMethod().equals(Router.GET)
+        || ctx.getMethod().equals(Router.POST)
+        || ctx.getMethod().equals(Router.HEAD);
+  }
+
+  private static void simple(final Context ctx, final Cors options, final String origin) {
     if ("null".equals(origin)) {
       ctx.setResponseHeader(AC_ALLOW_ORIGIN, ANY_ORIGIN);
     } else {

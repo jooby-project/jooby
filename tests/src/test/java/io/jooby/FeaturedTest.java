@@ -2716,12 +2716,13 @@ public class FeaturedTest {
             assertEquals("1800", rsp.header("Access-Control-Max-Age"));
           });
 
-      // preflight without access-control-request-method => forbidden
+      // preflight without access-control-request-method => normal OPTIONS call
       client
           .header("Origin", "http://foo.com")
           .options("/greeting", rsp -> {
             assertEquals("", rsp.body().string());
-            assertEquals(StatusCode.FORBIDDEN_CODE, rsp.code());
+            assertEquals(StatusCode.OK_CODE, rsp.code());
+            assertEquals("GET,OPTIONS", rsp.header("Allow"));
             assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
             assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
             assertEquals(null, rsp.header("Access-Control-Allow-Methods"));
