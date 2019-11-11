@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handle preflight and simple CORS requests. CORS options are set via: {@link Cors}.
@@ -43,6 +45,8 @@ public class CorsHandler implements Route.Decorator {
 
   private final Cors options;
 
+  private static final Logger log = LoggerFactory.getLogger(CorsHandler.class);
+
   /**
    * Creates a new {@link CorsHandler}.
    *
@@ -63,27 +67,23 @@ public class CorsHandler implements Route.Decorator {
     return ctx -> {
       String origin = ctx.header("Origin").valueOrNull();
       if (origin != null && options.allowOrigin(origin)) {
+        log.debug("allowed origin: {}", origin);
         if (isPreflight(ctx)) {
+          log.debug("handling preflight for: {}", origin);
           if (preflight(ctx, options, origin)) {
             return ctx;
           } else {
+            log.debug("preflight for {} {} with origin: {} failed", ctx.getMethod(), ctx.getContextPath(), origin);
             return ctx.send(StatusCode.FORBIDDEN);
           }
-        } else if (isSimple(ctx)) {
+        } else { // Not in pre-flight
+          log.debug("handling simple cors for: {}", origin);
           ctx.setResetHeadersOnError(false);
           simple(ctx, options, origin);
-        } else {
-          return ctx.send(StatusCode.FORBIDDEN);
         }
       }
       return next.apply(ctx);
     };
-  }
-
-  private boolean isSimple(Context ctx) {
-    return ctx.getMethod().equals(Router.GET)
-        || ctx.getMethod().equals(Router.POST)
-        || ctx.getMethod().equals(Router.HEAD);
   }
 
   private void simple(final Context ctx, final Cors options, final String origin) throws Exception {
