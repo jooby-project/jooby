@@ -32,12 +32,14 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFutureListener {
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<NettyWebSocket>> all = new ConcurrentHashMap<>();
 
-  static final AttributeKey<NettyWebSocket> WS = AttributeKey.newInstance(NettyWebSocket.class.getName());
+  static final AttributeKey<NettyWebSocket> WS = AttributeKey
+      .newInstance(NettyWebSocket.class.getName());
 
   private final NettyContext netty;
   private final boolean dispatch;
@@ -47,6 +49,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   private WebSocket.OnMessage messageCallback;
   private OnClose onCloseCallback;
   private OnError onErrorCallback;
+  private AtomicBoolean initialized = new AtomicBoolean();
 
   public NettyWebSocket(NettyContext ctx) {
     this.netty = ctx;
@@ -150,6 +153,9 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   private void handleMessage(WebSocketFrame frame) {
+    // when dispatch is enable there is race condition while testing the code. if connect, didn't
+    // run, we run it on first message.
+    fireConnect();
     try {
       if (frame.isFinalFragment()) {
         ByteBuf content;
@@ -201,7 +207,8 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     }
 
     if (onErrorCallback == null) {
-      netty.getRouter().getLog().error("Websocket resulted in exception: {}", netty.pathString(), x);
+      netty.getRouter().getLog()
+          .error("Websocket resulted in exception: {}", netty.pathString(), x);
     } else {
       onErrorCallback.onError(this, x);
     }
@@ -212,9 +219,12 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   void fireConnect() {
-    addSession(this);
-    if (connectCallback != null) {
-      fireCallback(webSocketTask(() -> connectCallback.onConnect(this)));
+    // fire only once
+    if (initialized.compareAndSet(false, true)) {
+      addSession(this);
+      if (connectCallback != null) {
+        fireCallback(webSocketTask(() -> connectCallback.onConnect(this)));
+      }
     }
   }
 
