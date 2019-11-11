@@ -34,6 +34,8 @@
     <module>jooby-pebble</module>
     <module>jooby-rocker</module>
 
+    <module>jooby-pac4j</module>
+
     <module>jooby-guice</module>
     <module>jooby-spring</module>
     <module>jooby-weld</module>

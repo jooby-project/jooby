@@ -73,6 +73,7 @@
     <okhttp.version>4.2.2</okhttp.version>
     <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
     <json.version>20190722</json.version>
+    <pac4j.version>4.0.0-RC1</pac4j.version>
 
     <commons-io.version>2.6</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
@@ -775,6 +776,72 @@
         <version>${guava.version}</version>
       </dependency>
 
+      <!-- https://mvnrepository.com/artifact/org.pac4j/pac4j-core -->
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-core</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-http</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-cas</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-config</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-jwt</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-core</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-oauth</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-oidc</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-openid</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-saml</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-ldap</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
 
       <!-- Maven -->
       <dependency>
