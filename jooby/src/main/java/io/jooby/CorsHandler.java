@@ -117,6 +117,8 @@ public class CorsHandler implements Route.Decorator {
     return ctx.getMethod().equals(Router.GET)
         || ctx.getMethod().equals(Router.POST)
         || ctx.getMethod().equals(Router.HEAD);
+    // Suggested:
+    //  return !ctx.getMethod().equals(Router.OPTIONS);
   }
 
   private static void simple(final Context ctx, final Cors options, final String origin) {
