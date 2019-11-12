@@ -31,16 +31,6 @@ public class Issue1413 {
             assertEquals("true", rsp.header("Access-Control-Allow-Credentials"));
           });
 
-      // PUT Method and allowed origin => OK and Access Control Headers Present
-      client
-          .header("Origin", "http://foo.com")
-          .put("/api/v1/machines/123", rsp -> {
-            assertEquals("123", rsp.body().string());
-            assertEquals(200, rsp.code());
-            assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
-            assertEquals("true", rsp.header("Access-Control-Allow-Credentials"));
-          });
-
       // POST Method by allowed origin => OK and Access Control Headers Present
       client
           .header("Origin", "http://foo.com")
@@ -60,6 +50,17 @@ public class Issue1413 {
             assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
             assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
           });
+
+      // PUT Method and allowed origin => OK and Access Control Headers Present
+      client
+          .header("Origin", "http://foo.com")
+          .put("/api/v1/machines/123", rsp -> {
+            assertEquals("123", rsp.body().string());
+            assertEquals(200, rsp.code());
+            assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
+            assertEquals("true", rsp.header("Access-Control-Allow-Credentials"));
+          });
+
     });
   }
 
@@ -88,16 +89,6 @@ public class Issue1413 {
             assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
           });
 
-      // PUT Method and allowed origin => OK and Access Control Headers Present
-      client
-          .header("Origin", "http://foo.com")
-          .put("/api/v1/machines/123", rsp -> {
-            assertEquals("123", rsp.body().string());
-            assertEquals(200, rsp.code());
-            assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
-            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
-          });
-
       // POST Method by allowed origin => OK and Access Control Headers Present
       client
           .header("Origin", "http://foo.com")
@@ -117,6 +108,17 @@ public class Issue1413 {
             assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
             assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
           });
+
+      // PUT Method and allowed origin => OK and Access Control Headers Present
+      client
+          .header("Origin", "http://foo.com")
+          .put("/api/v1/machines/123", rsp -> {
+            assertEquals("123", rsp.body().string());
+            assertEquals(200, rsp.code());
+            assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+          });
+
     });
   }
 }
