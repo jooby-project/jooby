@@ -3,6 +3,7 @@ package io.jooby;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class Issue1413 {
 
@@ -46,9 +47,9 @@ public class Issue1413 {
           .header("Origin", "http://bar.com")
           .get("/api/v1/machines/123", rsp -> {
             assertEquals(403, rsp.code());
-            assertEquals(null, rsp.body().string());
-            assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
-            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertNull(rsp.body().string());
+            assertNull(rsp.header("Access-Control-Allow-Origin"));
+            assertNull(rsp.header("Access-Control-Allow-Credentials"));
           });
 
       // PUT Method and allowed origin => OK and Access Control Headers Present
@@ -86,7 +87,7 @@ public class Issue1413 {
             assertEquals("", rsp.body().string());
             assertEquals(200, rsp.code());
             assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
-            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertNull(rsp.header("Access-Control-Allow-Credentials"));
           });
 
       // POST Method by allowed origin => OK and Access Control Headers Present
@@ -96,7 +97,7 @@ public class Issue1413 {
             assertEquals("123", rsp.body().string());
             assertEquals(200, rsp.code());
             assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
-            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertNull(rsp.header("Access-Control-Allow-Credentials"));
           });
 
       // Origin different from the allowed one => Forbidden
@@ -104,9 +105,9 @@ public class Issue1413 {
           .header("Origin", "http://bar.com")
           .get("/api/v1/machines/123", rsp -> {
             assertEquals(403, rsp.code());
-            assertEquals(null, rsp.body().string());
-            assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
-            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertNull(rsp.body().string());
+            assertNull(rsp.header("Access-Control-Allow-Origin"));
+            assertNull(rsp.header("Access-Control-Allow-Credentials"));
           });
 
       // PUT Method and allowed origin => OK and Access Control Headers Present
@@ -116,9 +117,8 @@ public class Issue1413 {
             assertEquals("123", rsp.body().string());
             assertEquals(200, rsp.code());
             assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
-            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertNull(rsp.header("Access-Control-Allow-Credentials"));
           });
-
     });
   }
 }
