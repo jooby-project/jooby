@@ -1,4 +1,3 @@
 * review toString on Value API (removal of QueryStringValue?)
 * tests and coverage
 * make reset headers on error configurable
-* netty reports a leak in MVC body

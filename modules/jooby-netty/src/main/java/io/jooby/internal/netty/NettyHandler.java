@@ -27,6 +27,8 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
+import io.netty.util.ReferenceCountUtil;
+import io.netty.util.ReferenceCounted;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
@@ -72,51 +74,59 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
-    if (msg instanceof HttpRequest) {
-      HttpRequest req = (HttpRequest) msg;
-      context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
+    try {
+      if (msg instanceof HttpRequest) {
+        HttpRequest req = (HttpRequest) msg;
+        context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
 
-      if (defaultHeaders) {
-        context.setHeaders.set(HttpHeaderNames.DATE, date(scheduler));
-        context.setHeaders.set(HttpHeaderNames.SERVER, server);
-      }
-      context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
+        if (defaultHeaders) {
+          context.setHeaders.set(HttpHeaderNames.DATE, date(scheduler));
+          context.setHeaders.set(HttpHeaderNames.SERVER, server);
+        }
+        context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
 
-      result = router.match(context);
+        result = router.match(context);
 
-      contentLength = contentLength(req);
-      if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
-        decoder = newDecoder(req, factory);
-      } else {
-        result.execute(context);
-        result = null;
-      }
-    } else if (decoder != null && msg instanceof HttpContent) {
-      HttpContent chunk = (HttpContent) msg;
-      chunkSize += chunk.content().readableBytes();
-      if (chunkSize > maxRequestSize) {
-        resetDecoderState(true);
-        chunk.release();
-        context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
-        return;
-      }
+        contentLength = contentLength(req);
+        if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
+          decoder = newDecoder(req, factory);
+        } else {
+          result.execute(context);
+          result = null;
+        }
+      } else if (decoder != null && msg instanceof HttpContent) {
+        HttpContent chunk = (HttpContent) msg;
+        chunkSize += chunk.content().readableBytes();
+        if (chunkSize > maxRequestSize) {
+          resetDecoderState(true);
+          context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+          return;
+        }
 
-      offer(chunk);
-
-      if (contentLength == chunkSize && !(chunk instanceof LastHttpContent)) {
-        chunk = LastHttpContent.EMPTY_LAST_CONTENT;
         offer(chunk);
-      }
 
-      if (chunk instanceof LastHttpContent) {
-        context.decoder = decoder;
-        resetDecoderState(false);
-        result.execute(context);
-        result = null;
+        if (contentLength == chunkSize && !(chunk instanceof LastHttpContent)) {
+          chunk = LastHttpContent.EMPTY_LAST_CONTENT;
+          offer(chunk);
+        }
+
+        if (chunk instanceof LastHttpContent) {
+          context.decoder = decoder;
+          resetDecoderState(false);
+          result.execute(context);
+          result = null;
+        }
+      } else if (msg instanceof WebSocketFrame) {
+        if (context.webSocket != null) {
+          context.webSocket.handleFrame((WebSocketFrame) msg);
+        }
       }
-    } else if (msg instanceof WebSocketFrame) {
-      if (context.webSocket != null) {
-        context.webSocket.handleFrame((WebSocketFrame) msg);
+    } finally {
+      if (msg instanceof ReferenceCounted) {
+        ReferenceCounted ref = (ReferenceCounted) msg;
+        if (ref.refCnt() > 0) {
+          ref.release();
+        }
       }
     }
   }

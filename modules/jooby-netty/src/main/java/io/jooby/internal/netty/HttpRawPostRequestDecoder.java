@@ -49,7 +49,7 @@ public class HttpRawPostRequestDecoder implements InterfaceHttpPostRequestDecode
 
   @Override public InterfaceHttpPostRequestDecoder offer(HttpContent content) {
     try {
-      data.addContent(content.content(), content instanceof LastHttpContent);
+      data.addContent(content.content().copy(), content instanceof LastHttpContent);
       return this;
     } catch (IOException x) {
       throw new HttpPostRequestDecoder.ErrorDataDecoderException(x);
