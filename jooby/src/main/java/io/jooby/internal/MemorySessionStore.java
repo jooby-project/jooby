@@ -70,7 +70,7 @@ public class MemorySessionStore implements SessionStore {
   }
 
   @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
-    // NOOP
+    saveSession(ctx, session);
   }
 
   @Override public void saveSession(Context ctx, @Nonnull Session session) {
