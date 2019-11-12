@@ -91,7 +91,11 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
       }
 
       if (onErrorCallback == null) {
-        ctx.getRouter().getLog().error("Websocket resulted in exception: {}", path, x);
+        if (Server.connectionLost(x)) {
+          ctx.getRouter().getLog().debug("Websocket resulted in exception: {}", path, x);
+        } else {
+          ctx.getRouter().getLog().error("Websocket resulted in exception: {}", path, x);
+        }
       } else {
         onErrorCallback.onError(this, x);
       }
@@ -194,7 +198,11 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   @Override public void writeFailed(Throwable x) {
-    ctx.getRouter().getLog().error("Websocket resulted in exception: {}", path, x);
+    if (Server.connectionLost(x)) {
+      ctx.getRouter().getLog().debug("Websocket resulted in exception: {}", path, x);
+    } else {
+      ctx.getRouter().getLog().error("Websocket resulted in exception: {}", path, x);
+    }
   }
 
   @Override public void writeSuccess() {

@@ -15,7 +15,6 @@ import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -174,7 +172,7 @@ public class FeaturedTest {
         assertEquals(404, rsp.code());
         assertEquals(580, rsp.body().contentLength());
       });
-    }, Jetty::new);
+    });
   }
 
   @Test
@@ -1390,7 +1388,7 @@ public class FeaturedTest {
       client.get("/reactive", rsp -> {
         assertEquals("true", rsp.body().string());
       });
-    }, Netty::new, Utow::new);
+    }, Utow::new, Netty::new);
   }
 
   @Test
@@ -1684,13 +1682,6 @@ public class FeaturedTest {
     }, Jetty::new);
 
     assertEquals(0, counter.get());
-  }
-
-  private String sid(Response rsp, String prefix) {
-    String setCookie = rsp.header("Set-Cookie");
-    assertNotNull(setCookie);
-    assertTrue(setCookie.startsWith(prefix));
-    return setCookie.substring(prefix.length(), setCookie.indexOf(";"));
   }
 
   @Test
