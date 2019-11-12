@@ -1443,7 +1443,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=0-99");
       client.get("/range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 0-99/18944", rsp.header("content-range"));
+        assertEquals("bytes 0-99/"+_19kb.length(), rsp.header("content-range"));
         assertEquals("100", rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(0, 100), rsp.body().string());
@@ -1452,7 +1452,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=-100");
       client.get("/range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 18844-18943/18944", rsp.header("content-range"));
+        assertEquals("bytes "+ (_19kb.length()-100) +"-"+(_19kb.length()-1)+"/"+_19kb.length(), rsp.header("content-range"));
         assertEquals("100", rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(_19kb.length() - 100), rsp.body().string());
@@ -1462,7 +1462,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=-" + last);
       client.get("/range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 2555-18943/18944", rsp.header("content-range"));
+        assertEquals("bytes "+(_19kb.length()-last)+"-"+(_19kb.length()-1)+"/"+_19kb.length(), rsp.header("content-range"));
         assertEquals(Integer.toString(last), rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(_19kb.length() - last), rsp.body().string());
@@ -1470,7 +1470,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=0-" + last);
       client.get("/range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 0-" + last + "/18944", rsp.header("content-range"));
+        assertEquals("bytes 0-" + last + "/"+_19kb.length(), rsp.header("content-range"));
         assertEquals(Integer.toString(last + 1), rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(0, last + 1), rsp.body().string());
@@ -1557,7 +1557,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=0-99");
       client.get("/file-range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 0-99/18944", rsp.header("content-range"));
+        assertEquals("bytes 0-99/"+_19kb.length(), rsp.header("content-range"));
         assertEquals("100", rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(0, 100), rsp.body().string());
@@ -1566,7 +1566,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=-100");
       client.get("/file-range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 18844-18943/18944", rsp.header("content-range"));
+        assertEquals("bytes "+(_19kb.length() - 100)+"-"+(_19kb.length()-1)+"/"+_19kb.length() , rsp.header("content-range"));
         assertEquals("100", rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(_19kb.length() - 100), rsp.body().string());
@@ -1975,7 +1975,13 @@ public class FeaturedTest {
   }
 
   @Test
-  public void assets() {
+  public void assets() throws IOException {
+
+    String cl1 = String.valueOf(userdir("src", "test", "www", "js", "index.js").toFile().length());
+    String cl2 = String.valueOf(getClass().getResource("/www/foo.js").openConnection().getContentLength());
+    String cl3 = String.valueOf(getClass().getResource("/www/index.html").openConnection().getContentLength());
+    String cl4 = String.valueOf(userdir("src", "test", "www", "css", "styles.css").toFile().length());
+    String cl5 = String.valueOf(userdir("src", "test", "www", "index.html").toFile().length());
     new JoobyRunner(app -> {
       app.assets("/static/?*", userdir("src", "test", "www"));
       app.assets("/*", userdir("src", "test", "www"));
@@ -1988,28 +1994,30 @@ public class FeaturedTest {
 
       app.assets("/fsfile.js", userdir("src", "test", "www", "js", "index.js"));
       app.assets("/cpfile.js", "/www/foo.js");
+
+
     }).ready(client -> {
       client.get("/cpfile.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
-        assertEquals("41", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl2, rsp.header("Content-Length").toLowerCase());
       });
       // single file
       client.get("/fsfile.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
-        assertEquals("23", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl1, rsp.header("Content-Length").toLowerCase());
       });
       /** Multiple sources on same path: */
       client.get("/m/foo.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
-        assertEquals("41", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl2, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/m/js/index.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
-        assertEquals("23", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl1, rsp.header("Content-Length").toLowerCase());
         assertEquals(200, rsp.code());
 
         String etag = rsp.header("etag");
@@ -2030,23 +2038,24 @@ public class FeaturedTest {
       client.get("/cp/foo.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
-        assertEquals("41", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl2, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/cp", rsp -> {
         assertEquals(404, rsp.code());
       });
       /** File system: */
+
       client.get("/", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-        assertEquals("155", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl5, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/static", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-        assertEquals("155", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl5, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/static/index.html", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-        assertEquals("155", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl5, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/static/note", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
@@ -2059,11 +2068,11 @@ public class FeaturedTest {
       client.get("/static/js/index.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
-        assertEquals("23", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl1, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/static/css/styles.css", rsp -> {
         assertEquals("text/css;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-        assertEquals("136", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl4, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/static/../resources/fileupload.js", rsp -> {
         assertEquals(404, rsp.code());
@@ -2072,16 +2081,16 @@ public class FeaturedTest {
       /* ROOT: */
       client.get("/index.html", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-        assertEquals("155", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl5, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/js/index.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
-        assertEquals("23", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl1, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/css/styles.css", rsp -> {
         assertEquals("text/css;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-        assertEquals("136", rsp.header("Content-Length").toLowerCase());
+        assertEquals(cl4, rsp.header("Content-Length").toLowerCase());
       });
 
       // Inside jar
@@ -2591,8 +2600,9 @@ public class FeaturedTest {
         assertEquals(200, rsp.code());
       });
 
+      String cl = String.valueOf(getClass().getResource("/www/foo.js").openConnection().getContentLength());
       client.head("/foo.js", rsp -> {
-        assertEquals("41", rsp.header("Content-Length"));
+        assertEquals(cl, rsp.header("Content-Length"));
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
         assertNotNull(rsp.header("ETag"));
