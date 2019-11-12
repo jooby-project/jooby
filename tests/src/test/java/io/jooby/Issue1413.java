@@ -47,7 +47,7 @@ public class Issue1413 {
           .header("Origin", "http://bar.com")
           .get("/api/v1/machines/123", rsp -> {
             assertEquals(403, rsp.code());
-            assertNull(rsp.body().string());
+            assertEquals("", rsp.body().string());
             assertNull(rsp.header("Access-Control-Allow-Origin"));
             assertNull(rsp.header("Access-Control-Allow-Credentials"));
           });
@@ -105,7 +105,7 @@ public class Issue1413 {
           .header("Origin", "http://bar.com")
           .get("/api/v1/machines/123", rsp -> {
             assertEquals(403, rsp.code());
-            assertNull(rsp.body().string());
+            assertEquals("", rsp.body().string());
             assertNull(rsp.header("Access-Control-Allow-Origin"));
             assertNull(rsp.header("Access-Control-Allow-Credentials"));
           });

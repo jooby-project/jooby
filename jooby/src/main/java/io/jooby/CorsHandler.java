@@ -68,7 +68,11 @@ public class CorsHandler implements Route.Decorator {
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return ctx -> {
       String origin = ctx.header("Origin").valueOrNull();
-      if (origin != null && options.allowOrigin(origin)) {
+      if (origin != null) {
+        if (!options.allowOrigin(origin)) {
+          log.debug("denied origin: {}", origin);
+          return ctx.send(StatusCode.FORBIDDEN);
+        }
         log.debug("allowed origin: {}", origin);
         if (isPreflight(ctx)) {
           log.debug("handling preflight for: {}", origin);
@@ -80,12 +84,8 @@ public class CorsHandler implements Route.Decorator {
             return ctx.send(StatusCode.FORBIDDEN);
           }
         } else {
-          // Origin is present, is Simple CORS?
-          if (isSimple(ctx)) {
-            log.debug("handling simple cors for: {}", origin);
-            ctx.setResetHeadersOnError(false);
-            simple(ctx, options, origin);
-          } else if (ctx.getMethod().equalsIgnoreCase(Router.OPTIONS)) {
+          // OPTIONS?
+          if (ctx.getMethod().equalsIgnoreCase(Router.OPTIONS)) {
             // handle normal OPTIONS
             Router router = ctx.getRouter();
             List<String> allow = new ArrayList<>();
@@ -97,8 +97,11 @@ public class CorsHandler implements Route.Decorator {
             }
             ctx.setResponseHeader("Allow", allow.stream().collect(Collectors.joining(",")));
             return ctx.send(StatusCode.OK);
+          } else {
+            log.debug("handling simple cors for: {}", origin);
+            ctx.setResetHeadersOnError(false);
+            simple(ctx, options, origin);
           }
-          //
         }
       }
       return next.apply(ctx);
@@ -111,14 +114,6 @@ public class CorsHandler implements Route.Decorator {
         return method;
       }
     };
-  }
-
-  private static boolean isSimple(Context ctx) {
-    return ctx.getMethod().equals(Router.GET)
-        || ctx.getMethod().equals(Router.POST)
-        || ctx.getMethod().equals(Router.HEAD);
-    // Suggested:
-    //  return !ctx.getMethod().equals(Router.OPTIONS);
   }
 
   private static void simple(final Context ctx, final Cors options, final String origin) {
