@@ -90,7 +90,6 @@ public class HeadContext extends ForwardingContext {
 
   @Nonnull @Override public Context send(@Nonnull InputStream input) {
     checkSizeHeaders();
-    ctx.send(input);
     ctx.send(StatusCode.OK);
     return this;
   }
