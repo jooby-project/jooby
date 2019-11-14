@@ -71,13 +71,13 @@ public class MemorySessionStore implements SessionStore {
 
   @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
     saveSession(ctx, session);
+    token.saveToken(ctx, session.getId());
   }
 
   @Override public void saveSession(Context ctx, @Nonnull Session session) {
     String sessionId = session.getId();
     sessions.put(sessionId,
         new SessionData(session.getCreationTime(), Instant.now(), session.toMap()));
-    token.saveToken(ctx, sessionId);
   }
 
   private Session restore(Context ctx, String sessionId, SessionData data) {
