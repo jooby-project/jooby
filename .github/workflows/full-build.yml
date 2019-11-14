@@ -1,0 +1,28 @@
+name: Full Build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java_version: [1.8, 9, 10, 11, 12, 13]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set up JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Install
+        run: mvn -DskipTests=true clean install -q -pl '!docs,!examples' -P checkstyle
+      - name: Build
+        run: mvn checkstyle:checkstyle package -pl '!docs,!examples' -P checkstyle
+        env:
+          BUILD_PORT: 0
+          BUILD_SECURE_PORT: 0
