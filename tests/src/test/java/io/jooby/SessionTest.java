@@ -1,9 +1,6 @@
 package io.jooby;
 
-import io.jooby.jetty.Jetty;
 import io.jooby.jwt.JwtSessionStore;
-import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
 import okhttp3.Response;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

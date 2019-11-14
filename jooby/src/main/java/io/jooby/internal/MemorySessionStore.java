@@ -38,11 +38,13 @@ public class MemorySessionStore implements SessionStore {
 
   @Override public Session newSession(Context ctx) {
     String sessionId = token.newToken();
-    Instant now = Instant.now();
-    Session session = Session.create(ctx, sessionId)
-        .setCreationTime(now)
-        .setLastAccessedTime(now)
-        .setNew(true);
+    SessionData data = sessions.computeIfAbsent(sessionId, sid -> {
+      Instant now = Instant.now();
+      return new SessionData(now, now, new ConcurrentHashMap());
+    });
+
+    Session session = restore(ctx, sessionId, data);
+
     token.saveToken(ctx, sessionId);
     return session;
   }
@@ -54,9 +56,7 @@ public class MemorySessionStore implements SessionStore {
     }
     SessionData data = sessions.get(sessionId);
     if (data != null) {
-      Session session = Session.create(ctx, sessionId, data.hash);
-      session.setLastAccessedTime(data.lastAccessedTime);
-      session.setCreationTime(data.creationTime);
+      Session session = restore(ctx, sessionId, data);
       token.saveToken(ctx, sessionId);
       return session;
     }
@@ -78,5 +78,11 @@ public class MemorySessionStore implements SessionStore {
     sessions.put(sessionId,
         new SessionData(session.getCreationTime(), Instant.now(), session.toMap()));
     token.saveToken(ctx, sessionId);
+  }
+
+  private Session restore(Context ctx, String sessionId, SessionData data) {
+    return Session.create(ctx, sessionId, data.hash)
+        .setLastAccessedTime(data.lastAccessedTime)
+        .setCreationTime(data.creationTime);
   }
 }
