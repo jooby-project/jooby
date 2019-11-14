@@ -19,7 +19,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java_version }}
-      - name: Prepare Build
-        run: mvn -DskipTests=true clean install -q -pl '!docs,!examples'
+      - name: Install
+        run: mvn -DskipTests=true clean install -q -pl '!docs,!examples' -P checkstyle
       - name: Build
-        run: mvn checkstyle:checkstyle package -P checkstyle -pl '!docs,!examples'
+        run: mvn checkstyle:checkstyle package -pl '!docs,!examples' -P checkstyle
+        env:
+          BUILD_PORT: 0
+          BUILD_SECURE_PORT: 0
