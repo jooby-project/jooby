@@ -70,17 +70,20 @@ public class EnvironmentTest {
       // maven vs IDE
       basedir = basedir.resolve("jooby");
     }
+    Path reldir = Paths.get("src/test/resources/env/foo");
     basedir = basedir.resolve("src").resolve("test").resolve("resources").resolve("env")
         .resolve("foo");
+
 
     Environment env = Environment
         .loadEnvironment(new EnvironmentOptions().setBasedir(basedir).setActiveNames("prod"));
     assertEquals("bazz", env.getConfig().getString("foo"));
+    System.out.println(env.toString());
     assertEquals("[prod]\n"
         + "└── system properties\n"
         + " └── env variables\n"
-        + "  └── src/test/resources/env/foo/application.prod.conf\n"
-        + "   └── src/test/resources/env/foo/application.conf\n"
+        + "  └── "+ reldir.resolve("application.prod.conf")+"\n"
+        + "   └── "+ reldir.resolve("application.conf")+"\n"
         + "    └── defaults", env.toString());
   }
 

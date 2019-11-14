@@ -56,7 +56,7 @@ public class FreemarkerModuleTest {
         .render(ctx, new ModelAndView("index.ftl")
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));
-    assertEquals("Hello foo bar var!\n", output);
+    assertEquals("Hello foo bar var!", output.trim());
   }
 
   @Test
@@ -71,7 +71,7 @@ public class FreemarkerModuleTest {
         .render(ctx, new ModelAndView("index.ftl")
             .put("user", new MyModel("foo", "bar"))
             .put("sign", "!"));
-    assertEquals("Hello foo bar var!\n", output);
+    assertEquals("Hello foo bar var!", output.trim());
   }
 
   @Test
@@ -86,6 +86,6 @@ public class FreemarkerModuleTest {
     ctx.getAttributes().put("local", "var");
     String output = engine
         .render(ctx, new ModelAndView("index.ftl"));
-    assertEquals("var\n", output);
+    assertEquals("var", output.trim());
   }
 }

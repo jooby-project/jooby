@@ -43,7 +43,7 @@ public class HandlebarsModuleTest {
         .render(ctx, new ModelAndView("index.hbs")
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));
-    assertEquals("Hello foo bar var!\n", output);
+    assertEquals("Hello foo bar var!", output.trim());
   }
 
   @Test
@@ -58,6 +58,6 @@ public class HandlebarsModuleTest {
         .render(ctx, new ModelAndView("index.hbs")
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));
-    assertEquals("Hello foo bar var!\n", output);
+    assertEquals("Hello foo bar var!", output.trim());
   }
 }
