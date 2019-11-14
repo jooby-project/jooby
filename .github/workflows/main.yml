@@ -19,5 +19,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java_version }}
-      - name: Maven Build
-        run: ./etc/travis.sh
+      - name: Prepare Build
+        run: mvn -DskipTests=true clean install -q -pl '!docs,!examples'
+      - name: Build
+        run: mvn checkstyle:checkstyle package -P checkstyle -pl '!docs,!examples'
