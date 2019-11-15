@@ -71,7 +71,8 @@ import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
 import static org.eclipse.jetty.server.Request.MULTIPART_CONFIG_ELEMENT;
 
-public class JettyContext implements Callback, DefaultContext {
+public class JettyContext implements DefaultContext {
+  private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.wrap(new byte[0]);
   private final int bufferSize;
   private final long maxRequestSize;
   private Request request;
@@ -377,7 +378,7 @@ public class JettyContext implements Callback, DefaultContext {
 
   @Nonnull @Override public Context send(StatusCode statusCode) {
     response.setStatus(statusCode.value());
-    send(ByteBuffer.wrap(new byte[0]));
+    send(EMPTY_BUFFER);
     return this;
   }
 
@@ -401,19 +402,22 @@ public class JettyContext implements Callback, DefaultContext {
   }
 
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
-    responseStarted = true;
-    HttpOutput sender = response.getHttpOutput();
-    sender.sendContent(data, this);
-    return this;
+    try {
+      responseStarted = true;
+      HttpOutput sender = response.getHttpOutput();
+      sender.sendContent(data);
+      return this;
+    } catch (IOException x) {
+      throw SneakyThrows.propagate(x);
+    } finally {
+      cleanup();
+    }
   }
 
   @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
     responseStarted = true;
     ifSetChunked();
-    ifStartAsync();
-    HttpOutput sender = response.getHttpOutput();
-    sender.sendContent(channel, this);
-    return this;
+    return sendStreamInternal(Channels.newInputStream(channel));
   }
 
   @Nonnull @Override public Context send(@Nonnull InputStream in) {
@@ -429,8 +433,6 @@ public class JettyContext implements Callback, DefaultContext {
 
   private Context sendStreamInternal(@Nonnull InputStream in) {
     try {
-      ifStartAsync();
-
       long len = response.getContentLength();
       InputStream stream;
       if (len > 0) {
@@ -442,10 +444,12 @@ public class JettyContext implements Callback, DefaultContext {
         stream = in;
       }
       responseStarted = true;
-      response.getHttpOutput().sendContent(stream, this);
+      response.getHttpOutput().sendContent(stream);
       return this;
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
+    } finally {
+      cleanup();
     }
   }
 
@@ -455,6 +459,8 @@ public class JettyContext implements Callback, DefaultContext {
       return sendStreamInternal(Channels.newInputStream(file));
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
+    } finally {
+      cleanup();
     }
   }
 
@@ -473,18 +479,6 @@ public class JettyContext implements Callback, DefaultContext {
     return this;
   }
 
-  @Override public void succeeded() {
-    complete(null);
-  }
-
-  @Override public void failed(Throwable x) {
-    complete(x);
-  }
-
-  @Override public InvocationType getInvocationType() {
-    return InvocationType.NON_BLOCKING;
-  }
-
   @Override public String toString() {
     return getMethod() + " " + pathString();
   }
@@ -500,17 +494,9 @@ public class JettyContext implements Callback, DefaultContext {
         log.error("exception found while sending response {} {}", getMethod(), pathString(), x);
       }
     }
-    if (files != null) {
-      for (FileUpload file : files) {
-        try {
-          file.destroy();
-        } catch (Exception e) {
-          log.debug("file upload destroy resulted in exception", e);
-        }
-      }
-      files.clear();
-      files = null;
-    }
+
+    clearFiles();
+
     try {
       if (request.isAsyncStarted()) {
         request.getAsyncContext().complete();
@@ -519,6 +505,32 @@ public class JettyContext implements Callback, DefaultContext {
       }
     } catch (IOException e) {
       log.debug("exception found while closing resources {} {} {}", getMethod(), pathString(), e);
+    }
+  }
+
+  private void clearFiles() {
+    if (files != null) {
+      for (FileUpload file : files) {
+        try {
+          file.destroy();
+        } catch (Exception e) {
+          router.getLog().debug("file upload destroy resulted in exception", e);
+        }
+      }
+      files.clear();
+      files = null;
+    }
+  }
+
+  private void cleanup() {
+    try {
+      ifSaveSession();
+
+      clearFiles();
+    } finally {
+      if (request.isAsyncStarted()) {
+        request.getAsyncContext().complete();
+      }
     }
   }
 
