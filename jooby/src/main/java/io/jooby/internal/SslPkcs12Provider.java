@@ -13,7 +13,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.SecureRandom;
 
 public class SslPkcs12Provider implements SslContextProvider {
 
@@ -30,7 +29,7 @@ public class SslPkcs12Provider implements SslContextProvider {
       kmf.init(store, options.getPassword().toCharArray());
       KeyManager[] kms = kmf.getKeyManagers();
       SSLContext context = SSLContext.getInstance("TLS");
-      context.init(kms, null, SecureRandom.getInstanceStrong());
+      context.init(kms, null, null);
       return context;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
