@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UtowWebSocket extends AbstractReceiveListener
     implements WebSocketConfigurer, WebSocket, WebSocketCallback<Void> {
@@ -45,6 +46,7 @@ public class UtowWebSocket extends AbstractReceiveListener
   private OnClose onCloseCallback;
   private OnError onErrorCallback;
   private String key;
+  private AtomicBoolean initialized = new AtomicBoolean();
 
   public UtowWebSocket(UtowContext ctx, WebSocketChannel channel) {
     this.ctx = ctx;
@@ -95,7 +97,8 @@ public class UtowWebSocket extends AbstractReceiveListener
           onError(channel, x);
         }
       } else {
-        onError(channel, new IllegalStateException("Attempt to send a message on closed web socket"));
+        onError(channel,
+            new IllegalStateException("Attempt to send a message on closed web socket"));
       }
     }
     return this;
@@ -142,27 +145,31 @@ public class UtowWebSocket extends AbstractReceiveListener
   }
 
   void fireConnect() {
-    try {
-      addSession(this);
-      Config conf = ctx.getRouter().getConfig();
-      long timeout = conf.hasPath("websocket.idleTimeout")
-          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
-          : 5;
-      if (timeout > 0) {
-        channel.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
+    // fire only once
+    if (initialized.compareAndSet(false, true)) {
+      try {
+        addSession(this);
+        Config conf = ctx.getRouter().getConfig();
+        long timeout = conf.hasPath("websocket.idleTimeout")
+            ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
+            : 5;
+        if (timeout > 0) {
+          channel.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
+        }
+        if (onConnectCallback != null) {
+          onConnectCallback.onConnect(this);
+        }
+        channel.getReceiveSetter().set(this);
+        channel.resumeReceives();
+      } catch (Throwable x) {
+        onError(channel, x);
       }
-      if (onConnectCallback != null) {
-        onConnectCallback.onConnect(this);
-      }
-      channel.getReceiveSetter().set(this);
-      channel.resumeReceives();
-    } catch (Throwable x) {
-      onError(channel, x);
     }
   }
 
   @Override protected void onFullTextMessage(WebSocketChannel channel,
       BufferedTextMessage message) throws IOException {
+    fireConnect();
     if (onMessageCallback != null) {
       try {
         onMessageCallback.onMessage(this, WebSocketMessage.create(getContext(), message.getData()));
