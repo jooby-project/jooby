@@ -3,16 +3,6 @@ name: Full Build
 on: [push]
 
 jobs:
-  haveged:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install haveged
-        run: apt-get install haveged
-      - name: Daemon haveged
-        run: update-rc.d haveged defaults
-      - name: Start haveged
-        run: service haveged start
-
   build:
     runs-on: ${{ matrix.os }}
     strategy:
