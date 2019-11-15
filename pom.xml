@@ -20,7 +20,7 @@
     <freemarker.version>2.3.29</freemarker.version>
     <handlebars.version>4.1.2</handlebars.version>
     <pebble.version>3.1.0</pebble.version>
-    <jackson.version>2.10.0</jackson.version>
+    <jackson.version>2.10.1</jackson.version>
     <jackson-databind.version>2.10.0</jackson-databind.version>
     <rocker.version>1.2.2</rocker.version>
 
