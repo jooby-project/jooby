@@ -19,7 +19,7 @@ jobs:
         with:
           java-version: ${{ matrix.java_version }}
       - name: Install
-        run: mvn -DskipTests=true clean install -q -pl '!docs,!examples' -P checkstyle
+        run: mvn -DskipTests=true clean install checkstyle:checkstyle -q -pl '!docs,!examples' -P checkstyle
       - name: Build
         run: mvn checkstyle:checkstyle package -pl '!docs,!examples' -P checkstyle
         env:
