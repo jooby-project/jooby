@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -1443,7 +1445,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=0-99");
       client.get("/range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 0-99/"+_19kb.length(), rsp.header("content-range"));
+        assertEquals("bytes 0-99/" + _19kb.length(), rsp.header("content-range"));
         assertEquals("100", rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(0, 100), rsp.body().string());
@@ -1452,7 +1454,9 @@ public class FeaturedTest {
       client.header("Range", "bytes=-100");
       client.get("/range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes "+ (_19kb.length()-100) +"-"+(_19kb.length()-1)+"/"+_19kb.length(), rsp.header("content-range"));
+        assertEquals(
+            "bytes " + (_19kb.length() - 100) + "-" + (_19kb.length() - 1) + "/" + _19kb.length(),
+            rsp.header("content-range"));
         assertEquals("100", rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(_19kb.length() - 100), rsp.body().string());
@@ -1462,7 +1466,9 @@ public class FeaturedTest {
       client.header("Range", "bytes=-" + last);
       client.get("/range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes "+(_19kb.length()-last)+"-"+(_19kb.length()-1)+"/"+_19kb.length(), rsp.header("content-range"));
+        assertEquals(
+            "bytes " + (_19kb.length() - last) + "-" + (_19kb.length() - 1) + "/" + _19kb.length(),
+            rsp.header("content-range"));
         assertEquals(Integer.toString(last), rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(_19kb.length() - last), rsp.body().string());
@@ -1470,7 +1476,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=0-" + last);
       client.get("/range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 0-" + last + "/"+_19kb.length(), rsp.header("content-range"));
+        assertEquals("bytes 0-" + last + "/" + _19kb.length(), rsp.header("content-range"));
         assertEquals(Integer.toString(last + 1), rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(0, last + 1), rsp.body().string());
@@ -1557,7 +1563,7 @@ public class FeaturedTest {
       client.header("Range", "bytes=0-99");
       client.get("/file-range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes 0-99/"+_19kb.length(), rsp.header("content-range"));
+        assertEquals("bytes 0-99/" + _19kb.length(), rsp.header("content-range"));
         assertEquals("100", rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(0, 100), rsp.body().string());
@@ -1566,7 +1572,9 @@ public class FeaturedTest {
       client.header("Range", "bytes=-100");
       client.get("/file-range", rsp -> {
         assertEquals("bytes", rsp.header("accept-ranges"));
-        assertEquals("bytes "+(_19kb.length() - 100)+"-"+(_19kb.length()-1)+"/"+_19kb.length() , rsp.header("content-range"));
+        assertEquals(
+            "bytes " + (_19kb.length() - 100) + "-" + (_19kb.length() - 1) + "/" + _19kb.length(),
+            rsp.header("content-range"));
         assertEquals("100", rsp.header("content-length"));
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(_19kb.length() - 100), rsp.body().string());
@@ -1974,27 +1982,43 @@ public class FeaturedTest {
     });
   }
 
+  private static final String VUE = vueVersion();
+
+  private static String vueVersion() {
+    try (InputStream vueprops = FeaturedTest.class.getClassLoader()
+        .getResourceAsStream("META-INF/maven/org.webjars.npm/vue/pom.properties")) {
+      Properties properties = new Properties();
+      properties.load(vueprops);
+      return properties.getProperty("version");
+    } catch (IOException x) {
+      throw SneakyThrows.propagate(x);
+    }
+  }
+
   @Test
   public void assets() throws IOException {
 
     String cl1 = String.valueOf(userdir("src", "test", "www", "js", "index.js").toFile().length());
-    String cl2 = String.valueOf(getClass().getResource("/www/foo.js").openConnection().getContentLength());
-    String cl3 = String.valueOf(getClass().getResource("/www/index.html").openConnection().getContentLength());
-    String cl4 = String.valueOf(userdir("src", "test", "www", "css", "styles.css").toFile().length());
+    String cl2 = String
+        .valueOf(getClass().getResource("/www/foo.js").openConnection().getContentLength());
+    String cl4 = String
+        .valueOf(userdir("src", "test", "www", "css", "styles.css").toFile().length());
     String cl5 = String.valueOf(userdir("src", "test", "www", "index.html").toFile().length());
+    String vueSize = String.valueOf(
+        getClass().getResource("/META-INF/resources/webjars/vue/" + VUE + "/dist/vue.js")
+            .openConnection().getContentLength());
     new JoobyRunner(app -> {
       app.assets("/static/?*", userdir("src", "test", "www"));
       app.assets("/*", userdir("src", "test", "www"));
       app.assets("/cp/*", "/www");
-      app.assets("/jar/*", "/META-INF/resources/webjars/vue/2.5.22");
-      app.assets("/jar2/*", "/META-INF/resources/webjars/vue/2.5.22/dist");
+      app.assets("/jar/*", "/META-INF/resources/webjars/vue/" + VUE);
+      app.assets("/jar2/*", "/META-INF/resources/webjars/vue/" + VUE + "/dist");
 
       app.assets("/m/*", AssetSource.create(userdir("src", "test", "www")),
           AssetSource.create(getClass().getClassLoader(), "/www"));
 
       app.assets("/fsfile.js", userdir("src", "test", "www", "js", "index.js"));
       app.assets("/cpfile.js", "/www/foo.js");
-
 
     }).ready(client -> {
       client.get("/cpfile.js", rsp -> {
@@ -2097,7 +2121,7 @@ public class FeaturedTest {
       client.get("/jar/dist/vue.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
-        assertEquals("310837", rsp.header("Content-Length").toLowerCase());
+        assertEquals(vueSize, rsp.header("Content-Length").toLowerCase());
       });
       client.get("/jar2/dist/../package.json", rsp -> {
         assertEquals(404, rsp.code());
@@ -2600,7 +2624,8 @@ public class FeaturedTest {
         assertEquals(200, rsp.code());
       });
 
-      String cl = String.valueOf(getClass().getResource("/www/foo.js").openConnection().getContentLength());
+      String cl = String
+          .valueOf(getClass().getResource("/www/foo.js").openConnection().getContentLength());
       client.head("/foo.js", rsp -> {
         assertEquals(cl, rsp.header("Content-Length"));
         assertEquals("application/javascript;charset=utf-8",

@@ -3,8 +3,12 @@ package io.jooby.internal;
 import io.jooby.Asset;
 import io.jooby.AssetSource;
 import io.jooby.MediaType;
+import io.jooby.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +19,7 @@ public class ClassPathAssetSourceTest {
 
   @Test
   public void checkclasspathFiles() {
-    assetSource("/META-INF/resources/webjars/vue/2.5.22", source -> {
+    assetSource("/META-INF/resources/webjars/vue/" + VUE, source -> {
       Asset vuejs = source.resolve("dist/vue.js");
       assertNotNull(vuejs);
       assertEquals(MediaType.js, vuejs.getContentType());
@@ -28,7 +32,7 @@ public class ClassPathAssetSourceTest {
       assertNull(root);
     });
 
-    assetSource("/META-INF/resources/webjars/vue/2.5.22/dist", source -> {
+    assetSource("/META-INF/resources/webjars/vue/" + VUE + "/dist", source -> {
       Asset vuejs = source.resolve("vue.js");
       assertNotNull(vuejs);
       assertEquals(MediaType.js, vuejs.getContentType());
@@ -37,7 +41,7 @@ public class ClassPathAssetSourceTest {
       assertNull(root);
     });
 
-    assetSource("/META-INF/resources/webjars/vue/2.5.22/dist/vue.js", source -> {
+    assetSource("/META-INF/resources/webjars/vue/" + VUE + "/dist/vue.js", source -> {
       Asset vuejs = source.resolve("vue.js");
       assertNotNull(vuejs);
       assertEquals(MediaType.js, vuejs.getContentType());
@@ -53,5 +57,18 @@ public class ClassPathAssetSourceTest {
   private void assetSource(String location, Consumer<AssetSource> consumer) {
     AssetSource source = new ClassPathAssetSource(getClass().getClassLoader(), location);
     consumer.accept(source);
+  }
+
+  private static final String VUE = vueVersion();
+
+  private static String vueVersion() {
+    try (InputStream vueprops = ClassPathAssetSourceTest.class.getClassLoader()
+        .getResourceAsStream("META-INF/maven/org.webjars.npm/vue/pom.properties")) {
+      Properties properties = new Properties();
+      properties.load(vueprops);
+      return properties.getProperty("version");
+    } catch (IOException x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 }
