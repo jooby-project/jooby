@@ -1,6 +1,5 @@
 package io.jooby;
 
-import okhttp3.Cache;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -10,10 +9,7 @@ import okhttp3.WebSocketListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
@@ -62,7 +58,7 @@ public class WebClient implements AutoCloseable {
 
     public String lastMessage() {
       try {
-        return (String) messages.poll(5, TimeUnit.SECONDS);
+        return  (String) messages.poll(5, TimeUnit.SECONDS);
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);
       }

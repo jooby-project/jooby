@@ -2,8 +2,6 @@ package io.jooby;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.jooby.json.JacksonModule;
-import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
