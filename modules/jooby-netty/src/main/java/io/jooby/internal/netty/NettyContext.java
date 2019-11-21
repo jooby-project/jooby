@@ -29,6 +29,7 @@ import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -52,6 +53,7 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -291,10 +293,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(webSocketURL,
           null, config);
       WebSocketServerHandshaker handshaker = factory.newHandshaker(fullHttpRequest);
-      handshaker.handshake(ctx.channel(), fullHttpRequest, setHeaders, ctx.newPromise())
+      Channel channel = ctx.channel();
+      handshaker.handshake(channel, fullHttpRequest, setHeaders, ctx.newPromise())
           .addListener(future -> {
             if (future.isSuccess()) {
-              webSocket.fireConnect();
+              webSocket.fireConnect(null);
+            } else {
+              handshaker.close(channel, new CloseWebSocketFrame());
             }
           });
       Config conf = getRouter().getConfig();

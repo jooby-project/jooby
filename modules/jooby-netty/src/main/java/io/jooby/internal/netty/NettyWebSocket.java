@@ -155,7 +155,6 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   private void handleMessage(WebSocketFrame frame) {
     // when dispatch is enable there is race condition while testing the code. if connect, didn't
     // run, we run it on first message.
-    fireConnect();
     try {
       if (frame.isFinalFragment()) {
         ByteBuf content;
@@ -168,7 +167,10 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
         }
         WebSocketMessage message = WebSocketMessage.create(getContext(), array(content));
 
-        fireCallback(webSocketTask(() -> messageCallback.onMessage(this, message)));
+        Runnable sendMessage = () -> messageCallback.onMessage(this, message);
+        if (!fireConnect(sendMessage)) {
+          fireCallback(webSocketTask(sendMessage));
+        }
       } else {
         buffer = Unpooled.copiedBuffer(frame.content());
       }
@@ -218,13 +220,21 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     }
   }
 
-  void fireConnect() {
+  boolean fireConnect(Runnable next) {
     // fire only once
     if (initialized.compareAndSet(false, true)) {
       addSession(this);
       if (connectCallback != null) {
-        fireCallback(webSocketTask(() -> connectCallback.onConnect(this)));
+        fireCallback(webSocketTask(() -> {
+          connectCallback.onConnect(this);
+          if (next != null) {
+            next.run();
+          }
+        }));
       }
+      return true;
+    } else {
+      return false;
     }
   }
 
