@@ -267,9 +267,9 @@ To use the javadoc:JWTSession[] session store you need to add the `jooby-jwt` de
 import io.jooby.session.JWTSession;
 
 {
-  String secret = "super secret key";         // <1>
+  String secret = "super secret key";           // <1>
 
-  setSessionStore(new JWTSession(secret));    // <2>
+  setSessionStore(new JWTSessionStore(secret)); // <2>
 
   get("/", ctx -> {
     Session session = ctx.session();
@@ -288,9 +288,9 @@ import io.jooby.session.JWTSession;
 import io.jooby.session.JWTSession
 
 {
-  val secret = "super secret key"             // <1>
+  val secret = "super secret key"               // <1>
 
-  sessionStore = JWTSession(secret)           // <2>
+  sessionStore = JWTSessionStore(secret)        // <2>
 
   get("/") {
     val session = ctx.session()

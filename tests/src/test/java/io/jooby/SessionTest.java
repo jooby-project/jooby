@@ -272,7 +272,7 @@ public class SessionTest {
       app.setSessionStore(new JwtSessionStore("7a85c3b6-3ef0-4625-82d3-a1da36094804"));
       app.get("/session", ctx -> {
         Session session = ctx.session();
-        session.put("foo", "bar");
+        session.put("foo" , "bar");
         return session.toMap();
       });
 

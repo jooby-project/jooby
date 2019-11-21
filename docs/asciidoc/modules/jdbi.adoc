@@ -6,7 +6,7 @@ https://github.com/jdbi/jdbi[Jdbi] module.
 
 1) Add the dependencies (hikari + jdbi):
 
-[dependency, artifactId="jooby-hikari:DataSource via HikariCP, jooby-hibernate:Jdbi Module"]
+[dependency, artifactId="jooby-hikari:DataSource via HikariCP, jooby-jdbi:Jdbi Module"]
 .
 
 2) Add database driver (mySQL here):
