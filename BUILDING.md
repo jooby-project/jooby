@@ -7,7 +7,7 @@ You should have JDK8 and Maven 3.5.0 or above.
 From the root directory:
 
 ```
-mvn install
+mvn clean package
 ```
 
 # Building one module only
@@ -18,8 +18,14 @@ for Maven like so:
 
 ```
 # example module is 'jooby-hikari' - replace as appropriate
-mvn install -pl jooby-hikari -am
+mvn package -pl jooby-hikari -am
 ```
 
 Note: Maven builds the smallest amount on dependent modules necessary before it gets to this one. The resulting 
 build time is shorter, and less is downloaded from Maven Central to your local cache of jars.
+
+# Docker build
+
+- docker build -t jooby .
+- docker run -it --rm jooby /bin/sh
+- /build # mvn clean package
