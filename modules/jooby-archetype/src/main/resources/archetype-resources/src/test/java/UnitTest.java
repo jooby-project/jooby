@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UnitTest {
   @Test
-  public void welcome() {
+  public void shouldSayWelcome() {
     MockRouter router = new MockRouter(new App());
     router.get("/", rsp -> {
       assertEquals("Welcome to Jooby!", rsp.value());
