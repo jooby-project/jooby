@@ -1,17 +1,18 @@
 package io.jooby;
 
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue1338 {
-  @Test
+  @ServerTest
   @DisplayName("Form should not fail when empty")
-  public void issue1338() {
-    new JoobyRunner(app -> {
+  public void issue1338(ServerTestRunner runner) {
+    runner.define(app -> {
       app.post("/1338/form", ctx -> ctx.form().toMap());
 
       app.post("/1338/multipart", ctx -> ctx.form().toMap());

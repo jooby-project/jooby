@@ -180,14 +180,6 @@ public class WebClient implements AutoCloseable {
     get(path).execute(callback);
   }
 
-  public WebSocket webSocket(String path, WebSocketListener listener) {
-    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
-    req.url("ws://localhost:" + port + path);
-    setRequestHeaders(req);
-    okhttp3.Request r = req.build();
-    return client.newWebSocket(r, listener);
-  }
-
   public WebSocket syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.url("ws://localhost:" + port + path);

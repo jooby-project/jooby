@@ -1,6 +1,7 @@
 package io.jooby;
 
-import org.junit.jupiter.api.Test;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -10,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue1405 {
 
-  @Test
-  public void issue1405() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void issue1405(ServerTestRunner runner) {
+    runner.define(app -> {
       app.path("/recover", () -> {
         app.after((ctx, result, failure) -> {
           ctx.send(failure.getClass().getSimpleName());

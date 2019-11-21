@@ -1,14 +1,15 @@
 package io.jooby;
 
-import org.junit.jupiter.api.Test;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue1366 {
 
-  @Test
-  public void issue1366() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void issue1366(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/", ctx -> {
         throw new IllegalArgumentException(ctx.query("n").value());
       });

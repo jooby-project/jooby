@@ -2,8 +2,9 @@ package io.jooby;
 
 import io.jooby.freemarker.FreemarkerModule;
 import io.jooby.handlebars.HandlebarsModule;
-import io.jooby.jetty.Jetty;
 import io.jooby.json.JacksonModule;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
 import io.reactivex.Flowable;
@@ -17,7 +18,6 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -53,12 +52,12 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
+import static io.jooby.ExecutionMode.DEFAULT;
 import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.ExecutionMode.WORKER;
 import static io.jooby.MediaType.text;
@@ -108,9 +107,9 @@ public class FeaturedTest {
     }
   }
 
-  @Test
-  public void sayHi() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sayHi(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.get("/", ctx -> "Hello World!");
 
@@ -124,14 +123,14 @@ public class FeaturedTest {
 
   }
 
-  @Test
-  public void sayHiFromIO() {
-    new JoobyRunner(app -> {
+  @ServerTest(executionMode = EVENT_LOOP)
+  public void sayHiFromIO(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/", ctx -> "Hello World!");
       app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
-    }).mode(EVENT_LOOP).ready(client -> {
+    }).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -177,14 +176,14 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void sayHiFromWorker() {
-    new JoobyRunner(app -> {
+  @ServerTest(executionMode = WORKER)
+  public void sayHiFromWorker(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/", ctx -> "Hello World!");
       app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
-    }).mode(WORKER).ready(client -> {
+    }).ready(client -> {
       client.get("/?foo=bar", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -232,9 +231,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void rawPath() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void rawPath(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.get("/{code}", ctx -> ctx.pathString());
 
@@ -259,9 +258,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void httpMethods() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void httpMethods(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.get("/", ctx -> ctx.getMethod());
 
@@ -301,8 +300,8 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void gzip() throws IOException {
+  @ServerTest
+  public void gzip(ServerTestRunner runner) throws IOException {
     String text =
         "Praesent blandit, justo a luctus elementum, ante sapien pellentesque tortor, "
             + "vitae maximus nulla augue sed nulla. Phasellus quis turpis ac mi tristique aliquam. "
@@ -316,7 +315,7 @@ public class FeaturedTest {
             + "Proin vulputate, quam ut commodo pellentesque, enim tortor ornare neque, a aliquam massa "
             + "felis a ligula. Pellentesque lorem erat, fringilla at ipsum a, scelerisque hendrerit "
             + "lorem. Sed interdum nibh at ante consequat, vitae fermentum augue luctus.";
-    new JoobyRunner(app -> {
+    runner.define(app -> {
       app.setServerOptions(new ServerOptions().setGzip(true));
       app.get("/gzip", ctx -> text);
     }).ready(client -> {
@@ -355,9 +354,9 @@ public class FeaturedTest {
     return str.toString();
   }
 
-  @Test
-  public void pathVariable() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void pathVariable(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/articles/{id}", ctx -> ctx.path("id").intValue());
 
       app.get("/articles/*", ctx -> ctx.path("*").value());
@@ -426,9 +425,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void paramKeys() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void paramKeys(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/articles/{id}", ctx -> ctx.getRoute().getPathKeys());
 
       app.get("/articles/*", ctx -> ctx.getRoute().getPathKeys());
@@ -485,9 +484,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void pathEncoding() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void pathEncoding(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/{value}", ctx -> ctx.pathString() + "@" + ctx.path("value").value());
     }).ready(client -> {
       client.get("/a+b", rsp -> {
@@ -502,9 +501,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void queryString() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void queryString(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/", ctx -> ctx.queryString() + "@" + ctx.query("q").value(""));
 
       app.get("/value", ctx -> ctx.query("user"));
@@ -522,11 +521,11 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void form() {
-    new JoobyRunner(app -> {
+  @ServerTest(executionMode = {EVENT_LOOP, WORKER})
+  public void form(ServerTestRunner runner) {
+    runner.define(app -> {
       app.post("/", ctx -> ctx.form());
-    }).mode(EVENT_LOOP, WORKER).ready(client -> {
+    }).ready(client -> {
       client.post("/", new FormBody.Builder()
           .add("q", "a b")
           .add("user.name", "user")
@@ -536,9 +535,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void multipart() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void multipart(ServerTestRunner runner) {
+    runner.define(app -> {
       app.post("/large", ctx -> {
         FileUpload f = ctx.file("f");
         return new String(f.bytes(), StandardCharsets.UTF_8);
@@ -638,9 +637,10 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void beforeAfter() {
-    new JoobyRunner(app -> {
+  /* No Jetty bc always use a worker thread */
+  @ServerTest(server = {Netty.class, Utow.class}, executionMode = EVENT_LOOP)
+  public void beforeAfter(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.before(ctx -> {
         StringBuilder buff = new StringBuilder();
@@ -671,17 +671,17 @@ public class FeaturedTest {
         });
       });
 
-    }).mode(EVENT_LOOP).ready(client -> {
+    }).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
       });
-    }, Netty::new, Utow::new /* No Jetty bc always use a worker thread */);
+    });
   }
 
-  @Test
-  public void decorator() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void decorator(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.decorator(next -> ctx -> "{" + ctx.attribute("prefix") + next.apply(ctx) + "}");
 
@@ -701,9 +701,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void decoder() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void decoder(ServerTestRunner runner) {
+    runner.define(app -> {
       app.install(new JacksonModule());
 
       app.post("/map", ctx -> ctx.body(Map.class));
@@ -718,7 +718,7 @@ public class FeaturedTest {
       });
 
       app.post("/str", ctx -> ctx.body().value());
-    }).ready((client, server) -> {
+    }).ready(client -> {
       client.header("Content-Type", "application/json");
       client.post("/map", create("{\"foo\": \"bar\"}", json), rsp -> {
         assertEquals("{\"foo\":\"bar\"}", rsp.body().string());
@@ -735,16 +735,14 @@ public class FeaturedTest {
 
       client.post("/str", create(_19kb, textplain), rsp -> {
         String value = rsp.body().string();
-        assertEquals(_19kb, value,
-            server.getClass().getSimpleName() + " expected: " + _19kb.length() + ", got: " + value
-                .length());
+        assertEquals(_19kb, value);
       });
     });
   }
 
-  @Test
-  public void jsonVsRawOutput() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void jsonVsRawOutput(ServerTestRunner runner) {
+    runner.define(app -> {
       app.install(new JacksonModule());
 
       app.path("/api/pets", () -> {
@@ -781,8 +779,8 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void defaultAndExplicitAcceptableResponses() {
+  @ServerTest
+  public void defaultAndExplicitAcceptableResponses(ServerTestRunner runner) {
     class Message {
       String value = "OK";
 
@@ -791,7 +789,7 @@ public class FeaturedTest {
       }
     }
 
-    new JoobyRunner(app -> {
+    runner.define(app -> {
       app.encoder(io.jooby.MediaType.json, (@Nonnull Context ctx, @Nonnull Object value) ->
           ("{" + value.toString() + "}").getBytes(StandardCharsets.UTF_8)
       );
@@ -866,9 +864,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void consumes() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void consumes(ServerTestRunner runner) {
+    runner.define(app -> {
       app.decoder(io.jooby.MediaType.json, new MessageDecoder() {
         @Nonnull @Override public String decode(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
@@ -919,9 +917,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void errorHandler() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void errorHandler(ServerTestRunner runner) {
+    runner.define(app -> {
       app.install(new JacksonModule());
 
       app.get("/", ctx -> {
@@ -969,9 +967,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void rx2() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void rx2(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/rx/flowable", ctx ->
           Flowable.range(1, 10)
               .map(i -> i + ",")
@@ -1040,9 +1038,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void reactor() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void reactor(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/reactor/mono", ctx ->
           Mono.fromCallable(() -> "Mono")
               .map(s -> "Hello " + s)
@@ -1065,9 +1063,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void completableFuture() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void completableFuture(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.get("/completable", ctx ->
           supplyAsync(() -> "Completable Future!")
@@ -1081,9 +1079,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void basePath() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void basePath(ServerTestRunner runner) {
+    runner.define(app -> {
       app.setContextPath("/foo");
       app.get("/bar", ctx -> ctx.pathString());
 
@@ -1106,9 +1104,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void simpleRouterComposition() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void simpleRouterComposition(ServerTestRunner runner) {
+    runner.define(app -> {
 
       Jooby bar = new Jooby();
       bar.get("/bar", Context::pathString);
@@ -1128,9 +1126,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void dynamicRoutingComposition() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void dynamicRoutingComposition(ServerTestRunner runner) {
+    runner.define(app -> {
 
       Jooby v1 = new Jooby();
       v1.get("/api", ctx -> "v1");
@@ -1154,9 +1152,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void prefixPathOnExistingRouter() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void prefixPathOnExistingRouter(ServerTestRunner runner) {
+    runner.define(app -> {
 
       Jooby bar = new Jooby();
       bar.get("/bar", Context::pathString);
@@ -1170,9 +1168,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void compose() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void compose(ServerTestRunner runner) {
+    runner.define(app -> {
 
       Jooby bar = new Jooby();
       bar.get("/bar", Context::pathString);
@@ -1193,9 +1191,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void routerCaseInsensitive() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void routerCaseInsensitive(ServerTestRunner runner) {
+    runner.define(app -> {
       app.getRouterOptions()
           .setIgnoreCase(true)
           .setIgnoreTrailingSlash(true);
@@ -1220,9 +1218,12 @@ public class FeaturedTest {
         assertEquals("/BAR", rsp.body().string());
       });
     });
+  }
 
+  @ServerTest
+  public void routerCaseSensitive(ServerTestRunner runner) {
     /** Now do it case sensitive: */
-    new JoobyRunner(app -> {
+    runner.define(app -> {
 
       app.getRouterOptions().setIgnoreCase(false);
 
@@ -1246,46 +1247,46 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void maxRequestSize() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void maxRequestSize(ServerTestRunner runner) {
+    runner.define(app -> {
       app.setServerOptions(new ServerOptions()
           .setBufferSize(ServerOptions._16KB / 2)
           .setMaxRequestSize(ServerOptions._16KB));
       app.post("/request-size", ctx -> ctx.body().value());
 
       app.get("/request-size", ctx -> ctx.body().value());
-    }).ready((client, server) -> {
+    }).ready(client -> {
       // Exceeds
       client.post("/request-size", RequestBody.create(_19kb, MediaType.get("text/plain")), rsp -> {
-        assertEquals(413, rsp.code(), server.getClass().getSimpleName());
+        assertEquals(413, rsp.code());
       });
       // Chunk by chunk
       client.post("/request-size", RequestBody.create(_16kb, MediaType.get("text/plain")), rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals(_16kb, rsp.body().string(), server.getClass().getSimpleName());
+        assertEquals(_16kb, rsp.body().string());
       });
       // Single read
       client.post("/request-size", RequestBody.create(_8kb, MediaType.get("text/plain")), rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals(_8kb, rsp.body().string(), server.getClass().getSimpleName());
+        assertEquals(_8kb, rsp.body().string());
       });
       // Empty
       client.post("/request-size", RequestBody.create("", MediaType.get("text/plain")), rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals("", rsp.body().string(), server.getClass().getSimpleName());
+        assertEquals("", rsp.body().string());
       });
       // No body
       client.get("/request-size", rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals("", rsp.body().string(), server.getClass().getSimpleName());
+        assertEquals("", rsp.body().string());
       });
     });
   }
 
-  @Test
-  public void trailinSlashIsANewRoute() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void trailinSlashIsANewRoute(ServerTestRunner runner) {
+    runner.define(app -> {
       app.setRouterOptions(new RouterOptions().setIgnoreTrailingSlash(true));
       app.get("/foo/", ctx -> "foo/");
 
@@ -1300,9 +1301,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void methodNotAllowed() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void methodNotAllowed(ServerTestRunner runner) {
+    runner.define(app -> {
       app.post("/method", Context::pathString);
     }).ready(client -> {
       client.get("/method", rsp -> {
@@ -1312,9 +1313,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void silentFavicon() {
-    new JoobyRunner(Jooby::new).ready(client -> {
+  @ServerTest
+  public void silentFavicon(ServerTestRunner runner) {
+    runner.define(Jooby::new).ready(client -> {
       client.get("/favicon.ico", rsp -> {
         assertEquals(StatusCode.NOT_FOUND.value(), rsp.code());
       });
@@ -1324,9 +1325,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void customHttpMethod() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void customHttpMethod(ServerTestRunner runner) {
+    runner.define(app -> {
       app.route("foo", "/bar", Context::getMethod);
     }).ready(client -> {
       client.invoke("foo", "/bar").execute(rsp -> {
@@ -1335,9 +1336,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void setContentType() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void setContentType(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/plain", ctx -> ctx.setResponseType(text).send("Text"));
     }).ready(client -> {
       client.get("/plain", rsp -> {
@@ -1348,10 +1349,10 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void setContentLen() {
+  @ServerTest
+  public void setContentLen(ServerTestRunner runner) {
     String value = "...";
-    new JoobyRunner(app -> {
+    runner.define(app -> {
       app.get("/len",
           ctx -> ctx.setResponseType(text).setResponseLength(value.length()).send(value));
     }).ready(client -> {
@@ -1364,9 +1365,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void sendStatusCode() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sendStatusCode(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/statuscode", ctx -> ctx.send(StatusCode.OK));
     }).ready(client -> {
       client.get("/statuscode", rsp -> {
@@ -1376,41 +1377,40 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void mixedMode() {
-    new JoobyRunner(app -> {
+  @ServerTest(server = {Utow.class, Netty.class}, executionMode = DEFAULT)
+  public void mixedMode(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/blocking", ctx -> !ctx.isInIoThread());
       app.get("/reactive", ctx ->
           Single.fromCallable(() -> ctx.isInIoThread())
       );
-    }).mode(ExecutionMode.DEFAULT).ready(client -> {
+    }).ready(client -> {
       client.get("/blocking", rsp -> {
         assertEquals("true", rsp.body().string());
       });
       client.get("/reactive", rsp -> {
         assertEquals("true", rsp.body().string());
       });
-    }, Utow::new, Netty::new);
+    });
   }
 
-  @Test
-  public void defaultHeaders() {
-    LinkedList<String> servers = new LinkedList<>(Arrays.asList("J", "N", "U"));
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void defaultHeaders(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/", Context::pathString);
     }).ready(client -> {
+      String serverHeader = String.valueOf(runner.getServer().charAt(0));
       client.get("/", rsp -> {
         assertNotNull(rsp.header("Date"));
-        assertEquals(servers.getFirst(), rsp.header("Server"));
+        assertEquals(serverHeader, rsp.header("Server"));
         assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
-        servers.removeFirst();
       });
     });
   }
 
-  @Test
-  public void sendStream() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sendStream(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/txt", ctx -> {
         ctx.query("l").toOptional().ifPresent(len -> ctx.setResponseLength(Long.parseLong(len)));
         return new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8));
@@ -1429,9 +1429,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void sendStreamRange() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sendStreamRange(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/range", ctx -> {
         ctx.setResponseLength(_19kb.length());
         return ctx.send(new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)));
@@ -1484,9 +1484,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void sendFile() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sendFile(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/filechannel", ctx ->
           FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt"))
       );
@@ -1551,9 +1551,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void sendFileRange() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sendFileRange(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/file-range", ctx -> {
         ctx.setResponseLength(_19kb.length());
         return ctx
@@ -1582,9 +1582,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void writer() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void writer(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/19kb", ctx ->
           ctx.responseWriter(writer -> {
             try (StringReader reader = new StringReader(_19kb)) {
@@ -1646,11 +1646,11 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void lifeCycle() {
+  @ServerTest
+  public void lifeCycle(ServerTestRunner runner) {
     AtomicInteger counter = new AtomicInteger();
 
-    Consumer<Jooby> lifeCycle = app -> {
+    runner.define(app -> {
       app.onStarting(() -> counter.incrementAndGet());
 
       app.onStarting(() -> counter.incrementAndGet());
@@ -1665,36 +1665,16 @@ public class FeaturedTest {
       });
 
       app.get("/lifeCycle", ctx -> counter.get());
-    };
-
-    new JoobyRunner(lifeCycle).ready(client -> {
+    }).ready(client -> {
       client.get("/lifeCycle", rsp ->
           assertEquals("2", rsp.body().string())
       );
-    }, Netty::new);
-
-    assertEquals(0, counter.get());
-
-    new JoobyRunner(lifeCycle).ready(client -> {
-      client.get("/lifeCycle", rsp ->
-          assertEquals("2", rsp.body().string())
-      );
-    }, Utow::new);
-
-    assertEquals(0, counter.get());
-
-    new JoobyRunner(lifeCycle).ready(client -> {
-      client.get("/lifeCycle", rsp ->
-          assertEquals("2", rsp.body().string())
-      );
-    }, Jetty::new);
-
-    assertEquals(0, counter.get());
+    });
   }
 
-  @Test
-  public void sendRedirect() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sendRedirect(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/", ctx -> ctx.sendRedirect("/foo"));
       app.get("/foo", Context::pathString);
     }).ready(client -> {
@@ -1704,13 +1684,13 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void cookies() {
+  @ServerTest
+  public void cookies(ServerTestRunner runner) {
     DateTimeFormatter fmt = DateTimeFormatter
         .ofPattern("EEE, dd-MMM-yyyy HH:mm:ss z", Locale.US)
         .withZone(ZoneId.of("GMT"));
 
-    new JoobyRunner(app -> {
+    runner.define(app -> {
       app.get("/cookies", ctx -> ctx.cookieMap());
 
       app.get("/set-cookie", ctx -> {
@@ -1781,9 +1761,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void varOnCatchAll() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void varOnCatchAll(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/*", Context::pathMap);
 
       app.get("/query/?*x", Context::pathMap);
@@ -1808,9 +1788,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void singlePageApp() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void singlePageApp(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.assets("/?*",
           new AssetHandler("fallback.html", AssetSource.create(app.getClassLoader(), "/www")));
@@ -1846,9 +1826,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void staticSiteFromCp() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void staticSiteFromCpWithPrefix(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.assets("/?*", "/www");
 
@@ -1873,8 +1853,11 @@ public class FeaturedTest {
         assertEquals("about.html", rsp.body().string().trim());
       });
     });
+  }
 
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void staticSiteFromCp(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.assets("/?*");
 
@@ -1899,8 +1882,11 @@ public class FeaturedTest {
         assertEquals("about.html", rsp.body().string().trim());
       });
     });
+  }
 
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void staticSiteFromCpWithPrefixPathAndPrefixLocation(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.assets("/static/?*", "/www");
 
@@ -1927,9 +1913,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void staticSiteFromFs() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void staticSiteFromFs(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.assets("/?*", userdir("src", "test", "resources", "www"));
 
@@ -1954,8 +1940,11 @@ public class FeaturedTest {
         assertEquals("about.html", rsp.body().string().trim());
       });
     });
+  }
 
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void staticSiteFromFsUsingPathPrefix(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.assets("/static/?*", userdir("src", "test", "resources", "www"));
 
@@ -1995,8 +1984,8 @@ public class FeaturedTest {
     }
   }
 
-  @Test
-  public void assets() throws IOException {
+  @ServerTest
+  public void assets(ServerTestRunner runner) throws IOException {
 
     String cl1 = String.valueOf(userdir("src", "test", "www", "js", "index.js").toFile().length());
     String cl2 = String
@@ -2007,7 +1996,7 @@ public class FeaturedTest {
     String vueSize = String.valueOf(
         getClass().getResource("/META-INF/resources/webjars/vue/" + VUE + "/dist/vue.js")
             .openConnection().getContentLength());
-    new JoobyRunner(app -> {
+    runner.define(app -> {
       app.assets("/static/?*", userdir("src", "test", "www"));
       app.assets("/*", userdir("src", "test", "www"));
       app.assets("/cp/*", "/www");
@@ -2135,9 +2124,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void assetSingleFile() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void assetSingleFile(ServerTestRunner runner) {
+    runner.define(app -> {
       app.assets("/asset/cp", "singleroot");
       app.assets("/asset/fs", userdir("src", "test", "resources", "singleroot"));
     }).ready(client -> {
@@ -2150,9 +2139,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void services() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void services(ServerTestRunner runner) {
+    runner.define(app -> {
       ServiceRegistry services = app.getServices();
       services.put(ServiceKey.key(String.class, "x"), "value");
 
@@ -2164,9 +2153,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void render() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void render(ServerTestRunner runner) {
+    runner.define(app -> {
       app.install(new JacksonModule());
       app.get("/int", ctx -> ctx.render(1));
       app.get("/bytes", ctx -> ctx.render("bytes".getBytes(StandardCharsets.UTF_8)));
@@ -2189,9 +2178,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void flashScope() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void flashScope(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/flash", req -> req.flash());
 
       app.post("/flash", ctx -> {
@@ -2248,9 +2237,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void customFlashScope() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void customFlashScope(ServerTestRunner runner) {
+    runner.define(app -> {
       app.setContextPath("/custom");
       app.setFlashCookie("f");
 
@@ -2267,9 +2256,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void flashScopeKeep() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void flashScopeKeep(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/flash", ctx -> {
         FlashMap flash = ctx.flash();
         flash.put("foo", "bar");
@@ -2309,9 +2298,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void templateEngines() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void templateEngines(ServerTestRunner runner) {
+    runner.define(app -> {
       app.install(new HandlebarsModule());
       app.install(new FreemarkerModule());
 
@@ -2327,26 +2316,26 @@ public class FeaturedTest {
     });
   }
 
-  @Test
+  @ServerTest(executionMode = EVENT_LOOP)
   @DisplayName("Context detaches when running in event-loop and returns a Context")
-  public void detachOnEventLoop() {
-    new JoobyRunner(app -> {
+  public void detachOnEventLoop(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/detach", ctx -> {
         CompletableFuture.runAsync(() -> {
           ctx.send(ctx.pathString());
         });
         return ctx;
       });
-    }).mode(EVENT_LOOP).ready(client -> {
+    }).ready(client -> {
       client.get("/detach", rsp -> {
         assertEquals("/detach", rsp.body().string().trim());
       });
     });
   }
 
-  @Test
-  public void rawValue() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void rawValue(ServerTestRunner runner) {
+    runner.define(app -> {
       app.post("/body", ctx -> {
         return ctx.body().value();
       });
@@ -2384,16 +2373,16 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void sendByteArray() {
-    new JoobyRunner(app -> {
+  @ServerTest(executionMode = {EVENT_LOOP, WORKER})
+  public void sendByteArray(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/bytes", ctx -> {
         return ctx.pathString().getBytes(StandardCharsets.UTF_8);
       });
       app.get("/inline", ctx -> {
         return new byte[]{(byte) 'h', (byte) 'e'};
       });
-    }).mode(EVENT_LOOP, WORKER).ready(client -> {
+    }).ready(client -> {
       client.get("/bytes", rsp -> {
         assertEquals("/bytes", rsp.body().string());
       });
@@ -2403,9 +2392,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void sideEffectVsFunctional() {
-    new JoobyRunner(app -> {
+  @ServerTest(executionMode = {EVENT_LOOP, WORKER})
+  public void sideEffectVsFunctional(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/string", ctx -> {
         ctx.send("side-effects");
         return "ignored";
@@ -2428,7 +2417,7 @@ public class FeaturedTest {
       app.get("/filter", ctx -> {
         throw new IllegalStateException("Should never gets here");
       });
-    }).mode(EVENT_LOOP, WORKER).ready(client -> {
+    }).ready(client -> {
       client.get("/string", rsp -> {
         assertEquals("side-effects", rsp.body().string());
       });
@@ -2449,9 +2438,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void cors() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void cors(ServerTestRunner runner) {
+    runner.define(app -> {
       app.decorator(new CorsHandler());
 
       app.get("/greeting", ctx -> "Hello " + ctx.query("name").value("World") + "!");
@@ -2535,9 +2524,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void options() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void options(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.get("/foo", Context::pathString);
 
@@ -2563,9 +2552,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void trace() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void trace(ServerTestRunner runner) {
+    runner.define(app -> {
       app.decorator(new TraceHandler());
 
       app.get("/foo", Context::pathString);
@@ -2583,9 +2572,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void head() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void head(ServerTestRunner runner) {
+    runner.define(app -> {
       app.install(new JacksonModule());
       app.decorator(new HeadHandler());
 
@@ -2638,9 +2627,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void beanConverter() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void beanConverter(ServerTestRunner runner) {
+    runner.define(app -> {
       app.converter(new MyValueBeanConverter());
 
       app.get("/", ctx -> ctx.query(MyValue.class));
@@ -2667,9 +2656,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void byteArrayResponse() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void byteArrayResponse(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/bytearray", ctx -> {
         return ctx.send(partition(_19kb.getBytes(StandardCharsets.UTF_8), 1536));
       });
@@ -2680,9 +2669,9 @@ public class FeaturedTest {
     });
   }
 
-  @Test
-  public void requestUrl() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void requestUrl(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/{path}", ctx -> ctx.getRequestURL(ctx.query("useProxy").booleanValue(false)));
     }).ready(client -> {
       client.get("/somepath", rsp -> {
@@ -2710,8 +2699,11 @@ public class FeaturedTest {
         assertEquals("http://first/somepath?useProxy=true", rsp.body().string());
       });
     });
+  }
 
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void requestUrlWithContextPath(ServerTestRunner runner) {
+    runner.define(app -> {
       app.setContextPath("/x");
       app.get("/{path}", ctx -> ctx.getRequestURL(ctx.query("useProxy").booleanValue(false)));
     }).ready(client -> {

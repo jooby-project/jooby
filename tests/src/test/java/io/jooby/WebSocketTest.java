@@ -2,14 +2,15 @@ package io.jooby;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.jooby.json.JacksonModule;
-import org.junit.jupiter.api.Test;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WebSocketTest {
-  @Test
-  public void webSocket() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void webSocket(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.ws("/ws/{key}", (ctx, initializer) -> {
         StringBuilder buff = new StringBuilder(ctx.path("key").value());
@@ -30,9 +31,9 @@ public class WebSocketTest {
     });
   }
 
-  @Test
-  public void webSocketWithHttpSession() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void webSocketWithHttpSession(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.get("/create", ctx -> ctx.session().put("foo", "session").getId());
 
@@ -60,13 +61,9 @@ public class WebSocketTest {
     });
   }
 
-  private String sid(String setCookie) {
-    return setCookie.substring("jooby.sid=".length(), setCookie.indexOf(';'));
-  }
-
-  @Test
-  public void webSocketJson() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void webSocketJson(ServerTestRunner runner) {
+    runner.define(app -> {
       app.install(new JacksonModule());
 
       app.ws("/wsjson", (ctx, initializer) -> {
@@ -81,6 +78,10 @@ public class WebSocketTest {
         assertEquals("{\"message\":\"Hello JSON!\"}", ws.send("{\"message\" : \"Hello JSON!\"}"));
       });
     });
+  }
+
+  private String sid(String setCookie) {
+    return setCookie.substring("jooby.sid=".length(), setCookie.indexOf(';'));
   }
 
 }

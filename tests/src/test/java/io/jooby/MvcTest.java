@@ -12,10 +12,11 @@ import examples.ProducesConsumes;
 import examples.Provisioning;
 import examples.TopDispatch;
 import io.jooby.json.JacksonModule;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
@@ -31,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MvcTest {
 
-  @Test
-  public void routerInstance() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void routerInstance(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.mvc(new InstanceRouter());
 
@@ -62,9 +63,9 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void routerImporting() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void routerImporting(ServerTestRunner runner) {
+    runner.define(app -> {
       Jooby sub = new Jooby();
       sub.mvc(new InstanceRouter());
       app.use("/sub", sub);
@@ -92,9 +93,9 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void producesAndConsumes() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void producesAndConsumes(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.encoder(io.jooby.MediaType.json, (@Nonnull Context ctx, @Nonnull Object value) ->
           ("{" + value.toString() + "}").getBytes(StandardCharsets.UTF_8)
@@ -157,9 +158,9 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void jaxrs() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void jaxrs(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.mvc(new JAXRS());
 
@@ -170,9 +171,9 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void noTopLevelPath() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void noTopLevelPath(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.mvc(new NoTopLevelPath());
 
@@ -187,9 +188,9 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void provisioning() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void provisioning(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.mvc(new Provisioning());
 
@@ -292,9 +293,9 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void nullinjection() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void nullinjection(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.mvc(new NullInjection());
 
@@ -332,9 +333,9 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void mvcBody() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void mvcBody(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.install(new JacksonModule());
 
@@ -379,9 +380,9 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void beanConverter() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void beanConverter(ServerTestRunner runner) {
+    runner.define(app -> {
       app.converter(new MyValueBeanConverter());
       app.mvc(new MyValueRouter());
     }).ready(client -> {
@@ -391,16 +392,16 @@ public class MvcTest {
     });
   }
 
-  @Test
-  public void mvcDispatch() {
-    new JoobyRunner(app -> {
+  @ServerTest(executionMode = ExecutionMode.EVENT_LOOP)
+  public void mvcDispatch(ServerTestRunner runner) {
+    runner.define(app -> {
       app.executor("single", Executors.newSingleThreadExecutor(r ->
           new Thread(r, "single")
       ));
 
       app.mvc(new TopDispatch());
 
-    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
+    }).ready(client -> {
       client.get("/", rsp -> {
         String body = rsp.body().string();
         assertTrue(body.startsWith("worker"), body);
@@ -410,20 +411,21 @@ public class MvcTest {
         assertEquals("single", rsp.body().string());
       });
     });
+  }
 
-    LinkedList<String> names = new LinkedList<>(
-        Arrays.asList("worker-", "eventloop", "worker I/O"));
-    new JoobyRunner(app -> {
+  @ServerTest(executionMode = ExecutionMode.EVENT_LOOP)
+  public void mvcLoopDispatch(ServerTestRunner runner) {
+    runner.define(app -> {
       app.executor("single", Executors.newSingleThreadExecutor(r ->
           new Thread(r, "single")
       ));
 
       app.mvc(new LoopDispatch());
 
-    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
+    }).ready(client -> {
       client.get("/", rsp -> {
         String body = rsp.body().string();
-        assertTrue(body.startsWith(names.removeFirst()), body);
+        assertTrue(runner.matchesEventLoopThread(body), body);
       });
 
       client.get("/method", rsp -> {

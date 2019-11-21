@@ -1,15 +1,16 @@
 package io.jooby;
 
-import org.junit.jupiter.api.Test;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class Issue1413 {
 
-  @Test
-  public void shouldDoPreflightWithCredentials() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void shouldDoPreflightWithCredentials(ServerTestRunner runner) {
+    runner.define(app -> {
       app.decorator(new CorsHandler(new Cors()
                                     .setMethods("*")
                                     .setOrigin("http://foo.com")
@@ -65,9 +66,9 @@ public class Issue1413 {
     });
   }
 
-  @Test
-  public void shouldDoPreflightWithoutCredentials() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void shouldDoPreflightWithoutCredentials(ServerTestRunner runner) {
+    runner.define(app -> {
       app.decorator(new CorsHandler(new Cors()
           .setMethods("*")
           .setOrigin("http://foo.com")

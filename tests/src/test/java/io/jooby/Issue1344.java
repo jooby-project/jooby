@@ -1,7 +1,8 @@
 package io.jooby;
 
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,10 +16,10 @@ public class Issue1344 {
     }
   }
 
-  @Test
+  @ServerTest
   @DisplayName("Decorator from composition")
-  public void issue1338() {
-    new JoobyRunner(app -> {
+  public void issue1338(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.decorator(next -> ctx -> "[" + next.apply(ctx) + "]");
 

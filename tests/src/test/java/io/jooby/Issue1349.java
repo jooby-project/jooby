@@ -1,6 +1,7 @@
 package io.jooby;
 
-import org.junit.jupiter.api.Test;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,9 +31,9 @@ public class Issue1349 {
 
   }
 
-  @Test
-  public void issue1349() {
-    new JoobyRunner(App1349::new)
+  @ServerTest
+  public void issue1349(ServerTestRunner runner) {
+    runner.define(App1349::new)
         .ready(client -> {
           client.get("/1349", rsp -> {
             assertEquals(401, rsp.code());

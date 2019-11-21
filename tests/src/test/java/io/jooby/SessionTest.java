@@ -1,9 +1,9 @@
 package io.jooby;
 
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 import io.jooby.jwt.JwtSessionStore;
 import okhttp3.Response;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SessionTest {
-  @Test
-  public void sessionIdAsCookie() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sessionIdAsCookie(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.get("/findSession", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
       app.get("/getSession", ctx -> ctx.session().get("foo").value("none"));
@@ -73,10 +73,14 @@ public class SessionTest {
       });
     });
 
+  }
+
+  @ServerTest
+  public void sessionIdAsCookieMaxAge(ServerTestRunner runner) {
     /**********************************************************************************************/
     // Max Age
     /**********************************************************************************************/
-    new JoobyRunner(app -> {
+    runner.define(app -> {
       app.setSessionStore((SessionStore.memory(new Cookie("my.sid").setMaxAge(1L))));
       app.get("/session", ctx -> ctx.session().toMap());
       app.get("/sessionMaxAge", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
@@ -89,9 +93,9 @@ public class SessionTest {
     });
   }
 
-  @Test
-  public void cookieDataSession() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void cookieDataSession(ServerTestRunner runner) {
+    runner.define(app -> {
       app.setSessionStore(SessionStore.signed("ABC123"));
 
       app.get("/session", ctx -> {
@@ -140,9 +144,9 @@ public class SessionTest {
     });
   }
 
-  @Test
-  public void sessionIdHeader() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sessionIdHeader(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.setSessionStore((SessionStore.memory(SessionToken.header("jooby.sid"))));
 
@@ -200,9 +204,9 @@ public class SessionTest {
     });
   }
 
-  @Test
-  public void sessionIdMultiple() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sessionIdMultiple(ServerTestRunner runner) {
+    runner.define(app -> {
       SessionToken token = SessionToken
           .combine(SessionToken.header("TOKEN"),
               SessionToken.cookieId(SessionToken.SID.clone().setMaxAge(Duration.ofMinutes(30))));
@@ -237,9 +241,9 @@ public class SessionTest {
     });
   }
 
-  @Test
-  public void sessionData() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void sessionData(ServerTestRunner runner) {
+    runner.define(app -> {
       app.get("/session", ctx -> ctx.session()
           .put("foo", "1")
           .put("e", ChronoUnit.DAYS.name())
@@ -262,9 +266,9 @@ public class SessionTest {
     });
   }
 
-  @Test
-  public void jsonwebtokenSession() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void jsonwebtokenSession(ServerTestRunner runner) {
+    runner.define(app -> {
       app.setSessionStore(new JwtSessionStore("7a85c3b6-3ef0-4625-82d3-a1da36094804"));
       app.get("/session", ctx -> {
         Session session = ctx.session();

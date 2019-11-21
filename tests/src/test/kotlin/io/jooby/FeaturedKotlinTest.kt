@@ -1,6 +1,8 @@
 package io.jooby
 
 import io.jooby.internal.mvc.KotlinMvc
+import io.jooby.junit.ServerTest
+import io.jooby.junit.ServerTestRunner
 import io.jooby.netty.Netty
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
@@ -8,11 +10,11 @@ import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-  class FeaturedKotlinTest {
+class FeaturedKotlinTest {
 
-  @Test
-  fun explicitContext() {
-    JoobyRunner { app ->
+  @ServerTest
+  fun explicitContext(runner: ServerTestRunner) {
+    runner.define { app ->
       app.get("/") {
         "Hello World!"
       }
@@ -23,9 +25,9 @@ import org.junit.jupiter.api.Test
     }
   }
 
-  @Test
-  fun implicitContext() {
-    JoobyRunner { ->
+  @ServerTest
+  fun implicitContext(runner: ServerTestRunner) {
+    runner.define { ->
       Kooby {
         get("/") {
           ctx.send("Hello World!")
@@ -38,9 +40,9 @@ import org.junit.jupiter.api.Test
     }
   }
 
-  @Test
-  fun coroutineNoSuspend() {
-    JoobyRunner { ->
+  @ServerTest
+  fun coroutineNoSuspend(runner: ServerTestRunner) {
+    runner.define { ->
       Kooby {
         coroutine {
           get {
@@ -55,9 +57,9 @@ import org.junit.jupiter.api.Test
     }
   }
 
-  @Test
-  fun coroutineSuspend() {
-    JoobyRunner { ->
+  @ServerTest
+  fun coroutineSuspend(runner: ServerTestRunner) {
+    runner.define { ->
       Kooby {
         coroutine {
           get("/") {
@@ -73,9 +75,9 @@ import org.junit.jupiter.api.Test
     }
   }
 
-  @Test
-  fun javaApiWithReactiveType() {
-    JoobyRunner { ->
+  @ServerTest
+  fun javaApiWithReactiveType(runner: ServerTestRunner) {
+    runner.define { ->
       Jooby().apply {
         get("/") {
           println(Thread.currentThread())
@@ -92,9 +94,9 @@ import org.junit.jupiter.api.Test
     }
   }
 
-  @Test
-  fun mvc() {
-    JoobyRunner { app ->
+  @ServerTest
+  fun mvc(runner: ServerTestRunner) {
+    runner.define { app ->
       app.mvc(KotlinMvc())
     }.ready { client ->
       client.get("/kotlin") { rsp ->
@@ -123,9 +125,9 @@ import org.junit.jupiter.api.Test
     }
   }
 
-  @Test
-  fun suspendMvc() {
-    JoobyRunner { ->
+  @ServerTest
+  fun suspendMvc(runner: ServerTestRunner) {
+    runner.define { ->
       Kooby {
         coroutine {
           mvc(SuspendMvc())

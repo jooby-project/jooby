@@ -1,17 +1,18 @@
 package io.jooby;
 
 import io.jooby.json.JacksonModule;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue1391 {
 
-  @Test
-  public void issue1391() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void issue1391(ServerTestRunner runner) {
+    runner.define(app -> {
       app.install(new JacksonModule());
       app.mvc(new Controller1391());
 

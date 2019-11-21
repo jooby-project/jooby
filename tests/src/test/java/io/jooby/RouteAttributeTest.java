@@ -1,15 +1,16 @@
 package io.jooby;
 
 import examples.MvcAttributes;
-import org.junit.jupiter.api.Test;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RouteAttributeTest {
 
-  @Test
-  public void canRetrieveRouteAttributesForMvcAPI() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void canRetrieveRouteAttributesForMvcAPI(ServerTestRunner runner) {
+    runner.define(app -> {
 
       app.decorator(next -> ctx -> {
         String role = (String) ctx.getRoute().attribute("Role");
@@ -37,9 +38,9 @@ public class RouteAttributeTest {
     });
   }
 
-  @Test
-  public void canRetrieveRouteAttributesForScriptAPI() {
-    new JoobyRunner(app -> {
+  @ServerTest
+  public void canRetrieveRouteAttributesForScriptAPI(ServerTestRunner runner) {
+    runner.define(app -> {
       app.decorator(next -> ctx -> {
         String foo = (String) ctx.getRoute().attribute("foo");
         assertEquals("bar", foo);
