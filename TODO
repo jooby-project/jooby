@@ -1,3 +1,17 @@
 * review toString on Value API (removal of QueryStringValue?)
 * tests and coverage
 * make reset headers on error configurable
+
+Jetty close exception:
+MvcTest#mvcDispatch
+```
+GET /method 500 Server Error
+java.io.IOException: Close org.eclipse.jetty.server.HttpConnection$SendCallback@1f1eae2a[PROCESSING][i=HTTP/1.1{s=200,h=3,cl=-1},cb=org.eclipse.jetty.server.HttpChannel$SendCallback@11d953b9] in state PROCESSING
+	at org.eclipse.jetty.util.IteratingCallback.close(IteratingCallback.java:428)
+	at org.eclipse.jetty.server.HttpConnection.onClose(HttpConnection.java:510)
+	at org.eclipse.jetty.io.SelectorManager.connectionClosed(SelectorManager.java:345)
+	at org.eclipse.jetty.io.ManagedSelector$DestroyEndPoint.run(ManagedSelector.java:967)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:806)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:938)
+	at java.lang.Thread.run(Thread.java:748)
+```
