@@ -220,7 +220,7 @@ public interface DefaultContext extends Context {
     }
     StringBuilder url = new StringBuilder();
     url.append(scheme).append("://").append(host);
-    if (port.length() > 0 && !port.endsWith("80") && !hostAndPort.endsWith("443")) {
+    if (port.length() > 0 && !port.equals("80") && !port.equals("443")) {
       url.append(":").append(port);
     }
     url.append(pathString());
