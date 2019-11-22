@@ -44,7 +44,7 @@
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.9.2.Final</jboss-modules.version>
-  <jdbi.version>3.10.1</jdbi.version>
+  <jdbi.version>3.11.0</jdbi.version>
   <jetty.version>9.4.22.v20191022</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
   <jooby-maven-plugin.version>2.3.0</jooby-maven-plugin.version>
