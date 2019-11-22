@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>2.3.1-SNAPSHOT</version>
+    <version>2.3.1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -16,7 +16,7 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.3.0</jooby.version>
+  <jooby.version>2.3.1</jooby.version>
   <HikariCP.version>3.4.1</HikariCP.version>
   <archetype-packaging.version>3.1.2</archetype-packaging.version>
   <asm.version>7.2</asm.version>
@@ -44,11 +44,11 @@
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.9.2.Final</jboss-modules.version>
-  <jdbi.version>3.11.0</jdbi.version>
-  <jetty.version>9.4.22.v20191022</jetty.version>
+  <jdbi.version>3.11.1</jdbi.version>
+  <jetty.version>9.4.24.v20191120</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jooby-maven-plugin.version>2.3.0</jooby-maven-plugin.version>
-  <jooby.version>2.3.0</jooby.version>
+  <jooby-maven-plugin.version>2.3.1</jooby-maven-plugin.version>
+  <jooby.version>2.3.1</jooby.version>
   <json.version>20190722</json.version>
   <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -61,14 +61,14 @@
   <logback-classic.version>1.2.3</logback-classic.version>
   <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
   <maven-archetype-plugin.version>3.1.2</maven-archetype-plugin.version>
-  <maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
+  <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
   <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
   <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
   <maven-core.version>3.6.2</maven-core.version>
   <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
   <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
   <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-  <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
+  <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
   <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
   <maven-plugin-annotations.version>3.6.0</maven-plugin-annotations.version>
   <maven-plugin-api.version>3.6.2</maven-plugin-api.version>
@@ -78,14 +78,14 @@
   <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
   <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
   <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
-  <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
+  <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
   <mockito.version>3.1.0</mockito.version>
   <mojo-executor.version>2.3.0</mojo-executor.version>
   <mysql-connector-java.version>8.0.18</mysql-connector-java.version>
   <netty.version>4.1.43.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <okhttp.version>4.2.2</okhttp.version>
-  <pebble.version>3.1.0</pebble.version>
+  <pebble.version>3.1.1</pebble.version>
   <plexus-utils.version>3.3.0</plexus-utils.version>
   <reactor.version>3.3.0.RELEASE</reactor.version>
   <rest-assured.version>4.1.2</rest-assured.version>
@@ -96,7 +96,7 @@
   <stork-maven-plugin.version>3.0.0</stork-maven-plugin.version>
   <truth.version>1.0</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
-  <undertow.version>2.0.26.Final</undertow.version>
+  <undertow.version>2.0.28.Final</undertow.version>
   <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
   <weld.version>3.1.2.Final</weld.version>
 </properties>
