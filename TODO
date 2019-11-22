@@ -15,3 +15,15 @@ java.io.IOException: Close org.eclipse.jetty.server.HttpConnection$SendCallback@
 	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:938)
 	at java.lang.Thread.run(Thread.java:748)
 ```
+
+FeaturedKotlinTest.coroutineNoSuspend:
+async:
+
+```
+	Suppressed: java.io.IOException: Close org.eclipse.jetty.server.HttpConnection$SendCallback@4b406dd7[PROCESSING][i=HTTP/1.1{s=200,h=3,cl=-1},cb=org.eclipse.jetty.server.HttpChannel$SendCallback@e42eadb] in state PROCESSING
+		at org.eclipse.jetty.util.IteratingCallback.close(IteratingCallback.java:428)
+		at org.eclipse.jetty.server.HttpConnection.onClose(HttpConnection.java:510)
+		at org.eclipse.jetty.io.SelectorManager.connectionClosed(SelectorManager.java:345)
+		at org.eclipse.jetty.io.ManagedSelector$DestroyEndPoint.run(ManagedSelector.java:967)
+		... 3 more
+```
