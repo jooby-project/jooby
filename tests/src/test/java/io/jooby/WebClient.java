@@ -58,7 +58,7 @@ public class WebClient implements AutoCloseable {
 
     public String lastMessage() {
       try {
-        return  (String) messages.poll(5, TimeUnit.SECONDS);
+        return  (String) messages.take();
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);
       }
