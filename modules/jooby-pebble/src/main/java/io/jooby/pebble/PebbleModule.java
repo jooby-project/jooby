@@ -192,8 +192,8 @@ public class PebbleModule implements Extension {
       if (conf.hasPath("pebble.strictVariables")) {
         builder.strictVariables(conf.getBoolean("pebble.strictVariables"));
       }
-      if (conf.hasPath("pebble.allowGetClass")) {
-        builder.allowGetClass(conf.getBoolean("pebble.allowGetClass"));
+      if (conf.hasPath("pebble.allowUnsafeMethods")) {
+        builder.allowUnsafeMethods(conf.getBoolean("pebble.allowUnsafeMethods"));
       }
       if (conf.hasPath("pebble.literalDecimalTreatedAsInteger")) {
         builder.literalDecimalTreatedAsInteger(conf.getBoolean("pebble.literalDecimalTreatedAsInteger"));

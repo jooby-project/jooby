@@ -1,6 +1,7 @@
 package io.jooby;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.jooby.jetty.Jetty;
 import io.jooby.json.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
@@ -8,7 +9,7 @@ import io.jooby.junit.ServerTestRunner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WebSocketTest {
-  @ServerTest
+  @ServerTest(server = Jetty.class)
   public void webSocket(ServerTestRunner runner) {
     runner.define(app -> {
 

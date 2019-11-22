@@ -19,7 +19,7 @@
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.29</freemarker.version>
     <handlebars.version>4.1.2</handlebars.version>
-    <pebble.version>3.1.0</pebble.version>
+    <pebble.version>3.1.1</pebble.version>
     <jackson.version>2.10.1</jackson.version>
     <jackson-databind.version>2.10.0</jackson-databind.version>
     <rocker.version>1.2.2</rocker.version>
@@ -30,7 +30,7 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.200</h2.version>
     <hibernate.version>5.4.9.Final</hibernate.version>
-    <jdbi.version>3.11.0</jdbi.version>
+    <jdbi.version>3.11.1</jdbi.version>
     <flyway.version>6.0.8</flyway.version>
 
     <config.version>1.4.0</config.version>
@@ -55,8 +55,8 @@
     <asm.version>7.2</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.0.26.Final</undertow.version>
-    <jetty.version>9.4.22.v20191022</jetty.version>
+    <undertow.version>2.0.28.Final</undertow.version>
+    <jetty.version>9.4.24.v20191120</jetty.version>
     <netty.version>4.1.43.Final</netty.version>
     <boringssl.version>2.0.27.Final</boringssl.version>
 
