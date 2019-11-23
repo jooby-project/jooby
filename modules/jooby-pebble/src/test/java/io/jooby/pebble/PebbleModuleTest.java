@@ -6,12 +6,16 @@ import io.jooby.Environment;
 import io.jooby.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnJre;
+import org.junit.jupiter.api.condition.JRE;
 
 import java.nio.file.Paths;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// FIXME: required until https://github.com/PebbleTemplates/pebble/issues/487
+@EnabledOnJre({JRE.JAVA_8, JRE.JAVA_9, JRE.JAVA_10, JRE.JAVA_11, JRE.JAVA_12})
 public class PebbleModuleTest {
   public static class User {
     private String firstname;
@@ -36,7 +40,8 @@ public class PebbleModuleTest {
   public void render() throws Exception {
     PebbleEngine.Builder builder = PebbleModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
-    PebbleTemplateEngine engine = new PebbleTemplateEngine(builder, Collections.singletonList(".peb"));
+    PebbleTemplateEngine engine = new PebbleTemplateEngine(builder,
+        Collections.singletonList(".peb"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine
@@ -51,7 +56,8 @@ public class PebbleModuleTest {
     PebbleEngine.Builder builder = PebbleModule.create()
         .setTemplatesPath(Paths.get("src", "test", "resources", "views").toString())
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
-    PebbleTemplateEngine engine = new PebbleTemplateEngine(builder, Collections.singletonList(".peb"));
+    PebbleTemplateEngine engine = new PebbleTemplateEngine(builder,
+        Collections.singletonList(".peb"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine
