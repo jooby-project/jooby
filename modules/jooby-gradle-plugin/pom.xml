@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.gradle</groupId>
       <artifactId>gradle-plugins</artifactId>
-      <version>3.4</version>
+      <version>6.0.1</version>
       <scope>provided</scope>
     </dependency>
 
