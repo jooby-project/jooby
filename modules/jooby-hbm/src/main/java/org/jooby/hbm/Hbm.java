@@ -209,6 +209,7 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.hibernate.Session;
+import org.hibernate.SessionBuilder;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
@@ -228,11 +229,7 @@ import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
 import org.jooby.Registry;
 import org.jooby.Route;
-import org.jooby.internal.hbm.GuiceBeanManager;
-import org.jooby.internal.hbm.OpenSessionInView;
-import org.jooby.internal.hbm.ScanEnvImpl;
-import org.jooby.internal.hbm.SessionProvider;
-import org.jooby.internal.hbm.UnitOfWorkProvider;
+import org.jooby.internal.hbm.*;
 import org.jooby.jdbc.Jdbc;
 
 import javax.inject.Provider;
@@ -534,6 +531,8 @@ public class Hbm implements Jooby.Module {
 
   private BiConsumer<SessionFactory, Config> sf = NOOP;
 
+  private BiConsumer<SessionBuilder, Config> sb = NOOP;
+
   /**
    * Creates a new {@link Hbm} module.
    *
@@ -744,6 +743,28 @@ public class Hbm implements Jooby.Module {
     return this;
   }
 
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithSessionBuilder(
+      final BiConsumer<SessionBuilder, Config> configurer) {
+    this.sb = configurer;
+    return this;
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithSessionBuilder(final Consumer<SessionBuilder> configurer) {
+    return doWithSessionBuilder((builder, conf) -> configurer.accept(builder));
+  }
+
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
@@ -794,7 +815,9 @@ public class Hbm implements Jooby.Module {
     SessionFactory sessionFactory = sfb.build();
     this.sf.accept(sessionFactory, conf);
 
-    Provider<Session> session = new SessionProvider(sessionFactory);
+    SessionBuilderConfigurer sbc = builder -> this.sb.accept(builder, conf);
+
+    Provider<Session> session = new SessionProvider(sessionFactory, sbc);
 
     ServiceKey serviceKey = env.serviceKey();
     serviceKey.generate(SessionFactory.class, name,
@@ -809,7 +832,7 @@ public class Hbm implements Jooby.Module {
         k -> binder.bind(k).toProvider(session));
 
     /** Unit of work . */
-    Provider<UnitOfWork> uow = new UnitOfWorkProvider(sessionFactory);
+    Provider<UnitOfWork> uow = new UnitOfWorkProvider(sessionFactory, sbc);
     serviceKey.generate(UnitOfWork.class, name,
         k -> binder.bind(k).toProvider(uow));
 

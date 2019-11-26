@@ -4,8 +4,10 @@ import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertTrue;
 
 import org.hibernate.Session;
+import org.hibernate.SessionBuilder;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
+import org.hibernate.engine.spi.SessionBuilderImplementor;
 import org.jooby.hbm.UnitOfWork;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
@@ -21,17 +23,19 @@ public class UnitOfWorkProviderTest {
 
   @Test
   public void openSession() throws Exception {
-    new MockUnit(SessionFactory.class, Session.class)
+    new MockUnit(SessionFactory.class, Session.class, SessionBuilderImplementor.class)
         .expect(hasBind(false))
         .expect(unit -> {
-          expect(unit.get(SessionFactory.class).openSession()).andReturn(unit.get(Session.class));
+          SessionBuilder builder = unit.get(SessionBuilderImplementor.class);
+          expect(unit.get(SessionFactory.class).withOptions()).andReturn(builder);
+          expect(builder.openSession()).andReturn(unit.get(Session.class));
         })
         .expect(unit -> {
           unit.constructor(RootUnitOfWork.class)
               .build(unit.get(Session.class));
         })
         .run(unit -> {
-          UnitOfWork result = new UnitOfWorkProvider(unit.get(SessionFactory.class)).get();
+          UnitOfWork result = new UnitOfWorkProvider(unit.get(SessionFactory.class), b -> {}).get();
           assertTrue(result instanceof RootUnitOfWork);
         });
   }
@@ -49,8 +53,30 @@ public class UnitOfWorkProviderTest {
               .build(unit.get(Session.class));
         })
         .run(unit -> {
-          UnitOfWork result = new UnitOfWorkProvider(unit.get(SessionFactory.class)).get();
+          UnitOfWork result = new UnitOfWorkProvider(unit.get(SessionFactory.class), b -> {}).get();
           assertTrue(result instanceof ChildUnitOfWork);
+        });
+  }
+
+  @Test
+  public void sessionBuilderConfigurer() throws Exception {
+    new MockUnit(SessionFactory.class, Session.class, SessionBuilderImplementor.class)
+        .expect(hasBind(false))
+        .expect(unit -> {
+          SessionBuilder builder = unit.get(SessionBuilderImplementor.class);
+          expect(unit.get(SessionFactory.class).withOptions()).andReturn(builder);
+          expect(builder.setQueryParameterValidation(true)).andReturn(builder);
+          expect(builder.openSession()).andReturn(unit.get(Session.class));
+        })
+        .expect(unit -> {
+          unit.constructor(RootUnitOfWork.class)
+              .build(unit.get(Session.class));
+        })
+        .run(unit -> {
+          UnitOfWork result = new UnitOfWorkProvider(unit.get(SessionFactory.class),
+              b -> b.setQueryParameterValidation(true)).get();
+
+          assertTrue(result instanceof RootUnitOfWork);
         });
   }
 
