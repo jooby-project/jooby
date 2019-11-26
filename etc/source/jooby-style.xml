@@ -71,6 +71,12 @@
     <property name="message" value="Line has trailing spaces."/>
   </module>
 
+  <!-- See http://checkstyle.sf.net/config_sizes.html -->
+  <module name="LineLength">
+    <property name="max" value="100"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://|^\\*"/>
+  </module>
+
   <!-- Checks for Headers                                -->
   <!-- See http://checkstyle.sf.net/config_header.html   -->
   <!-- <module name="Header"> -->
@@ -115,11 +121,6 @@
     </module>
 
     <!-- Checks for Size Violations.                    -->
-    <!-- See http://checkstyle.sf.net/config_sizes.html -->
-    <module name="LineLength">
-      <property name="max" value="100"/>
-      <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://|^\\*"/>
-    </module>
     <module name="MethodLength">
       <property name="tokens" value="METHOD_DEF"/>
       <property name="max" value="400"/>
