@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-unbescape/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-unbescape/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-unbescape.svg)](https://javadoc.io/doc/org.jooby/jooby-unbescape/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-unbescape/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-unbescape/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-unbescape.svg)](https://javadoc.io/doc/org.jooby/jooby-unbescape/1.6.5)
 [![jooby-unbescape website](https://img.shields.io/badge/jooby-unbescape-brightgreen.svg)](http://jooby.org/doc/unbescape)
 # unbescape
 
@@ -11,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-unbescape</artifactId>
- <version>1.6.4</version>
+ <version>1.6.5</version>
 </dependency>
 ```
 

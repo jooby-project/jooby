@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-spymemcached/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-spymemcached/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-spymemcached.svg)](https://javadoc.io/doc/org.jooby/jooby-spymemcached/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-spymemcached/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-spymemcached/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-spymemcached.svg)](https://javadoc.io/doc/org.jooby/jooby-spymemcached/1.6.5)
 [![jooby-spymemcached website](https://img.shields.io/badge/jooby-spymemcached-brightgreen.svg)](http://jooby.org/doc/spymemcached)
 # spymemcached
 
@@ -15,7 +15,7 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
 </dependency>
 ```
 
@@ -65,7 +65,7 @@ or programmatically:
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
 </dependency>
 ```
 

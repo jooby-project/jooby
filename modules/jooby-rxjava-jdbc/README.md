@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-rxjava-jdbc/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-rxjava-jdbc/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rxjava-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-rxjava-jdbc/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-rxjava-jdbc/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-rxjava-jdbc/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rxjava-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-rxjava-jdbc/1.6.5)
 [![jooby-rxjava-jdbc website](https://img.shields.io/badge/jooby-rxjava-jdbc-brightgreen.svg)](http://jooby.org/doc/rxjava-jdbc)
 # rxjdbc
 
@@ -13,7 +13,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rxjava-jdbc</artifactId>
- <version>1.6.4</version>
+ <version>1.6.5</version>
 </dependency>
 ```
 

@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-camel/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-camel/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-camel.svg)](https://javadoc.io/doc/org.jooby/jooby-camel/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-camel/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-camel/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-camel.svg)](https://javadoc.io/doc/org.jooby/jooby-camel/1.6.5)
 [![jooby-camel website](https://img.shields.io/badge/jooby-camel-brightgreen.svg)](http://jooby.org/doc/camel)
 # camel
 
@@ -26,7 +26,7 @@ depend on [camel-guice](http://camel.apache.org/guice.html), but it provides sim
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-camel</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
 </dependency>
 ```
 

@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets.svg)](https://javadoc.io/doc/org.jooby/jooby-assets/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets.svg)](https://javadoc.io/doc/org.jooby/jooby-assets/1.6.5)
 [![jooby-assets website](https://img.shields.io/badge/jooby-assets-brightgreen.svg)](http://jooby.org/doc/assets)
 # assets
 
@@ -13,7 +13,7 @@ A variety of processors are available: ([jshint](https://github.com/jooby-projec
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
 </dependency>
 ```
 

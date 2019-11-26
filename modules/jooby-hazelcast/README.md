@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-hazelcast/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-hazelcast/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hazelcast.svg)](https://javadoc.io/doc/org.jooby/jooby-hazelcast/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-hazelcast/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-hazelcast/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hazelcast.svg)](https://javadoc.io/doc/org.jooby/jooby-hazelcast/1.6.5)
 [![jooby-hazelcast website](https://img.shields.io/badge/jooby-hazelcast-brightgreen.svg)](http://jooby.org/doc/hazelcast)
 # hazelcast
 
@@ -16,7 +16,7 @@ Provides cache solution and session storage via [Hazelcast](http://hazelcast.org
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Configuration can be done programmatically via: ```doWith(Consumer)```
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
 </dependency>
 ```
 

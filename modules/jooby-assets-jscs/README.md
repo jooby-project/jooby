@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-jscs/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-jscs/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-jscs.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-jscs/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-jscs/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-jscs/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-jscs.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-jscs/1.6.5)
 [![jooby-assets-jscs website](https://img.shields.io/badge/jooby-assets-jscs-brightgreen.svg)](http://jooby.org/doc/assets-jscs)
 # jscs
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-jscs</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
   <scope>provided</scope>
 </dependency>
 ```

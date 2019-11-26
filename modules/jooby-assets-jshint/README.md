@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-jshint/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-jshint/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-jshint.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-jshint/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-jshint/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-jshint/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-jshint.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-jshint/1.6.5)
 [![jooby-assets-jshint website](https://img.shields.io/badge/jooby-assets-jshint-brightgreen.svg)](http://jooby.org/doc/assets-jshint)
 # jshint
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-jshint</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
   <scope>provided</scope>
 </dependency>
 ```

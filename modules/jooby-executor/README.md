@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-executor/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-executor/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-executor.svg)](https://javadoc.io/doc/org.jooby/jooby-executor/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-executor/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-executor/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-executor.svg)](https://javadoc.io/doc/org.jooby/jooby-executor/1.6.5)
 [![jooby-executor website](https://img.shields.io/badge/jooby-executor-brightgreen.svg)](http://jooby.org/doc/executor)
 # executor
 
@@ -15,7 +15,7 @@ Manage the life cycle of {@link ExecutorService} and build async apps, schedule 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-executor</artifactId>
- <version>1.6.4</version>
+ <version>1.6.5</version>
 </dependency>
 ```
 

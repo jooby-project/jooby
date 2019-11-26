@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-apitool/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-apitool/1.6.4)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-apitool.svg)](https://javadoc.io/doc/org.jooby/jooby-apitool/1.6.4)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-apitool/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-apitool/1.6.5)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-apitool.svg)](https://javadoc.io/doc/org.jooby/jooby-apitool/1.6.5)
 [![jooby-apitool website](https://img.shields.io/badge/jooby-apitool-brightgreen.svg)](http://jooby.org/doc/apitool)
 # API tool
 
@@ -23,7 +23,7 @@ This module generates live documentation from your HTTP API (source code).
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-apitool</artifactId>
- <version>1.6.4</version>
+ <version>1.6.5</version>
 </dependency>
 ```
 
@@ -187,7 +187,7 @@ Go to ```build.gradle``` and add these lines:
 ```gradke
 buildscript {
     dependencies {
-        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.6.4'
+        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.6.5'
     }
 }
 apply plugin: 'jooby'
