@@ -10,6 +10,7 @@ import io.jooby.LogConfigurer;
 import io.methvin.watcher.DirectoryWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -18,6 +19,12 @@ import java.util.Arrays;
 import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;
 
 public class DocApp extends Jooby {
+
+  static {
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
+  }
+
   {
     Path site = DocGenerator.basedir().resolve("asciidoc").resolve("site");
     assets("/*", site);

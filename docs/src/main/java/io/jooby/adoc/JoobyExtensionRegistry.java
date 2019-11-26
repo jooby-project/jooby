@@ -6,7 +6,7 @@
 package io.jooby.adoc;
 
 import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.extension.spi.ExtensionRegistry;
+import org.asciidoctor.jruby.extension.spi.ExtensionRegistry;
 
 public class JoobyExtensionRegistry implements ExtensionRegistry {
   @Override public void register(Asciidoctor asciidoctor) {
