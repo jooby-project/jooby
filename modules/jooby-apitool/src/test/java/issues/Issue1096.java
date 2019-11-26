@@ -81,7 +81,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        required: false\n"
         + "        type: \"string\"\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
@@ -155,7 +155,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        required: false\n"
         + "        type: \"file\"\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
@@ -229,7 +229,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        required: false\n"
         + "        type: \"file\"\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
@@ -296,7 +296,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        required: false\n"
         + "        type: \"string\"\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
@@ -350,7 +350,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        required: true\n"
         + "        type: \"string\"\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));

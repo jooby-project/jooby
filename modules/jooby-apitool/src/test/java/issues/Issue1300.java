@@ -33,7 +33,7 @@ public class Issue1300 extends ApiToolFeature {
         + "      operationId: \"getRoute\"\n"
         + "      parameters: []\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"int\"\n"
         + "          schema:\n"
         + "            type: \"integer\"\n"
@@ -45,7 +45,7 @@ public class Issue1300 extends ApiToolFeature {
         + "      operationId: \"getSubroutehello\"\n"
         + "      parameters: []\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes), false));

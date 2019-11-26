@@ -42,7 +42,7 @@ public class Issue1182 extends ApiToolFeature {
         + "        required: false\n"
         + "        type: \"string\"\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n", yaml(swagger(routes), false));
   }
 

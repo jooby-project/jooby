@@ -41,7 +41,7 @@ public class Issue1072 extends ApiToolFeature {
         + "      operationId: \"get\"\n"
         + "      parameters: []\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"Person\"\n"
         + "          schema:\n"
         + "            $ref: \"#/definitions/Person\"\n"

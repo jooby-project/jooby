@@ -35,7 +35,7 @@ public class Issue1073 extends ApiToolFeature {
         + "        type: \"string\"\n"
         + "        format: \"date-time\"\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"News\"\n"
         + "          schema:\n"
         + "            $ref: \"#/definitions/News\"\n"

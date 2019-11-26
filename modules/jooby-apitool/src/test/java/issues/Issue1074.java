@@ -63,7 +63,7 @@ public class Issue1074 extends ApiToolFeature {
         + "        type: \"integer\"\n"
         + "        format: \"int32\"\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));

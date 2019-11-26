@@ -33,7 +33,7 @@ public class Issue1276 extends ApiToolFeature {
         + "      operationId: \"/Controller1276.foo\"\n"
         + "      parameters: []\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n"
@@ -44,7 +44,7 @@ public class Issue1276 extends ApiToolFeature {
         + "      operationId: \"getNamespacefoo\"\n"
         + "      parameters: []\n"
         + "      responses:\n"
-        + "        200:\n"
+        + "        \"200\":\n"
         + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes), false));
