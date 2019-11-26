@@ -17,7 +17,7 @@ public class SvgSpritesFileSetTest {
 
   @Test
   public void cssPath() throws Exception {
-    assertEquals(Paths.get("target", "css", "sprite.css").toString(),
+    assertEquals(Paths.get("target", "css").toString() + "/sprite.css",
         new SvgSprites()
             .set("spritePath", Paths.get("target", "css").toString())
             .cssPath());
@@ -30,7 +30,7 @@ public class SvgSpritesFileSetTest {
 
   @Test
   public void spritePath() throws Exception {
-    assertEquals(Paths.get("target", "css", "sprite.svg").toString(),
+    assertEquals(Paths.get("target", "css").toString() + "/sprite.svg",
         new SvgSprites()
             .set("spritePath", Paths.get("target", "css").toString())
             .spritePath());
@@ -43,7 +43,7 @@ public class SvgSpritesFileSetTest {
 
   @Test
   public void spritePrefix() throws Exception {
-    assertEquals(Paths.get("target", "css", "p-sprite.svg").toString(),
+    assertEquals(Paths.get("target", "css").toString() + "/p-sprite.svg",
         new SvgSprites()
             .set("prefix", "p")
             .set("spritePath", Paths.get("target", "css").toString())
@@ -58,14 +58,14 @@ public class SvgSpritesFileSetTest {
 
   @Test
   public void spriteName() throws Exception {
-    assertEquals(Paths.get("target", "css", "p-n-sprite.svg").toString(),
+    assertEquals(Paths.get("target", "css").toString() + "/p-n-sprite.svg",
         new SvgSprites()
             .set("prefix", "p")
             .set("name", "n")
             .set("spritePath", Paths.get("target", "css").toString())
             .spritePath());
 
-    assertEquals(Paths.get("target", "css", "n-sprite.svg").toString(),
+    assertEquals(Paths.get("target", "css").toString() + "/n-sprite.svg",
         new SvgSprites()
             .set("name", "n")
             .set("spritePath", Paths.get("target", "css").toString())
@@ -74,7 +74,7 @@ public class SvgSpritesFileSetTest {
 
   @Test
   public void cssPrefix() throws Exception {
-    assertEquals(Paths.get("target", "css", "p-sprite.css").toString(),
+    assertEquals(Paths.get("target", "css").toString() + "/p-sprite.css",
         new SvgSprites()
             .set("prefix", "p")
             .set("spritePath", Paths.get("target", "css").toString())

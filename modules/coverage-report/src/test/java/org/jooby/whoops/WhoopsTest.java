@@ -47,7 +47,7 @@ public class WhoopsTest {
 
   @Test
   public void locationOf() {
-    assertTrue(new File(Whoops.locationOf(Whoops.class)).exists());
+    assertTrue(Whoops.locationOf(Whoops.class) + " file does not exist", new File(Whoops.locationOf(Whoops.class)).exists());
 
     assertEquals("rt.jar", Whoops.locationOf(Object.class));
   }

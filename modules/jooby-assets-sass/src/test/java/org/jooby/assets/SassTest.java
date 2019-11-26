@@ -1,8 +1,11 @@
 package org.jooby.assets;
 
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.hamcrest.core.StringStartsWith;
 import org.junit.Test;
 
 import com.typesafe.config.ConfigFactory;
@@ -204,14 +207,14 @@ public class SassTest {
                 "  color: $primary-color;\n" +
                 "}\n",
             ConfigFactory.empty());
-    assertTrue(output.startsWith(".foo {\n" +
-        "  color: #fff; }\n" +
-        "\n" +
-        "body {\n" +
-        "  font: 100% Helvetica, sans-serif;\n" +
-        "  color: #333; }\n" +
-        "\n" +
-        "/*# sourceMappingURL=data:application/json;base64,ewoJInZlcnNpb24iOiAzLAoJImZpbGUiOiAiLi4vLi4v"));
+    assertThat(output, startsWith(".foo {\n" +
+            "  color: #fff; }\n" +
+            "\n" +
+            "body {\n" +
+            "  font: 100% Helvetica, sans-serif;\n" +
+            "  color: #333; }\n" +
+            "\n" +
+            "/*# sourceMappingURL=data:application/json;base64,ewoJInZlcnNpb24iOiAzLAoJImZpbGUiOiAiL")); // include up to "file": "
   }
 
   @Test
