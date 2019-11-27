@@ -87,7 +87,7 @@
   <okhttp.version>4.2.2</okhttp.version>
   <pebble.version>3.1.1</pebble.version>
   <plexus-utils.version>3.3.0</plexus-utils.version>
-  <reactor.version>3.3.0.RELEASE</reactor.version>
+  <reactor.version>3.3.1.RELEASE</reactor.version>
   <rest-assured.version>4.1.2</rest-assured.version>
   <rocker.version>1.2.2</rocker.version>
   <rxjava.version>2.2.14</rxjava.version>
