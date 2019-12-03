@@ -169,11 +169,10 @@ public class AssetHandler implements Route.Handler {
     return null;
   }
 
-  @Override public Route.Handler setRoute(Route route) {
+  @Override public void setRoute(Route route) {
     List<String> keys = route.getPathKeys();
     this.filekey = keys.size() == 0 ? route.getPattern().substring(1) : keys.get(0);
     // NOTE: It send an inputstream we don't need a renderer
     route.setReturnType(Context.class);
-    return this;
   }
 }

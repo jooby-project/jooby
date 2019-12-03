@@ -145,8 +145,8 @@
   <modules>
     <module>jooby</module>
     <module>modules</module>
-    <module>examples</module>
     <module>tests</module>
+    <module>examples</module>
     <module>docs</module>
   </modules>
 
@@ -287,6 +287,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-weld</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-pac4j</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -804,12 +810,6 @@
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-jwt</artifactId>
-        <version>${pac4j.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.pac4j</groupId>
-        <artifactId>pac4j-core</artifactId>
         <version>${pac4j.version}</version>
       </dependency>
 

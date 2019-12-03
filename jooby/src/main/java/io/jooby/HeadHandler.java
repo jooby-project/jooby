@@ -26,8 +26,7 @@ public class HeadHandler implements Route.Decorator {
     return ctx -> next.apply(ctx);
   }
 
-  @Nonnull @Override public Route.Decorator setRoute(@Nonnull Route route) {
+  @Nonnull @Override public void setRoute(@Nonnull Route route) {
     route.setHttpHead(true);
-    return this;
   }
 }

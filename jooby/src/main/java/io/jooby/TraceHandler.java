@@ -41,8 +41,7 @@ public class TraceHandler implements Route.Decorator {
     };
   }
 
-  @Nonnull @Override public Route.Decorator setRoute(@Nonnull Route route) {
+  @Nonnull @Override public void setRoute(@Nonnull Route route) {
     route.setHttpTrace(true);
-    return this;
   }
 }

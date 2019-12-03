@@ -54,7 +54,7 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Decorator extends Serializable {
+  public interface Decorator extends Serializable, Aware {
     /**
      * Chain the decorator within next handler.
      *
@@ -81,17 +81,6 @@ public class Route {
      */
     @Nonnull default Handler then(@Nonnull Handler next) {
       return ctx -> apply(next).apply(ctx);
-    }
-
-    /**
-     * Allows a handler to listen for route metadata.
-     *
-     * @param route Route metadata.
-     * @return This handler.
-     */
-    default @Nonnull Decorator setRoute(@Nonnull Route route) {
-      // NOOP
-      return this;
     }
   }
 
@@ -211,24 +200,22 @@ public class Route {
         throws Exception;
   }
 
+  public interface Aware {
+    /**
+     * Allows a handler to listen for route metadata.
+     *
+     * @param route Route metadata.
+     */
+    default void setRoute(Route route) {}
+  }
+
   /**
    * Route handler here is where the application logic lives.
    *
    * @author edgar
    * @since 2.0.0
    */
-  public interface Handler extends Serializable {
-
-    /**
-     * Allows a handler to listen for route metadata.
-     *
-     * @param route Route metadata.
-     * @return This handler.
-     */
-    default @Nonnull Handler setRoute(@Nonnull Route route) {
-      // NOOP
-      return this;
-    }
+  public interface Handler extends Serializable, Aware {
 
     /**
      * Execute application code.

@@ -134,9 +134,8 @@ public class CorsHandler implements Route.Decorator {
     }
   }
 
-  @Nonnull @Override public Route.Decorator setRoute(@Nonnull Route route) {
+  @Nonnull @Override public void setRoute(@Nonnull Route route) {
     route.setHttpOptions(true);
-    return this;
   }
 
   private boolean isPreflight(final Context ctx) {

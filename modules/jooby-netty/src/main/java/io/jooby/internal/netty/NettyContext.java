@@ -202,7 +202,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return query;
   }
 
-  @Nonnull @Override public Formdata form() {
+    @Nonnull @Override public Formdata form() {
     if (form == null) {
       form = Formdata.create(this);
       decodeForm(req, form);
@@ -559,12 +559,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Nonnull @Override public Context send(StatusCode statusCode) {
+    setResponseCode(statusCode);
     responseStarted = true;
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(CONTENT_LENGTH, "0");
     }
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
-        HttpResponseStatus.valueOf(statusCode.value()), Unpooled.EMPTY_BUFFER, setHeaders,
+        status, Unpooled.EMPTY_BUFFER, setHeaders,
         NO_TRAILING);
     ctx.writeAndFlush(rsp, promise(this));
     return this;

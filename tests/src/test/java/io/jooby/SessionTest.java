@@ -8,6 +8,7 @@ import okhttp3.Response;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -35,7 +36,9 @@ public class SessionTest {
       });
       client.header("Cookie", "jooby.sid=1234missing");
       client.get("/findSession", rsp -> {
-        assertEquals("[]", rsp.headers("Set-Cookie").toString());
+        assertEquals(
+            "[]",
+            rsp.headers("Set-Cookie").toString());
         assertEquals("false", rsp.body().string());
       });
 
@@ -45,24 +48,27 @@ public class SessionTest {
 
         client.header("Cookie", "jooby.sid=" + sid);
         client.get("/findSession", findSession -> {
-          assertEquals("[]", findSession.headers("Set-Cookie").toString());
+          assertEquals("[jooby.sid=" + sid + ";Path=/;HttpOnly]",
+              findSession.headers("Set-Cookie").toString());
           assertEquals("true", findSession.body().string());
         });
         client.header("Cookie", "jooby.sid=" + sid);
         client.get("/putSession", putSession -> {
-          assertEquals("[]", putSession.headers("Set-Cookie").toString());
+          assertEquals("[jooby.sid=" + sid + ";Path=/;HttpOnly]",
+              putSession.headers("Set-Cookie").toString());
           assertEquals("bar", putSession.body().string());
         });
         client.header("Cookie", "jooby.sid=" + sid);
         client.get("/getSession", putSession -> {
-          assertEquals("[]", putSession.headers("Set-Cookie").toString());
+          assertEquals("[jooby.sid=" + sid + ";Path=/;HttpOnly]",
+              putSession.headers("Set-Cookie").toString());
           assertEquals("bar", putSession.body().string());
         });
         client.header("Cookie", "jooby.sid=" + sid);
         client.get("/destroySession", putSession -> {
-          assertEquals(
-              "[jooby.sid=;Path=/;HttpOnly;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT]",
-              putSession.headers("Set-Cookie").toString());
+          assertEquals("jooby.sid=" + sid(rsp, "jooby.sid=")
+                  + ";Path=/;HttpOnly;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT",
+              putSession.headers("Set-Cookie").get(0));
           assertEquals("false", putSession.body().string());
         });
         client.header("Cookie", "jooby.sid=" + sid);
@@ -272,7 +278,7 @@ public class SessionTest {
       app.setSessionStore(new JwtSessionStore("7a85c3b6-3ef0-4625-82d3-a1da36094804"));
       app.get("/session", ctx -> {
         Session session = ctx.session();
-        session.put("foo" , "bar");
+        session.put("foo", "bar");
         return session.toMap();
       });
 

@@ -58,6 +58,23 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-pac4j</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.pac4j/pac4j-oauth -->
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oauth</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.pac4j/pac4j-oidc -->
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oidc</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-hikari</artifactId>
       <version>${jooby.version}</version>
     </dependency>

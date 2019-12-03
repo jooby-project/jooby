@@ -40,6 +40,15 @@ public class ForwardingContext implements Context {
     this.ctx = context;
   }
 
+  @Nullable @Override public <T> T getUser() {
+    return ctx.getUser();
+  }
+
+  @Nonnull @Override public Context setUser(@Nullable Object user) {
+    ctx.setUser(user);
+    return this;
+  }
+
   @Override public boolean isSecure() {
     return ctx.isSecure();
   }
@@ -216,6 +225,14 @@ public class ForwardingContext implements Context {
 
   @Nonnull @Override public String getRequestURL(boolean useProxy) {
     return ctx.getRequestURL(useProxy);
+  }
+
+  @Nonnull @Override public String getRequestURL(@Nonnull String path) {
+    return ctx.getRequestURL(path);
+  }
+
+  @Nonnull @Override public String getRequestURL(@Nonnull String path, boolean useProxy) {
+    return ctx.getRequestURL(path, useProxy);
   }
 
   @Override @Nonnull public String getProtocol() {

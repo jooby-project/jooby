@@ -1,6 +1,6 @@
+* map exception names to HTTP Status Code (Forbidden => 403, Unauthorized => 401, etc...)
 * review toString on Value API (removal of QueryStringValue?)
 * tests and coverage
-* make reset headers on error configurable
 
 Jetty close exception:
 MvcTest#mvcDispatch

@@ -398,12 +398,18 @@ public interface Context extends Registry {
    */
   long getRequestLength();
 
+  @Nullable <T> T getUser();
+
+  @Nonnull Context setUser(@Nullable Object user);
+
   /**
    * Recreates full/entire request url using the <code>Host</code> header.
    *
    * @return Full/entire request url using the <code>Host</code> header.
    */
   @Nonnull String getRequestURL();
+
+  @Nonnull String getRequestURL(@Nonnull String path);
 
   /**
    * Recreates full/entire request url using the <code>X-Forwarded-Host</code> when present
@@ -414,6 +420,8 @@ public interface Context extends Registry {
    *     or fallback to <code>Host</code> header when missing.
    */
   @Nonnull String getRequestURL(boolean useProxy);
+
+  @Nonnull String getRequestURL(@Nonnull String path, boolean useProxy);
 
   /**
    * The IP address of the client or last proxy that sent the request.

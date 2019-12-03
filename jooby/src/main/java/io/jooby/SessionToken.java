@@ -45,15 +45,16 @@ public interface SessionToken {
     }
 
     @Override public void saveToken(@Nonnull Context ctx, @Nonnull String token) {
-      String existingId = findToken(ctx);
+      // FIXME: Review, bc we don;t need this
+      //  String existingId = findToken(ctx);
       // write cookie for new or expiring session
-      if (existingId == null || cookie.getMaxAge() > 0) {
-        ctx.setResponseCookie(cookie.clone().setValue(token));
-      }
+      //if (existingId == null || cookie.getMaxAge() > 0) {
+      ctx.setResponseCookie(cookie.clone().setValue(token));
+      //}
     }
 
     @Override public void deleteToken(@Nonnull Context ctx, @Nonnull String token) {
-      ctx.setResponseCookie(cookie.clone().setMaxAge(0));
+      ctx.setResponseCookie(cookie.clone().setValue(token).setMaxAge(0));
     }
   }
 

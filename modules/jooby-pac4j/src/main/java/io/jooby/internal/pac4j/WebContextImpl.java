@@ -1,9 +1,14 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.pac4j;
 
 import io.jooby.Context;
 import io.jooby.Value;
+import io.jooby.pac4j.Pac4jContext;
 import org.pac4j.core.context.Cookie;
-import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 
 import java.util.Collection;
@@ -15,24 +20,25 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Pac4jContext implements WebContext {
+public class WebContextImpl implements Pac4jContext {
 
   private Context context;
 
-  public Pac4jContext(Context context) {
+  public WebContextImpl(Context context) {
     this.context = context;
   }
 
+  @Override
   public Context getContext() {
     return context;
   }
 
   @Override public SessionStore getSessionStore() {
-    return new Pac4jSessionStore(this);
+    return new SessionStoreImpl();
   }
 
   @Override public Optional<String> getRequestParameter(String name) {
-    return Stream.of(context.path(), context.query(), context.form(), context.multipart())
+    return Stream.of(context.path(), context.query(), context.multipart())
         .map(v -> v.get(name))
         .filter(v -> !v.isMissing())
         .findFirst()
@@ -43,7 +49,6 @@ public class Pac4jContext implements WebContext {
     Map<String, String[]> all = new LinkedHashMap<>();
     parameters(context.path().toMultimap(), all::put);
     parameters(context.query().toMultimap(), all::put);
-    parameters(context.form().toMultimap(), all::put);
     parameters(context.multipart().toMultimap(), all::put);
     return all;
   }
@@ -82,11 +87,11 @@ public class Pac4jContext implements WebContext {
   }
 
   @Override public String getServerName() {
-    return context.getHost();
+    return context.getServerHost();
   }
 
   @Override public int getServerPort() {
-    return context.getPort();
+    return context.getServerPort();
   }
 
   @Override public String getScheme() {

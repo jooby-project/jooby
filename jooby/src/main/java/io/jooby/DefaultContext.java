@@ -50,6 +50,15 @@ public interface DefaultContext extends Context {
     return getRouter().require(key);
   }
 
+  @Nullable @Override default <T> T getUser() {
+    return (T) getAttributes().get("user");
+  }
+
+  @Nonnull @Override default Context setUser(@Nullable Object user) {
+    getAttributes().put("user", user);
+    return this;
+  }
+
   /**
    * Get an attribute by his key. This is just an utility method around {@link #getAttributes()}.
    * This method look first in current context and fallback to application attributes.
@@ -200,7 +209,15 @@ public interface DefaultContext extends Context {
     return getRequestURL(false);
   }
 
+  @Override default @Nonnull String getRequestURL(@Nonnull String path) {
+    return getRequestURL(path, false);
+  }
+
   @Override default @Nonnull String getRequestURL(boolean useProxy) {
+    return getRequestURL("", useProxy);
+  }
+
+  @Override default @Nonnull String getRequestURL(@Nonnull String path, boolean useProxy) {
     String scheme, hostAndPort;
     if (useProxy && !header("X-Forwarded-Host").isMissing()) {
       scheme = header("X-Forwarded-Proto").value(getScheme());
@@ -223,7 +240,19 @@ public interface DefaultContext extends Context {
     if (port.length() > 0 && !port.equals("80") && !port.equals("443")) {
       url.append(":").append(port);
     }
-    url.append(pathString());
+    if (path == null || path.length() == 0) {
+      url.append(pathString());
+    } else {
+      String contextPath = getContextPath();
+      if (contextPath.equals("/")) {
+        url.append(path);
+      } else {
+        if (!path.startsWith(contextPath)) {
+          url.append(contextPath);
+        }
+        url.append(path);
+      }
+    }
     url.append(queryString());
 
     return url.toString();
