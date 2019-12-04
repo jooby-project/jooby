@@ -11,17 +11,18 @@ import io.jooby.SneakyThrows;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.context.internal.ManagedSessionContext;
 
 import javax.annotation.Nonnull;
 
 /**
- * Attach {@link Session} and {@link javax.persistence.EntityManager} to the current request.
+ * Attaches a {@link Session} and {@link javax.persistence.EntityManager} to the current request
+ * via {@link SessionRequest}.
+ *
  * The route pipeline runs inside a transaction which is commit on success or rollback in case of
  * exception.
  *
- * Once route pipeline is executed the session/entityManager is detached from current request and
- * closed it.
+ * Applies the {@link SessionRequest} decorator, so there is no need to use session request in
+ * addition to transactional request.
  *
  * Usage:
  *
@@ -41,15 +42,12 @@ import javax.annotation.Nonnull;
  * }
  * }</pre>
  *
- * NOTE: This is NOT the open session in view pattern. Persistent objects must be fully initialized
- * to be encoded/rendered to the client. Otherwise, Hibernate results in
- * LazyInitializationException.
- *
  * @author edgar
  * @since 2.0.0
  */
 public class TransactionalRequest implements Route.Decorator {
 
+  private SessionRequest sessionRequest;
   private ServiceKey<SessionFactory> key;
 
   /**
@@ -58,6 +56,7 @@ public class TransactionalRequest implements Route.Decorator {
    * @param name Name of the session factory.
    */
   public TransactionalRequest(@Nonnull String name) {
+    sessionRequest = new SessionRequest(name);
     key = ServiceKey.key(SessionFactory.class, name);
   }
 
@@ -65,16 +64,16 @@ public class TransactionalRequest implements Route.Decorator {
    * Creates a new transactional request and attach to the default/first session factory registered.
    */
   public TransactionalRequest() {
+    sessionRequest = new SessionRequest();
     key = ServiceKey.key(SessionFactory.class);
   }
 
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
-    return ctx -> {
+    return sessionRequest.apply(ctx -> {
       SessionFactory sessionFactory = ctx.require(key);
       Transaction trx = null;
       try {
-        Session session = sessionFactory.openSession();
-        ManagedSessionContext.bind(session);
+        Session session = sessionFactory.getCurrentSession();
         trx = session.getTransaction();
         trx.begin();
 
@@ -83,18 +82,14 @@ public class TransactionalRequest implements Route.Decorator {
         if (trx.isActive()) {
           trx.commit();
         }
+
         return result;
-      } catch (Throwable x) {
+      } catch (Throwable ex) {
         if (trx != null && trx.isActive()) {
           trx.rollback();
         }
-        throw SneakyThrows.propagate(x);
-      } finally {
-        Session session = ManagedSessionContext.unbind(sessionFactory);
-        if (session != null) {
-          session.close();
-        }
+        throw SneakyThrows.propagate(ex);
       }
-    };
+    });
   }
 }
