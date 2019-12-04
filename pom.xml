@@ -73,7 +73,7 @@
     <okhttp.version>4.2.2</okhttp.version>
     <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
     <json.version>20190722</json.version>
-    <pac4j.version>4.0.0-RC1</pac4j.version>
+    <pac4j.version>4.0.0-RC2</pac4j.version>
 
     <commons-io.version>2.6</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
