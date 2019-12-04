@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pac4j Starter</title>
+    <link rel="stylesheet" href="{{contextPath}}/css/style.css">
+</head>
+
+<body>
+<form action="/callback?client_name=FormClient" method="post">
+    <div id="wrapper">
+        <div class="join">Pac4j Starter</div>
+        <div class="lock"></div>
+        <div class="clr"></div>
+        <div class="login-options">Choose on of the following sign up methods.</div>
+        <a class="twitter" href="{{contextPath}}/twitter">Twitter</a>
+        <a class="facebook" href="{{contextPath}}/facebook">Facebook</a>
+        <a class="google" href="{{contextPath}}/google">Google+</a>
+        <div class="clr">
+            <hr/>
+        </div>
+        <div class="mail-text">Or sign up using your email address.</div>
+        <div class="forms">
+            <input name="username" type="text" placeholder="Enter your email address..." size="70" autofocus="true" value="">
+            <input name="password" type="password" placeholder="Enter a password..." size="70" value="">
+        </div>
+        <button type="submit" class="create-acc">Create Account</button>
+    </div>
+</form>
+</body>
+
+</html>

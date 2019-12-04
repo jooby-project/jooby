@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pac4j Starter</title>
+    <link rel="stylesheet" href="{{contextPath}}/css/style.css">
+</head>
+
+<body>
+
+<div id="wrapper">
+    <div class="join">Welcome {{profile.displayName}}!</div>
+    <div class="lock"></div>
+    <div class="clr">
+        <hr/>
+    </div>
+{{#if profile.pictureUrl}}
+    <div class="clr">
+        <img src="{{profile.pictureUrl}}" />
+    </div>
+{{else}}
+    <div class="clr">
+        <img src="{{contextPath}}/images/defaultprofile.png" />
+    </div>
+{{/if}}
+    <div class="clr">
+        <hr/>
+    </div>
+    <div class="mail-text">ID: {{profile.id}}</div>
+{{#if profile.email}}
+    <div class="mail-text">E-mail: {{profile.email}}</div>
+{{/if}}
+    <div class="mail-text"><a href="{{contextPath}}/generate-token">Generate JWT Token</a></div>
+    <a class="create-acc" href="{{contextPath}}/logout?url={{contextPath}}{{path}}">Logout</a>
+</div>
+</body>
+
+</html>

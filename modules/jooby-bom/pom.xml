@@ -16,13 +16,13 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.3.1</jooby.version>
+  <jooby.version>2.3.2-SNAPSHOT</jooby.version>
   <HikariCP.version>3.4.1</HikariCP.version>
   <archetype-packaging.version>3.1.2</archetype-packaging.version>
   <asm.version>7.2</asm.version>
   <auto-service.version>1.0-rc6</auto-service.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
-  <checkstyle.version>8.19</checkstyle.version>
+  <checkstyle.version>8.27</checkstyle.version>
   <commons-io.version>2.6</commons-io.version>
   <compile-testing.version>0.18</compile-testing.version>
   <config.version>1.4.0</config.version>
@@ -47,8 +47,8 @@
   <jdbi.version>3.11.1</jdbi.version>
   <jetty.version>9.4.24.v20191120</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jooby-maven-plugin.version>2.3.1</jooby-maven-plugin.version>
-  <jooby.version>2.3.1</jooby.version>
+  <jooby-maven-plugin.version>2.3.2-SNAPSHOT</jooby-maven-plugin.version>
+  <jooby.version>2.3.2-SNAPSHOT</jooby.version>
   <json.version>20190722</json.version>
   <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -66,7 +66,7 @@
   <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
   <maven-core.version>3.6.3</maven-core.version>
   <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-  <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
+  <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
   <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
   <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
   <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
@@ -85,6 +85,7 @@
   <netty.version>4.1.43.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <okhttp.version>4.2.2</okhttp.version>
+  <pac4j.version>4.0.0-RC2</pac4j.version>
   <pebble.version>3.1.1</pebble.version>
   <plexus-utils.version>3.3.0</plexus-utils.version>
   <reactor.version>3.3.1.RELEASE</reactor.version>
@@ -186,6 +187,11 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-weld</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-pac4j</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
@@ -562,6 +568,56 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-core</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-http</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-cas</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-config</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-jwt</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oauth</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oidc</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-openid</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-saml</artifactId>
+      <version>${pac4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-ldap</artifactId>
+      <version>${pac4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.mojo</groupId>
