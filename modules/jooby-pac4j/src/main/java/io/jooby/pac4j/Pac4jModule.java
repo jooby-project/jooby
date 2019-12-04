@@ -5,6 +5,7 @@
  */
 package io.jooby.pac4j;
 
+import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.Route;
@@ -44,6 +45,41 @@ import java.util.stream.Stream;
 
 import static java.util.Optional.ofNullable;
 
+/**
+ * Pac4j module: https://jooby.io/modules/pac4j.
+ *
+ * Usage:
+ *
+ * - Add pac4j dependency
+ *
+ * - Add pac4j client dependency, like oauth, openid, etc... (Optional)
+ *
+ * - Install them
+ *
+ * <pre>{@code
+ * {
+ *   install(new Pac4jModule());
+ * }
+ * }</pre>
+ *
+ * - Use it
+ *
+ * <pre>{@code
+ * {
+ *
+ *   get("/", ctx -> {
+ *     UserProfile user = ctx.getUser();
+ *   });
+ *
+ * }
+ * }</pre>
+ *
+ * Previous example install a simple login form and give you access to profile details
+ * via {@link Context#getUser()}.
+ *
+ * @author edgar
+ * @since 2.4.0.
+ */
 public class Pac4jModule implements Extension {
 
   private final Config pac4j;
@@ -52,23 +88,41 @@ public class Pac4jModule implements Extension {
 
   private Map<String, List<Object>> clientMap;
 
+  /**
+   * Creates a new pac4j module.
+   */
   public Pac4jModule() {
-    this(new Pac4jOptions());
+    this(new Pac4jOptions(), new Config());
   }
 
-  public Pac4jModule(Pac4jOptions options, Client... clients) {
-    this(options, new Config(clients));
-  }
-
+  /**
+   * Creates a new pac4j module.
+   *
+   * @param options Options.
+   * @param pac4j Pac4j advance configuration options.
+   */
   public Pac4jModule(Pac4jOptions options, Config pac4j) {
     this.options = options;
     this.pac4j = pac4j;
   }
 
+  /**
+   * Register a default security filter.
+   *
+   * @param provider Client factory.
+   * @return This module.
+   */
   public Pac4jModule client(Function<com.typesafe.config.Config, Client> provider) {
     return client("*", provider);
   }
 
+  /**
+   * Register an specific/alternative security filter under the given path.
+   *
+   * @param pattern Login pattern.
+   * @param provider Client factory.
+   * @return This module.
+   */
   public Pac4jModule client(String pattern, Function<com.typesafe.config.Config, Client> provider) {
     if (clientMap == null) {
       clientMap = initializeClients(pac4j.getClients());
@@ -125,7 +179,8 @@ public class Pac4jModule implements Extension {
         .orElse(contextPath + options.getCallbackPath()));
     /** Default URL resolver if none was set at client level: */
     clients.setUrlResolver(
-        ofNullable(clients.getUrlResolver()).orElseGet(()-> newUrlResolver(options.isTrustProxy())));
+        ofNullable(clients.getUrlResolver())
+            .orElseGet(() -> newUrlResolver(options.isTrustProxy())));
 
     /** Clients are ready, set all them: */
     clients.setClients(
@@ -213,26 +268,56 @@ public class Pac4jModule implements Extension {
     }
   }
 
+  /**
+   * Creates a default logout logic.
+   *
+   * @return Default logout logic.
+   */
   public static LogoutLogic newLogoutLogic() {
     return new DefaultLogoutLogic();
   }
 
+  /**
+   * Default action adapter.
+   *
+   * @return Default action adapter.
+   */
   public static HttpActionAdapter newActionAdapter() {
     return new ActionAdapterImpl();
   }
 
+  /**
+   * Default security logic and optionally specify the pattern to excludes while saving user
+   * requested urls.
+   *
+   * @param excludes Pattern to ignores.
+   * @return Default security logic.
+   */
   public static DefaultSecurityLogic newSecurityLogic(Set<String> excludes) {
     DefaultSecurityLogic securityLogic = new DefaultSecurityLogic();
     securityLogic.setSavedRequestHandler(new SavedRequestHandlerImpl(excludes));
     return securityLogic;
   }
 
+  /**
+   * Default callback logic and optionally specify the pattern to excludes while saving user
+   * requested urls.
+   *
+   * @param excludes Pattern to ignores.
+   * @return Default callback logic.
+   */
   public static final DefaultCallbackLogic newCallbackLogic(Set<String> excludes) {
     DefaultCallbackLogic callbackLogic = new DefaultCallbackLogic();
     callbackLogic.setSavedRequestHandler(new SavedRequestHandlerImpl(excludes));
     return callbackLogic;
   }
 
+  /**
+   * Default url resolver.
+   *
+   * @param trustProxy When true, we reconstruct urls from X-Proto-* header.
+   * @return Default url resolver.
+   */
   public static final UrlResolver newUrlResolver(boolean trustProxy) {
     return new UrlResolverImpl(trustProxy);
   }

@@ -206,7 +206,8 @@ public class Route {
      *
      * @param route Route metadata.
      */
-    default void setRoute(Route route) {}
+    default void setRoute(Route route) {
+    }
   }
 
   /**
