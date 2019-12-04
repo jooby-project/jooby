@@ -61,7 +61,7 @@
     <boringssl.version>2.0.27.Final</boringssl.version>
 
     <!-- Reactive -->
-    <rxjava.version>2.2.14</rxjava.version>
+    <rxjava.version>2.2.15</rxjava.version>
     <reactor.version>3.3.1.RELEASE</reactor.version>
 
     <!-- javax -->
