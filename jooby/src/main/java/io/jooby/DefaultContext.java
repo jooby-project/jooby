@@ -70,7 +70,8 @@ public interface DefaultContext extends Context {
   @Override @Nonnull default <T> T attribute(@Nonnull String key) {
     T attribute = (T) getAttributes().get(key);
     if (attribute == null) {
-      attribute = getRouter().attribute(key);
+      Map<String, Object> globals = getRouter().getAttributes();
+      attribute = (T) globals.get(key);
     }
     return attribute;
   }

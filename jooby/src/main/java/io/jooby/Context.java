@@ -398,8 +398,20 @@ public interface Context extends Registry {
    */
   long getRequestLength();
 
+  /**
+   * Current user or <code>null</code> if none was set.
+   *
+   * @param <T> User type.
+   * @return Current user or <code>null</code> if none was set.
+   */
   @Nullable <T> T getUser();
 
+  /**
+   * Set current user.
+   *
+   * @param user Current user.
+   * @return This context.
+   */
   @Nonnull Context setUser(@Nullable Object user);
 
   /**
