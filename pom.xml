@@ -62,7 +62,7 @@
 
     <!-- Reactive -->
     <rxjava.version>2.2.14</rxjava.version>
-    <reactor.version>3.3.0.RELEASE</reactor.version>
+    <reactor.version>3.3.1.RELEASE</reactor.version>
 
     <!-- javax -->
     <javax.inject.version>1</javax.inject.version>
