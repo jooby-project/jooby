@@ -24,15 +24,18 @@ import java.util.stream.Collectors;
 
 public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
 
+  private String pattern;
+
   private Config config;
 
-  private final Pac4jOptions options;
+  private Pac4jOptions options;
 
   private String clients;
 
   private String authorizers;
 
-  public SecurityFilterImpl(Config config, Pac4jOptions options, List<Client> clients) {
+  public SecurityFilterImpl(String pattern, Config config, Pac4jOptions options, List<Client> clients) {
+    this.pattern = pattern;
     this.config = config;
     this.options = options;
     this.clients = clients.stream().map(it -> it.getName())
@@ -49,7 +52,17 @@ public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
   }
 
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
-    return ctx -> perform(Pac4jContext.create(ctx), new GrantAccessAdapterImpl(ctx, next));
+    return ctx -> {
+      if (pattern == null) {
+        return perform(Pac4jContext.create(ctx), new GrantAccessAdapterImpl(ctx, next));
+      } else {
+        if (ctx.matches(pattern)) {
+          return perform(Pac4jContext.create(ctx), new GrantAccessAdapterImpl(ctx, next));
+        } else {
+          return next.apply(ctx);
+        }
+      }
+    };
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {

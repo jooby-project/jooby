@@ -11,7 +11,7 @@
 
   <properties>
     <!-- Startup class -->
-    <application.class>app.App</application.class>
+    <application.class>starter.App</application.class>
 
     <jooby.version>2.3.2-SNAPSHOT</jooby.version>
 
@@ -29,12 +29,37 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-pac4j</artifactId>
+      <artifactId>jooby-handlebars</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-jackson</artifactId>
     </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-pac4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oauth</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oidc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-jwt</artifactId>
     </dependency>
 
     <!-- Tests -->

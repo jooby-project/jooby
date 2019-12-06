@@ -9,6 +9,7 @@ import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.Route;
+import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.internal.pac4j.ActionAdapterImpl;
 import io.jooby.internal.pac4j.CallbackFilterImpl;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -230,14 +232,20 @@ public class Pac4jModule implements Extension {
     for (Map.Entry<String, List<Client>> entry : allClients.entrySet()) {
       String pattern = entry.getKey();
       if (!pattern.equals("*")) {
-        application.get(pattern, new SecurityFilterImpl(pac4j, options, entry.getValue()));
+        List<String> keys = Router.pathKeys(pattern);
+        if (keys.size() == 0) {
+          application.get(pattern, new SecurityFilterImpl(null, pac4j, options, entry.getValue()));
+        } else {
+          application.decorator(new SecurityFilterImpl(pattern, pac4j, options, entry.getValue()));
+        }
       }
     }
 
     /** Is there is a global client, use it as decorator/filter (default client): */
     List<Client> defaultSecurityFilter = allClients.get("*");
     if (defaultSecurityFilter != null) {
-      application.decorator(new SecurityFilterImpl(pac4j, options, defaultSecurityFilter));
+      options.setDefaultClient(Optional.ofNullable(options.getDefaultClient()).orElse(defaultSecurityFilter.get(0).getName()));
+      application.decorator(new SecurityFilterImpl(null, pac4j, options, defaultSecurityFilter));
     }
 
     /** Logout configuration: */
