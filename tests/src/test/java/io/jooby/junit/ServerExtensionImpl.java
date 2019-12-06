@@ -16,6 +16,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -26,13 +27,13 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
 
   private static class ServerInfo implements Comparable<ServerInfo> {
     private final int index;
-    private Server server;
+    private Supplier<Server> server;
 
     private ExecutionMode mode;
 
     private String description;
 
-    public ServerInfo(Server server, ExecutionMode mode, int index, String description) {
+    public ServerInfo(Supplier<Server> server, ExecutionMode mode, int index, String description) {
       this.server = server;
       this.mode = mode;
       this.description = description;
@@ -98,8 +99,8 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
         .map(info -> invocationContext(info));
   }
 
-  private Server newServer(Class serverClass) {
-    return stream(ServiceLoader.load(Server.class).spliterator(), false)
+  private Supplier<Server> newServer(Class serverClass) {
+    return () -> stream(ServiceLoader.load(Server.class).spliterator(), false)
         .filter(s -> serverClass.isInstance(s))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Server not found: " + serverClass));

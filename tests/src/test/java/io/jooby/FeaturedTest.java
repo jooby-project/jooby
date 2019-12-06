@@ -1315,7 +1315,7 @@ public class FeaturedTest {
 
   @ServerTest
   public void silentFavicon(ServerTestRunner runner) {
-    runner.define(Jooby::new).ready(client -> {
+    runner.use(Jooby::new).ready(client -> {
       client.get("/favicon.ico", rsp -> {
         assertEquals(StatusCode.NOT_FOUND.value(), rsp.code());
       });
@@ -2730,6 +2730,47 @@ public class FeaturedTest {
       client.header("X-Forwarded-Host", "first,second");
       client.get("/x/somepath?useProxy=true", rsp -> {
         assertEquals("http://first/x/somepath?useProxy=true", rsp.body().string());
+      });
+    });
+  }
+
+  @ServerTest
+  public void shouldAccessToWebVariables(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.decorator(new WebVariables());
+
+      app.get("/webvars", ctx ->
+          Arrays.asList(ctx.attribute("contextPath"), ctx.attribute("path"), ctx.attribute("user"))
+      );
+    }).ready(client -> {
+      client.get("/webvars", rsp -> {
+        assertEquals("[, /webvars, null]", rsp.body().string().trim());
+      });
+    });
+
+    runner.define(app -> {
+      app.setContextPath("/app");
+
+      app.decorator(new WebVariables());
+
+      app.get("/webvars", ctx ->
+          Arrays.asList(ctx.attribute("contextPath"), ctx.attribute("path"), ctx.attribute("user"))
+      );
+    }).ready(client -> {
+      client.get("/app/webvars", rsp -> {
+        assertEquals("[/app, /app/webvars, null]", rsp.body().string().trim());
+      });
+    });
+
+    runner.define(app -> {
+      app.decorator(new WebVariables("scope"));
+
+      app.get("/webvars", ctx ->
+          Arrays.asList(ctx.attribute("scope.contextPath"), ctx.attribute("scope.path"), ctx.attribute("scope.user"))
+      );
+    }).ready(client -> {
+      client.get("/webvars", rsp -> {
+        assertEquals("[, /webvars, null]", rsp.body().string().trim());
       });
     });
   }

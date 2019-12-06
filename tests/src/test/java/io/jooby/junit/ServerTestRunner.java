@@ -19,7 +19,7 @@ public class ServerTestRunner {
 
   private final String testName;
 
-  private final Server server;
+  private final Supplier<Server> server;
 
   private final ExecutionMode executionMode;
 
@@ -27,14 +27,14 @@ public class ServerTestRunner {
 
   private boolean followRedirects = true;
 
-  public ServerTestRunner(String testName, Server server, ExecutionMode executionMode) {
+  public ServerTestRunner(String testName, Supplier<Server> server, ExecutionMode executionMode) {
     this.testName = testName;
     this.server = server;
     this.executionMode = executionMode;
   }
 
   public ServerTestRunner define(Consumer<Jooby> consumer) {
-    define(() -> {
+    use(() -> {
       Jooby app = new Jooby();
       consumer.accept(app);
       return app;
@@ -42,7 +42,7 @@ public class ServerTestRunner {
     return this;
   }
 
-  public ServerTestRunner define(Supplier<Jooby> provider) {
+  public ServerTestRunner use(Supplier<Jooby> provider) {
     this.provider = provider;
     return this;
   }
@@ -52,6 +52,7 @@ public class ServerTestRunner {
   }
 
   public void ready(SneakyThrows.Consumer2<WebClient, WebClient> onReady) {
+    Server server = this.server.get();
     try {
       System.setProperty("___app_name__", testName);
       Jooby app = provider.get();

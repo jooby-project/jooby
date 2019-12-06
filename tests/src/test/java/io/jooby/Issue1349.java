@@ -33,7 +33,7 @@ public class Issue1349 {
 
   @ServerTest
   public void issue1349(ServerTestRunner runner) {
-    runner.define(App1349::new)
+    runner.use(App1349::new)
         .ready(client -> {
           client.get("/1349", rsp -> {
             assertEquals(401, rsp.code());

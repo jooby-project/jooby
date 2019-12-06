@@ -8,15 +8,16 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 public class ServerParameterResolver implements ParameterResolver {
 
-  private final Server server;
+  private final Supplier<Server> server;
 
   private final ExecutionMode executionMode;
 
 
-  public ServerParameterResolver(Server server, ExecutionMode executionMode) {
+  public ServerParameterResolver(Supplier<Server> server, ExecutionMode executionMode) {
     this.server = server;
     this.executionMode = executionMode;
   }

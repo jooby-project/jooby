@@ -3,12 +3,10 @@ package io.jooby
 import io.jooby.internal.mvc.KotlinMvc
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
-import io.jooby.netty.Netty
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 
 class FeaturedKotlinTest {
 
@@ -27,7 +25,7 @@ class FeaturedKotlinTest {
 
   @ServerTest
   fun implicitContext(runner: ServerTestRunner) {
-    runner.define { ->
+    runner.use { ->
       Kooby {
         get("/") {
           ctx.send("Hello World!")
@@ -42,7 +40,7 @@ class FeaturedKotlinTest {
 
   @ServerTest
   fun coroutineNoSuspend(runner: ServerTestRunner) {
-    runner.define { ->
+    runner.use { ->
       Kooby {
         coroutine {
           get {
@@ -59,7 +57,7 @@ class FeaturedKotlinTest {
 
   @ServerTest
   fun coroutineSuspend(runner: ServerTestRunner) {
-    runner.define { ->
+    runner.use { ->
       Kooby {
         coroutine {
           get("/") {
@@ -77,7 +75,7 @@ class FeaturedKotlinTest {
 
   @ServerTest
   fun javaApiWithReactiveType(runner: ServerTestRunner) {
-    runner.define { ->
+    runner.use { ->
       Jooby().apply {
         get("/") {
           println(Thread.currentThread())
@@ -127,7 +125,7 @@ class FeaturedKotlinTest {
 
   @ServerTest
   fun suspendMvc(runner: ServerTestRunner) {
-    runner.define { ->
+    runner.use { ->
       Kooby {
         coroutine {
           mvc(SuspendMvc())
