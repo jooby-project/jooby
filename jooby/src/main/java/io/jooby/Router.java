@@ -536,6 +536,8 @@ public interface Router extends Registry {
    */
   @Nonnull Match match(@Nonnull Context ctx);
 
+  boolean match(@Nonnull String pattern, @Nonnull String path);
+
   /* Error handler: */
 
   /**

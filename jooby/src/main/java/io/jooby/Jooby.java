@@ -391,6 +391,10 @@ public class Jooby implements Router, Registry {
     return router.match(ctx);
   }
 
+  @Override public boolean match(@Nonnull String pattern, @Nonnull String path) {
+    return router.match(pattern, path);
+  }
+
   @Nonnull @Override
   public Jooby errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode) {

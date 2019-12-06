@@ -49,6 +49,10 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  @Override public boolean matches(@Nonnull String pattern) {
+    return ctx.matches(pattern);
+  }
+
   @Override public boolean isSecure() {
     return ctx.isSecure();
   }

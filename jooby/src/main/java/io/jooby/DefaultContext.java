@@ -59,6 +59,10 @@ public interface DefaultContext extends Context {
     return this;
   }
 
+  @Override default boolean matches(String pattern) {
+    return getRouter().match(pattern, pathString());
+  }
+
   /**
    * Get an attribute by his key. This is just an utility method around {@link #getAttributes()}.
    * This method look first in current context and fallback to application attributes.

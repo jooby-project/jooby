@@ -327,10 +327,9 @@ class $Chi implements RadixTree {
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Route findRoute(RouterMatch rctx, String method, String path) {
+    Route findRoute(RouterMatch rctx, String method, String search) {
       Node n = this;
       Node nn = n;
-      String search = path;
 
       for (int ntyp = 0; ntyp < nn.children.length; ntyp++) {
         Node[] nds = nn.children[ntyp];
@@ -641,6 +640,14 @@ class $Chi implements RadixTree {
   public RouterMatch find(Context context, MessageEncoder encoder,
       List<RadixTree> more) {
     return find(context, context.pathString(), encoder, more);
+  }
+
+  public boolean find(String method, String path) {
+    Route route = staticPaths.get(method + path);
+    if (route == null) {
+      return root.findRoute(new RouterMatch(), method, path) != null;
+    }
+    return true;
   }
 
   public RouterMatch find(Context context, String path, MessageEncoder encoder,

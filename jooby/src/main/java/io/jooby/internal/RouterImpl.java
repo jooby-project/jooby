@@ -105,6 +105,8 @@ public class RouterImpl implements Router {
     }
   }
 
+  private static final Route ROUTE_MARK = new Route(Router.GET, "/", null);
+
   private ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
@@ -528,6 +530,12 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
     return chi.find(ctx, ctx.pathString(), encoder, trees);
+  }
+
+  @Override public boolean match(@Nonnull String pattern, @Nonnull String path) {
+    $Chi chi = new $Chi();
+    chi.insert(Router.GET, pattern, ROUTE_MARK);
+    return chi.find(Router.GET, path);
   }
 
   @Nonnull @Override public Router errorCode(@Nonnull Class<? extends Throwable> type,

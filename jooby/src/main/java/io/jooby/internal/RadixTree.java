@@ -16,12 +16,18 @@ import java.util.function.Predicate;
 interface RadixTree {
   void insert(String method, String pattern, Route route);
 
+  boolean find(String method, String path);
+
   RouterMatch find(Context context, String path, MessageEncoder encoder, List<RadixTree> more);
 
   default RadixTree with(Predicate<Context> predicate) {
     return new RadixTree() {
       @Override public void insert(String method, String pattern, Route route) {
         RadixTree.this.insert(method, pattern, route);
+      }
+
+      @Override public boolean find(String method, String path) {
+        return RadixTree.this.find(method, path);
       }
 
       @Override
@@ -42,8 +48,14 @@ interface RadixTree {
 
   default RadixTree options(boolean ignoreCase, boolean ignoreTrailingSlash) {
     return new RadixTree() {
+
       @Override public void insert(String method, String pattern, Route route) {
         RadixTree.this.insert(method, pattern, route);
+      }
+
+      @Override public boolean find(String method, String path) {
+        return RadixTree.this
+            .find(method, Router.normalizePath(path, ignoreCase, ignoreTrailingSlash));
       }
 
       @Override public RouterMatch find(Context context, String path, MessageEncoder encoder,

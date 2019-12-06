@@ -178,6 +178,8 @@ public interface Context extends Registry {
    */
   @Nonnull Route getRoute();
 
+  boolean matches(@Nonnull String pattern);
+
   /**
    * Set matching route. This is part of public API, but shouldn't be use by application code.
    *
