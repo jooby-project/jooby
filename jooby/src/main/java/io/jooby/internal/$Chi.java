@@ -11,10 +11,15 @@ import io.jooby.Route;
 import io.jooby.Router;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class $Chi implements RadixTree {
   private static final int ntStatic = 0;// /home
@@ -22,10 +27,144 @@ class $Chi implements RadixTree {
   private static final int ntParam = 2;                // /{user}
   private static final int ntCatchAll = 3;               // /api/v1/*
 
+  private static int NODE_SIZE = ntCatchAll + 1;
+
+  static final StaticRoute NO_MATCH = new StaticRoute(Collections.emptyMap());
+
+  static final char ZERO_CHAR = (char) 0;
+
+  static class StaticRoute {
+    private final Map<String, Route> methods;
+
+    public StaticRoute(Map<String, Route> methods) {
+      this.methods = methods;
+    }
+
+    public StaticRoute() {
+      this(new ConcurrentHashMap<>(Router.METHODS.size()));
+    }
+
+    public void put(String method, Route route) {
+      methods.put(method, route);
+    }
+  }
+
+  static class ZeroCopyString {
+    public static final ZeroCopyString EMPTY = new ZeroCopyString(new char[0], 0, 0);
+
+    private int offset;
+    private int length;
+    private int hash = 0;
+    private char[] value;
+
+    public ZeroCopyString(String source) {
+      this.offset = 0;
+      this.length = source.length();
+      this.value = source.toCharArray();
+    }
+
+    @Override public boolean equals(Object anObject) {
+      if (this == anObject) {
+        return true;
+      }
+      if (anObject instanceof ZeroCopyString) {
+        ZeroCopyString anotherString = (ZeroCopyString) anObject;
+        int n = length;
+        if (n == anotherString.length) {
+          char v1[] = value;
+          char v2[] = anotherString.value;
+          int i = 0;
+          while (n-- != 0) {
+            if (v1[i + offset] != v2[i + anotherString.offset])
+              return false;
+            i++;
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+
+    public int hashCode() {
+      int h = hash;
+      if (h == 0 && length > 0) {
+        char val[] = value;
+        int len = offset + length;
+        for (int i = offset; i < len; i++) {
+          h = 31 * h + val[i];
+        }
+        hash = h;
+      }
+      return h;
+    }
+
+    protected ZeroCopyString(char[] source, int offset, int length) {
+      this.offset = offset;
+      this.length = length;
+      this.value = source;
+    }
+
+    public int length() {
+      return length;
+    }
+
+    public ZeroCopyString substring(int beginIndex) {
+      return (beginIndex == 0)
+          ? this
+          : new ZeroCopyString(value, offset + beginIndex, length - beginIndex);
+    }
+
+    public ZeroCopyString substring(int beginIndex, int endIndex) {
+      int len = endIndex - beginIndex;
+      return (beginIndex == 0 && len == length)
+          ? this
+          : new ZeroCopyString(value, offset + beginIndex, endIndex - beginIndex);
+    }
+
+    public char charAt(int index) {
+      return value[offset + index];
+    }
+
+    public int indexOf(int ch) {
+      int fromIndex = offset;
+      final int max = Math.min(value.length, offset + length);
+
+      final char[] value = this.value;
+      for (int i = fromIndex; i < max; i++) {
+        if (value[i] == ch) {
+          return i - offset;
+        }
+      }
+      return -1;
+    }
+
+    public boolean startsWith(ZeroCopyString prefix) {
+      char ta[] = value;
+      int to = offset;
+      char pa[] = prefix.value;
+      int po = prefix.offset;
+      int pc = prefix.length;
+      // Note: toffset might be near -1>>>1.
+      if (pc > length) {
+        return false;
+      }
+      while (--pc >= 0) {
+        if (ta[to++] != pa[po++]) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override public String toString() {
+      return new String(value, offset, length);
+    }
+  }
+
   static class Segment {
     int nodeType;
     String key = "";
-    String rexPat = "";
+    ZeroCopyString rexPat = ZeroCopyString.EMPTY;
     char tail;
     int startIndex;
     int endIndex;
@@ -33,7 +172,7 @@ class $Chi implements RadixTree {
     public Segment() {
     }
 
-    public Segment(int nodeType, String key, String regex, char tail, int startIndex,
+    public Segment(int nodeType, String key, ZeroCopyString regex, char tail, int startIndex,
         int endIndex) {
       this.nodeType = nodeType;
       this.key = key;
@@ -55,7 +194,7 @@ class $Chi implements RadixTree {
     char tail;
 
     // prefix is the common prefix we ignore
-    String prefix;
+    ZeroCopyString prefix;
 
     // regexp matcher for regexp nodes
     Pattern rex;
@@ -68,7 +207,7 @@ class $Chi implements RadixTree {
 
     // child nodes should be stored in-order for iteration,
     // in groups of the node type.
-    Node[][] children = new Node[ntCatchAll + 1][];
+    Node[][] children = new Node[NODE_SIZE][];
 
     public Node typ(int typ) {
       this.typ = typ;
@@ -89,21 +228,50 @@ class $Chi implements RadixTree {
       return this;
     }
 
-    public Node prefix(String prefix) {
+    public Node prefix(ZeroCopyString prefix) {
       this.prefix = prefix;
       return this;
     }
 
-    Node insertRoute(String method, String pattern, Route route) {
+    @Override public String toString() {
+      StringBuilder node = new StringBuilder();
+      if (prefix != null) {
+        node.append(prefix);
+      }
+      node.append("{type: ");
+      switch (typ) {
+        case ntStatic:
+          node.append("static");
+          break;
+        case ntParam:
+          node.append("param");
+          break;
+        case ntRegexp:
+          node.append("regex");
+          break;
+        default:
+          node.append("catch-all");
+      }
+      String nodes = Stream.of(children).filter(Objects::nonNull)
+          .flatMap(Stream::of)
+          .filter(Objects::nonNull)
+          .map(Node::toString)
+          .collect(Collectors.joining(", ", "[", "]"));
+      node.append(", children: ").append(nodes);
+      node.append("}");
+      return node.toString();
+    }
+
+    Node insertRoute(String method, ZeroCopyString pattern, Route route) {
       Node n = this;
       Node parent;
-      String search = pattern;
+      ZeroCopyString search = pattern;
 
       while (true) {
         // Handle key exhaustion
         if (search.length() == 0) {
           // Insert or update the node's leaf handler
-          n.setEndpoint(method, pattern, route);
+          n.setEndpoint(method, route);
           return n;
         }
 
@@ -121,11 +289,11 @@ class $Chi implements RadixTree {
           seg = new Segment();
         }
 
-        String prefix;
+        ZeroCopyString prefix;
         if (seg.nodeType == ntRegexp) {
           prefix = seg.rexPat;
         } else {
-          prefix = "";
+          prefix = ZeroCopyString.EMPTY;
         }
 
         // Look for the edge to attach to
@@ -136,7 +304,7 @@ class $Chi implements RadixTree {
         if (n == null) {
           Node child = new Node().label(label).tail(seg.tail).prefix(search);
           Node hn = parent.addChild(child, search);
-          hn.setEndpoint(method, pattern, route);
+          hn.setEndpoint(method, route);
           return hn;
         }
 
@@ -172,14 +340,14 @@ class $Chi implements RadixTree {
         // If the new key is a subset, set the method/handler on this node and finish.
         search = search.substring(commonPrefix);
         if (search.length() == 0) {
-          child.setEndpoint(method, pattern, route);
+          child.setEndpoint(method, route);
           return child;
         }
 
         // Create a new edge for the node
         Node subchild = new Node().typ(ntStatic).label(search.charAt(0)).prefix(search);
         Node hn = child.addChild(subchild, search);
-        hn.setEndpoint(method, pattern, route);
+        hn.setEndpoint(method, route);
         return hn;
       }
     }
@@ -188,9 +356,9 @@ class $Chi implements RadixTree {
     // For a URL router like chi's, we split the static, param, regexp and wildcard segments
     // into different nodes. In addition, addChild will recursively call itself until every
     // pattern segment is added to the url pattern tree as individual nodes, depending on type.
-    Node addChild(Node child, String prefix) {
+    Node addChild(Node child, ZeroCopyString search) {
       Node n = this;
-      String search = prefix;
+      //      String search = prefix.toString();
 
       // handler leaf node added to the tree is the child.
       // this may be overridden later down the flow
@@ -214,7 +382,7 @@ class $Chi implements RadixTree {
           // Search prefix contains a param, regexp or wildcard
 
           if (segTyp == ntRegexp) {
-            rex = Pattern.compile(seg.rexPat);
+            rex = Pattern.compile(seg.rexPat.toString());
             child.prefix = seg.rexPat;
             child.rex = rex;
           }
@@ -258,7 +426,6 @@ class $Chi implements RadixTree {
 
             Node nn = new Node().typ(segTyp).label(search.charAt(0)).tail(seg.tail);
             hn = child.addChild(nn, search);
-
           }
       }
 
@@ -281,7 +448,7 @@ class $Chi implements RadixTree {
       throw new IllegalArgumentException("chi: replacing missing child");
     }
 
-    Node getEdge(int ntyp, char label, char tail, String prefix) {
+    Node getEdge(int ntyp, char label, char tail, ZeroCopyString prefix) {
       Node n = this;
       Node[] nds = n.children[ntyp];
       for (int i = 0; nds != null && i < nds.length; i++) {
@@ -295,11 +462,11 @@ class $Chi implements RadixTree {
       return null;
     }
 
-    void setEndpoint(String method, String pattern, Route route) {
+    void setEndpoint(String method, Route route) {
       Node n = this;
       // Set the handler for the method type on the node
       if (n.endpoints == null) {
-        n.endpoints = new HashMap<>();
+        n.endpoints = new ConcurrentHashMap<>();
       }
 
       //      if ((method & mSTUB) == mSTUB) {
@@ -327,115 +494,109 @@ class $Chi implements RadixTree {
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Route findRoute(RouterMatch rctx, String method, String search) {
+    Route findRoute(RouterMatch rctx, String method, ZeroCopyString pattern) {
       Node n = this;
       Node nn = n;
 
-      for (int ntyp = 0; ntyp < nn.children.length; ntyp++) {
+      for (int ntyp = 0; ntyp < NODE_SIZE; ntyp++) {
         Node[] nds = nn.children[ntyp];
-        if (nds == null) {
-          continue;
-        }
+        if (nds != null) {
+          Node xn = null;
+          ZeroCopyString search = pattern;
 
-        Node xn = null;
-        String xsearch = search;
+          char label = search.length() > 0 ? search.charAt(0) : ZERO_CHAR;
 
-        char label = (char) 0;
-        if (search.length() > 0) {
-          label = search.charAt(0);
-        }
-
-        switch (ntyp) {
-          case ntStatic:
-            xn = findEdge(nds, label);
-            if (xn == null || !xsearch.startsWith(xn.prefix)) {
-              continue;
-            }
-            xsearch = xsearch.substring(xn.prefix.length());
-            break;
-
-          case ntParam:
-          case ntRegexp:
-            // short-circuit and return no matching route for empty param values
-            if (xsearch.length() == 0) {
-              continue;
-            }
-
-            // serially loop through each node grouped by the tail delimiter
-            for (int idx = 0; idx < nds.length; idx++) {
-              xn = nds[idx];
-
-              // label for param nodes is the delimiter byte
-              int p = xsearch.indexOf(xn.tail);
-
-              if (p <= 0) {
-                if (xn.tail == '/') {
-                  p = xsearch.length();
-                } else {
-                  continue;
-                }
+          switch (ntyp) {
+            case ntStatic:
+              xn = findEdge(nds, label);
+              if (xn == null || !search.startsWith(xn.prefix)) {
+                continue;
               }
+              search = search.substring(xn.prefix.length());
+              break;
 
-              if (ntyp == ntRegexp) {
-                if (!xn.rex.matcher(xsearch.substring(0, p)).matches()) {
-                  continue;
-                }
-              } else if (xsearch.substring(0, p).indexOf('/') != -1) {
-                // avoid a newRuntimeRoute across path segments
+            case ntParam:
+            case ntRegexp:
+              // short-circuit and return no matching route for empty param values
+              if (search.length() == 0) {
                 continue;
               }
 
-              // rctx.routeParams.Values = append(rctx.routeParams.Values, xsearch[:p])
-              rctx.value(xsearch.substring(0, p));
-              xsearch = xsearch.substring(p);
+              // serially loop through each node grouped by the tail delimiter
+              for (int idx = 0; idx < nds.length; idx++) {
+                xn = nds[idx];
+
+                // label for param nodes is the delimiter byte
+                int p = search.indexOf(xn.tail);
+
+                if (p <= 0) {
+                  if (xn.tail == '/') {
+                    p = search.length();
+                  } else {
+                    continue;
+                  }
+                }
+
+                if (ntyp == ntRegexp) {
+                  if (!xn.rex.matcher(search.substring(0, p).toString()).matches()) {
+                    continue;
+                  }
+                } else if (search.substring(0, p).indexOf('/') != -1) {
+                  // avoid a newRuntimeRoute across path segments
+                  continue;
+                }
+
+                // rctx.routeParams.Values = append(rctx.routeParams.Values, xsearch[:p])
+                rctx.value(search.substring(0, p));
+                search = search.substring(p);
+                break;
+              }
               break;
+
+            default:
+              // catch-all nodes
+              // rctx.routeParams.Values = append(rctx.routeParams.Values, search)
+              if (search.length() > 0) {
+                rctx.value(search);
+              }
+              xn = nds[0];
+              search = ZeroCopyString.EMPTY;
+          }
+
+          if (xn == null) {
+            continue;
+          }
+
+          // did we returnType it yet?
+          if (search.length() == 0) {
+            if (xn.isLeaf()) {
+              Route h = xn.endpoints.get(method);
+              if (h != null) {
+                // rctx.routeParams.Keys = append(rctx.routeParams.Keys, h.paramKeys...)
+                rctx.key(h.getPathKeys());
+                return h;
+              }
+
+              // flag that the routing context found a route, but not a corresponding
+              // supported method
+              rctx.methodNotAllowed(xn.endpoints.keySet());
             }
-            break;
+          }
 
-          default:
-            // catch-all nodes
-            // rctx.routeParams.Values = append(rctx.routeParams.Values, search)
-            if (search.length() > 0) {
-              rctx.value(search);
-            }
-            xn = nds[0];
-            xsearch = "";
-        }
+          // recursively returnType the next node..
+          Route fin = xn.findRoute(rctx, method, search);
+          if (fin != null) {
+            return fin;
+          }
 
-        if (xn == null) {
-          continue;
-        }
-
-        // did we returnType it yet?
-        if (xsearch.length() == 0) {
-          if (xn.isLeaf()) {
-            Route h = xn.endpoints.get(method);
-            if (h != null) {
-              // rctx.routeParams.Keys = append(rctx.routeParams.Keys, h.paramKeys...)
-              rctx.key(h.getPathKeys());
-              return h;
-            }
-
-            // flag that the routing context found a route, but not a corresponding
-            // supported method
-            rctx.methodNotAllowed(xn.endpoints.keySet());
+          // Did not returnType final handler, let's remove the param here if it was set
+          if (xn.typ > ntStatic) {
+            //          if len(rctx.routeParams.Values) > 0 {
+            //            rctx.routeParams.Values = rctx.routeParams.Values[:len(rctx.routeParams.Values) - 1]
+            //          }
+            rctx.pop();
           }
         }
-
-        // recursively returnType the next node..
-        Route fin = xn.findRoute(rctx, method, xsearch);
-        if (fin != null) {
-          return fin;
-        }
-
-        // Did not returnType final handler, let's remove the param here if it was set
-        if (xn.typ > ntStatic) {
-          //          if len(rctx.routeParams.Values) > 0 {
-          //            rctx.routeParams.Values = rctx.routeParams.Values[:len(rctx.routeParams.Values) - 1]
-          //          }
-          rctx.pop();
-        }
-
       }
 
       return null;
@@ -466,7 +627,7 @@ class $Chi implements RadixTree {
     }
 
     // longestPrefix finds the filesize of the shared prefix of two strings
-    int longestPrefix(String k1, String k2) {
+    int longestPrefix(ZeroCopyString k1, ZeroCopyString k2) {
       int len = Math.min(k1.length(), k2.length());
       for (int i = 0; i < len; i++) {
         if (k1.charAt(i) != k2.charAt(i)) {
@@ -502,12 +663,12 @@ class $Chi implements RadixTree {
 
     // patNextSegment returns the next segment details from a pattern:
     // node type, param key, regexp string, param tail byte, param starting index, param ending index
-    Segment patNextSegment(String pattern) {
-      int ps = pattern.indexOf("{");
-      int ws = pattern.indexOf("*");
+    Segment patNextSegment(ZeroCopyString pattern) {
+      int ps = pattern.indexOf('{');
+      int ws = pattern.indexOf('*');
 
       if (ps < 0 && ws < 0) {
-        return new Segment(ntStatic, "", "", (char) 0, 0,
+        return new Segment(ntStatic, "", ZeroCopyString.EMPTY, (char) 0, 0,
             pattern.length()); // we return the entire thing
       }
 
@@ -526,7 +687,7 @@ class $Chi implements RadixTree {
         // Read to closing } taking into account opens and closes in curl count (cc)
         int cc = 0;
         int pe = ps;
-        String range = pattern.substring(ps);
+        ZeroCopyString range = pattern.substring(ps);
         for (int i = 0; i < range.length(); i++) {
           char c = range.charAt(i);
           if (c == '{') {
@@ -544,7 +705,7 @@ class $Chi implements RadixTree {
               "chi: route param closing delimiter '}' is missing");
         }
 
-        String key = pattern.substring(ps + 1, pe);
+        ZeroCopyString key = pattern.substring(ps + 1, pe);
         pe++; // set end to next position
 
         if (pe < pattern.length()) {
@@ -552,10 +713,10 @@ class $Chi implements RadixTree {
         }
 
         String rexpat = "";
-        int idx = key.indexOf(":");
+        int idx = key.indexOf(':');
         if (idx >= 0) {
           nt = ntRegexp;
-          rexpat = key.substring(idx + 1);
+          rexpat = key.substring(idx + 1).toString();
           key = key.substring(0, idx);
         }
 
@@ -568,14 +729,14 @@ class $Chi implements RadixTree {
           }
         }
 
-        return new Segment(nt, key, rexpat, tail, ps, pe);
+        return new Segment(nt, key.toString(), new ZeroCopyString(rexpat), tail, ps, pe);
       }
 
       // Wildcard pattern as finale
       // EDIT: should we panic if there is stuff after the * ???
       // We allow naming a wildcard: *path
-      String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1);
-      return new Segment(ntCatchAll, key, "", (char) 0, ws, pattern.length());
+      String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1).toString();
+      return new Segment(ntCatchAll, key, ZeroCopyString.EMPTY, (char) 0, ws, pattern.length());
     }
 
     public void destroy() {
@@ -602,7 +763,7 @@ class $Chi implements RadixTree {
   private Node root = new Node();
 
   /** Not need to use a concurrent map, due we don't allow to add routes after application started. */
-  private Map<Object, Route> staticPaths = new HashMap<>();
+  private Map<Object, StaticRoute> staticPaths = new ConcurrentHashMap<>();
 
   public void insert(String method, String pattern, Route route) {
     String baseCatchAll = baseCatchAll(pattern);
@@ -616,9 +777,10 @@ class $Chi implements RadixTree {
       pattern = "/*";
     }
     if (Router.pathKeys(pattern).isEmpty()) {
-      staticPaths.put(method + pattern, route);
+      StaticRoute staticRoute = staticPaths.computeIfAbsent(pattern, k -> new StaticRoute());
+      staticRoute.put(method, route);
     }
-    root.insertRoute(method, pattern, route);
+    root.insertRoute(method, new ZeroCopyString(pattern), route);
   }
 
   private String baseCatchAll(String pattern) {
@@ -643,9 +805,10 @@ class $Chi implements RadixTree {
   }
 
   public boolean find(String method, String path) {
-    Route route = staticPaths.get(method + path);
+    StaticRoute staticRoute = staticPaths.getOrDefault(path, NO_MATCH);
+    Route route = staticRoute.methods.get(method);
     if (route == null) {
-      return root.findRoute(new RouterMatch(), method, path) != null;
+      return root.findRoute(new RouterMatch(), method, new ZeroCopyString(path)) != null;
     }
     return true;
   }
@@ -654,10 +817,11 @@ class $Chi implements RadixTree {
       List<RadixTree> more) {
     String method = context.getMethod();
     RouterMatch result = new RouterMatch();
-    Route route = staticPaths.get(method + path);
+    StaticRoute staticRoute = staticPaths.getOrDefault(path, NO_MATCH);
+    Route route = staticRoute.methods.get(method);
     if (route == null) {
       // use radix tree
-      route = root.findRoute(result, method, path);
+      route = root.findRoute(result, method, new ZeroCopyString(path));
       if (route == null) {
         if (more != null) {
           // expand search

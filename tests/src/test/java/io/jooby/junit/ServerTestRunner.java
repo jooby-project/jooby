@@ -19,7 +19,7 @@ public class ServerTestRunner {
 
   private final String testName;
 
-  private final Supplier<Server> server;
+  private final ServerProvider server;
 
   private final ExecutionMode executionMode;
 
@@ -27,7 +27,7 @@ public class ServerTestRunner {
 
   private boolean followRedirects = true;
 
-  public ServerTestRunner(String testName, Supplier<Server> server, ExecutionMode executionMode) {
+  public ServerTestRunner(String testName, ServerProvider server, ExecutionMode executionMode) {
     this.testName = testName;
     this.server = server;
     this.executionMode = executionMode;
@@ -87,7 +87,7 @@ public class ServerTestRunner {
   }
 
   public String getServer() {
-    return server.getClass().getSimpleName();
+    return server.getName();
   }
 
   public ServerTestRunner dontFollowRedirects() {
@@ -96,16 +96,7 @@ public class ServerTestRunner {
   }
 
   public boolean matchesEventLoopThread(String threadName) {
-    if (server instanceof Jetty) {
-      return threadName.startsWith("worker-");
-    }
-    if (server instanceof Netty) {
-      return threadName.startsWith("eventloop");
-    }
-    if (server instanceof Utow) {
-      return threadName.startsWith("worker I/O");
-    }
-    return false;
+    return server.matchesEventLoopThread(threadName);
   }
 
   @Override public String toString() {

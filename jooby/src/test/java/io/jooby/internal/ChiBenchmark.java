@@ -27,20 +27,24 @@ public class ChiBenchmark {
 
   private $Chi router;
 
-  Context foo;
+  Context plaintext;
 
-  Context fooBar;
+  Context article;
+
+  Context articleEdit;
 
   @Setup
   public void setup() {
     router = new $Chi();
 
-    router.insert(route("GET", "/foo"));
-    router.insert(route("GET", "/foo/{bar}"));
+    router.insert(route("GET", "/plaintext"));
+    router.insert(route("GET", "/json"));
 
-    foo = context("GET", "/foo");
+    plaintext = context("GET", "/plaintext");
 
-    fooBar = context("GET", "/foo/xuqy");
+    article = context("GET", "/articles/{id}");
+
+    articleEdit = context("GET", "/articles/{id}/edit");
   }
 
   private Route route(String method, String pattern) {
@@ -48,13 +52,18 @@ public class ChiBenchmark {
   }
 
   @Benchmark
-  public void staticMatch() {
-    router.find(foo, null, null);
+  public void _plaintext() {
+    router.find(plaintext, null, null);
   }
 
   @Benchmark
-  public void paramMatch() {
-    router.find(fooBar, null, null);
+  public void article() {
+    router.find(article, null, null);
+  }
+
+  @Benchmark
+  public void articleEdit() {
+    router.find(articleEdit, null, null);
   }
 
   private static Context context(String method, String path) {

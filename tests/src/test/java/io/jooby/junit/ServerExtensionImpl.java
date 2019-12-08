@@ -27,13 +27,13 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
 
   private static class ServerInfo implements Comparable<ServerInfo> {
     private final int index;
-    private Supplier<Server> server;
+    private ServerProvider server;
 
     private ExecutionMode mode;
 
     private String description;
 
-    public ServerInfo(Supplier<Server> server, ExecutionMode mode, int index, String description) {
+    public ServerInfo(ServerProvider server, ExecutionMode mode, int index, String description) {
       this.server = server;
       this.mode = mode;
       this.description = description;
@@ -75,7 +75,7 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
                 if (executionModes.isEmpty()) {
                   serverInfos.add(
                       new ServerInfo(
-                          newServer(it),
+                          new ServerProvider(it),
                           null,
                           i,
                           displayName(it, null, i, repetitions)
@@ -84,7 +84,7 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
                   executionModes.stream()
                       .map(mode ->
                           new ServerInfo(
-                              newServer(it),
+                              new ServerProvider(it),
                               mode,
                               i,
                               displayName(it, mode, i, repetitions)
@@ -97,13 +97,6 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
         })
         .sorted()
         .map(info -> invocationContext(info));
-  }
-
-  private Supplier<Server> newServer(Class serverClass) {
-    return () -> stream(ServiceLoader.load(Server.class).spliterator(), false)
-        .filter(s -> serverClass.isInstance(s))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Server not found: " + serverClass));
   }
 
   private TestTemplateInvocationContext invocationContext(ServerInfo serverInfo) {

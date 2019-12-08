@@ -96,6 +96,33 @@ public class ChiTest {
     });
   }
 
+  @Test
+  public void searchString() throws Exception {
+    $Chi router = new $Chi();
+
+    // app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.getRoute().getPathKeys());
+
+    router.insert(route("GET",  "/regex/{nid:[0-9]+}", stringHandler("nid")));
+    router.insert(route("GET", "/regex/{zid:[0-9]+}/edit", stringHandler("zid")));
+    router.insert(route("GET", "/articles/{id}", stringHandler("id")));
+    router.insert(route("GET", "/articles/*", stringHandler("*")));
+
+    find(router, "/regex/678/edit", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("zid", result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/articles/tail/match", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("*", result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/articles/123", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("id", result.route().getPipeline().apply(ctx));
+    });
+  }
+
   private void find($Chi router, String pattern,
       SneakyThrows.Consumer2<Context, RouterMatch> consumer) {
     Context rootctx = ctx(pattern);
