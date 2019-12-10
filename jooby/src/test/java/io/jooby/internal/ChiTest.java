@@ -123,6 +123,24 @@ public class ChiTest {
     });
   }
 
+  @Test
+  public void searchParam() throws Exception {
+    $Chi router = new $Chi();
+
+    router.insert(route("GET",  "/articles/{id}", stringHandler("id")));
+    router.insert(route("GET",  "/articles/*", stringHandler("catchall")));
+
+    find(router, "/articles/123", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("id", result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/articles/a/b", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("catchall", result.route().getPipeline().apply(ctx));
+    });
+  }
+
   private void find($Chi router, String pattern,
       SneakyThrows.Consumer2<Context, RouterMatch> consumer) {
     Context rootctx = ctx(pattern);

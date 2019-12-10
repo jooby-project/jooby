@@ -27,6 +27,14 @@ public class RouterMatch implements Router.Match {
 
   private Route.Handler handler;
 
+  public RouterMatch(Route route) {
+    this.route = route;
+    this.matches = true;
+  }
+
+  public RouterMatch() {
+  }
+
   public void key(List<String> keys) {
     for (int i = 0; i < Math.min(keys.size(), vars.size()); i++) {
       vars.put(keys.get(i), vars.remove(i));
