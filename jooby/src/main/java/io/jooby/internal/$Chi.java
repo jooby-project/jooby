@@ -804,9 +804,8 @@ class $Chi implements RadixTree {
     root.destroy();
   }
 
-  public RouterMatch find(Context context, MessageEncoder encoder,
-      List<RadixTree> more) {
-    return find(context, context.pathString(), encoder, more);
+  public RouterMatch find(Context context, MessageEncoder encoder) {
+    return find(context, context.pathString(), encoder);
   }
 
   public boolean find(String method, String path) {
@@ -816,27 +815,14 @@ class $Chi implements RadixTree {
     return true;
   }
 
-  public RouterMatch find(Context context, String path, MessageEncoder encoder,
-      List<RadixTree> more) {
+  public RouterMatch find(Context context, String path, MessageEncoder encoder) {
     String method = context.getMethod();
     Route route = staticPaths.getOrDefault(path, NO_MATCH).methods.get(method);
     if (route == null) {
       // use radix tree
       RouterMatch result = new RouterMatch();
       route = root.findRoute(result, method, new ZeroCopyString(path));
-      if (route == null) {
-        if (more != null) {
-          // expand search
-          for (RadixTree tree : more) {
-            RouterMatch match = tree.find(context, path, encoder, null);
-            if (match.matches) {
-              return match;
-            }
-          }
-        }
-        return result.missing(method, path, encoder);
-      }
-      return result.found(route);
+      return route == null ? result.missing(method, path, encoder) : result.found(route);
     }
     return new RouterMatch(route);
   }

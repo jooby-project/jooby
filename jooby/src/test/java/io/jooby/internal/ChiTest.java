@@ -24,8 +24,7 @@ public class ChiTest {
     router.insert(bar);
 
     RouterMatch result = router
-        .find(ctx("/abcd"), MessageEncoder.TO_STRING,
-            Collections.emptyList());
+        .find(ctx("/abcd"), MessageEncoder.TO_STRING);
     assertTrue(result.matches);
     assertEquals(bar, result.route());
   }
@@ -46,8 +45,7 @@ public class ChiTest {
     router.insert(foos);
 
     RouterMatch result = router
-        .find(ctx("/abcd/"), MessageEncoder.TO_STRING,
-            Collections.emptyList());
+        .find(ctx("/abcd/"), MessageEncoder.TO_STRING);
     assertTrue(result.matches);
     assertEquals(foos, result.route());
   }
@@ -102,7 +100,7 @@ public class ChiTest {
 
     // app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.getRoute().getPathKeys());
 
-    router.insert(route("GET",  "/regex/{nid:[0-9]+}", stringHandler("nid")));
+    router.insert(route("GET", "/regex/{nid:[0-9]+}", stringHandler("nid")));
     router.insert(route("GET", "/regex/{zid:[0-9]+}/edit", stringHandler("zid")));
     router.insert(route("GET", "/articles/{id}", stringHandler("id")));
     router.insert(route("GET", "/articles/*", stringHandler("*")));
@@ -127,8 +125,8 @@ public class ChiTest {
   public void searchParam() throws Exception {
     $Chi router = new $Chi();
 
-    router.insert(route("GET",  "/articles/{id}", stringHandler("id")));
-    router.insert(route("GET",  "/articles/*", stringHandler("catchall")));
+    router.insert(route("GET", "/articles/{id}", stringHandler("id")));
+    router.insert(route("GET", "/articles/*", stringHandler("catchall")));
 
     find(router, "/articles/123", (ctx, result) -> {
       assertTrue(result.matches);
@@ -145,7 +143,7 @@ public class ChiTest {
       SneakyThrows.Consumer2<Context, RouterMatch> consumer) {
     Context rootctx = ctx(pattern);
     RouterMatch result = router
-        .find(rootctx, MessageEncoder.TO_STRING, Collections.emptyList());
+        .find(rootctx, MessageEncoder.TO_STRING);
     consumer.accept(rootctx, result);
   }
 

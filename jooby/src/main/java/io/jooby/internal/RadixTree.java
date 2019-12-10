@@ -10,41 +10,12 @@ import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Router;
 
-import java.util.List;
-import java.util.function.Predicate;
-
 interface RadixTree {
   void insert(String method, String pattern, Route route);
 
   boolean find(String method, String path);
 
-  RouterMatch find(Context context, String path, MessageEncoder encoder, List<RadixTree> more);
-
-  default RadixTree with(Predicate<Context> predicate) {
-    return new RadixTree() {
-      @Override public void insert(String method, String pattern, Route route) {
-        RadixTree.this.insert(method, pattern, route);
-      }
-
-      @Override public boolean find(String method, String path) {
-        return RadixTree.this.find(method, path);
-      }
-
-      @Override
-      public RouterMatch find(Context context, String path, MessageEncoder encoder,
-          List<RadixTree> more) {
-        if (!predicate.test(context)) {
-          return new RouterMatch()
-              .missing(context.getMethod(), context.pathString(), encoder);
-        }
-        return RadixTree.this.find(context, path, encoder, more);
-      }
-
-      @Override public void destroy() {
-        RadixTree.this.destroy();
-      }
-    };
-  }
+  RouterMatch find(Context context, String path, MessageEncoder encoder);
 
   default RadixTree options(boolean ignoreCase, boolean ignoreTrailingSlash) {
     return new RadixTree() {
@@ -58,11 +29,9 @@ interface RadixTree {
             .find(method, Router.normalizePath(path, ignoreCase, ignoreTrailingSlash));
       }
 
-      @Override public RouterMatch find(Context context, String path, MessageEncoder encoder,
-          List<RadixTree> more) {
+      @Override public RouterMatch find(Context context, String path, MessageEncoder encoder) {
         return RadixTree.this
-            .find(context, Router.normalizePath(path, ignoreCase, ignoreTrailingSlash), encoder,
-                more);
+            .find(context, Router.normalizePath(path, ignoreCase, ignoreTrailingSlash), encoder);
       }
 
       @Override public void destroy() {

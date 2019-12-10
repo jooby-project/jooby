@@ -1136,9 +1136,10 @@ public class FeaturedTest {
       Jooby v2 = new Jooby();
       v2.get("/api", ctx -> "v2");
 
-      app.use(ctx -> ctx.header("version").value().equals("v1"), v1);
-      app.use(ctx -> ctx.header("version").value().equals("v2"), v2);
+      app.use(ctx -> ctx.header("version").value("").equals("v1"), v1);
+      app.use(ctx -> ctx.header("version").value("").equals("v2"), v2);
 
+      app.get("/api",ctx -> "fallback");
     }).ready(client -> {
       client.header("version", "v2");
       client.get("/api", rsp -> {
@@ -1148,6 +1149,10 @@ public class FeaturedTest {
       client.header("version", "v1");
       client.get("/api", rsp -> {
         assertEquals("v1", rsp.body().string());
+      });
+
+      client.get("/api", rsp -> {
+        assertEquals("fallback", rsp.body().string());
       });
     });
   }

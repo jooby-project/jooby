@@ -41,6 +41,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class RouterImpl implements Router {
 
   private String basePath;
 
-  private List<RadixTree> trees;
+  private Map<Predicate<Context>, RadixTree> predicateMap;
 
   private Executor worker = new ForwardingExecutor();
 
@@ -194,11 +195,11 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
-    RadixTree tree = new $Chi().with(predicate);
-    if (trees == null) {
-      trees = new ArrayList<>();
+    RadixTree tree = new $Chi();
+    if (predicateMap == null) {
+      predicateMap = new LinkedHashMap<>();
     }
-    trees.add(tree);
+    predicateMap.put(predicate, tree);
     for (Route route : router.getRoutes()) {
       Route newRoute = defineRoute(route.getMethod(), route.getPattern(), route.getHandler(), tree);
       copy(route, newRoute);
@@ -339,7 +340,8 @@ public class RouterImpl implements Router {
     return beanConverters;
   }
 
-  @Nonnull @Override public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
+  @Nonnull @Override
+  public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
     return route(WS, pattern, new WebSocketHandler(handler)).setHandle(handler);
   }
 
@@ -464,7 +466,8 @@ public class RouterImpl implements Router {
         }
       } else {
         /** Consumes && Produces (only for HTTP routes (not web socket) */
-        route.setBefore(prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE));
+        route.setBefore(
+            prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE));
         route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT));
       }
       /** Response handler: */
@@ -517,10 +520,10 @@ public class RouterImpl implements Router {
       errorCodes.clear();
       errorCodes = null;
     }
-    if (this.trees != null) {
-      this.trees.forEach(RadixTree::destroy);
-      this.trees.clear();
-      this.trees = null;
+    if (this.predicateMap != null) {
+      this.predicateMap.values().forEach(RadixTree::destroy);
+      this.predicateMap.clear();
+      this.predicateMap = null;
     }
   }
 
@@ -529,7 +532,17 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
-    return chi.find(ctx, ctx.pathString(), encoder, trees);
+    if (predicateMap != null) {
+      for (Map.Entry<Predicate<Context>, RadixTree> e : predicateMap.entrySet()) {
+        if (e.getKey().test(ctx)) {
+          RouterMatch match = e.getValue().find(ctx, ctx.pathString(), encoder);
+          if (match.matches) {
+            return match;
+          }
+        }
+      }
+    }
+    return chi.find(ctx, ctx.pathString(), encoder);
   }
 
   @Override public boolean match(@Nonnull String pattern, @Nonnull String path) {
