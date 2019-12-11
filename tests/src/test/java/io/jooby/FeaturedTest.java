@@ -1080,12 +1080,19 @@ public class FeaturedTest {
   }
 
   @ServerTest
-  public void basePath(ServerTestRunner runner) {
+  public void contextPath(ServerTestRunner runner) {
     runner.define(app -> {
       app.setContextPath("/foo");
+
+      app.get("/", ctx -> ctx.pathString());
+
       app.get("/bar", ctx -> ctx.pathString());
 
     }).ready(client -> {
+      client.get("/foo", rsp -> {
+        assertEquals("/foo", rsp.body().string());
+      });
+
       client.get("/foo/bar", rsp -> {
         assertEquals("/foo/bar", rsp.body().string());
       });

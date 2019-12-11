@@ -54,28 +54,27 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static io.jooby.Router.noTrailingSlash;
-
 public class RouterImpl implements Router {
 
   private static class PathBuilder {
-    private StringBuilder buffer = new StringBuilder();
-    private String previous;
+    private StringBuilder buffer;
+
+    public PathBuilder(String... path) {
+      Stream.of(path).forEach(this::append);
+    }
 
     public PathBuilder append(String path) {
-      if (previous == null) {
+      if (!path.equals("/")) {
+        if (buffer == null) {
+          buffer = new StringBuilder();
+        }
         buffer.append(path);
-        previous = path;
-      } else if (!path.equals("/")) {
-        buffer.append(path);
-        previous = path;
       }
-
       return this;
     }
 
     @Override public String toString() {
-      return buffer.toString();
+      return buffer == null ? "/" : buffer.toString();
     }
   }
 
@@ -226,7 +225,7 @@ public class RouterImpl implements Router {
     }
     predicateMap.put(predicate, tree);
     for (Route route : router.getRoutes()) {
-      Route newRoute = defineRoute(route.getMethod(), route.getPattern(), route.getHandler(),
+      Route newRoute = newRoute(route.getMethod(), route.getPattern(), route.getHandler(),
           tree);
       copy(route, newRoute);
     }
@@ -235,12 +234,9 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
     String prefix = Router.path(path);
-    if (prefix.equals("/")) {
-      prefix = "";
-    }
     for (Route route : router.getRoutes()) {
-      String routePattern = prefix + route.getPattern();
-      Route newRoute = defineRoute(route.getMethod(), routePattern, route.getHandler(), chi);
+      String routePattern = new PathBuilder(prefix, route.getPattern()).toString();
+      Route newRoute = newRoute(route.getMethod(), routePattern, route.getHandler(), chi);
       copy(route, newRoute);
     }
     return this;
@@ -248,7 +244,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router use(@Nonnull Router router) {
-    return use("", router);
+    return use("/", router);
   }
 
   @Nonnull @Override public Router mvc(@Nonnull Object router) {
@@ -375,10 +371,10 @@ public class RouterImpl implements Router {
   @Override
   public Route route(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler) {
-    return defineRoute(method, pattern, handler, chi);
+    return newRoute(method, pattern, handler, chi);
   }
 
-  private Route defineRoute(@Nonnull String method, @Nonnull String pattern,
+  private Route newRoute(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler, RouteTree tree) {
     /** Pattern: */
     PathBuilder pathBuilder = new PathBuilder();
@@ -420,7 +416,9 @@ public class RouterImpl implements Router {
       routeExecutor.put(route, stack.executor);
     }
 
-    String finalPattern = basePath == null ? safePattern : basePath + safePattern;
+    String finalPattern = basePath == null
+        ? safePattern
+        : new PathBuilder(basePath, safePattern).toString();
 
     if (route.getMethod().equals(WS)) {
       tree.insert(GET, finalPattern, route);

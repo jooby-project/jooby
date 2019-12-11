@@ -6,6 +6,7 @@
 package io.jooby.apt;
 
 import io.jooby.MvcFactory;
+import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.apt.FactoryCompiler;
 import io.jooby.internal.apt.HandlerCompiler;
@@ -156,7 +157,7 @@ public class JoobyProcessor extends AbstractProcessor {
       return prefix.isEmpty() ? Collections.singletonList("/") : prefix;
     }
     return prefix.stream()
-        .flatMap(root -> methodPath.stream().map(p -> root + p))
+        .flatMap(root -> methodPath.stream().map(p -> root.equals("/") ? p : root + p))
         .distinct()
         .collect(Collectors.toList());
   }

@@ -19,6 +19,7 @@ import source.JaxrsController;
 import source.NoPathRoute;
 import source.NullRoutes;
 import source.Provisioning;
+import source.RouteContextPath;
 import source.RouteInjection;
 
 import java.io.InputStream;
@@ -452,6 +453,20 @@ public class HandlerCompilerTest {
   public void routeParam() throws Exception {
     new MvcHandlerCompilerRunner(new RouteInjection())
         .compile("/route", handler -> {
+          Route route = mock(Route.class);
+          assertEquals(route, handler.apply(MockContextHelper.mockContext().setRoute(route)));
+        })
+    ;
+  }
+
+  @Test
+  public void contextPath() throws Exception {
+    new MvcHandlerCompilerRunner(new RouteContextPath())
+        .compile("/", handler -> {
+          Route route = mock(Route.class);
+          assertEquals(route, handler.apply(MockContextHelper.mockContext().setRoute(route)));
+        })
+        .compile("/subpath", handler -> {
           Route route = mock(Route.class);
           assertEquals(route, handler.apply(MockContextHelper.mockContext().setRoute(route)));
         })
