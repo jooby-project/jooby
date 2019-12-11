@@ -505,9 +505,14 @@ public class RouterImpl implements Router {
       }
     }
     /** router options: */
-    if (options.getIgnoreCase() || options.getIgnoreTrailingSlash()) {
-      chi = new RouteTreeWithOptions(chi, options.getIgnoreCase(),
-          options.getIgnoreTrailingSlash());
+    if (options.getIgnoreCase()) {
+      chi = new RouteTreeLowerCasePath(chi);
+    }
+    if (options.getIgnoreTrailingSlash()) {
+      chi = new RouteTreeIgnoreTrailingSlash(chi);
+    }
+    if (options.getNormalizePath()) {
+      chi = new RouteTreeNormPath(chi);
     }
 
     // unwrap executor

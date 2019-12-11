@@ -32,6 +32,8 @@ public class RouterOptions {
 
   private boolean ignoreTrailingSlash;
 
+  private boolean normalizePath;
+
   private boolean resetHeadersOnError = true;
 
   /**
@@ -94,6 +96,15 @@ public class RouterOptions {
    */
   public @Nonnull RouterOptions setResetHeadersOnError(boolean resetHeadersOnError) {
     this.resetHeadersOnError = resetHeadersOnError;
+    return this;
+  }
+
+  public boolean getNormalizePath() {
+    return normalizePath;
+  }
+
+  public RouterOptions setNormalizePath(boolean normalizePath) {
+    this.normalizePath = normalizePath;
     return this;
   }
 }
