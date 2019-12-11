@@ -18,6 +18,7 @@ import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Router;
+import io.jooby.RouterOption;
 import io.jooby.Sender;
 import io.jooby.Server;
 import io.jooby.Session;
@@ -557,7 +558,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Override public boolean getResetHeadersOnError() {
     return resetHeadersOnError == null
-        ? getRouter().getRouterOptions().getResetHeadersOnError()
+        ? getRouter().getRouterOptions().contains(RouterOption.RESET_HEADERS_ON_ERROR)
         : resetHeadersOnError.booleanValue();
   }
 

@@ -10,6 +10,7 @@ import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.RegistryException;
+import io.jooby.RouterOption;
 import io.jooby.ServerOptions;
 import io.jooby.ServiceKey;
 import io.jooby.SessionStore;
@@ -22,7 +23,6 @@ import io.jooby.MessageEncoder;
 import io.jooby.ResponseHandler;
 import io.jooby.Route;
 import io.jooby.Router;
-import io.jooby.RouterOptions;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
@@ -40,6 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
@@ -136,8 +138,6 @@ public class RouterImpl implements Router {
 
   private Map<String, StatusCode> errorCodes;
 
-  private RouterOptions options = new RouterOptions();
-
   private RouteTree chi = new Chi();
 
   private LinkedList<Stack> stack = new LinkedList<>();
@@ -172,6 +172,8 @@ public class RouterImpl implements Router {
 
   private ClassLoader classLoader;
 
+  private Set<RouterOption> routerOptions = EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR);
+
   public RouterImpl(ClassLoader loader) {
     this.classLoader = loader;
     stack.addLast(new Stack(null));
@@ -188,13 +190,13 @@ public class RouterImpl implements Router {
     return attributes;
   }
 
-  @Nonnull @Override public Router setRouterOptions(@Nonnull RouterOptions options) {
-    this.options = options;
-    return this;
+  @Nonnull @Override public Set<RouterOption> getRouterOptions() {
+    return routerOptions;
   }
 
-  @Nonnull @Override public RouterOptions getRouterOptions() {
-    return options;
+  @Nonnull @Override public Router setRouterOptions(@Nonnull RouterOption... options) {
+    Stream.of(options).forEach(routerOptions::add);
+    return this;
   }
 
   @Nonnull @Override public Router setContextPath(@Nonnull String basePath) {
@@ -505,13 +507,13 @@ public class RouterImpl implements Router {
       }
     }
     /** router options: */
-    if (options.getIgnoreCase()) {
+    if (routerOptions.contains(RouterOption.LOW_CASE)) {
       chi = new RouteTreeLowerCasePath(chi);
     }
-    if (options.getIgnoreTrailingSlash()) {
+    if (routerOptions.contains(RouterOption.NO_TRAILING_SLASH)) {
       chi = new RouteTreeIgnoreTrailingSlash(chi);
     }
-    if (options.getNormalizePath()) {
+    if (routerOptions.contains(RouterOption.NORM)) {
       chi = new RouteTreeNormPath(chi);
     }
 

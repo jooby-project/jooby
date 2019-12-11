@@ -1,5 +1,7 @@
 package io.jooby
 
+import io.jooby.RouterOption.LOW_CASE
+import io.jooby.RouterOption.NO_TRAILING_SLASH
 import kotlinx.coroutines.delay
 import java.nio.file.Paths
 import java.time.Duration
@@ -45,10 +47,7 @@ class Idioms : Kooby({
     }
   }
 
-  routerOptions {
-    this.ignoreCase = true
-    this.ignoreTrailingSlash = true
-  }
+  routerOptions(LOW_CASE, NO_TRAILING_SLASH)
 
   environmentOptions {
     this.activeNames = listOf("foo")
@@ -141,7 +140,7 @@ class Idioms : Kooby({
       ws.send("SS")
     }
     configurer.onMessage { ws, message ->
-      val value = message.to<IdiomsPojo> ()
+      val value = message.to<IdiomsPojo>()
       ws.render(value)
     }
   }

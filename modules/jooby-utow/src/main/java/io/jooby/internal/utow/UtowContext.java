@@ -16,6 +16,7 @@ import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Router;
+import io.jooby.RouterOption;
 import io.jooby.Server;
 import io.jooby.Session;
 import io.jooby.SessionStore;
@@ -426,7 +427,7 @@ public class UtowContext implements DefaultContext, IoCallback {
 
   @Override public boolean getResetHeadersOnError() {
     return resetHeadersOnError == null
-        ? getRouter().getRouterOptions().getResetHeadersOnError()
+        ? getRouter().getRouterOptions().contains(RouterOption.RESET_HEADERS_ON_ERROR)
         : resetHeadersOnError.booleanValue();
   }
 

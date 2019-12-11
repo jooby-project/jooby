@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -132,11 +133,11 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public RouterOptions getRouterOptions() {
+  @Nonnull @Override public Set<RouterOption> getRouterOptions() {
     return router.getRouterOptions();
   }
 
-  @Nonnull @Override public Jooby setRouterOptions(@Nonnull RouterOptions options) {
+  @Nonnull @Override public Jooby setRouterOptions(@Nonnull RouterOption... options) {
     router.setRouterOptions(options);
     return this;
   }

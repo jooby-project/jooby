@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -635,12 +636,7 @@ public interface Router extends Registry {
    */
   @Nonnull Router responseHandler(@Nonnull ResponseHandler factory);
 
-  /**
-   * Router options.
-   *
-   * @return Router options.
-   */
-  @Nonnull RouterOptions getRouterOptions();
+  @Nonnull Set<RouterOption> getRouterOptions();
 
   /**
    * Set router options.
@@ -648,7 +644,7 @@ public interface Router extends Registry {
    * @param options router options.
    * @return This router.
    */
-  @Nonnull Router setRouterOptions(@Nonnull RouterOptions options);
+  @Nonnull Router setRouterOptions(@Nonnull RouterOption... options);
 
   /**
    * Session store. Default use a cookie ID with a memory storage.

@@ -249,10 +249,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @OptionsDsl
-  fun routerOptions(configurer: RouterOptions.() -> Unit): Kooby {
-    val options = RouterOptions()
-    configurer(options)
-    this.routerOptions  = options
+  fun routerOptions(vararg option: RouterOption): Kooby {
+    this.setRouterOptions(*option)
     return this
   }
 

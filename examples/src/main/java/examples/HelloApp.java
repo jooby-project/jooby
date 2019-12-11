@@ -6,12 +6,9 @@
 package examples;
 
 import io.jooby.Jooby;
-import io.jooby.RouterOptions;
+import io.jooby.RouterOption;
 import io.jooby.TraceHandler;
-import io.jooby.annotations.QueryParam;
 import io.jooby.banner.BannerModule;
-
-import java.util.stream.Stream;
 
 public class HelloApp extends Jooby {
 
@@ -20,7 +17,7 @@ public class HelloApp extends Jooby {
 
     decorator(new TraceHandler());
 
-    setRouterOptions(new RouterOptions().setIgnoreCase(false).setIgnoreTrailingSlash(true));
+    setRouterOptions(RouterOption.NO_TRAILING_SLASH);
 
     get("/", ctx -> {
       return "Hello World";

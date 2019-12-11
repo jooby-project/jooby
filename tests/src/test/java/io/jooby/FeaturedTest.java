@@ -1206,9 +1206,7 @@ public class FeaturedTest {
   @ServerTest
   public void routerCaseInsensitive(ServerTestRunner runner) {
     runner.define(app -> {
-      app.getRouterOptions()
-          .setIgnoreCase(true)
-          .setIgnoreTrailingSlash(true);
+      app.setRouterOptions(RouterOption.LOW_CASE, RouterOption.NO_TRAILING_SLASH);
       app.get("/foo", Context::pathString);
 
       app.get("/bar", Context::pathString);
@@ -1236,8 +1234,6 @@ public class FeaturedTest {
   public void routerCaseSensitive(ServerTestRunner runner) {
     /** Now do it case sensitive: */
     runner.define(app -> {
-
-      app.getRouterOptions().setIgnoreCase(false);
 
       app.get("/foo", Context::pathString);
 
@@ -1299,7 +1295,7 @@ public class FeaturedTest {
   @ServerTest
   public void trailinSlashIsANewRoute(ServerTestRunner runner) {
     runner.define(app -> {
-      app.setRouterOptions(new RouterOptions().setIgnoreTrailingSlash(true));
+      app.setRouterOptions(RouterOption.NO_TRAILING_SLASH);
       app.get("/foo/", ctx -> "foo/");
 
       app.get("/foo", ctx -> "new foo");
