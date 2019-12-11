@@ -54,9 +54,30 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static io.jooby.Router.normalizePath;
+import static io.jooby.Router.noTrailingSlash;
 
 public class RouterImpl implements Router {
+
+  private static class PathBuilder {
+    private StringBuilder buffer = new StringBuilder();
+    private String previous;
+
+    public PathBuilder append(String path) {
+      if (previous == null) {
+        buffer.append(path);
+        previous = path;
+      } else if (!path.equals("/")) {
+        buffer.append(path);
+        previous = path;
+      }
+
+      return this;
+    }
+
+    @Override public String toString() {
+      return buffer.toString();
+    }
+  }
 
   private static class Stack {
     private String pattern;
@@ -93,6 +114,10 @@ public class RouterImpl implements Router {
       return beforeList.stream();
     }
 
+    public boolean hasPattern() {
+      return pattern != null;
+    }
+
     public void clear() {
       this.decoratorList.clear();
       this.afterList.clear();
@@ -114,7 +139,7 @@ public class RouterImpl implements Router {
 
   private RouterOptions options = new RouterOptions();
 
-  private RadixTree chi = new $Chi();
+  private RouteTree chi = new Chi();
 
   private LinkedList<Stack> stack = new LinkedList<>();
 
@@ -124,7 +149,7 @@ public class RouterImpl implements Router {
 
   private String basePath;
 
-  private Map<Predicate<Context>, RadixTree> predicateMap;
+  private Map<Predicate<Context>, RouteTree> predicateMap;
 
   private Executor worker = new ForwardingExecutor();
 
@@ -150,7 +175,7 @@ public class RouterImpl implements Router {
 
   public RouterImpl(ClassLoader loader) {
     this.classLoader = loader;
-    stack.addLast(new Stack(""));
+    stack.addLast(new Stack(null));
 
     converters = ValueConverters.defaultConverters();
     beanConverters = new ArrayList<>(3);
@@ -177,7 +202,7 @@ public class RouterImpl implements Router {
     if (routes.size() > 0) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
-    this.basePath = normalizePath(basePath, false, true);
+    this.basePath = Router.path(basePath);
     return this;
   }
 
@@ -195,20 +220,21 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
-    RadixTree tree = new $Chi();
+    Chi tree = new Chi();
     if (predicateMap == null) {
       predicateMap = new LinkedHashMap<>();
     }
     predicateMap.put(predicate, tree);
     for (Route route : router.getRoutes()) {
-      Route newRoute = defineRoute(route.getMethod(), route.getPattern(), route.getHandler(), tree);
+      Route newRoute = defineRoute(route.getMethod(), route.getPattern(), route.getHandler(),
+          tree);
       copy(route, newRoute);
     }
     return this;
   }
 
   @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
-    String prefix = normalizePath(path, false, true);
+    String prefix = Router.path(path);
     if (prefix.equals("/")) {
       prefix = "";
     }
@@ -301,7 +327,8 @@ public class RouterImpl implements Router {
     return newStack(push().executor(worker), body);
   }
 
-  @Nonnull @Override public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+  @Nonnull @Override
+  public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
     return newStack(push().executor(executor), action);
   }
 
@@ -352,11 +379,11 @@ public class RouterImpl implements Router {
   }
 
   private Route defineRoute(@Nonnull String method, @Nonnull String pattern,
-      @Nonnull Route.Handler handler, RadixTree tree) {
+      @Nonnull Route.Handler handler, RouteTree tree) {
     /** Pattern: */
-    StringBuilder patternBuff = new StringBuilder();
-    stack.stream().filter(it -> it.pattern != null).forEach(it -> patternBuff.append(it.pattern));
-    patternBuff.append(pattern);
+    PathBuilder pathBuilder = new PathBuilder();
+    stack.stream().filter(Stack::hasPattern).forEach(it -> pathBuilder.append(it.pattern));
+    pathBuilder.append(pattern);
 
     /** Before: */
     Route.Before before = stack.stream()
@@ -376,7 +403,7 @@ public class RouterImpl implements Router {
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** Route: */
-    String safePattern = Router.normalizePath(patternBuff.toString(), false, true);
+    String safePattern = pathBuilder.toString();
     Route route = new Route(method, safePattern, handler);
     route.setPathKeys(Router.pathKeys(safePattern));
     route.setBefore(before);
@@ -393,22 +420,20 @@ public class RouterImpl implements Router {
       routeExecutor.put(route, stack.executor);
     }
 
-    String routePattern = normalizePath(basePath == null
-        ? safePattern
-        : basePath + safePattern, false, true);
+    String finalPattern = basePath == null ? safePattern : basePath + safePattern;
 
     if (route.getMethod().equals(WS)) {
-      tree.insert(GET, routePattern, route);
+      tree.insert(GET, finalPattern, route);
       route.setReturnType(Context.class);
     } else {
-      tree.insert(route.getMethod(), routePattern, route);
+      tree.insert(route.getMethod(), finalPattern, route);
 
       if (route.isHttpOptions()) {
-        tree.insert(Router.OPTIONS, routePattern, route);
+        tree.insert(Router.OPTIONS, finalPattern, route);
       } else if (route.isHttpTrace()) {
-        tree.insert(Router.TRACE, routePattern, route);
+        tree.insert(Router.TRACE, finalPattern, route);
       } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
-        tree.insert(Router.HEAD, routePattern, route);
+        tree.insert(Router.HEAD, finalPattern, route);
       }
     }
     routes.add(route);
@@ -481,10 +506,12 @@ public class RouterImpl implements Router {
         route.setEncoder(encoder);
       }
     }
-    // router options
+    /** router options: */
     if (options.getIgnoreCase() || options.getIgnoreTrailingSlash()) {
-      chi = chi.options(options.getIgnoreCase(), options.getIgnoreTrailingSlash());
+      chi = new RouteTreeWithOptions(chi, options.getIgnoreCase(),
+          options.getIgnoreTrailingSlash());
     }
+
     // unwrap executor
     worker = ((ForwardingExecutor) worker).executor;
     this.stack.forEach(Stack::clear);
@@ -521,7 +548,7 @@ public class RouterImpl implements Router {
       errorCodes = null;
     }
     if (this.predicateMap != null) {
-      this.predicateMap.values().forEach(RadixTree::destroy);
+      this.predicateMap.values().forEach(RouteTree::destroy);
       this.predicateMap.clear();
       this.predicateMap = null;
     }
@@ -533,20 +560,20 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
     if (predicateMap != null) {
-      for (Map.Entry<Predicate<Context>, RadixTree> e : predicateMap.entrySet()) {
+      for (Map.Entry<Predicate<Context>, RouteTree> e : predicateMap.entrySet()) {
         if (e.getKey().test(ctx)) {
-          RouterMatch match = e.getValue().find(ctx, ctx.pathString(), encoder);
+          RouterMatch match = e.getValue().find(ctx.getMethod(), ctx.getRequestPath(), encoder);
           if (match.matches) {
             return match;
           }
         }
       }
     }
-    return chi.find(ctx, ctx.pathString(), encoder);
+    return chi.find(ctx.getMethod(), ctx.getRequestPath(), encoder);
   }
 
   @Override public boolean match(@Nonnull String pattern, @Nonnull String path) {
-    $Chi chi = new $Chi();
+    Chi chi = new Chi();
     chi.insert(Router.GET, pattern, ROUTE_MARK);
     return chi.find(Router.GET, path);
   }
@@ -646,7 +673,7 @@ public class RouterImpl implements Router {
   }
 
   private Stack push(String pattern) {
-    Stack stack = new Stack(normalizePath(pattern, false, true));
+    Stack stack = new Stack(Router.path(pattern));
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
       stack.executor = parent.executor;

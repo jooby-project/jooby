@@ -5,24 +5,20 @@
  */
 package io.jooby.internal;
 
-import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Router;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-class $Chi implements RadixTree {
+class Chi implements RouteTree {
   private static final byte ntStatic = 0;// /home
   private static final byte ntRegexp = 1;                // /{id:[0-9]+}
   private static final byte ntParam = 2;                // /{user}
@@ -800,12 +796,8 @@ class $Chi implements RadixTree {
     insert(route.getMethod(), route.getPattern(), route);
   }
 
-  @Override public void destroy() {
+  public void destroy() {
     root.destroy();
-  }
-
-  public RouterMatch find(Context context, MessageEncoder encoder) {
-    return find(context, context.pathString(), encoder);
   }
 
   public boolean find(String method, String path) {
@@ -815,8 +807,7 @@ class $Chi implements RadixTree {
     return true;
   }
 
-  public RouterMatch find(Context context, String path, MessageEncoder encoder) {
-    String method = context.getMethod();
+  public RouterMatch find(String method, String path, MessageEncoder encoder) {
     Route route = staticPaths.getOrDefault(path, NO_MATCH).methods.get(method);
     if (route == null) {
       // use radix tree

@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -737,26 +738,38 @@ public interface Router extends Registry {
    */
   @Nonnull ServerOptions getServerOptions();
 
+  static @Nonnull String path(@Nullable String path) {
+    if (path == null || path.length() == 0 || path.equals("/")) {
+      return "/";
+    }
+    return path.charAt(0) == '/' ? path : "/" + path;
+  }
+
+  static @Nonnull String noTrailingSlash(@Nonnull String path) {
+    StringBuilder buff = new StringBuilder(path);
+    int i = buff.length() - 1;
+    while (i > 0 && buff.charAt(i) == '/') {
+      buff.setLength(i);
+      i -= 1;
+    }
+    if (path.length() != buff.length()) {
+      return buff.toString();
+    }
+    return path;
+  }
+
   /**
    * Normalize a path by removing consecutive <code>/</code>(slashes), make it lower case and
    * removing trailing slash.
    *
    * @param path Path to process.
-   * @param ignoreCase True to make it lower case.
-   * @param ignoreTrailingSlash True to remove trailing slash.
    * @return Safe path pattern.
    */
-  static @Nonnull String normalizePath(@Nonnull String path, boolean ignoreCase,
-      boolean ignoreTrailingSlash) {
-    if (path == null) {
+  static @Nonnull String normalizePath(@Nullable String path) {
+    if (path == null || path.length() == 0 || path.equals("/")) {
       return "/";
     }
     int len = path.length();
-    if (len == 0) {
-      return "/";
-    } else if (len == 1 && path.charAt(0) == '/') {
-      return path;
-    }
     boolean modified = false;
     int p = 0;
     char[] buff = new char[len + 1];
@@ -767,25 +780,13 @@ public interface Router extends Registry {
     for (int i = 0; i < path.length(); i++) {
       char ch = path.charAt(i);
       if (ch != '/') {
-        if (ignoreCase) {
-          char low = Character.toLowerCase(ch);
-          if (low != ch) {
-            modified = true;
-          }
-          buff[p++] = low;
-        } else {
-          buff[p++] = ch;
-        }
+        buff[p++] = ch;
       } else if (i == 0 || path.charAt(i - 1) != '/') {
         buff[p++] = ch;
       } else {
         // double slash
         modified = true;
       }
-    }
-    if (ignoreTrailingSlash && p > 1 && buff[p - 1] == '/') {
-      p -= 1;
-      modified = true;
     }
     // creates string?
     return modified ? new String(buff, 0, p) : path;

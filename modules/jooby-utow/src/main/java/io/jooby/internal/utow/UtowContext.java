@@ -86,6 +86,8 @@ public class UtowContext implements DefaultContext, IoCallback {
   private HashMap<String, String> responseCookies;
   private long responseLength = -1;
   private Boolean resetHeadersOnError;
+  private String method;
+  private String requestPath;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -124,7 +126,10 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public String getMethod() {
-    return exchange.getRequestMethod().toString().toUpperCase();
+    if (method == null) {
+      method = exchange.getRequestMethod().toString().toUpperCase();
+    }
+    return method;
   }
 
   @Nonnull @Override public Route getRoute() {
@@ -137,7 +142,14 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public String pathString() {
-    return exchange.getRequestPath();
+    return getRequestPath();
+  }
+
+  @Nonnull @Override public String getRequestPath() {
+    if (requestPath == null) {
+      requestPath = exchange.getRequestPath();
+    }
+    return requestPath;
   }
 
   @Nonnull @Override public Map<String, String> pathMap() {
@@ -359,7 +371,7 @@ public class UtowContext implements DefaultContext, IoCallback {
       exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(len));
     }
 
-    exchange.getResponseSender().send(data,this);
+    exchange.getResponseSender().send(data, this);
     return this;
   }
 

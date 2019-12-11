@@ -81,7 +81,7 @@ public class MockContext implements DefaultContext {
     return method;
   }
 
-  MockContext setMethod(@Nonnull String method) {
+  @Nonnull public MockContext setMethod(@Nonnull String method) {
     this.method = method;
     return this;
   }
@@ -150,6 +150,15 @@ public class MockContext implements DefaultContext {
 
   @Nonnull @Override public String pathString() {
     return pathString;
+  }
+
+  @Nonnull @Override public String getRequestPath() {
+    return pathString;
+  }
+
+  @Nonnull public Context setRequestPath(@Nonnull String path) {
+    this.pathString = path;
+    return this;
   }
 
   /**

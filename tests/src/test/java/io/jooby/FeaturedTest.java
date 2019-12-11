@@ -1180,7 +1180,7 @@ public class FeaturedTest {
       Jooby bar = new Jooby();
       bar.get("/bar", Context::pathString);
 
-      app.path("/api/", () -> {
+      app.path("/api", () -> {
         app.use(bar);
 
         app.use("/bar", bar);

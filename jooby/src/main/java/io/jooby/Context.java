@@ -204,6 +204,8 @@ public interface Context extends Registry {
    */
   @Nonnull String pathString();
 
+  @Nonnull String getRequestPath();
+
   /**
    * Path variable. Value is decoded.
    *

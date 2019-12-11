@@ -1,6 +1,6 @@
 package io.jooby.internal;
 
-import io.jooby.internal.$Chi.ZeroCopyString;
+import io.jooby.internal.Chi.ZeroCopyString;
 
 import org.junit.jupiter.api.Test;
 

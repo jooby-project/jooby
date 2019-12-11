@@ -1,7 +1,5 @@
 package io.jooby.internal;
 
-import io.jooby.Context;
-import io.jooby.ForwardingContext;
 import io.jooby.Route;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -14,7 +12,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 
 @Fork(5)
@@ -25,26 +22,15 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class ChiBenchmark {
 
-  private $Chi router;
-
-  Context plaintext;
-
-  Context article;
-
-  Context articleEdit;
+  private Chi router;
 
   @Setup
   public void setup() {
-    router = new $Chi();
+    router = new Chi();
 
     router.insert(route("GET", "/plaintext"));
-    router.insert(route("GET", "/json"));
-
-    plaintext = context("GET", "/plaintext");
-
-    article = context("GET", "/articles/{id}");
-
-    articleEdit = context("GET", "/articles/{id}/edit");
+    router.insert(route("GET", "/articles/{id}"));
+    router.insert(route("GET", "/articles/{id}/edit"));
   }
 
   private Route route(String method, String pattern) {
@@ -53,29 +39,17 @@ public class ChiBenchmark {
 
   @Benchmark
   public void _plaintext() {
-    router.find(plaintext, null, null);
+    router.find("GET", "/plaintext", null);
   }
 
   @Benchmark
-  public void article() {
-    router.find(article, null, null);
+  public void articles() {
+    router.find("GET", "/articles/123", null);
   }
 
   @Benchmark
-  public void articleEdit() {
-    router.find(articleEdit, null, null);
-  }
-
-  private static Context context(String method, String path) {
-    return new ForwardingContext(null) {
-      @Nonnull @Override public String getMethod() {
-        return method;
-      }
-
-      @Nonnull @Override public String pathString() {
-        return path;
-      }
-    };
+  public void articlesEdit() {
+    router.find("GET", "/articles/123/edit", null);
   }
 
 }

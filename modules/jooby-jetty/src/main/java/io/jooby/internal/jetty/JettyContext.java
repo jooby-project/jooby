@@ -154,6 +154,10 @@ public class JettyContext implements DefaultContext {
   }
 
   @Nonnull @Override public String pathString() {
+    return getRequestPath();
+  }
+
+  @Nonnull @Override public String getRequestPath() {
     if (pathString == null) {
       pathString = request.getRequestURI();
     }
@@ -488,7 +492,7 @@ public class JettyContext implements DefaultContext {
   }
 
   @Override public String toString() {
-    return getMethod() + " " + pathString();
+    return getMethod() + " " + getRequestPath();
   }
 
   void complete(Throwable x) {
