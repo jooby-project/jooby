@@ -538,7 +538,17 @@ public interface Router extends Registry {
    */
   @Nonnull Match match(@Nonnull Context ctx);
 
-  boolean match(@Nonnull String pattern, @Nonnull String path);
+  /**
+   * Find a matching route using the given context.
+   *
+   * If no match exists this method returns a route with a <code>404</code> handler.
+   * See {@link Route#NOT_FOUND}.
+   *
+   * @param method Method to match.
+   * @param path Path to match.
+   * @return A route match result.
+   */
+  boolean match(@Nonnull String method, @Nonnull String path);
 
   /* Error handler: */
 
@@ -636,6 +646,11 @@ public interface Router extends Registry {
    */
   @Nonnull Router responseHandler(@Nonnull ResponseHandler factory);
 
+  /**
+   * Router options.
+   *
+   * @return Router options.
+   */
   @Nonnull Set<RouterOption> getRouterOptions();
 
   /**
@@ -734,13 +749,25 @@ public interface Router extends Registry {
    */
   @Nonnull ServerOptions getServerOptions();
 
-  static @Nonnull String path(@Nullable String path) {
+  /**
+   * Ensure path start with a <code>/</code>(leading slash).
+   *
+   * @param path Path to process.
+   * @return Path with leading slash.
+   */
+  static @Nonnull String leadingSlash(@Nullable String path) {
     if (path == null || path.length() == 0 || path.equals("/")) {
       return "/";
     }
     return path.charAt(0) == '/' ? path : "/" + path;
   }
 
+  /**
+   * Strip trailing slashes.
+   *
+   * @param path Path to process.
+   * @return Path without trailing slashes.
+   */
   static @Nonnull String noTrailingSlash(@Nonnull String path) {
     StringBuilder buff = new StringBuilder(path);
     int i = buff.length() - 1;
@@ -755,8 +782,7 @@ public interface Router extends Registry {
   }
 
   /**
-   * Normalize a path by removing consecutive <code>/</code>(slashes), make it lower case and
-   * removing trailing slash.
+   * Normalize a path by removing consecutive <code>/</code>(slashes).
    *
    * @param path Path to process.
    * @return Safe path pattern.

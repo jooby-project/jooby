@@ -61,7 +61,7 @@ public class Issue1409 {
   @ServerTest
   public void shouldNormRequestPath(ServerTestRunner runner) {
     runner.define(app -> {
-      app.setRouterOptions(RouterOption.NORM, RouterOption.NO_TRAILING_SLASH);
+      app.setRouterOptions(RouterOption.NORMALIZE_SLASH, RouterOption.IGNORE_TRAILING_SLASH);
       app.get("/doubleslash", Context::getRequestPath);
 
       app.path("/path", () -> {

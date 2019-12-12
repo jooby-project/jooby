@@ -1031,6 +1031,9 @@ public class Jooby implements Router, Registry {
   /**
    * Check if we are running from joobyRun and invoke a hook class passing the web server.
    * JoobyRun intercept the server and use it for doing hotswap.
+   *
+   * @param loader Class loader.
+   * @param server Server.
    */
   private void joobyRunHook(ClassLoader loader, Server server) {
     if (loader.getClass().getName().equals("org.jboss.modules.ModuleClassLoader")) {

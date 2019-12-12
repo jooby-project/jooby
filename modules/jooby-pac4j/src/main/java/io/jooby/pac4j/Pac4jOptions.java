@@ -5,6 +5,15 @@
  */
 package io.jooby.pac4j;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+/**
+ * Options to configure pac4j security, callback and logout actions.
+ *
+ * @author edgar
+ * @since 2.4.0
+ */
 public class Pac4jOptions {
 
   private String defaultUrl;
@@ -29,19 +38,42 @@ public class Pac4jOptions {
 
   private boolean centralLogout;
 
-  public String getDefaultUrl() {
+  /**
+   * Default url to redirect to after successful login.
+   * Used by {@link org.pac4j.core.engine.CallbackLogic}.
+   *
+   * @return Default url.
+   */
+  public @Nullable String getDefaultUrl() {
     return defaultUrl;
   }
 
-  public Pac4jOptions setDefaultUrl(String defaultUrl) {
+  /**
+   * Set default url to redirect to after successful login.
+   *
+   * @param defaultUrl Default url to redirect to after successful login.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setDefaultUrl(@Nullable String defaultUrl) {
     this.defaultUrl = defaultUrl;
     return this;
   }
 
-  public Boolean getSaveInSession() {
+  /**
+   * True to save profile/user data into session. Default is true for indirect clients.
+   *
+   * @return True to save profile/user data into session. Default is true for indirect clients.
+   */
+  public @Nullable Boolean getSaveInSession() {
     return saveInSession;
   }
 
+  /**
+   * Set whenever profile/data must be save in HTTP session.
+   *
+   * @param saveInSession
+   * @return
+   */
   public Pac4jOptions setSaveInSession(Boolean saveInSession) {
     this.saveInSession = saveInSession;
     return this;

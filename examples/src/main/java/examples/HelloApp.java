@@ -17,7 +17,7 @@ public class HelloApp extends Jooby {
 
     decorator(new TraceHandler());
 
-    setRouterOptions(RouterOption.NO_TRAILING_SLASH);
+    setRouterOptions(RouterOption.IGNORE_TRAILING_SLASH);
 
     get("/", ctx -> {
       return "Hello World";

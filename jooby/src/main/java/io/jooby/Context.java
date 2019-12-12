@@ -178,6 +178,12 @@ public interface Context extends Registry {
    */
   @Nonnull Route getRoute();
 
+  /**
+   * Check if the request path matches the given pattern.
+   *
+   * @param pattern Pattern to use.
+   * @return True if request path matches the pattern.
+   */
   boolean matches(@Nonnull String pattern);
 
   /**
@@ -204,6 +210,11 @@ public interface Context extends Registry {
    */
   @Nonnull String pathString();
 
+  /**
+   * Request path without decoding (a.k.a raw Path) without query string.
+   *
+   * @return Request path without decoding (a.k.a raw Path) without query string.
+   */
   @Nonnull String getRequestPath();
 
   /**
@@ -425,6 +436,12 @@ public interface Context extends Registry {
    */
   @Nonnull String getRequestURL();
 
+  /**
+   * Recreates full/entire request url using the <code>Host</code> header.
+   *
+   * @param path Path to use.
+   * @return Full/entire request url using the <code>Host</code> header.
+   */
   @Nonnull String getRequestURL(@Nonnull String path);
 
   /**
@@ -437,6 +454,15 @@ public interface Context extends Registry {
    */
   @Nonnull String getRequestURL(boolean useProxy);
 
+  /**
+   * Recreates full/entire request url using the <code>X-Forwarded-Host</code> when present
+   * or fallback to <code>Host</code> header when missing.
+   *
+   * @param path Path to use.
+   * @param useProxy True to trust/use the <code>X-Forwarded-Host</code>.
+   * @return Full/entire request url using the <code>X-Forwarded-Host</code> when present
+   *     or fallback to <code>Host</code> header when missing.
+   */
   @Nonnull String getRequestURL(@Nonnull String path, boolean useProxy);
 
   /**
@@ -1165,10 +1191,10 @@ public interface Context extends Registry {
 
   /**
    * True if response headers are cleared on application error. If none set it uses the
-   * default/global value specified by {@link RouterOptions#getResetHeadersOnError()}.
+   * default/global value specified by {@link RouterOption#RESET_HEADERS_ON_ERROR}.
    *
    * @return True if response headers are cleared on application error. If none set it uses the
-   *     default/global value specified by {@link RouterOptions#getResetHeadersOnError()}.
+   *     default/global value specified by {@link RouterOption#RESET_HEADERS_ON_ERROR}.
    */
   boolean getResetHeadersOnError();
 

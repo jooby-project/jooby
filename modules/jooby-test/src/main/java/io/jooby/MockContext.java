@@ -81,6 +81,12 @@ public class MockContext implements DefaultContext {
     return method;
   }
 
+  /**
+   * Set HTTP method.
+   *
+   * @param method HTTP method.
+   * @return This context.
+   */
   @Nonnull public MockContext setMethod(@Nonnull String method) {
     this.method = method;
     return this;
@@ -156,7 +162,13 @@ public class MockContext implements DefaultContext {
     return pathString;
   }
 
-  @Nonnull public Context setRequestPath(@Nonnull String path) {
+  /**
+   * Set request path.
+   *
+   * @param path Request path.
+   * @return This context.
+   */
+  @Nonnull public MockContext setRequestPath(@Nonnull String path) {
     this.pathString = path;
     return this;
   }

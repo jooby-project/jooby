@@ -203,7 +203,7 @@ public class RouterImpl implements Router {
     if (routes.size() > 0) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
-    this.basePath = Router.path(basePath);
+    this.basePath = Router.leadingSlash(basePath);
     return this;
   }
 
@@ -235,7 +235,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
-    String prefix = Router.path(path);
+    String prefix = Router.leadingSlash(path);
     for (Route route : router.getRoutes()) {
       String routePattern = new PathBuilder(prefix, route.getPattern()).toString();
       Route newRoute = newRoute(route.getMethod(), routePattern, route.getHandler(), chi);
@@ -422,6 +422,10 @@ public class RouterImpl implements Router {
         ? safePattern
         : new PathBuilder(basePath, safePattern).toString();
 
+    if (routerOptions.contains(RouterOption.IGNORE_CASE)) {
+      finalPattern = finalPattern.toLowerCase();
+    }
+
     if (route.getMethod().equals(WS)) {
       tree.insert(GET, finalPattern, route);
       route.setReturnType(Context.class);
@@ -507,13 +511,13 @@ public class RouterImpl implements Router {
       }
     }
     /** router options: */
-    if (routerOptions.contains(RouterOption.LOW_CASE)) {
+    if (routerOptions.contains(RouterOption.IGNORE_CASE)) {
       chi = new RouteTreeLowerCasePath(chi);
     }
-    if (routerOptions.contains(RouterOption.NO_TRAILING_SLASH)) {
+    if (routerOptions.contains(RouterOption.IGNORE_TRAILING_SLASH)) {
       chi = new RouteTreeIgnoreTrailingSlash(chi);
     }
-    if (routerOptions.contains(RouterOption.NORM)) {
+    if (routerOptions.contains(RouterOption.NORMALIZE_SLASH)) {
       chi = new RouteTreeNormPath(chi);
     }
 
@@ -678,7 +682,7 @@ public class RouterImpl implements Router {
   }
 
   private Stack push(String pattern) {
-    Stack stack = new Stack(Router.path(pattern));
+    Stack stack = new Stack(Router.leadingSlash(pattern));
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
       stack.executor = parent.executor;

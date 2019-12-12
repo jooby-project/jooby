@@ -91,6 +91,9 @@
     <module name="JavadocMethod">
       <property name="scope" value="public" />
     </module>
+    <module name="MissingJavadocMethod">
+      <property name="scope" value="public" />
+    </module>
     <module name="JavadocType">
       <property name="scope" value="public" />
     </module>

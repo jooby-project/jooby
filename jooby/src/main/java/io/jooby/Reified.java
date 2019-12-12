@@ -58,6 +58,8 @@ public class Reified<T> {
 
   /**
    * Unsafe. Constructs a type literal manually.
+   *
+   * @param type Generic type.
    */
   @SuppressWarnings("unchecked")
   private Reified(Type type) {
@@ -66,6 +68,11 @@ public class Reified<T> {
     this.hashCode = this.type.hashCode();
   }
 
+  /**
+   * Unsafe. Constructs a type literal manually.
+   *
+   * @param type Generic type.
+   */
   private Reified(Class type) {
     this.type = type;
     this.rawType = type;
@@ -75,6 +82,9 @@ public class Reified<T> {
   /**
    * Returns the type from super class's type parameter in {@link $Types#canonicalize
    * canonical form}.
+   *
+   * @param subclass Subclass.
+   * @return Type.
    */
   private static Type getSuperclassTypeParameter(Class<?> subclass) {
     Type superclass = subclass.getGenericSuperclass();

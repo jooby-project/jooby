@@ -88,7 +88,7 @@ public class HandlerCompiler {
       TypeElement httpMethod, String pattern) {
     this.httpMethod = httpMethod.getSimpleName().toString().toLowerCase();
     this.annotation = httpMethod.asType();
-    this.pattern = Router.path(pattern);
+    this.pattern = Router.leadingSlash(pattern);
     this.environment = environment;
     this.executable = executable;
     this.typeUtils = environment.getTypeUtils();

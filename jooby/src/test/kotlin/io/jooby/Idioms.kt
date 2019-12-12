@@ -1,7 +1,7 @@
 package io.jooby
 
-import io.jooby.RouterOption.LOW_CASE
-import io.jooby.RouterOption.NO_TRAILING_SLASH
+import io.jooby.RouterOption.IGNORE_CASE
+import io.jooby.RouterOption.IGNORE_TRAILING_SLASH
 import kotlinx.coroutines.delay
 import java.nio.file.Paths
 import java.time.Duration
@@ -47,7 +47,7 @@ class Idioms : Kooby({
     }
   }
 
-  routerOptions(LOW_CASE, NO_TRAILING_SLASH)
+  routerOptions(IGNORE_CASE, IGNORE_TRAILING_SLASH)
 
   environmentOptions {
     this.activeNames = listOf("foo")

@@ -6,7 +6,6 @@
 package io.jooby.apt;
 
 import io.jooby.MvcFactory;
-import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.apt.FactoryCompiler;
 import io.jooby.internal.apt.HandlerCompiler;
