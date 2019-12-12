@@ -243,15 +243,15 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
       return this;
     }
     if (!readOnly) {
-      log.debug("flusing session: {}", oid(session));
+      log.debug("flushing session: {}", oid(session));
       session.flush();
     } else {
-      log.debug("flusing ignored on read-only session: {}", oid(session));
+      log.debug("flushing ignored on read-only session: {}", oid(session));
     }
     active(session, trx -> {
-      log.debug("commiting transaction: {}(trx@{})", oid(session), oid(trx));
+      log.debug("committing transaction: {}(trx@{})", oid(session), oid(trx));
       trx.commit();
-    }, trx -> log.warn("unable to commit inactive transaction: {}(trx@{})", oid(session), oid(trx)));
+    }, trx -> log.debug("unable to commit inactive transaction: {}(trx@{})", oid(session), oid(trx)));
     return this;
   }
 
@@ -277,7 +277,7 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
     active(session, trx -> {
       log.debug("rollback transaction: {}(trx@{})", oid(session), oid(trx));
       trx.rollback();
-    }, trx -> log.warn("unable to rollback inactive transaction: {}(trx@{})", oid(session), oid(trx)));
+    }, trx -> log.debug("unable to rollback inactive transaction: {}(trx@{})", oid(session), oid(trx)));
     return this;
   }
 
@@ -303,16 +303,19 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
         commit();
       }
     } finally {
-      if (readOnly) {
-        setConnectionReadOnly(false);
-      }
+      try {
+        if (readOnly) {
+          setConnectionReadOnly(false);
+        }
 
-      String sessionId = oid(session);
-      log.debug("closing session: {}", sessionId);
-      Try.run(session::close)
-          .onFailure(x -> log.error("session.close() resulted in exception: {}", sessionId, x))
-          .onSuccess(() -> log.debug("session closed: {}", sessionId));
-      unbind(session.getSessionFactory());
+        String sessionId = oid(session);
+        log.debug("closing session: {}", sessionId);
+        Try.run(session::close)
+            .onFailure(x -> log.error("session.close() resulted in exception: {}", sessionId, x))
+            .onSuccess(() -> log.debug("session closed: {}", sessionId));
+      } finally {
+        unbind(session.getSessionFactory());
+      }
     }
   }
 

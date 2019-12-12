@@ -215,15 +215,25 @@ public class OpenSessionInView implements Filter {
   @Override
   public void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
     RootUnitOfWork uow = (RootUnitOfWork) req.require(UnitOfWork.class);
-    // start transaction
-    uow.begin();
 
-    rsp.after(after(uow));
+    try {
+      // start transaction
+      uow.begin();
 
-    rsp.complete(complete(uow));
+      rsp.after(after(uow));
 
-    // move next
-    chain.next(req, rsp);
+      rsp.complete(complete(uow));
+
+      // move next
+      chain.next(req, rsp);
+    } catch (Throwable x) {
+      try {
+        uow.setRollbackOnly().end();
+      } catch (Throwable suppressed) {
+        x.addSuppressed(suppressed);
+      }
+      throw x;
+    }
   }
 
   private static Route.Complete complete(final RootUnitOfWork uow) {
