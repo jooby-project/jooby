@@ -101,6 +101,10 @@ public class JwtSessionStore implements SessionStore {
     store.saveSession(ctx, session);
   }
 
+  @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
+    store.renewSessionId(ctx, session);
+  }
+
   static SneakyThrows.Function<String, Map<String, String>> decoder(Key key) {
     return value -> {
       try {

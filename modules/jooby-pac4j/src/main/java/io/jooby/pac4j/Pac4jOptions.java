@@ -61,6 +61,7 @@ public class Pac4jOptions {
 
   /**
    * True to save profile/user data into session. Default is true for indirect clients.
+   * Used by {@link org.pac4j.core.engine.CallbackLogic}.
    *
    * @return True to save profile/user data into session. Default is true for indirect clients.
    */
@@ -71,100 +72,199 @@ public class Pac4jOptions {
   /**
    * Set whenever profile/data must be save in HTTP session.
    *
-   * @param saveInSession
-   * @return
+   * @param saveInSession True to save profile in HTTP session.
+   * @return This session.
    */
-  public Pac4jOptions setSaveInSession(Boolean saveInSession) {
+  public @Nonnull Pac4jOptions setSaveInSession(@Nullable Boolean saveInSession) {
     this.saveInSession = saveInSession;
     return this;
   }
 
-  public Boolean getMultiProfile() {
+  /**
+   * Whether multi profiles are supported.
+   * Used by {@link org.pac4j.core.engine.CallbackLogic}.
+   *
+   * @return Whether multi profiles are supported.
+   */
+  public @Nullable Boolean getMultiProfile() {
     return multiProfile;
   }
 
-  public Pac4jOptions setMultiProfile(Boolean multiProfile) {
+  /**
+   * Set Whether multi profiles are supported.
+   *
+   * @param multiProfile Whether multi profiles are supported.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setMultiProfile(@Nullable Boolean multiProfile) {
     this.multiProfile = multiProfile;
     return this;
   }
 
-  public Boolean getRenewSession() {
+  /**
+   * Whether the session must be renewed.
+   * Used by {@link org.pac4j.core.engine.CallbackLogic}.
+   *
+   * @return Whether the session must be renewed.
+   */
+  public @Nullable Boolean getRenewSession() {
     return renewSession;
   }
 
-  public Pac4jOptions setRenewSession(Boolean renewSession) {
+  /**
+   * Set whether the session must be renewed.
+   *
+   * @param renewSession whether the session must be renewed.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setRenewSession(@Nullable Boolean renewSession) {
     this.renewSession = renewSession;
     return this;
   }
 
-  public String getDefaultClient() {
+  /**
+   * Default client to use.
+   * Used by {@link org.pac4j.core.engine.CallbackLogic}.
+   *
+   * @return Default client to use.
+   */
+  public @Nullable String getDefaultClient() {
     return defaultClient;
   }
 
-  public Pac4jOptions setDefaultClient(String defaultClient) {
+  /**
+   * Set default client to use.
+   *
+   * @param defaultClient Default client to use.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setDefaultClient(@Nullable String defaultClient) {
     this.defaultClient = defaultClient;
     return this;
   }
 
-  public boolean isMultiProfile() {
-    return multiProfile;
-  }
-
-  public Pac4jOptions setMultiProfile(boolean multiProfile) {
-    this.multiProfile = multiProfile;
-    return this;
-  }
-
-  public String getCallbackPath() {
+  /**
+   * Callback path, defaults to <code>/callback</code>.
+   * Used by {@link org.pac4j.core.engine.CallbackLogic}.
+   *
+   * @return Callback path, defaults to <code>/callback</code>.
+   */
+  public @Nonnull String getCallbackPath() {
     return callbackPath;
   }
 
-  public Pac4jOptions setCallbackPath(String callbackPath) {
+  /**
+   * Set callback path.
+   *
+   * @param callbackPath Callback path.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setCallbackPath(@Nonnull String callbackPath) {
     this.callbackPath = callbackPath;
     return this;
   }
 
-  public String getLogoutPath() {
+  /**
+   * Callback path, defaults to <code>/logout</code>.
+   * Used by {@link org.pac4j.core.engine.LogoutLogic}.
+   *
+   * @return Logout path, defaults to <code>/logout</code>.
+   */
+  public @Nonnull String getLogoutPath() {
     return logoutPath;
   }
 
-  public Pac4jOptions setLogoutPath(String logoutPath) {
+  /**
+   * Set logout path.
+   *
+   * @param logoutPath Logout path.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setLogoutPath(@Nonnull String logoutPath) {
     this.logoutPath = logoutPath;
     return this;
   }
 
+  /**
+   * Local logout option. Defaults: true.
+   * Used by {@link org.pac4j.core.engine.LogoutLogic}.
+   *
+   * @return Local logout option.
+   */
   public boolean isLocalLogout() {
     return localLogout;
   }
 
-  public Pac4jOptions setLocalLogout(boolean localLogout) {
+  /**
+   * Set logout option.
+   *
+   * @param localLogout Logout option.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setLocalLogout(boolean localLogout) {
     this.localLogout = localLogout;
     return this;
   }
 
+  /**
+   * Central logout option. Defaults: false.
+   * Used by {@link org.pac4j.core.engine.LogoutLogic}.
+   *
+   * @return Central logout option.
+   */
   public boolean isCentralLogout() {
     return centralLogout;
   }
 
-  public Pac4jOptions setCentralLogout(boolean centralLogout) {
+  /**
+   * Set central logout option.
+   *
+   * @param centralLogout Central logout option.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setCentralLogout(boolean centralLogout) {
     this.centralLogout = centralLogout;
     return this;
   }
 
+  /**
+   * Whether to destroy session after logout. Defaults: true.
+   * Used by {@link org.pac4j.core.engine.LogoutLogic}.
+   *
+   * @return Whether to destroy session after logout.
+   */
   public boolean isDestroySession() {
     return destroySession;
   }
 
-  public Pac4jOptions setDestroySession(boolean destroySession) {
+  /**
+   * Set destroy session logout option.
+   *
+   * @param destroySession Destroy session option.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setDestroySession(boolean destroySession) {
     this.destroySession = destroySession;
     return this;
   }
 
+  /**
+   * True for using the <code>X-Forwarded-*</code> headers to generates URL. Defauls to: false.
+   * See {@link io.jooby.Context#getRequestURL(boolean)}.
+   *
+   * @return Whether trust on <code>X-Forwarded-*</code> headers.
+   */
   public boolean isTrustProxy() {
     return trustProxy;
   }
 
-  public Pac4jOptions setTrustProxy(boolean trustProxy) {
+  /**
+   * Set whether trust on <code>X-Forwarded-*</code> headers.
+   *
+   * @param trustProxy True or using <code>X-Forwarded-*</code> headers.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setTrustProxy(boolean trustProxy) {
     this.trustProxy = trustProxy;
     return this;
   }

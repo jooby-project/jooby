@@ -72,6 +72,7 @@ public class SessionStoreImpl
   }
 
   @Override public boolean renewSession(Pac4jContext context) {
+    getSessionOrEmpty(context).ifPresent(session -> session.renewId());
     return true;
   }
 

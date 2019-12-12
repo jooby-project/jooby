@@ -19,8 +19,6 @@ import java.util.function.Function;
 
 public class SignedSessionStore implements SessionStore {
 
-  private static final String NO_ID = "<new-session>";
-
   private final Function<String, Map<String, String>> decoder;
 
   private final Function<Map<String, String>, String> encoder;
@@ -35,7 +33,7 @@ public class SignedSessionStore implements SessionStore {
   }
 
   @Nonnull @Override public Session newSession(@Nonnull Context ctx) {
-    return Session.create(ctx, NO_ID).setNew(true);
+    return Session.create(ctx, null).setNew(true);
   }
 
   @Nullable @Override public Session findSession(@Nonnull Context ctx) {
@@ -60,5 +58,9 @@ public class SignedSessionStore implements SessionStore {
 
   @Override public void saveSession(@Nonnull Context ctx, @Nonnull Session session) {
     // NOOP
+  }
+
+  @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
+    token.saveToken(ctx, encoder.apply(session.toMap()));
   }
 }

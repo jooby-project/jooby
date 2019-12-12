@@ -80,6 +80,12 @@ public class MemorySessionStore implements SessionStore {
         new SessionData(session.getCreationTime(), Instant.now(), session.toMap()));
   }
 
+  @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
+    String oldId = session.getId();
+    session.setId(token.newToken());
+    sessions.remove(oldId);
+  }
+
   private Session restore(Context ctx, String sessionId, SessionData data) {
     return Session.create(ctx, sessionId, data.hash)
         .setLastAccessedTime(data.lastAccessedTime)

@@ -77,6 +77,14 @@ public interface SessionStore {
   void saveSession(@Nonnull Context ctx, @Nonnull Session session);
 
   /**
+   * Renew Session ID. This operation might or might not be implemented by a Session Store.
+   *
+   * @param ctx Web Context.
+   * @param session Session.
+   */
+  void renewSessionId(@Nonnull Context ctx, @Nonnull Session session);
+
+  /**
    * Creates a cookie based session and store data in memory. Session data is not keep after
    * restart.
    *

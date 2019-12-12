@@ -6,6 +6,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,11 @@ public class MockSession implements Session {
 
   @Nonnull @Override public String getId() {
     return sessionId;
+  }
+
+  @Nonnull @Override public MockSession setId(@Nullable String id) {
+    this.sessionId = id;
+    return this;
   }
 
   @Nonnull @Override public Value get(@Nonnull String name) {
@@ -110,6 +116,10 @@ public class MockSession implements Session {
 
   @Override public Session clear() {
     data.clear();
+    return this;
+  }
+
+  @Override public Session renewId() {
     return this;
   }
 

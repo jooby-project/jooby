@@ -8,6 +8,7 @@ package io.jooby;
 import io.jooby.internal.SessionImpl;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Map;
 
@@ -22,11 +23,19 @@ public interface Session {
   String NAME = "session";
 
   /**
-   * Session ID.
+   * Session ID or <code>null</code> for stateless (usually signed) sessions.
    *
-   * @return Session ID.
+   * @return Session ID or <code>null</code> for stateless (usually signed) sessions.
    */
-  @Nonnull String getId();
+  @Nullable String getId();
+
+  /**
+   * Set Session ID.
+   *
+   * @param id Session ID or <code>null</code>
+   * @return Session.
+   */
+  @Nonnull Session setId(@Nullable String id);
 
   /**
    * Get a session attribute.
@@ -210,13 +219,19 @@ public interface Session {
   void destroy();
 
   /**
+   * Assign a new ID to the existing session.
+   * @return This session.
+   */
+  Session renewId();
+
+  /**
    * Creates a new session.
    *
    * @param ctx Web context.
-   * @param id Session ID.
+   * @param id Session ID or <code>null</code>.
    * @return A new session.
    */
-  static @Nonnull Session create(@Nonnull Context ctx, @Nonnull String id) {
+  static @Nonnull Session create(@Nonnull Context ctx, @Nullable String id) {
     return new SessionImpl(ctx, id);
   }
 
@@ -224,11 +239,11 @@ public interface Session {
    * Creates a new session.
    *
    * @param ctx Web context.
-   * @param id Session ID.
+   * @param id Session ID or <code>null</code>.
    * @param data Session attributes.
    * @return A new session.
    */
-  static @Nonnull Session create(@Nonnull Context ctx, @Nonnull String id,
+  static @Nonnull Session create(@Nonnull Context ctx, @Nullable String id,
       @Nonnull Map<String, String> data) {
     return new SessionImpl(ctx, id, data);
   }

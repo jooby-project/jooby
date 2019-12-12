@@ -12,6 +12,7 @@ import io.jooby.Value;
 import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,8 +61,13 @@ public class SessionImpl implements Session {
     return this;
   }
 
-  @Override public @Nonnull String getId() {
+  @Override public @Nullable String getId() {
     return id;
+  }
+
+  @Nonnull @Override public Session setId(@Nullable String id) {
+    this.id = id;
+    return this;
   }
 
   @Override public @Nonnull Value get(@Nonnull String name) {
@@ -112,6 +118,12 @@ public class SessionImpl implements Session {
     ctx.getAttributes().remove(NAME);
     attributes.clear();
     store(ctx).deleteSession(ctx, this);
+  }
+
+  @Override public Session renewId() {
+    store(ctx).renewSessionId(ctx, this);
+    updateState();
+    return this;
   }
 
   private void updateState() {
