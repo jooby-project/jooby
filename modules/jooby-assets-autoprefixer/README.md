@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-autoprefixer/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-autoprefixer/1.6.5)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-autoprefixer.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-autoprefixer/1.6.5)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-autoprefixer/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-autoprefixer/1.6.6)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-autoprefixer.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-autoprefixer/1.6.6)
 [![jooby-assets-autoprefixer website](https://img.shields.io/badge/jooby-assets-autoprefixer-brightgreen.svg)](http://jooby.org/doc/assets-autoprefixer)
 # auto-prefixer
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-autoprefixer</artifactId>
- <version>1.6.5</version>
+ <version>1.6.6</version>
  <scope>provided</scope>
 </dependency>
 ```

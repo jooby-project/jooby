@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby/1.6.5)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby.svg)](https://javadoc.io/doc/org.jooby/jooby/1.6.5)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby/1.6.6)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby.svg)](https://javadoc.io/doc/org.jooby/jooby/1.6.6)
 [![Become a Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://patreon.com/edgarespina)
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 [![coveralls.io](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)

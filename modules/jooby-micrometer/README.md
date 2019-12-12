@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-micrometer/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-micrometer/1.6.5)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-micrometer.svg)](https://javadoc.io/doc/org.jooby/jooby-micrometer/1.6.5)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-micrometer/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-micrometer/1.6.6)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-micrometer.svg)](https://javadoc.io/doc/org.jooby/jooby-micrometer/1.6.6)
 [![jooby-micrometer website](https://img.shields.io/badge/jooby-micrometer-brightgreen.svg)](http://jooby.org/doc/micrometer)
 # micrometer
 
@@ -11,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-micrometer</artifactId>
- <version>1.6.5</version>
+ <version>1.6.6</version>
 </dependency>
 ```
 

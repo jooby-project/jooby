@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-mongodb/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-mongodb/1.6.5)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-mongodb.svg)](https://javadoc.io/doc/org.jooby/jooby-mongodb/1.6.5)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-mongodb/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-mongodb/1.6.6)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-mongodb.svg)](https://javadoc.io/doc/org.jooby/jooby-mongodb/1.6.6)
 [![jooby-mongodb website](https://img.shields.io/badge/jooby-mongodb-brightgreen.svg)](http://jooby.org/doc/mongodb)
 # mongodb driver
 
@@ -17,7 +17,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>1.6.5</version>
+  <version>1.6.6</version>
 </dependency>
 ```
 
@@ -117,7 +117,7 @@ Use [named](/apidocs/org/jooby/mongodb/Mongodb.html#-named) when you need two or
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>1.6.5</version>
+  <version>1.6.6</version>
 </dependency>
 ```
 

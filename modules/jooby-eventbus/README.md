@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-eventbus/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-eventbus/1.6.5)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-eventbus.svg)](https://javadoc.io/doc/org.jooby/jooby-eventbus/1.6.5)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-eventbus/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-eventbus/1.6.6)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-eventbus.svg)](https://javadoc.io/doc/org.jooby/jooby-eventbus/1.6.6)
 [![jooby-eventbus website](https://img.shields.io/badge/jooby-eventbus-brightgreen.svg)](http://jooby.org/doc/eventbus)
 # EventBus
 
@@ -15,7 +15,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-eventbus</artifactId>
- <version>1.6.5</version>
+ <version>1.6.6</version>
 </dependency>
 ```
 
