@@ -1,0 +1,307 @@
+== Pac4j
+
+https://www.pac4j.org[Pac4j] security engine for Jooby.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-pac4j"]
+.
+
+2) Install Pac4j
+
+.Simple login form
+[source, java, role="primary"]
+----
+import io.jooby.pac4j.Pac4jModule;
+
+{
+  install(new Pac4jModule());           <1>
+
+  get("/", ctx -> {
+    UserProfile user = ctx.getUser();   <2>
+    return "Hello " + user.getId();
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.pac4j.Pac4jModule
+
+{
+  install(Pac4jModule())                <1>
+  
+  get("/") {
+    "Hello $ctx.user.id"                <2>
+  }
+}
+----
+
+<1> Install Pac4j with a simple login form
+<2> Access to authenticated user
+
+Once installed all routes defined below requires authentication.
+
+=== Clients
+
+A Client represents an authentication mechanism. It performs the login process and returns (if successful) a user profile.
+Clients are configured at bootstrap time using the Pac4j DSL:
+
+==== Google
+
+This example shows how to use Google.
+
+1) Add the dependency:
+
+[dependency, artifactId="pac4j-oidc"]
+.
+
+2) Generates clientId and secret keys or use the one provided by pac4j (**development only**):
+
+.application.conf
+[source, properties]
+----
+oidc.clientId = 167480702619-8e1lo80dnu8bpk3k0lvvj27noin97vu9.apps.googleusercontent.com
+oidc.secret = MhMme_Ik6IH2JMnAT6MFIfee
+----
+
+2) Configure client
+
+.Google
+[source, java, role="primary"]
+----
+import io.jooby.pac4j.Pac4jModule;
+
+{
+  install(new Pac4jModule()
+    .client(conf -> {
+      OidcConfiguration oidc = new OidcConfiguration();
+      oidc.setClientId(conf.getString("oidc.clientId"));
+      oidc.setSecret(conf.getString("oidc.secret"));
+      oidc.addCustomParam("prompt", "consent");
+      oidc.setUseNonce(true);
+      return new GoogleOidcClient(oidc);
+    })
+  );           
+
+  get("/", ctx -> {
+    UserProfile user = ctx.getUser();
+    return "Hello " + user.getId();
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.pac4j.Pac4jModule
+
+{
+  install(Pac4jModule()
+    .client { conf -> {
+      val oidc = OidcConfiguration()
+      oidc.clientId = conf.getString("oidc.clientId")
+      oidc.secret = conf.getString("oidc.secret")
+      oidc.addCustomParam("prompt", "consent")
+      oidc.useNonce = true
+      GoogleOidcClient(oidc)
+    }
+  )
+  
+  get("/") {
+    "Hello $ctx.user.id"
+  }
+}
+----
+
+==== Twitter
+
+This example shows how to use Twitter.
+
+1) Add the dependency:
+
+[dependency, artifactId="pac4j-oauth"]
+.
+
+2) Generates key and secret tokens or use the one provided by pac4j (**development only**):
+
+.application.conf
+[source, properties]
+----
+twitter.key = CoxUiYwQOSFDReZYdjigBA
+twitter.secret = 2kAzunH5Btc4gRSaMr7D7MkyoJ5u1VzbOOzE8rBofs
+----
+
+2) Configure client
+
+.Twitter
+[source, java, role="primary"]
+----
+import io.jooby.pac4j.Pac4jModule;
+
+{
+  install(new Pac4jModule()
+    .client(conf -> {
+      return new TwitterClient(conf.getString("twitter.key"), conf.getString("twitter.secret"));
+    })
+  );           
+
+  get("/", ctx -> {
+    UserProfile user = ctx.getUser();
+    return "Hello " + user.getId();
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.pac4j.Pac4jModule
+
+{
+  install(Pac4jModule()
+    .client { conf ->
+      TwitterClient(conf.getString("twitter.key"), conf.getString("twitter.secret")
+    }
+  )
+ 
+  get("/") {
+    "Hello $ctx.user.id"
+  }
+}
+----
+
+==== JWT
+
+This example shows how to use JSON WEB TOKEN.
+
+1) Add the dependency:
+
+[dependency, artifactId="pac4j-jwt"]
+.
+
+2) Generates key and secret tokens or use the one provided by pac4j (**development only**):
+
+.application.conf
+[source, properties]
+----
+jwt.salt = CoxUiYwQOSFDReZYdjigBA
+----
+
+2) Configure client
+
+.JWT
+[source, java, role="primary"]
+----
+import io.jooby.pac4j.Pac4jModule;
+
+{
+  install(new Pac4jModule()
+    .client(conf -> {
+      ParameterClient client = new ParameterClient("token",
+          new JwtAuthenticator(new SecretSignatureConfiguration(conf.getString("jwt.salt"))));
+      client.setSupportGetRequest(true);
+      client.setSupportPostRequest(true);
+      return client;
+    })
+  );           
+
+  get("/", ctx -> {
+    UserProfile user = ctx.getUser();
+    return "Hello " + user.getId();
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.pac4j.Pac4jModule
+
+{
+  install(Pac4jModule()
+    .client { conf ->
+      val client = new ParameterClient("token",
+          JwtAuthenticator(SecretSignatureConfiguration(conf.getString("jwt.salt"))))
+      client.supportGetRequest = true
+      client.supportPostRequest = true
+      client
+    }
+  )
+  
+  get("/") {
+    "Hello $ctx.user.id"
+  }
+}
+----
+
+=== Protecting URLs
+
+By default Pac4j restrict access to all the routes defined after the Pac4j module. You can specify
+what url must be protected using a path pattern:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.pac4j.Pac4jModule;
+
+{
+  install(new Pac4jModule()
+    .client("/admin/*", conf -> {
+      return ...;
+    })
+  );           
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.pac4j.Pac4jModule
+
+{
+  install(Pac4jModule()
+    .client("/admin/*") { conf ->
+      ...
+    }
+  )
+}
+----
+
+All routes under `/admin` will be protected by Pac4j.
+
+=== Advanced Usage
+
+You can customize default options by using the javadoc:pac4j.Pac4jOptions[] and/or providing your
+own Pac4j configuration.
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.pac4j.Pac4jModule;
+import org.pac4j.core.config.Config;
+
+{
+  Config pac4j = new Config();
+  pac4j.setSecurityLogic(...);
+
+  install(new Pac4jModule(pac4j));           
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.pac4j.Pac4jModule
+import org.pac4j.core.config.Config
+
+{
+  val pac4j = Config()
+  pac4j.securityLogic = ...
+
+  install(Pac4jModule(pa4j))
+}
+----

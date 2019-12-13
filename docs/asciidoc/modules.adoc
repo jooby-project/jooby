@@ -28,4 +28,7 @@ Available modules are listed next.
    * link:modules/pebble[Pebble]: Pebble templates for Jooby.
    * link:modules/rocker[Rocker]: Rocker templates for Jooby.
 
+=== Security
+* link:modules/pac4j[Pac4j]: Security engine module.
+
 .

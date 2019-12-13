@@ -22,6 +22,8 @@ import org.pac4j.oauth.client.TwitterClient;
 import org.pac4j.oidc.client.GoogleOidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 
+import java.nio.file.Paths;
+
 public class App extends Jooby {
 
   {
@@ -33,8 +35,8 @@ public class App extends Jooby {
     /** Template engine: */
     install(new HandlebarsModule());
 
-    assets("/css/*");
-    assets("/images/*");
+    assets("/css/*", Paths.get("views", "css"));
+    assets("/images/*", Paths.get("views", "images"));
 
     get("/login", ctx -> new ModelAndView("login.hbs"));
 
@@ -52,7 +54,6 @@ public class App extends Jooby {
           OidcConfiguration oidc = new OidcConfiguration();
           oidc.setClientId(conf.getString("oidc.clientId"));
           oidc.setSecret(conf.getString("oidc.secret"));
-          //          oidc.setDiscoveryURI(conf.getString("oidc.discoveryURI"));
           oidc.addCustomParam("prompt", "consent");
           oidc.setUseNonce(true);
           return new GoogleOidcClient(oidc);

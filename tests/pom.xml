@@ -50,6 +50,11 @@
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-pac4j</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
     </dependency>

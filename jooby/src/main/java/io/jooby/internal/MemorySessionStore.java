@@ -82,8 +82,10 @@ public class MemorySessionStore implements SessionStore {
 
   @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
     String oldId = session.getId();
-    session.setId(token.newToken());
-    sessions.remove(oldId);
+    String newId = token.newToken();
+    session.setId(newId);
+    SessionData data = sessions.remove(oldId);
+    sessions.put(newId, data);
   }
 
   private Session restore(Context ctx, String sessionId, SessionData data) {
