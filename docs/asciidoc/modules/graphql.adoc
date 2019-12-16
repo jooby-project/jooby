@@ -251,3 +251,7 @@ import io.jooby.graphql.GraphQLPlaygroundModule
 <3> Install GraphQL Playground
 
 https://github.com/prisma-labs/graphql-playground[GraphQL Playground] should be up and running at `/graphql`.
+
+=== Starter
+
+Checkout the starter/demo project for GraphQL: https://github.com/jooby-project/jooby/tree/2.x/starters/graphql-starter[GraphQL Starter].

@@ -305,3 +305,7 @@ import org.pac4j.core.config.Config
   install(Pac4jModule(pa4j))
 }
 ----
+
+=== Starter
+
+Checkout the starter/demo project for Pac4j that let you choose between multiple login clients: https://github.com/jooby-project/jooby/tree/2.x/starters/pac4j-starter[Pac4j Starter]. 
