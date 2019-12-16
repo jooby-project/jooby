@@ -16,6 +16,7 @@
 
   <modules>
     <module>hibernate-starter</module>
+    <module>guice-starter</module>
     <module>graphql-starter</module>
     <module>pac4j-starter</module>
   </modules>
