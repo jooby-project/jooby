@@ -27,6 +27,7 @@ import org.hibernate.cfg.AvailableSettings;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.net.URL;
 import java.util.Arrays;
@@ -243,6 +244,13 @@ public class HibernateModule implements Extension {
 
     registry.putIfAbsent(EntityManager.class, sessionProvider);
     registry.put(ServiceKey.key(EntityManager.class, name), sessionProvider);
+
+    /** SessionFactory and EntityManagerFactory. */
+    registry.putIfAbsent(SessionFactory.class, sf);
+    registry.put(ServiceKey.key(SessionFactory.class, name), sf);
+
+    registry.putIfAbsent(EntityManagerFactory.class, sf);
+    registry.put(ServiceKey.key(EntityManagerFactory.class, name), sf);
 
     application.onStop(sf::close);
   }
