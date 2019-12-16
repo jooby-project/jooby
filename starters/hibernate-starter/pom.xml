@@ -5,7 +5,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>pac4j-starter</artifactId>
+  <artifactId>hibernate-starter</artifactId>
   <groupId>starter</groupId>
   <version>1.0.0</version>
 
@@ -29,12 +29,17 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-handlebars</artifactId>
+      <artifactId>jooby-jackson</artifactId>
     </dependency>
 
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-jackson</artifactId>
+      <artifactId>jooby-hikari</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-hibernate</artifactId>
     </dependency>
 
     <dependency>
@@ -43,23 +48,8 @@
     </dependency>
 
     <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-pac4j</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.pac4j</groupId>
-      <artifactId>pac4j-oauth</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.pac4j</groupId>
-      <artifactId>pac4j-oidc</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.pac4j</groupId>
-      <artifactId>pac4j-jwt</artifactId>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
     </dependency>
 
     <!-- Tests -->

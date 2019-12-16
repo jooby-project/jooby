@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>graphql-starter</artifactId>
-  <groupId>app</groupId>
+  <groupId>starter</groupId>
   <version>1.0.0</version>
 
   <properties>

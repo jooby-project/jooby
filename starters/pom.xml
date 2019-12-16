@@ -4,16 +4,18 @@
     xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>io.jooby</groupId>
-    <artifactId>jooby-project</artifactId>
-    <version>2.4.1-SNAPSHOT</version>
-  </parent>
-
+  <groupId>io.jooby</groupId>
   <artifactId>starters</artifactId>
   <packaging>pom</packaging>
+  <version>1.0.0</version>
+
+  <properties>
+    <!-- Point to latest release -->
+    <jooby.version>2.4.0</jooby.version>
+  </properties>
 
   <modules>
+    <module>hibernate-starter</module>
     <module>graphql-starter</module>
     <module>pac4j-starter</module>
   </modules>
@@ -28,7 +30,7 @@
             <phase>initialize</phase>
             <configuration>
               <target>
-                <replaceregexp match="&lt;jooby.version&gt;.*&lt;/jooby.version&gt;" replace="&lt;jooby.version&gt;${project.version}&lt;/jooby.version&gt;">
+                <replaceregexp match="&lt;jooby.version&gt;.*&lt;/jooby.version&gt;" replace="&lt;jooby.version&gt;${jooby.version}&lt;/jooby.version&gt;">
                   <fileset dir="${basedir}" includes="*-starter/pom.xml"/>
                 </replaceregexp>
               </target>
