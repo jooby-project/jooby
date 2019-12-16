@@ -16,6 +16,8 @@
   <url>https://github.com/jooby-project/jooby</url>
 
   <properties>
+    <shaded.package>io.jooby.internal.\$shaded</shaded.package>
+
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.29</freemarker.version>
     <handlebars.version>4.1.2</handlebars.version>
@@ -32,6 +34,7 @@
     <hibernate.version>5.4.9.Final</hibernate.version>
     <jdbi.version>3.11.1</jdbi.version>
     <flyway.version>6.1.0</flyway.version>
+    <graphql-java.version>13.0</graphql-java.version>
 
     <config.version>1.4.0</config.version>
 
@@ -299,6 +302,24 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-graphql</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-graphiql</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-graphql-playground</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-guice</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -518,6 +539,13 @@
         <groupId>org.unbescape</groupId>
         <artifactId>unbescape</artifactId>
         <version>${unbescape.version}</version>
+      </dependency>
+
+      <!-- graphql -->
+      <dependency>
+        <groupId>com.graphql-java</groupId>
+        <artifactId>graphql-java</artifactId>
+        <version>${graphql-java.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->

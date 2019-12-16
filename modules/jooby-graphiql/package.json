@@ -1,0 +1,19 @@
+{
+  "name": "graphiql-example-cdn",
+  "version": "0.0.7",
+  "private": true,
+  "license": "MIT",
+  "description": "An example using GraphiQL",
+  "scripts": {
+    "build-demo": "cp ../../graphiql/graphiql.js ../../graphiql/graphiql.css ../../graphiql/resources/renderExample.js .",
+    "start": "node server"
+  },
+  "dependencies": {
+    "es6-promise": "^4.2.8",
+    "fetch-min": "^1.0.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "graphql": "^14.5.8",
+    "graphiql": "^0.17.1"
+  }
+}

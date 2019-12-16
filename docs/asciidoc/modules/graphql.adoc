@@ -1,0 +1,253 @@
+== GraphQL
+
+GraphQL using https://www.graphql-java.com[GraphQL Java] library.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-graphql:GraphQL, jooby-jackson: JSON library"]
+.
+
+2) Creates `schema.graphql` inside the `src/main/resource`
+
+[source, graphql]
+----
+type Query {
+    bookById(id: ID): Book
+}
+
+type Book {
+    id: ID
+    name: String
+    pageCount: Int
+    author: Author
+}
+
+type Author {
+    id: ID
+    firstName: String
+    lastName: String
+}
+----
+
+3) Install Jackson and GraphQL
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.json.JacksonModule;
+import io.jooby.graphql.GraphQLModule;
+
+{
+  install(new JacksonModule());           <1>
+
+  install(new GraphQLModule(
+    RuntimeWiring.newRuntimeWiring()      <2>
+        .type(newTypeWiring("Query")
+            .dataFetcher("bookById", fetchers.getBookByIdDataFetcher()))
+        .type(newTypeWiring("Book")
+            .dataFetcher("author", fetchers.getAuthorDataFetcher()))
+        .build())
+   );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JacksonModule
+import io.jooby.graphql.GraphQLModule
+
+{
+  install(JacksonModule())                <1>
+
+  install(GraphQLModule(
+    RuntimeWiring.newRuntimeWiring()      <2>
+        .type(newTypeWiring("Query")
+            .dataFetcher("bookById", fetchers.getBookByIdDataFetcher()))
+        .type(newTypeWiring("Book")
+            .dataFetcher("author", fetchers.getAuthorDataFetcher()))
+        .build())
+    )
+}
+----
+
+<1> Install Jackson
+<2> Install GraphQL, uses the `schema.graphql` and provide a `RuntimeWiring`
+
+The GraphQL module generates a POST `/graphql` route.
+
+=== Options
+
+==== Async
+
+The https://www.graphql-java.com[GraphQL Java] library executes queries in async mode. To turn-off
+the async mode:
+
+.Async Mode
+[source, java, role="primary"]
+----
+import io.jooby.json.JacksonModule;
+import io.jooby.graphql.GraphQLModule;
+
+{
+  install(new GraphQLModule(...)
+      .setAsync(false)                    <1>
+  );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JacksonModule
+import io.jooby.graphql.GraphQLModule
+
+{
+  install(GraphQLModule(...)
+      .setAsync(false)                    <1>
+  )
+}
+----
+
+<1> Set async false
+
+Please refer to https://www.graphql-java.com/documentation/v12/execution/#asynchronous-execution[Asynchronous execution] for more information.
+
+==== Support HTTP Get
+
+By default the module only install a HTTP POST route. If you want a HTTP GET:
+
+.HTTP GET
+[source, java, role="primary"]
+----
+import io.jooby.json.JacksonModule;
+import io.jooby.graphql.GraphQLModule;
+
+{
+  install(new GraphQLModule(...)
+      .setSupportHttpGet(true)
+  );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JacksonModule
+import io.jooby.graphql.GraphQLModule
+
+{
+  install(GraphQLModule(...)
+      .setSupportHttpGet(true)
+  )
+}
+----
+
+==== Path
+
+To change the default path: `/graphql` set the `graphql.path` property in your application configuration file.
+
+=== IDE
+
+Jooby comes with supports for two IDE:
+
+- https://github.com/graphql/graphiql[GraphiQL]
+- https://github.com/prisma-labs/graphql-playground[GraphQL Playground]
+
+They are provided as optional dependencies.
+
+==== GraphIQL
+
+1) Add the dependencies:
+
+[dependency, artifactId="jooby-jackson: JSON library, jooby-graphql:GraphQL, jooby-graphiql: GraphIQL"]
+.
+
+1) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.json.JacksonModule;
+import io.jooby.graphql.GraphQLModule;
+import io.jooby.graphql.GraphiQLModule;
+
+{
+  install(new JacksonModule());           <1>
+
+  install(new GraphQLModule(...));        <2>
+
+  install(new GraphiQLModule());          <3>
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JacksonModule
+import io.jooby.graphql.GraphQLModule
+import io.jooby.graphql.GraphiQLModule
+
+{
+  install(JacksonModule())                <1>
+
+  install(GraphQLModule(...))             <2>
+
+  install(GraphiQLModule())               <3>
+}
+----
+
+<1> Install Jackson
+<2> Install GraphQL
+<3> Install GraphiQL
+
+https://github.com/graphql/graphiql[GraphiQL] should be up and running at `/graphql`.
+
+==== GraphQL Playground
+
+1) Add the dependencies:
+
+[dependency, artifactId="jooby-jackson: JSON library, jooby-graphql:GraphQL, jooby-graphiql-playground: GraphQL Playground"]
+.
+
+1) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.json.JacksonModule;
+import io.jooby.graphql.GraphQLModule;
+import io.jooby.graphql.GraphQLPlaygroundModule;
+
+{
+  install(new JacksonModule());                    <1>
+
+  install(new GraphQLModule(...));                 <2>
+
+  install(new GraphQLPlaygroundModule());          <3>
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JacksonModule
+import io.jooby.graphql.GraphQLModule
+import io.jooby.graphql.GraphQLPlaygroundModule
+
+{
+  install(JacksonModule())                         <1>
+
+  install(GraphQLModule(...))                      <2>
+
+  install(GraphQLPlaygroundModule())               <3>
+}
+----
+
+<1> Install Jackson
+<2> Install GraphQL
+<3> Install GraphQL Playground
+
+https://github.com/prisma-labs/graphql-playground[GraphQL Playground] should be up and running at `/graphql`.

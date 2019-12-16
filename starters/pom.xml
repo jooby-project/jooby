@@ -13,6 +13,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>graphql-starter</module>
     <module>pac4j-starter</module>
   </modules>
 

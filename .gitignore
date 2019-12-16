@@ -31,3 +31,5 @@ javadoc
 *.mv.db
 versions
 out
+node
+node_modules

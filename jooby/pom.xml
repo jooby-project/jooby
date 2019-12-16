@@ -12,9 +12,6 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby</artifactId>
 
-  <properties>
-    <shaded.package>io.jooby.internal.\$shaded</shaded.package>
-  </properties>
   <build>
     <plugins>
       <plugin>

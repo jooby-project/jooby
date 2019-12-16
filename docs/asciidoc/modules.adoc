@@ -15,6 +15,7 @@ Available modules are listed next.
 
 === Data
    * link:modules/flyway[Flyway]: Flyway migration module.
+   * link:modules/graphql[GraphQL]: GraphQL Java module.
    * link:modules/hikari[HikariCP]: A high-performance JDBC connection pool.
    * link:modules/hibernate[Hibernate]: Hibernate ORM module.
    * link:modules/jdbi[Jdbi]: Jdbi module.

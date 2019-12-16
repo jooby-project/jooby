@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>io.jooby</groupId>
+    <artifactId>modules</artifactId>
+    <version>2.3.2-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>jooby-graphql-playground</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.8.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <nodeVersion>v12.13.1</nodeVersion>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <configuration>
+              <tasks>
+                <property name="output"
+                          value="${project.build.outputDirectory}${file.separator}graphql-playground${file.separator}"/>
+
+                <copy failonerror="true"
+                      file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}static${file.separator}css${file.separator}index.css"
+                      tofile="${output}index.css"/>
+                <copy failonerror="true"
+                      file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}favicon.png"
+                      tofile="${output}favicon.png"/>
+                <copy failonerror="true"
+                      file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}static${file.separator}js${file.separator}middleware.js"
+                      tofile="${output}middleware.js"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
