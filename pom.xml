@@ -33,7 +33,7 @@
     <h2.version>1.4.200</h2.version>
     <hibernate.version>5.4.9.Final</hibernate.version>
     <jdbi.version>3.11.1</jdbi.version>
-    <flyway.version>6.1.0</flyway.version>
+    <flyway.version>6.1.1</flyway.version>
     <graphql-java.version>13.0</graphql-java.version>
 
     <config.version>1.4.0</config.version>
