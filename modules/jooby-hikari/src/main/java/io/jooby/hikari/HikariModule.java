@@ -104,6 +104,9 @@ public class HikariModule implements Extension {
     System.setProperty("log4jdbc.auto.load.popular.drivers", "false");
   }
 
+  /** Default factor number of worker threads. */
+  private static final int WORKER_FACTOR = 8;
+
   private static final Object MYSQL5_STT_CACHE_SIZE = 250;
 
   private static final Object MYSQL5_STT_CACHE_SQL_LIMIT = 2048;
@@ -243,7 +246,7 @@ public class HikariModule implements Extension {
   private static Map<String, Object> defaults(String database, Environment env) {
     Map<String, Object> defaults = new HashMap<>();
     defaults.put("maximumPoolSize",
-        Math.max(MINIMUM_SIZE, Runtime.getRuntime().availableProcessors() * 8));
+        Math.max(MINIMUM_SIZE, Runtime.getRuntime().availableProcessors() * WORKER_FACTOR));
     if ("derby".equals(database)) {
       // url => jdbc:derby:${db};create=true
       defaults.put("dataSourceClassName", "org.apache.derby.jdbc.ClientDataSource");
