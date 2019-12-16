@@ -149,7 +149,6 @@
     <module>modules</module>
     <module>tests</module>
     <module>examples</module>
-    <module>starters</module>
     <module>docs</module>
   </modules>
 
