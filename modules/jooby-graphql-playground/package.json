@@ -1,9 +1,8 @@
 {
-  "name": "graphiql-example-cdn",
-  "version": "0.0.7",
+  "name": "jooby-graphql-playground",
+  "version": "2.4.0",
   "private": true,
-  "license": "MIT",
-  "description": "An example using GraphiQL",
+  "license": "ASF",
   "dependencies": {
     "graphql-playground-react": "^1.7.20"
   }

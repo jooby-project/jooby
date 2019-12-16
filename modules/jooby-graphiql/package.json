@@ -1,13 +1,8 @@
 {
-  "name": "graphiql-example-cdn",
-  "version": "0.0.7",
+  "name": "jooby-graphiql",
+  "version": "2.4.0",
   "private": true,
-  "license": "MIT",
-  "description": "An example using GraphiQL",
-  "scripts": {
-    "build-demo": "cp ../../graphiql/graphiql.js ../../graphiql/graphiql.css ../../graphiql/resources/renderExample.js .",
-    "start": "node server"
-  },
+  "license": "ASF",
   "dependencies": {
     "es6-promise": "^4.2.8",
     "fetch-min": "^1.0.0",

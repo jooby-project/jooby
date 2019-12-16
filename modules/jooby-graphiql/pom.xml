@@ -19,6 +19,7 @@
       <version>${jooby.version}</version>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
@@ -32,12 +33,13 @@
             </goals>
             <phase>generate-resources</phase>
           </execution>
+
           <execution>
             <id>npm install</id>
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase>generate-sources</phase>
+            <phase>generate-resources</phase>
           </execution>
         </executions>
         <configuration>
