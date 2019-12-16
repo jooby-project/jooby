@@ -2,35 +2,36 @@ package starter;
 
 import io.jooby.Jooby;
 import io.jooby.di.GuiceModule;
+import io.jooby.flyway.FlywayModule;
 import io.jooby.hikari.HikariModule;
 import io.jooby.jdbi.JdbiModule;
+import io.jooby.jdbi.TransactionalRequest;
 import io.jooby.json.JacksonModule;
-import org.jdbi.v3.core.Jdbi;
-import starter.billing.BillingModule;
-import starter.billing.BillingService;
-import starter.billing.PizzaOrder;
+import starter.service.BillingService;
+import starter.domain.Order;
 
 public class App extends Jooby {
   {
+    /** JSON module: */
     install(new JacksonModule());
 
+    /** DataSource module: */
     install(new HikariModule());
 
+    /** Database migration module: */
+    install(new FlywayModule());
+
+    /** Jdbi module: */
     install(new JdbiModule());
 
-    install(new GuiceModule(new BillingModule()));
+    /** Open handle per request: */
+    decorator(new TransactionalRequest());
 
-    onStarted(() -> {
-      require(Jdbi.class).useHandle(handle -> {
-        handle.createUpdate(
-            "create table pizza (id bigint auto_increment, type varchar(255), count int, credit_card varchar(255))")
-            .execute();
-      });
-    });
+    install(new GuiceModule(new OrderModule()));
 
     get("/order", ctx -> {
       BillingService billingService = require(BillingService.class);
-      PizzaOrder order = ctx.query(PizzaOrder.class);
+      Order order = ctx.query(Order.class);
       return billingService.chargeOrder(order);
     });
   }

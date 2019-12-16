@@ -1,4 +1,4 @@
-package starter.billing;
+package starter.domain;
 
 import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-public class DatabaseTransactionLog implements TransactionLog {
+public class DatabaseOrderRepository implements OrderRepository {
   private Jdbi jdbi;
   private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -16,22 +16,21 @@ public class DatabaseTransactionLog implements TransactionLog {
    * @param jdbi
    */
   @Inject
-  public DatabaseTransactionLog(Jdbi jdbi) {
+  public DatabaseOrderRepository(Jdbi jdbi) {
     this.jdbi = jdbi;
   }
 
-  @Override public long save(PizzaOrder order) {
+  @Override public Order save(Order order) {
     log.info("saving order: {}", order);
 
-    return jdbi.withHandle(h -> {
-      return h.createUpdate("insert into pizza (type, count, credit_card) "
-          + "values (:type, :count, :creditCard)")
-          .bind("type", order.getType())
-          .bind("count", order.getCount())
-          .bind("creditCard", order.getCreditCard())
+    Long orderId = jdbi.withHandle(h -> {
+      return h.createUpdate("insert into orders (name) values (:name)")
+          .bind("name", order.getName())
           .executeAndReturnGeneratedKeys()
           .mapTo(Long.class)
           .one();
     });
+    order.setId(orderId);
+    return order;
   }
 }

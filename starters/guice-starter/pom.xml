@@ -44,6 +44,11 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-flyway</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-jdbi</artifactId>
     </dependency>
 
