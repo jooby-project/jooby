@@ -21,7 +21,7 @@ jobs:
       - name: Install
         run: mvn -DskipTests=true clean install checkstyle:checkstyle -q -pl '!docs,!examples' -P checkstyle
       - name: Build
-        run: mvn checkstyle:checkstyle package -pl '!docs,!examples' -P checkstyle
+        run: mvn clean checkstyle:checkstyle package -pl '!docs,!examples' -P checkstyle
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
