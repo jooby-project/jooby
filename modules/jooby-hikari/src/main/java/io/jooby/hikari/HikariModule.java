@@ -243,7 +243,7 @@ public class HikariModule implements Extension {
   private static Map<String, Object> defaults(String database, Environment env) {
     Map<String, Object> defaults = new HashMap<>();
     defaults.put("maximumPoolSize",
-        Math.max(MINIMUM_SIZE, Runtime.getRuntime().availableProcessors() * 2 + 1));
+        Math.max(MINIMUM_SIZE, Runtime.getRuntime().availableProcessors() * 8));
     if ("derby".equals(database)) {
       // url => jdbc:derby:${db};create=true
       defaults.put("dataSourceClassName", "org.apache.derby.jdbc.ClientDataSource");
