@@ -15,5 +15,10 @@ COPY examples/ /build/examples/
 COPY jooby/ /build/jooby/
 COPY modules/ /build/modules/
 COPY tests/ /build/tests/
+COPY starters/ /build/starters/
 
-RUN mvn clean install -q -DskipTests=true
+RUN rm -rf /build/modules/jooby-graphiql/node
+RUN rm -rf /build/modules/jooby-graphiql/node_modules
+
+RUN rm -rf /build/modules/jooby-graphql-playground/node
+RUN rm -rf /build/modules/jooby-graphql-playground/node_modules
