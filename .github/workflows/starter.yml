@@ -1,0 +1,30 @@
+name: Starter Build
+
+on:
+  pull_request:
+    paths:
+      - 'starters/**'
+  push:
+    paths:
+      - 'starters/**'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java_version: [1.8, 11, 13]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set up JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Prepare
+        run: cd starters
+      - name: Build
+        run: mvn clean package
