@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Page</title>
+  <script type="text/javascript">
+
+    function submitForm() {
+      document.form.submit();
+    }
+
+    function onKeyPressEvent(event) {
+      var key = event.keyCode || event.which;
+      if (key === 13) {
+        if (event.preventDefault) {
+          event.preventDefault();
+        } else {
+          event.returnValue = false;
+        }
+
+        submitForm('');
+        return false;
+      }
+    }
+  </script>
+</head>
+<body onload="document.form.username.focus();">
+<h3>Login</h3>
+<form name="form" action="/callback?client_name=FormClient" method="POST">
+  <input name="username" onkeypress="onKeyPressEvent(event)" />
+  <p></p>
+  <input type="password" name="password" onkeypress="onKeyPressEvent(event)" />
+  <p></p>
+  <input type="submit" value="Submit" />
+</form>
+</body>
+</html>

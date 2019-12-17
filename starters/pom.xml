@@ -19,6 +19,7 @@
     <module>graphql-starter</module>
     <module>jdbi-starter</module>
     <module>hibernate-starter</module>
+    <module>pac4j-form-starter</module>
     <module>pac4j-starter</module>
   </modules>
 
