@@ -81,7 +81,7 @@ public class HandlerCompilerTest {
     new MvcHandlerCompilerRunner(new Provisioning())
         .compile("/p/queryParam", handler -> {
           assertEquals("search",
-              handler.apply(MockContextHelper.mockContext().setPathString("/?q=search")));
+              handler.apply(MockContextHelper.mockContext().setRequestPath("/?q=search")));
         })
     ;
   }
@@ -226,7 +226,7 @@ public class HandlerCompilerTest {
             handler -> {
               assertEquals("123GET /1x", handler.apply(
                   MockContextHelper.mockContext().setPathMap(mapOf("path", "123"))
-                      .setPathString("/?offset=1&foo=x")));
+                      .setRequestPath("/?offset=1&foo=x")));
             })
     ;
   }
@@ -257,22 +257,22 @@ public class HandlerCompilerTest {
         .compile("/p/uuidParam", handler -> {
           assertEquals(uuid.toString(),
               handler.apply(
-                  MockContextHelper.mockContext().setPathString("/?value=" + uuid.toString())));
+                  MockContextHelper.mockContext().setRequestPath("/?value=" + uuid.toString())));
         })
         .compile("/p/bigDecimalParam", handler -> {
           assertEquals(bigDecimal.toString(),
               handler.apply(MockContextHelper.mockContext()
-                  .setPathString("/?value=" + bigDecimal.toString())));
+                  .setRequestPath("/?value=" + bigDecimal.toString())));
         })
         .compile("/p/bigIntegerParam", handler -> {
           assertEquals(bigInteger.toString(),
               handler.apply(MockContextHelper.mockContext()
-                  .setPathString("/?value=" + bigInteger.toString())));
+                  .setRequestPath("/?value=" + bigInteger.toString())));
         })
         .compile("/p/charsetParam", handler -> {
           assertEquals(charset.toString(),
               handler.apply(
-                  MockContextHelper.mockContext().setPathString("/?value=" + charset.toString())));
+                  MockContextHelper.mockContext().setRequestPath("/?value=" + charset.toString())));
         })
         .compile("/p/pathFormParam", handler -> {
           Path path = mock(Path.class);
@@ -314,7 +314,7 @@ public class HandlerCompilerTest {
           assertEquals(StatusCode.NO_CONTENT, ctx.getResponseCode());
         })
         .compile("/p/statusCode", handler -> {
-          MockContext ctx = MockContextHelper.mockContext().setPathString("/?statusCode=200&q=*:*");
+          MockContext ctx = MockContextHelper.mockContext().setRequestPath("/?statusCode=200&q=*:*");
           assertEquals(ctx, handler.apply(ctx));
           assertEquals(StatusCode.OK, ctx.getResponseCode());
         })
@@ -409,7 +409,7 @@ public class HandlerCompilerTest {
     new MvcHandlerCompilerRunner(new JaxrsController())
         .compile("/jaxrs/query", handler -> {
           assertEquals("v1",
-              handler.apply(MockContextHelper.mockContext().setPathString("/?q1=v1")));
+              handler.apply(MockContextHelper.mockContext().setRequestPath("/?q1=v1")));
         })
         .compile("/jaxrs", handler -> {
           assertEquals("doGet", handler.apply(MockContextHelper.mockContext()));
@@ -476,7 +476,7 @@ public class HandlerCompilerTest {
   private Context mockContext(String method, String path) {
     Context ctx = mock(Context.class);
     when(ctx.getMethod()).thenReturn(method);
-    when(ctx.pathString()).thenReturn(path);
+    when(ctx.getRequestPath()).thenReturn(path);
     return ctx;
   }
 

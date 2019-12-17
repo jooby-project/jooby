@@ -25,7 +25,7 @@ public class MvcController {
 
   @GET
   public String getIt(Context ctx) {
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @Dispatch("single")

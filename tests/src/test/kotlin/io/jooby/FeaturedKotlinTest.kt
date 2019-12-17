@@ -44,7 +44,7 @@ class FeaturedKotlinTest {
       Kooby {
         coroutine {
           get {
-            ctx.pathString() + "coroutine"
+            ctx.getRequestPath() + "coroutine"
           }
         }
       }
@@ -62,7 +62,7 @@ class FeaturedKotlinTest {
         coroutine {
           get("/") {
             delay(100)
-            ctx.pathString() + "coroutine"
+            ctx.getRequestPath() + "coroutine"
           }
         }
       }
@@ -132,7 +132,7 @@ class FeaturedKotlinTest {
         }
 
         error { ctx, cause, statusCode ->
-          log.error("{} {}", ctx.method, ctx.pathString(), cause)
+          log.error("{} {}", ctx.method, ctx.getRequestPath(), cause)
           ctx.setResponseCode(statusCode)
               .send(cause.message!!)
         }

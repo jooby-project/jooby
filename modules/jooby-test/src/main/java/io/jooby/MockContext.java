@@ -39,7 +39,7 @@ public class MockContext implements DefaultContext {
 
   private Route route;
 
-  private String pathString = "/";
+  private String requestPath = "/";
 
   private Map<String, String> pathMap = new HashMap<>();
 
@@ -155,37 +155,26 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public String pathString() {
-    return pathString;
+    return requestPath;
   }
 
   @Nonnull @Override public String getRequestPath() {
-    return pathString;
+    return requestPath;
   }
 
   /**
-   * Set request path.
-   *
-   * @param path Request path.
-   * @return This context.
-   */
-  @Nonnull public MockContext setRequestPath(@Nonnull String path) {
-    this.pathString = path;
-    return this;
-  }
-
-  /**
-   * Set pathString and queryString (if any).
+   * Set requestPath and queryString (if any).
    *
    * @param pathString Path string.
    * @return This context.
    */
-  public MockContext setPathString(@Nonnull String pathString) {
+  public @Nonnull MockContext setRequestPath(@Nonnull String pathString) {
     int q = pathString.indexOf("?");
     if (q > 0) {
-      this.pathString = pathString.substring(0, q);
+      this.requestPath = pathString.substring(0, q);
       this.queryString = pathString.substring(q + 1);
     } else {
-      this.pathString = pathString;
+      this.requestPath = pathString;
       this.queryString = null;
     }
     return this;
@@ -638,6 +627,6 @@ public class MockContext implements DefaultContext {
   }
 
   @Override public String toString() {
-    return method + " " + pathString;
+    return method + " " + requestPath;
   }
 }

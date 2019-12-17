@@ -15,7 +15,7 @@ class SuspendMvc {
   @Path("/delay")
   suspend fun delayed(ctx: Context): String {
     delay(100)
-    return ctx.pathString()
+    return ctx.getRequestPath()
   }
 
   @GET

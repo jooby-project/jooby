@@ -29,7 +29,7 @@ public class Provisioning {
   @GET
   @Path("/ctx")
   public String getIt(Context ctx) {
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @GET

@@ -386,7 +386,7 @@ public class MockRouter {
       Consumer<MockResponse> consumer) {
     MockContext findContext = ctx instanceof MockContext ? (MockContext) ctx : new MockContext();
     findContext.setMethod(method.toUpperCase());
-    findContext.setPathString(path);
+    findContext.setRequestPath(path);
     findContext.setRouter(router);
 
     Router.Match match = router.match(findContext);

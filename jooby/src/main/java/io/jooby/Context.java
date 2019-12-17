@@ -207,7 +207,9 @@ public interface Context extends Registry {
    * Request path without decoding (a.k.a raw Path) without query string.
    *
    * @return Request path without decoding (a.k.a raw Path) without query string.
+   * @deprecated Use {{@link #getRequestPath()}}.
    */
+  @Deprecated
   @Nonnull String pathString();
 
   /**

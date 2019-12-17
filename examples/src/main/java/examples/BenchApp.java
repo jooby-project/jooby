@@ -48,7 +48,7 @@ public class BenchApp extends Jooby {
     });
 
     get("/", ctx -> {
-      System.out.println(ctx.pathString());
+      System.out.println(ctx.getRequestPath());
       return ctx.send(MESSAGE_BYTE);
     });
 

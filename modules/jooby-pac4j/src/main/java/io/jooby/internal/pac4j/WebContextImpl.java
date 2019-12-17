@@ -124,6 +124,6 @@ public class WebContextImpl implements Pac4jContext {
   }
 
   @Override public String getPath() {
-    return context.pathString();
+    return context.getRequestPath();
   }
 }

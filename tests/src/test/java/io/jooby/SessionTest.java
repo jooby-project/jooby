@@ -107,7 +107,7 @@ public class SessionTest {
       app.get("/session", ctx -> {
         Session session = ctx.session();
         session.put("foo", "bar");
-        return ctx.pathString();
+        return ctx.getRequestPath();
       });
 
       app.get("/sessionOrNull", ctx -> {
@@ -117,7 +117,7 @@ public class SessionTest {
 
       app.get("/destroy", ctx -> {
         ctx.session().destroy();
-        return ctx.pathString();
+        return ctx.getRequestPath();
       });
     }).ready(client -> {
       String signedCookie = "jooby.sid=/Msfofr9BlBU4ftLP6hPwZQMeozEWmaX4tFr4gOz4cU|foo=bar;Path=/;HttpOnly";

@@ -37,7 +37,7 @@ public interface ErrorHandler {
               + ",\"reason\":\"" + statusCode.reason() + "\"}");
     } else if (text.equals(type)) {
       StringBuilder message = new StringBuilder();
-      message.append(ctx.getMethod()).append(" ").append(ctx.pathString()).append(" ");
+      message.append(ctx.getMethod()).append(" ").append(ctx.getRequestPath()).append(" ");
       message.append(statusCode.value()).append(" ").append(statusCode.reason());
       if (cause.getMessage() != null) {
         message.append("\n").append(XSS.json(cause.getMessage()));
@@ -121,7 +121,7 @@ public interface ErrorHandler {
     return new StringBuilder()
         .append(ctx.getMethod())
         .append(" ")
-        .append(ctx.pathString())
+        .append(ctx.getRequestPath())
         .append(" ")
         .append(statusCode.value())
         .append(" ")

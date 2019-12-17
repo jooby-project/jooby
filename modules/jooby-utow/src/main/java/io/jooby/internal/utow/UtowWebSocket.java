@@ -186,7 +186,7 @@ public class UtowWebSocket extends AbstractReceiveListener
     }
 
     if (onErrorCallback == null) {
-      ctx.getRouter().getLog().error("Websocket resulted in exception: {}", ctx.pathString(), x);
+      ctx.getRouter().getLog().error("Websocket resulted in exception: {}", ctx.getRequestPath(), x);
     } else {
       onErrorCallback.onError(this, x);
     }

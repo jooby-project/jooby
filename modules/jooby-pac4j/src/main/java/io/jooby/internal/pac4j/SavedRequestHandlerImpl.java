@@ -22,7 +22,7 @@ public class SavedRequestHandlerImpl extends DefaultSavedRequestHandler {
   @Override public void save(WebContext webContext) {
     Pac4jContext pac4j = (Pac4jContext) webContext;
     Context context = pac4j.getContext();
-    if (!excludes.contains(context.pathString())) {
+    if (!excludes.contains(context.getRequestPath())) {
       super.save(webContext);
     }
   }

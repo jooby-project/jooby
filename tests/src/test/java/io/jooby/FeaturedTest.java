@@ -235,7 +235,7 @@ public class FeaturedTest {
   public void rawPath(ServerTestRunner runner) {
     runner.define(app -> {
 
-      app.get("/{code}", ctx -> ctx.pathString());
+      app.get("/{code}", ctx -> ctx.getRequestPath());
 
     }).ready(client -> {
       client.get("/foo", rsp -> {
@@ -487,7 +487,7 @@ public class FeaturedTest {
   @ServerTest
   public void pathEncoding(ServerTestRunner runner) {
     runner.define(app -> {
-      app.get("/{value}", ctx -> ctx.pathString() + "@" + ctx.path("value").value());
+      app.get("/{value}", ctx -> ctx.getRequestPath() + "@" + ctx.path("value").value());
     }).ready(client -> {
       client.get("/a+b", rsp -> {
         assertEquals("/a+b@a+b", rsp.body().string());
@@ -923,7 +923,7 @@ public class FeaturedTest {
       app.install(new JacksonModule());
 
       app.get("/", ctx -> {
-        if (ctx.pathString().length() != 0) {
+        if (ctx.getRequestPath().length() != 0) {
           throw new IllegalArgumentException("Intentional error");
         }
         return "OK";
@@ -1084,9 +1084,9 @@ public class FeaturedTest {
     runner.define(app -> {
       app.setContextPath("/foo");
 
-      app.get("/", ctx -> ctx.pathString());
+      app.get("/", ctx -> ctx.getRequestPath());
 
-      app.get("/bar", ctx -> ctx.pathString());
+      app.get("/bar", ctx -> ctx.getRequestPath());
 
     }).ready(client -> {
       client.get("/foo", rsp -> {
@@ -2343,7 +2343,7 @@ public class FeaturedTest {
     runner.define(app -> {
       app.get("/detach", ctx -> {
         CompletableFuture.runAsync(() -> {
-          ctx.send(ctx.pathString());
+          ctx.send(ctx.getRequestPath());
         });
         return ctx;
       });
@@ -2398,7 +2398,7 @@ public class FeaturedTest {
   public void sendByteArray(ServerTestRunner runner) {
     runner.define(app -> {
       app.get("/bytes", ctx -> {
-        return ctx.pathString().getBytes(StandardCharsets.UTF_8);
+        return ctx.getRequestPath().getBytes(StandardCharsets.UTF_8);
       });
       app.get("/inline", ctx -> {
         return new byte[]{(byte) 'h', (byte) 'e'};

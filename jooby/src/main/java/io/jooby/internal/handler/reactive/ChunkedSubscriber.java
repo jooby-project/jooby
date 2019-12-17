@@ -72,7 +72,7 @@ public class ChunkedSubscriber {
     try {
       Logger log = ctx.getRouter().getLog();
       if (Server.connectionLost(x)) {
-        log.debug("connection lost: {} {}", ctx.getMethod(), ctx.pathString(), x);
+        log.debug("connection lost: {} {}", ctx.getMethod(), ctx.getRequestPath(), x);
       } else {
         ctx.sendError(x);
       }

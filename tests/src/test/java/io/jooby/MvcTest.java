@@ -300,7 +300,7 @@ public class MvcTest {
       app.mvc(new NullInjection());
 
       app.error((ctx, cause, statusCode) -> {
-        app.getLog().error("{} {}", ctx.getMethod(), ctx.pathString(), cause);
+        app.getLog().error("{} {}", ctx.getMethod(), ctx.getRequestPath(), cause);
         ctx.setResponseCode(statusCode)
             .send(cause.getMessage());
       });
@@ -343,7 +343,7 @@ public class MvcTest {
 
       app.error((ctx, cause, statusCode) -> {
         app.getLog()
-            .error("{} {} {}", ctx.getMethod(), ctx.pathString(), statusCode.value(), cause);
+            .error("{} {} {}", ctx.getMethod(), ctx.getRequestPath(), statusCode.value(), cause);
         ctx.setResponseCode(statusCode)
             .send(cause.getMessage());
       });

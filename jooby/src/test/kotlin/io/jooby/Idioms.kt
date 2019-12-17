@@ -89,7 +89,7 @@ class Idioms : Kooby({
     ctx.path()
   }
   after {
-    ctx.pathString()
+    ctx.getRequestPath()
   }
   decorator {
     next.apply(ctx)
@@ -130,7 +130,7 @@ class Idioms : Kooby({
     }
 
     get("/ctx-access") {
-      ctx.pathString()
+      ctx.getRequestPath()
     }
   }
 

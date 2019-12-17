@@ -24,10 +24,10 @@ public class HelloApp extends Jooby {
     });
 
     get("/foo/bar", ctx -> {
-      return ctx.pathString() + "oo";
+      return ctx.getRequestPath() + "oo";
     });
     get("/foo/bar/", ctx -> {
-      return ctx.pathString() + "oo/";
+      return ctx.getRequestPath() + "oo/";
     });
 
     get("/foo/{bar}", ctx -> {

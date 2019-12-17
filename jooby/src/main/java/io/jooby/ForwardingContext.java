@@ -115,7 +115,7 @@ public class ForwardingContext implements Context {
   }
 
   @Override @Nonnull public String pathString() {
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @Nonnull @Override public String getRequestPath() {

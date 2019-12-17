@@ -1076,13 +1076,13 @@ public class App extends Jooby {
 ----
 class Foo: Kooby({
    
-  get("/foo") { ctx.pathString() }
+  get("/foo") { ctx.getRequestPath() }
 
 })
 
 class Bar: Kooby({
   
-  get("/bar") { ctx.pathString() }
+  get("/bar") { ctx.getRequestPath() }
 
 })
 
@@ -1091,7 +1091,7 @@ class App: Kooby({
 
   use(Bar())                       // <2>
 
-  get("/app") { ctx.pathString() } // <3>
+  get("/app") { ctx.getRequestPath() } // <3>
 })
 ----
 
@@ -1123,7 +1123,7 @@ public class App extends Jooby {
 ----
 class Foo: Kooby({
    
-  get("/foo") { ctx.pathString() }
+  get("/foo") { ctx.getRequestPath() }
 
 })
 

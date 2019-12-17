@@ -23,7 +23,7 @@ public class TraceHandler implements Route.Decorator {
     return ctx -> {
       if (ctx.getMethod().equals(Router.TRACE)) {
         // Handle trace
-        StringBuilder buffer = new StringBuilder(Router.TRACE).append(" ").append(ctx.pathString())
+        StringBuilder buffer = new StringBuilder(Router.TRACE).append(" ").append(ctx.getRequestPath())
             .append(" ").append(ctx.getProtocol());
 
         for (Map.Entry<String, List<String>> entry : ctx.headerMultimap().entrySet()) {

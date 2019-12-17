@@ -481,7 +481,7 @@ Probably one of most exciting new features of Jooby 2.x is the builtin integrati
 {
   coroutine {
     get("/") {         // <1>
-      ctx.pathString() 
+      ctx.getRequestPath() 
     }
   }
 }
@@ -492,7 +492,7 @@ Probably one of most exciting new features of Jooby 2.x is the builtin integrati
 ----
 {
   get("/") {           // <2>
-    ctx.pathString() 
+    ctx.getRequestPath() 
   }
 }
 ----

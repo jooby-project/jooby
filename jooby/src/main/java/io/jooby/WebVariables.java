@@ -55,7 +55,7 @@ public class WebVariables implements Route.Decorator {
   private Context webvariables(Context ctx) {
     String contextPath = ctx.getContextPath();
     ctx.attribute(key("contextPath"), contextPath.equals("/") ? "" : contextPath);
-    ctx.attribute(key("path"), ctx.pathString());
+    ctx.attribute(key("path"), ctx.getRequestPath());
     Object user = ctx.getUser();
     if (user != null) {
       ctx.attribute(key("user"), user);

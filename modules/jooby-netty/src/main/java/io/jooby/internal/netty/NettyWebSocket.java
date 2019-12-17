@@ -210,7 +210,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
 
     if (onErrorCallback == null) {
       netty.getRouter().getLog()
-          .error("Websocket resulted in exception: {}", netty.pathString(), x);
+          .error("Websocket resulted in exception: {}", netty.getRequestPath(), x);
     } else {
       onErrorCallback.onError(this, x);
     }

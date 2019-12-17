@@ -46,7 +46,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
 
   public JettyWebSocket(JettyContext ctx) {
     this.ctx = ctx;
-    this.path = ctx.pathString();
+    this.path = ctx.getRequestPath();
     this.key = ctx.getRoute().getPattern();
   }
 

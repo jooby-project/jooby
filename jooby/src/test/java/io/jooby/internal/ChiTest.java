@@ -148,7 +148,7 @@ public class ChiTest {
 
   private Context ctx(String path) {
     Context context = mock(Context.class);
-    when(context.pathString()).thenReturn(path);
+    when(context.getRequestPath()).thenReturn(path);
     when(context.getMethod()).thenReturn("GET");
     return context;
   }

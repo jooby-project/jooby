@@ -85,7 +85,7 @@ public class SSLHandler implements Route.Before {
           buff.append(":").append(port);
         }
       }
-      buff.append(ctx.pathString());
+      buff.append(ctx.getRequestPath());
       buff.append(ctx.queryString());
       ctx.sendRedirect(buff.toString());
     }

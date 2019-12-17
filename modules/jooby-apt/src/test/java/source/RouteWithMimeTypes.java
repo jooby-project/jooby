@@ -17,51 +17,51 @@ public class RouteWithMimeTypes {
   @GET(value = "/consumes", consumes = "application/json")
   public String doIt(Context ctx) {
     assertEquals(Arrays.asList(MediaType.json), ctx.getRoute().getConsumes());
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @GET(value = "/consumes2", consumes = {"application/json", "application/xml"})
   public String consumes2(Context ctx) {
     assertEquals(Arrays.asList(MediaType.json, MediaType.xml), ctx.getRoute().getConsumes());
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @GET(value = "/produces", produces = "text/html")
   public String produces(Context ctx) {
     assertEquals(Arrays.asList(MediaType.html), ctx.getRoute().getProduces());
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @GET(value = "/consumes/produces", consumes = "text/html", produces = "text/html")
   public String consumesProduces(Context ctx) {
     assertEquals(Arrays.asList(MediaType.html), ctx.getRoute().getConsumes());
     assertEquals(Arrays.asList(MediaType.html), ctx.getRoute().getProduces());
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @GET("/method/produces")
   @Produces("text/plain")
   public String methodProduces(Context ctx) {
     assertEquals(Arrays.asList(MediaType.text), ctx.getRoute().getProduces());
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @GET("/method/consumes")
   @Consumes("m/consumes")
   public String methodConsumes(Context ctx) {
     assertEquals(Arrays.asList(MediaType.valueOf("m/consumes")), ctx.getRoute().getConsumes());
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @GET("/class/produces")
   public String classProduces(Context ctx) {
     assertEquals(Arrays.asList(MediaType.valueOf("text/produces")), ctx.getRoute().getProduces());
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 
   @GET("/class/consumes")
   public String classConsumes(Context ctx) {
     assertEquals(Arrays.asList(MediaType.valueOf("text/consumes")), ctx.getRoute().getConsumes());
-    return ctx.pathString();
+    return ctx.getRequestPath();
   }
 }

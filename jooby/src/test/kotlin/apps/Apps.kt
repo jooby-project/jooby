@@ -17,12 +17,12 @@ class App : Kooby({
     }
 
     get("/ctx-access") {
-      ctx.pathString()
+      ctx.getRequestPath()
     }
   }
 
   get("/ctx-arg") { ctx ->
-    ctx.pathString()
+    ctx.getRequestPath()
   }
 })
 
@@ -48,11 +48,11 @@ fun runInline(args: Array<String>) {
       }
 
       get("/ctx-access") {
-        ctx.pathString()
+        ctx.getRequestPath()
       }
 
       get("/ctx-arg") { ctx ->
-        ctx.pathString()
+        ctx.getRequestPath()
       }
     }
   }

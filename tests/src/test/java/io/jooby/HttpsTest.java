@@ -58,7 +58,7 @@ public class HttpsTest {
 
       app.before(new SSLHandler(true));
 
-      app.get("/{path}", ctx -> ctx.pathString());
+      app.get("/{path}", ctx -> ctx.getRequestPath());
     }).dontFollowRedirects().ready((http, https) -> {
       http.get("/secure/path", rsp -> {
         assertEquals("https://localhost:" + https.getPort() + "/secure/path",
@@ -83,7 +83,7 @@ public class HttpsTest {
 
       app.before(new SSLHandler(true));
 
-      app.get("/{path}", ctx -> ctx.pathString());
+      app.get("/{path}", ctx -> ctx.getRequestPath());
     }).dontFollowRedirects().ready((http, https) -> {
       http.get("/path", rsp -> {
         assertEquals("https://localhost:" + https.getPort() + "/path",
@@ -109,7 +109,7 @@ public class HttpsTest {
 
       app.before(new SSLHandler("static.org"));
 
-      app.get("/{path}", ctx -> ctx.pathString());
+      app.get("/{path}", ctx -> ctx.getRequestPath());
     }).dontFollowRedirects().ready(http -> {
       http.get("/path", rsp -> {
         assertEquals("https://static.org/path",
@@ -134,7 +134,7 @@ public class HttpsTest {
 
       app.before(new SSLHandler("static.org"));
 
-      app.get("/{path}", ctx -> ctx.pathString());
+      app.get("/{path}", ctx -> ctx.getRequestPath());
     }).dontFollowRedirects().ready(http -> {
       http.get("/ppp/path", rsp -> {
         assertEquals("https://static.org/ppp/path",
