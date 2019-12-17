@@ -68,16 +68,6 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-hibernate</artifactId>
-      <version>${jooby.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-jdbi</artifactId>
-      <version>${jooby.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jooby</groupId>
       <artifactId>jooby-freemarker</artifactId>
       <version>${jooby.version}</version>
     </dependency>
