@@ -36,6 +36,10 @@ public interface TemplateEngine extends MessageEncoder {
   String render(Context ctx, ModelAndView modelAndView) throws Exception;
 
   @Override default byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+    // initialize flash and session attributes (if any)
+    ctx.flash();
+    ctx.sessionOrNull();
+
     ctx.setDefaultResponseType(MediaType.html);
     String output = render(ctx, (ModelAndView) value);
     return output.getBytes(StandardCharsets.UTF_8);

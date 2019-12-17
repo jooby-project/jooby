@@ -1146,7 +1146,7 @@ public class FeaturedTest {
       app.use(ctx -> ctx.header("version").value("").equals("v1"), v1);
       app.use(ctx -> ctx.header("version").value("").equals("v2"), v2);
 
-      app.get("/api",ctx -> "fallback");
+      app.get("/api", ctx -> "fallback");
     }).ready(client -> {
       client.header("version", "v2");
       client.get("/api", rsp -> {
@@ -2324,6 +2324,19 @@ public class FeaturedTest {
     });
   }
 
+  @ServerTest
+  public void accessToFlashScopeFromTemplateEngine(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.install(new HandlebarsModule());
+      app.get("/home", ctx -> new ModelAndView("flash.hbs"));
+    }).dontFollowRedirects().ready(client -> {
+      client.header("Cookie", "jooby.flash=name=Flash");
+      client.get("/home", rsp -> {
+        assertEquals("Hello Flash!", rsp.body().string().trim());
+      });
+    });
+  }
+
   @ServerTest(executionMode = EVENT_LOOP)
   @DisplayName("Context detaches when running in event-loop and returns a Context")
   public void detachOnEventLoop(ServerTestRunner runner) {
@@ -2774,7 +2787,8 @@ public class FeaturedTest {
       app.decorator(new WebVariables("scope"));
 
       app.get("/webvars", ctx ->
-          Arrays.asList(ctx.attribute("scope.contextPath"), ctx.attribute("scope.path"), ctx.attribute("scope.user"))
+          Arrays.asList(ctx.attribute("scope.contextPath"), ctx.attribute("scope.path"),
+              ctx.attribute("scope.user"))
       );
     }).ready(client -> {
       client.get("/webvars", rsp -> {
