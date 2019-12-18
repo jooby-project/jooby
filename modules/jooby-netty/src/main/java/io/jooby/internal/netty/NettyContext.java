@@ -66,6 +66,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ReferenceCounted;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -375,6 +376,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.responseType = MediaType.valueOf(contentType);
     setHeaders.set(CONTENT_TYPE, contentType);
     return this;
+  }
+
+  @Nullable @Override public String getResponseHeader(@Nonnull String name) {
+    return setHeaders.get(name);
   }
 
   @Nonnull @Override public Context setResponseLength(long length) {

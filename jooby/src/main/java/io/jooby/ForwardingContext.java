@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.exception.RegistryException;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -380,6 +382,10 @@ public class ForwardingContext implements Context {
   @Nonnull @Override public Context removeResponseHeaders() {
     ctx.removeResponseHeaders();
     return this;
+  }
+
+  @Nullable @Override public String getResponseHeader(@Nonnull String name) {
+    return ctx.getResponseHeader(name);
   }
 
   @Override public long getResponseLength() {

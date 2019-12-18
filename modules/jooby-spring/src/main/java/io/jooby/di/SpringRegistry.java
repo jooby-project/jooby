@@ -6,7 +6,7 @@
 package io.jooby.di;
 
 import io.jooby.Registry;
-import io.jooby.RegistryException;
+import io.jooby.exception.RegistryException;
 import io.jooby.ServiceKey;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

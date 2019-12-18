@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.StatusCodeException;
+import io.jooby.exception.StatusCodeException;
 import io.jooby.StatusCode;
 
 import java.io.FilterInputStream;

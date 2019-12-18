@@ -167,11 +167,13 @@ public class FeaturedTest {
             + "<title>Not Found (404)</title>\n"
             + "<body>\n"
             + "<h1>Not Found</h1>\n"
-            + "<hr>\n<h2>status code: 404</h2>\n"
+            + "<hr>\n"
+            + "<h2>message: /notFound</h2>\n"
+            + "<h2>status code: 404</h2>\n"
             + "</body>\n"
             + "</html>", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals(580, rsp.body().contentLength());
+        assertEquals(608, rsp.body().contentLength());
       });
     });
   }
@@ -217,16 +219,16 @@ public class FeaturedTest {
             + "p {padding-left: 20px;}\n"
             + "p.tab {padding-left: 40px;}\n"
             + "</style>\n"
-            + "<title>"
-            + "Not Found (404)"
-            + "</title>\n"
+            + "<title>Not Found (404)</title>\n"
             + "<body>\n"
             + "<h1>Not Found</h1>\n"
-            + "<hr>\n<h2>status code: 404</h2>\n"
+            + "<hr>\n"
+            + "<h2>message: /notFound</h2>\n"
+            + "<h2>status code: 404</h2>\n"
             + "</body>\n"
             + "</html>", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals(580, rsp.body().contentLength());
+        assertEquals(608, rsp.body().contentLength());
       });
     });
   }
@@ -2793,6 +2795,28 @@ public class FeaturedTest {
     }).ready(client -> {
       client.get("/webvars", rsp -> {
         assertEquals("[, /webvars, null]", rsp.body().string().trim());
+      });
+    });
+  }
+
+  @ServerTest
+  public void errorOnParsingFormUrlEncoded(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.install(new JacksonModule());
+
+      app.post("/", ctx -> {
+        return ctx.body(Map.class);
+      });
+
+      app.error(StatusCode.UNSUPPORTED_MEDIA_TYPE, (ctx, cause, status) -> {
+        ctx.setResponseCode(status).send(cause.getMessage());
+      });
+    }).ready(client -> {
+      client.post("/", new FormBody.Builder()
+          .add("foo", "bar")
+          .build(), rsp -> {
+        assertEquals("application/x-www-form-urlencoded", rsp.body().string());
+        assertEquals(StatusCode.UNSUPPORTED_MEDIA_TYPE_CODE, rsp.code());
       });
     });
   }

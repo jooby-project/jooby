@@ -5,12 +5,18 @@
  */
 package io.jooby;
 
+import io.jooby.exception.MethodNotAllowedException;
+import io.jooby.exception.NotAcceptableException;
+import io.jooby.exception.NotFoundException;
+import io.jooby.exception.UnsupportedMediaType;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
@@ -277,7 +283,7 @@ public class Route {
    * Handler for {@link StatusCode#NOT_FOUND} responses.
    */
   public static final Handler NOT_FOUND = ctx -> ctx
-      .sendError(new StatusCodeException(StatusCode.NOT_FOUND));
+      .sendError(new NotFoundException(ctx.getRequestPath()));
 
   /**
    * Handler for {@link StatusCode#METHOD_NOT_ALLOWED} responses.
@@ -288,7 +294,10 @@ public class Route {
     if (ctx.getMethod().equals(Router.OPTIONS)) {
       return ctx.send(StatusCode.OK);
     } else {
-      return ctx.sendError(new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED));
+      List<String> allow = Optional.ofNullable(ctx.getResponseHeader("Allow"))
+          .map(it -> Arrays.asList(it.split(",")))
+          .orElseGet(Collections::emptyList);
+      return ctx.sendError(new MethodNotAllowedException(ctx.getMethod(), allow));
     }
   };
 
@@ -297,8 +306,7 @@ public class Route {
     List<MediaType> produceTypes = ctx.getRoute().getProduces();
     MediaType contentType = ctx.accept(produceTypes);
     if (contentType == null) {
-      throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE,
-          ctx.header(Context.ACCEPT).value(""));
+      throw new NotAcceptableException(ctx.header(Context.ACCEPT).valueOrNull());
     }
   };
 
@@ -306,10 +314,10 @@ public class Route {
   public static final Route.Before SUPPORT_MEDIA_TYPE = ctx -> {
     MediaType contentType = ctx.getRequestType();
     if (contentType == null) {
-      throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE);
+      throw new UnsupportedMediaType(null);
     }
     if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
-      throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE, contentType.getValue());
+      throw new UnsupportedMediaType(contentType.getValue());
     }
   };
 

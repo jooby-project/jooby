@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.netty;
 
-import io.jooby.StatusCodeException;
+import io.jooby.exception.StatusCodeException;
 import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -27,7 +27,6 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
-import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
 import org.slf4j.Logger;
 

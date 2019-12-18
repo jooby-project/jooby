@@ -9,12 +9,12 @@ import com.typesafe.config.Config;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.Jooby;
-import io.jooby.RegistryException;
+import io.jooby.exception.RegistryException;
 import io.jooby.RouterOption;
 import io.jooby.ServerOptions;
 import io.jooby.ServiceKey;
 import io.jooby.SessionStore;
-import io.jooby.StatusCodeException;
+import io.jooby.exception.StatusCodeException;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
 import io.jooby.MediaType;
@@ -447,9 +447,9 @@ public class RouterImpl implements Router {
 
   @Nonnull public Router start(@Nonnull Jooby owner) {
     if (err == null) {
-      err = ErrorHandler.DEFAULT;
+      err = ErrorHandler.create();
     } else {
-      err = err.then(ErrorHandler.DEFAULT);
+      err = err.then(ErrorHandler.create());
     }
     encoder.add(MessageEncoder.TO_STRING);
 
@@ -610,10 +610,7 @@ public class RouterImpl implements Router {
         type = type.getSuperclass();
       }
     }
-    if (x instanceof IllegalArgumentException) {
-      return StatusCode.BAD_REQUEST;
-    }
-    if (x instanceof NoSuchElementException) {
+    if (x instanceof IllegalArgumentException || x instanceof NoSuchElementException) {
       return StatusCode.BAD_REQUEST;
     }
     if (x instanceof FileNotFoundException) {

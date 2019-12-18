@@ -6,8 +6,8 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.MissingValueException;
-import io.jooby.TypeMismatchException;
+import io.jooby.exception.MissingValueException;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;

@@ -1,5 +1,6 @@
 package io.jooby;
 
+import io.jooby.exception.StatusCodeException;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 

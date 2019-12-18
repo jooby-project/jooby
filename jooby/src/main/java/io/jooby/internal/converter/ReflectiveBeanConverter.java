@@ -5,19 +5,18 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.BadRequestException;
+import io.jooby.exception.BadRequestException;
 import io.jooby.BeanConverter;
 import io.jooby.FileUpload;
-import io.jooby.MissingValueException;
+import io.jooby.exception.MissingValueException;
 import io.jooby.Multipart;
-import io.jooby.ProvisioningException;
+import io.jooby.exception.ProvisioningException;
 import io.jooby.ValueNode;
 import io.jooby.internal.reflect.$Types;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -25,8 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

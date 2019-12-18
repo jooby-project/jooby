@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.exception.RegistryException;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Provider;

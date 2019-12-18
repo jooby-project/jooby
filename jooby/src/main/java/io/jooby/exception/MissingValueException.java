@@ -3,7 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.exception;
+
+import io.jooby.exception.BadRequestException;
 
 import javax.annotation.Nonnull;
 

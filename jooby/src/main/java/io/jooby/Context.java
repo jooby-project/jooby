@@ -866,6 +866,8 @@ public interface Context extends Registry {
    */
   @Nonnull Context setResponseLength(long length);
 
+  @Nullable String getResponseHeader(@Nonnull String name);
+
   /**
    * Get response content length or <code>-1</code> when none was set.
    *

@@ -5,7 +5,7 @@
  */
 package io.jooby.internal;
 
-import io.jooby.MissingValueException;
+import io.jooby.exception.MissingValueException;
 import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;

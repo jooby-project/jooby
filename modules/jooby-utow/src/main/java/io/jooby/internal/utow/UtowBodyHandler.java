@@ -6,7 +6,7 @@
 package io.jooby.internal.utow;
 
 import io.jooby.Body;
-import io.jooby.StatusCodeException;
+import io.jooby.exception.StatusCodeException;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.undertow.io.Receiver;

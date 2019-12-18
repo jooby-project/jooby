@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.exception.RegistryException;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;

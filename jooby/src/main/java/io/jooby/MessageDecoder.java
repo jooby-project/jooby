@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.exception.UnsupportedMediaType;
+
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
 
@@ -21,7 +23,7 @@ public interface MessageDecoder {
    */
   MessageDecoder UNSUPPORTED_MEDIA_TYPE = new MessageDecoder() {
     @Override public <T> T decode(Context ctx, Type type) {
-      throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE);
+      throw new UnsupportedMediaType(ctx.header("Content-Type").valueOrNull());
     }
   };
 

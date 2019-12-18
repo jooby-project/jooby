@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.exception.NotAcceptableException;
+
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
 
@@ -21,7 +23,7 @@ public interface MessageEncoder {
     if (ctx.accept(ctx.getResponseType())) {
       return value.toString().getBytes(StandardCharsets.UTF_8);
     }
-    throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE);
+    throw new NotAcceptableException(ctx.header("Accept").valueOrNull());
   };
 
   /**

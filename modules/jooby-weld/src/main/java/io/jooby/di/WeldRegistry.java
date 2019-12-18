@@ -6,7 +6,7 @@
 package io.jooby.di;
 
 import io.jooby.Registry;
-import io.jooby.RegistryException;
+import io.jooby.exception.RegistryException;
 import io.jooby.ServiceKey;
 import org.jboss.weld.environment.se.WeldContainer;
 

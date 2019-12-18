@@ -11,7 +11,7 @@ import com.google.inject.Key;
 import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
 import io.jooby.Registry;
-import io.jooby.RegistryException;
+import io.jooby.exception.RegistryException;
 import io.jooby.ServiceKey;
 
 import javax.annotation.Nonnull;

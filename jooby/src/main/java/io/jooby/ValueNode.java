@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.exception.MissingValueException;
+
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Iterator;

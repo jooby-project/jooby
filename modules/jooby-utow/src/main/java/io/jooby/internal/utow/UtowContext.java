@@ -303,6 +303,10 @@ public class UtowContext implements DefaultContext, IoCallback {
     return this;
   }
 
+  @Nullable @Override public String getResponseHeader(@Nonnull String name) {
+    return exchange.getResponseHeaders().getFirst(name);
+  }
+
   @Nonnull @Override public Context setResponseLength(long length) {
     responseLength = length;
     exchange.getResponseHeaders().put(CONTENT_LENGTH, Long.toString(length));

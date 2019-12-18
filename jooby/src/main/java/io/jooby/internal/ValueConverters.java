@@ -6,9 +6,7 @@
 package io.jooby.internal;
 
 import io.jooby.BeanConverter;
-import io.jooby.FileUpload;
 import io.jooby.Router;
-import io.jooby.TypeMismatchException;
 import io.jooby.ValueNode;
 import io.jooby.internal.converter.BigDecimalConverter;
 import io.jooby.internal.converter.BigIntegerConverter;
@@ -30,7 +28,6 @@ import io.jooby.internal.reflect.$Types;
 import io.jooby.ValueConverter;
 
 import java.lang.reflect.Type;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;

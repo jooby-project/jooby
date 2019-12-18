@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.exception.TypeMismatchException;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
@@ -380,6 +382,11 @@ public class MockContext implements DefaultContext {
   @Nonnull @Override public MockContext removeResponseHeader(@Nonnull String name) {
     responseHeaders.remove(name);
     return this;
+  }
+
+  @Nullable @Override public String getResponseHeader(@Nonnull String name) {
+    Object value = responseHeaders.get(name);
+    return value == null ? null : value.toString();
   }
 
   @Nonnull @Override

@@ -335,6 +335,10 @@ public class JettyContext implements DefaultContext {
     return this;
   }
 
+  @Nullable @Override public String getResponseHeader(@Nonnull String name) {
+    return response.getHeader(name);
+  }
+
   @Nonnull @Override public Context setResponseLength(long length) {
     response.setContentLengthLong(length);
     return this;

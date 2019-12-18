@@ -7,7 +7,7 @@ package io.jooby.internal;
 
 import io.jooby.ByteRange;
 import io.jooby.Context;
-import io.jooby.StatusCodeException;
+import io.jooby.exception.StatusCodeException;
 import io.jooby.StatusCode;
 
 import javax.annotation.Nonnull;

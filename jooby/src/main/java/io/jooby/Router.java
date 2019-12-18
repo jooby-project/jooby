@@ -6,6 +6,7 @@
 package io.jooby;
 
 import com.typesafe.config.Config;
+import io.jooby.exception.MissingValueException;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
