@@ -77,7 +77,7 @@
   <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
   <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
   <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
-  <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
+  <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
   <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
   <mockito.version>3.2.4</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
