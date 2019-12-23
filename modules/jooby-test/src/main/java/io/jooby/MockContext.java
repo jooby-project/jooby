@@ -633,6 +633,10 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
+  @Nonnull @Override public Context upgrade(@Nonnull ServerSentEmitter.Handler handler) {
+    return this;
+  }
+
   @Override public String toString() {
     return method + " " + requestPath;
   }

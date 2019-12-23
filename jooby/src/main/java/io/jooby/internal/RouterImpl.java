@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.Jooby;
+import io.jooby.ServerSentEmitter;
 import io.jooby.exception.RegistryException;
 import io.jooby.RouterOption;
 import io.jooby.ServerOptions;
@@ -29,6 +30,7 @@ import io.jooby.TemplateEngine;
 import io.jooby.WebSocket;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.ValueConverter;
+import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -370,6 +372,12 @@ public class RouterImpl implements Router {
     return route(WS, pattern, new WebSocketHandler(handler)).setHandle(handler);
   }
 
+  @Nonnull @Override
+  public Route sse(@Nonnull String pattern, @Nonnull ServerSentEmitter.Handler handler) {
+    return route(SSE, pattern, new ServerSentEventHandler(handler)).setHandle(handler)
+        .setExecutorKey("worker");
+  }
+
   @Override
   public Route route(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler) {
@@ -427,6 +435,9 @@ public class RouterImpl implements Router {
     }
 
     if (route.getMethod().equals(WS)) {
+      tree.insert(GET, finalPattern, route);
+      route.setReturnType(Context.class);
+    } else if (route.getMethod().equals(SSE)) {
       tree.insert(GET, finalPattern, route);
       route.setReturnType(Context.class);
     } else {

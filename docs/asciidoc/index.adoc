@@ -234,6 +234,8 @@ include::routing.adoc[]
 
 include::context.adoc[]
 
+include::mvc-api.adoc[]
+
 include::static-files.adoc[]
 
 include::templates.adoc[]
@@ -242,7 +244,7 @@ include::session.adoc[]
 
 include::websocket.adoc[]
 
-include::mvc-api.adoc[]
+include::server-sent-event.adoc[]
 
 include::execution-model.adoc[]
 

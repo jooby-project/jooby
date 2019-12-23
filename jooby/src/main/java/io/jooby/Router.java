@@ -87,6 +87,9 @@ public interface Router extends Registry {
   /** Web socket. */
   String WS = "WS";
 
+  /** Sever-Sent events. */
+  String SSE = "SSE";
+
   /**
    * Application configuration.
    *
@@ -235,9 +238,18 @@ public interface Router extends Registry {
    *
    * @param pattern WebSocket path pattern.
    * @param handler WebSocket handler.
-   * @return This route.
+   * @return A new route.
    */
   @Nonnull Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler);
+
+  /**
+   * Add a server-sent event handler.
+   *
+   * @param pattern Path pattern.
+   * @param handler Handler.
+   * @return A new route.
+   */
+  @Nonnull Route sse(@Nonnull String pattern, @Nonnull ServerSentEmitter.Handler handler);
 
   /**
    * Returns all routes.

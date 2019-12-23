@@ -20,6 +20,7 @@ import io.jooby.Router;
 import io.jooby.RouterOption;
 import io.jooby.Sender;
 import io.jooby.Server;
+import io.jooby.ServerSentEmitter;
 import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
@@ -36,7 +37,6 @@ import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
-import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 import org.slf4j.Logger;
@@ -76,8 +76,8 @@ public class JettyContext implements DefaultContext {
   private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.wrap(new byte[0]);
   private final int bufferSize;
   private final long maxRequestSize;
-  private Request request;
-  private Response response;
+  Request request;
+  Response response;
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
@@ -283,6 +283,25 @@ public class JettyContext implements DefaultContext {
       wssf.acceptWebSocket((req, rsp) -> ws, request, response);
       return this;
     } catch (Throwable x) {
+      throw SneakyThrows.propagate(x);
+    }
+  }
+
+  @Nonnull @Override public Context upgrade(@Nonnull ServerSentEmitter.Handler handler) {
+    try {
+      responseStarted = true;
+      AsyncContext async = request.isAsyncStarted()
+          ? request.getAsyncContext()
+          : request.startAsync();
+      /** Infinite timeout because the continuation is never resumed but only completed on close. */
+      async.setTimeout(0L);
+
+      response.flushBuffer();
+
+      handler.handle(new JettyServerSentEmitter(this));
+
+      return this;
+    } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
   }

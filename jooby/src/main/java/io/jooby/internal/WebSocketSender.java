@@ -39,7 +39,8 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
   }
 
   @Nonnull @Override public Context render(@Nonnull Object value) {
-    return DefaultContext.super.render(value);
+    DefaultContext.super.render(value);
+    return this;
   }
 
   @Override public Context setResetHeadersOnError(boolean value) {

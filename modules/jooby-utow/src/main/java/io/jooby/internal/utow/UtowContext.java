@@ -18,6 +18,7 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.RouterOption;
 import io.jooby.Server;
+import io.jooby.ServerSentEmitter;
 import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
@@ -26,20 +27,15 @@ import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.undertow.Handlers;
-import io.undertow.connector.PooledByteBuffer;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.ServerConnection;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.SameThreadExecutor;
-import io.undertow.websockets.WebSocketConnectionCallback;
-import io.undertow.websockets.core.WebSocketChannel;
-import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -73,7 +69,7 @@ public class UtowContext implements DefaultContext, IoCallback {
 
   private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
   private Route route;
-  private HttpServerExchange exchange;
+  HttpServerExchange exchange;
   private Router router;
   private QueryString query;
   private Formdata form;
@@ -253,6 +249,15 @@ public class UtowContext implements DefaultContext, IoCallback {
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
+  }
+
+  @Nonnull @Override public Context upgrade(@Nonnull ServerSentEmitter.Handler handler) {
+    try {
+      handler.handle(new UtowSeverSentEmitter(this));
+    } catch (Throwable x) {
+      sendError(x);
+    }
+    return this;
   }
 
   @Nonnull @Override public StatusCode getResponseCode() {

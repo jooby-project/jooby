@@ -6,12 +6,6 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.Optional;
-
-import static io.jooby.MediaType.html;
-import static io.jooby.MediaType.json;
-import static io.jooby.MediaType.text;
 
 /**
  * Catch and encode application errors.
@@ -67,6 +61,10 @@ public interface ErrorHandler {
         .toString();
   }
 
+  /**
+   * Creates a default error handler.
+   * @return Default error handler.
+   */
   static @Nonnull DefaultErrorHandler create() {
     return new DefaultErrorHandler();
   }

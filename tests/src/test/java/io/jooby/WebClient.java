@@ -1,11 +1,15 @@
 package io.jooby;
 
+import io.jooby.internal.ArrayValue;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
+import okhttp3.sse.EventSources;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +30,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class WebClient implements AutoCloseable {
 
@@ -58,7 +64,7 @@ public class WebClient implements AutoCloseable {
 
     public String lastMessage() {
       try {
-        return  (String) messages.take();
+        return (String) messages.take();
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);
       }
@@ -176,6 +182,38 @@ public class WebClient implements AutoCloseable {
     return invoke("GET", path, null);
   }
 
+  public ServerSentMessageIterator sse(String path) {
+    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+    setRequestHeaders(req);
+    req.url(scheme + "://localhost:" + port + path);
+    EventSource.Factory factory = EventSources.createFactory(client);
+    BlockingQueue<ServerSentMessage> messages = new LinkedBlockingQueue();
+    EventSource eventSource = factory.newEventSource(req.build(), new EventSourceListener() {
+      @Override public void onClosed(@NotNull EventSource eventSource) {
+        eventSource.cancel();
+      }
+
+      @Override public void onEvent(@NotNull EventSource eventSource, @Nullable String id,
+          @Nullable String type, @NotNull String data) {
+        // retry is not part of public API
+        ServerSentMessage message = new ServerSentMessage(data)
+            .setId(id)
+            .setEvent(type);
+        messages.offer(message);
+      }
+
+      @Override public void onFailure(@NotNull EventSource eventSource, @Nullable Throwable t,
+          @Nullable Response response) {
+        super.onFailure(eventSource, t, response);
+      }
+
+      @Override public void onOpen(@NotNull EventSource eventSource, @NotNull Response response) {
+        super.onOpen(eventSource, response);
+      }
+    });
+    return new ServerSentMessageIterator(eventSource, messages);
+  }
+
   public void get(String path, SneakyThrows.Consumer<Response> callback) {
     get(path).execute(callback);
   }
@@ -288,5 +326,40 @@ public class WebClient implements AutoCloseable {
     sslContext.init(null, new TrustManager[]{trustManager}, new java.security.SecureRandom());
     builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
     builder.hostnameVerifier((hostname, session) -> true);
+  }
+
+  public static class ServerSentMessageIterator {
+    private final EventSource source;
+    private List<BiConsumer<ServerSentMessage, EventSource>> consumers = new ArrayList<>();
+
+    private BlockingQueue<ServerSentMessage> messages;
+
+    public ServerSentMessageIterator(EventSource source,
+        BlockingQueue<ServerSentMessage> messages) {
+      this.source = source;
+      this.messages = messages;
+    }
+
+    public ServerSentMessageIterator next(Consumer<ServerSentMessage> consumer) {
+      return next((message, source) -> consumer.accept(message));
+    }
+
+    public ServerSentMessageIterator next(BiConsumer<ServerSentMessage, EventSource> consumer) {
+      consumers.add(consumer);
+      return this;
+    }
+
+    public void verify() {
+      int i = 0;
+      while (i < consumers.size()) {
+        try {
+          ServerSentMessage message = messages.take();
+          consumers.get(i).accept(message, source);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+        i += 1;
+      }
+    }
   }
 }

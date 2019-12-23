@@ -794,12 +794,24 @@ public interface Context extends Registry {
   @Nonnull Context detach(@Nonnull Route.Handler next) throws Exception;
 
   /**
-   * Perform a websocket handsake and upgrade a HTTP GET into a websocket protocol.
+   * Perform a websocket handsahke and upgrade a HTTP GET into a websocket protocol.
+   *
+   * NOTE: This method is part of Public API, but shouldn't be used by client code.
    *
    * @param handler Web socket initializer.
    * @return This context.
    */
   @Nonnull Context upgrade(@Nonnull WebSocket.Initializer handler);
+
+  /**
+   * Perform a server-sent event handshake and upgrade HTTP GET into a Server-Sent protocol.
+   *
+   * NOTE: This method is part of Public API, but shouldn't be used by client code.
+   *
+   * @param handler Server-Sent event handler.
+   * @return This context.
+   */
+  @Nonnull Context upgrade(@Nonnull ServerSentEmitter.Handler handler);
 
   /*
    * **********************************************************************************************
@@ -866,6 +878,12 @@ public interface Context extends Registry {
    */
   @Nonnull Context setResponseLength(long length);
 
+  /**
+   * Get response header.
+   *
+   * @param name Header's name.
+   * @return Header's value (if set previously) or <code>null</code>.
+   */
   @Nullable String getResponseHeader(@Nonnull String name);
 
   /**
@@ -1243,5 +1261,4 @@ public interface Context extends Registry {
   static @Nonnull Context websocket(@Nonnull Context ctx, @Nonnull WebSocket ws) {
     return new WebSocketSender(ctx, ws);
   }
-
 }

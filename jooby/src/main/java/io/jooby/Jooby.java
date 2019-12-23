@@ -303,6 +303,11 @@ public class Jooby implements Router, Registry {
     return router.ws(pattern, handler);
   }
 
+  @Nonnull @Override
+  public Route sse(@Nonnull String pattern, @Nonnull ServerSentEmitter.Handler handler) {
+    return router.sse(pattern, handler);
+  }
+
   @Nonnull @Override public List<Route> getRoutes() {
     return router.getRoutes();
   }

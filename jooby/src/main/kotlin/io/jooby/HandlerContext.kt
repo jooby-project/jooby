@@ -12,3 +12,5 @@ class DecoratorContext(val ctx: Context, val next: Route.Handler)
 class HandlerContext (val ctx: Context)
 
 class WebSocketInitContext (val ctx: Context, val configurer: WebSocketConfigurer)
+
+class ServerSentHandler (val ctx: Context, val sse: ServerSentEmitter)

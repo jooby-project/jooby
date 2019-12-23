@@ -1,0 +1,127 @@
+== Server-Sent Events
+
+https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events[Server-sent Events] (SSE) is a 
+mechanism that allows the server to push data to the client once the client-server connection 
+is established. After the connection has been established by the client, the server can send to 
+the client whenever a new chunk of data is available. In contrast with websockets, SSE can only 
+be used to send from the server to the client and not the other way round.
+
+.Server-Sent Events
+[source,java,role="primary"]
+----
+{
+  sse("/sse", sse -> {            // <1>
+    sse.send("Welcome");          // <2>
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  sse("/sse") {                   // <1>
+    sse.send("Welcome")           // <2>
+  }
+}
+----
+
+<1> Connection established
+<2> Send a message
+
+=== Message Options
+
+Additional message options are available via javadoc:ServerSentMessage[]:
+
+.Server-Sent Events
+[source,java,role="primary"]
+----
+{
+  sse("/sse", sse -> {
+    sse.send(
+        new ServerSentMessage("...")
+            .setEvent("myevent")
+            .setId(myId)
+            .setRetry(1000)
+    );
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  sse("/sse") {
+    sse.send(ServerSentMessaage("...").apply {
+        event = "myevent"
+        id = myId
+        retry = 1000
+    })
+  }
+}
+----
+
+Options are documented at https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format[Event stream format].
+
+=== Connection Lost
+
+The `sse.onClose(Runnable)` callback allows you to clean and release resources on connection close.
+A connection is closed when you call the sse.close() method or when the remote client closes the
+connection.
+
+.Connection Lost
+[source,java,role="primary"]
+----
+{
+  sse("/sse", sse -> {
+    sse.onClose(() -> {
+      // clean up
+    });
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  sse("/sse") {
+    sse.onClose {
+      // clean up
+    }
+  }
+}
+----
+
+=== Keep Alive
+
+The keep alive time feature can be used to prevent connections from timing out:
+
+.Keep Alive
+[source,java,role="primary"]
+----
+{
+  sse("/sse", sse -> {
+    sse.keepAlive(15, TimeUnit.SECONDS)
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  sse("/sse") {
+    sse.keepAlive(15, TimeUnit.SECONDS)
+  }
+}
+----
+
+The previous example will send a ':' message (empty comment) every 15 seconds to keep the 
+connection alive. If the client drops the connection, then the `sse.onClose(Runnable)` event will
+be fired.
+
+This feature is useful when you want to detect close events without waiting for the next time you 
+send an event. If on the other hand your application already generates events every 15 seconds, 
+the use of keep alive is unnecessary.

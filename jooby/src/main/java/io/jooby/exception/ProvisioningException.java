@@ -5,8 +5,6 @@
  */
 package io.jooby.exception;
 
-import io.jooby.exception.BadRequestException;
-
 import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;

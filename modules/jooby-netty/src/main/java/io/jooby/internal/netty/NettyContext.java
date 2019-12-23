@@ -21,6 +21,7 @@ import io.jooby.Router;
 import io.jooby.RouterOption;
 import io.jooby.Sender;
 import io.jooby.Server;
+import io.jooby.ServerSentEmitter;
 import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
@@ -48,7 +49,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -212,7 +212,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return query;
   }
 
-    @Nonnull @Override public Formdata form() {
+  @Nonnull @Override public Formdata form() {
     if (form == null) {
       form = Formdata.create(this);
       decodeForm(req, form);
@@ -323,6 +323,20 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     } catch (Throwable x) {
       sendError(x);
     }
+    return this;
+  }
+
+  @Nonnull @Override public Context upgrade(@Nonnull ServerSentEmitter.Handler handler) {
+    responseStarted = true;
+    ctx.writeAndFlush(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
+
+    //    ctx.executor().execute(() -> {
+    try {
+      handler.handle(new NettyServerSentEmitter(this));
+    } catch (Throwable x) {
+      sendError(x);
+    }
+    //    });
     return this;
   }
 
@@ -475,7 +489,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
     prepareChunked();
-    DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
+    DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
     responseStarted = true;
     int bufferSize = contentLength > 0 ? (int) contentLength : this.bufferSize;
     ctx.channel().eventLoop().execute(() -> {
@@ -501,7 +515,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           .apply(this);
       ChunkedStream chunkedStream = new ChunkedStream(range.apply(in), bufferSize);
 
-      DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
+      DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
       ctx.channel().eventLoop().execute(() -> {
         // Headers
@@ -525,7 +539,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       ByteRange range = ByteRange.parse(req.headers().get(RANGE), len)
           .apply(this);
 
-      DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
+      DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
 
       if (isSecure()) {
