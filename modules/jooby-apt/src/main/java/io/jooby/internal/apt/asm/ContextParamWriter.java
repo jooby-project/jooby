@@ -14,18 +14,12 @@ import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.F_APPEND;
-import static org.objectweb.asm.Opcodes.F_SAME1;
-import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.IFLE;
 import static org.objectweb.asm.Opcodes.IFNONNULL;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -37,7 +31,7 @@ public class ContextParamWriter extends ValueWriter {
 
   @Override
   public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, Set<Object> state) throws Exception {
+      ParamDefinition parameter, Map<String, Integer> registry) throws Exception {
     String methodName = parameter.getName();
     String name = parameter.getHttpName();
 
@@ -53,8 +47,9 @@ public class ContextParamWriter extends ValueWriter {
       visitor.visitTypeInsn(Opcodes.CHECKCAST, parameter.getType().toJvmType().getInternalName());
     }
 
-    if (state.add(methodName)) {
+    if (!registry.containsKey(methodName)) {
       attribute(writer, parameter, methodName);
+      registry.put(methodName, 1);
     }
   }
 

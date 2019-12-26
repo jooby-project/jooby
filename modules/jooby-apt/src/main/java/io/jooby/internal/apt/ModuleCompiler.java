@@ -12,7 +12,6 @@ import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.annotations.Dispatch;
 import io.jooby.internal.apt.asm.ArrayWriter;
-import io.jooby.internal.apt.asm.ConstructorWriter;
 import io.jooby.internal.apt.asm.RouteAttributesWriter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
@@ -86,8 +85,7 @@ public class ModuleCompiler {
         new String[]{MVC_FACTORY.getInternalName()});
     writer.visitSource(moduleJava, null);
 
-    new ConstructorWriter()
-        .build(moduleClass, writer);
+    defaultConstructor(writer);
 
     supports(writer);
 
@@ -97,6 +95,19 @@ public class ModuleCompiler {
 
     writer.visitEnd();
     return writer.toByteArray();
+  }
+
+  private void defaultConstructor(ClassWriter writer) {
+    // Constructor:
+    MethodVisitor constructor = writer
+        .visitMethod(ACC_PUBLIC, "<init>", "()V", null,
+            null);
+    constructor.visitCode();
+    constructor.visitVarInsn(ALOAD, 0);
+    constructor.visitMethodInsn(INVOKESPECIAL, OBJ.getInternalName(), "<init>", "()V", false);
+    constructor.visitInsn(RETURN);
+    constructor.visitMaxs(0, 0);
+    constructor.visitEnd();
   }
 
   private void create(ClassWriter writer) {
@@ -151,7 +162,6 @@ public class ModuleCompiler {
         env.getTypeUtils(), writer, moduleInternalName, visitor);
 
     Map<String, Integer> nameRegistry = new HashMap<>();
-    Set<Object> state = new HashSet<>();
     for (HandlerCompiler handler : handlers) {
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitLdcInsn(handler.getPattern());
@@ -162,8 +172,7 @@ public class ModuleCompiler {
       }
 
       visitor.visitVarInsn(ALOAD, 1);
-      handler
-          .compile(moduleDescriptorName, moduleInternalName, writer, visitor, state, nameRegistry);
+      handler.compile(moduleInternalName, writer, visitor, nameRegistry);
       if (handler.isSuspendFunction()) {
         visitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/internal/mvc/CoroutineLauncher", "<init>",
             "(Lio/jooby/Route$Handler;)V", false);

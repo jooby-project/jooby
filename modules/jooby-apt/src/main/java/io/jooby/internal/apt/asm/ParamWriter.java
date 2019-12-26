@@ -11,6 +11,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.objectweb.asm.Type.getType;
@@ -19,5 +20,5 @@ public interface ParamWriter {
   Type CTX = getType(Context.class);
 
   void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, Set<Object> state) throws Exception;
+      ParamDefinition parameter, Map<String, Integer> registry) throws Exception;
 }

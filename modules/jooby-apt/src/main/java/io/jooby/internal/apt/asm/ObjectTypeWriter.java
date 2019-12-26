@@ -13,7 +13,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
-import java.util.Set;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -21,7 +21,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 public class ObjectTypeWriter implements ParamWriter {
   @Override
   public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, Set<Object> state) throws Exception {
+      ParamDefinition parameter, Map<String, Integer> registry) throws Exception {
     if (!parameter.is(Context.class)) {
       Method method = ParamKind.forTypeInjection(parameter).valueObject(parameter);
       visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), method.getName(),

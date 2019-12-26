@@ -102,11 +102,11 @@ public class HandlerCompiler {
     return mediaType(executable, annotation, "produces", Annotations.PRODUCES_PARAMS);
   }
 
-  public void compile(String descriptor, String internalName, ClassWriter writer,
-      MethodVisitor methodVisitor, Set<Object> state, Map<String, Integer> nameRegistry)
+  public void compile(String internalName, ClassWriter writer,
+      MethodVisitor methodVisitor, Map<String, Integer> nameRegistry)
       throws Exception {
     String key =
-        httpMethod + "$" + executable.getSimpleName().toString() + arguments(executable);
+        httpMethod + camelCase(executable.getSimpleName().toString()) + arguments(executable);
     int c = nameRegistry.computeIfAbsent(key, k -> 0);
     String methodName;
     if (c > 0) {
@@ -126,7 +126,14 @@ public class HandlerCompiler {
                 Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;")});
 
     /** Apply implementation: */
-    apply(writer, internalName, methodName, state);
+    apply(writer, internalName, methodName, nameRegistry);
+  }
+
+  private String camelCase(String name) {
+    if (name.length() > 1) {
+      return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    }
+    return name.toUpperCase();
   }
 
   private String arguments(ExecutableElement executable) {
@@ -138,7 +145,7 @@ public class HandlerCompiler {
   }
 
   private void apply(ClassWriter writer, String moduleInternalName, String lambdaName,
-      Set<Object> state)
+      Map<String, Integer> registry)
       throws Exception {
     Type owner = getController().toJvmType();
     String methodName = executable.getSimpleName().toString();
@@ -166,7 +173,7 @@ public class HandlerCompiler {
     apply.visitVarInsn(ALOAD, 2);
 
     /** Arguments. */
-    processArguments(writer, apply, moduleInternalName, state);
+    processArguments(writer, apply, moduleInternalName, registry);
 
     /** Invoke. */
     apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), methodName, methodDescriptor,
@@ -192,7 +199,7 @@ public class HandlerCompiler {
   }
 
   private void processArguments(ClassWriter classWriter, MethodVisitor visitor,
-      String moduleInternalName, Set<Object> state) throws Exception {
+      String moduleInternalName, Map<String, Integer> registry) throws Exception {
     for (VariableElement var : executable.getParameters()) {
       if (isSuspendFunction(var)) {
         visitor.visitVarInsn(ALOAD, 1);
@@ -206,7 +213,7 @@ public class HandlerCompiler {
         visitor.visitVarInsn(ALOAD, 1);
         ParamDefinition param = ParamDefinition.create(environment, var);
         ParamWriter writer = param.newWriter();
-        writer.accept(classWriter, moduleInternalName, visitor, param, state);
+        writer.accept(classWriter, moduleInternalName, visitor, param, registry);
       }
     }
   }

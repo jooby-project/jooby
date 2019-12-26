@@ -13,6 +13,7 @@ import org.objectweb.asm.MethodVisitor;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Map;
 import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -21,7 +22,7 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 public class BodyWriter extends ValueWriter {
   @Override
   public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, Set<Object> state)
+      ParamDefinition parameter, Map<String, Integer> registry)
       throws Exception {
     Method paramMethod = parameter.getObjectValue();
     if (parameter.is(byte[].class)) {
@@ -48,7 +49,7 @@ public class BodyWriter extends ValueWriter {
         visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
             getMethodDescriptor(paramMethod), true);
       }
-      super.accept(writer, handlerInternalName, visitor, parameter, state);
+      super.accept(writer, handlerInternalName, visitor, parameter, registry);
     }
   }
 }
