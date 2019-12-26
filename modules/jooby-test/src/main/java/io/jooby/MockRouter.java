@@ -6,7 +6,6 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 

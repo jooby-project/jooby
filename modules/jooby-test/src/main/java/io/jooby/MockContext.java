@@ -197,7 +197,13 @@ public class MockContext implements DefaultContext {
     return queryString;
   }
 
-  public @Nonnull MockContext setQueryString(String queryString) {
+  /**
+   * Set query string value.
+   *
+   * @param queryString Query string (starting with <code>?</code>).
+   * @return This context.
+   */
+  public @Nonnull MockContext setQueryString(@Nonnull String queryString) {
     this.queryString = queryString;
     return this;
   }
