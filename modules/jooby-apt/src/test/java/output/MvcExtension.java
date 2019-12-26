@@ -1,6 +1,5 @@
 package output;
 
-import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.Route;
@@ -10,14 +9,17 @@ import javax.annotation.Nonnull;
 import javax.inject.Provider;
 
 public class MvcExtension implements Extension {
-  private Provider provider;
+  private Provider<MyController> provider;
 
-  public MvcExtension(Provider c) {
+  public MvcExtension(Provider<MyController> c) {
     this.provider = c;
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
-    Route route = application.get("/", new CoroutineLauncher(new MyControllerHandler(provider)));
-    route.setReturnType(Context.class);
+    application.get("/mypath", new CoroutineLauncher(ctx -> {
+      MyController myController = provider.get();
+      return myController.controllerMethod();
+    })).setReturnType(String.class)
+        .attribute("RoleAnnotation", "User");
   }
 }

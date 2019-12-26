@@ -8,12 +8,12 @@ import io.jooby.annotations.Path;
 public class RouteContextPath {
 
   @GET
-  public Route route(Route route) {
-    return route;
+  public String route(Route route) {
+    return route.getPattern();
   }
 
   @GET("/subpath")
-  public Route subpath(Route route) {
-    return route;
+  public String subpath(Route route) {
+    return route.getPattern();
   }
 }

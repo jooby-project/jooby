@@ -37,7 +37,7 @@ public class UnitTest {
 
     assertEquals("*:*", router.get("/search").value());
 
-    assertEquals("foo", router.get("/search?q=foo").value());
+    assertEquals("foo", router.get("/search", new MockContext().setQueryString("?q=foo")).value());
 
     router.get("/", result -> {
       assertEquals(StatusCode.OK, result.getStatusCode());

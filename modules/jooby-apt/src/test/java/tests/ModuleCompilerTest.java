@@ -8,6 +8,7 @@ import io.jooby.apt.MvcModuleCompilerRunner;
 import org.junit.jupiter.api.Test;
 import source.GetPostRoute;
 import source.JavaBeanParam;
+import source.MinRoute;
 import source.NoPathRoute;
 import source.PrimitiveReturnType;
 import source.RouteAttributes;
@@ -25,6 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModuleCompilerTest {
+  @Test
+  public void minRoute() throws Exception {
+    new MvcModuleCompilerRunner(new MinRoute())
+        .debugModule(app -> {
+          MockRouter router = new MockRouter(app);
+          assertEquals("/mypath", router.get("/mypath").value());
+        });
+  }
+
   @Test
   public void routes() throws Exception {
     new MvcModuleCompilerRunner(new Routes())
@@ -116,7 +126,7 @@ public class ModuleCompilerTest {
   @Test
   public void routeAttributes() throws Exception {
     new MvcModuleCompilerRunner(new RouteAttributes())
-        .module(app -> {
+        .debugModule(app -> {
           Route route = app.getRoutes().get(0);
           assertEquals(13, route.getAttributes().size(), route.getAttributes().toString());
           assertEquals("string", route.attribute("someAnnotation"));

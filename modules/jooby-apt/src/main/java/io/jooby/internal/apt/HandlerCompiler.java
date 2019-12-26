@@ -15,6 +15,7 @@ import io.jooby.internal.apt.asm.ConstructorWriter;
 import io.jooby.internal.apt.asm.ParamWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -38,10 +39,12 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -119,6 +122,40 @@ public class HandlerCompiler {
     return mediaType(executable, annotation, "produces", Annotations.PRODUCES_PARAMS);
   }
 
+  public void compile(String descriptor, String internalName, ClassWriter writer,
+      MethodVisitor methodVisitor, Set<Object> state, Map<String, Integer> nameRegistry)
+      throws Exception {
+    String key =
+        httpMethod + "$" + executable.getSimpleName().toString() + arguments(executable);
+    int c = nameRegistry.computeIfAbsent(key, k -> 0);
+    String methodName;
+    if (c > 0) {
+      methodName = key + "$" + c;
+    } else {
+      methodName = key;
+    }
+    nameRegistry.put(key, c + 1);
+
+    methodVisitor.visitInvokeDynamicInsn("apply", "(" + descriptor + ")Lio/jooby/Route$Handler;",
+        new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory", "metafactory",
+            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+            false), new Object[]{Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;"),
+            new Handle(Opcodes.H_INVOKESPECIAL, internalName, methodName,
+                "(Lio/jooby/Context;)Ljava/lang/Object;", false),
+            Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;")});
+
+    /** Apply implementation: */
+    applyLambda(writer, internalName, methodName, state);
+  }
+
+  private String arguments(ExecutableElement executable) {
+    StringBuilder buff = new StringBuilder();
+    for (VariableElement var : executable.getParameters()) {
+      buff.append("$").append(var.getSimpleName());
+    }
+    return buff.toString();
+  }
+
   public byte[] compile() throws Exception {
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     // public class Controller$methodName implements Route.Handler {
@@ -141,6 +178,44 @@ public class HandlerCompiler {
 
     writer.visitEnd();
     return writer.toByteArray();
+  }
+
+  private void applyLambda(ClassWriter writer, String moduleInternalName, String lambdaName, Set<Object> state)
+      throws Exception {
+    Type owner = getController().toJvmType();
+    String methodName = executable.getSimpleName().toString();
+    String methodDescriptor = methodDescriptor();
+    MethodVisitor apply = writer
+        .visitMethod(ACC_PRIVATE | ACC_SYNTHETIC, lambdaName,
+            "(Lio/jooby/Context;)Ljava/lang/Object;", null, new String[]{"java/lang/Exception"});
+    apply.visitParameter("ctx", ACC_SYNTHETIC);
+    apply.visitCode();
+
+    Label sourceStart = new Label();
+    apply.visitLabel(sourceStart);
+
+    /**
+     * provider.get()
+     */
+    apply.visitVarInsn(ALOAD, 0);
+    apply.visitFieldInsn(GETFIELD, moduleInternalName, PROVIDER_VAR,
+        PROVIDER.getDescriptor());
+    apply.visitMethodInsn(INVOKEINTERFACE, PROVIDER.getInternalName(), "get", PROVIDER_DESCRIPTOR,
+        true);
+    apply.visitTypeInsn(CHECKCAST, owner.getInternalName());
+    apply.visitVarInsn(ASTORE, 2);
+    apply.visitVarInsn(ALOAD, 2);
+
+    /** Arguments. */
+    processArguments(writer, apply, moduleInternalName, state);
+
+    /** Invoke. */
+    apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), methodName, methodDescriptor,
+        false);
+
+    processReturnType(apply);
+
+    apply.visitEnd();
   }
 
   private void apply(ClassWriter writer) throws Exception {
@@ -166,7 +241,7 @@ public class HandlerCompiler {
     apply.visitTypeInsn(CHECKCAST, owner.getInternalName());
 
     /** Arguments. */
-    processArguments(writer, apply);
+    processArguments(writer, apply, null, null);
 
     /** Invoke. */
     apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), methodName, methodDescriptor,
@@ -191,19 +266,22 @@ public class HandlerCompiler {
     return type.equals("kotlin.coroutines.Continuation");
   }
 
-  private void processArguments(ClassWriter classWriter, MethodVisitor visitor) throws Exception {
+  private void processArguments(ClassWriter classWriter, MethodVisitor visitor,
+      String moduleInternalName, Set<Object> state) throws Exception {
     for (VariableElement var : executable.getParameters()) {
       if (isSuspendFunction(var)) {
         visitor.visitVarInsn(ALOAD, 1);
-        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "getAttributes", "()Ljava/util/Map;", true);
+        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "getAttributes",
+            "()Ljava/util/Map;", true);
         visitor.visitLdcInsn("___continuation");
-        visitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "remove", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
+        visitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "remove",
+            "(Ljava/lang/Object;)Ljava/lang/Object;", true);
         visitor.visitTypeInsn(CHECKCAST, "kotlin/coroutines/Continuation");
       } else {
         visitor.visitVarInsn(ALOAD, 1);
         ParamDefinition param = ParamDefinition.create(environment, var);
         ParamWriter writer = param.newWriter();
-        writer.accept(classWriter, getGeneratedInternalClass(), visitor, param);
+        writer.accept(classWriter, moduleInternalName, visitor, param, state);
       }
     }
   }

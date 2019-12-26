@@ -19,14 +19,6 @@ public class MyControllerHandler implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().doIt(attriubute(ctx,"foo"));
-  }
-
-  private static <T> T attriubute(Context ctx, String name) {
-    T value = ctx.attribute(name);
-    if (value == null) {
-      return (T) ctx.getAttributes();
-    }
-    return value;
+    return provider.get().controllerMethod();
   }
 }

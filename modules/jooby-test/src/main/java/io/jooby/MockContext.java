@@ -165,7 +165,7 @@ public class MockContext implements DefaultContext {
   }
 
   /**
-   * Set requestPath and queryString (if any).
+   * Set requestPath.
    *
    * @param pathString Path string.
    * @return This context.
@@ -174,10 +174,8 @@ public class MockContext implements DefaultContext {
     int q = pathString.indexOf("?");
     if (q > 0) {
       this.requestPath = pathString.substring(0, q);
-      this.queryString = pathString.substring(q + 1);
     } else {
       this.requestPath = pathString;
-      this.queryString = null;
     }
     return this;
   }
@@ -197,6 +195,11 @@ public class MockContext implements DefaultContext {
 
   @Nonnull @Override public String queryString() {
     return queryString;
+  }
+
+  public @Nonnull MockContext setQueryString(String queryString) {
+    this.queryString = queryString;
+    return this;
   }
 
   @Nonnull @Override public ValueNode header() {

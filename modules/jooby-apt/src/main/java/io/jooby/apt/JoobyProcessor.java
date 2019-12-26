@@ -76,7 +76,7 @@ public class JoobyProcessor extends AbstractProcessor {
           for (String path : paths) {
             HandlerCompiler compiler = new HandlerCompiler(processingEnvironment, method,
                 httpMethod, path);
-            onMvcHandler(compiler.getKey(), compiler);
+            //onMvcHandler(compiler.getKey(), compiler);
             result.add(compiler);
           }
         }
@@ -86,11 +86,10 @@ public class JoobyProcessor extends AbstractProcessor {
           .collect(Collectors.groupingBy(e -> e.getController().getName()));
 
       for (Map.Entry<String, List<HandlerCompiler>> entry : classes.entrySet()) {
-
         List<HandlerCompiler> handlers = entry.getValue();
         ModuleCompiler module = new ModuleCompiler(processingEnvironment, entry.getKey());
         String moduleClass = module.getModuleClass();
-        byte[] moduleBin = module.compile(handlers);
+        byte[] moduleBin = module.compileLambdas(handlers);
         onClass(moduleClass, moduleBin);
         writeClass(filer.createClassFile(moduleClass), moduleBin);
 
@@ -104,9 +103,9 @@ public class JoobyProcessor extends AbstractProcessor {
         onClass(factoryClass, factoryBin);
         for (HandlerCompiler handler : handlers) {
           String handleClass = handler.getGeneratedClass();
-          byte[] handleBin = handler.compile();
-          writeClass(filer.createClassFile(handleClass), handleBin);
-          onClass(handleClass, handleBin);
+//          byte[] handleBin = handler.compile();
+//          writeClass(filer.createClassFile(handleClass), handleBin);
+//          onClass(handleClass, handleBin);
         }
       }
       return true;

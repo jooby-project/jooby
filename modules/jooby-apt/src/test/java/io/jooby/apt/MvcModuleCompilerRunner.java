@@ -7,6 +7,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
+import io.jooby.internal.converter.ReflectiveBeanConverter;
 
 import javax.inject.Provider;
 import javax.tools.JavaFileObject;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class MvcModuleCompilerRunner {
@@ -55,6 +55,9 @@ public class MvcModuleCompilerRunner {
     Provider provider = () -> instance;
     Extension extension = factory.create(provider);
     Jooby application = new Jooby();
+
+    application.converter(new ReflectiveBeanConverter());
+
     application.install(extension);
 
     Path services = Paths

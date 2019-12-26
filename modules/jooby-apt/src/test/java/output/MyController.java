@@ -7,11 +7,10 @@ import io.jooby.annotations.QueryParam;
 
 import java.util.Map;
 
-@Path("/")
 public class MyController {
 
-  @GET
-  public int doIt(@PathParam("p1") int p1) {
-    return p1;
+  @GET("/mypath")
+  public String controllerMethod() {
+    return "/mypath";
   }
 }

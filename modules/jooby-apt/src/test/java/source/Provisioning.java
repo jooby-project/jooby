@@ -95,102 +95,102 @@ public class Provisioning {
     return "session:" + session.isPresent();
   }
 
-  @GET("/pathParam")
+  @GET("/pathParam/{p1}")
   public String pathParam(@PathParam String p1) {
     return p1;
   }
 
-  @GET("/bytePathParam")
+  @GET("/bytePathParam/{p1}")
   public String bytePathParam(@PathParam byte p1) {
     return Integer.toString(p1);
   }
 
-  @GET("/intPathParam")
+  @GET("/intPathParam/{p1}")
   public String intPathParam(@PathParam int p1) {
     return Integer.toString(p1);
   }
 
-  @GET("/longPathParam")
+  @GET("/longPathParam/{p1}")
   public String longPathParam(@PathParam long p1) {
     return Long.toString(p1);
   }
 
-  @GET("/floatPathParam")
+  @GET("/floatPathParam/{p1}")
   public String floatPathParam(@PathParam float p1) {
     return Float.toString(p1);
   }
 
-  @GET("/doublePathParam")
+  @GET("/doublePathParam/{p1}")
   public String doublePathParam(@PathParam double p1) {
     return Double.toString(p1);
   }
 
-  @GET("/booleanPathParam")
+  @GET("/booleanPathParam/{p1}")
   public String booleanPathParam(@PathParam boolean p1) {
     return Boolean.toString(p1);
   }
 
-  @GET("/optionalStringPathParam")
+  @GET("/optionalStringPathParam/{p1}")
   public String optionalStringPathParam(@PathParam Optional<String> p1) {
     return p1.toString();
   }
 
-  @GET("/optionalIntPathParam")
+  @GET("/optionalIntPathParam/{p1}")
   public String optionalIntPathParam(@PathParam Optional<Integer> p1) {
     return p1.toString();
   }
 
-  @GET("/javaBeanPathParam")
+  @GET("/javaBeanPathParam/{foo}")
   public String javaBeanPathParam(@PathParam JavaBeanParam param) {
     return param.toString();
   }
 
-  @GET("/listStringPathParam")
+  @GET("/listStringPathParam/{values}")
   public String listStringPathParam(@PathParam List<String> values) {
     return values.toString();
   }
 
-  @GET("/listDoublePathParam")
+  @GET("/listDoublePathParam/{values}")
   public String listDoublePathParam(@PathParam List<Double> values) {
     return values.toString();
   }
 
-  @GET("/listBeanPathParam")
+  @GET("/listBeanPathParam/{foo}")
   public String listBeanPathParam(@PathParam List<JavaBeanParam> bean) {
     return bean.toString();
   }
 
-  @GET("/setStringPathParam")
+  @GET("/setStringPathParam/{values}")
   public String setStringPathParam(@PathParam Set<String> values) {
     return values.toString();
   }
 
-  @GET("/setDoublePathParam")
+  @GET("/setDoublePathParam/{values}")
   public String setDoublePathParam(@PathParam Set<Double> values) {
     return values.toString();
   }
 
-  @GET("/setBeanPathParam")
+  @GET("/setBeanPathParam/{foo}")
   public String setBeanPathParam(@PathParam Set<JavaBeanParam> bean) {
     return bean.toString();
   }
 
-  @GET("/enumParam")
+  @GET("/enumParam/{letter}")
   public String enumParam(@PathParam EnumParam letter) {
     return letter.name();
   }
 
-  @GET("/optionalEnumParam")
+  @GET("/optionalEnumParam/{letter}")
   public String optionalEnumParam(@PathParam Optional<EnumParam> letter) {
     return letter.toString();
   }
 
-  @GET("/listEnumParam")
+  @GET("/listEnumParam/{letter}")
   public String listEnumParam(@PathParam List<EnumParam> letter) {
     return letter.toString();
   }
 
-  @GET("/primitiveWrapper")
+  @GET("/primitiveWrapper/{value}")
   public String primitiveWrapper(@PathParam Integer value) {
     return String.valueOf(value);
   }
@@ -220,7 +220,7 @@ public class Provisioning {
     return name;
   }
 
-  @GET("/parameters")
+  @GET("/parameters/{path}")
   public String parameters(@PathParam String path, Context ctx, @QueryParam int offset, @QueryParam JavaBeanParam javaBean) {
     return path + ctx + offset + javaBean;
   }

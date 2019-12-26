@@ -14,6 +14,7 @@ import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -36,11 +37,12 @@ public class ContextParamWriter extends ValueWriter {
 
   @Override
   public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter) throws Exception {
+      ParamDefinition parameter, Set<Object> state) throws Exception {
+    String methodName = parameter.getName();
     String name = parameter.getHttpName();
 
     visitor.visitLdcInsn(name);
-    visitor.visitMethodInsn(INVOKESTATIC, handlerInternalName, parameter.getName(),
+    visitor.visitMethodInsn(INVOKESTATIC, handlerInternalName, methodName,
         "(Lio/jooby/Context;Ljava/lang/String;)Ljava/lang/Object;", false);
     if (parameter.getType().isPrimitive()) {
       Method toPrimitive = Primitives.toPrimitive(parameter.getType());
@@ -51,13 +53,15 @@ public class ContextParamWriter extends ValueWriter {
       visitor.visitTypeInsn(Opcodes.CHECKCAST, parameter.getType().toJvmType().getInternalName());
     }
 
-    attribute(writer, parameter);
+    if (state.add(methodName)) {
+      attribute(writer, parameter, methodName);
+    }
   }
 
-  private void attribute(ClassWriter classWriter, ParamDefinition parameter)
+  private void attribute(ClassWriter classWriter, ParamDefinition parameter, String methodName)
       throws NoSuchMethodException {
     MethodVisitor methodVisitor = classWriter
-        .visitMethod(ACC_PRIVATE | ACC_STATIC, parameter.getName(),
+        .visitMethod(ACC_PRIVATE | ACC_STATIC, methodName,
             "(Lio/jooby/Context;Ljava/lang/String;)Ljava/lang/Object;",
             "<T:Ljava/lang/Object;>(Lio/jooby/Context;Ljava/lang/String;)TT;", null);
     methodVisitor.visitParameter("ctx", 0);
