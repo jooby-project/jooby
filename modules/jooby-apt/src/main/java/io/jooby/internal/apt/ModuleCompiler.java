@@ -6,9 +6,8 @@
 package io.jooby.internal.apt;
 
 import io.jooby.Context;
-import io.jooby.Extension;
-import io.jooby.Jooby;
 import io.jooby.MediaType;
+import io.jooby.MvcFactory;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.annotations.Dispatch;
@@ -16,8 +15,10 @@ import io.jooby.internal.apt.asm.ArrayWriter;
 import io.jooby.internal.apt.asm.ConstructorWriter;
 import io.jooby.internal.apt.asm.RouteAttributesWriter;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -32,13 +33,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.IF_ACMPNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -51,7 +56,7 @@ import static org.objectweb.asm.Type.getType;
 
 public class ModuleCompiler {
   private static final Type OBJ = getType(Object.class);
-  private static final Type MVC_EXTENSION = getType(Extension.class);
+  private static final Type MVC_FACTORY = getType(MvcFactory.class);
 
   private final String controllerClass;
   private final String moduleClass;
@@ -78,11 +83,15 @@ public class ModuleCompiler {
     // public class Controller$methodName implements Route.Handler {
     writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, moduleInternalName, null,
         OBJ.getInternalName(),
-        new String[]{MVC_EXTENSION.getInternalName()});
+        new String[]{MVC_FACTORY.getInternalName()});
     writer.visitSource(moduleJava, null);
 
     new ConstructorWriter()
         .build(moduleClass, writer);
+
+    supports(writer);
+
+    create(writer);
 
     install(writer, handlers);
 
@@ -90,14 +99,53 @@ public class ModuleCompiler {
     return writer.toByteArray();
   }
 
+  private void create(ClassWriter writer) {
+    String lambdaCreate = "makeExtension";
+    MethodVisitor methodVisitor = writer
+        .visitMethod(ACC_PUBLIC, "create", "(Ljavax/inject/Provider;)Lio/jooby/Extension;", null,
+            null);
+    methodVisitor.visitParameter("provider", 0);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ALOAD, 1);
+    methodVisitor.visitInvokeDynamicInsn("install", "(Ljavax/inject/Provider;)Lio/jooby/Extension;",
+        new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory", "metafactory",
+            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+            false), new Object[]{Type.getType("(Lio/jooby/Jooby;)V"),
+            new Handle(Opcodes.H_INVOKESTATIC, moduleInternalName, lambdaCreate,
+                "(Ljavax/inject/Provider;Lio/jooby/Jooby;)V", false),
+            Type.getType("(Lio/jooby/Jooby;)V")});
+    methodVisitor.visitInsn(ARETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    makeExtension(writer, lambdaCreate);
+  }
+
+  private void makeExtension(ClassWriter writer, String methodName) {
+    MethodVisitor methodVisitor = writer
+        .visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, methodName,
+            "(Ljavax/inject/Provider;Lio/jooby/Jooby;)V", null,
+            new String[]{"java/lang/Exception"});
+    methodVisitor.visitParameter("provider", Opcodes.ACC_FINAL | ACC_SYNTHETIC);
+    methodVisitor.visitParameter("app", ACC_SYNTHETIC);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ALOAD, 1);
+    methodVisitor.visitVarInsn(ALOAD, 0);
+    methodVisitor.visitMethodInsn(INVOKESTATIC, moduleInternalName, "install",
+        "(Lio/jooby/Jooby;Ljavax/inject/Provider;)V", false);
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+  }
+
   private void install(ClassWriter writer, List<HandlerCompiler> handlers) throws Exception {
-    Method install = Extension.class.getDeclaredMethod("install", Jooby.class);
-    MethodVisitor visitor = writer
-        .visitMethod(ACC_PUBLIC, install.getName(), Type.getMethodDescriptor(install), null, null);
+    MethodVisitor visitor = writer.visitMethod(ACC_PRIVATE | ACC_STATIC, "install",
+        "(Lio/jooby/Jooby;Ljavax/inject/Provider;)V",
+        "(Lio/jooby/Jooby;Ljavax/inject/Provider<" + moduleDescriptorName + ">;)V",
+        new String[]{"java/lang/Exception"});
     visitor.visitParameter("app", 0);
+    visitor.visitParameter("provider", 0);
     visitor.visitCode();
-    Label sourceStart = new Label();
-    visitor.visitLabel(sourceStart);
 
     RouteAttributesWriter routeAttributes = new RouteAttributesWriter(env.getElementUtils(),
         env.getTypeUtils(), writer, moduleInternalName, visitor);
@@ -105,7 +153,7 @@ public class ModuleCompiler {
     Map<String, Integer> nameRegistry = new HashMap<>();
     Set<Object> state = new HashSet<>();
     for (HandlerCompiler handler : handlers) {
-      visitor.visitVarInsn(ALOAD, 1);
+      visitor.visitVarInsn(ALOAD, 0);
       visitor.visitLdcInsn(handler.getPattern());
 
       if (handler.isSuspendFunction()) {
@@ -113,7 +161,7 @@ public class ModuleCompiler {
         visitor.visitInsn(DUP);
       }
 
-      visitor.visitVarInsn(ALOAD, 0);
+      visitor.visitVarInsn(ALOAD, 1);
       handler
           .compile(moduleDescriptorName, moduleInternalName, writer, visitor, state, nameRegistry);
       if (handler.isSuspendFunction()) {
@@ -251,5 +299,27 @@ public class ModuleCompiler {
           "(Ljava/util/Collection;)Lio/jooby/Route;", false);
       visitor.visitInsn(POP);
     }
+  }
+
+  private void supports(ClassWriter writer) {
+    MethodVisitor visitor = writer
+        .visitMethod(ACC_PUBLIC, "supports", "(Ljava/lang/Class;)Z", null, null);
+    visitor.visitParameter("type", 0);
+    visitor.visitCode();
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitLdcInsn(Type.getObjectType(controllerClass.replace(".", "/")));
+    Label l0 = new Label();
+    visitor.visitJumpInsn(IF_ACMPNE, l0);
+    visitor.visitInsn(Opcodes.ICONST_1);
+    Label l1 = new Label();
+    visitor.visitJumpInsn(Opcodes.GOTO, l1);
+    visitor.visitLabel(l0);
+    visitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    visitor.visitInsn(Opcodes.ICONST_0);
+    visitor.visitLabel(l1);
+    visitor.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{Opcodes.INTEGER});
+    visitor.visitInsn(Opcodes.IRETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 }

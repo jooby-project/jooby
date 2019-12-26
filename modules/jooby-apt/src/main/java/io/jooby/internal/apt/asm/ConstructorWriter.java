@@ -26,21 +26,21 @@ public class ConstructorWriter {
   private static final String PROVIDER_VAR = "provider";
 
   public void build(String ownerClass, ClassWriter writer) {
-    writer.visitField(ACC_PRIVATE, PROVIDER_VAR, PROVIDER.getDescriptor(), null, null)
-        .visitEnd();
+//    writer.visitField(ACC_PRIVATE, PROVIDER_VAR, PROVIDER.getDescriptor(), null, null)
+//        .visitEnd();
 
     // Constructor:
     MethodVisitor constructor = writer
-        .visitMethod(ACC_PUBLIC, "<init>", getMethodDescriptor(Type.VOID_TYPE, PROVIDER), null,
+        .visitMethod(ACC_PUBLIC, "<init>", "()V", null,
             null);
-    constructor.visitParameter(PROVIDER_VAR, 0);
+//    constructor.visitParameter(PROVIDER_VAR, 0);
     constructor.visitCode();
     constructor.visitVarInsn(ALOAD, 0);
     constructor.visitMethodInsn(INVOKESPECIAL, OBJ.getInternalName(), "<init>", "()V", false);
-    constructor.visitVarInsn(ALOAD, 0);
-    constructor.visitVarInsn(ALOAD, 1);
-    constructor
-        .visitFieldInsn(PUTFIELD, ownerClass.replace(".", "/"), PROVIDER_VAR, PROVIDER.getDescriptor());
+//    constructor.visitVarInsn(ALOAD, 0);
+//    constructor.visitVarInsn(ALOAD, 1);
+//    constructor
+//        .visitFieldInsn(PUTFIELD, ownerClass.replace(".", "/"), PROVIDER_VAR, PROVIDER.getDescriptor());
     constructor.visitInsn(RETURN);
     constructor.visitMaxs(0, 0);
     constructor.visitEnd();

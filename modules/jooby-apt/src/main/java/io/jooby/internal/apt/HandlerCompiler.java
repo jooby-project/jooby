@@ -33,13 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -54,7 +55,6 @@ public class HandlerCompiler {
   private static final Type STATUS_CODE = getType(StatusCode.class);
 
   private static final Type PROVIDER = getType(Provider.class);
-  private static final String PROVIDER_VAR = "provider";
   private static final String PROVIDER_DESCRIPTOR = getMethodDescriptor(OBJ);
 
   private static final Type CTX = getType(Context.class);
@@ -116,13 +116,14 @@ public class HandlerCompiler {
     }
     nameRegistry.put(key, c + 1);
 
-    methodVisitor.visitInvokeDynamicInsn("apply", "(" + descriptor + ")Lio/jooby/Route$Handler;",
-        new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory", "metafactory",
-            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
-            false), new Object[]{Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;"),
-            new Handle(Opcodes.H_INVOKESPECIAL, internalName, methodName,
-                "(Lio/jooby/Context;)Ljava/lang/Object;", false),
-            Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;")});
+    methodVisitor
+        .visitInvokeDynamicInsn("apply", "(Ljavax/inject/Provider;)Lio/jooby/Route$Handler;",
+            new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory", "metafactory",
+                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+                false), new Object[]{Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;"),
+                new Handle(Opcodes.H_INVOKESTATIC, internalName, methodName,
+                    "(Ljavax/inject/Provider;Lio/jooby/Context;)Ljava/lang/Object;", false),
+                Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;")});
 
     /** Apply implementation: */
     apply(writer, internalName, methodName, state);
@@ -136,15 +137,19 @@ public class HandlerCompiler {
     return buff.toString();
   }
 
-  private void apply(ClassWriter writer, String moduleInternalName, String lambdaName, Set<Object> state)
+  private void apply(ClassWriter writer, String moduleInternalName, String lambdaName,
+      Set<Object> state)
       throws Exception {
     Type owner = getController().toJvmType();
     String methodName = executable.getSimpleName().toString();
     String methodDescriptor = methodDescriptor();
     MethodVisitor apply = writer
-        .visitMethod(ACC_PRIVATE | ACC_SYNTHETIC, lambdaName,
-            "(Lio/jooby/Context;)Ljava/lang/Object;", null, new String[]{"java/lang/Exception"});
+        .visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, lambdaName,
+            "(Ljavax/inject/Provider;Lio/jooby/Context;)Ljava/lang/Object;", null,
+            new String[]{"java/lang/Exception"});
+    apply.visitParameter("provider", ACC_FINAL | ACC_SYNTHETIC);
     apply.visitParameter("ctx", ACC_SYNTHETIC);
+
     apply.visitCode();
 
     Label sourceStart = new Label();
@@ -154,8 +159,6 @@ public class HandlerCompiler {
      * provider.get()
      */
     apply.visitVarInsn(ALOAD, 0);
-    apply.visitFieldInsn(GETFIELD, moduleInternalName, PROVIDER_VAR,
-        PROVIDER.getDescriptor());
     apply.visitMethodInsn(INVOKEINTERFACE, PROVIDER.getInternalName(), "get", PROVIDER_DESCRIPTOR,
         true);
     apply.visitTypeInsn(CHECKCAST, owner.getInternalName());

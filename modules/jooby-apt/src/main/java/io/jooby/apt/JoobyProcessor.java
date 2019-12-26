@@ -7,7 +7,6 @@ package io.jooby.apt;
 
 import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.apt.FactoryCompiler;
 import io.jooby.internal.apt.HandlerCompiler;
 import io.jooby.internal.apt.ModuleCompiler;
 
@@ -92,14 +91,7 @@ public class JoobyProcessor extends AbstractProcessor {
         onClass(moduleClass, moduleBin);
         writeClass(filer.createClassFile(moduleClass), moduleBin);
 
-        FactoryCompiler moduleFactoryCompiler = new FactoryCompiler(
-            entry.getKey(), moduleClass);
-        String factoryClass = moduleFactoryCompiler.getModuleFactoryClass();
-        byte[] factoryBin = moduleFactoryCompiler.compile();
-        writeClass(filer.createClassFile(factoryClass), factoryBin);
-        moduleList.add(factoryClass);
-
-        onClass(factoryClass, factoryBin);
+        moduleList.add(moduleClass);
       }
       return true;
     } catch (Exception x) {

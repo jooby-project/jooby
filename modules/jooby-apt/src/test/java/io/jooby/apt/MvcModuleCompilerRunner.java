@@ -48,7 +48,7 @@ public class MvcModuleCompilerRunner {
   private MvcModuleCompilerRunner module(boolean debug, SneakyThrows.Consumer<Jooby> consumer) throws Exception {
     Class clazz = instance.getClass();
     ClassLoader classLoader = processor.getModuleClassLoader(debug);
-    String factoryName = clazz.getName() + "$Factory";
+    String factoryName = clazz.getName() + "$Module";
     Class<? extends MvcFactory> factoryClass = (Class<? extends MvcFactory>) classLoader.loadClass(factoryName);
     Constructor<? extends MvcFactory> constructor = factoryClass.getDeclaredConstructor();
     MvcFactory factory = constructor.newInstance();

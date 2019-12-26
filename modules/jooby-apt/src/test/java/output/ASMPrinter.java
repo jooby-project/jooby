@@ -6,11 +6,6 @@ import org.objectweb.asm.util.ASMifier;
 public class ASMPrinter {
 
   @Test
-  public void mvcModule() throws Exception {
-    ASMifier.main(new String[]{MyMvcModule.class.getName()});
-  }
-
-  @Test
   public void mvcExtension() throws Exception {
     ASMifier.main(new String[]{MvcExtension.class.getName()});
   }
