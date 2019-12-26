@@ -38,7 +38,6 @@ import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -91,24 +90,7 @@ public class ModuleCompiler {
     return writer.toByteArray();
   }
 
-  public byte[] compileLambdas(List<HandlerCompiler> handlers) throws Exception {
-    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-    // public class Controller$methodName implements Route.Handler {
-    writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, moduleInternalName, null,
-        OBJ.getInternalName(),
-        new String[]{MVC_EXTENSION.getInternalName()});
-    writer.visitSource(moduleJava, null);
-
-    new ConstructorWriter()
-        .build(moduleClass, writer);
-
-    installLambdas(writer, handlers);
-
-    writer.visitEnd();
-    return writer.toByteArray();
-  }
-
-  private void installLambdas(ClassWriter writer, List<HandlerCompiler> handlers) throws Exception {
+  private void install(ClassWriter writer, List<HandlerCompiler> handlers) throws Exception {
     Method install = Extension.class.getDeclaredMethod("install", Jooby.class);
     MethodVisitor visitor = writer
         .visitMethod(ACC_PUBLIC, install.getName(), Type.getMethodDescriptor(install), null, null);
@@ -134,76 +116,6 @@ public class ModuleCompiler {
       visitor.visitVarInsn(ALOAD, 0);
       handler
           .compile(moduleDescriptorName, moduleInternalName, writer, visitor, state, nameRegistry);
-      if (handler.isSuspendFunction()) {
-        visitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/internal/mvc/CoroutineLauncher", "<init>",
-            "(Lio/jooby/Route$Handler;)V", false);
-      }
-
-      visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Jooby", handler.getHttpMethod(),
-          "(Ljava/lang/String;Lio/jooby/Route$Handler;)Lio/jooby/Route;", false);
-      visitor.visitVarInsn(ASTORE, 2);
-      visitor.visitVarInsn(ALOAD, 2);
-      /**
-       * ******************************************************************************************
-       * Return Type:
-       * ******************************************************************************************
-       */
-      setReturnType(visitor, handler);
-
-      /**
-       * ******************************************************************************************
-       * Consumes and Produces
-       * ******************************************************************************************
-       */
-      setContentType(visitor, "setConsumes", handler.getConsumes());
-      setContentType(visitor, "setProduces", handler.getProduces());
-
-      /**
-       * ******************************************************************************************
-       * Annotations as route attributes
-       * ******************************************************************************************
-       */
-      routeAttributes.process(handler.getExecutable());
-
-      /**
-       * ******************************************************************************************
-       * Dispatch
-       * ******************************************************************************************
-       */
-      setDispatch(visitor, handler.getExecutable());
-    }
-    visitor.visitInsn(RETURN);
-    visitor.visitMaxs(0, 0);
-    visitor.visitEnd();
-  }
-
-  private void install(ClassWriter writer, List<HandlerCompiler> handlers) throws Exception {
-    Method install = Extension.class.getDeclaredMethod("install", Jooby.class);
-    MethodVisitor visitor = writer
-        .visitMethod(ACC_PUBLIC, install.getName(), Type.getMethodDescriptor(install), null, null);
-    visitor.visitParameter("app", 0);
-    visitor.visitCode();
-    Label sourceStart = new Label();
-    visitor.visitLabel(sourceStart);
-
-    RouteAttributesWriter routeAttributes = new RouteAttributesWriter(env.getElementUtils(),
-        env.getTypeUtils(), writer, moduleInternalName, visitor);
-
-    for (HandlerCompiler handler : handlers) {
-      visitor.visitVarInsn(ALOAD, 1);
-      visitor.visitLdcInsn(handler.getPattern());
-
-      if (handler.isSuspendFunction()) {
-        visitor.visitTypeInsn(NEW, "io/jooby/internal/mvc/CoroutineLauncher");
-        visitor.visitInsn(DUP);
-      }
-      visitor.visitTypeInsn(NEW, handler.getGeneratedInternalClass());
-      visitor.visitInsn(DUP);
-      visitor.visitVarInsn(ALOAD, 0);
-      visitor.visitFieldInsn(GETFIELD, moduleInternalName, "provider",
-          "Ljavax/inject/Provider;");
-      visitor.visitMethodInsn(INVOKESPECIAL, handler.getGeneratedInternalClass(), "<init>",
-          "(Ljavax/inject/Provider;)V", false);
       if (handler.isSuspendFunction()) {
         visitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/internal/mvc/CoroutineLauncher", "<init>",
             "(Lio/jooby/Route$Handler;)V", false);
