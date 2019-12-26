@@ -537,7 +537,7 @@ public class JettyContext implements DefaultContext {
       if (request.isAsyncStarted()) {
         request.getAsyncContext().complete();
       } else {
-        response.closeOutput();
+        response.completeOutput();
       }
     } catch (IOException e) {
       log.debug("exception found while closing resources {} {} {}", getMethod(), pathString(), e);

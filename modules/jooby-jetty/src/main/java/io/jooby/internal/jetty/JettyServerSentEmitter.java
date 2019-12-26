@@ -96,8 +96,9 @@ public class JettyServerSentEmitter implements ServerSentEmitter {
         }
       } finally {
         try {
-          jetty.response.closeOutput();
+          jetty.response.completeOutput();
         } catch (IOException x) {
+          log.debug("server-sent event close resulted in exception", x);
         }
       }
     }
