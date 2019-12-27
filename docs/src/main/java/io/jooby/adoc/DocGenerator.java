@@ -111,12 +111,11 @@ public class DocGenerator {
 
   private static void v1doc(Path basedir, Path output) throws Exception {
     Path v1source = basedir.resolve("v1");
-    if (!Files.exists(v1source)) {
-      Files.createDirectories(v1source);
+    FileUtils.cleanDirectory(v1source.toFile());
+    Files.createDirectories(v1source);
 
-      Git git = new Git("jooby-project", "jooby", v1source);
-      git.clone("--single-branch", "--branch", "gh-pages");
-    }
+    Git git = new Git("jooby-project", "jooby", v1source);
+    git.clone("--single-branch", "--branch", "gh-pages");
     Path v1target = output.resolve("v1");
     FileUtils.copyDirectory(v1source.toFile(), v1target.toFile());
 
