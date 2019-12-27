@@ -90,7 +90,7 @@
     <rest-assured.version>4.1.2</rest-assured.version>
     <checkstyle.version>8.27</checkstyle.version>
     <mockito.version>3.2.4</mockito.version>
-    <guava.version>28.1-jre</guava.version>
+    <guava.version>28.2-jre</guava.version>
 
     <auto-service.version>1.0-rc6</auto-service.version>
     <compile-testing.version>0.18</compile-testing.version>
