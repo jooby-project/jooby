@@ -29,7 +29,7 @@ public class ModuleCompilerTest {
   @Test
   public void minRoute() throws Exception {
     new MvcModuleCompilerRunner(new MinRoute())
-        .debugModule(app -> {
+        .module(app -> {
           MockRouter router = new MockRouter(app);
           assertEquals("/mypath", router.get("/mypath").value());
         });
@@ -126,7 +126,7 @@ public class ModuleCompilerTest {
   @Test
   public void routeAttributes() throws Exception {
     new MvcModuleCompilerRunner(new RouteAttributes())
-        .debugModule(app -> {
+        .module(app -> {
           Route route = app.getRoutes().get(0);
           assertEquals(13, route.getAttributes().size(), route.getAttributes().toString());
           assertEquals("string", route.attribute("someAnnotation"));
