@@ -1,14 +1,13 @@
 package starter;
 
 import io.jooby.Jooby;
+import io.jooby.flyway.FlywayModule;
 import io.jooby.hibernate.HibernateModule;
 import io.jooby.hibernate.TransactionalRequest;
 import io.jooby.hikari.HikariModule;
 import io.jooby.json.JacksonModule;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 
 public class App extends Jooby {
 
@@ -19,31 +18,15 @@ public class App extends Jooby {
     /** Jdbc: */
     install(new HikariModule());
 
+    /** Database migration: */
+    install(new FlywayModule());
+
     /**
      * Hibernate:
      */
     install(new HibernateModule(Pet.class));
 
-    /**
-     * Insert some data on startup:
-     */
-    onStarted(() -> {
-      EntityManagerFactory factory = require(EntityManagerFactory.class);
-
-      EntityManager em = factory.createEntityManager();
-
-      EntityTransaction trx = em.getTransaction();
-      trx.begin();
-      em.persist(new Pet("Lala"));
-      em.persist(new Pet("Mandy"));
-      em.persist(new Pet("Fufy"));
-      em.persist(new Pet("Dina"));
-      trx.commit();
-
-      em.close();
-    });
-
-    /** Open session in view filter: */
+    /** Open session in view filter (entitymanager + transaction): */
     decorator(new TransactionalRequest());
 
     /**

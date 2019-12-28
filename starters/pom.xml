@@ -9,11 +9,6 @@
   <packaging>pom</packaging>
   <version>1.0.0</version>
 
-  <properties>
-    <!-- Point to latest release -->
-    <jooby.version>2.4.0</jooby.version>
-  </properties>
-
   <modules>
     <module>guice-starter</module>
     <module>graphql-starter</module>
@@ -23,29 +18,40 @@
     <module>pac4j-starter</module>
   </modules>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-          <execution>
-            <phase>initialize</phase>
-            <configuration>
-              <target>
-                <replaceregexp match="&lt;jooby.version&gt;.*&lt;/jooby.version&gt;" replace="&lt;jooby.version&gt;${jooby.version}&lt;/jooby.version&gt;">
-                  <fileset dir="${basedir}" includes="*-starter/pom.xml"/>
-                </replaceregexp>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <inherited>false</inherited>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <property>
+          <name>JOOBY_VERSION</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+              <execution>
+                <phase>initialize</phase>
+                <configuration>
+                  <target>
+                    <replaceregexp match="&lt;jooby.version&gt;.*&lt;/jooby.version&gt;"
+                                   replace="&lt;jooby.version&gt;${JOOBY_VERSION}&lt;/jooby.version&gt;">
+                      <fileset dir="${basedir}" includes="*-starter/pom.xml"/>
+                    </replaceregexp>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <inherited>false</inherited>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
