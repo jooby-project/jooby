@@ -94,7 +94,7 @@ public class SessionRequest implements Route.Decorator  {
       } finally {
         Session session = ManagedSessionContext.unbind(sessionFactory);
         if (session != null) {
-          sessionFactory.close();
+          session.close();
         }
       }
     };
