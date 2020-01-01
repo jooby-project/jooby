@@ -72,7 +72,7 @@
     <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
 
     <!-- Misc -->
-    <okhttp.version>4.2.2</okhttp.version>
+    <okhttp.version>4.3.0</okhttp.version>
     <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
     <json.version>20190722</json.version>
     <pac4j.version>4.0.0-RC2</pac4j.version>
