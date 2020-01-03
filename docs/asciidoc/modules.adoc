@@ -30,6 +30,9 @@ Available modules are listed next.
    * link:modules/rocker[Rocker]: Rocker templates for Jooby.
 
 === Security
-* link:modules/pac4j[Pac4j]: Security engine module.
+   * link:modules/pac4j[Pac4j]: Security engine module.
+
+=== Scheduler
+   * link:modules/quartz[Quartz]: Quartz scheduler module.
 
 .

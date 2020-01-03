@@ -16,6 +16,7 @@
     <module>hibernate-starter</module>
     <module>pac4j-form-starter</module>
     <module>pac4j-starter</module>
+    <module>quartz-starter</module>
   </modules>
 
   <profiles>

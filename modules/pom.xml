@@ -39,6 +39,8 @@
 
     <module>jooby-pac4j</module>
 
+    <module>jooby-quartz</module>
+
     <module>jooby-guice</module>
     <module>jooby-spring</module>
     <module>jooby-weld</module>

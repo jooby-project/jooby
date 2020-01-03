@@ -1,0 +1,405 @@
+== Quartz
+
+Task scheduler module using http://www.quartz-scheduler.org[Quartz].
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-quartz"]
+.
+
+2) Install Quartz. Add SampleJob:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.quartz.QuartzModule;
+
+{
+  install(new QuartzModule(SampleJob.class));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.quartz.QuartzModule
+
+{
+  install(QuartzModule(SampleJob::class.java))
+}
+----
+
+3) Creates SampleJob:
+
+.Java
+[source, java, role="primary"]
+----
+import io.quartz.Scheduled;
+
+import org.quartz.Job;
+
+public class SampleJob implements Job {            <1>
+  
+  @Scheduled("1m")                                 <2>
+  public void execute(JobExecutionContext ctx) {
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.quartz.Scheduled
+
+import org.quartz.Job
+
+class SampleJob: Job {                             <1>
+  
+  @Scheduled("1m")                                 <2>
+  fun execute(ctx: JobExecutionContext) : Unit {
+    ...
+  }
+}
+----
+
+<1> Implements `org.quartz.Job`
+<2> Creates a trigger using the javadoc:quartz.Scheduled[] annotation
+
+=== Jobs
+
+A Job must implements `org.quartz.Job` interface or `org.quartz.InterruptableJob` as described in
+http://www.quartz-scheduler.org/documentation[Quartz documentation] or if you prefer just annotates
+an arbitrary method with the javadoc:quartz.Scheduled[] annotation:
+
+.Without Job interface
+[source, java, role="primary"]
+----
+import io.quartz.Scheduled;
+
+public class SampleJob {
+  
+  @Scheduled("1m")
+  public void everyMinute() {
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.quartz.Scheduled
+
+class SampleJob: Job {
+  
+  @Scheduled("1m")
+  fun everyMinute() : Unit {
+    ...
+  }
+}
+----
+
+Jooby generates a *job key* using the class and method names:
+
+- SampleJob.everyMinute => group: `SampleJob`, name: `everyMinute`
+
+This approach allows you to define multiple job methods:
+
+.Job Group
+[source, java, role="primary"]
+----
+import io.quartz.Scheduled;
+
+public class SampleJob {
+  
+  @Scheduled("1m")
+  public void everyMinute() {
+    ...
+  }
+  
+  @Scheduled("1h")
+  public void everyHour() {
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.quartz.Scheduled
+
+class SampleJob: Job {
+  
+  @Scheduled("1m")
+  fun everyMinute() : Unit {
+    ...
+  }
+
+  @Scheduled("1h")
+  fun everyHour() : Unit {
+    ...
+  }
+}
+----
+
+A job method must follow these rules:
+
+- Must be a public method
+- Possible arguments: none (zero), `JobExecutionContext` or `AtomicBoolean`. The atomic boolean is
+used to notify job method about interruption requests.
+
+==== Job Factory
+
+Job classes are required to have a default constructor (public and without arguments). For more
+complex uses cases when the job is required to interact with other application services you have
+two options:
+
+- Creates your own JobFactory
+- Uses a dependency injection module, like link:guice[Guice]
+
+Here is an example and reflection-free JobFactory implementation:
+
+.Custom Job Factory
+[source, java]
+----
+{
+  
+  Scheduler scheduler = QuartzModule.newScheduler(this);
+  
+  scheduler.setJobFactory((bundle, sch) -> {
+    Class jobClass = bundle.getJobDetail().getJobClass();
+    if (jobClass == MyJob.class) {
+      return new MyJob(...);
+    }
+  });
+  
+  install(new QuartzModule(MyJob.class));
+}
+----
+
+This other example uses Guice as dependency provider:
+
+.Guice provisioning
+[source,java]
+----
+import javax.inject.Inject;
+
+{
+  install(new GuiceModule());
+  
+  install(new QuartzModule(MyJob.class));
+}
+
+public class MyJob {
+  
+  @Inject
+  public MyJob(SomeService someService) {
+    this.someService = someService;
+  }
+}
+----
+
+=== Triggers
+
+The javadoc:quartz.Scheduled[] annotation supports simple and cron triggers as well as property references:
+
+.Run every hour, repeat for ever:
+----
+@Scheduled("1h")
+----
+
+.Run every hour, repeat 3 times:
+----
+@Scheduled("1h; repeat=3")
+----
+
+.Run every hour with a start delay of 5m:
+----
+@Scheduled("1h; delay=5m")
+----
+
+.Cron, every 5 minutes
+----
+@Scheduled("0 0/5 * * * ?")
+----
+
+.Cron, fires every 5 minutes, at 10 seconds after the minute (i.e. 10:00:10 am, 10:05:10 am, etc.)
+----
+@Scheduled("10 0/5 * * * ?")
+----
+
+.Property reference
+----
+@Scheduled("myjob.trigger")
+----
+
+The `myjob.trigger` must be defined in your application property file. It could be a cron or simple
+expression.
+
+=== Jdbc JobStore
+
+Quartz module uses a `RAMStore` by default. To store job into database you need follow these steps:
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-hikari"]
+.
+
+2) Install Hikari and Quartz
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.hikari.HikariModule;
+import io.jooby.quartz.QuartzModule;
+
+{
+  install(new HikariModule());
+
+  install(new QuartzModule(SampleJob.class));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.HikariModule
+import io.jooby.quartz.QuartzModule
+
+{
+  install(new HikariModule())
+
+  install(QuartzModule(SampleJob::class.java))
+}
+----
+
+3) Set database properties and jdbc store
+
+.application.conf
+[source, properties]
+----
+db.url = "jdbc:mysql://localhost/mydb"
+db.user = "myuser"
+db.password = "mypassword"
+
+org.quartz.jobStore.class = org.quartz.impl.jdbcjobstore.JobStoreTX
+
+----
+
+=== Configuration
+
+Configuration from properties files is fully supported, just need to add quartz properties to your 
+application configuration file:
+
+.Thread Pool
+[source, properties]
+----
+# Set number of threads to use, default is to use the number of available processor
+org.quartz.threadPool.threadCount = 2
+----
+
+Checkout the http://www.quartz-scheduler.org/documentation/quartz-2.3.0/configuration[Quartz configuration] section to see a list of all available configuration properties.
+
+Programmatic configuration is supported by providing your own `Scheduler`:
+
+.Custom Scheduler
+[source, java]
+----
+{
+  
+  Scheduler scheduler = QuartzModule.newScheduler(this);
+  // configure scheduler as you need it
+
+  install(new QuartzModule(scheduler, SampleJob.class));
+  
+}
+----
+
+==== Disable Jobs at Startup
+
+Another nice feature of Quartz module is the ability to turn on/off jobs at start-up time. The turn
+on/off job is implementing by pausing (job off) and then resume (job ob) operations of scheduler.
+
+.Pausing Job at startup time
+[source, properties]
+----
+org.quartz.jobs.SampleJob.execute.enabled = false 
+----
+
+Now the job `SampleJob.execute` will be paused at startup time.
+
+=== REST API
+
+This modules comes with a simple REST API (sort of) to manage job and triggers:
+
+.Quartz API
+[source, java, role="primary"]
+----
+import io.jooby.quartz.QuartzApp
+import io.jooby.quartz.QuartzModule;
+
+{
+  install(new QuartzModule(SampleJob.class));
+  
+  use("/scheduler", new QuartzApp());
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.quartz.QuartzApp
+import io.jooby.quartz.QuartzModule
+
+{
+  install(QuartzModule(SampleJob::class.java))
+
+  use("/scheduler", QuartzApp())
+}
+----
+
+The API supports all these operations:
+
+.List all job keys
+----
+GET /
+----
+
+.List job information
+----
+GET /{group}/{name}
+----
+
+.Trigger/force a job execution.
+----
+GET /{group}/{name}/trigger
+----
+
+Query parameters are added as JobDataMap parameters
+
+.Attempt to interrupt an existing job execution
+----
+GET /{group}/{name}/interrupt
+----
+As described in Quartz documentation it is a Job responsibility to decide when and how to abort an existing execution. So this operation all it is does is to call `InterruptableJob.interrupt` method to notify about interrupt requests.
+
+.Pause execution of Job
+----
+GET /{group}/{name}/pause
+----
+This operation doesn't interrupt an existing running job, just pause future executions.
+
+.Resumes a previously paused Job
+----
+GET /{group}/{name}/resume
+----
+
+.Deletes a job
+----
+DELETE /{group}/{name}
+----
+

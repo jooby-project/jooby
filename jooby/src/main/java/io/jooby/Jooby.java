@@ -666,7 +666,6 @@ public class Jooby implements Router, Registry {
     Logger log = getLog();
 
     this.serverOptions = server.getOptions();
-    this.readyCallbacks = fire(this.readyCallbacks);
 
     log.info("{} started with:", System.getProperty(APP_NAME, getClass().getSimpleName()));
 
@@ -702,6 +701,8 @@ public class Jooby implements Router, Registry {
     }
 
     log.info(buff.toString(), args.toArray(new Object[args.size()]));
+
+    this.readyCallbacks = fire(this.readyCallbacks);
     return this;
   }
 

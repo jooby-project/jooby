@@ -76,6 +76,8 @@
     <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
     <json.version>20190722</json.version>
     <pac4j.version>4.0.0-RC2</pac4j.version>
+    <quartz.version>2.3.2</quartz.version>
+    <cron-utils.version>9.0.2</cron-utils.version>
 
     <commons-io.version>2.6</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
@@ -354,6 +356,12 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-quartz</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-maven-plugin</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -531,6 +539,31 @@
         <artifactId>commons-io</artifactId>
         <version>${commons-io.version}</version>
       </dependency>
+
+      <!-- quartz -->
+      <dependency>
+        <groupId>org.quartz-scheduler</groupId>
+        <artifactId>quartz</artifactId>
+        <version>${quartz.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.mchange</groupId>
+            <artifactId>c3p0</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP-java7</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/com.cronutils/cron-utils -->
+      <dependency>
+        <groupId>com.cronutils</groupId>
+        <artifactId>cron-utils</artifactId>
+        <version>${cron-utils.version}</version>
+      </dependency>
+
 
       <!-- https://mvnrepository.com/artifact/org.unbescape/unbescape -->
       <dependency>
