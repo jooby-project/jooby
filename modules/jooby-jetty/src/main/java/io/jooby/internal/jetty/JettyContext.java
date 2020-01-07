@@ -92,8 +92,8 @@ public class JettyContext implements DefaultContext {
   private HashMap<String, String> responseCookies;
   private boolean responseStarted;
   private Boolean resetHeadersOnError;
-  private String method;
-  private String pathString;
+  private final String method;
+  private final String requestPath;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
@@ -101,6 +101,8 @@ public class JettyContext implements DefaultContext {
     this.router = router;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
+    this.method = request.getMethod().toUpperCase();
+    this.requestPath = request.getRequestURI();
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
@@ -139,9 +141,6 @@ public class JettyContext implements DefaultContext {
   }
 
   @Nonnull @Override public String getMethod() {
-    if (method == null) {
-      method = request.getMethod().toUpperCase();
-    }
     return method;
   }
 
@@ -159,10 +158,7 @@ public class JettyContext implements DefaultContext {
   }
 
   @Nonnull @Override public String getRequestPath() {
-    if (pathString == null) {
-      pathString = request.getRequestURI();
-    }
-    return pathString;
+    return requestPath;
   }
 
   @Nonnull @Override public Map<String, String> pathMap() {

@@ -111,7 +111,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Route route;
   ChannelHandlerContext ctx;
   private HttpRequest req;
-  private String path;
+  private final String path;
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean responseStarted;
   private QueryString query;
@@ -128,7 +128,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Map<String, String> responseCookies;
   private Boolean resetHeadersOnError;
   NettyWebSocket webSocket;
-  private String method;
+  private final String method;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -137,6 +137,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.req = req;
     this.router = router;
     this.bufferSize = bufferSize;
+    this.method = req.method().name().toUpperCase();
   }
 
   @Nonnull @Override public Router getRouter() {
@@ -153,9 +154,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Nonnull @Override public String getMethod() {
-    if (method == null) {
-      method = req.method().name().toUpperCase();
-    }
     return method;
   }
 
