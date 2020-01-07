@@ -133,9 +133,6 @@ public class Pipeline {
     }
     /** Context: */
     if (Context.class.isAssignableFrom(type)) {
-      if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
-        return next(mode, executor, new DetachHandler(decorate(route)), false);
-      }
       return next(mode, executor, decorate(route, new SendDirect(route.getPipeline())), true);
     }
     /** InputStream: */
@@ -174,10 +171,6 @@ public class Pipeline {
                   true));
     }
     return next(mode, executor, decorate(route, new DefaultHandler(route.getPipeline())), true);
-  }
-
-  private static Handler decorate(Route route) {
-    return decorate(route, route.getPipeline());
   }
 
   private static Handler decorate(Route route, Handler handler) {

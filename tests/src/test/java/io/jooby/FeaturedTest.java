@@ -2339,7 +2339,8 @@ public class FeaturedTest {
     });
   }
 
-  @ServerTest(executionMode = EVENT_LOOP)
+  // TODO: We might add this back but using a different implementation:
+  //  @ServerTest(executionMode = EVENT_LOOP)
   @DisplayName("Context detaches when running in event-loop and returns a Context")
   public void detachOnEventLoop(ServerTestRunner runner) {
     runner.define(app -> {
