@@ -2,6 +2,4 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd)
 
-echo "$@"
-
-mvn -pl '!docs,!examples' "$@"
+mvn -pl '!docs' "$@"

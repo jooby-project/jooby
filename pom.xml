@@ -150,7 +150,6 @@
     <module>jooby</module>
     <module>modules</module>
     <module>tests</module>
-    <module>examples</module>
     <module>docs</module>
   </modules>
 
