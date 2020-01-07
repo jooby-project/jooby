@@ -5,14 +5,16 @@
  */
 package io.jooby.hibernate;
 
+import com.typesafe.config.Config;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import io.jooby.internal.hibernate.ScanEnvImpl;
-import io.jooby.internal.hibernate.SessionProvider;
+import io.jooby.internal.hibernate.SessionServiceProvider;
 import org.hibernate.Session;
+import org.hibernate.SessionBuilder;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataBuilder;
@@ -141,6 +143,8 @@ public class HibernateModule implements Extension {
   private final String name;
   private List<String> packages = Collections.emptyList();
   private List<Class> classes;
+  private HibernateConfigurer configurer = new HibernateConfigurer();
+  private SessionProvider sessionBuilder = SessionBuilder::openSession;
 
   /**
    * Creates a Hibernate module.
@@ -174,8 +178,31 @@ public class HibernateModule implements Extension {
     return this;
   }
 
+  /**
+   * Allow to customize a {@link Session} before opening it.
+   *
+   * @param sessionProvider Session customizer.
+   * @return This module.
+   */
+  public @Nonnull HibernateModule with(@Nonnull SessionProvider sessionProvider) {
+    this.sessionBuilder = sessionProvider;
+    return this;
+  }
+
+  /**
+   * Hook into Hibernate bootstrap components and allow to customize them.
+   *
+   * @param configurer Configurer.
+   * @return This module.
+   */
+  public @Nonnull HibernateModule with(@Nonnull HibernateConfigurer configurer) {
+    this.configurer = configurer;
+    return this;
+  }
+
   @Override public void install(@Nonnull Jooby application) {
     Environment env = application.getEnvironment();
+    Config config = application.getConfig();
     ServiceRegistry registry = application.getServices();
     DataSource dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));
     boolean fallback = false;
@@ -189,6 +216,8 @@ public class HibernateModule implements Extension {
 
     boolean flyway = isFlywayPresent(env, registry, name, fallback);
     String ddlAuto = flyway ? "none" : (defaultDdlAuto ? "update" : "none");
+
+    configurer.configure(bsrb, config);
 
     BootstrapServiceRegistry bsr = bsrb.build();
     StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder(bsr);
@@ -205,6 +234,8 @@ public class HibernateModule implements Extension {
     ssrb.applySetting(AvailableSettings.DATASOURCE, dataSource);
     ssrb.applySetting(AvailableSettings.DELAY_CDI_ACCESS, true);
 
+    configurer.configure(ssrb, config);
+
     StandardServiceRegistry serviceRegistry = ssrb.build();
     if (packages.isEmpty() && classes.isEmpty()) {
       packages = Stream.of(application.getBasePackage())
@@ -216,6 +247,8 @@ public class HibernateModule implements Extension {
     packages.forEach(sources::addPackage);
     classes.forEach(sources::addAnnotatedClass);
 
+    configurer.configure(sources, config);
+
     /** Scan package? */
     ClassLoader classLoader = env.getClassLoader();
     List<URL> packages = sources.getAnnotatedPackages().stream()
@@ -226,24 +259,26 @@ public class HibernateModule implements Extension {
     if (packages.size() > 0) {
       metadataBuilder.applyScanEnvironment(new ScanEnvImpl(packages));
     }
+
+    configurer.configure(metadataBuilder, config);
+
     Metadata metadata = metadataBuilder.build();
 
     SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
     sfb.applyName(name);
     sfb.applyNameAsJndiName(false);
 
+    configurer.configure(sfb, config);
+
     SessionFactory sf = sfb.build();
 
-    registry.putIfAbsent(SessionFactory.class, sf);
-    registry.put(ServiceKey.key(SessionFactory.class, name), sf);
-
     /** Session and EntityManager. */
-    Provider sessionProvider = new SessionProvider(sf);
-    registry.putIfAbsent(Session.class, sessionProvider);
-    registry.put(ServiceKey.key(Session.class, name), sessionProvider);
+    Provider sessionServiceProvider = new SessionServiceProvider(sf, sessionBuilder);
+    registry.putIfAbsent(Session.class, sessionServiceProvider);
+    registry.put(ServiceKey.key(Session.class, name), sessionServiceProvider);
 
-    registry.putIfAbsent(EntityManager.class, sessionProvider);
-    registry.put(ServiceKey.key(EntityManager.class, name), sessionProvider);
+    registry.putIfAbsent(EntityManager.class, sessionServiceProvider);
+    registry.put(ServiceKey.key(EntityManager.class, name), sessionServiceProvider);
 
     /** SessionFactory and EntityManagerFactory. */
     registry.putIfAbsent(SessionFactory.class, sf);
@@ -251,6 +286,10 @@ public class HibernateModule implements Extension {
 
     registry.putIfAbsent(EntityManagerFactory.class, sf);
     registry.put(ServiceKey.key(EntityManagerFactory.class, name), sf);
+
+    /** Session Provider: */
+    registry.putIfAbsent(SessionProvider.class, sessionBuilder);
+    registry.put(ServiceKey.key(SessionProvider.class, name), sessionBuilder);
 
     application.onStop(sf::close);
   }

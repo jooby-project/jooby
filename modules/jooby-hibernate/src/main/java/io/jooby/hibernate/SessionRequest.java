@@ -50,11 +50,13 @@ import javax.annotation.Nonnull;
  *
  * @author Benjamin Quinn
  */
-public class SessionRequest implements Route.Decorator  {
+public class SessionRequest implements Route.Decorator {
 
   private static final Logger log = LoggerFactory.getLogger(SessionRequest.class);
 
-  private final ServiceKey<SessionFactory> key;
+  private final ServiceKey<SessionFactory> sessionFactoryKey;
+
+  private final ServiceKey<SessionProvider> sessionProviderKey;
 
   /**
    * Creates a new session request and attach the to a named session factory.
@@ -62,24 +64,31 @@ public class SessionRequest implements Route.Decorator  {
    * @param name Name of the session factory.
    */
   public SessionRequest(@Nonnull String name) {
-    key = ServiceKey.key(SessionFactory.class, name);
+    this(ServiceKey.key(SessionFactory.class, name));
   }
 
   /**
    * Creates a new session request and attach to the default/first session factory registered.
    */
   public SessionRequest() {
-    key = ServiceKey.key(SessionFactory.class);
+    this(ServiceKey.key(SessionFactory.class));
+  }
+
+  private SessionRequest(ServiceKey<SessionFactory> sessionFactoryKey) {
+    this.sessionFactoryKey = sessionFactoryKey;
+    this.sessionProviderKey = ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName());
   }
 
   @Nonnull
   @Override
   public Route.Handler apply(@Nonnull Route.Handler next) {
-    return (ctx) -> {
-      SessionFactory sessionFactory = ctx.require(key);
+    return ctx -> {
+      SessionFactory sessionFactory = ctx.require(sessionFactoryKey);
+      SessionProvider sessionProvider = ctx.require(sessionProviderKey);
+      Session session = sessionProvider.newSession(sessionFactory.withOptions());
       try {
-        Session session = sessionFactory.openSession();
         ManagedSessionContext.bind(session);
+
         Object result = next.apply(ctx);
 
         Transaction transaction = session.getTransaction();
@@ -92,12 +101,21 @@ public class SessionRequest implements Route.Decorator  {
 
         return result;
       } finally {
-        Session session = ManagedSessionContext.unbind(sessionFactory);
+        ManagedSessionContext.unbind(sessionFactory);
         if (session != null) {
           session.close();
         }
       }
     };
+  }
+
+  /**
+   * Get the service key for accessing to the configured {@link SessionFactory} service.
+   *
+   * @return The service key for accessing to the configured {@link SessionFactory} service.
+   */
+  public @Nonnull ServiceKey<SessionFactory> getSessionFactoryKey() {
+    return sessionFactoryKey;
   }
 }
 

@@ -185,12 +185,15 @@ The route handler needs to make sure all the information required by the renderi
 Otherwise, you are going to see `LazyInitializationException`.
 ====
 
+There is a javadoc:hibernate.SessionRequest[] decorator that works identically but leaves transaction
+management to you, so no transaction is started/committed or rollback during a HTTP request.
+
 === Schema Creation
 
 Schema creation is controlled by the `hibernate.hbm2ddl.auto` property. The Hibernate module configure this property using the following rules:
 
-- When the javadoc:flyway.Flywayby[] module is present the value of `hibernate.hbm2ddl.auto` is set to `none`
-- When running on `dev` or `test` mode the value of `hibernate.hbm2ddl.auto` is set to `update`
+- When the javadoc:flyway.FlywayModule[] module is present, the value of `hibernate.hbm2ddl.auto` is set to `none`
+- When `application.env` property is set to `dev` or `test`, the value of `hibernate.hbm2ddl.auto` is set to `update`
 - Otherwise is set to `none`
 
 === Advanced Options
@@ -201,4 +204,78 @@ Advanced Hibernate configuration is supported from application configuration pro
 [source, properties]
 ----
 hibernate.hbm2ddl.auto = create
+----
+
+Or by providing a custom javadoc:HibernateConfigurer[] instance. The javadoc:HibernateConfigurer[] 
+let you hook and customize Hibernate bootstrap process:
+
+.HibernateConfigurer:
+[source, java]
+----
+import io.jooby.hibernate.HibernateConfigurer;
+
+public class MyConfigurer extends HibernateConfigurer {
+  /**
+   * Hook into bootstrap registry and customize it.
+   *
+   * @param builder Builder.
+   * @param config Configuration.
+   */ 
+  public void configure(BootstrapServiceRegistryBuilder builder, Config config) {
+  }
+
+  /**
+   * Hook into service registry and customize it.
+   *
+   * @param builder Builder.
+   * @param config Configuration.
+   */
+  public void configure(StandardServiceRegistryBuilder builder, Config config) {
+  }
+
+  /**
+   * Hook into metadata sources and customize it.
+   *
+   * @param sources Sources.
+   * @param config Configuration.
+   */
+  public void configure(MetadataSources sources, Config config) {
+  }
+
+  /**
+   * Hook into metadata builder and customize it.
+   *
+   * @param builder Builder.
+   * @param config Configuration.
+   */
+  public void configure(MetadataBuilder builder, Config config) {
+  }
+
+  /**
+   * Hook into SessionFactory creation and customize it.
+   *
+   * @param builder Builder.
+   * @param config Configuration.
+   */
+  public void configure(SessionFactoryBuilder builder, Config config) {
+  }
+}
+
+{
+  install(new HibernateModule().with(new MyConfigurer()));
+}
+----
+
+Something similar is possible for custom Session using a javadoc:hibernate.SessionProvider[]:
+
+.SessionProvider
+[source, java]
+----
+{
+  install(new HibernateModule().with(builder -> {
+    return builder
+     .flushMode(AUTO)
+     .openSession();
+  }));
+}
 ----

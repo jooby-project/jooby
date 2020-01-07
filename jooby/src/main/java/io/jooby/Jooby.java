@@ -676,7 +676,7 @@ public class Jooby implements Router, Registry {
     } else {
       log.info("    env: {}", env.getActiveNames());
     }
-    log.info("    execution model: {}", mode.name().toLowerCase());
+    log.info("    execution mode: {}", mode.name().toLowerCase());
     log.info("    user: {}", System.getProperty("user.name"));
     log.info("    app dir: {}", System.getProperty("user.dir"));
     log.info("    tmp dir: {}", tmpdir);

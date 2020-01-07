@@ -48,6 +48,7 @@ import javax.annotation.Nonnull;
 public class TransactionalRequest implements Route.Decorator {
 
   private SessionRequest sessionRequest;
+
   private ServiceKey<SessionFactory> key;
 
   /**
@@ -56,21 +57,28 @@ public class TransactionalRequest implements Route.Decorator {
    * @param name Name of the session factory.
    */
   public TransactionalRequest(@Nonnull String name) {
-    sessionRequest = new SessionRequest(name);
-    key = ServiceKey.key(SessionFactory.class, name);
+    this(new SessionRequest(name));
   }
 
   /**
    * Creates a new transactional request and attach to the default/first session factory registered.
    */
   public TransactionalRequest() {
-    sessionRequest = new SessionRequest();
-    key = ServiceKey.key(SessionFactory.class);
+    this(new SessionRequest());
+  }
+
+  /**
+   * Creates a new transactional request.
+   *
+   * @param sessionRequest Session request instance.
+   */
+  public TransactionalRequest(@Nonnull SessionRequest sessionRequest) {
+    this.sessionRequest = sessionRequest;
   }
 
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return sessionRequest.apply(ctx -> {
-      SessionFactory sessionFactory = ctx.require(key);
+      SessionFactory sessionFactory = ctx.require(sessionRequest.getSessionFactoryKey());
       Transaction trx = null;
       try {
         Session session = sessionFactory.getCurrentSession();

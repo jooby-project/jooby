@@ -5,22 +5,25 @@
  */
 package io.jooby.internal.hibernate;
 
+import io.jooby.hibernate.SessionProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 
 import javax.inject.Provider;
 
-public class SessionProvider implements Provider<Session> {
+public class SessionServiceProvider implements Provider<Session> {
   private final SessionFactory sessionFactory;
+  private final SessionProvider sessionProvider;
 
-  public SessionProvider(SessionFactory sessionFactory) {
+  public SessionServiceProvider(SessionFactory sessionFactory, SessionProvider sessionProvider) {
     this.sessionFactory = sessionFactory;
+    this.sessionProvider = sessionProvider;
   }
 
   @Override public Session get() {
     return ManagedSessionContext.hasBind(sessionFactory)
         ? sessionFactory.getCurrentSession()
-        : sessionFactory.openSession();
+        : sessionProvider.newSession(sessionFactory.withOptions());
   }
 }
