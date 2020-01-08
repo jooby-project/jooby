@@ -7,6 +7,7 @@ package io.jooby.internal;
 
 import io.jooby.MessageEncoder;
 import io.jooby.Route;
+import io.jooby.Router;
 
 public class RouteTreeForwarding implements RouteTree {
   private RouteTree tree;
@@ -23,7 +24,7 @@ public class RouteTreeForwarding implements RouteTree {
     return tree.find(method, path);
   }
 
-  @Override public RouterMatch find(String method, String path, MessageEncoder encoder) {
+  @Override public Router.Match find(String method, String path, MessageEncoder encoder) {
     return tree.find(method, path, encoder);
   }
 

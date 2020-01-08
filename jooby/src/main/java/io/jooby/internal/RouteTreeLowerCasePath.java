@@ -6,6 +6,7 @@
 package io.jooby.internal;
 
 import io.jooby.MessageEncoder;
+import io.jooby.Router;
 
 public class RouteTreeLowerCasePath extends RouteTreeForwarding {
   public RouteTreeLowerCasePath(RouteTree tree) {
@@ -16,7 +17,7 @@ public class RouteTreeLowerCasePath extends RouteTreeForwarding {
     return super.find(method, path.toLowerCase());
   }
 
-  @Override public RouterMatch find(String method, String path, MessageEncoder encoder) {
+  @Override public Router.Match find(String method, String path, MessageEncoder encoder) {
     return super.find(method, path.toLowerCase(), encoder);
   }
 }

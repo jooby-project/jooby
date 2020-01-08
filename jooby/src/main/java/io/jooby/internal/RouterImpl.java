@@ -582,8 +582,8 @@ public class RouterImpl implements Router {
     if (predicateMap != null) {
       for (Map.Entry<Predicate<Context>, RouteTree> e : predicateMap.entrySet()) {
         if (e.getKey().test(ctx)) {
-          RouterMatch match = e.getValue().find(ctx.getMethod(), ctx.getRequestPath(), encoder);
-          if (match.matches) {
+          Router.Match match = e.getValue().find(ctx.getMethod(), ctx.getRequestPath(), encoder);
+          if (match.matches()) {
             return match;
           }
         }

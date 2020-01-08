@@ -17,7 +17,7 @@ public class RouteTreeNormPath extends RouteTreeForwarding {
     return super.find(method, Router.normalizePath(path));
   }
 
-  @Override public RouterMatch find(String method, String path, MessageEncoder encoder) {
+  @Override public Router.Match find(String method, String path, MessageEncoder encoder) {
     return super.find(method, Router.normalizePath(path), encoder);
   }
 }

@@ -3,6 +3,7 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.Route;
+import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +22,9 @@ public class ChiTest {
     router.insert(foo);
     router.insert(bar);
 
-    RouterMatch result = router
+    Router.Match result = router
         .find("GET", "/abcd", MessageEncoder.TO_STRING);
-    assertTrue(result.matches);
+    assertTrue(result.matches());
     assertEquals(bar, result.route());
   }
 
@@ -35,9 +36,9 @@ public class ChiTest {
     router.insert(foo);
     router.insert(foos);
 
-    RouterMatch result = router
+    Router.Match result = router
         .find("GET", "/abcd/", MessageEncoder.TO_STRING);
-    assertTrue(result.matches);
+    assertTrue(result.matches());
     assertEquals(foos, result.route());
   }
 
@@ -50,37 +51,37 @@ public class ChiTest {
     router.insert(route("GET", "/*", stringHandler("root")));
 
     find(router, "/", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("root", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foo", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("foo", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/bar", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("root", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foox", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("root", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foo/", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("foo", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foo/x", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("foo", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/bar/x", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("bar", result.route().getPipeline().apply(ctx));
     });
   }
@@ -97,17 +98,17 @@ public class ChiTest {
     router.insert(route("GET", "/articles/*", stringHandler("*")));
 
     find(router, "/regex/678/edit", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("zid", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/articles/tail/match", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("*", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/articles/123", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("id", result.route().getPipeline().apply(ctx));
     });
   }
@@ -120,19 +121,19 @@ public class ChiTest {
     router.insert(route("GET", "/articles/*", stringHandler("catchall")));
 
     find(router, "/articles/123", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("id", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/articles/a/b", (ctx, result) -> {
-      assertTrue(result.matches);
+      assertTrue(result.matches());
       assertEquals("catchall", result.route().getPipeline().apply(ctx));
     });
   }
 
   private void find(Chi router, String pattern,
-      SneakyThrows.Consumer2<Context, RouterMatch> consumer) {
-    RouterMatch result = router
+      SneakyThrows.Consumer2<Context, Router.Match> consumer) {
+    Router.Match result = router
         .find("GET", pattern, MessageEncoder.TO_STRING);
     consumer.accept(ctx(pattern), result);
   }

@@ -7,13 +7,14 @@ package io.jooby.internal;
 
 import io.jooby.MessageEncoder;
 import io.jooby.Route;
+import io.jooby.Router;
 
 interface RouteTree {
   void insert(String method, String pattern, Route route);
 
   boolean find(String method, String path);
 
-  RouterMatch find(String method, String path, MessageEncoder encoder);
+  Router.Match find(String method, String path, MessageEncoder encoder);
 
   void destroy();
 }
