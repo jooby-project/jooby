@@ -1139,7 +1139,7 @@ class App: Kooby({
 [TIP]
 ====
 Composition is a great option for modularization. You can easily develop/test/deploy each 
-application indendepently and compose them all in another application.
+application independently and compose them all in another application.
 
 We do provide <<mvc-api, MVC API>> as another alternative for modularization.
 ====

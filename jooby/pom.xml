@@ -213,6 +213,14 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- bucket4j -->
+    <dependency>
+      <groupId>com.github.vladimir-bukhtoyarov</groupId>
+      <artifactId>bucket4j-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

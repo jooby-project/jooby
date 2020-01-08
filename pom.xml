@@ -78,6 +78,7 @@
     <pac4j.version>4.0.0-RC2</pac4j.version>
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.0.2</cron-utils.version>
+    <bucket4j-core.version>4.7.0</bucket4j-core.version>
 
     <commons-io.version>2.6</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
@@ -716,6 +717,14 @@
         <artifactId>guice</artifactId>
         <version>${guice.version}</version>
       </dependency>
+
+      <!-- https://mvnrepository.com/artifact/com.github.vladimir-bukhtoyarov/bucket4j-core -->
+      <dependency>
+        <groupId>com.github.vladimir-bukhtoyarov</groupId>
+        <artifactId>bucket4j-core</artifactId>
+        <version>${bucket4j-core.version}</version>
+      </dependency>
+
 
       <!-- Kotlin -->
       <dependency>

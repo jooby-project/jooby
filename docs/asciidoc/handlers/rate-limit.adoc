@@ -1,0 +1,130 @@
+=== RateLimitHandler
+
+Rate limit handler using https://github.com/vladimir-bukhtoyarov/bucket4j[Bucket4j].
+
+Add the dependency to your project:
+
+[dependency, artifactId="bucket4j-core"]
+.
+
+.10 requests per minute
+[source, java, role="primary"]
+----
+{
+  Bandwidth limit = Bandwidth.simple(10, Duration.ofMinutes(1));
+  Bucket bucket = Bucket4j.builder().addLimit(limit).build();     <1>
+
+  before(new RateLimitHandler(bucket));                           <2>
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val limit = Bandwidth.simple(10, Duration.ofMinutes(1))
+  val bucket = Bucket4j.builder().addLimit(limit).build()         <1>
+
+  before(RateLimitHandler(bucket))                                <2>
+}
+----
+
+<1> Creates a bucket
+<2> Install the RateLimitHandler
+
+.10 requests per minute per ip/remote address
+[source, java, role="primary"]
+----
+{
+  before(new RateLimitHandler(remoteAddress -> {
+    Bandwidth limit = Bandwidth.simple(10, Duration.ofMinutes(1));
+    return Bucket4j.builder().addLimit(limit).build();
+  }));
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  before(RateLimitHandler {remoteAddress -> 
+    val limit = Bandwidth.simple(10, Duration.ofMinutes(1))
+    Bucket4j.builder().addLimit(limit).build()
+  })
+}
+----
+
+.10 requests per minute per header value
+[source, java, role="primary"]
+----
+{
+  before(new RateLimitHandler(key -> {
+    Bandwidth limit = Bandwidth.simple(10, Duration.ofMinutes(1));
+    return Bucket4j.builder().addLimit(limit).build();
+  }, "ApiKey"));
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  before(RateLimitHandler {key -> 
+    val limit = Bandwidth.simple(10, Duration.ofMinutes(1))
+    Bucket4j.builder().addLimit(limit).build()
+  }, "ApiKey")
+}
+----
+
+.10 requests per minute
+[source, java, role="primary"]
+----
+{
+  Bandwidth limit = Bandwidth.simple(10, Duration.ofMinutes(1));
+  Bucket bucket = Bucket4j.builder().addLimit(limit).build();     <1>
+
+  before(new RateLimitHandler(bucket));                           <2>
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val limit = Bandwidth.simple(10, Duration.ofMinutes(1))
+  val bucket = Bucket4j.builder().addLimit(limit).build()         <1>
+
+  before(RateLimitHandler(bucket))                                <2>
+}
+----
+
+<1> Creates a bucket
+<2> Install the RateLimitHandler
+
+.Rate limit in a cluster
+[source, java, role="primary"]
+----
+{
+  ProxyManager<String> buckets = ...;
+  before(RateLimitHandler.cluster(key -> {
+    return buckets.getProxy(key, () -> {
+      return ...;
+    });
+  }));
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val buckets = ...;
+  before(RateLimitHandler.cluster {key -> 
+    buckets.getProxy(key) {
+      ....
+    }
+  })
+}
+----
+
+For using it inside a cluster you need to configure one of the bucket4j options for https://github.com/vladimir-bukhtoyarov/bucket4j#supported-back-ends[clustering].

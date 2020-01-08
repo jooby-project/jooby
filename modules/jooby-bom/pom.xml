@@ -16,12 +16,13 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.5.1</jooby.version>
+  <jooby.version>2.5.2-SNAPSHOT</jooby.version>
   <HikariCP.version>3.4.1</HikariCP.version>
   <archetype-packaging.version>3.1.2</archetype-packaging.version>
   <asm.version>7.2</asm.version>
   <auto-service.version>1.0-rc6</auto-service.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
+  <bucket4j-core.version>4.7.0</bucket4j-core.version>
   <checkstyle.version>8.28</checkstyle.version>
   <commons-io.version>2.6</commons-io.version>
   <compile-testing.version>0.18</compile-testing.version>
@@ -48,8 +49,8 @@
   <jdbi.version>3.12.0</jdbi.version>
   <jetty.version>9.4.25.v20191220</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jooby-maven-plugin.version>2.5.1</jooby-maven-plugin.version>
-  <jooby.version>2.5.1</jooby.version>
+  <jooby-maven-plugin.version>2.5.2-SNAPSHOT</jooby-maven-plugin.version>
+  <jooby.version>2.5.2-SNAPSHOT</jooby.version>
   <json.version>20190722</json.version>
   <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -510,6 +511,11 @@
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
       <version>${guice.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.vladimir-bukhtoyarov</groupId>
+      <artifactId>bucket4j-core</artifactId>
+      <version>${bucket4j-core.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>

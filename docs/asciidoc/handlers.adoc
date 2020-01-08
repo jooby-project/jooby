@@ -6,6 +6,8 @@ include::handlers/cors.adoc[]
 
 include::handlers/head.adoc[]
 
+include::handlers/rate-limit.adoc[]
+
 include::handlers/ssl.adoc[]
 
 include::handlers/trace.adoc[]
