@@ -258,6 +258,15 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  /**
+   * The underlying router.
+   *
+   * @return The underlying router.
+   */
+  public @Nonnull Router getRouter() {
+    return router;
+  }
+
   @Nonnull @Override
   public Jooby use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
     this.router.use(predicate, router);

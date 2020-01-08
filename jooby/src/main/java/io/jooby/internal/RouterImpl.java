@@ -223,6 +223,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
+    syncState(router);
     Chi tree = new Chi();
     if (predicateMap == null) {
       predicateMap = new LinkedHashMap<>();
@@ -236,7 +237,20 @@ public class RouterImpl implements Router {
     return this;
   }
 
+  private void syncState(Router router) {
+    if (router instanceof Jooby) {
+      Jooby app = (Jooby) router;
+      syncState(app.getRouter());
+    } else if (router instanceof RouterImpl) {
+      RouterImpl that = (RouterImpl) router;
+      // Inherited the services from router owner
+      // TODO: what to do with existing services? Is there anything we can do?
+      that.services = this.services;
+    }
+  }
+
   @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
+    syncState(router);
     String prefix = Router.leadingSlash(path);
     for (Route route : router.getRoutes()) {
       String routePattern = new PathBuilder(prefix, route.getPattern()).toString();

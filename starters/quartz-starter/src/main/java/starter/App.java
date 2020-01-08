@@ -20,7 +20,7 @@ public class App extends Jooby {
 
     install(new QuartzModule(SampleJob.class, BeanJob.class));
 
-    use("/quartz", new QuartzApp(require(Scheduler.class)));
+    use("/quartz", new QuartzApp());
   }
 
   public static void main(String[] args) {
