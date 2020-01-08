@@ -85,7 +85,7 @@
   <mysql-connector-java.version>8.0.18</mysql-connector-java.version>
   <netty.version>4.1.44.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
-  <okhttp.version>4.3.0</okhttp.version>
+  <okhttp.version>4.3.1</okhttp.version>
   <pac4j.version>4.0.0-RC2</pac4j.version>
   <pebble.version>3.1.2</pebble.version>
   <plexus-utils.version>3.3.0</plexus-utils.version>
