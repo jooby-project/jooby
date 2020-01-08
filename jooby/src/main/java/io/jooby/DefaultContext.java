@@ -571,8 +571,13 @@ public interface DefaultContext extends Context {
         }
         router.getErrorHandler().apply(this, cause, statusCode);
       } catch (Exception x) {
-        router.getLog()
-            .error("error handler resulted in exception {} {}", getMethod(), pathString(), x);
+        if (Server.connectionLost(x)) {
+          router.getLog()
+              .debug("error handler resulted in exception {} {}", getMethod(), getRequestPath(), x);
+        } else {
+          router.getLog()
+              .error("error handler resulted in exception {} {}", getMethod(), getRequestPath(), x);
+        }
       }
     }
     /** rethrow fatal exceptions: */

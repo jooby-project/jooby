@@ -19,7 +19,10 @@ jobs:
         with:
           java-version: ${{ matrix.java_version }}
       - name: Install
-        run: mvn clean install --fail-never -q -pl '!docs' -P checkstyle
+        run: mvn clean install --fail-never -q -pl '!docs'
+        env:
+          BUILD_PORT: 0
+          BUILD_SECURE_PORT: 0
       - name: Build
         run: mvn clean checkstyle:checkstyle package -pl '!docs' -P checkstyle
         env:
