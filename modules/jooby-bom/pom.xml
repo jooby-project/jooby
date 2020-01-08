@@ -92,7 +92,7 @@
   <quartz.version>2.3.2</quartz.version>
   <reactor.version>3.3.1.RELEASE</reactor.version>
   <rest-assured.version>4.1.2</rest-assured.version>
-  <rocker.version>1.2.2</rocker.version>
+  <rocker.version>1.2.3</rocker.version>
   <rxjava.version>2.2.16</rxjava.version>
   <slf4j.version>1.7.30</slf4j.version>
   <spring.version>5.2.2.RELEASE</spring.version>
