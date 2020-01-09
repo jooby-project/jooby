@@ -17,6 +17,10 @@ import java.util.stream.Stream;
 
 public class ServerTestRunner {
 
+  static {
+    System.setProperty("jooby.useShutdownHook", "false");
+  }
+
   private final String testName;
 
   private final ServerProvider server;
@@ -55,6 +59,7 @@ public class ServerTestRunner {
     Server server = this.server.get();
     try {
       System.setProperty("___app_name__", testName);
+      System.setProperty("___server_name__", this.server.getName());
       Jooby app = provider.get();
       Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       ServerOptions serverOptions = app.getServerOptions();

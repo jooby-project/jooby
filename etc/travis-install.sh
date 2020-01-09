@@ -2,4 +2,4 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd)
 
-sh $DIR/maven.sh clean install -q --fail-never
+sh $DIR/maven.sh clean install -q -DskipTests -s $DIR/travis-settings.xml

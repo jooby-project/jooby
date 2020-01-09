@@ -1,6 +1,5 @@
 package io.jooby;
 
-import io.jooby.internal.ArrayValue;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -30,6 +29,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -39,23 +39,30 @@ public class WebClient implements AutoCloseable {
 
     private CountDownLatch opened = new CountDownLatch(1);
 
-    private CountDownLatch closed = new CountDownLatch(1);
-
-    private List<Throwable> errors = new ArrayList<>();
+    private AtomicBoolean closed = new AtomicBoolean(false);
 
     private BlockingQueue messages = new LinkedBlockingQueue();
+
+    private String testName;
+
+    public SyncWebSocketListener(String testName) {
+      this.testName = testName;
+    }
 
     @Override public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
       opened.countDown();
     }
 
     @Override public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-      closed.countDown();
+      closed.set(true);
     }
 
     @Override public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable e,
         @Nullable Response response) {
-      errors.add(e);
+      if (!Server.connectionLost(e)) {
+        System.err.println("Unexpected web socket error: " + testName);
+        e.printStackTrace();
+      }
     }
 
     @Override public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
@@ -64,7 +71,7 @@ public class WebClient implements AutoCloseable {
 
     public String lastMessage() {
       try {
-        return (String) messages.take();
+        return (String) messages.poll(10, TimeUnit.SECONDS);
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);
       }
@@ -94,6 +101,12 @@ public class WebClient implements AutoCloseable {
     public String send(String message) {
       ws.send(message);
       return listener.lastMessage();
+    }
+
+    public void close() {
+      if (listener.closed.compareAndSet(false, true)) {
+        ws.close(WebSocketCloseStatus.NORMAL_CODE, WebSocketCloseStatus.NORMAL.getReason());
+      }
     }
   }
 
@@ -218,15 +231,17 @@ public class WebClient implements AutoCloseable {
     get(path).execute(callback);
   }
 
-  public WebSocket syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
+  public void syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.url("ws://localhost:" + port + path);
     setRequestHeaders(req);
     okhttp3.Request r = req.build();
-    SyncWebSocketListener listener = new SyncWebSocketListener();
+    SyncWebSocketListener listener = new SyncWebSocketListener(
+        System.getProperty("___app_name__") + "(" + System.getProperty("___server_name__") + ")");
     WebSocket webSocket = client.newWebSocket(r, listener);
-    consumer.accept(new BlockingWebSocket(webSocket, listener));
-    return webSocket;
+    BlockingWebSocket blockingWebSocket = new BlockingWebSocket(webSocket, listener);
+    consumer.accept(blockingWebSocket);
+    blockingWebSocket.close();
   }
 
   public Request options(String path) {

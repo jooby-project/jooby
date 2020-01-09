@@ -451,6 +451,7 @@ public class ServerOptions {
 
   private static int randomPort() {
     try (ServerSocket socket = new ServerSocket(0)) {
+      socket.setReuseAddress(true);
       return socket.getLocalPort();
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);

@@ -231,8 +231,10 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
             next.run();
           }
         }));
+        return true;
+      } else {
+        return false;
       }
-      return true;
     } else {
       return false;
     }

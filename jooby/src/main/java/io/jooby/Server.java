@@ -7,6 +7,7 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.EOFException;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.util.List;
@@ -136,6 +137,6 @@ public interface Server {
         return msg.contains("reset by peer") || msg.contains("broken pipe");
       }
     }
-    return (cause instanceof ClosedChannelException);
+    return (cause instanceof ClosedChannelException) || (cause instanceof EOFException);
   }
 }
