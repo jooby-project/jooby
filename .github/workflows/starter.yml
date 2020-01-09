@@ -24,7 +24,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java_version }}
-      - name: Prepare
-        run: cd starters
       - name: Build
+        working-directory: ./starters
         run: mvn clean package
