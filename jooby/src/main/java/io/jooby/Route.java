@@ -438,6 +438,30 @@ public class Route {
   }
 
   /**
+   * Recreate a path pattern using the given variables.
+   *
+   * <code>reserve(/{k1}/{k2}, {"k1": ""foo", "k2": "bar"}) => /foo/bar</code>
+   *
+   * @param keys Path keys.
+   * @return Path.
+   */
+  public @Nonnull String reverse(@Nonnull Map<String, Object> keys) {
+    return Router.reverse(getPattern(), keys);
+  }
+
+  /**
+   * Recreate a path pattern using the given variables.
+   *
+   * <code>reserve(/{k1}/{k2}, "foo", "bar") => /foo/bar</code>
+   *
+   * @param values Values.
+   * @return Path.
+   */
+  public @Nonnull String reverse(Object... values) {
+    return Router.reverse(getPattern(), values);
+  }
+
+  /**
    * Handler instance which might or might not be the same as {@link #getHandler()}.
    *
    * The handle is required to extract correct metadata.

@@ -17,15 +17,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Routing DSL functions.
@@ -869,5 +872,71 @@ public interface Router extends Registry {
       default:
         return unmodifiableList(result);
     }
+  }
+
+  /**
+   * Recreate a path pattern using the given variables. Variable replacement is done using the
+   * current index.
+   *
+   * @param pattern Path pattern.
+   * @param values Path keys.
+   * @return Path.
+   */
+  static @Nonnull String reverse(@Nonnull String pattern, @Nonnull Object... values) {
+    Map<String, Object> keys = new HashMap<>();
+    IntStream.range(0, values.length).forEach(k -> keys.put(Integer.toString(k), values[k]));
+    return reverse(pattern, keys);
+  }
+
+  /**
+   * Recreate a path pattern using the given variables.
+   *
+   * @param pattern Path pattern.
+   * @param keys Path keys.
+   * @return Path.
+   */
+  static @Nonnull String reverse(@Nonnull String pattern, @Nonnull Map<String, Object> keys) {
+    StringBuilder path = new StringBuilder();
+    int start = 0;
+    int end = Integer.MAX_VALUE;
+    int len = pattern.length();
+    int keyIdx = 0;
+    for (int i = 0; i < len; i++) {
+      char ch = pattern.charAt(i);
+      if (ch == '{') {
+        path.append(pattern, start, i);
+        start = i + 1;
+        end = Integer.MAX_VALUE;
+      } else if (ch == ':') {
+        end = i;
+      } else if (ch == '}') {
+        String id = pattern.substring(start, Math.min(i, end));
+        Object value = keys.getOrDefault(id, keys.get(Integer.toString(keyIdx++)));
+        requireNonNull(value, "Missing key: '" + id + "'");
+        path.append(value);
+        start = i + 1;
+        end = Integer.MAX_VALUE;
+      } else if (ch == '*') {
+        path.append(pattern, start, i);
+        String id;
+        if (i == len - 1) {
+          id = "*";
+        } else {
+          id = pattern.substring(i + 1);
+        }
+        Object value = keys.getOrDefault(id, keys.get(Integer.toString(keyIdx++)));
+        requireNonNull(value, "Missing key: '" + id + "'");
+        path.append(value);
+        start = len;
+        i = len;
+      }
+    }
+    if (path.length() == 0) {
+      return pattern;
+    }
+    if (start > 0) {
+      path.append(pattern, start, len);
+    }
+    return path.toString();
   }
 }
