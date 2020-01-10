@@ -26,7 +26,7 @@
     <rocker.version>1.2.3</rocker.version>
 
     <!-- data -->
-    <HikariCP.version>3.4.1</HikariCP.version>
+    <HikariCP.version>3.4.2</HikariCP.version>
     <mysql-connector-java.version>8.0.18</mysql-connector-java.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.200</h2.version>
