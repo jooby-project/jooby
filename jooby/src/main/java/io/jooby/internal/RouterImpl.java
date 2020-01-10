@@ -529,11 +529,7 @@ public class RouterImpl implements Router {
           .compute(source.getLoader(), route, mode, executor, handlers);
       route.setPipeline(pipeline);
       /** Final render */
-      if (route.getHandler() instanceof WebSocketHandler) {
-        route.setEncoder(encoder.toWebSocketEncoder());
-      } else {
-        route.setEncoder(encoder);
-      }
+      route.setEncoder(encoder);
     }
     /** router options: */
     if (routerOptions.contains(RouterOption.IGNORE_CASE)) {

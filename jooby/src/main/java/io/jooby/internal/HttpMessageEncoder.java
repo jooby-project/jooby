@@ -94,8 +94,4 @@ public class HttpMessageEncoder implements MessageEncoder {
     }
     return result;
   }
-
-  WebSocketEncoder toWebSocketEncoder() {
-    return new WebSocketEncoder(encoderList, templateEngineList);
-  }
 }
