@@ -9,7 +9,6 @@ import io.jooby.exception.MethodNotAllowedException;
 import io.jooby.exception.NotAcceptableException;
 import io.jooby.exception.NotFoundException;
 import io.jooby.exception.UnsupportedMediaType;
-import sun.security.krb5.Config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -462,7 +461,7 @@ public class Route {
   /**
    * Recreate a path pattern using the given variables.
    *
-   * <code>reserve(/{k1}/{k2}, {"k1": ""foo", "k2": "bar"}) => /foo/bar</code>
+   * <code>reserve(/{k1}/{k2}, {"k1": ""foo", "k2": "bar"}) =&gt; /foo/bar</code>
    *
    * @param keys Path keys.
    * @return Path.
@@ -474,7 +473,7 @@ public class Route {
   /**
    * Recreate a path pattern using the given variables.
    *
-   * <code>reserve(/{k1}/{k2}, "foo", "bar") => /foo/bar</code>
+   * <code>reserve(/{k1}/{k2}, "foo", "bar") =&gt; /foo/bar</code>
    *
    * @param values Values.
    * @return Path.

@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby;
 
 import org.slf4j.Logger;
@@ -167,9 +172,12 @@ public class AccessLogHandler implements Route.Decorator {
   private static final char BR = ']';
   private static final char Q = '\"';
 
-  private static Function<Context, String> USER_OR_DASH = ctx -> Optional.ofNullable(ctx.getUser())
-      .map(Object::toString)
-      .orElse(DASH);
+  private static final Function<Context, String> USER_OR_DASH = ctx ->
+      Optional.ofNullable(ctx.getUser())
+          .map(Object::toString)
+          .orElse(DASH);
+  /** Default buffer size. */
+  private static final int MESSAGE_SIZE = 256;
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -207,7 +215,7 @@ public class AccessLogHandler implements Route.Decorator {
     long timestamp = System.currentTimeMillis();
     return ctx -> {
       ctx.onComplete(context -> {
-        StringBuilder sb = new StringBuilder(256);
+        StringBuilder sb = new StringBuilder(MESSAGE_SIZE);
         sb.append(ctx.getRemoteAddress());
         sb.append(SP).append(DASH).append(SP);
         sb.append(userId.apply(ctx));

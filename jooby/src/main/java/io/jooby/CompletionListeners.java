@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby;
 
 import javax.annotation.Nonnull;
@@ -5,9 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Utility class that group one or more completion listeners and execute them in reverse order.
+ *
+ * @author edgar
+ * @since 2.5.2
+ */
 public class CompletionListeners {
   private List<Route.Complete> listeners;
 
+  /**
+   * Add a listener.
+   *
+   * @param listener Listener.
+   */
   public void addListener(@Nonnull Route.Complete listener) {
     if (listeners == null) {
       listeners = new ArrayList<>();
@@ -15,6 +31,11 @@ public class CompletionListeners {
     listeners.add(listener);
   }
 
+  /**
+   * Execute all listeners.
+   *
+   * @param ctx Listeners.
+   */
   public void run(@Nonnull Context ctx) {
     if (listeners != null) {
       Throwable cause = null;
