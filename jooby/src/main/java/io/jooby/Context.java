@@ -1228,6 +1228,14 @@ public interface Context extends Registry {
    */
   @Nonnull Context setResetHeadersOnError(boolean value);
 
+  /**
+   * Add a complete listener.
+   *
+   * @param task Task to execute.
+   * @return This context.
+   */
+  @Nonnull Context onComplete(@Nonnull Route.Complete task);
+
   /* **********************************************************************************************
    * Factory methods
    * **********************************************************************************************

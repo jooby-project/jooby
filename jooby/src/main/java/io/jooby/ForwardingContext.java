@@ -599,6 +599,11 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {
+    ctx.onComplete(task);
+    return this;
+  }
+
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) throws RegistryException {
     return ctx.require(type);
   }

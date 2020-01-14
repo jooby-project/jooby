@@ -7,6 +7,7 @@ package io.jooby.internal.jetty;
 
 import io.jooby.Body;
 import io.jooby.ByteRange;
+import io.jooby.CompletionListeners;
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.DefaultContext;
@@ -94,6 +95,7 @@ public class JettyContext implements DefaultContext {
   private Boolean resetHeadersOnError;
   private final String method;
   private final String requestPath;
+  private CompletionListeners listeners;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
@@ -360,7 +362,14 @@ public class JettyContext implements DefaultContext {
   }
 
   @Override public long getResponseLength() {
-    return response.getContentLength();
+    long len = response.getContentLength();
+    if (len == -1) {
+      String lenStr = response.getHeader(HttpHeader.CONTENT_LENGTH.asString());
+      if (lenStr != null) {
+        len = Long.parseLong(lenStr);
+      }
+    }
+    return len;
   }
 
   @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
@@ -387,25 +396,15 @@ public class JettyContext implements DefaultContext {
     responseStarted = true;
     try {
       ifSetChunked();
-      // TODO: session should be safe after response, find a better way
-      ifSaveSession();
-      return response.getOutputStream();
+      return new JettyOutputStream(response.getOutputStream(), this);
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
   }
 
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
-    responseStarted = true;
-    try {
-      ifSetChunked();
-      // TODO: session should be safe after response, find a better way
-      ifSaveSession();
-      setResponseType(type, charset);
-      return response.getWriter();
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
-    }
+    setResponseType(type, charset);
+    return new PrintWriter(responseStream());
   }
 
   @Nonnull @Override public Context send(StatusCode statusCode) {
@@ -435,6 +434,9 @@ public class JettyContext implements DefaultContext {
 
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
     try {
+      if (response.getContentLength() == -1) {
+        response.setContentLengthLong(data.remaining());
+      }
       responseStarted = true;
       HttpOutput sender = response.getHttpOutput();
       sender.sendContent(data);
@@ -442,7 +444,7 @@ public class JettyContext implements DefaultContext {
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     } finally {
-      cleanup();
+      responseDone();
     }
   }
 
@@ -481,7 +483,7 @@ public class JettyContext implements DefaultContext {
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     } finally {
-      cleanup();
+      responseDone();
     }
   }
 
@@ -492,7 +494,7 @@ public class JettyContext implements DefaultContext {
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     } finally {
-      cleanup();
+      responseDone();
     }
   }
 
@@ -511,32 +513,30 @@ public class JettyContext implements DefaultContext {
     return this;
   }
 
+  @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {
+    if (listeners == null) {
+      listeners = new CompletionListeners();
+      listeners.addListener(task);
+    }
+    return this;
+  }
+
   @Override public String toString() {
     return getMethod() + " " + getRequestPath();
   }
 
   void complete(Throwable x) {
-    ifSaveSession();
-
-    Logger log = router.getLog();
-    if (x != null) {
-      if (Server.connectionLost(x)) {
-        log.debug("exception found while sending response {} {}", getMethod(), pathString(), x);
-      } else {
-        log.error("exception found while sending response {} {}", getMethod(), pathString(), x);
-      }
-    }
-
-    clearFiles();
-
     try {
-      if (request.isAsyncStarted()) {
-        request.getAsyncContext().complete();
-      } else {
-        response.completeOutput();
+      Logger log = router.getLog();
+      if (x != null) {
+        if (Server.connectionLost(x)) {
+          log.debug("exception found while sending response {} {}", getMethod(), pathString(), x);
+        } else {
+          log.error("exception found while sending response {} {}", getMethod(), pathString(), x);
+        }
       }
-    } catch (IOException e) {
-      log.debug("exception found while closing resources {} {} {}", getMethod(), pathString(), e);
+    } finally {
+      responseDone();
     }
   }
 
@@ -554,7 +554,7 @@ public class JettyContext implements DefaultContext {
     }
   }
 
-  private void cleanup() {
+  void responseDone() {
     try {
       ifSaveSession();
 
@@ -562,6 +562,9 @@ public class JettyContext implements DefaultContext {
     } finally {
       if (request.isAsyncStarted()) {
         request.getAsyncContext().complete();
+      }
+      if (listeners != null) {
+        listeners.run(this);
       }
     }
   }

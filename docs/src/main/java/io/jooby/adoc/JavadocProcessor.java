@@ -23,9 +23,9 @@ public class JavadocProcessor extends InlineMacroProcessor {
 
   @Override
   public Object process(ContentNode parent, String clazz, Map<String, Object> attributes) {
-    StringBuilder link = new StringBuilder("https://static.javadoc.io/io.jooby/jooby/");
+
+    StringBuilder link = new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby/latest/io/jooby/");
     StringBuilder text = new StringBuilder();
-    link.append(DocGenerator.version());
     String[] names = clazz.split("\\.");
     List<String> pkg = new ArrayList<>();
     List<String> nameList = new ArrayList<>();
@@ -36,7 +36,6 @@ public class JavadocProcessor extends InlineMacroProcessor {
         pkg.add(name);
       }
     }
-    link.append("/io/jooby/");
     if (pkg.size() > 0) {
       link.append(pkg.stream().collect(Collectors.joining("/"))).append("/");
     }

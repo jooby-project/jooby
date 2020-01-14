@@ -85,6 +85,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   private Boolean resetHeadersOnError;
   private final String method;
   private final String requestPath;
+  private UtowCompletionListener completionListener;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -315,6 +316,9 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Override public long getResponseLength() {
+    if (responseLength == -1) {
+      return exchange.getResponseContentLength();
+    }
     return responseLength;
   }
 
@@ -444,6 +448,15 @@ public class UtowContext implements DefaultContext, IoCallback {
   @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
     ifSaveSession();
     destroy(null);
+  }
+
+  @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {
+    if (completionListener == null) {
+      completionListener = new UtowCompletionListener(this);
+      exchange.addExchangeCompleteListener(completionListener);
+    }
+    completionListener.addListener(task);
+    return this;
   }
 
   @Override

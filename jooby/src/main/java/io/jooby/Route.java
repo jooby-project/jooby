@@ -9,6 +9,7 @@ import io.jooby.exception.MethodNotAllowedException;
 import io.jooby.exception.NotAcceptableException;
 import io.jooby.exception.NotFoundException;
 import io.jooby.exception.UnsupportedMediaType;
+import sun.security.krb5.Config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,7 +61,7 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Decorator extends Serializable, Aware {
+  public interface Decorator extends Aware {
     /**
      * Chain the decorator within next handler.
      *
@@ -96,7 +97,7 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Before extends Serializable {
+  public interface Before {
     /**
      * Execute application code before next handler.
      *
@@ -179,7 +180,7 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface After extends Serializable {
+  public interface After {
 
     /**
      * Chain this filter with next one and produces a new after filter.
@@ -204,6 +205,27 @@ public class Route {
      */
     void apply(@Nonnull Context ctx, @Nullable Object result, @Nullable Throwable failure)
         throws Exception;
+  }
+
+  /**
+   * Listener interface for events that are run at the completion of a request/response
+   * cycle (i.e. when the request has been completely read, and the response has been fully
+   * written).
+   *
+   * At this point it is too late to modify the exchange further.
+   *
+   * Completion listeners are invoked in reverse order.
+   *
+   * @author edgar
+   */
+  public interface Complete {
+    /**
+     * Callback method.
+     *
+     * @param ctx Read-Only web context.
+     * @throws Exception If something goes wrong.
+     */
+    void apply(@Nonnull Context ctx) throws Exception;
   }
 
   public interface Aware {

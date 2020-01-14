@@ -1,0 +1,56 @@
+=== AccessLogHandler
+
+The javadoc:AccessLogHandler[] logs incoming requests using the https://en.wikipedia.org/wiki/Common_Log_Format[NCSA format] (a.k.a common log format).
+
+.Usage
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.AccessLogHandler;
+...
+{
+  
+  decorator(new AccessLogHandler()); <1>
+  
+  get("/", ctx -> {
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.AccessLogHandler
+...
+{
+  decorator(AccessLogHandler())      <1>
+  
+  get("/") {
+    ...
+  }
+}
+----
+
+<1> Install AccessLogHandler
+
+Prints a message like:
+
+    127.0.0.1 - - [04/Oct/2016:17:51:42 +0000] "GET / HTTP/1.1" 200 2 3
+
+Message is represented by:
+
+- Remote Address.
+- User ID (or dash when missing)
+- Date and time
+- HTTP method, requestPath and protocol
+- Response Status Code
+- Response Content-Length (or dash when missing)
+- Time took to process the request in milliseconds
+
+Extra request or response headers can be appended at the end using the available methods:
+
+- javadoc:AccessLogHandler[requestHeader, java.lang.String...]
+- javadoc:AccessLogHandler[responseHeader, java.lang.String...]
+

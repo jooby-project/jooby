@@ -629,7 +629,8 @@ An after handler is always invoked.
 ====
 
 The next examples demonstrate some use cases for dealing with errored responses, but keep in mind
-that an after handler is not a mechanism for handling and reporting exceptions that's is a task for an <<error-handler, Error Handler>>.
+that an after handler is not a mechanism for handling and reporting exceptions that's is a task
+for an <<error-handler, Error Handler>>.
 
 .Run code depending of success or failure responses:
 [source,java,role="primary"]
@@ -735,6 +736,47 @@ In case where the after handler produces a new exception, that exception will be
 
 <1> Will be `OriginalException`
 <2> Will be `AnotherException`
+
+==== Complete
+
+The javadoc:Route.Complete[text=complte] listener run at the completion of a request/response cycle
+(i.e. when the request has been completely read, and the response has been fully written).
+
+At this point it is too late to modify the exchange further. They are attached to a running context
+(not like a decorator/before/after filters).
+
+.Example
+[source, java, role="primary"]
+----
+{
+   decorator(next -> ctx -> {
+     long start = System.currentTimeInMillis();
+     ctx.onComplete(context -> {                      <1>
+       long end = System.currentTimeInMillis();       <2>
+       System.out.println("Took: " + (end - start));
+     });
+   });
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+   decorator {
+     val start = System.currentTimeInMillis()
+     ctx.onComplete {                                 <1>
+       val end = System.currentTimeInMillis()         <2>
+       println("Took: " + (end - start))
+     }
+   }
+}
+----
+
+<1> Attach a completion listener
+<2> Run after response has been fully written
+
+Completion listeners are invoked in reverse order.
 
 === Pipeline
 

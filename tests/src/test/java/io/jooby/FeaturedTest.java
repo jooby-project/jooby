@@ -17,6 +17,7 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -2818,6 +2819,45 @@ public class FeaturedTest {
           .build(), rsp -> {
         assertEquals("application/x-www-form-urlencoded", rsp.body().string());
         assertEquals(StatusCode.UNSUPPORTED_MEDIA_TYPE_CODE, rsp.code());
+      });
+    });
+  }
+
+  @ServerTest
+  public void accessLog(ServerTestRunner runner) {
+    runner.define(app -> {
+
+      app.decorator(new AccessLogHandler().extended());
+
+      app.get("/fn", Context::getRequestPath);
+
+      app.get("/stream", ctx -> ctx.responseStream(text, out -> {
+        IOUtils.copyLarge(new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)), out);
+      }));
+
+      app.get("/status", ctx -> ctx.setResponseCode(StatusCode.CREATED).send(ctx.getRequestPath()));
+
+      app.get("/send-status", ctx -> ctx.send(StatusCode.CREATED));
+
+    }).ready(client -> {
+      client.get("/fn", rsp -> {
+        assertEquals(3L, rsp.body().contentLength());
+        assertEquals("/fn", rsp.body().string());
+      });
+
+      client.get("/stream", rsp -> {
+        assertEquals("chunked", rsp.header("Transfer-Encoding").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+
+      client.get("/status", rsp -> {
+        assertEquals("/status", rsp.body().string());
+        assertEquals(7L, rsp.body().contentLength());
+      });
+
+      client.get("/send-status", rsp -> {
+        assertEquals("", rsp.body().string());
+        assertEquals(0, rsp.body().contentLength());
       });
     });
   }

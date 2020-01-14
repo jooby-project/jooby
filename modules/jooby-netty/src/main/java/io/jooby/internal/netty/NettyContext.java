@@ -8,6 +8,7 @@ package io.jooby.internal.netty;
 import com.typesafe.config.Config;
 import io.jooby.Body;
 import io.jooby.ByteRange;
+import io.jooby.CompletionListeners;
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.DefaultContext;
@@ -129,6 +130,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Boolean resetHeadersOnError;
   NettyWebSocket webSocket;
   private final String method;
+  private CompletionListeners listeners;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -284,6 +286,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this.cookies;
   }
 
+  @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {
+    if (listeners == null) {
+      listeners = new CompletionListeners();
+    }
+    listeners.addListener(task);
+    return this;
+  }
+
   @Nonnull @Override public Context upgrade(WebSocket.Initializer handler) {
     try {
       responseStarted = true;
@@ -401,6 +411,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Override public long getResponseLength() {
+    if (contentLength == -1) {
+      return Long.parseLong(setHeaders.get(CONTENT_LENGTH, "-1"));
+    }
     return contentLength;
   }
 
@@ -599,12 +612,19 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Override public void operationComplete(ChannelFuture future) {
     try {
+      fireCompleteEvent();
       ifSaveSession();
       destroy(future.cause());
     } finally {
       if (!isKeepAlive(req)) {
         future.channel().close();
       }
+    }
+  }
+
+  private void fireCompleteEvent() {
+    if (listeners != null) {
+      listeners.run(this);
     }
   }
 
@@ -633,6 +653,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private boolean pendingTasks() {
     return (saveSession() != null) ||
+        (listeners != null) ||
         (files != null && files.size() > 0) ||
         (decoder != null) ||
         shouldRelease(req);

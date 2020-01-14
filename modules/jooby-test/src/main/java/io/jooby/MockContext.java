@@ -79,6 +79,8 @@ public class MockContext implements DefaultContext {
 
   private boolean resetHeadersOnError = true;
 
+  private CompletionListeners listeners = new CompletionListeners();
+
   @Nonnull @Override public String getMethod() {
     return method;
   }
@@ -467,6 +469,7 @@ public class MockContext implements DefaultContext {
       }
 
       @Override public void close() {
+        listeners.run(MockContext.this);
       }
     };
   }
@@ -495,6 +498,7 @@ public class MockContext implements DefaultContext {
     responseStarted = true;
     this.response.setResult(data)
         .setContentLength(data.length());
+    listeners.run(this);
     return this;
   }
 
@@ -502,6 +506,7 @@ public class MockContext implements DefaultContext {
     responseStarted = true;
     this.response.setResult(data)
         .setContentLength(data.length);
+    listeners.run(this);
     return this;
   }
 
@@ -509,6 +514,7 @@ public class MockContext implements DefaultContext {
     responseStarted = true;
     this.response.setResult(data)
         .setContentLength(IntStream.range(0, data.length).map(i -> data[i].length).sum());
+    listeners.run(this);
     return this;
   }
 
@@ -516,6 +522,7 @@ public class MockContext implements DefaultContext {
     responseStarted = true;
     this.response.setResult(data)
         .setContentLength(data.remaining());
+    listeners.run(this);
     return this;
   }
 
@@ -523,36 +530,42 @@ public class MockContext implements DefaultContext {
     responseStarted = true;
     this.response.setResult(data)
         .setContentLength(IntStream.range(0, data.length).map(i -> data[i].remaining()).sum());
+    listeners.run(this);
     return this;
   }
 
   @Nonnull @Override public MockContext send(InputStream input) {
     responseStarted = true;
     this.response.setResult(input);
+    listeners.run(this);
     return this;
   }
 
   @Nonnull @Override public Context send(@Nonnull AttachedFile file) {
     responseStarted = true;
     this.response.setResult(file);
+    listeners.run(this);
     return this;
   }
 
   @Nonnull @Override public Context send(@Nonnull Path file) {
     responseStarted = true;
     this.response.setResult(file);
+    listeners.run(this);
     return this;
   }
 
   @Nonnull @Override public MockContext send(@Nonnull ReadableByteChannel channel) {
     responseStarted = true;
     this.response.setResult(channel);
+    listeners.run(this);
     return this;
   }
 
   @Nonnull @Override public MockContext send(@Nonnull FileChannel file) {
     responseStarted = true;
     this.response.setResult(file);
+    listeners.run(this);
     return this;
   }
 
@@ -573,6 +586,7 @@ public class MockContext implements DefaultContext {
     responseStarted = true;
     this.response.setResult(cause)
         .setStatusCode(router.errorCode(cause));
+    listeners.run(this);
     return this;
   }
 
@@ -643,6 +657,11 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public Context upgrade(@Nonnull ServerSentEmitter.Handler handler) {
+    return this;
+  }
+
+  @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {
+    listeners.addListener(task);
     return this;
   }
 
