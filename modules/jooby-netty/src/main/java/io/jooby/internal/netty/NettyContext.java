@@ -315,7 +315,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       handshaker.handshake(channel, fullHttpRequest, setHeaders, ctx.newPromise())
           .addListener(future -> {
             if (future.isSuccess()) {
-              webSocket.fireConnect(null);
+              webSocket.fireConnect();
             } else {
               handshaker.close(channel, new CloseWebSocketFrame());
             }
