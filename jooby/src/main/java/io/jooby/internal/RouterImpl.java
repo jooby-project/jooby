@@ -526,7 +526,7 @@ public class RouterImpl implements Router {
       }
       /** Response handler: */
       Route.Handler pipeline = Pipeline
-          .compute(source.getLoader(), route, mode, executor, handlers);
+          .compute(source.getLoader(), route, forceMode(route, mode), executor, handlers);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);
@@ -550,6 +550,14 @@ public class RouterImpl implements Router {
     routeExecutor = null;
     source.destroy();
     return this;
+  }
+
+  private ExecutionMode forceMode(Route route, ExecutionMode mode) {
+    if (route.getMethod().equals(Router.WS)) {
+      // websocket always run in worker executor
+      return ExecutionMode.WORKER;
+    }
+    return mode;
   }
 
   private Route.Before prependMediaType(List<MediaType> contentTypes, Route.Before before,

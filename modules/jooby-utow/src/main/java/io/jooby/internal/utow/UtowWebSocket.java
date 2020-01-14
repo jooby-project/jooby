@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -41,16 +42,18 @@ public class UtowWebSocket extends AbstractReceiveListener
 
   private final UtowContext ctx;
   private final WebSocketChannel channel;
+  private final boolean dispatch;
   private OnConnect onConnectCallback;
   private OnMessage onMessageCallback;
   private OnClose onCloseCallback;
   private OnError onErrorCallback;
   private String key;
-  private AtomicBoolean initialized = new AtomicBoolean();
+  private CountDownLatch ready = new CountDownLatch(1);
 
   public UtowWebSocket(UtowContext ctx, WebSocketChannel channel) {
     this.ctx = ctx;
     this.channel = channel;
+    this.dispatch = !ctx.isInIoThread();
     this.key = ctx.getRoute().getPattern();
   }
 
@@ -146,36 +149,50 @@ public class UtowWebSocket extends AbstractReceiveListener
 
   void fireConnect() {
     // fire only once
-    if (initialized.compareAndSet(false, true)) {
-      try {
-        addSession(this);
-        Config conf = ctx.getRouter().getConfig();
-        long timeout = conf.hasPath("websocket.idleTimeout")
-            ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
-            : 5;
-        if (timeout > 0) {
-          channel.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
-        }
-        if (onConnectCallback != null) {
-          onConnectCallback.onConnect(this);
-        }
-        channel.getReceiveSetter().set(this);
-        channel.resumeReceives();
-      } catch (Throwable x) {
-        onError(channel, x);
+    try {
+      addSession(this);
+      Config conf = ctx.getRouter().getConfig();
+      long timeout = conf.hasPath("websocket.idleTimeout")
+          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
+          : 5;
+      if (timeout > 0) {
+        channel.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
       }
+      if (onConnectCallback != null) {
+        dispatch(webSocketTask(() -> onConnectCallback.onConnect(this), true));
+      } else {
+        ready.countDown();
+      }
+      channel.getReceiveSetter().set(this);
+      channel.resumeReceives();
+    } catch (Throwable x) {
+      onError(channel, x);
     }
   }
 
   @Override protected void onFullTextMessage(WebSocketChannel channel,
       BufferedTextMessage message) throws IOException {
-    fireConnect();
+    waitForConnect();
+
     if (onMessageCallback != null) {
-      try {
-        onMessageCallback.onMessage(this, WebSocketMessage.create(getContext(), message.getData()));
-      } catch (Throwable x) {
-        onError(channel, x);
-      }
+      dispatch(webSocketTask(() -> onMessageCallback
+          .onMessage(this, WebSocketMessage.create(getContext(), message.getData())), false));
+    }
+  }
+
+  private void waitForConnect() {
+    try {
+      ready.await(1, TimeUnit.MINUTES);
+    } catch (InterruptedException x) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private void dispatch(Runnable runnable) {
+    if (dispatch) {
+      ctx.getRouter().getWorker().execute(runnable);
+    } else {
+      runnable.run();
     }
   }
 
@@ -186,7 +203,8 @@ public class UtowWebSocket extends AbstractReceiveListener
     }
 
     if (onErrorCallback == null) {
-      ctx.getRouter().getLog().error("Websocket resulted in exception: {}", ctx.getRequestPath(), x);
+      ctx.getRouter().getLog()
+          .error("Websocket resulted in exception: {}", ctx.getRequestPath(), x);
     } else {
       onErrorCallback.onError(this, x);
     }
@@ -231,5 +249,19 @@ public class UtowWebSocket extends AbstractReceiveListener
 
   @Override public void onError(WebSocketChannel channel, Void context, Throwable throwable) {
     ctx.getRouter().getLog().error("WebSocket.send resulted in exception", throwable);
+  }
+
+  private Runnable webSocketTask(Runnable runnable, boolean isInit) {
+    return () -> {
+      try {
+        runnable.run();
+      } catch (Throwable x) {
+        onError(null, x);
+      } finally {
+        if (isInit) {
+          ready.countDown();
+        }
+      }
+    };
   }
 }
