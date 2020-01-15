@@ -19,12 +19,12 @@ jobs:
         with:
           java-version: ${{ matrix.java_version }}
       - name: Install
-        run: mvn clean install -DskipTests -q -pl '!docs'
+        run: mvn clean install -DskipTests -q -pl '!docs' -s ./etc/central-settings.xml
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
       - name: Build
-        run: mvn clean checkstyle:checkstyle package -pl '!docs' -P checkstyle
+        run: mvn clean checkstyle:checkstyle package -pl '!docs' -P checkstyle -s ./etc/central-settings.xml
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0

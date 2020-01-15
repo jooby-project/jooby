@@ -63,7 +63,7 @@
   <repositories>
     <repository>
       <id>central</id>
-      <url>http://central.maven.org/maven2</url>
+      <url>https://central.maven.org/maven2</url>
     </repository>
     <repository>
       <id>gradle</id>
@@ -71,7 +71,7 @@
     </repository>
     <repository>
       <id>gradle-plugins</id>
-      <url>http://repo.spring.io/plugins-release</url>
+      <url>https://repo.spring.io/plugins-release</url>
     </repository>
   </repositories>
 </project>
