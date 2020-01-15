@@ -55,7 +55,6 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -312,14 +311,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           null, config);
       WebSocketServerHandshaker handshaker = factory.newHandshaker(fullHttpRequest);
       Channel channel = ctx.channel();
-      handshaker.handshake(channel, fullHttpRequest, setHeaders, ctx.newPromise())
-          .addListener(future -> {
-            if (future.isSuccess()) {
-              webSocket.fireConnect();
-            } else {
-              handshaker.close(channel, new CloseWebSocketFrame());
-            }
-          });
+      handshaker.handshake(channel, fullHttpRequest, setHeaders, ctx.newPromise());
+      webSocket.fireConnect();
       Config conf = getRouter().getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
           ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)

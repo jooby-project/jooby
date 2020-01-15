@@ -168,7 +168,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
         }
         WebSocketMessage message = WebSocketMessage.create(getContext(), array(content));
 
-        fireCallback(webSocketTask(() -> messageCallback.onMessage(this, message), false));
+        fireCallback(webSocketTask(() -> messageCallback.onMessage(this, message)));
       } else {
         buffer = Unpooled.copiedBuffer(frame.content());
       }
@@ -179,7 +179,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
 
   private void waitForConnect() {
     try {
-      ready.await(1, TimeUnit.MINUTES);
+      ready.await();
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }
@@ -189,10 +189,9 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     try {
       if (isOpen()) {
         if (onCloseCallback != null) {
-          Runnable task = webSocketTask(() -> onCloseCallback.onClose(this, closeStatus), false);
           Runnable closeCallback = () -> {
             try {
-              task.run();
+              webSocketTask(() -> onCloseCallback.onClose(this, closeStatus)).run();
             } finally {
               netty.ctx.channel()
                   .writeAndFlush(
@@ -230,22 +229,20 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     // fire only once
     addSession(this);
     if (connectCallback != null) {
-      fireCallback(webSocketTask(() -> connectCallback.onConnect(this), true));
+      fireCallback(webSocketTask(() -> connectCallback.onConnect(this)));
     } else {
       ready.countDown();
     }
   }
 
-  private Runnable webSocketTask(Runnable runnable, boolean isInit) {
+  private Runnable webSocketTask(Runnable runnable) {
     return () -> {
       try {
         runnable.run();
+        ready.countDown();
       } catch (Throwable x) {
+        ready.countDown();
         handleError(x);
-      } finally {
-        if (isInit) {
-          ready.countDown();
-        }
       }
     };
   }
@@ -296,4 +293,5 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
       netty.getRouter().getLog().error("WebSocket.send resulted in exception", cause);
     }
   }
+
 }
