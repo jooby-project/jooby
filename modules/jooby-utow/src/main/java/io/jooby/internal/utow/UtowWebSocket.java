@@ -182,7 +182,7 @@ public class UtowWebSocket extends AbstractReceiveListener
 
   private void waitForConnect() {
     try {
-      ready.await(1, TimeUnit.MINUTES);
+      ready.await();
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }

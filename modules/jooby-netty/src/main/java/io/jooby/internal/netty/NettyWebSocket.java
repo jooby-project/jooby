@@ -33,8 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFutureListener {
   /** All connected websocket. */
@@ -168,20 +166,12 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
         }
         WebSocketMessage message = WebSocketMessage.create(getContext(), array(content));
 
-        fireCallback(webSocketTask(() -> messageCallback.onMessage(this, message)));
+        fireCallback(webSocketTask(() -> messageCallback.onMessage(this, message), false));
       } else {
         buffer = Unpooled.copiedBuffer(frame.content());
       }
     } finally {
       frame.release();
-    }
-  }
-
-  private void waitForConnect() {
-    try {
-      ready.await();
-    } catch (InterruptedException x) {
-      Thread.currentThread().interrupt();
     }
   }
 
@@ -191,7 +181,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
         if (onCloseCallback != null) {
           Runnable closeCallback = () -> {
             try {
-              webSocketTask(() -> onCloseCallback.onClose(this, closeStatus)).run();
+              webSocketTask(() -> onCloseCallback.onClose(this, closeStatus), false).run();
             } finally {
               netty.ctx.channel()
                   .writeAndFlush(
@@ -228,29 +218,14 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   void fireConnect() {
-    // fire only once
     addSession(this);
     if (connectCallback != null) {
       fireCallback(webSocketTask(() -> {
-        try {
-          connectCallback.onConnect(this);
-        } finally {
-          ready.countDown();
-        }
-      }));
+        connectCallback.onConnect(this);
+      }, true));
     } else {
       ready.countDown();
     }
-  }
-
-  private Runnable webSocketTask(Runnable runnable) {
-    return () -> {
-      try {
-        runnable.run();
-      } catch (Throwable x) {
-        handleError(x);
-      }
-    };
   }
 
   private void fireCallback(Runnable task) {
@@ -300,4 +275,25 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     }
   }
 
+  private Runnable webSocketTask(Runnable runnable, boolean isInit) {
+    return () -> {
+      try {
+        runnable.run();
+      } catch (Throwable x) {
+        handleError(x);
+      } finally {
+        if (isInit) {
+          ready.countDown();
+        }
+      }
+    };
+  }
+
+  private void waitForConnect() {
+    try {
+      ready.await();
+    } catch (InterruptedException x) {
+      Thread.currentThread().interrupt();
+    }
+  }
 }

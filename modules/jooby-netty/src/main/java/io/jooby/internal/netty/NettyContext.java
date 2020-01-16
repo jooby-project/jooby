@@ -311,13 +311,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(webSocketURL,
           null, config);
       WebSocketServerHandshaker handshaker = factory.newHandshaker(webSocketRequest);
-      handshaker.handshake(ctx.channel(), webSocketRequest).addListener(future -> {
-        if (future.isSuccess()) {
-          webSocket.fireConnect();
-        } else {
-          handshaker.close(ctx.channel(), new CloseWebSocketFrame());
-        }
-      });
+      handshaker.handshake(ctx.channel(), webSocketRequest);
+      webSocket.fireConnect();
       Config conf = getRouter().getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
           ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
