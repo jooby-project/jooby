@@ -97,7 +97,7 @@
 
     <auto-service.version>1.0-rc6</auto-service.version>
     <compile-testing.version>0.18</compile-testing.version>
-    <truth.version>1.0</truth.version>
+    <truth.version>1.0.1</truth.version>
 
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
