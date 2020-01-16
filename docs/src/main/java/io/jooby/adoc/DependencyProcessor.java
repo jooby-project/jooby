@@ -27,7 +27,7 @@ public class DependencyProcessor extends BlockProcessor {
   public DependencyProcessor(String name, Map<String, Object> config) throws IOException {
     super(name, config);
     pom = Jsoup
-        .parse(DocGenerator.basedir().getParent().resolve("pom.xml").toFile(), "UTF-8");
+        .parse(DocGenerator.basedir().getParent().resolve("modules").resolve("jooby-bom").resolve("pom.xml").toFile(), "UTF-8");
   }
 
   @Override

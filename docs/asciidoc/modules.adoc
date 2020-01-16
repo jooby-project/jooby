@@ -13,6 +13,9 @@ configuration properties.
 
 Available modules are listed next.
 
+=== Cloud
+* link:modules/aws[AWS]: Amazon Web Service module.
+
 === Data
    * link:modules/flyway[Flyway]: Flyway migration module.
    * link:modules/graphql[GraphQL]: GraphQL Java module.

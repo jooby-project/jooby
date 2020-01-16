@@ -40,6 +40,7 @@
     <module>jooby-pac4j</module>
 
     <module>jooby-quartz</module>
+    <module>jooby-awssdk-v1</module>
 
     <module>jooby-guice</module>
     <module>jooby-spring</module>

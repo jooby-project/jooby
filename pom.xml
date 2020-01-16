@@ -79,6 +79,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.0.2</cron-utils.version>
     <bucket4j-core.version>4.7.0</bucket4j-core.version>
+    <aws-java-sdk.version>1.11.708</aws-java-sdk.version>
 
     <commons-io.version>2.6</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
@@ -194,12 +195,6 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.jooby</groupId>
-        <artifactId>jooby-ssl-x509</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -351,6 +346,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-jwt</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-awssdk-v1</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -725,6 +726,14 @@
         <version>${bucket4j-core.version}</version>
       </dependency>
 
+      <!-- AWS SDK v1 -->
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-bom</artifactId>
+        <version>${aws-java-sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
 
       <!-- Kotlin -->
       <dependency>

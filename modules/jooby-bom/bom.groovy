@@ -1,6 +1,7 @@
 import groovy.xml.*
 import java.nio.file.*
 
+
 def depsw = new StringWriter()
 def deps = new MarkupBuilder(depsw)
 
@@ -8,17 +9,32 @@ def propsw = new StringWriter()
 def props = new MarkupBuilder(propsw)
 
 def propertyName(String groupId, String artifactId) {
+  def alias = ["jmespath-java": "aws-java-sdk"]
+
   def names = [artifactId]
-  names.addAll(artifactId.split('-'))
+  def segments = artifactId.split('-')
+  def partialName = null
+  for(s in segments) {
+    if (partialName == null) {
+      partialName = s
+    } else {
+      partialName += "-" + s
+    }
+    names.add(partialName)
+  }
+  names.addAll(segments)
   names.addAll(groupId.split("\\.").reverse())
 
   for (name in names) {
     def version = project.properties.get(name + '.version')
+    if (version == null) {
+      version = alias[name]
+    }
     if (version != null) {
       return '${' + name + '.version}'
     }
   }
-  throw new IllegalArgumentException("Unable to find version for <" + groupId + ":" + artifactId + ">")
+  throw new IllegalArgumentException("Unable to find version for <" + groupId + ":" + artifactId + "> on " + names)
 }
 
 deps.dependencyManagement {
@@ -28,6 +44,12 @@ deps.dependencyManagement {
         groupId(d.groupId)
         artifactId(d.artifactId)
         version(propertyName(d.groupId, d.artifactId))
+        if (d.type != null) {
+          type(d.type)
+        }
+        if (d.scope != null) {
+          scope(d.scope)
+        }
       }
     }
   }

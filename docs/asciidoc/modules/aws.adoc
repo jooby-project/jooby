@@ -1,0 +1,80 @@
+== AmazonWebServices
+
+Amazon Web Services module for https://github.com/aws/aws-sdk-java[aws-sdk-java 1.x]
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-awssdk-v1"]
+.
+
+2) Add required service dependency (S3 here):
+
+[dependency, artifactId="aws-java-sdk-s3"]
+.
+
+3) Add the `aws.accessKeyId` and `aws.secretKey` properties: 
+
+.application.conf
+[source, properties]
+----
+aws.accessKeyId = "your access key id"
+aws.secretKey = "your secret key"
+----
+
+This step is optional if you choose one of the https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html[default credentials mechanism].
+
+4) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.aws.AwsModule;
+
+{
+  install(
+        new AwsModule()                                     <1>
+            .setup(credentials -> {                         <2>
+              return TransferManagerBuilder.standard()
+                  .withS3Client(
+                      AmazonS3ClientBuilder.standard()
+                          .withRegion(Regions.US_EAST_1)
+                          .withCredentials(credentials)
+                          .build()                          <3>
+               ).build();                                   <4>
+        })
+   );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.aws.AwsModule
+
+{
+  install(
+        AwsModule()                                         <1>
+            .setup { credentials ->                         <2>
+              TransferManagerBuilder.standard()
+                  .withS3Client(
+                      AmazonS3ClientBuilder.standard()
+                          .withRegion(Regions.US_EAST_1)
+                          .withCredentials(credentials)
+                          .build()                          <3>
+              ).build()                                     <4>
+        })
+   );
+}
+----
+
+<1> Install module
+<2> Setup one or more services
+<3> Creates AmazonS3Client
+<3> Creates TransferManager
+
+Services created from setup function are:
+
+- Registered in the application service registry, for require call usage or DI framework
+- Services are shutdown at application shutdown time
