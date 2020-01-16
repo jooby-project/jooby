@@ -329,6 +329,7 @@ public class Route {
     if (contentType == null) {
       throw new NotAcceptableException(ctx.header(Context.ACCEPT).valueOrNull());
     }
+    ctx.setDefaultResponseType(contentType);
   };
 
   /** Handler for {@link StatusCode#UNSUPPORTED_MEDIA_TYPE} responses. */

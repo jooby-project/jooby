@@ -813,56 +813,67 @@ public class FeaturedTest {
       client.header("Accept", "application/json");
       client.get("/defaults", rsp -> {
         assertEquals("{OK}", rsp.body().string());
+        assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "application/xml");
       client.get("/defaults", rsp -> {
         assertEquals("<OK>", rsp.body().string());
+        assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "text/plain");
       client.get("/defaults", rsp -> {
         assertEquals("OK", rsp.body().string());
+        assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "*/*");
       client.get("/defaults", rsp -> {
         assertEquals("{OK}", rsp.body().string());
+        assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "text/html");
       client.get("/defaults", rsp -> {
         assertEquals(406, rsp.code());
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "text/html");
       client.get("/defaults?type=text/html", rsp -> {
         assertEquals("OK", rsp.body().string());
+        assertEquals("text/html", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "application/json");
       client.get("/produces", rsp -> {
         assertEquals("{OK}", rsp.body().string());
+        assertEquals("application/json;charset=utf-8", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "application/xml");
       client.get("/produces", rsp -> {
         assertEquals("<OK>", rsp.body().string());
+        assertEquals("application/xml;charset=utf-8", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "*/*");
       client.get("/produces", rsp -> {
         assertEquals("{OK}", rsp.body().string());
+        assertEquals("application/json;charset=utf-8", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "text/html");
       client.get("/produces", rsp -> {
         assertEquals(406, rsp.code());
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
       });
 
       client.header("Accept", "text/plain");
       client.get("/produces", rsp -> {
         assertEquals(406, rsp.code());
+        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
       });
     });
   }
