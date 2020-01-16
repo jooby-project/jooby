@@ -32,7 +32,6 @@ import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -56,6 +55,7 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -312,12 +312,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           null, config);
       WebSocketServerHandshaker handshaker = factory.newHandshaker(webSocketRequest);
       handshaker.handshake(ctx.channel(), webSocketRequest).addListener(future -> {
-        router.getLog().info("WEBSOCKET CALLBACK: {}", future.isSuccess());
-        if (!future.isSuccess()) {
-          router.getLog().info("WEBSOCKET ERROR: {}", future.cause());
+        if (future.isSuccess()) {
+          webSocket.fireConnect();
+        } else {
+          handshaker.close(ctx.channel(), new CloseWebSocketFrame());
         }
       });
-      webSocket.fireConnect();
       Config conf = getRouter().getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
           ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)

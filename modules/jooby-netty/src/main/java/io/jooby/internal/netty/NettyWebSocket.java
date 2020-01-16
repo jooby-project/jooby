@@ -231,7 +231,13 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     // fire only once
     addSession(this);
     if (connectCallback != null) {
-      fireCallback(webSocketTask(() -> connectCallback.onConnect(this)));
+      fireCallback(webSocketTask(() -> {
+        try {
+          connectCallback.onConnect(this);
+        } finally {
+          ready.countDown();
+        }
+      }));
     } else {
       ready.countDown();
     }
@@ -241,9 +247,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     return () -> {
       try {
         runnable.run();
-        ready.countDown();
       } catch (Throwable x) {
-        ready.countDown();
         handleError(x);
       }
     };
