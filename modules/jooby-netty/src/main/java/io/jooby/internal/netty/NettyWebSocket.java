@@ -203,6 +203,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
         }
       }
     } finally {
+      this.netty.ctx.channel().attr(WS).set(null);
       removeSession(this);
     }
   }
@@ -221,6 +222,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     }
 
     if (SneakyThrows.isFatal(x)) {
+      this.netty.ctx.channel().attr(WS).set(null);
       throw SneakyThrows.propagate(x);
     }
   }

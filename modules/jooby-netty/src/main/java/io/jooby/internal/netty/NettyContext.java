@@ -44,6 +44,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpChunkedInput;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -305,13 +306,17 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           .build();
       webSocket = new NettyWebSocket(this);
       handler.init(Context.readOnly(this), webSocket);
-      DefaultFullHttpRequest fullHttpRequest = new DefaultFullHttpRequest(req.protocolVersion(),
+      FullHttpRequest webSocketRequest = new DefaultFullHttpRequest(req.protocolVersion(),
           req.method(), req.uri(), Unpooled.EMPTY_BUFFER, req.headers(), EmptyHttpHeaders.INSTANCE);
       WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(webSocketURL,
           null, config);
-      WebSocketServerHandshaker handshaker = factory.newHandshaker(fullHttpRequest);
-      Channel channel = ctx.channel();
-      handshaker.handshake(channel, fullHttpRequest, setHeaders, ctx.newPromise());
+      WebSocketServerHandshaker handshaker = factory.newHandshaker(webSocketRequest);
+      handshaker.handshake(ctx.channel(), webSocketRequest).addListener(future -> {
+        router.getLog().info("WEBSOCKET CALLBACK: {}", future.isSuccess());
+        if (!future.isSuccess()) {
+          router.getLog().info("WEBSOCKET ERROR: {}", future.cause());
+        }
+      });
       webSocket.fireConnect();
       Config conf = getRouter().getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
