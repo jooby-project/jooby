@@ -16,6 +16,7 @@ import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -51,6 +52,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -2873,6 +2875,50 @@ public class FeaturedTest {
     });
   }
 
+  @ServerTest
+  public void csrf(ServerTestRunner runner) {
+    String token = UUID.randomUUID().toString();
+    runner.define(app -> {
+      app.before(new CsrfHandler().setTokenGenerator(ctx -> token));
+
+      app.post("/form", Context::getRequestPath);
+
+    }).ready(client -> {
+      client.post("/form", new FormBody.Builder()
+          .add("foo", "bar")
+          .build(), rsp -> {
+        assertEquals(StatusCode.FORBIDDEN.value(), rsp.code());
+      });
+
+      client.post("/form", new FormBody.Builder()
+          .add("foo", "bar")
+          .add("csrf", token)
+          .build(), rsp -> {
+        assertEquals(200, rsp.code());
+      });
+
+      client.post("/form?csrf=" + token, new FormBody.Builder()
+          .add("foo", "bar")
+          .build(), rsp -> {
+        assertEquals(200, rsp.code());
+      });
+
+      client.header("csrf", token);
+      client.post("/form", new FormBody.Builder()
+          .add("foo", "bar")
+          .build(), rsp -> {
+        assertEquals(200, rsp.code());
+      });
+
+      client.header("Cookie", "csrf=" + token);
+      client.post("/form", new FormBody.Builder()
+          .add("foo", "bar")
+          .build(), rsp -> {
+        assertEquals(200, rsp.code());
+      });
+    });
+  }
+
   private byte[][] partition(byte[] bytes, int size) {
     List<byte[]> result = new ArrayList<>();
     int offset = 0;
@@ -2919,5 +2965,12 @@ public class FeaturedTest {
       hash.put(values[i], values[i + 1]);
     }
     return hash;
+  }
+
+  private String sid(Response rsp, String prefix) {
+    String setCookie = rsp.header("Set-Cookie");
+    assertNotNull(setCookie);
+    assertTrue(setCookie.startsWith(prefix));
+    return setCookie.substring(prefix.length(), setCookie.indexOf(";"));
   }
 }
