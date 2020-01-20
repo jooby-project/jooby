@@ -843,18 +843,25 @@ public interface Router extends Registry {
     int start = -1;
     int end = Integer.MAX_VALUE;
     int len = pattern.length();
+    int curly = 0;
     for (int i = 0; i < len; i++) {
       char ch = pattern.charAt(i);
       if (ch == '{') {
-        start = i + 1;
-        end = Integer.MAX_VALUE;
+        if (curly == 0) {
+          start = i + 1;
+          end = Integer.MAX_VALUE;
+        }
+        curly += 1;
       } else if (ch == ':') {
         end = i;
       } else if (ch == '}') {
-        String id = pattern.substring(start, Math.min(i, end));
-        result.add(id);
-        start = -1;
-        end = Integer.MAX_VALUE;
+        curly -= 1;
+        if (curly == 0) {
+          String id = pattern.substring(start, Math.min(i, end));
+          result.add(id);
+          start = -1;
+          end = Integer.MAX_VALUE;
+        }
       } else if (ch == '*') {
         if (i == len - 1) {
           result.add("*");

@@ -8,6 +8,7 @@ import io.jooby.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -128,6 +129,45 @@ public class ChiTest {
     find(router, "/articles/a/b", (ctx, result) -> {
       assertTrue(result.matches());
       assertEquals("catchall", result.route().getPipeline().apply(ctx));
+    });
+  }
+
+  @Test
+  public void multipleRegex() {
+    Chi router = new Chi();
+
+    router.insert(route("GET", "/{lang:[a-z][a-z]}/{page:[^.]+}/", stringHandler("1515")));
+
+    find(router, "/12/f/", (ctx, result) -> {
+      assertFalse(result.matches());
+      assertEquals(null, result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/ar/page/", (ctx, result) -> {
+      assertTrue(result.matches());
+      assertEquals("1515", result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/arx/page/", (ctx, result) -> {
+      assertFalse(result.matches());
+      assertEquals(null, result.route().getPipeline().apply(ctx));
+    });
+  }
+
+  @Test
+  public void regexWithQuantity() {
+    Chi router = new Chi();
+
+    router.insert(route("GET", "/{lang:[a-z]{2}}/", stringHandler("qx")));
+
+    find(router, "/12/", (ctx, result) -> {
+      assertFalse(result.matches());
+      assertEquals(null, result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/ar/", (ctx, result) -> {
+      assertTrue(result.matches());
+      assertEquals("qx", result.route().getPipeline().apply(ctx));
     });
   }
 

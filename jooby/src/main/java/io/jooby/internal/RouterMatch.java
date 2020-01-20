@@ -41,6 +41,10 @@ public class RouterMatch implements Router.Match {
     }
   }
 
+  public void value(String value) {
+
+  }
+
   public void value(Chi.ZeroCopyString value) {
     if (vars == Collections.EMPTY_MAP) {
       vars = new LinkedHashMap();

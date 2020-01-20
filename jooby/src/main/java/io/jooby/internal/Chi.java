@@ -18,6 +18,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Sync: 20-01-20
+ * Commit: 17fb1065d2b256d20f68bed0b7bca6c2942aff49
+ */
 class Chi implements RouteTree {
   private static final byte ntStatic = 0;// /home
   private static final byte ntRegexp = 1;                // /{id:[0-9]+}
@@ -379,9 +383,8 @@ class Chi implements RouteTree {
           // Search prefix contains a param, regexp or wildcard
 
           if (segTyp == ntRegexp) {
-            rex = Pattern.compile(seg.rexPat.toString());
             child.prefix = seg.rexPat;
-            child.rex = rex;
+            child.rex = Pattern.compile(seg.rexPat.toString());
           }
 
           if (segStartIdx == 0) {
@@ -399,7 +402,7 @@ class Chi implements RouteTree {
             child.tail = seg.tail; // for params, we set the tail
 
             if (segStartIdx != search.length()) {
-              // deploy static edge for the remaining part, split the end.
+              // add static edge for the remaining part, split the end.
               // its not possible to have adjacent param nodes, so its certainly
               // going to be a static node next.
 
@@ -418,7 +421,7 @@ class Chi implements RouteTree {
             child.prefix = search.substring(0, segStartIdx);
             child.rex = null;
 
-            // deploy the param edge node
+            // add the param edge node
             search = search.substring(segStartIdx);
 
             Node nn = new Node().typ(segTyp).label(search.charAt(0)).tail(seg.tail);
@@ -491,61 +494,62 @@ class Chi implements RouteTree {
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Route findRoute(RouterMatch rctx, String method, ZeroCopyString pattern) {
+    Route findRoute(RouterMatch rctx, String method, ZeroCopyString path) {
       Node n = this;
       Node nn = n;
+
+      ZeroCopyString search = path;
 
       for (int ntyp = 0; ntyp < NODE_SIZE; ntyp++) {
         Node[] nds = nn.children[ntyp];
         if (nds != null) {
           Node xn = null;
-          ZeroCopyString search = pattern;
+          ZeroCopyString xsearch = search;
 
           char label = search.length() > 0 ? search.charAt(0) : ZERO_CHAR;
 
           switch (ntyp) {
             case ntStatic:
               xn = findEdge(nds, label);
-              if (xn == null || !search.startsWith(xn.prefix)) {
+              if (xn == null || !xsearch.startsWith(xn.prefix)) {
                 continue;
               }
-              search = search.substring(xn.prefix.length());
+              xsearch = xsearch.substring(xn.prefix.length());
               break;
 
             case ntParam:
             case ntRegexp:
               // short-circuit and return no matching route for empty param values
-              if (search.length() == 0) {
+              if (xsearch.length() == 0) {
                 continue;
               }
-
               // serially loop through each node grouped by the tail delimiter
               for (int idx = 0; idx < nds.length; idx++) {
                 xn = nds[idx];
 
                 // label for param nodes is the delimiter byte
-                int p = search.indexOf(xn.tail);
+                int p = xsearch.indexOf(xn.tail);
 
-                if (p <= 0) {
+                if (p < 0) {
                   if (xn.tail == '/') {
-                    p = search.length();
+                    p = xsearch.length();
                   } else {
                     continue;
                   }
                 }
 
-                if (ntyp == ntRegexp) {
-                  if (!xn.rex.matcher(search.substring(0, p).toString()).matches()) {
+                if (ntyp == ntRegexp && xn.rex != null) {
+                  if (!xn.rex.matcher(xsearch.substring(0, p).toString()).matches()) {
                     continue;
                   }
-                } else if (search.substring(0, p).indexOf('/') != -1) {
+                } else if (xsearch.substring(0, p).indexOf('/') != -1) {
                   // avoid a newRuntimeRoute across path segments
                   continue;
                 }
 
                 // rctx.routeParams.Values = append(rctx.routeParams.Values, xsearch[:p])
-                rctx.value(search.substring(0, p));
-                search = search.substring(p);
+                rctx.value(xsearch.substring(0, p));
+                xsearch = xsearch.substring(p);
                 break;
               }
               break;
@@ -553,11 +557,11 @@ class Chi implements RouteTree {
             default:
               // catch-all nodes
               // rctx.routeParams.Values = append(rctx.routeParams.Values, search)
-              if (search.length() > 0) {
-                rctx.value(search);
+              if (xsearch.length() > 0) {
+                rctx.value(xsearch);
               }
               xn = nds[0];
-              search = ZeroCopyString.EMPTY;
+              xsearch = ZeroCopyString.EMPTY;
           }
 
           if (xn == null) {
@@ -565,7 +569,7 @@ class Chi implements RouteTree {
           }
 
           // did we returnType it yet?
-          if (search.length() == 0) {
+          if (xsearch.length() == 0) {
             if (xn.isLeaf()) {
               Route h = xn.endpoints.get(method);
               if (h != null) {
@@ -581,7 +585,7 @@ class Chi implements RouteTree {
           }
 
           // recursively returnType the next node..
-          Route fin = xn.findRoute(rctx, method, search);
+          Route fin = xn.findRoute(rctx, method, xsearch);
           if (fin != null) {
             return fin;
           }

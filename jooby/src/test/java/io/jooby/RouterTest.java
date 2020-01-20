@@ -15,6 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RouterTest {
   @Test
   public void pathKeys() {
+    pathKeys("/{lang:[a-z]{2}}", keys -> {
+      assertEquals(Collections.singletonList("lang"), keys);
+    });
+
     pathKeys("/*", keys -> assertEquals(1, keys.size()));
 
     pathKeys("/foo/?*", keys -> assertEquals(1, keys.size()));
