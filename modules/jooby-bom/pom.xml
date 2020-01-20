@@ -47,7 +47,7 @@
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.9.2.Final</jboss-modules.version>
   <jdbi.version>3.12.0</jdbi.version>
-  <jetty.version>9.4.25.v20191220</jetty.version>
+  <jetty.version>9.4.26.v20200117</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
   <jooby-maven-plugin.version>2.5.2-SNAPSHOT</jooby-maven-plugin.version>
   <jooby.version>2.5.2-SNAPSHOT</jooby.version>
