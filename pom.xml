@@ -58,7 +58,7 @@
 
     <!-- Server -->
     <undertow.version>2.0.28.Final</undertow.version>
-    <jetty.version>9.4.25.v20191220</jetty.version>
+    <jetty.version>9.4.26.v20200117</jetty.version>
     <netty.version>4.1.45.Final</netty.version>
     <boringssl.version>2.0.27.Final</boringssl.version>
 
