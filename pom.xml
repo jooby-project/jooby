@@ -31,6 +31,7 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.200</h2.version>
     <hibernate.version>5.4.10.Final</hibernate.version>
+    <ebean.version>12.1.9</ebean.version>
     <jdbi.version>3.12.0</jdbi.version>
     <flyway.version>6.1.4</flyway.version>
     <graphql-java.version>13.0</graphql-java.version>
@@ -244,6 +245,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-hibernate</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-ebean</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -585,6 +592,31 @@
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>${hibernate.version}</version>
+      </dependency>
+
+      <!-- ebean -->
+      <dependency>
+        <groupId>io.ebean</groupId>
+        <artifactId>ebean</artifactId>
+        <version>${ebean.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.ebean</groupId>
+        <artifactId>ebean-querybean</artifactId>
+        <version>${ebean.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.ebean</groupId>
+        <artifactId>querybean-generator</artifactId>
+        <version>${ebean.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.ebean</groupId>
+        <artifactId>ebean-test</artifactId>
+        <version>${ebean.version}</version>
       </dependency>
 
       <!-- mySQL -->

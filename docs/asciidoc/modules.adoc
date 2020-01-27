@@ -17,6 +17,7 @@ Available modules are listed next.
 * link:modules/aws[AWS]: Amazon Web Service module.
 
 === Data
+   * link:modules/ebean[Ebean]: Ebean ORM module.
    * link:modules/flyway[Flyway]: Flyway migration module.
    * link:modules/graphql[GraphQL]: GraphQL Java module.
    * link:modules/hikari[HikariCP]: A high-performance JDBC connection pool.

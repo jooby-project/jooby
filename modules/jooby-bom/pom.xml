@@ -16,7 +16,7 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.6.0</jooby.version>
+  <jooby.version>2.6.1-SNAPSHOT</jooby.version>
   <HikariCP.version>3.4.2</HikariCP.version>
   <archetype-packaging.version>3.1.2</archetype-packaging.version>
   <asm.version>7.3.1</asm.version>
@@ -29,6 +29,7 @@
   <compile-testing.version>0.18</compile-testing.version>
   <config.version>1.4.0</config.version>
   <cron-utils.version>9.0.2</cron-utils.version>
+  <ebean.version>12.1.9</ebean.version>
   <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
   <flyway.version>6.1.4</flyway.version>
   <freemarker.version>2.3.29</freemarker.version>
@@ -50,8 +51,8 @@
   <jdbi.version>3.12.0</jdbi.version>
   <jetty.version>9.4.26.v20200117</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jooby-maven-plugin.version>2.6.0</jooby-maven-plugin.version>
-  <jooby.version>2.6.0</jooby.version>
+  <jooby-maven-plugin.version>2.6.1-SNAPSHOT</jooby-maven-plugin.version>
+  <jooby.version>2.6.1-SNAPSHOT</jooby.version>
   <json.version>20190722</json.version>
   <jsonwebtoken.version>0.10.7</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -159,6 +160,12 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-hibernate</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-ebean</artifactId>
       <version>${jooby.version}</version>
       <type>jar</type>
     </dependency>
@@ -472,6 +479,30 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <version>${hibernate.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean</artifactId>
+      <version>${ebean.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-querybean</artifactId>
+      <version>${ebean.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>querybean-generator</artifactId>
+      <version>${ebean.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-test</artifactId>
+      <version>${ebean.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

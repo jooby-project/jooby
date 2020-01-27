@@ -72,7 +72,7 @@ import io.jooby.aws.AwsModule
 <1> Install module
 <2> Setup one or more services
 <3> Creates AmazonS3Client
-<3> Creates TransferManager
+<4> Creates TransferManager
 
 Services created from setup function are:
 

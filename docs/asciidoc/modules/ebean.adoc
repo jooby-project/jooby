@@ -1,0 +1,200 @@
+== Ebean
+
+Persistence module using Ebean: https://ebean.io
+
+=== Usage
+
+1) Add the dependencies (hikari + ebean):
+
+[dependency, artifactId="jooby-hikari:DataSource via HikariCP, jooby-ebean:Ebean Module"]
+.
+
+2) Add database driver (mySQL here):
+
+[dependency, artifactId="mysql-connector-java"]
+.
+
+3) Set database properties
+
+.application.conf
+[source, properties]
+----
+db.url = "jdbc:mysql://localhost/mydb"
+db.user = myuser
+db.password = mypass
+----
+
+4) Configure build time enhancement of the entity beans
+
+.Maven
+[source, xml, role="primary", subs="verbatim,attributes"]
+----
+<plugin>
+  <groupId>io.repaint.maven</groupId>
+  <artifactId>tiles-maven-plugin</artifactId>
+  <version>${tiles-maven-plugin.version}</version>
+  <extensions>true</extensions>
+  <configuration>
+    <tiles>
+      <!-- other tiles ... -->
+      <tile>io.ebean.tile:enhancement:{ebeanVersion}</tile>
+    </tiles>
+  </configuration>
+</plugin>
+----
+
+.Gradle
+[source, javascript, role="secondary", subs="verbatim,attributes"]
+----
+plugins {
+    id('io.ebean') version '{ebeanVersion}'
+}
+
+dependencies {
+    compile 'io.ebean:ebean:{ebeanVersion}'
+    compile 'io.ebean:ebean-querybean:{ebeanVersion}'
+
+    // query bean generation
+    annotationProcessor 'io.ebean:querybean-generator:{ebeanVersion}'
+}
+----
+
+4) Install and use Ebean
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.hikari.HikariModule;
+import io.jooby.ebean.EbeanModule;
+
+{
+  install(new HikariModule());                     <1>
+
+  install(new EbeanModule());                      <2>
+
+  get("/", ctx -> {
+    Database db = require(Database.class);         <3>
+    // work with Database
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.HikariModule
+import io.jooby.ebean.EbeanModule
+
+{
+  install(HikariModule())                          <1>
+  
+  install(EbeanModule())                           <2>
+
+  get("/") {
+    val db = require(Database::class)              <3>
+    // work with Database
+  }
+}
+----
+
+<1> Install and creates a `DataSource`
+<2> Install and Ebean
+<3> Use Ebean Database
+
+=== Transactional Request
+
+The javadoc:ebean.TransactionalRequest[] decorator takes care of a start/commit/rollback a
+transaction per HTTP request.
+
+.TransactionalRequest
+[source, java, role = "primary"]
+----
+import io.jooby.hikari.HikariModule;
+import io.jooby.ebean.EbeanModule;
+import io.jooby.ebean.TransactionalRequest;
+
+{
+  install(new HikariModule());
+  
+  install(new HibernateModule());
+  
+  decorator(new TransactionalRequest());
+  
+  post("/create", ctx -> {
+    Database db = require(Database.class);
+    
+    MyEntity e = ...;
+    
+    db.save(e);
+
+    return e;
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.HikariModule
+import io.jooby.ebean.EbeanModule
+import io.jooby.ebean.TransactionalRequest
+
+{
+  install(HikariModule())
+  
+  install(HibernateModule())
+  
+  decorator(TransactionalRequest())
+  
+  post("/create") { ctx ->
+    val db = require(Database::class)
+    
+    val e = ...
+    
+    db.save(e)
+
+    e
+  }
+}
+----
+
+=== Configuration
+
+Advanced/Custom configuration is supported programmatically or using property files.
+
+.Programmatically
+[source, java, role="primary"]
+----
+{
+  DatabaseConfig dbConfig = ...;         <1>
+  install(new EbeanModule(dbConfig));    <2>
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  val dbConfig = ...                     <1>
+  install(EbeanModule(dbConfig))         <2>
+}
+----
+
+<1> Manually creates a database config or use the one provided by Jooby: javadoc:ebean.EbeanModule[create, io.jooby.Jooby, java.lang.String].
+<2> Install Ebean with custom database config
+
+.Configuration
+[source,javascript]
+----
+{
+  ebean {
+    ddl {
+      generate = true
+      run = true
+    }
+  }
+}
+----
+
+Example shows how to setup Ebean migration tools. Keep in mind Jooby offers a better solution for
+database migrations link:flyway[Flyway Module]. 
