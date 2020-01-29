@@ -6,6 +6,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.signature.SignatureVisitor;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,24 +38,18 @@ public class Signature {
     return descriptor;
   }
 
-  public boolean isKoobyInit() {
-    return matches("<init>", TypeFactory.KT_FUN_1);
+  public boolean matches(String method) {
+    return this.method.equals(method);
   }
-
-  public boolean isRouteHandler() {
-    return matches(TypeFactory.STRING, TypeFactory.HANDLER) || matches(TypeFactory.STRING,
-        TypeFactory.KT_FUN_1);
-  }
-
   public boolean matches(String method, Type... parameterTypes) {
-    if (this.method.equals(method)) {
+    if (matches(method)) {
       return matches(parameterTypes);
     }
     return false;
   }
 
   public boolean matches(String method, Class... parameterTypes) {
-    if (this.method.equals(method)) {
+    if (matches(method)) {
       return matches(parameterTypes);
     }
     return false;
@@ -83,10 +78,14 @@ public class Signature {
   }
 
   @Override public String toString() {
-    return owner.getDescriptor();
+    return getMethod() + getDescriptor();
   }
 
   public static Signature create(MethodInsnNode node) {
     return new Signature(TypeFactory.fromInternalName(node.owner), node.name, node.desc);
+  }
+
+  public static Signature create(MethodNode node) {
+    return new Signature(null, node.name, node.desc);
   }
 }

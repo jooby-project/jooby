@@ -1,5 +1,6 @@
 package io.jooby.openapi;
 
+import io.jooby.internal.openapi.DebugOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -16,5 +17,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface OpenApiTest {
   Class value();
 
-  boolean debug() default false;
+  DebugOption[] debug() default {};
 }

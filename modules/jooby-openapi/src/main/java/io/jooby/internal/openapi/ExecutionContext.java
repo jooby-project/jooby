@@ -7,9 +7,11 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.ASMifier;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.TraceClassVisitor;
+import org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -25,9 +27,9 @@ public class ExecutionContext {
   private final Map<Type, ClassNode> nodes = new HashMap<>();
   private final ClassSource source;
   private final Set<Object> instructions = new HashSet<>();
-  private final boolean debug;
+  private final Set<DebugOption> debug;
 
-  public ExecutionContext(ClassSource source, Type mainType, boolean debug) {
+  public ExecutionContext(ClassSource source, Type mainType, Set<DebugOption> debug) {
     this.mainType = mainType;
     this.source = source;
     this.debug = debug;
@@ -43,15 +45,40 @@ public class ExecutionContext {
 
   private ClassNode newClassNode(Type type) {
     ClassReader reader = new ClassReader(source.byteCode(type.getClassName()));
-    if (debug) {
-      Printer printer = new ASMifier();
-      PrintWriter output = new PrintWriter(System.out);
-      TraceClassVisitor traceClassVisitor = new TraceClassVisitor(null, printer, output);
-      reader.accept(traceClassVisitor, 0);
+    if (debug.contains(DebugOption.CLASS)) {
+      debug(reader);
     }
     ClassNode node = createClassVisitor(ClassNode::new);
     reader.accept(node, 0);
     return node;
+  }
+
+  private void debug(ClassReader reader) {
+    Printer printer = new ASMifier();
+    PrintWriter output = new PrintWriter(System.out);
+    TraceClassVisitor traceClassVisitor = new TraceClassVisitor(null, printer, output);
+    reader.accept(traceClassVisitor, 0);
+  }
+
+  public void debugHandler(MethodNode node) {
+    if (debug.contains(DebugOption.HANDLER)) {
+      debug(node);
+    }
+  }
+
+  private void debug(MethodNode node) {
+    Printer printer = new ASMifier();
+    TraceMethodVisitor traceClassVisitor = new TraceMethodVisitor(null, printer);
+    node.accept(traceClassVisitor);
+    PrintWriter writer = new PrintWriter(System.out);
+    printer.print(writer);
+    writer.flush();
+  }
+
+  public void debugHandlerLink(MethodNode node) {
+    if (debug.contains(DebugOption.HANDLER_LINK)) {
+      debug(node);
+    }
   }
 
   public Type getMainType() {
@@ -63,7 +90,8 @@ public class ExecutionContext {
   }
 
   public boolean isRouter(Type type) {
-    return Stream.of(mainType, TypeFactory.JOOBY, TypeFactory.KOOBY, TypeFactory.ROUTER)
+    return Stream.of(mainType, TypeFactory.JOOBY, TypeFactory.KOOBY, TypeFactory.ROUTER,
+        TypeFactory.COROUTINE_ROUTER)
         .anyMatch(it -> it.equals(type));
   }
 

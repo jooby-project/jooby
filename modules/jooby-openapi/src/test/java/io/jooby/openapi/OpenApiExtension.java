@@ -1,5 +1,6 @@
 package io.jooby.openapi;
 
+import io.jooby.internal.openapi.DebugOption;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -11,7 +12,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,17 +34,22 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
     OpenApiTest metadata = method.getAnnotation(OpenApiTest.class);
     requireNonNull(metadata, "Missing @" + OpenApiTest.class.getName());
     String classname = metadata.value().getName();
-    RouteIterator iterator = new RouteIterator(newTool(metadata.debug()).process(classname));
+    Set<DebugOption> debugOptions = metadata.debug().length == 0
+        ? Collections.emptySet()
+        : EnumSet.copyOf(Arrays.asList(metadata.debug()));
+    RouteIterator iterator = new RouteIterator(newTool(debugOptions).process(classname));
     getStore(context).put("iterator", iterator);
     return iterator;
   }
 
   @Override public void afterEach(ExtensionContext ctx) {
     RouteIterator iterator = (RouteIterator) getStore(ctx).get("iterator");
-    iterator.verify();
+    if (iterator != null) {
+      iterator.verify();
+    }
   }
 
-  private OpenApiTool newTool(boolean debug) {
+  private OpenApiTool newTool(Set<DebugOption> debug) {
     OpenApiTool tool = new OpenApiTool();
     Path basedir = Paths.get(System.getProperty("user.dir"));
     Path targetDir = basedir.resolve("target").resolve("test-classes");

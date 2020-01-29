@@ -1,6 +1,7 @@
 package io.jooby.openapi;
 
 import io.jooby.internal.openapi.ClassSource;
+import io.jooby.internal.openapi.DebugOption;
 import io.jooby.internal.openapi.ExecutionContext;
 import io.jooby.internal.openapi.RouteDescriptor;
 import io.jooby.internal.openapi.RouteReader;
@@ -9,6 +10,7 @@ import io.jooby.internal.openapi.TypeFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 public class OpenApiTool {
 
@@ -16,7 +18,7 @@ public class OpenApiTool {
 
   private Path targetDir = basedir.resolve("target").resolve("classes");
 
-  private boolean debug;
+  private Set<DebugOption> debug;
 
   public List<RouteDescriptor> process(String classname) {
     ClassSource source = new ClassSource(targetDir);
@@ -34,7 +36,7 @@ public class OpenApiTool {
     this.targetDir = targetDir;
   }
 
-  public void setDebug(boolean debug) {
+  public void setDebug(Set<DebugOption> debug) {
     this.debug = debug;
   }
 }

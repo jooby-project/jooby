@@ -3,6 +3,8 @@ package io.jooby.openapi;
 import examples.RouteIdioms;
 import examples.RouteInline;
 import examples.RoutePatternIdioms;
+import io.jooby.internal.openapi.DebugOption;
+import kt.KtCoroutineRouteIdioms;
 import kt.KtRouteIdioms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,11 +76,35 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = KtRouteIdioms.class, debug = true)
-  public void ktRouteInline(RouteIterator iterator) {
+  @OpenApiTest(value = KtRouteIdioms.class)
+  public void ktRoute(RouteIterator iterator) {
     iterator
         .next(route -> {
-          assertEquals("/inline", route.getPattern());
+          assertEquals("/implicitContext", route.getPattern());
+        })
+        .next(route -> {
+          assertEquals("/explicitContext", route.getPattern());
+        })
+        .next(route -> {
+          assertEquals("/api/people", route.getPattern());
+        })
+        .next(route -> {
+          assertEquals("/api/version", route.getPattern());
+        })
+        .verify();
+  }
+
+  @OpenApiTest(value = KtCoroutineRouteIdioms.class)
+  public void ktCoroutineRoute(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("/version", route.getPattern());
+        })
+        .next(route -> {
+          assertEquals("/api/version", route.getPattern());
+        })
+        .next(route -> {
+          assertEquals("/api/people", route.getPattern());
         })
         .verify();
   }

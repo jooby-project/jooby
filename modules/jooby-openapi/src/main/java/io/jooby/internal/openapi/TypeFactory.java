@@ -1,5 +1,6 @@
 package io.jooby.internal.openapi;
 
+import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -17,9 +18,17 @@ public class TypeFactory {
 
   public static final Type JOOBY = Type.getType(Jooby.class);
 
+  public static final Type CONTEXT = Type.getType(Context.class);
+
   public static final Type KOOBY = Type.getType("Lio/jooby/Kooby;");
 
+  public static final Type HANDLER_CONTEXT = Type.getType("Lio/jooby/HandlerContext;");
+
+  public static final Type COROUTINE_ROUTER = Type.getType("Lio/jooby/CoroutineRouter;");
+
   public static final Type KT_FUN_1 = Type.getType("Lkotlin/jvm/functions/Function1;");
+
+  public static final Type KT_FUN_2 = Type.getType("Lkotlin/jvm/functions/Function2;");
 
   public static Type fromJavaName(String name) {
     return fromJavaClassName(name).orElseGet(() -> Type.getObjectType(name.replace(".", "/")));
@@ -35,6 +44,9 @@ public class TypeFactory {
     }
     if (name.equals(Route.Handler.class.getName())) {
       return Optional.of(TypeFactory.HANDLER);
+    }
+    if (name.equals(Context.class.getName())) {
+      return Optional.of(TypeFactory.CONTEXT);
     }
     return Optional.empty();
   }
