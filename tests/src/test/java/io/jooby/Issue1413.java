@@ -3,6 +3,8 @@ package io.jooby;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -12,9 +14,9 @@ public class Issue1413 {
   public void shouldDoPreflightWithCredentials(ServerTestRunner runner) {
     runner.define(app -> {
       app.decorator(new CorsHandler(new Cors()
-                                    .setMethods("*")
-                                    .setOrigin("http://foo.com")
-                                    .setUseCredentials(true)
+          .setMethods("*")
+          .setOrigin("http://foo.com")
+          .setUseCredentials(true)
       ));
 
       app.put("/api/v1/machines/{key}", ctx -> ctx.path("key").value());
@@ -119,6 +121,48 @@ public class Issue1413 {
             assertEquals(200, rsp.code());
             assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
             assertNull(rsp.header("Access-Control-Allow-Credentials"));
+          });
+    });
+  }
+
+  @ServerTest
+  public void shouldDoPreflightWithCustomMethods(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.decorator(new CorsHandler(new Cors()
+          .setMethods("GET", "POST", "HEAD", "OPTIONS")
+          .setOrigin("http://foo.com")
+          .setExposedHeaders("*")
+          .setMaxAge(Duration.ofMinutes(30))
+          .setHeaders("*")
+      ));
+
+      app.put("/api/v1/machines/{key}", ctx -> ctx.path("key").value());
+      app.post("/api/v1/machines/{key}", ctx -> ctx.path("key").value());
+      app.get("/api/v1/machines/{key}", ctx -> ctx.path("key").value());
+
+    }).ready(client -> {
+      // OPTIONS (Pre-flight), checking PUT Method => OK and Access Control Headers Present
+      client
+          .header("Origin", "http://foo.com")
+          .header("Access-Control-Request-Method", "PUT")
+          .options("/api/v1/machines/123", rsp -> {
+            assertEquals("", rsp.body().string());
+            assertEquals(403, rsp.code());
+            assertNull(rsp.header("Access-Control-Allow-Origin"));
+            assertNull(rsp.header("Access-Control-Allow-Credentials"));
+            assertNull(rsp.header("Access-Control-Allow-Methods"));
+          });
+
+      // OPTIONS (Pre-flight), checking PUT Method => OK and Access Control Headers Present
+      client
+          .header("Origin", "http://foo.com")
+          .header("Access-Control-Request-Method", "GET")
+          .options("/api/v1/machines/123", rsp -> {
+            assertEquals("", rsp.body().string());
+            assertEquals(200, rsp.code());
+            assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
+            assertEquals("true", rsp.header("Access-Control-Allow-Credentials"));
+            assertEquals("GET,POST,HEAD,OPTIONS", rsp.header("Access-Control-Allow-Methods"));
           });
     });
   }
