@@ -22,6 +22,8 @@
     <module>jooby-netty</module>
     <module>jooby-utow</module>
 
+    <module>jooby-openapi</module>
+
     <!-- data -->
     <module>jooby-hikari</module>
     <module>jooby-jdbi</module>
