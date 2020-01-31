@@ -4,7 +4,7 @@ import io.jooby.internal.openapi.ClassSource;
 import io.jooby.internal.openapi.DebugOption;
 import io.jooby.internal.openapi.ExecutionContext;
 import io.jooby.internal.openapi.RouteDescriptor;
-import io.jooby.internal.openapi.RouteReader;
+import io.jooby.internal.openapi.RouteParser;
 import io.jooby.internal.openapi.TypeFactory;
 
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ public class OpenApiTool {
   public List<RouteDescriptor> process(String classname) {
     ClassSource source = new ClassSource(targetDir);
 
-    RouteReader routes = new RouteReader();
+    RouteParser routes = new RouteParser();
     ExecutionContext ctx = new ExecutionContext(source, TypeFactory.fromJavaName(classname), debug);
     return routes.routes(ctx);
   }

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RouteReader {
+public class RouteParser {
 
   public List<RouteDescriptor> routes(ExecutionContext ctx) {
     List<RouteDescriptor> handlerList = new ArrayList<>();
