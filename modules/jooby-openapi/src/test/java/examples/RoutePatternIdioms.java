@@ -10,18 +10,18 @@ public class RoutePatternIdioms extends Jooby {
       return "...";
     });
 
-    get(pattern + "/{id}", ctx -> {
+    delete(pattern + "/{id}", ctx -> {
       return "...";
     });
 
     final String subpath = "/foo";
     path(pattern, () -> {
-      get(subpath, ctx -> {
+      post(subpath, ctx -> {
         return "...";
       });
 
       path(pattern, () -> {
-        get(subpath, ctx -> {
+        put(subpath, ctx -> {
           return "...";
         });
       });

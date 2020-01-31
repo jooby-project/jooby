@@ -6,19 +6,31 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class RouteIterator {
 
   final LinkedList<RouteDescriptor> routes;
+  final boolean ignoreArguments;
 
-  public RouteIterator(List<RouteDescriptor> routes) {
+  public RouteIterator(List<RouteDescriptor> routes, boolean ignoreArguments) {
     this.routes = new LinkedList<>(routes);
+    this.ignoreArguments = ignoreArguments;
   }
 
   public RouteIterator next(Consumer<RouteDescriptor> consumer) {
+    return next((route, args) -> consumer.accept(route));
+  }
+
+  public RouteIterator next(BiConsumer<RouteDescriptor, RouteArgumentIterator> consumer) {
     if (routes.size() > 0) {
-      consumer.accept(routes.removeFirst());
+      RouteDescriptor route = routes.removeFirst();
+      RouteArgumentIterator args = new RouteArgumentIterator(route.getArguments());
+      consumer.accept(route, args);
+      if (!ignoreArguments) {
+        args.verify();
+      }
     } else {
       throw new NoSuchElementException("No more routes");
     }
@@ -30,7 +42,7 @@ public class RouteIterator {
       String message = "Ignored routes: " + routes;
       routes.clear();
       IllegalStateException x = new IllegalStateException(message);
-      x.setStackTrace(Arrays.copyOfRange(x.getStackTrace(), 1 , x.getStackTrace().length));
+      x.setStackTrace(Arrays.copyOfRange(x.getStackTrace(), 1, x.getStackTrace().length));
       throw x;
     }
   }

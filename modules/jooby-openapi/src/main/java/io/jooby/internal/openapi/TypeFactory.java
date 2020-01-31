@@ -4,6 +4,7 @@ import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.Route;
 import io.jooby.Router;
+import io.jooby.ValueNode;
 import org.objectweb.asm.Type;
 
 import java.util.Optional;
@@ -19,6 +20,8 @@ public class TypeFactory {
   public static final Type JOOBY = Type.getType(Jooby.class);
 
   public static final Type CONTEXT = Type.getType(Context.class);
+
+  public static final Type VALUE_NODE = Type.getType(ValueNode.class);
 
   public static final Type KOOBY = Type.getType("Lio/jooby/Kooby;");
 

@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class InsnNode {
+public class InsnSupport {
 
   private static class NodeIterator implements Iterator<org.objectweb.asm.tree.AbstractInsnNode> {
 

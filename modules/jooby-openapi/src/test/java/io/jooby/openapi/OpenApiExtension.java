@@ -37,7 +37,7 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
     Set<DebugOption> debugOptions = metadata.debug().length == 0
         ? Collections.emptySet()
         : EnumSet.copyOf(Arrays.asList(metadata.debug()));
-    RouteIterator iterator = new RouteIterator(newTool(debugOptions).process(classname));
+    RouteIterator iterator = new RouteIterator(newTool(debugOptions).process(classname), metadata.ignoreArguments());
     getStore(context).put("iterator", iterator);
     return iterator;
   }

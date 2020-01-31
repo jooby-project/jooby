@@ -10,13 +10,12 @@ class KtCoroutineRouteIdioms : Kooby({
     }
 
     path("/api") {
-      get("/version") {
+      patch("/version") {
         "version"
       }
 
       get("/people") {
-        val q = ctx.query("search").value()
-        q
+        "people"
       }
     }
   }

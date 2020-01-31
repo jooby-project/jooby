@@ -18,4 +18,6 @@ public @interface OpenApiTest {
   Class value();
 
   DebugOption[] debug() default {};
+
+  boolean ignoreArguments() default false;
 }

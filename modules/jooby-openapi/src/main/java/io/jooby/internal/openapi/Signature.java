@@ -1,6 +1,5 @@
 package io.jooby.internal.openapi;
 
-import io.jooby.Router;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
@@ -8,11 +7,14 @@ import org.objectweb.asm.signature.SignatureVisitor;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 public class Signature {
+
+  private final Type[] argumentTypes;
 
   private Type owner;
 
@@ -24,6 +26,7 @@ public class Signature {
     this.owner = owner;
     this.method = method;
     this.descriptor = descriptor;
+    this.argumentTypes = Type.getArgumentTypes(descriptor);
   }
 
   public Optional<Type> getOwner() {
@@ -41,9 +44,17 @@ public class Signature {
   public boolean matches(String method) {
     return this.method.equals(method);
   }
+
   public boolean matches(String method, Type... parameterTypes) {
     if (matches(method)) {
       return matches(parameterTypes);
+    }
+    return false;
+  }
+
+  public boolean matches(Class owner, String method, Class... parameterTypes) {
+    if (Type.getType(owner).equals(this.owner)) {
+      return matches(method, parameterTypes);
     }
     return false;
   }
@@ -60,21 +71,11 @@ public class Signature {
   }
 
   public boolean matches(Type... parameterTypes) {
-    AtomicInteger i = new AtomicInteger();
-    SignatureVisitor visitor = new SignatureVisitor(Opcodes.ASM7) {
-      @Override public void visitClassType(String name) {
-        if (i.get() < parameterTypes.length) {
-          Type type = parameterTypes[i.get()];
-          String internalName = type.getInternalName();
-          if (internalName.equals(name)) {
-            i.incrementAndGet();
-          }
-        }
-      }
-    };
-    SignatureReader reader = new SignatureReader(descriptor);
-    reader.accept(visitor);
-    return i.get() == parameterTypes.length;
+    return Arrays.equals(this.argumentTypes, parameterTypes);
+  }
+
+  public int getParameterCount() {
+    return argumentTypes.length;
   }
 
   @Override public String toString() {

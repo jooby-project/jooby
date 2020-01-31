@@ -109,7 +109,7 @@ public class ValueConverters {
     if (type == byte.class) {
       return (T) Byte.valueOf(value.byteValue());
     }
-    if (type.isEnum()) {
+    if (Enum.class.isAssignableFrom(type)) {
       return (T) enumValue(value, type);
     }
     // Wrapper
