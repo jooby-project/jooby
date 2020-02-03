@@ -9,23 +9,31 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class RouteParser {
 
   public List<RouteDescriptor> routes(ExecutionContext ctx) {
+    return routes(ctx, null, ctx.root);
+  }
+
+  public List<RouteDescriptor> routes(ExecutionContext ctx, String prefix, ClassNode node) {
     List<RouteDescriptor> handlerList = new ArrayList<>();
-    for (MethodNode method : ctx.root.methods) {
-      handlerList.addAll(routeHandler(ctx, null, method));
+    for (MethodNode method : node.methods) {
+      handlerList.addAll(routeHandler(ctx, prefix, method));
     }
     return handlerList;
   }
@@ -43,6 +51,12 @@ public class RouteParser {
         }
         if (signature.matches("<init>", TypeFactory.KT_FUN_1)) {
           handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
+        } else if (signature.matches("use", Router.class)) {
+          handlerList.addAll(useRouter(ctx, prefix, node, findRouterInstruction(node)));
+        } else if (signature.matches("use", String.class, Router.class)) {
+          AbstractInsnNode routerInstruction = findRouterInstruction(node);
+          String pattern = routePattern(node, node);
+          handlerList.addAll(useRouter(ctx, path(prefix, pattern), node, routerInstruction));
         } else if (signature.matches("path", String.class, Runnable.class)) {
           //  router path (Ljava/lang/String;Ljava/lang/Runnable;)Lio/jooby/Route;
           if (node.owner.equals(TypeFactory.KOOBY.getInternalName())) {
@@ -131,6 +145,40 @@ public class RouteParser {
     return handlerList;
   }
 
+  private AbstractInsnNode findRouterInstruction(MethodInsnNode node) {
+    return InsnSupport.prev(node)
+        .filter(e -> {
+          if (e instanceof TypeInsnNode) {
+            return e.getOpcode() != Opcodes.CHECKCAST;
+          } else if (e instanceof LdcInsnNode) {
+            return ((LdcInsnNode) e).cst instanceof Type;
+          }
+          return false;
+        })
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException(
+            "Unsupported router type: " + InsnSupport.toString(node)));
+  }
+
+  private List<RouteDescriptor> useRouter(ExecutionContext ctx, String prefix,
+      MethodInsnNode node, AbstractInsnNode routerInstruction) {
+    Type router;
+    if (routerInstruction instanceof TypeInsnNode) {
+      router = Type.getObjectType(((TypeInsnNode) routerInstruction).desc);
+    } else if (routerInstruction instanceof LdcInsnNode) {
+      router = (Type) ((LdcInsnNode) routerInstruction).cst;
+    } else {
+      throw new UnsupportedOperationException(InsnSupport.toString(node));
+    }
+    ClassNode classNode = ctx.classNode(router);
+    try {
+      ctx.addRouter(router);
+      return routes(ctx, prefix, classNode);
+    } finally {
+      ctx.removeRouter(router);
+    }
+  }
+
   private List<RouteDescriptor> kotlinHandler(ExecutionContext ctx, String httpMethod,
       String prefix,
       MethodInsnNode node) {
@@ -207,7 +255,7 @@ public class RouteParser {
    */
   private String routePattern(MethodInsnNode methodInsnNode, AbstractInsnNode node) {
     return InsnSupport.prev(node)
-        .filter(it -> it instanceof LdcInsnNode)
+        .filter(it -> it instanceof LdcInsnNode && (((LdcInsnNode)it).cst instanceof String))
         .findFirst()
         .map(it -> ((LdcInsnNode) it).cst.toString())
         .orElseThrow(() -> new IllegalStateException(
@@ -238,11 +286,27 @@ public class RouteParser {
   private MethodNode findLambda(ExecutionContext ctx, InvokeDynamicInsnNode node) {
     Handle handle = (Handle) node.bsmArgs[1];
     Type owner = TypeFactory.fromInternalName(handle.getOwner());
-    return ctx.classNode(owner).methods.stream()
-        .filter(n -> n.name.equals(handle.getName()))
-        .findFirst()
-        .orElseThrow(() ->
-            new IllegalStateException("Handler not found: " + InsnSupport.toString(node))
-        );
+    try {
+      return ctx.classNode(owner).methods.stream()
+          .filter(n -> n.name.equals(handle.getName()))
+          .findFirst()
+          .orElseThrow(() ->
+              new IllegalStateException("Handler not found: " + InsnSupport.toString(node))
+          );
+    } catch (Exception x) {
+      // Fake a method node, required when we write things like:
+      /// get("/", Context::getRequestPath);
+      // method reference to a class outside application classpath.
+      // Faked method has a return instruction for return type parser (no arguments).
+      String suffix = Long.toHexString(UUID.randomUUID().getMostSignificantBits());
+      MethodNode method = new MethodNode(Opcodes.ACC_PRIVATE & Opcodes.ACC_SYNTHETIC,
+          "fake$" + handle.getName() + "$" + suffix, handle.getDesc(), null, null);
+      method.instructions = new InsnList();
+      method.instructions.add(
+          new MethodInsnNode(Opcodes.INVOKEVIRTUAL, handle.getOwner(), handle.getName(),
+              handle.getDesc()));
+      method.instructions.add(new InsnNode(Opcodes.ARETURN));
+      return method;
+    }
   }
 }

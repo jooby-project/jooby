@@ -27,6 +27,7 @@ public class ExecutionContext {
   private final Map<Type, ClassNode> nodes = new HashMap<>();
   private final ClassSource source;
   private final Set<Object> instructions = new HashSet<>();
+  private final Set<Type> routers = new HashSet<>();
   private final Set<DebugOption> debug;
 
   public ExecutionContext(ClassSource source, Type mainType, Set<DebugOption> debug) {
@@ -85,13 +86,26 @@ public class ExecutionContext {
     return mainType;
   }
 
+  public void addRouter(Type router) {
+    routers.add(router);
+  }
+
+  public void removeRouter(Type route) {
+    for (MethodNode method : classNode(route).methods) {
+      for (AbstractInsnNode instruction : method.instructions) {
+        this.instructions.remove(instruction);
+      }
+    }
+    routers.remove(route);
+  }
+
   public <T extends ClassVisitor> T createClassVisitor(Function<Integer, T> factory) {
     return factory.apply(Opcodes.ASM7);
   }
 
   public boolean isRouter(Type type) {
-    return Stream.of(mainType, TypeFactory.JOOBY, TypeFactory.KOOBY, TypeFactory.ROUTER,
-        TypeFactory.COROUTINE_ROUTER)
+    return Stream.concat(Stream.of(mainType, TypeFactory.JOOBY, TypeFactory.KOOBY, TypeFactory.ROUTER,
+        TypeFactory.COROUTINE_ROUTER), routers.stream())
         .anyMatch(it -> it.equals(type));
   }
 

@@ -1,6 +1,5 @@
 package io.jooby.internal.openapi;
 
-import io.jooby.internal.asm.Insns;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -19,7 +18,6 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -47,7 +45,7 @@ public class RouteReturnTypeParser {
               return Type.getObjectType(minnsn.owner).getClassName();
             }
             if (previous.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-              AbstractInsnNode invokeDynamic = Insns.previous(previous)
+              AbstractInsnNode invokeDynamic = InsnSupport.prev(previous)
                   .filter(InvokeDynamicInsnNode.class::isInstance)
                   .findFirst()
                   .orElse(null);
@@ -143,7 +141,7 @@ public class RouteReturnTypeParser {
             case Opcodes.DASTORE:
               return double[].class.getName();
             case Opcodes.AASTORE:
-              return Insns.previous(previous)
+              return InsnSupport.prev(previous)
                   .filter(e -> e.getOpcode() == Opcodes.ANEWARRAY)
                   .findFirst()
                   .map(e -> {

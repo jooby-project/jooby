@@ -1,10 +1,10 @@
 package io.jooby.openapi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import examples.Letter;
 import examples.RouteFormArgs;
+import examples.RouteImport;
+import examples.RouteImportReferences;
 import examples.RoutePathArgs;
 import examples.RouteQueryArgs;
 import examples.RouteIdioms;
@@ -266,7 +266,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RoutePathArgs.class, debug = DebugOption.HANDLER)
+  @OpenApiTest(value = RoutePathArgs.class)
   public void routePathArguments(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
@@ -407,7 +407,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouteFormArgs.class, debug = DebugOption.HANDLER)
+  @OpenApiTest(value = RouteFormArgs.class)
   public void routeFormArguments(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
@@ -565,14 +565,14 @@ public class OpenApiToolTest {
   }
 
   @OpenApiTest(value = RouteReturnTypeApp.class, ignoreArguments = true)
-  public void routeReturnType(RouteIterator iterator) throws JsonProcessingException {
-    ObjectMapper mapper = new ObjectMapper();
-    Java java = new Java();
-    java.type = mapper.constructType(int[].class);
-    String json = mapper.writeValueAsString(java);
-    System.out.println(json);
-    Java j = mapper.readValue(json, Java.class);
-    System.out.println(j);
+  public void routeReturnType(RouteIterator iterator) {
+    //    ObjectMapper mapper = new ObjectMapper();
+    //    Java java = new Java();
+    //    java.type = mapper.constructType(int[].class);
+    //    String json = mapper.writeValueAsString(java);
+    //    System.out.println(json);
+    //    Java j = mapper.readValue(json, Java.class);
+    //    System.out.println(j);
     iterator
         .next(route -> {
           assertEquals("GET /literal/1", route.toString());
@@ -663,7 +663,8 @@ public class OpenApiToolTest {
         })
         .next(route -> {
           assertEquals("GET /complexType/3", route.toString());
-          assertEquals("java.util.List<java.util.List<java.lang.String>>", route.getReturnType().getJavaType());
+          assertEquals("java.util.List<java.util.List<java.lang.String>>",
+              route.getReturnType().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/1", route.toString());
@@ -694,6 +695,54 @@ public class OpenApiToolTest {
         .next(route -> {
           assertEquals("GET /array/4", route.toString());
           assertEquals("[Ljava.lang.String;", route.getReturnType().getJavaType());
+        })
+        .verify();
+  }
+
+  @OpenApiTest(value = RouteImport.class)
+  public void routeImport(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /main/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /main/submain/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /require/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /subroute/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .verify();
+  }
+
+  @OpenApiTest(value = RouteImportReferences.class)
+  public void routeImportReferences(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /require/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /prefix/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
         })
         .verify();
   }
