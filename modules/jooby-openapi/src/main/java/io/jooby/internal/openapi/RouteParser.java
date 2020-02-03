@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class RouteParser {
 
   public List<RouteDescriptor> routes(ExecutionContext ctx) {
-    return routes(ctx, null, ctx.root);
+    return routes(ctx, null, ctx.classNode(ctx.getRouter()));
   }
 
   public List<RouteDescriptor> routes(ExecutionContext ctx, String prefix, ClassNode node) {
@@ -42,7 +42,7 @@ public class RouteParser {
       MethodNode method) {
     List<RouteDescriptor> handlerList = new ArrayList<>();
     for (AbstractInsnNode it : method.instructions) {
-      if (ctx.process(it) && it instanceof MethodInsnNode) {
+      if (it instanceof MethodInsnNode && ctx.process(it)) {
         MethodInsnNode node = (MethodInsnNode) it;
         Signature signature = Signature.create(node);
         if (!ctx.isRouter(signature.getOwner().orElse(null))) {
@@ -171,12 +171,7 @@ public class RouteParser {
       throw new UnsupportedOperationException(InsnSupport.toString(node));
     }
     ClassNode classNode = ctx.classNode(router);
-    try {
-      ctx.addRouter(router);
-      return routes(ctx, prefix, classNode);
-    } finally {
-      ctx.removeRouter(router);
-    }
+      return routes(ctx.newContext(router), prefix, classNode);
   }
 
   private List<RouteDescriptor> kotlinHandler(ExecutionContext ctx, String httpMethod,

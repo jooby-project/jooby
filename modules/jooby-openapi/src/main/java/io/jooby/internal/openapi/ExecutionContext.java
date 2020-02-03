@@ -2,7 +2,6 @@ package io.jooby.internal.openapi;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -21,26 +20,31 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static io.jooby.internal.openapi.TypeFactory.COROUTINE_ROUTER;
+import static io.jooby.internal.openapi.TypeFactory.JOOBY;
+import static io.jooby.internal.openapi.TypeFactory.KOOBY;
+import static io.jooby.internal.openapi.TypeFactory.ROUTER;
+
 public class ExecutionContext {
-  public final ClassNode root;
-  private final Type mainType;
-  private final Map<Type, ClassNode> nodes = new HashMap<>();
+  private final Type router;
+  private final Map<Type, ClassNode> nodes;
   private final ClassSource source;
   private final Set<Object> instructions = new HashSet<>();
-  private final Set<Type> routers = new HashSet<>();
   private final Set<DebugOption> debug;
 
-  public ExecutionContext(ClassSource source, Type mainType, Set<DebugOption> debug) {
-    this.mainType = mainType;
+  public ExecutionContext(ClassSource source, Type router, Set<DebugOption> debug) {
+    this(source, new HashMap<>(), router, debug);
+  }
+
+  private ExecutionContext(ClassSource source, Map<Type, ClassNode> nodes, Type router,
+      Set<DebugOption> debug) {
+    this.router = router;
     this.source = source;
     this.debug = debug;
-    this.root = newClassNode(mainType);
+    this.nodes = nodes;
   }
 
   public ClassNode classNode(Type type) {
-    if (type.equals(mainType)) {
-      return root;
-    }
     return nodes.computeIfAbsent(type, this::newClassNode);
   }
 
@@ -82,21 +86,8 @@ public class ExecutionContext {
     }
   }
 
-  public Type getMainType() {
-    return mainType;
-  }
-
-  public void addRouter(Type router) {
-    routers.add(router);
-  }
-
-  public void removeRouter(Type route) {
-    for (MethodNode method : classNode(route).methods) {
-      for (AbstractInsnNode instruction : method.instructions) {
-        this.instructions.remove(instruction);
-      }
-    }
-    routers.remove(route);
+  public Type getRouter() {
+    return router;
   }
 
   public <T extends ClassVisitor> T createClassVisitor(Function<Integer, T> factory) {
@@ -104,12 +95,16 @@ public class ExecutionContext {
   }
 
   public boolean isRouter(Type type) {
-    return Stream.concat(Stream.of(mainType, TypeFactory.JOOBY, TypeFactory.KOOBY, TypeFactory.ROUTER,
-        TypeFactory.COROUTINE_ROUTER), routers.stream())
+    return Stream.of(router, JOOBY, KOOBY, ROUTER, COROUTINE_ROUTER)
         .anyMatch(it -> it.equals(type));
   }
 
   public boolean process(AbstractInsnNode instruction) {
     return instructions.add(instruction);
+  }
+
+  public ExecutionContext newContext(Type router) {
+    ExecutionContext ctx = new ExecutionContext(source, nodes, router, debug);
+    return ctx;
   }
 }
