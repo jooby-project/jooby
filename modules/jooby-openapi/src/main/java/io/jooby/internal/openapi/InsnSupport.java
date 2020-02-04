@@ -48,9 +48,12 @@ public class InsnSupport {
     return n -> n.getOpcode() == opcode && ((VarInsnNode) n).var == var;
   }
 
+  public static Iterator<AbstractInsnNode> prevIterator(AbstractInsnNode node) {
+    return new NodeIterator(node, AbstractInsnNode::getPrevious);
+  }
+
   public static Stream<AbstractInsnNode> prev(AbstractInsnNode node) {
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new NodeIterator(node,
-        AbstractInsnNode::getPrevious), Spliterator.ORDERED), false);
+    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(prevIterator(node), Spliterator.ORDERED), false);
   }
 
   public static Stream<AbstractInsnNode> next(AbstractInsnNode node) {

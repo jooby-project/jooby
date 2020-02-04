@@ -6,6 +6,7 @@ import io.jooby.internal.openapi.ExecutionContext;
 import io.jooby.internal.openapi.RouteDescriptor;
 import io.jooby.internal.openapi.RouteParser;
 import io.jooby.internal.openapi.TypeFactory;
+import org.objectweb.asm.Type;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

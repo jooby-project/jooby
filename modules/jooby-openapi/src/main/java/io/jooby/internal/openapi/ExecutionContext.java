@@ -48,6 +48,14 @@ public class ExecutionContext {
     return nodes.computeIfAbsent(type, this::newClassNode);
   }
 
+  public ClassNode classNodeOrNull(Type type) {
+    try {
+      return nodes.computeIfAbsent(type, this::newClassNode);
+    } catch (Exception x) {
+      return null;
+    }
+  }
+
   private ClassNode newClassNode(Type type) {
     ClassReader reader = new ClassReader(source.byteCode(type.getClassName()));
     if (debug.contains(DebugOption.CLASS)) {

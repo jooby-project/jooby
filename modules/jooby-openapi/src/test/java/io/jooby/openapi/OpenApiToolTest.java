@@ -12,10 +12,11 @@ import examples.RouteInline;
 import examples.RoutePatternIdioms;
 import examples.RouteReturnTypeApp;
 import examples.ABean;
-import io.jooby.internal.openapi.DebugOption;
 import io.jooby.internal.openapi.HttpType;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtRouteIdioms;
+import kt.KtRouteImport;
+import kt.KtRouteReturnType;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -743,6 +744,159 @@ public class OpenApiToolTest {
         .next(route -> {
           assertEquals("GET /prefix/a/1", route.toString());
           assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .verify();
+  }
+
+  @OpenApiTest(value = KtRouteImport.class)
+  public void ktRouteImport(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /main/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /main/submain/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /require/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /subroute/a/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .verify();
+  }
+
+  @OpenApiTest(value = KtRouteReturnType.class, ignoreArguments = true)
+  public void ktRouteReturnType(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /literal/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /literal/2", route.toString());
+          assertEquals(Integer.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /literal/3", route.toString());
+          assertEquals(Object.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /literal/4", route.toString());
+          assertEquals(Boolean.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /call/1", route.toString());
+          assertEquals(KtRouteReturnType.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /call/2", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /call/3", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /call/4", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /call/5", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /call/6", route.toString());
+          assertEquals("java.util.List<java.lang.String>", route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /generic/1", route.toString());
+          assertEquals(CompletableFuture.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /generic/2", route.toString());
+          assertEquals(CompletableFuture.class.getName() + "<" + Integer.class.getName() + ">",
+              route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /generic/3", route.toString());
+          assertEquals(CompletableFuture.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /generic/4", route.toString());
+          assertEquals(Callable.class.getName() + "<" + Byte.class.getName() + ">",
+              route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /localvar/1", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /localvar/2", route.toString());
+          assertEquals(Integer.class.getName(), route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /localvar/3", route.toString());
+          assertEquals("[Ljava.lang.String;", route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /localvar/4", route.toString());
+          assertEquals("[F", route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /complexType/1", route.toString());
+          assertEquals("java.util.List", route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /complexType/2", route.toString());
+          assertEquals("java.util.List<java.lang.String>", route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /complexType/3", route.toString());
+          assertEquals("java.util.List<java.util.List<java.lang.String>>",
+              route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /multipleTypes/1", route.toString());
+          assertEquals("java.util.ArrayList", route.getReturnTypes().get(0).getJavaType());
+          assertEquals("java.util.LinkedList", route.getReturnTypes().get(1).getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /multipleTypes/2", route.toString());
+          assertEquals("examples.ABean", route.getReturnTypes().get(0).getJavaType());
+          assertEquals("examples.BBean", route.getReturnTypes().get(1).getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /multipleTypes/3", route.toString());
+          assertEquals("examples.Bean", route.getReturnTypes().get(0).getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /array/1", route.toString());
+          assertEquals("[Z", route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /array/2", route.toString());
+          assertEquals("java.util.List<kt.KtRouteReturnType>", route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /array/3", route.toString());
+          assertEquals("[I", route.getReturnType().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /array/4", route.toString());
+          assertEquals("[Ljava.lang.String;", route.getReturnType().getJavaType());
         })
         .verify();
   }
