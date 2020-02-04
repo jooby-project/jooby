@@ -108,7 +108,12 @@ public class RouteAttributesWriter {
   }
 
   private Map<String, Object> annotationMap(ExecutableElement method) {
-    return annotationMap(method.getAnnotationMirrors(), null);
+    // class
+    Map<String, Object> attributes = annotationMap(
+        method.getEnclosingElement().getAnnotationMirrors(), null);
+    // method
+    attributes.putAll(annotationMap(method.getAnnotationMirrors(), null));
+    return attributes;
   }
 
   private Map<String, Object> annotationMap(List<? extends AnnotationMirror> annotations,
