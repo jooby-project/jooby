@@ -81,6 +81,7 @@
     <cron-utils.version>9.0.2</cron-utils.version>
     <bucket4j-core.version>4.7.0</bucket4j-core.version>
     <aws-java-sdk.version>1.11.714</aws-java-sdk.version>
+    <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
 
     <commons-io.version>2.6</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
