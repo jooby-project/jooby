@@ -28,7 +28,7 @@ Kotlin build also requires it via https://kotlinlang.org/docs/reference/kapt.htm
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
+        <version>{mavenCompilerPluginVersion}</version>
         <configuration>
           <annotationProcessorPaths>
             <path>
@@ -51,7 +51,7 @@ Kotlin build also requires it via https://kotlinlang.org/docs/reference/kapt.htm
       <plugin>
         <artifactId>kotlin-maven-plugin</artifactId>
         <groupId>org.jetbrains.kotlin</groupId>
-        <version>${kotlin.version}</version>
+        <version>{kotlinVersion}</version>
         <configuration>
           <args>
             <arg>-java-parameters</arg>
@@ -101,7 +101,7 @@ Kotlin build also requires it via https://kotlinlang.org/docs/reference/kapt.htm
                 <annotationProcessorPath>
                   <groupId>io.jooby</groupId>
                   <artifactId>jooby-apt</artifactId>
-                  <version>${jooby.version}</version>
+                  <version>{joobyVersion}</version>
                 </annotationProcessorPath>
               </annotationProcessorPaths>
             </configuration>
@@ -130,7 +130,7 @@ Java build needs an annotationProcessor statement using `jooby-apt`.
 Kotlin builds needs a https://kotlinlang.org/docs/reference/kapt.html#using-in-gradle[kapt] dependency and statement using `jooby-apt`.
 
 .Java
-[source, groovy, role="primary"]
+[source, groovy, role="primary", subs="verbatim,attributes"]
 ----
 dependencies {
   annotationProcessor "io.jooby:jooby-apt:{joobyVersion}"
@@ -138,12 +138,12 @@ dependencies {
 ----
 
 .Kotlin
-[source, groovy, role="secondary"]
+[source, groovy, role="secondary", subs="verbatim,attributes"]
 ----
 buildscript {
   ...
   dependencies {
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:{kotlinVersion}"
   }
 }
 
@@ -184,3 +184,78 @@ Alternatively, you can delegate IntelliJ build/run actions to Maven or Gradle co
 *Eclipse 4.9+*
 
 You need https://www.eclipse.org/m2e/[M2Eclipse] for Maven or https://projects.eclipse.org/projects/tools.buildship[Gradle Buildship]
+
+== Bean Converter
+
+=== Parameter Name Missing
+
+*Exception*:
+
+----
+Unable to provision parameter at position: '...', require by: ... Parameter's name is missing
+----
+
+Thrown when the bean converter has no access to a parameter name at runtime. Compilation must be 
+done using `parameters` compiler option.
+
+*Maven Solution*
+
+.Java
+[source, xml, role = "primary", subs="verbatim,attributes"]
+----
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>{mavenCompilerPluginVersion}</version>
+        <configuration>
+        ...
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+----
+
+.Kotlin
+[source, xml, role = "secondary", subs="verbatim,attributes"]
+----
+  <build>
+    <plugins>
+      <plugin>
+          <artifactId>kotlin-maven-plugin</artifactId>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <version>{kotlinVersion}</version>
+          <configuration>
+            ...
+            <args>
+              <arg>-java-parameters</arg>
+            </args>
+            <jvmTarget>1.8</jvmTarget>
+            ...
+          </configuration>
+        </plugin>
+    </plugins>
+  </build>
+----
+
+*Gradle Solution*
+
+.Java
+[source, groovy, role = "primary", subs="verbatim,attributes"]
+----
+tasks.withType(JavaCompile) {
+  options.compilerArgs << '-parameters'
+  options.debug = true
+}
+----
+
+.Kotlin
+[source, groovy, role = "secondary", subs="verbatim,attributes"]
+----
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+  kotlinOptions.javaParameters = true
+}
+----
