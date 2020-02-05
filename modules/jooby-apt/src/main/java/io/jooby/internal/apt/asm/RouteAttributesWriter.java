@@ -9,7 +9,6 @@ import io.jooby.Route;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.apt.Primitives;
 import io.jooby.internal.apt.TypeDefinition;
-import io.jooby.internal.apt.asm.ArrayWriter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -17,7 +16,11 @@ import org.objectweb.asm.Type;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -33,6 +36,7 @@ import java.util.function.Predicate;
 
 import static io.jooby.SneakyThrows.throwingConsumer;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.sort;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -59,6 +63,18 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 
 public class RouteAttributesWriter {
+
+  private static class EnumValue {
+    private String type;
+
+    private String value;
+
+    public EnumValue(String type, String value) {
+      this.type = type;
+      this.value = value;
+    }
+  }
+
   private static final Predicate<String> HTTP_ANNOTATION = it ->
       it.startsWith("io.jooby.annotations")
           || it.startsWith("javax.ws.rs");
@@ -67,8 +83,10 @@ public class RouteAttributesWriter {
       || it.endsWith("NotNull")
       || it.endsWith("Nullable");
 
+  private static final Predicate<String> KOTLIN_ANNOTATION = it -> it.equals("kotlin.Metadata");
+
   private static final Predicate<String> ATTR_FILTER = HTTP_ANNOTATION.negate()
-      .and(NULL_ANNOTATION.negate());
+      .and(NULL_ANNOTATION.negate()).and(KOTLIN_ANNOTATION.negate());
 
   private final Elements elements;
 
@@ -147,6 +165,13 @@ public class RouteAttributesWriter {
     if (value instanceof AnnotationMirror) {
       Map<String, Object> annotation = annotationMap(singletonList((AnnotationMirror) value), null);
       return annotation.isEmpty() ? null : annotation;
+    } else if (value instanceof VariableElement) {
+      // enum
+      VariableElement vare = (VariableElement) annotationValue.getValue();
+      TypeMirror typeMirror = vare.asType();
+      Element element = types.asElement(typeMirror);
+      Name binaryName = elements.getBinaryName((TypeElement) element);
+      return new EnumValue(binaryName.toString(), value.toString());
     } else if (value instanceof List) {
       List<AnnotationValue> values = (List) value;
       if (values.size() > 0) {
@@ -169,8 +194,9 @@ public class RouteAttributesWriter {
           .visitMethodInsn(INVOKESTATIC, moduleInternalName, newMap, "()Ljava/util/Map;", false);
     } else if (value instanceof List) {
       List values = (List) value;
+      String componentType = values.get(0) instanceof EnumValue? ((EnumValue) values.get(0)).type : values.get(0).getClass().getName();
       if (values.size() > 0) {
-        ArrayWriter.write(visitor, values.get(0).getClass(), values, throwingConsumer(v ->
+        ArrayWriter.write(visitor, componentType, values, throwingConsumer(v ->
             annotationValue(writer, visitor, v)
         ));
         Method asList = Arrays.class.getDeclaredMethod("asList", Object[].class);
@@ -245,6 +271,10 @@ public class RouteAttributesWriter {
       } else {
         visitor.visitLdcInsn(typeDef.toJvmType());
       }
+    } else if (value instanceof EnumValue) {
+      EnumValue enumValue = (EnumValue) value;
+      Type type = Type.getObjectType(enumValue.type.replace(".", "/"));
+      visitor.visitFieldInsn(GETSTATIC, type.getInternalName(), enumValue.value, type.getDescriptor());
     }
 
     Method wrapper = Primitives.wrapper(value.getClass());

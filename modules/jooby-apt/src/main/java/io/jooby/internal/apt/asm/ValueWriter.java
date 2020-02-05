@@ -43,7 +43,7 @@ public abstract class ValueWriter implements ParamWriter {
       } else {
         visitor.visitLdcInsn(parameter.getType().toJvmType());
 
-        ArrayWriter.write(visitor, Type.class, parameter.getType().getArguments(), type ->
+        ArrayWriter.write(visitor, Type.class.getName(), parameter.getType().getArguments(), type ->
             visitor.visitLdcInsn(type.toJvmType())
         );
         reified = Reified.class.getMethod("getParameterized", Type.class, Type[].class);

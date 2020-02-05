@@ -3,6 +3,7 @@ package output;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MvcFactory;
+import source.Controller1527;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
@@ -13,8 +14,7 @@ public class MvcExtension implements MvcFactory {
     application.get("/mypath", ctx -> {
       MyController myController = provider.get();
       return myController.controllerMethod();
-    }).setReturnType(String.class)
-        .attribute("RoleAnnotation", "User");
+    }).attribute("RequireRole", Controller1527.Role.USER);
   }
 
   @Override public boolean supports(@Nonnull Class type) {

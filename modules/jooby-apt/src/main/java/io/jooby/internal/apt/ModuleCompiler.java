@@ -273,7 +273,7 @@ public class ModuleCompiler {
 
       List<TypeDefinition> args = returnType.getArguments();
 
-      ArrayWriter.write(visitor, java.lang.reflect.Type.class, args, type ->
+      ArrayWriter.write(visitor, java.lang.reflect.Type.class.getName(), args, type ->
           visitor.visitLdcInsn(type.toJvmType())
       );
 
@@ -295,7 +295,7 @@ public class ModuleCompiler {
   private void setContentType(MethodVisitor visitor, String methodName, List<String> mediaTypes) {
     if (mediaTypes.size() > 0) {
       visitor.visitVarInsn(ALOAD, 2);
-      ArrayWriter.write(visitor, MediaType.class, mediaTypes, mediaType -> {
+      ArrayWriter.write(visitor, MediaType.class.getName(), mediaTypes, mediaType -> {
         visitor.visitLdcInsn(mediaType);
         visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/MediaType", "valueOf",
             "(Ljava/lang/String;)Lio/jooby/MediaType;", false);
