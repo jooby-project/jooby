@@ -41,11 +41,23 @@ public class ProvisioningException extends BadRequestException {
     super(message, cause);
   }
 
-  private static String toString(Parameter parameter) {
+  /**
+   * Creates a parameter description.
+   *
+   * @param parameter Parameter.
+   * @return Description.
+   */
+  public static String toString(@Nonnull Parameter parameter) {
     return parameter.getName() + ": " + parameter.getParameterizedType();
   }
 
-  private static String toString(Executable method) {
+  /**
+   * Creates a method description.
+   *
+   * @param method Parameter.
+   * @return Description.
+   */
+  public static String toString(@Nonnull Executable method) {
     StringBuilder buff = new StringBuilder();
     if (method instanceof Constructor) {
       buff.append("constructor ");

@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.converter;
 
+import io.jooby.Usage;
 import io.jooby.exception.BadRequestException;
 import io.jooby.BeanConverter;
 import io.jooby.FileUpload;
@@ -111,12 +112,14 @@ public class ReflectiveBeanConverter implements BeanConverter {
   }
 
   private static String paramName(Parameter parameter) {
-    String name = parameter.getName();
     Named named = parameter.getAnnotation(Named.class);
     if (named != null && named.value().length() > 0) {
-      name = named.value();
+      return named.value();
     }
-    return name;
+    if (parameter.isNamePresent()) {
+      return parameter.getName();
+    }
+    throw Usage.parameterNameNotPresent(parameter);
   }
 
   private static <T> T setters(T newInstance, ValueNode node, Set<ValueNode> skip) {

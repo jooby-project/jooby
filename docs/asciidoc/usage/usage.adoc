@@ -184,3 +184,78 @@ Alternatively, you can delegate IntelliJ build/run actions to Maven or Gradle co
 *Eclipse 4.9+*
 
 You need https://www.eclipse.org/m2e/[M2Eclipse] for Maven or https://projects.eclipse.org/projects/tools.buildship[Gradle Buildship]
+
+== Bean Converter
+
+=== Parameter Name Missing
+
+*Exception*:
+
+----
+Unable to provision parameter at position: '...', require by: ... Parameter's name is missing
+----
+
+Thrown when the bean converter has no access to a parameter name at runtime. Compilation must be 
+done using `parameters` compiler option.
+
+*Maven Solution*
+
+.Java
+[source, xml, role = "primary", subs="verbatim,attributes"]
+----
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+        ...
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+----
+
+.Kotlin
+[source, xml, role = "secondary", subs="verbatim,attributes"]
+----
+  <build>
+    <plugins>
+      <plugin>
+          <artifactId>kotlin-maven-plugin</artifactId>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <version>${kotlin.version}</version>
+          <configuration>
+            ...
+            <args>
+              <arg>-java-parameters</arg>
+            </args>
+            <jvmTarget>1.8</jvmTarget>
+            ...
+          </configuration>
+        </plugin>
+    </plugins>
+  </build>
+----
+
+*Gradle Solution*
+
+.Java
+[source, groovy, role = "primary", subs="verbatim,attributes"]
+----
+tasks.withType(JavaCompile) {
+  options.compilerArgs << '-parameters'
+  options.debug = true
+}
+----
+
+.Kotlin
+[source, groovy, role = "secondary", subs="verbatim,attributes"]
+----
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+  kotlinOptions.javaParameters = true
+}
+----
