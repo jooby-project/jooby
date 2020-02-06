@@ -1,6 +1,7 @@
 package io.jooby.internal.openapi;
 
 import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.Router;
 import org.objectweb.asm.Handle;
@@ -22,7 +23,10 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RouteParser {
 
@@ -41,108 +45,149 @@ public class RouteParser {
   private List<RouteDescriptor> routeHandler(ExecutionContext ctx, String prefix,
       MethodNode method) {
     List<RouteDescriptor> handlerList = new ArrayList<>();
+    /** Track the last router instruction and override with produces/consumes. */
+    AbstractInsnNode instructionTo = null;
     for (AbstractInsnNode it : method.instructions) {
       if (it instanceof MethodInsnNode && ctx.process(it)) {
         MethodInsnNode node = (MethodInsnNode) it;
         Signature signature = Signature.create(node);
-        if (!ctx.isRouter(signature.getOwner().orElse(null))) {
-          // Not a router method
-          continue;
-        }
-        if (signature.matches("<init>", TypeFactory.KT_FUN_1)) {
-          handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
-        } else if (signature.matches("use", Router.class)) {
-          handlerList.addAll(useRouter(ctx, prefix, node, findRouterInstruction(node)));
-        } else if (signature.matches("use", String.class, Router.class)) {
-          AbstractInsnNode routerInstruction = findRouterInstruction(node);
-          String pattern = routePattern(node, node);
-          handlerList.addAll(useRouter(ctx, path(prefix, pattern), node, routerInstruction));
-        } else if (signature.matches("path", String.class, Runnable.class)) {
-          //  router path (Ljava/lang/String;Ljava/lang/Runnable;)Lio/jooby/Route;
-          if (node.owner.equals(TypeFactory.KOOBY.getInternalName())) {
-            MethodInsnNode subrouteInsn = InsnSupport.prev(node)
-                .filter(MethodInsnNode.class::isInstance)
-                .findFirst()
-                .map(MethodInsnNode.class::cast)
-                .orElseThrow(() -> new IllegalStateException("Subroute definition not found"));
-            String path = routePattern(node, subrouteInsn);
-            handlerList.addAll(kotlinHandler(ctx, null, path(prefix, path), subrouteInsn));
-          } else {
-            InvokeDynamicInsnNode subrouteInsn = InsnSupport.prev(node)
-                .filter(InvokeDynamicInsnNode.class::isInstance)
-                .findFirst()
-                .map(InvokeDynamicInsnNode.class::cast)
-                .orElseThrow(() -> new IllegalStateException("Subroute definition not found"));
-            String path = routePattern(node, subrouteInsn);
-            MethodNode methodLink = findLambda(ctx, subrouteInsn);
-            ctx.debugHandlerLink(methodLink);
-            handlerList.addAll(routeHandler(ctx, path(prefix, path), methodLink));
-          }
-        } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
-            && signature.matches(String.class, Route.Handler.class)) {
-          //  router get (Ljava/lang/String;Lio/jooby/Route$Handler;)Lio/jooby/Route;
-          AbstractInsnNode previous = node.getPrevious();
-          String path = routePattern(node, previous);
-          String httpMethod = signature.getMethod().toUpperCase();
-          if (node.owner.equals(TypeFactory.KOOBY.getInternalName())) {
-            handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
-          } else {
-            if (previous instanceof InvokeDynamicInsnNode) {
-              MethodNode handler = findLambda(ctx, (InvokeDynamicInsnNode) previous);
-              ctx.debugHandler(handler);
-              handlerList.add(
-                  newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
-            } else if (previous instanceof MethodInsnNode) {
-              if (InsnSupport.opcode(Opcodes.INVOKESPECIAL).test(previous)) {
-                MethodInsnNode methodInsnNode = (MethodInsnNode) previous;
-                MethodNode handler = findRouteHandler(ctx, methodInsnNode);
+        if (ctx.isRouter(signature.getOwner().orElse(null))) {
+          if (signature.matches("<init>", TypeFactory.KT_FUN_1)) {
+            handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
+          } else if (signature.matches("use", Router.class)) {
+            handlerList.addAll(useRouter(ctx, prefix, node, findRouterInstruction(node)));
+          } else if (signature.matches("use", String.class, Router.class)) {
+            AbstractInsnNode routerInstruction = findRouterInstruction(node);
+            String pattern = routePattern(node, node);
+            handlerList.addAll(useRouter(ctx, path(prefix, pattern), node, routerInstruction));
+          } else if (signature.matches("path", String.class, Runnable.class)) {
+            //  router path (Ljava/lang/String;Ljava/lang/Runnable;)Lio/jooby/Route;
+            if (node.owner.equals(TypeFactory.KOOBY.getInternalName())) {
+              MethodInsnNode subrouteInsn = InsnSupport.prev(node)
+                  .filter(MethodInsnNode.class::isInstance)
+                  .findFirst()
+                  .map(MethodInsnNode.class::cast)
+                  .orElseThrow(() -> new IllegalStateException("Subroute definition not found"));
+              String path = routePattern(node, subrouteInsn);
+              handlerList.addAll(kotlinHandler(ctx, null, path(prefix, path), subrouteInsn));
+            } else {
+              InvokeDynamicInsnNode subrouteInsn = InsnSupport.prev(node)
+                  .filter(InvokeDynamicInsnNode.class::isInstance)
+                  .findFirst()
+                  .map(InvokeDynamicInsnNode.class::cast)
+                  .orElseThrow(() -> new IllegalStateException("Subroute definition not found"));
+              String path = routePattern(node, subrouteInsn);
+              MethodNode methodLink = findLambda(ctx, subrouteInsn);
+              ctx.debugHandlerLink(methodLink);
+              handlerList.addAll(routeHandler(ctx, path(prefix, path), methodLink));
+            }
+          } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
+              && signature.matches(String.class, Route.Handler.class)) {
+            instructionTo = node;
+            //  router get (Ljava/lang/String;Lio/jooby/Route$Handler;)Lio/jooby/Route;
+            AbstractInsnNode previous = node.getPrevious();
+            String path = routePattern(node, previous);
+            String httpMethod = signature.getMethod().toUpperCase();
+            if (node.owner.equals(TypeFactory.KOOBY.getInternalName())) {
+              handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
+            } else {
+              if (previous instanceof InvokeDynamicInsnNode) {
+                MethodNode handler = findLambda(ctx, (InvokeDynamicInsnNode) previous);
                 ctx.debugHandler(handler);
-                handlerList.add(newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
-              }
-            } else if (previous instanceof VarInsnNode) {
-              VarInsnNode varInsnNode = (VarInsnNode) previous;
-              if (varInsnNode.getOpcode() == Opcodes.ALOAD) {
-                AbstractInsnNode astore = InsnSupport.prev(varInsnNode)
-                    .filter(InsnSupport.varInsn(Opcodes.ASTORE, varInsnNode.var))
-                    .findFirst()
-                    .orElse(null);
-                if (astore != null) {
-                  AbstractInsnNode varType = InsnSupport.prev(astore)
-                      .filter(
-                          e -> (e instanceof InvokeDynamicInsnNode || e instanceof MethodInsnNode))
+                handlerList.add(
+                    newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
+              } else if (previous instanceof MethodInsnNode) {
+                if (InsnSupport.opcode(Opcodes.INVOKESPECIAL).test(previous)) {
+                  MethodInsnNode methodInsnNode = (MethodInsnNode) previous;
+                  MethodNode handler = findRouteHandler(ctx, methodInsnNode);
+                  ctx.debugHandler(handler);
+                  handlerList.add(newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
+                }
+              } else if (previous instanceof VarInsnNode) {
+                VarInsnNode varInsnNode = (VarInsnNode) previous;
+                if (varInsnNode.getOpcode() == Opcodes.ALOAD) {
+                  AbstractInsnNode astore = InsnSupport.prev(varInsnNode)
+                      .filter(InsnSupport.varInsn(Opcodes.ASTORE, varInsnNode.var))
                       .findFirst()
                       .orElse(null);
-                  if (varType instanceof MethodInsnNode) {
-                    MethodNode handler = findRouteHandler(ctx, (MethodInsnNode) varType);
-                    ctx.debugHandler(handler);
-                    handlerList.add(
-                        newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
-                  } else if (varType instanceof InvokeDynamicInsnNode) {
-                    MethodNode handler = findLambda(ctx, (InvokeDynamicInsnNode) varType);
-                    ctx.debugHandler(handler);
-                    handlerList.add(
-                        newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
+                  if (astore != null) {
+                    AbstractInsnNode varType = InsnSupport.prev(astore)
+                        .filter(
+                            e -> (e instanceof InvokeDynamicInsnNode
+                                || e instanceof MethodInsnNode))
+                        .findFirst()
+                        .orElse(null);
+                    if (varType instanceof MethodInsnNode) {
+                      MethodNode handler = findRouteHandler(ctx, (MethodInsnNode) varType);
+                      ctx.debugHandler(handler);
+                      handlerList.add(
+                          newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
+                    } else if (varType instanceof InvokeDynamicInsnNode) {
+                      MethodNode handler = findLambda(ctx, (InvokeDynamicInsnNode) varType);
+                      ctx.debugHandler(handler);
+                      handlerList.add(
+                          newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
+                    }
                   }
                 }
               }
             }
+          } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
+              && signature.matches(TypeFactory.STRING, TypeFactory.KT_FUN_1)) {
+            instructionTo = node;
+            String path = routePattern(node, node.getPrevious());
+            String httpMethod = signature.getMethod().toUpperCase();
+            handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
+          } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
+              && signature.matches(TypeFactory.STRING, TypeFactory.KT_FUN_2)) {
+            instructionTo = node;
+            String path = routePattern(node, node.getPrevious());
+            String httpMethod = signature.getMethod().toUpperCase();
+            handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
+          } else if (signature.getMethod().startsWith("coroutine")) {
+            handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
           }
-        } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
-            && signature.matches(TypeFactory.STRING, TypeFactory.KT_FUN_1)) {
-          String path = routePattern(node, node.getPrevious());
-          String httpMethod = signature.getMethod().toUpperCase();
-          handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
-        } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
-            && signature.matches(TypeFactory.STRING, TypeFactory.KT_FUN_2)) {
-          String path = routePattern(node, node.getPrevious());
-          String httpMethod = signature.getMethod().toUpperCase();
-          handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
-        } else if (signature.getMethod().startsWith("coroutine")) {
-          handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
+        } else if (signature.matches(Route.class, "produces", MediaType[].class)) {
+          if (instructionTo != null) {
+            RouteDescriptor route = handlerList.get(handlerList.size() - 1);
+            InsnSupport.prev(it, instructionTo)
+                .flatMap(mediaType())
+                .forEach(route::addProduces);
+            instructionTo = it;
+          }
+        } else if (signature.matches(Route.class, "consumes", MediaType[].class)) {
+          if (instructionTo != null) {
+            RouteDescriptor route = handlerList.get(handlerList.size() - 1);
+            InsnSupport.prev(it, instructionTo)
+                .flatMap(mediaType())
+                .forEach(route::addConsumes);
+            instructionTo = it;
+          }
         }
       }
     }
     return handlerList;
+  }
+
+  private static Function<AbstractInsnNode, Stream<String>> mediaType() {
+    return e -> {
+      if (e instanceof FieldInsnNode) {
+        if (((FieldInsnNode) e).owner.equals("io/jooby/MediaType")) {
+          return Stream.of(((FieldInsnNode) e).name);
+        }
+      } else if (e instanceof MethodInsnNode) {
+        if (((MethodInsnNode) e).owner.equals("io/jooby/MediaType")
+            && ((MethodInsnNode) e).name.equals("valueOf")) {
+          return InsnSupport.prev(e)
+              .filter(LdcInsnNode.class::isInstance)
+              .findFirst()
+              .map(i -> ((LdcInsnNode) i).cst.toString())
+              .map(Stream::of)
+              .orElse(Stream.of());
+        }
+      }
+      return Stream.of();
+    };
   }
 
   private AbstractInsnNode findRouterInstruction(MethodInsnNode node) {
@@ -171,7 +216,7 @@ public class RouteParser {
       throw new UnsupportedOperationException(InsnSupport.toString(node));
     }
     ClassNode classNode = ctx.classNode(router);
-      return routes(ctx.newContext(router), prefix, classNode);
+    return routes(ctx.newContext(router), prefix, classNode);
   }
 
   private List<RouteDescriptor> kotlinHandler(ExecutionContext ctx, String httpMethod,
@@ -250,7 +295,7 @@ public class RouteParser {
    */
   private String routePattern(MethodInsnNode methodInsnNode, AbstractInsnNode node) {
     return InsnSupport.prev(node)
-        .filter(it -> it instanceof LdcInsnNode && (((LdcInsnNode)it).cst instanceof String))
+        .filter(it -> it instanceof LdcInsnNode && (((LdcInsnNode) it).cst instanceof String))
         .findFirst()
         .map(it -> ((LdcInsnNode) it).cst.toString())
         .orElseThrow(() -> new IllegalStateException(

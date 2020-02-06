@@ -58,7 +58,7 @@ public class ExecutionContext {
 
   private ClassNode newClassNode(Type type) {
     ClassReader reader = new ClassReader(source.byteCode(type.getClassName()));
-    if (debug.contains(DebugOption.CLASS)) {
+    if (debug.contains(DebugOption.ALL)) {
       debug(reader);
     }
     ClassNode node = createClassVisitor(ClassNode::new);

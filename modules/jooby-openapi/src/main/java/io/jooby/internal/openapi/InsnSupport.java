@@ -18,18 +18,25 @@ public class InsnSupport {
 
   private static class NodeIterator implements Iterator<org.objectweb.asm.tree.AbstractInsnNode> {
 
+    private final AbstractInsnNode to;
     private AbstractInsnNode node;
     private Function<AbstractInsnNode, AbstractInsnNode> next;
 
-    public NodeIterator(final org.objectweb.asm.tree.AbstractInsnNode node,
+    public NodeIterator(final AbstractInsnNode node,
+        final Function<AbstractInsnNode, AbstractInsnNode> next) {
+      this(node, null, next);
+    }
+
+    public NodeIterator(final AbstractInsnNode node, AbstractInsnNode to,
         final Function<AbstractInsnNode, AbstractInsnNode> next) {
       this.node = node;
       this.next = next;
+      this.to = to;
     }
 
     @Override
     public boolean hasNext() {
-      return node != null;
+      return node != to;
     }
 
     @Override
@@ -53,7 +60,17 @@ public class InsnSupport {
   }
 
   public static Stream<AbstractInsnNode> prev(AbstractInsnNode node) {
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(prevIterator(node), Spliterator.ORDERED), false);
+    return StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(prevIterator(node), Spliterator.ORDERED),
+            false);
+  }
+
+  public static Stream<AbstractInsnNode> prev(AbstractInsnNode from, AbstractInsnNode to) {
+    return StreamSupport
+        .stream(Spliterators
+                .spliteratorUnknownSize(new NodeIterator(from, to, AbstractInsnNode::getPrevious),
+                    Spliterator.ORDERED),
+            false);
   }
 
   public static Stream<AbstractInsnNode> next(AbstractInsnNode node) {

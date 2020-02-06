@@ -60,11 +60,17 @@ public final class MediaType implements Comparable<MediaType> {
   /** MULTIPART_FORM_DATA. */
   public static final String MULTIPART_FORMDATA = "multipart/form-data";
 
+  /** YAML. */
+  public static final String YAML = "application/yaml";
+
   /** ALL. */
   public static final String ALL = "*/*";
 
   /** APPLICATION_JSON. */
   public static final MediaType json = new MediaType(JSON, UTF_8);
+
+  /** YAML. */
+  public static final MediaType yaml = new MediaType(YAML, UTF_8);
 
   /** APPLICATION_XML. */
   public static final MediaType xml = new MediaType(XML, UTF_8);
@@ -85,10 +91,10 @@ public final class MediaType implements Comparable<MediaType> {
   public static final MediaType octetStream = new MediaType(OCTET_STREAM, null);
 
   /** FORM_URLENCODED. */
-  public static final MediaType formUrlencoded = new MediaType(FORM_URLENCODED, UTF_8);
+  public static final MediaType form = new MediaType(FORM_URLENCODED, UTF_8);
 
   /** MULTIPART_FORM_DATA. */
-  public static final MediaType multipartFormdata = new MediaType(MULTIPART_FORMDATA, UTF_8);
+  public static final MediaType multipart = new MediaType(MULTIPART_FORMDATA, UTF_8);
 
   /** ALL. */
   public static final MediaType all = new MediaType(ALL, null);
@@ -220,7 +226,10 @@ public final class MediaType implements Comparable<MediaType> {
       return true;
     }
     String subtype = getSubtype();
-    return subtype.endsWith("json") || subtype.endsWith("javascript") || subtype.endsWith("xml");
+    return subtype.endsWith("json")
+        || subtype.endsWith("javascript")
+        || subtype.endsWith("xml")
+        || subtype.endsWith("yaml");
   }
 
   /**
@@ -320,32 +329,35 @@ public final class MediaType implements Comparable<MediaType> {
     if (value == null || value.length() == 0 || value.equals("*")) {
       return all;
     }
-    if (HTML.equalsIgnoreCase(value)) {
+    if (HTML.equalsIgnoreCase(value) || "html".equals(value)) {
       return html;
     }
-    if (TEXT.equalsIgnoreCase(value)) {
+    if (TEXT.equalsIgnoreCase(value) || "text".equals(value)) {
       return text;
     }
-    if (JSON.equalsIgnoreCase(value)) {
+    if (JSON.equalsIgnoreCase(value) || "json".equals(value)) {
       return json;
     }
-    if (JS.equalsIgnoreCase(value)) {
+    if (JS.equalsIgnoreCase(value) || "js".equals(value) || "javascript".equals(value)) {
       return js;
     }
-    if (CSS.equalsIgnoreCase(value)) {
+    if (CSS.equalsIgnoreCase(value) || "css".equals(value)) {
       return css;
     }
-    if (FORM_URLENCODED.equalsIgnoreCase(value)) {
-      return formUrlencoded;
+    if (FORM_URLENCODED.equalsIgnoreCase(value) || "form".equals(value)) {
+      return form;
     }
-    if (MULTIPART_FORMDATA.equalsIgnoreCase(value)) {
-      return multipartFormdata;
+    if (MULTIPART_FORMDATA.equalsIgnoreCase(value) || "multipart".equals(value)) {
+      return multipart;
     }
-    if (OCTET_STREAM.equalsIgnoreCase(value)) {
+    if (OCTET_STREAM.equalsIgnoreCase(value) || "octetStream".equals(value)) {
       return octetStream;
     }
-    if (XML.equalsIgnoreCase(value)) {
+    if (XML.equalsIgnoreCase(value) || "xml".equals(value)) {
       return xml;
+    }
+    if (YAML.equalsIgnoreCase(value) || "yaml".equals(value)) {
+      return yaml;
     }
     return new MediaType(value, null);
   }
@@ -736,7 +748,7 @@ public final class MediaType implements Comparable<MediaType> {
       case "qt":
         return new MediaType("video/quicktime", null);
       case "yaml":
-        return new MediaType("application/yaml", UTF_8);
+        return yaml;
       case "pnm":
         return new MediaType("image/x-portable-anymap", null);
       case "tar.gz":

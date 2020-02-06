@@ -1,7 +1,7 @@
 package io.jooby.internal.openapi;
 
 public enum DebugOption {
-  CLASS,
+  ALL,
 
   HANDLER_LINK,
 

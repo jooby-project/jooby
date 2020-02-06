@@ -12,12 +12,15 @@ import examples.RouteInline;
 import examples.RoutePatternIdioms;
 import examples.RouteReturnTypeApp;
 import examples.ABean;
+import examples.RouterProduceConsume;
+import io.jooby.internal.openapi.DebugOption;
 import io.jooby.internal.openapi.HttpType;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtRouteIdioms;
 import kt.KtRouteImport;
 import kt.KtRouteReturnType;
 
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
@@ -897,6 +900,27 @@ public class OpenApiToolTest {
         .next(route -> {
           assertEquals("GET /array/4", route.toString());
           assertEquals("[Ljava.lang.String;", route.getReturnType().getJavaType());
+        })
+        .verify();
+  }
+
+  @OpenApiTest(value = RouterProduceConsume.class)
+  public void routeProduceConsume(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /", route.toString());
+          assertEquals(Arrays.asList("text/html", "text/plain", "some/type"), route.getProduces());
+          assertEquals(Arrays.asList("application/json", "application/javascript"), route.getConsumes());
+        })
+        .next(route -> {
+          assertEquals("GET /json", route.toString());
+          assertEquals(Arrays.asList("application/json"), route.getProduces());
+          assertEquals(Arrays.asList("application/json"), route.getConsumes());
+        })
+        .next(route -> {
+          assertEquals("GET /api/people", route.toString());
+          assertEquals(Arrays.asList("application/yaml"), route.getProduces());
+          assertEquals(Arrays.asList("application/yaml"), route.getConsumes());
         })
         .verify();
   }
