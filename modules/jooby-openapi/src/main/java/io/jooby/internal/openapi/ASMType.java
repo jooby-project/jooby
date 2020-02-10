@@ -104,6 +104,7 @@ public class ASMType {
       case "J": return "long";
       case "F": return "float";
       case "D": return "double";
+      case "V": return "void";
     }
     return null;
   }

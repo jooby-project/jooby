@@ -11,7 +11,6 @@ import io.jooby.annotations.HeaderParam;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
-import io.jooby.internal.asm.ReturnType;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -24,6 +23,7 @@ import org.objectweb.asm.tree.ParameterNode;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,18 +34,25 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
+import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
+
 public class RouteMvcParser {
   static final String PACKAGE = GET.class.getPackage().getName();
 
   static final Set<String> IGNORED_PARAM_TYPE = Arrays.asList(
       Context.class.getName(),
       Session.class.getName(),
-      "java.util.Optional<" + Session.class.getName() + ">"
+      "java.util.Optional<" + Session.class.getName() + ">",
+      "kotlin.coroutines.Continuation"
   ).stream().collect(Collectors.toSet());
 
   public static List<RouteDescriptor> parse(ExecutionContext ctx, String prefix,
       Signature signature, MethodInsnNode node) {
-    if (signature.matches(Class.class) || signature.matches(Class.class, Provider.class)) {
+    if (signature.matches(Class.class) ||
+        signature.matches(Class.class, Provider.class)
+        || signature.matches(KT_KLASS)
+        || signature.matches(KT_KLASS, KT_FUN_0)) {
       Type type = InsnSupport.prev(node)
           .filter(e -> e instanceof LdcInsnNode && ((LdcInsnNode) e).cst instanceof Type)
           .findFirst()
@@ -88,7 +95,14 @@ public class RouteMvcParser {
 
   private static List<RouteReturnType> returnTypes(MethodNode method) {
     List<RouteReturnType> result = new ArrayList<>();
+    Signature signature = Signature.create(method);
     String desc = Optional.ofNullable(method.signature).orElse(method.desc);
+    String continuationType = "Lkotlin/coroutines/Continuation;";
+    if (signature.matches(Type.getType(continuationType)) && method.signature != null) {
+      desc = method.signature.substring(1, method.signature.indexOf(')'));
+      // Lkotlin/coroutines/Continuation<-Ljava/lang/String;>;
+      desc = desc.substring(continuationType.length() + 1, desc.length() - 2);
+    }
     int i = desc.indexOf(')');
     if (i > 0) {
       desc = desc.substring(i + 1);
@@ -104,9 +118,15 @@ public class RouteMvcParser {
       for (int i = 0; i < method.parameters.size(); i++) {
         ParameterNode parameter = method.parameters.get(i);
 
+        List<String> parameterNames;
+        if (parameter.name.equals("continuation") && i == method.parameters.size() - 1) {
+          parameterNames = Arrays.asList(parameter.name, "$" + parameter.name);
+        } else {
+          parameterNames = Collections.singletonList(parameter.name);
+        }
         /** Java Type: */
         LocalVariableNode variable = method.localVariables.stream()
-            .filter(var -> var.name.equals(parameter.name))
+            .filter(var -> parameterNames.contains(var.name))
             .findFirst()
             .orElseThrow(() -> new IllegalStateException(
                 "Parameter type not found on method: " + method.name + ", parameter: "
@@ -132,7 +152,7 @@ public class RouteMvcParser {
         /** Required: */
         boolean required = isPrimitive(javaType)
             ? true
-            : !javaType.startsWith("java.util.Optional");
+            : !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
 
         RouteArgument argument = new RouteArgument();
         argument.setName(parameter.name);
@@ -144,6 +164,15 @@ public class RouteMvcParser {
       }
     }
     return result;
+  }
+
+  private static boolean isNullable(MethodNode method, int paramIndex) {
+    if (paramIndex < method.invisibleAnnotableParameterCount) {
+      List<AnnotationNode> annotations = method.invisibleParameterAnnotations[paramIndex];
+      return annotations.stream()
+          .anyMatch(a -> a.desc.equals("Lorg/jetbrains/annotations/Nullable;"));
+    }
+    return true;
   }
 
   private static boolean isPrimitive(String javaType) {
@@ -229,10 +258,24 @@ public class RouteMvcParser {
                 .map(RouteMvcParser::arrayToMap)
             )
             .collect(Collectors.toList());
+
+        if (values.isEmpty()) {
+          values = findAnnotationByType(annotations,
+              Arrays.asList(javax.ws.rs.Path.class.getName())).stream()
+              .flatMap(annotation -> Stream.of(annotation.values)
+                  .filter(Objects::nonNull)
+                  .map(RouteMvcParser::arrayToMap)
+              )
+              .collect(Collectors.toList());
+        }
       }
 
       for (Map<String, Object> map : values) {
-        ((List) map.getOrDefault("value", Collections.emptyList()))
+        Object value = map.getOrDefault("value", Collections.emptyList());
+        if (!(value instanceof Collection)) {
+          value = Arrays.asList(value);
+        }
+        ((List) value)
             .forEach(v -> patterns.add(RoutePath.path(prefix, v.toString())));
       }
     }
@@ -261,15 +304,19 @@ public class RouteMvcParser {
   }
 
   private static List<String> httpMethod(List<AnnotationNode> annotations) {
-    return findAnnotationByType(annotations, httpMethods()).stream()
+    List<String> methods = findAnnotationByType(annotations, httpMethods()).stream()
         .map(n -> Type.getType(n.desc).getClassName())
         .map(name -> {
           String[] names = name.split("\\.");
           return names[names.length - 1];
         })
-        .map(m -> m.equals("Path") ? Router.GET : m)
         .distinct()
         .collect(Collectors.toList());
+    if (methods.size() == 1 && methods.contains("Path")) {
+      return Arrays.asList(Router.GET);
+    }
+    methods.remove("Path");
+    return methods;
   }
 
   private static boolean isRouter(MethodNode node) {
@@ -290,7 +337,7 @@ public class RouteMvcParser {
 
     // JAXRS annotations
     annotationTypes
-        .addAll(httpMethod(javax.ws.rs.GET.class.getName(), javax.ws.rs.Path.class));
+        .addAll(httpMethod(javax.ws.rs.GET.class.getPackage().getName(), javax.ws.rs.Path.class));
     return annotationTypes;
   }
 

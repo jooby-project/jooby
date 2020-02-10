@@ -29,6 +29,10 @@ public class TypeFactory {
 
   public static final Type COROUTINE_ROUTER = Type.getType("Lio/jooby/CoroutineRouter;");
 
+  public static final Type KT_KLASS = Type.getType("Lkotlin/reflect/KClass;");
+
+  public static final Type KT_FUN_0 = Type.getType("Lkotlin/jvm/functions/Function0;");
+
   public static final Type KT_FUN_1 = Type.getType("Lkotlin/jvm/functions/Function1;");
 
   public static final Type KT_FUN_2 = Type.getType("Lkotlin/jvm/functions/Function2;");

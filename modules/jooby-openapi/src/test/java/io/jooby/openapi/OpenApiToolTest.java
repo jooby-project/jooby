@@ -17,6 +17,7 @@ import examples.RouterProduceConsume;
 import io.jooby.internal.openapi.DebugOption;
 import io.jooby.internal.openapi.HttpType;
 import kt.KtCoroutineRouteIdioms;
+import kt.KtMvcApp;
 import kt.KtRouteIdioms;
 import kt.KtRouteImport;
 import kt.KtRouteReturnType;
@@ -927,7 +928,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = MvcApp.class, debug = DebugOption.HANDLER)
+  @OpenApiTest(value = MvcApp.class)
   public void routeMvc(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
@@ -1065,6 +1066,60 @@ public class OpenApiToolTest {
         })
         .next(route -> {
           assertEquals("GET /api/returnList", route.toString());
+          assertEquals("java.util.List<" + String.class.getName() + ">",
+              route.getReturnType().toString());
+        })
+        .verify();
+  }
+
+  @OpenApiTest(value = KtMvcApp.class)
+  public void ktMvc(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /", route.toString());
+          assertEquals(String.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("DELETE /unit", route.toString());
+          assertEquals(void.class.getName(), route.getReturnType().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /doMap", route.toString());
+          assertEquals("java.util.Map<java.lang.String,java.lang.Object>",
+              route.getReturnType().toString());
+        })
+        .next((route, args) -> {
+          assertEquals("GET /doParams", route.toString());
+          assertEquals(ABean.class.getName(), route.getReturnType().toString());
+          args
+              .next(arg -> {
+                assertEquals("i", arg.getName());
+                assertEquals("int", arg.getJavaType());
+                assertEquals(HttpType.QUERY, arg.getHttpType());
+                assertTrue(arg.isRequired());
+              })
+              .next(arg -> {
+                assertEquals("oi", arg.getName());
+                assertEquals("java.lang.Integer", arg.getJavaType());
+                assertEquals(HttpType.QUERY, arg.getHttpType());
+                assertFalse(arg.isRequired());
+              })
+              .next(arg -> {
+                assertEquals("q", arg.getName());
+                assertEquals("java.lang.String", arg.getJavaType());
+                assertEquals(HttpType.QUERY, arg.getHttpType());
+                assertTrue(arg.isRequired());
+              })
+              .next(arg -> {
+                assertEquals("nullq", arg.getName());
+                assertEquals("java.lang.String", arg.getJavaType());
+                assertEquals(HttpType.QUERY, arg.getHttpType());
+                assertFalse(arg.isRequired());
+              })
+              .verify();
+        })
+        .next((route, args) -> {
+          assertEquals("GET /coroutine", route.toString());
           assertEquals("java.util.List<" + String.class.getName() + ">", route.getReturnType().toString());
         })
         .verify();
