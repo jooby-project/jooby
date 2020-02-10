@@ -28,6 +28,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.jooby.internal.openapi.RoutePath.path;
+
 public class RouteParser {
 
   public List<RouteDescriptor> routes(ExecutionContext ctx) {
@@ -52,7 +54,9 @@ public class RouteParser {
         MethodInsnNode node = (MethodInsnNode) it;
         Signature signature = Signature.create(node);
         if (ctx.isRouter(signature.getOwner().orElse(null))) {
-          if (signature.matches("<init>", TypeFactory.KT_FUN_1)) {
+          if (signature.matches("mvc")) {
+            handlerList.addAll(RouteMvcParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
+          } else if (signature.matches("<init>", TypeFactory.KT_FUN_1)) {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
           } else if (signature.matches("use", Router.class)) {
             handlerList.addAll(useRouter(ctx, prefix, node, findRouterInstruction(node)));
@@ -300,15 +304,6 @@ public class RouteParser {
         .map(it -> ((LdcInsnNode) it).cst.toString())
         .orElseThrow(() -> new IllegalStateException(
             "Route pattern not found: " + InsnSupport.toString(methodInsnNode)));
-  }
-
-  private String path(String prefix, String path) {
-    String s1 = Router.leadingSlash(prefix);
-    String s2 = Router.leadingSlash(path);
-    if (s1.equals("/")) {
-      return s2;
-    }
-    return s2.equals("/") ? s1 : s1 + s2;
   }
 
   private MethodNode findRouteHandler(ExecutionContext ctx, MethodInsnNode node) {

@@ -1,5 +1,6 @@
 package io.jooby.internal.openapi;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
@@ -80,12 +81,14 @@ public class ExecutionContext {
   }
 
   private void debug(MethodNode node) {
+    System.out.println(Type.getReturnType(node.desc).getClassName() + " " + node.name + " {");
     Printer printer = new ASMifier();
     TraceMethodVisitor traceClassVisitor = new TraceMethodVisitor(null, printer);
     node.accept(traceClassVisitor);
     PrintWriter writer = new PrintWriter(System.out);
     printer.print(writer);
     writer.flush();
+    System.out.println("}");
   }
 
   public void debugHandlerLink(MethodNode node) {

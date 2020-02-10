@@ -1,11 +1,8 @@
 package io.jooby.internal.openapi;
 
-import io.jooby.HandlerContext;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.signature.SignatureReader;
-import org.objectweb.asm.signature.SignatureVisitor;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnNode;
@@ -20,16 +17,11 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -137,7 +129,7 @@ public class RouteReturnTypeParser {
                 }
                 descriptor += "<" + handleDescriptor + ">;";
               }
-              return parseSignature(descriptor);
+              return ASMType.parse(descriptor);
             }
             /** array literal: */
             if (i.getOpcode() == Opcodes.NEWARRAY) {
@@ -166,7 +158,7 @@ public class RouteReturnTypeParser {
             // empty array of objects
             if (i.getOpcode() == Opcodes.ANEWARRAY) {
               TypeInsnNode typeInsn = (TypeInsnNode) i;
-              return parseSignature("[L" + typeInsn.desc + ";");
+              return ASMType.parse("[L" + typeInsn.desc + ";");
             }
             // non empty array
             switch (i.getOpcode()) {
@@ -190,7 +182,7 @@ public class RouteReturnTypeParser {
                     .findFirst()
                     .map(e -> {
                       TypeInsnNode typeInsn = (TypeInsnNode) e;
-                      return parseSignature("[L" + typeInsn.desc + ";");
+                      return ASMType.parse("[L" + typeInsn.desc + ";");
                     })
                     .orElse(Object.class.getName());
             }
@@ -215,7 +207,7 @@ public class RouteReturnTypeParser {
         .filter(m -> m.name.equals(node.name) && m.desc.equals(node.desc))
         .findFirst()
         .map(m -> Optional.ofNullable(m.signature)
-            .map(RouteReturnTypeParser::parseSignature)
+            .map(ASMType::parse)
             .orElseGet(() -> Type.getReturnType(m.desc).getClassName())
         )
         .orElse(returnType.getClassName());
@@ -242,7 +234,7 @@ public class RouteReturnTypeParser {
               Type kotlinLambda = Type.getType($this.desc);
               ClassNode classNode = ctx.classNodeOrNull(kotlinLambda);
               if (classNode != null && classNode.signature != null) {
-                String type = parseSignature(classNode.signature, internalName ->
+                String type = ASMType.parse(classNode.signature, internalName ->
                     !internalName.equals("kotlin/jvm/internal/Lambda")
                         && !internalName.equals("kotlin/jvm/functions/Function1")
                         && !internalName.equals("io/jooby/HandlerContext")
@@ -251,9 +243,9 @@ public class RouteReturnTypeParser {
               }
             }
           }
-          return parseSignature(var.desc);
+          return ASMType.parse(var.desc);
         }
-        return parseSignature(var.signature);
+        return ASMType.parse(var.signature);
       }
     }
     return Object.class.getName();
@@ -262,91 +254,5 @@ public class RouteReturnTypeParser {
   private static Predicate<AbstractInsnNode> kotlinIntrinsics() {
     return i -> (i instanceof MethodInsnNode && ((MethodInsnNode) i).owner
         .equals("kotlin/jvm/internal/Intrinsics"));
-  }
-
-  private static class TypeName {
-    String name;
-    String prefix;
-    String suffix;
-    List<TypeName> arguments = new ArrayList<>();
-
-    @Override public String toString() {
-      StringBuilder buff = new StringBuilder();
-      if (prefix != null) {
-        buff.append(prefix);
-      }
-      buff.append(name.replace("/", "."));
-      if (arguments.size() > 0) {
-        String argstring = arguments.stream().map(TypeName::toString)
-            .collect(Collectors.joining(",", "<", ">"));
-        buff.append(argstring);
-      }
-      if (suffix != null) {
-        buff.append(suffix);
-      }
-      return buff.toString();
-    }
-  }
-
-  private static String parseSignature(String signature) {
-    return parseSignature(signature, type -> true);
-  }
-
-  private static String parseSignature(String signature, Predicate<String> filter) {
-    SignatureReader reader = new SignatureReader(signature);
-    LinkedList<TypeName> stack = new LinkedList<>();
-    SignatureVisitor visitor = new SignatureVisitor(Opcodes.ASM7) {
-      @Override public void visitClassType(String name) {
-        if (filter.test(name)) {
-          if (stack.isEmpty()) {
-            TypeName type = new TypeName();
-            type.name = name;
-            stack.push(type);
-          } else {
-            TypeName type = stack.peek();
-            if (type.name == null) {
-              type.name = name;
-            } else {
-              TypeName arg = new TypeName();
-              arg.name = name;
-              type.arguments.add(arg);
-              stack.push(arg);
-            }
-          }
-        }
-      }
-
-      @Override public void visitEnd() {
-        if (stack.size() > 1) {
-          stack.pop();
-        }
-      }
-
-      @Override public void visitBaseType(char descriptor) {
-        visitClassType(String.valueOf(descriptor));
-        TypeName type = stack.peek();
-        type.prefix = "[";
-        type.suffix = null;
-      }
-
-      @Override public SignatureVisitor visitArrayType() {
-        TypeName type = new TypeName();
-        type.prefix = "[L";
-        type.suffix = ";";
-        stack.push(type);
-        return this;
-      }
-    };
-    reader.accept(visitor);
-    TypeName type = stack.pop();
-    return type.toString();
-  }
-
-  public static void foo(Function<HandlerContext, CompletableFuture<Integer>> fn) {
-  }
-
-  public static void main(String[] args) throws NoSuchMethodException {
-    Method foo = RouteReturnTypeParser.class.getDeclaredMethod("foo", Function.class);
-    System.out.println(Type.getMethodDescriptor(foo));
   }
 }

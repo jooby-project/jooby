@@ -25,11 +25,10 @@
       <version>${jooby.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/io.github.classgraph/classgraph -->
+    <!-- JAXRS -->
     <dependency>
-      <groupId>io.github.classgraph</groupId>
-      <artifactId>classgraph</artifactId>
-      <version>4.8.60</version>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
     </dependency>
 
     <!-- ASM -->
