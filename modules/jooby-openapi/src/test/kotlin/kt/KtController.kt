@@ -2,6 +2,7 @@ package kt
 
 import examples.ABean
 import kotlinx.coroutines.delay
+import java.util.concurrent.CompletableFuture
 import javax.ws.rs.DELETE
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -38,5 +39,11 @@ class KtController {
   suspend fun coroutine(): List<String> {
     delay(100)
     return listOf("...")
+  }
+
+  @GET
+  @Path("/future")
+  fun completableFuture(): CompletableFuture<String> {
+    return CompletableFuture.completedFuture("...")
   }
 }

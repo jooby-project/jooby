@@ -1122,6 +1122,11 @@ public class OpenApiToolTest {
           assertEquals("GET /coroutine", route.toString());
           assertEquals("java.util.List<" + String.class.getName() + ">", route.getReturnType().toString());
         })
+        .next((route, args) -> {
+          assertEquals("GET /future", route.toString());
+          assertEquals("java.util.concurrent.CompletableFuture<java.lang.String>", route.getReturnType().toString());
+          assertEquals("java.lang.String", route.getReturnType().getOverrideJavaType());
+        })
         .verify();
   }
 }
