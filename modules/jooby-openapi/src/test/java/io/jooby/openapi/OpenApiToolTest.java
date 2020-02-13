@@ -1093,13 +1093,13 @@ public class OpenApiToolTest {
           assertEquals(ABean.class.getName(), route.getReturnType().toString());
           args
               .next(arg -> {
-                assertEquals("i", arg.getName());
+                assertEquals("I", arg.getName());
                 assertEquals("int", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
                 assertTrue(arg.isRequired());
               })
               .next(arg -> {
-                assertEquals("oi", arg.getName());
+                assertEquals("oI", arg.getName());
                 assertEquals("java.lang.Integer", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
                 assertFalse(arg.isRequired());
@@ -1120,12 +1120,32 @@ public class OpenApiToolTest {
         })
         .next((route, args) -> {
           assertEquals("GET /coroutine", route.toString());
-          assertEquals("java.util.List<" + String.class.getName() + ">", route.getReturnType().toString());
+          assertEquals("java.util.List<" + String.class.getName() + ">",
+              route.getReturnType().toString());
         })
         .next((route, args) -> {
           assertEquals("GET /future", route.toString());
-          assertEquals("java.util.concurrent.CompletableFuture<java.lang.String>", route.getReturnType().toString());
+          assertEquals("java.util.concurrent.CompletableFuture<java.lang.String>",
+              route.getReturnType().toString());
           assertEquals("java.lang.String", route.getReturnType().getOverrideJavaType());
+        })
+        .next((route, args) -> {
+          assertEquals("GET /httpNames", route.toString());
+          assertEquals("java.lang.String", route.getReturnType().toString());
+          args
+              .next(arg -> {
+                assertEquals("Last-Modified-Since", arg.getName());
+                assertEquals("java.lang.String", arg.getJavaType());
+                assertEquals(HttpType.HEADER, arg.getHttpType());
+                assertTrue(arg.isRequired());
+              })
+              .next(arg -> {
+                assertEquals("x-search", arg.getName());
+                assertEquals("java.lang.String", arg.getJavaType());
+                assertEquals(HttpType.QUERY, arg.getHttpType());
+                assertTrue(arg.isRequired());
+              })
+              .verify();
         })
         .verify();
   }

@@ -3,8 +3,10 @@ package kt
 import examples.ABean
 import kotlinx.coroutines.delay
 import java.util.concurrent.CompletableFuture
+import javax.inject.Named
 import javax.ws.rs.DELETE
 import javax.ws.rs.GET
+import javax.ws.rs.HeaderParam
 import javax.ws.rs.Path
 import javax.ws.rs.QueryParam
 
@@ -45,5 +47,12 @@ class KtController {
   @Path("/future")
   fun completableFuture(): CompletableFuture<String> {
     return CompletableFuture.completedFuture("...")
+  }
+
+  @GET
+  @Path("/httpNames")
+  fun httpNames(@HeaderParam("Last-Modified-Since") lastModifiedSince: String,
+                @Named("x-search") @io.jooby.annotations.QueryParam q: String): String {
+    return lastModifiedSince
   }
 }

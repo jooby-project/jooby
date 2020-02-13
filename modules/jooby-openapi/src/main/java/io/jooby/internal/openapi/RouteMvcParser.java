@@ -20,6 +20,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ParameterNode;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,93 @@ import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
 import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
 
 public class RouteMvcParser {
+  enum ParamType {
+    CONTEXT {
+      @Override public Class[] annotations() {
+        return new Class[]{ContextParam.class};
+      }
+    },
+    HEADER {
+      @Override public Class[] annotations() {
+        return new Class[]{HeaderParam.class, javax.ws.rs.HeaderParam.class};
+      }
+    },
+    COOKIE {
+      @Override public Class[] annotations() {
+        return new Class[]{CookieParam.class, javax.ws.rs.CookieParam.class};
+      }
+    },
+    PATH {
+      @Override public Class[] annotations() {
+        return new Class[]{PathParam.class, javax.ws.rs.PathParam.class};
+      }
+    },
+    QUERY {
+      @Override public Class[] annotations() {
+        return new Class[]{QueryParam.class, javax.ws.rs.QueryParam.class};
+      }
+    },
+
+    FORM {
+      @Override public Class[] annotations() {
+        return new Class[]{FormParam.class, javax.ws.rs.FormParam.class};
+      }
+    },
+
+    BODY {
+      @Override public Class[] annotations() {
+        return new Class[0];
+      }
+    };
+
+    public abstract Class[] annotations();
+
+    public boolean matches(String annotationType) {
+      return Stream.of(annotations())
+          .anyMatch(t -> t.getName().equals(annotationType));
+    }
+
+    public HttpType getHttpType() {
+      return HttpType.valueOf(name());
+    }
+
+    public Optional<String> getHttpName(List<AnnotationNode> annotations) {
+      List<Class> names = new ArrayList<>(Arrays.asList(annotations()));
+      names.add(Named.class);
+      return annotations.stream()
+          .filter(a ->
+              names.stream().anyMatch(c -> Type.getDescriptor(c).equals(a.desc))
+          )
+          .map(a -> {
+            if (a.values != null) {
+              for (int i = 0; i < a.values.size(); i++) {
+                if (a.values.get(i).equals("value")) {
+                  Object value = a.values.get(i + 1);
+                  if (value != null && value.toString().trim().length() > 0) {
+                    return value.toString().trim();
+                  }
+                }
+              }
+            }
+            return null;
+          })
+          .filter(Objects::nonNull)
+          .findFirst();
+    }
+
+    public static ParamType find(List<AnnotationNode> annotations) {
+      for (AnnotationNode annotation : annotations) {
+        String annotationType = Type.getType(annotation.desc).getClassName();
+        for (ParamType paramType : values()) {
+          if (paramType.matches(annotationType)) {
+            return paramType;
+          }
+        }
+      }
+      return BODY;
+    }
+  }
+
   static final String PACKAGE = GET.class.getPackage().getName();
 
   static final Set<String> IGNORED_PARAM_TYPE = Arrays.asList(
@@ -118,15 +206,15 @@ public class RouteMvcParser {
       for (int i = 0; i < method.parameters.size(); i++) {
         ParameterNode parameter = method.parameters.get(i);
 
-        List<String> parameterNames;
+        List<String> javaName;
         if (parameter.name.equals("continuation") && i == method.parameters.size() - 1) {
-          parameterNames = Arrays.asList(parameter.name, "$" + parameter.name);
+          javaName = Arrays.asList(parameter.name, "$" + parameter.name);
         } else {
-          parameterNames = Collections.singletonList(parameter.name);
+          javaName = Collections.singletonList(parameter.name);
         }
         /** Java Type: */
         LocalVariableNode variable = method.localVariables.stream()
-            .filter(var -> parameterNames.contains(var.name))
+            .filter(var -> javaName.contains(var.name))
             .findFirst()
             .orElseThrow(() -> new IllegalStateException(
                 "Parameter type not found on method: " + method.name + ", parameter: "
@@ -140,14 +228,14 @@ public class RouteMvcParser {
         }
 
         /** HTTP Type: */
-        HttpType httpType = HttpType.BODY;
+        List<AnnotationNode> annotations;
         if (method.visibleParameterAnnotations != null
             && i < method.visibleParameterAnnotations.length) {
-          List<AnnotationNode> annotations = method.visibleParameterAnnotations[i];
-          httpType = findAnnotationByType(annotations, httpType()).stream().findFirst()
-              .map(RouteMvcParser::paramAnnotationToHttpType)
-              .orElse(null);
+          annotations = method.visibleParameterAnnotations[i];
+        } else {
+          annotations = Collections.emptyList();
         }
+        ParamType paramType = ParamType.find(annotations);
 
         /** Required: */
         boolean required = isPrimitive(javaType)
@@ -155,9 +243,9 @@ public class RouteMvcParser {
             : !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
 
         RouteArgument argument = new RouteArgument();
-        argument.setName(parameter.name);
+        argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
         argument.setJavaType(javaType);
-        argument.setHttpType(httpType);
+        argument.setHttpType(paramType.getHttpType());
         argument.setRequired(required);
 
         result.add(argument);
