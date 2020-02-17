@@ -30,7 +30,7 @@ public class OpenApiParser {
         .ifPresent(a -> swaggerOperation(operation, arrayToMap(a.values)));
 
     /** @ApiResponses: */
-    List<OperationResponse> responses = findAnnotationByType(method.visibleAnnotations,
+    List<Response> responses = findAnnotationByType(method.visibleAnnotations,
         singletonList(ApiResponses.class.getName()))
         .stream()
         .flatMap(a -> (
@@ -49,22 +49,34 @@ public class OpenApiParser {
           .findFirst()
           .map(a -> arrayToMap(a.values))
           .map(a -> operationResponse(a))
-          .ifPresent(a -> operation.setResponse(Collections.singletonList(a)));
+          .ifPresent(a -> operation.setResponses(apiResponses(a)));
     } else {
-      operation.setResponse(responses);
+      operation.setResponses(apiResponses(responses));
     }
   }
 
-  private static <R> void swaggerOperation(Operation operation, Map<String, Object> annotation) {
+  private static io.swagger.v3.oas.models.responses.ApiResponses apiResponses(
+      Response... responses) {
+    return apiResponses(Arrays.asList(responses));
+  }
+
+  private static io.swagger.v3.oas.models.responses.ApiResponses apiResponses(
+      List<Response> responses) {
+    io.swagger.v3.oas.models.responses.ApiResponses result = new io.swagger.v3.oas.models.responses.ApiResponses();
+    responses.forEach(r -> result.addApiResponse(r.getCode(), r));
+    return result;
+  }
+
+  private static void swaggerOperation(Operation operation, Map<String, Object> annotation) {
     String operationId = (String) annotation.getOrDefault("operationId", "");
     if (operationId.trim().length() > 0) {
-      operation.setId(operationId.trim());
+      operation.setOperationId(operationId.trim());
     }
     Boolean deprecated = (Boolean) annotation.get("deprecated");
     if (deprecated == Boolean.TRUE) {
       operation.setDeprecated(deprecated.booleanValue());
     }
-    Boolean hidden = (Boolean) annotation.getOrDefault("deprecated", false);
+    Boolean hidden = (Boolean) annotation.getOrDefault("hidden", false);
     operation.setHidden(hidden.booleanValue());
 
     String summary = (String) annotation.getOrDefault("summary", "");
@@ -78,20 +90,20 @@ public class OpenApiParser {
     }
 
     List<String> tags = (List<String>) annotation.getOrDefault("tags", emptyList());
-    tags.forEach(operation::addTag);
+    tags.forEach(operation::addTagsItem);
 
-    List<OperationResponse> operationResponses = operationResponses(annotation);
-    if (operationResponses.size() > 0) {
-      operation.setResponse(operationResponses);
+    List<Response> respons = operationResponses(annotation);
+    if (respons.size() > 0) {
+      operation.setResponses(apiResponses(respons));
     }
   }
 
-  private static List<OperationResponse> operationResponses(Map<String, Object> annotation) {
+  private static List<Response> operationResponses(Map<String, Object> annotation) {
     List<AnnotationNode> responses = (List<AnnotationNode>) annotation
         .getOrDefault("responses", emptyList());
     if (responses.size() > 0) {
       // clear any detected response
-      List<OperationResponse> returnTypes = responses.stream()
+      List<Response> returnTypes = responses.stream()
           .map(it -> arrayToMap(it.values))
           .map(it -> operationResponse(it))
           .collect(Collectors.toList());
@@ -101,15 +113,15 @@ public class OpenApiParser {
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse)
-  private static OperationResponse operationResponse(Map<String, Object> annotation) {
-    String code = (String) annotation.getOrDefault("responseCode", "200");
+  private static Response operationResponse(Map<String, Object> annotation) {
+    String code = (String) annotation.getOrDefault("responseCode", "default");
     String description = (String) annotation.getOrDefault("description", "");
 
     List<String> javaTypes = operationResponseContent(annotation);
 
-    OperationResponse response = new OperationResponse();
+    Response response = new Response();
     if (javaTypes.size() > 0) {
-      response.setJavaType(javaTypes.get(0));
+      response.setJavaTypes(javaTypes);
     }
     if (description.trim().length() > 0) {
       response.setDescription(description.trim());

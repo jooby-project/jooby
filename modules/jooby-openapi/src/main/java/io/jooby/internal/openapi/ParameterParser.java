@@ -79,7 +79,7 @@ public class ParameterParser {
     return args;
   }
 
-   private static void argumentContextToType(Parameter argument, MethodInsnNode node) {
+  private static void argumentContextToType(Parameter argument, MethodInsnNode node) {
     Type type = InsnSupport.prev(node)
         .filter(LdcInsnNode.class::isInstance)
         .findFirst()
@@ -188,7 +188,8 @@ public class ParameterParser {
     return valueOwner().and(e -> ((MethodInsnNode) e).name.equals("toOptional"));
   }
 
-  private static String toGenericOne(MethodInsnNode node, Signature signature, Class collectionType) {
+  private static String toGenericOne(MethodInsnNode node, Signature signature,
+      Class collectionType) {
     StringBuilder type = new StringBuilder(collectionType.getName());
     type.append("<");
     if (signature.matches(Class.class)) {

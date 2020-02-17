@@ -182,13 +182,13 @@ public class AnnotationParser {
     List<Operation> result = new ArrayList<>();
 
     List<Parameter> arguments = routerArguments(method);
-    List<OperationResponse> returnTypes = returnTypes(method);
+    List<Response> returnTypes = returnTypes(method);
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(classNode, method, httpMethod)) {
         Operation operation = new Operation(method, httpMethod, RoutePath.path(prefix, pattern), arguments,
             returnTypes);
-        operation.setId(method.name);
+        operation.setOperationId(method.name);
         operation.setDeprecated(isDeprecated(method.visibleAnnotations));
         result.add(operation);
       }
@@ -205,8 +205,8 @@ public class AnnotationParser {
     return false;
   }
 
-  private static List<OperationResponse> returnTypes(MethodNode method) {
-    List<OperationResponse> result = new ArrayList<>();
+  private static List<Response> returnTypes(MethodNode method) {
+    List<Response> result = new ArrayList<>();
     Signature signature = Signature.create(method);
     String desc = Optional.ofNullable(method.signature).orElse(method.desc);
     String continuationType = "Lkotlin/coroutines/Continuation;";
@@ -219,7 +219,8 @@ public class AnnotationParser {
     if (i > 0) {
       desc = desc.substring(i + 1);
     }
-    OperationResponse rrt = new OperationResponse(ASMType.parse(desc));
+    Response rrt = new Response();
+    rrt.setJavaTypes(Collections.singletonList(ASMType.parse(desc)));
     result.add(rrt);
     return result;
   }

@@ -21,6 +21,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -159,16 +160,16 @@ public class OperationParser {
           if (instructionTo != null) {
             Operation route = handlerList.get(handlerList.size() - 1);
             InsnSupport.prev(it, instructionTo)
-                .flatMap(mediaType())
-                .forEach(route::addProduces);
+                .flatMap(mediaType());
+//                .forEach(route::addProduces);
             instructionTo = it;
           }
         } else if (signature.matches(Route.class, "consumes", MediaType[].class)) {
           if (instructionTo != null) {
             Operation route = handlerList.get(handlerList.size() - 1);
             InsnSupport.prev(it, instructionTo)
-                .flatMap(mediaType())
-                .forEach(route::addConsumes);
+                .flatMap(mediaType());
+//                .forEach(route::addConsumes);
             instructionTo = it;
           }
         }
@@ -283,10 +284,10 @@ public class OperationParser {
   private Operation newRouteDescriptor(ExecutionContext ctx, MethodNode node,
       String httpMethod, String prefix) {
     List<Parameter> arguments = ParameterParser.parse(ctx, node);
-    List<OperationResponse> returnTypes = ResponseParser.parse(ctx, node).stream()
-        .map(OperationResponse::new)
-        .collect(Collectors.toList());
-    return new Operation(node, httpMethod, prefix, arguments, returnTypes);
+    Response response = new Response();
+    List<String> returnTypes = ResponseParser.parse(ctx, node);
+    response.setJavaTypes(returnTypes);
+    return new Operation(node, httpMethod, prefix, arguments, Collections.singletonList(response));
   }
 
   private int returnTypePrecedence(MethodNode method) {

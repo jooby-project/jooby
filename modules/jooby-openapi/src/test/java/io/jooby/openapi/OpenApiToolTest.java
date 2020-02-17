@@ -13,7 +13,6 @@ import examples.RouteInline;
 import examples.RoutePatternIdioms;
 import examples.RouteReturnTypeApp;
 import examples.ABean;
-import examples.RouterProduceConsume;
 import io.jooby.internal.openapi.HttpType;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtMvcApp;
@@ -21,7 +20,6 @@ import kt.KtRouteIdioms;
 import kt.KtRouteImport;
 import kt.KtRouteReturnType;
 
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
@@ -141,7 +139,7 @@ public class OpenApiToolTest {
                 assertEquals(String.class.getName(), it.getJavaType());
                 assertEquals("str", it.getName());
                 assertNull(it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -149,7 +147,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("i", it.getName());
                 assertNull(it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -157,7 +155,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.List<java.lang.String>", it.getJavaType());
                 assertEquals("listStr", it.getName());
                 assertNull(it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -165,7 +163,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.List<java.lang.Double>", it.getJavaType());
                 assertEquals("listType", it.getName());
                 assertNull(it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -173,7 +171,7 @@ public class OpenApiToolTest {
                 assertEquals(String.class.getName(), it.getJavaType());
                 assertEquals("defstr", it.getName());
                 assertEquals("default", it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -181,7 +179,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("defint", it.getName());
                 assertEquals(87, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -189,7 +187,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("defint0", it.getName());
                 assertEquals(0, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -197,7 +195,7 @@ public class OpenApiToolTest {
                 assertEquals(boolean.class.getName(), it.getJavaType());
                 assertEquals("defbool", it.getName());
                 assertEquals(true, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -205,7 +203,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
                 assertEquals("optstr", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -213,7 +211,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.Integer>", it.getJavaType());
                 assertEquals("optint", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -221,7 +219,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
                 assertEquals("optstr2", it.getName());
                 assertEquals("optional", it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -229,7 +227,7 @@ public class OpenApiToolTest {
                 assertEquals("java.lang.Integer", it.getJavaType());
                 assertEquals("toI", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertNull(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -237,7 +235,7 @@ public class OpenApiToolTest {
                 assertEquals(Letter.class.getName(), it.getJavaType());
                 assertEquals("letter", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -245,7 +243,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Map<java.lang.String,java.lang.String>", it.getJavaType());
                 assertEquals("query", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -254,7 +252,7 @@ public class OpenApiToolTest {
                     it.getJavaType());
                 assertEquals("queryList", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -262,7 +260,7 @@ public class OpenApiToolTest {
                 assertEquals(ABean.class.getName(), it.getJavaType());
                 assertEquals("query", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertNull(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.QUERY, it.getHttpType());
               })
@@ -282,7 +280,7 @@ public class OpenApiToolTest {
                 assertEquals(String.class.getName(), it.getJavaType());
                 assertEquals("str", it.getName());
                 assertNull(it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -290,7 +288,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("i", it.getName());
                 assertNull(it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -298,7 +296,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.List<java.lang.String>", it.getJavaType());
                 assertEquals("listStr", it.getName());
                 assertNull(it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -306,7 +304,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.List<java.lang.Double>", it.getJavaType());
                 assertEquals("listType", it.getName());
                 assertNull(it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -314,7 +312,7 @@ public class OpenApiToolTest {
                 assertEquals(String.class.getName(), it.getJavaType());
                 assertEquals("defstr", it.getName());
                 assertEquals("default", it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -322,7 +320,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("defint", it.getName());
                 assertEquals(87, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -330,7 +328,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("defint0", it.getName());
                 assertEquals(0, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -338,7 +336,7 @@ public class OpenApiToolTest {
                 assertEquals(boolean.class.getName(), it.getJavaType());
                 assertEquals("defbool", it.getName());
                 assertEquals(true, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -346,7 +344,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
                 assertEquals("optstr", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -354,7 +352,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.Integer>", it.getJavaType());
                 assertEquals("optint", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -362,7 +360,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
                 assertEquals("optstr2", it.getName());
                 assertEquals("optional", it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -370,7 +368,7 @@ public class OpenApiToolTest {
                 assertEquals("java.lang.Integer", it.getJavaType());
                 assertEquals("toI", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -378,7 +376,7 @@ public class OpenApiToolTest {
                 assertEquals(Letter.class.getName(), it.getJavaType());
                 assertEquals("letter", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -386,7 +384,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Map<java.lang.String,java.lang.String>", it.getJavaType());
                 assertEquals("path", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -395,7 +393,7 @@ public class OpenApiToolTest {
                     it.getJavaType());
                 assertEquals("pathList", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -403,7 +401,7 @@ public class OpenApiToolTest {
                 assertEquals(ABean.class.getName(), it.getJavaType());
                 assertEquals("path", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertTrue(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.PATH, it.getHttpType());
               })
@@ -423,7 +421,7 @@ public class OpenApiToolTest {
                 assertEquals(String.class.getName(), it.getJavaType());
                 assertEquals("str", it.getName());
                 assertNull(it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -431,7 +429,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("i", it.getName());
                 assertNull(it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -439,7 +437,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.List<java.lang.String>", it.getJavaType());
                 assertEquals("listStr", it.getName());
                 assertNull(it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -447,7 +445,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.List<java.lang.Double>", it.getJavaType());
                 assertEquals("listType", it.getName());
                 assertNull(it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -455,7 +453,7 @@ public class OpenApiToolTest {
                 assertEquals(String.class.getName(), it.getJavaType());
                 assertEquals("defstr", it.getName());
                 assertEquals("default", it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -463,7 +461,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("defint", it.getName());
                 assertEquals(87, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -471,7 +469,7 @@ public class OpenApiToolTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("defint0", it.getName());
                 assertEquals(0, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -479,7 +477,7 @@ public class OpenApiToolTest {
                 assertEquals(boolean.class.getName(), it.getJavaType());
                 assertEquals("defbool", it.getName());
                 assertEquals(true, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -487,7 +485,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
                 assertEquals("optstr", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -495,7 +493,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.Integer>", it.getJavaType());
                 assertEquals("optint", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -503,7 +501,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
                 assertEquals("optstr2", it.getName());
                 assertEquals("optional", it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertFalse(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -511,7 +509,7 @@ public class OpenApiToolTest {
                 assertEquals("java.lang.Integer", it.getJavaType());
                 assertEquals("toI", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertNull(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -519,7 +517,7 @@ public class OpenApiToolTest {
                 assertEquals(Letter.class.getName(), it.getJavaType());
                 assertEquals("letter", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -527,7 +525,7 @@ public class OpenApiToolTest {
                 assertEquals("java.util.Map<java.lang.String,java.lang.String>", it.getJavaType());
                 assertEquals("form", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -536,7 +534,7 @@ public class OpenApiToolTest {
                     it.getJavaType());
                 assertEquals("formList", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertTrue(it.isRequired());
+                assertTrue(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -544,7 +542,7 @@ public class OpenApiToolTest {
                 assertEquals(ABean.class.getName(), it.getJavaType());
                 assertEquals("form", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.isRequired());
+                assertNull(it.getRequired());
                 assertFalse(it.isSingle());
                 assertEquals(HttpType.FORM, it.getHttpType());
               })
@@ -581,125 +579,124 @@ public class OpenApiToolTest {
     iterator
         .next(route -> {
           assertEquals("GET /literal/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /literal/2", route.toString());
-          assertEquals(Integer.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /literal/3", route.toString());
-          assertEquals(Object.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /literal/4", route.toString());
-          assertEquals(Boolean.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Boolean.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/1", route.toString());
-          assertEquals(RouteReturnTypeApp.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(RouteReturnTypeApp.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/2", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/3", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/4", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/5", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/6", route.toString());
-          assertEquals("java.util.List<java.lang.String>", route.getReturnType().getJavaType());
+          assertEquals("java.util.List<java.lang.String>", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/1", route.toString());
-          assertEquals(CompletableFuture.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/2", route.toString());
-          assertEquals(CompletableFuture.class.getName() + "<" + Integer.class.getName() + ">",
-              route.getReturnType().getJavaType());
+          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/3", route.toString());
-          assertEquals(CompletableFuture.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/4", route.toString());
           assertEquals(Callable.class.getName() + "<" + Byte.class.getName() + ">",
-              route.getReturnType().getJavaType());
+              route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/5", route.toString());
           assertEquals(Callable.class.getName() + "<" + Character.class.getName() + ">",
-              route.getReturnType().getJavaType());
+              route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/2", route.toString());
-          assertEquals(Integer.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/3", route.toString());
-          assertEquals("[Ljava.lang.String;", route.getReturnType().getJavaType());
+          assertEquals("[Ljava.lang.String;", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/4", route.toString());
-          assertEquals("[F", route.getReturnType().getJavaType());
+          assertEquals("[F", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /complexType/1", route.toString());
-          assertEquals("java.util.List", route.getReturnType().getJavaType());
+          assertEquals("java.util.List", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /complexType/2", route.toString());
-          assertEquals("java.util.List<java.lang.String>", route.getReturnType().getJavaType());
+          assertEquals("java.util.List<java.lang.String>", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /complexType/3", route.toString());
           assertEquals("java.util.List<java.util.List<java.lang.String>>",
-              route.getReturnType().getJavaType());
+              route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/1", route.toString());
-          assertEquals("java.util.ArrayList", route.getResponse().get(0).getJavaType());
-          assertEquals("java.util.LinkedList", route.getResponse().get(1).getJavaType());
+          assertEquals("java.util.ArrayList", route.getResponse().getJavaTypes().get(0));
+          assertEquals("java.util.LinkedList", route.getResponse().getJavaTypes().get(1));
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/2", route.toString());
-          assertEquals("examples.ABean", route.getResponse().get(0).getJavaType());
-          assertEquals("examples.BBean", route.getResponse().get(1).getJavaType());
+          assertEquals("examples.ABean", route.getResponse().getJavaTypes().get(0));
+          assertEquals("examples.BBean", route.getResponse().getJavaTypes().get(1));
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/3", route.toString());
-          assertEquals("examples.Bean", route.getResponse().get(0).getJavaType());
+          assertEquals("examples.Bean", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/1", route.toString());
-          assertEquals("[Z", route.getReturnType().getJavaType());
+          assertEquals("[Z", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/2", route.toString());
-          assertEquals("[Lexamples.RouteReturnTypeApp;", route.getReturnType().getJavaType());
+          assertEquals("[Lexamples.RouteReturnTypeApp;", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/3", route.toString());
-          assertEquals("[I", route.getReturnType().getJavaType());
+          assertEquals("[I", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/4", route.toString());
-          assertEquals("[Ljava.lang.String;", route.getReturnType().getJavaType());
+          assertEquals("[Ljava.lang.String;", route.getResponse().getJavaType());
         })
         .verify();
   }
@@ -709,27 +706,27 @@ public class OpenApiToolTest {
     iterator
         .next(route -> {
           assertEquals("GET /a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /main/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /main/submain/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /require/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /subroute/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .verify();
   }
@@ -739,15 +736,15 @@ public class OpenApiToolTest {
     iterator
         .next(route -> {
           assertEquals("GET /a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /require/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /prefix/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .verify();
   }
@@ -757,27 +754,27 @@ public class OpenApiToolTest {
     iterator
         .next(route -> {
           assertEquals("GET /a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /main/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /main/submain/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /require/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /subroute/a/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .verify();
   }
@@ -787,145 +784,144 @@ public class OpenApiToolTest {
     iterator
         .next(route -> {
           assertEquals("GET /literal/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /literal/2", route.toString());
-          assertEquals(Integer.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /literal/3", route.toString());
-          assertEquals(Object.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /literal/4", route.toString());
-          assertEquals(Boolean.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Boolean.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/1", route.toString());
-          assertEquals(KtRouteReturnType.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(KtRouteReturnType.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/2", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/3", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/4", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/5", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/6", route.toString());
-          assertEquals("java.util.List<java.lang.String>", route.getReturnType().getJavaType());
+          assertEquals("java.util.List<java.lang.String>", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/1", route.toString());
-          assertEquals(CompletableFuture.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/2", route.toString());
-          assertEquals(CompletableFuture.class.getName() + "<" + Integer.class.getName() + ">",
-              route.getReturnType().getJavaType());
+          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/3", route.toString());
-          assertEquals(CompletableFuture.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/4", route.toString());
           assertEquals(Callable.class.getName() + "<" + Byte.class.getName() + ">",
-              route.getReturnType().getJavaType());
+              route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/1", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/2", route.toString());
-          assertEquals(Integer.class.getName(), route.getReturnType().getJavaType());
+          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/3", route.toString());
-          assertEquals("[Ljava.lang.String;", route.getReturnType().getJavaType());
+          assertEquals("[Ljava.lang.String;", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/4", route.toString());
-          assertEquals("[F", route.getReturnType().getJavaType());
+          assertEquals("[F", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /complexType/1", route.toString());
-          assertEquals("java.util.List", route.getReturnType().getJavaType());
+          assertEquals("java.util.List", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /complexType/2", route.toString());
-          assertEquals("java.util.List<java.lang.String>", route.getReturnType().getJavaType());
+          assertEquals("java.util.List<java.lang.String>", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /complexType/3", route.toString());
           assertEquals("java.util.List<java.util.List<java.lang.String>>",
-              route.getReturnType().getJavaType());
+              route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/1", route.toString());
-          assertEquals("java.util.ArrayList", route.getResponse().get(0).getJavaType());
-          assertEquals("java.util.LinkedList", route.getResponse().get(1).getJavaType());
+          assertEquals("java.util.ArrayList", route.getResponse().getJavaTypes().get(0));
+          assertEquals("java.util.LinkedList", route.getResponse().getJavaTypes().get(1));
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/2", route.toString());
-          assertEquals("examples.ABean", route.getResponse().get(0).getJavaType());
-          assertEquals("examples.BBean", route.getResponse().get(1).getJavaType());
+          assertEquals("examples.ABean", route.getResponse().getJavaTypes().get(0));
+          assertEquals("examples.BBean", route.getResponse().getJavaTypes().get(1));
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/3", route.toString());
-          assertEquals("examples.Bean", route.getResponse().get(0).getJavaType());
+          assertEquals("examples.Bean", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/1", route.toString());
-          assertEquals("[Z", route.getReturnType().getJavaType());
+          assertEquals("[Z", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/2", route.toString());
-          assertEquals("java.util.List<kt.KtRouteReturnType>", route.getReturnType().getJavaType());
+          assertEquals("java.util.List<kt.KtRouteReturnType>", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/3", route.toString());
-          assertEquals("[I", route.getReturnType().getJavaType());
+          assertEquals("[I", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/4", route.toString());
-          assertEquals("[Ljava.lang.String;", route.getReturnType().getJavaType());
+          assertEquals("[Ljava.lang.String;", route.getResponse().getJavaType());
         })
         .verify();
   }
-
-  @OpenApiTest(value = RouterProduceConsume.class)
-  public void routeProduceConsume(RouteIterator iterator) {
-    iterator
-        .next(route -> {
-          assertEquals("GET /", route.toString());
-          assertEquals(Arrays.asList("text/html", "text/plain", "some/type"), route.getProduces());
-          assertEquals(Arrays.asList("application/json", "application/javascript"),
-              route.getConsumes());
-        })
-        .next(route -> {
-          assertEquals("GET /json", route.toString());
-          assertEquals(Arrays.asList("application/json"), route.getProduces());
-          assertEquals(Arrays.asList("application/json"), route.getConsumes());
-        })
-        .next(route -> {
-          assertEquals("GET /api/people", route.toString());
-          assertEquals(Arrays.asList("application/yaml"), route.getProduces());
-          assertEquals(Arrays.asList("application/yaml"), route.getConsumes());
-        })
-        .verify();
-  }
+  // TODO: produces/consumes
+  //  @OpenApiTest(value = RouterProduceConsume.class)
+  //  public void routeProduceConsume(RouteIterator iterator) {
+  //    iterator
+  //        .next(route -> {
+  //          assertEquals("GET /", route.toString());
+  //          assertEquals(Arrays.asList("text/html", "text/plain", "some/type"), route.getProduces());
+  //          assertEquals(Arrays.asList("application/json", "application/javascript"),
+  //              route.getConsumes());
+  //        })
+  //        .next(route -> {
+  //          assertEquals("GET /json", route.toString());
+  //          assertEquals(Arrays.asList("application/json"), route.getProduces());
+  //          assertEquals(Arrays.asList("application/json"), route.getConsumes());
+  //        })
+  //        .next(route -> {
+  //          assertEquals("GET /api/people", route.toString());
+  //          assertEquals(Arrays.asList("application/yaml"), route.getProduces());
+  //          assertEquals(Arrays.asList("application/yaml"), route.getConsumes());
+  //        })
+  //        .verify();
+  //  }
 
   @OpenApiTest(value = MvcApp.class)
   public void routeMvc(RouteIterator iterator) {
@@ -937,10 +933,10 @@ public class OpenApiToolTest {
                 assertEquals("q", arg.getName());
                 assertEquals("java.util.Optional<java.lang.String>", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertFalse(arg.isRequired());
+                assertFalse(arg.getRequired());
               })
               .verify();
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next((route, args) -> {
           assertEquals("GET /api/bar", route.toString());
@@ -949,10 +945,10 @@ public class OpenApiToolTest {
                 assertEquals("q", arg.getName());
                 assertEquals("java.util.Optional<java.lang.String>", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertFalse(arg.isRequired());
+                assertFalse(arg.getRequired());
               })
               .verify();
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next((route, args) -> {
           assertEquals("GET /api", route.toString());
@@ -962,46 +958,46 @@ public class OpenApiToolTest {
                 assertEquals("bool", arg.getName());
                 assertEquals("boolean", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("s", arg.getName());
                 assertEquals("short", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("i", arg.getName());
                 assertEquals("int", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("c", arg.getName());
                 assertEquals("char", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("l", arg.getName());
                 assertEquals("long", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("f", arg.getName());
                 assertEquals("float", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("d", arg.getName());
                 assertEquals("double", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .verify();
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next((route, args) -> {
           assertEquals("POST /api/post", route.toString());
@@ -1010,65 +1006,65 @@ public class OpenApiToolTest {
                 assertEquals("bool", arg.getName());
                 assertEquals("boolean", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("s", arg.getName());
                 assertEquals("short", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("i", arg.getName());
                 assertEquals("int", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("c", arg.getName());
                 assertEquals("char", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("l", arg.getName());
                 assertEquals("long", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("f", arg.getName());
                 assertEquals("float", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("d", arg.getName());
                 assertEquals("double", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .verify();
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next((route, args) -> {
           assertEquals("GET /api/path", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /api/path-only", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /api/session", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
-          assertFalse(route.isDeprecated());
+          assertEquals(String.class.getName(), route.getResponse().toString());
+          assertFalse(route.getDeprecated());
         })
         .next(route -> {
           assertEquals("GET /api/returnList", route.toString());
           assertEquals("java.util.List<" + String.class.getName() + ">",
-              route.getReturnType().toString());
-          assertTrue(route.isDeprecated());
+              route.getResponse().toString());
+          assertTrue(route.getDeprecated());
         })
         .verify();
   }
@@ -1078,71 +1074,71 @@ public class OpenApiToolTest {
     iterator
         .next(route -> {
           assertEquals("GET /", route.toString());
-          assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertEquals(String.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("DELETE /unit", route.toString());
-          assertEquals(void.class.getName(), route.getReturnType().toString());
+          assertEquals(void.class.getName(), route.getResponse().toString());
         })
         .next(route -> {
           assertEquals("GET /doMap", route.toString());
           assertEquals("java.util.Map<java.lang.String,java.lang.Object>",
-              route.getReturnType().toString());
+              route.getResponse().toString());
         })
         .next((route, args) -> {
           assertEquals("GET /doParams", route.toString());
-          assertEquals(ABean.class.getName(), route.getReturnType().toString());
+          assertEquals(ABean.class.getName(), route.getResponse().toString());
           args
               .next(arg -> {
                 assertEquals("I", arg.getName());
                 assertEquals("int", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("oI", arg.getName());
                 assertEquals("java.lang.Integer", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertFalse(arg.isRequired());
+                assertFalse(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("q", arg.getName());
                 assertEquals("java.lang.String", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("nullq", arg.getName());
                 assertEquals("java.lang.String", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertFalse(arg.isRequired());
+                assertFalse(arg.getRequired());
               })
               .verify();
         })
         .next((route, args) -> {
           assertEquals("GET /coroutine", route.toString());
           assertEquals("java.util.List<" + String.class.getName() + ">",
-              route.getReturnType().toString());
+              route.getResponse().toString());
         })
         .next((route, args) -> {
           assertEquals("GET /future", route.toString());
-          assertEquals("java.lang.String", route.getReturnType().toString());
+          assertEquals("java.lang.String", route.getResponse().toString());
         })
         .next((route, args) -> {
           assertEquals("GET /httpNames", route.toString());
-          assertEquals("java.lang.String", route.getReturnType().toString());
+          assertEquals("java.lang.String", route.getResponse().toString());
           args
               .next(arg -> {
                 assertEquals("Last-Modified-Since", arg.getName());
                 assertEquals("java.lang.String", arg.getJavaType());
                 assertEquals(HttpType.HEADER, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("x-search", arg.getName());
                 assertEquals("java.lang.String", arg.getJavaType());
                 assertEquals(HttpType.QUERY, arg.getHttpType());
-                assertTrue(arg.isRequired());
+                assertTrue(arg.getRequired());
               })
               .verify();
         })

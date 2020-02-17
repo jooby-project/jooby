@@ -28,8 +28,8 @@ import java.util.stream.Stream;
 
 public class ResponseParser {
 
-  public static Set<String> parse(ExecutionContext ctx, MethodNode node) {
-    Set<String> result = InsnSupport.next(node.instructions.getFirst())
+  public static List<String> parse(ExecutionContext ctx, MethodNode node) {
+    List<String> result = InsnSupport.next(node.instructions.getFirst())
         .filter(it -> it.getOpcode() == Opcodes.ARETURN || it.getOpcode() == Opcodes.IRETURN
             || it.getOpcode() == Opcodes.RETURN)
         .map(it -> {
@@ -191,7 +191,8 @@ public class ResponseParser {
           return Object.class.getName();
         })
         .map(Object::toString)
-        .collect(Collectors.toCollection(LinkedHashSet::new));
+        .distinct()
+        .collect(Collectors.toList());
     return result;
   }
 
