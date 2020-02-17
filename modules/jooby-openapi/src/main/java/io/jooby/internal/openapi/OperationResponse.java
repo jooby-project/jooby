@@ -1,12 +1,14 @@
 package io.jooby.internal.openapi;
 
+import io.jooby.StatusCode;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-public class RouteReturnType {
+public class OperationResponse {
   private static final Set<String> ASYNC_TYPES =
       Arrays.asList(
           CompletionStage.class.getName(), CompletableFuture.class.getName(),
@@ -18,11 +20,12 @@ public class RouteReturnType {
 
   private String javaType;
 
-  private String overrideJavaType;
+  private String code = "200";
 
-  public RouteReturnType(String javaType) {
-    this.javaType = javaType;
-    this.overrideJavaType = ASYNC_TYPES.stream()
+  private String description;
+
+  public OperationResponse(String javaType) {
+    this.javaType = ASYNC_TYPES.stream()
         .filter(type -> javaType.startsWith(type))
         .findFirst()
         .map(type ->
@@ -30,22 +33,47 @@ public class RouteReturnType {
                 ? "java.lang.Object"
                 : javaType.substring(type.length() + 1, javaType.length() - 1)
         )
-        .orElse(null);
+        .orElse(javaType);
+  }
+
+  public OperationResponse() {
   }
 
   public String getJavaType() {
     return javaType;
   }
 
-  public String getOverrideJavaType() {
-    return overrideJavaType;
+  public void setJavaType(String javaType) {
+    this.javaType = javaType;
   }
 
-  public void setOverrideJavaType(String overrideJavaType) {
-    this.overrideJavaType = overrideJavaType;
+  public String getDescription() {
+    if (description == null) {
+      try {
+        StatusCode statusCode = StatusCode.valueOf(Integer.parseInt(code));
+        String reason = statusCode.reason();
+        return reason.equals(code) ? null : reason;
+      } catch (NumberFormatException x) {
+        return null;
+      }
+    }
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
   }
 
   @Override public String toString() {
     return getJavaType();
   }
+
 }

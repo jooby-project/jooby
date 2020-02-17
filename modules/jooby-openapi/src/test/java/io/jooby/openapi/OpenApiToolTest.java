@@ -14,7 +14,6 @@ import examples.RoutePatternIdioms;
 import examples.RouteReturnTypeApp;
 import examples.ABean;
 import examples.RouterProduceConsume;
-import io.jooby.internal.openapi.DebugOption;
 import io.jooby.internal.openapi.HttpType;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtMvcApp;
@@ -674,17 +673,17 @@ public class OpenApiToolTest {
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/1", route.toString());
-          assertEquals("java.util.ArrayList", route.getReturnTypes().get(0).getJavaType());
-          assertEquals("java.util.LinkedList", route.getReturnTypes().get(1).getJavaType());
+          assertEquals("java.util.ArrayList", route.getResponse().get(0).getJavaType());
+          assertEquals("java.util.LinkedList", route.getResponse().get(1).getJavaType());
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/2", route.toString());
-          assertEquals("examples.ABean", route.getReturnTypes().get(0).getJavaType());
-          assertEquals("examples.BBean", route.getReturnTypes().get(1).getJavaType());
+          assertEquals("examples.ABean", route.getResponse().get(0).getJavaType());
+          assertEquals("examples.BBean", route.getResponse().get(1).getJavaType());
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/3", route.toString());
-          assertEquals("examples.Bean", route.getReturnTypes().get(0).getJavaType());
+          assertEquals("examples.Bean", route.getResponse().get(0).getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/1", route.toString());
@@ -875,17 +874,17 @@ public class OpenApiToolTest {
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/1", route.toString());
-          assertEquals("java.util.ArrayList", route.getReturnTypes().get(0).getJavaType());
-          assertEquals("java.util.LinkedList", route.getReturnTypes().get(1).getJavaType());
+          assertEquals("java.util.ArrayList", route.getResponse().get(0).getJavaType());
+          assertEquals("java.util.LinkedList", route.getResponse().get(1).getJavaType());
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/2", route.toString());
-          assertEquals("examples.ABean", route.getReturnTypes().get(0).getJavaType());
-          assertEquals("examples.BBean", route.getReturnTypes().get(1).getJavaType());
+          assertEquals("examples.ABean", route.getResponse().get(0).getJavaType());
+          assertEquals("examples.BBean", route.getResponse().get(1).getJavaType());
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/3", route.toString());
-          assertEquals("examples.Bean", route.getReturnTypes().get(0).getJavaType());
+          assertEquals("examples.Bean", route.getResponse().get(0).getJavaType());
         })
         .next(route -> {
           assertEquals("GET /array/1", route.toString());
@@ -1063,11 +1062,13 @@ public class OpenApiToolTest {
         .next(route -> {
           assertEquals("GET /api/session", route.toString());
           assertEquals(String.class.getName(), route.getReturnType().toString());
+          assertFalse(route.isDeprecated());
         })
         .next(route -> {
           assertEquals("GET /api/returnList", route.toString());
           assertEquals("java.util.List<" + String.class.getName() + ">",
               route.getReturnType().toString());
+          assertTrue(route.isDeprecated());
         })
         .verify();
   }
@@ -1125,9 +1126,7 @@ public class OpenApiToolTest {
         })
         .next((route, args) -> {
           assertEquals("GET /future", route.toString());
-          assertEquals("java.util.concurrent.CompletableFuture<java.lang.String>",
-              route.getReturnType().toString());
-          assertEquals("java.lang.String", route.getReturnType().getOverrideJavaType());
+          assertEquals("java.lang.String", route.getReturnType().toString());
         })
         .next((route, args) -> {
           assertEquals("GET /httpNames", route.toString());

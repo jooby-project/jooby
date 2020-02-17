@@ -2,7 +2,7 @@ package io.jooby.internal.openapi;
 
 import java.util.Objects;
 
-public class RouteArgument {
+public class Parameter {
   private String name;
 
   private String javaType;

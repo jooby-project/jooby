@@ -1,8 +1,7 @@
 package io.jooby.openapi;
 
-import io.jooby.internal.openapi.RouteArgument;
+import io.jooby.internal.openapi.Parameter;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -10,13 +9,13 @@ import java.util.function.Consumer;
 
 public class RouteArgumentIterator {
 
-  final LinkedList<RouteArgument> arguments;
+  final LinkedList<Parameter> arguments;
 
-  public RouteArgumentIterator(List<RouteArgument> arguments) {
+  public RouteArgumentIterator(List<Parameter> arguments) {
     this.arguments = new LinkedList<>(arguments);
   }
 
-  public RouteArgumentIterator next(Consumer<RouteArgument> consumer) {
+  public RouteArgumentIterator next(Consumer<Parameter> consumer) {
     if (arguments.size() > 0) {
       consumer.accept(arguments.removeFirst());
     } else {

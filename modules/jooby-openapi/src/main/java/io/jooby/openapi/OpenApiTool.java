@@ -3,10 +3,9 @@ package io.jooby.openapi;
 import io.jooby.internal.openapi.ClassSource;
 import io.jooby.internal.openapi.DebugOption;
 import io.jooby.internal.openapi.ExecutionContext;
-import io.jooby.internal.openapi.RouteDescriptor;
-import io.jooby.internal.openapi.RouteParser;
+import io.jooby.internal.openapi.Operation;
+import io.jooby.internal.openapi.OperationParser;
 import io.jooby.internal.openapi.TypeFactory;
-import org.objectweb.asm.Type;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,12 +20,12 @@ public class OpenApiTool {
 
   private Set<DebugOption> debug;
 
-  public List<RouteDescriptor> process(String classname) {
+  public List<Operation> process(String classname) {
     ClassSource source = new ClassSource(targetDir);
 
-    RouteParser routes = new RouteParser();
+    OperationParser routes = new OperationParser();
     ExecutionContext ctx = new ExecutionContext(source, TypeFactory.fromJavaName(classname), debug);
-    return routes.routes(ctx);
+    return routes.parse(ctx);
   }
 
   public void setBasedir(Path basedir) {

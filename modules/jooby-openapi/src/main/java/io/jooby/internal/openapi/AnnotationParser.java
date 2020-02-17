@@ -11,7 +11,9 @@ import io.jooby.annotations.HeaderParam;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -26,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,10 +36,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.jooby.internal.openapi.AsmUtils.findAnnotationByType;
 import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
 import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
+import static java.util.Collections.singletonList;
 
-public class RouteMvcParser {
+public class AnnotationParser {
   enum ParamType {
     CONTEXT {
       @Override public Class[] annotations() {
@@ -135,7 +138,7 @@ public class RouteMvcParser {
       "kotlin.coroutines.Continuation"
   ).stream().collect(Collectors.toSet());
 
-  public static List<RouteDescriptor> parse(ExecutionContext ctx, String prefix,
+  public static List<Operation> parse(ExecutionContext ctx, String prefix,
       Signature signature, MethodInsnNode node) {
     if (signature.matches(Class.class) ||
         signature.matches(Class.class, Provider.class)
@@ -148,12 +151,22 @@ public class RouteMvcParser {
           .orElseThrow(() -> new IllegalStateException(
               "Mvc class not found: " + InsnSupport.toString(node)));
       return parse(ctx, prefix, type);
+    } else if (signature.matches(Object.class)) {
+      AbstractInsnNode previous = node.getPrevious();
+      if (previous instanceof MethodInsnNode) {
+        MethodInsnNode methodInsnNode = (MethodInsnNode) previous;
+        if (methodInsnNode.getOpcode() == Opcodes.INVOKESPECIAL) {
+          // mvc(new Controller(...));
+          Type type = Type.getObjectType(methodInsnNode.owner);
+          return parse(ctx, prefix, type);
+        }
+      }
     }
     return Collections.emptyList();
   }
 
-  private static List<RouteDescriptor> parse(ExecutionContext ctx, String prefix, Type type) {
-    List<RouteDescriptor> result = new ArrayList<>();
+  private static List<Operation> parse(ExecutionContext ctx, String prefix, Type type) {
+    List<Operation> result = new ArrayList<>();
     ClassNode classNode = ctx.classNode(type);
     for (MethodNode method : classNode.methods) {
       if (isRouter(method)) {
@@ -164,25 +177,36 @@ public class RouteMvcParser {
     return result;
   }
 
-  private static List<RouteDescriptor> routerMethod(ExecutionContext ctx, String prefix,
+  private static List<Operation> routerMethod(ExecutionContext ctx, String prefix,
       ClassNode classNode, MethodNode method) {
-    List<RouteDescriptor> result = new ArrayList<>();
+    List<Operation> result = new ArrayList<>();
 
-    List<RouteArgument> arguments = routerArguments(method);
-    List<RouteReturnType> returnTypes = returnTypes(method);
+    List<Parameter> arguments = routerArguments(method);
+    List<OperationResponse> returnTypes = returnTypes(method);
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(classNode, method, httpMethod)) {
-        result.add(new RouteDescriptor(httpMethod, RoutePath.path(prefix, pattern), arguments,
-            returnTypes));
+        Operation operation = new Operation(method, httpMethod, RoutePath.path(prefix, pattern), arguments,
+            returnTypes);
+        operation.setId(method.name);
+        operation.setDeprecated(isDeprecated(method.visibleAnnotations));
+        result.add(operation);
       }
     }
 
     return result;
   }
 
-  private static List<RouteReturnType> returnTypes(MethodNode method) {
-    List<RouteReturnType> result = new ArrayList<>();
+  private static boolean isDeprecated(List<AnnotationNode> annotations) {
+    if (annotations != null) {
+      return annotations.stream()
+          .anyMatch(a -> a.desc.equals(Type.getDescriptor(Deprecated.class)));
+    }
+    return false;
+  }
+
+  private static List<OperationResponse> returnTypes(MethodNode method) {
+    List<OperationResponse> result = new ArrayList<>();
     Signature signature = Signature.create(method);
     String desc = Optional.ofNullable(method.signature).orElse(method.desc);
     String continuationType = "Lkotlin/coroutines/Continuation;";
@@ -195,13 +219,13 @@ public class RouteMvcParser {
     if (i > 0) {
       desc = desc.substring(i + 1);
     }
-    RouteReturnType rrt = new RouteReturnType(ASMType.parse(desc));
+    OperationResponse rrt = new OperationResponse(ASMType.parse(desc));
     result.add(rrt);
     return result;
   }
 
-  private static List<RouteArgument> routerArguments(MethodNode method) {
-    List<RouteArgument> result = new ArrayList<>();
+  private static List<Parameter> routerArguments(MethodNode method) {
+    List<Parameter> result = new ArrayList<>();
     if (method.parameters != null) {
       for (int i = 0; i < method.parameters.size(); i++) {
         ParameterNode parameter = method.parameters.get(i);
@@ -210,7 +234,7 @@ public class RouteMvcParser {
         if (parameter.name.equals("continuation") && i == method.parameters.size() - 1) {
           javaName = Arrays.asList(parameter.name, "$" + parameter.name);
         } else {
-          javaName = Collections.singletonList(parameter.name);
+          javaName = singletonList(parameter.name);
         }
         /** Java Type: */
         LocalVariableNode variable = method.localVariables.stream()
@@ -242,7 +266,7 @@ public class RouteMvcParser {
             ? true
             : !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
 
-        RouteArgument argument = new RouteArgument();
+        Parameter argument = new Parameter();
         argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
         argument.setJavaType(javaType);
         argument.setHttpType(paramType.getHttpType());
@@ -278,34 +302,6 @@ public class RouteMvcParser {
     return false;
   }
 
-  private static HttpType paramAnnotationToHttpType(AnnotationNode node) {
-    String classname = Type.getType(node.desc).getClassName();
-    if (classname.equals(QueryParam.class.getName())
-        || classname.equals(javax.ws.rs.QueryParam.class.getName())) {
-      return HttpType.QUERY;
-    }
-    if (classname.equals(FormParam.class.getName())
-        || classname.equals(javax.ws.rs.FormParam.class.getName())) {
-      return HttpType.FORM;
-    }
-    if (classname.equals(HeaderParam.class.getName())
-        || classname.equals(javax.ws.rs.HeaderParam.class.getName())) {
-      return HttpType.HEADER;
-    }
-    if (classname.equals(PathParam.class.getName())
-        || classname.equals(javax.ws.rs.PathParam.class.getName())) {
-      return HttpType.PATH;
-    }
-    if (classname.equals(CookieParam.class.getName())
-        || classname.equals(javax.ws.rs.CookieParam.class.getName())) {
-      return HttpType.COOKIE;
-    }
-    if (classname.equals(ContextParam.class.getName())) {
-      return HttpType.CONTEXT;
-    }
-    return HttpType.BODY;
-  }
-
   private static List<String> httpPattern(ClassNode classNode, MethodNode method,
       String httpMethod) {
     List<String> patterns = new ArrayList<>();
@@ -335,7 +331,7 @@ public class RouteMvcParser {
           Arrays.asList(PACKAGE + "." + httpMethod)).stream()
           .flatMap(annotation -> Stream.of(annotation.values)
               .filter(Objects::nonNull)
-              .map(RouteMvcParser::arrayToMap)
+              .map(AsmUtils::arrayToMap)
           )
           .collect(Collectors.toList());
 
@@ -343,7 +339,7 @@ public class RouteMvcParser {
         values = findAnnotationByType(annotations, Arrays.asList(Path.class.getName())).stream()
             .flatMap(annotation -> Stream.of(annotation.values)
                 .filter(Objects::nonNull)
-                .map(RouteMvcParser::arrayToMap)
+                .map(AsmUtils::arrayToMap)
             )
             .collect(Collectors.toList());
 
@@ -352,7 +348,7 @@ public class RouteMvcParser {
               Arrays.asList(javax.ws.rs.Path.class.getName())).stream()
               .flatMap(annotation -> Stream.of(annotation.values)
                   .filter(Objects::nonNull)
-                  .map(RouteMvcParser::arrayToMap)
+                  .map(AsmUtils::arrayToMap)
               )
               .collect(Collectors.toList());
         }
@@ -371,24 +367,6 @@ public class RouteMvcParser {
       patterns.add(RoutePath.path(prefix, null));
     }
     return patterns;
-  }
-
-  private static Map<String, Object> arrayToMap(Object o) {
-    Map<String, Object> map = new LinkedHashMap<>();
-    List values = (List) o;
-    for (int i = 0; i < values.size(); i += 2) {
-      String k = (String) values.get(i);
-      Object v = values.get(i + 1);
-      map.put(k, v);
-    }
-    return map;
-  }
-
-  private static List<AnnotationNode> findAnnotationByType(List<AnnotationNode> source,
-      List<String> types) {
-    return source.stream()
-        .filter(n -> types.stream().anyMatch(t -> t.equals(Type.getType(n.desc).getClassName())))
-        .collect(Collectors.toList());
   }
 
   private static List<String> httpMethod(List<AnnotationNode> annotations) {
@@ -427,17 +405,6 @@ public class RouteMvcParser {
     annotationTypes
         .addAll(httpMethod(javax.ws.rs.GET.class.getPackage().getName(), javax.ws.rs.Path.class));
     return annotationTypes;
-  }
-
-  private static List<String> httpType() {
-    return Stream.of(
-        QueryParam.class, FormParam.class, PathParam.class, CookieParam.class, HeaderParam.class,
-        // jaxrs
-        javax.ws.rs.QueryParam.class, javax.ws.rs.FormParam.class, javax.ws.rs.PathParam.class,
-        javax.ws.rs.CookieParam.class, javax.ws.rs.HeaderParam.class
-    )
-        .map(t -> t.getName())
-        .collect(Collectors.toList());
   }
 
   private static List<String> httpMethod(String pkg, Class pathType) {

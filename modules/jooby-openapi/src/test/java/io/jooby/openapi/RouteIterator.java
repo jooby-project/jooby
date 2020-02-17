@@ -1,6 +1,6 @@
 package io.jooby.openapi;
 
-import io.jooby.internal.openapi.RouteDescriptor;
+import io.jooby.internal.openapi.Operation;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -11,21 +11,21 @@ import java.util.function.Consumer;
 
 public class RouteIterator {
 
-  final LinkedList<RouteDescriptor> routes;
+  final LinkedList<Operation> routes;
   final boolean ignoreArguments;
 
-  public RouteIterator(List<RouteDescriptor> routes, boolean ignoreArguments) {
+  public RouteIterator(List<Operation> routes, boolean ignoreArguments) {
     this.routes = new LinkedList<>(routes);
     this.ignoreArguments = ignoreArguments;
   }
 
-  public RouteIterator next(Consumer<RouteDescriptor> consumer) {
+  public RouteIterator next(Consumer<Operation> consumer) {
     return next((route, args) -> consumer.accept(route));
   }
 
-  public RouteIterator next(BiConsumer<RouteDescriptor, RouteArgumentIterator> consumer) {
+  public RouteIterator next(BiConsumer<Operation, RouteArgumentIterator> consumer) {
     if (routes.size() > 0) {
-      RouteDescriptor route = routes.removeFirst();
+      Operation route = routes.removeFirst();
       RouteArgumentIterator args = new RouteArgumentIterator(route.getArguments());
       consumer.accept(route, args);
       if (!ignoreArguments) {

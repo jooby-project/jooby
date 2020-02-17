@@ -1,3 +1,7 @@
+* MVC: QueryParam annotation vs PathParam try to figure it out them and make optional (update open api)
+* MVC: introduce BodyParam
+* MVC: Add *Param annotations a statusCode attribute
+* Add Response for script and MVC
 * map exception names to HTTP Status Code (Forbidden => 403, Unauthorized => 401, etc...)
 * review toString on Value API (removal of QueryStringValue?)
 * tests and coverage

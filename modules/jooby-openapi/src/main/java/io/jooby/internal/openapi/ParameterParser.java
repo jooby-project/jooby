@@ -21,9 +21,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class RouteArgumentParser {
+public class ParameterParser {
 
-  public static List<RouteArgument> parse(ExecutionContext ctx, MethodNode node) {
+  public static List<Parameter> parse(ExecutionContext ctx, MethodNode node) {
     List<MethodInsnNode> methodInsnNodes = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(node.instructions.iterator(), Spliterator.ORDERED),
         false)
@@ -31,10 +31,10 @@ public class RouteArgumentParser {
         .map(MethodInsnNode.class::cast)
         .filter(i -> i.owner.equals("io/jooby/Context"))
         .collect(Collectors.toList());
-    List<RouteArgument> args = new ArrayList<>();
+    List<Parameter> args = new ArrayList<>();
     for (MethodInsnNode methodInsnNode : methodInsnNodes) {
       Signature signature = Signature.create(methodInsnNode);
-      RouteArgument argument = new RouteArgument();
+      Parameter argument = new Parameter();
       if (signature.matches("path")) {
         argument.setHttpType(HttpType.PATH);
         if (signature.matches(String.class)) {
@@ -79,7 +79,7 @@ public class RouteArgumentParser {
     return args;
   }
 
-   private static void argumentContextToType(RouteArgument argument, MethodInsnNode node) {
+   private static void argumentContextToType(Parameter argument, MethodInsnNode node) {
     Type type = InsnSupport.prev(node)
         .filter(LdcInsnNode.class::isInstance)
         .findFirst()
@@ -92,7 +92,7 @@ public class RouteArgumentParser {
     argument.setSingle(false);
   }
 
-  private static void argumentType(RouteArgument argument, MethodInsnNode node) {
+  private static void argumentType(Parameter argument, MethodInsnNode node) {
     MethodInsnNode convertCall = InsnSupport.next(node)
         .filter(valueOwner())
         .map(MethodInsnNode.class::cast)

@@ -40,6 +40,7 @@ public class ControllerExample {
   }
 
   @GET("/returnList")
+  @Deprecated
   public List<String> returnList() {
     return null;
   }

@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class RouteReturnTypeParser {
+public class ResponseParser {
 
   public static Set<String> parse(ExecutionContext ctx, MethodNode node) {
     Set<String> result = InsnSupport.next(node.instructions.getFirst())

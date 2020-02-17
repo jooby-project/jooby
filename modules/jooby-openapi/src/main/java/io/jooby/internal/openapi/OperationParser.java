@@ -24,29 +24,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.jooby.internal.openapi.RoutePath.path;
 
-public class RouteParser {
+public class OperationParser {
 
-  public List<RouteDescriptor> routes(ExecutionContext ctx) {
-    return routes(ctx, null, ctx.classNode(ctx.getRouter()));
+  public List<Operation> parse(ExecutionContext ctx) {
+    List<Operation> result = parse(ctx, null, ctx.classNode(ctx.getRouter()));
+    // swagger/openapi:
+    for (Operation operation : result) {
+      OpenApiParser.parse(operation.getNode(), operation);
+    }
+    return result;
   }
 
-  public List<RouteDescriptor> routes(ExecutionContext ctx, String prefix, ClassNode node) {
-    List<RouteDescriptor> handlerList = new ArrayList<>();
+  public List<Operation> parse(ExecutionContext ctx, String prefix, ClassNode node) {
+    List<Operation> handlerList = new ArrayList<>();
     for (MethodNode method : node.methods) {
       handlerList.addAll(routeHandler(ctx, prefix, method));
     }
     return handlerList;
   }
 
-  private List<RouteDescriptor> routeHandler(ExecutionContext ctx, String prefix,
+  private List<Operation> routeHandler(ExecutionContext ctx, String prefix,
       MethodNode method) {
-    List<RouteDescriptor> handlerList = new ArrayList<>();
+    List<Operation> handlerList = new ArrayList<>();
     /** Track the last router instruction and override with produces/consumes. */
     AbstractInsnNode instructionTo = null;
     for (AbstractInsnNode it : method.instructions) {
@@ -55,7 +59,7 @@ public class RouteParser {
         Signature signature = Signature.create(node);
         if (ctx.isRouter(signature.getOwner().orElse(null))) {
           if (signature.matches("mvc")) {
-            handlerList.addAll(RouteMvcParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
+            handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
           } else if (signature.matches("<init>", TypeFactory.KT_FUN_1)) {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
           } else if (signature.matches("use", Router.class)) {
@@ -153,7 +157,7 @@ public class RouteParser {
           }
         } else if (signature.matches(Route.class, "produces", MediaType[].class)) {
           if (instructionTo != null) {
-            RouteDescriptor route = handlerList.get(handlerList.size() - 1);
+            Operation route = handlerList.get(handlerList.size() - 1);
             InsnSupport.prev(it, instructionTo)
                 .flatMap(mediaType())
                 .forEach(route::addProduces);
@@ -161,7 +165,7 @@ public class RouteParser {
           }
         } else if (signature.matches(Route.class, "consumes", MediaType[].class)) {
           if (instructionTo != null) {
-            RouteDescriptor route = handlerList.get(handlerList.size() - 1);
+            Operation route = handlerList.get(handlerList.size() - 1);
             InsnSupport.prev(it, instructionTo)
                 .flatMap(mediaType())
                 .forEach(route::addConsumes);
@@ -209,7 +213,7 @@ public class RouteParser {
             "Unsupported router type: " + InsnSupport.toString(node)));
   }
 
-  private List<RouteDescriptor> useRouter(ExecutionContext ctx, String prefix,
+  private List<Operation> useRouter(ExecutionContext ctx, String prefix,
       MethodInsnNode node, AbstractInsnNode routerInstruction) {
     Type router;
     if (routerInstruction instanceof TypeInsnNode) {
@@ -220,13 +224,13 @@ public class RouteParser {
       throw new UnsupportedOperationException(InsnSupport.toString(node));
     }
     ClassNode classNode = ctx.classNode(router);
-    return routes(ctx.newContext(router), prefix, classNode);
+    return parse(ctx.newContext(router), prefix, classNode);
   }
 
-  private List<RouteDescriptor> kotlinHandler(ExecutionContext ctx, String httpMethod,
+  private List<Operation> kotlinHandler(ExecutionContext ctx, String httpMethod,
       String prefix,
       MethodInsnNode node) {
-    List<RouteDescriptor> handlerList = new ArrayList<>();
+    List<Operation> handlerList = new ArrayList<>();
     String owner = InsnSupport.prev(node.getPrevious())
         .filter(it -> it instanceof FieldInsnNode || it instanceof MethodInsnNode)
         .findFirst()
@@ -276,13 +280,13 @@ public class RouteParser {
     return handlerList;
   }
 
-  private RouteDescriptor newRouteDescriptor(ExecutionContext ctx, MethodNode node,
+  private Operation newRouteDescriptor(ExecutionContext ctx, MethodNode node,
       String httpMethod, String prefix) {
-    List<RouteArgument> arguments = RouteArgumentParser.parse(ctx, node);
-    List<RouteReturnType> returnTypes = RouteReturnTypeParser.parse(ctx, node).stream()
-        .map(RouteReturnType::new)
+    List<Parameter> arguments = ParameterParser.parse(ctx, node);
+    List<OperationResponse> returnTypes = ResponseParser.parse(ctx, node).stream()
+        .map(OperationResponse::new)
         .collect(Collectors.toList());
-    return new RouteDescriptor(httpMethod, prefix, arguments, returnTypes);
+    return new Operation(node, httpMethod, prefix, arguments, returnTypes);
   }
 
   private int returnTypePrecedence(MethodNode method) {
