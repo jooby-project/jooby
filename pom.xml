@@ -113,7 +113,7 @@
     <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>3.1.2</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
-    <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+    <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-core.version>3.6.3</maven-core.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
