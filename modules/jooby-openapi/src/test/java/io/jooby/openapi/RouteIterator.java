@@ -1,11 +1,14 @@
 package io.jooby.openapi;
 
 import io.jooby.internal.openapi.Operation;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -26,7 +29,8 @@ public class RouteIterator {
   public RouteIterator next(BiConsumer<Operation, RouteArgumentIterator> consumer) {
     if (routes.size() > 0) {
       Operation route = routes.removeFirst();
-      RouteArgumentIterator args = new RouteArgumentIterator(route.getArguments());
+      List params = Optional.ofNullable(route.getParameters()).orElse(Collections.emptyList());
+      RouteArgumentIterator args = new RouteArgumentIterator(params);
       consumer.accept(route, args);
       if (!ignoreArguments) {
         args.verify();

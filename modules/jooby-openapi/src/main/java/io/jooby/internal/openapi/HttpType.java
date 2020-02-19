@@ -2,6 +2,7 @@ package io.jooby.internal.openapi;
 
 public enum HttpType {
   CONTEXT,
+
   HEADER {
     @Override public String in() {
       return "header";
@@ -22,9 +23,7 @@ public enum HttpType {
       return "query";
     }
   },
-  FORM,
-
-  BODY;
+  FORM;
 
   public String in() {
     return null;

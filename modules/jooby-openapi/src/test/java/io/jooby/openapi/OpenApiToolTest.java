@@ -274,7 +274,6 @@ public class OpenApiToolTest {
     iterator
         .next((route, args) -> {
           assertEquals("GET /", route.toString());
-
           args
               .next(it -> {
                 assertEquals(String.class.getName(), it.getJavaType());

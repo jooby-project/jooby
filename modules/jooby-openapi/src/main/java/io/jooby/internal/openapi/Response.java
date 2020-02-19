@@ -1,5 +1,6 @@
 package io.jooby.internal.openapi;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.StatusCode;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
@@ -21,12 +22,13 @@ public class Response extends ApiResponse {
           "reactor.core.publisher.Flux", "reactor.core.publisher.Mono"
       ).stream().collect(toSet());
 
+  @JsonIgnore
   private List<String> javaTypes = new ArrayList<>();
 
+  @JsonIgnore
   private String code = "default";
 
-  private String description;
-
+  @JsonIgnore
   public String getJavaType() {
     return javaTypes.isEmpty() ? null : javaTypes.get(0);
   }
@@ -45,6 +47,7 @@ public class Response extends ApiResponse {
   }
 
   public String getDescription() {
+    String description = super.getDescription();
     if (description == null) {
       if ("default".equals(code)) {
         return StatusCode.OK.reason();
@@ -58,10 +61,6 @@ public class Response extends ApiResponse {
       }
     }
     return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 
   public String getCode() {

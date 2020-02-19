@@ -186,7 +186,8 @@ public class AnnotationParser {
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(classNode, method, httpMethod)) {
-        Operation operation = new Operation(method, httpMethod, RoutePath.path(prefix, pattern), arguments,
+        Operation operation = new Operation(method, httpMethod, RoutePath.path(prefix, pattern),
+            arguments,
             returnTypes);
         operation.setOperationId(method.name);
         operation.setDeprecated(isDeprecated(method.visibleAnnotations));
@@ -330,27 +331,27 @@ public class AnnotationParser {
 
       List<Map<String, Object>> values = findAnnotationByType(annotations,
           Arrays.asList(PACKAGE + "." + httpMethod)).stream()
-          .flatMap(annotation -> Stream.of(annotation.values)
-              .filter(Objects::nonNull)
+          .flatMap(annotation -> Stream.of(annotation)
               .map(AsmUtils::arrayToMap)
           )
+          .filter(m -> !m.isEmpty())
           .collect(Collectors.toList());
 
       if (values.isEmpty()) {
         values = findAnnotationByType(annotations, Arrays.asList(Path.class.getName())).stream()
-            .flatMap(annotation -> Stream.of(annotation.values)
-                .filter(Objects::nonNull)
+            .flatMap(annotation -> Stream.of(annotation)
                 .map(AsmUtils::arrayToMap)
             )
+            .filter(m -> !m.isEmpty())
             .collect(Collectors.toList());
 
         if (values.isEmpty()) {
           values = findAnnotationByType(annotations,
               Arrays.asList(javax.ws.rs.Path.class.getName())).stream()
-              .flatMap(annotation -> Stream.of(annotation.values)
-                  .filter(Objects::nonNull)
+              .flatMap(annotation -> Stream.of(annotation)
                   .map(AsmUtils::arrayToMap)
               )
+              .filter(m -> !m.isEmpty())
               .collect(Collectors.toList());
         }
       }

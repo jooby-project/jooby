@@ -1,26 +1,36 @@
 package io.jooby.internal.openapi;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Operation extends io.swagger.v3.oas.models.Operation {
 
+  @JsonIgnore
   private final MethodNode node;
+  @JsonIgnore
   private final String method;
+  @JsonIgnore
   private final String pattern;
-  private final List<Parameter> arguments;
+  @JsonIgnore
   private Boolean hidden;
+  @JsonIgnore
+  private LinkedList<String> produces = new LinkedList<>();
+  @JsonIgnore
+  private LinkedList<String> consumes = new LinkedList<>();
 
-  public Operation(MethodNode node, String method, String pattern, List<Parameter> arguments,
+  public Operation(MethodNode node, String method, String pattern, List arguments,
       List<Response> response) {
     this.node = node;
     this.method = method.toUpperCase();
     this.pattern = pattern;
-    this.arguments = arguments;
+    setParameters(arguments);
     super.setResponses(apiResponses(response));
   }
 
@@ -36,10 +46,7 @@ public class Operation extends io.swagger.v3.oas.models.Operation {
     return node;
   }
 
-  public List<Parameter> getArguments() {
-    return arguments;
-  }
-
+  @JsonIgnore
   public Response getResponse() {
     return (Response) getResponses().getDefault();
   }
@@ -81,25 +88,25 @@ public class Operation extends io.swagger.v3.oas.models.Operation {
     return pattern;
   }
 
-  //  public List<String> getProduces() {
-  //    return produces;
-  //  }
-  //
-  //  public List<String> getConsumes() {
-  //    return consumes;
-  //  }
-  //
-  //  public void addProduces(String value) {
-  //    produces.addFirst(toMediaType(value));
-  //  }
-  //
-  //  public void addConsumes(String value) {
-  //    consumes.addFirst(toMediaType(value));
-  //  }
-  //
-  //  private String toMediaType(String value) {
-  //    return MediaType.valueOf(value).toString();
-  //  }
+  public List<String> getProduces() {
+    return produces;
+  }
+
+  public List<String> getConsumes() {
+    return consumes;
+  }
+
+  public void addProduces(String value) {
+    produces.addFirst(toMediaType(value));
+  }
+
+  public void addConsumes(String value) {
+    consumes.addFirst(toMediaType(value));
+  }
+
+  private String toMediaType(String value) {
+    return MediaType.valueOf(value).toString();
+  }
 
   public Boolean getHidden() {
     return hidden;

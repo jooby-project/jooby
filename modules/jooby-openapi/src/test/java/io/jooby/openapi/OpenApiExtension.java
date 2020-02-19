@@ -1,6 +1,8 @@
 package io.jooby.openapi;
 
 import io.jooby.internal.openapi.DebugOption;
+import io.jooby.internal.openapi.Operation;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -12,9 +14,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -24,7 +28,7 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
   @Override public boolean supportsParameter(ParameterContext parameterContext,
       ExtensionContext extensionContext) throws ParameterResolutionException {
     Parameter parameter = parameterContext.getParameter();
-    return parameter.getType() == RouteIterator.class;
+    return parameter.getType() == RouteIterator.class || parameter.getType() == String.class;
   }
 
   @Override public Object resolveParameter(ParameterContext parameterContext,
@@ -37,7 +41,15 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
     Set<DebugOption> debugOptions = metadata.debug().length == 0
         ? Collections.emptySet()
         : EnumSet.copyOf(Arrays.asList(metadata.debug()));
-    RouteIterator iterator = new RouteIterator(newTool(debugOptions).process(classname), metadata.ignoreArguments());
+
+    OpenApiTool tool = newTool(debugOptions);
+    Parameter parameter = parameterContext.getParameter();
+    List<Operation> operations = new ArrayList<>();
+    OpenAPI spec = tool.process(classname, operations::add);
+    if (parameter.getType() == String.class) {
+      return tool.toYaml(spec);
+    }
+    RouteIterator iterator = new RouteIterator(operations, metadata.ignoreArguments());
     getStore(context).put("iterator", iterator);
     return iterator;
   }

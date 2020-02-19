@@ -4,6 +4,10 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.Router;
+import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -23,6 +27,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,11 +41,80 @@ public class OperationParser {
 
   public List<Operation> parse(ExecutionContext ctx) {
     List<Operation> result = parse(ctx, null, ctx.classNode(ctx.getRouter()));
+
     // swagger/openapi:
     for (Operation operation : result) {
-      OpenApiParser.parse(operation.getNode(), operation);
+      OpenApiParser.parse(ctx, operation.getNode(), operation);
+    }
+
+    // Initialize schema types
+    for (Operation operation : result) {
+      List<io.swagger.v3.oas.models.parameters.Parameter> parameters = operation.getParameters();
+      for (io.swagger.v3.oas.models.parameters.Parameter parameter : parameters) {
+        String javaType = ((io.jooby.internal.openapi.Parameter) parameter).getJavaType();
+        parameter.setSchema(ctx.schema(javaType));
+      }
+      for (Map.Entry<String, ApiResponse> entry : operation.getResponses().entrySet()) {
+        int statusCode = statusCode(entry.getKey().replace("default", "200"));
+        Response response = (Response) entry.getValue();
+        Schema defaultSchema = parseSchema(ctx, response);
+        if (defaultSchema != null) {
+          Content content = response.getContent();
+          if (content == null) {
+            content = new Content();
+            response.setContent(content);
+          }
+
+          if (content.isEmpty()) {
+            io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+            String mediaType = operation.getProduces().stream()
+                .findFirst()
+                .orElse(MediaType.JSON);
+            content.addMediaType(mediaType, mediaTypeObject);
+          }
+          if (statusCode > 0 && statusCode < 400) {
+            for (io.swagger.v3.oas.models.media.MediaType mediaType : content.values()) {
+              Schema schema = mediaType.getSchema();
+              if (schema == null) {
+                mediaType.setSchema(defaultSchema);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // clean up empty param
+    for (Operation operation : result) {
+      if (operation.getParameters().isEmpty()) {
+        operation.setParameters(null);
+      }
     }
     return result;
+  }
+
+  private int statusCode(String code) {
+    try {
+      return Integer.parseInt(code);
+    } catch (NumberFormatException x) {
+      return -1;
+    }
+  }
+
+  private Schema parseSchema(ExecutionContext ctx, Response response) {
+    List<String> javaTypes = response.getJavaTypes();
+    Schema schema;
+    if (javaTypes.size() == 1) {
+      schema = ctx.schema(javaTypes.get(0));
+    } else if (javaTypes.size() > 1) {
+      List<Schema> schemas = javaTypes.stream()
+          .map(ctx::schema)
+          .collect(Collectors.toList());
+      schema = new ComposedSchema().oneOf(schemas);
+    } else {
+      schema = null;
+    }
+    return schema;
   }
 
   public List<Operation> parse(ExecutionContext ctx, String prefix, ClassNode node) {
@@ -160,16 +236,16 @@ public class OperationParser {
           if (instructionTo != null) {
             Operation route = handlerList.get(handlerList.size() - 1);
             InsnSupport.prev(it, instructionTo)
-                .flatMap(mediaType());
-//                .forEach(route::addProduces);
+                .flatMap(mediaType())
+                .forEach(route::addProduces);
             instructionTo = it;
           }
         } else if (signature.matches(Route.class, "consumes", MediaType[].class)) {
           if (instructionTo != null) {
             Operation route = handlerList.get(handlerList.size() - 1);
             InsnSupport.prev(it, instructionTo)
-                .flatMap(mediaType());
-//                .forEach(route::addConsumes);
+                .flatMap(mediaType())
+                .forEach(route::addConsumes);
             instructionTo = it;
           }
         }
@@ -287,7 +363,14 @@ public class OperationParser {
     Response response = new Response();
     List<String> returnTypes = ResponseParser.parse(ctx, node);
     response.setJavaTypes(returnTypes);
-    return new Operation(node, httpMethod, prefix, arguments, Collections.singletonList(response));
+    Operation operation = new Operation(node, httpMethod, prefix, arguments,
+        Collections.singletonList(response));
+
+    boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
+    if (notSynthetic) {
+      operation.setOperationId(node.name);
+    }
+    return operation;
   }
 
   private int returnTypePrecedence(MethodNode method) {

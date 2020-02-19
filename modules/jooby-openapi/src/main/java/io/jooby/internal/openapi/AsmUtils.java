@@ -20,7 +20,11 @@ public class AsmUtils {
         .collect(Collectors.toList());
   }
 
-  public static Map<String, Object> arrayToMap(List values) {
+  public static Map<String, Object> arrayToMap(AnnotationNode node) {
+    if (node == null || node.values == null) {
+      return Collections.emptyMap();
+    }
+    List values = node.values;
     Map<String, Object> map = new LinkedHashMap<>();
     for (int i = 0; i < values.size(); i += 2) {
       String k = (String) values.get(i);

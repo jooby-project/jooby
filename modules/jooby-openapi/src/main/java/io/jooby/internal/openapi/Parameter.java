@@ -1,15 +1,21 @@
 package io.jooby.internal.openapi;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 import java.util.Optional;
 
 public class Parameter extends io.swagger.v3.oas.models.parameters.Parameter {
+  @JsonIgnore
   private String javaType;
 
+  @JsonIgnore
   private Object defaultValue;
 
+  @JsonIgnore
   private HttpType httpType;
 
+  @JsonIgnore
   private boolean single = true;
 
   public HttpType getHttpType() {

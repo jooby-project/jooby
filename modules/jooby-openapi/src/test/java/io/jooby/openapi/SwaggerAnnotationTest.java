@@ -1,11 +1,15 @@
 package io.jooby.openapi;
 
 import examples.OpenApiApp;
+import io.jooby.MediaType;
 import io.jooby.internal.openapi.Response;
 
 import java.util.Collections;
 
+import static io.jooby.openapi.OpenApiTestUtil.withResponse;
+import static io.jooby.openapi.OpenApiTestUtil.withSchema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SwaggerAnnotationTest {
 
@@ -32,10 +36,18 @@ public class SwaggerAnnotationTest {
           assertEquals(null, route.getDescription());
           assertEquals("Find Person by ID", route.getSummary());
 
-          Response response = route.getResponse();
-          assertEquals("default", response.getCode());
-          assertEquals("Found person", response.getDescription());
-          assertEquals("examples.Person", response.getJavaType());
+          withResponse(route, response -> {
+            assertEquals("default", response.getCode());
+            assertEquals("Found person", response.getDescription());
+            assertEquals("examples.Person", response.getJavaType());
+            assertNotNull(response.getHeaders());
+            assertEquals("string", response.getHeaders().get("Token").getSchema().getType());
+
+            withSchema(response, MediaType.JSON, schema -> {
+              assertNotNull(schema);
+              assertEquals("Person", schema.getName());
+            });
+          });
         })
         .verify();
   }

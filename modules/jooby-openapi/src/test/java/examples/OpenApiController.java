@@ -4,6 +4,7 @@ import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,7 +31,7 @@ public class OpenApiController {
   }
 
   @GET("/{id}")
-  @Operation(summary = "Find Person by ID", responses = @ApiResponse(description = "Found person"))
+  @Operation(summary = "Find Person by ID", responses = @ApiResponse(description = "Found person", headers = @Header(name = "Token", schema = @Schema(implementation = String.class))))
   public Person find(@PathParam long id) {
     return null;
   }
