@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.objectweb.asm.tree.MethodNode;
@@ -45,6 +46,10 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
 
   public MethodNode getNode() {
     return node;
+  }
+
+  @Override public RequestBodyExt getRequestBody() {
+    return (RequestBodyExt) super.getRequestBody();
   }
 
   @JsonIgnore

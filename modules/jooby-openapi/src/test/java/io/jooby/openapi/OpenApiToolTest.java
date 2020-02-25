@@ -3,6 +3,7 @@ package io.jooby.openapi;
 import com.fasterxml.jackson.databind.JavaType;
 import examples.Letter;
 import examples.MvcApp;
+import examples.RouteBodyArgs;
 import examples.RouteFormArgs;
 import examples.RouteImport;
 import examples.RouteImportReferences;
@@ -549,6 +550,47 @@ public class OpenApiToolTest {
                 assertEquals("form", it.getIn());
               })
               .verify();
+        })
+        .verify();
+  }
+
+  @OpenApiTest(value = RouteBodyArgs.class)
+  public void routeBodyArg(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /str", route.toString());
+          assertEquals(String.class.getName(), route.getRequestBody().getJavaType());
+          assertEquals(Boolean.TRUE, route.getRequestBody().getRequired());
+        })
+        .next(route -> {
+          assertEquals("GET /int", route.toString());
+          assertEquals(int.class.getName(), route.getRequestBody().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /listOfStr", route.toString());
+          assertEquals("java.util.List<java.lang.String>", route.getRequestBody().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /listOfDouble", route.toString());
+          assertEquals("java.util.List<java.lang.Double>", route.getRequestBody().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /defstr", route.toString());
+          assertEquals(String.class.getName(), route.getRequestBody().getJavaType());
+          assertEquals(Boolean.FALSE, route.getRequestBody().getRequired());
+        })
+        .next(route -> {
+          assertEquals("GET /opt-int", route.toString());
+          assertEquals("java.util.Optional<java.lang.Integer>", route.getRequestBody().getJavaType());
+          assertEquals(Boolean.FALSE, route.getRequestBody().getRequired());
+        })
+        .next(route -> {
+          assertEquals("GET /body-bean", route.toString());
+          assertEquals(ABean.class.getName(), route.getRequestBody().getJavaType());
+        })
+        .next(route -> {
+          assertEquals("GET /body-bean2", route.toString());
+          assertEquals(ABean.class.getName(), route.getRequestBody().getJavaType());
         })
         .verify();
   }

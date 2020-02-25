@@ -23,6 +23,28 @@ import java.util.stream.StreamSupport;
 
 public class RequestParser {
 
+  private static class WebArgument {
+    String javaType;
+
+    Boolean required;
+
+    Boolean single;
+
+    Object defaultValue;
+
+    public void set(ParameterExt argument) {
+      Optional.ofNullable(javaType).ifPresent(argument::setJavaType);
+      Optional.ofNullable(required).ifPresent(argument::setRequired);
+      Optional.ofNullable(single).ifPresent(argument::setSingle);
+      Optional.ofNullable(defaultValue).ifPresent(argument::setDefaultValue);
+    }
+
+    public void set(RequestBodyExt argument) {
+      Optional.ofNullable(javaType).ifPresent(argument::setJavaType);
+      Optional.ofNullable(required).ifPresent(argument::setRequired);
+    }
+  }
+
   public static Optional<RequestBodyExt> requestBody(MethodNode node) {
     return StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(node.instructions.iterator(),
@@ -42,8 +64,9 @@ public class RequestParser {
             body.setJavaType(bodyType);
             return body;
           } else {
-            // Unsupported body usage
-            throw new UnsupportedOperationException("Body usage");
+            RequestBodyExt body = new RequestBodyExt();
+            argumentType("body", i).set(body);
+            return body;
           }
         });
   }
@@ -64,7 +87,7 @@ public class RequestParser {
         argument.setIn("path");
         if (signature.matches(String.class)) {
           argument.setName(argumentName(methodInsnNode));
-          argumentType(argument, methodInsnNode);
+          argumentType(argument.getName(), methodInsnNode).set(argument);
         } else if (signature.matches(Class.class)) {
           argument.setName(signature.getMethod());
           argumentContextToType(argument, methodInsnNode);
@@ -75,7 +98,7 @@ public class RequestParser {
         argument.setIn("query");
         if (signature.matches(String.class)) {
           argument.setName(argumentName(methodInsnNode));
-          argumentType(argument, methodInsnNode);
+          argumentType(argument.getName(), methodInsnNode).set(argument);
         } else if (signature.matches(Class.class)) {
           argument.setName(signature.getMethod());
           argumentContextToType(argument, methodInsnNode);
@@ -86,7 +109,7 @@ public class RequestParser {
         argument.setIn("form");
         if (signature.matches(String.class)) {
           argument.setName(argumentName(methodInsnNode));
-          argumentType(argument, methodInsnNode);
+          argumentType(argument.getName(), methodInsnNode).set(argument);
         } else if (signature.matches(Class.class)) {
           argument.setName(signature.getMethod());
           argumentContextToType(argument, methodInsnNode);
@@ -122,36 +145,37 @@ public class RequestParser {
         .map(Type::getClassName);
   }
 
-  private static void argumentType(ParameterExt argument, MethodInsnNode node) {
+  private static WebArgument argumentType(String argumentName, MethodInsnNode node) {
     MethodInsnNode convertCall = InsnSupport.next(node)
         .filter(valueOwner())
         .map(MethodInsnNode.class::cast)
         .findFirst()
         .orElseThrow(() -> new IllegalStateException(
-            "Parameter type not found, for: " + argument.getName()));
+            "Parameter type not found, for: " + argumentName));
     Signature convert = Signature.create(convertCall);
+    WebArgument argument = new WebArgument();
     if (convert.matches("value") || convert.matches("valueOrNull") || convert.getMethod()
         .endsWith("Value")) {
-      argument.setJavaType(Type.getReturnType(convertCall.desc).getClassName());
+      argument.javaType = Type.getReturnType(convertCall.desc).getClassName();
       if (convert.matches("valueOrNull")) {
-        argument.setRequired(false);
+        argument.required = false;
       } else {
         if (convert.getParameterCount() == 0) {
-          argument.setRequired(true);
+          argument.required = true;
         } else {
-          argument.setRequired(false);
-          argument.setDefaultValue(argumentDefaultValue(convertCall.getPrevious()));
+          argument.required = false;
+          argument.defaultValue = argumentDefaultValue(convertCall.getPrevious());
         }
       }
     } else if (convert.matches("toList")) {
-      argument.setJavaType(toGenericOne(convertCall, convert, List.class));
-      argument.setRequired(false);
+      argument.javaType = toGenericOne(convertCall, convert, List.class);
+      argument.required = false;
     } else if (convert.matches("toSet")) {
-      argument.setJavaType(toGenericOne(convertCall, convert, Set.class));
-      argument.setRequired(false);
+      argument.javaType = toGenericOne(convertCall, convert, Set.class);
+      argument.required = false;
     } else if (convert.matches("toOptional")) {
-      argument.setJavaType(toGenericOne(convertCall, convert, Optional.class));
-      argument.setRequired(false);
+      argument.javaType = toGenericOne(convertCall, convert, Optional.class);
+      argument.required = false;
       InsnSupport.next(convertCall)
           .filter(optionalOrElse())
           .findFirst()
@@ -163,7 +187,7 @@ public class RequestParser {
                 .map(MethodInsnNode.class::cast)
                 .ifPresent(toOptional -> {
                   if (toOptional.equals(convertCall)) {
-                    argument.setDefaultValue(argumentDefaultValue(elseCall.getPrevious()));
+                    argument.defaultValue = argumentDefaultValue(elseCall.getPrevious());
                   }
                 });
           });
@@ -175,7 +199,7 @@ public class RequestParser {
           .map(e -> (Type) e.cst)
           .orElseThrow(() -> new IllegalStateException(
               "Parameter type not found: " + InsnSupport.toString(convertCall)));
-      argument.setJavaType(toType.getClassName());
+      argument.javaType = toType.getClassName();
     } else if (convert.matches("toEnum")) {
       Type toType = InsnSupport.prev(convertCall)
           .filter(InvokeDynamicInsnNode.class::isInstance)
@@ -186,24 +210,28 @@ public class RequestParser {
           .map(h -> Type.getObjectType(h.getOwner()))
           .orElseThrow(() -> new IllegalStateException(
               "Parameter type not found: " + InsnSupport.toString(convertCall)));
-      argument.setJavaType(toType.getClassName());
-      argument.setRequired(true);
+      argument.javaType = toType.getClassName();
+      argument.required = true;
     } else if (convert.matches("toMap")) {
-      argument.setJavaType("java.util.Map<java.lang.String,java.lang.String>");
-      argument.setRequired(true);
-      argument.setSingle(false);
+      argument.javaType = "java.util.Map<java.lang.String,java.lang.String>";
+      argument.required = true;
+      argument.single = false;
     } else if (convert.matches("toMultimap")) {
-      argument.setJavaType("java.util.Map<java.lang.String,java.util.List<java.lang.String>>");
-      argument.setRequired(true);
-      argument.setSingle(false);
+      argument.javaType = "java.util.Map<java.lang.String,java.util.List<java.lang.String>>";
+      argument.required = true;
+      argument.single = false;
+    } else {
+      throw new IllegalStateException("Unhandle parameter type: " + convert);
     }
+    return argument;
   }
 
   private static Predicate<AbstractInsnNode> valueOwner() {
     return e -> {
       if (e instanceof MethodInsnNode) {
-        return ((MethodInsnNode) e).owner.equals("io/jooby/Value") || ((MethodInsnNode) e).owner
-            .equals("io/jooby/ValueNode");
+        return ((MethodInsnNode) e).owner.equals("io/jooby/Value")
+            || ((MethodInsnNode) e).owner.equals("io/jooby/ValueNode")
+            || ((MethodInsnNode) e).owner.equals("io/jooby/Body");
       }
       return false;
     };
