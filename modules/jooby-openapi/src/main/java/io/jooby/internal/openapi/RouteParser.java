@@ -7,6 +7,7 @@ import io.jooby.Router;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -56,10 +57,12 @@ public class RouteParser {
        * Parameters:
        */
       for (io.swagger.v3.oas.models.parameters.Parameter parameter : parameters) {
-        Schema schema = parameter.getSchema();
-        if (schema == null) {
+        if (parameter.getSchema() == null) {
           String javaType = ((ParameterExt) parameter).getJavaType();
           Optional.ofNullable(ctx.schema(javaType)).ifPresent(parameter::setSchema);
+        }
+        if (parameter.getSchema() instanceof StringSchema && isPassword(parameter.getName())) {
+          parameter.getSchema().setFormat("password");
         }
       }
       /**
@@ -116,6 +119,10 @@ public class RouteParser {
     // finalize/cleanup/etc
     cleanup(result);
     return result;
+  }
+
+  private boolean isPassword(String name) {
+    return "password".equalsIgnoreCase(name) || "pass".equalsIgnoreCase(name);
   }
 
   private void uniqueOperationId(List<OperationExt> operations) {
