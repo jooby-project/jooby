@@ -13,11 +13,13 @@ import examples.RouteInline;
 import examples.RoutePatternIdioms;
 import examples.RouteReturnTypeApp;
 import examples.ABean;
+import io.jooby.internal.openapi.DebugOption;
 import io.jooby.internal.openapi.HttpType;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtMvcApp;
 import kt.KtRouteIdioms;
 import kt.KtRouteImport;
+import kt.KtRouteRef;
 import kt.KtRouteReturnType;
 
 import java.util.concurrent.Callable;
@@ -791,7 +793,7 @@ public class OpenApiToolTest {
         })
         .next(route -> {
           assertEquals("GET /literal/3", route.toString());
-          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
+          assertEquals(void.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /literal/4", route.toString());
@@ -1142,5 +1144,14 @@ public class OpenApiToolTest {
               .verify();
         })
         .verify();
+  }
+
+  @OpenApiTest(value = KtRouteRef.class)
+  public void ktRouteRef(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("Create a Pet", route.getSummary());
+          assertEquals("createPetRef", route.getOperationId());
+        });
   }
 }

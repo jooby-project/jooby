@@ -7,6 +7,7 @@ import io.jooby.Router;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -26,11 +27,13 @@ import org.objectweb.asm.tree.VarInsnNode;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,10 +53,35 @@ public class OperationParser {
     // Initialize schema types
     for (Operation operation : result) {
       List<io.swagger.v3.oas.models.parameters.Parameter> parameters = operation.getParameters();
+      /**
+       * Parameters:
+       */
       for (io.swagger.v3.oas.models.parameters.Parameter parameter : parameters) {
-        String javaType = ((io.jooby.internal.openapi.Parameter) parameter).getJavaType();
-        parameter.setSchema(ctx.schema(javaType));
+        Schema schema = parameter.getSchema();
+        if (schema == null) {
+          String javaType = ((io.jooby.internal.openapi.Parameter) parameter).getJavaType();
+          Optional.ofNullable(ctx.schema(javaType)).ifPresent(parameter::setSchema);
+        }
       }
+      /**
+       * Request body
+       */
+      RequestBodyExt requestBody = (RequestBodyExt) operation.getRequestBody();
+      if (requestBody != null) {
+        if (requestBody.getContent() == null) {
+          // default content
+          io.swagger.v3.oas.models.media.MediaType mediaType = new io.swagger.v3.oas.models.media.MediaType();
+          mediaType.setSchema(ctx.schema(requestBody.getJavaType()));
+          String mediaTypeName = operation.getConsumes().stream().findFirst()
+              .orElse(MediaType.JSON);
+          Content content = new Content();
+          content.addMediaType(mediaTypeName, mediaType);
+          requestBody.setContent(content);
+        }
+      }
+      /**
+       * Responses:
+       */
       for (Map.Entry<String, ApiResponse> entry : operation.getResponses().entrySet()) {
         int statusCode = statusCode(entry.getKey().replace("default", "200"));
         Response response = (Response) entry.getValue();
@@ -84,13 +112,51 @@ public class OperationParser {
       }
     }
 
-    // clean up empty param
-    for (Operation operation : result) {
+    uniqueOperationId(result);
+
+    // finalize/cleanup/etc
+    cleanup(result);
+    return result;
+  }
+
+  private void uniqueOperationId(List<Operation> operations) {
+    Map<String, AtomicInteger> names = new HashMap<>();
+    for (Operation operation : operations) {
+      String operationId = operationId(operation);
+      int c = names.computeIfAbsent(operationId, k -> new AtomicInteger())
+          .incrementAndGet();
+      if (c > 1) {
+        operation.setOperationId(operationId + c);
+      } else {
+        operation.setOperationId(operationId);
+      }
+    }
+  }
+
+  private String operationId(Operation operation) {
+    return Optional.ofNullable(operation.getOperationId())
+        .orElseGet(() -> operation.getMethod().toLowerCase() + patternToOperationId(
+            operation.getPattern()));
+  }
+
+  private String patternToOperationId(String pattern) {
+    if (pattern.equals("/")) {
+      return "";
+    }
+    return Stream.of(pattern.split("/"))
+        .filter(s -> s.length() > 0)
+        .map(segment -> Character.toUpperCase(segment.charAt(0)) +
+            (segment.length() > 1 ? segment.substring(1) : "")
+        )
+        .collect(Collectors.joining());
+  }
+
+  private void cleanup(List<Operation> operations) {
+    for (Operation operation : operations) {
       if (operation.getParameters().isEmpty()) {
         operation.setParameters(null);
       }
     }
-    return result;
   }
 
   private int statusCode(String code) {
@@ -109,8 +175,9 @@ public class OperationParser {
     } else if (javaTypes.size() > 1) {
       List<Schema> schemas = javaTypes.stream()
           .map(ctx::schema)
+          .filter(Objects::nonNull)
           .collect(Collectors.toList());
-      schema = new ComposedSchema().oneOf(schemas);
+      schema = schemas.isEmpty() ? null : new ComposedSchema().oneOf(schemas);
     } else {
       schema = null;
     }
@@ -305,11 +372,21 @@ public class OperationParser {
   }
 
   private List<Operation> kotlinHandler(ExecutionContext ctx, String httpMethod,
-      String prefix,
-      MethodInsnNode node) {
+      String prefix, MethodInsnNode node) {
     List<Operation> handlerList = new ArrayList<>();
     String owner = InsnSupport.prev(node.getPrevious())
-        .filter(it -> it instanceof FieldInsnNode || it instanceof MethodInsnNode)
+        .filter(it -> {
+          if (it instanceof FieldInsnNode) {
+            return true;
+          }
+          if (it instanceof MethodInsnNode) {
+            if (Signature.create((MethodInsnNode) it).matches("<init>", TypeFactory.KT_FUN_1)) {
+              return false;
+            }
+            return true;
+          }
+          return false;
+        })
         .findFirst()
         .map(e -> {
           if (e instanceof FieldInsnNode) {
@@ -333,6 +410,11 @@ public class OperationParser {
       } else if (signature.matches("invoke", TypeFactory.HANDLER_CONTEXT)) {
         ctx.debugHandler(method);
         handlerList.add(newRouteDescriptor(ctx, method, httpMethod, prefix));
+      } else if (signature.matches("invoke", TypeFactory.CONTEXT)) {
+        // fun reference
+        MethodNode ref = kotlinFunctionReference(ctx, classNode, method);
+        ctx.debugHandler(ref);
+        handlerList.add(newRouteDescriptor(ctx, ref, httpMethod, prefix));
       } else if (signature.matches("invokeSuspend", Object.class)) {
         ctx.debugHandler(method);
         handlerList.add(newRouteDescriptor(ctx, method, httpMethod, prefix));
@@ -351,15 +433,45 @@ public class OperationParser {
       }
     }
     if (apply != null) {
+      // almost there can be one of two: 1) lambda itself or 2) method reference
       ctx.debugHandler(apply);
       handlerList.add(newRouteDescriptor(ctx, apply, httpMethod, prefix));
     }
     return handlerList;
   }
 
+  private MethodNode kotlinFunctionReference(ExecutionContext ctx, ClassNode classNode,
+      MethodNode node) {
+    MethodInsnNode ref = InsnSupport.prev(node.instructions.getLast())
+        .filter(MethodInsnNode.class::isInstance)
+        .map(MethodInsnNode.class::cast)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Kotlin reference function not found"));
+    String refname = ref.name.equals("invoke")
+        ? classNode.methods.stream()
+        .filter(m -> m.name.equals("getName"))
+        .findFirst()
+        .map(m -> InsnSupport.next(m.instructions.getFirst())
+            .filter(LdcInsnNode.class::isInstance)
+            .findFirst()
+            .map(LdcInsnNode.class::cast)
+            .map(n -> n.cst.toString())
+            .orElse(ref.name)
+        ).orElse(ref.name)
+        : ref.name;
+    MethodNode method = ctx
+        .classNode(Type.getObjectType(ref.owner)).methods.stream()
+        .filter(m -> m.name.equals(ref.name) && m.desc.equals(ref.desc))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Kotlin reference function not found"));
+    method.name = refname;
+    return method;
+  }
+
   private Operation newRouteDescriptor(ExecutionContext ctx, MethodNode node,
       String httpMethod, String prefix) {
-    List<Parameter> arguments = ParameterParser.parse(ctx, node);
+    Optional<RequestBodyExt> requestBody = ParameterParser.requestBody(ctx, node);
+    List<Parameter> arguments = ParameterParser.parameters(ctx, node);
     Response response = new Response();
     List<String> returnTypes = ResponseParser.parse(ctx, node);
     response.setJavaTypes(returnTypes);
@@ -367,9 +479,11 @@ public class OperationParser {
         Collections.singletonList(response));
 
     boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
-    if (notSynthetic) {
+    boolean lambda = node.name.equals("apply") || node.name.equals("invoke");
+    if (notSynthetic && !lambda) {
       operation.setOperationId(node.name);
     }
+    requestBody.ifPresent(operation::setRequestBody);
     return operation;
   }
 

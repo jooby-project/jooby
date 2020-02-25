@@ -45,7 +45,7 @@ public class SwaggerAnnotationTest {
 
             withSchema(response, MediaType.JSON, schema -> {
               assertNotNull(schema);
-              assertEquals("Person", schema.getName());
+              assertEquals("#/components/schemas/Person", schema.get$ref());
             });
           });
         })

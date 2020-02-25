@@ -1,6 +1,10 @@
 package io.jooby.internal.openapi;
 
 import io.jooby.MediaType;
+import io.swagger.v3.core.util.RefUtils;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.Explode;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,17 +19,21 @@ import org.objectweb.asm.tree.MethodNode;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import static io.jooby.internal.openapi.AsmUtils.arrayToMap;
+import static io.jooby.internal.openapi.AsmUtils.boolValue;
+import static io.jooby.internal.openapi.AsmUtils.enumValue;
+import static io.jooby.internal.openapi.AsmUtils.intValue;
+import static io.jooby.internal.openapi.AsmUtils.toMap;
 import static io.jooby.internal.openapi.AsmUtils.findAnnotationByType;
+import static io.jooby.internal.openapi.AsmUtils.stringValue;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
@@ -35,19 +43,18 @@ public class OpenApiParser {
     findAnnotationByType(method.visibleAnnotations,
         singletonList(io.swagger.v3.oas.annotations.Operation.class.getName())).stream()
         .findFirst()
-        .ifPresent(a -> swaggerOperation(ctx, operation, arrayToMap(a)));
+        .ifPresent(a -> swaggerOperation(ctx, operation, toMap(a)));
 
     /** @ApiResponses: */
     List<Response> responses = findAnnotationByType(method.visibleAnnotations,
         singletonList(ApiResponses.class.getName()))
         .stream()
         .flatMap(a -> (
-                (List<AnnotationNode>) arrayToMap(a)
+                (List<AnnotationNode>) toMap(a)
                     .getOrDefault("value", emptyList())
             ).stream()
         )
-        .map(a -> arrayToMap(a))
-        .map(a -> operationResponse(ctx, operation, a))
+        .map(a -> operationResponse(ctx, operation, toMap(a)))
         .collect(Collectors.toList());
 
     if (responses.isEmpty()) {
@@ -55,8 +62,7 @@ public class OpenApiParser {
       findAnnotationByType(method.visibleAnnotations, singletonList(ApiResponse.class.getName()))
           .stream()
           .findFirst()
-          .map(a -> arrayToMap(a))
-          .map(a -> operationResponse(ctx, operation, a))
+          .map(a -> operationResponse(ctx, operation, toMap(a)))
           .ifPresent(a -> operation.setResponses(apiResponses(a)));
     } else {
       operation.setResponses(apiResponses(responses));
@@ -65,33 +71,76 @@ public class OpenApiParser {
 
   private static void swaggerOperation(ExecutionContext ctx, Operation operation,
       Map<String, Object> annotation) {
-    String operationId = (String) annotation.getOrDefault("operationId", "");
-    if (operationId.trim().length() > 0) {
-      operation.setOperationId(operationId.trim());
-    }
-    Boolean deprecated = (Boolean) annotation.get("deprecated");
-    if (deprecated == Boolean.TRUE) {
-      operation.setDeprecated(deprecated.booleanValue());
-    }
-    Boolean hidden = (Boolean) annotation.getOrDefault("hidden", false);
-    operation.setHidden(hidden.booleanValue());
+    stringValue(annotation, "operationId", operation::setOperationId);
 
-    String summary = (String) annotation.getOrDefault("summary", "");
-    if (summary.trim().length() > 0) {
-      operation.setSummary(summary.trim());
-    }
+    stringValue(annotation, "method", operation::setMethod);
 
-    String desc = (String) annotation.getOrDefault("description", "");
-    if (desc.trim().length() > 0) {
-      operation.setDescription(desc.trim());
-    }
+    boolValue(annotation, "deprecated", operation::setDeprecated);
+
+    boolValue(annotation, "hidden", operation::setHidden);
+
+    stringValue(annotation, "summary", operation::setSummary);
+
+    stringValue(annotation, "description", operation::setDescription);
 
     List<String> tags = (List<String>) annotation.getOrDefault("tags", emptyList());
     tags.forEach(operation::addTagsItem);
 
+    operationParameter(ctx, operation,
+        (List<AnnotationNode>) annotation.getOrDefault("parameters", Collections.emptyList()));
+
     List<Response> response = operationResponses(ctx, operation, annotation);
     if (response.size() > 0) {
       operation.setResponses(apiResponses(response));
+    }
+  }
+
+  @io.swagger.v3.oas.annotations.Operation(parameters =
+  @Parameter(
+      name = "p",
+      description = "des",
+      in = ParameterIn.COOKIE,
+      required = false,
+      deprecated = true,
+      allowEmptyValue = true,
+      allowReserved = false,
+      hidden = false,
+      explode = Explode.TRUE,
+      ref = "Pet"
+  )
+  )
+  private static void operationParameter(ExecutionContext ctx, Operation operation,
+      List<AnnotationNode> parameters) {
+    for (int i = 0; i < parameters.size(); i++) {
+      Map<String, Object> parameterMap = toMap(parameters.get(i));
+      String name = (String) parameterMap.get("name");
+      io.swagger.v3.oas.models.parameters.Parameter parameter;
+      if (name != null) {
+        int index = i;
+        parameter = operation.getParameters().stream()
+            .filter(it -> it.getName().equals(name))
+            .findFirst()
+            .orElseGet(() -> operation.getParameter(index));
+      } else {
+        parameter = operation.getParameter(i);
+      }
+      if (parameter == null) {
+        throw new IllegalArgumentException(
+            "Parameter not found: " + name + " at  position: " + i + " for annotation: "
+                + parameterMap);
+      }
+      Optional.ofNullable(name).ifPresent(parameter::setName);
+      stringValue(parameterMap, "description", parameter::setDescription);
+      enumValue(parameterMap, "in", in -> parameter.setIn(in.toLowerCase()));
+      boolValue(parameterMap, "required", parameter::setRequired);
+      boolValue(parameterMap, "deprecated", parameter::setDeprecated);
+      boolValue(parameterMap, "allowEmptyValue", parameter::setAllowEmptyValue);
+      boolValue(parameterMap, "allowReserved", parameter::setAllowReserved);
+      // NOTE: Hidden is not present on parameter
+      //boolValue(parameterMap, "hidden", parameter::setHidden);
+      enumValue(parameterMap, "explode", value -> parameter.setExample(Boolean.valueOf(value)));
+      stringValue(parameterMap, "ref", ref -> parameter.set$ref(RefUtils.constructRef(ref)));
+      arrayOrSchema(ctx, parameterMap).ifPresent(parameter::setSchema);
     }
   }
 
@@ -102,7 +151,7 @@ public class OpenApiParser {
     if (responses.size() > 0) {
       // clear any detected response
       List<Response> returnTypes = responses.stream()
-          .map(it -> arrayToMap(it))
+          .map(it -> toMap(it))
           .map(it -> operationResponse(ctx, operation, it))
           .collect(Collectors.toList());
       return returnTypes;
@@ -117,15 +166,15 @@ public class OpenApiParser {
     Map<String, Header> headers = new LinkedHashMap<>();
 
     ((List<AnnotationNode>) annotation.getOrDefault("headers", Collections.emptyList())).stream()
-        .map(a -> arrayToMap(a))
+        .map(a -> toMap(a))
         .forEach(a -> {
           String name = (String) a.get("name");
           Header h = new Header();
-          Optional.ofNullable(a.get("description")).map(Objects::toString)
-              .ifPresent(h::setDescription);
-          Optional.ofNullable(a.get("description")).map(Objects::toString)
-              .ifPresent(h::setDescription);
-          h.setSchema(schema(ctx, (AnnotationNode) a.get("schema")));
+          stringValue(a, "description", h::setDescription);
+          io.swagger.v3.oas.models.media.Schema schema = toSchema(ctx,
+              toMap((AnnotationNode) a.get("schema")))
+              .orElseGet(StringSchema::new);
+          h.setSchema(schema);
           headers.put(name, h);
         });
 
@@ -145,25 +194,13 @@ public class OpenApiParser {
     return response;
   }
 
-  private static io.swagger.v3.oas.models.media.Schema schema(ExecutionContext ctx,
-      AnnotationNode annotation) {
-    if (annotation == null) {
-      return new StringSchema();
-    }
-    Type type = (Type) arrayToMap(annotation).get("implementation");
-    if (type == null) {
-      return new StringSchema();
-    }
-    return ctx.schema(type.getClassName());
-  }
-
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse(content = @Content))
   private static void operationResponseContent(ExecutionContext ctx, Operation operation,
       Response response, Map<String, Object> annotation) {
     List<AnnotationNode> contents = (List<AnnotationNode>) annotation
         .getOrDefault("content", Collections.emptyList());
     contents.stream()
-        .map(it -> arrayToMap(it))
+        .map(it -> toMap(it))
         .forEach(it -> responseContent(ctx, operation, response, it));
   }
 
@@ -175,47 +212,12 @@ public class OpenApiParser {
   )
   private static void responseContent(ExecutionContext ctx, Operation operation,
       Response response, Map<String, Object> contentMap) {
-    Map<String, Object> schemaMap;
-    String arrayType = null;
-    AnnotationNode e = (AnnotationNode) contentMap.get("array");
-    if (e != null) {
-      Map<String, Object> array = arrayToMap(e);
-      Boolean unique = (Boolean) array.getOrDefault("uniqueItems", false);
-      AnnotationNode s = (AnnotationNode) array.get("schema");
-      schemaMap = arrayToMap(s);
-      arrayType = unique.booleanValue() ? Set.class.getName() : List.class.getName();
-    } else {
-      AnnotationNode s = (AnnotationNode) contentMap.get("schema");
-      schemaMap =  arrayToMap(s);
-    }
-    io.swagger.v3.oas.models.media.Schema schema;
-    if (arrayType != null) {
-      Type implementation = (Type) schemaMap.get("implementation");
-      if (implementation != null) {
-        schema = ctx.schema(arrayType + "<" + implementation.getClassName() + ">");
-      } else {
-        throw new IllegalStateException(
-            "ApiResponse content schema is set to array, but implementation type is not present");
-      }
-    } else {
-      Type implementation = (Type) schemaMap.get("implementation");
-      if (implementation != null) {
-        schema = ctx.schema(implementation.getClassName());
-      } else {
-        ComposedSchema composed = new ComposedSchema();
-
-        schemaType(ctx, schemaMap, "oneOf", composed::oneOf);
-        schemaType(ctx, schemaMap, "allOf", composed::allOf);
-        schemaType(ctx, schemaMap, "anyOf", composed::anyOf);
-        schemaType(ctx, schemaMap, "not", list -> composed.not(list.get(0)));
-
-        schema = composed;
-      }
-    }
+    Optional<io.swagger.v3.oas.models.media.Schema> schema = arrayOrSchema(ctx, contentMap);
     String mediaType = (String) contentMap
-        .getOrDefault("mediaType", operation.getProduces().stream().findFirst().orElse(MediaType.JSON));
+        .getOrDefault("mediaType",
+            operation.getProduces().stream().findFirst().orElse(MediaType.JSON));
     io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
-    mediaTypeObject.setSchema(schema);
+    schema.ifPresent(mediaTypeObject::setSchema);
 
     io.swagger.v3.oas.models.media.Content content = new io.swagger.v3.oas.models.media.Content();
     content.addMediaType(mediaType, mediaTypeObject);
@@ -223,15 +225,83 @@ public class OpenApiParser {
     response.setContent(content);
   }
 
+  private static Optional<io.swagger.v3.oas.models.media.Schema> arrayOrSchema(ExecutionContext ctx,
+      Map<String, Object> annotation) {
+    AnnotationNode e = (AnnotationNode) annotation.get("array");
+    if (e != null) {
+      return toArraySchema(ctx, toMap(e));
+    } else {
+      return toSchema(ctx, toMap((AnnotationNode) annotation.get("schema")));
+    }
+  }
+
+  private static Optional<io.swagger.v3.oas.models.media.Schema> toArraySchema(ExecutionContext ctx,
+      Map<String, Object> annotation) {
+    io.swagger.v3.oas.models.media.ArraySchema arraySchema = new io.swagger.v3.oas.models.media.ArraySchema();
+    boolValue(annotation, "uniqueItems", arraySchema::setUniqueItems);
+    intValue(annotation, "maxItems", arraySchema::setMaxItems);
+    intValue(annotation, "minItems", arraySchema::setMinItems);
+    if (annotation.containsKey("arraySchema")) {
+      toArraySchema(ctx, toMap((AnnotationNode) annotation.get("arraySchema")))
+          .ifPresent(arraySchema::setItems);
+    } else {
+      toSchema(ctx, toMap((AnnotationNode) annotation.get("schema")))
+          .ifPresent(arraySchema::setItems);
+    }
+    return Optional.of(arraySchema);
+  }
+
+  private static Optional<io.swagger.v3.oas.models.media.Schema> toSchema(ExecutionContext ctx,
+      Map<String, Object> annotation) {
+    Map<String, List<io.swagger.v3.oas.models.media.Schema>> schemaMap = new HashMap<>();
+
+    schemaType(ctx, annotation, "implementation", schemaMap::put);
+    schemaType(ctx, annotation, "not", schemaMap::put);
+    schemaType(ctx, annotation, "anyOf", schemaMap::put);
+    schemaType(ctx, annotation, "oneOf", schemaMap::put);
+    schemaType(ctx, annotation, "allOf", schemaMap::put);
+
+    if (schemaMap.isEmpty()) {
+      return Optional.empty();
+    }
+
+    List<io.swagger.v3.oas.models.media.Schema> schemas = schemaMap.get("implementation");
+    io.swagger.v3.oas.models.media.Schema schema;
+    if (schemas.isEmpty()) {
+      ComposedSchema composedSchema = new ComposedSchema();
+
+      Optional.ofNullable(schemaMap.get("anyOf")).ifPresent(composedSchema::anyOf);
+      Optional.ofNullable(schemaMap.get("oneOf")).ifPresent(composedSchema::oneOf);
+      Optional.ofNullable(schemaMap.get("allOf")).ifPresent(composedSchema::allOf);
+
+      schema = composedSchema;
+    } else {
+      schema = schemas.get(0);
+    }
+
+    Optional.ofNullable(schemaMap.get("not")).ifPresent(not -> schema.not(not.get(0)));
+
+    return Optional.of(schema);
+  }
+
   private static void schemaType(ExecutionContext ctx, Map<String, Object> schema, String property,
-      Consumer<List<io.swagger.v3.oas.models.media.Schema>> consumer) {
-    List<Type> types = (List<Type>) schema.get(property);
-    if (types != null && types.size() > 0) {
+      BiConsumer<String, List<io.swagger.v3.oas.models.media.Schema>> consumer) {
+    Object value = schema.get(property);
+    List<Type> types;
+    if (value instanceof List) {
+      types = (List) value;
+    } else if (value instanceof Type) {
+      types = Collections.singletonList((Type) value);
+    } else {
+      types = Collections.emptyList();
+    }
+    if (types.size() > 0) {
       List<io.swagger.v3.oas.models.media.Schema> schemas = types.stream()
           .map(Type::getClassName)
           .map(ctx::schema)
+          .filter(Objects::nonNull)
           .collect(Collectors.toList());
-      consumer.accept(schemas);
+      consumer.accept(property, schemas);
     }
   }
 

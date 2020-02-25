@@ -17,6 +17,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,12 +30,13 @@ import java.util.stream.Stream;
 public class ResponseParser {
 
   public static List<String> parse(ExecutionContext ctx, MethodNode node) {
+    Type returnType = Type.getReturnType(node.desc);
     List<String> result = InsnSupport.next(node.instructions.getFirst())
         .filter(it -> it.getOpcode() == Opcodes.ARETURN || it.getOpcode() == Opcodes.IRETURN
             || it.getOpcode() == Opcodes.RETURN)
         .map(it -> {
           if (it.getOpcode() == Opcodes.RETURN) {
-            return Object.class.getName();
+            return returnType.getClassName();
           }
           /** IRETURN */
           if (it.getOpcode() == Opcodes.IRETURN) {
@@ -188,7 +190,7 @@ public class ResponseParser {
             }
           }
 
-          return Object.class.getName();
+          return returnType.getClassName();
         })
         .map(Object::toString)
         .distinct()
@@ -208,6 +210,10 @@ public class ResponseParser {
         .filter(m -> m.name.equals(node.name) && m.desc.equals(node.desc))
         .findFirst()
         .map(m -> Optional.ofNullable(m.signature)
+            .map(s -> {
+              int pos = s.indexOf(')');
+              return pos > 0 ? s.substring(pos + 1 ) : s;
+            })
             .map(ASMType::parse)
             .orElseGet(() -> Type.getReturnType(m.desc).getClassName())
         )

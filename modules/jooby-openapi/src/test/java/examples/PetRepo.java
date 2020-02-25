@@ -1,16 +1,17 @@
 package examples;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public interface PetRepo {
 
-  List<Pet> pets();
+  @Nonnull List<Pet> pets(PetQuery query);
 
-  Pet findById(long id);
+  @Nonnull Pet findById(long id);
 
-  Pet save(Pet pet);
+  @Nonnull Pet save(@Nonnull Pet pet);
 
-  Pet update(Pet pet);
+  @Nonnull Pet update(@Nonnull Pet pet);
 
   void deleteById(long id);
 }

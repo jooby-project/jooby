@@ -3,6 +3,7 @@ package io.jooby.internal.openapi;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.MediaType;
 import io.jooby.StatusCode;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.objectweb.asm.tree.MethodNode;
@@ -15,7 +16,7 @@ public class Operation extends io.swagger.v3.oas.models.Operation {
   @JsonIgnore
   private final MethodNode node;
   @JsonIgnore
-  private final String method;
+  private String method;
   @JsonIgnore
   private final String pattern;
   @JsonIgnore
@@ -84,6 +85,10 @@ public class Operation extends io.swagger.v3.oas.models.Operation {
     return method;
   }
 
+  public void setMethod(String method) {
+    this.method = method;
+  }
+
   public String getPattern() {
     return pattern;
   }
@@ -118,5 +123,12 @@ public class Operation extends io.swagger.v3.oas.models.Operation {
 
   public String toString() {
     return getMethod() + " " + getPattern();
+  }
+
+  public Parameter getParameter(int i) {
+    if (i < getParameters().size()) {
+      return getParameters().get(i);
+    }
+    return null;
   }
 }

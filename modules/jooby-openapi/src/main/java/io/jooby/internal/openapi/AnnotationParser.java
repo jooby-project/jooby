@@ -332,7 +332,7 @@ public class AnnotationParser {
       List<Map<String, Object>> values = findAnnotationByType(annotations,
           Arrays.asList(PACKAGE + "." + httpMethod)).stream()
           .flatMap(annotation -> Stream.of(annotation)
-              .map(AsmUtils::arrayToMap)
+              .map(AsmUtils::toMap)
           )
           .filter(m -> !m.isEmpty())
           .collect(Collectors.toList());
@@ -340,7 +340,7 @@ public class AnnotationParser {
       if (values.isEmpty()) {
         values = findAnnotationByType(annotations, Arrays.asList(Path.class.getName())).stream()
             .flatMap(annotation -> Stream.of(annotation)
-                .map(AsmUtils::arrayToMap)
+                .map(AsmUtils::toMap)
             )
             .filter(m -> !m.isEmpty())
             .collect(Collectors.toList());
@@ -349,7 +349,7 @@ public class AnnotationParser {
           values = findAnnotationByType(annotations,
               Arrays.asList(javax.ws.rs.Path.class.getName())).stream()
               .flatMap(annotation -> Stream.of(annotation)
-                  .map(AsmUtils::arrayToMap)
+                  .map(AsmUtils::toMap)
               )
               .filter(m -> !m.isEmpty())
               .collect(Collectors.toList());

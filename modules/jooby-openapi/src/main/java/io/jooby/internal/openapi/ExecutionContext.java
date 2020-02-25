@@ -9,12 +9,16 @@ import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.ByteArraySchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.UUIDSchema;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -28,8 +32,14 @@ import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
+import java.io.File;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -120,11 +131,40 @@ public class ExecutionContext {
     if (Collection.class.isAssignableFrom(type)) {
       return new ArraySchema();
     }
+    if (File.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || InputStream.class.isAssignableFrom(type)) {
+      return new BinarySchema();
+    }
+    if (Reader.class.isAssignableFrom(type)) {
+      return new StringSchema();
+    }
+    if (byte[].class == type || ByteBuffer.class == type) {
+      return new ByteArraySchema();
+    }
+    if (UUID.class == type) {
+      return new UUIDSchema();
+    }
+    if (BigInteger.class == type) {
+      return new IntegerSchema()
+          .format(null);
+    }
+    if (BigDecimal.class == type) {
+      return new NumberSchema()
+          .format(null);
+    }
+    if (type.isArray()) {
+      return new ArraySchema();
+    }
+    if (Map.class.isAssignableFrom(type)) {
+      return new MapSchema();
+    }
     if (type == Object.class || type == void.class || type == Void.class) {
       return new ObjectSchema();
     }
     return schemas.computeIfAbsent(type.getName(), k -> {
       ResolvedSchema resolvedSchema = ModelConverters.getInstance().readAllAsResolvedSchema(type);
+      if (resolvedSchema.schema == null) {
+        throw new IllegalArgumentException("Unsupported type: " + type);
+      }
       return new SchemaRef(resolvedSchema.schema,
           RefUtils.constructRef(resolvedSchema.schema.getName()));
     }).toSchema();
@@ -141,10 +181,10 @@ public class ExecutionContext {
     String json = "{\"type\":\"" + type + "\"}";
     try {
       TypeLiteral literal = Json.mapper().readValue(json, TypeLiteral.class);
-      if (literal.type.isCollectionLikeType()) {
+      if (literal.type.isCollectionLikeType() || literal.type.isArrayType()) {
         ArraySchema array = new ArraySchema();
         Class<?> itemType = literal.type.getContentType().getRawClass();
-        array.setItems(schema(itemType));
+        Optional.ofNullable(schema(itemType)).ifPresent(array::setItems);
         return array;
       } else if (literal.type.getRawClass() == Optional.class) {
         List<JavaType> typeParameters = literal.type.getBindings().getTypeParameters();

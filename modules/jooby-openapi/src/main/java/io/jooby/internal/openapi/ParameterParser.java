@@ -23,8 +23,33 @@ import java.util.stream.StreamSupport;
 
 public class ParameterParser {
 
-  public static List<Parameter> parse(ExecutionContext ctx, MethodNode node) {
-    List<MethodInsnNode> methodInsnNodes = StreamSupport.stream(
+  public static Optional<RequestBodyExt> requestBody(MethodNode node) {
+    return StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(node.instructions.iterator(),
+            Spliterator.ORDERED),
+        false)
+        .filter(MethodInsnNode.class::isInstance)
+        .map(MethodInsnNode.class::cast)
+        .filter(i -> i.owner.equals(TypeFactory.CONTEXT.getInternalName()) && i.name.equals("body"))
+        .findFirst()
+        .map(i -> {
+          Signature signature = Signature.create(i);
+          if (signature.matches(Class.class)) {
+            String bodyType = valueType(i)
+                .orElseThrow(() -> new IllegalStateException(
+                    "Body type not found, for: " + InsnSupport.toString(i)));
+            RequestBodyExt body = new RequestBodyExt();
+            body.setJavaType(bodyType);
+            return body;
+          } else {
+            // Unsupported body usage
+            throw new UnsupportedOperationException("Body usage");
+          }
+        });
+  }
+
+  public static List<Parameter> parameters(MethodNode node) {
+    List<MethodInsnNode> nodes = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(node.instructions.iterator(), Spliterator.ORDERED),
         false)
         .filter(MethodInsnNode.class::isInstance)
@@ -32,7 +57,7 @@ public class ParameterParser {
         .filter(i -> i.owner.equals("io/jooby/Context"))
         .collect(Collectors.toList());
     List<Parameter> args = new ArrayList<>();
-    for (MethodInsnNode methodInsnNode : methodInsnNodes) {
+    for (MethodInsnNode methodInsnNode : nodes) {
       Signature signature = Signature.create(methodInsnNode);
       Parameter argument = new Parameter();
       if (signature.matches("path")) {
@@ -44,7 +69,7 @@ public class ParameterParser {
           argument.setName(signature.getMethod());
           argumentContextToType(argument, methodInsnNode);
         } else {
-          // Unsupported query usage
+          // Unsupported path usage
         }
       } else if (signature.matches("query")) {
         argument.setHttpType(HttpType.QUERY);
@@ -66,30 +91,35 @@ public class ParameterParser {
           argument.setName(signature.getMethod());
           argumentContextToType(argument, methodInsnNode);
         } else {
-          // Unsupported query usage
+          // Unsupported form usage
         }
       }
 
       if (argument.getJavaType() != null) {
         args.add(argument);
       } else {
-        // Unsupported query usage
+        // Unsupported parameter usage
       }
     }
     return args;
   }
 
   private static void argumentContextToType(Parameter argument, MethodInsnNode node) {
-    Type type = InsnSupport.prev(node)
+    String type = valueType(node)
+        .orElseThrow(() -> new IllegalStateException(
+            "Parameter type not found, for: " + argument.getName()));
+    argument.setJavaType(type);
+    argument.setSingle(false);
+  }
+
+  private static Optional<String> valueType(MethodInsnNode node) {
+    return InsnSupport.prev(node)
         .filter(LdcInsnNode.class::isInstance)
         .findFirst()
         .map(LdcInsnNode.class::cast)
         .filter(i -> i.cst instanceof Type)
         .map(i -> (Type) i.cst)
-        .orElseThrow(() -> new IllegalStateException(
-            "Parameter type not found, for: " + argument.getName()));
-    argument.setJavaType(type.getClassName());
-    argument.setSingle(false);
+        .map(Type::getClassName);
   }
 
   private static void argumentType(Parameter argument, MethodInsnNode node) {
