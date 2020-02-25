@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -201,16 +203,23 @@ public class AnnotationParser {
       ClassNode classNode, MethodNode method) {
     List<OperationExt> result = new ArrayList<>();
 
-    List<ParameterExt> arguments = routerArguments(method);
+    AtomicReference<RequestBodyExt> requestBody = new AtomicReference<>();
+    List<ParameterExt> arguments = routerArguments(method, requestBody::set);
     List<ResponseExt> returnTypes = returnTypes(method);
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(classNode, method, httpMethod)) {
-        OperationExt operation = new OperationExt(method, httpMethod, RoutePath.path(prefix, pattern),
+        OperationExt operation = new OperationExt(
+            method,
+            httpMethod,
+            RoutePath.path(prefix, pattern),
             arguments,
-            returnTypes);
+            returnTypes
+        );
         operation.setOperationId(method.name);
         operation.setDeprecated(isDeprecated(method.visibleAnnotations));
+        Optional.ofNullable(requestBody.get()).ifPresent(operation::setRequestBody);
+
         result.add(operation);
       }
     }
@@ -246,7 +255,8 @@ public class AnnotationParser {
     return result;
   }
 
-  private static List<ParameterExt> routerArguments(MethodNode method) {
+  private static List<ParameterExt> routerArguments(MethodNode method,
+      Consumer<RequestBodyExt> requestBody) {
     List<ParameterExt> result = new ArrayList<>();
     if (method.parameters != null) {
       for (int i = 0; i < method.parameters.size(); i++) {
@@ -288,13 +298,19 @@ public class AnnotationParser {
             ? true
             : !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
 
-        ParameterExt argument = new ParameterExt();
-        argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
-        argument.setJavaType(javaType);
-        paramType.setIn(argument);
-        argument.setRequired(required);
-
-        result.add(argument);
+        if (paramType == ParamType.BODY) {
+          RequestBodyExt body = new RequestBodyExt();
+          body.setRequired(required);
+          body.setJavaType(javaType);
+          requestBody.accept(body);
+        } else {
+          ParameterExt argument = new ParameterExt();
+          argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
+          argument.setJavaType(javaType);
+          paramType.setIn(argument);
+          argument.setRequired(required);
+          result.add(argument);
+        }
       }
     }
     return result;

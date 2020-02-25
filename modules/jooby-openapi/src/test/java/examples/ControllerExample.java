@@ -44,4 +44,9 @@ public class ControllerExample {
   public List<String> returnList() {
     return null;
   }
+
+  @POST("/bean")
+  public ABean save(ABean bean) {
+    return bean;
+  }
 }

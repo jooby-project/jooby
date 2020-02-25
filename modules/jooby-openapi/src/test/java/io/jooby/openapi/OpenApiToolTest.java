@@ -1110,6 +1110,11 @@ public class OpenApiToolTest {
               route.getResponse().toString());
           assertTrue(route.getDeprecated());
         })
+        .next(route -> {
+          assertEquals("POST /api/bean", route.toString());
+          assertEquals(ABean.class.getName(), route.getResponse().toString());
+          assertEquals(ABean.class.getName(), route.getRequestBody().getJavaType());
+        })
         .verify();
   }
 
