@@ -7,7 +7,6 @@ import io.jooby.Router;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -40,18 +39,18 @@ import java.util.stream.Stream;
 
 import static io.jooby.internal.openapi.RoutePath.path;
 
-public class OperationParser {
+public class RouteParser {
 
-  public List<Operation> parse(ExecutionContext ctx) {
-    List<Operation> result = parse(ctx, null, ctx.classNode(ctx.getRouter()));
+  public List<OperationExt> parse(ParserContext ctx) {
+    List<OperationExt> result = parse(ctx, null, ctx.classNode(ctx.getRouter()));
 
     // swagger/openapi:
-    for (Operation operation : result) {
+    for (OperationExt operation : result) {
       OpenApiParser.parse(ctx, operation.getNode(), operation);
     }
 
     // Initialize schema types
-    for (Operation operation : result) {
+    for (OperationExt operation : result) {
       List<io.swagger.v3.oas.models.parameters.Parameter> parameters = operation.getParameters();
       /**
        * Parameters:
@@ -59,7 +58,7 @@ public class OperationParser {
       for (io.swagger.v3.oas.models.parameters.Parameter parameter : parameters) {
         Schema schema = parameter.getSchema();
         if (schema == null) {
-          String javaType = ((io.jooby.internal.openapi.Parameter) parameter).getJavaType();
+          String javaType = ((ParameterExt) parameter).getJavaType();
           Optional.ofNullable(ctx.schema(javaType)).ifPresent(parameter::setSchema);
         }
       }
@@ -84,7 +83,7 @@ public class OperationParser {
        */
       for (Map.Entry<String, ApiResponse> entry : operation.getResponses().entrySet()) {
         int statusCode = statusCode(entry.getKey().replace("default", "200"));
-        Response response = (Response) entry.getValue();
+        ResponseExt response = (ResponseExt) entry.getValue();
         Schema defaultSchema = parseSchema(ctx, response);
         if (defaultSchema != null) {
           Content content = response.getContent();
@@ -119,9 +118,9 @@ public class OperationParser {
     return result;
   }
 
-  private void uniqueOperationId(List<Operation> operations) {
+  private void uniqueOperationId(List<OperationExt> operations) {
     Map<String, AtomicInteger> names = new HashMap<>();
-    for (Operation operation : operations) {
+    for (OperationExt operation : operations) {
       String operationId = operationId(operation);
       int c = names.computeIfAbsent(operationId, k -> new AtomicInteger())
           .incrementAndGet();
@@ -133,7 +132,7 @@ public class OperationParser {
     }
   }
 
-  private String operationId(Operation operation) {
+  private String operationId(OperationExt operation) {
     return Optional.ofNullable(operation.getOperationId())
         .orElseGet(() -> operation.getMethod().toLowerCase() + patternToOperationId(
             operation.getPattern()));
@@ -151,8 +150,8 @@ public class OperationParser {
         .collect(Collectors.joining());
   }
 
-  private void cleanup(List<Operation> operations) {
-    for (Operation operation : operations) {
+  private void cleanup(List<OperationExt> operations) {
+    for (OperationExt operation : operations) {
       if (operation.getParameters().isEmpty()) {
         operation.setParameters(null);
       }
@@ -167,7 +166,7 @@ public class OperationParser {
     }
   }
 
-  private Schema parseSchema(ExecutionContext ctx, Response response) {
+  private Schema parseSchema(ParserContext ctx, ResponseExt response) {
     List<String> javaTypes = response.getJavaTypes();
     Schema schema;
     if (javaTypes.size() == 1) {
@@ -184,17 +183,17 @@ public class OperationParser {
     return schema;
   }
 
-  public List<Operation> parse(ExecutionContext ctx, String prefix, ClassNode node) {
-    List<Operation> handlerList = new ArrayList<>();
+  public List<OperationExt> parse(ParserContext ctx, String prefix, ClassNode node) {
+    List<OperationExt> handlerList = new ArrayList<>();
     for (MethodNode method : node.methods) {
       handlerList.addAll(routeHandler(ctx, prefix, method));
     }
     return handlerList;
   }
 
-  private List<Operation> routeHandler(ExecutionContext ctx, String prefix,
+  private List<OperationExt> routeHandler(ParserContext ctx, String prefix,
       MethodNode method) {
-    List<Operation> handlerList = new ArrayList<>();
+    List<OperationExt> handlerList = new ArrayList<>();
     /** Track the last router instruction and override with produces/consumes. */
     AbstractInsnNode instructionTo = null;
     for (AbstractInsnNode it : method.instructions) {
@@ -301,7 +300,7 @@ public class OperationParser {
           }
         } else if (signature.matches(Route.class, "produces", MediaType[].class)) {
           if (instructionTo != null) {
-            Operation route = handlerList.get(handlerList.size() - 1);
+            OperationExt route = handlerList.get(handlerList.size() - 1);
             InsnSupport.prev(it, instructionTo)
                 .flatMap(mediaType())
                 .forEach(route::addProduces);
@@ -309,7 +308,7 @@ public class OperationParser {
           }
         } else if (signature.matches(Route.class, "consumes", MediaType[].class)) {
           if (instructionTo != null) {
-            Operation route = handlerList.get(handlerList.size() - 1);
+            OperationExt route = handlerList.get(handlerList.size() - 1);
             InsnSupport.prev(it, instructionTo)
                 .flatMap(mediaType())
                 .forEach(route::addConsumes);
@@ -357,7 +356,7 @@ public class OperationParser {
             "Unsupported router type: " + InsnSupport.toString(node)));
   }
 
-  private List<Operation> useRouter(ExecutionContext ctx, String prefix,
+  private List<OperationExt> useRouter(ParserContext ctx, String prefix,
       MethodInsnNode node, AbstractInsnNode routerInstruction) {
     Type router;
     if (routerInstruction instanceof TypeInsnNode) {
@@ -371,9 +370,9 @@ public class OperationParser {
     return parse(ctx.newContext(router), prefix, classNode);
   }
 
-  private List<Operation> kotlinHandler(ExecutionContext ctx, String httpMethod,
+  private List<OperationExt> kotlinHandler(ParserContext ctx, String httpMethod,
       String prefix, MethodInsnNode node) {
-    List<Operation> handlerList = new ArrayList<>();
+    List<OperationExt> handlerList = new ArrayList<>();
     String owner = InsnSupport.prev(node.getPrevious())
         .filter(it -> {
           if (it instanceof FieldInsnNode) {
@@ -440,7 +439,7 @@ public class OperationParser {
     return handlerList;
   }
 
-  private MethodNode kotlinFunctionReference(ExecutionContext ctx, ClassNode classNode,
+  private MethodNode kotlinFunctionReference(ParserContext ctx, ClassNode classNode,
       MethodNode node) {
     MethodInsnNode ref = InsnSupport.prev(node.instructions.getLast())
         .filter(MethodInsnNode.class::isInstance)
@@ -468,14 +467,14 @@ public class OperationParser {
     return method;
   }
 
-  private Operation newRouteDescriptor(ExecutionContext ctx, MethodNode node,
+  private OperationExt newRouteDescriptor(ParserContext ctx, MethodNode node,
       String httpMethod, String prefix) {
-    Optional<RequestBodyExt> requestBody = ParameterParser.requestBody(ctx, node);
-    List<Parameter> arguments = ParameterParser.parameters(ctx, node);
-    Response response = new Response();
-    List<String> returnTypes = ResponseParser.parse(ctx, node);
+    Optional<RequestBodyExt> requestBody = RequestParser.requestBody(node);
+    List<ParameterExt> arguments = RequestParser.parameters(node);
+    ResponseExt response = new ResponseExt();
+    List<String> returnTypes = ReturnTypeParser.parse(ctx, node);
     response.setJavaTypes(returnTypes);
-    Operation operation = new Operation(node, httpMethod, prefix, arguments,
+    OperationExt operation = new OperationExt(node, httpMethod, prefix, arguments,
         Collections.singletonList(response));
 
     boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
@@ -508,7 +507,7 @@ public class OperationParser {
             "Route pattern not found: " + InsnSupport.toString(methodInsnNode)));
   }
 
-  private MethodNode findRouteHandler(ExecutionContext ctx, MethodInsnNode node) {
+  private MethodNode findRouteHandler(ParserContext ctx, MethodInsnNode node) {
     Type owner = TypeFactory.fromInternalName(node.owner);
     return ctx.classNode(owner).methods.stream()
         .filter(m -> {
@@ -520,7 +519,7 @@ public class OperationParser {
             () -> new IllegalStateException("Handler not found: " + InsnSupport.toString(node)));
   }
 
-  private MethodNode findLambda(ExecutionContext ctx, InvokeDynamicInsnNode node) {
+  private MethodNode findLambda(ParserContext ctx, InvokeDynamicInsnNode node) {
     Handle handle = (Handle) node.bsmArgs[1];
     Type owner = TypeFactory.fromInternalName(handle.getOwner());
     try {

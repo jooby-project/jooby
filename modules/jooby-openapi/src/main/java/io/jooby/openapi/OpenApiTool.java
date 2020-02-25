@@ -3,9 +3,9 @@ package io.jooby.openapi;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.ClassSource;
 import io.jooby.internal.openapi.DebugOption;
-import io.jooby.internal.openapi.ExecutionContext;
-import io.jooby.internal.openapi.Operation;
-import io.jooby.internal.openapi.OperationParser;
+import io.jooby.internal.openapi.ParserContext;
+import io.jooby.internal.openapi.OperationExt;
+import io.jooby.internal.openapi.RouteParser;
 import io.jooby.internal.openapi.TypeFactory;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -27,12 +27,12 @@ public class OpenApiTool {
 
   private Set<DebugOption> debug;
 
-  public OpenAPI process(String classname, Consumer<Operation> consumer) {
+  public OpenAPI process(String classname, Consumer<OperationExt> consumer) {
     ClassSource source = new ClassSource(targetDir);
 
-    OperationParser routes = new OperationParser();
-    ExecutionContext ctx = new ExecutionContext(source, TypeFactory.fromJavaName(classname), debug);
-    List<Operation> operations = routes.parse(ctx);
+    RouteParser routes = new RouteParser();
+    ParserContext ctx = new ParserContext(source, TypeFactory.fromJavaName(classname), debug);
+    List<OperationExt> operations = routes.parse(ctx);
 
     OpenAPI openapi = new OpenAPI();
 
@@ -46,7 +46,7 @@ public class OpenApiTool {
     ctx.schemas().forEach(schema -> openapi.schema(schema.getName(), schema));
 
     io.swagger.v3.oas.models.Paths paths = new io.swagger.v3.oas.models.Paths();
-    for (Operation operation : operations) {
+    for (OperationExt operation : operations) {
       consumer.accept(operation);
       PathItem pathItem = paths.computeIfAbsent(operation.getPattern(), pattern -> new PathItem());
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);

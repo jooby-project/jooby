@@ -1,6 +1,6 @@
 package io.jooby.openapi;
 
-import io.jooby.internal.openapi.Parameter;
+import io.jooby.internal.openapi.ParameterExt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,13 +9,13 @@ import java.util.function.Consumer;
 
 public class RouteArgumentIterator {
 
-  final LinkedList<Parameter> arguments;
+  final LinkedList<ParameterExt> arguments;
 
-  public RouteArgumentIterator(List<Parameter> arguments) {
+  public RouteArgumentIterator(List<ParameterExt> arguments) {
     this.arguments = new LinkedList<>(arguments);
   }
 
-  public RouteArgumentIterator next(Consumer<Parameter> consumer) {
+  public RouteArgumentIterator next(Consumer<ParameterExt> consumer) {
     if (arguments.size() > 0) {
       consumer.accept(arguments.removeFirst());
     } else {

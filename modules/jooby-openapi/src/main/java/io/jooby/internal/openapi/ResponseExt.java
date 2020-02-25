@@ -13,7 +13,7 @@ import java.util.concurrent.CompletionStage;
 
 import static java.util.stream.Collectors.toSet;
 
-public class Response extends ApiResponse {
+public class ResponseExt extends ApiResponse {
   private static final Set<String> ASYNC_TYPES =
       Arrays.asList(
           CompletionStage.class.getName(), CompletableFuture.class.getName(),

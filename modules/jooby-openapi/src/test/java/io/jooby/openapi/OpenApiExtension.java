@@ -1,7 +1,7 @@
 package io.jooby.openapi;
 
 import io.jooby.internal.openapi.DebugOption;
-import io.jooby.internal.openapi.Operation;
+import io.jooby.internal.openapi.OperationExt;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -44,7 +44,7 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
 
     OpenApiTool tool = newTool(debugOptions);
     Parameter parameter = parameterContext.getParameter();
-    List<Operation> operations = new ArrayList<>();
+    List<OperationExt> operations = new ArrayList<>();
     OpenAPI openAPI = tool.process(classname, operations::add);
     OpenApiResult result = new OpenApiResult(openAPI, operations);
     if (parameter.getType() == OpenApiResult.class) {

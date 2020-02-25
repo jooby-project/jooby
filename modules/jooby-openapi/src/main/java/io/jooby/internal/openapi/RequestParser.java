@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class ParameterParser {
+public class RequestParser {
 
   public static Optional<RequestBodyExt> requestBody(MethodNode node) {
     return StreamSupport.stream(
@@ -48,7 +48,7 @@ public class ParameterParser {
         });
   }
 
-  public static List<Parameter> parameters(MethodNode node) {
+  public static List<ParameterExt> parameters(MethodNode node) {
     List<MethodInsnNode> nodes = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(node.instructions.iterator(), Spliterator.ORDERED),
         false)
@@ -56,12 +56,12 @@ public class ParameterParser {
         .map(MethodInsnNode.class::cast)
         .filter(i -> i.owner.equals("io/jooby/Context"))
         .collect(Collectors.toList());
-    List<Parameter> args = new ArrayList<>();
+    List<ParameterExt> args = new ArrayList<>();
     for (MethodInsnNode methodInsnNode : nodes) {
       Signature signature = Signature.create(methodInsnNode);
-      Parameter argument = new Parameter();
+      ParameterExt argument = new ParameterExt();
       if (signature.matches("path")) {
-        argument.setHttpType(HttpType.PATH);
+        argument.setIn("path");
         if (signature.matches(String.class)) {
           argument.setName(argumentName(methodInsnNode));
           argumentType(argument, methodInsnNode);
@@ -72,7 +72,7 @@ public class ParameterParser {
           // Unsupported path usage
         }
       } else if (signature.matches("query")) {
-        argument.setHttpType(HttpType.QUERY);
+        argument.setIn("query");
         if (signature.matches(String.class)) {
           argument.setName(argumentName(methodInsnNode));
           argumentType(argument, methodInsnNode);
@@ -83,7 +83,7 @@ public class ParameterParser {
           // Unsupported query usage
         }
       } else if (signature.matches("form") || signature.matches("multipart")) {
-        argument.setHttpType(HttpType.FORM);
+        argument.setIn("form");
         if (signature.matches(String.class)) {
           argument.setName(argumentName(methodInsnNode));
           argumentType(argument, methodInsnNode);
@@ -104,7 +104,7 @@ public class ParameterParser {
     return args;
   }
 
-  private static void argumentContextToType(Parameter argument, MethodInsnNode node) {
+  private static void argumentContextToType(ParameterExt argument, MethodInsnNode node) {
     String type = valueType(node)
         .orElseThrow(() -> new IllegalStateException(
             "Parameter type not found, for: " + argument.getName()));
@@ -122,7 +122,7 @@ public class ParameterParser {
         .map(Type::getClassName);
   }
 
-  private static void argumentType(Parameter argument, MethodInsnNode node) {
+  private static void argumentType(ParameterExt argument, MethodInsnNode node) {
     MethodInsnNode convertCall = InsnSupport.next(node)
         .filter(valueOwner())
         .map(MethodInsnNode.class::cast)

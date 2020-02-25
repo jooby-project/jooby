@@ -38,7 +38,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 public class OpenApiParser {
-  public static void parse(ExecutionContext ctx, MethodNode method, Operation operation) {
+  public static void parse(ParserContext ctx, MethodNode method, OperationExt operation) {
     /** @Operation: */
     findAnnotationByType(method.visibleAnnotations,
         singletonList(io.swagger.v3.oas.annotations.Operation.class.getName())).stream()
@@ -46,7 +46,7 @@ public class OpenApiParser {
         .ifPresent(a -> swaggerOperation(ctx, operation, toMap(a)));
 
     /** @ApiResponses: */
-    List<Response> responses = findAnnotationByType(method.visibleAnnotations,
+    List<ResponseExt> responses = findAnnotationByType(method.visibleAnnotations,
         singletonList(ApiResponses.class.getName()))
         .stream()
         .flatMap(a -> (
@@ -69,7 +69,7 @@ public class OpenApiParser {
     }
   }
 
-  private static void swaggerOperation(ExecutionContext ctx, Operation operation,
+  private static void swaggerOperation(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
     stringValue(annotation, "operationId", operation::setOperationId);
 
@@ -89,7 +89,7 @@ public class OpenApiParser {
     operationParameter(ctx, operation,
         (List<AnnotationNode>) annotation.getOrDefault("parameters", Collections.emptyList()));
 
-    List<Response> response = operationResponses(ctx, operation, annotation);
+    List<ResponseExt> response = operationResponses(ctx, operation, annotation);
     if (response.size() > 0) {
       operation.setResponses(apiResponses(response));
     }
@@ -109,7 +109,7 @@ public class OpenApiParser {
       ref = "Pet"
   )
   )
-  private static void operationParameter(ExecutionContext ctx, Operation operation,
+  private static void operationParameter(ParserContext ctx, OperationExt operation,
       List<AnnotationNode> parameters) {
     for (int i = 0; i < parameters.size(); i++) {
       Map<String, Object> parameterMap = toMap(parameters.get(i));
@@ -144,13 +144,13 @@ public class OpenApiParser {
     }
   }
 
-  private static List<Response> operationResponses(ExecutionContext ctx, Operation operation,
+  private static List<ResponseExt> operationResponses(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
     List<AnnotationNode> responses = (List<AnnotationNode>) annotation
         .getOrDefault("responses", emptyList());
     if (responses.size() > 0) {
       // clear any detected response
-      List<Response> returnTypes = responses.stream()
+      List<ResponseExt> returnTypes = responses.stream()
           .map(it -> toMap(it))
           .map(it -> operationResponse(ctx, operation, it))
           .collect(Collectors.toList());
@@ -160,9 +160,9 @@ public class OpenApiParser {
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse)
-  private static Response operationResponse(ExecutionContext ctx, Operation operation,
+  private static ResponseExt operationResponse(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
-    Response response = new Response();
+    ResponseExt response = new ResponseExt();
     Map<String, Header> headers = new LinkedHashMap<>();
 
     ((List<AnnotationNode>) annotation.getOrDefault("headers", Collections.emptyList())).stream()
@@ -195,8 +195,8 @@ public class OpenApiParser {
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse(content = @Content))
-  private static void operationResponseContent(ExecutionContext ctx, Operation operation,
-      Response response, Map<String, Object> annotation) {
+  private static void operationResponseContent(ParserContext ctx, OperationExt operation,
+      ResponseExt response, Map<String, Object> annotation) {
     List<AnnotationNode> contents = (List<AnnotationNode>) annotation
         .getOrDefault("content", Collections.emptyList());
     contents.stream()
@@ -210,8 +210,8 @@ public class OpenApiParser {
           array = @ArraySchema(schema = @Schema(implementation = String.class))
       )
   )
-  private static void responseContent(ExecutionContext ctx, Operation operation,
-      Response response, Map<String, Object> contentMap) {
+  private static void responseContent(ParserContext ctx, OperationExt operation,
+      ResponseExt response, Map<String, Object> contentMap) {
     Optional<io.swagger.v3.oas.models.media.Schema> schema = arrayOrSchema(ctx, contentMap);
     String mediaType = (String) contentMap
         .getOrDefault("mediaType",
@@ -225,7 +225,7 @@ public class OpenApiParser {
     response.setContent(content);
   }
 
-  private static Optional<io.swagger.v3.oas.models.media.Schema> arrayOrSchema(ExecutionContext ctx,
+  private static Optional<io.swagger.v3.oas.models.media.Schema> arrayOrSchema(ParserContext ctx,
       Map<String, Object> annotation) {
     AnnotationNode e = (AnnotationNode) annotation.get("array");
     if (e != null) {
@@ -235,7 +235,7 @@ public class OpenApiParser {
     }
   }
 
-  private static Optional<io.swagger.v3.oas.models.media.Schema> toArraySchema(ExecutionContext ctx,
+  private static Optional<io.swagger.v3.oas.models.media.Schema> toArraySchema(ParserContext ctx,
       Map<String, Object> annotation) {
     io.swagger.v3.oas.models.media.ArraySchema arraySchema = new io.swagger.v3.oas.models.media.ArraySchema();
     boolValue(annotation, "uniqueItems", arraySchema::setUniqueItems);
@@ -251,7 +251,7 @@ public class OpenApiParser {
     return Optional.of(arraySchema);
   }
 
-  private static Optional<io.swagger.v3.oas.models.media.Schema> toSchema(ExecutionContext ctx,
+  private static Optional<io.swagger.v3.oas.models.media.Schema> toSchema(ParserContext ctx,
       Map<String, Object> annotation) {
     Map<String, List<io.swagger.v3.oas.models.media.Schema>> schemaMap = new HashMap<>();
 
@@ -284,7 +284,7 @@ public class OpenApiParser {
     return Optional.of(schema);
   }
 
-  private static void schemaType(ExecutionContext ctx, Map<String, Object> schema, String property,
+  private static void schemaType(ParserContext ctx, Map<String, Object> schema, String property,
       BiConsumer<String, List<io.swagger.v3.oas.models.media.Schema>> consumer) {
     Object value = schema.get(property);
     List<Type> types;
@@ -306,12 +306,12 @@ public class OpenApiParser {
   }
 
   private static io.swagger.v3.oas.models.responses.ApiResponses apiResponses(
-      Response... responses) {
+      ResponseExt... responses) {
     return apiResponses(Arrays.asList(responses));
   }
 
   private static io.swagger.v3.oas.models.responses.ApiResponses apiResponses(
-      List<Response> responses) {
+      List<ResponseExt> responses) {
     io.swagger.v3.oas.models.responses.ApiResponses result = new io.swagger.v3.oas.models.responses.ApiResponses();
     responses.forEach(r -> result.addApiResponse(r.getCode(), r));
     return result;

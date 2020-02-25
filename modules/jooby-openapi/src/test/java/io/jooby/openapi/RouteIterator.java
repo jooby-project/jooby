@@ -1,7 +1,6 @@
 package io.jooby.openapi;
 
-import io.jooby.internal.openapi.Operation;
-import io.swagger.v3.oas.models.parameters.Parameter;
+import io.jooby.internal.openapi.OperationExt;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,21 +13,21 @@ import java.util.function.Consumer;
 
 public class RouteIterator {
 
-  final LinkedList<Operation> routes;
+  final LinkedList<OperationExt> routes;
   final boolean ignoreArguments;
 
-  public RouteIterator(List<Operation> routes, boolean ignoreArguments) {
+  public RouteIterator(List<OperationExt> routes, boolean ignoreArguments) {
     this.routes = new LinkedList<>(routes);
     this.ignoreArguments = ignoreArguments;
   }
 
-  public RouteIterator next(Consumer<Operation> consumer) {
+  public RouteIterator next(Consumer<OperationExt> consumer) {
     return next((route, args) -> consumer.accept(route));
   }
 
-  public RouteIterator next(BiConsumer<Operation, RouteArgumentIterator> consumer) {
+  public RouteIterator next(BiConsumer<OperationExt, RouteArgumentIterator> consumer) {
     if (routes.size() > 0) {
-      Operation route = routes.removeFirst();
+      OperationExt route = routes.removeFirst();
       List params = Optional.ofNullable(route.getParameters()).orElse(Collections.emptyList());
       RouteArgumentIterator args = new RouteArgumentIterator(params);
       consumer.accept(route, args);

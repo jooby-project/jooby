@@ -11,7 +11,7 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Operation extends io.swagger.v3.oas.models.Operation {
+public class OperationExt extends io.swagger.v3.oas.models.Operation {
 
   @JsonIgnore
   private final MethodNode node;
@@ -26,8 +26,8 @@ public class Operation extends io.swagger.v3.oas.models.Operation {
   @JsonIgnore
   private LinkedList<String> consumes = new LinkedList<>();
 
-  public Operation(MethodNode node, String method, String pattern, List arguments,
-      List<Response> response) {
+  public OperationExt(MethodNode node, String method, String pattern, List arguments,
+      List<ResponseExt> response) {
     this.node = node;
     this.method = method.toUpperCase();
     this.pattern = pattern;
@@ -35,9 +35,9 @@ public class Operation extends io.swagger.v3.oas.models.Operation {
     super.setResponses(apiResponses(response));
   }
 
-  private static ApiResponses apiResponses(List<Response> responses) {
+  private static ApiResponses apiResponses(List<ResponseExt> responses) {
     ApiResponses result = new ApiResponses();
-    for (Response rsp : responses) {
+    for (ResponseExt rsp : responses) {
       result.addApiResponse(rsp.getCode(), rsp);
     }
     return result;
@@ -48,18 +48,18 @@ public class Operation extends io.swagger.v3.oas.models.Operation {
   }
 
   @JsonIgnore
-  public Response getResponse() {
-    return (Response) getResponses().getDefault();
+  public ResponseExt getResponse() {
+    return (ResponseExt) getResponses().getDefault();
   }
 
-  public Response getResponse(String code) {
-    return (Response) getResponses().get(code);
+  public ResponseExt getResponse(String code) {
+    return (ResponseExt) getResponses().get(code);
   }
 
   @Override public void setResponses(ApiResponses responses) {
-    Response defrsp = getResponse();
+    ResponseExt defrsp = getResponse();
     for (ApiResponse response : responses.values()) {
-      Response rsp = (Response) response;
+      ResponseExt rsp = (ResponseExt) response;
       if (rsp.getJavaTypes().size() == 0) {
         int code = statusCode(rsp.getCode());
         if (code > 100 && code < 400) {

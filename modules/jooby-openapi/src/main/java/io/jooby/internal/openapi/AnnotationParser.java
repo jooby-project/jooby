@@ -11,6 +11,7 @@ import io.jooby.annotations.HeaderParam;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -52,26 +53,46 @@ public class AnnotationParser {
       @Override public Class[] annotations() {
         return new Class[]{HeaderParam.class, javax.ws.rs.HeaderParam.class};
       }
+
+      @Override public void setIn(Parameter parameter) {
+        parameter.setIn("header");
+      }
     },
     COOKIE {
       @Override public Class[] annotations() {
         return new Class[]{CookieParam.class, javax.ws.rs.CookieParam.class};
+      }
+
+      @Override public void setIn(Parameter parameter) {
+        parameter.setIn("cookie");
       }
     },
     PATH {
       @Override public Class[] annotations() {
         return new Class[]{PathParam.class, javax.ws.rs.PathParam.class};
       }
+
+      @Override public void setIn(Parameter parameter) {
+        parameter.setIn("path");
+      }
     },
     QUERY {
       @Override public Class[] annotations() {
         return new Class[]{QueryParam.class, javax.ws.rs.QueryParam.class};
+      }
+
+      @Override public void setIn(Parameter parameter) {
+        parameter.setIn("query");
       }
     },
 
     FORM {
       @Override public Class[] annotations() {
         return new Class[]{FormParam.class, javax.ws.rs.FormParam.class};
+      }
+
+      @Override public void setIn(Parameter parameter) {
+        parameter.setIn("form");
       }
     },
 
@@ -88,8 +109,7 @@ public class AnnotationParser {
           .anyMatch(t -> t.getName().equals(annotationType));
     }
 
-    public HttpType getHttpType() {
-      return HttpType.valueOf(name());
+    public void setIn(Parameter parameter) {
     }
 
     public Optional<String> getHttpName(List<AnnotationNode> annotations) {
@@ -138,7 +158,7 @@ public class AnnotationParser {
       "kotlin.coroutines.Continuation"
   ).stream().collect(Collectors.toSet());
 
-  public static List<Operation> parse(ExecutionContext ctx, String prefix,
+  public static List<OperationExt> parse(ParserContext ctx, String prefix,
       Signature signature, MethodInsnNode node) {
     if (signature.matches(Class.class) ||
         signature.matches(Class.class, Provider.class)
@@ -165,8 +185,8 @@ public class AnnotationParser {
     return Collections.emptyList();
   }
 
-  private static List<Operation> parse(ExecutionContext ctx, String prefix, Type type) {
-    List<Operation> result = new ArrayList<>();
+  private static List<OperationExt> parse(ParserContext ctx, String prefix, Type type) {
+    List<OperationExt> result = new ArrayList<>();
     ClassNode classNode = ctx.classNode(type);
     for (MethodNode method : classNode.methods) {
       if (isRouter(method)) {
@@ -177,16 +197,16 @@ public class AnnotationParser {
     return result;
   }
 
-  private static List<Operation> routerMethod(ExecutionContext ctx, String prefix,
+  private static List<OperationExt> routerMethod(ParserContext ctx, String prefix,
       ClassNode classNode, MethodNode method) {
-    List<Operation> result = new ArrayList<>();
+    List<OperationExt> result = new ArrayList<>();
 
-    List<Parameter> arguments = routerArguments(method);
-    List<Response> returnTypes = returnTypes(method);
+    List<ParameterExt> arguments = routerArguments(method);
+    List<ResponseExt> returnTypes = returnTypes(method);
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(classNode, method, httpMethod)) {
-        Operation operation = new Operation(method, httpMethod, RoutePath.path(prefix, pattern),
+        OperationExt operation = new OperationExt(method, httpMethod, RoutePath.path(prefix, pattern),
             arguments,
             returnTypes);
         operation.setOperationId(method.name);
@@ -206,8 +226,8 @@ public class AnnotationParser {
     return false;
   }
 
-  private static List<Response> returnTypes(MethodNode method) {
-    List<Response> result = new ArrayList<>();
+  private static List<ResponseExt> returnTypes(MethodNode method) {
+    List<ResponseExt> result = new ArrayList<>();
     Signature signature = Signature.create(method);
     String desc = Optional.ofNullable(method.signature).orElse(method.desc);
     String continuationType = "Lkotlin/coroutines/Continuation;";
@@ -220,14 +240,14 @@ public class AnnotationParser {
     if (i > 0) {
       desc = desc.substring(i + 1);
     }
-    Response rrt = new Response();
+    ResponseExt rrt = new ResponseExt();
     rrt.setJavaTypes(Collections.singletonList(ASMType.parse(desc)));
     result.add(rrt);
     return result;
   }
 
-  private static List<Parameter> routerArguments(MethodNode method) {
-    List<Parameter> result = new ArrayList<>();
+  private static List<ParameterExt> routerArguments(MethodNode method) {
+    List<ParameterExt> result = new ArrayList<>();
     if (method.parameters != null) {
       for (int i = 0; i < method.parameters.size(); i++) {
         ParameterNode parameter = method.parameters.get(i);
@@ -268,10 +288,10 @@ public class AnnotationParser {
             ? true
             : !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
 
-        Parameter argument = new Parameter();
+        ParameterExt argument = new ParameterExt();
         argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
         argument.setJavaType(javaType);
-        argument.setHttpType(paramType.getHttpType());
+        paramType.setIn(argument);
         argument.setRequired(required);
 
         result.add(argument);

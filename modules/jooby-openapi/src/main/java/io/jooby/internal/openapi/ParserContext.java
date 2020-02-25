@@ -1,7 +1,6 @@
 package io.jooby.internal.openapi;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.swagger.v3.core.converter.ModelConverters;
@@ -19,7 +18,6 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.media.UUIDSchema;
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
@@ -59,7 +57,7 @@ import static io.jooby.internal.openapi.TypeFactory.JOOBY;
 import static io.jooby.internal.openapi.TypeFactory.KOOBY;
 import static io.jooby.internal.openapi.TypeFactory.ROUTER;
 
-public class ExecutionContext {
+public class ParserContext {
 
   public static class TypeLiteral {
     public JavaType type;
@@ -72,11 +70,11 @@ public class ExecutionContext {
   private final Set<DebugOption> debug;
   private final ConcurrentMap<String, SchemaRef> schemas = new ConcurrentHashMap<>();
 
-  public ExecutionContext(ClassSource source, Type router, Set<DebugOption> debug) {
+  public ParserContext(ClassSource source, Type router, Set<DebugOption> debug) {
     this(source, new HashMap<>(), router, debug);
   }
 
-  private ExecutionContext(ClassSource source, Map<Type, ClassNode> nodes, Type router,
+  private ParserContext(ClassSource source, Map<Type, ClassNode> nodes, Type router,
       Set<DebugOption> debug) {
     this.router = router;
     this.source = source;
@@ -270,8 +268,8 @@ public class ExecutionContext {
     return instructions.add(instruction);
   }
 
-  public ExecutionContext newContext(Type router) {
-    ExecutionContext ctx = new ExecutionContext(source, nodes, router, debug);
+  public ParserContext newContext(Type router) {
+    ParserContext ctx = new ParserContext(source, nodes, router, debug);
     return ctx;
   }
 }

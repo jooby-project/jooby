@@ -2,7 +2,7 @@ package io.jooby.openapi;
 
 import examples.OpenApiApp;
 import io.jooby.MediaType;
-import io.jooby.internal.openapi.Response;
+import io.jooby.internal.openapi.ResponseExt;
 
 import java.util.Collections;
 
@@ -22,12 +22,12 @@ public class SwaggerAnnotationTest {
           assertEquals("description", route.getDescription());
           assertEquals("summary", route.getSummary());
 
-          Response response = route.getResponse();
+          ResponseExt response = route.getResponse();
           assertEquals("default", response.getCode());
           assertEquals("Success", response.getDescription());
           assertEquals("java.util.List<examples.Person>", response.getJavaType());
 
-          Response notfound = route.getResponse("400");
+          ResponseExt notfound = route.getResponse("400");
           assertEquals("Bad Request", notfound.getDescription());
           assertEquals(null, notfound.getJavaType());
         })

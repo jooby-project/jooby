@@ -1,7 +1,7 @@
 package io.jooby.openapi;
 
-import io.jooby.internal.openapi.Operation;
-import io.jooby.internal.openapi.Response;
+import io.jooby.internal.openapi.OperationExt;
+import io.jooby.internal.openapi.ResponseExt;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -9,15 +9,15 @@ import java.util.function.Consumer;
 
 public class OpenApiTestUtil {
 
-  public static void withResponse(Operation operation, Consumer<Response> consumer) {
+  public static void withResponse(OperationExt operation, Consumer<ResponseExt> consumer) {
     consumer.accept(operation.getResponse());
   }
 
-  public static void withContent(Response response, Consumer<Content> consumer) {
+  public static void withContent(ResponseExt response, Consumer<Content> consumer) {
     consumer.accept(response.getContent());
   }
 
-  public static void withSchema(Response response, String mediaType, Consumer<Schema> consumer) {
+  public static void withSchema(ResponseExt response, String mediaType, Consumer<Schema> consumer) {
     withSchema(response.getContent(), mediaType, consumer);
   }
 

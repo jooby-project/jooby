@@ -1,7 +1,7 @@
 package io.jooby.openapi;
 
 import io.jooby.SneakyThrows;
-import io.jooby.internal.openapi.Operation;
+import io.jooby.internal.openapi.OperationExt;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public class OpenApiResult {
   public final OpenAPI openAPI;
 
-  private final List<Operation> operations;
+  private final List<OperationExt> operations;
 
-  public OpenApiResult(OpenAPI openAPI, List<Operation> operations) {
+  public OpenApiResult(OpenAPI openAPI, List<OperationExt> operations) {
     this.openAPI = openAPI;
     this.operations = operations;
   }

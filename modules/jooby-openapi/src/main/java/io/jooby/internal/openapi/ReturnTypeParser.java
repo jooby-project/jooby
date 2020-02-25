@@ -17,19 +17,16 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ResponseParser {
+public class ReturnTypeParser {
 
-  public static List<String> parse(ExecutionContext ctx, MethodNode node) {
+  public static List<String> parse(ParserContext ctx, MethodNode node) {
     Type returnType = Type.getReturnType(node.desc);
     List<String> result = InsnSupport.next(node.instructions.getFirst())
         .filter(it -> it.getOpcode() == Opcodes.ARETURN || it.getOpcode() == Opcodes.IRETURN
@@ -198,7 +195,7 @@ public class ResponseParser {
     return result;
   }
 
-  private static String fromMethodCall(ExecutionContext ctx, MethodInsnNode node) {
+  private static String fromMethodCall(ParserContext ctx, MethodInsnNode node) {
     Type returnType = Type.getReturnType(node.desc);
     ClassNode classNode;
     try {
@@ -220,7 +217,7 @@ public class ResponseParser {
         .orElse(returnType.getClassName());
   }
 
-  private static String localVariable(final ExecutionContext ctx, final MethodNode m,
+  private static String localVariable(final ParserContext ctx, final MethodNode m,
       final VarInsnNode varInsn) {
     int opcode = varInsn.getOpcode();
     if (opcode >= Opcodes.ILOAD && opcode <= Opcodes.ISTORE) {
