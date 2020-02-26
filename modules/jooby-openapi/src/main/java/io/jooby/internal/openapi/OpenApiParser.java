@@ -86,12 +86,29 @@ public class OpenApiParser {
     List<String> tags = (List<String>) annotation.getOrDefault("tags", emptyList());
     tags.forEach(operation::addTagsItem);
 
-    operationParameter(ctx, operation,
+    parameters(ctx, operation,
         (List<AnnotationNode>) annotation.getOrDefault("parameters", Collections.emptyList()));
 
-    List<ResponseExt> response = operationResponses(ctx, operation, annotation);
+    requestBody(ctx, operation, toMap((AnnotationNode) annotation.get("requestBody")));
+
+    List<ResponseExt> response = responses(ctx, operation, annotation);
     if (response.size() > 0) {
       operation.setResponses(apiResponses(response));
+    }
+  }
+
+  private static void requestBody(ParserContext ctx, OperationExt operation,
+      Map<String, Object> annotation) {
+    if (annotation.size() > 0) {
+      RequestBodyExt requestBody = operation.getRequestBody();
+      if (requestBody == null) {
+        requestBody = new RequestBodyExt();
+        operation.setRequestBody(requestBody);
+      }
+      stringValue(annotation, "description", requestBody::setDescription);
+      boolValue(annotation, "required", requestBody::setRequired);
+      String defaultMediaType = operation.getConsumes().stream().findFirst().orElse(MediaType.JSON);
+      content(ctx, defaultMediaType, annotation).ifPresent(requestBody::setContent);
     }
   }
 
@@ -109,7 +126,7 @@ public class OpenApiParser {
       ref = "Pet"
   )
   )
-  private static void operationParameter(ParserContext ctx, OperationExt operation,
+  private static void parameters(ParserContext ctx, OperationExt operation,
       List<AnnotationNode> parameters) {
     for (int i = 0; i < parameters.size(); i++) {
       Map<String, Object> parameterMap = toMap(parameters.get(i));
@@ -144,7 +161,7 @@ public class OpenApiParser {
     }
   }
 
-  private static List<ResponseExt> operationResponses(ParserContext ctx, OperationExt operation,
+  private static List<ResponseExt> responses(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
     List<AnnotationNode> responses = (List<AnnotationNode>) annotation
         .getOrDefault("responses", emptyList());
@@ -185,7 +202,8 @@ public class OpenApiParser {
     String code = (String) annotation.getOrDefault("responseCode", "default");
     String description = (String) annotation.getOrDefault("description", "");
 
-    operationResponseContent(ctx, operation, response, annotation);
+    String defaultMediaType = operation.getProduces().stream().findFirst().orElse(MediaType.JSON);
+    content(ctx, defaultMediaType, annotation).ifPresent(response::setContent);
 
     if (description.trim().length() > 0) {
       response.setDescription(description.trim());
@@ -195,13 +213,15 @@ public class OpenApiParser {
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse(content = @Content))
-  private static void operationResponseContent(ParserContext ctx, OperationExt operation,
-      ResponseExt response, Map<String, Object> annotation) {
-    List<AnnotationNode> contents = (List<AnnotationNode>) annotation
-        .getOrDefault("content", Collections.emptyList());
-    contents.stream()
-        .map(it -> toMap(it))
-        .forEach(it -> responseContent(ctx, operation, response, it));
+  private static Optional<io.swagger.v3.oas.models.media.Content> content(ParserContext ctx,
+      String defaultMediaType,
+      Map<String, Object> annotation) {
+    io.swagger.v3.oas.models.media.Content content = new io.swagger.v3.oas.models.media.Content();
+    ((List<AnnotationNode>) annotation.getOrDefault("content", Collections.emptyList()))
+        .stream()
+        .map(n -> toMap(n))
+        .forEach(a -> mediaType(ctx, content, defaultMediaType, a));
+    return content.isEmpty() ? Optional.empty() : Optional.of(content);
   }
 
   @ApiResponse(
@@ -210,19 +230,17 @@ public class OpenApiParser {
           array = @ArraySchema(schema = @Schema(implementation = String.class))
       )
   )
-  private static void responseContent(ParserContext ctx, OperationExt operation,
-      ResponseExt response, Map<String, Object> contentMap) {
+  private static void mediaType(ParserContext ctx, io.swagger.v3.oas.models.media.Content content,
+      String defaultMediaType, Map<String, Object> contentMap) {
+    if (contentMap == null || contentMap.isEmpty()) {
+      return;
+    }
     Optional<io.swagger.v3.oas.models.media.Schema> schema = arrayOrSchema(ctx, contentMap);
-    String mediaType = (String) contentMap
-        .getOrDefault("mediaType",
-            operation.getProduces().stream().findFirst().orElse(MediaType.JSON));
+    String mediaType = (String) contentMap.getOrDefault("mediaType", defaultMediaType);
     io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
     schema.ifPresent(mediaTypeObject::setSchema);
 
-    io.swagger.v3.oas.models.media.Content content = new io.swagger.v3.oas.models.media.Content();
     content.addMediaType(mediaType, mediaTypeObject);
-
-    response.setContent(content);
   }
 
   private static Optional<io.swagger.v3.oas.models.media.Schema> arrayOrSchema(ParserContext ctx,

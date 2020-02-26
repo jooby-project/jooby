@@ -25,7 +25,6 @@ import kt.KtRouteReturnType;
 
 import java.util.Arrays;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -261,11 +260,10 @@ public class OpenApiToolTest {
                 assertEquals("query", it.getIn());
               })
               .next(it -> {
-                assertEquals(ABean.class.getName(), it.getJavaType());
-                assertEquals("query", it.getName());
+                assertEquals("foo", it.getName());
                 assertEquals(null, it.getDefaultValue());
                 assertNull(it.getRequired());
-                assertFalse(it.isSingle());
+                assertTrue(it.isSingle());
                 assertEquals("query", it.getIn());
               })
               .verify();

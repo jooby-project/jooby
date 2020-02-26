@@ -25,15 +25,22 @@ public class OpenApiResult {
   }
 
   public String toYaml() {
+    return toYaml(false);
+  }
+
+  public String toYaml(boolean validate) {
     try {
       String yaml = Yaml.mapper().writeValueAsString(openAPI);
-      SwaggerParseResult result = new OpenAPIV3Parser().readContents(yaml);
-      if (result.getMessages().isEmpty()) {
-        return yaml;
+      if (validate) {
+        SwaggerParseResult result = new OpenAPIV3Parser().readContents(yaml);
+        if (result.getMessages().isEmpty()) {
+          return yaml;
+        }
+        throw new IllegalStateException(
+            "Invalid OpenAPI specification:\n\t- " + result.getMessages().stream()
+                .collect(Collectors.joining("\n\t- ")).trim());
       }
-      throw new IllegalStateException(
-          "Invalid OpenAPI specification:\n\t- " + result.getMessages().stream()
-              .collect(Collectors.joining("\n\t- ")).trim());
+      return yaml;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

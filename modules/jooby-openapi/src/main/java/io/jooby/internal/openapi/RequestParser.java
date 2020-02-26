@@ -1,5 +1,6 @@
 package io.jooby.internal.openapi;
 
+import io.jooby.MediaType;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -52,22 +53,26 @@ public class RequestParser {
         false)
         .filter(MethodInsnNode.class::isInstance)
         .map(MethodInsnNode.class::cast)
-        .filter(i -> i.owner.equals(TypeFactory.CONTEXT.getInternalName()) && i.name.equals("body"))
+        .filter(i -> i.owner.equals(TypeFactory.CONTEXT.getInternalName()) &&
+            (i.name.equals("form") || i.name.equals("multipart") || i.name.equals("body")))
         .findFirst()
         .map(i -> {
           Signature signature = Signature.create(i);
+          RequestBodyExt body = new RequestBodyExt();
           if (signature.matches(Class.class)) {
             String bodyType = valueType(i)
                 .orElseThrow(() -> new IllegalStateException(
-                    "Body type not found, for: " + InsnSupport.toString(i)));
-            RequestBodyExt body = new RequestBodyExt();
+                    "Type not found, for: " + InsnSupport.toString(i)));
             body.setJavaType(bodyType);
-            return body;
           } else {
-            RequestBodyExt body = new RequestBodyExt();
-            argumentType("body", i).set(body);
-            return body;
+            argumentValue(i.name, i).set(body);
           }
+          if (i.name.equals("form")) {
+            body.setContentType(MediaType.FORM_URLENCODED);
+          } else if (i.name.equals("multipart")) {
+            body.setContentType(MediaType.MULTIPART_FORMDATA);
+          }
+          return body;
         });
   }
 
@@ -83,38 +88,22 @@ public class RequestParser {
     for (MethodInsnNode methodInsnNode : nodes) {
       Signature signature = Signature.create(methodInsnNode);
       ParameterExt argument = new ParameterExt();
-      if (signature.matches("path")) {
-        argument.setIn("path");
-        if (signature.matches(String.class)) {
-          argument.setName(argumentName(methodInsnNode));
-          argumentType(argument.getName(), methodInsnNode).set(argument);
-        } else if (signature.matches(Class.class)) {
-          argument.setName(signature.getMethod());
-          argumentContextToType(argument, methodInsnNode);
-        } else {
-          // Unsupported path usage
-        }
-      } else if (signature.matches("query")) {
-        argument.setIn("query");
-        if (signature.matches(String.class)) {
-          argument.setName(argumentName(methodInsnNode));
-          argumentType(argument.getName(), methodInsnNode).set(argument);
-        } else if (signature.matches(Class.class)) {
-          argument.setName(signature.getMethod());
-          argumentContextToType(argument, methodInsnNode);
-        } else {
-          // Unsupported query usage
-        }
-      } else if (signature.matches("form") || signature.matches("multipart")) {
-        argument.setIn("form");
-        if (signature.matches(String.class)) {
-          argument.setName(argumentName(methodInsnNode));
-          argumentType(argument.getName(), methodInsnNode).set(argument);
-        } else if (signature.matches(Class.class)) {
-          argument.setName(signature.getMethod());
-          argumentContextToType(argument, methodInsnNode);
-        } else {
-          // Unsupported form usage
+      String scope = signature.getMethod();
+      switch (scope) {
+        case "header":
+        case "cookie":
+        case "path":
+        case "query": {
+          argument.setIn(scope);
+          if (signature.matches(String.class)) {
+            argument.setName(argumentName(methodInsnNode));
+            argumentValue(argument.getName(), methodInsnNode).set(argument);
+          } else if (signature.matches(Class.class)) {
+            argument.setName(signature.getMethod());
+            contextObjectToType(argument, methodInsnNode);
+          } else {
+            // Unsupported path usage
+          }
         }
       }
 
@@ -127,7 +116,13 @@ public class RequestParser {
     return args;
   }
 
-  private static void argumentContextToType(ParameterExt argument, MethodInsnNode node) {
+  /**
+   * query(Class), form(class), multipart(Class)
+   *
+   * @param argument Parameter
+   * @param node Node
+   */
+  private static void contextObjectToType(ParameterExt argument, MethodInsnNode node) {
     String type = valueType(node)
         .orElseThrow(() -> new IllegalStateException(
             "Parameter type not found, for: " + argument.getName()));
@@ -145,7 +140,7 @@ public class RequestParser {
         .map(Type::getClassName);
   }
 
-  private static WebArgument argumentType(String argumentName, MethodInsnNode node) {
+  private static WebArgument argumentValue(String argumentName, MethodInsnNode node) {
     MethodInsnNode convertCall = InsnSupport.next(node)
         .filter(valueOwner())
         .map(MethodInsnNode.class::cast)
@@ -182,7 +177,8 @@ public class RequestParser {
           .map(MethodInsnNode.class::cast)
           .ifPresent(elseCall -> {
             // validate the else branch belong to the same toOptional
-            InsnSupport.prev(elseCall).filter(valueToOptional())
+            InsnSupport.prev(elseCall)
+                .filter(valueToOptional())
                 .findFirst()
                 .map(MethodInsnNode.class::cast)
                 .ifPresent(toOptional -> {
@@ -221,7 +217,7 @@ public class RequestParser {
       argument.required = true;
       argument.single = false;
     } else {
-      throw new IllegalStateException("Unhandle parameter type: " + convert);
+      throw new IllegalStateException("Unhandled parameter type: " + convert);
     }
     return argument;
   }

@@ -6,13 +6,16 @@ import examples.PetRepo
 import io.jooby.Context
 import io.jooby.Kooby
 import io.jooby.body
-import io.jooby.require
+import io.jooby.form
 import io.jooby.query
+import io.jooby.require
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 
+@Operation(requestBody = RequestBody(description = "Pet to create"))
 fun createPet(ctx: Context): Pet {
   val repo = ctx.require(PetRepo::class)
   val pet = ctx.body<Pet>()
@@ -50,6 +53,12 @@ fun findPetById(ctx: Context): Pet {
   return repo.findById(id)
 }
 
+fun formPet(ctx: Context): Pet {
+  val repo: PetRepo = ctx.require(PetRepo::class)
+  val pet = ctx.form<Pet>()
+  return repo.save(pet)
+}
+
 class KtMinApp : Kooby({
 
   path("/api/pets") {
@@ -68,6 +77,8 @@ class KtMinApp : Kooby({
     patch("/", ::updatePet)
 
     delete("/{id}", ::deletePet)
+
+    post("/form", ::formPet)
   }
 
 

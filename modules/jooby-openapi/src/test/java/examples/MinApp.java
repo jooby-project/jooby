@@ -7,7 +7,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 public class MinApp extends Jooby {
@@ -30,9 +32,18 @@ public class MinApp extends Jooby {
       patch("/", this::updatePet);
 
       delete("/{id}", this::deletePet);
+
+      post("/form", this::formPet);
     });
   }
 
+  public Pet formPet(Context context) {
+    PetRepo repo = require(PetRepo.class);
+    Pet pet = context.form(Pet.class);
+    return repo.save(pet);
+  }
+
+  @Operation(requestBody = @RequestBody(description = "Pet to create"))
   public Pet createPet(Context ctx) {
     PetRepo repo = require(PetRepo.class);
 

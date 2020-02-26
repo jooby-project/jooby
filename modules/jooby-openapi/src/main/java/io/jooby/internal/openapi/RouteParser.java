@@ -52,30 +52,55 @@ public class RouteParser {
 
     // Initialize schema types
     for (OperationExt operation : result) {
+      List<io.swagger.v3.oas.models.parameters.Parameter> params = new ArrayList<>();
       List<io.swagger.v3.oas.models.parameters.Parameter> parameters = operation.getParameters();
       /**
        * Parameters:
        */
       for (io.swagger.v3.oas.models.parameters.Parameter parameter : parameters) {
+        String javaType = ((ParameterExt) parameter).getJavaType();
         if (parameter.getSchema() == null) {
-          String javaType = ((ParameterExt) parameter).getJavaType();
           Optional.ofNullable(ctx.schema(javaType)).ifPresent(parameter::setSchema);
         }
         if (parameter.getSchema() instanceof StringSchema && isPassword(parameter.getName())) {
           parameter.getSchema().setFormat("password");
         }
+        if (parameter.getIn().equals("query")) {
+          boolean expand = ctx.schemaRef(javaType)
+              .filter(ref -> ref.schema.getType().equals("object"))
+              .isPresent();
+          if (expand) {
+            SchemaRef ref = ctx.schemaRef(javaType).get();
+            for (Object e : ref.schema.getProperties().entrySet()) {
+              String name = (String) ((Map.Entry) e).getKey();
+              Schema s = (Schema) ((Map.Entry) e).getValue();
+              ParameterExt p = new ParameterExt();
+              p.setName(name);
+              p.setIn(parameter.getIn());
+              p.setSchema(s);
+
+              params.add(p);
+            }
+          } else {
+            params.add(parameter);
+          }
+        } else {
+          params.add(parameter);
+        }
       }
+      operation.setParameters(params);
       /**
        * Request body
        */
-      RequestBodyExt requestBody = (RequestBodyExt) operation.getRequestBody();
+      RequestBodyExt requestBody = operation.getRequestBody();
       if (requestBody != null) {
         if (requestBody.getContent() == null) {
           // default content
-          io.swagger.v3.oas.models.media.MediaType mediaType = new io.swagger.v3.oas.models.media.MediaType();
+          io.swagger.v3.oas.models.media.MediaType mediaType =
+              new io.swagger.v3.oas.models.media.MediaType();
           mediaType.setSchema(ctx.schema(requestBody.getJavaType()));
           String mediaTypeName = operation.getConsumes().stream().findFirst()
-              .orElse(MediaType.JSON);
+              .orElseGet(requestBody::getContentType);
           Content content = new Content();
           content.addMediaType(mediaTypeName, mediaType);
           requestBody.setContent(content);

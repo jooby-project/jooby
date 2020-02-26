@@ -129,7 +129,8 @@ public class ParserContext {
     if (Collection.class.isAssignableFrom(type)) {
       return new ArraySchema();
     }
-    if (File.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || InputStream.class.isAssignableFrom(type)) {
+    if (File.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || InputStream.class
+        .isAssignableFrom(type)) {
       return new BinarySchema();
     }
     if (Reader.class.isAssignableFrom(type)) {
@@ -168,6 +169,10 @@ public class ParserContext {
     }).toSchema();
   }
 
+  public Optional<SchemaRef> schemaRef(String type) {
+    return Optional.ofNullable(schemas.get(type));
+  }
+
   public Schema schema(String type) {
     if (isVoid(type)) {
       return null;
@@ -196,7 +201,8 @@ public class ParserContext {
   }
 
   private boolean isVoid(String type) {
-    return Context.class.getName().equals(type) || void.class.getName().equals(type) || Void.class.getName().equals(type);
+    return Context.class.getName().equals(type) || void.class.getName().equals(type) || Void.class
+        .getName().equals(type);
   }
 
   public ClassNode classNode(Type type) {
