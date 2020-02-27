@@ -25,6 +25,13 @@
       <version>${jooby.version}</version>
     </dependency>
 
+    <!-- commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- JAXRS -->
     <dependency>
       <groupId>jakarta.ws.rs</groupId>

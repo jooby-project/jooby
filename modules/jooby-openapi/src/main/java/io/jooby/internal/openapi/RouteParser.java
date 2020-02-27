@@ -566,27 +566,31 @@ public class RouteParser {
   private MethodNode findLambda(ParserContext ctx, InvokeDynamicInsnNode node) {
     Handle handle = (Handle) node.bsmArgs[1];
     Type owner = TypeFactory.fromInternalName(handle.getOwner());
-    try {
+    if (owner.equals(TypeFactory.CONTEXT)) {
+      return contextReference(handle);
+    } else {
       return ctx.classNode(owner).methods.stream()
           .filter(n -> n.name.equals(handle.getName()))
           .findFirst()
           .orElseThrow(() ->
               new IllegalStateException("Handler not found: " + InsnSupport.toString(node))
           );
-    } catch (Exception x) {
-      // Fake a method node, required when we write things like:
-      /// get("/", Context::getRequestPath);
-      // method reference to a class outside application classpath.
-      // Faked method has a return instruction for return type parser (no arguments).
-      String suffix = Long.toHexString(UUID.randomUUID().getMostSignificantBits());
-      MethodNode method = new MethodNode(Opcodes.ACC_PRIVATE & Opcodes.ACC_SYNTHETIC,
-          "fake$" + handle.getName() + "$" + suffix, handle.getDesc(), null, null);
-      method.instructions = new InsnList();
-      method.instructions.add(
-          new MethodInsnNode(Opcodes.INVOKEVIRTUAL, handle.getOwner(), handle.getName(),
-              handle.getDesc()));
-      method.instructions.add(new InsnNode(Opcodes.ARETURN));
-      return method;
     }
+  }
+
+  private MethodNode contextReference(Handle handle) {
+    // Fake a method node, required when we write things like:
+    /// get("/", Context::getRequestPath);
+    // method reference to a class outside application classpath.
+    // Faked method has a return instruction for return type parser (no arguments).
+    String suffix = Long.toHexString(UUID.randomUUID().getMostSignificantBits());
+    MethodNode method = new MethodNode(Opcodes.ACC_PRIVATE & Opcodes.ACC_SYNTHETIC,
+        "fake$" + handle.getName() + "$" + suffix, handle.getDesc(), null, null);
+    method.instructions = new InsnList();
+    method.instructions.add(
+        new MethodInsnNode(Opcodes.INVOKEVIRTUAL, handle.getOwner(), handle.getName(),
+            handle.getDesc()));
+    method.instructions.add(new InsnNode(Opcodes.ARETURN));
+    return method;
   }
 }

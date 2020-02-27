@@ -11,24 +11,24 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Info;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class OpenApiTool {
 
-  private Path basedir = Paths.get(System.getProperty("user.dir"));
-
-  private Path targetDir = basedir.resolve("target").resolve("classes");
-
   private Set<DebugOption> debug;
 
+  private ClassLoader classLoader;
+
   public OpenAPI generate(String classname) {
-    ClassSource source = new ClassSource(targetDir);
+    ClassLoader classLoader = Optional.ofNullable(this.classLoader)
+        .orElseGet(() -> getClass().getClassLoader());
+    ClassSource source = new ClassSource(classLoader);
 
     RouteParser routes = new RouteParser();
     ParserContext ctx = new ParserContext(source, TypeFactory.fromJavaName(classname), debug);
@@ -45,7 +45,7 @@ public class OpenApiTool {
 
     ctx.schemas().forEach(schema -> openapi.schema(schema.getName(), schema));
 
-    io.swagger.v3.oas.models.Paths paths = new io.swagger.v3.oas.models.Paths();
+    Paths paths = new Paths();
     for (OperationExt operation : operations) {
       PathItem pathItem = paths.computeIfAbsent(operation.getPattern(), pattern -> new PathItem());
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);
@@ -72,12 +72,8 @@ public class OpenApiTool {
     }
   }
 
-  public void setBasedir(Path basedir) {
-    this.basedir = basedir;
-  }
-
-  public void setTargetDir(Path targetDir) {
-    this.targetDir = targetDir;
+  public void setClassLoader(ClassLoader classLoader) {
+    this.classLoader = classLoader;
   }
 
   public void setDebug(Set<DebugOption> debug) {
