@@ -38,7 +38,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -158,6 +160,11 @@ public class ParserContext {
     }
     if (type == Object.class || type == void.class || type == Void.class) {
       return new ObjectSchema();
+    }
+    if (type.isEnum()) {
+      StringSchema schema = new StringSchema();
+      EnumSet.allOf(type).forEach(e -> schema.addEnumItem(((Enum) e).name()));
+      return schema;
     }
     return schemas.computeIfAbsent(type.getName(), k -> {
       ResolvedSchema resolvedSchema = ModelConverters.getInstance().readAllAsResolvedSchema(type);

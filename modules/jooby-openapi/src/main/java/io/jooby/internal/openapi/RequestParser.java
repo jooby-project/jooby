@@ -1,6 +1,9 @@
 package io.jooby.internal.openapi;
 
 import io.jooby.MediaType;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -13,11 +16,17 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -44,36 +53,138 @@ public class RequestParser {
       Optional.ofNullable(javaType).ifPresent(argument::setJavaType);
       Optional.ofNullable(required).ifPresent(argument::setRequired);
     }
+
+    public Schema set(Schema argument) {
+      Optional.ofNullable(required).filter(Boolean.TRUE::equals)
+          .ifPresent(value -> argument.setRequired(Arrays.asList("true")));
+      //      Optional.ofNullable(single).ifPresent(argument::setSingle);
+      Optional.ofNullable(defaultValue).ifPresent(argument::setDefault);
+      return argument;
+    }
   }
 
-  public static Optional<RequestBodyExt> requestBody(MethodNode node) {
-    return StreamSupport.stream(
+  public static Optional<RequestBodyExt> requestBody(ParserContext ctx, MethodNode node) {
+    //    Signature signature = Signature.create(i);
+    //    RequestBodyExt body = new RequestBodyExt();
+    //    if (signature.matches(Class.class)) {
+    //      String bodyType = valueType(i)
+    //          .orElseThrow(() -> new IllegalStateException(
+    //              "Type not found, for: " + InsnSupport.toString(i)));
+    //      body.setJavaType(bodyType);
+    //    } else {
+    //      argument.setName(argumentName(i));
+    //      argumentValue(i.name, i).set(body);
+    //    }
+    //    if (i.name.equals("form")) {
+    //      body.setContentType(MediaType.FORM_URLENCODED);
+    //    } else if (i.name.equals("multipart")) {
+    //      body.setContentType(MediaType.MULTIPART_FORMDATA);
+    //    }
+    List<MethodInsnNode> instructions = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(node.instructions.iterator(),
             Spliterator.ORDERED),
         false)
         .filter(MethodInsnNode.class::isInstance)
         .map(MethodInsnNode.class::cast)
         .filter(i -> i.owner.equals(TypeFactory.CONTEXT.getInternalName()) &&
-            (i.name.equals("form") || i.name.equals("multipart") || i.name.equals("body")))
-        .findFirst()
-        .map(i -> {
-          Signature signature = Signature.create(i);
-          RequestBodyExt body = new RequestBodyExt();
-          if (signature.matches(Class.class)) {
-            String bodyType = valueType(i)
-                .orElseThrow(() -> new IllegalStateException(
-                    "Type not found, for: " + InsnSupport.toString(i)));
-            body.setJavaType(bodyType);
-          } else {
-            argumentValue(i.name, i).set(body);
-          }
-          if (i.name.equals("form")) {
-            body.setContentType(MediaType.FORM_URLENCODED);
-          } else if (i.name.equals("multipart")) {
-            body.setContentType(MediaType.MULTIPART_FORMDATA);
-          }
-          return body;
-        });
+            (isFormLike(i) || i.name.equals("body")))
+        .collect(Collectors.toList());
+    if (instructions.size() == 0) {
+      return Optional.empty();
+    } else if (instructions.size() == 1) {
+      MethodInsnNode i = instructions.get(0);
+      Signature signature = Signature.create(i);
+      RequestBodyExt body = new RequestBodyExt();
+      if (isForm(i)) {
+        body.setContentType(MediaType.FORM_URLENCODED);
+      } else if (isMultipart(i)) {
+        body.setContentType(MediaType.MULTIPART_FORMDATA);
+      }
+      if (signature.matches(Class.class)) {
+        String bodyType = valueType(i)
+            .orElseThrow(() -> new IllegalStateException(
+                "Type not found, for: " + InsnSupport.toString(i)));
+        body.setJavaType(bodyType);
+      } else {
+        if (isFormLike(i)) {
+          formFields(ctx, Collections.singletonList(i)).ifPresent(body::setContent);
+        } else {
+          argumentValue(i.name, i).set(body);
+        }
+      }
+      return Optional.of(body);
+    } else {
+      RequestBodyExt body = new RequestBodyExt();
+      formFields(ctx,
+          instructions.stream().filter(RequestParser::isFormLike).collect(Collectors.toList()))
+          .ifPresent(body::setContent);
+      boolean multipart = instructions.stream().anyMatch(RequestParser::isMultipart);
+      if (multipart) {
+        body.setContentType(MediaType.MULTIPART_FORMDATA);
+      } else {
+        body.setContentType(MediaType.FORM_URLENCODED);
+      }
+      return Optional.of(body);
+    }
+  }
+
+  private static Optional<Content> formFields(ParserContext ctx, List<MethodInsnNode> nodes) {
+    Map<String, Schema> properties = new LinkedHashMap<>();
+    for (MethodInsnNode node : nodes) {
+      formField(ctx, node, properties::put);
+    }
+
+    if (properties.size() > 0) {
+      List<String> required = new ArrayList<>();
+      for (Map.Entry<String, Schema> e : properties.entrySet()) {
+        String name = e.getKey();
+        List mark = e.getValue().getRequired();
+        if (mark != null && mark.contains("true")) {
+          // reset
+          e.getValue().setRequired(null);
+          required.add(name);
+        }
+      }
+
+      Schema schema = new ObjectSchema();
+      schema.setProperties(properties);
+      if (required.size() > 0) {
+        schema.setRequired(required);
+      }
+
+      io.swagger.v3.oas.models.media.MediaType mediaType = new io.swagger.v3.oas.models.media.MediaType();
+      mediaType.setSchema(schema);
+
+      boolean multipart = nodes.stream().anyMatch(RequestParser::isMultipart);
+      String contentType = multipart ? MediaType.MULTIPART_FORMDATA : MediaType.FORM_URLENCODED;
+
+      Content content = new Content();
+      content.addMediaType(contentType, mediaType);
+      return Optional.of(content);
+    }
+    return Optional.empty();
+  }
+
+  private static boolean isFormLike(MethodInsnNode field) {
+    return isForm(field) || isMultipart(field);
+  }
+
+  private static boolean isForm(MethodInsnNode field) {
+    return field.name.equals("form");
+  }
+
+  private static boolean isMultipart(MethodInsnNode field) {
+    return field.name.equals("multipart");
+  }
+
+  private static void formField(ParserContext ctx, MethodInsnNode node,
+      BiConsumer<String, Schema> consumer) {
+    String name = argumentName(node);
+    WebArgument argument = argumentValue(name, node);
+    Optional.ofNullable(argument.javaType)
+        .map(ctx::schema)
+        .filter(Objects::nonNull)
+        .ifPresent(schema -> consumer.accept(name, argument.set(schema)));
   }
 
   public static List<ParameterExt> parameters(MethodNode node) {

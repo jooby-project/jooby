@@ -15,7 +15,13 @@ import examples.RoutePatternIdioms;
 import examples.RouteReturnTypeApp;
 import examples.ABean;
 import examples.RouterProduceConsume;
-import io.jooby.internal.openapi.DebugOption;
+import io.jooby.internal.openapi.RequestBodyExt;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtMvcApp;
 import kt.KtRouteIdioms;
@@ -24,10 +30,12 @@ import kt.KtRouteRef;
 import kt.KtRouteReturnType;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -417,135 +425,76 @@ public class OpenApiToolTest {
         .next((route, args) -> {
           assertEquals("GET /", route.toString());
 
-          args
-              .next(it -> {
-                assertEquals(String.class.getName(), it.getJavaType());
-                assertEquals("str", it.getName());
-                assertNull(it.getDefaultValue());
-                assertTrue(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+          RequestBodyExt requestBody = route.getRequestBody();
+          assertNotNull(requestBody);
+          assertNotNull(requestBody.getContentType());
+          assertNotNull(requestBody.getContent());
+          assertNotNull(requestBody.getContent().get(requestBody.getContentType()));
+          Schema schema = requestBody.getContent().get(requestBody.getContentType()).getSchema();
+          assertNotNull(schema);
+
+          new AssertIterator<Map.Entry<String, Schema>>(schema.getProperties().entrySet())
+              .next(e -> {
+                assertEquals("str", e.getKey());
+                assertTrue(e.getValue() instanceof StringSchema);
               })
-              .next(it -> {
-                assertEquals(int.class.getName(), it.getJavaType());
-                assertEquals("i", it.getName());
-                assertNull(it.getDefaultValue());
-                assertTrue(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("i", e.getKey());
+                assertTrue(e.getValue() instanceof IntegerSchema);
               })
-              .next(it -> {
-                assertEquals("java.util.List<java.lang.String>", it.getJavaType());
-                assertEquals("listStr", it.getName());
-                assertNull(it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("listStr", e.getKey());
+                assertTrue(e.getValue() instanceof ArraySchema);
+                ArraySchema array = (ArraySchema) e.getValue();
+                assertTrue(array.getItems() instanceof StringSchema);
               })
-              .next(it -> {
-                assertEquals("java.util.List<java.lang.Double>", it.getJavaType());
-                assertEquals("listType", it.getName());
-                assertNull(it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("listType", e.getKey());
+                assertTrue(e.getValue() instanceof ArraySchema);
+                ArraySchema array = (ArraySchema) e.getValue();
+                assertTrue(array.getItems() instanceof NumberSchema);
               })
-              .next(it -> {
-                assertEquals(String.class.getName(), it.getJavaType());
-                assertEquals("defstr", it.getName());
-                assertEquals("default", it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("defstr", e.getKey());
+                assertTrue(e.getValue() instanceof StringSchema);
+                assertEquals("default", e.getValue().getDefault());
               })
-              .next(it -> {
-                assertEquals(int.class.getName(), it.getJavaType());
-                assertEquals("defint", it.getName());
-                assertEquals(87, it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("defint", e.getKey());
+                assertTrue(e.getValue() instanceof IntegerSchema);
+                assertEquals(87, e.getValue().getDefault());
               })
-              .next(it -> {
-                assertEquals(int.class.getName(), it.getJavaType());
-                assertEquals("defint0", it.getName());
-                assertEquals(0, it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("defint0", e.getKey());
+                assertTrue(e.getValue() instanceof IntegerSchema);
+                assertEquals(0, e.getValue().getDefault());
               })
-              .next(it -> {
-                assertEquals(boolean.class.getName(), it.getJavaType());
-                assertEquals("defbool", it.getName());
-                assertEquals(true, it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("defbool", e.getKey());
+                assertTrue(e.getValue() instanceof BooleanSchema);
               })
-              .next(it -> {
-                assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
-                assertEquals("optstr", it.getName());
-                assertEquals(null, it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("optstr", e.getKey());
+                assertTrue(e.getValue() instanceof StringSchema);
               })
-              .next(it -> {
-                assertEquals("java.util.Optional<java.lang.Integer>", it.getJavaType());
-                assertEquals("optint", it.getName());
-                assertEquals(null, it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("optint", e.getKey());
+                assertTrue(e.getValue() instanceof IntegerSchema);
               })
-              .next(it -> {
-                assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
-                assertEquals("optstr2", it.getName());
-                assertEquals("optional", it.getDefaultValue());
-                assertFalse(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("optstr2", e.getKey());
+                assertTrue(e.getValue() instanceof StringSchema);
+                assertEquals("optional", e.getValue().getDefault());
               })
-              .next(it -> {
-                assertEquals("java.lang.Integer", it.getJavaType());
-                assertEquals("toI", it.getName());
-                assertEquals(null, it.getDefaultValue());
-                assertNull(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("toI", e.getKey());
+                assertTrue(e.getValue() instanceof IntegerSchema);
               })
-              .next(it -> {
-                assertEquals(Letter.class.getName(), it.getJavaType());
-                assertEquals("letter", it.getName());
-                assertEquals(null, it.getDefaultValue());
-                assertTrue(it.getRequired());
-                assertTrue(it.isSingle());
-                assertEquals("form", it.getIn());
-              })
-              .next(it -> {
-                assertEquals("java.util.Map<java.lang.String,java.lang.String>", it.getJavaType());
-                assertEquals("form", it.getName());
-                assertEquals(null, it.getDefaultValue());
-                assertTrue(it.getRequired());
-                assertFalse(it.isSingle());
-                assertEquals("form", it.getIn());
-              })
-              .next(it -> {
-                assertEquals("java.util.Map<java.lang.String,java.util.List<java.lang.String>>",
-                    it.getJavaType());
-                assertEquals("formList", it.getName());
-                assertEquals(null, it.getDefaultValue());
-                assertTrue(it.getRequired());
-                assertFalse(it.isSingle());
-                assertEquals("form", it.getIn());
-              })
-              .next(it -> {
-                assertEquals(ABean.class.getName(), it.getJavaType());
-                assertEquals("form", it.getName());
-                assertEquals(null, it.getDefaultValue());
-                assertNull(it.getRequired());
-                assertFalse(it.isSingle());
-                assertEquals("form", it.getIn());
+              .next(e -> {
+                assertEquals("letter", e.getKey());
+                assertTrue(e.getValue() instanceof StringSchema, e.getValue().getClass().getName());
+                StringSchema ss = (StringSchema) e.getValue();
+                assertEquals(Arrays.asList("A", "B"), ss.getEnum());
               })
               .verify();
         })
@@ -579,7 +528,8 @@ public class OpenApiToolTest {
         })
         .next(route -> {
           assertEquals("GET /opt-int", route.toString());
-          assertEquals("java.util.Optional<java.lang.Integer>", route.getRequestBody().getJavaType());
+          assertEquals("java.util.Optional<java.lang.Integer>",
+              route.getRequestBody().getJavaType());
           assertEquals(Boolean.FALSE, route.getRequestBody().getRequired());
         })
         .next(route -> {
@@ -975,7 +925,6 @@ public class OpenApiToolTest {
                 assertEquals("q", arg.getName());
                 assertEquals("java.util.Optional<java.lang.String>", arg.getJavaType());
                 assertEquals("query", arg.getIn());
-                assertFalse(arg.getRequired());
               })
               .verify();
           assertEquals(String.class.getName(), route.getResponse().toString());
@@ -987,7 +936,6 @@ public class OpenApiToolTest {
                 assertEquals("q", arg.getName());
                 assertEquals("java.util.Optional<java.lang.String>", arg.getJavaType());
                 assertEquals("query", arg.getIn());
-                assertFalse(arg.getRequired());
               })
               .verify();
           assertEquals(String.class.getName(), route.getResponse().toString());
@@ -1100,7 +1048,6 @@ public class OpenApiToolTest {
         .next(route -> {
           assertEquals("GET /api/session", route.toString());
           assertEquals(String.class.getName(), route.getResponse().toString());
-          assertFalse(route.getDeprecated());
         })
         .next(route -> {
           assertEquals("GET /api/returnList", route.toString());
@@ -1146,7 +1093,6 @@ public class OpenApiToolTest {
                 assertEquals("oI", arg.getName());
                 assertEquals("java.lang.Integer", arg.getJavaType());
                 assertEquals("query", arg.getIn());
-                assertFalse(arg.getRequired());
               })
               .next(arg -> {
                 assertEquals("q", arg.getName());
@@ -1158,7 +1104,6 @@ public class OpenApiToolTest {
                 assertEquals("nullq", arg.getName());
                 assertEquals("java.lang.String", arg.getJavaType());
                 assertEquals("query", arg.getIn());
-                assertFalse(arg.getRequired());
               })
               .verify();
         })

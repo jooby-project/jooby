@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -52,91 +53,18 @@ public class RouteParser {
 
     // Initialize schema types
     for (OperationExt operation : result) {
-      List<io.swagger.v3.oas.models.parameters.Parameter> params = new ArrayList<>();
-      List<io.swagger.v3.oas.models.parameters.Parameter> parameters = operation.getParameters();
       /**
        * Parameters:
        */
-      for (io.swagger.v3.oas.models.parameters.Parameter parameter : parameters) {
-        String javaType = ((ParameterExt) parameter).getJavaType();
-        if (parameter.getSchema() == null) {
-          Optional.ofNullable(ctx.schema(javaType)).ifPresent(parameter::setSchema);
-        }
-        if (parameter.getSchema() instanceof StringSchema && isPassword(parameter.getName())) {
-          parameter.getSchema().setFormat("password");
-        }
-        if (parameter.getIn().equals("query")) {
-          boolean expand = ctx.schemaRef(javaType)
-              .filter(ref -> ref.schema.getType().equals("object"))
-              .isPresent();
-          if (expand) {
-            SchemaRef ref = ctx.schemaRef(javaType).get();
-            for (Object e : ref.schema.getProperties().entrySet()) {
-              String name = (String) ((Map.Entry) e).getKey();
-              Schema s = (Schema) ((Map.Entry) e).getValue();
-              ParameterExt p = new ParameterExt();
-              p.setName(name);
-              p.setIn(parameter.getIn());
-              p.setSchema(s);
-
-              params.add(p);
-            }
-          } else {
-            params.add(parameter);
-          }
-        } else {
-          params.add(parameter);
-        }
-      }
-      operation.setParameters(params);
+      operation.setParameters(checkParameters(ctx, operation.getParameters()));
       /**
        * Request body
        */
-      RequestBodyExt requestBody = operation.getRequestBody();
-      if (requestBody != null) {
-        if (requestBody.getContent() == null) {
-          // default content
-          io.swagger.v3.oas.models.media.MediaType mediaType =
-              new io.swagger.v3.oas.models.media.MediaType();
-          mediaType.setSchema(ctx.schema(requestBody.getJavaType()));
-          String mediaTypeName = operation.getConsumes().stream().findFirst()
-              .orElseGet(requestBody::getContentType);
-          Content content = new Content();
-          content.addMediaType(mediaTypeName, mediaType);
-          requestBody.setContent(content);
-        }
-      }
+      checkRequestBody(ctx, operation);
       /**
        * Responses:
        */
-      for (Map.Entry<String, ApiResponse> entry : operation.getResponses().entrySet()) {
-        int statusCode = statusCode(entry.getKey().replace("default", "200"));
-        ResponseExt response = (ResponseExt) entry.getValue();
-        Schema defaultSchema = parseSchema(ctx, response);
-        if (defaultSchema != null) {
-          Content content = response.getContent();
-          if (content == null) {
-            content = new Content();
-            response.setContent(content);
-          }
-
-          if (content.isEmpty()) {
-            io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
-            String mediaType = operation.getProduces().stream()
-                .findFirst()
-                .orElse(MediaType.JSON);
-            content.addMediaType(mediaType, mediaTypeObject);
-          }
-          if (statusCode > 0 && statusCode < 400) {
-            for (io.swagger.v3.oas.models.media.MediaType mediaType : content.values()) {
-              Schema schema = mediaType.getSchema();
-              if (schema == null) {
-                mediaType.setSchema(defaultSchema);
-              }
-            }
-          }
-        }
-      }
+      checkResponses(ctx, operation);
     }
 
     uniqueOperationId(result);
@@ -144,6 +72,90 @@ public class RouteParser {
     // finalize/cleanup/etc
     cleanup(result);
     return result;
+  }
+
+  private void checkResponses(ParserContext ctx, OperationExt operation) {
+    for (Map.Entry<String, ApiResponse> entry : operation.getResponses().entrySet()) {
+      int statusCode = statusCode(entry.getKey().replace("default", "200"));
+      ResponseExt response = (ResponseExt) entry.getValue();
+      Schema defaultSchema = parseSchema(ctx, response);
+      if (defaultSchema != null) {
+        Content content = response.getContent();
+        if (content == null) {
+          content = new Content();
+          response.setContent(content);
+        }
+
+        if (content.isEmpty()) {
+          io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+          String mediaType = operation.getProduces().stream()
+              .findFirst()
+              .orElse(MediaType.JSON);
+          content.addMediaType(mediaType, mediaTypeObject);
+        }
+        if (statusCode > 0 && statusCode < 400) {
+          for (io.swagger.v3.oas.models.media.MediaType mediaType : content.values()) {
+            Schema schema = mediaType.getSchema();
+            if (schema == null) {
+              mediaType.setSchema(defaultSchema);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private void checkRequestBody(ParserContext ctx, OperationExt operation) {
+    RequestBodyExt requestBody = operation.getRequestBody();
+    if (requestBody != null) {
+      if (requestBody.getContent() == null) {
+        // default content
+        io.swagger.v3.oas.models.media.MediaType mediaType =
+            new io.swagger.v3.oas.models.media.MediaType();
+        mediaType.setSchema(ctx.schema(requestBody.getJavaType()));
+        String mediaTypeName = operation.getConsumes().stream().findFirst()
+            .orElseGet(requestBody::getContentType);
+        Content content = new Content();
+        content.addMediaType(mediaTypeName, mediaType);
+        requestBody.setContent(content);
+      }
+    }
+  }
+
+  private List<Parameter> checkParameters(ParserContext ctx, List<Parameter> parameters) {
+    List<Parameter> params = new ArrayList<>();
+    for (Parameter parameter : parameters) {
+      String javaType = ((ParameterExt) parameter).getJavaType();
+      if (parameter.getSchema() == null) {
+        Optional.ofNullable(ctx.schema(javaType)).ifPresent(parameter::setSchema);
+      }
+      if (parameter.getSchema() instanceof StringSchema && isPassword(parameter.getName())) {
+        parameter.getSchema().setFormat("password");
+      }
+      if (parameter.getIn().equals("query")) {
+        boolean expand = ctx.schemaRef(javaType)
+            .filter(ref -> "object".equals(ref.schema.getType()))
+            .isPresent();
+        if (expand) {
+          SchemaRef ref = ctx.schemaRef(javaType).get();
+          for (Object e : ref.schema.getProperties().entrySet()) {
+            String name = (String) ((Map.Entry) e).getKey();
+            Schema s = (Schema) ((Map.Entry) e).getValue();
+            ParameterExt p = new ParameterExt();
+            p.setName(name);
+            p.setIn(parameter.getIn());
+            p.setSchema(s);
+
+            params.add(p);
+          }
+        } else {
+          params.add(parameter);
+        }
+      } else {
+        params.add(parameter);
+      }
+    }
+    return params;
   }
 
   private boolean isPassword(String name) {
@@ -501,7 +513,7 @@ public class RouteParser {
 
   private OperationExt newRouteDescriptor(ParserContext ctx, MethodNode node,
       String httpMethod, String prefix) {
-    Optional<RequestBodyExt> requestBody = RequestParser.requestBody(node);
+    Optional<RequestBodyExt> requestBody = RequestParser.requestBody(ctx, node);
     List<ParameterExt> arguments = RequestParser.parameters(node);
     ResponseExt response = new ResponseExt();
     List<String> returnTypes = ReturnTypeParser.parse(ctx, node);

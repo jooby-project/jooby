@@ -2,6 +2,7 @@ package io.jooby.openapi;
 
 import io.jooby.internal.openapi.ParameterExt;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -11,15 +12,23 @@ public class RouteArgumentIterator {
 
   final LinkedList<ParameterExt> arguments;
 
+  final List<ParameterExt> processed = new ArrayList<>();
+
   public RouteArgumentIterator(List<ParameterExt> arguments) {
     this.arguments = new LinkedList<>(arguments);
   }
 
   public RouteArgumentIterator next(Consumer<ParameterExt> consumer) {
     if (arguments.size() > 0) {
-      consumer.accept(arguments.removeFirst());
+      ParameterExt param = arguments.removeFirst();
+      processed.add(param);
+      consumer.accept(param);
     } else {
-      throw new NoSuchElementException("No more arguments");
+      if (processed.isEmpty()) {
+        throw new NoSuchElementException("No parameters");
+      } else {
+        throw new NoSuchElementException("No more parameters, processed: " + processed);
+      }
     }
     return this;
   }

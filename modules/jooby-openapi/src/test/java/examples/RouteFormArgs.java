@@ -22,9 +22,6 @@ public class RouteFormArgs extends Jooby {
       String str2 = ctx.form("optstr2").toOptional().orElse("optional");
       Integer toInt = ctx.form("toI").to(Integer.class);
       Letter l = ctx.form("letter").toEnum(Letter::valueOf);
-      Map<String, String> q = ctx.form("form").toMap();
-      Map<String, List<String>> qa = ctx.form("formList").toMultimap();
-      ABean bean = ctx.form(ABean.class);
       return "...";
     });
   }

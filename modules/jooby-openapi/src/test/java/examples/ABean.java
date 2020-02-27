@@ -1,6 +1,9 @@
 package examples;
 
+import javax.annotation.Nonnull;
+
 public class ABean extends Bean {
+  @Nonnull
   private String foo;
 
   public String getFoo() {

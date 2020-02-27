@@ -1,6 +1,7 @@
 package io.jooby.internal.openapi;
 
 import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Session;
 import io.jooby.annotations.ContextParam;
@@ -11,6 +12,9 @@ import io.jooby.annotations.HeaderParam;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -204,7 +209,7 @@ public class AnnotationParser {
     List<OperationExt> result = new ArrayList<>();
 
     AtomicReference<RequestBodyExt> requestBody = new AtomicReference<>();
-    List<ParameterExt> arguments = routerArguments(method, requestBody::set);
+    List<ParameterExt> arguments = routerArguments(ctx, method, requestBody::set);
     List<ResponseExt> returnTypes = returnTypes(method);
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
@@ -217,7 +222,9 @@ public class AnnotationParser {
             returnTypes
         );
         operation.setOperationId(method.name);
-        operation.setDeprecated(isDeprecated(method.visibleAnnotations));
+        if (isDeprecated(method.visibleAnnotations)) {
+          operation.setDeprecated(true);
+        }
         Optional.ofNullable(requestBody.get()).ifPresent(operation::setRequestBody);
 
         result.add(operation);
@@ -255,9 +262,11 @@ public class AnnotationParser {
     return result;
   }
 
-  private static List<ParameterExt> routerArguments(MethodNode method,
+  private static List<ParameterExt> routerArguments(ParserContext ctx, MethodNode method,
       Consumer<RequestBodyExt> requestBody) {
     List<ParameterExt> result = new ArrayList<>();
+    Map<String, Schema> form = new LinkedHashMap<>();
+    List<String> requiredFormFields = new ArrayList<>();
     if (method.parameters != null) {
       for (int i = 0; i < method.parameters.size(); i++) {
         ParameterNode parameter = method.parameters.get(i);
@@ -303,15 +312,54 @@ public class AnnotationParser {
           body.setRequired(required);
           body.setJavaType(javaType);
           requestBody.accept(body);
+        } else if (paramType == ParamType.FORM) {
+          String field = paramType.getHttpName(annotations).orElse(parameter.name);
+          if (required) {
+            requiredFormFields.add(field);
+          }
+          Schema schemaProperty = ctx.schema(javaType);
+          if (ctx.schemaRef(javaType).isPresent()) {
+            // form bean (i.e. single body)
+            RequestBodyExt body = new RequestBodyExt();
+            body.setContentType(MediaType.MULTIPART_FORMDATA);
+            if (required) {
+              body.setRequired(true);
+            }
+            body.setJavaType(javaType);
+            requestBody.accept(body);
+          } else {
+            // single property
+            form.put(field, schemaProperty);
+          }
         } else {
           ParameterExt argument = new ParameterExt();
           argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
           argument.setJavaType(javaType);
           paramType.setIn(argument);
-          argument.setRequired(required);
+          if (required) {
+            argument.setRequired(true);
+          }
           result.add(argument);
         }
       }
+    }
+    if (form.size() > 0) {
+      Schema schema = new ObjectSchema();
+      schema.setProperties(form);
+      if (requiredFormFields.size() > 0) {
+        schema.setRequired(requiredFormFields);
+      }
+
+      io.swagger.v3.oas.models.media.MediaType mediaType = new io.swagger.v3.oas.models.media.MediaType();
+      mediaType.setSchema(schema);
+
+      Content content = new Content();
+      content.addMediaType(MediaType.MULTIPART_FORMDATA, mediaType);
+
+      RequestBodyExt body = new RequestBodyExt();
+      body.setContent(content);
+
+      requestBody.accept(body);
     }
     return result;
   }
