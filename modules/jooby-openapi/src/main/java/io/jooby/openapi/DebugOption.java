@@ -1,4 +1,4 @@
-package io.jooby.internal.openapi;
+package io.jooby.openapi;
 
 public enum DebugOption {
   ALL,

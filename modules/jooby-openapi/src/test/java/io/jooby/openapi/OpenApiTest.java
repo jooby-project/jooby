@@ -1,6 +1,5 @@
 package io.jooby.openapi;
 
-import io.jooby.internal.openapi.DebugOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 

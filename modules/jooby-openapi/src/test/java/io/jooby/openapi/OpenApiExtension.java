@@ -1,8 +1,6 @@
 package io.jooby.openapi;
 
-import io.jooby.internal.openapi.DebugOption;
-import io.jooby.internal.openapi.OperationExt;
-import io.swagger.v3.oas.models.OpenAPI;
+import io.jooby.internal.openapi.OpenAPIExt;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -14,11 +12,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -36,7 +32,6 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
     AnnotatedElement method = context.getElement()
         .orElseThrow(() -> new IllegalStateException("Context: " + context));
     OpenApiTest metadata = method.getAnnotation(OpenApiTest.class);
-    requireNonNull(metadata, "Missing @" + OpenApiTest.class.getName());
     String classname = metadata.value().getName();
     Set<DebugOption> debugOptions = metadata.debug().length == 0
         ? Collections.emptySet()
@@ -44,9 +39,8 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
 
     OpenApiTool tool = newTool(debugOptions);
     Parameter parameter = parameterContext.getParameter();
-    List<OperationExt> operations = new ArrayList<>();
-    OpenAPI openAPI = tool.process(classname, operations::add);
-    OpenApiResult result = new OpenApiResult(openAPI, operations);
+    OpenAPIExt openAPI = (OpenAPIExt) tool.generate(classname);
+    OpenApiResult result = new OpenApiResult(openAPI, openAPI.getOperations());
     if (parameter.getType() == OpenApiResult.class) {
       return result;
     }

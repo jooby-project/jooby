@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.JavaType;
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
+import io.jooby.openapi.DebugOption;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
+import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
@@ -86,7 +88,7 @@ public class ParserContext {
     this.nodes = nodes;
 
     this.converters = ModelConverters.getInstance();
-    converters.addConverter(new ModelConverterExt(Json.mapper()));
+    converters.addConverter(new ModelConverterExt(Yaml.mapper()));
   }
 
   public Collection<Schema> schemas() {
