@@ -1,5 +1,6 @@
 package io.jooby.internal.openapi;
 
+import io.jooby.FileUpload;
 import io.jooby.MediaType;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
@@ -64,22 +65,6 @@ public class RequestParser {
   }
 
   public static Optional<RequestBodyExt> requestBody(ParserContext ctx, MethodNode node) {
-    //    Signature signature = Signature.create(i);
-    //    RequestBodyExt body = new RequestBodyExt();
-    //    if (signature.matches(Class.class)) {
-    //      String bodyType = valueType(i)
-    //          .orElseThrow(() -> new IllegalStateException(
-    //              "Type not found, for: " + InsnSupport.toString(i)));
-    //      body.setJavaType(bodyType);
-    //    } else {
-    //      argument.setName(argumentName(i));
-    //      argumentValue(i.name, i).set(body);
-    //    }
-    //    if (i.name.equals("form")) {
-    //      body.setContentType(MediaType.FORM_URLENCODED);
-    //    } else if (i.name.equals("multipart")) {
-    //      body.setContentType(MediaType.MULTIPART_FORMDATA);
-    //    }
     List<MethodInsnNode> instructions = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(node.instructions.iterator(),
             Spliterator.ORDERED),
@@ -95,10 +80,10 @@ public class RequestParser {
       MethodInsnNode i = instructions.get(0);
       Signature signature = Signature.create(i);
       RequestBodyExt body = new RequestBodyExt();
-      if (isForm(i)) {
-        body.setContentType(MediaType.FORM_URLENCODED);
-      } else if (isMultipart(i)) {
+      if (isMultipart(i)) {
         body.setContentType(MediaType.MULTIPART_FORMDATA);
+      } else if (isForm(i)) {
+        body.setContentType(MediaType.FORM_URLENCODED);
       }
       if (signature.matches(Class.class)) {
         String bodyType = valueType(i)
@@ -174,7 +159,11 @@ public class RequestParser {
   }
 
   private static boolean isMultipart(MethodInsnNode field) {
-    return field.name.equals("multipart");
+    return field.name.equals("multipart") || isFileUpload(field);
+  }
+
+  private static boolean isFileUpload(MethodInsnNode field) {
+    return field.name.equals("file") || field.name.equals("files");
   }
 
   private static void formField(ParserContext ctx, MethodInsnNode node,
@@ -327,6 +316,12 @@ public class RequestParser {
       argument.javaType = "java.util.Map<java.lang.String,java.util.List<java.lang.String>>";
       argument.required = true;
       argument.single = false;
+    } else if (convert.matches("file")) {
+      argument.javaType = FileUpload.class.getName();
+      argument.required = true;
+    } else if (convert.matches("files")) {
+      argument.javaType = "java.util.List<" + FileUpload.class.getName() + ">";
+      argument.required = true;
     } else {
       throw new IllegalStateException("Unhandled parameter type: " + convert);
     }
@@ -338,7 +333,9 @@ public class RequestParser {
       if (e instanceof MethodInsnNode) {
         return ((MethodInsnNode) e).owner.equals("io/jooby/Value")
             || ((MethodInsnNode) e).owner.equals("io/jooby/ValueNode")
-            || ((MethodInsnNode) e).owner.equals("io/jooby/Body");
+            || ((MethodInsnNode) e).owner.equals("io/jooby/Body")
+            || (((MethodInsnNode) e).owner.equals("io/jooby/Context") && isFileUpload(
+            (MethodInsnNode) e));
       }
       return false;
     };

@@ -14,10 +14,6 @@ public class SchemaRef {
     this.ref = Optional.ofNullable(ref);
   }
 
-  public SchemaRef(Schema schema) {
-    this(schema, null);
-  }
-
   public Schema toSchema() {
     return this.ref.map(ref -> new Schema().$ref(ref)).orElse(this.schema);
   }

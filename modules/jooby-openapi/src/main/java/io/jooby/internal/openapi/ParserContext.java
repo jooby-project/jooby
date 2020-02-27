@@ -2,6 +2,7 @@ package io.jooby.internal.openapi;
 
 import com.fasterxml.jackson.databind.JavaType;
 import io.jooby.Context;
+import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.converter.ResolvedSchema;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.ByteArraySchema;
+import io.swagger.v3.oas.models.media.FileSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
@@ -38,7 +40,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -65,6 +66,7 @@ public class ParserContext {
     public JavaType type;
   }
 
+  private final ModelConverters converters;
   private final Type router;
   private final Map<Type, ClassNode> nodes;
   private final ClassSource source;
@@ -82,6 +84,9 @@ public class ParserContext {
     this.source = source;
     this.debug = debug;
     this.nodes = nodes;
+
+    this.converters = ModelConverters.getInstance();
+    converters.addConverter(new ModelConverterExt(Json.mapper()));
   }
 
   public Collection<Schema> schemas() {
@@ -135,6 +140,9 @@ public class ParserContext {
         .isAssignableFrom(type)) {
       return new BinarySchema();
     }
+    if (FileUpload.class == type) {
+      return new FileSchema();
+    }
     if (Reader.class.isAssignableFrom(type)) {
       return new StringSchema();
     }
@@ -167,7 +175,7 @@ public class ParserContext {
       return schema;
     }
     return schemas.computeIfAbsent(type.getName(), k -> {
-      ResolvedSchema resolvedSchema = ModelConverters.getInstance().readAllAsResolvedSchema(type);
+      ResolvedSchema resolvedSchema = converters.readAllAsResolvedSchema(type);
       if (resolvedSchema.schema == null) {
         throw new IllegalArgumentException("Unsupported type: " + type);
       }

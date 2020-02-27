@@ -13,11 +13,12 @@ public class FormApp extends Jooby {
     post("/multiple", ctx -> {
       ctx.form("firstname").value();
       ctx.form("lastname").value();
+      ctx.file("picture");
       return "...";
     });
 
     post("/bean", ctx -> {
-      ABean form = ctx.form(ABean.class);
+      AForm form = ctx.form(AForm.class);
       return "...";
     });
   }
