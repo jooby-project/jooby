@@ -139,6 +139,11 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
+  override fun path(pattern: String, action: Runnable): Jooby {
+    return super.path(pattern, action)
+  }
+
+  @RouterDsl
   override fun get(pattern: String, handler: Route.Handler): Route {
     return super.get(pattern, handler)
   }

@@ -58,9 +58,6 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
 
   private OpenApiTool newTool(Set<DebugOption> debug) {
     OpenApiTool tool = new OpenApiTool();
-    Path basedir = Paths.get(System.getProperty("user.dir"));
-    Path targetDir = basedir.resolve("target").resolve("test-classes");
-    tool.setTargetDir(targetDir);
     tool.setDebug(debug);
     return tool;
   }

@@ -122,7 +122,7 @@ class Idioms : Kooby({
 
   /** Coroutine: */
   coroutine {
-    get { "Hi Kotlin!" }
+    get("/") { "Hi Kotlin!" }
 
     get("/suspend") {
       delay(100)

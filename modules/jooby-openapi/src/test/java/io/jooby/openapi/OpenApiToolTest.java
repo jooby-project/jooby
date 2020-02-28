@@ -1145,4 +1145,5 @@ public class OpenApiToolTest {
           assertEquals("createPetRef", route.getOperationId());
         });
   }
+
 }

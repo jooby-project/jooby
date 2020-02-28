@@ -1,6 +1,9 @@
 package io.jooby.internal.openapi;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
@@ -42,6 +45,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -87,8 +91,28 @@ public class ParserContext {
     this.debug = debug;
     this.nodes = nodes;
 
+    jacksonModules(source.getClassLoader(), Json.mapper(), Yaml.mapper());
     this.converters = ModelConverters.getInstance();
+    converters.addConverter(new ModelConverterExt(Json.mapper()));
     converters.addConverter(new ModelConverterExt(Yaml.mapper()));
+  }
+
+  private void jacksonModules(ClassLoader classLoader, ObjectMapper... mappers) {
+    /** Kotlin module? */
+    List<Module> modules = new ArrayList<>(2);
+    try {
+      Module module = (Module) classLoader
+          .loadClass("com.fasterxml.jackson.module.kotlin.KotlinModule")
+          .newInstance();
+      modules.add(module);
+    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException x) {
+      // Sshhhhh
+    }
+    /** Java8/Optional: */
+    modules.add(new Jdk8Module());
+    modules.forEach(module -> Stream.of(mappers)
+        .forEach(mapper -> mapper.registerModule(module))
+    );
   }
 
   public Collection<Schema> schemas() {

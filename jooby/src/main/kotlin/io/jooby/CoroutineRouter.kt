@@ -6,7 +6,6 @@
 package io.jooby
 
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -24,42 +23,42 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
   }
 
   @RouterDsl
-  fun get(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
+  fun get(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.GET, pattern, handler)
   }
 
   @RouterDsl
-  fun post(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
+  fun post(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.POST, pattern, handler)
   }
 
   @RouterDsl
-  fun put(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
+  fun put(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.PUT, pattern, handler)
   }
 
   @RouterDsl
-  fun delete(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
+  fun delete(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.DELETE, pattern, handler)
   }
 
   @RouterDsl
-  fun patch(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
+  fun patch(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.PATCH, pattern, handler)
   }
 
   @RouterDsl
-  fun head(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
+  fun head(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.HEAD, pattern, handler)
   }
 
   @RouterDsl
-  fun trace(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
+  fun trace(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.TRACE, pattern, handler)
   }
 
   @RouterDsl
-  fun options(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
+  fun options(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.OPTIONS, pattern, handler)
   }
 

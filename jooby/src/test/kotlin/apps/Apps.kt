@@ -9,7 +9,7 @@ import kotlinx.coroutines.delay
 class App : Kooby({
 
   coroutine {
-    get { "Hi Kotlin!" }
+    get("/") { "Hi Kotlin!" }
 
     get("/suspend") {
       delay(100)
@@ -40,7 +40,7 @@ fun runWithMode(args: Array<String>) {
 fun runInline(args: Array<String>) {
   runApp(args) {
     coroutine {
-      get { "Hi Kotlin!" }
+      get("/") { "Hi Kotlin!" }
 
       get("/suspend") {
         delay(100)

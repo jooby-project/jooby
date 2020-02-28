@@ -6,14 +6,18 @@ import org.apache.commons.io.IOUtils;
 import java.io.InputStream;
 
 public class ClassSource {
-  private ClassLoader loader;
+  private ClassLoader classLoader;
 
   public ClassSource(ClassLoader loader) {
-    this.loader = loader;
+    this.classLoader = loader;
+  }
+
+  public ClassLoader getClassLoader() {
+    return classLoader;
   }
 
   public byte[] byteCode(String classname) {
-    try (InputStream stream = loader.getResourceAsStream(classname.replace(".", "/") + ".class")) {
+    try (InputStream stream = classLoader.getResourceAsStream(classname.replace(".", "/") + ".class")) {
       if (stream == null) {
         throw new ClassNotFoundException(classname);
       }
