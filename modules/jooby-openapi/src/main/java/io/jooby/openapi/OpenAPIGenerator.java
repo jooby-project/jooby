@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.openapi;
 
 import io.jooby.SneakyThrows;
@@ -19,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class OpenApiTool {
+public class OpenAPIGenerator {
 
   private Set<DebugOption> debug;
 
@@ -66,7 +71,7 @@ public class OpenApiTool {
 
   public String toJson(OpenAPI openAPI) {
     try {
-      return Json.mapper().writeValueAsString(openAPI);
+      return Json.mapper().writer().withDefaultPrettyPrinter().writeValueAsString(openAPI);
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }

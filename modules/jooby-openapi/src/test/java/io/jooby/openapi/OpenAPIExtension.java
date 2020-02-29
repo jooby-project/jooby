@@ -10,8 +10,6 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -20,7 +18,7 @@ import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
-public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
+public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
   @Override public boolean supportsParameter(ParameterContext parameterContext,
       ExtensionContext extensionContext) throws ParameterResolutionException {
     Parameter parameter = parameterContext.getParameter();
@@ -31,13 +29,13 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
       ExtensionContext context) throws ParameterResolutionException {
     AnnotatedElement method = context.getElement()
         .orElseThrow(() -> new IllegalStateException("Context: " + context));
-    OpenApiTest metadata = method.getAnnotation(OpenApiTest.class);
+    OpenAPITest metadata = method.getAnnotation(OpenAPITest.class);
     String classname = metadata.value().getName();
     Set<DebugOption> debugOptions = metadata.debug().length == 0
         ? Collections.emptySet()
         : EnumSet.copyOf(Arrays.asList(metadata.debug()));
 
-    OpenApiTool tool = newTool(debugOptions);
+    OpenAPIGenerator tool = newTool(debugOptions);
     Parameter parameter = parameterContext.getParameter();
     OpenAPIExt openAPI = (OpenAPIExt) tool.generate(classname);
     OpenApiResult result = new OpenApiResult(openAPI, openAPI.getOperations());
@@ -56,8 +54,8 @@ public class OpenApiExtension implements ParameterResolver, AfterEachCallback {
     }
   }
 
-  private OpenApiTool newTool(Set<DebugOption> debug) {
-    OpenApiTool tool = new OpenApiTool();
+  private OpenAPIGenerator newTool(Set<DebugOption> debug) {
+    OpenAPIGenerator tool = new OpenAPIGenerator();
     tool.setDebug(debug);
     return tool;
   }

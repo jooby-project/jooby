@@ -7,7 +7,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.function.Consumer;
 
-public class OpenApiTestUtil {
+public class OpenAPITestUtil {
 
   public static void withResponse(OperationExt operation, Consumer<ResponseExt> consumer) {
     consumer.accept(operation.getResponse());

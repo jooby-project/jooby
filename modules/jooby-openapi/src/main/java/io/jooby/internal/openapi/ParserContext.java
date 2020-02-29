@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.openapi;
 
 import com.fasterxml.jackson.databind.JavaType;
@@ -46,7 +51,9 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,16 +95,18 @@ public class ParserContext {
       Set<DebugOption> debug) {
     this.router = router;
     this.source = source;
-    this.debug = debug;
+    this.debug = Optional.ofNullable(debug).orElse(Collections.emptySet());
     this.nodes = nodes;
 
-    jacksonModules(source.getClassLoader(), Json.mapper(), Yaml.mapper());
+    List<ObjectMapper> mappers = Arrays.asList(Json.mapper(), Yaml.mapper());
+    jacksonModules(source.getClassLoader(), mappers);
     this.converters = ModelConverters.getInstance();
-    converters.addConverter(new ModelConverterExt(Json.mapper()));
-    converters.addConverter(new ModelConverterExt(Yaml.mapper()));
+    mappers.stream()
+        .map(ModelConverterExt::new)
+        .forEach(converters::addConverter);
   }
 
-  private void jacksonModules(ClassLoader classLoader, ObjectMapper... mappers) {
+  private void jacksonModules(ClassLoader classLoader, List<ObjectMapper> mappers) {
     /** Kotlin module? */
     List<Module> modules = new ArrayList<>(2);
     try {
@@ -110,9 +119,12 @@ public class ParserContext {
     }
     /** Java8/Optional: */
     modules.add(new Jdk8Module());
-    modules.forEach(module -> Stream.of(mappers)
+    modules.forEach(module -> mappers
         .forEach(mapper -> mapper.registerModule(module))
     );
+    /** Set class loader: */
+    mappers.stream()
+        .forEach(mapper -> mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(classLoader)));
   }
 
   public Collection<Schema> schemas() {

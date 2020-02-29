@@ -190,12 +190,17 @@
               <artifactSet>
                 <includes>
                   <include>org.ow2.asm:*</include>
+                  <include>commons-io:*</include>
                 </includes>
               </artifactSet>
               <relocations>
                 <relocation>
                   <pattern>org.objectweb.asm</pattern>
                   <shadedPattern>io.jooby.internal.openapi.asm</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons</pattern>
+                  <shadedPattern>io.jooby.internal.openapi.commons</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

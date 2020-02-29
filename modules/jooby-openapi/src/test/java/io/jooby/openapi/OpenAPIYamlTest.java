@@ -7,9 +7,9 @@ import kt.KtMinApp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class OpenApiYamlTest {
+public class OpenAPIYamlTest {
 
-  @OpenApiTest(value = MinApp.class)
+  @OpenAPITest(value = MinApp.class)
   public void shouldGenerateMinApp(OpenApiResult result) {
     assertEquals("openapi: 3.0.1\n"
         + "info:\n"
@@ -168,7 +168,7 @@ public class OpenApiYamlTest {
         + "          format: int32\n", result.toYaml());
   }
 
-  @OpenApiTest(KtMinApp.class)
+  @OpenAPITest(KtMinApp.class)
   public void shouldGenerateKtMinApp(OpenApiResult result) {
     assertEquals("openapi: 3.0.1\n"
         + "info:\n"
@@ -327,7 +327,7 @@ public class OpenApiYamlTest {
         + "          format: int32\n", result.toYaml());
   }
 
-  @OpenApiTest(FormApp.class)
+  @OpenAPITest(FormApp.class)
   public void shouldDoForm(OpenApiResult result) {
     assertEquals("openapi: 3.0.1\n"
         + "info:\n"
@@ -409,7 +409,7 @@ public class OpenApiYamlTest {
         + "          format: binary\n", result.toYaml());
   }
 
-  @OpenApiTest(FormMvcApp.class)
+  @OpenAPITest(FormMvcApp.class)
   public void shouldDoMvcForm(OpenApiResult result) {
     assertEquals("openapi: 3.0.1\n"
         + "info:\n"

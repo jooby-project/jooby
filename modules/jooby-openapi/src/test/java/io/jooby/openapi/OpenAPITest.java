@@ -12,8 +12,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 @Retention(RUNTIME)
 @Test
-@ExtendWith(OpenApiExtension.class)
-public @interface OpenApiTest {
+@ExtendWith(OpenAPIExtension.class)
+public @interface OpenAPITest {
   Class value();
 
   DebugOption[] debug() default {};

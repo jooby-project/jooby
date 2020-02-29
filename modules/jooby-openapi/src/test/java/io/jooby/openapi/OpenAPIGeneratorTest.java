@@ -39,8 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OpenApiToolTest {
-  @OpenApiTest(value = RoutePatternIdioms.class)
+public class OpenAPIGeneratorTest {
+  @OpenAPITest(value = RoutePatternIdioms.class)
   public void routePatternIdioms(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -58,7 +58,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouteInline.class)
+  @OpenAPITest(value = RouteInline.class)
   public void routeInline(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -67,7 +67,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouteIdioms.class)
+  @OpenAPITest(value = RouteIdioms.class)
   public void routeIdioms(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -106,7 +106,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = KtRouteIdioms.class)
+  @OpenAPITest(value = KtRouteIdioms.class)
   public void ktRoute(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -124,7 +124,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = KtCoroutineRouteIdioms.class)
+  @OpenAPITest(value = KtCoroutineRouteIdioms.class)
   public void ktCoroutineRoute(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -139,7 +139,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouteQueryArgs.class)
+  @OpenAPITest(value = RouteQueryArgs.class)
   public void routeQueryArguments(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
@@ -279,7 +279,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RoutePathArgs.class)
+  @OpenAPITest(value = RoutePathArgs.class)
   public void routePathArguments(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
@@ -419,7 +419,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouteFormArgs.class)
+  @OpenAPITest(value = RouteFormArgs.class)
   public void routeFormArguments(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
@@ -501,7 +501,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouteBodyArgs.class)
+  @OpenAPITest(value = RouteBodyArgs.class)
   public void routeBodyArg(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -559,7 +559,7 @@ public class OpenApiToolTest {
     }
   }
 
-  @OpenApiTest(value = RouteReturnTypeApp.class, ignoreArguments = true)
+  @OpenAPITest(value = RouteReturnTypeApp.class, ignoreArguments = true)
   public void routeReturnType(RouteIterator iterator) {
     //    ObjectMapper mapper = new ObjectMapper();
     //    Java java = new Java();
@@ -693,7 +693,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouteImport.class)
+  @OpenAPITest(value = RouteImport.class)
   public void routeImport(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -723,7 +723,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouteImportReferences.class)
+  @OpenAPITest(value = RouteImportReferences.class)
   public void routeImportReferences(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -741,7 +741,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = KtRouteImport.class)
+  @OpenAPITest(value = KtRouteImport.class)
   public void ktRouteImport(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -771,7 +771,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = KtRouteReturnType.class, ignoreArguments = true)
+  @OpenAPITest(value = KtRouteReturnType.class, ignoreArguments = true)
   public void ktRouteReturnType(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -893,7 +893,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = RouterProduceConsume.class)
+  @OpenAPITest(value = RouterProduceConsume.class)
   public void routeProduceConsume(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -915,7 +915,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = MvcApp.class)
+  @OpenAPITest(value = MvcApp.class)
   public void routeMvc(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
@@ -1063,7 +1063,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = KtMvcApp.class)
+  @OpenAPITest(value = KtMvcApp.class)
   public void ktMvc(RouteIterator iterator) {
     iterator
         .next(route -> {
@@ -1137,7 +1137,7 @@ public class OpenApiToolTest {
         .verify();
   }
 
-  @OpenApiTest(value = KtRouteRef.class)
+  @OpenAPITest(value = KtRouteRef.class)
   public void ktRouteRef(RouteIterator iterator) {
     iterator
         .next(route -> {

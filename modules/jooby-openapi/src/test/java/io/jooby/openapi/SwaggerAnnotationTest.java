@@ -6,14 +6,14 @@ import io.jooby.internal.openapi.ResponseExt;
 
 import java.util.Collections;
 
-import static io.jooby.openapi.OpenApiTestUtil.withResponse;
-import static io.jooby.openapi.OpenApiTestUtil.withSchema;
+import static io.jooby.openapi.OpenAPITestUtil.withResponse;
+import static io.jooby.openapi.OpenAPITestUtil.withSchema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SwaggerAnnotationTest {
 
-  @OpenApiTest(value = OpenApiApp.class, ignoreArguments = true)
+  @OpenAPITest(value = OpenApiApp.class, ignoreArguments = true)
   public void shouldParseSwaggerAnnotations(RouteIterator iterator) {
     iterator
         .next(route -> {
