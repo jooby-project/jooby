@@ -22,6 +22,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,18 @@ public class ReturnTypeParser {
 
   public static List<String> parse(ParserContext ctx, MethodNode node) {
     Type returnType = Type.getReturnType(node.desc);
+    if (!TypeFactory.OBJECT.equals(returnType) && !TypeFactory.VOID.equals(returnType)) {
+      if (node.signature == null) {
+        return Collections.singletonList(ASMType.parse(returnType.getDescriptor()));
+      } else {
+        String desc = node.signature;
+        int rparen = desc.indexOf(')');
+        if (rparen > 0) {
+          desc = desc.substring(rparen + 1);
+        }
+        return Collections.singletonList(ASMType.parse(desc));
+      }
+    }
     List<String> result = InsnSupport.next(node.instructions.getFirst())
         .filter(it -> it.getOpcode() == Opcodes.ARETURN || it.getOpcode() == Opcodes.IRETURN
             || it.getOpcode() == Opcodes.RETURN)
@@ -214,7 +227,7 @@ public class ReturnTypeParser {
         .map(m -> Optional.ofNullable(m.signature)
             .map(s -> {
               int pos = s.indexOf(')');
-              return pos > 0 ? s.substring(pos + 1 ) : s;
+              return pos > 0 ? s.substring(pos + 1) : s;
             })
             .map(ASMType::parse)
             .orElseGet(() -> Type.getReturnType(m.desc).getClassName())

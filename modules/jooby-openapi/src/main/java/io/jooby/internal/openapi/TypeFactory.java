@@ -15,8 +15,15 @@ import org.objectweb.asm.Type;
 import java.util.Optional;
 
 public class TypeFactory {
+  public static final Type OBJECT = Type.getType(Object.class);
+
+  public static final Type VOID = Type.getType(void.class);
+
+  public static final Type VOID_OBJ = Type.getType(Void.class);
 
   public static final Type STRING = Type.getType(String.class);
+
+  public static final Type STRING_ARRAY = Type.getType(String[].class);
 
   public static final Type HANDLER = Type.getType(Route.Handler.class);
 
@@ -29,6 +36,8 @@ public class TypeFactory {
   public static final Type VALUE_NODE = Type.getType(ValueNode.class);
 
   public static final Type KOOBY = Type.getType("Lio/jooby/Kooby;");
+
+  public static final Type KOOBYKT = Type.getType("Lio/jooby/KoobyKt;");
 
   public static final Type HANDLER_CONTEXT = Type.getType("Lio/jooby/HandlerContext;");
 

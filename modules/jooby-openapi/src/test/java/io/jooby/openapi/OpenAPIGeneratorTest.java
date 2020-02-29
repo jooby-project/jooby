@@ -3,6 +3,7 @@ package io.jooby.openapi;
 import com.fasterxml.jackson.databind.JavaType;
 import examples.Letter;
 import examples.MvcApp;
+import examples.NoAppClass;
 import examples.RouteBodyArgs;
 import examples.RouteFormArgs;
 import examples.RouteImport;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtMvcApp;
+import kt.KtNoAppClassKt;
 import kt.KtRouteIdioms;
 import kt.KtRouteImport;
 import kt.KtRouteRef;
@@ -780,7 +782,7 @@ public class OpenAPIGeneratorTest {
         })
         .next(route -> {
           assertEquals("GET /literal/2", route.toString());
-          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
+          assertEquals(int.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /literal/3", route.toString());
@@ -788,7 +790,7 @@ public class OpenAPIGeneratorTest {
         })
         .next(route -> {
           assertEquals("GET /literal/4", route.toString());
-          assertEquals(Boolean.class.getName(), route.getResponse().getJavaType());
+          assertEquals(boolean.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /call/1", route.toString());
@@ -816,7 +818,7 @@ public class OpenAPIGeneratorTest {
         })
         .next(route -> {
           assertEquals("GET /generic/1", route.toString());
-          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
+          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/2", route.toString());
@@ -824,7 +826,7 @@ public class OpenAPIGeneratorTest {
         })
         .next(route -> {
           assertEquals("GET /generic/3", route.toString());
-          assertEquals(Object.class.getName(), route.getResponse().getJavaType());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /generic/4", route.toString());
@@ -837,7 +839,7 @@ public class OpenAPIGeneratorTest {
         })
         .next(route -> {
           assertEquals("GET /localvar/2", route.toString());
-          assertEquals(Integer.class.getName(), route.getResponse().getJavaType());
+          assertEquals(int.class.getName(), route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /localvar/3", route.toString());
@@ -849,7 +851,7 @@ public class OpenAPIGeneratorTest {
         })
         .next(route -> {
           assertEquals("GET /complexType/1", route.toString());
-          assertEquals("java.util.List", route.getResponse().getJavaType());
+          assertEquals("java.util.List<java.lang.String>", route.getResponse().getJavaType());
         })
         .next(route -> {
           assertEquals("GET /complexType/2", route.toString());
@@ -867,8 +869,7 @@ public class OpenAPIGeneratorTest {
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/2", route.toString());
-          assertEquals("examples.ABean", route.getResponse().getJavaTypes().get(0));
-          assertEquals("examples.BBean", route.getResponse().getJavaTypes().get(1));
+          assertEquals("examples.Bean", route.getResponse().getJavaTypes().get(0));
         })
         .next(route -> {
           assertEquals("GET /multipleTypes/3", route.toString());
@@ -1144,6 +1145,40 @@ public class OpenAPIGeneratorTest {
           assertEquals("Create a Pet", route.getSummary());
           assertEquals("createPetRef", route.getOperationId());
         });
+  }
+
+  @OpenAPITest(value = KtNoAppClassKt.class)
+  public void ktNoApp(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /path", route.toString());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
+          assertEquals("getPath", route.getOperationId());
+        })
+        .next(route -> {
+          assertEquals("GET /fn", route.toString());
+          assertEquals(int.class.getName(), route.getResponse().getJavaType());
+          assertEquals("fnRef", route.getOperationId());
+          assertEquals("function reference", route.getSummary());
+        })
+        .verify();
+  }
+
+  @OpenAPITest(value = NoAppClass.class)
+  public void noApp(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /path", route.toString());
+          assertEquals(String.class.getName(), route.getResponse().getJavaType());
+          assertEquals("getPath", route.getOperationId());
+        })
+        .next(route -> {
+          assertEquals("GET /fn", route.toString());
+          assertEquals(int.class.getName(), route.getResponse().getJavaType());
+          assertEquals("fnRef", route.getOperationId());
+          assertEquals("function reference", route.getSummary());
+        })
+        .verify();
   }
 
 }

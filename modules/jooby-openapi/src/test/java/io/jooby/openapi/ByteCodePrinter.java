@@ -25,14 +25,14 @@ public class ByteCodePrinter {
     ObjectMapper mapper = new ObjectMapper();
 
     JsonType value = new JsonType();
-    value.type = mapper.getTypeFactory().constructType(int.class);
+    value.type = mapper.getTypeFactory().constructType(String[].class);
 
     String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(value);
     assertEquals("{\n"
-        + "  \"type\" : \"int\"\n"
+        + "  \"type\" : \"[Ljava.lang.String;\"\n"
         + "}", json);
     JsonType readIt = mapper.readValue(json, JsonType.class);
-    assertEquals(int.class, readIt.type.getRawClass());
+    assertEquals(String[].class, readIt.type.getRawClass());
   }
 }
 

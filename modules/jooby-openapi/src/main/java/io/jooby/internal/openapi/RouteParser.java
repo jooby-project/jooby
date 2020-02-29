@@ -32,6 +32,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.jooby.internal.openapi.RoutePath.path;
+import static io.jooby.internal.openapi.TypeFactory.KOOBYKT;
+import static io.jooby.internal.openapi.TypeFactory.KT_FUN_1;
+import static io.jooby.internal.openapi.TypeFactory.STRING;
+import static io.jooby.internal.openapi.TypeFactory.STRING_ARRAY;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 
 public class RouteParser {
 
@@ -252,7 +258,7 @@ public class RouteParser {
         if (ctx.isRouter(signature.getOwner().orElse(null))) {
           if (signature.matches("mvc")) {
             handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
-          } else if (signature.matches("<init>", TypeFactory.KT_FUN_1)) {
+          } else if (signature.matches("<init>", KT_FUN_1)) {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
           } else if (signature.matches("use", Router.class)) {
             handlerList.addAll(useRouter(ctx, prefix, node, findRouterInstruction(node)));
@@ -333,13 +339,13 @@ public class RouteParser {
               }
             }
           } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
-              && signature.matches(TypeFactory.STRING, TypeFactory.KT_FUN_1)) {
+              && signature.matches(STRING, KT_FUN_1)) {
             instructionTo = node;
             String path = routePattern(node, node.getPrevious());
             String httpMethod = signature.getMethod().toUpperCase();
             handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
           } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
-              && signature.matches(TypeFactory.STRING, TypeFactory.KT_FUN_2)) {
+              && signature.matches(STRING, TypeFactory.KT_FUN_2)) {
             instructionTo = node;
             String path = routePattern(node, node.getPrevious());
             String httpMethod = signature.getMethod().toUpperCase();
@@ -347,6 +353,8 @@ public class RouteParser {
           } else if (signature.getMethod().startsWith("coroutine")) {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
           }
+        } else if (signature.matches(KOOBYKT, "runApp")) {
+          handlerList.addAll(kotlinRunApp(ctx, null, prefix, node));
         } else if (signature.matches(Route.class, "produces", MediaType[].class)) {
           if (instructionTo != null) {
             OperationExt route = handlerList.get(handlerList.size() - 1);
@@ -366,6 +374,21 @@ public class RouteParser {
         }
       }
     }
+    return handlerList;
+  }
+
+  private List<OperationExt> kotlinRunApp(ParserContext ctx, String httpMethod, String prefix,
+      MethodInsnNode node) {
+    List<OperationExt> handlerList = new ArrayList<>();
+    Type type = InsnSupport.prev(node)
+        .filter(FieldInsnNode.class::isInstance)
+        .filter(InsnSupport.opcode(GETSTATIC))
+        .findFirst()
+        .map(n -> ((FieldInsnNode) n).owner)
+        .map(Type::getObjectType)
+        .orElseThrow(() -> new IllegalStateException("io.jooby.runApp(String[]) parsing failure"));
+    ClassNode classNode = ctx.classNode(type);
+    handlerList.addAll(parse(ctx, prefix, classNode));
     return handlerList;
   }
 
@@ -428,7 +451,7 @@ public class RouteParser {
             return true;
           }
           if (it instanceof MethodInsnNode) {
-            if (Signature.create((MethodInsnNode) it).matches("<init>", TypeFactory.KT_FUN_1)) {
+            if (Signature.create((MethodInsnNode) it).matches("<init>", KT_FUN_1)) {
               return false;
             }
             return true;

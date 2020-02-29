@@ -22,7 +22,7 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
   @Override public boolean supportsParameter(ParameterContext parameterContext,
       ExtensionContext extensionContext) throws ParameterResolutionException {
     Parameter parameter = parameterContext.getParameter();
-    return parameter.getType() == RouteIterator.class || parameter.getType() == OpenApiResult.class;
+    return parameter.getType() == RouteIterator.class || parameter.getType() == OpenAPIResult.class;
   }
 
   @Override public Object resolveParameter(ParameterContext parameterContext,
@@ -38,8 +38,8 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
     OpenAPIGenerator tool = newTool(debugOptions);
     Parameter parameter = parameterContext.getParameter();
     OpenAPIExt openAPI = (OpenAPIExt) tool.generate(classname);
-    OpenApiResult result = new OpenApiResult(openAPI, openAPI.getOperations());
-    if (parameter.getType() == OpenApiResult.class) {
+    OpenAPIResult result = new OpenAPIResult(openAPI);
+    if (parameter.getType() == OpenAPIResult.class) {
       return result;
     }
     RouteIterator iterator = result.iterator(metadata.ignoreArguments());

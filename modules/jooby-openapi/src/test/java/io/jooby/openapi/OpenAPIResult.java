@@ -1,6 +1,7 @@
 package io.jooby.openapi;
 
 import io.jooby.SneakyThrows;
+import io.jooby.internal.openapi.OpenAPIExt;
 import io.jooby.internal.openapi.OperationExt;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -10,18 +11,15 @@ import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class OpenApiResult {
-  public final OpenAPI openAPI;
+public class OpenAPIResult {
+  public final OpenAPIExt openAPI;
 
-  private final List<OperationExt> operations;
-
-  public OpenApiResult(OpenAPI openAPI, List<OperationExt> operations) {
+  public OpenAPIResult(OpenAPIExt openAPI) {
     this.openAPI = openAPI;
-    this.operations = operations;
   }
 
   public RouteIterator iterator(boolean ignoreArgs) {
-    return new RouteIterator(operations, ignoreArgs);
+    return new RouteIterator(openAPI.getOperations(), ignoreArgs);
   }
 
   public String toYaml() {

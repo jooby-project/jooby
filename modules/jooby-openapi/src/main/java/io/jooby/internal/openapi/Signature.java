@@ -5,16 +5,12 @@
  */
 package io.jooby.internal.openapi;
 
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.signature.SignatureReader;
-import org.objectweb.asm.signature.SignatureVisitor;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 public class Signature {
@@ -60,6 +56,13 @@ public class Signature {
   public boolean matches(Class owner, String method, Class... parameterTypes) {
     if (Type.getType(owner).equals(this.owner)) {
       return matches(method, parameterTypes);
+    }
+    return false;
+  }
+
+  public boolean matches(Type owner, String method) {
+    if (owner.equals(this.owner)) {
+      return matches(method);
     }
     return false;
   }
