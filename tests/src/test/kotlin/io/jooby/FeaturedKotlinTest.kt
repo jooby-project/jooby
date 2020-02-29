@@ -43,7 +43,7 @@ class FeaturedKotlinTest {
     runner.use { ->
       Kooby {
         coroutine {
-          get {
+          get("/") {
             ctx.getRequestPath() + "coroutine"
           }
         }

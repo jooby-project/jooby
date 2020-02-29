@@ -1,13 +1,14 @@
 package io.jooby.maven;
 
 import io.jooby.run.JoobyRunOptions;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RunMojoTest {
 
@@ -17,8 +18,8 @@ public class RunMojoTest {
         .filter(field -> !field.getName().equals("projectName") && !Modifier.isStatic(field.getModifiers()))
         .forEach(field -> {
           try {
-            Field target = RunMojo.class.getDeclaredField(field.getName());
-            assertEquals(field.getGenericType(), target.getGenericType());
+            Field target = FieldUtils.getField(RunMojo.class, field.getName(), true);
+            assertEquals(field.getGenericType(), target.getGenericType(), field.toString());
           } catch (Exception x) {
             throw new IllegalStateException(x);
           }

@@ -12,33 +12,19 @@ import org.apache.maven.Maven;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Resource;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.DefaultDependencyResolutionRequest;
-import org.apache.maven.project.DependencyResolutionException;
-import org.apache.maven.project.DependencyResolutionRequest;
-import org.apache.maven.project.DependencyResolutionResult;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectDependenciesResolver;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.graph.Dependency;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
@@ -51,18 +37,12 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
  */
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = COMPILE_PLUS_RUNTIME, aggregator = true)
 @Execute(phase = PROCESS_CLASSES)
-public class RunMojo extends AbstractMojo {
+public class RunMojo extends BaseMojo {
 
   static {
     /** Turn off shutdown hook on Server. */
     System.setProperty("jooby.useShutdownHook", "false");
   }
-
-  private static final String APP_CLASS = "application.class";
-
-  /** Startup class (the one with the main method. */
-  @Parameter(defaultValue = "${application.class}")
-  private String mainClass;
 
   /**
    * List of file extensions that trigger an application restart. Default is: <code>conf</code>,
@@ -84,30 +64,10 @@ public class RunMojo extends AbstractMojo {
   @Parameter
   private int port = JoobyRunOptions.DEFAULT_PORT;
 
-  @Parameter(defaultValue = "${session}", required = true, readonly = true)
-  private MavenSession session;
-
-  @Component
-  private ProjectDependenciesResolver dependenciesResolver;
-
-  @Component
-  private Maven maven;
-
-  @Override public void execute() throws MojoExecutionException, MojoFailureException {
+  @Override protected void doExecute(List<MavenProject> projects, String mainClass) throws Exception {
     try {
-      List<MavenProject> projects = projects();
-
-      if (mainClass == null) {
-        mainClass = projects.stream()
-            .filter(it -> it.getProperties().containsKey(APP_CLASS))
-            .findFirst()
-            .map(it -> it.getProperties().getProperty(APP_CLASS))
-            .orElseThrow(() -> new MojoExecutionException(
-                "Application class not found. Did you forget to set `application.class`?"));
-      }
-      getLog().debug("Found `" + APP_CLASS + "`: " + mainClass);
-
-      JoobyRunOptions options = createOptions();
+      Maven maven = getMaven();
+      JoobyRunOptions options = createOptions(mainClass);
       JoobyRun joobyRun = new JoobyRun(options);
 
       Runtime.getRuntime().addShutdownHook(new Thread(joobyRun::shutdown));
@@ -133,28 +93,22 @@ public class RunMojo extends AbstractMojo {
       for (MavenProject project : projects) {
         getLog().debug("Adding project: " + project.getArtifactId());
 
-        // main/resources, etc..
-        List<Resource> resourceList = project.getResources();
-        resourceList.stream()
-            .map(Resource::getDirectory)
-            .map(Paths::get)
+        // main resources + conf, etc..
+        resources(project)
             .forEach(file -> joobyRun.addResource(file, onFileChanged));
-        // conf directory
-        Path conf = project.getBasedir().toPath().resolve("conf");
-        joobyRun.addResource(conf, onFileChanged);
 
         // target/classes
-        joobyRun.addResource(Paths.get(project.getBuild().getOutputDirectory()));
+        bin(project).forEach(joobyRun::addResource);
 
         Set<Path> src = sourceDirectories(project);
         if (src.isEmpty()) {
           getLog().debug("Compiler is off in favor of Eclipse compiler.");
-          binDirectories(project).forEach(path -> joobyRun.addResource(path, onFileChanged));
+          bin(project).forEach(path -> joobyRun.addResource(path, onFileChanged));
         } else {
           src.forEach(path -> joobyRun.addResource(path, onFileChanged));
         }
 
-        artifacts(project).forEach(joobyRun::addResource);
+        jars(project).forEach(joobyRun::addResource);
       }
 
       // Block current thread.
@@ -166,7 +120,7 @@ public class RunMojo extends AbstractMojo {
     }
   }
 
-  private JoobyRunOptions createOptions() {
+  private JoobyRunOptions createOptions(String mainClass) {
     JoobyRunOptions options = new JoobyRunOptions();
     options.setMainClass(mainClass);
     if (compileExtensions != null) {
@@ -219,113 +173,6 @@ public class RunMojo extends AbstractMojo {
   }
 
   /**
-   * Maven reference (available while running the plugin).
-   *
-   * @return Maven reference (available while running the plugin).
-   */
-  public Maven getMaven() {
-    return maven;
-  }
-
-  /**
-   * Set maven instance (available while running the plugin).
-   *
-   * @param maven Maven instance Maven reference (available while running the plugin).
-   */
-  public void setMaven(Maven maven) {
-    this.maven = maven;
-  }
-
-  /**
-   * Maven session reference (available while running the plugin).
-   *
-   * @return Maven reference (available while running the plugin).
-   */
-  public MavenSession getSession() {
-    return session;
-  }
-
-  /**
-   * Set maven session instance (available while running the plugin).
-   *
-   * @param session Maven session instance Maven reference (available while running the plugin).
-   */
-  public void setSession(MavenSession session) {
-    this.session = session;
-  }
-
-  /**
-   * Project dependencies resolver (available while running the plugin).
-   *
-   * @return Project dependencies resolver (available while running the plugin).
-   */
-  public ProjectDependenciesResolver getDependenciesResolver() {
-    return dependenciesResolver;
-  }
-
-  /**
-   * Set project dependencies resolver.
-   *
-   * @param dependenciesResolver Project dependencies resolver.
-   */
-  public void setDependenciesResolver(
-      ProjectDependenciesResolver dependenciesResolver) {
-    this.dependenciesResolver = dependenciesResolver;
-  }
-
-  /**
-   * Application main class.
-   *
-   * @return Application main class.
-   */
-  public String getMainClass() {
-    return mainClass;
-  }
-
-  /**
-   * Set application main class.
-   *
-   * @param mainClass Application main class.
-   */
-  public void setMainClass(String mainClass) {
-    this.mainClass = mainClass;
-  }
-
-  private Set<Path> artifacts(MavenProject project) throws DependencyResolutionException {
-    Set<org.apache.maven.artifact.Artifact> artifacts = project.getArtifacts();
-    if (artifacts.isEmpty()) {
-      DependencyResolutionRequest request = new DefaultDependencyResolutionRequest();
-      request.setMavenProject(project);
-      request.setRepositorySession(session.getRepositorySession());
-      DependencyResolutionResult result = dependenciesResolver.resolve(request);
-      return result.getDependencies().stream()
-          .filter(it -> !it.isOptional())
-          .map(Dependency::getArtifact)
-          .filter(it -> it.getExtension().equals("jar"))
-          .map(Artifact::getFile)
-          .map(File::toPath)
-          .collect(Collectors.toCollection(LinkedHashSet::new));
-    } else {
-      return artifacts.stream()
-          .map(org.apache.maven.artifact.Artifact::getFile)
-          .filter(it -> it.toString().endsWith(".jar"))
-          .map(File::toPath)
-          .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-  }
-
-  /**
-   * Multiple projects for multimodule project. Otherwise single project.
-   *
-   * @return Multiple projects for multimodule project. Otherwise single project.
-   */
-  private List<MavenProject> projects() {
-    return session.getAllProjects().stream()
-        .filter(it -> !it.getPackaging().equals("pom"))
-        .collect(Collectors.toList());
-  }
-
-  /**
    * Execute maven goal.
    *
    * @param goal Goal to execute.
@@ -345,8 +192,8 @@ public class RunMojo extends AbstractMojo {
     return Collections.singleton(Paths.get(project.getBuild().getSourceDirectory()));
   }
 
-  private Set<Path> binDirectories(final MavenProject project) {
-    return Collections.singleton(Paths.get(project.getBuild().getOutputDirectory()));
+  @Override protected String mojoName() {
+    return "run";
   }
 
   //  private boolean requiredDependency(Set<Artifact> artifacts,
