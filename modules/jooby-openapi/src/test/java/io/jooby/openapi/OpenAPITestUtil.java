@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 public class OpenAPITestUtil {
 
   public static void withResponse(OperationExt operation, Consumer<ResponseExt> consumer) {
-    consumer.accept(operation.getResponse());
+    consumer.accept(operation.getDefaultResponse());
   }
 
   public static void withContent(ResponseExt response, Consumer<Content> consumer) {

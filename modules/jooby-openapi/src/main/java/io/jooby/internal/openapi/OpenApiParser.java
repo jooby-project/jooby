@@ -22,7 +22,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -51,26 +50,33 @@ public class OpenApiParser {
         .ifPresent(a -> swaggerOperation(ctx, operation, toMap(a)));
 
     /** @ApiResponses: */
-    List<ResponseExt> responses = findAnnotationByType(method.visibleAnnotations,
-        singletonList(ApiResponses.class.getName()))
+    findAnnotationByType(method.visibleAnnotations, singletonList(ApiResponses.class.getName()))
         .stream()
         .flatMap(a -> (
                 (List<AnnotationNode>) toMap(a)
                     .getOrDefault("value", emptyList())
             ).stream()
         )
-        .map(a -> operationResponse(ctx, operation, toMap(a)))
-        .collect(Collectors.toList());
+        .forEach(a -> operationResponse(ctx, operation, toMap(a)));
 
-    if (responses.isEmpty()) {
-      /** @ApiResponse: */
-      findAnnotationByType(method.visibleAnnotations, singletonList(ApiResponse.class.getName()))
-          .stream()
-          .findFirst()
-          .map(a -> operationResponse(ctx, operation, toMap(a)))
-          .ifPresent(a -> operation.setResponses(apiResponses(a)));
-    } else {
-      operation.setResponses(apiResponses(responses));
+    /** @ApiResponse: */
+    findAnnotationByType(method.visibleAnnotations, singletonList(ApiResponse.class.getName()))
+        .stream()
+        .findFirst()
+        .ifPresent(a -> operationResponse(ctx, operation, toMap(a)));
+
+    checkDefaultResponse(operation);
+  }
+
+  /**
+   * This method removes the default response when there is an explicit success response.
+   * @param operation
+   */
+  private static void checkDefaultResponse(OperationExt operation) {
+    if (!operation.getResponseCodes().contains("200") &&
+        operation.getResponses().keySet().stream().filter(StatusCodeParser::isSuccessCode).count()
+            > 1) {
+      operation.getResponses().remove("200");
     }
   }
 
@@ -96,10 +102,7 @@ public class OpenApiParser {
 
     requestBody(ctx, operation, toMap((AnnotationNode) annotation.get("requestBody")));
 
-    List<ResponseExt> response = responses(ctx, operation, annotation);
-    if (response.size() > 0) {
-      operation.setResponses(apiResponses(response));
-    }
+    responses(ctx, operation, annotation);
   }
 
   private static void requestBody(ParserContext ctx, OperationExt operation,
@@ -166,25 +169,22 @@ public class OpenApiParser {
     }
   }
 
-  private static List<ResponseExt> responses(ParserContext ctx, OperationExt operation,
+  private static void responses(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
     List<AnnotationNode> responses = (List<AnnotationNode>) annotation
         .getOrDefault("responses", emptyList());
-    if (responses.size() > 0) {
-      // clear any detected response
-      List<ResponseExt> returnTypes = responses.stream()
-          .map(it -> toMap(it))
-          .map(it -> operationResponse(ctx, operation, it))
-          .collect(Collectors.toList());
-      return returnTypes;
-    }
-    return Collections.emptyList();
+    responses.stream()
+        .map(it -> toMap(it))
+        .forEach(it -> operationResponse(ctx, operation, it));
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse)
-  private static ResponseExt operationResponse(ParserContext ctx, OperationExt operation,
+  private static void operationResponse(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
-    ResponseExt response = new ResponseExt();
+    String code = ((String) annotation.getOrDefault("responseCode", "200"))
+        .replace("default", "200");
+
+    ResponseExt response = operation.addResponse(code);
     Map<String, Header> headers = new LinkedHashMap<>();
 
     ((List<AnnotationNode>) annotation.getOrDefault("headers", Collections.emptyList())).stream()
@@ -204,7 +204,6 @@ public class OpenApiParser {
       response.setHeaders(headers);
     }
 
-    String code = (String) annotation.getOrDefault("responseCode", "default");
     String description = (String) annotation.getOrDefault("description", "");
 
     String defaultMediaType = operation.getProduces().stream().findFirst().orElse(MediaType.JSON);
@@ -213,8 +212,6 @@ public class OpenApiParser {
     if (description.trim().length() > 0) {
       response.setDescription(description.trim());
     }
-    response.setCode(code);
-    return response;
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse(content = @Content))
@@ -326,17 +323,5 @@ public class OpenApiParser {
           .collect(Collectors.toList());
       consumer.accept(property, schemas);
     }
-  }
-
-  private static io.swagger.v3.oas.models.responses.ApiResponses apiResponses(
-      ResponseExt... responses) {
-    return apiResponses(Arrays.asList(responses));
-  }
-
-  private static io.swagger.v3.oas.models.responses.ApiResponses apiResponses(
-      List<ResponseExt> responses) {
-    io.swagger.v3.oas.models.responses.ApiResponses result = new io.swagger.v3.oas.models.responses.ApiResponses();
-    responses.forEach(r -> result.addApiResponse(r.getCode(), r));
-    return result;
   }
 }

@@ -13,7 +13,7 @@ public class RouteFormArgs extends Jooby {
       int i = ctx.form("i").intValue();
       List<String> listStr = ctx.form("listStr").toList();
       List<Double> listType = ctx.form("listType").toList(Double.class);
-      String defstr = ctx.form("defstr").value("default");
+      String defstr = ctx.form("defstr").value("200");
       int defint = ctx.form("defint").intValue(87);
       int defint0 = ctx.form("defint0").intValue(0);
       boolean defbool = ctx.form("defbool").booleanValue(true);

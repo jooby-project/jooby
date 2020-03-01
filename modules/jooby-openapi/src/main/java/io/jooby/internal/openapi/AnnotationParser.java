@@ -215,7 +215,7 @@ public class AnnotationParser {
 
     AtomicReference<RequestBodyExt> requestBody = new AtomicReference<>();
     List<ParameterExt> arguments = routerArguments(ctx, method, requestBody::set);
-    List<ResponseExt> returnTypes = returnTypes(method);
+    ResponseExt response = returnTypes(method);
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(classNode, method, httpMethod)) {
@@ -224,7 +224,7 @@ public class AnnotationParser {
             httpMethod,
             RoutePath.path(prefix, pattern),
             arguments,
-            returnTypes
+            response
         );
         operation.setOperationId(method.name);
         if (isDeprecated(method.visibleAnnotations)) {
@@ -247,8 +247,7 @@ public class AnnotationParser {
     return false;
   }
 
-  private static List<ResponseExt> returnTypes(MethodNode method) {
-    List<ResponseExt> result = new ArrayList<>();
+  private static ResponseExt returnTypes(MethodNode method) {
     Signature signature = Signature.create(method);
     String desc = Optional.ofNullable(method.signature).orElse(method.desc);
     String continuationType = "Lkotlin/coroutines/Continuation;";
@@ -263,8 +262,7 @@ public class AnnotationParser {
     }
     ResponseExt rrt = new ResponseExt();
     rrt.setJavaTypes(Collections.singletonList(ASMType.parse(desc)));
-    result.add(rrt);
-    return result;
+    return rrt;
   }
 
   private static List<ParameterExt> routerArguments(ParserContext ctx, MethodNode method,

@@ -13,7 +13,7 @@ public class RoutePathArgs extends Jooby {
       int i = ctx.path("i").intValue();
       List<String> listStr = ctx.path("listStr").toList();
       List<Double> listType = ctx.path("listType").toList(Double.class);
-      String defstr = ctx.path("defstr").value("default");
+      String defstr = ctx.path("defstr").value("200");
       int defint = ctx.path("defint").intValue(87);
       int defint0 = ctx.path("defint0").intValue(0);
       boolean defbool = ctx.path("defbool").booleanValue(true);

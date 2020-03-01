@@ -31,7 +31,15 @@ public class ResponseExt extends ApiResponse {
   private List<String> javaTypes = new ArrayList<>();
 
   @JsonIgnore
-  private String code = "default";
+  private String code;
+
+  public ResponseExt(String code) {
+    this.code = code;
+  }
+
+  public ResponseExt() {
+    this("200");
+  }
 
   @JsonIgnore
   public String getJavaType() {
@@ -54,7 +62,7 @@ public class ResponseExt extends ApiResponse {
   public String getDescription() {
     String description = super.getDescription();
     if (description == null) {
-      if ("default".equals(code)) {
+      if ("200".equals(code)) {
         return StatusCode.OK.reason();
       }
       try {

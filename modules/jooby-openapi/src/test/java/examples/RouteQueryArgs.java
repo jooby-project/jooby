@@ -13,7 +13,7 @@ public class RouteQueryArgs extends Jooby {
       int i = ctx.query("i").intValue();
       List<String> listStr = ctx.query("listStr").toList();
       List<Double> listType = ctx.query("listType").toList(Double.class);
-      String defstr = ctx.query("defstr").value("default");
+      String defstr = ctx.query("defstr").value("200");
       int defint = ctx.query("defint").intValue(87);
       int defint0 = ctx.query("defint0").intValue(0);
       boolean defbool = ctx.query("defbool").booleanValue(true);

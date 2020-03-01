@@ -7,14 +7,16 @@ package io.jooby.internal.openapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.MediaType;
-import io.jooby.StatusCode;
 import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
 
 public class OperationExt extends io.swagger.v3.oas.models.Operation {
 
@@ -30,14 +32,19 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   private LinkedList<String> produces = new LinkedList<>();
   @JsonIgnore
   private LinkedList<String> consumes = new LinkedList<>();
+  @JsonIgnore
+  private ResponseExt defaultResponse;
+  @JsonIgnore
+  private List<String> responseCodes = new ArrayList<>();
 
   public OperationExt(MethodNode node, String method, String pattern, List arguments,
-      List<ResponseExt> response) {
+      ResponseExt response) {
     this.node = node;
     this.method = method.toUpperCase();
     this.pattern = pattern;
     setParameters(arguments);
-    super.setResponses(apiResponses(response));
+    this.defaultResponse = response;
+    setResponses(apiResponses(Collections.singletonList(response)));
   }
 
   private static ApiResponses apiResponses(List<ResponseExt> responses) {
@@ -56,38 +63,16 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     return (RequestBodyExt) super.getRequestBody();
   }
 
-  @JsonIgnore
-  public ResponseExt getResponse() {
-    return (ResponseExt) getResponses().getDefault();
+  public ResponseExt getDefaultResponse() {
+    return defaultResponse;
+  }
+
+  public List<String> getResponseCodes() {
+    return responseCodes;
   }
 
   public ResponseExt getResponse(String code) {
     return (ResponseExt) getResponses().get(code);
-  }
-
-  @Override public void setResponses(ApiResponses responses) {
-    ResponseExt defrsp = getResponse();
-    for (ApiResponse response : responses.values()) {
-      ResponseExt rsp = (ResponseExt) response;
-      if (rsp.getJavaTypes().size() == 0) {
-        int code = statusCode(rsp.getCode());
-        if (code > 100 && code < 400) {
-          rsp.setJavaTypes(defrsp.getJavaTypes());
-        }
-      }
-    }
-    super.setResponses(responses);
-  }
-
-  private int statusCode(String code) {
-    if (code == null || "default".equalsIgnoreCase(code)) {
-      return StatusCode.OK_CODE;
-    }
-    try {
-      return Integer.parseInt(code);
-    } catch (NumberFormatException x) {
-      return -1;
-    }
   }
 
   public String getMethod() {
@@ -139,5 +124,16 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
       return getParameters().get(i);
     }
     return null;
+  }
+
+  public ResponseExt addResponse(String code) {
+    responseCodes.add(code);
+    return (ResponseExt) getResponses().computeIfAbsent(code, statusCode -> {
+      ResponseExt rsp = new ResponseExt(statusCode);
+      if (isSuccessCode(statusCode)) {
+        rsp.setJavaTypes(defaultResponse.getJavaTypes());
+      }
+      return rsp;
+    });
   }
 }

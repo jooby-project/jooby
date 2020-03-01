@@ -29,7 +29,7 @@ public class RouteBodyArgs extends Jooby {
     });
 
     get("/defstr", ctx -> {
-      String defstr = ctx.body().value("default");
+      String defstr = ctx.body().value("200");
       return "...";
     });
 

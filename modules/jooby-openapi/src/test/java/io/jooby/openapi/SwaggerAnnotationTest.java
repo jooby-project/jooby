@@ -22,8 +22,8 @@ public class SwaggerAnnotationTest {
           assertEquals("description", route.getDescription());
           assertEquals("summary", route.getSummary());
 
-          ResponseExt response = route.getResponse();
-          assertEquals("default", response.getCode());
+          ResponseExt response = route.getDefaultResponse();
+          assertEquals("200", response.getCode());
           assertEquals("Success", response.getDescription());
           assertEquals("java.util.List<examples.Person>", response.getJavaType());
 
@@ -37,7 +37,7 @@ public class SwaggerAnnotationTest {
           assertEquals("Find Person by ID", route.getSummary());
 
           withResponse(route, response -> {
-            assertEquals("default", response.getCode());
+            assertEquals("200", response.getCode());
             assertEquals("Found person", response.getDescription());
             assertEquals("examples.Person", response.getJavaType());
             assertNotNull(response.getHeaders());

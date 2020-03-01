@@ -46,10 +46,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.jooby.internal.openapi.RoutePath.path;
+import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
 import static io.jooby.internal.openapi.TypeFactory.KOOBYKT;
 import static io.jooby.internal.openapi.TypeFactory.KT_FUN_1;
 import static io.jooby.internal.openapi.TypeFactory.STRING;
-import static io.jooby.internal.openapi.TypeFactory.STRING_ARRAY;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 
 public class RouteParser {
@@ -86,30 +86,34 @@ public class RouteParser {
   }
 
   private void checkResponses(ParserContext ctx, OperationExt operation) {
+    //checkResponse(ctx, operation, 200, operation.getDefaultResponse());
     for (Map.Entry<String, ApiResponse> entry : operation.getResponses().entrySet()) {
-      int statusCode = statusCode(entry.getKey().replace("default", "200"));
-      ResponseExt response = (ResponseExt) entry.getValue();
-      Schema defaultSchema = parseSchema(ctx, response);
-      if (defaultSchema != null) {
-        Content content = response.getContent();
-        if (content == null) {
-          content = new Content();
-          response.setContent(content);
-        }
+      checkResponse(ctx, operation, entry.getKey(), (ResponseExt) entry.getValue());
+    }
+  }
 
-        if (content.isEmpty()) {
-          io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
-          String mediaType = operation.getProduces().stream()
-              .findFirst()
-              .orElse(MediaType.JSON);
-          content.addMediaType(mediaType, mediaTypeObject);
-        }
-        if (statusCode > 0 && statusCode < 400) {
-          for (io.swagger.v3.oas.models.media.MediaType mediaType : content.values()) {
-            Schema schema = mediaType.getSchema();
-            if (schema == null) {
-              mediaType.setSchema(defaultSchema);
-            }
+  private void checkResponse(ParserContext ctx, OperationExt operation,
+      String statusCode, ResponseExt response) {
+    Schema defaultSchema = parseSchema(ctx, response);
+    if (defaultSchema != null) {
+      Content content = response.getContent();
+      if (content == null) {
+        content = new Content();
+        response.setContent(content);
+      }
+
+      if (content.isEmpty()) {
+        io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+        String mediaType = operation.getProduces().stream()
+            .findFirst()
+            .orElse(MediaType.JSON);
+        content.addMediaType(mediaType, mediaTypeObject);
+      }
+      if (isSuccessCode(statusCode)) {
+        for (io.swagger.v3.oas.models.media.MediaType mediaType : content.values()) {
+          Schema schema = mediaType.getSchema();
+          if (schema == null) {
+            mediaType.setSchema(defaultSchema);
           }
         }
       }
@@ -210,14 +214,6 @@ public class RouteParser {
       if (operation.getParameters().isEmpty()) {
         operation.setParameters(null);
       }
-    }
-  }
-
-  private int statusCode(String code) {
-    try {
-      return Integer.parseInt(code);
-    } catch (NumberFormatException x) {
-      return -1;
     }
   }
 
@@ -546,8 +542,7 @@ public class RouteParser {
     ResponseExt response = new ResponseExt();
     List<String> returnTypes = ReturnTypeParser.parse(ctx, node);
     response.setJavaTypes(returnTypes);
-    OperationExt operation = new OperationExt(node, httpMethod, prefix, arguments,
-        Collections.singletonList(response));
+    OperationExt operation = new OperationExt(node, httpMethod, prefix, arguments, response);
 
     boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
     boolean lambda = node.name.equals("apply") || node.name.equals("invoke");
