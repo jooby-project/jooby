@@ -12,8 +12,14 @@ import io.jooby.internal.FolderDiskAssetSource;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * An asset source is a collection or provider of {@link Asset}. There are two implementations:
@@ -43,6 +49,25 @@ public interface AssetSource {
    */
   static @Nonnull AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
     return new ClassPathAssetSource(loader, location);
+  }
+
+  static @Nonnull AssetSource webjars(@Nonnull ClassLoader loader, @Nonnull String name) {
+    List<String> location = Arrays.asList(
+        "/META-INF/maven/org.webjars/" + name + "/pom.properties",
+        "/META-INF/maven/org.webjars.npm/" + name + "/pom.properties"
+    );
+    String versionPath = location.stream().filter(it -> loader.getResource(it) != null)
+        .findFirst()
+        .orElseThrow(() -> SneakyThrows.propagate(new FileNotFoundException(location.toString())));
+    try (InputStream in = loader.getResourceAsStream(versionPath)) {
+      Properties properties = new Properties();
+      properties.load(in);
+      String version = properties.getProperty("version");
+      String source = "/META-INF/resources/webjars/" + name + "/" + version;
+      return new ClassPathAssetSource(loader, source);
+    } catch (IOException x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 
   /**

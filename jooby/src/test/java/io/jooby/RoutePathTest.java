@@ -8,6 +8,7 @@ public class RoutePathTest {
 
   @Test
   public void normalize() {
+    assertEquals("/path", Router.normalizePath("//path"));
     assertEquals("/", Router.normalizePath(null));
     assertEquals("/", Router.normalizePath(""));
     assertEquals("/", Router.normalizePath("/"));

@@ -95,12 +95,14 @@
   <plexus-utils.version>3.3.0</plexus-utils.version>
   <quartz.version>2.3.2</quartz.version>
   <reactor.version>3.3.2.RELEASE</reactor.version>
+  <redoc.version>2.0.0-rc.20</redoc.version>
   <rest-assured.version>4.2.0</rest-assured.version>
   <rocker.version>1.2.3</rocker.version>
   <rxjava.version>2.2.17</rxjava.version>
   <slf4j.version>1.7.30</slf4j.version>
   <spring.version>5.2.3.RELEASE</spring.version>
   <stork-maven-plugin.version>3.0.0</stork-maven-plugin.version>
+  <swagger-ui.version>3.25.0</swagger-ui.version>
   <truth.version>1.0.1</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
   <undertow.version>2.0.28.Final</undertow.version>
@@ -468,6 +470,18 @@
       <groupId>com.cronutils</groupId>
       <artifactId>cron-utils</artifactId>
       <version>${cron-utils.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>swagger-ui</artifactId>
+      <version>${swagger-ui.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>redoc</artifactId>
+      <version>${redoc.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

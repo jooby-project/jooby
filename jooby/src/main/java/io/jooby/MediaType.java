@@ -61,7 +61,7 @@ public final class MediaType implements Comparable<MediaType> {
   public static final String MULTIPART_FORMDATA = "multipart/form-data";
 
   /** YAML. */
-  public static final String YAML = "application/yaml";
+  public static final String YAML = "text/yaml";
 
   /** ALL. */
   public static final String ALL = "*/*";
@@ -748,6 +748,7 @@ public final class MediaType implements Comparable<MediaType> {
       case "qt":
         return new MediaType("video/quicktime", null);
       case "yaml":
+      case "yml":
         return yaml;
       case "pnm":
         return new MediaType("image/x-portable-anymap", null);

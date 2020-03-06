@@ -93,7 +93,7 @@ public class OpenAPIMojo extends BaseMojo {
       Files.createDirectories(dir);
     }
 
-    String name = Optional.ofNullable(filename).orElse(names[names.length - 1]);
+    String name = "openapi";
 
     for (Format format : Format.parse(this.format)) {
       Path output = dir.resolve(name + "." + format.extension());

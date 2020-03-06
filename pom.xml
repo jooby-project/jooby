@@ -67,6 +67,10 @@
     <rxjava.version>2.2.17</rxjava.version>
     <reactor.version>3.3.2.RELEASE</reactor.version>
 
+    <!--OpenAPI-->
+    <swagger-ui.version>3.25.0</swagger-ui.version>
+    <redoc.version>2.0.0-rc.20</redoc.version>
+
     <!-- javax -->
     <javax.inject.version>1</javax.inject.version>
     <jsr305.version>3.0.2</jsr305.version>
@@ -579,6 +583,30 @@
         <version>${cron-utils.version}</version>
       </dependency>
 
+      <!-- OpenAPI -->
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>swagger-ui</artifactId>
+        <version>${swagger-ui.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>redoc</artifactId>
+        <version>${redoc.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.unbescape/unbescape -->
       <dependency>
