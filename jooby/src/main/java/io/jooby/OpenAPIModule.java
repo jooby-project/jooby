@@ -15,7 +15,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 public class OpenAPIModule implements Extension {
 
@@ -23,33 +22,6 @@ public class OpenAPIModule implements Extension {
     JSON,
     YAML
   }
-
-  private static final String REDOC = "<!DOCTYPE html>\n"
-      + "<html>\n"
-      + "  <head>\n"
-      + "    <title>ReDoc</title>\n"
-      + "    <!-- needed for adaptive design -->\n"
-      + "    <meta charset=\"utf-8\"/>\n"
-      + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
-      + "    <link href=\"https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700\" rel=\"stylesheet\">\n"
-      + "\n"
-      + "    <!--\n"
-      + "    ReDoc doesn't change outer page styles\n"
-      + "    -->\n"
-      + "    <style>\n"
-      + "      body {\n"
-      + "        margin: 0;\n"
-      + "        padding: 0;\n"
-      + "      }\n"
-      + "    </style>\n"
-      + "  </head>\n"
-      + "  <body>\n"
-      + "    <redoc spec-url='${openAPIPath}'></redoc>\n"
-      + "    <script src=\"${redocPath}/bundles/redoc.standalone.js\"> </script>\n"
-      + "  </body>\n"
-      + "</html>";
-
-  private static final String OPENAPI_PATH = "https://petstore.swagger.io/v2/swagger.json";
 
   private final String openAPIPath;
   private String swaggerUIPath = "/swagger";
@@ -99,13 +71,13 @@ public class OpenAPIModule implements Extension {
     Map<String, Consumer2<Jooby, AssetSource>> ui = new HashMap<>();
     ui.put("swagger-ui", this::swaggerUI);
     ui.put("redoc", this::redoc);
+    ClassLoader classLoader = application.getClassLoader();
     for (Map.Entry<String, Consumer2<Jooby, AssetSource>> e : ui.entrySet()) {
       String name = e.getKey();
-      Optional<AssetSource> source = assetSource(application.getClassLoader(), name);
-      if (source.isPresent()) {
+      if (classLoader.getResource(name) != null) {
         if (format.contains(Format.JSON)) {
           Consumer2<Jooby, AssetSource> consumer = e.getValue();
-          consumer.accept(application, source.get());
+          consumer.accept(application, AssetSource.create(classLoader, name));
         } else {
           application.getLog().debug("{} is disabled when json format is not supported", name);
         }
@@ -113,19 +85,12 @@ public class OpenAPIModule implements Extension {
     }
   }
 
-  private Optional<AssetSource> assetSource(ClassLoader loader, String name) {
-    try {
-      return Optional.of(AssetSource.webjars(loader, name));
-    } catch (Exception x) {
-      return Optional.empty();
-    }
-  }
-
   private void redoc(Jooby application, AssetSource source) throws IOException {
     application.assets(redocPath + "/*", source);
     String openAPIJSON = fullPath(
         fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
-    String template = REDOC
+
+    String template = IOUtils.toString(source.resolve("index.html").stream(), "UTF-8")
         .replace("${openAPIPath}", openAPIJSON)
         .replace("${redocPath}", fullPath(application.getContextPath(), redocPath));
     application
@@ -141,16 +106,12 @@ public class OpenAPIModule implements Extension {
     application.get(swaggerUIPath, ctx -> ctx.setResponseType(MediaType.html).send(template));
   }
 
-  static String swaggerTemplate(AssetSource source, String contextPath, String openAPIPath)
+  static String swaggerTemplate(AssetSource source, String swaggerPath, String openAPIPath)
       throws IOException {
-    String template = IOUtils
+    return IOUtils
         .toString(source.resolve("index.html").stream(), "UTF-8")
-        .replace("./", contextPath + "/");
-    if (template.contains(OPENAPI_PATH)) {
-      return template.replace(OPENAPI_PATH, fullPath(openAPIPath, "/openapi.json"));
-    } else {
-      throw new IllegalStateException("Unable to find openAPI path from template");
-    }
+        .replace("${swaggerPath}", swaggerPath)
+        .replace("${openAPIPath}", fullPath(openAPIPath, "/openapi.json"));
   }
 
   private static String fullPath(String contextPath, String path) {

@@ -243,6 +243,18 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-swagger-ui</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-redoc</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-hikari</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -588,24 +600,12 @@
         <groupId>org.webjars</groupId>
         <artifactId>swagger-ui</artifactId>
         <version>${swagger-ui.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>*</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
         <groupId>org.webjars.npm</groupId>
         <artifactId>redoc</artifactId>
         <version>${redoc.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>*</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.unbescape/unbescape -->

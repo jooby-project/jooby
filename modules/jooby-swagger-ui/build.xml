@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<project default="swagger-ui">
+
+  <target name="swagger-ui">
+    <property name="buildDir" value="${basedir}${file.separator}target${file.separator}classes" />
+    <property name="swaggerDir" value="${buildDir}${file.separator}swagger-ui" />
+    <move file="${buildDir}${file.separator}META-INF${file.separator}resources${file.separator}webjars${file.separator}swagger-ui${file.separator}${swagger-ui.version}" tofile="${swaggerDir}"/>
+    <replace file="${swaggerDir}/index.html" token="./" value="${swaggerPath}/" />
+    <replace file="${swaggerDir}/index.html" token="https://petstore.swagger.io/v2/swagger.json" value="${openAPIPath}" />
+    <delete>
+      <fileset dir="${swaggerDir}" includes="*.gz"/>
+    </delete>
+  </target>
+
+</project>

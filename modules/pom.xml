@@ -23,6 +23,8 @@
     <module>jooby-utow</module>
 
     <module>jooby-openapi</module>
+    <module>jooby-swagger-ui</module>
+    <module>jooby-redoc</module>
 
     <!-- data -->
     <module>jooby-hikari</module>
