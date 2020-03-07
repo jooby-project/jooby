@@ -4,12 +4,8 @@
   <target name="redoc">
     <property name="buildDir" value="${basedir}${file.separator}target${file.separator}classes" />
     <property name="redocDir" value="${buildDir}${file.separator}redoc" />
-    <move file="${buildDir}${file.separator}META-INF${file.separator}resources${file.separator}webjars${file.separator}redoc${file.separator}${redoc.version}${file.separator}bundles" tofile="${redocDir}"/>
-<!--    <replace file="${redocDir}/index.html" token="./" value="${swaggerPath}/" />-->
-<!--    <replace file="${redocDir}/index.html" token="https://petstore.swagger.io/v2/swagger.json" value="${openAPIPath}" />-->
-<!--    <delete>-->
-<!--      <fileset dir="${redocDir}" includes="*.gz"/>-->
-<!--    </delete>-->
+    <mkdir dir="${redocDir}" />
+    <get src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js" skipexisting="true" dest="${redocDir}"/>
   </target>
 
 </project>

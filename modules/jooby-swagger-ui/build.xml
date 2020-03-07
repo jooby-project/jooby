@@ -9,6 +9,7 @@
     <replace file="${swaggerDir}/index.html" token="https://petstore.swagger.io/v2/swagger.json" value="${openAPIPath}" />
     <delete>
       <fileset dir="${swaggerDir}" includes="*.gz"/>
+      <fileset dir="${swaggerDir}" includes="*.js.map"/>
     </delete>
   </target>
 

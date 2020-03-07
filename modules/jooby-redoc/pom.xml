@@ -13,19 +13,6 @@
   <artifactId>jooby-redoc</artifactId>
 
   <dependencies>
-    <!-- https://mvnrepository.com/artifact/org.webjars/swagger-ui -->
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>redoc</artifactId>
-      <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -49,29 +36,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.1</version>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <artifactItems>
-            <artifactItem>
-              <groupId>org.webjars.npm</groupId>
-              <artifactId>redoc</artifactId>
-              <version>${redoc.version}</version>
-              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-            </artifactItem>
-          </artifactItems>
-        </configuration>
-      </plugin>
-
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.8</version>

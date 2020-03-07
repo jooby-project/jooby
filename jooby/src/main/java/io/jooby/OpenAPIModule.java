@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -74,7 +75,7 @@ public class OpenAPIModule implements Extension {
     ClassLoader classLoader = application.getClassLoader();
     for (Map.Entry<String, Consumer2<Jooby, AssetSource>> e : ui.entrySet()) {
       String name = e.getKey();
-      if (classLoader.getResource(name) != null) {
+      if (classLoader.getResource(name + "/index.html") != null) {
         if (format.contains(Format.JSON)) {
           Consumer2<Jooby, AssetSource> consumer = e.getValue();
           consumer.accept(application, AssetSource.create(classLoader, name));
@@ -90,7 +91,7 @@ public class OpenAPIModule implements Extension {
     String openAPIJSON = fullPath(
         fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
 
-    String template = IOUtils.toString(source.resolve("index.html").stream(), "UTF-8")
+    String template = readString(source, "index.html")
         .replace("${openAPIPath}", openAPIJSON)
         .replace("${redocPath}", fullPath(application.getContextPath(), redocPath));
     application
@@ -98,20 +99,21 @@ public class OpenAPIModule implements Extension {
   }
 
   private void swaggerUI(Jooby application, AssetSource source) throws IOException {
-    String template = swaggerTemplate(source,
-        fullPath(application.getContextPath(), swaggerUIPath),
-        fullPath(application.getContextPath(), openAPIPath));
+    String openAPIJSON = fullPath(
+        fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
+
+    String template = readString(source, "index.html")
+        .replace("${openAPIPath}", openAPIJSON)
+        .replace("${swaggerPath}", fullPath(application.getContextPath(), swaggerUIPath));
 
     application.assets(swaggerUIPath + "/*", source);
     application.get(swaggerUIPath, ctx -> ctx.setResponseType(MediaType.html).send(template));
   }
 
-  static String swaggerTemplate(AssetSource source, String swaggerPath, String openAPIPath)
-      throws IOException {
-    return IOUtils
-        .toString(source.resolve("index.html").stream(), "UTF-8")
-        .replace("${swaggerPath}", swaggerPath)
-        .replace("${openAPIPath}", fullPath(openAPIPath, "/openapi.json"));
+  private static String readString(AssetSource source, String resource) throws IOException {
+    try (InputStream stream = source.resolve(resource).stream()) {
+      return IOUtils.toString(stream, "UTF-8");
+    }
   }
 
   private static String fullPath(String contextPath, String path) {

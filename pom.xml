@@ -602,12 +602,6 @@
         <version>${swagger-ui.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.webjars.npm</groupId>
-        <artifactId>redoc</artifactId>
-        <version>${redoc.version}</version>
-      </dependency>
-
       <!-- https://mvnrepository.com/artifact/org.unbescape/unbescape -->
       <dependency>
         <groupId>org.unbescape</groupId>
