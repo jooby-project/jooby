@@ -46,6 +46,9 @@ public abstract class BaseMojo extends AbstractMojo {
   @Parameter(defaultValue = "${session}", required = true, readonly = true)
   protected MavenSession session;
 
+  @Parameter(defaultValue = "${project}", required = true, readonly = true)
+  protected MavenProject project;
+
   @Component
   private Maven maven;
 

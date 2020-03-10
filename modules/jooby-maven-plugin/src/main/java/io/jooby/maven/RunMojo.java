@@ -46,14 +46,14 @@ public class RunMojo extends BaseMojo {
    * List of file extensions that trigger an application restart. Default is: <code>conf</code>,
    * <code>properties</code> and <code>class</code>.
    */
-  @Parameter
+  @Parameter(property = "jooby.restartExtensions")
   private List<String> restartExtensions;
 
   /**
    * List of file extensions that trigger a compilation request. Default is: <code>java</code> and
    * <code>kt</code>.
    */
-  @Parameter
+  @Parameter(property = "jooby.compileExtensions")
   private List<String> compileExtensions;
 
   /**

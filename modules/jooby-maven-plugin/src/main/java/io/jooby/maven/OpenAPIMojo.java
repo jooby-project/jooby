@@ -11,13 +11,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,14 +62,8 @@ public class OpenAPIMojo extends BaseMojo {
     public abstract String toString(OpenAPIGenerator tool, OpenAPI result);
   }
 
-  @Parameter(defaultValue = "${project.build.outputDirectory}")
-  private File output;
-
   @Parameter(defaultValue = "json,yaml")
   private String format;
-
-  @Parameter
-  private String filename;
 
   @Override protected void doExecute(List<MavenProject> projects, String mainClass)
       throws Exception {
@@ -87,7 +80,7 @@ public class OpenAPIMojo extends BaseMojo {
 
     String[] names = mainClass.split("\\.");
     Path dir = Stream.of(names)
-        .reduce(this.output.toPath(), Path::resolve, Path::resolve)
+        .reduce(Paths.get(project.getBuild().getOutputDirectory()), Path::resolve, Path::resolve)
         .getParent();
     if (!Files.exists(dir)) {
       Files.createDirectories(dir);
@@ -112,19 +105,4 @@ public class OpenAPIMojo extends BaseMojo {
     this.format = format;
   }
 
-  public File getOutput() {
-    return output;
-  }
-
-  public void setOutput(File output) {
-    this.output = output;
-  }
-
-  public String getFilename() {
-    return filename;
-  }
-
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
 }

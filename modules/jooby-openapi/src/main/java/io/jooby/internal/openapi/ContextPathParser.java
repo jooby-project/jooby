@@ -1,6 +1,5 @@
 package io.jooby.internal.openapi;
 
-import com.typesafe.config.ConfigFactory;
 import io.jooby.Router;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
