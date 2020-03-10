@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 public class MinApp extends Jooby {
   {
+    setContextPath("/myapp");
+
     path("/api/pets", () -> {
 
       get("/", ctx -> {

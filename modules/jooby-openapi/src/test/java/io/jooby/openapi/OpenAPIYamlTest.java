@@ -13,9 +13,11 @@ public class OpenAPIYamlTest {
   public void shouldGenerateMinApp(OpenAPIResult result) {
     assertEquals("openapi: 3.0.1\n"
         + "info:\n"
-        + "  title: Min API\n"
+        + "  title: Base Yaml API\n"
         + "  description: Min API description\n"
         + "  version: \"1.0\"\n"
+        + "servers:\n"
+        + "- url: /myapp/path\n"
         + "paths:\n"
         + "  /api/pets:\n"
         + "    get:\n"

@@ -1,0 +1,7 @@
+openapi: 3.0.1
+info:
+  title: Base Yaml API
+  description: Min API description
+  version: "1.0"
+servers:
+  - url: /myapp/path

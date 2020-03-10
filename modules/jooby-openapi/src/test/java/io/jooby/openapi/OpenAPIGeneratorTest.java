@@ -910,8 +910,8 @@ public class OpenAPIGeneratorTest {
         })
         .next(route -> {
           assertEquals("GET /api/people", route.toString());
-          assertEquals(Arrays.asList("application/yaml"), route.getProduces());
-          assertEquals(Arrays.asList("application/yaml"), route.getConsumes());
+          assertEquals(Arrays.asList("text/yaml"), route.getProduces());
+          assertEquals(Arrays.asList("text/yaml"), route.getConsumes());
         })
         .verify();
   }
