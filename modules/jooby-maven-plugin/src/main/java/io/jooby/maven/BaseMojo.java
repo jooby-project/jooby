@@ -77,7 +77,7 @@ public abstract class BaseMojo extends AbstractMojo {
     return getClass().getSimpleName().replace("Mojo", "").toLowerCase();
   }
 
-  protected abstract void doExecute(List<MavenProject> projects, String mainClass) throws Exception;
+  protected abstract void doExecute(List<MavenProject> projects, String mainClass) throws Throwable;
 
   /**
    * Multiple projects for multimodule project. Otherwise single project.

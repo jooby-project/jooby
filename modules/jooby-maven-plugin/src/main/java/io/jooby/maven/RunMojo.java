@@ -12,8 +12,6 @@ import org.apache.maven.Maven;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -64,60 +62,55 @@ public class RunMojo extends BaseMojo {
   @Parameter
   private int port = JoobyRunOptions.DEFAULT_PORT;
 
-  @Override protected void doExecute(List<MavenProject> projects, String mainClass) throws Exception {
-    try {
-      Maven maven = getMaven();
-      JoobyRunOptions options = createOptions(mainClass);
-      JoobyRun joobyRun = new JoobyRun(options);
+  @Override protected void doExecute(List<MavenProject> projects, String mainClass)
+      throws Throwable {
+    Maven maven = getMaven();
+    JoobyRunOptions options = createOptions(mainClass);
+    JoobyRun joobyRun = new JoobyRun(options);
 
-      Runtime.getRuntime().addShutdownHook(new Thread(joobyRun::shutdown));
+    Runtime.getRuntime().addShutdownHook(new Thread(joobyRun::shutdown));
 
-      BiConsumer<String, Path> onFileChanged = (event, path) -> {
-        if (options.isCompileExtension(path)) {
-          MavenExecutionResult result = maven.execute(mavenRequest("process-classes"));
-          // Success?
-          if (result.hasExceptions()) {
-            getLog().debug("Compilation error found: " + path);
-          } else {
-            getLog().debug("Restarting application on file change: " + path);
-            joobyRun.restart();
-          }
-        } else if (options.isRestartExtension(path)) {
+    BiConsumer<String, Path> onFileChanged = (event, path) -> {
+      if (options.isCompileExtension(path)) {
+        MavenExecutionResult result = maven.execute(mavenRequest("process-classes"));
+        // Success?
+        if (result.hasExceptions()) {
+          getLog().debug("Compilation error found: " + path);
+        } else {
           getLog().debug("Restarting application on file change: " + path);
           joobyRun.restart();
-        } else {
-          getLog().debug("Ignoring file change: " + path);
         }
-      };
+      } else if (options.isRestartExtension(path)) {
+        getLog().debug("Restarting application on file change: " + path);
+        joobyRun.restart();
+      } else {
+        getLog().debug("Ignoring file change: " + path);
+      }
+    };
 
-      for (MavenProject project : projects) {
-        getLog().debug("Adding project: " + project.getArtifactId());
+    for (MavenProject project : projects) {
+      getLog().debug("Adding project: " + project.getArtifactId());
 
-        // main resources + conf, etc..
-        resources(project)
-            .forEach(file -> joobyRun.addResource(file, onFileChanged));
+      // main resources + conf, etc..
+      resources(project)
+          .forEach(file -> joobyRun.addResource(file, onFileChanged));
 
-        // target/classes
-        bin(project).forEach(joobyRun::addResource);
+      // target/classes
+      bin(project).forEach(joobyRun::addResource);
 
-        Set<Path> src = sourceDirectories(project);
-        if (src.isEmpty()) {
-          getLog().debug("Compiler is off in favor of Eclipse compiler.");
-          bin(project).forEach(path -> joobyRun.addResource(path, onFileChanged));
-        } else {
-          src.forEach(path -> joobyRun.addResource(path, onFileChanged));
-        }
-
-        jars(project).forEach(joobyRun::addResource);
+      Set<Path> src = sourceDirectories(project);
+      if (src.isEmpty()) {
+        getLog().debug("Compiler is off in favor of Eclipse compiler.");
+        bin(project).forEach(path -> joobyRun.addResource(path, onFileChanged));
+      } else {
+        src.forEach(path -> joobyRun.addResource(path, onFileChanged));
       }
 
-      // Block current thread.
-      joobyRun.start();
-    } catch (MojoExecutionException | MojoFailureException x) {
-      throw x;
-    } catch (Throwable x) {
-      throw new MojoFailureException("jooby-run resulted in exception", x);
+      jars(project).forEach(joobyRun::addResource);
     }
+
+    // Block current thread.
+    joobyRun.start();
   }
 
   private JoobyRunOptions createOptions(String mainClass) {
