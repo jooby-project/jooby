@@ -67,8 +67,9 @@ public class JoobyProcessor extends AbstractProcessor {
        * Do MVC handler: per each mvc method we create a Route.Handler.
        */
       List<HandlerCompiler> result = new ArrayList<>();
+      JoobyProcessorRoundEnvironment joobyRoundEnv = new JoobyProcessorRoundEnvironment(roundEnv, processingEnvironment);
       for (TypeElement httpMethod : annotations) {
-        Set<? extends Element> methods = roundEnv.getElementsAnnotatedWith(httpMethod);
+        Set<? extends Element> methods = joobyRoundEnv.getElementsAnnotatedWith(httpMethod);
         for (Element e : methods) {
           ExecutableElement method = (ExecutableElement) e;
           List<String> paths = path(httpMethod, method);
