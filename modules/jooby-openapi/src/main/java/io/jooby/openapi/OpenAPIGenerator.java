@@ -22,16 +22,56 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class OpenAPIGenerator {
+
+  public enum Format {
+    JSON {
+      @Override public String toString(OpenAPIGenerator tool, OpenAPI result) {
+        return tool.toJson(result);
+      }
+    },
+
+    YAML {
+      @Override public String toString(OpenAPIGenerator tool, OpenAPI result) {
+        return tool.toYaml(result);
+      }
+    };
+
+    public String extension() {
+      return name().toLowerCase();
+    }
+
+    public static List<Format> parse(String value) {
+      if (value == null || value.trim().isEmpty()) {
+        return Arrays.asList(JSON, YAML);
+      }
+      return Stream.of(value.split(","))
+          .map(String::trim)
+          .filter(s -> !s.isEmpty())
+          .map(String::toUpperCase)
+          .map(Format::valueOf)
+          .collect(Collectors.toList());
+    }
+
+    public abstract String toString(OpenAPIGenerator tool, OpenAPI result);
+
+  }
+
+  private Logger log = LoggerFactory.getLogger(getClass());
 
   private Set<DebugOption> debug;
 
@@ -39,7 +79,20 @@ public class OpenAPIGenerator {
 
   private Path basedir = java.nio.file.Paths.get(System.getProperty("user.dir"));
 
+  private Path outputDir = basedir;
+
   private String templateName = "openapi.yaml";
+
+  public void export(OpenAPI openAPI, Format format) throws IOException {
+    if (!Files.exists(outputDir)) {
+      Files.createDirectories(outputDir);
+    }
+    Path output = outputDir.resolve("openapi" + "." + format.extension());
+    log.info("  writing: " + output);
+
+    String content = format.toString(this, openAPI);
+    Files.write(output, Collections.singleton(content));
+  }
 
   public OpenAPI generate(String classname) {
     ClassLoader classLoader = Optional.ofNullable(this.classLoader)
@@ -131,12 +184,23 @@ public class OpenAPIGenerator {
     return basedir;
   }
 
+  public Path getOutputDir() {
+    return outputDir;
+  }
+
+  public void setOutputDir(Path outputDir) {
+    this.outputDir = outputDir;
+  }
+
   private String appname(String classname) {
-    int i = classname.lastIndexOf('.');
+    String name = classname;
+    int i = name.lastIndexOf('.');
     if (i > 0) {
-      String name = classname.substring(i + 1);
-      return name.replace("App", "").replace("Kt", "");
+      name = name.substring(i + 1);
+      name = name.replace("App", "")
+          .replace("Kt", "")
+          .trim();
     }
-    return classname;
+    return name.length() == 0 ? "My App" : name;
   }
 }

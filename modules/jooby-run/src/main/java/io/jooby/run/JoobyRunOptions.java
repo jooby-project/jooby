@@ -21,7 +21,6 @@ public class JoobyRunOptions {
   /** Default port. */
   public static final int DEFAULT_PORT = Integer.parseInt(System.getProperty("server.port", "8080"));
 
-
   private String projectName;
 
   private String mainClass;
@@ -147,5 +146,15 @@ public class JoobyRunOptions {
   private boolean containsExtension(List<String> extensions, Path path) {
     String filename = path.getFileName().toString();
     return extensions.stream().anyMatch(ext -> filename.endsWith("." + ext));
+  }
+
+  @Override public String toString() {
+    return "{" +
+        "projectName='" + projectName + '\'' +
+        ", mainClass='" + mainClass + '\'' +
+        ", restartExtensions=" + restartExtensions +
+        ", compileExtensions=" + compileExtensions +
+        ", port=" + port +
+        '}';
   }
 }

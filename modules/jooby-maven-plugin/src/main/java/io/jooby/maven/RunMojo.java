@@ -59,13 +59,15 @@ public class RunMojo extends BaseMojo {
   /**
    * Application port.
    */
-  @Parameter
+  @Parameter(property = "jooby.port")
   private int port = JoobyRunOptions.DEFAULT_PORT;
 
   @Override protected void doExecute(List<MavenProject> projects, String mainClass)
       throws Throwable {
     Maven maven = getMaven();
     JoobyRunOptions options = createOptions(mainClass);
+    getLog().debug("jooby options: " + options);
+
     JoobyRun joobyRun = new JoobyRun(options);
 
     Runtime.getRuntime().addShutdownHook(new Thread(joobyRun::shutdown));

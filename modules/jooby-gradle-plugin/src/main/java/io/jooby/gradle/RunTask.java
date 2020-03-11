@@ -7,10 +7,8 @@ package io.jooby.gradle;
 
 import io.jooby.run.JoobyRun;
 import io.jooby.run.JoobyRunOptions;
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.tooling.BuildLauncher;
@@ -21,17 +19,12 @@ import org.gradle.tooling.ResultHandler;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Gradle plugin for Jooby run.
@@ -39,13 +32,23 @@ import java.util.stream.Collectors;
  * @author edgar
  * @since 2.0.0
  */
-public class RunTask extends DefaultTask {
+public class RunTask extends BaseTask {
 
   static {
     System.setProperty("jooby.useShutdownHook", "false");
   }
 
   private ProjectConnection connection;
+
+  private String projectName;
+
+  private String mainClassName;
+
+  private List<String> restartExtensions;
+
+  private List<String> compileExtensions;
+
+  private int port = JoobyRunOptions.DEFAULT_PORT;
 
   /**
    * Run task.
@@ -56,19 +59,28 @@ public class RunTask extends DefaultTask {
   public void run() throws Throwable {
     try {
       Project current = getProject();
-      JoobyRunOptions config = current.getExtensions().getByType(JoobyRunOptions.class);
-      List<Project> projects = Arrays.asList(current);
+      String[] tasks = current.getGradle().getTaskGraph().getAllTasks().stream()
+          .map(Task::getName)
+          .filter(name -> !name.equals("joobyRun"))
+          .toArray(String[]::new);
 
-      if (config.getMainClass() == null) {
-        String mainClass = projects.stream()
-            .filter(it -> it.getProperties().containsKey("mainClassName"))
-            .map(it -> it.getProperties().get("mainClassName").toString())
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException(
-                "Application class not found. Did you forget to set `mainClassName`?"));
-        config.setMainClass(mainClass);
+      List<Project> projects = getProjects();
+
+      String mainClass = Optional.ofNullable(this.mainClassName)
+          .orElseGet(() -> computeMainClassName(projects));
+
+      JoobyRunOptions config = new JoobyRunOptions();
+      config.setMainClass(mainClass);
+      config.setPort(port);
+      if (compileExtensions != null) {
+        config.setCompileExtensions(compileExtensions);
+      }
+      if (restartExtensions != null) {
+        config.setRestartExtensions(restartExtensions);
       }
       config.setProjectName(current.getName());
+      getLogger().info("jooby options: {}", config);
+
       JoobyRun joobyRun = new JoobyRun(config);
 
       connection = GradleConnector.newConnector()
@@ -76,17 +88,19 @@ public class RunTask extends DefaultTask {
           .forProjectDirectory(current.getRootDir())
           .connect();
 
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      Runnable shutdown = () -> {
         joobyRun.shutdown();
         connection.close();
-      }));
+      };
+
+      Runtime.getRuntime().addShutdownHook(new Thread(shutdown));
 
       BiConsumer<String, Path> onFileChanged = (event, path) -> {
         if (config.isCompileExtension(path)) {
           BuildLauncher compiler = connection.newBuild()
               .setStandardError(System.err)
               .setStandardOutput(System.out)
-              .forTasks("classes");
+              .forTasks(tasks);
 
           compiler.run(new ResultHandler<Void>() {
             @Override public void onComplete(Void result) {
@@ -133,6 +147,8 @@ public class RunTask extends DefaultTask {
         dependencies(project, sourceSet).forEach(joobyRun::addResource);
       }
 
+      safeShutdown(shutdown);
+
       // Block current thread.
       joobyRun.start();
     } catch (InvocationTargetException x) {
@@ -140,49 +156,63 @@ public class RunTask extends DefaultTask {
     }
   }
 
-  private Set<Path> binDirectories(Project project, SourceSet sourceSet) {
-    return classpath(project, sourceSet, it -> Files.exists(it) && Files.isDirectory(it));
+  public String getProjectName() {
+    return projectName;
   }
 
-  private Set<Path> dependencies(Project project, SourceSet sourceSet) {
-    return classpath(project, sourceSet, it -> Files.exists(it) && it.toString().endsWith(".jar"));
+  public void setProjectName(String projectName) {
+    this.projectName = projectName;
   }
 
-  private Set<Path> classpath(Project project, SourceSet sourceSet, Predicate<Path> predicate) {
-    Set<Path> result = new LinkedHashSet<>();
-    // classes/main, resources/main + jars
-    sourceSet.getRuntimeClasspath().getFiles().stream()
-        .map(File::toPath)
-        .filter(predicate)
-        .forEach(result::add);
-
-    // provided?
-    Optional.ofNullable(project.getConfigurations().findByName("provided"))
-        .map(Configuration::getFiles)
-        .ifPresent(
-            files -> files.stream().map(File::toPath).filter(predicate).forEach(result::add));
-
-    return result;
+  public String getMainClassName() {
+    return mainClassName;
   }
 
-  private Set<Path> sourceDirectories(Project project, SourceSet sourceSet) {
-    Path eclipse = project.getProjectDir().toPath().resolve(".classpath");
-    if (Files.exists(eclipse)) {
-      // let eclipse to do the incremental compilation
-      return Collections.emptySet();
-    }
-    // main/java
-    return sourceSet.getAllSource().getSrcDirs().stream()
-        .map(File::toPath)
-        .collect(Collectors.toCollection(LinkedHashSet::new));
+  public void setMainClassName(String mainClassName) {
+    this.mainClassName = mainClassName;
   }
 
-  private SourceSet sourceSet(final Project project) {
-    return getJavaConvention(project).getSourceSets()
-        .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+  public List<String> getRestartExtensions() {
+    return restartExtensions;
   }
 
-  private JavaPluginConvention getJavaConvention(final Project project) {
-    return project.getConvention().getPlugin(JavaPluginConvention.class);
+  public void setRestartExtensions(List<String> restartExtensions) {
+    this.restartExtensions = restartExtensions;
+  }
+
+  public List<String> getCompileExtensions() {
+    return compileExtensions;
+  }
+
+  public void setCompileExtensions(List<String> compileExtensions) {
+    this.compileExtensions = compileExtensions;
+  }
+
+  public int getPort() {
+    return port;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  /**
+   *
+   * Shutdown without killing gradle daemon on ENTER KEY.
+   *
+   * @param quit
+   */
+  private static void safeShutdown(Runnable quit) {
+    new Thread(() -> {
+      Scanner scanner = new Scanner(System.in);
+      while (true) {
+        scanner.nextLine();
+        try {
+          quit.run();
+        } finally {
+          break;
+        }
+      }
+    }, "jooby-shutdown").start();
   }
 }
