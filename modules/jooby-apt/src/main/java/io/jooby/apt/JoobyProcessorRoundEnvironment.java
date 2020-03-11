@@ -74,14 +74,20 @@ public class JoobyProcessorRoundEnvironment {
     public R visitType(TypeElement e, P p) {
       // Type parameters are not considered to be enclosed by a type
       if (e.getSuperclass().getKind() == TypeKind.DECLARED) {
-        //System.out.println(e.getSimpleName() + " extends " + e.getSuperclass());
+        //System.out.println(e + " <<<< " + e.getSuperclass());
         TypeElement superElement = (TypeElement) ((DeclaredType) e.getSuperclass()).asElement();
         List<Element> clonedElements = new ArrayList<>();
         for(Element enclosedElement : superElement.getEnclosedElements()) {
           if (enclosedElement.getKind() == ElementKind.METHOD && enclosedElement.getAnnotationMirrors().size() > 0) {
             Symbol.MethodSymbol methodSymbol = ((Symbol.MethodSymbol)enclosedElement).clone((Symbol.ClassSymbol)e);
             methodSymbol.appendAttributes( ((Symbol.MethodSymbol)enclosedElement).getAnnotationMirrors() );
-            //System.out.println("\t\t" + m.getEnclosingElement() + "::" + m + " #" + m.getAnnotationMirrors().size());
+            //System.out.println("\t\tEnclosing: " + methodSymbol.getEnclosingElement() + "::" + methodSymbol + " #" + methodSymbol.getAnnotationMirrors().size());
+            methodSymbol.params = ((Symbol.MethodSymbol)enclosedElement).params;
+            methodSymbol.extraParams = ((Symbol.MethodSymbol)enclosedElement).extraParams;
+            methodSymbol.capturedLocals = ((Symbol.MethodSymbol)enclosedElement).capturedLocals;
+            //Symbol.MethodSymbol w = (Symbol.MethodSymbol)enclosedElement;
+            //System.out.println("\t\t\tEnclosed (orig):" + w.params);
+            //System.out.println("\t\t\tEnclosed (copy):" + methodSymbol.params);
             clonedElements.add(methodSymbol);
           }
         }
