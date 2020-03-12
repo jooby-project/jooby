@@ -93,17 +93,6 @@ public interface DefaultContext extends Context {
             .create(this, new Cookie(getRouter().getFlashCookie()).setHttpOnly(true)));
   }
 
-  @Override default boolean isForm() {
-    String contentType = header("Content-Type").value("");
-    if (contentType.equalsIgnoreCase(MediaType.FORM_URLENCODED)) {
-      return true;
-    }
-    if (contentType.toLowerCase().startsWith(MediaType.MULTIPART_FORMDATA)) {
-      return true;
-    }
-    return false;
-  }
-
   /**
    * Get a flash attribute.
    *

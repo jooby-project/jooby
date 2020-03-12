@@ -601,13 +601,6 @@ public interface Context extends Registry {
   @Nonnull Multipart multipart();
 
   /**
-   * Whether request content type is set to <code>application/x-www-form-urlencoded</code> or
-   * <code>multipart/*</code>
-   * @return
-   */
-  boolean isForm();
-
-  /**
    * Get a multipart field that matches the given name.
    *
    * File upload retrieval is available using {@link Context#file(String)}.
