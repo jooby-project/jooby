@@ -42,6 +42,7 @@ import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -222,14 +223,14 @@ public class HandlerCompiler {
 
   private void setDefaultResponseType(MethodVisitor visitor) throws Exception {
     TypeKind kind = executable.getReturnType().getKind();
-    if (kind == TypeKind.VOID) {
+    if (kind == TypeKind.VOID && getHttpMethod().equalsIgnoreCase(Router.DELETE)) {
       visitor.visitVarInsn(ALOAD, 1);
       visitor
           .visitFieldInsn(GETSTATIC, STATUS_CODE.getInternalName(), "NO_CONTENT",
               STATUS_CODE.getDescriptor());
-      Method sendStatusCode = Context.class.getDeclaredMethod("send", StatusCode.class);
-      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), sendStatusCode.getName(),
-          getMethodDescriptor(sendStatusCode), true);
+      Method setResponseCode = Context.class.getDeclaredMethod("setResponseCode", StatusCode.class);
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), setResponseCode.getName(),
+          getMethodDescriptor(setResponseCode), true);
       visitor.visitInsn(POP);
     }
   }
@@ -238,6 +239,24 @@ public class HandlerCompiler {
     TypeKind kind = executable.getReturnType().getKind();
     if (kind == TypeKind.VOID) {
       visitor.visitVarInsn(ALOAD, 1);
+      Method isResponseStarted = Context.class.getDeclaredMethod("isResponseStarted");
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), isResponseStarted.getName(),
+          getMethodDescriptor(isResponseStarted), true);
+      Label label0 = new Label();
+      visitor.visitJumpInsn(IFEQ, label0);
+      visitor.visitVarInsn(ALOAD, 1);
+      visitor.visitInsn(ARETURN);
+      visitor.visitLabel(label0);
+      visitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+
+      visitor.visitVarInsn(ALOAD, 1);
+      visitor.visitVarInsn(ALOAD, 1);
+      Method getResponseCode = Context.class.getDeclaredMethod("getResponseCode");
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), getResponseCode.getName(),
+          getMethodDescriptor(getResponseCode), true);
+      Method sendStatusCode = Context.class.getDeclaredMethod("send", StatusCode.class);
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), sendStatusCode.getName(),
+          getMethodDescriptor(sendStatusCode), true);
     } else {
       Method wrapper = Primitives.wrapper(kind);
       if (wrapper == null) {

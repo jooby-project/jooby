@@ -13,6 +13,11 @@ public class Controller1545 {
   public void voidDefault() {
   }
 
+  @DELETE("/success")
+  public void voidDeleteSuccess(Context ctx) {
+    ctx.setResponseCode(StatusCode.OK);
+  }
+
   @POST
   public void voidCreated(Context ctx) {
     ctx.setResponseCode(StatusCode.CREATED);

@@ -22,6 +22,10 @@ public class MyControllerHandler implements Route.Handler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     ctx.setResponseCode(StatusCode.NO_CONTENT);
     provider.get().controllerMethod();
-    return ctx;
+    if (ctx.isResponseStarted()) {
+      return ctx;
+    } else {
+      return ctx.send(ctx.getResponseCode());
+    }
   }
 }

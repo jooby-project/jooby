@@ -19,6 +19,10 @@ public class Issue1545 {
             assertEquals(StatusCode.NO_CONTENT, rsp.getStatusCode());
           });
 
+          router.delete("/1545/success", rsp -> {
+            assertEquals(StatusCode.OK, rsp.getStatusCode());
+          });
+
           router.post("/1545", rsp -> {
             assertEquals(StatusCode.CREATED, rsp.getStatusCode());
           });

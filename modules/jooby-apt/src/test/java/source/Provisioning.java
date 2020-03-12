@@ -9,6 +9,7 @@ import io.jooby.QueryString;
 import io.jooby.Session;
 import io.jooby.StatusCode;
 import io.jooby.annotations.CookieParam;
+import io.jooby.annotations.DELETE;
 import io.jooby.annotations.FlashParam;
 import io.jooby.annotations.FormParam;
 import io.jooby.annotations.GET;
@@ -305,7 +306,7 @@ public class Provisioning {
     return statusCode;
   }
 
-  @GET("/noContent")
+  @DELETE("/noContent")
   public void noContent() {
   }
 

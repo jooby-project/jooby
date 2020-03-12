@@ -14,6 +14,7 @@ import examples.TopDispatch;
 import io.jooby.json.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.netty.Netty;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -51,7 +52,7 @@ public class MvcTest {
         assertEquals("OK", rsp.body().string());
       });
 
-      client.get("/void", rsp -> {
+      client.delete("/void", rsp -> {
         assertEquals("", rsp.body().string());
         assertEquals(204, rsp.code());
       });
@@ -81,7 +82,7 @@ public class MvcTest {
         assertEquals("OK", rsp.body().string());
       });
 
-      client.get("/sub/void", rsp -> {
+      client.delete("/sub/void", rsp -> {
         assertEquals("", rsp.body().string());
         assertEquals(204, rsp.code());
       });
