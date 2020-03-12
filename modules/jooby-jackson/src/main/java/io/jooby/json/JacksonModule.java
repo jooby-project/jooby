@@ -132,20 +132,20 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     return mapper.writer().writeValueAsBytes(value);
   }
 
-  @Override public <T> T decode(Context ctx, Type type) throws Exception {
+  @Override public Object decode(Context ctx, Type type) throws Exception {
     Body body = ctx.body();
     if (body.isInMemory()) {
       if (type == JsonNode.class) {
-        return (T) mapper.readTree(body.bytes());
+        return mapper.readTree(body.bytes());
       } else {
-        return (T) mapper.readValue(body.bytes(), typeFactory.constructType(type));
+        return mapper.readValue(body.bytes(), typeFactory.constructType(type));
       }
     } else {
       try (InputStream stream = body.stream()) {
         if (type == JsonNode.class) {
-          return (T) mapper.readTree(stream);
+          return mapper.readTree(stream);
         } else {
-          return (T) mapper.readValue(stream, typeFactory.constructType(type));
+          return mapper.readValue(stream, typeFactory.constructType(type));
         }
       }
     }

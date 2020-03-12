@@ -396,7 +396,7 @@ public interface DefaultContext extends Context {
           return result;
         }
       }
-      return decoder(contentType).decode(this, type);
+      return (T) decoder(contentType).decode(this, type);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

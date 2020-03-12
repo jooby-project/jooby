@@ -40,7 +40,7 @@ public class JacksonModuleTest {
 
     JacksonModule jackson = new JacksonModule();
 
-    Map<String, String> result = jackson.decode(ctx, Map.class);
+    Map<String, String> result = (Map<String, String>) jackson.decode(ctx, Map.class);
     assertEquals(mapOf("k", "v"), result);
   }
 
