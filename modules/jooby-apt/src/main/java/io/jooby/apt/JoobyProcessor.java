@@ -15,7 +15,10 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -23,9 +26,15 @@ import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 /**
  * Jooby Annotation Processing Tool. It generates byte code for MVC routes.
@@ -56,8 +65,9 @@ public class JoobyProcessor extends AbstractProcessor {
 
     Elements eltUtil = processingEnvironment.getElementUtils();
     this.httpMethodsAnnotations = new LinkedHashSet<TypeElement>() {{
-      for (String s: Annotations.HTTP_METHODS)
+      for (String s: Annotations.HTTP_METHODS) {
         add(eltUtil.getTypeElement(s));
+      }
     }};
   }
 

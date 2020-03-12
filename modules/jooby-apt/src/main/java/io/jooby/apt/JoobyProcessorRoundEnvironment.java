@@ -1,16 +1,28 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.apt;
 
 import com.sun.tools.javac.code.Symbol;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.ElementScanner8;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class JoobyProcessorRoundEnvironment {
 
@@ -24,13 +36,29 @@ public class JoobyProcessorRoundEnvironment {
     this.typeUtils = processingEnv.getTypeUtils();
   }
 
+  /**
+   * Returns the elements annotated with the given annotation type.
+   * Only type elements <i>included</i> in this round of annotation
+   * processing, or declarations of members, parameters, or type
+   * parameters declared within those, are returned.  Included type
+   * elements are {@linkplain #getRootElements specified
+   * types} and any types nested within them.
+   *
+   * This implementation Jooby-specific and is based and supports
+   * inherited MVC classes.
+   *
+   * @param a  annotation type being requested
+   * @return the elements annotated with the given annotation type,
+   * or an empty set if there are none
+   */
   public Set<? extends Element> getElementsAnnotatedWith(TypeElement a) {
 
     Set<Element> result = Collections.emptySet();
     ElementScanner8<Set<Element>, TypeElement> scanner = new JoobyAnnotationSetScanner(result);
 
-    for (Element element : rootElements)
+    for (Element element : rootElements) {
       result = scanner.scan(element, a);
+    }
 
     return result;
   }
@@ -59,13 +87,13 @@ public class JoobyProcessorRoundEnvironment {
       if (e.getSuperclass().getKind() == TypeKind.DECLARED) {
         javax.lang.model.element.TypeElement superElement = (javax.lang.model.element.TypeElement) ((DeclaredType) e.getSuperclass()).asElement();
         List<Element> clonedElements = new ArrayList<>();
-        for(Element enclosedElement : superElement.getEnclosedElements()) {
+        for (Element enclosedElement : superElement.getEnclosedElements()) {
           if (enclosedElement.getKind() == ElementKind.METHOD && enclosedElement.getAnnotationMirrors().size() > 0) {
-            Symbol.MethodSymbol methodSymbol = ((Symbol.MethodSymbol)enclosedElement).clone((Symbol.ClassSymbol)e);
-            methodSymbol.appendAttributes( ((Symbol.MethodSymbol)enclosedElement).getAnnotationMirrors() );
-            methodSymbol.params = ((Symbol.MethodSymbol)enclosedElement).params;
-            methodSymbol.extraParams = ((Symbol.MethodSymbol)enclosedElement).extraParams;
-            methodSymbol.capturedLocals = ((Symbol.MethodSymbol)enclosedElement).capturedLocals;
+            Symbol.MethodSymbol methodSymbol = ((Symbol.MethodSymbol) enclosedElement).clone((Symbol.ClassSymbol) e);
+            methodSymbol.appendAttributes(((Symbol.MethodSymbol) enclosedElement).getAnnotationMirrors());
+            methodSymbol.params = ((Symbol.MethodSymbol) enclosedElement).params;
+            methodSymbol.extraParams = ((Symbol.MethodSymbol) enclosedElement).extraParams;
+            methodSymbol.capturedLocals = ((Symbol.MethodSymbol) enclosedElement).capturedLocals;
             clonedElements.add(methodSymbol);
           }
         }
