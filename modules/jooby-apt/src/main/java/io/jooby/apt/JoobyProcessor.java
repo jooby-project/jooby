@@ -69,11 +69,15 @@ public class JoobyProcessor extends AbstractProcessor {
         return false;
       }
       /**
-       * Do MVC handler: per each mvc method we create a Route.Handler.
+       * Classes inheriting MVC classes whouldn't be processed so we force the inspection
+       * of all http methods annotations on classes with Path annotation.
        */
       if (annotations.retainAll(Annotations.PATH)) {
         annotations = this.httpMethodsAnnotations;
       }
+      /**
+       * Do MVC handler: per each mvc method we create a Route.Handler.
+       */
       List<HandlerCompiler> result = new ArrayList<>();
       JoobyProcessorRoundEnvironment joobyRoundEnv = new JoobyProcessorRoundEnvironment(roundEnv, processingEnvironment);
       for (TypeElement httpMethod : annotations) {
