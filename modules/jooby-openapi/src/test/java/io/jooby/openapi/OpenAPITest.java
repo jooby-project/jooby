@@ -19,4 +19,8 @@ public @interface OpenAPITest {
   DebugOption[] debug() default {};
 
   boolean ignoreArguments() default false;
+
+  String includes() default "";
+
+  String excludes() default "";
 }

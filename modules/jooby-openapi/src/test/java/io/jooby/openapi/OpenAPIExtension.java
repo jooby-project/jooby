@@ -38,6 +38,12 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
     OpenAPIGenerator tool = newTool(debugOptions);
     String templateName = classname.replace(".", "/").toLowerCase() + ".yaml";
     tool.setTemplateName(templateName);
+    if (metadata.includes().length() > 0) {
+      tool.setIncludes(metadata.includes());
+    }
+    if (metadata.excludes().length() > 0) {
+      tool.setExcludes(metadata.excludes());
+    }
     Parameter parameter = parameterContext.getParameter();
     OpenAPIExt openAPI = (OpenAPIExt) tool.generate(classname);
     OpenAPIResult result = new OpenAPIResult(openAPI);

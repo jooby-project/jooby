@@ -1,9 +1,11 @@
 package io.jooby.openapi;
 
+import examples.FilterApp;
 import examples.FormApp;
 import examples.FormMvcApp;
 import examples.MinApp;
 import kt.KtMinApp;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -485,5 +487,65 @@ public class OpenAPIYamlTest {
         + "        picture:\n"
         + "          type: string\n"
         + "          format: binary\n", result.toYaml());
+  }
+
+  @OpenAPITest(value = FilterApp.class, includes = "/api/.*")
+  public void shouldIncludes(OpenAPIResult result) {
+    assertEquals("openapi: 3.0.1\n"
+        + "info:\n"
+        + "  title: Filter API\n"
+        + "  description: Filter API description\n"
+        + "  version: \"1.0\"\n"
+        + "paths:\n"
+        + "  /api/profile:\n"
+        + "    get:\n"
+        + "      operationId: getApiProfile\n"
+        + "      responses:\n"
+        + "        \"200\":\n"
+        + "          description: Success\n"
+        + "          content:\n"
+        + "            application/json:\n"
+        + "              schema:\n"
+        + "                type: string\n"
+        + "  /api/profile/{id}:\n"
+        + "    get:\n"
+        + "      operationId: getApiProfile{id}\n"
+        + "      responses:\n"
+        + "        \"200\":\n"
+        + "          description: Success\n"
+        + "          content:\n"
+        + "            application/json:\n"
+        + "              schema:\n"
+        + "                type: string\n", result.toYaml());
+  }
+
+  @OpenAPITest(value = FilterApp.class, excludes = "^(?!/api).+")
+  public void shouldExcludes(OpenAPIResult result) {
+    assertEquals("openapi: 3.0.1\n"
+        + "info:\n"
+        + "  title: Filter API\n"
+        + "  description: Filter API description\n"
+        + "  version: \"1.0\"\n"
+        + "paths:\n"
+        + "  /api/profile:\n"
+        + "    get:\n"
+        + "      operationId: getApiProfile\n"
+        + "      responses:\n"
+        + "        \"200\":\n"
+        + "          description: Success\n"
+        + "          content:\n"
+        + "            application/json:\n"
+        + "              schema:\n"
+        + "                type: string\n"
+        + "  /api/profile/{id}:\n"
+        + "    get:\n"
+        + "      operationId: getApiProfile{id}\n"
+        + "      responses:\n"
+        + "        \"200\":\n"
+        + "          description: Success\n"
+        + "          content:\n"
+        + "            application/json:\n"
+        + "              schema:\n"
+        + "                type: string\n", result.toYaml());
   }
 }

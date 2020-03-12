@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -83,6 +84,10 @@ public class OpenAPIGenerator {
 
   private String templateName = "openapi.yaml";
 
+  private String includes;
+
+  private String excludes;
+
   public void export(OpenAPI openAPI, Format format) throws IOException {
     if (!Files.exists(outputDir)) {
       Files.createDirectories(outputDir);
@@ -114,13 +119,30 @@ public class OpenAPIGenerator {
 
     Paths paths = new Paths();
     for (OperationExt operation : operations) {
-      PathItem pathItem = paths.computeIfAbsent(operation.getPattern(), pattern -> new PathItem());
+      String pattern = operation.getPattern();
+      if (!includes(pattern) || excludes(pattern)) {
+        log.debug("skipping {}", pattern);
+        continue;
+      }
+      PathItem pathItem = paths.computeIfAbsent(pattern, k -> new PathItem());
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);
     }
     openapi.setOperations(operations);
     openapi.setPaths(paths);
 
     return openapi;
+  }
+
+  private boolean includes(String value) {
+    return pattern(includes, value).orElse(true);
+  }
+
+  private boolean excludes(String value) {
+    return pattern(excludes, value).orElse(false);
+  }
+
+  private Optional<Boolean> pattern(String pattern, String value) {
+    return Optional.ofNullable(pattern).map(regex -> Pattern.matches(regex, value));
   }
 
   private void defaults(String classname, String contextPath, OpenAPIExt openapi) {
@@ -186,6 +208,22 @@ public class OpenAPIGenerator {
 
   public Path getOutputDir() {
     return outputDir;
+  }
+
+  public String getIncludes() {
+    return includes;
+  }
+
+  public void setIncludes(String includes) {
+    this.includes = includes;
+  }
+
+  public String getExcludes() {
+    return excludes;
+  }
+
+  public void setExcludes(String excludes) {
+    this.excludes = excludes;
   }
 
   public void setOutputDir(Path outputDir) {

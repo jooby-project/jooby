@@ -21,6 +21,10 @@ public class OpenAPITask extends BaseTask {
 
   private String format = "json,yaml";
 
+  private String includes;
+
+  private String excludes;
+
   @TaskAction
   public void generate() throws Throwable {
     List<Project> projects = getProjects();
@@ -42,6 +46,8 @@ public class OpenAPITask extends BaseTask {
     OpenAPIGenerator tool = new OpenAPIGenerator();
     tool.setClassLoader(classLoader);
     tool.setOutputDir(dir);
+    trim(includes).ifPresent(tool::setIncludes);
+    trim(excludes).ifPresent(tool::setExcludes);
 
     OpenAPI result = tool.generate(mainClass);
 
@@ -64,5 +70,28 @@ public class OpenAPITask extends BaseTask {
 
   public void setFormat(String format) {
     this.format = format;
+  }
+
+  public String getIncludes() {
+    return includes;
+  }
+
+  public void setIncludes(String includes) {
+    this.includes = includes;
+  }
+
+  public String getExcludes() {
+    return excludes;
+  }
+
+  public void setExcludes(String excludes) {
+    this.excludes = excludes;
+  }
+
+  private Optional<String> trim(String value) {
+    if (value == null || value.trim().length() == 0) {
+      return Optional.empty();
+    }
+    return Optional.of(value.trim());
   }
 }
