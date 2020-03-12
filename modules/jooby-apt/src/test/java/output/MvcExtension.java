@@ -13,7 +13,8 @@ public class MvcExtension implements MvcFactory {
   private static void install(Jooby application, Provider<MyController> provider) throws Exception {
     application.get("/mypath", ctx -> {
       MyController myController = provider.get();
-      return myController.controllerMethod();
+      myController.controllerMethod();
+      return ctx;
     }).attribute("RequireRole", Controller1527.Role.USER);
   }
 

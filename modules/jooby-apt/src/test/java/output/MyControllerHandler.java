@@ -3,6 +3,7 @@ package output;
 import io.jooby.Context;
 import io.jooby.Reified;
 import io.jooby.Route;
+import io.jooby.StatusCode;
 import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
@@ -19,6 +20,8 @@ public class MyControllerHandler implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().controllerMethod();
+    ctx.setResponseCode(StatusCode.NO_CONTENT);
+    provider.get().controllerMethod();
+    return ctx;
   }
 }

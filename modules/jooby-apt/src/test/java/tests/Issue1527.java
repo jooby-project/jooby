@@ -11,7 +11,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue1527 {
-//  @Test
+  @Test
   public void annotation() throws Exception {
     new MvcModuleCompilerRunner(new Controller1527())
         .module(app -> {

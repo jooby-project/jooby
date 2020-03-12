@@ -42,10 +42,10 @@ import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 import static org.objectweb.asm.Type.getType;
 
@@ -175,6 +175,8 @@ public class HandlerCompiler {
     /** Arguments. */
     processArguments(writer, apply, moduleInternalName, registry);
 
+    setDefaultResponseType(apply);
+
     /** Invoke. */
     apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), methodName, methodDescriptor,
         false);
@@ -218,20 +220,9 @@ public class HandlerCompiler {
     }
   }
 
-  private void processReturnType(MethodVisitor visitor) throws Exception {
+  private void setDefaultResponseType(MethodVisitor visitor) throws Exception {
     TypeKind kind = executable.getReturnType().getKind();
     if (kind == TypeKind.VOID) {
-      visitor.visitVarInsn(ALOAD, 1);
-      Method isResponseStarted = Context.class.getDeclaredMethod("isResponseStarted");
-      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), isResponseStarted.getName(),
-          getMethodDescriptor(isResponseStarted), true);
-      Label label0 = new Label();
-      visitor.visitJumpInsn(IFEQ, label0);
-      visitor.visitVarInsn(ALOAD, 1);
-      visitor.visitInsn(ARETURN);
-      visitor.visitLabel(label0);
-      visitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-
       visitor.visitVarInsn(ALOAD, 1);
       visitor
           .visitFieldInsn(GETSTATIC, STATUS_CODE.getInternalName(), "NO_CONTENT",
@@ -239,9 +230,15 @@ public class HandlerCompiler {
       Method sendStatusCode = Context.class.getDeclaredMethod("send", StatusCode.class);
       visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), sendStatusCode.getName(),
           getMethodDescriptor(sendStatusCode), true);
+      visitor.visitInsn(POP);
+    }
+  }
 
+  private void processReturnType(MethodVisitor visitor) throws Exception {
+    TypeKind kind = executable.getReturnType().getKind();
+    if (kind == TypeKind.VOID) {
+      visitor.visitVarInsn(ALOAD, 1);
     } else {
-
       Method wrapper = Primitives.wrapper(kind);
       if (wrapper == null) {
         TypeDefinition returnType = getReturnType();
