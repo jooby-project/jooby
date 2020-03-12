@@ -201,6 +201,10 @@ public class ForwardingContext implements Context {
     return ctx.getRequestType(defaults);
   }
 
+  @Override public boolean isForm() {
+    return ctx.isForm();
+  }
+
   @Override public long getRequestLength() {
     return ctx.getRequestLength();
   }
