@@ -29,7 +29,7 @@
   <compile-testing.version>0.18</compile-testing.version>
   <config.version>1.4.0</config.version>
   <cron-utils.version>9.0.2</cron-utils.version>
-  <ebean.version>12.1.12</ebean.version>
+  <ebean.version>12.2.1</ebean.version>
   <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
   <flyway.version>6.3.0</flyway.version>
   <freemarker.version>2.3.29</freemarker.version>
@@ -42,14 +42,14 @@
   <h2.version>1.4.200</h2.version>
   <handlebars.version>4.1.2</handlebars.version>
   <hibernate.version>5.4.10.Final</hibernate.version>
-  <jackson.version>2.10.2</jackson.version>
+  <jackson.version>2.10.3</jackson.version>
   <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
   <jacoco.version>0.8.5</jacoco.version>
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.9.2.Final</jboss-modules.version>
   <jdbi.version>3.12.2</jdbi.version>
-  <jetty.version>9.4.26.v20200117</jetty.version>
+  <jetty.version>9.4.27.v20200227</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
   <jmespath-java.version>1.11.714</jmespath-java.version>
   <jooby-maven-plugin.version>2.6.1</jooby-maven-plugin.version>
@@ -87,7 +87,7 @@
   <mockito.version>3.2.4</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
   <mysql-connector-java.version>8.0.19</mysql-connector-java.version>
-  <netty.version>4.1.45.Final</netty.version>
+  <netty.version>4.1.47.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <okhttp.version>4.4.1</okhttp.version>
   <pac4j.version>4.0.0-RC2</pac4j.version>

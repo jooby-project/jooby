@@ -22,7 +22,7 @@
     <freemarker.version>2.3.29</freemarker.version>
     <handlebars.version>4.1.2</handlebars.version>
     <pebble.version>3.1.2</pebble.version>
-    <jackson.version>2.10.2</jackson.version>
+    <jackson.version>2.10.3</jackson.version>
     <rocker.version>1.2.3</rocker.version>
 
     <!-- data -->
@@ -31,7 +31,7 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.200</h2.version>
     <hibernate.version>5.4.10.Final</hibernate.version>
-    <ebean.version>12.1.12</ebean.version>
+    <ebean.version>12.2.1</ebean.version>
     <jdbi.version>3.12.2</jdbi.version>
     <flyway.version>6.3.0</flyway.version>
     <graphql-java.version>13.0</graphql-java.version>
@@ -59,8 +59,8 @@
 
     <!-- Server -->
     <undertow.version>2.0.28.Final</undertow.version>
-    <jetty.version>9.4.26.v20200117</jetty.version>
-    <netty.version>4.1.45.Final</netty.version>
+    <jetty.version>9.4.27.v20200227</jetty.version>
+    <netty.version>4.1.47.Final</netty.version>
     <boringssl.version>2.0.27.Final</boringssl.version>
 
     <!-- Reactive -->
@@ -80,7 +80,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.0.2</cron-utils.version>
     <bucket4j-core.version>4.7.0</bucket4j-core.version>
-    <aws-java-sdk.version>1.11.737</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.743</aws-java-sdk.version>
     <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
 
     <commons-io.version>2.6</commons-io.version>
