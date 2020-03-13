@@ -54,6 +54,16 @@ public class JoobyProcessor extends AbstractProcessor {
   private Set<TypeElement> pathAnnotations;
   private Set<TypeElement> httpAnnotations;
 
+  final class MVCMethod {
+    public ExecutableElement method;
+    public TypeElement httpMethod;
+
+    MVCMethod(ExecutableElement method, TypeElement httpMethod) {
+      this.method = method;
+      this.httpMethod = httpMethod;
+    }
+  }
+
   @Override public Set<String> getSupportedAnnotationTypes() {
     return new LinkedHashSet<String>() {{
       addAll(Annotations.HTTP_METHODS);
@@ -81,15 +91,6 @@ public class JoobyProcessor extends AbstractProcessor {
     }};
   }
 
-  final private class MVCMethod {
-    public ExecutableElement method;
-    public TypeElement httpMethod;
-    public MVCMethod(ExecutableElement method, TypeElement httpMethod) {
-      this.method = method;
-      this.httpMethod = httpMethod;
-    }
-  }
-
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     try {
@@ -100,7 +101,7 @@ public class JoobyProcessor extends AbstractProcessor {
 
       JoobyProcessorRoundEnvironment joobyRoundEnv = new JoobyProcessorRoundEnvironment(roundEnv, processingEnvironment);
 
-      Map<TypeElement,List<MVCMethod>> classMap = new HashMap<>();
+      Map<TypeElement, List<MVCMethod>> classMap = new HashMap<>();
       /**
        * Do MVC handler: per each mvc method we create a Route.Handler.
        */
