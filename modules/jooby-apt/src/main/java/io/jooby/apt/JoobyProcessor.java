@@ -163,7 +163,7 @@ public class JoobyProcessor extends AbstractProcessor {
         String moduleClass = module.getModuleClass();
         byte[] moduleBin = module.compile(handlers);
         onClass(moduleClass, moduleBin);
-        System.out.println("@moduleClass: " + moduleClass);
+        //System.out.println("@moduleClass: " + moduleClass);
         writeClass(filer.createClassFile(moduleClass), moduleBin);
 
         moduleList.add(moduleClass);
@@ -177,7 +177,8 @@ public class JoobyProcessor extends AbstractProcessor {
   private void doServices(Filer filer) throws IOException {
     String location = "META-INF/services/" + MvcFactory.class.getName();
     FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
-    String content = moduleList.stream()
+    //System.out.println(">>>>>>>>>>>>>>>>>> " + location + ": " + moduleList);
+    String content = moduleList.stream().limit(1)
         .collect(Collectors.joining(System.getProperty("line.separator")));
     onResource(location, content);
     try (PrintWriter writer = new PrintWriter(resource.openOutputStream())) {
