@@ -63,7 +63,13 @@ public class MvcModuleCompilerRunner {
     Path services = Paths
         .get(classLoader.getResource("META-INF/services/" + MvcFactory.class.getName()).toURI());
     assertTrue(Files.exists(services));
-    //assertEquals(factoryName, new String(Files.readAllBytes(services), StandardCharsets.UTF_8).trim());
+
+    List<String> clsLst = new ArrayList<String>() {{
+        for (Class c = clazz; c != null && c != Object.class; c = c.getSuperclass()) {
+          add(c.getName() + "$Module");
+        }
+      }};
+    assertEquals(String.join("\n", clsLst), new String(Files.readAllBytes(services), StandardCharsets.UTF_8).trim());
 
     consumer.accept(application);
     return this;
