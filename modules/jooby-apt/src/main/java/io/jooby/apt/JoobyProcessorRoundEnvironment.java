@@ -10,6 +10,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -92,7 +93,16 @@ public class JoobyProcessorRoundEnvironment {
         }
         scan(superElements, p);
       }
+      // Type parameters are not considered to be enclosed by a type
+      scan(e.getTypeParameters(), p);
       return super.visitType(e, p);
+    }
+
+    @Override
+    public Set<Element> visitExecutable(ExecutableElement e, TypeElement p) {
+      // Type parameters are not considered to be enclosed by an executable
+      scan(e.getTypeParameters(), p);
+      return super.visitExecutable(e, p);
     }
   }
 

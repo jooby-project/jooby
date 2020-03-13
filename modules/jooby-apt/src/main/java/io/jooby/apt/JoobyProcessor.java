@@ -81,12 +81,18 @@ public class JoobyProcessor extends AbstractProcessor {
     Elements eltUtil = processingEnvironment.getElementUtils();
     this.pathAnnotations = new LinkedHashSet<TypeElement>() {{
       for (String s: Annotations.PATH) {
-        add(eltUtil.getTypeElement(s));
+        TypeElement t = eltUtil.getTypeElement(s);
+        if (t != null) {
+          add(t);
+        }
       }
     }};
     this.httpAnnotations = new LinkedHashSet<TypeElement>() {{
       for (String s: Annotations.HTTP_METHODS) {
-        add(eltUtil.getTypeElement(s));
+        TypeElement t = eltUtil.getTypeElement(s);
+        if (t != null) {
+          add(t);
+        }
       }
     }};
   }
@@ -172,7 +178,7 @@ public class JoobyProcessor extends AbstractProcessor {
   private void doServices(Filer filer) throws IOException {
     String location = "META-INF/services/" + MvcFactory.class.getName();
     FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
-    String content = moduleList.stream().limit(1)
+    String content = moduleList.stream()
         .collect(Collectors.joining(System.getProperty("line.separator")));
     onResource(location, content);
     try (PrintWriter writer = new PrintWriter(resource.openOutputStream())) {
