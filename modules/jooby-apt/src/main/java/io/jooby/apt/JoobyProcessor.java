@@ -121,7 +121,6 @@ public class JoobyProcessor extends AbstractProcessor {
           TypeElement cls = (TypeElement) method.getEnclosingElement();
           TypeElement superCls = (TypeElement) ((DeclaredType) cls.getSuperclass()).asElement();
           superCls.getEnclosedElements();
-          //System.out.println("\tANNOTATION: " + httpMethod + ", METHOD: " + method + ", CLS " + cls + ", <<" + superCls);
           if (!classMap.containsKey(cls)) {
             classMap.put(cls, new ArrayList<>());
           }
@@ -139,11 +138,8 @@ public class JoobyProcessor extends AbstractProcessor {
         if (c.getKind() == ElementKind.CLASS) {
           TypeElement newOwner = (TypeElement) c;
           TypeElement oldOwner = (TypeElement) ((DeclaredType) newOwner.getSuperclass()).asElement();
-          //System.out.println("\tOWNER::" + oldOwner + " contained in " + classMap.keySet());
           if (classMap.containsKey(oldOwner)) {
-            //System.out.println("\t\tCONTAINSKEY::" + oldOwner);
             for (MVCMethod e : classMap.get(oldOwner)) {
-              //System.out.println("\t\t\tMVCMETHOD::" + e);
               for (String path : path(e.httpMethod, e.method, newOwner)) {
                 HandlerCompiler compiler = new HandlerCompiler(processingEnvironment, e.method, newOwner, e.httpMethod, path);
                 result.add(compiler);
@@ -163,7 +159,6 @@ public class JoobyProcessor extends AbstractProcessor {
         String moduleClass = module.getModuleClass();
         byte[] moduleBin = module.compile(handlers);
         onClass(moduleClass, moduleBin);
-        //System.out.println("@moduleClass: " + moduleClass);
         writeClass(filer.createClassFile(moduleClass), moduleBin);
 
         moduleList.add(moduleClass);
@@ -177,7 +172,6 @@ public class JoobyProcessor extends AbstractProcessor {
   private void doServices(Filer filer) throws IOException {
     String location = "META-INF/services/" + MvcFactory.class.getName();
     FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
-    //System.out.println(">>>>>>>>>>>>>>>>>> " + location + ": " + moduleList);
     String content = moduleList.stream().limit(1)
         .collect(Collectors.joining(System.getProperty("line.separator")));
     onResource(location, content);

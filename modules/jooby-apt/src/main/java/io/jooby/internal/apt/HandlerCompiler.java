@@ -307,11 +307,9 @@ public class HandlerCompiler {
         .orElseGet(() -> {
           if (element instanceof ExecutableElement) {
             if (element.getEnclosingElement() == realOwnerElement) {
-              //System.out.println("MEDIATYPE(mock) " + element + " < " + ownerElement + " (" + realOwnerElement + ")");
               return mediaType(ownerElement, types);
             }
             else {
-              //System.out.println("MEDIATYPE(real) " + element + " < " + element.getEnclosingElement());
               return mediaType(element.getEnclosingElement(), types);
             }
           }
