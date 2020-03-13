@@ -7,6 +7,7 @@ package io.jooby.apt;
 
 import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
+import io.jooby.annotations.Path;
 import io.jooby.internal.apt.HandlerCompiler;
 import io.jooby.internal.apt.ModuleCompiler;
 
@@ -17,8 +18,10 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.Elements;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -28,6 +31,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +51,8 @@ public class JoobyProcessor extends AbstractProcessor {
 
   private List<String> moduleList = new ArrayList<>();
 
-  private Set<TypeElement> httpMethodsAnnotations;
+  private Set<TypeElement> pathAnnotations;
+  private Set<TypeElement> httpAnnotations;
 
   @Override public Set<String> getSupportedAnnotationTypes() {
     return new LinkedHashSet<String>() {{
@@ -64,11 +69,25 @@ public class JoobyProcessor extends AbstractProcessor {
     this.processingEnvironment = processingEnvironment;
 
     Elements eltUtil = processingEnvironment.getElementUtils();
-    this.httpMethodsAnnotations = new LinkedHashSet<TypeElement>() {{
+    this.pathAnnotations = new LinkedHashSet<TypeElement>() {{
+      for (String s: Annotations.PATH) {
+        add(eltUtil.getTypeElement(s));
+      }
+    }};
+    this.httpAnnotations = new LinkedHashSet<TypeElement>() {{
       for (String s: Annotations.HTTP_METHODS) {
         add(eltUtil.getTypeElement(s));
       }
     }};
+  }
+
+  final private class MVCMethod {
+    public ExecutableElement method;
+    public TypeElement httpMethod;
+    public MVCMethod(ExecutableElement method, TypeElement httpMethod) {
+      this.method = method;
+      this.httpMethod = httpMethod;
+    }
   }
 
   @Override
@@ -78,30 +97,61 @@ public class JoobyProcessor extends AbstractProcessor {
         doServices(processingEnvironment.getFiler());
         return false;
       }
-      /**
-       * Classes inheriting MVC classes whouldn't be processed so we force the inspection
-       * of all http methods annotations on classes with Path annotation.
-       */
-      if (annotations.retainAll(Annotations.PATH)) {
-        annotations = this.httpMethodsAnnotations;
-      }
+
+      JoobyProcessorRoundEnvironment joobyRoundEnv = new JoobyProcessorRoundEnvironment(roundEnv, processingEnvironment);
+
+      Map<TypeElement,List<MVCMethod>> classMap = new HashMap<>();
       /**
        * Do MVC handler: per each mvc method we create a Route.Handler.
        */
       List<HandlerCompiler> result = new ArrayList<>();
-      JoobyProcessorRoundEnvironment joobyRoundEnv = new JoobyProcessorRoundEnvironment(roundEnv, processingEnvironment);
+
+      /**
+       * If @Path annotation is present force inspecting all http mthods.
+       */
+      if (annotations.retainAll(this.pathAnnotations)) {
+        annotations = httpAnnotations;
+      }
+
       for (TypeElement httpMethod : annotations) {
         Set<? extends Element> methods = joobyRoundEnv.getElementsAnnotatedWith(httpMethod);
         for (Element e : methods) {
           ExecutableElement method = (ExecutableElement) e;
+          TypeElement cls = (TypeElement) method.getEnclosingElement();
+          TypeElement superCls = (TypeElement) ((DeclaredType) cls.getSuperclass()).asElement();
+          superCls.getEnclosedElements();
+          //System.out.println("\tANNOTATION: " + httpMethod + ", METHOD: " + method + ", CLS " + cls + ", <<" + superCls);
+          if (!classMap.containsKey(cls)) {
+            classMap.put(cls, new ArrayList<>());
+          }
           List<String> paths = path(httpMethod, method);
           for (String path : paths) {
-            HandlerCompiler compiler = new HandlerCompiler(processingEnvironment, method,
-                httpMethod, path);
+            HandlerCompiler compiler = new HandlerCompiler(processingEnvironment, method, httpMethod, path);
             result.add(compiler);
+          }
+          classMap.get(cls).add(new MVCMethod(method, httpMethod));
+        }
+      }
+
+      Set<? extends Element> pathAnnotatedElements = roundEnv.getElementsAnnotatedWith(Path.class);
+      for (Element c : pathAnnotatedElements) {
+        if (c.getKind() == ElementKind.CLASS) {
+          TypeElement newOwner = (TypeElement) c;
+          TypeElement oldOwner = (TypeElement) ((DeclaredType) newOwner.getSuperclass()).asElement();
+          //System.out.println("\tOWNER::" + oldOwner + " contained in " + classMap.keySet());
+          if (classMap.containsKey(oldOwner)) {
+            //System.out.println("\t\tCONTAINSKEY::" + oldOwner);
+            for (MVCMethod e : classMap.get(oldOwner)) {
+              //System.out.println("\t\t\tMVCMETHOD::" + e);
+              for (String path : path(e.httpMethod, e.method, newOwner)) {
+                HandlerCompiler compiler = new HandlerCompiler(processingEnvironment, e.method, newOwner, e.httpMethod, path);
+                result.add(compiler);
+              }
+            }
           }
         }
       }
+
       Filer filer = processingEnvironment.getFiler();
       Map<String, List<HandlerCompiler>> classes = result.stream()
           .collect(Collectors.groupingBy(e -> e.getController().getName()));
@@ -112,6 +162,7 @@ public class JoobyProcessor extends AbstractProcessor {
         String moduleClass = module.getModuleClass();
         byte[] moduleBin = module.compile(handlers);
         onClass(moduleClass, moduleBin);
+        System.out.println("@moduleClass: " + moduleClass);
         writeClass(filer.createClassFile(moduleClass), moduleBin);
 
         moduleList.add(moduleClass);
@@ -148,8 +199,8 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  private List<String> path(TypeElement method, ExecutableElement exec) {
-    List<String> prefix = path(exec.getEnclosingElement());
+  private List<String> path(TypeElement method, ExecutableElement exec, TypeElement owner) {
+    List<String> prefix = path(owner);
     // Favor GET("/path") over Path("/path") at method level
     List<String> path = path(method.getQualifiedName().toString(), method.getAnnotationMirrors());
     if (path.size() == 0) {
@@ -166,6 +217,10 @@ public class JoobyProcessor extends AbstractProcessor {
         .flatMap(root -> methodPath.stream().map(p -> root.equals("/") ? p : root + p))
         .distinct()
         .collect(Collectors.toList());
+  }
+
+  private List<String> path(TypeElement method, ExecutableElement exec) {
+    return path(method, exec, (TypeElement) exec.getEnclosingElement());
   }
 
   private List<String> path(Element element) {

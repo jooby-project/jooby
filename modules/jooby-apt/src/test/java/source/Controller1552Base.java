@@ -11,6 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Path("")
 public class Controller1552Base {
 
   @GET
@@ -54,6 +55,11 @@ public class Controller1552Base {
 
   @POST(path = {"/path1", "/path2"})
   public String pathArray(Context ctx) {
+    return ctx.getRequestPath();
+  }
+
+  @POST(path = "/postOnly")
+  public String pathPostOnly(Context ctx) {
     return ctx.getRequestPath();
   }
 }

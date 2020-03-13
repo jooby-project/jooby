@@ -5,8 +5,6 @@
  */
 package io.jooby.apt;
 
-import com.sun.tools.javac.code.Symbol;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -86,18 +84,13 @@ public class JoobyProcessorRoundEnvironment {
     public Set<Element> visitType(TypeElement e, TypeElement p) {
       if (e.getSuperclass().getKind() == TypeKind.DECLARED) {
         javax.lang.model.element.TypeElement superElement = (javax.lang.model.element.TypeElement) ((DeclaredType) e.getSuperclass()).asElement();
-        List<Element> clonedElements = new ArrayList<>();
+        List<Element> superElements = new ArrayList<>();
         for (Element enclosedElement : superElement.getEnclosedElements()) {
           if (enclosedElement.getKind() == ElementKind.METHOD && enclosedElement.getAnnotationMirrors().size() > 0) {
-            Symbol.MethodSymbol methodSymbol = ((Symbol.MethodSymbol) enclosedElement).clone((Symbol.ClassSymbol) e);
-            methodSymbol.appendAttributes(((Symbol.MethodSymbol) enclosedElement).getAnnotationMirrors());
-            methodSymbol.params = ((Symbol.MethodSymbol) enclosedElement).params;
-            methodSymbol.extraParams = ((Symbol.MethodSymbol) enclosedElement).extraParams;
-            methodSymbol.capturedLocals = ((Symbol.MethodSymbol) enclosedElement).capturedLocals;
-            clonedElements.add(methodSymbol);
+            superElements.add(enclosedElement);
           }
         }
-        scan(clonedElements, p);
+        scan(superElements, p);
       }
       return super.visitType(e, p);
     }
