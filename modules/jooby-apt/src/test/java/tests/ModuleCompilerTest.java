@@ -78,7 +78,7 @@ public class ModuleCompilerTest {
     new MvcModuleCompilerRunner(new VoidRoute())
         .module(app -> {
           MockRouter router = new MockRouter(app);
-          router.get("/void", rsp -> {
+          router.delete("/void", rsp -> {
             assertEquals(StatusCode.NO_CONTENT, rsp.getStatusCode());
           });
         });

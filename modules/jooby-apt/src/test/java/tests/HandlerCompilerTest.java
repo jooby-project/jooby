@@ -334,7 +334,7 @@ public class HandlerCompilerTest {
 
           ctx = MockContextHelper.mockContext();
           assertEquals(ctx,
-              router.get("/p/noContent", ctx.setQueryString(null)).value());
+              router.delete("/p/noContent", ctx.setQueryString(null)).value());
           assertEquals(StatusCode.NO_CONTENT, ctx.getResponseCode());
 
           ctx = MockContextHelper.mockContext();

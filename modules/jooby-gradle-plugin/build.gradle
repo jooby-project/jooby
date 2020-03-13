@@ -1,0 +1,52 @@
+// First, apply the publishing plugin
+plugins {
+  id "com.gradle.plugin-publish" version "0.10.1"
+  id "java-gradle-plugin"
+}
+
+// If your plugin has any external java dependencies, Gradle will attempt to
+// download them from JCenter for anyone using the plugins DSL
+// so you should probably use JCenter for dependency resolution in your own
+// project.
+repositories {
+  mavenCentral()
+  jcenter()
+}
+
+// Unless overridden in the pluginBundle config DSL, the project version will
+// be used as your plugin version when publishing
+version = "2.6.1"
+group = "io.jooby"
+
+dependencies {
+  implementation "io.jooby:jooby-run:$version"
+}
+
+
+// Use java-gradle-plugin to generate plugin descriptors and specify plugin ids
+gradlePlugin {
+  plugins {
+    joobyRun {
+      id = 'io.jooby.run'
+      implementationClass = 'io.jooby.gradle.JoobyPlugin'
+    }
+  }
+}
+
+// The configuration example below shows the minimum required properties
+// configured to publish your plugin to the plugin portal
+pluginBundle {
+  website = 'https://jooby.io'
+  vcsUrl = 'https://github.com/jooby-project/jooby'
+  tags = ['jooby', 'run']
+  description = 'Jooby is a modern, performant and easy to use web framework for Java and Kotlin ' +
+      'built on top of your favorite web server. The joobyRun task allows to restart your ' +
+      'application on code changes without exiting the JVM'
+
+  plugins {
+    joobyRun {
+      // id is captured from java-gradle-plugin configuration
+      displayName = 'Jooby Run plugin'
+    }
+  }
+}

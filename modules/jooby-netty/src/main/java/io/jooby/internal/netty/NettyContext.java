@@ -700,7 +700,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private void decodeForm(HttpRequest req, Formdata form) {
-    if (decoder == null) {
+    if (decoder == null || decoder instanceof HttpRawPostRequestDecoder) {
       // empty/bad form
       return;
     }

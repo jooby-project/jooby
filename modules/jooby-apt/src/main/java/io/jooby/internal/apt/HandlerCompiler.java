@@ -46,6 +46,7 @@ import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 import static org.objectweb.asm.Type.getType;
 
@@ -184,6 +185,8 @@ public class HandlerCompiler {
     /** Arguments. */
     processArguments(writer, apply, moduleInternalName, registry);
 
+    setDefaultResponseType(apply);
+
     /** Invoke. */
     apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), methodName, methodDescriptor,
         false);
@@ -227,6 +230,20 @@ public class HandlerCompiler {
     }
   }
 
+  private void setDefaultResponseType(MethodVisitor visitor) throws Exception {
+    TypeKind kind = executable.getReturnType().getKind();
+    if (kind == TypeKind.VOID && getHttpMethod().equalsIgnoreCase(Router.DELETE)) {
+      visitor.visitVarInsn(ALOAD, 1);
+      visitor
+          .visitFieldInsn(GETSTATIC, STATUS_CODE.getInternalName(), "NO_CONTENT",
+              STATUS_CODE.getDescriptor());
+      Method setResponseCode = Context.class.getDeclaredMethod("setResponseCode", StatusCode.class);
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), setResponseCode.getName(),
+          getMethodDescriptor(setResponseCode), true);
+      visitor.visitInsn(POP);
+    }
+  }
+
   private void processReturnType(MethodVisitor visitor) throws Exception {
     TypeKind kind = executable.getReturnType().getKind();
     if (kind == TypeKind.VOID) {
@@ -242,15 +259,14 @@ public class HandlerCompiler {
       visitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
       visitor.visitVarInsn(ALOAD, 1);
-      visitor
-          .visitFieldInsn(GETSTATIC, STATUS_CODE.getInternalName(), "NO_CONTENT",
-              STATUS_CODE.getDescriptor());
+      visitor.visitVarInsn(ALOAD, 1);
+      Method getResponseCode = Context.class.getDeclaredMethod("getResponseCode");
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), getResponseCode.getName(),
+          getMethodDescriptor(getResponseCode), true);
       Method sendStatusCode = Context.class.getDeclaredMethod("send", StatusCode.class);
       visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), sendStatusCode.getName(),
           getMethodDescriptor(sendStatusCode), true);
-
     } else {
-
       Method wrapper = Primitives.wrapper(kind);
       if (wrapper == null) {
         TypeDefinition returnType = getReturnType();
