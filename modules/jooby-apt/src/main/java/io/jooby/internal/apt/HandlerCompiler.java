@@ -60,6 +60,8 @@ public class HandlerCompiler {
 
   private static final Type CTX = getType(Context.class);
 
+  private final Element realOwnerElement;
+  private final Element ownerElement;
   private final TypeDefinition owner;
   private final ExecutableElement executable;
   private final ProcessingEnvironment environment;
@@ -68,15 +70,22 @@ public class HandlerCompiler {
   private final Types typeUtils;
   private final TypeMirror annotation;
 
-  public HandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable,
-      TypeElement httpMethod, String pattern) {
+  public HandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable, TypeElement owner,
+                         TypeElement httpMethod, String pattern) {
     this.httpMethod = httpMethod.getSimpleName().toString().toLowerCase();
     this.annotation = httpMethod.asType();
     this.pattern = Router.leadingSlash(pattern);
     this.environment = environment;
     this.executable = executable;
     this.typeUtils = environment.getTypeUtils();
-    this.owner = new TypeDefinition(typeUtils, executable.getEnclosingElement().asType());
+    this.realOwnerElement = executable.getEnclosingElement();
+    this.ownerElement = owner;
+    this.owner = new TypeDefinition(typeUtils, owner.asType());
+  }
+
+  public HandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable,
+      TypeElement httpMethod, String pattern) {
+    this(environment, executable, (TypeElement) executable.getEnclosingElement(), httpMethod, pattern);
   }
 
   public ExecutableElement getExecutable() {
@@ -313,7 +322,12 @@ public class HandlerCompiler {
         .map(it -> Annotations.attribute(it, "value"))
         .orElseGet(() -> {
           if (element instanceof ExecutableElement) {
-            return mediaType(element.getEnclosingElement(), types);
+            if (element.getEnclosingElement() == realOwnerElement) {
+              return mediaType(ownerElement, types);
+            }
+            else {
+              return mediaType(element.getEnclosingElement(), types);
+            }
           }
           return Collections.emptyList();
         });
