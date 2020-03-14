@@ -69,7 +69,7 @@ public class MvcModuleCompilerRunner {
           add(c.getName() + "$Module");
         }
       }};
-    assertEquals(String.join("\n", clsLst), new String(Files.readAllBytes(services), StandardCharsets.UTF_8).trim());
+    assertEquals(String.join(System.lineSeparator(), clsLst), new String(Files.readAllBytes(services), StandardCharsets.UTF_8).trim());
 
     consumer.accept(application);
     return this;
