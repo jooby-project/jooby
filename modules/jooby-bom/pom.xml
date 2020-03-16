@@ -23,7 +23,7 @@
   <auto-service.version>1.0-rc6</auto-service.version>
   <aws-java-sdk.version>1.11.714</aws-java-sdk.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
-  <bucket4j-core.version>4.7.0</bucket4j-core.version>
+  <bucket4j-core.version>4.10.0</bucket4j-core.version>
   <checkstyle.version>8.29</checkstyle.version>
   <commons-io.version>2.6</commons-io.version>
   <compile-testing.version>0.18</compile-testing.version>

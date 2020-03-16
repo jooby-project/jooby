@@ -79,7 +79,7 @@
     <pac4j.version>4.0.0-RC2</pac4j.version>
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.0.2</cron-utils.version>
-    <bucket4j-core.version>4.7.0</bucket4j-core.version>
+    <bucket4j-core.version>4.10.0</bucket4j-core.version>
     <aws-java-sdk.version>1.11.743</aws-java-sdk.version>
     <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
 
