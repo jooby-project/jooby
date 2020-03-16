@@ -151,9 +151,10 @@ public class RouteAttributesWriter {
           ? annotation.getAnnotationType().asElement().getSimpleName().toString()
           : root;
       // Set all values and then override with present values (fix for JDK 11+)
-      result.putAll(toMap(elements
-          .getElementValuesWithDefaults(annotation), prefix));
-      result.putAll(toMap(annotation.getElementValues(), prefix));
+      toMap(annotation.getElementValues(), prefix)
+          .forEach(result::put);
+      toMap(elements.getElementValuesWithDefaults(annotation), prefix)
+          .forEach(result::putIfAbsent);
     }
     return result;
   }

@@ -49,7 +49,8 @@ public class JoobyProcessor extends AbstractProcessor {
   private ProcessingEnvironment processingEnv;
 
   /**
-   * Controller {
+   * Route Data.
+   * {
    *   HTTP_METHOD: [method1, ..., methodN]
    * }
    */
