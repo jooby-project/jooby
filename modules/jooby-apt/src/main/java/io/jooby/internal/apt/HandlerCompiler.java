@@ -68,7 +68,7 @@ public class HandlerCompiler {
   private Types typeUtils;
   private TypeMirror annotation;
 
-  public HandlerCompiler(ProcessingEnvironment environment, Element owner, ExecutableElement executable,
+  public HandlerCompiler(ProcessingEnvironment environment, TypeElement owner, ExecutableElement executable,
       TypeElement httpMethod, String pattern) {
     this.httpMethod = httpMethod.getSimpleName().toString().toLowerCase();
     this.annotation = httpMethod.asType();

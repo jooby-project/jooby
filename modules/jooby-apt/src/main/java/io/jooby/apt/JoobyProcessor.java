@@ -48,7 +48,12 @@ public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnv;
 
-  private Map<Element, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
+  /**
+   * Controller {
+   *   HTTP_METHOD: [method1, ..., methodN]
+   * }
+   */
+  private Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
 
   private boolean debug;
 
@@ -73,6 +78,7 @@ public class JoobyProcessor extends AbstractProcessor {
     try {
       debug("Round #%s", round++);
       if (roundEnv.processingOver()) {
+
         build(processingEnv.getFiler());
 
         return false;
@@ -102,7 +108,8 @@ public class JoobyProcessor extends AbstractProcessor {
               .collect(Collectors.toCollection(LinkedHashSet::new));
           for (ExecutableElement method : methods) {
             Map<TypeElement, List<ExecutableElement>> mapping = routeMap
-                .computeIfAbsent(method.getEnclosingElement(), k -> new LinkedHashMap<>());
+                .computeIfAbsent((TypeElement) method.getEnclosingElement(),
+                    k -> new LinkedHashMap<>());
             mapping.computeIfAbsent(annotation, k -> new ArrayList<>()).add(method);
           }
         }
@@ -117,15 +124,15 @@ public class JoobyProcessor extends AbstractProcessor {
   private void build(Filer filer) throws Exception {
     Types typeUtils = processingEnv.getTypeUtils();
     Map<String, List<HandlerCompiler>> classes = new LinkedHashMap<>();
-    for (Map.Entry<Element, Map<TypeElement, List<ExecutableElement>>> e : routeMap
+    for (Map.Entry<TypeElement, Map<TypeElement, List<ExecutableElement>>> e : routeMap
         .entrySet()) {
-      Element type = e.getKey();
+      TypeElement type = e.getKey();
       boolean isAbstract = type.getModifiers().contains(Modifier.ABSTRACT);
       /** Ignore abstract routes: */
       if (!isAbstract) {
         /** Expand route method from superclass(es): */
         Map<TypeElement, List<ExecutableElement>> mappings = e.getValue();
-        for (Element superType : superTypes(type)) {
+        for (TypeElement superType : superTypes(type)) {
           Map<TypeElement, List<ExecutableElement>> baseMappings = routeMap
               .getOrDefault(superType, Collections.emptyMap());
           for (Map.Entry<TypeElement, List<ExecutableElement>> be : baseMappings.entrySet()) {
@@ -181,7 +188,7 @@ public class JoobyProcessor extends AbstractProcessor {
     return method.toString();
   }
 
-  private List<Element> superTypes(Element owner) {
+  private List<TypeElement> superTypes(Element owner) {
     Types typeUtils = processingEnv.getTypeUtils();
     List<? extends TypeMirror> supertypes = typeUtils
         .directSupertypes(owner.asType());
@@ -193,9 +200,9 @@ public class JoobyProcessor extends AbstractProcessor {
     Element supertypeElement = typeUtils.asElement(supertype);
     if (!Object.class.getName().equals(supertypeName)
         && supertypeElement.getKind() == ElementKind.CLASS) {
-      List<Element> result = new ArrayList<>();
+      List<TypeElement> result = new ArrayList<>();
       result.addAll(superTypes(supertypeElement));
-      result.add(supertypeElement);
+      result.add((TypeElement) supertypeElement);
       return result;
     }
     return Collections.emptyList();
@@ -238,7 +245,7 @@ public class JoobyProcessor extends AbstractProcessor {
     List<String> prefix = path(owner);
     if (prefix.isEmpty()) {
       // Look at parent @path annotation
-      List<Element> superTypes = superTypes(owner);
+      List<TypeElement> superTypes = superTypes(owner);
       int i = superTypes.size() - 1;
       while (prefix.isEmpty() && i >= 0) {
         prefix = path(superTypes.get(i--));
