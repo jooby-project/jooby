@@ -19,21 +19,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public class TestMvcProcessor extends JoobyProcessor {
-  private Map<String, HandlerCompiler> result = new HashMap<>();
-
   private Map<String, Object> classes = new HashMap<>();
   private Map<String, Object> resources = new HashMap<>();
 
-  @Override protected void onMvcHandler(String methodDescriptor, HandlerCompiler compiler) {
-    result.put(methodDescriptor, compiler);
-  }
-
   @Override protected void onClass(String className, byte[] bytecode) {
     classes.put(className, bytecode);
-  }
-
-  public HandlerCompiler compilerFor(String methodDescriptor) {
-    return result.get(methodDescriptor);
   }
 
   @Override protected void onResource(String location, String content) {

@@ -28,28 +28,45 @@ public class MvcModuleCompilerRunner {
   private final Object instance;
 
   public MvcModuleCompilerRunner(Object instance) throws Exception {
+    this(instance, false);
+  }
+
+  public MvcModuleCompilerRunner(Object instance, boolean debug) throws Exception {
     this.instance = instance;
     this.processor = new TestMvcProcessor();
     Truth.assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
-        .that(sources(instance.getClass().getSimpleName() + ".java"))
+        .that(sources(sourceNames(instance.getClass())))
+        .withCompilerOptions("-Adebug=" + debug)
         .processedWith(processor)
         .compilesWithoutError();
+  }
+
+  private String[] sourceNames(Class input) {
+    List<String> result = new ArrayList<>();
+    while (input != Object.class) {
+      result.add(input.getSimpleName() + ".java");
+      input = input.getSuperclass();
+    }
+    return result.toArray(new String[result.size()]);
   }
 
   public MvcModuleCompilerRunner module(SneakyThrows.Consumer<Jooby> consumer) throws Exception {
     return module(false, consumer);
   }
 
-  public MvcModuleCompilerRunner debugModule(SneakyThrows.Consumer<Jooby> consumer) throws Exception {
+  public MvcModuleCompilerRunner debugModule(SneakyThrows.Consumer<Jooby> consumer)
+      throws Exception {
     return module(true, consumer);
   }
 
-  private MvcModuleCompilerRunner module(boolean debug, SneakyThrows.Consumer<Jooby> consumer) throws Exception {
+  private MvcModuleCompilerRunner module(boolean debug, SneakyThrows.Consumer<Jooby> consumer)
+      throws Exception {
     Class clazz = instance.getClass();
     ClassLoader classLoader = processor.getModuleClassLoader(debug);
     String factoryName = clazz.getName() + "$Module";
-    Class<? extends MvcFactory> factoryClass = (Class<? extends MvcFactory>) classLoader.loadClass(factoryName);
+    Class<? extends MvcFactory> factoryClass = (Class<? extends MvcFactory>) classLoader
+        .loadClass(factoryName);
     Constructor<? extends MvcFactory> constructor = factoryClass.getDeclaredConstructor();
     MvcFactory factory = constructor.newInstance();
     Provider provider = () -> instance;
@@ -63,13 +80,6 @@ public class MvcModuleCompilerRunner {
     Path services = Paths
         .get(classLoader.getResource("META-INF/services/" + MvcFactory.class.getName()).toURI());
     assertTrue(Files.exists(services));
-
-    List<String> clsLst = new ArrayList<String>() {{
-        for (Class c = clazz; c != null && c != Object.class; c = c.getSuperclass()) {
-          add(c.getName() + "$Module");
-        }
-      }};
-    assertEquals(String.join(System.lineSeparator(), clsLst), new String(Files.readAllBytes(services), StandardCharsets.UTF_8).trim());
 
     consumer.accept(application);
     return this;

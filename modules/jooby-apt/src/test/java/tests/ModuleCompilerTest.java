@@ -86,7 +86,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void getPostRoutes() throws Exception {
-    new MvcModuleCompilerRunner(new GetPostRoute())
+    new MvcModuleCompilerRunner(new GetPostRoute(), true)
         .module(app -> {
           MockRouter router = new MockRouter(app);
           router.get("/", rsp -> {
