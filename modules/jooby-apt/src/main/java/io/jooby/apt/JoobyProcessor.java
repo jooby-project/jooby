@@ -96,10 +96,10 @@ public class JoobyProcessor extends AbstractProcessor {
             .forEach(e -> routeMap.computeIfAbsent(e, k -> new LinkedHashMap<>()));
 
         if (Annotations.HTTP_METHODS.contains(annotation.asType().toString())) {
-          List<ExecutableElement> methods = elements.stream()
+          Set<ExecutableElement> methods = elements.stream()
               .filter(ExecutableElement.class::isInstance)
               .map(ExecutableElement.class::cast)
-              .collect(Collectors.toList());
+              .collect(Collectors.toCollection(LinkedHashSet::new));
           for (ExecutableElement method : methods) {
             Map<TypeElement, List<ExecutableElement>> mapping = routeMap
                 .computeIfAbsent(method.getEnclosingElement(), k -> new LinkedHashMap<>());

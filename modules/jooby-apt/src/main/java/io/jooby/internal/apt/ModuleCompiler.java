@@ -59,16 +59,18 @@ public class ModuleCompiler {
   private final String moduleClass;
   private final String moduleInternalName;
   private final String moduleJava;
-  private final ProcessingEnvironment env;
+  private final ProcessingEnvironment processingEnv;
   private final String moduleDescriptorName;
+  private final boolean debug;
 
-  public ModuleCompiler(ProcessingEnvironment env, String controllerClass) {
+  public ModuleCompiler(ProcessingEnvironment processingEnv, String controllerClass) {
     this.controllerClass = controllerClass;
     this.moduleClass = this.controllerClass + "$Module";
     this.moduleJava = this.moduleClass + ".java";
     this.moduleInternalName = moduleClass.replace(".", "/");
     this.moduleDescriptorName = "L" + moduleInternalName + ";";
-    this.env = env;
+    this.processingEnv = processingEnv;
+    this.debug = Boolean.parseBoolean(processingEnv.getOptions().getOrDefault("debug", "false"));
   }
 
   public String getModuleClass() {
@@ -156,8 +158,8 @@ public class ModuleCompiler {
     visitor.visitParameter("provider", 0);
     visitor.visitCode();
 
-    RouteAttributesWriter routeAttributes = new RouteAttributesWriter(env.getElementUtils(),
-        env.getTypeUtils(), writer, moduleInternalName, visitor);
+    RouteAttributesWriter routeAttributes = new RouteAttributesWriter(processingEnv.getElementUtils(),
+        processingEnv.getTypeUtils(), writer, moduleInternalName, visitor);
 
     Map<String, Integer> nameRegistry = new HashMap<>();
     for (HandlerCompiler handler : handlers) {
@@ -200,7 +202,9 @@ public class ModuleCompiler {
        * Annotations as route attributes
        * ******************************************************************************************
        */
-      routeAttributes.process(handler.getExecutable());
+      debug("route attributes %s.%s", handler.getExecutable().getEnclosingElement(),
+          handler.getExecutable());
+      routeAttributes.process(handler.getExecutable(), this::debug);
 
       /**
        * ******************************************************************************************
@@ -237,7 +241,7 @@ public class ModuleCompiler {
   }
 
   private Object annotationAttribute(AnnotationMirror annotationMirror, String method) {
-    Map<? extends ExecutableElement, ? extends AnnotationValue> map = env
+    Map<? extends ExecutableElement, ? extends AnnotationValue> map = processingEnv
         .getElementUtils().getElementValuesWithDefaults(annotationMirror);
     for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : map.entrySet()) {
       if (entry.getKey().getSimpleName().toString().equals(method)) {
@@ -328,5 +332,11 @@ public class ModuleCompiler {
     visitor.visitInsn(Opcodes.IRETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
+  }
+
+  private void debug(String format, Object... args) {
+    if (debug) {
+      System.out.printf(format + "\n", args);
+    }
   }
 }

@@ -29,9 +29,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static io.jooby.SneakyThrows.throwingConsumer;
@@ -107,12 +110,14 @@ public class RouteAttributesWriter {
     this.visitor = visitor;
   }
 
-  public void process(ExecutableElement method) throws NoSuchMethodException {
+  public void process(ExecutableElement method, BiConsumer<String, Object[]> log)
+      throws NoSuchMethodException {
     Method target = Route.class.getDeclaredMethod("attribute", String.class, Object.class);
     Map<String, Object> attributes = annotationMap(method);
     for (Map.Entry<String, Object> attribute : attributes.entrySet()) {
       String name = attribute.getKey();
       Object value = attribute.getValue();
+      log.accept("  %s: %s", new Object[]{name, value});
 
       visitor.visitVarInsn(ALOAD, 2);
       visitor.visitLdcInsn(name);
@@ -145,16 +150,26 @@ public class RouteAttributesWriter {
       String prefix = root == null
           ? annotation.getAnnotationType().asElement().getSimpleName().toString()
           : root;
-      Map<? extends ExecutableElement, ? extends AnnotationValue> values = elements
-          .getElementValuesWithDefaults(annotation);
-      for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> attribute : values
-          .entrySet()) {
-        Object value = annotationValue(attribute.getValue());
-        if (value != null) {
-          String method = attribute.getKey().getSimpleName().toString();
-          String name = method.equals("value") ? prefix : prefix + "." + method;
-          result.put(name, value);
-        }
+      // Set all values and then override with present values (fix for JDK 11+)
+      result.putAll(toMap(elements
+          .getElementValuesWithDefaults(annotation), prefix));
+      result.putAll(toMap(annotation.getElementValues(), prefix));
+    }
+    return result;
+  }
+
+  private Map<String, Object> toMap(
+      Map<? extends ExecutableElement, ? extends AnnotationValue> values,
+      String prefix) {
+    Map<String, Object> result = new LinkedHashMap<>();
+    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> attribute : values
+        .entrySet()) {
+      Object value = annotationValue(attribute.getValue());
+      if (value != null) {
+        String method = attribute.getKey().getSimpleName().toString();
+        String name = method.equals("value") ? prefix : prefix + "." + method;
+        // Found value is override on JDK 11 with default annotation value, we trust that spe
+        result.putIfAbsent(name, value);
       }
     }
     return result;
@@ -194,7 +209,9 @@ public class RouteAttributesWriter {
           .visitMethodInsn(INVOKESTATIC, moduleInternalName, newMap, "()Ljava/util/Map;", false);
     } else if (value instanceof List) {
       List values = (List) value;
-      String componentType = values.get(0) instanceof EnumValue? ((EnumValue) values.get(0)).type : values.get(0).getClass().getName();
+      String componentType = values.get(0) instanceof EnumValue ?
+          ((EnumValue) values.get(0)).type :
+          values.get(0).getClass().getName();
       if (values.size() > 0) {
         ArrayWriter.write(visitor, componentType, values, throwingConsumer(v ->
             annotationValue(writer, visitor, v)
@@ -274,7 +291,8 @@ public class RouteAttributesWriter {
     } else if (value instanceof EnumValue) {
       EnumValue enumValue = (EnumValue) value;
       Type type = Type.getObjectType(enumValue.type.replace(".", "/"));
-      visitor.visitFieldInsn(GETSTATIC, type.getInternalName(), enumValue.value, type.getDescriptor());
+      visitor
+          .visitFieldInsn(GETSTATIC, type.getInternalName(), enumValue.value, type.getDescriptor());
     }
 
     Method wrapper = Primitives.wrapper(value.getClass());
