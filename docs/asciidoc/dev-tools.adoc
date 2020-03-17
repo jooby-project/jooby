@@ -59,7 +59,7 @@ apply plugin: "jooby"
 .build.gradle
 [source, groovy, role = "secondary"]
 ----
-mainClassName = "starter.gradle.App"
+mainClassName = "myapp.App"
 ----
 
 3) Run application

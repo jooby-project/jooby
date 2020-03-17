@@ -1,0 +1,77 @@
+== OpenAPI
+
+This module helps automating the generation of API documentation using Jooby projects. jooby-openapi works by examining an application at *build* time to infer API semantics based on byte code and various annotations.
+
+Automatically generates documentation in JSON/YAML format APIs. This documentation can be completed by comments using swagger-api annotations.
+
+This library supports:
+
+- https://swagger.io/specification[OpenAPI 3]
+- https://swagger.io/tools/swagger-ui[Swagger UI] (Optional)
+- https://github.com/Redocly/redoc[Redoc] (Optional)
+- Build time generation for Maven and Gradle
+
+=== Configuration
+
+.pom.xml
+[source, xml, role = "primary", subs="verbatim,attributes"]
+----
+<properties>
+  <application.class>myapp.App</application.class>
+</properties>
+...
+<plugins>
+  ...
+  <plugin>
+    <groupId>io.jooby</groupId>
+    <artifactId>jooby-maven-plugin</artifactId>
+    <version>{joobyVersion}</version>
+    <executions>
+      <execution>
+        <goals>
+          <goal>openapi</goal>
+        </goals>
+      </execution>
+    </executions>
+  </plugin>
+</plugins>
+----
+
+.build.gradle
+[source, groovy, role = "secondary", subs="verbatim,attributes"]
+----
+buildscript {
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "io.jooby:jooby-gradle-plugin:{joobyVersion}"
+  }
+}
+
+apply plugin: "application"
+apply plugin: "jooby"
+
+...
+mainClassName = "myapp.App"
+...
+
+// Run openAPI task on joobyRun
+joobyRun.dependsOn openAPI
+
+// Run openAPI task on build
+build.dependsOn openAPI
+----
+
+[NOTE]
+====
+Most of this setup is not required if you already have `joobyRun` on your build.
+====
+
+=== Pet API
+
+To learn how it works, let's write a Pet API 
+
+
