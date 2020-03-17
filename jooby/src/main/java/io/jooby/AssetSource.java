@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Stream;
 
 /**
  * An asset source is a collection or provider of {@link Asset}. There are two implementations:
@@ -51,6 +50,24 @@ public interface AssetSource {
     return new ClassPathAssetSource(loader, location);
   }
 
+  /**
+   * Creates a webjar asset source. Usage:
+   *
+   * <ul>
+   *   <li>Add a webjar to your project, for example swagger-ui</li>
+   *   <li>Create and add an asset handler:
+   *   <pre>{@code
+   *
+   *      asset("/path/*", AssetSource.webjar(getClassLoader(), "swagger-ui"));
+   *
+   *   }</pre>
+   *   </li>
+   * </ul>
+   *
+   * @param loader Class loader.
+   * @param name Web asset name.
+   * @return A webjar source.
+   */
   static @Nonnull AssetSource webjars(@Nonnull ClassLoader loader, @Nonnull String name) {
     List<String> location = Arrays.asList(
         "/META-INF/maven/org.webjars/" + name + "/pom.properties",

@@ -58,10 +58,14 @@ public class OpenAPIModule implements Extension {
         .orElse("/")
         .replace(".", "/");
 
+    String appname = application.getClass().getSimpleName()
+        .replace("Jooby", "openapi")
+        .replace("Kooby", "openapi");
     for (Format ext : format) {
-      String filename = "/openapi." + ext.name().toLowerCase();
+      String filename = String.format("/%s.%s", appname, ext.name().toLowerCase());
       String openAPIFileLocation = Router.normalizePath(dir) + filename;
-      application.assets(fullPath(openAPIPath, filename), openAPIFileLocation);
+      application.assets(fullPath(openAPIPath, "/openapi." + ext.name().toLowerCase()),
+          openAPIFileLocation);
     }
 
     /** Configure UI: */

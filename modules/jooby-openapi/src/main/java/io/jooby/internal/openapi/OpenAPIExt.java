@@ -21,6 +21,9 @@ public class OpenAPIExt extends OpenAPI {
   @JsonIgnore
   private List<OperationExt> operations = Collections.emptyList();
 
+  @JsonIgnore
+  private String source;
+
   public static OpenAPIExt create(Path basedir, ClassLoader classLoader, String templateName) {
     try {
       Path path = basedir.resolve("conf").resolve(templateName);
@@ -43,5 +46,13 @@ public class OpenAPIExt extends OpenAPI {
 
   public void setOperations(List<OperationExt> operations) {
     this.operations = operations;
+  }
+
+  public String getSource() {
+    return source;
+  }
+
+  public void setSource(String classname) {
+    this.source = classname;
   }
 }

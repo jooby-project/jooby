@@ -89,10 +89,21 @@ public class OpenAPIGenerator {
   private String excludes;
 
   public void export(OpenAPI openAPI, Format format) throws IOException {
-    if (!Files.exists(outputDir)) {
-      Files.createDirectories(outputDir);
+    Path output;
+    if (openAPI instanceof OpenAPIExt) {
+      String source = ((OpenAPIExt) openAPI).getSource();
+      String[] names = source.split("\\.");
+      output = Stream.of(names).limit(Math.max(0, names.length - 2))
+          .reduce(outputDir, Path::resolve, Path::resolve);
+      output = output.resolve(names[names.length - 1] + "." + format.extension());
+    } else {
+      output = outputDir.resolve("openapi." + format.extension());
     }
-    Path output = outputDir.resolve("openapi" + "." + format.extension());
+
+    if (!Files.exists(output.getParent())) {
+      Files.createDirectories(output.getParent());
+    }
+
     log.info("  writing: " + output);
 
     String content = format.toString(this, openAPI);
@@ -112,6 +123,7 @@ public class OpenAPIGenerator {
 
     /** Create OpenAPI from template and make sure min required information is present: */
     OpenAPIExt openapi = OpenAPIExt.create(basedir, classLoader, templateName);
+    openapi.setSource(classname);
 
     defaults(classname, contextPath, openapi);
 
