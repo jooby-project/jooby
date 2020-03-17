@@ -9,13 +9,14 @@ plugins {
 // so you should probably use JCenter for dependency resolution in your own
 // project.
 repositories {
+  mavenLocal()
   mavenCentral()
   jcenter()
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will
 // be used as your plugin version when publishing
-version = "2.6.1"
+version = "2.6.2"
 group = "io.jooby"
 
 dependencies {
