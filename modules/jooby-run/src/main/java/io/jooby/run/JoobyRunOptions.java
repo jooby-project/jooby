@@ -19,7 +19,8 @@ import java.util.List;
 public class JoobyRunOptions {
 
   /** Default port. */
-  public static final int DEFAULT_PORT = Integer.parseInt(System.getProperty("server.port", "8080"));
+  public static final int DEFAULT_PORT = Integer
+      .parseInt(System.getProperty("server.port", "8080"));
 
   private String projectName;
 
@@ -101,7 +102,9 @@ public class JoobyRunOptions {
    * @param restartExtensions Restart extensions.
    */
   public void setRestartExtensions(List<String> restartExtensions) {
-    this.restartExtensions = restartExtensions;
+    if (restartExtensions != null && !restartExtensions.isEmpty()) {
+      this.restartExtensions = restartExtensions;
+    }
   }
 
   /**
@@ -120,7 +123,9 @@ public class JoobyRunOptions {
    * @param compileExtensions Compile extensions.
    */
   public void setCompileExtensions(List<String> compileExtensions) {
-    this.compileExtensions = compileExtensions;
+    if (compileExtensions != null && !compileExtensions.isEmpty()) {
+      this.compileExtensions = compileExtensions;
+    }
   }
 
   /**
