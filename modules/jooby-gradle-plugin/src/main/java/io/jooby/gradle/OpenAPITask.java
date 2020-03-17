@@ -10,21 +10,34 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * Generate an OpenAPI file from a jooby application.
+ *
+ * Usage: https://jooby.io/modules/openapi
+ *
+ * @author edgar
+ * @since 2.7.0
+ */
 public class OpenAPITask extends BaseTask {
 
   private String mainClassName;
-
-  private String format = "json,yaml";
 
   private String includes;
 
   private String excludes;
 
+  /**
+   * Generate OpenAPI files from Jooby application.
+   *
+   * @throws Throwable If something goes wrong.
+   */
   @TaskAction
   public void generate() throws Throwable {
     List<Project> projects = getProjects();
@@ -51,40 +64,62 @@ public class OpenAPITask extends BaseTask {
 
     OpenAPI result = tool.generate(mainClass);
 
-    for (OpenAPIGenerator.Format format : OpenAPIGenerator.Format.parse(format)) {
-      tool.export(result, format);
+    for (OpenAPIGenerator.Format format : OpenAPIGenerator.Format.values()) {
+      Path output = tool.export(result, format);
+      getLogger().info("  writing: " + output);
     }
   }
 
-  public String getMainClassName() {
+  /**
+   * Class to parse.
+   *
+   * @return Class to parse.
+   */
+  public @Nonnull String getMainClassName() {
     return mainClassName;
   }
 
-  public void setMainClassName(String mainClassName) {
+  /**
+   * Set Class to parse.
+   * @param mainClassName Class to parse.
+   */
+  public void setMainClassName(@Nonnull String mainClassName) {
     this.mainClassName = mainClassName;
   }
 
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getIncludes() {
+  /**
+   * Regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   *
+   * @return Regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   */
+  public @Nullable String getIncludes() {
     return includes;
   }
 
-  public void setIncludes(String includes) {
+  /**
+   * Set regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   *
+   * @param includes Regular expression.
+   */
+  public void setIncludes(@Nullable String includes) {
     this.includes = includes;
   }
 
-  public String getExcludes() {
+  /**
+   * Regular expression used to excludes route. Example: <code>/web</code>.
+   *
+   * @return Regular expression used to excludes route. Example: <code>/web</code>.
+   */
+  public @Nullable String getExcludes() {
     return excludes;
   }
 
-  public void setExcludes(String excludes) {
+  /**
+   * Set Regular expression used to excludes route. Example: <code>/web</code>.
+   *
+   * @param excludes Regular expression used to excludes route. Example: <code>/web</code>.
+   */
+  public void setExcludes(@Nullable String excludes) {
     this.excludes = excludes;
   }
 

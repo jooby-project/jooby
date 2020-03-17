@@ -17,10 +17,40 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * OpenAPI supports for Jooby. Basic Usage:
+ *
+ * <pre>{@code
+ * {
+ *   install(new OpenAPIModule());
+ * }
+ * }</pre>
+ *
+ * The <code>[openapi].json</code> and/or <code>[openapi].yaml</code> files must be present on
+ * classpath.
+ *
+ * If <code>jooby-swagger-ui</code> is present (part of your project classpath) swagger-ui will
+ * be available. Same for <code>jooby-redoc</code>.
+ *
+ * Complete documentation is available at: https://jooby.io/modules/openapi
+ *
+ * @author edgar
+ * @since 2.7.0
+ */
 public class OpenAPIModule implements Extension {
 
+  /**
+   * Available formats.
+   */
   public enum Format {
+    /**
+     * JSON.
+     */
     JSON,
+
+    /**
+     * YAML.
+     */
     YAML
   }
 
@@ -29,25 +59,61 @@ public class OpenAPIModule implements Extension {
   private String redocPath = "/redoc";
   private EnumSet<Format> format = EnumSet.of(Format.JSON, Format.YAML);
 
-  public OpenAPIModule(String path) {
+  /**
+   * Creates an OpenAPI module. The path is used to route the open API files. For example:
+   *
+   * <pre>{@code
+   *   install(new OpenAPIModule("/docs"));
+   * }</pre>
+   *
+   * Files will be at <code>/docs/openapi.json</code>, <code>/docs/openapi.yaml</code>.
+   *
+   * @param path Custom path to use.
+   */
+  public OpenAPIModule(@Nonnull String path) {
     this.openAPIPath = Router.normalizePath(path);
   }
 
+  /**
+   * Creates an OpenAPI module.
+   *
+   * Files will be at <code>/openapi.json</code>, <code>/openapi.yaml</code>.
+   */
   public OpenAPIModule() {
     this("/");
   }
 
-  public OpenAPIModule swaggerUI(String path) {
+  /**
+   * Customize the swagger-ui path. Defaults is <code>/swagger</code>.
+   *
+   * @param path Swagger-ui path.
+   * @return This module.
+   */
+  public @Nonnull OpenAPIModule swaggerUI(@Nonnull String path) {
     this.swaggerUIPath = Router.normalizePath(path);
     return this;
   }
 
-  public OpenAPIModule redoc(String path) {
+  /**
+   * Customize the redoc-ui path. Defaults is <code>/redoc</code>.
+   *
+   * @param path Redoc path.
+   * @return This module.
+   */
+  public @Nonnull OpenAPIModule redoc(@Nonnull String path) {
     this.redocPath = Router.normalizePath(path);
     return this;
   }
 
-  public OpenAPIModule format(Format... format) {
+  /**
+   * Enable what format are available (json or yaml).
+   *
+   * IMPORTANT: UI tools requires the JSON format.
+   *
+   * @param format Supported formats.
+   * @return This module.
+   */
+  public @Nonnull OpenAPIModule format(@Nonnull Format... format) {
     this.format = EnumSet.copyOf(Arrays.asList(format));
     return this;
   }
@@ -72,7 +138,7 @@ public class OpenAPIModule implements Extension {
     configureUI(application);
   }
 
-  private void configureUI(@Nonnull Jooby application) {
+  private void configureUI(Jooby application) {
     Map<String, Consumer2<Jooby, AssetSource>> ui = new HashMap<>();
     ui.put("swagger-ui", this::swaggerUI);
     ui.put("redoc", this::redoc);

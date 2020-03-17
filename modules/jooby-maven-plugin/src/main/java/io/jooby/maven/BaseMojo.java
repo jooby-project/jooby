@@ -22,6 +22,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectDependenciesResolver;
 import org.eclipse.aether.graph.Dependency;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -33,9 +34,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * Base class which provides common utility method to more specific plugins: like classpath
+ * resources.
+ *
+ * Also, handle maven specific exceptions.
+ *
+ * @author edgar
+ */
 public abstract class BaseMojo extends AbstractMojo {
   protected static final String APP_CLASS = "application.class";
 
@@ -76,11 +84,24 @@ public abstract class BaseMojo extends AbstractMojo {
     }
   }
 
+  /**
+   * Mojo's name.
+   *
+   * @return Mojo's name.
+   */
   protected String mojoName() {
     return getClass().getSimpleName().replace("Mojo", "").toLowerCase();
   }
 
-  protected abstract void doExecute(List<MavenProject> projects, String mainClass) throws Throwable;
+  /**
+   * Run plugin.
+   *
+   * @param projects Available projects.
+   * @param mainClass Main class.
+   * @throws Throwable If something goes wrong.
+   */
+  protected abstract void doExecute(@Nonnull List<MavenProject> projects, @Nonnull String mainClass)
+      throws Throwable;
 
   /**
    * Multiple projects for multimodule project. Otherwise single project.

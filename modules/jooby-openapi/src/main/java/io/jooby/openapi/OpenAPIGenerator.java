@@ -20,55 +20,71 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.oas.models.servers.ServerVariable;
-import io.swagger.v3.oas.models.servers.ServerVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Generate an {@link OpenAPI} model from a Jooby application.
+ *
+ * Optionally exports an {@link OpenAPI} model to a json or yaml file.
+ *
+ * Usage: https://jooby.io/modules/openapi
+ *
+ * @author edgar
+ */
 public class OpenAPIGenerator {
 
+  /**
+   * Supported formats.
+   */
   public enum Format {
+    /**
+     * JSON.
+     */
     JSON {
       @Override public String toString(OpenAPIGenerator tool, OpenAPI result) {
         return tool.toJson(result);
       }
     },
 
+    /**
+     * YAML.
+     */
     YAML {
       @Override public String toString(OpenAPIGenerator tool, OpenAPI result) {
         return tool.toYaml(result);
       }
     };
 
-    public String extension() {
+    /**
+     * File extension.
+     *
+     * @return File extension.
+     */
+    public @Nonnull String extension() {
       return name().toLowerCase();
     }
 
-    public static List<Format> parse(String value) {
-      if (value == null || value.trim().isEmpty()) {
-        return Arrays.asList(JSON, YAML);
-      }
-      return Stream.of(value.split(","))
-          .map(String::trim)
-          .filter(s -> !s.isEmpty())
-          .map(String::toUpperCase)
-          .map(Format::valueOf)
-          .collect(Collectors.toList());
-    }
-
-    public abstract String toString(OpenAPIGenerator tool, OpenAPI result);
+    /**
+     * Convert an {@link OpenAPI} model to the current format.
+     *
+     * @param tool Generator.
+     * @param result Model.
+     * @return String (json or yaml content).
+     */
+    public abstract @Nonnull String toString(@Nonnull OpenAPIGenerator tool, @Nonnull OpenAPI result);
 
   }
 
@@ -88,7 +104,15 @@ public class OpenAPIGenerator {
 
   private String excludes;
 
-  public void export(OpenAPI openAPI, Format format) throws IOException {
+  /**
+   * Export an {@link OpenAPI} model to the given format.
+   *
+   * @param openAPI Model.
+   * @param format Format.
+   * @throws IOException
+   * @return Output file.
+   */
+  public @Nonnull Path export(@Nonnull OpenAPI openAPI, @Nonnull Format format) throws IOException {
     Path output;
     if (openAPI instanceof OpenAPIExt) {
       String source = ((OpenAPIExt) openAPI).getSource();
@@ -104,13 +128,23 @@ public class OpenAPIGenerator {
       Files.createDirectories(output.getParent());
     }
 
-    log.info("  writing: " + output);
-
     String content = format.toString(this, openAPI);
     Files.write(output, Collections.singleton(content));
+    return output;
   }
 
-  public OpenAPI generate(String classname) {
+  /**
+   * Generate an {@link OpenAPI} model from Jooby class. This method parses class byte code and
+   * generates an open api model from it. Compilation must be done with debug information and
+   * parameters name available.
+   *
+   * Optionally, the <code>conf/openapi.yaml</code> is used as template and get merged into the
+   * final model.
+   *
+   * @param classname Application class name.
+   * @return Model.
+   */
+  public @Nonnull OpenAPI generate(@Nonnull String classname) {
     ClassLoader classLoader = Optional.ofNullable(this.classLoader)
         .orElseGet(getClass()::getClassLoader);
     ClassSource source = new ClassSource(classLoader);
@@ -178,7 +212,13 @@ public class OpenAPIGenerator {
     }
   }
 
-  public String toYaml(OpenAPI openAPI) {
+  /**
+   * Generates a YAML version of the given model.
+   *
+   * @param openAPI Model.
+   * @return YAML content.
+   */
+  public @Nonnull String toYaml(@Nonnull OpenAPI openAPI) {
     try {
       return Yaml.mapper().writeValueAsString(openAPI);
     } catch (IOException x) {
@@ -186,7 +226,13 @@ public class OpenAPIGenerator {
     }
   }
 
-  public String toJson(OpenAPI openAPI) {
+  /**
+   * Generates a JSON version of the given model.
+   *
+   * @param openAPI Model.
+   * @return JSON content.
+   */
+  public @Nonnull String toJson(@Nonnull OpenAPI openAPI) {
     try {
       return Json.mapper().writer().withDefaultPrettyPrinter().writeValueAsString(openAPI);
     } catch (IOException x) {
@@ -194,51 +240,116 @@ public class OpenAPIGenerator {
     }
   }
 
-  public void setClassLoader(ClassLoader classLoader) {
+  /**
+   * Use a custom classloader for resolving class files.
+   *
+   * @param classLoader Class loader.
+   */
+  public void setClassLoader(@Nonnull ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
 
-  public void setDebug(Set<DebugOption> debug) {
+  /**
+   * Set debug options.
+   *
+   * @param debug Debug options.
+   */
+  public void setDebug(final Set<DebugOption> debug) {
     this.debug = debug;
   }
 
+  /**
+   * OpenAPI template file name, defaults is: <code>openapi.yaml</code>.
+   *
+   * @return OpenAPI template file name, defaults is: <code>openapi.yaml</code>.
+   */
   public String getTemplateName() {
     return templateName;
   }
 
-  public void setTemplateName(String templateName) {
+  /**
+   * Set openAPI template file name, defaults is: <code>openapi.yaml</code>.
+   *
+   * @param templateName OpenAPI template file name, defaults is: <code>openapi.yaml</code>.
+   */
+  public void setTemplateName(@Nonnull String templateName) {
     this.templateName = templateName;
   }
 
-  public void setBasedir(Path basedir) {
+  /**
+   * Set base directory used it for loading openAPI template file name.
+   * Defaults is <code>user.dir</code>.
+   *
+   * @param basedir Base directory.
+   */
+  public void setBasedir(@Nonnull Path basedir) {
     this.basedir = basedir;
   }
 
+  /**
+   * Base directory used it for loading openAPI template file name.
+   *
+   * Defaults is <code>user.dir</code>.
+   *
+   * @return Base directory used it for loading openAPI template file name.
+   */
   public Path getBasedir() {
     return basedir;
   }
 
+  /**
+   * Set output directory used by {@link #export(OpenAPI, Format)} operation.
+   *
+   * Defaults to {@link #getBasedir()}.
+   *
+   * @return Get output directory.
+   */
   public Path getOutputDir() {
     return outputDir;
   }
 
-  public String getIncludes() {
+  /**
+   * Regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   *
+   * @return Regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   */
+  public @Nullable String getIncludes() {
     return includes;
   }
 
-  public void setIncludes(String includes) {
+  /**
+   * Set regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   *
+   * @param includes Regular expression.
+   */
+  public void setIncludes(@Nullable String includes) {
     this.includes = includes;
   }
 
-  public String getExcludes() {
+  /**
+   * Regular expression used to excludes route. Example: <code>/web</code>.
+   *
+   * @return Regular expression used to excludes route. Example: <code>/web</code>.
+   */
+  public @Nullable String getExcludes() {
     return excludes;
   }
 
-  public void setExcludes(String excludes) {
+  /**
+   * Set Regular expression used to excludes route. Example: <code>/web</code>.
+   *
+   * @param excludes Regular expression used to excludes route. Example: <code>/web</code>.
+   */
+  public void setExcludes(@Nullable String excludes) {
     this.excludes = excludes;
   }
 
-  public void setOutputDir(Path outputDir) {
+  /**
+   * Set output directory used by {@link #export(OpenAPI, Format)}.
+   *
+   * @param outputDir Output directory.
+   */
+  public void setOutputDir(@Nonnull Path outputDir) {
     this.outputDir = outputDir;
   }
 

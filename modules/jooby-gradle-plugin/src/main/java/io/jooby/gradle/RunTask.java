@@ -156,42 +156,76 @@ public class RunTask extends BaseTask {
     }
   }
 
-  public String getProjectName() {
-    return projectName;
-  }
-
-  public void setProjectName(String projectName) {
-    this.projectName = projectName;
-  }
-
+  /**
+   * Main class to run.
+   *
+   * @return Main class (one with main method).
+   */
   public String getMainClassName() {
     return mainClassName;
   }
 
+  /**
+   * Set main class name.
+   *
+   * @param mainClassName Main class name.
+   */
   public void setMainClassName(String mainClassName) {
     this.mainClassName = mainClassName;
   }
 
+  /**
+   * List of file extensions that trigger an application restart. Default is: <code>conf</code>,
+   * <code>properties</code> and <code>class</code>.
+   *
+   * @return Restart extensions.
+   */
   public List<String> getRestartExtensions() {
     return restartExtensions;
   }
 
+  /**
+   * Set restart extensions. Extension is expected to be specify without <code>.</code> (dot).
+   *
+   * @param restartExtensions Restart extensions.
+   */
   public void setRestartExtensions(List<String> restartExtensions) {
     this.restartExtensions = restartExtensions;
   }
 
+  /**
+   * List of file extensions that trigger a compilation request. Compilation is done via Maven or
+   * Gradle. Default is: <code>java</code> and <code>kt</code>.
+   *
+   * @return Compile extensions.
+   */
   public List<String> getCompileExtensions() {
     return compileExtensions;
   }
 
+  /**
+   * Set compile extensions. Extension is expected to be specify without <code>.</code> (dot).
+   *
+   * @param compileExtensions Compile extensions.
+   */
   public void setCompileExtensions(List<String> compileExtensions) {
     this.compileExtensions = compileExtensions;
   }
 
+  /**
+   * Application port.
+   *
+   * @return Application port.
+   */
   public int getPort() {
     return port;
   }
 
+  /**
+   * Set application port.
+   *
+   * @param port Application port.
+   */
   public void setPort(int port) {
     this.port = port;
   }

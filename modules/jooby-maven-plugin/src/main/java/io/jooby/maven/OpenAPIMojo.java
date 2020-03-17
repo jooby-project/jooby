@@ -11,6 +11,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -20,6 +22,14 @@ import java.util.stream.Stream;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
+/**
+ * Generate an OpenAPI file from a jooby application.
+ *
+ * Usage: https://jooby.io/modules/openapi
+ *
+ * @author edgar
+ * @since 2.7.0
+ */
 @Mojo(name = "openapi", threadSafe = true,
     requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
     aggregator = true,
@@ -27,16 +37,13 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
 )
 public class OpenAPIMojo extends BaseMojo {
 
-  @Parameter(defaultValue = "json,yaml")
-  private String format;
-
   @Parameter(property = "openAPI.includes")
   private String includes;
 
   @Parameter(property = "openAPI.excludes")
   private String excludes;
 
-  @Override protected void doExecute(List<MavenProject> projects, String mainClass)
+  @Override protected void doExecute(@Nonnull List<MavenProject> projects, @Nonnull String mainClass)
       throws Exception {
     ClassLoader classLoader = createClassLoader(projects);
 
@@ -57,8 +64,9 @@ public class OpenAPIMojo extends BaseMojo {
 
     OpenAPI result = tool.generate(mainClass);
 
-    for (OpenAPIGenerator.Format format : OpenAPIGenerator.Format.parse(this.format)) {
-      tool.export(result, format);
+    for (OpenAPIGenerator.Format format : OpenAPIGenerator.Format.values()) {
+      Path output = tool.export(result, format);
+      getLog().info("  writing: " + output);
     }
   }
 
@@ -69,27 +77,39 @@ public class OpenAPIMojo extends BaseMojo {
     return Optional.of(value.trim());
   }
 
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getIncludes() {
+  /**
+   * Regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   *
+   * @return Regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   */
+  public @Nullable String getIncludes() {
     return includes;
   }
 
-  public void setIncludes(String includes) {
+  /**
+   * Set regular expression used to includes/keep route. Example: <code>/api/.*</code>.
+   *
+   * @param includes Regular expression.
+   */
+  public void setIncludes(@Nullable String includes) {
     this.includes = includes;
   }
 
-  public String getExcludes() {
+  /**
+   * Regular expression used to excludes route. Example: <code>/web</code>.
+   *
+   * @return Regular expression used to excludes route. Example: <code>/web</code>.
+   */
+  public @Nullable String getExcludes() {
     return excludes;
   }
 
-  public void setExcludes(String excludes) {
+  /**
+   * Set Regular expression used to excludes route. Example: <code>/web</code>.
+   *
+   * @param excludes Regular expression used to excludes route. Example: <code>/web</code>.
+   */
+  public void setExcludes(@Nullable String excludes) {
     this.excludes = excludes;
   }
 }

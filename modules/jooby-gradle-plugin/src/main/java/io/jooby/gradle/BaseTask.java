@@ -11,6 +11,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,15 +27,34 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Base class which provides common utility method to more specific plugins: like classpath
+ * resources.
+ *
+ * Also, handle maven specific exceptions.
+ *
+ * @author edgar
+ */
 public class BaseTask extends DefaultTask {
 
   protected static final String APP_CLASS = "mainClassName";
 
-  public List<Project> getProjects() {
+  /**
+   * Available projects.
+   *
+   * @return Available projects.
+   */
+  public @Nonnull List<Project> getProjects() {
     return Collections.singletonList(getProject());
   }
 
-  protected String computeMainClassName(List<Project> projects) {
+  /**
+   * Compute class name from available projects.
+   *
+   * @param projects Projects.
+   * @return Main class.
+   */
+  protected @Nonnull String computeMainClassName(@Nonnull List<Project> projects) {
     return projects.stream()
         .filter(it -> it.getProperties().containsKey(APP_CLASS))
         .map(it -> it.getProperties().get(APP_CLASS).toString())
@@ -43,16 +63,38 @@ public class BaseTask extends DefaultTask {
             "Application class not found. Did you forget to set `" + APP_CLASS + "`?"));
   }
 
-  protected Set<Path> binDirectories(Project project, SourceSet sourceSet) {
+  /**
+   * Project binary directories.
+   *
+   * @param project Project.
+   * @param sourceSet Source set.
+   * @return Directories.
+   */
+  protected @Nonnull Set<Path> binDirectories(@Nonnull Project project,
+      @Nonnull SourceSet sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && Files.isDirectory(it));
   }
 
-  protected Set<Path> dependencies(Project project, SourceSet sourceSet) {
+  /**
+   * Project dependencies(jars).
+   *
+   * @param project Project.
+   * @param sourceSet Source set.
+   * @return Jar files.
+   */
+  protected @Nonnull Set<Path> dependencies(@Nonnull Project project,
+      @Nonnull SourceSet sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && it.toString().endsWith(".jar"));
   }
 
-  protected Path classes(Project project) {
-     SourceSet sourceSet = sourceSet(project);
+  /**
+   * Project classes directory.
+   *
+   * @param project Project.
+   * @return Classes directory.
+   */
+  protected @Nonnull Path classes(@Nonnull Project project) {
+    SourceSet sourceSet = sourceSet(project);
     return sourceSet.getRuntimeClasspath().getFiles().stream()
         .filter(f -> f.exists() && f.isDirectory() && f.toString().contains("classes"))
         .findFirst()
@@ -60,7 +102,16 @@ public class BaseTask extends DefaultTask {
         .toPath();
   }
 
-  protected Set<Path> classpath(Project project, SourceSet sourceSet, Predicate<Path> predicate) {
+  /**
+   * Project classpath.
+   *
+   * @param project Project.
+   * @param sourceSet Source set.
+   * @param predicate Path filter.
+   * @return Classpath.
+   */
+  protected @Nonnull Set<Path> classpath(@Nonnull Project project, @Nonnull SourceSet sourceSet,
+      @Nonnull Predicate<Path> predicate) {
     Set<Path> result = new LinkedHashSet<>();
     // classes/main, resources/main + jars
     sourceSet.getRuntimeClasspath().getFiles().stream()
@@ -77,7 +128,14 @@ public class BaseTask extends DefaultTask {
     return result;
   }
 
-  protected Set<Path> sourceDirectories(Project project, SourceSet sourceSet) {
+  /**
+   * Project source directories.
+   *
+   * @param project Project.
+   * @param sourceSet Source set.
+   * @return Source directories.
+   */
+  protected @Nonnull Set<Path> sourceDirectories(@Nonnull Project project, @Nonnull SourceSet sourceSet) {
     Path eclipse = project.getProjectDir().toPath().resolve(".classpath");
     if (Files.exists(eclipse)) {
       // let eclipse to do the incremental compilation
@@ -89,15 +147,34 @@ public class BaseTask extends DefaultTask {
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  protected SourceSet sourceSet(final Project project) {
+  /**
+   * Source set.
+   *
+   * @param project Project.
+   * @return SourceSet.
+   */
+  protected @Nonnull SourceSet sourceSet(final @Nonnull Project project) {
     return getJavaConvention(project).getSourceSets()
         .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
   }
 
-  protected JavaPluginConvention getJavaConvention(final Project project) {
+  /**
+   * Java plugin convention.
+   *
+   * @param project Project.
+   * @return Java plugin convention.
+   */
+  protected @Nonnull JavaPluginConvention getJavaConvention(final @Nonnull Project project) {
     return project.getConvention().getPlugin(JavaPluginConvention.class);
   }
 
+  /**
+   * Creates a class loader.
+   *
+   * @param projects Projects to  use.
+   * @return Class loader.
+   * @throws MalformedURLException If there is a bad path reference.
+   */
   protected ClassLoader createClassLoader(List<Project> projects)
       throws MalformedURLException {
     List<URL> cp = new ArrayList<>();

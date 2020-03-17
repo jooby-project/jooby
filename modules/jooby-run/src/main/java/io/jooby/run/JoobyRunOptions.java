@@ -154,12 +154,12 @@ public class JoobyRunOptions {
   }
 
   @Override public String toString() {
-    return "{" +
-        "projectName='" + projectName + '\'' +
-        ", mainClass='" + mainClass + '\'' +
-        ", restartExtensions=" + restartExtensions +
-        ", compileExtensions=" + compileExtensions +
-        ", port=" + port +
-        '}';
+    return "{"
+        + "projectName='" + projectName + '\''
+        + ", mainClass='" + mainClass + '\''
+        + ", restartExtensions=" + restartExtensions
+        + ", compileExtensions=" + compileExtensions
+        + ", port=" + port
+        + '}';
   }
 }
