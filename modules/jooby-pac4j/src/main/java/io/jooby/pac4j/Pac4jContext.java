@@ -31,7 +31,7 @@ public interface Pac4jContext extends WebContext {
    * @param ctx Web context.
    * @return Pac4j web context.
    */
-  static @Nonnull Pac4jContext create(@Nonnull Context ctx) {
-    return new WebContextImpl(ctx);
+  static @Nonnull Pac4jContext create(@Nonnull Context ctx, @Nonnull Pac4jOptions options) {
+    return new WebContextImpl(ctx, options);
   }
 }
