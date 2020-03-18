@@ -1331,7 +1331,7 @@ public class OpenAPIGeneratorTest {
         .verify();
   }
 
-  @OpenAPITest(value = KtAppWithMainKt.class, debug = DebugOption.ALL)
+  @OpenAPITest(value = KtAppWithMainKt.class)
   public void ktAppWithMain(RouteIterator iterator) {
     iterator
         .next(route -> {

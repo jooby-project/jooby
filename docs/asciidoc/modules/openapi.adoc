@@ -180,6 +180,9 @@ class Pets {
 }
 ----
 
+The Maven plugin and Gradle task provide two filter properties `includes` and `excludes`. These
+properties filter routes by their path pattern. The filter is a regular expression.
+
 === Annotations
 
 To produces a better documentation this plugin depends on some OpenAPI annotations. To use them, you
