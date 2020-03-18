@@ -16,11 +16,12 @@ repositories {
 
 // Unless overridden in the pluginBundle config DSL, the project version will
 // be used as your plugin version when publishing
-version = "2.6.2"
+version = "2.7.0"
 group = "io.jooby"
 
 dependencies {
   implementation "io.jooby:jooby-run:$version"
+  implementation "io.jooby:jooby-openapi:$version"
 }
 
 
@@ -29,6 +30,10 @@ gradlePlugin {
   plugins {
     joobyRun {
       id = 'io.jooby.run'
+      implementationClass = 'io.jooby.gradle.JoobyPlugin'
+    }
+    openAPI {
+      id = 'io.jooby.openAPI'
       implementationClass = 'io.jooby.gradle.JoobyPlugin'
     }
   }
@@ -48,6 +53,11 @@ pluginBundle {
     joobyRun {
       // id is captured from java-gradle-plugin configuration
       displayName = 'Jooby Run plugin'
+    }
+
+    openAPI {
+      // id is captured from java-gradle-plugin configuration
+      displayName = 'Jooby OpenAPI plugin'
     }
   }
 }
