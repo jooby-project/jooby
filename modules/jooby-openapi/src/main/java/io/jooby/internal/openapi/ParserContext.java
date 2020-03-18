@@ -79,6 +79,7 @@ public class ParserContext {
     public JavaType type;
   }
 
+  private String mainClass;
   private final ModelConverters converters;
   private final Type router;
   private final Map<Type, ClassNode> nodes;
@@ -124,7 +125,8 @@ public class ParserContext {
     );
     /** Set class loader: */
     mappers.stream()
-        .forEach(mapper -> mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(classLoader)));
+        .forEach(
+            mapper -> mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(classLoader)));
   }
 
   public Collection<Schema> schemas() {
@@ -330,5 +332,13 @@ public class ParserContext {
   public ParserContext newContext(Type router) {
     ParserContext ctx = new ParserContext(source, nodes, router, debug);
     return ctx;
+  }
+
+  public String getMainClass() {
+    return mainClass;
+  }
+
+  public void setMainClass(String mainClass) {
+    this.mainClass = mainClass;
   }
 }

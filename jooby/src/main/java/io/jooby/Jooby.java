@@ -543,7 +543,8 @@ public class Jooby implements Router, Registry {
    * @return Base application package.
    */
   public @Nullable String getBasePackage() {
-    return System.getProperty(BASE_PACKAGE);
+    return System.getProperty(BASE_PACKAGE,
+        Optional.ofNullable(getClass().getPackage()).map(Package::getName).orElse(null));
   }
 
   @Nonnull @Override public SessionStore getSessionStore() {
@@ -676,7 +677,7 @@ public class Jooby implements Router, Registry {
 
     this.serverOptions = server.getOptions();
 
-    log.info("{} started with:", System.getProperty(APP_NAME, getClass().getSimpleName()));
+    log.info("{} started with:", getName());
 
     log.info("    PID: {}", System.getProperty("PID"));
     log.info("    {}", server.getOptions());
@@ -772,16 +773,19 @@ public class Jooby implements Router, Registry {
    */
   public @Nonnull String getName() {
     if (name == null) {
-      name = Optional.ofNullable(getClass().getPackage())
-          .map(Package::getImplementationTitle)
-          .filter(Objects::nonNull)
-          .orElse(getClass().getSimpleName());
+      name = System.getProperty(APP_NAME);
+      if (name == null) {
+        name = Optional.ofNullable(getClass().getPackage())
+            .map(Package::getImplementationTitle)
+            .filter(Objects::nonNull)
+            .orElse(getClass().getSimpleName());
+      }
     }
     return name;
   }
 
   /**
-   * Set application name (only for description purpose).
+   * Set application name.
    *
    * @param name Application's name.
    * @return This application.

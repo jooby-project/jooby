@@ -6,6 +6,7 @@
 package io.jooby
 
 import kotlinx.coroutines.CoroutineStart
+import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -298,9 +299,15 @@ fun <T : Jooby> runApp(args: Array<String>, application: KClass<T>) {
 }
 
 fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, application: KClass<T>) {
+  System.setProperty(Jooby.APP_NAME, application.java.simpleName)
   Jooby.runApp(args, mode, application.java)
 }
 
 internal fun configurePackage(value: Any) {
+  var appname = value::class.java.name
+  val start = appname.indexOf(".").let { if (it == -1) 0 else it + 1 }
+
+  val end = appname.indexOf("Kt$")
+  System.setProperty(Jooby.APP_NAME, appname.substring(start, end))
   value::class.java.`package`?.let { System.setProperty(Jooby.BASE_PACKAGE, it.name) }
 }

@@ -350,7 +350,7 @@ public class RouteParser {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
           }
         } else if (signature.matches(KOOBYKT, "runApp")) {
-          handlerList.addAll(kotlinRunApp(ctx, null, prefix, node));
+          handlerList.addAll(kotlinRunApp(ctx, prefix, node));
         } else if (signature.matches(Route.class, "produces", MediaType[].class)) {
           if (instructionTo != null) {
             OperationExt route = handlerList.get(handlerList.size() - 1);
@@ -373,16 +373,29 @@ public class RouteParser {
     return handlerList;
   }
 
-  private List<OperationExt> kotlinRunApp(ParserContext ctx, String httpMethod, String prefix,
+  private List<OperationExt> kotlinRunApp(ParserContext ctx, String prefix,
       MethodInsnNode node) {
     List<OperationExt> handlerList = new ArrayList<>();
-    Type type = InsnSupport.prev(node)
-        .filter(FieldInsnNode.class::isInstance)
-        .filter(InsnSupport.opcode(GETSTATIC))
-        .findFirst()
-        .map(n -> ((FieldInsnNode) n).owner)
-        .map(Type::getObjectType)
-        .orElseThrow(() -> new IllegalStateException("io.jooby.runApp(String[]) parsing failure"));
+    Type type = null;
+    for (AbstractInsnNode it : InsnSupport.prev(node).collect(Collectors.toList())) {
+      if (it instanceof FieldInsnNode) {
+        FieldInsnNode getstatic = (FieldInsnNode) it;
+        if (getstatic.getOpcode() == GETSTATIC) {
+          type = Type.getObjectType(getstatic.owner);
+          break;
+        }
+      } else if (it instanceof LdcInsnNode) {
+        LdcInsnNode e = (LdcInsnNode) it;
+        if (e.cst instanceof Type) {
+          type = (Type) e.cst;
+          ctx.setMainClass(type.getClassName());
+          break;
+        }
+      }
+    }
+    if (type == null) {
+      throw new IllegalStateException("io.jooby.runApp(String[]) parsing failure");
+    }
     ClassNode classNode = ctx.classNode(type);
     handlerList.addAll(parse(ctx, prefix, classNode));
     return handlerList;

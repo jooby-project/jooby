@@ -23,6 +23,7 @@ import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import kt.KtAppWithMainKt;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtMvcApp;
 import kt.KtNoAppClassKt;
@@ -1177,6 +1178,17 @@ public class OpenAPIGeneratorTest {
           assertEquals(int.class.getName(), route.getDefaultResponse().getJavaType());
           assertEquals("fnRef", route.getOperationId());
           assertEquals("function reference", route.getSummary());
+        })
+        .verify();
+  }
+
+  @OpenAPITest(value = KtAppWithMainKt.class, debug = DebugOption.ALL)
+  public void ktAppWithMain(RouteIterator iterator) {
+    iterator
+        .next(route -> {
+          assertEquals("GET /welcome", route.toString());
+          assertEquals(String.class.getName(), route.getDefaultResponse().getJavaType());
+          assertEquals("getWelcome", route.getOperationId());
         })
         .verify();
   }

@@ -119,12 +119,11 @@ public class OpenAPIModule implements Extension {
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
-    String dir = Optional.ofNullable(application.getClass().getPackage())
-        .map(Package::getName)
+    String dir = Optional.ofNullable(application.getBasePackage())
         .orElse("/")
         .replace(".", "/");
 
-    String appname = application.getClass().getSimpleName()
+    String appname = application.getName()
         .replace("Jooby", "openapi")
         .replace("Kooby", "openapi");
     for (Format ext : format) {

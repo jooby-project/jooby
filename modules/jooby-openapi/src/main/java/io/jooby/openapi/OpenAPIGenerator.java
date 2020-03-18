@@ -84,7 +84,8 @@ public class OpenAPIGenerator {
      * @param result Model.
      * @return String (json or yaml content).
      */
-    public abstract @Nonnull String toString(@Nonnull OpenAPIGenerator tool, @Nonnull OpenAPI result);
+    public abstract @Nonnull String toString(@Nonnull OpenAPIGenerator tool,
+        @Nonnull OpenAPI result);
 
   }
 
@@ -119,7 +120,11 @@ public class OpenAPIGenerator {
       String[] names = source.split("\\.");
       output = Stream.of(names).limit(Math.max(0, names.length - 2))
           .reduce(outputDir, Path::resolve, Path::resolve);
-      output = output.resolve(names[names.length - 1] + "." + format.extension());
+      String appname = names[names.length - 1];
+      if (appname.endsWith("Kt")) {
+        appname = appname.substring(0, appname.length() - 2);
+      }
+      output = output.resolve(appname + "." + format.extension());
     } else {
       output = outputDir.resolve("openapi." + format.extension());
     }
@@ -157,7 +162,7 @@ public class OpenAPIGenerator {
 
     /** Create OpenAPI from template and make sure min required information is present: */
     OpenAPIExt openapi = OpenAPIExt.create(basedir, classLoader, templateName);
-    openapi.setSource(classname);
+    openapi.setSource(Optional.ofNullable(ctx.getMainClass()).orElse(classname));
 
     defaults(classname, contextPath, openapi);
 
