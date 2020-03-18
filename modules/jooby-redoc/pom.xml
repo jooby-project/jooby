@@ -38,14 +38,13 @@
     <plugins>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
         <executions>
           <execution>
             <phase>generate-resources</phase>
             <configuration>
               <target>
                 <ant antfile="${project.basedir}/build.xml"></ant>
-<!--                <delete dir="${project.build.outputDirectory}${file.separator}META-INF"/>-->
+                <delete dir="${project.build.outputDirectory}${file.separator}META-INF"/>
               </target>
             </configuration>
             <goals>

@@ -38,7 +38,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>${maven-dependency-plugin.version}</version>
         <executions>
           <execution>
             <phase>generate-resources</phase>
@@ -61,7 +61,6 @@
 
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
         <executions>
           <execution>
             <phase>generate-resources</phase>

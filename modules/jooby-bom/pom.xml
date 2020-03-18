@@ -33,6 +33,7 @@
   <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
   <flyway.version>6.3.0</flyway.version>
   <freemarker.version>2.3.29</freemarker.version>
+  <frontend-maven-plugin.version>1.9.1</frontend-maven-plugin.version>
   <gradle-core.version>2.6</gradle-core.version>
   <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
   <gradle-tooling-api.version>2.6</gradle-tooling-api.version>
@@ -70,6 +71,7 @@
   <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
   <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
   <maven-core.version>3.6.3</maven-core.version>
+  <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
   <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
   <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
   <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
@@ -892,18 +894,6 @@
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
       <version>${plexus-utils.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.twdata.maven</groupId>
-      <artifactId>mojo-executor</artifactId>
-      <version>${mojo-executor.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-antrun-plugin</artifactId>
-      <version>${maven-antrun-plugin.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
