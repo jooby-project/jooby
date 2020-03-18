@@ -25,7 +25,7 @@ public class CallbackFilterImpl implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    Pac4jContext pac4j = Pac4jContext.create(ctx);
+    Pac4jContext pac4j = Pac4jContext.create(ctx, options);
 
     Object result = config.getCallbackLogic().perform(
         pac4j,

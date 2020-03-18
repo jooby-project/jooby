@@ -9,6 +9,7 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.pac4j.Pac4jContext;
+import io.jooby.pac4j.Pac4jOptions;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.http.url.UrlResolver;
 
@@ -58,10 +59,13 @@ public class DevLoginForm implements Route.Handler {
 
   private Config pac4j;
 
+  private Pac4jOptions options;
+
   private String callbackPath;
 
-  public DevLoginForm(Config pac4j, String callbackPath) {
+  public DevLoginForm(Config pac4j, Pac4jOptions options, String callbackPath) {
     this.pac4j = pac4j;
+    this.options = options;
     this.callbackPath = callbackPath;
   }
 
@@ -73,7 +77,7 @@ public class DevLoginForm implements Route.Handler {
     ctx.attribute("error", error);
 
     UrlResolver urlResolver = pac4j.getClients().getUrlResolver();
-    String url = urlResolver.compute(callbackPath, Pac4jContext.create(ctx));
+    String url = urlResolver.compute(callbackPath, Pac4jContext.create(ctx, options));
     // default login form
     return ctx.setResponseType(MediaType.html)
         .send(String.format(FORM, error, url, username));

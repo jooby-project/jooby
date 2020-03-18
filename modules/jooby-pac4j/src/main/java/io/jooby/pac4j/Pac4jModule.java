@@ -194,7 +194,7 @@ public class Pac4jModule implements Extension {
         .orElseGet(Pac4jModule::newActionAdapter));
 
     if (devLogin) {
-      application.get("/login", new DevLoginForm(pac4j, contextPath + options.getCallbackPath()));
+      application.get("/login", new DevLoginForm(pac4j, options, contextPath + options.getCallbackPath()));
     }
 
     /** If we have multiple clients on specific paths, we collect those path and configure pac4j
