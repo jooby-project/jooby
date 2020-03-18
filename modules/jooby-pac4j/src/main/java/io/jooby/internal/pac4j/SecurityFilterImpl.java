@@ -13,10 +13,10 @@ import org.pac4j.core.client.Client;
 import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.client.finder.DefaultSecurityClientFinder;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import org.pac4j.core.engine.SecurityLogic;
 import org.pac4j.core.exception.http.WithLocationAction;
+import org.pac4j.core.util.Pac4jConstants;
 
 import javax.annotation.Nonnull;
 import java.util.List;
