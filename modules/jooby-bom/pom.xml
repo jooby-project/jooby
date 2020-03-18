@@ -98,7 +98,7 @@
   <quartz.version>2.3.2</quartz.version>
   <reactor.version>3.3.2.RELEASE</reactor.version>
   <redoc.version>2.0.0-rc.20</redoc.version>
-  <rest-assured.version>4.2.0</rest-assured.version>
+  <rest-assured.version>4.3.0</rest-assured.version>
   <rocker.version>1.2.3</rocker.version>
   <rxjava.version>2.2.17</rxjava.version>
   <slf4j.version>1.7.30</slf4j.version>
