@@ -27,6 +27,9 @@ Available modules are listed next.
 === JSON
    * link:modules/jackson[Jackson]: Jackson module for Jooby.
 
+=== OpenAPI
+* link:modules/openapi[OpenAPI]: OpenAPI supports.
+
 === Template Engine
    * link:modules/handlebars[Handlebars]: Handlebars templates for Jooby.
    * link:modules/freemarker[Freemarker]: Freemarker templates for Jooby.

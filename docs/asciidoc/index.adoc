@@ -65,7 +65,8 @@ fun main(args: Array<String>) {
 * Java and Kotlin API
 * Fast startup time and <<hot-reload, Hot-Reload for development>> using Maven or Gradle
 * Script/lambda routes using fluent API
-* <<mvc-api, MVC routes>> using Jooby and JAX-RS annotations
+* <<mvc-api, MVC routes>> using Jooby or JAX-RS annotations
+* link:modules/openapi[OpenAPI 3] supports
 * <<execution-model, Event Loop and blocking execution modes>>
 * <<responses, Reactive responses>> (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
 * <<server, Multi-server>> including https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]

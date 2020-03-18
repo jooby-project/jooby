@@ -3,6 +3,7 @@ package io.jooby.openapi;
 import com.fasterxml.jackson.databind.JavaType;
 import examples.Letter;
 import examples.MvcApp;
+import examples.MvcInstanceApp;
 import examples.NoAppClass;
 import examples.RouteBodyArgs;
 import examples.RouteFormArgs;
@@ -919,6 +920,154 @@ public class OpenAPIGeneratorTest {
 
   @OpenAPITest(value = MvcApp.class)
   public void routeMvc(RouteIterator iterator) {
+    iterator
+        .next((route, args) -> {
+          assertEquals("GET /api/foo", route.toString());
+          args
+              .next(arg -> {
+                assertEquals("q", arg.getName());
+                assertEquals("java.util.Optional<java.lang.String>", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+              })
+              .verify();
+          assertEquals(String.class.getName(), route.getDefaultResponse().toString());
+        })
+        .next((route, args) -> {
+          assertEquals("GET /api/bar", route.toString());
+          args
+              .next(arg -> {
+                assertEquals("q", arg.getName());
+                assertEquals("java.util.Optional<java.lang.String>", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+              })
+              .verify();
+          assertEquals(String.class.getName(), route.getDefaultResponse().toString());
+        })
+        .next((route, args) -> {
+          assertEquals("GET /api", route.toString());
+
+          args
+              .next(arg -> {
+                assertEquals("bool", arg.getName());
+                assertEquals("boolean", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("s", arg.getName());
+                assertEquals("short", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("i", arg.getName());
+                assertEquals("int", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("c", arg.getName());
+                assertEquals("char", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("l", arg.getName());
+                assertEquals("long", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("f", arg.getName());
+                assertEquals("float", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("d", arg.getName());
+                assertEquals("double", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .verify();
+          assertEquals(String.class.getName(), route.getDefaultResponse().toString());
+        })
+        .next((route, args) -> {
+          assertEquals("POST /api/post", route.toString());
+          args
+              .next(arg -> {
+                assertEquals("bool", arg.getName());
+                assertEquals("boolean", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("s", arg.getName());
+                assertEquals("short", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("i", arg.getName());
+                assertEquals("int", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("c", arg.getName());
+                assertEquals("char", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("l", arg.getName());
+                assertEquals("long", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("f", arg.getName());
+                assertEquals("float", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .next(arg -> {
+                assertEquals("d", arg.getName());
+                assertEquals("double", arg.getJavaType());
+                assertEquals("query", arg.getIn());
+                assertTrue(arg.getRequired());
+              })
+              .verify();
+          assertEquals(String.class.getName(), route.getDefaultResponse().toString());
+        })
+        .next((route, args) -> {
+          assertEquals("GET /api/path", route.toString());
+          assertEquals(String.class.getName(), route.getDefaultResponse().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /api/path-only", route.toString());
+          assertEquals(String.class.getName(), route.getDefaultResponse().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /api/session", route.toString());
+          assertEquals(String.class.getName(), route.getDefaultResponse().toString());
+        })
+        .next(route -> {
+          assertEquals("GET /api/returnList", route.toString());
+          assertEquals("java.util.List<" + String.class.getName() + ">",
+              route.getDefaultResponse().toString());
+          assertTrue(route.getDeprecated());
+        })
+        .next(route -> {
+          assertEquals("POST /api/bean", route.toString());
+          assertEquals(ABean.class.getName(), route.getDefaultResponse().toString());
+          assertEquals(ABean.class.getName(), route.getRequestBody().getJavaType());
+        })
+        .verify();
+  }
+
+  @OpenAPITest(value = MvcInstanceApp.class)
+  public void routeMvcInstance(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
           assertEquals("GET /api/foo", route.toString());

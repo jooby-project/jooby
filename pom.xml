@@ -68,6 +68,8 @@
     <reactor.version>3.3.2.RELEASE</reactor.version>
 
     <!--OpenAPI-->
+    <swagger.version>2.1.1</swagger.version>
+    <swagger-parser.version>2.0.18</swagger-parser.version>
     <swagger-ui.version>3.25.0</swagger-ui.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
@@ -596,6 +598,24 @@
       </dependency>
 
       <!-- OpenAPI -->
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-annotations</artifactId>
+        <version>${swagger.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-models</artifactId>
+        <version>${swagger.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.swagger.parser.v3</groupId>
+        <artifactId>swagger-parser</artifactId>
+        <version>${swagger-parser.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.webjars</groupId>
         <artifactId>swagger-ui</artifactId>
