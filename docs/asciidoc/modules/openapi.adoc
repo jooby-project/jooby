@@ -41,17 +41,17 @@ This library supports:
 ----
 buildscript {
 
-  repositories {
-    mavenCentral()
+  ext {
+    joobyVersion = "{joobyVersion}"
   }
 
-  dependencies {
-    classpath "io.jooby:jooby-gradle-plugin:{joobyVersion}"
-  }
 }
 
-apply plugin: "application"
-apply plugin: "jooby"
+plugins {
+    id "application"
+    id "io.jooby.openAPI" version "$\{joobyVersion\}"
+    ...
+}
 
 ...
 mainClassName = "myapp.App"
@@ -61,7 +61,7 @@ mainClassName = "myapp.App"
 joobyRun.dependsOn openAPI
 
 // Run openAPI task on build
-build.dependsOn openAPI
+jar.dependsOn openAPI
 ----
 
 [NOTE]

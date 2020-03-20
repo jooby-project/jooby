@@ -15,7 +15,6 @@ import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Generate an OpenAPI file from a jooby application.
@@ -45,20 +44,17 @@ public class OpenAPITask extends BaseTask {
     String mainClass = Optional.ofNullable(mainClassName)
         .orElseGet(() -> computeMainClassName(projects));
 
+    Path outputDir = classes(getProject());
+
     ClassLoader classLoader = createClassLoader(projects);
 
     getLogger().info(" Generating OpenAPI: " + mainClass);
-
     getLogger().debug("Using classloader: " + classLoader);
-
-    String[] names = mainClass.split("\\.");
-    Path dir = Stream.of(names)
-        .reduce(classes(getProject()), Path::resolve, Path::resolve)
-        .getParent();
+    getLogger().debug("Output directory: " + outputDir);
 
     OpenAPIGenerator tool = new OpenAPIGenerator();
     tool.setClassLoader(classLoader);
-    tool.setOutputDir(dir);
+    tool.setOutputDir(outputDir);
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
 

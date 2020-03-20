@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
@@ -46,19 +45,15 @@ public class OpenAPIMojo extends BaseMojo {
   @Override protected void doExecute(@Nonnull List<MavenProject> projects, @Nonnull String mainClass)
       throws Exception {
     ClassLoader classLoader = createClassLoader(projects);
+    Path outputDir = Paths.get(project.getBuild().getOutputDirectory());
 
     getLog().info("Generating OpenAPI: " + mainClass);
-
     getLog().debug("Using classloader: " + classLoader);
-
-    String[] names = mainClass.split("\\.");
-    Path dir = Stream.of(names)
-        .reduce(Paths.get(project.getBuild().getOutputDirectory()), Path::resolve, Path::resolve)
-        .getParent();
+    getLog().debug("Output directory: " + outputDir);
 
     OpenAPIGenerator tool = new OpenAPIGenerator();
     tool.setClassLoader(classLoader);
-    tool.setOutputDir(dir);
+    tool.setOutputDir(outputDir);
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
 

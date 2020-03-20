@@ -118,7 +118,7 @@ public class OpenAPIGenerator {
     if (openAPI instanceof OpenAPIExt) {
       String source = ((OpenAPIExt) openAPI).getSource();
       String[] names = source.split("\\.");
-      output = Stream.of(names).limit(Math.max(0, names.length - 2))
+      output = Stream.of(names).limit(names.length - 1)
           .reduce(outputDir, Path::resolve, Path::resolve);
       String appname = names[names.length - 1];
       if (appname.endsWith("Kt")) {

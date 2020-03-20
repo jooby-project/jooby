@@ -90,7 +90,7 @@ public class DependencyProcessor extends BlockProcessor {
       }
       comment(artifactId[i], "//", "").ifPresent(lines::accept);
       lines.accept(
-          "compile '" + (groupId == null ? groupId(artifactId(artifactId[i])) : groupId) + ":" + artifactId(artifactId[i])
+          "implementation '" + (groupId == null ? groupId(artifactId(artifactId[i])) : groupId) + ":" + artifactId(artifactId[i])
               + ":" + (version == null ? version(artifactId(artifactId[i])) : version)
               + "'");
     }
