@@ -17,9 +17,11 @@ Style guidelines:
 ////
 
 = Welcome to Jooby!
+Jooby Project <support@jooby.io>
+{joobyVersion}
 
 [discrete]
-== &infin; do more, more easily 
+== &infin; do more, more easily
 
 == Introduction
 
@@ -28,7 +30,9 @@ favorite web server.
 
 [TIP]
 ====
-Looking for previous version? The link:v1[v1 documentation] is still available.
+Latest Release: https://github.com/jooby-project/jooby/releases/tag/{joobyVersion}[{joobyVersion}].
+
+Looking for previous version? The link:v1[1.x] documentation is still available. 
 ====
 
 .Welcome!!
@@ -59,6 +63,8 @@ fun main(args: Array<String>) {
   }
 }
 ----
+
+Source code is available at https://github.com/jooby-project/jooby[GitHub]
 
 === Features
 
@@ -206,28 +212,6 @@ fun main(args: Array<String>) {
 
 More about MVC and JAX-RS support in the <<mvc-api, MVC API>> chapter.
 
-=== Code Snippets
-
-For simplicity and brevity we are going to skip the `runApp` function and extending `Jooby`.
-A code example will looks like:
-
-.Snippet
-[source, java, role = "primary"]
-----
-{
-  get("/", ctx -> "Snippet");
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-{
-  get("/") { "Snippet" }
-}
-----
-
-The use of `application class` or `runApp function` will be included when is strictly necessary.
 
 include::getting-started.adoc[]
 

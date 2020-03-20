@@ -29,6 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -207,6 +210,7 @@ public class DocGenerator {
         .forEach(tag -> attributes.setAttribute(toJavaName(tag.tagName()), tag.text().trim()));
 
     attributes.setAttribute("joobyVersion", version);
+    attributes.setAttribute("date", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
 
     Options options = new Options();
     options.setBackend("html");

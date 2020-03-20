@@ -132,3 +132,26 @@ The default package in all these examples is set to `app`, to get fully control 
 ----
 jooby> create myapp -i
 ----
+
+=== Code Snippets
+
+For simplicity and brevity we are going to skip the `runApp` function and extending `Jooby`.
+A code example will looks like:
+
+.Snippet
+[source, java, role = "primary"]
+----
+{
+  get("/", ctx -> "Snippet");
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+{
+  get("/") { "Snippet" }
+}
+----
+
+The use of `application class` or `runApp function` will be included when is strictly necessary.
