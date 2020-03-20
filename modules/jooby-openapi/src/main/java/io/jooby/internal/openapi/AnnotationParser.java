@@ -193,6 +193,10 @@ public class AnnotationParser {
           // mvc(new Controller(...));
           Type type = Type.getObjectType(methodInsnNode.owner);
           return parse(ctx, prefix, type);
+        } else {
+          // mvc(some.myController());
+          Type type = Type.getReturnType(methodInsnNode.desc);
+          return parse(ctx, prefix, type);
         }
       }
     }
