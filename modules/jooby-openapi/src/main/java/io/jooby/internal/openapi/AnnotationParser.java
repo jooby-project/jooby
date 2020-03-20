@@ -149,11 +149,13 @@ public class AnnotationParser {
     }
 
     public static ParamType find(List<AnnotationNode> annotations) {
-      for (AnnotationNode annotation : annotations) {
-        String annotationType = Type.getType(annotation.desc).getClassName();
-        for (ParamType paramType : values()) {
-          if (paramType.matches(annotationType)) {
-            return paramType;
+      if (annotations != null) {
+        for (AnnotationNode annotation : annotations) {
+          String annotationType = Type.getType(annotation.desc).getClassName();
+          for (ParamType paramType : values()) {
+            if (paramType.matches(annotationType)) {
+              return paramType;
+            }
           }
         }
       }
