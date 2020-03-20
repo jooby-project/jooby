@@ -5,7 +5,7 @@
     <property name="buildDir" value="${basedir}${file.separator}target${file.separator}classes" />
     <property name="redocDir" value="${buildDir}${file.separator}redoc" />
     <mkdir dir="${redocDir}" />
-    <get src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js" skipexisting="true" dest="${redocDir}"/>
+    <get src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js" usetimestamp="true" skipexisting="true" dest="${redocDir}"/>
   </target>
 
 </project>
