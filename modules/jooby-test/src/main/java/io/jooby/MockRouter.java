@@ -52,6 +52,8 @@ public class MockRouter {
 
   private boolean fullExecution;
 
+  private MockSession session;
+
   /**
    * Creates a new mock router.
    *
@@ -62,13 +64,25 @@ public class MockRouter {
   }
 
   /**
+   * Set a global session. So all route invocations are going to shared the same session as
+   * long as they don't use a custom context per invocation.
+   *
+   * @param session Global session.
+   * @return This router.
+   */
+  public @Nonnull MockRouter setSession(@Nonnull MockSession session) {
+    this.session = session;
+    return this;
+  }
+
+  /**
    * Execute a GET request to the target application.
    *
    * @param path Path to match. Might includes the queryString.
    * @return Route response.
    */
   @Nonnull public MockValue get(@Nonnull String path) {
-    return get(path, new MockContext());
+    return get(path, newContext());
   }
 
   /**
@@ -102,7 +116,7 @@ public class MockRouter {
    * @return Web socket client.
    */
   public MockWebSocketClient ws(@Nonnull String path, Consumer<MockWebSocketClient> callback) {
-    MockValue value = get(path, new MockContext());
+    MockValue value = get(path, newContext());
     if (value.value() instanceof MockWebSocketConfigurer) {
       MockWebSocketConfigurer configurer = value.value(MockWebSocketConfigurer.class);
       MockWebSocketClient client = configurer.getClient();
@@ -113,6 +127,14 @@ public class MockRouter {
     } else {
       throw new IllegalArgumentException("No websocket fount at: " + path);
     }
+  }
+
+  private MockContext newContext() {
+    MockContext ctx = new MockContext();
+    if (session != null) {
+      new MockSession(ctx, session);
+    }
+    return ctx;
   }
 
   /**
@@ -134,7 +156,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue get(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
-    return get(path, new MockContext(), consumer);
+    return get(path, newContext(), consumer);
   }
 
   /**
@@ -157,7 +179,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue post(@Nonnull String path) {
-    return post(path, new MockContext());
+    return post(path, newContext());
   }
 
   /**
@@ -179,7 +201,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue post(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
-    return post(path, new MockContext(), consumer);
+    return post(path, newContext(), consumer);
   }
 
   /**
@@ -202,7 +224,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue delete(@Nonnull String path) {
-    return delete(path, new MockContext());
+    return delete(path, newContext());
   }
 
   /**
@@ -224,7 +246,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue delete(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
-    return delete(path, new MockContext(), consumer);
+    return delete(path, newContext(), consumer);
   }
 
   /**
@@ -247,7 +269,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue put(@Nonnull String path) {
-    return put(path, new MockContext());
+    return put(path, newContext());
   }
 
   /**
@@ -269,7 +291,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue put(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
-    return put(path, new MockContext(), consumer);
+    return put(path, newContext(), consumer);
   }
 
   /**
@@ -292,7 +314,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue patch(@Nonnull String path) {
-    return patch(path, new MockContext());
+    return patch(path, newContext());
   }
 
   /**
@@ -314,7 +336,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue patch(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
-    return patch(path, new MockContext(), consumer);
+    return patch(path, newContext(), consumer);
   }
 
   /**
@@ -353,7 +375,7 @@ public class MockRouter {
    */
   public MockValue call(@Nonnull String method, @Nonnull String path,
       @Nonnull Consumer<MockResponse> consumer) {
-    return call(method, path, new MockContext(), consumer);
+    return call(method, path, newContext(), consumer);
   }
 
   /**
@@ -384,7 +406,7 @@ public class MockRouter {
 
   private MockValue call(Jooby router, String method, String path, Context ctx,
       Consumer<MockResponse> consumer) {
-    MockContext findContext = ctx instanceof MockContext ? (MockContext) ctx : new MockContext();
+    MockContext findContext = ctx instanceof MockContext ? (MockContext) ctx : newContext();
     findContext.setMethod(method.toUpperCase());
     findContext.setRequestPath(path);
     findContext.setRouter(router);

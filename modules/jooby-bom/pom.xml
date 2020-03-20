@@ -16,7 +16,7 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.7.0</jooby.version>
+  <jooby.version>2.7.1-SNAPSHOT</jooby.version>
   <HikariCP.version>3.4.2</HikariCP.version>
   <archetype-packaging.version>3.1.2</archetype-packaging.version>
   <asm.version>7.3.1</asm.version>
@@ -53,8 +53,8 @@
   <jetty.version>9.4.27.v20200227</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
   <jmespath-java.version>1.11.743</jmespath-java.version>
-  <jooby-maven-plugin.version>2.7.0</jooby-maven-plugin.version>
-  <jooby.version>2.7.0</jooby.version>
+  <jooby-maven-plugin.version>2.7.1-SNAPSHOT</jooby-maven-plugin.version>
+  <jooby.version>2.7.1-SNAPSHOT</jooby.version>
   <json.version>20190722</json.version>
   <jsonwebtoken.version>0.11.1</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>

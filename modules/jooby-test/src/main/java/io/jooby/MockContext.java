@@ -103,6 +103,17 @@ public class MockContext implements DefaultContext {
     return session;
   }
 
+  /**
+   * Set mock session.
+   *
+   * @param session Mock session.
+   * @return This context.
+   */
+  public @Nonnull MockContext setSession(@Nonnull MockSession session) {
+    this.session = session;
+    return this;
+  }
+
   @Nullable @Override public Session sessionOrNull() {
     return session;
   }
@@ -668,4 +679,5 @@ public class MockContext implements DefaultContext {
   @Override public String toString() {
     return method + " " + requestPath;
   }
+
 }

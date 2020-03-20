@@ -30,10 +30,26 @@ public class MockSession implements Session {
    * Creates a mock session.
    *
    * @param ctx Mock context.
+   * @param session Session.
+   */
+  MockSession(@Nonnull MockContext ctx, @Nonnull MockSession session) {
+    this.ctx = ctx.setSession(this);
+    this.data = session.data;
+    this.isNew = session.isNew;
+    this.modified = session.modified;
+    this.sessionId = session.sessionId;
+    this.creationTime = session.creationTime;
+    this.lastAccessedTime = session.lastAccessedTime;
+  }
+
+  /**
+   * Creates a mock session.
+   *
+   * @param ctx Mock context.
    * @param sessionId Session ID.
    */
   public MockSession(@Nonnull MockContext ctx, @Nonnull String sessionId) {
-    this.ctx = ctx;
+    this.ctx = ctx.setSession(this);
     this.sessionId = sessionId;
     this.creationTime = Instant.now();
     this.lastAccessedTime = Instant.now();
@@ -46,6 +62,16 @@ public class MockSession implements Session {
    */
   public MockSession(@Nonnull MockContext ctx) {
     this(ctx, UUID.randomUUID().toString());
+  }
+
+  /**
+   * Mock session with a random ID. Useful for creating a shared session between a mock router
+   * instance.
+   */
+  public MockSession() {
+    this.sessionId = UUID.randomUUID().toString();
+    this.creationTime = Instant.now();
+    this.lastAccessedTime = Instant.now();
   }
 
   @Nonnull @Override public String getId() {
