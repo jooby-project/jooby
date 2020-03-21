@@ -30,7 +30,7 @@ favorite web server.
 
 [TIP]
 ====
-Latest Release: https://github.com/jooby-project/jooby/releases/tag/{joobyVersion}[{joobyVersion}].
+Latest Release: https://github.com/jooby-project/jooby/releases/tag/v{joobyVersion}[{joobyVersion}].
 
 Looking for previous version? The link:v1[1.x] documentation is still available. 
 ====
