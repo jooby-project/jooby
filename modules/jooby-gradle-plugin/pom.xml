@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>2.7.1-SNAPSHOT</version>
+    <version>2.7.1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -15,6 +15,37 @@
   <properties>
     <gradle.version>3.0</gradle.version>
   </properties>
+
+  <profiles>
+    <profile>
+      <id>publishPlugins</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>${exec-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>publishPlugins</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>deploy</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <executable>./gradlew</executable>
+              <arguments>
+                <argument>publishPlugins</argument>
+                <argument>-PjoobyVersion=${project.version}</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <dependencies>
     <dependency>

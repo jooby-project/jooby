@@ -2,6 +2,4 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd)
 
-sh $DIR/maven.sh -pl '!docs,!tests' clean deploy -P bom,central
-
-cd modules/jooby-gradle-plugin
+sh $DIR/maven.sh -pl '!docs,!tests' clean deploy -P bom,central,publishPlugins

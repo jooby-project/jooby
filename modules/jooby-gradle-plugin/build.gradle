@@ -16,7 +16,7 @@ repositories {
 
 // Unless overridden in the pluginBundle config DSL, the project version will
 // be used as your plugin version when publishing
-version = "2.7.0"
+version = "${joobyVersion}"
 group = "io.jooby"
 
 dependencies {
