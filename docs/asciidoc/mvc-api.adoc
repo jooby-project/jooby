@@ -66,6 +66,112 @@ To create a new MVC project open the `jooby` console and type:
 The <<getting-started, jooby console>> takes care of all configuration steps required by the
 annotation processing tool.
 
+=== Registration
+
+Mvc routes need to be registered (no classpath scanning). Registration is done from your application
+class:
+
+.Simple MVC route registration
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+  {
+    mvc(new MyController());
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+
+import io.jooby.*
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    mvc(MyController())
+  }
+}
+----
+
+The javadoc:Jooby[mvc, java.lang.Object] install the mvc route. As showed in the example there is
+no dependency injection involved, you just instantiate a MVC route and register.
+
+.Class MVC route registration
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+  {
+    mvc(MyController.class);
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+
+import io.jooby.*
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    mvc(MyController::class)
+  }
+}
+----
+
+The javadoc:Jooby[mvc, java.lang.Class] does the same job, but delegates route instantiation to a
+dependency injection framework of your choice.
+
+NOTE: Jooby 1.x was built around Guice, this is not the case for 2.x. The entire project was built
+without dependency injection. This make DI optional and at same time give you freedom to choose the
+one you like most.
+
+.Provider MVC route registration
+[source, java, role = "primary"]
+----
+
+import javax.inject.Provider;
+
+public class App extends Jooby {
+  {
+    Provider<MyController> provider = ...;
+  
+    mvc(MyController.class, provider);
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import javax.inject.Provider
+import io.jooby.*
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    val provider = ...
+    mvc(MyController::class, provider)
+  }
+}
+----
+
+The javadoc:Jooby[mvc, javax.inject.Provider] does the same job, might or might not delegate
+instantiation to a dependency injection framework but most important let you control lifecycle of
+MVC routes (Singleton vs Non-Singleton routes).
+
 === Parameters
 
 HTTP parameter provision is available via `*Param` annotations.
@@ -450,111 +556,45 @@ class MyController {
 
 <1> All context attributes must be set as arguments. They must be declared as `Map<String, Object>`
 
-=== Registration
+=== Responses
 
-Mvc routes need to be registered (no classpath scanning). Registration is done from your application
-class:
+==== Status Code
 
-.Simple MVC route registration
-[source, java, role = "primary"]
+The default status code is `Success(200)`, except for `void` methods with the `@DELETE` annotation which is set to `No Content(204)`.
+
+There are two options if you need a different status code:
+
+- Add a javadoc:Context[] parameter and set the javadoc:Context[setResponseCode, io.jooby.StatusCode]
+- Returns a javadoc:StatusCode[] instance
+
+==== NonBlocking
+
+Method returning a `CompletableFuture`, `Single`, `Maybe`, `Flowable`, `Mono` or `Flux` is
+considered a non-blocking route.
+
+Kotlin suspend functions are supported too: 
+
+.Kotlin Coroutines
+[source, kotlin]
 ----
-public class App extends Jooby {
-  {
-    mvc(new MyController());
-  }
-
-  public static void main(String[] args) {
-    runApp(args, App::new);
+class SuspendMvc {
+  @GET
+  @Path("/delay")
+  suspend fun delayed(ctx: Context): String {
+    delay(100)
+    return ctx.getRequestPath()
   }
 }
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-
-import io.jooby.*
 
 fun main(args: Array<String>) {
   runApp(args) {
-    mvc(MyController())
+    use(SuspendMvc())
   }
 }
 ----
 
-The javadoc:Jooby[mvc, java.lang.Object] install the mvc route. As showed in the example there is
-no dependency injection involved, you just instantiate a MVC route and register.
-
-.Class MVC route registration
-[source, java, role = "primary"]
-----
-public class App extends Jooby {
-  {
-    mvc(MyController.class);
-  }
-
-  public static void main(String[] args) {
-    runApp(args, App::new);
-  }
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-
-import io.jooby.*
-
-fun main(args: Array<String>) {
-  runApp(args) {
-    mvc(MyController::class)
-  }
-}
-----
-
-The javadoc:Jooby[mvc, java.lang.Class] does the same job, but delegates route instantiation to a
-dependency injection framework of your choice.
-
-NOTE: Jooby 1.x was built around Guice, this is not the case for 2.x. The entire project was built
-without dependency injection. This make DI optional and at same time give you freedom to choose the
-one you like most.
-
-.Provider MVC route registration
-[source, java, role = "primary"]
-----
-
-import javax.inject.Provider;
-
-public class App extends Jooby {
-  {
-    Provider<MyController> provider = ...;
-  
-    mvc(MyController.class, provider);
-  }
-
-  public static void main(String[] args) {
-    runApp(args, App::new);
-  }
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-import javax.inject.Provider
-import io.jooby.*
-
-fun main(args: Array<String>) {
-  runApp(args) {
-    val provider = ...
-    mvc(MyController::class, provider)
-  }
-}
-----
-
-The javadoc:Jooby[mvc, javax.inject.Provider] does the same job, might or might not delegate
-instantiation to a dependency injection framework but most important let you control lifecycle of
-MVC routes (Singleton vs Non-Singleton routes). 
+A non-blocking route run on the event loop (by default) where *blocking is NOT allowed*. For more 
+details please checkout the <<responses-nonblocking, non-blocking responses>> section.
 
 === Execution model
 
@@ -724,31 +764,6 @@ Executor must be registered using via services or executor utility method:
 ----
 
 The executor must be registered before the MVC route/controller.
-
-=== Suspend functions
-
-For Kotlin users MVC routes are allowed to use suspend functions
-
-.Kotlin Coroutines
-[source, kotlin]
-----
-class SuspendMvc {
-  @GET
-  @Path("/delay")
-  suspend fun delayed(ctx: Context): String {
-    delay(100)
-    return ctx.getRequestPath()
-  }
-}
-
-fun main(args: Array<String>) {
-  runApp(args) {
-    use(SuspendMvc())
-  }
-}
-----
-
-{love}
 
 === JAX-RS Annotations
 
