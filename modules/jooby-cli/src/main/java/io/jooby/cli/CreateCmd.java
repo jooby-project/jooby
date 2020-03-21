@@ -63,7 +63,7 @@ public class CreateCmd extends Cmd {
   private boolean kotlin;
 
   @CommandLine.Option(
-      names = {"-s", "--stork"},
+      names = {"--stork"},
       description = "Add Stork Maven plugin to build (Maven only)"
   )
   private boolean stork;
@@ -81,7 +81,7 @@ public class CreateCmd extends Cmd {
   private String server;
 
   @CommandLine.Option(
-      names = {"-d", "--docker"},
+      names = {"--docker"},
       description = "Generates a Dockerfile"
   )
   private boolean docker;
@@ -91,6 +91,12 @@ public class CreateCmd extends Cmd {
       description = "Generates a MVC application"
   )
   private boolean mvc;
+
+  @CommandLine.Option(
+      names = {"--openapi"},
+      description = "Configure build to generate OpenAPI files"
+  )
+  private boolean openapi;
 
   @Override public void run(@Nonnull Context ctx) throws Exception {
     Path projectDir = ctx.getWorkspace().resolve(name);
@@ -115,6 +121,8 @@ public class CreateCmd extends Cmd {
       }
 
       mvc = yesNo(ctx.readLine("Use MVC (yes/No): "));
+
+      openapi = yesNo(ctx.readLine("Configure OpenAPI (yes/No): "));
 
       server = server(ctx.readLine("Choose a server (jetty, netty or undertow): "));
 
@@ -157,6 +165,8 @@ public class CreateCmd extends Cmd {
     }
 
     Map<String, Object> model = new HashMap<>();
+    model.putAll(ctx.getDependencyMap());
+
     model.put("package", packageName);
     model.put("groupId", packageName);
     model.put("artifactId", name);
@@ -171,6 +181,7 @@ public class CreateCmd extends Cmd {
     model.put("maven", !gradle);
     model.put("docker", docker);
     model.put("mvc", mvc);
+    model.put("openapi", openapi);
     model.put("kapt", mvc && kotlin);
     model.put("apt", mvc && !kotlin);
     model.put("finalArtifactId", finalArtifactId);

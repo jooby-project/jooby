@@ -67,7 +67,10 @@ public class Cli extends Cmd {
       } else {
         ctx.println(
             "Unknown command or option(s): " + args.stream().collect(Collectors.joining(" ")));
+        ctx.println(spec.commandLine().getUsageMessage());
       }
+    } else {
+      ctx.println(spec.commandLine().getUsageMessage());
     }
   }
 

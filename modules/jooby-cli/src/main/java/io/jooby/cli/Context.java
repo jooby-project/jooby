@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -55,6 +56,18 @@ public interface Context {
    */
   void copyResource(@Nonnull String source, @Nonnull Path dest,
       @Nonnull Set<PosixFilePermission> permissions) throws IOException;
+
+  /**
+   * List all dependencies and their version. Like:
+   *
+   * <pre>
+   *   kotlin.version = 1.2.3
+   * </pre>
+   *
+   * @return Dependency map.
+   * @throws IOException If something goes wrong.
+   */
+  Map<String, String> getDependencyMap() throws IOException;
 
   /**
    * Ask user for input.

@@ -1,35 +1,26 @@
 buildscript {
   ext {
-    kotlinVersion = "1.3.50"
+    {{#if kotlin}}kotlinVersion = "{{kotlinVersion}}"{{/if}}
     joobyVersion = "{{joobyVersion}}"
   }
-
-  repositories {
-    mavenLocal()
-    jcenter()
-    mavenCentral()
-  }
-
-  dependencies {
-  {{#kapt}}
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-  {{/kapt}}
-    classpath "com.google.gradle:osdetector-gradle-plugin:1.4.0"
-    classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
-    {{#if kotlin}}classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"{{/if}}
-    classpath "io.jooby:jooby-gradle-plugin:$joobyVersion"
-    classpath "com.github.jengelman.gradle.plugins:shadow:5.1.0"
-  }
 }
-apply plugin: "io.spring.dependency-management"
-apply plugin: "com.google.osdetector"
-apply plugin: "com.github.johnrengelman.shadow"
-apply plugin: "application"
-{{#kapt}}
-  apply plugin: "org.jetbrains.kotlin.kapt"
-{{/kapt}}
-{{#if kotlin}}apply plugin: "kotlin"{{/if}}
-apply plugin: "jooby"
+
+plugins {
+  id "application"
+{{#if kotlin}}
+  id "org.jetbrains.kotlin.jvm" version "{{kotlinVersion}}"
+{{/if}}
+{{#if kapt}}
+  id "org.jetbrains.kotlin.kapt" version "{{kotlinVersion}}"
+{{/if}}
+{{#if openapi}}
+  id "io.jooby.openAPI" version "${joobyVersion}"
+{{/if}}
+  id "io.jooby.run" version "${joobyVersion}"
+  id "io.spring.dependency-management" version "1.0.9.RELEASE"
+  id "com.google.osdetector" version "1.6.2"
+  id "com.github.johnrengelman.shadow" version "5.2.0"
+}
 
 group "{{groupId}}"
 version "{{version}}"
@@ -38,8 +29,8 @@ sourceCompatibility = 1.8
 
 repositories {
   mavenLocal()
-  jcenter()
   mavenCentral()
+  jcenter()
 }
 
 dependencyManagement {
@@ -55,11 +46,11 @@ dependencies {
   annotationProcessor "io.jooby:jooby-apt"
 {{/if}}
 {{#each dependencies}}
-  compile "{{this}}"
+  implementation "{{this}}"
 {{/each}}
 
 {{#each testDependencies}}
-  testCompile "{{this}}"
+  testImplementation "{{this}}"
 {{/each}}
 }
 
@@ -83,3 +74,9 @@ tasks.withType(JavaCompile) {
 shadowJar {
   mergeServiceFiles()
 }
+
+{{#openapi}}
+joobyRun.dependsOn openAPI
+
+jar.dependsOn openAPI
+{{/openapi}}

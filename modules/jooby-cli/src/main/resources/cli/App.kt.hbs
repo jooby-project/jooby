@@ -1,9 +1,14 @@
 package {{package}}
 
 import io.jooby.Kooby
+import io.jooby.OpenAPIModule
 import io.jooby.runApp
 
 class App: Kooby({
+{{#if openapi}}
+  install(OpenAPIModule())
+{{/if}}
+
 {{#if mvc}}
   mvc(Controller())
 {{else}}

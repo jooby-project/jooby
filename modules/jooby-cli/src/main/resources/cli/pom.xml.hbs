@@ -18,7 +18,7 @@
     <jooby.version>{{joobyVersion}}</jooby.version>
 
     {{#if kotlin}}
-    <kotlin.version>1.3.50</kotlin.version>
+    <kotlin.version>{{kotlinVersion}}</kotlin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     {{/if}}
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -101,7 +101,7 @@
     {{else}}
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>{{mavenCompilerPluginVersion}}</version>
       {{#if apt}}
         <configuration>
           <annotationProcessorPaths>
@@ -117,19 +117,30 @@
     {{/if}}
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M3</version>
+        <version>{{mavenSurefirePluginVersion}}</version>
       </plugin>
       <!-- jooby:run -->
       <plugin>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-maven-plugin</artifactId>
         <version>${jooby.version}</version>
+        {{#if openapi}}
+        <executions>
+          <execution>
+            <goals>
+              <goal>openapi</goal>
+            </goals>
+            <configuration>
+            </configuration>
+          </execution>
+        </executions>
+        {{/if}}
       </plugin>
       {{#if stork}}
       <plugin>
         <groupId>com.fizzed</groupId>
         <artifactId>stork-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>{{storkMavenPluginVersion}}</version>
         <executions>
           <execution>
             <id>stork-launcher</id>
@@ -155,7 +166,7 @@
       <!-- Build uber jar -->
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>{{mavenShadePluginVersion}}</version>
         <executions>
           <execution>
             <id>uber-jar</id>

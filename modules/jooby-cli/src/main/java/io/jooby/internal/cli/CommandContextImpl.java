@@ -25,6 +25,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 public class CommandContextImpl implements Context {
@@ -38,6 +41,8 @@ public class CommandContextImpl implements Context {
   private final String version;
 
   private JSONObject configuration;
+
+  private Properties versions;
 
   public CommandContextImpl(LineReader reader, String version) throws IOException {
     this.reader = reader;
@@ -123,5 +128,17 @@ public class CommandContextImpl implements Context {
     if (permissions.size() > 0) {
       Files.setPosixFilePermissions(dest, permissions);
     }
+  }
+
+  public Map<String, String> getDependencyMap() throws IOException {
+    if (versions == null) {
+      versions = new Properties();
+      try (InputStream in = getClass().getResourceAsStream("/dependencies.properties")) {
+        versions.load(in);
+      }
+    }
+    Map result = new LinkedHashMap<>();
+    result.putAll(versions);
+    return result;
   }
 }

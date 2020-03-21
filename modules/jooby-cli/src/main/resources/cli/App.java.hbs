@@ -1,10 +1,15 @@
 package {{package}};
 
 import io.jooby.Jooby;
+import io.jooby.OpenAPIModule;
 
 public class App extends Jooby {
 
   {
+    {{#if openapi}}
+    install(new OpenAPIModule());
+    {{/if}}
+
     {{#if mvc}}
     mvc(new Controller());
     {{else}}
