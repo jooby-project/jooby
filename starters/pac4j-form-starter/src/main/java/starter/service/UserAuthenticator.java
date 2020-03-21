@@ -1,12 +1,11 @@
 package starter.service;
 
-import io.jooby.pac4j.Pac4jContext;
-import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.util.Pac4jConstants;
 import starter.domain.User;
 import starter.domain.UserRepository;
 
