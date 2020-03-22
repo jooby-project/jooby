@@ -24,9 +24,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -915,14 +913,14 @@ public interface Router extends Registry {
    * Look for optional path parameter and expand the given pattern into multiple pattern.
    *
    * <pre>
-   *   /path => [/path]
-   *   /{id} => [/{id}]
-   *   /path/{id} => [/path/{id}]
+   *   /path =&gt; [/path]
+   *   /{id} =&gt; [/{id}]
+   *   /path/{id} =&gt; [/path/{id}]
    *
-   *   /{id}? => [/, /{id}]
-   *   /path/{id}? => [/path, /path/{id}]
-   *   /path/{id}/{start}?/{end}? => [/path/{id}, /path/{id}/{start}, /path/{id}/{start}/{end}]
-   *   /path/{id}?/suffix => [/path, /path/{id}, /path/suffix]
+   *   /{id}? =&gt; [/, /{id}]
+   *   /path/{id}? =&gt; [/path, /path/{id}]
+   *   /path/{id}/{start}?/{end}? =&gt; [/path/{id}, /path/{id}/{start}, /path/{id}/{start}/{end}]
+   *   /path/{id}?/suffix =&gt; [/path, /path/{id}, /path/suffix]
    * </pre>
    *
    * @param pattern Pattern.
@@ -952,7 +950,7 @@ public interface Router extends Registry {
     };
     StringBuilder segment = new StringBuilder();
     boolean isLastOptional = false;
-    for (int i = 0; i < len; ) {
+    for (int i = 0; i < len;) {
       char ch = pattern.charAt(i);
       if (ch == '/') {
         if (segment.length() > 0) {
