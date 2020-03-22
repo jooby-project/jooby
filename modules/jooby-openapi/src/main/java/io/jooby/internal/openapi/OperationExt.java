@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
 
@@ -124,6 +125,12 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
       return getParameters().get(i);
     }
     return null;
+  }
+
+  public Optional<Parameter> getParameter(String name) {
+    return getParameters().stream()
+        .filter(p -> p.getName().equals(name))
+        .findFirst();
   }
 
   public ResponseExt addResponse(String code) {

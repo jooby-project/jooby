@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -175,6 +177,27 @@ public class OpenAPIGenerator {
       if (!includes(pattern) || excludes(pattern)) {
         log.debug("skipping {}", pattern);
         continue;
+      }
+      Map<String, String> regexMap = new HashMap<>();
+      Router.pathKeys(pattern, (key, value) -> Optional.ofNullable(value)
+          .ifPresent(v -> regexMap.put(key, v)));
+      if (regexMap.size() > 0) {
+        for (Map.Entry<String, String> e : regexMap.entrySet()) {
+          String name = e.getKey();
+          String regex = e.getValue();
+          operation.getParameter(name).ifPresent(parameter ->
+              parameter.getSchema().setPattern(regex)
+          );
+          if (regex.equals("\\.*")) {
+            if (name.equals("*")) {
+              pattern = pattern.substring(0, pattern.length() - 1) + "{*}";
+            } else {
+              pattern = pattern.replace("*" + name, "{" + name + "}");
+            }
+          } else {
+            pattern = pattern.replace(name + ":" + regex, name);
+          }
+        }
       }
       PathItem pathItem = paths.computeIfAbsent(pattern, k -> new PathItem());
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);

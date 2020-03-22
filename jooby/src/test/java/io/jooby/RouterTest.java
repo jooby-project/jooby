@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RouterTest {
@@ -38,6 +39,39 @@ public class RouterTest {
     pathKeys("/foo/*", keys -> assertEquals(1, keys.size()));
     pathKeys("/foo/*name", keys -> assertEquals(1, keys.size()));
     pathKeys("/foo/{x}", keys -> assertEquals(1, keys.size()));
+  }
+
+  @Test
+  public void pathKeyMap() {
+    pathKeyMap("/{lang:[a-z]{2}}", map -> {
+      assertEquals("[a-z]{2}", map.get("lang"));
+    });
+
+    pathKeyMap("/{id:[0-9]+}", map -> {
+      assertEquals("[0-9]+", map.get("id"));
+    });
+
+    pathKeyMap("/edit/{id}?", keys -> {
+      assertEquals(null, keys.get("id"));
+    });
+
+    pathKeyMap("/path/{id}/{start}?/{end}?", keys -> {
+      assertEquals(null, keys.get("id"));
+      assertEquals(null, keys.get("start"));
+      assertEquals(null, keys.get("end"));
+    });
+
+    pathKeyMap("/*", keys -> {
+      assertEquals("\\.*", keys.get("*"));
+    });
+
+    pathKeyMap("/foo/?*", keys -> {
+      assertEquals("\\.*", keys.get("*"));
+    });
+
+    pathKeyMap("/foo/*name", keys -> {
+      assertEquals("\\.*", keys.get("name"));
+    });
   }
 
   @Test
@@ -154,6 +188,12 @@ public class RouterTest {
 
   private void pathKeys(String pattern, Consumer<List<String>> consumer) {
     consumer.accept(Router.pathKeys(pattern));
+  }
+
+  private void pathKeyMap(String pattern, Consumer<Map<String, String>> consumer) {
+    Map<String, String> map = new HashMap<>();
+    Router.pathKeys(pattern, map::put);
+    consumer.accept(map);
   }
 
   private void parse(String pattern, Consumer<List<String>> consumer) {

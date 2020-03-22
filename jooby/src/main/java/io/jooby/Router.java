@@ -844,6 +844,21 @@ public interface Router extends Registry {
    * @return Path keys.
    */
   static @Nonnull List<String> pathKeys(@Nonnull String pattern) {
+    return pathKeys(pattern, (k, v) -> {
+    });
+  }
+
+  /**
+   * Extract path keys from given path pattern. A path key (a.k.a path variable) looks like:
+   *
+   * <pre>/product/{id}</pre>
+   *
+   * @param pattern Path pattern.
+   * @param consumer Listen for key and regex variables found.
+   * @return Path keys.
+   */
+  static @Nonnull List<String> pathKeys(@Nonnull String pattern,
+      BiConsumer<String, String> consumer) {
     List<String> result = new ArrayList<>();
     int start = -1;
     int end = Integer.MAX_VALUE;
@@ -863,16 +878,26 @@ public interface Router extends Registry {
         curly -= 1;
         if (curly == 0) {
           String id = pattern.substring(start, Math.min(i, end));
+          String value;
+          if (end == Integer.MAX_VALUE) {
+            value = null;
+          } else {
+            value = pattern.substring(end + 1, i);
+          }
+          consumer.accept(id, value);
           result.add(id);
           start = -1;
           end = Integer.MAX_VALUE;
         }
       } else if (ch == '*') {
+        String id;
         if (i == len - 1) {
-          result.add("*");
+          id = "*";
         } else {
-          result.add(pattern.substring(i + 1));
+          id = pattern.substring(i + 1);
         }
+        result.add(id);
+        consumer.accept(id, "\\.*");
         i = len;
       }
     }
