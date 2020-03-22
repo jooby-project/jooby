@@ -22,7 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -879,6 +884,104 @@ public interface Router extends Registry {
       default:
         return unmodifiableList(result);
     }
+  }
+
+  /**
+   * Look for optional path parameter and expand the given pattern into multiple pattern.
+   *
+   * <pre>
+   *   /path => [/path]
+   *   /{id} => [/{id}]
+   *   /path/{id} => [/path/{id}]
+   *
+   *   /{id}? => [/, /{id}]
+   *   /path/{id}? => [/path, /path/{id}]
+   *   /path/{id}/{start}?/{end}? => [/path/{id}, /path/{id}/{start}, /path/{id}/{start}/{end}]
+   *   /path/{id}?/suffix => [/path, /path/{id}, /path/suffix]
+   * </pre>
+   *
+   * @param pattern Pattern.
+   * @return One or more patterns.
+   */
+  static @Nonnull List<String> expandOptionalVariables(@Nonnull String pattern) {
+    if (pattern == null || pattern.isEmpty() || pattern.equals("/")) {
+      return Collections.singletonList("/");
+    }
+    int len = pattern.length();
+    AtomicInteger key = new AtomicInteger();
+    Map<Integer, StringBuilder> paths = new HashMap<>();
+    BiConsumer<Integer, StringBuilder> pathAppender = (index, segment) -> {
+      for (int i = index; i < index - 1; i++) {
+        paths.get(i).append(segment);
+      }
+      paths.computeIfAbsent(index, current -> {
+        StringBuilder value = new StringBuilder();
+        if (current > 0) {
+          StringBuilder previous = paths.get(current - 1);
+          if (!previous.toString().equals("/")) {
+            value.append(previous);
+          }
+        }
+        return value;
+      }).append(segment);
+    };
+    StringBuilder segment = new StringBuilder();
+    boolean isLastOptional = false;
+    for (int i = 0; i < len; ) {
+      char ch = pattern.charAt(i);
+      if (ch == '/') {
+        if (segment.length() > 0) {
+          pathAppender.accept(key.get(), segment);
+          segment.setLength(0);
+        }
+        segment.append(ch);
+        i += 1;
+      } else if (ch == '{') {
+        segment.append(ch);
+        int curly = 1;
+        int j = i + 1;
+        while (j < len) {
+          char next = pattern.charAt(j++);
+          segment.append(next);
+          if (next == '{') {
+            curly += 1;
+          } else if (next == '}') {
+            curly -= 1;
+            if (curly == 0) {
+              break;
+            }
+          }
+        }
+        if (j < len && pattern.charAt(j) == '?') {
+          j += 1;
+          isLastOptional = true;
+          if (paths.isEmpty()) {
+            paths.put(0, new StringBuilder("/"));
+          }
+          pathAppender.accept(key.incrementAndGet(), segment);
+        } else {
+          isLastOptional = false;
+          pathAppender.accept(key.get(), segment);
+        }
+        segment.setLength(0);
+        i = j;
+      } else {
+        segment.append(ch);
+        i += 1;
+      }
+    }
+    if (paths.isEmpty()) {
+      return Collections.singletonList(pattern);
+    }
+    if (segment.length() > 0) {
+      pathAppender.accept(key.get(), segment);
+      if (isLastOptional) {
+        paths.put(key.incrementAndGet(), segment);
+      }
+    }
+    return paths.values().stream()
+        .map(StringBuilder::toString)
+        .collect(Collectors.toList());
   }
 
   /**

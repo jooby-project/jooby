@@ -2,6 +2,7 @@ package io.jooby;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,14 @@ public class RouterTest {
   public void pathKeys() {
     pathKeys("/{lang:[a-z]{2}}", keys -> {
       assertEquals(Collections.singletonList("lang"), keys);
+    });
+
+    pathKeys("/edit/{id}?", keys -> {
+      assertEquals(Collections.singletonList("id"), keys);
+    });
+
+    pathKeys("/path/{id}/{start}?/{end}?", keys -> {
+      assertEquals(Arrays.asList("id", "start", "end"), keys);
     });
 
     pathKeys("/*", keys -> assertEquals(1, keys.size()));
@@ -48,7 +57,8 @@ public class RouterTest {
 
     assertEquals("/123", Router.reverse("/{regex:\\d+}", map("regex", 123)));
 
-    assertEquals("/resources/123/edit", Router.reverse("/resources/{num:\\d+}/edit", map("num", 123)));
+    assertEquals("/resources/123/edit",
+        Router.reverse("/resources/{num:\\d+}/edit", map("num", 123)));
 
     assertEquals("/prefix/v1/v2", Router.reverse("/prefix/{k1}/{k2}", map("k1", "v1", "k2", "v2")));
 
@@ -61,11 +71,93 @@ public class RouterTest {
     assertEquals("/", Router.reverse("/", Collections.emptyMap()));
     assertEquals("/path", Router.reverse("/path", Collections.emptyMap()));
     assertEquals("/path", Router.reverse("/path", map("k", "v")));
+  }
 
+  @Test
+  public void shouldExpandOptionalParams() {
+    parse("/{lang:[a-z]{2}}?", paths -> {
+      assertEquals(2, paths.size());
+      assertEquals("/", paths.get(0));
+      assertEquals("/{lang:[a-z]{2}}", paths.get(1));
+    });
+    parse("/{lang:[a-z]{2}}", paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/{lang:[a-z]{2}}", paths.get(0));
+    });
+    parse("/edit/{id:[0-9]+}?", paths -> {
+      assertEquals(2, paths.size());
+      assertEquals("/edit", paths.get(0));
+      assertEquals("/edit/{id:[0-9]+}", paths.get(1));
+    });
+    parse("/path/{id}/{start}?/{end}?", paths -> {
+      assertEquals(3, paths.size());
+      assertEquals("/path/{id}", paths.get(0));
+      assertEquals("/path/{id}/{start}", paths.get(1));
+      assertEquals("/path/{id}/{start}/{end}", paths.get(2));
+    });
+    parse("/{id}?/suffix", paths -> {
+      assertEquals(3, paths.size());
+      assertEquals("/", paths.get(0));
+      assertEquals("/{id}/suffix", paths.get(1));
+      assertEquals("/suffix", paths.get(2));
+    });
+    parse("/prefix/{id}?", paths -> {
+      assertEquals(2, paths.size());
+      assertEquals("/prefix", paths.get(0));
+      assertEquals("/prefix/{id}", paths.get(1));
+    });
+    parse("/{id}?", paths -> {
+      assertEquals(2, paths.size());
+      assertEquals("/", paths.get(0));
+      assertEquals("/{id}", paths.get(1));
+    });
+    parse("/path", paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/path", paths.get(0));
+    });
+
+    parse("/path/subpath", paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/path/subpath", paths.get(0));
+    });
+
+    parse("/{id}", paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/{id}", paths.get(0));
+    });
+
+    parse("/{id}/suffix", paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/{id}/suffix", paths.get(0));
+    });
+
+    parse("/prefix/{id}", paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/prefix/{id}", paths.get(0));
+    });
+
+    parse("/", paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/", paths.get(0));
+    });
+
+    parse(null, paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/", paths.get(0));
+    });
+
+    parse("", paths -> {
+      assertEquals(1, paths.size());
+      assertEquals("/", paths.get(0));
+    });
   }
 
   private void pathKeys(String pattern, Consumer<List<String>> consumer) {
     consumer.accept(Router.pathKeys(pattern));
+  }
+
+  private void parse(String pattern, Consumer<List<String>> consumer) {
+    consumer.accept(Router.expandOptionalVariables(pattern));
   }
 
   public Map<String, Object> map(Object... values) {

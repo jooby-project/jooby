@@ -260,6 +260,38 @@ Any runtime annotation is automatically added as route attributes following thes
 <2> Retrieve string variable: `file`
 <3> Retrieve string variable: `ext`
 
+.Optional path variable:
+[source, java, role="primary"]
+----
+{
+  // <1>
+  get("/profile/{id}?", ctx -> {
+    String id = ctx.path("id").value("self"); // <2>
+    return id;
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  // <1>
+  get("/profile/{id}?") {
+    val id = ctx.path("id").value("self") // <2>
+    id
+  }
+}
+----
+
+<1> Defines an optional path variable `id`. The trailing `?` make it optional.
+<2> Retrieve the variable `id` as `String` when present or use a default value: `self`.
+
+The trailing `?` makes the path variable optional. The route matches:
+
+- `/profile`
+- `/profile/eespina`
+
 ==== Regex
 
 .Regex path variable:
@@ -288,6 +320,11 @@ Any runtime annotation is automatically added as route attributes following thes
 
 <1> Defines a path variable: `id`. Regex expression is everything after the first `:`, like: `[0-9]+`
 <2> Retrieve an int value
+
+Optional syntax is also supported for regex path variable: `/user/{id:[0-9]+}?`:
+
+- matches  `/user`
+- matches `/user/123`
 
 ==== * Catchall
 

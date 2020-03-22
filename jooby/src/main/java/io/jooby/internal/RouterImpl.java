@@ -448,21 +448,23 @@ public class RouterImpl implements Router {
       finalPattern = finalPattern.toLowerCase();
     }
 
-    if (route.getMethod().equals(WS)) {
-      tree.insert(GET, finalPattern, route);
-      route.setReturnType(Context.class);
-    } else if (route.getMethod().equals(SSE)) {
-      tree.insert(GET, finalPattern, route);
-      route.setReturnType(Context.class);
-    } else {
-      tree.insert(route.getMethod(), finalPattern, route);
+    for (String routePattern : Router.expandOptionalVariables(finalPattern)) {
+      if (route.getMethod().equals(WS)) {
+        tree.insert(GET, routePattern, route);
+        route.setReturnType(Context.class);
+      } else if (route.getMethod().equals(SSE)) {
+        tree.insert(GET, routePattern, route);
+        route.setReturnType(Context.class);
+      } else {
+        tree.insert(route.getMethod(), routePattern, route);
 
-      if (route.isHttpOptions()) {
-        tree.insert(Router.OPTIONS, finalPattern, route);
-      } else if (route.isHttpTrace()) {
-        tree.insert(Router.TRACE, finalPattern, route);
-      } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
-        tree.insert(Router.HEAD, finalPattern, route);
+        if (route.isHttpOptions()) {
+          tree.insert(Router.OPTIONS, routePattern, route);
+        } else if (route.isHttpTrace()) {
+          tree.insert(Router.TRACE, routePattern, route);
+        } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
+          tree.insert(Router.HEAD, routePattern, route);
+        }
       }
     }
     routes.add(route);
