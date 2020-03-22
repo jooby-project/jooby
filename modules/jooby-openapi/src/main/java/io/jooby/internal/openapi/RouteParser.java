@@ -55,11 +55,23 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 public class RouteParser {
 
   public List<OperationExt> parse(ParserContext ctx) {
-    List<OperationExt> result = parse(ctx, null, ctx.classNode(ctx.getRouter()));
+    List<OperationExt> operations = parse(ctx, null, ctx.classNode(ctx.getRouter()));
 
     // swagger/openapi:
-    for (OperationExt operation : result) {
+    for (OperationExt operation : operations) {
       OpenApiParser.parse(ctx, operation.getNode(), operation);
+    }
+
+    List<OperationExt> result = new ArrayList<>();
+    for (OperationExt operation : operations) {
+      List<String> patterns = Router.expandOptionalVariables(operation.getPattern());
+      if (patterns.size() == 1) {
+        result.add(operation);
+      } else {
+        for (String pattern : patterns) {
+          result.add(operation.copy(pattern));
+        }
+      }
     }
 
     // Initialize schema types
@@ -201,7 +213,7 @@ public class RouteParser {
     if (pattern.equals("/")) {
       return "";
     }
-    return Stream.of(pattern.split("/"))
+    return Stream.of(pattern.split("\\W+"))
         .filter(s -> s.length() > 0)
         .map(segment -> Character.toUpperCase(segment.charAt(0)) +
             (segment.length() > 1 ? segment.substring(1) : "")

@@ -136,4 +136,24 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
       return rsp;
     });
   }
+
+  public OperationExt copy(String pattern) {
+    OperationExt copy = new OperationExt(node, method, pattern, getParameters(), defaultResponse);
+    copy.setTags(getTags());
+    copy.setResponses(getResponses());
+    copy.setParameters(getParameters());
+    copy.setRequestBody(getRequestBody());
+    copy.setHidden(getHidden());
+    copy.setMethod(getMethod());
+    copy.setDeprecated(getDeprecated());
+    copy.setHidden(getHidden());
+    copy.setDescription(getDescription());
+    copy.setSummary(getSummary());
+    copy.setOperationId(getOperationId());
+    copy.setServers(getServers());
+    copy.setCallbacks(getCallbacks());
+    copy.setExternalDocs(getExternalDocs());
+    copy.setSecurity(getSecurity());
+    return copy;
+  }
 }

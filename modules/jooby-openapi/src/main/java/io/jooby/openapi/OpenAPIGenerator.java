@@ -5,6 +5,7 @@
  */
 package io.jooby.openapi;
 
+import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.ClassSource;
 import io.jooby.internal.openapi.ContextPathParser;
