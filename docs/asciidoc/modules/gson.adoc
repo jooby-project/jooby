@@ -1,0 +1,112 @@
+== Gson
+
+JSON support using https://github.com/google/gson[Gson] library.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-gson"]
+.
+
+2) Install and encode/decode JSON
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.json.GsonModule;
+
+{
+  install(new GsonModule());                     <1>
+
+  get("/", ctx -> {
+    MyObject myObject = ...;
+    return myObject;                                <2>
+  });
+
+  post("/", ctx -> {
+    MyObject myObject = ctx.body(MyObject.class);   <3>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.GsonModule;
+
+{
+  install(GsonModule())                          <1>
+
+  get("/") {
+    val myObject = ...;
+    myObject                                        <2>
+  }
+
+  post("/") {
+    val myObject = ctx.body<MyObject>()             <3>
+    ...
+  }
+}
+----
+
+<1> Install Gson
+<2> Use Jackson to encode arbitrary object as JSON
+<3> Use Jackson to decode JSON to Java object. Client must specify the `Content-Type: application/json` header
+
+=== Working with Gson
+
+Access to default object mapper is available via require call:
+
+.Default object mapper
+[source, java, role="primary"]
+----
+import io.jooby.json.GsonModule;
+
+{
+  install(new GsonModule());
+
+  Gson gson = require(Gson.class);
+  
+  ...
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.GsonModule
+
+{
+  install(GsonModule())
+
+  val mapper = require<Gson>()
+}
+----
+
+You can provide your own `Gson`:
+
+.Custom ObjectMapper
+[source, java, role="primary"]
+----
+import io.jooby.json.GsonModule;
+
+{
+  Gson gson = new GsonBuilder().create();
+
+  install(new GsonModule(gson));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.GsonModule
+
+{
+  val gson = GsonBuilder().create()
+
+  install(GsonModule(gson))
+}
+----

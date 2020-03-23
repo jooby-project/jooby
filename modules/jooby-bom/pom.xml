@@ -16,7 +16,7 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.7.1</jooby.version>
+  <jooby.version>2.7.2-SNAPSHOT</jooby.version>
   <HikariCP.version>3.4.2</HikariCP.version>
   <archetype-packaging.version>3.1.2</archetype-packaging.version>
   <asm.version>7.3.1</asm.version>
@@ -38,6 +38,7 @@
   <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
   <gradle-tooling-api.version>2.6</gradle-tooling-api.version>
   <graphql-java.version>14.0</graphql-java.version>
+  <gson.version>2.8.6</gson.version>
   <guava.version>28.2-jre</guava.version>
   <guice.version>4.2.2</guice.version>
   <h2.version>1.4.200</h2.version>
@@ -53,8 +54,8 @@
   <jetty.version>9.4.27.v20200227</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
   <jmespath-java.version>1.11.748</jmespath-java.version>
-  <jooby-maven-plugin.version>2.7.1</jooby-maven-plugin.version>
-  <jooby.version>2.7.1</jooby.version>
+  <jooby-maven-plugin.version>2.7.2-SNAPSHOT</jooby-maven-plugin.version>
+  <jooby.version>2.7.2-SNAPSHOT</jooby.version>
   <json.version>20190722</json.version>
   <jsonwebtoken.version>0.11.1</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -149,6 +150,12 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-jackson</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-gson</artifactId>
       <version>${jooby.version}</version>
       <type>jar</type>
     </dependency>
@@ -354,6 +361,12 @@
       <groupId>com.typesafe</groupId>
       <artifactId>config</artifactId>
       <version>${config.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
