@@ -206,13 +206,24 @@ public class AnnotationParser {
   private static List<OperationExt> parse(ParserContext ctx, String prefix, Type type) {
     List<OperationExt> result = new ArrayList<>();
     ClassNode classNode = ctx.classNode(type);
-    for (MethodNode method : classNode.methods) {
-      if (isRouter(method)) {
-        ctx.debugHandler(method);
-        result.addAll(routerMethod(ctx, prefix, classNode, method));
-      }
+    Collection<MethodNode> methods = methods(ctx, classNode).values();
+    for (MethodNode method : methods) {
+      ctx.debugHandler(method);
+      result.addAll(routerMethod(ctx, prefix, classNode, method));
     }
     return result;
+  }
+
+  private static Map<String, MethodNode> methods(ParserContext ctx, ClassNode node) {
+    Map<String, MethodNode> methods = new LinkedHashMap<>();
+    if (node.superName != null && !node.superName.equals(TypeFactory.OBJECT.getInternalName())) {
+      methods.putAll(methods(ctx, ctx.classNode(Type.getObjectType(node.superName))));
+    }
+    node.methods.stream().filter(AnnotationParser::isRouter).forEach(it -> {
+      String signature = it.name + it.desc.substring(0, it.desc.indexOf(')') + 1);
+      methods.put(signature, it);
+    });
+    return methods;
   }
 
   private static List<OperationExt> routerMethod(ParserContext ctx, String prefix,
@@ -224,7 +235,7 @@ public class AnnotationParser {
     ResponseExt response = returnTypes(method);
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
-      for (String pattern : httpPattern(classNode, method, httpMethod)) {
+      for (String pattern : httpPattern(ctx, classNode, method, httpMethod)) {
         OperationExt operation = new OperationExt(
             method,
             httpMethod,
@@ -397,13 +408,18 @@ public class AnnotationParser {
     return false;
   }
 
-  private static List<String> httpPattern(ClassNode classNode, MethodNode method,
+  private static List<String> httpPattern(ParserContext ctx, ClassNode classNode, MethodNode method,
       String httpMethod) {
     List<String> patterns = new ArrayList<>();
 
     List<String> rootPattern = httpPattern(httpMethod, null, classNode.visibleAnnotations);
-    if (rootPattern.size() == 0) {
-      rootPattern = Arrays.asList("/");
+    while (rootPattern.isEmpty() && classNode.superName != null) {
+      classNode = ctx.classNode(Type.getObjectType(classNode.superName));
+      rootPattern = httpPattern(httpMethod, null, classNode.visibleAnnotations);
+    }
+
+    if (rootPattern.isEmpty()) {
+      rootPattern = Collections.singletonList("/");
     }
 
     for (String prefix : rootPattern) {

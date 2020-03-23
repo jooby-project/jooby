@@ -11,8 +11,8 @@ public class Issue1585 {
   public void shouldAddRegex(OpenAPIResult result) {
     assertEquals("openapi: 3.0.1\n"
         + "info:\n"
-        + "  title: 1584 API\n"
-        + "  description: 1584 API description\n"
+        + "  title: 1585 API\n"
+        + "  description: 1585 API description\n"
         + "  version: \"1.0\"\n"
         + "paths:\n"
         + "  /user/{id}:\n"
