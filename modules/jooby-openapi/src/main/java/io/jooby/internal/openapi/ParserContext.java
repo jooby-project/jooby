@@ -214,14 +214,26 @@ public class ParserContext {
       EnumSet.allOf(type).forEach(e -> schema.addEnumItem(((Enum) e).name()));
       return schema;
     }
-    return schemas.computeIfAbsent(type.getName(), k -> {
+    SchemaRef schemaRef = schemas.get(type.getName());
+    if (schemaRef == null) {
       ResolvedSchema resolvedSchema = converters.readAllAsResolvedSchema(type);
       if (resolvedSchema.schema == null) {
         throw new IllegalArgumentException("Unsupported type: " + type);
       }
-      return new SchemaRef(resolvedSchema.schema,
+      schemaRef = new SchemaRef(resolvedSchema.schema,
           RefUtils.constructRef(resolvedSchema.schema.getName()));
-    }).toSchema();
+      schemas.put(type.getName(), schemaRef);
+
+      if (resolvedSchema.referencedSchemas!= null) {
+        for (Map.Entry<String, Schema> e : resolvedSchema.referencedSchemas.entrySet()) {
+          if (!e.getKey().equals(schemaRef.schema.getName())) {
+            SchemaRef dependency = new SchemaRef(e.getValue(), RefUtils.constructRef(e.getValue().getName()));
+            schemas.putIfAbsent(e.getKey(), dependency);
+          }
+        }
+      }
+    }
+    return schemaRef.toSchema();
   }
 
   public Optional<SchemaRef> schemaRef(String type) {

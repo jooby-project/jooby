@@ -20,7 +20,7 @@ public class Issue1591 {
         + "  /1591:\n"
         + "    get:\n"
         + "      summary: Example.\n"
-        + "      operationId: missingAttributes\n"
+        + "      operationId: parameterExample\n"
         + "      parameters:\n"
         + "      - name: arg1\n"
         + "        in: path\n"
@@ -45,7 +45,9 @@ public class Issue1591 {
         + "          content:\n"
         + "            application/json:\n"
         + "              schema:\n"
-        + "                type: string\n", result.toYaml());
+        + "                type: string\n"
+        + "      security:\n"
+        + "      - basicAuth: []\n", result.toYaml());
   }
 
   @OpenAPITest(App1591b.class)

@@ -214,6 +214,22 @@ public class ReturnTypeParser {
   }
 
   private static String fromMethodCall(ParserContext ctx, MethodInsnNode node) {
+    if (node.owner.equals(TypeFactory.CONTEXT.getInternalName())) {
+      // handle: return ctx.body(MyType.class)
+      Type[] arguments = Type.getArgumentTypes(node.desc);
+      if (arguments.length == 1 && arguments[0].getClassName().equals(Class.class.getName())) {
+        return InsnSupport.prev(node)
+            .filter(LdcInsnNode.class::isInstance)
+            .findFirst()
+            .map(LdcInsnNode.class::cast)
+            .filter(it -> it.cst instanceof Type)
+            .map(it -> (Type) it.cst)
+            .orElse(TypeFactory.OBJECT)
+            .getClassName()
+            ;
+      }
+      return Object.class.getName();
+    }
     Type returnType = Type.getReturnType(node.desc);
     ClassNode classNode;
     try {

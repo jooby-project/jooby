@@ -15,6 +15,6 @@ public class FilterApp extends Jooby {
 
     });
 
-    get("/api/profile/{id}", ctx -> "profile ID");
+    get("/api/profile/{id}", ctx -> ctx.path("id").value());
   }
 }
