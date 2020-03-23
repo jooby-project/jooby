@@ -23,7 +23,7 @@ public class OpenAPIResult {
   }
 
   public String toYaml() {
-    return toYaml(false);
+    return toYaml(true);
   }
 
   public String toYaml(boolean validate) {

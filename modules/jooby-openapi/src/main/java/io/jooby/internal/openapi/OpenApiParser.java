@@ -15,13 +15,17 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -30,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.jooby.internal.openapi.AsmUtils.boolValue;
@@ -48,6 +53,22 @@ public class OpenApiParser {
         singletonList(io.swagger.v3.oas.annotations.Operation.class.getName())).stream()
         .findFirst()
         .ifPresent(a -> swaggerOperation(ctx, operation, toMap(a)));
+
+    /** SecurityRequirements: */
+    findAnnotationByType(method.visibleAnnotations,
+        singletonList(SecurityRequirements.class.getName()))
+        .stream()
+        .map(a ->
+            (List<AnnotationNode>) toMap(a).getOrDefault("value", emptyList())
+        )
+        .forEach(a -> securityRequirements(operation, a));
+
+    /** SecurityRequirement: */
+    findAnnotationByType(method.visibleAnnotations,
+        singletonList(io.swagger.v3.oas.annotations.security.SecurityRequirement.class.getName()))
+        .stream()
+        .findFirst()
+        .ifPresent(a -> securityRequirements(operation, Collections.singletonList(a)));
 
     /** @ApiResponses: */
     findAnnotationByType(method.visibleAnnotations, singletonList(ApiResponses.class.getName()))
@@ -97,12 +118,33 @@ public class OpenApiParser {
     List<String> tags = (List<String>) annotation.getOrDefault("tags", emptyList());
     tags.forEach(operation::addTagsItem);
 
+    securityRequirements(operation,
+        (List<AnnotationNode>) annotation.getOrDefault("security", Collections.emptyList()));
+
     parameters(ctx, operation,
         (List<AnnotationNode>) annotation.getOrDefault("parameters", Collections.emptyList()));
 
     requestBody(ctx, operation, toMap((AnnotationNode) annotation.get("requestBody")));
 
     responses(ctx, operation, annotation);
+  }
+
+  private static void securityRequirements(OperationExt operation,
+      List<AnnotationNode> securityRequirements) {
+    List<SecurityRequirement> requirements = new ArrayList<>();
+    for (AnnotationNode annotation : securityRequirements) {
+      Map<String, Object> securityMap = toMap(annotation);
+      String name = (String) securityMap.get("name");
+      List<String> scopes = (List<String>) securityMap
+          .getOrDefault("scopes", Collections.emptyList());
+      SecurityRequirement requirement = new SecurityRequirement();
+      requirement.addList(name, scopes);
+
+      requirements.add(requirement);
+    }
+    if (requirements.size() > 0) {
+      operation.setSecurity(requirements);
+    }
   }
 
   private static void requestBody(ParserContext ctx, OperationExt operation,
@@ -166,6 +208,31 @@ public class OpenApiParser {
       enumValue(parameterMap, "explode", value -> parameter.setExample(Boolean.valueOf(value)));
       stringValue(parameterMap, "ref", ref -> parameter.set$ref(RefUtils.constructRef(ref)));
       arrayOrSchema(ctx, parameterMap).ifPresent(parameter::setSchema);
+      examples(parameterMap, parameter::setExample, parameter::setExamples);
+    }
+  }
+
+  private static void examples(Map<String, Object> annotation, Consumer<String> exampleConsumer,
+      Consumer<Map<String, Example>> consumer) {
+    List<Map<String, Object>> annotations = ((List<AnnotationNode>) annotation
+        .getOrDefault("examples", emptyList())).stream()
+        .map(AsmUtils::toMap)
+        .collect(Collectors.toList());
+
+    Map<String, Example> examples = new LinkedHashMap<>();
+    stringValue(annotation, "example", exampleConsumer);
+
+    for (Map<String, Object> e : annotations) {
+      Example example = new Example();
+      stringValue(e, "summary", example::setSummary);
+      stringValue(e, "description", example::setDescription);
+      stringValue(e, "value", example::setValue);
+      stringValue(e, "externalValue", example::setExternalValue);
+      String key = (String) e.getOrDefault("name", "example" + examples.size());
+      examples.put(key, example);
+    }
+    if (examples.size() > 0) {
+      consumer.accept(examples);
     }
   }
 
