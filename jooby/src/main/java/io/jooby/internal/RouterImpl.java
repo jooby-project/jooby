@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.Jooby;
+import io.jooby.RouteSet;
 import io.jooby.ServerSentEmitter;
 import io.jooby.exception.RegistryException;
 import io.jooby.RouterOption;
@@ -346,12 +347,16 @@ public class RouterImpl implements Router {
     return newStack(push().executor(executor), action);
   }
 
-  @Nonnull @Override public Router route(@Nonnull Runnable action) {
-    return newStack("/", action);
+  @Nonnull @Override public RouteSet routes(@Nonnull Runnable action) {
+    return path("/", action);
   }
 
-  @Override @Nonnull public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
-    return newStack(pattern, action);
+  @Override @Nonnull public RouteSet path(@Nonnull String pattern, @Nonnull Runnable action) {
+    RouteSet routeSet = new RouteSet();
+    int start = this.routes.size();
+    newStack(pattern, action);
+    routeSet.setRoutes(this.routes.subList(start, this.routes.size()));
+    return routeSet;
   }
 
   @Nonnull @Override public SessionStore getSessionStore() {

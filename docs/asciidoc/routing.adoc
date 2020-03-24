@@ -995,7 +995,7 @@ A `scoped decorator` looks like:
     return 1 + n.intValue();
   });
 
-  route(() -> {                          // <1>
+  routes(() -> {                          // <1>
     // Multiply by 2
     decorator(next -> ctx -> {
       Number n = (Number) next.apply(ctx);
@@ -1019,7 +1019,7 @@ A `scoped decorator` looks like:
     return 1 + n
   }
 
-  route {                                // <1>
+  routes {                                // <1>
     // Multiply by 2
     decorator {
       val n = next.apply(ctx) as Int
@@ -1050,7 +1050,7 @@ and allows you to selectively apply one or more routes.
 [source,java,role="primary"]
 ----
 {
-  route(() -> {   
+  routes(() -> {   
 
     get("/", ctx -> "Hello");
 
@@ -1062,7 +1062,7 @@ and allows you to selectively apply one or more routes.
 [source,kotlin,role="secondary"]
 ----
 {
-  route {
+  routes {
 
     get("/") {
       "Hello"

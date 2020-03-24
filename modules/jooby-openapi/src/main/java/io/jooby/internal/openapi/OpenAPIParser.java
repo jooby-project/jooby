@@ -46,13 +46,16 @@ import static io.jooby.internal.openapi.AsmUtils.stringValue;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-public class OpenApiParser {
+/**
+ * Complement openAPI output with swagger annotations.
+ */
+public class OpenAPIParser {
   public static void parse(ParserContext ctx, MethodNode method, OperationExt operation) {
     /** @Operation: */
     findAnnotationByType(method.visibleAnnotations,
         singletonList(io.swagger.v3.oas.annotations.Operation.class.getName())).stream()
         .findFirst()
-        .ifPresent(a -> swaggerOperation(ctx, operation, toMap(a)));
+        .ifPresent(a -> operation(ctx, operation, toMap(a)));
 
     /** SecurityRequirements: */
     findAnnotationByType(method.visibleAnnotations,
@@ -101,7 +104,7 @@ public class OpenApiParser {
     }
   }
 
-  private static void swaggerOperation(ParserContext ctx, OperationExt operation,
+  private static void operation(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
     stringValue(annotation, "operationId", operation::setOperationId);
 

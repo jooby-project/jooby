@@ -32,8 +32,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +57,7 @@ public class RouteParser {
 
     // swagger/openapi:
     for (OperationExt operation : operations) {
-      OpenApiParser.parse(ctx, operation.getNode(), operation);
+      OpenAPIParser.parse(ctx, operation.getNode(), operation);
     }
 
     List<OperationExt> result = new ArrayList<>();

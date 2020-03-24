@@ -371,9 +371,9 @@ public interface Router extends Registry {
    * Group one or more routes. Useful for applying cross cutting concerns to the enclosed routes.
    *
    * @param body Route body.
-   * @return This router.
+   * @return All routes created.
    */
-  @Nonnull Router route(@Nonnull Runnable body);
+  @Nonnull RouteSet routes(@Nonnull Runnable body);
 
   /**
    * Group one or more routes under a common path prefix. Useful for applying cross cutting
@@ -381,9 +381,9 @@ public interface Router extends Registry {
    *
    * @param pattern Path pattern.
    * @param body Route body.
-   * @return This router.
+   * @return All routes created.
    */
-  @Nonnull Router path(@Nonnull String pattern, @Nonnull Runnable body);
+  @Nonnull RouteSet path(@Nonnull String pattern, @Nonnull Runnable body);
 
   /**
    * Add a HTTP GET handler.

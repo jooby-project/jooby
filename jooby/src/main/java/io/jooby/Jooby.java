@@ -387,14 +387,12 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Jooby path(@Nonnull String pattern, @Nonnull Runnable action) {
-    router.path(pattern, action);
-    return this;
+  @Nonnull @Override public RouteSet path(@Nonnull String pattern, @Nonnull Runnable action) {
+    return router.path(pattern, action);
   }
 
-  @Nonnull @Override public Jooby route(@Nonnull Runnable action) {
-    router.route(action);
-    return this;
+  @Nonnull @Override public RouteSet routes(@Nonnull Runnable action) {
+    return router.routes(action);
   }
 
   @Nonnull @Override

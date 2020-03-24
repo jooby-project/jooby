@@ -140,8 +140,13 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  override fun path(pattern: String, action: Runnable): Jooby {
+  override fun path(pattern: String, action: Runnable): RouteSet {
     return super.path(pattern, action)
+  }
+
+  @RouterDsl
+  override fun routes(action: Runnable): RouteSet {
+    return super.routes(action)
   }
 
   @RouterDsl

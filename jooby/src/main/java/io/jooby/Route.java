@@ -380,11 +380,17 @@ public class Route {
 
   private List<MediaType> consumes = EMPTY_LIST;
 
-  private Map<String, Object> attributes = EMPTY_MAP;
+  private Map<String, Object> attributes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
   private Set<String> supportedMethod;
 
   private String executorKey;
+
+  private List<String> tags = Collections.emptyList();
+
+  private String summary;
+
+  private String description;
 
   /**
    * Creates a new route.
@@ -717,12 +723,7 @@ public class Route {
    * @return This route.
    */
   public @Nonnull Route setAttributes(@Nonnull Map<String, Object> attributes) {
-    if (attributes.size() > 0) {
-      if (this.attributes == EMPTY_MAP) {
-        this.attributes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-      }
-      this.attributes.putAll(attributes);
-    }
+    this.attributes.putAll(attributes);
     return this;
   }
 
@@ -859,6 +860,96 @@ public class Route {
   public @Nonnull Route setExecutorKey(@Nullable String executorKey) {
     this.executorKey = executorKey;
     return this;
+  }
+
+  /**
+   * Route tags.
+   *
+   * @return Route tags.
+   */
+  public @Nonnull List<String> getTags() {
+    return tags;
+  }
+
+  /**
+   * Tag this route. Tags are used for documentation purpose from openAPI generator.
+   *
+   * @param tags Tags.
+   * @return This route.
+   */
+  public @Nonnull Route setTags(@Nonnull List<String> tags) {
+    this.tags = tags;
+    return this;
+  }
+
+  /**
+   * Tag this route. Tags are used for documentation purpose from openAPI generator.
+   *
+   * @param tags Tags.
+   * @return This route.
+   */
+  public @Nonnull Route tags(@Nonnull String... tags) {
+    return setTags(Arrays.asList(tags));
+  }
+
+  /**
+   * Route summary useful for documentation purpose from openAPI generator.
+   *
+   * @return Summary.
+   */
+  public @Nullable String getSummary() {
+    return summary;
+  }
+
+  /**
+   * Route summary useful for documentation purpose from openAPI generator.
+   *
+   * @param summary Summary.
+   * @return This route.
+   */
+  public @Nonnull Route summary(@Nullable String summary) {
+    return setSummary(summary);
+  }
+
+  /**
+   * Route summary useful for documentation purpose from openAPI generator.
+   *
+   * @param summary Summary.
+   * @return This route.
+   */
+  public @Nonnull Route setSummary(@Nullable String summary) {
+    this.summary = summary;
+    return this;
+  }
+
+  /**
+   * Route description useful for documentation purpose from openAPI generator.
+   *
+   * @return Route description.
+   */
+  public @Nullable String getDescription() {
+    return description;
+  }
+
+  /**
+   * Route description useful for documentation purpose from openAPI generator.
+   *
+   * @param description Description.
+   * @return This route.
+   */
+  public @Nonnull Route setDescription(@Nullable String description) {
+    this.description = description;
+    return this;
+  }
+
+  /**
+   * Route description useful for documentation purpose from openAPI generator.
+   *
+   * @param description Description.
+   * @return This route.
+   */
+  public @Nonnull Route description(@Nullable String description) {
+    return setDescription(description);
   }
 
   @Override public String toString() {
