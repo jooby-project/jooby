@@ -386,7 +386,7 @@ public class Route {
 
   private String executorKey;
 
-  private List<String> tags = Collections.emptyList();
+  private List<String> tags = EMPTY_LIST;
 
   private String summary;
 
@@ -878,7 +878,26 @@ public class Route {
    * @return This route.
    */
   public @Nonnull Route setTags(@Nonnull List<String> tags) {
-    this.tags = tags;
+    if (this.tags == EMPTY_LIST) {
+      this.tags = new ArrayList<>();
+    }
+    this.tags.addAll(tags);
+    return this;
+  }
+
+  /**
+   * Add a tag to this route.
+   *
+   * Tags are used for documentation purpose from openAPI generator.
+   *
+   * @param tag Tag.
+   * @return This route.
+   */
+  public @Nonnull Route addTag(@Nonnull String tag) {
+    if (this.tags == EMPTY_LIST) {
+      this.tags = new ArrayList<>();
+    }
+    this.tags.add(tag);
     return this;
   }
 

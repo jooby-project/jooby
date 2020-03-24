@@ -37,6 +37,10 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   private ResponseExt defaultResponse;
   @JsonIgnore
   private List<String> responseCodes = new ArrayList<>();
+  @JsonIgnore
+  private String pathSummary;
+  @JsonIgnore
+  private String pathDescription;
 
   public OperationExt(MethodNode node, String method, String pattern, List arguments,
       ResponseExt response) {
@@ -144,6 +148,22 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     });
   }
 
+  public String getPathDescription() {
+    return pathDescription;
+  }
+
+  public void setPathDescription(String pathDescription) {
+    this.pathDescription = pathDescription;
+  }
+
+  public String getPathSummary() {
+    return pathSummary;
+  }
+
+  public void setPathSummary(String pathSummary) {
+    this.pathSummary = pathSummary;
+  }
+
   public OperationExt copy(String pattern) {
     OperationExt copy = new OperationExt(node, method, pattern, getParameters(), defaultResponse);
     copy.setTags(getTags());
@@ -161,6 +181,8 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     copy.setCallbacks(getCallbacks());
     copy.setExternalDocs(getExternalDocs());
     copy.setSecurity(getSecurity());
+    copy.setPathDescription(getPathDescription());
+    copy.setPathSummary(getPathSummary());
     return copy;
   }
 }

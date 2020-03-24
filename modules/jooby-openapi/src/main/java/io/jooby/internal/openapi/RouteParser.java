@@ -8,6 +8,7 @@ package io.jooby.internal.openapi;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
+import io.jooby.RouteSet;
 import io.jooby.Router;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
@@ -39,6 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -257,6 +259,7 @@ public class RouteParser {
     List<OperationExt> handlerList = new ArrayList<>();
     /** Track the last router instruction and override with produces/consumes. */
     AbstractInsnNode instructionTo = null;
+    int routeIndex = -1;
     for (AbstractInsnNode it : method.instructions) {
       if (it instanceof MethodInsnNode && ctx.process(it)) {
         MethodInsnNode node = (MethodInsnNode) it;
@@ -273,6 +276,8 @@ public class RouteParser {
             String pattern = routePattern(node, node);
             handlerList.addAll(useRouter(ctx, path(prefix, pattern), node, routerInstruction));
           } else if (signature.matches("path", String.class, Runnable.class)) {
+            routeIndex = handlerList.size();
+            instructionTo = node;
             //  router path (Ljava/lang/String;Ljava/lang/Runnable;)Lio/jooby/Route;
             if (node.owner.equals(TypeFactory.KOOBY.getInternalName())) {
               MethodInsnNode subrouteInsn = InsnSupport.prev(node)
@@ -377,10 +382,56 @@ public class RouteParser {
                 .forEach(route::addConsumes);
             instructionTo = it;
           }
+        } else if (signature.matches(Route.class, "summary", String.class)) {
+          instructionTo = parseText(it, instructionTo,
+              handlerList.get(handlerList.size() - 1)::setSummary);
+        } else if (signature.matches(Route.class, "description", String.class)) {
+          instructionTo = parseText(it, instructionTo,
+              handlerList.get(handlerList.size() - 1)::setDescription);
+        } else if (signature.matches(Route.class, "tags", String[].class)) {
+          instructionTo = parseTags(it, instructionTo, handlerList.get(handlerList.size() - 1));
+        } else if (signature.matches(RouteSet.class, "summary", String.class)) {
+          instructionTo = parseText(it, instructionTo,
+              handlerList.get(handlerList.size() - 1)::setPathSummary);
+        } else if (signature.matches(RouteSet.class, "description", String.class)) {
+          instructionTo = parseText(it, instructionTo,
+              handlerList.get(handlerList.size() - 1)::setPathDescription);
+        } else if (signature.matches(RouteSet.class, "tags", String[].class)) {
+          if (routeIndex >= 0) {
+            for (int i = routeIndex; i < handlerList.size(); i++) {
+              instructionTo = parseTags(it, instructionTo, handlerList.get(i));
+            }
+            routeIndex = -1;
+          }
         }
       }
     }
     return handlerList;
+  }
+
+  private AbstractInsnNode parseText(AbstractInsnNode start, AbstractInsnNode end,
+      Consumer<String> consumer) {
+    if (end != null) {
+      InsnSupport.prev(start, end)
+          .filter(LdcInsnNode.class::isInstance)
+          .findFirst()
+          .map(LdcInsnNode.class::cast)
+          .map(i -> i.cst.toString())
+          .ifPresent(consumer);
+    }
+    return start;
+  }
+
+  private AbstractInsnNode parseTags(AbstractInsnNode start, AbstractInsnNode end,
+      OperationExt route) {
+    if (end != null) {
+      InsnSupport.prev(start, end)
+          .filter(LdcInsnNode.class::isInstance)
+          .map(LdcInsnNode.class::cast)
+          .map(i -> i.cst.toString())
+          .forEach(route::addTagsItem);
+    }
+    return start;
   }
 
   private List<OperationExt> kotlinRunApp(ParserContext ctx, String prefix,

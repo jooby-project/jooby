@@ -7,6 +7,7 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import static java.util.Collections.EMPTY_LIST;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -27,7 +29,7 @@ public class RouteSet {
 
   private List<Route> routes;
 
-  private List<String> tags = Collections.emptyList();
+  private List<String> tags = EMPTY_LIST;
 
   private String summary;
 
@@ -161,7 +163,10 @@ public class RouteSet {
    * @return This route.
    */
   public @Nonnull RouteSet setTags(@Nonnull List<String> tags) {
-    this.tags = tags;
+    if (this.tags == EMPTY_LIST) {
+      this.tags = new ArrayList<>();
+    }
+    routes.forEach(it -> tags.forEach(it::addTag));
     return this;
   }
 

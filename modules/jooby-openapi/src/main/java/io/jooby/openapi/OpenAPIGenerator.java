@@ -201,6 +201,8 @@ public class OpenAPIGenerator {
       }
       PathItem pathItem = paths.computeIfAbsent(pattern, k -> new PathItem());
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);
+      Optional.ofNullable(operation.getPathSummary()).ifPresent(pathItem::setSummary);
+      Optional.ofNullable(operation.getPathDescription()).ifPresent(pathItem::setDescription);
     }
     openapi.setOperations(operations);
     openapi.setPaths(paths);
