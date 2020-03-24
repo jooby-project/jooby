@@ -27,6 +27,7 @@ This library supports:
     <version>{joobyVersion}</version>
     <executions>
       <execution>
+        <phase>package</phase>
         <goals>
           <goal>openapi</goal>
         </goals>
