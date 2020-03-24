@@ -25,6 +25,7 @@ Available modules are listed next.
    * link:modules/jdbi[Jdbi]: Jdbi module.
 
 === JSON
+   * link:modules/gson[Gson]: Gson module for Jooby.
    * link:modules/jackson[Jackson]: Jackson module for Jooby.
 
 === OpenAPI
