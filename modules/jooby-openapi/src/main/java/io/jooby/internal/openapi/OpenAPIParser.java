@@ -73,11 +73,11 @@ public class OpenAPIParser {
     findAnnotationByType(node.visibleAnnotations, Servers.class)
         .stream()
         .map(it -> annotationList(toMap(it), "value"))
-        .forEach(it -> servers(openapi, it));
+        .forEach(it -> servers(it, openapi::addServersItem));
     findAnnotationByType(node.visibleAnnotations, Server.class)
         .stream()
         .findFirst()
-        .ifPresent(it -> servers(openapi, singletonList(toMap(it))));
+        .ifPresent(it -> servers(singletonList(toMap(it)), openapi::addServersItem));
   }
 
   public static void parse(ParserContext ctx, OperationExt operation) {
@@ -123,7 +123,8 @@ public class OpenAPIParser {
     checkDefaultResponse(operation);
   }
 
-  private static void servers(OpenAPIExt openapi, List<Map<String, Object>> serverList) {
+  private static void servers(List<Map<String, Object>> serverList,
+      Consumer<io.swagger.v3.oas.models.servers.Server> consumer) {
     for (Map<String, Object> serverMap : serverList) {
       io.swagger.v3.oas.models.servers.Server server = new io.swagger.v3.oas.models.servers.Server();
       stringValue(serverMap, "url", server::setUrl);
@@ -139,7 +140,7 @@ public class OpenAPIParser {
         }
         server.setVariables(variables);
       });
-      openapi.addServersItem(server);
+      consumer.accept(server);
     }
   }
 
@@ -181,7 +182,7 @@ public class OpenAPIParser {
     // Server
     if (openapi.getServers() == null || openapi.getServers().isEmpty()) {
       annotationList(annotation, "servers", serverList ->
-          servers(openapi, serverList)
+          servers(serverList, openapi::addServersItem)
       );
     }
 
@@ -230,6 +231,8 @@ public class OpenAPIParser {
     stringValue(annotation, "description", operation::setDescription);
 
     stringList(annotation, "tags", tags -> tags.forEach(operation::addTagsItem));
+
+    annotationList(annotation, "servers", servers -> servers(servers, operation::addServersItem));
 
     annotationList(annotation, "security",
         values -> securityRequirements(values, operation::addSecurityItem));
