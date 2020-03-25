@@ -9,15 +9,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.MediaType;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.tags.Tag;
+import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
+import static java.util.Optional.ofNullable;
 
 public class OperationExt extends io.swagger.v3.oas.models.Operation {
 
@@ -41,6 +48,12 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   private String pathSummary;
   @JsonIgnore
   private String pathDescription;
+  @JsonIgnore
+  private List<Tag> globalTags = new ArrayList<>();
+  @JsonIgnore
+  private ClassNode application;
+  @JsonIgnore
+  private ClassNode controller;
 
   public OperationExt(MethodNode node, String method, String pattern, List arguments,
       ResponseExt response) {
@@ -164,6 +177,46 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     this.pathSummary = pathSummary;
   }
 
+  public void addTag(Tag tag) {
+    this.globalTags.add(tag);
+    addTagsItem(tag.getName());
+  }
+
+  public List<Tag> getGlobalTags() {
+    return globalTags;
+  }
+
+  public void setGlobalTags(List<Tag> globalTags) {
+    this.globalTags = globalTags;
+  }
+
+  public ClassNode getApplication() {
+    return application;
+  }
+
+  public void setApplication(ClassNode application) {
+    this.application = application;
+  }
+
+  public ClassNode getController() {
+    return controller;
+  }
+
+  public void setController(ClassNode controller) {
+    this.controller = controller;
+  }
+
+  @JsonIgnore
+  public List<AnnotationNode> getAllAnnotations() {
+    return Stream.of(
+        ofNullable(controller).map(c -> c.visibleAnnotations)
+            .orElse(application.visibleAnnotations),
+        node.visibleAnnotations
+    ).filter(Objects::nonNull)
+        .flatMap(List::stream)
+        .collect(Collectors.toList());
+  }
+
   public OperationExt copy(String pattern) {
     OperationExt copy = new OperationExt(node, method, pattern, getParameters(), defaultResponse);
     copy.setTags(getTags());
@@ -183,6 +236,9 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     copy.setSecurity(getSecurity());
     copy.setPathDescription(getPathDescription());
     copy.setPathSummary(getPathSummary());
+    copy.setGlobalTags(getGlobalTags());
+    copy.setApplication(getApplication());
+    copy.setController(getController());
     return copy;
   }
 }

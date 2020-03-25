@@ -36,7 +36,7 @@ public class OpenAPIResult {
         }
         throw new IllegalStateException(
             "Invalid OpenAPI specification:\n\t- " + result.getMessages().stream()
-                .collect(Collectors.joining("\n\t- ")).trim());
+                .collect(Collectors.joining("\n\t- ")).trim() + "\n\n" + yaml);
       }
       return yaml;
     } catch (Exception x) {

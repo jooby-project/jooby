@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -23,6 +25,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.jooby.internal.openapi.AsmUtils.boolValue;
 import static io.jooby.internal.openapi.AsmUtils.enumValue;
@@ -50,7 +54,24 @@ import static java.util.Collections.singletonList;
  * Complement openAPI output with swagger annotations.
  */
 public class OpenAPIParser {
-  public static void parse(ParserContext ctx, MethodNode method, OperationExt operation) {
+  public static void parse(ParserContext ctx, OperationExt operation) {
+    /** Tags: */
+    MethodNode method = operation.getNode();
+    List<AnnotationNode> annotations = operation.getAllAnnotations();
+
+    findAnnotationByType(annotations,
+        singletonList(Tags.class.getName()))
+        .stream()
+        .map(a ->
+            (List<AnnotationNode>) toMap(a).getOrDefault("value", emptyList())
+        )
+        .forEach(a -> tags(operation, a));
+    findAnnotationByType(annotations,
+        singletonList(Tag.class.getName()))
+        .stream()
+        .findFirst()
+        .ifPresent(a -> tags(operation, Collections.singletonList(a)));
+
     /** @Operation: */
     findAnnotationByType(method.visibleAnnotations,
         singletonList(io.swagger.v3.oas.annotations.Operation.class.getName())).stream()
@@ -66,7 +87,6 @@ public class OpenAPIParser {
         )
         .forEach(a -> securityRequirements(operation, a));
 
-    /** SecurityRequirement: */
     findAnnotationByType(method.visibleAnnotations,
         singletonList(io.swagger.v3.oas.annotations.security.SecurityRequirement.class.getName()))
         .stream()
@@ -90,6 +110,16 @@ public class OpenAPIParser {
         .ifPresent(a -> operationResponse(ctx, operation, toMap(a)));
 
     checkDefaultResponse(operation);
+  }
+
+  private static void tags(OperationExt operation, List<AnnotationNode> tags) {
+    for (AnnotationNode annotation : tags) {
+      Map<String, Object> tagMap = toMap(annotation);
+      io.swagger.v3.oas.models.tags.Tag tag = new io.swagger.v3.oas.models.tags.Tag();
+      stringValue(tagMap, "name", tag::setName);
+      stringValue(tagMap, "description", tag::setDescription);
+      operation.addTag(tag);
+    }
   }
 
   /**

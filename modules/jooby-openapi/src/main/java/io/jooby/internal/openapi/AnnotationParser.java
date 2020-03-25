@@ -211,6 +211,7 @@ public class AnnotationParser {
       ctx.debugHandler(method);
       result.addAll(routerMethod(ctx, prefix, classNode, method));
     }
+    result.forEach(it -> it.setController(classNode));
     return result;
   }
 

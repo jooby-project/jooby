@@ -21,6 +21,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -171,6 +173,7 @@ public class OpenAPIGenerator {
 
     ctx.schemas().forEach(schema -> openapi.schema(schema.getName(), schema));
 
+    Map<String, Tag> globalTags = new LinkedHashMap<>();
     Paths paths = new Paths();
     for (OperationExt operation : operations) {
       String pattern = operation.getPattern();
@@ -203,7 +206,15 @@ public class OpenAPIGenerator {
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);
       Optional.ofNullable(operation.getPathSummary()).ifPresent(pathItem::setSummary);
       Optional.ofNullable(operation.getPathDescription()).ifPresent(pathItem::setDescription);
+
+      // global tags
+      operation.getGlobalTags().forEach(tag -> globalTags.put(tag.getName(), tag));
     }
+    globalTags.values().forEach(tag -> {
+      if (tag.getDescription() != null) {
+        openapi.addTagsItem(tag);
+      }
+    });
     openapi.setOperations(operations);
     openapi.setPaths(paths);
 

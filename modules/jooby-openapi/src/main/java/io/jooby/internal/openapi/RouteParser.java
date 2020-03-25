@@ -57,9 +57,13 @@ public class RouteParser {
   public List<OperationExt> parse(ParserContext ctx) {
     List<OperationExt> operations = parse(ctx, null, ctx.classNode(ctx.getRouter()));
 
+    String applicationName = Optional.ofNullable(ctx.getMainClass()).orElse(ctx.getRouter().getClassName());
+    ClassNode application = ctx.classNode(Type.getObjectType(applicationName.replace(".", "/")));
+
     // swagger/openapi:
     for (OperationExt operation : operations) {
-      OpenAPIParser.parse(ctx, operation.getNode(), operation);
+      operation.setApplication(application);
+      OpenAPIParser.parse(ctx, operation);
     }
 
     List<OperationExt> result = new ArrayList<>();
