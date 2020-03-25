@@ -215,7 +215,7 @@ public class OpenAPIGenerator {
       operation.getGlobalTags().forEach(tag -> globalTags.put(tag.getName(), tag));
     }
     globalTags.values().forEach(tag -> {
-      if (tag.getDescription() != null) {
+      if (tag.getDescription() != null || tag.getExtensions() != null) {
         openapi.addTagsItem(tag);
       }
     });

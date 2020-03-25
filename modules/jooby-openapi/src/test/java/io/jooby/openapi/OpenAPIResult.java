@@ -3,6 +3,7 @@ package io.jooby.openapi;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.OpenAPIExt;
 import io.jooby.internal.openapi.OperationExt;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -39,6 +40,28 @@ public class OpenAPIResult {
                 .collect(Collectors.joining("\n\t- ")).trim() + "\n\n" + yaml);
       }
       return yaml;
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
+    }
+  }
+
+  public String toJson() {
+    return toJson(true);
+  }
+
+  public String toJson(boolean validate) {
+    try {
+      String json = Json.mapper().writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
+      if (validate) {
+        SwaggerParseResult result = new OpenAPIV3Parser().readContents(json);
+        if (result.getMessages().isEmpty()) {
+          return json;
+        }
+        throw new IllegalStateException(
+            "Invalid OpenAPI specification:\n\t- " + result.getMessages().stream()
+                .collect(Collectors.joining("\n\t- ")).trim() + "\n\n" + json);
+      }
+      return json;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

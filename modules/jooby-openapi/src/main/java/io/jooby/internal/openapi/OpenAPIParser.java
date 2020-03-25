@@ -5,13 +5,20 @@
  */
 package io.jooby.internal.openapi;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import io.jooby.MediaType;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.Explode;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.Extensions;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,6 +40,7 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,16 +53,18 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
+import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES;
 import static io.jooby.internal.openapi.AsmUtils.annotationList;
 import static io.jooby.internal.openapi.AsmUtils.annotationValue;
 import static io.jooby.internal.openapi.AsmUtils.boolValue;
 import static io.jooby.internal.openapi.AsmUtils.enumValue;
 import static io.jooby.internal.openapi.AsmUtils.intValue;
 import static io.jooby.internal.openapi.AsmUtils.stringList;
+import static io.jooby.internal.openapi.AsmUtils.stringValueOrNull;
 import static io.jooby.internal.openapi.AsmUtils.toMap;
 import static io.jooby.internal.openapi.AsmUtils.findAnnotationByType;
 import static io.jooby.internal.openapi.AsmUtils.stringValue;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 /**
@@ -78,6 +88,15 @@ public class OpenAPIParser {
         .stream()
         .findFirst()
         .ifPresent(it -> servers(singletonList(toMap(it)), openapi::addServersItem));
+
+    findAnnotationByType(node.visibleAnnotations, Extensions.class)
+        .stream()
+        .map(it -> annotationList(toMap(it), "value"))
+        .forEach(it -> extensions(it, openapi::addExtension));
+    findAnnotationByType(node.visibleAnnotations, Extension.class)
+        .stream()
+        .findFirst()
+        .ifPresent(it -> extensions(singletonList(toMap(it)), openapi::addExtension));
   }
 
   public static void parse(ParserContext ctx, OperationExt operation) {
@@ -97,6 +116,22 @@ public class OpenAPIParser {
     findAnnotationByType(method.visibleAnnotations, Operation.class).stream()
         .findFirst()
         .ifPresent(a -> operation(ctx, operation, toMap(a)));
+
+    /** @Parameters: */
+    findAnnotationByType(method.visibleAnnotations, Parameters.class)
+        .stream()
+        .map(it -> annotationList(toMap(it), "value"))
+        .forEach(a -> parameters(ctx, operation, a));
+    findAnnotationByType(method.visibleAnnotations, Parameter.class)
+        .stream()
+        .findFirst()
+        .ifPresent(a -> parameters(ctx, operation, singletonList(toMap(a))));
+
+    /** @ApiResponse: */
+    findAnnotationByType(method.visibleAnnotations, ApiResponse.class)
+        .stream()
+        .findFirst()
+        .ifPresent(a -> operationResponse(ctx, operation, toMap(a)));
 
     /** SecurityRequirements: */
     findAnnotationByType(method.visibleAnnotations, SecurityRequirements.class).stream()
@@ -146,52 +181,56 @@ public class OpenAPIParser {
 
   private static void definition(OpenAPIExt openapi, AnnotationNode node) {
     Map<String, Object> annotation = toMap(node);
-    if (openapi.getInfo() == null) {
-      annotationValue(annotation, "info", infoMap -> {
-        io.swagger.v3.oas.models.info.Info info = new io.swagger.v3.oas.models.info.Info();
-
-        stringValue(infoMap, "title", info::setTitle);
-        stringValue(infoMap, "description", info::setDescription);
-        stringValue(infoMap, "termsOfService", info::setTermsOfService);
-        stringValue(infoMap, "version", info::setVersion);
-
-        annotationValue(infoMap, "contact", map -> {
-          io.swagger.v3.oas.models.info.Contact contact = new io.swagger.v3.oas.models.info.Contact();
-          stringValue(map, "name", contact::setName);
-          stringValue(map, "url", contact::setUrl);
-          stringValue(map, "email", contact::setEmail);
-          info.setContact(contact);
-        });
-
-        annotationValue(infoMap, "license", map -> {
-          io.swagger.v3.oas.models.info.License license = new io.swagger.v3.oas.models.info.License();
-          stringValue(map, "name", license::setName);
-          stringValue(map, "url", license::setUrl);
-          info.setLicense(license);
-        });
-
-        openapi.setInfo(info);
-      });
-    }
+    annotationValue(annotation, "info", info ->
+        info(info, openapi::setInfo)
+    );
     // Tags
-    if (openapi.getTags() == null || openapi.getTags().isEmpty()) {
-      annotationList(annotation, "tags", tagList ->
-          tags(tagList, openapi::addTagsItem)
-      );
-    }
+    annotationList(annotation, "tags", tags ->
+        tags(tags, openapi::addTagsItem)
+    );
     // Server
-    if (openapi.getServers() == null || openapi.getServers().isEmpty()) {
-      annotationList(annotation, "servers", serverList ->
-          servers(serverList, openapi::addServersItem)
-      );
-    }
+    annotationList(annotation, "servers", servers ->
+        servers(servers, openapi::addServersItem)
+    );
 
     // Security
-    if (openapi.getSecurity() == null || openapi.getSecurity().isEmpty()) {
-      annotationList(annotation, "security", securityList ->
-          securityRequirements(securityList, openapi::addSecurityItem)
-      );
-    }
+    annotationList(annotation, "security", security ->
+        securityRequirements(security, openapi::addSecurityItem)
+    );
+
+    // Extension
+    annotationList(annotation, "extensions",
+        extensionList -> extensions(extensionList, openapi::addExtension));
+  }
+
+  private static void info(Map<String, Object> annotation,
+      Consumer<io.swagger.v3.oas.models.info.Info> consumer) {
+    io.swagger.v3.oas.models.info.Info info = new io.swagger.v3.oas.models.info.Info();
+
+    stringValue(annotation, "title", info::setTitle);
+    stringValue(annotation, "description", info::setDescription);
+    stringValue(annotation, "termsOfService", info::setTermsOfService);
+    stringValue(annotation, "version", info::setVersion);
+
+    annotationValue(annotation, "contact", map -> {
+      io.swagger.v3.oas.models.info.Contact contact = new io.swagger.v3.oas.models.info.Contact();
+      stringValue(map, "name", contact::setName);
+      stringValue(map, "url", contact::setUrl);
+      stringValue(map, "email", contact::setEmail);
+      info.setContact(contact);
+    });
+
+    annotationValue(annotation, "license", map -> {
+      io.swagger.v3.oas.models.info.License license = new io.swagger.v3.oas.models.info.License();
+      stringValue(map, "name", license::setName);
+      stringValue(map, "url", license::setUrl);
+      info.setLicense(license);
+    });
+
+    annotationList(annotation, "extensions",
+        extensions -> extensions(extensions, info::addExtension));
+
+    consumer.accept(info);
   }
 
   private static void tags(List<Map<String, Object>> tags,
@@ -200,6 +239,7 @@ public class OpenAPIParser {
       io.swagger.v3.oas.models.tags.Tag tag = new io.swagger.v3.oas.models.tags.Tag();
       stringValue(tagMap, "name", tag::setName);
       stringValue(tagMap, "description", tag::setDescription);
+      annotationList(tagMap, "extensions", values -> extensions(values, tag::addExtension));
       consumer.accept(tag);
     }
   }
@@ -238,6 +278,8 @@ public class OpenAPIParser {
         values -> securityRequirements(values, operation::addSecurityItem));
 
     annotationList(annotation, "parameters", values -> parameters(ctx, operation, values));
+
+    annotationList(annotation, "extensions", values -> extensions(values, operation::addExtension));
 
     requestBody(ctx, operation, toMap((AnnotationNode) annotation.get("requestBody")));
 
@@ -319,6 +361,8 @@ public class OpenAPIParser {
       stringValue(parameterMap, "ref", ref -> parameter.set$ref(RefUtils.constructRef(ref)));
       arrayOrSchema(ctx, parameterMap).ifPresent(parameter::setSchema);
       examples(parameterMap, parameter::setExample, parameter::setExamples);
+      annotationList(parameterMap, "extensions",
+          values -> extensions(values, parameter::addExtension));
     }
   }
 
@@ -376,6 +420,8 @@ public class OpenAPIParser {
 
     String defaultMediaType = operation.getProduces().stream().findFirst().orElse(MediaType.JSON);
     content(ctx, defaultMediaType, annotation).ifPresent(response::setContent);
+
+    annotationList(annotation, "extensions", values -> extensions(values, response::addExtension));
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse(content = @Content))
@@ -490,6 +536,55 @@ public class OpenAPIParser {
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
       consumer.accept(property, schemas);
+    }
+  }
+
+  private static void extensions(List<Map<String, Object>> extensions,
+      BiConsumer<String, Object> consumer) {
+    Map<String, Object> map = new HashMap<>();
+    for (Map<String, Object> extension : extensions) {
+      String name = stringValueOrNull(extension, "name");
+      annotationList(extension, "properties", propertyList -> {
+        for (Map<String, Object> property : propertyList) {
+          String key = stringValue(property, "name");
+          Map<String, Object> scope;
+          if (name != null) {
+            String scopeKey = prepend("x-", name);
+            Object raw = map.get(scopeKey);
+            if (raw instanceof Map) {
+              scope = (Map<String, Object>) raw;
+            } else {
+              scope = new LinkedHashMap<>();
+              map.put(scopeKey, scope);
+            }
+          } else {
+            key = prepend("x-", key);
+            scope = map;
+          }
+          Object value = stringValue(property, "value");
+          if (boolValue(property, "parseValue")) {
+            value = parse((String) value);
+          }
+          scope.put(key, value);
+        }
+      });
+    }
+    for (Map.Entry<String, Object> e : map.entrySet()) {
+      consumer.accept(e.getKey(), e.getValue());
+    }
+  }
+
+  private static String prepend(String prefix, String key) {
+    return key.startsWith(prefix) ? key : prefix + key;
+  }
+
+  private static Object parse(String value) {
+    try {
+      return Json.mapper().reader()
+          .withFeatures(ALLOW_UNQUOTED_FIELD_NAMES, ALLOW_SINGLE_QUOTES)
+          .readTree(value);
+    } catch (JsonProcessingException e) {
+      return value;
     }
   }
 }

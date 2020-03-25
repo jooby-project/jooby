@@ -129,6 +129,11 @@ public class AsmUtils {
     }
   }
 
+  public static boolean boolValue(Map<String, Object> annotation, String property) {
+    Boolean value = (Boolean) annotation.get(property);
+    return value == Boolean.TRUE;
+  }
+
   public static void intValue(Map<String, Object> annotation, String property,
       Consumer<Integer> consumer) {
     Integer value = (Integer) annotation.get(property);
