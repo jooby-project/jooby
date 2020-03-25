@@ -81,6 +81,9 @@ public class AsmUtils {
   public static List<Map<String, Object>> annotationList(Map<String, Object> annotation,
       String property) {
     List<AnnotationNode> value = (List<AnnotationNode>) annotation.get(property);
+    if (value == null) {
+      return Collections.emptyList();
+    }
     List<Map<String, Object>> values = value.stream()
         .map(AsmUtils::toMap)
         .collect(Collectors.toList());

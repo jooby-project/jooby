@@ -85,16 +85,13 @@ public class OpenAPIParser {
     MethodNode method = operation.getNode();
     List<AnnotationNode> annotations = operation.getAllAnnotations();
 
-    findAnnotationByType(annotations, Tags.class)
-        .stream()
-        .map(a ->
-            (List<AnnotationNode>) toMap(a).getOrDefault("value", emptyList())
-        )
-        .forEach(a -> tags(operation, a));
+    findAnnotationByType(annotations, Tags.class).stream()
+        .map(it -> annotationList(toMap(it), "value"))
+        .forEach(a -> tags(a, operation::addTag));
     findAnnotationByType(annotations, Tag.class)
         .stream()
         .findFirst()
-        .ifPresent(a -> tags(operation, Collections.singletonList(a)));
+        .ifPresent(it -> tags(singletonList(toMap(it)), operation::addTag));
 
     /** @Operation: */
     findAnnotationByType(method.visibleAnnotations, Operation.class).stream()
@@ -102,27 +99,20 @@ public class OpenAPIParser {
         .ifPresent(a -> operation(ctx, operation, toMap(a)));
 
     /** SecurityRequirements: */
-    findAnnotationByType(method.visibleAnnotations, SecurityRequirements.class)
-        .stream()
-        .map(a ->
-            (List<AnnotationNode>) toMap(a).getOrDefault("value", emptyList())
-        )
-        .forEach(a -> securityRequirements(operation, a));
+    findAnnotationByType(method.visibleAnnotations, SecurityRequirements.class).stream()
+        .map(it -> annotationList(toMap(it), "value"))
+        .forEach(a -> securityRequirements(a, operation::addSecurityItem));
 
     findAnnotationByType(method.visibleAnnotations, SecurityRequirement.class)
         .stream()
         .findFirst()
-        .ifPresent(a -> securityRequirements(operation, Collections.singletonList(a)));
+        .ifPresent(a -> securityRequirements(singletonList(toMap(a)), operation::addSecurityItem));
 
     /** @ApiResponses: */
     findAnnotationByType(method.visibleAnnotations, ApiResponses.class)
         .stream()
-        .flatMap(a -> (
-                (List<AnnotationNode>) toMap(a)
-                    .getOrDefault("value", emptyList())
-            ).stream()
-        )
-        .forEach(a -> operationResponse(ctx, operation, toMap(a)));
+        .flatMap(it -> annotationList(toMap(it), "value").stream())
+        .forEach(a -> operationResponse(ctx, operation, a));
 
     /** @ApiResponse: */
     findAnnotationByType(method.visibleAnnotations, ApiResponse.class)
@@ -184,44 +174,32 @@ public class OpenAPIParser {
     }
     // Tags
     if (openapi.getTags() == null || openapi.getTags().isEmpty()) {
-      annotationList(annotation, "tags", tagList -> {
-        tagList.stream()
-            .map(it -> {
-              io.swagger.v3.oas.models.tags.Tag tag = new io.swagger.v3.oas.models.tags.Tag();
-              stringValue(it, "name", tag::setName);
-              stringValue(it, "description", tag::setDescription);
-              return tag;
-            })
-            .forEach(openapi::addTagsItem);
-      });
+      annotationList(annotation, "tags", tagList ->
+          tags(tagList, openapi::addTagsItem)
+      );
     }
     // Server
     if (openapi.getServers() == null || openapi.getServers().isEmpty()) {
-      annotationList(annotation, "servers", serverList -> {
-        servers(openapi, serverList);
-      });
+      annotationList(annotation, "servers", serverList ->
+          servers(openapi, serverList)
+      );
     }
 
     // Security
     if (openapi.getSecurity() == null || openapi.getSecurity().isEmpty()) {
-      annotationList(annotation, "security", securityList -> {
-        for (Map<String, Object> securityMap : securityList) {
-          io.swagger.v3.oas.models.security.SecurityRequirement securityRequirement = new io.swagger.v3.oas.models.security.SecurityRequirement();
-          securityRequirement.addList((String) securityMap.get("name"),
-              (List<String>) securityMap.getOrDefault("scopes", Collections.emptyList()));
-          openapi.addSecurityItem(securityRequirement);
-        }
-      });
+      annotationList(annotation, "security", securityList ->
+          securityRequirements(securityList, openapi::addSecurityItem)
+      );
     }
   }
 
-  private static void tags(OperationExt operation, List<AnnotationNode> tags) {
-    for (AnnotationNode annotation : tags) {
-      Map<String, Object> tagMap = toMap(annotation);
+  private static void tags(List<Map<String, Object>> tags,
+      Consumer<io.swagger.v3.oas.models.tags.Tag> consumer) {
+    for (Map<String, Object> tagMap : tags) {
       io.swagger.v3.oas.models.tags.Tag tag = new io.swagger.v3.oas.models.tags.Tag();
       stringValue(tagMap, "name", tag::setName);
       stringValue(tagMap, "description", tag::setDescription);
-      operation.addTag(tag);
+      consumer.accept(tag);
     }
   }
 
@@ -251,11 +229,10 @@ public class OpenAPIParser {
 
     stringValue(annotation, "description", operation::setDescription);
 
-    List<String> tags = (List<String>) annotation.getOrDefault("tags", emptyList());
-    tags.forEach(operation::addTagsItem);
+    stringList(annotation, "tags", tags -> tags.forEach(operation::addTagsItem));
 
-    securityRequirements(operation,
-        (List<AnnotationNode>) annotation.getOrDefault("security", Collections.emptyList()));
+    annotationList(annotation, "security",
+        values -> securityRequirements(values, operation::addSecurityItem));
 
     parameters(ctx, operation,
         (List<AnnotationNode>) annotation.getOrDefault("parameters", Collections.emptyList()));
@@ -265,21 +242,16 @@ public class OpenAPIParser {
     responses(ctx, operation, annotation);
   }
 
-  private static void securityRequirements(OperationExt operation,
-      List<AnnotationNode> securityRequirements) {
-    List<io.swagger.v3.oas.models.security.SecurityRequirement> requirements = new ArrayList<>();
-    for (AnnotationNode annotation : securityRequirements) {
-      Map<String, Object> securityMap = toMap(annotation);
+  private static void securityRequirements(List<Map<String, Object>> securityRequirements,
+      Consumer<io.swagger.v3.oas.models.security.SecurityRequirement> consumer) {
+    for (Map<String, Object> securityMap : securityRequirements) {
       String name = (String) securityMap.get("name");
       List<String> scopes = (List<String>) securityMap
           .getOrDefault("scopes", Collections.emptyList());
       io.swagger.v3.oas.models.security.SecurityRequirement requirement = new io.swagger.v3.oas.models.security.SecurityRequirement();
       requirement.addList(name, scopes);
 
-      requirements.add(requirement);
-    }
-    if (requirements.size() > 0) {
-      operation.setSecurity(requirements);
+      consumer.accept(requirement);
     }
   }
 
