@@ -10,6 +10,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.ClassSource;
 import io.jooby.internal.openapi.ContextPathParser;
 import io.jooby.internal.openapi.OpenAPIExt;
+import io.jooby.internal.openapi.OpenAPIParser;
 import io.jooby.internal.openapi.ParserContext;
 import io.jooby.internal.openapi.OperationExt;
 import io.jooby.internal.openapi.RouteParser;
@@ -168,6 +169,9 @@ public class OpenAPIGenerator {
     /** Create OpenAPI from template and make sure min required information is present: */
     OpenAPIExt openapi = OpenAPIExt.create(basedir, classLoader, templateName);
     openapi.setSource(Optional.ofNullable(ctx.getMainClass()).orElse(classname));
+
+    /** Top Level annotations. */
+    OpenAPIParser.parse(ctx, openapi);
 
     defaults(classname, contextPath, openapi);
 

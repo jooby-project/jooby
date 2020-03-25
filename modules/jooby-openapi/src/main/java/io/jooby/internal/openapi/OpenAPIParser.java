@@ -7,6 +7,8 @@ package io.jooby.internal.openapi;
 
 import io.jooby.MediaType;
 import io.swagger.v3.core.util.RefUtils;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.Explode;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -15,14 +17,17 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.annotations.servers.Servers;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.servers.ServerVariables;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -39,11 +44,13 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static io.jooby.internal.openapi.AsmUtils.annotationList;
+import static io.jooby.internal.openapi.AsmUtils.annotationValue;
 import static io.jooby.internal.openapi.AsmUtils.boolValue;
 import static io.jooby.internal.openapi.AsmUtils.enumValue;
 import static io.jooby.internal.openapi.AsmUtils.intValue;
+import static io.jooby.internal.openapi.AsmUtils.stringList;
 import static io.jooby.internal.openapi.AsmUtils.toMap;
 import static io.jooby.internal.openapi.AsmUtils.findAnnotationByType;
 import static io.jooby.internal.openapi.AsmUtils.stringValue;
@@ -54,47 +61,61 @@ import static java.util.Collections.singletonList;
  * Complement openAPI output with swagger annotations.
  */
 public class OpenAPIParser {
+  public static void parse(ParserContext ctx, OpenAPIExt openapi) {
+    Type type = Type.getObjectType(openapi.getSource().replace(".", "/"));
+    ClassNode node = ctx.classNode(type);
+
+    findAnnotationByType(node.visibleAnnotations, OpenAPIDefinition.class)
+        .stream()
+        .findFirst()
+        .ifPresent(a -> definition(openapi, a));
+
+    findAnnotationByType(node.visibleAnnotations, Servers.class)
+        .stream()
+        .map(it -> annotationList(toMap(it), "value"))
+        .forEach(it -> servers(openapi, it));
+    findAnnotationByType(node.visibleAnnotations, Server.class)
+        .stream()
+        .findFirst()
+        .ifPresent(it -> servers(openapi, singletonList(toMap(it))));
+  }
+
   public static void parse(ParserContext ctx, OperationExt operation) {
     /** Tags: */
     MethodNode method = operation.getNode();
     List<AnnotationNode> annotations = operation.getAllAnnotations();
 
-    findAnnotationByType(annotations,
-        singletonList(Tags.class.getName()))
+    findAnnotationByType(annotations, Tags.class)
         .stream()
         .map(a ->
             (List<AnnotationNode>) toMap(a).getOrDefault("value", emptyList())
         )
         .forEach(a -> tags(operation, a));
-    findAnnotationByType(annotations,
-        singletonList(Tag.class.getName()))
+    findAnnotationByType(annotations, Tag.class)
         .stream()
         .findFirst()
         .ifPresent(a -> tags(operation, Collections.singletonList(a)));
 
     /** @Operation: */
-    findAnnotationByType(method.visibleAnnotations,
-        singletonList(io.swagger.v3.oas.annotations.Operation.class.getName())).stream()
+    findAnnotationByType(method.visibleAnnotations, Operation.class).stream()
         .findFirst()
         .ifPresent(a -> operation(ctx, operation, toMap(a)));
 
     /** SecurityRequirements: */
-    findAnnotationByType(method.visibleAnnotations,
-        singletonList(SecurityRequirements.class.getName()))
+    findAnnotationByType(method.visibleAnnotations, SecurityRequirements.class)
         .stream()
         .map(a ->
             (List<AnnotationNode>) toMap(a).getOrDefault("value", emptyList())
         )
         .forEach(a -> securityRequirements(operation, a));
 
-    findAnnotationByType(method.visibleAnnotations,
-        singletonList(io.swagger.v3.oas.annotations.security.SecurityRequirement.class.getName()))
+    findAnnotationByType(method.visibleAnnotations, SecurityRequirement.class)
         .stream()
         .findFirst()
         .ifPresent(a -> securityRequirements(operation, Collections.singletonList(a)));
 
     /** @ApiResponses: */
-    findAnnotationByType(method.visibleAnnotations, singletonList(ApiResponses.class.getName()))
+    findAnnotationByType(method.visibleAnnotations, ApiResponses.class)
         .stream()
         .flatMap(a -> (
                 (List<AnnotationNode>) toMap(a)
@@ -104,12 +125,94 @@ public class OpenAPIParser {
         .forEach(a -> operationResponse(ctx, operation, toMap(a)));
 
     /** @ApiResponse: */
-    findAnnotationByType(method.visibleAnnotations, singletonList(ApiResponse.class.getName()))
+    findAnnotationByType(method.visibleAnnotations, ApiResponse.class)
         .stream()
         .findFirst()
         .ifPresent(a -> operationResponse(ctx, operation, toMap(a)));
 
     checkDefaultResponse(operation);
+  }
+
+  private static void servers(OpenAPIExt openapi, List<Map<String, Object>> serverList) {
+    for (Map<String, Object> serverMap : serverList) {
+      io.swagger.v3.oas.models.servers.Server server = new io.swagger.v3.oas.models.servers.Server();
+      stringValue(serverMap, "url", server::setUrl);
+      stringValue(serverMap, "description", server::setDescription);
+      annotationList(serverMap, "variables", variableList -> {
+        ServerVariables variables = new ServerVariables();
+        for (Map<String, Object> varMap : variableList) {
+          io.swagger.v3.oas.models.servers.ServerVariable variable = new io.swagger.v3.oas.models.servers.ServerVariable();
+          stringValue(varMap, "description", variable::setDescription);
+          stringValue(varMap, "defaultValue", variable::setDefault);
+          stringList(varMap, "allowableValues", variable::setEnum);
+          variables.put((String) varMap.get("name"), variable);
+        }
+        server.setVariables(variables);
+      });
+      openapi.addServersItem(server);
+    }
+  }
+
+  private static void definition(OpenAPIExt openapi, AnnotationNode node) {
+    Map<String, Object> annotation = toMap(node);
+    if (openapi.getInfo() == null) {
+      annotationValue(annotation, "info", infoMap -> {
+        io.swagger.v3.oas.models.info.Info info = new io.swagger.v3.oas.models.info.Info();
+
+        stringValue(infoMap, "title", info::setTitle);
+        stringValue(infoMap, "description", info::setDescription);
+        stringValue(infoMap, "termsOfService", info::setTermsOfService);
+        stringValue(infoMap, "version", info::setVersion);
+
+        annotationValue(infoMap, "contact", map -> {
+          io.swagger.v3.oas.models.info.Contact contact = new io.swagger.v3.oas.models.info.Contact();
+          stringValue(map, "name", contact::setName);
+          stringValue(map, "url", contact::setUrl);
+          stringValue(map, "email", contact::setEmail);
+          info.setContact(contact);
+        });
+
+        annotationValue(infoMap, "license", map -> {
+          io.swagger.v3.oas.models.info.License license = new io.swagger.v3.oas.models.info.License();
+          stringValue(map, "name", license::setName);
+          stringValue(map, "url", license::setUrl);
+          info.setLicense(license);
+        });
+
+        openapi.setInfo(info);
+      });
+    }
+    // Tags
+    if (openapi.getTags() == null || openapi.getTags().isEmpty()) {
+      annotationList(annotation, "tags", tagList -> {
+        tagList.stream()
+            .map(it -> {
+              io.swagger.v3.oas.models.tags.Tag tag = new io.swagger.v3.oas.models.tags.Tag();
+              stringValue(it, "name", tag::setName);
+              stringValue(it, "description", tag::setDescription);
+              return tag;
+            })
+            .forEach(openapi::addTagsItem);
+      });
+    }
+    // Server
+    if (openapi.getServers() == null || openapi.getServers().isEmpty()) {
+      annotationList(annotation, "servers", serverList -> {
+        servers(openapi, serverList);
+      });
+    }
+
+    // Security
+    if (openapi.getSecurity() == null || openapi.getSecurity().isEmpty()) {
+      annotationList(annotation, "security", securityList -> {
+        for (Map<String, Object> securityMap : securityList) {
+          io.swagger.v3.oas.models.security.SecurityRequirement securityRequirement = new io.swagger.v3.oas.models.security.SecurityRequirement();
+          securityRequirement.addList((String) securityMap.get("name"),
+              (List<String>) securityMap.getOrDefault("scopes", Collections.emptyList()));
+          openapi.addSecurityItem(securityRequirement);
+        }
+      });
+    }
   }
 
   private static void tags(OperationExt operation, List<AnnotationNode> tags) {
@@ -164,13 +267,13 @@ public class OpenAPIParser {
 
   private static void securityRequirements(OperationExt operation,
       List<AnnotationNode> securityRequirements) {
-    List<SecurityRequirement> requirements = new ArrayList<>();
+    List<io.swagger.v3.oas.models.security.SecurityRequirement> requirements = new ArrayList<>();
     for (AnnotationNode annotation : securityRequirements) {
       Map<String, Object> securityMap = toMap(annotation);
       String name = (String) securityMap.get("name");
       List<String> scopes = (List<String>) securityMap
           .getOrDefault("scopes", Collections.emptyList());
-      SecurityRequirement requirement = new SecurityRequirement();
+      io.swagger.v3.oas.models.security.SecurityRequirement requirement = new io.swagger.v3.oas.models.security.SecurityRequirement();
       requirement.addList(name, scopes);
 
       requirements.add(requirement);

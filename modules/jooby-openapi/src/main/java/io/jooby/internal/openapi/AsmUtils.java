@@ -17,6 +17,11 @@ import java.util.stream.Collectors;
 
 public class AsmUtils {
   public static List<AnnotationNode> findAnnotationByType(List<AnnotationNode> source,
+      Class annotation) {
+    return findAnnotationByType(source, Collections.singletonList(annotation.getName()));
+  }
+
+  public static List<AnnotationNode> findAnnotationByType(List<AnnotationNode> source,
       List<String> types) {
     if (source == null) {
       return Collections.emptyList();
@@ -46,6 +51,40 @@ public class AsmUtils {
     if (value != null && value.trim().length() > 0) {
       consumer.accept(value.trim());
     }
+  }
+
+  public static void stringList(Map<String, Object> annotation, String property,
+      Consumer<List<String>> consumer) {
+    List<String> value = (List<String>) annotation.get(property);
+    if (value != null && value.size() > 0) {
+      consumer.accept(value);
+    }
+  }
+
+  public static void annotationValue(Map<String, Object> annotation, String property,
+      Consumer<Map<String, Object>> consumer) {
+    AnnotationNode value = (AnnotationNode) annotation.get(property);
+    Map<String, Object> map = toMap(value);
+    if (map.size() > 0) {
+      consumer.accept(map);
+    }
+  }
+
+  public static void annotationList(Map<String, Object> annotation, String property,
+      Consumer<List<Map<String, Object>>> consumer) {
+    List<Map<String, Object>> values = annotationList(annotation, property);
+    if (values.size() > 0) {
+      consumer.accept(values);
+    }
+  }
+
+  public static List<Map<String, Object>> annotationList(Map<String, Object> annotation,
+      String property) {
+    List<AnnotationNode> value = (List<AnnotationNode>) annotation.get(property);
+    List<Map<String, Object>> values = value.stream()
+        .map(AsmUtils::toMap)
+        .collect(Collectors.toList());
+    return values;
   }
 
   public static void boolValue(Map<String, Object> annotation, String property,
