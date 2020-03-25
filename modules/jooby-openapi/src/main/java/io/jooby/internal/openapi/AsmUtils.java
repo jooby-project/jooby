@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -47,10 +48,34 @@ public class AsmUtils {
 
   public static void stringValue(Map<String, Object> annotation, String property,
       Consumer<String> consumer) {
-    String value = (String) annotation.get(property);
-    if (value != null && value.trim().length() > 0) {
+    String value = stringValueOrNull(annotation, property);
+    if (value != null) {
       consumer.accept(value.trim());
     }
+  }
+
+  public static String stringValue(Map<String, Object> annotation, String property) {
+    String value = stringValueOrNull(annotation, property);
+    if (value == null) {
+      throw new IllegalArgumentException("Missing: " + property + " on " + annotation);
+    }
+    return value;
+  }
+
+  public static String stringValue(Map<String, Object> annotation, String property, String defaultValue) {
+    String value = stringValueOrNull(annotation, property);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
+  }
+
+  public static String stringValueOrNull(Map<String, Object> annotation, String property) {
+    String value = (String) annotation.get(property);
+    if (value != null && value.trim().length() > 0) {
+      return value;
+    }
+    return null;
   }
 
   public static void stringList(Map<String, Object> annotation, String property,
@@ -63,12 +88,18 @@ public class AsmUtils {
 
   public static void annotationValue(Map<String, Object> annotation, String property,
       Consumer<Map<String, Object>> consumer) {
+   annotationValue(annotation, property).ifPresent(consumer);
+  }
+
+  public static Optional<Map<String, Object>> annotationValue(Map<String, Object> annotation, String property) {
     AnnotationNode value = (AnnotationNode) annotation.get(property);
     Map<String, Object> map = toMap(value);
     if (map.size() > 0) {
-      consumer.accept(map);
+      return Optional.of(map);
     }
+    return Optional.empty();
   }
+
 
   public static void annotationList(Map<String, Object> annotation, String property,
       Consumer<List<Map<String, Object>>> consumer) {

@@ -237,8 +237,7 @@ public class OpenAPIParser {
     annotationList(annotation, "security",
         values -> securityRequirements(values, operation::addSecurityItem));
 
-    parameters(ctx, operation,
-        (List<AnnotationNode>) annotation.getOrDefault("parameters", Collections.emptyList()));
+    annotationList(annotation, "parameters", values -> parameters(ctx, operation, values));
 
     requestBody(ctx, operation, toMap((AnnotationNode) annotation.get("requestBody")));
 
@@ -288,9 +287,9 @@ public class OpenAPIParser {
   )
   )
   private static void parameters(ParserContext ctx, OperationExt operation,
-      List<AnnotationNode> parameters) {
+      List<Map<String, Object>> parameters) {
     for (int i = 0; i < parameters.size(); i++) {
-      Map<String, Object> parameterMap = toMap(parameters.get(i));
+      Map<String, Object> parameterMap = parameters.get(i);
       String name = (String) parameterMap.get("name");
       io.swagger.v3.oas.models.parameters.Parameter parameter;
       if (name != null) {
@@ -325,82 +324,70 @@ public class OpenAPIParser {
 
   private static void examples(Map<String, Object> annotation, Consumer<String> exampleConsumer,
       Consumer<Map<String, Example>> consumer) {
-    List<Map<String, Object>> annotations = ((List<AnnotationNode>) annotation
-        .getOrDefault("examples", emptyList())).stream()
-        .map(AsmUtils::toMap)
-        .collect(Collectors.toList());
-
     Map<String, Example> examples = new LinkedHashMap<>();
     stringValue(annotation, "example", exampleConsumer);
 
-    for (Map<String, Object> e : annotations) {
-      Example example = new Example();
-      stringValue(e, "summary", example::setSummary);
-      stringValue(e, "description", example::setDescription);
-      stringValue(e, "value", example::setValue);
-      stringValue(e, "externalValue", example::setExternalValue);
-      String key = (String) e.getOrDefault("name", "example" + examples.size());
-      examples.put(key, example);
-    }
-    if (examples.size() > 0) {
+    annotationList(annotation, "examples", values -> {
+      for (Map<String, Object> e : values) {
+        Example example = new Example();
+        stringValue(e, "summary", example::setSummary);
+        stringValue(e, "description", example::setDescription);
+        stringValue(e, "value", example::setValue);
+        stringValue(e, "externalValue", example::setExternalValue);
+        String key = (String) e.getOrDefault("name", "example" + examples.size());
+        examples.put(key, example);
+      }
       consumer.accept(examples);
-    }
+    });
   }
 
   private static void responses(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
-    List<AnnotationNode> responses = (List<AnnotationNode>) annotation
-        .getOrDefault("responses", emptyList());
-    responses.stream()
-        .map(it -> toMap(it))
-        .forEach(it -> operationResponse(ctx, operation, it));
+    annotationList(annotation, "responses", values ->
+        values.forEach(it -> operationResponse(ctx, operation, it))
+    );
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse)
   private static void operationResponse(ParserContext ctx, OperationExt operation,
       Map<String, Object> annotation) {
-    String code = ((String) annotation.getOrDefault("responseCode", "200"))
+    String code = stringValue(annotation, "responseCode", "200")
         .replace("default", "200");
 
     ResponseExt response = operation.addResponse(code);
-    Map<String, Header> headers = new LinkedHashMap<>();
 
-    ((List<AnnotationNode>) annotation.getOrDefault("headers", Collections.emptyList())).stream()
-        .map(a -> toMap(a))
-        .forEach(a -> {
-          String name = (String) a.get("name");
-          Header h = new Header();
-          stringValue(a, "description", h::setDescription);
-          io.swagger.v3.oas.models.media.Schema schema = toSchema(ctx,
-              toMap((AnnotationNode) a.get("schema")))
-              .orElseGet(StringSchema::new);
-          h.setSchema(schema);
-          headers.put(name, h);
-        });
+    annotationList(annotation, "headers", values -> {
+      Map<String, Header> headers = new LinkedHashMap<>();
+      for (Map<String, Object> value : values) {
+        Header header = new Header();
 
-    if (headers.size() > 0) {
+        String name = stringValue(value, "name");
+        stringValue(value, "description", header::setDescription);
+        io.swagger.v3.oas.models.media.Schema schema = annotationValue(value, "schema")
+            .map(schemaMap -> toSchema(ctx, schemaMap).orElseGet(StringSchema::new))
+            .orElseGet(StringSchema::new);
+        header.setSchema(schema);
+        headers.put(name, header);
+      }
       response.setHeaders(headers);
-    }
+    });
 
-    String description = (String) annotation.getOrDefault("description", "");
+    stringValue(annotation, "description", response::setDescription);
 
     String defaultMediaType = operation.getProduces().stream().findFirst().orElse(MediaType.JSON);
     content(ctx, defaultMediaType, annotation).ifPresent(response::setContent);
-
-    if (description.trim().length() > 0) {
-      response.setDescription(description.trim());
-    }
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse(content = @Content))
   private static Optional<io.swagger.v3.oas.models.media.Content> content(ParserContext ctx,
-      String defaultMediaType,
-      Map<String, Object> annotation) {
+      String defaultMediaType, Map<String, Object> annotation) {
     io.swagger.v3.oas.models.media.Content content = new io.swagger.v3.oas.models.media.Content();
-    ((List<AnnotationNode>) annotation.getOrDefault("content", Collections.emptyList()))
-        .stream()
-        .map(n -> toMap(n))
-        .forEach(a -> mediaType(ctx, content, defaultMediaType, a));
+    annotationList(annotation, "content", values -> {
+      for (Map<String, Object> value : values) {
+        mediaType(ctx, content, defaultMediaType, value);
+      }
+    });
+
     return content.isEmpty() ? Optional.empty() : Optional.of(content);
   }
 
@@ -415,8 +402,11 @@ public class OpenAPIParser {
     if (contentMap == null || contentMap.isEmpty()) {
       return;
     }
+
+    String mediaType = stringValue(contentMap, "mediaType", defaultMediaType);
+
     Optional<io.swagger.v3.oas.models.media.Schema> schema = arrayOrSchema(ctx, contentMap);
-    String mediaType = (String) contentMap.getOrDefault("mediaType", defaultMediaType);
+
     io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
     schema.ifPresent(mediaTypeObject::setSchema);
 
