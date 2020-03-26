@@ -68,7 +68,7 @@ jar.dependsOn openAPI
 ====
 The default phase of the plugin execution is `process-classes` which means it will be executed on `mvn jooby:run` command and on hot reload.
 It may slow down `hot reload` process in case of large projects with a lot of code to process.
-To avoid this behaviour you can specify maven build phase which suits your needs better (e.g. `package`).
+To avoid this behaviour you can specify maven build phase which suits your needs better (e.g. `prepare-package`).
 ====
 
 === Usage
