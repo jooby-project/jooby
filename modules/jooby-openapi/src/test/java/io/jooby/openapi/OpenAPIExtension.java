@@ -16,9 +16,8 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
-
 public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
+
   @Override public boolean supportsParameter(ParameterContext parameterContext,
       ExtensionContext extensionContext) throws ParameterResolutionException {
     Parameter parameter = parameterContext.getParameter();
