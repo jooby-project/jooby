@@ -257,8 +257,10 @@ public class DocGenerator {
       settings.indentAmount(0);
       settings.outline(false);
       return doc.outputSettings(settings).toString();
+    } catch (NullPointerException x) {
+      throw new IllegalStateException("File: " + index, x);
     } catch (IOException x) {
-      throw new IllegalStateException(x);
+      throw new IllegalStateException("File: " + index, x);
     }
   }
 

@@ -36,13 +36,6 @@ This library supports:
 </plugins>
 ----
 
-[NOTE]
-====
-The default phase of the plugin execution is `process-classes` which means it will be executed on `mvn jooby:run` command and on hot reload.  
-It may slow down `hot reload` process in case of large projects with a lot of code to process.
-To avoid this behaviour you can specify maven build phase which suits your needs better (e.g. `package`).
-====
-
 .build.gradle
 [source, groovy, role = "secondary", subs="verbatim,attributes"]
 ----
@@ -73,7 +66,9 @@ jar.dependsOn openAPI
 
 [NOTE]
 ====
-Most of this setup is not required if you already have `joobyRun` on your build.
+The default phase of the plugin execution is `process-classes` which means it will be executed on `mvn jooby:run` command and on hot reload.
+It may slow down `hot reload` process in case of large projects with a lot of code to process.
+To avoid this behaviour you can specify maven build phase which suits your needs better (e.g. `package`).
 ====
 
 === Usage
@@ -274,6 +269,128 @@ To add documentation just do:
 
 If the parameter annotation doesn't specify a name, parameter binding follows a positional assignment.
 
+==== OpenAPIDefinition
+
+This annotation is supported at the application level:
+
+.OpenAPIDefinition
+[source, java, role = "primary"]
+----
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Title",
+        description = "description",
+        termsOfService = "Terms",
+        contact = @Contact(
+            name = "Jooby",
+            url = "https://jooby.io",
+            email = "support@jooby.io"
+        ),
+        license = @License(
+            name = "Apache",
+            url = "https://jooby.io/LICENSE"
+        ),
+        version = "10"
+    ),
+    tags = @Tag(name = "mytag")
+)
+class App extends Jooby {
+  {
+    // All routes now have the default tag: `Pets` 
+  }
+}
+----
+
+.Kotlin
+[source, kt, role = "secondary"]
+----
+@OpenAPIDefinition(
+    info = Info(
+        title = "Title",
+        description = "description",
+        termsOfService = "Terms",
+        contact = Contact(
+            name = "Jooby",
+            url = "https://jooby.io",
+            email = "support@jooby.io"
+        ),
+        license = License(
+            name = "Apache",
+            url = "https://jooby.io/LICENSE"
+        ),
+        version = "10"
+    ),
+    tags = [Tag(name = "mytag")]
+)
+class App: Kooby({
+})
+----
+
+==== Tags
+
+Tagging is supported at three different levels:
+
+.Application level
+[source, java, role = "primary"]
+----
+@Tag(name = "Pets", description = "Pet operations")
+class App extends Jooby {
+  {
+    // All routes now have the default tag: `Pets` 
+  }
+}
+----
+
+.Kotlin
+[source, kt, role = "secondary"]
+----
+@Tag(name = "Pets", description = "Pet operations")
+class App: Kooby({
+    // All routes now have the default tag: `Pets` 
+})
+----
+
+.Controller level
+[source, java, role = "primary"]
+----
+@Tag(name = "Pets", description = "Pet operations")
+@Path("/pets")
+class Pets {
+  // All web method now have the default tag: `Pets` 
+}
+----
+
+.Kotlin
+[source, kt, role = "secondary"]
+----
+@Tag(name = "Pets", description = "Pet operations")
+@Path("/pets")
+class Pets {
+  // All web method now have the default tag: `Pets`
+}
+----
+
+.Method level
+[source, java, role = "primary"]
+----
+@Tag(name = "Pets", description = "Pet operations")
+public List<Pet> list(Context ctx) {
+  ...
+}
+----
+
+.Kotlin
+[source, kt, role = "secondary"]
+----
+@Tag(name = "Pets", description = "Pet operations")
+fun list(ctx: Context): List<Pet> {
+  ...
+}
+----
+
+For multiple tags use the `@Tags` annotation or the `tags` property of `@OpenAPIDefinition`
+and/or `@Operation` annotations.
+
 ==== Responses & Status
 
 The default response code is `Success(200)` (or `NO_CONENT(204)` for DELETE mvc routes). Now, if
@@ -333,9 +450,12 @@ info:
 
 All sections from template file (except the paths section) are merged into the final output.
 
-=== UI
+[NOTE]
+====
+Keep in mind that any section found here in the template overrides existing metadata.
+====
 
-==== Swagger UI
+=== Swagger UI
 
 To use swagger-ui just add the dependency to your project:
 
@@ -344,7 +464,7 @@ To use swagger-ui just add the dependency to your project:
 
 The swagger-ui application will be available at `/swagger`. To modify the default path, just call javadoc:OpenAPIModule[swaggerUI, java.lang.String]
 
-==== Redoc
+=== Redoc
 
 To use redoc just add the dependency to your project:
 
