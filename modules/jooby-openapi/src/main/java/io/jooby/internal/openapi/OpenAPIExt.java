@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class OpenAPIExt extends OpenAPI {
   @JsonIgnore
@@ -24,17 +25,17 @@ public class OpenAPIExt extends OpenAPI {
   @JsonIgnore
   private String source;
 
-  public static OpenAPIExt create(Path basedir, ClassLoader classLoader, String templateName) {
+  public static Optional<OpenAPI> fromTemplate(Path basedir, ClassLoader classLoader, String templateName) {
     try {
       Path path = basedir.resolve("conf").resolve(templateName);
       if (Files.exists(path)) {
-        return Yaml.mapper().readValue(path.toFile(), OpenAPIExt.class);
+        return Optional.of(Yaml.mapper().readValue(path.toFile(), OpenAPIExt.class));
       }
       URL resource = classLoader.getResource(templateName);
       if (resource != null) {
-        return Yaml.mapper().readValue(resource, OpenAPIExt.class);
+        return Optional.of(Yaml.mapper().readValue(resource, OpenAPIExt.class));
       }
-      return new OpenAPIExt();
+      return Optional.empty();
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }

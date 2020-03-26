@@ -167,11 +167,14 @@ public class OpenAPIGenerator {
     String contextPath = ContextPathParser.parse(ctx);
 
     /** Create OpenAPI from template and make sure min required information is present: */
-    OpenAPIExt openapi = OpenAPIExt.create(basedir, classLoader, templateName);
+    OpenAPIExt openapi = new OpenAPIExt();
     openapi.setSource(Optional.ofNullable(ctx.getMainClass()).orElse(classname));
 
     /** Top Level annotations. */
     OpenAPIParser.parse(ctx, openapi);
+
+    OpenAPIExt.fromTemplate(basedir, classLoader, templateName)
+        .ifPresent(template -> merge(openapi, template));
 
     defaults(classname, contextPath, openapi);
 
@@ -223,6 +226,24 @@ public class OpenAPIGenerator {
     openapi.setPaths(paths);
 
     return openapi;
+  }
+
+  private void merge(OpenAPIExt openapi, OpenAPI template) {
+    try {
+      openapi.setComponents(
+          Optional.ofNullable(openapi.getComponents()).orElseGet(template::getComponents));
+      openapi
+          .setSecurity(Optional.ofNullable(openapi.getSecurity()).orElseGet(template::getSecurity));
+      openapi.setServers(Optional.ofNullable(openapi.getServers()).orElseGet(template::getServers));
+      openapi.setInfo(Optional.ofNullable(openapi.getInfo()).orElseGet(template::getInfo));
+      openapi.setExternalDocs(
+          Optional.ofNullable(openapi.getExternalDocs()).orElseGet(template::getExternalDocs));
+      openapi.setTags(Optional.ofNullable(openapi.getTags()).orElseGet(template::getTags));
+      openapi.setExtensions(
+          Optional.ofNullable(openapi.getExtensions()).orElseGet(template::getExtensions));
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 
   private boolean includes(String value) {
