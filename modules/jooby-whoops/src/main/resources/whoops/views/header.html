@@ -1,0 +1,41 @@
+<body><div class="exception">
+  <div class="exc-title">
+    {{#each causeName as |name|}}
+      {{~#if @last~}}
+        <span class="exc-title-primary">{{name}}</span>
+      {{~else~}}
+        {{name}}.
+      {{~/if~}}
+    {{/each}}
+    {{#if code}}
+      <span title="Exception Code">: {{code}}</span>
+    {{~/if~}}
+  </div>
+  <div class="exc-message">
+    {{#if cause.message}}
+      <span><span>{{cause.message}}</span></span>
+      {{#if previousMessages.size}}
+        <div class="exc-title prev-exc-title">
+          <span class="exc-title-secondary">Previous exceptions</span>
+        </div>
+        <ul>
+          {{#each previousMessages as |previousMessage|}}
+            <li>
+              {{previousMessage}}
+              <span class="prev-exc-code">()</span>
+            </li>
+          {{/each}}
+        </ul>
+      {{~/if~}}
+    {{~else~}}
+      <span class="exc-message-empty-notice">No message</span>
+    {{~/if~}}
+    
+    <span id="plain-exception">{{stacktrace}}</span>
+    <button id="copy-button" class="rightButton clipboard" data-clipboard-text="{{stacktrace}}" title="Copy exception details to clipboard">
+      COPY
+    </button>
+    
+  </div>
+</div>
+</body>

@@ -1,12 +1,10 @@
-
-<div class="details">
+<body><div class="details">
   <h2 class="details-heading">Environment &amp; details:</h2>
-
   <div class="data-table-container" id="data-tables">
-    {% for e in env %}
-      <div class="data-table" id="sg-{{e.key}}">
-        {% if e.value.size > 0 %}
-            <label>{{e.key}}</label>
+    {{#each env as |scope|}}
+      <div class="data-table" id="sg-{{@key}}">
+        {{#if scope.size}}
+            <label>{{@key}}</label>
             <table class="data-table">
               <thead>
                 <tr>
@@ -14,29 +12,20 @@
                   <td class="data-table-v">Value</td>
                 </tr>
               </thead>
-            {% for data in e.value %}
-              <tr>
-                <td>{{data.key}}</td>
-                <td>{{data.value}}</td>
+            {{#each scope as |data|}}
+              <tbody><tr>
+                <td>{{@key}}</td>
+                <td>{{data}}</td>
               </tr>
-            {%endfor%}
-            </table>
-        {%else%}
-            <label class="empty">{{e.key}}</label>
+            {{/each}}
+            </tbody></table>
+        {{else}}
+            <label class="empty">{{@key}}</label>
             <span class="empty">empty</span>
-        {%endif%}
+        {{/if}}
       </div>
-    {%endfor%}
+    {{/each}}
   </div>
-
   
-  <div class="data-table-container" id="handlers">
-    <label>Registered Handlers</label>
-    {% for h in handlers %}
-      <div class="handler ">
-        {{h}}
-      </div>
-    {%endfor%}
-  </div>
-
 </div>
+</body>

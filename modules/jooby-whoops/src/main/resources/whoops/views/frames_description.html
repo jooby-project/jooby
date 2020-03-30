@@ -1,0 +1,14 @@
+<div class="frames-description {{framesDescriptionTab}}">
+  {{#if hasFrameTabs}}
+    <a href="#" id="application-frames-tab" class="frames-tab {{activeFramesTab}}">
+        Application frames (<?php echo $frames->countIsApplication() ?>)
+    </a>
+    <a href="#" id="all-frames-tab" class="frames-tab {{activeFramesTab}}">
+      All frames ({{frames.size}})
+    </a>
+  {{else}}
+    <span>
+        Stack frames ({{frames.size}})
+    </span>
+  {{/if}}
+</div>

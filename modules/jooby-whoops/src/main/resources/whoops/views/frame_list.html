@@ -1,0 +1,13 @@
+{{#each frames as |frame|}}
+  <div class="frame {{#if @first}} active{{/if}}{{#if frame.source}} source{{/if}}" id="frame-line-{{@index}}">
+      <span class="frame-index">{{minus frames.size @index}}</span>
+      <div class="frame-method-info">
+        <span class="frame-class">{{frame.className}}</span>
+        <span class="frame-function">{{frame.method}}</span>
+      </div>
+    <div class="frame-file">
+        {{frame.location}}<!--
+   --><span class="frame-line">{{frame.lineNumber}}</span>
+    </div>
+  </div>
+{{/each}}
