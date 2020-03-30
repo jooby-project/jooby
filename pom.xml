@@ -404,6 +404,12 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-whoops</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-maven-plugin</artifactId>
         <version>${jooby.version}</version>
       </dependency>

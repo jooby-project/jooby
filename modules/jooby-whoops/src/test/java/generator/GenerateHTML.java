@@ -28,24 +28,24 @@ public class GenerateHTML {
     for (String line : phpFile(filename)) {
       line = line
           .replace("<?php /* List data-table values, i.e: $_SERVER, $_GET, .... */ ?>", "")
-          .replace("<?php foreach ($tables as $label => $data): ?>", "{{#each env as |scope|}}")
-          .replace("<?php echo $tpl->escape($tpl->slug($label)) ?>", "{{@key}}")
-          .replace("<?php if (!empty($data)): ?>", "{{#if scope.size}}")
-          .replace("<?php echo $tpl->escape($label) ?>", "{{@key}}")
-          .replace("<?php foreach ($data as $k => $value): ?>", "{{#each scope as |data|}}")
-          .replace("<?php echo $tpl->escape($k) ?>", "{{@key}}")
-          .replace("<?php echo $tpl->dump($value) ?>", "{{data}}")
-          .replace("<?php endforeach ?>", "{{/each}}")
-          .replace("<?php else: ?>", "{{else}}")
-          .replace("<?php echo $tpl->escape($label) ?>", "{{@key}}")
-          .replace("<?php endif ?>", "{{/if}}")
-          .replace("<?php endforeach ?>", "{{/each}}")
+          .replace("<?php foreach ($tables as $label => $data): ?>", "{% for scope in env %}")
+          .replace("<?php echo $tpl->escape($tpl->slug($label)) ?>", "{{scope.key}}")
+          .replace("<?php if (!empty($data)): ?>", "{% if scope is not empty %}")
+          .replace("<?php echo $tpl->escape($label) ?>", "{{scope.key}}")
+          .replace("<?php foreach ($data as $k => $value): ?>", "{% for data in scope.value %}")
+          .replace("<?php echo $tpl->escape($k) ?>", "{{data.key}}")
+          .replace("<?php echo $tpl->dump($value) ?>", "{{data.value}}")
+          .replace("<?php endforeach ?>", "{% endfor %}")
+          .replace("<?php else: ?>", "{% else %}")
+          .replace("<?php echo $tpl->escape($label) ?>", "{{scope.key}}")
+          .replace("<?php endif ?>", "{% endif %}")
+          .replace("<?php endforeach ?>", "{% endfor %}")
           // TODO
           .replace("<?php /* List registered handlers, in order of first to last registered */ ?>", "")
-          .replace("<?php foreach ($handlers as $i => $h): ?>", "TODO:\n{{#each handlers as |h|}}")
+          .replace("<?php foreach ($handlers as $i => $h): ?>", "{% for h in handlers %}")
           .replace("<?php echo ($h === $handler) ? 'active' : ''?>", "")
           .replace("<?php echo $i ?>. <?php echo $tpl->escape(get_class($h)) ?>", "{{h}}")
-          .replace("<?php endforeach ?>", "\"{{/each}}\"")
+          .replace("<?php endforeach ?>", "{% endfor %}")
       ;
       if (line.trim().length() > 0) {
         lines.append(line).append(System.getProperty("line.separator"));
@@ -57,7 +57,7 @@ public class GenerateHTML {
     settings.prettyPrint(false);
     settings.indentAmount(2);
     settings.outline(true);
-    Files.write(output, Arrays.asList(doc.outputSettings(settings).body().toString()));
+    Files.write(output, Arrays.asList(doc.outputSettings(settings).body().children().toString()));
     return output;
   }
 
@@ -71,23 +71,24 @@ public class GenerateHTML {
           .replace("       * @todo: This should PROBABLY be done on-demand, lest", "")
           .replace("       * we get 200 frames to process. */ ?>", "")
           .replace("<?php echo (!$has_frames ? 'empty' : '') ?>",
-              "{{#if frames.size}}empty{{/if}}")
-          .replace("foreach ($frames as $i => $frame):", "{{#each frames as |frame|}}")
+              "{% if frames.empty %}empty{% endif %}")
+          .replace("foreach ($frames as $i => $frame):", "{% for frame in frames %}")
           .replace("$line = $frame->getLine();", "")
           .replace("<?php echo ($i == 0 ) ? 'active' : '' ?>\" id=\"frame-code-<?php echo $i ?>",
-              "{{#if @first}} active{{/if}}\" id=\"frame-code-{{@index}}")
-          .replace("<?php $filePath = $frame->getFile(); ?>", "{{#if frame.open}}")
+              "{% if loop.index == 0 %}active{% endif %}\" id=\"frame-code-{{loop.index}}")
+          .replace("echo ($handler->getEditorAjax($filePath, (int) $line) ? ' data-ajax' : '')", "")
+          .replace("<?php $filePath = $frame->getFile(); ?>", "{% if frame.open %}")
           .replace(
               "<?php if ($filePath && $editorHref = $handler->getEditorHref($filePath, (int) $line)): ?>",
               "")
-          .replace("<?php else: ?>", "{{else}}")
+          .replace("<?php else: ?>", "{% else %}")
           .replace(
               "<?php echo $tpl->breakOnDelimiter('/', $tpl->escape($filePath ?: '<#unknown>')) ?>",
               "{{frame.fileName}}")
-          .replace("<?php endif ?>", "{{/if}}")
+          .replace("<?php endif ?>", "{% endif %}")
           //                .replace("<?php", "")
           .replace("// Do nothing if there's no line to work off", "")
-          .replace("if ($line !== null):", "{{#if frame.source}}")
+          .replace("if ($line !== null):", "{% if frame.source != null %}")
           .replace("// the $line is 1-indexed, we nab -1 where needed to account for this", "")
           .replace("$range = $frame->getFileLines($line - 20, 40);", "")
           .replace("// getFileLines can return null if there is no source code", "")
@@ -98,23 +99,23 @@ public class GenerateHTML {
           .replace("$start = key($range) + 1;", "")
           .replace("$code  = join(\"\\n\", $range);", "")
           //          .replace("?>", "")
-          .replace("<?=$i?>", "{{@index}}")
+          .replace("<?=$i?>", "{{loop.index}}")
           .replace("<?php echo $start ?>", "{{frame.lineStart}}")
           .replace("<?php echo $tpl->escape($code) ?>", "{{frame.source}}")
           .replace("<?php $frameArgs = $tpl->dumpArgs($frame); ?>", "")
-          .replace("<?php if ($frameArgs): ?>", "{{#if frame.args}}")
+          .replace("<?php if ($frameArgs): ?>", "{% if frame.args != null %}")
           .replace("<?php echo $frameArgs; ?>", "{{frame.args}}")
           .replace("// Append comments for this frame", "")
           .replace("$comments = $frame->getComments();", "")
           .replace("<?php echo empty($comments) ? 'empty' : '' ?>",
-              "{{#if (empty frame.comments)}}empty{{/if}}")
+              "{% if frame.comments.size == 0 %}empty{% endif %}")
           .replace("<?php foreach ($comments as $commentNo => $comment): ?>",
-              "{{#each frame.comments as |comment|}}")
+              "{% for comment in frame.comments %}")
           .replace("<?php extract($comment) ?>", "")
-          .replace("<?php echo $i . '-' . $commentNo ?>", "{{@index}}")
-          .replace("<?php echo $tpl->escape($context) ?>", "{{comment.context}}")
-          .replace("<?php echo $tpl->escapeButPreserveUris($comment) ?>", "{{comment.text}}")
-          .replace("<?php endforeach ?>", "{{/each}}")
+          .replace("<?php echo $i . '-' . $commentNo ?>", "{{loop.index}}")
+          .replace("<?php echo $tpl->escape($context) ?>", "{{comment.class.name}}")
+          .replace("<?php echo $tpl->escapeButPreserveUris($comment) ?>", "{{comment.message}}")
+          .replace("<?php endforeach ?>", "{% endfor %}")
           .replace("<?php", "")
           .replace("?>", "")
       ;
@@ -122,8 +123,8 @@ public class GenerateHTML {
         lines.append(line).append(System.getProperty("line.separator"));
       }
     }
-    Files.write(output, Arrays.asList(lines.toString().replace("{{/if}}\n"
-        + "        {{#if frame.args}}", "{{#if frame.args}}")));
+    Files.write(output, Arrays.asList(lines.toString().replace("{% endif %}\n"
+        + "        {% if frame.args != null %}", "{% if frame.args != null %}")));
     return output;
   }
 
@@ -136,11 +137,11 @@ public class GenerateHTML {
           .replace("<?php /* List file names & line numbers for all stack frames;", "")
           .replace("         clicking these links/buttons will display the code view", "")
           .replace("         for that particular frame */ ?>", "")
-          .replace("<?php foreach ($frames as $i => $frame): ?>", "{{#each frames as |frame|}}")
+          .replace("<?php foreach ($frames as $i => $frame): ?>", "{% for frame in frames %}")
           .replace(
               "<?php echo ($i == 0 ? 'active' : '') ?> <?php echo ($frame->isApplication() ? 'frame-application' : '') ?>\" id=\"frame-line-<?php echo $i ?>\"",
-              "{{#if @first}} active{{/if}}{{#if frame.source}} source{{/if}}\" id=\"frame-line-{{@index}}\"")
-          .replace("<?php echo (count($frames) - $i - 1) ?>", "{{minus frames.size @index}}")
+              "{% if loop.index == 0 %}active{% endif %}{% if frame.source != null %} source{% endif %}\" id=\"frame-line-{{loop.index}}\"")
+          .replace("<?php echo (count($frames) - $i - 1) ?>", "{{ loop.length - loop.index - 1 }}")
           .replace(
               "<?php echo $tpl->breakOnDelimiter('\\\\', $tpl->escape($frame->getClass() ?: '')) ?>",
               "{{frame.className}}")
@@ -150,8 +151,8 @@ public class GenerateHTML {
           .replace(
               "<?php echo $frame->getFile() ? $tpl->breakOnDelimiter('/', $tpl->shorten($tpl->escape($frame->getFile()))) : '<#unknown>' ?>",
               "{{frame.location}}")
-          .replace("<?php echo (int) $frame->getLine() ?>", "{{frame.lineNumber}}")
-          .replace("<?php endforeach;", "{{/each}}")
+          .replace("<?php echo (int) $frame->getLine() ?>", "{{frame.line}}")
+          .replace("<?php endforeach;", "{% endfor %}")
       ;
       if (line.trim().length() > 0) {
         lines.add(line);
@@ -170,7 +171,7 @@ public class GenerateHTML {
           .replace(
               "<?php echo $active_frames_tab == 'application' ? 'frames-container-application' : '' ?>",
               "{{activeFramesTab}}")
-          .replace("<?php $tpl->render($frame_list) ?>", "{{> frame_list}}")
+          .replace("<?php $tpl->render($frame_list) ?>", "{% include \"frame_list\" %}")
       ;
       if (line.trim().length() > 0) {
         lines.add(line);
@@ -189,14 +190,14 @@ public class GenerateHTML {
           .replace(
               "<?php echo $has_frames_tabs ? 'frames-description-application' : '' ?>",
               "{{framesDescriptionTab}}")
-          .replace("<?php if ($has_frames_tabs): ?>", "{{#if hasFrameTabs}}")
+          .replace("<?php if ($has_frames_tabs): ?>", "{% if hasFrameTabs %}")
           .replace("<?php echo $active_frames_tab == 'application' ? 'frames-tab-active' : '' ?>",
               "{{activeFramesTab}}")
           .replace("<?php echo $active_frames_tab == 'all' ? 'frames-tab-active' : '' ?>",
               "{{activeFramesTab}}")
           .replace("<?php echo count($frames) ?>", "{{frames.size}}")
-          .replace("<?php else: ?>", "{{else}}")
-          .replace("<?php endif; ?>", "{{/if}}")
+          .replace("<?php else: ?>", "{% else %}")
+          .replace("<?php endif; ?>", "{% endif %}")
       ;
       if (line.trim().length() > 0) {
         lines.add(line);
@@ -213,25 +214,25 @@ public class GenerateHTML {
     for (String line : phpFile(filename)) {
       line = line
           .replace(
-              "<?php foreach ($name as $i => $nameSection): ?>", "{{#each causeName as |name|}}")
-          .replace("<?php if ($i == count($name) - 1): ?>", "{{~#if @last~}}")
+              "<?php foreach ($name as $i => $nameSection): ?>", "{% for name in causeName %}")
+          .replace("<?php if ($i == count($name) - 1): ?>", "{% if loop.index == causeName.size - 1 %}")
           .replace("<?php echo $tpl->escape($nameSection) ?>", "{{name}}")
-          .replace("<?php else: ?>", "{{~else~}}")
+          .replace("<?php else: ?>", "{% else %}")
           .replace("<?php echo $tpl->escape($nameSection) . ' \\\\' ?>",
               "{{name}}.")
-          .replace("<?php endif ?>", "{{~/if~}}")
-          .replace("<?php endforeach ?>", "{{/each}}")
-          .replace("<?php if ($code): ?>", "{{#if code}}")
+          .replace("<?php endif ?>", "{% endif %}")
+          .replace("<?php endforeach ?>", "{% endfor %}")
+          .replace("<?php if ($code): ?>", "{%if code != null %}")
           .replace("(<?php echo $tpl->escape($code) ?>)", ": {{code}}")
-          .replace("<?php if (!empty($message)): ?>", "{{#if cause.message}}")
+          .replace("<?php if (!empty($message)): ?>", "{% if cause.message != null %}")
           .replace("<?php echo $tpl->escape($message) ?>", "<span>{{cause.message}}</span>")
-          .replace("<?php if (count($previousMessages)): ?>", "{{#if previousMessages.size}}")
+          .replace("<?php if (count($previousMessages)): ?>", "{% if previousMessages is not empty %}")
           .replace("<?php foreach ($previousMessages as $i => $previousMessage): ?>",
-              "{{#each previousMessages as |previousMessage|}}")
+              "{% for previousMessage in previousMessages %}")
           .replace("<?php echo $tpl->escape($previousMessage) ?>", "{{previousMessage}}")
           .replace("<?php echo $previousCodes[$i] ?>", "")
-          .replace("<?php endforeach; ?>", "{{/each}}")
-          .replace("<?php if (!empty($docref_url)): ?>", "{{#if docref_url}}")
+          .replace("<?php endforeach; ?>", "{% endfor %}")
+          .replace("<?php if (!empty($docref_url)): ?>", "{% if docref_url != null %}")
           .replace("<?php echo $tpl->escape($plain_exception) ?>", "{{stacktrace}}")
           .replace("", "")
 
@@ -248,7 +249,7 @@ public class GenerateHTML {
     settings.prettyPrint(false);
     settings.indentAmount(2);
     settings.outline(true);
-    Files.write(output, Arrays.asList(doc.outputSettings(settings).body().toString()));
+    Files.write(output, Arrays.asList(doc.outputSettings(settings).body().children().toString()));
     return output;
   }
 
@@ -258,7 +259,7 @@ public class GenerateHTML {
     List<String> lines = new ArrayList<>();
     for (String line : phpFile(filename)) {
       line = line
-          .replace("<?php $tpl->render($header) ?>", "{{> header}}")
+          .replace("<?php $tpl->render($header) ?>", "{% include \"header\" %}")
       ;
       if (line.trim().length() > 0) {
         lines.add(line);
@@ -277,17 +278,17 @@ public class GenerateHTML {
           .replace("<?php echo $preface; ?>", "")
           .replace("<?php echo $tpl->escape($page_title) ?>", "{{title}}")
           .replace("<style><?php echo $stylesheet ?></style>",
-              "<link rel=\"stylesheet\" type=\"text/css\" href=\"{{&stylesheet}}\">")
-          .replace("<?php $tpl->render($panel_left_outer) ?>", "{{> panel_left_outer}}")
+              "<link rel=\"stylesheet\" type=\"text/css\" href=\"{{stylesheet}}\">")
+          .replace("<?php $tpl->render($panel_left_outer) ?>", "{% include\"panel_left_outer\" %}")
           .replace("<?php $tpl->render($panel_details_outer) ?>",
-              "{{> panel_details_outer}}")
+              "{% include \"panel_details_outer\" %}")
           .replace("<script><?php echo $prettify ?></script>",
-              "<script src=\"{{&prettify}}\"></script>")
-          .replace("<script><?php echo $zepto ?></script>", "<script src=\"{{&zepto}}\"></script>")
+              "<script src=\"{{prettify}}\"></script>")
+          .replace("<script><?php echo $zepto ?></script>", "<script src=\"{{zepto}}\"></script>")
           .replace("<script><?php echo $clipboard ?></script>",
-              "<script src=\"{{&clipboard}}\"></script>")
+              "<script src=\"{{clipboard}}\"></script>")
           .replace("<script><?php echo $javascript ?></script>",
-              "<script src=\"{{&javascript}}\"></script>")
+              "<script src=\"{{javascript}}\"></script>")
           .replace("<?php", "")
           .replace("/**", "")
           .replace("* Layout template file for Whoops's pretty error output.", "")
@@ -308,8 +309,8 @@ public class GenerateHTML {
     List<String> lines = new ArrayList<>();
     for (String line : phpFile(filename)) {
       line = line
-          .replace("<?php $tpl->render($frame_code) ?>", "{{> frame_code}}")
-          .replace("<?php $tpl->render($env_details) ?>", "{{> env_details}}")
+          .replace("<?php $tpl->render($frame_code) ?>", "{% include \"frame_code\" %}")
+          .replace("<?php $tpl->render($env_details) ?>", "{% include \"env_details\" %}")
       ;
       if (line.trim().length() > 0) {
         lines.add(line);
@@ -325,7 +326,7 @@ public class GenerateHTML {
     List<String> lines = new ArrayList<>();
     for (String line : phpFile(filename)) {
       line = line
-          .replace("<?php $tpl->render($panel_details) ?>", "{{> panel_details}}")
+          .replace("<?php $tpl->render($panel_details) ?>", "{% include \"panel_details\" %}")
       ;
       if (line.trim().length() > 0) {
         lines.add(line);
@@ -342,9 +343,9 @@ public class GenerateHTML {
     for (String line : phpFile(filename)) {
       line = line
           .replace("<?php", "")
-          .replace("$tpl->render($header_outer);", "{{> header_outer}}")
-          .replace("$tpl->render($frames_description);", "{{> frames_description}}")
-          .replace("$tpl->render($frames_container);", "{{> frames_container}}")
+          .replace("$tpl->render($header_outer);", "{% include \"header_outer\" %}")
+          .replace("$tpl->render($frames_description);", "{% include \"frames_description\" %}")
+          .replace("$tpl->render($frames_container);", "{% include \"frames_container\" %}")
       ;
       if (line.trim().length() > 0) {
         lines.add(line);
@@ -360,7 +361,7 @@ public class GenerateHTML {
     List<String> lines = new ArrayList<>();
     for (String line : phpFile(filename)) {
       line = line
-          .replace("<?php $tpl->render($panel_left) ?>", "{{> panel_left}}")
+          .replace("<?php $tpl->render($panel_left) ?>", "{% include \"panel_left\" %}")
       ;
       if (line.trim().length() > 0) {
         lines.add(line);
@@ -396,7 +397,7 @@ public class GenerateHTML {
   public static GenerateHTML create() {
     return new GenerateHTML(
         Paths.get(basedir(), "src", "test", "resources", "whoops", "views"),
-        Paths.get(basedir(), "src", "main", "resources", "whoops", "views"));
+        Paths.get(basedir(), "src", "main", "resources", "io", "jooby", "whoops", "views"));
   }
 
   private static String basedir() {

@@ -317,6 +317,12 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-whoops</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-maven-plugin</artifactId>
       <version>${jooby-maven-plugin.version}</version>
       <type>jar</type>

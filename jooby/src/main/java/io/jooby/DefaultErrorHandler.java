@@ -54,30 +54,30 @@ public class DefaultErrorHandler implements ErrorHandler {
   }
 
   @Nonnull @Override public void apply(@Nonnull Context ctx, @Nonnull Throwable cause,
-      @Nonnull StatusCode statusCode) {
+      @Nonnull StatusCode code) {
     Logger log = ctx.getRouter().getLog();
-    if (mute(cause, statusCode)) {
-      log.debug(ErrorHandler.errorMessage(ctx, statusCode), cause);
+    if (mute(cause, code)) {
+      log.debug(ErrorHandler.errorMessage(ctx, code), cause);
     } else {
-      log.error(ErrorHandler.errorMessage(ctx, statusCode), cause);
+      log.error(ErrorHandler.errorMessage(ctx, code), cause);
     }
 
     MediaType type = ctx.accept(Arrays.asList(html, json, text));
     if (json.equals(type)) {
-      String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
+      String message = Optional.ofNullable(cause.getMessage()).orElse(code.reason());
       ctx.setResponseType(json)
-          .setResponseCode(statusCode)
-          .send("{\"message\":\"" + XSS.json(message) + "\",\"statusCode\":" + statusCode.value()
-              + ",\"reason\":\"" + statusCode.reason() + "\"}");
+          .setResponseCode(code)
+          .send("{\"message\":\"" + XSS.json(message) + "\",\"statusCode\":" + code.value()
+              + ",\"reason\":\"" + code.reason() + "\"}");
     } else if (text.equals(type)) {
       StringBuilder message = new StringBuilder();
       message.append(ctx.getMethod()).append(" ").append(ctx.getRequestPath()).append(" ");
-      message.append(statusCode.value()).append(" ").append(statusCode.reason());
+      message.append(code.value()).append(" ").append(code.reason());
       if (cause.getMessage() != null) {
         message.append("\n").append(XSS.json(cause.getMessage()));
       }
       ctx.setResponseType(text)
-          .setResponseCode(statusCode)
+          .setResponseCode(code)
           .send(message.toString());
     } else {
       String message = cause.getMessage();
@@ -96,23 +96,23 @@ public class DefaultErrorHandler implements ErrorHandler {
           .append("p.tab {padding-left: 40px;}\n")
           .append("</style>\n")
           .append("<title>")
-          .append(statusCode)
+          .append(code)
           .append("</title>\n")
           .append("<body>\n")
-          .append("<h1>").append(statusCode.reason()).append("</h1>\n")
+          .append("<h1>").append(code.reason()).append("</h1>\n")
           .append("<hr>\n");
 
-      if (message != null && !message.equals(statusCode.toString())) {
+      if (message != null && !message.equals(code.toString())) {
         html.append("<h2>message: ").append(XSS.html(message)).append("</h2>\n");
       }
-      html.append("<h2>status code: ").append(statusCode.value()).append("</h2>\n");
+      html.append("<h2>status code: ").append(code.value()).append("</h2>\n");
 
       html.append("</body>\n")
           .append("</html>");
 
       ctx
           .setResponseType(MediaType.html)
-          .setResponseCode(statusCode)
+          .setResponseCode(code)
           .send(html.toString());
     }
   }

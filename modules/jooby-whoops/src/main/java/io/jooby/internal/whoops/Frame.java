@@ -1,11 +1,20 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.whoops;
 
+import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Optional.ofNullable;
 
 public class Frame {
   private static final int SAMPLE_SIZE = 10;
@@ -14,21 +23,22 @@ public class Frame {
 
   private String methodName;
 
-  private int lineNumber;
-
   private int lineStart;
 
-  private int lineNth;
+  private int line;
 
   private String location;
 
   private String source;
 
-  private String open;
+  private boolean open;
 
   private String className;
 
-  private List<FrameComment> comments;
+  private List<Throwable> comments;
+
+  private Frame() {
+  }
 
   public String getFileName() {
     return fileName;
@@ -38,16 +48,12 @@ public class Frame {
     return methodName;
   }
 
-  public int getLineNumber() {
-    return lineNumber;
-  }
-
   public int getLineStart() {
     return lineStart;
   }
 
-  public int getLineNth() {
-    return lineNth;
+  public int getLine() {
+    return line;
   }
 
   public String getLocation() {
@@ -58,7 +64,7 @@ public class Frame {
     return source;
   }
 
-  public String getOpen() {
+  public boolean isOpen() {
     return open;
   }
 
@@ -66,7 +72,7 @@ public class Frame {
     return className;
   }
 
-  public List<FrameComment> getComments() {
+  public List<Throwable> getComments() {
     return comments;
   }
 
@@ -75,63 +81,51 @@ public class Frame {
   }
 
   public static List<Frame> toFrames(SourceLocator locator, Throwable cause) {
-    List<Throwable> causal = getCausalChain(cause);
-    Throwable head = causal.get(causal.size() - 1);
-    List<Frame> frames = causal.stream()
+    LinkedList<Throwable> causalChain = getCausalChain(cause);
+    Throwable head = causalChain.getLast();
+    List<Frame> frames = causalChain.stream()
         .filter(it -> it != head)
         .map(it -> toFrame(locator, it, it.getStackTrace()[0]))
         .collect(Collectors.toList());
 
-    frames.addAll(frames(locator, head));
+    Stream.of(head.getStackTrace())
+        .map(e -> toFrame(locator, head, e))
+        .forEach(frames::add);
 
-    // truncate frames
+    // Keep application frames (ignore all others)
     return frames.stream()
         .filter(Frame::hasSource)
         .collect(Collectors.toList());
   }
 
-  private static List<Frame> frames(final SourceLocator locator, final Throwable cause) {
-    List<StackTraceElement> stacktrace = Arrays.asList(cause.getStackTrace());
-    //    int limit = IntStream.range(0, stacktrace.size())
-    //        .filter(i -> stacktrace.get(i).getClassName().equals(HANDLER)).findFirst()
-    //        .orElse(stacktrace.size());
-    return stacktrace.stream()
-        // trunk stack at HttpHandlerImpl (skip servers stack)
-        //        .limit(limit)
-        .map(e -> toFrame(locator, cause, e))
-        .collect(Collectors.toList());
-  }
-
-  static Frame toFrame(final SourceLocator locator,
-      final Throwable cause, final StackTraceElement e) {
+  static Frame toFrame(final SourceLocator locator, final Throwable cause,
+      final StackTraceElement e) {
     int line = Math.max(e.getLineNumber(), 1);
-    String className = e.getClassName();
-    SourceLocator.Source source = locator.source(className);
-    int[] range = source.range(line, SAMPLE_SIZE);
-    int lineStart = range[0];
-    int lineNth = line - lineStart;
-    //    Path filePath = source.getPath();
-    Optional<Class> clazz = locator.findClass(className);
-    String filename = Optional.ofNullable(e.getFileName()).orElse("~unknown");
+    String className = ofNullable(e.getClassName()).orElse("~unknown");
+    String filename = ofNullable(e.getFileName()).orElse(className.replace(".", File.separator));
+
+    SourceLocator.Source source = locator.source(filename, line, SAMPLE_SIZE);
+    SourceLocator.Preview preview = source.preview(line, SAMPLE_SIZE);
+
     Frame frame = new Frame();
     frame.fileName = filename;
-    frame.methodName = Optional.ofNullable(e.getMethodName()).orElse("~unknown");
-    frame.lineNumber = line;
-    frame.lineStart = lineStart + 1;
-    frame.lineNth = lineNth;
+    frame.methodName = ofNullable(e.getMethodName()).orElse("~unknown");
+    frame.lineStart = preview.getLineStart();
+    frame.line = line;
     frame.location = Files.exists(source.getPath())
         ? locator.getBasedir().relativize(source.getPath()).toString()
         : filename;
-    frame.source = source.source(range[0], range[1]);
-    frame.open = "";
-    frame.className = clazz.map(Class::getName).orElse("~unknown");
-    frame.comments = Arrays.asList(new FrameComment(cause.getClass().getName(),
-        Optional.ofNullable(cause.getMessage()).orElse("")));
+    frame.source = preview.getCode();
+    frame.open = false;
+    frame.className = className
+        // clean up kotlin generated class name: App$1$1 => App
+        .replaceAll("\\$\\d+", "");
+    frame.comments = Collections.singletonList(cause);
     return frame;
   }
 
-  private static List<Throwable> getCausalChain(Throwable throwable) {
-    List<Throwable> causes = new ArrayList<>(4);
+  private static LinkedList<Throwable> getCausalChain(Throwable throwable) {
+    LinkedList<Throwable> causes = new LinkedList<>();
     causes.add(throwable);
 
     // Keep a second pointer that slowly walks the causal chain. If the fast pointer ever catches

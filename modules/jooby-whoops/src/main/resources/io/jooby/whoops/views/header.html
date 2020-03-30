@@ -1,35 +1,35 @@
-<body><div class="exception">
+<div class="exception">
   <div class="exc-title">
-    {{#each causeName as |name|}}
-      {{~#if @last~}}
+    {% for name in causeName %}
+      {% if loop.index == causeName.size - 1 %}
         <span class="exc-title-primary">{{name}}</span>
-      {{~else~}}
+      {% else %}
         {{name}}.
-      {{~/if~}}
-    {{/each}}
-    {{#if code}}
+      {% endif %}
+    {% endfor %}
+    {%if code != null %}
       <span title="Exception Code">: {{code}}</span>
-    {{~/if~}}
+    {% endif %}
   </div>
   <div class="exc-message">
-    {{#if cause.message}}
+    {% if cause.message != null %}
       <span><span>{{cause.message}}</span></span>
-      {{#if previousMessages.size}}
+      {% if previousMessages is not empty %}
         <div class="exc-title prev-exc-title">
           <span class="exc-title-secondary">Previous exceptions</span>
         </div>
         <ul>
-          {{#each previousMessages as |previousMessage|}}
+          {% for previousMessage in previousMessages %}
             <li>
               {{previousMessage}}
               <span class="prev-exc-code">()</span>
             </li>
-          {{/each}}
+          {% endfor %}
         </ul>
-      {{~/if~}}
-    {{~else~}}
+      {% endif %}
+    {% else %}
       <span class="exc-message-empty-notice">No message</span>
-    {{~/if~}}
+    {% endif %}
     
     <span id="plain-exception">{{stacktrace}}</span>
     <button id="copy-button" class="rightButton clipboard" data-clipboard-text="{{stacktrace}}" title="Copy exception details to clipboard">
@@ -38,4 +38,3 @@
     
   </div>
 </div>
-</body>

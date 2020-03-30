@@ -1,0 +1,36 @@
+<div class="frame-code-container {% if frames.empty %}empty{% endif %}">
+   {% for frame in frames %} 
+      <div class="frame-code {% if loop.index == 0 %}active{% endif %}" id="frame-code-{{loop.index}}">
+        <div class="frame-file">
+          {% if frame.open %}
+            <a href=" echo $editorHref " class="editor-link"  >
+              Open:
+              <strong>{{frame.fileName}}</strong>
+            </a>
+          {% else %}
+            <strong>{{frame.fileName}}</strong>
+          {% endif %}
+        </div>
+          {% if frame.source != null %}
+            <pre id="frame-code-linenums-{{loop.index}}" class="code-block linenums:{{frame.lineStart}}">{{frame.source}}</pre>
+          {% endif %}
+        {% if frame.args != null %}
+          <div class="frame-file">
+              Arguments
+          </div>
+          <div id="frame-code-args-{{loop.index}}" class="code-block frame-args">
+              {{frame.args}}
+          </div>
+        {% endif %}
+        <div class="frame-comments {% if frame.comments.size == 0 %}empty{% endif %}">
+          {% for comment in frame.comments %}
+            <div class="frame-comment" id="comment-{{loop.index}}">
+              <span class="frame-comment-context">{{comment.class.name}}</span>
+              {{comment.message}}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+  {% endfor %}
+</div>
+

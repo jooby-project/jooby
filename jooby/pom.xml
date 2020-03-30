@@ -167,7 +167,6 @@
       <optional>true</optional>
     </dependency>
 
-
     <!-- javax.inject -->
     <dependency>
       <groupId>javax.inject</groupId>

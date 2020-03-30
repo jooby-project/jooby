@@ -1,10 +1,10 @@
-<body><div class="details">
+<div class="details">
   <h2 class="details-heading">Environment &amp; details:</h2>
   <div class="data-table-container" id="data-tables">
-    {{#each env as |scope|}}
-      <div class="data-table" id="sg-{{@key}}">
-        {{#if scope.size}}
-            <label>{{@key}}</label>
+    {% for scope in env %}
+      <div class="data-table" id="sg-{{scope.key}}">
+        {% if scope is not empty %}
+            <label>{{scope.key}}</label>
             <table class="data-table">
               <thead>
                 <tr>
@@ -12,20 +12,19 @@
                   <td class="data-table-v">Value</td>
                 </tr>
               </thead>
-            {{#each scope as |data|}}
+            {% for data in scope.value %}
               <tbody><tr>
-                <td>{{@key}}</td>
-                <td>{{data}}</td>
+                <td>{{data.key}}</td>
+                <td>{{data.value}}</td>
               </tr>
-            {{/each}}
+            {% endfor %}
             </tbody></table>
-        {{else}}
-            <label class="empty">{{@key}}</label>
+        {% else %}
+            <label class="empty">{{scope.key}}</label>
             <span class="empty">empty</span>
-        {{/if}}
+        {% endif %}
       </div>
-    {{/each}}
+    {% endfor %}
   </div>
   
 </div>
-</body>

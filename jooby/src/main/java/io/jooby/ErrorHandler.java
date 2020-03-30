@@ -20,10 +20,10 @@ public interface ErrorHandler {
    *
    * @param ctx Web context.
    * @param cause Application error.
-   * @param statusCode Status code.
+   * @param code Status code.
    */
   @Nonnull void apply(@Nonnull Context ctx, @Nonnull Throwable cause,
-      @Nonnull StatusCode statusCode);
+      @Nonnull StatusCode code);
 
   /**
    * Chain this error handler with next and produces a new error handler.

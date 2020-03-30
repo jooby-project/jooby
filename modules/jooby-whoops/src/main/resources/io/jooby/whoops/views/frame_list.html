@@ -1,0 +1,13 @@
+{% for frame in frames %}
+  <div class="frame {% if loop.index == 0 %}active{% endif %}{% if frame.source != null %} source{% endif %}" id="frame-line-{{loop.index}}">
+      <span class="frame-index">{{ loop.length - loop.index - 1 }}</span>
+      <div class="frame-method-info">
+        <span class="frame-class">{{frame.className}}</span>
+        <span class="frame-function">{{frame.method}}</span>
+      </div>
+    <div class="frame-file">
+        {{frame.location}}<!--
+   --><span class="frame-line">{{frame.line}}</span>
+    </div>
+  </div>
+{% endfor %}

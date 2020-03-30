@@ -1,35 +1,20 @@
 package examples;
 
-import generator.GenerateHTML;
-import io.jooby.ErrorHandler;
+import examples.utils.Utils;
 import io.jooby.Jooby;
-import io.jooby.MediaType;
-import io.jooby.whoops.Whoops;
+import io.jooby.whoops.WhoopsModule;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class WhoopsApp extends Jooby {
   {
-    GenerateHTML.create().generate();
     get("/{id}", ctx -> {
       Object id = ctx.path("id").intValue();
       return function(id);
     });
 
-    assets("/whoops/*", "/whoops");
-    error((ctx, cause, statusCode) -> {
-      Whoops whoops = new Whoops(basedir());
-      Whoops.Result result = whoops.render(ctx, cause, statusCode);
-      if (result.failure == null) {
-        if (result.output != null) {
-          getLog().error(ErrorHandler.errorMessage(ctx, statusCode), cause);
-          ctx.setResponseType(MediaType.html).send(result.output);
-        }
-      } else {
-        getLog().error("whoops resulted into new exception", result.failure);
-      }
-    });
+    install(new WhoopsModule(basedir()));
   }
 
   private Object function(Object id) {
@@ -41,7 +26,7 @@ public class WhoopsApp extends Jooby {
   }
 
   private Object innerFunction(Object id) {
-    throw new IllegalArgumentException("Something Broke!");
+    return Utils.fail(id);
   }
 
   public static void main(String[] args) {

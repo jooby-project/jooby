@@ -5,18 +5,18 @@
     <meta name="robots" content="noindex,nofollow"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <title>{{title}}</title>
-    <link rel="stylesheet" type="text/css" href="{{&stylesheet}}">
+    <link rel="stylesheet" type="text/css" href="{{stylesheet}}">
   </head>
   <body>
     <div class="Whoops container">
       <div class="stack-container">
-        {{> panel_left_outer}}
-        {{> panel_details_outer}}
+        {% include"panel_left_outer" %}
+        {% include "panel_details_outer" %}
       </div>
     </div>
-    <script src="{{&prettify}}"></script>
-    <script src="{{&zepto}}"></script>
-    <script src="{{&clipboard}}"></script>
-    <script src="{{&javascript}}"></script>
+    <script src="{{prettify}}"></script>
+    <script src="{{zepto}}"></script>
+    <script src="{{clipboard}}"></script>
+    <script src="{{javascript}}"></script>
   </body>
 </html>
