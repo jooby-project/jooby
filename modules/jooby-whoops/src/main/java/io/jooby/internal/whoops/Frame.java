@@ -104,7 +104,7 @@ public class Frame {
     String className = ofNullable(e.getClassName()).orElse("~unknown");
     String filename = ofNullable(e.getFileName()).orElse(className.replace(".", File.separator));
 
-    SourceLocator.Source source = locator.source(filename, line, SAMPLE_SIZE);
+    SourceLocator.Source source = locator.source(filename);
     SourceLocator.Preview preview = source.preview(line, SAMPLE_SIZE);
 
     Frame frame = new Frame();

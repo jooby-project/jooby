@@ -8,10 +8,15 @@ package io.jooby.internal.whoops;
 import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.loader.ClasspathLoader;
 import io.jooby.Context;
+import io.jooby.ErrorHandler;
+import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.StatusCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -24,10 +29,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import static io.jooby.ErrorHandler.errorMessage;
 import static io.jooby.internal.whoops.Utils.mapOf;
 import static io.jooby.internal.whoops.Utils.multimap;
 
-public class Whoops {
+public class Whoops implements ErrorHandler {
 
   public static class Result {
     private boolean skip;
@@ -71,12 +77,33 @@ public class Whoops {
 
   private final SourceLocator locator;
 
-  public Whoops(Path basedir) {
+  private final Logger log;
+
+  public Whoops(Path basedir, Logger log) {
     this.engine = engine();
     this.locator = new SourceLocator(basedir);
+    this.log = log;
   }
 
-  public Result render(Context ctx, Throwable cause, StatusCode statusCode) {
+  @Nonnull @Override public void apply(@Nonnull Context ctx,
+      @Nonnull Throwable cause, @Nonnull StatusCode code) {
+    if (ctx.accept(MediaType.html)) {
+      render(ctx, cause, code).handle((html, failure) -> {
+        if (failure == null) {
+          // Handle the exception
+          log.error(errorMessage(ctx, code), cause);
+          ctx.setResponseType(MediaType.html)
+              .setResponseCode(code)
+              .send(html);
+        } else {
+          // most probably its a bug in whoops: log it and move to next error handler
+          log.error("whoops resulted in exception", failure);
+        }
+      });
+    }
+  }
+
+  public Result render(Context ctx, Throwable cause, StatusCode code) {
     try {
       List<Frame> frames = Frame.toFrames(locator, cause);
 
@@ -101,10 +128,10 @@ public class Whoops {
       model.put("cause", cause);
       model.put("causeName", Arrays.asList(cause.getClass().getName().split("\\.")));
       model.put("stacktrace", stacktrace.toString());
-      model.put("code", statusCode);
+      model.put("code", code);
 
       // environment
-      model.put("env", environment(ctx, statusCode));
+      model.put("env", environment(ctx, code));
 
       StringWriter writer = new StringWriter();
       engine.getTemplate("layout").evaluate(writer, model);
