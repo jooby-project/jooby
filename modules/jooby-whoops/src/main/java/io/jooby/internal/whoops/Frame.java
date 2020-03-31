@@ -7,6 +7,7 @@ package io.jooby.internal.whoops;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -102,9 +103,16 @@ public class Frame {
       final StackTraceElement e) {
     int line = Math.max(e.getLineNumber(), 1);
     String className = ofNullable(e.getClassName()).orElse("~unknown");
-    String filename = ofNullable(e.getFileName()).orElse(className.replace(".", File.separator));
+    String[] names = className.split("\\.");
+    String filename = ofNullable(e.getFileName())
+        .orElse(names[names.length - 1]);
 
-    SourceLocator.Source source = locator.source(filename);
+    StringBuilder path = new StringBuilder();
+    Stream.of(names)
+        .limit(names.length - 1)
+        .forEach(it -> path.append(it).append(File.separator));
+    path.append(names[names.length - 1]);
+    SourceLocator.Source source = locator.source(path.toString());
     SourceLocator.Preview preview = source.preview(line, SAMPLE_SIZE);
 
     Frame frame = new Frame();

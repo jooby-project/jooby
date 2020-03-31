@@ -17,7 +17,7 @@ JSON support using https://github.com/google/gson[Gson] library.
 import io.jooby.json.GsonModule;
 
 {
-  install(new GsonModule());                     <1>
+  install(new GsonModule());                        <1>
 
   get("/", ctx -> {
     MyObject myObject = ...;
@@ -34,10 +34,10 @@ import io.jooby.json.GsonModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.GsonModule;
+import io.jooby.json.GsonModule
 
 {
-  install(GsonModule())                          <1>
+  install(GsonModule())                             <1>
 
   get("/") {
     val myObject = ...;

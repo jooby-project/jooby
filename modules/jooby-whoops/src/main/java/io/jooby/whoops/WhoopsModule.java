@@ -5,6 +5,7 @@
  */
 package io.jooby.whoops;
 
+import com.typesafe.config.Config;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.whoops.Whoops;
@@ -33,6 +34,8 @@ import java.nio.file.Paths;
  * @since 2.8.0
  */
 public class WhoopsModule implements Extension {
+  private static final String ENABLED = "whoops.enabled";
+
   private Path basedir;
 
   /**
@@ -52,10 +55,20 @@ public class WhoopsModule implements Extension {
   }
 
   @Override public void install(@Nonnull Jooby application) {
-    Whoops whoops = new Whoops(basedir, application.getLog());
+    Config config = application.getConfig();
 
-    application.assets("/whoops/*", getClass().getPackage().getName().replace(".", "/"));
+    boolean enabled = config.hasPath(ENABLED)
+        ? config.getBoolean(ENABLED)
+        : application.getEnvironment().isActive("dev", "test");
 
-    application.error(whoops);
+    if (enabled) {
+      Whoops whoops = new Whoops(basedir, application.getLog());
+
+      application.assets("/whoops/*", getClass().getPackage().getName().replace(".", "/"));
+
+      application.error(whoops);
+    } else {
+      application.getLog().debug("Whoops is disabled");
+    }
   }
 }
