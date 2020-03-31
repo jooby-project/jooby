@@ -103,7 +103,7 @@ public class AssetHandler implements Route.Handler {
     }
 
     // cache max-age
-    if (maxAge > 0) {
+    if (maxAge >= 0) {
       ctx.setResponseHeader("Cache-Control", "max-age=" + maxAge);
     }
 
