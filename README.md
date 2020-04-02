@@ -1,9 +1,10 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.jooby/jooby)
-[![javadoc](https://javadoc.io/badge/io.jooby/jooby.svg)](https://javadoc.io/doc/io.jooby/jooby/latest)
+[![Javadoc](https://javadoc.io/badge/io.jooby/jooby.svg)](https://javadoc.io/doc/io.jooby/jooby/latest)
 [![Become a Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://patreon.com/edgarespina)
 [![Travis](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 [![Github](https://github.com/jooby-project/jooby/workflows/Full%20Build/badge.svg)](https://github.com/jooby-project/jooby/actions)
 [![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?logo=paypal&style=flat-square)](https://paypal.me/edgarespina)
 
 # &infin; do more, more easily
 
@@ -51,10 +52,12 @@ help
 
 [Gitter](https://gitter.im/jooby-project/jooby)
 
-support
+donate & support
 =====
 
-[support@jooby.io](mailto:support@jooby.io?Subject=Jooby%20Support)
+- [Paypal](https://www.paypal.com/paypalme2/edgarespina)
+- [Patreon](https://www.patreon.com/edgarespina)
+- [support@jooby.io](mailto:support@jooby.io?Subject=Jooby%20Support)
 
 
 1.x version
