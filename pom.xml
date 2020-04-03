@@ -89,6 +89,7 @@
     <bucket4j-core.version>4.10.0</bucket4j-core.version>
     <aws-java-sdk.version>1.11.757</aws-java-sdk.version>
     <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
+    <frontend-plugin-core.version>1.9.1</frontend-plugin-core.version>
 
     <commons-io.version>2.6</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
@@ -410,6 +411,12 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-frontend</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-maven-plugin</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -438,6 +445,13 @@
         <groupId>jakarta.ws.rs</groupId>
         <artifactId>jakarta.ws.rs-api</artifactId>
         <version>${jakarta.ws.rs-api.version}</version>
+      </dependency>
+
+      <!-- frontend -->
+      <dependency>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-plugin-core</artifactId>
+        <version>${frontend-plugin-core.version}</version>
       </dependency>
 
       <!-- weld -->

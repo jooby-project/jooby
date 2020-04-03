@@ -451,6 +451,9 @@ public class Jooby implements Router, Registry {
   }
 
   @Nonnull @Override public Path getTmpdir() {
+    if (tmpdir == null) {
+      tmpdir = Paths.get(env.getConfig().getString("application.tmpdir")).toAbsolutePath();
+    }
     return tmpdir;
   }
 
@@ -642,10 +645,7 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   public @Nonnull Jooby start(@Nonnull Server server) {
-    Environment env = getEnvironment();
-    if (tmpdir == null) {
-      tmpdir = Paths.get(env.getConfig().getString("application.tmpdir")).toAbsolutePath();
-    }
+    Path tmpdir = getTmpdir();
 
     /** Start router: */
     ensureTmpdir(tmpdir);

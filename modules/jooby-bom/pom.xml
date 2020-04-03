@@ -24,7 +24,7 @@
   <aws-java-sdk.version>1.11.748</aws-java-sdk.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
   <bucket4j-core.version>4.10.0</bucket4j-core.version>
-  <checkstyle.version>8.30</checkstyle.version>
+  <checkstyle.version>8.31</checkstyle.version>
   <commons-io.version>2.6</commons-io.version>
   <compile-testing.version>0.18</compile-testing.version>
   <config.version>1.4.0</config.version>
@@ -34,6 +34,7 @@
   <flyway.version>6.3.2</flyway.version>
   <freemarker.version>2.3.30</freemarker.version>
   <frontend-maven-plugin.version>1.9.1</frontend-maven-plugin.version>
+  <frontend-plugin-core.version>1.9.1</frontend-plugin-core.version>
   <gradle-core.version>2.6</gradle-core.version>
   <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
   <gradle-tooling-api.version>2.6</gradle-tooling-api.version>
@@ -53,7 +54,7 @@
   <jdbi.version>3.12.2</jdbi.version>
   <jetty.version>9.4.27.v20200227</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jmespath-java.version>1.11.755</jmespath-java.version>
+  <jmespath-java.version>1.11.748</jmespath-java.version>
   <jooby-maven-plugin.version>2.7.4-SNAPSHOT</jooby-maven-plugin.version>
   <jooby.version>2.7.4-SNAPSHOT</jooby.version>
   <json.version>20190722</json.version>
@@ -83,7 +84,7 @@
   <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
   <maven-project.version>2.2.1</maven-project.version>
   <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-  <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
+  <maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
   <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
   <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
   <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
@@ -323,6 +324,12 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-frontend</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-maven-plugin</artifactId>
       <version>${jooby-maven-plugin.version}</version>
       <type>jar</type>
@@ -349,6 +356,12 @@
       <groupId>jakarta.ws.rs</groupId>
       <artifactId>jakarta.ws.rs-api</artifactId>
       <version>${jakarta.ws.rs-api.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.github.eirslett</groupId>
+      <artifactId>frontend-plugin-core</artifactId>
+      <version>${frontend-plugin-core.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
