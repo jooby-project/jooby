@@ -18,10 +18,6 @@ import java.util.List;
  */
 public class JoobyRunOptions {
 
-  /** Default port. */
-  public static final int DEFAULT_PORT = Integer
-      .parseInt(System.getProperty("server.port", "8080"));
-
   private String projectName;
 
   private String mainClass;
@@ -30,7 +26,7 @@ public class JoobyRunOptions {
 
   private List<String> compileExtensions = Arrays.asList("java", "kt");
 
-  private int port = DEFAULT_PORT;
+  private Integer port = null;
 
   /**
    * Project name.
@@ -73,7 +69,7 @@ public class JoobyRunOptions {
    *
    * @return Application port.
    */
-  public int getPort() {
+  public Integer getPort() {
     return port;
   }
 
@@ -82,7 +78,7 @@ public class JoobyRunOptions {
    *
    * @param port Application port.
    */
-  public void setPort(int port) {
+  public void setPort(Integer port) {
     this.port = port;
   }
 

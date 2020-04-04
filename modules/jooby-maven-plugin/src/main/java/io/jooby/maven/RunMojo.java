@@ -60,7 +60,7 @@ public class RunMojo extends BaseMojo {
    * Application port.
    */
   @Parameter(property = "jooby.port")
-  private int port = JoobyRunOptions.DEFAULT_PORT;
+  private Integer port;
 
   @Override protected void doExecute(List<MavenProject> projects, String mainClass)
       throws Throwable {

@@ -48,7 +48,7 @@ public class RunTask extends BaseTask {
 
   private List<String> compileExtensions;
 
-  private int port = JoobyRunOptions.DEFAULT_PORT;
+  private Integer port;
 
   /**
    * Run task.
@@ -217,7 +217,7 @@ public class RunTask extends BaseTask {
    *
    * @return Application port.
    */
-  public int getPort() {
+  public Integer getPort() {
     return port;
   }
 
@@ -226,7 +226,7 @@ public class RunTask extends BaseTask {
    *
    * @param port Application port.
    */
-  public void setPort(int port) {
+  public void setPort(Integer port) {
     this.port = port;
   }
 
