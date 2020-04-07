@@ -24,6 +24,11 @@ Available modules are listed next.
    * link:modules/hibernate[Hibernate]: Hibernate ORM module.
    * link:modules/jdbi[Jdbi]: Jdbi module.
 
+=== Development Tools
+   * link:#hot-reload[Jooby Run]: Run and hot reload your application. 
+   * link:modules/node[Node]: Download, Install and Run node locally.
+   * link:modules/whoops[Whoops]: Pretty page stacktrace reporter.
+
 === JSON
    * link:modules/gson[Gson]: Gson module for Jooby.
    * link:modules/jackson[Jackson]: Jackson module for Jooby.

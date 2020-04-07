@@ -42,7 +42,7 @@
     <module>jooby-handlebars</module>
     <module>jooby-pebble</module>
     <module>jooby-rocker</module>
-    <module>jooby-frontend</module>
+    <module>jooby-node</module>
 
     <module>jooby-pac4j</module>
 

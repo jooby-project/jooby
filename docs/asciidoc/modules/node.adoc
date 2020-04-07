@@ -1,0 +1,199 @@
+== Node
+
+This module downloads/installs Node and NPM locally for your project. It uses the great 
+https://github.com/eirslett/frontend-maven-plugin[Frontend] library.
+
+The goal of this module is to integrate a modern frontend with Jooby at development time.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-node"]
+.
+
+2) Write `package.json`
+
+.package.json
+[source, json]
+----
+{
+  "name": "myapp",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo \"Default task\""         <1>
+  }
+}
+----
+
+3) Install Npm
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.node.NpmModule;
+
+{
+  install(new NpmModule("v12.16.1"));        <2>
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.node.NpmModule
+
+{
+  install(NpmModule("v12.16.1"))             <2>
+}
+----
+
+<1> Write a package.json and add a `build` task/script 
+<2> Install Npm 
+
+Once you start the application two things happens:
+
+- Check for node `v12.16.1`. Download and Install if required.
+- Run the `build` task/script
+
+[TIP]
+====
+If you prefer https://yarnpkg.com[yarn] just do `install(new YarnModule("v12.16.1));`
+====
+
+=== Custom task
+
+The default task is `build`. To use a different task:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.node.NpmModule;
+
+{
+  install(new NpmModule("v12.16.1")
+    .execute("run", "local")                 <1>
+  );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.node.NpmModule
+
+{
+  install(NpmModule("v12.16.1")
+    .execute("run", "local")                 <1>
+  )
+}
+----
+
+<1> Run the `local` task/script
+
+=== Long running process
+There is a special execution mode required for long running process (like the webpack devserver) if
+you run your application using `jooby run` (maven or gradle).
+
+When using `jooby run` your application automatically restart on code changes. If you have webpack
+devserver runninn every time Jooby restart your application a new webpack dev server will be started.
+To fix this, we provide a run once command.
+
+.executeOnce
+----
+install(new NpmModule("v12.16.1")
+    .executeOnce("run", "webpack")
+)
+----
+
+The `executeOnce` run once per JVM instance, so restarts don't produces any side effect on it.
+
+[NOTE]
+====
+The module must be used only in development. In order to build a production version, you need to 
+configure a build time process.
+
+The https://github.com/eirslett/frontend-maven-plugin[Frontend]
+maven plugin does this job for maven projects.
+
+If you are a Gradle user, you might want to try the https://github.com/srs/gradle-node-plugin[gradle-node-plugin].
+====
+
+=== Production Deploy
+
+To create a production bundle we need to use the https://github.com/eirslett/frontend-maven-plugin[Frontend] maven plugin.
+If you are a Gradle user, you might want to try the https://github.com/srs/gradle-node-plugin[gradle-node-plugin].
+
+==== Disabling
+
+This module must be disabled while running in production. There are 3 ways of disabling it:
+
+- When `package.json` is missing from current directory: `System.getProperty("user.dir)`
+- Set `npm.enabled = false` in your application properties files (or `yarn.enabled = false` for YarnModule), or
+- Set `application.env = prod` or something else, except `dev`.
+
+Any of these two properties turn of the module at runtime.
+
+==== Packaging
+
+To produce a production bundle add these lines to your pom.xml:
+
+.pom.xml
+[source, xml, subs="verbatim,attributes"]
+----
+<build>
+  <plugins>
+    ...
+    <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>{frontendMavenPluginVersion}</version>
+
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>v12.16.1</nodeVersion>            <1>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>npm install</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>install</arguments>                 <2>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>npm package</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>run package</arguments>             <3>
+              <environmentVariables>
+                <NODE_ENV>production</NODE_ENV>
+              </environmentVariables>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      ...
+  </plugins>
+</build>
+----
+
+<1> Download and Install node if required (make sure version matches the one used by your application)
+<2> Run `npm install`
+<3> Run `npm run package`. The `package` task/script must exists in your `package.json`
+
+If you are a Gradle user, you might want to try the https://github.com/srs/gradle-node-plugin[gradle-node-plugin].

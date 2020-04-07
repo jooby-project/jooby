@@ -324,7 +324,7 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-frontend</artifactId>
+      <artifactId>jooby-node</artifactId>
       <version>${jooby.version}</version>
       <type>jar</type>
     </dependency>
