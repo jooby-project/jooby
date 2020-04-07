@@ -282,7 +282,8 @@ public interface Router extends Registry {
   @Nonnull Router encoder(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder);
 
   /**
-   * Application temporary directory.
+   * Application temporary directory. This method initialize the {@link Environment} when isn't
+   * set manually.
    *
    * @return Application temporary directory.
    */

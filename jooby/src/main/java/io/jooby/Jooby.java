@@ -452,7 +452,7 @@ public class Jooby implements Router, Registry {
 
   @Nonnull @Override public Path getTmpdir() {
     if (tmpdir == null) {
-      tmpdir = Paths.get(env.getConfig().getString("application.tmpdir")).toAbsolutePath();
+      tmpdir = Paths.get(getEnvironment().getConfig().getString("application.tmpdir")).toAbsolutePath();
     }
     return tmpdir;
   }
