@@ -48,6 +48,10 @@ public class ParameterExt extends io.swagger.v3.oas.models.parameters.Parameter 
     this.defaultValue = defaultValue;
   }
 
+  @Override public void setRequired(Boolean required) {
+    super.setRequired(required);
+  }
+
   @Override public String toString() {
     return javaType + " " + getName();
   }

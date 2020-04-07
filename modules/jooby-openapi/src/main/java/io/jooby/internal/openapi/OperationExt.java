@@ -7,6 +7,7 @@ package io.jooby.internal.openapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.MediaType;
+import io.jooby.Router;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.tags.Tag;
@@ -221,7 +222,19 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     OperationExt copy = new OperationExt(node, method, pattern, getParameters(), defaultResponse);
     copy.setTags(getTags());
     copy.setResponses(getResponses());
-    copy.setParameters(getParameters());
+
+    /** Redo path keys: */
+    List<String> keys = Router.pathKeys(pattern);
+    List<Parameter> newParameters = new ArrayList<>();
+    List<Parameter> parameters = getParameters();
+    for (String key : keys) {
+      parameters.stream()
+          .filter(p -> p.getName().equals(key))
+          .findFirst()
+          .ifPresent(newParameters::add);
+    }
+    copy.setParameters(newParameters);
+
     copy.setRequestBody(getRequestBody());
     copy.setHidden(getHidden());
     copy.setMethod(getMethod());

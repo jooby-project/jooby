@@ -309,7 +309,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals("java.util.List<java.lang.String>", it.getJavaType());
                 assertEquals("listStr", it.getName());
                 assertNull(it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })
@@ -317,7 +317,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals("java.util.List<java.lang.Double>", it.getJavaType());
                 assertEquals("listType", it.getName());
                 assertNull(it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })
@@ -325,7 +325,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals(String.class.getName(), it.getJavaType());
                 assertEquals("defstr", it.getName());
                 assertEquals("200", it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })
@@ -333,7 +333,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("defint", it.getName());
                 assertEquals(87, it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })
@@ -341,7 +341,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals(int.class.getName(), it.getJavaType());
                 assertEquals("defint0", it.getName());
                 assertEquals(0, it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })
@@ -349,7 +349,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals(boolean.class.getName(), it.getJavaType());
                 assertEquals("defbool", it.getName());
                 assertEquals(true, it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })
@@ -357,7 +357,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
                 assertEquals("optstr", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })
@@ -365,7 +365,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals("java.util.Optional<java.lang.Integer>", it.getJavaType());
                 assertEquals("optint", it.getName());
                 assertEquals(null, it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })
@@ -373,7 +373,7 @@ public class OpenAPIGeneratorTest {
                 assertEquals("java.util.Optional<java.lang.String>", it.getJavaType());
                 assertEquals("optstr2", it.getName());
                 assertEquals("optional", it.getDefaultValue());
-                assertFalse(it.getRequired());
+                assertTrue(it.getRequired());
                 assertTrue(it.isSingle());
                 assertEquals("path", it.getIn());
               })

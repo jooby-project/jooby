@@ -194,10 +194,12 @@ public class RequestParser {
       Signature signature = Signature.create(methodInsnNode);
       ParameterExt argument = new ParameterExt();
       String scope = signature.getMethod();
+      Boolean required = null;
       switch (scope) {
+        case "path":
+          required = true;
         case "header":
         case "cookie":
-        case "path":
         case "query": {
           argument.setIn(scope);
           if (signature.matches(String.class)) {
@@ -211,7 +213,9 @@ public class RequestParser {
           }
         }
       }
-
+      if (required != null) {
+        argument.setRequired(required);
+      }
       if (argument.getJavaType() != null) {
         args.add(argument);
       } else {

@@ -86,6 +86,7 @@ public class AnnotationParser {
 
       @Override public void setIn(Parameter parameter) {
         parameter.setIn("path");
+        parameter.setRequired(true);
       }
     },
     QUERY {
