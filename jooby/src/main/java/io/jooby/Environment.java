@@ -302,12 +302,40 @@ public class Environment {
     }
     Path userdir = Paths.get(System.getProperty("user.dir"));
     /** Application file: */
-    Config application = ConfigFactory.empty();
+
     String[] names = new String[actives.size() + 1];
     for (int i = 0; i < actives.size(); i++) {
       names[i] = filename + "." + actives.get(i).trim().toLowerCase() + extension;
     }
     names[actives.size()] = filename + extension;
+
+    Config application = resolveConfig(options, userdir, names);
+
+    // check if there is a local env set
+    if (application.hasPath("application.env")) {
+      String env = application.getString("application.env");
+      // Override environment only if the active environment is set to `dev`
+      if (!actives.contains(env) && (actives.contains("dev") && actives.size() == 1)) {
+        Config envConfig = resolveConfig(options, userdir,
+            filename + "." + env.toLowerCase() + extension);
+        if (envConfig != null) {
+          application = envConfig.withFallback(application);
+          actives = Collections.singletonList(env.toLowerCase());
+        }
+      }
+    }
+
+    Config result = sys
+        .withFallback(application)
+        .withFallback(defaults())
+        .resolve();
+
+    return new Environment(options.getClassLoader(), result, actives);
+  }
+
+  private static Config resolveConfig(@Nonnull EnvironmentOptions options, Path userdir,
+      String... names) {
+    Config application = ConfigFactory.empty();
 
     String basedir = options.getBasedir();
 
@@ -331,13 +359,7 @@ public class Environment {
         application = application.withFallback(it);
       }
     }
-
-    Config result = sys
-        .withFallback(application)
-        .withFallback(defaults())
-        .resolve();
-
-    return new Environment(options.getClassLoader(), result, actives);
+    return application;
   }
 
   /**
