@@ -14,10 +14,12 @@ import io.jooby.StatusCode;
 import io.jooby.internal.pac4j.ActionAdapterImpl;
 import io.jooby.internal.pac4j.CallbackFilterImpl;
 import io.jooby.internal.pac4j.DevLoginForm;
+import io.jooby.internal.pac4j.ForwardingAuthorizer;
 import io.jooby.internal.pac4j.LogoutImpl;
+import io.jooby.internal.pac4j.SavedRequestHandlerImpl;
 import io.jooby.internal.pac4j.SecurityFilterImpl;
 import io.jooby.internal.pac4j.UrlResolverImpl;
-import io.jooby.internal.pac4j.SavedRequestHandlerImpl;
+import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
@@ -35,6 +37,7 @@ import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,11 +87,23 @@ import static java.util.Optional.ofNullable;
  */
 public class Pac4jModule implements Extension {
 
+  private static class ProtectedPath {
+    private List<String> authorizers = new ArrayList<>();
+
+    private List<Object> clients = new ArrayList<>();
+
+    public ProtectedPath add(String authorizer, Object client) {
+      this.authorizers.add(authorizer);
+      this.clients.add(client);
+      return this;
+    }
+  }
+
   private final Config pac4j;
 
   private Pac4jOptions options;
 
-  private Map<String, List<Object>> clientMap;
+  private Map<String, ProtectedPath> clientMap;
 
   /**
    * Creates a new pac4j module.
@@ -109,6 +124,24 @@ public class Pac4jModule implements Extension {
   }
 
   /**
+   * Creates a new pac4j module.
+   *
+   * @param pac4j Pac4j advance configuration options.
+   */
+  public Pac4jModule(Config pac4j) {
+    this(new Pac4jOptions(), pac4j);
+  }
+
+  /**
+   * Creates a new pac4j module.
+   *
+   * @param options Options.
+   */
+  public Pac4jModule(Pac4jOptions options) {
+    this(options, new Config());
+  }
+
+  /**
    * Register a default security filter.
    *
    * @param provider Client factory.
@@ -119,17 +152,98 @@ public class Pac4jModule implements Extension {
   }
 
   /**
-   * Register an specific/alternative security filter under the given path.
+   * Register a security filter under the given path.
    *
-   * @param pattern Login pattern.
+   * @param pattern Protected pattern.
    * @param provider Client factory.
    * @return This module.
    */
   public Pac4jModule client(String pattern, Function<com.typesafe.config.Config, Client> provider) {
+    return client(pattern, (String) null, provider);
+  }
+
+  /**
+   * Register a default security filter.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param authorizer Authorizer to use. Authorizer must be provisioned by application registry.
+   * @param provider Client factory.
+   * @return This module.
+   */
+  public Pac4jModule client(Class<? extends Authorizer> authorizer,
+      Function<com.typesafe.config.Config, Client> provider) {
+    return client("*", authorizer, provider);
+  }
+
+  /**
+   * Register a default security filter.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param authorizer Authorizer to use.
+   * @param provider Client factory.
+   * @return This module.
+   */
+  public @Nonnull Pac4jModule client(@Nonnull Authorizer authorizer,
+      @Nonnull Function<com.typesafe.config.Config, Client> provider) {
+    return client("*", authorizer, provider);
+  }
+
+  /**
+   * Register a security filter under the given path.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param pattern Protected pattern. Use <code>*</code> for intercept all calls.
+   * @param authorizer Authorizer to use. Authorizer must be provisioned by application registry.
+   * @param provider Client factory.
+   * @return This module.
+   */
+  public @Nonnull Pac4jModule client(@Nonnull String pattern,
+      @Nonnull Class<? extends Authorizer> authorizer,
+      @Nonnull Function<com.typesafe.config.Config, Client> provider) {
+    return client(pattern, registerAuthorizer(authorizer, new ForwardingAuthorizer(authorizer)),
+        provider);
+  }
+
+  /**
+   * Register a security filter under the given path.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param pattern Protected pattern. Use <code>*</code> for intercept all calls.
+   * @param authorizer Authorizer to use.
+   * @param provider Client factory.
+   * @return This module.
+   */
+  public @Nonnull Pac4jModule client(@Nonnull String pattern, @Nonnull Authorizer authorizer,
+      @Nonnull Function<com.typesafe.config.Config, Client> provider) {
+    return client(pattern, registerAuthorizer(authorizer.getClass(), authorizer), provider);
+  }
+
+  /**
+   * Register a filter under the given path.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param pattern Protected pattern. Use <code>*</code> for intercept all calls.
+   * @param authorizer Authorizer to use. Must be registered via
+   *     {@link Config#addAuthorizer(String, Authorizer)}. Null is allowed.
+   * @param provider Client factory.
+   * @return This module.
+   */
+  public @Nonnull Pac4jModule client(@Nonnull String pattern, @Nullable String authorizer,
+      @Nonnull Function<com.typesafe.config.Config, Client> provider) {
     if (clientMap == null) {
-      clientMap = initializeClients(pac4j.getClients());
+      clientMap = initializeClients(pac4j);
     }
-    clientMap.computeIfAbsent(pattern, k -> new ArrayList<>()).add(provider);
+    clientMap.computeIfAbsent(pattern, k -> new ProtectedPath()).add(authorizer, provider);
     return this;
   }
 
@@ -142,7 +256,7 @@ public class Pac4jModule implements Extension {
 
     /** No client instance added from DSL, init them from pac4j config. */
     if (clientMap == null) {
-      clientMap = initializeClients(clients);
+      clientMap = initializeClients(pac4j);
     }
 
     String contextPath = application.getContextPath().equals("/")
@@ -161,10 +275,11 @@ public class Pac4jModule implements Extension {
     } else {
       com.typesafe.config.Config conf = application.getConfig();
       /** Initialize clients from DSL: */
-      for (Map.Entry<String, List<Object>> entry : clientMap.entrySet()) {
+      for (Map.Entry<String, ProtectedPath> routing : clientMap.entrySet()) {
         List<Client> localClients = allClients
-            .computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
-        for (Object candidate : entry.getValue()) {
+            .computeIfAbsent(routing.getKey(), k -> new ArrayList<>());
+        ProtectedPath path = routing.getValue();
+        for (Object candidate : path.clients) {
           if (candidate instanceof Client) {
             localClients.add((Client) candidate);
           } else {
@@ -172,7 +287,15 @@ public class Pac4jModule implements Extension {
             localClients.add(clientProvider.apply(conf));
           }
         }
-        allClients.put(entry.getKey(), localClients);
+        allClients.put(routing.getKey(), localClients);
+
+        // check for forwarding authorizers
+        for (String authorizerName : path.authorizers) {
+          Authorizer authorizer = pac4j.getAuthorizers().get(authorizerName);
+          if (authorizer instanceof ForwardingAuthorizer) {
+            ((ForwardingAuthorizer) authorizer).setRegistry(application);
+          }
+        }
       }
     }
 
@@ -194,7 +317,8 @@ public class Pac4jModule implements Extension {
         .orElseGet(Pac4jModule::newActionAdapter));
 
     if (devLogin) {
-      application.get("/login", new DevLoginForm(pac4j, options, contextPath + options.getCallbackPath()));
+      application
+          .get("/login", new DevLoginForm(pac4j, options, contextPath + options.getCallbackPath()));
     }
 
     /** If we have multiple clients on specific paths, we collect those path and configure pac4j
@@ -234,9 +358,11 @@ public class Pac4jModule implements Extension {
       if (!pattern.equals("*")) {
         List<String> keys = Router.pathKeys(pattern);
         if (keys.size() == 0) {
-          application.get(pattern, new SecurityFilterImpl(null, pac4j, options, entry.getValue()));
+          application.get(pattern, new SecurityFilterImpl(null, pac4j, options, entry.getValue(),
+              clientMap.get(pattern).authorizers));
         } else {
-          application.decorator(new SecurityFilterImpl(pattern, pac4j, options, entry.getValue()));
+          application.decorator(new SecurityFilterImpl(pattern, pac4j, options, entry.getValue(),
+              clientMap.get(pattern).authorizers));
         }
       }
     }
@@ -244,8 +370,10 @@ public class Pac4jModule implements Extension {
     /** Is there is a global client, use it as decorator/filter (default client): */
     List<Client> defaultSecurityFilter = allClients.get("*");
     if (defaultSecurityFilter != null) {
-      options.setDefaultClient(Optional.ofNullable(options.getDefaultClient()).orElse(defaultSecurityFilter.get(0).getName()));
-      application.decorator(new SecurityFilterImpl(null, pac4j, options, defaultSecurityFilter));
+      options.setDefaultClient(Optional.ofNullable(options.getDefaultClient())
+          .orElse(defaultSecurityFilter.get(0).getName()));
+      application.decorator(new SecurityFilterImpl(null, pac4j, options, defaultSecurityFilter,
+          clientMap.get("*").authorizers));
     }
 
     /** Logout configuration: */
@@ -274,6 +402,7 @@ public class Pac4jModule implements Extension {
         options.setDefaultUrl(defaultUrl);
       });
     }
+    clientMap.clear();
   }
 
   /**
@@ -330,13 +459,26 @@ public class Pac4jModule implements Extension {
     return new UrlResolverImpl(trustProxy);
   }
 
-  private Map<String, List<Object>> initializeClients(Clients clients) {
-    Map<String, List<Object>> result = new LinkedHashMap<>();
-    ofNullable(clients).map(Clients::getClients)
+  private Map<String, ProtectedPath> initializeClients(Config pac4j) {
+    Map<String, ProtectedPath> result = new LinkedHashMap<>();
+    ofNullable(pac4j.getClients()).map(Clients::getClients)
         .map(list -> list == null ? Stream.empty() : list.stream())
         .ifPresent(list ->
-            list.forEach(it -> result.computeIfAbsent("*", k -> new ArrayList<>()).add(it)));
+            list.forEach(
+                it -> result.computeIfAbsent("*", k -> new ProtectedPath()).add(null, it)));
 
     return result;
+  }
+
+  private String authorizerName(Class authorizer) {
+    String name = authorizer.getSimpleName();
+    // lambda doesn't have a simple name
+    return name.isEmpty() ? authorizer.getName() : name;
+  }
+
+  private String registerAuthorizer(Class type, Authorizer authorizer) {
+    String authorizerName = authorizerName(type);
+    pac4j.getAuthorizers().putIfAbsent(authorizerName, authorizer);
+    return authorizerName;
   }
 }

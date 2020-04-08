@@ -273,6 +273,57 @@ import io.jooby.pac4j.Pac4jModule
 
 All routes under `/admin` will be protected by Pac4j.
 
+=== Authorizer
+
+Authorizers are registered and group by path. We do provide couple of ways to specific an authorizer:
+
+.Manual configuration
+[source, java]
+-----
+import org.pac4j.core.config.Config;
+{
+  
+  Config pac4j = new Config();
+
+  pac4j.addAuthorizer("test", new Authorizer<CommonProfile>() {
+	@Override public boolean isAuthorized(WebContext context, List<CommonProfile> profiles) {
+		return false;
+	}
+  });
+
+  install(
+      new Pac4jModule(pac4j)
+          .client("/api/*", "test", conf -> {...});
+  );
+}
+-----
+
+.Automatic configuration
+[source, java]
+-----
+{
+  
+  install(
+      new Pac4jModule()
+          .client("/api/*", new MyTestAuthorizer(), conf -> {...});
+  );
+}
+-----
+
+.Registry  (or dependency injection) integration
+[source, java]
+-----
+{
+  
+  install(
+      new Pac4jModule()
+          .client("/api/*", MyTestAuthorizer.class, conf -> {...});
+  );
+}
+-----
+
+This last example ask application registry (dependency injection framework usually) to provisioning the `MyTestAuthorizer` authorizer.
+
 === Advanced Usage
 
 You can customize default options by using the javadoc:pac4j.Pac4jOptions[] and/or providing your

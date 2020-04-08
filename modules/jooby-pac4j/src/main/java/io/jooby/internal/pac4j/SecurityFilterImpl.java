@@ -34,21 +34,22 @@ public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
 
   private String authorizers;
 
-  public SecurityFilterImpl(String pattern, Config config, Pac4jOptions options, List<Client> clients) {
+  public SecurityFilterImpl(String pattern, Config config, Pac4jOptions options,
+      List<Client> clients, List<String> authorizers) {
     this.pattern = pattern;
     this.config = config;
     this.options = options;
     this.clients = clients.stream().map(it -> it.getName())
         .collect(Collectors.joining(Pac4jConstants.ELEMENT_SEPARATOR));
+    authorizers.forEach(this::addAuthorizer);
   }
 
-  public SecurityFilterImpl addAuthorizer(String authorizer) {
+  public void addAuthorizer(String authorizer) {
     if (authorizers == null) {
       authorizers = authorizer;
     } else {
       authorizers += Pac4jConstants.ELEMENT_SEPARATOR + authorizer;
     }
-    return this;
   }
 
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
