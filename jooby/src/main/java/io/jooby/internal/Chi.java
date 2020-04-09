@@ -804,20 +804,20 @@ class Chi implements RouteTree {
     root.destroy();
   }
 
-  public boolean find(String method, String path) {
+  public boolean exists(String method, String path) {
     if (!staticPaths.getOrDefault(path, NO_MATCH).methods.containsKey(method)) {
       return root.findRoute(new RouterMatch(), method, new ZeroCopyString(path)) != null;
     }
     return true;
   }
 
-  public Router.Match find(String method, String path, MessageEncoder encoder) {
+  public Router.Match find(String method, String path) {
     StaticRouterMatch match = staticPaths.getOrDefault(path, NO_MATCH).methods.get(method);
     if (match == null) {
       // use radix tree
       RouterMatch result = new RouterMatch();
       Route route = root.findRoute(result, method, new ZeroCopyString(path));
-      return route == null ? result.missing(method, path, encoder) : result.found(route);
+      return route == null ? result.missing(method, path) : result.found(route);
     }
     return match;
   }

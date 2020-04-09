@@ -39,17 +39,17 @@ public class ChiBenchmark {
 
   @Benchmark
   public void _plaintext() {
-    router.find("GET", "/plaintext", null);
+    router.find("GET", "/plaintext");
   }
 
   @Benchmark
   public void articles() {
-    router.find("GET", "/articles/123", null);
+    router.find("GET", "/articles/123");
   }
 
   @Benchmark
   public void articlesEdit() {
-    router.find("GET", "/articles/123/edit", null);
+    router.find("GET", "/articles/123/edit");
   }
 
 }

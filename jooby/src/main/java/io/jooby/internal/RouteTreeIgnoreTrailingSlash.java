@@ -13,11 +13,11 @@ public class RouteTreeIgnoreTrailingSlash extends RouteTreeForwarding {
     super(tree);
   }
 
-  @Override public boolean find(String method, String path) {
-    return super.find(method, Router.noTrailingSlash(path));
+  @Override public boolean exists(String method, String path) {
+    return super.exists(method, Router.noTrailingSlash(path));
   }
 
-  @Override public Router.Match find(String method, String path, MessageEncoder encoder) {
-    return super.find(method, Router.noTrailingSlash(path), encoder);
+  @Override public Router.Match find(String method, String path) {
+    return super.find(method, Router.noTrailingSlash(path));
   }
 }

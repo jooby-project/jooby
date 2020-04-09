@@ -2966,11 +2966,4 @@ public class FeaturedTest {
     }
     return hash;
   }
-
-  private String sid(Response rsp, String prefix) {
-    String setCookie = rsp.header("Set-Cookie");
-    assertNotNull(setCookie);
-    assertTrue(setCookie.startsWith(prefix));
-    return setCookie.substring(prefix.length(), setCookie.indexOf(";"));
-  }
 }

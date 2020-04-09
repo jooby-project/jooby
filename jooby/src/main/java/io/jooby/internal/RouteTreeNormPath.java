@@ -5,7 +5,6 @@
  */
 package io.jooby.internal;
 
-import io.jooby.MessageEncoder;
 import io.jooby.Router;
 
 public class RouteTreeNormPath extends RouteTreeForwarding {
@@ -13,11 +12,11 @@ public class RouteTreeNormPath extends RouteTreeForwarding {
     super(tree);
   }
 
-  @Override public boolean find(String method, String path) {
-    return super.find(method, Router.normalizePath(path));
+  @Override public boolean exists(String method, String path) {
+    return super.exists(method, Router.normalizePath(path));
   }
 
-  @Override public Router.Match find(String method, String path, MessageEncoder encoder) {
-    return super.find(method, Router.normalizePath(path), encoder);
+  @Override public Router.Match find(String method, String path) {
+    return super.find(method, Router.normalizePath(path));
   }
 }

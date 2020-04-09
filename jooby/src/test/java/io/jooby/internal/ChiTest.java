@@ -24,7 +24,7 @@ public class ChiTest {
     router.insert(bar);
 
     Router.Match result = router
-        .find("GET", "/abcd", MessageEncoder.TO_STRING);
+        .find("GET", "/abcd");
     assertTrue(result.matches());
     assertEquals(bar, result.route());
   }
@@ -38,7 +38,7 @@ public class ChiTest {
     router.insert(foos);
 
     Router.Match result = router
-        .find("GET", "/abcd/", MessageEncoder.TO_STRING);
+        .find("GET", "/abcd/");
     assertTrue(result.matches());
     assertEquals(foos, result.route());
   }
@@ -174,7 +174,7 @@ public class ChiTest {
   private void find(Chi router, String pattern,
       SneakyThrows.Consumer2<Context, Router.Match> consumer) {
     Router.Match result = router
-        .find("GET", pattern, MessageEncoder.TO_STRING);
+        .find("GET", pattern);
     consumer.accept(ctx(pattern), result);
   }
 

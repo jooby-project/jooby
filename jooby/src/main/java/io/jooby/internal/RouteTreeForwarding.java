@@ -20,12 +20,12 @@ public class RouteTreeForwarding implements RouteTree {
     tree.insert(method, pattern, route);
   }
 
-  @Override public boolean find(String method, String path) {
-    return tree.find(method, path);
+  @Override public boolean exists(String method, String path) {
+    return tree.exists(method, path);
   }
 
-  @Override public Router.Match find(String method, String path, MessageEncoder encoder) {
-    return tree.find(method, path, encoder);
+  @Override public Router.Match find(String method, String path) {
+    return tree.find(method, path);
   }
 
   @Override public void destroy() {

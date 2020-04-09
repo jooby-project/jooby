@@ -607,20 +607,20 @@ public class RouterImpl implements Router {
     if (predicateMap != null) {
       for (Map.Entry<Predicate<Context>, RouteTree> e : predicateMap.entrySet()) {
         if (e.getKey().test(ctx)) {
-          Router.Match match = e.getValue().find(ctx.getMethod(), ctx.getRequestPath(), encoder);
+          Router.Match match = e.getValue().find(ctx.getMethod(), ctx.getRequestPath());
           if (match.matches()) {
             return match;
           }
         }
       }
     }
-    return chi.find(ctx.getMethod(), ctx.getRequestPath(), encoder);
+    return chi.find(ctx.getMethod(), ctx.getRequestPath());
   }
 
   @Override public boolean match(@Nonnull String pattern, @Nonnull String path) {
     Chi chi = new Chi();
     chi.insert(Router.GET, pattern, ROUTE_MARK);
-    return chi.find(Router.GET, path);
+    return chi.exists(Router.GET, path);
   }
 
   @Nonnull @Override public Router errorCode(@Nonnull Class<? extends Throwable> type,
