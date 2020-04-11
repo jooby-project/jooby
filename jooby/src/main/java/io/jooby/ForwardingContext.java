@@ -51,6 +51,11 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  @Nonnull @Override public Context forward(@Nonnull String path) {
+    ctx.forward(path);
+    return this;
+  }
+
   @Override public boolean matches(@Nonnull String pattern) {
     return ctx.matches(pattern);
   }
@@ -122,6 +127,11 @@ public class ForwardingContext implements Context {
 
   @Nonnull @Override public String getRequestPath() {
     return ctx.getRequestPath();
+  }
+
+  @Nonnull @Override public Context setRequestPath(@Nonnull String path) {
+    ctx.setRequestPath(path);
+    return this;
   }
 
   @Nonnull @Override public Value path(@Nonnull String name) {

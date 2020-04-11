@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -81,6 +82,10 @@ public class MockContext implements DefaultContext {
 
   private CompletionListeners listeners = new CompletionListeners();
 
+  private Consumer<MockResponse> consumer;
+
+  private MockRouter mockRouter;
+
   @Nonnull @Override public String getMethod() {
     return method;
   }
@@ -120,6 +125,14 @@ public class MockContext implements DefaultContext {
 
   @Nonnull @Override public Map<String, String> cookieMap() {
     return cookies;
+  }
+
+  @Nonnull @Override public Context forward(@Nonnull String path) {
+    setRequestPath(path);
+    if (mockRouter != null) {
+      mockRouter.call(getMethod(), path, this, consumer);
+    }
+    return this;
   }
 
   /**
@@ -680,4 +693,11 @@ public class MockContext implements DefaultContext {
     return method + " " + requestPath;
   }
 
+  void setConsumer(Consumer<MockResponse> consumer) {
+    this.consumer = consumer;
+  }
+
+  void setMockRouter(MockRouter mockRouter) {
+    this.mockRouter = mockRouter;
+  }
 }

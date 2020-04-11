@@ -95,7 +95,7 @@ public class JettyContext implements DefaultContext {
   private boolean responseStarted;
   private Boolean resetHeadersOnError;
   private final String method;
-  private final String requestPath;
+  private String requestPath;
   private CompletionListeners listeners;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
@@ -162,6 +162,11 @@ public class JettyContext implements DefaultContext {
 
   @Nonnull @Override public String getRequestPath() {
     return requestPath;
+  }
+
+  @Nonnull @Override public Context setRequestPath(@Nonnull String path) {
+    this.requestPath = path;
+    return this;
   }
 
   @Nonnull @Override public Map<String, String> pathMap() {

@@ -16,7 +16,6 @@ import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -2915,6 +2914,20 @@ public class FeaturedTest {
           .add("foo", "bar")
           .build(), rsp -> {
         assertEquals(200, rsp.code());
+      });
+    });
+  }
+
+  @ServerTest
+  public void forward(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.get("/api/v1/{object}", ctx -> ctx.forward("/api/v1.0/" + ctx.path("object").value()));
+
+      app.get("/api/v1.0/{name}", ctx -> ctx.path("name").value());
+    }).ready(client -> {
+      client.get("/api/v1/pets", rsp -> {
+        assertEquals(200, rsp.code());
+        assertEquals("pets", rsp.body().string());
       });
     });
   }

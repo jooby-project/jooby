@@ -84,7 +84,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   private long responseLength = -1;
   private Boolean resetHeadersOnError;
   private final String method;
-  private final String requestPath;
+  private String requestPath;
   private UtowCompletionListener completionListener;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
@@ -144,6 +144,11 @@ public class UtowContext implements DefaultContext, IoCallback {
 
   @Nonnull @Override public String getRequestPath() {
     return requestPath;
+  }
+
+  @Nonnull @Override public Context setRequestPath(@Nonnull String path) {
+    this.requestPath = path;
+    return this;
   }
 
   @Nonnull @Override public Map<String, String> pathMap() {

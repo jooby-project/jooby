@@ -131,6 +131,12 @@ public interface DefaultContext extends Context {
     return session;
   }
 
+  @Override default @Nonnull Context forward(@Nonnull String path) {
+    setRequestPath(path);
+    getRouter().match(this).execute(this);
+    return this;
+  }
+
   @Override default @Nonnull Value cookie(@Nonnull String name) {
     String value = cookieMap().get(name);
     return value == null ? Value.missing(name) : Value.value(this, name, value);

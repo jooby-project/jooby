@@ -96,6 +96,16 @@ public interface Context extends Registry {
   @Nonnull Router getRouter();
 
   /**
+   * Forward executing to another route. We use the given path to find a matching route.
+   *
+   * NOTE: the entire handler pipeline is executed (filter, decorator, etc.).
+   *
+   * @param path Path to forward the request.
+   * @return This context.
+   */
+  @Nonnull Context forward(@Nonnull String path);
+
+  /**
    * Converts a value (single or hash) into the given type.
    *
    * @param value Value to convert.
@@ -218,6 +228,14 @@ public interface Context extends Registry {
    * @return Request path without decoding (a.k.a raw Path) without query string.
    */
   @Nonnull String getRequestPath();
+
+  /**
+   * Set request path. This is usually done by Web Server or framework, but by user.
+   *
+   * @param path Request path.
+   * @return This context.
+   */
+  @Nonnull Context setRequestPath(@Nonnull String path);
 
   /**
    * Path variable. Value is decoded.

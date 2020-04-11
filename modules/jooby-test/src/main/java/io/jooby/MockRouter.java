@@ -6,6 +6,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -410,6 +411,8 @@ public class MockRouter {
     findContext.setMethod(method.toUpperCase());
     findContext.setRequestPath(path);
     findContext.setRouter(router);
+    findContext.setConsumer(consumer);
+    findContext.setMockRouter(this);
 
     Router.Match match = router.match(findContext);
     Route route = match.route();
@@ -426,13 +429,14 @@ public class MockRouter {
         value = handler.apply(ctx);
         if (ctx instanceof MockContext) {
           MockResponse response = ((MockContext) ctx).getResponse();
-          if (!(value instanceof Context)) {
+          if (value != null && !(value instanceof Context)) {
             response.setResult(value);
           }
           if (response.getContentLength() <= 0) {
             response.setContentLength(contentLength(value));
           }
           consumer.accept(response);
+          return new SingleMockValue(Optional.ofNullable(response.value()).orElse(value));
         }
         return new SingleMockValue(value);
       }

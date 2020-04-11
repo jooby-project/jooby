@@ -112,7 +112,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Route route;
   ChannelHandlerContext ctx;
   private HttpRequest req;
-  private final String path;
+  private String path;
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean responseStarted;
   private QueryString query;
@@ -174,6 +174,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public String getRequestPath() {
     return path;
+  }
+
+  @Nonnull @Override public Context setRequestPath(String path) {
+    this.path = path;
+    return this;
   }
 
   @Nonnull @Override public Map<String, String> pathMap() {
