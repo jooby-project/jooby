@@ -12,6 +12,7 @@ import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
 import io.jooby.internal.ValueConverters;
+import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -559,30 +560,38 @@ public interface DefaultContext extends Context {
   }
 
   /**
-   * Send an error response.
+   * Send an error response. This method set the  error code.
    *
    * @param cause Error. If this is a fatal error it is going to be rethrow it.
-   * @param statusCode Status code.
+   * @param code Default error code.
    * @return This context.
    */
   @Override @Nonnull default Context sendError(@Nonnull Throwable cause,
-      @Nonnull StatusCode statusCode) {
+      @Nonnull StatusCode code) {
     Router router = getRouter();
+    Logger log = router.getLog();
     if (isResponseStarted()) {
-      router.getLog().error(ErrorHandler.errorMessage(this, statusCode), cause);
+      log.error(ErrorHandler.errorMessage(this, code), cause);
     } else {
       try {
         if (getResetHeadersOnError()) {
           removeResponseHeaders();
         }
-        router.getErrorHandler().apply(this, cause, statusCode);
+        // set default error code
+        setResponseCode(code);
+        router.getErrorHandler().apply(this, cause, code);
       } catch (Exception x) {
+        if (!isResponseStarted()) {
+          // edge case when there is a bug in a the error handler (probably custom error) what we
+          // do is to use the default error handler
+          ErrorHandler.create().apply(this, cause, code);
+        }
         if (Server.connectionLost(x)) {
-          router.getLog()
-              .debug("error handler resulted in exception {} {}", getMethod(), getRequestPath(), x);
+          log.debug("error handler resulted in a exception while processing `{}`", cause.toString(),
+              x);
         } else {
-          router.getLog()
-              .error("error handler resulted in exception {} {}", getMethod(), getRequestPath(), x);
+          log.error("error handler resulted in a exception while processing `{}`", cause.toString(),
+              x);
         }
       }
     }

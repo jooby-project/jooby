@@ -606,7 +606,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override
-  public MockContext sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
+  public MockContext sendError(@Nonnull Throwable cause, @Nonnull StatusCode code) {
     responseStarted = true;
     this.response.setResult(cause)
         .setStatusCode(router.errorCode(cause));

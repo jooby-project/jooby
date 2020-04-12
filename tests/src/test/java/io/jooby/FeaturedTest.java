@@ -2932,6 +2932,22 @@ public class FeaturedTest {
     });
   }
 
+  @ServerTest
+  public void custom404WithTemplateEngine(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.install(new HandlebarsModule());
+
+      app.error((ctx, cause, code) -> {
+        ctx.render(new ModelAndView("error.hbs").put("statusCode", code));
+      });
+    }).ready(client -> {
+      client.get("/missing", rsp -> {
+        assertEquals("Not Found (404)", rsp.body().string().trim());
+        assertEquals(404, rsp.code());
+      });
+    });
+  }
+
   private byte[][] partition(byte[] bytes, int size) {
     List<byte[]> result = new ArrayList<>();
     int offset = 0;

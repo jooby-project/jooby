@@ -33,6 +33,7 @@ class Chi implements RouteTree {
   static final StaticRoute NO_MATCH = new StaticRoute(Collections.emptyMap());
 
   static final char ZERO_CHAR = (char) 0;
+  private MessageEncoder encoder;
 
   static class StaticRoute {
     private final Map<String, StaticRouterMatch> methods;
@@ -811,14 +812,21 @@ class Chi implements RouteTree {
     return true;
   }
 
-  public Router.Match find(String method, String path) {
+  @Override public Router.Match find(String method, String path) {
     StaticRouterMatch match = staticPaths.getOrDefault(path, NO_MATCH).methods.get(method);
     if (match == null) {
       // use radix tree
       RouterMatch result = new RouterMatch();
       Route route = root.findRoute(result, method, new ZeroCopyString(path));
-      return route == null ? result.missing(method, path) : result.found(route);
+      if (route == null) {
+        return result.missing(method, path, encoder);
+      }
+      return result.found(route);
     }
     return match;
+  }
+
+  public void setEncoder(MessageEncoder encoder) {
+    this.encoder = encoder;
   }
 }

@@ -88,7 +88,7 @@ public class RouterMatch implements Router.Match {
     }
   }
 
-  public RouterMatch missing(String method, String path) {
+  public RouterMatch missing(String method, String path, MessageEncoder encoder) {
     Route.Handler h;
     if (this.handler == null) {
       h = path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
@@ -96,6 +96,7 @@ public class RouterMatch implements Router.Match {
       h = this.handler;
     }
     this.route = new Route(method, path, h);
+    this.route.setEncoder(encoder);
     this.route.setReturnType(Context.class);
     return this;
   }

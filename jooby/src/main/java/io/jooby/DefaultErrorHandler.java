@@ -56,7 +56,7 @@ public class DefaultErrorHandler implements ErrorHandler {
   @Nonnull @Override public void apply(@Nonnull Context ctx, @Nonnull Throwable cause,
       @Nonnull StatusCode code) {
     Logger log = ctx.getRouter().getLog();
-    if (mute(cause, code)) {
+    if (isMuted(cause, code)) {
       log.debug(ErrorHandler.errorMessage(ctx, code), cause);
     } else {
       log.error(ErrorHandler.errorMessage(ctx, code), cause);
@@ -117,11 +117,12 @@ public class DefaultErrorHandler implements ErrorHandler {
     }
   }
 
-  private boolean mute(Throwable cause, StatusCode statusCode) {
+  private boolean isMuted(Throwable cause, StatusCode statusCode) {
     return muteCodes.contains(statusCode)
         // same class filter
         || muteTypes.stream().anyMatch(type -> type == cause.getClass())
         // sub-class filter
         || muteTypes.stream().anyMatch(type -> type.isInstance(cause));
   }
+
 }

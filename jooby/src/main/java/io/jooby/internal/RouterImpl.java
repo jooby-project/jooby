@@ -477,7 +477,7 @@ public class RouterImpl implements Router {
     return route;
   }
 
-  @Nonnull public Router start(@Nonnull Jooby owner) {
+  @Nonnull public Router start(@Nonnull Jooby app) {
     if (err == null) {
       err = ErrorHandler.create();
     } else {
@@ -492,7 +492,7 @@ public class RouterImpl implements Router {
     ClassSource source = new ClassSource(classLoader);
     RouteAnalyzer analyzer = new RouteAnalyzer(source, false);
 
-    ExecutionMode mode = owner.getExecutionMode();
+    ExecutionMode mode = app.getExecutionMode();
     for (Route route : routes) {
       String executorKey = route.getExecutorKey();
       Executor executor;
@@ -538,6 +538,8 @@ public class RouterImpl implements Router {
       /** Final render */
       route.setEncoder(encoder);
     }
+    ((Chi)chi).setEncoder(encoder);
+
     /** router options: */
     if (routerOptions.contains(RouterOption.IGNORE_CASE)) {
       chi = new RouteTreeLowerCasePath(chi);

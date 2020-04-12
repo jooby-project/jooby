@@ -591,8 +591,8 @@ public class ForwardingContext implements Context {
   }
 
   @Nonnull @Override
-  public Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
-    ctx.sendError(cause, statusCode);
+  public Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode code) {
+    ctx.sendError(cause, code);
     return this;
   }
 
