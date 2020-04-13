@@ -232,30 +232,16 @@ public interface DefaultContext extends Context {
   }
 
   @Override default @Nonnull String getRequestURL(@Nonnull String path, boolean useProxy) {
-    String scheme, hostAndPort;
-    if (useProxy && !header("X-Forwarded-Host").isMissing()) {
-      scheme = header("X-Forwarded-Proto").value(getScheme());
-      hostAndPort = getHostAndPort(true);
-    } else {
-      scheme = getScheme();
-      hostAndPort = getHostAndPort(false);
-    }
-    String host, port;
-    int i = hostAndPort.lastIndexOf(':');
-    if (i > 0) {
-      host = hostAndPort.substring(0, i).trim();
-      port = hostAndPort.substring(i + 1).trim();
-    } else {
-      host = hostAndPort;
-      port = "";
-    }
+    String scheme = getScheme();
+    String host = getHost();
+    int port = getPort();
     StringBuilder url = new StringBuilder();
     url.append(scheme).append("://").append(host);
-    if (port.length() > 0 && !port.equals("80") && !port.equals("443")) {
+    if (port > 0 && port != PORT && port != SECURE_PORT) {
       url.append(":").append(port);
     }
     if (path == null || path.length() == 0) {
-      url.append(pathString());
+      url.append(getRequestPath());
     } else {
       String contextPath = getContextPath();
       if (contextPath.equals("/")) {
@@ -287,6 +273,10 @@ public interface DefaultContext extends Context {
     return contentLength.isMissing() ? -1 : contentLength.longValue();
   }
 
+  @Override default @Nullable String getHostAndPort() {
+    return getHostAndPort(false);
+  }
+
   @Override default @Nullable String getHostAndPort(boolean useProxy) {
     return header(useProxy ? "X-Forwarded-Host" : "Host").toOptional()
         .map(value -> {
@@ -311,7 +301,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override default int getPort() {
-    String hostAndPort = getHostAndPort(false);
+    String hostAndPort = getHostAndPort();
     if (hostAndPort != null) {
       int index = hostAndPort.indexOf(':');
       if (index > 0) {
@@ -323,7 +313,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override default @Nonnull String getHost() {
-    String hostAndPort = getHostAndPort(false);
+    String hostAndPort = getHostAndPort();
     if (hostAndPort != null) {
       int index = hostAndPort.indexOf(':');
       return index > 0 ? hostAndPort.substring(0, index).trim() : hostAndPort;

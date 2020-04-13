@@ -86,6 +86,9 @@ public class UtowContext implements DefaultContext, IoCallback {
   private final String method;
   private String requestPath;
   private UtowCompletionListener completionListener;
+  private String remoteAddress;
+  private String host;
+  private int port;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -164,8 +167,22 @@ public class UtowContext implements DefaultContext, IoCallback {
     return exchange.isInIoThread();
   }
 
+  @Nonnull @Override public String getHost() {
+    return host == null ? DefaultContext.super.getHost() : host;
+  }
+
+  @Nonnull @Override public Context setHost(@Nonnull String host) {
+    this.host = host;
+    return this;
+  }
+
   @Nonnull @Override public String getRemoteAddress() {
-    return exchange.getSourceAddress().getHostString();
+    return remoteAddress == null ? exchange.getSourceAddress().getHostString() : remoteAddress;
+  }
+
+  @Nonnull @Override public Context setRemoteAddress(@Nonnull String remoteAddress) {
+    this.remoteAddress = remoteAddress;
+    return this;
   }
 
   @Nonnull @Override public String getProtocol() {
@@ -175,6 +192,20 @@ public class UtowContext implements DefaultContext, IoCallback {
   @Nonnull @Override public String getScheme() {
     String scheme = exchange.getRequestScheme();
     return scheme == null ? "http" : scheme.toLowerCase();
+  }
+
+  @Nonnull @Override public Context setScheme(@Nonnull String scheme) {
+    exchange.setRequestScheme(scheme);
+    return this;
+  }
+
+  @Override public int getPort() {
+    return port > 0 ? port : DefaultContext.super.getPort();
+  }
+
+  @Nonnull @Override public Context setPort(int port) {
+    this.port = port;
+    return this;
   }
 
   @Nonnull @Override public Value header(@Nonnull String name) {

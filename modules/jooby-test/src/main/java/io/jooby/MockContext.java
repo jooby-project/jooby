@@ -86,8 +86,25 @@ public class MockContext implements DefaultContext {
 
   private MockRouter mockRouter;
 
+  private String remoteAddress = "0.0.0.0";
+
+  private String host;
+
+  private String scheme = "http";
+
+  private int port = -1;
+
   @Nonnull @Override public String getMethod() {
     return method;
+  }
+
+  @Nonnull @Override public Context setPort(int port) {
+    this.port = port;
+    return this;
+  }
+
+  @Override public int getPort() {
+    return port;
   }
 
   /**
@@ -498,8 +515,22 @@ public class MockContext implements DefaultContext {
     };
   }
 
+  @Nonnull @Override public String getHost() {
+    return host;
+  }
+
+  @Nonnull @Override public Context setHost(@Nonnull String host) {
+    this.host = host;
+    return this;
+  }
+
   @Nonnull @Override public String getRemoteAddress() {
-    return "0.0.0.0";
+    return remoteAddress;
+  }
+
+  @Nonnull @Override public Context setRemoteAddress(@Nonnull String remoteAddress) {
+    this.remoteAddress = remoteAddress;
+    return this;
   }
 
   @Nonnull @Override public String getProtocol() {
@@ -507,7 +538,12 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public String getScheme() {
-    return "http";
+    return scheme;
+  }
+
+  @Nonnull @Override public Context setScheme(@Nonnull String scheme) {
+    this.scheme = scheme;
+    return this;
   }
 
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {

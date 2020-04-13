@@ -2709,14 +2709,16 @@ public class FeaturedTest {
   @ServerTest
   public void requestUrl(ServerTestRunner runner) {
     runner.define(app -> {
-      app.get("/{path}", ctx -> ctx.getRequestURL(ctx.query("useProxy").booleanValue(false)));
+      app.decorator(new ProxyPeerAddressHandler());
+
+      app.get("/{path}", ctx -> ctx.getRequestURL());
     }).ready(client -> {
       client.get("/somepath", rsp -> {
         assertEquals("http://localhost:" + client.getPort() + "/somepath", rsp.body().string());
       });
       client.header("X-Forwarded-Host", "myhost");
       client.get("/somepath", rsp -> {
-        assertEquals("http://localhost:" + client.getPort() + "/somepath", rsp.body().string());
+        assertEquals("http://myhost/somepath", rsp.body().string());
       });
       client.header("X-Forwarded-Host", "myhost");
       client.header("X-Forwarded-Proto", "https");
@@ -2741,6 +2743,7 @@ public class FeaturedTest {
   @ServerTest
   public void requestUrlWithContextPath(ServerTestRunner runner) {
     runner.define(app -> {
+      app.decorator(new ProxyPeerAddressHandler());
       app.setContextPath("/x");
       app.get("/{path}", ctx -> ctx.getRequestURL(ctx.query("useProxy").booleanValue(false)));
     }).ready(client -> {
@@ -2749,7 +2752,7 @@ public class FeaturedTest {
       });
       client.header("X-Forwarded-Host", "myhost");
       client.get("/x/somepath", rsp -> {
-        assertEquals("http://localhost:" + client.getPort() + "/x/somepath", rsp.body().string());
+        assertEquals("http://myhost/x/somepath", rsp.body().string());
       });
       client.header("X-Forwarded-Host", "myhost");
       client.header("X-Forwarded-Proto", "https");

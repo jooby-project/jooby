@@ -22,6 +22,9 @@ public class SSLHandler implements Route.Before {
   /**
    * Creates a SSLHandler and redirect non-HTTPS request to the given host and port.
    *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   *
    * @param host Host to redirect.
    * @param port HTTP port.
    */
@@ -33,6 +36,9 @@ public class SSLHandler implements Route.Before {
   /**
    * Creates a SSLHandler and redirect non-HTTPS request to the given host.
    *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   *
    * @param host Host to redirect.
    */
   public SSLHandler(@Nonnull String host) {
@@ -43,10 +49,15 @@ public class SSLHandler implements Route.Before {
    * Creates a SSLHandler and redirect non-HTTPs requests to the HTTPS version of this call. Host
    * is recreated from <code>Host</code> header or <code>X-Forwarded-Host</code>.
    *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   *
    * @param useProxy True for trust/use the <code>X-Forwarded-Host</code>. Otherwise, only the
    *     <code>Host</code> header is used it.
    * @param port HTTPS port.
+   * @deprecated Use {@link ProxyPeerAddressHandler}.
    */
+  @Deprecated
   public SSLHandler(boolean useProxy, int port) {
     this.host = null;
     this.port = port;
@@ -55,11 +66,16 @@ public class SSLHandler implements Route.Before {
 
   /**
    * Creates a SSLHandler and redirect non-HTTPs requests to the HTTPS version of this call. Host
-   * is recreated from <code>Host</code> header or <code>X-Forwarded-Host</code>.
+   * is recreated from <code>Host</code> header.
+   *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.*
    *
    * @param useProxy True for trust/use the <code>X-Forwarded-Host</code>. Otherwise, only the
    *     <code>Host</code> header is used it.
+   * @deprecated Use {@link ProxyPeerAddressHandler}.
    */
+  @Deprecated
   public SSLHandler(boolean useProxy) {
     this(useProxy, SECURE_PORT);
   }
@@ -67,7 +83,7 @@ public class SSLHandler implements Route.Before {
   @Override public void apply(@Nonnull Context ctx) {
     if (!ctx.isSecure()) {
       String host;
-        if (this.host == null) {
+      if (this.host == null) {
         String hostAndPort = ctx.getHostAndPort(useProxy);
         int i = hostAndPort.lastIndexOf(':');
         host = i > 0 ? hostAndPort.substring(0, i) : hostAndPort;

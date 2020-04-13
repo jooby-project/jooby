@@ -24,15 +24,21 @@ import java.util.stream.Stream;
  */
 public class ServerOptions {
 
+  /** Default  port <code>80</code>. */
+  public static final int PORT = 80;
+
+  /** Default  port <code>443</code>. */
+  public static final int SECURE_PORT = 443;
+
   /** Default application port <code>8080</code> or the value of system property <code>server.port</code>. */
-  public static final int DEFAULT_PORT = Integer
+  public static final int SERVER_PORT = Integer
       .parseInt(System.getProperty("server.port", "8080"));
 
   /**
    * Default application secure port <code>8443</code> or the value of system property
    * <code>server.securePort</code>.
    */
-  public static final int DEFAULT_SECURE_PORT = Integer
+  public static final int SEVER_SECURE_PORT = Integer
       .parseInt(System.getProperty("server.securePort", "8443"));
 
   /** 4kb constant in bytes. */
@@ -58,7 +64,7 @@ public class ServerOptions {
   public static final int WORKER_THREADS = Runtime.getRuntime().availableProcessors() * 8;
 
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */
-  private int port = DEFAULT_PORT;
+  private int port = SERVER_PORT;
 
   /** Number of IO threads used by the server. Used by Netty and Undertow. */
   private Integer ioThreads;
@@ -436,7 +442,7 @@ public class ServerOptions {
    */
   public @Nullable SSLContext getSSLContext(@Nonnull ClassLoader loader) {
     if (isSSLEnabled()) {
-      setSecurePort(Optional.ofNullable(securePort).orElse(DEFAULT_SECURE_PORT));
+      setSecurePort(Optional.ofNullable(securePort).orElse(SEVER_SECURE_PORT));
       setSsl(Optional.ofNullable(ssl).orElseGet(SslOptions::selfSigned));
       SslOptions options = getSsl();
       SslContextProvider provider = Stream.of(SslContextProvider.providers())

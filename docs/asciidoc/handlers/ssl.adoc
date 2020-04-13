@@ -12,7 +12,7 @@ import io.jooby.SSLHandler;
   
   setServerOptions(new ServerOptions().setSecurePort(8443));
 
-  before(new SSLHandler(false)); <1>
+  before(new SSLHandler()); <1>
   
   get("/", ctx -> {
     return ctx.getScheme();
@@ -31,7 +31,7 @@ import io.jooby.SSHandler
     securePort = 8443
   }
 
-  before(SSLHandler(false))      <1>
+  before(SSLHandler())      <1>
   
   get("/") {
     ...
@@ -42,7 +42,8 @@ import io.jooby.SSHandler
 <1> Install SSLHandler
 
 The SSL Handler recreates the HTTPs URL version using the `Host` header, if you are behind a proxy
-you will need to use the `X-Forwarded-Host` header. To do that just pass `true` to the SSLHandler.
+you will need to use the `X-Forwarded-Host` header. To do that install the 
+<<handlers-proxypeeraddresshandler, ProxyPeerAddressHandler>> into your pipeline.
 
 Optionally, you can specify the host to use:
 
@@ -84,3 +85,9 @@ import io.jooby.SSHandler
 ----
 
 For more information about SSL, please check the <<server-ssl, configure SSL>> section.
+
+[TIP]
+====
+If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+please consider to add the link:proxy-peer-address.adoc[] to your pipeline.
+====

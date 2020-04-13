@@ -219,8 +219,18 @@ public class ForwardingContext implements Context {
     return ctx.getRemoteAddress();
   }
 
+  @Nonnull @Override public Context setRemoteAddress(@Nonnull String remoteAddress) {
+    ctx.setRemoteAddress(remoteAddress);
+    return this;
+  }
+
   @Nonnull @Override public String getHost() {
     return ctx.getHost();
+  }
+
+  @Nonnull @Override public Context setHost(@Nonnull String host) {
+    ctx.setHost(host);
+    return this;
   }
 
   @Override public int getServerPort() {
@@ -233,6 +243,15 @@ public class ForwardingContext implements Context {
 
   @Override public int getPort() {
     return ctx.getPort();
+  }
+
+  @Nonnull @Override public Context setPort(int port) {
+    this.ctx.setPort(port);
+    return this;
+  }
+
+  @Nonnull @Override public String getHostAndPort() {
+    return ctx.getHostAndPort();
   }
 
   @Nullable @Override public String getHostAndPort(boolean useProxy) {
@@ -261,6 +280,11 @@ public class ForwardingContext implements Context {
 
   @Override @Nonnull public String getScheme() {
     return ctx.getScheme();
+  }
+
+  @Nonnull @Override public Context setScheme(@Nonnull String scheme) {
+    this.ctx.setScheme(scheme);
+    return this;
   }
 
   @Override @Nonnull public Formdata form() {

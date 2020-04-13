@@ -1,0 +1,54 @@
+=== ProxyPeerAddressHandler
+
+The javadoc:ProxyPeerAddressHandler[] handles `X-Forwarded-*` headers by updating the values on the 
+current context to match what was sent in the header(s).
+
+This should only be installed behind a reverse proxy that has been configured to send the
+`X-Forwarded-*` header, otherwise a remote user can spoof their address by sending a header with
+bogus values.
+
+.Usage
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.ProxyPeerAddressHandler;
+...
+{
+  
+  decorator(new ProxyPeerAddressHandler());           <1>
+
+  get("/", ctx -> {
+    String remoteAddress = ctx.getRemoteAddress();    <2>
+    String scheme = ctx.getScheme();                  <3>
+    String host = ctx.getHost();                      <4>
+    int port = ctx.getPort();                         <5>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.ProxyPeerAddressHandler
+...
+{
+  decorator(ProxyPeerAddressHandler())                <1>
+  
+  get("/") {
+    val remoteAddress = ctx.remoteAddress             <2>
+    val scheme = ctx.scheme                           <3>
+    val host = ctx.host                               <4>
+    val port = ctx.port                               <5>
+    ...
+  }
+}
+----
+
+<1> Install ProxyPeerAddressHandler
+<2> Set `remote address` from `X-Forwarded-For`
+<3> Set `scheme` from `X-Forwarded-Proto`
+<4> Set `host` from `X-Forwarded-Host`
+<5> Set `port` from `X-Forwarded-Host` or `X-Forwarded-Port`
+

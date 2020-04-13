@@ -54,3 +54,8 @@ Extra request or response headers can be appended at the end using the available
 - javadoc:AccessLogHandler[requestHeader, java.lang.String...]
 - javadoc:AccessLogHandler[responseHeader, java.lang.String...]
 
+[TIP]
+====
+If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+please consider to add the <<handlers-proxypeeraddresshandler, ProxyPeerAddressHandler>> to your pipeline.
+====

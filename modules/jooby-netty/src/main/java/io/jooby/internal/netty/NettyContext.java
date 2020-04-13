@@ -55,7 +55,6 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -131,6 +130,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   NettyWebSocket webSocket;
   private final String method;
   private CompletionListeners listeners;
+  private String remoteAddress;
+  private String host;
+  private String scheme;
+  private int port;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -238,11 +241,28 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return Value.create(this, name, req.headers().getAll(name));
   }
 
+  @Nonnull @Override public String getHost() {
+    return host == null ? DefaultContext.super.getHost() : host;
+  }
+
+  @Nonnull @Override public Context setHost(@Nonnull String host) {
+    this.host = host;
+    return this;
+  }
+
   @Nonnull @Override public String getRemoteAddress() {
-    InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-    String hostAddress = remoteAddress.getAddress().getHostAddress();
-    int i = hostAddress.lastIndexOf('%');
-    return i > 0 ? hostAddress.substring(0, i) : hostAddress;
+    if (this.remoteAddress == null) {
+      InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+      String hostAddress = remoteAddress.getAddress().getHostAddress();
+      int i = hostAddress.lastIndexOf('%');
+      this.remoteAddress = i > 0 ? hostAddress.substring(0, i) : hostAddress;
+    }
+    return remoteAddress;
+  }
+
+  @Nonnull @Override public Context setRemoteAddress(@Nonnull String remoteAddress) {
+    this.remoteAddress = remoteAddress;
+    return this;
   }
 
   @Nonnull @Override public String getProtocol() {
@@ -250,7 +270,24 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Nonnull @Override public String getScheme() {
-    return ctx.pipeline().get("ssl") == null ? "http" : "https";
+    if (scheme == null) {
+      scheme = ctx.pipeline().get("ssl") == null ? "http" : "https";
+    }
+    return scheme;
+  }
+
+  @Nonnull @Override public Context setScheme(@Nonnull String scheme) {
+    this.scheme = scheme;
+    return this;
+  }
+
+  @Override public int getPort() {
+    return port > 0 ? port : DefaultContext.super.getPort();
+  }
+
+  @Nonnull @Override public Context setPort(int port) {
+    this.port = port;
+    return this;
   }
 
   @Nonnull @Override public ValueNode header() {

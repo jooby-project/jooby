@@ -452,12 +452,18 @@ public interface Context extends Registry {
   /**
    * Recreates full/entire request url using the <code>Host</code> header.
    *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   *
    * @return Full/entire request url using the <code>Host</code> header.
    */
   @Nonnull String getRequestURL();
 
   /**
    * Recreates full/entire request url using the <code>Host</code> header.
+   *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
    *
    * @param path Path to use.
    * @return Full/entire request url using the <code>Host</code> header.
@@ -471,7 +477,9 @@ public interface Context extends Registry {
    * @param useProxy True to trust/use the <code>X-Forwarded-Host</code>.
    * @return Full/entire request url using the <code>X-Forwarded-Host</code> when present
    *     or fallback to <code>Host</code> header when missing.
+   * @deprecated Use {@link ProxyPeerAddressHandler}.
    */
+  @Deprecated
   @Nonnull String getRequestURL(boolean useProxy);
 
   /**
@@ -482,24 +490,63 @@ public interface Context extends Registry {
    * @param useProxy True to trust/use the <code>X-Forwarded-Host</code>.
    * @return Full/entire request url using the <code>X-Forwarded-Host</code> when present
    *     or fallback to <code>Host</code> header when missing.
+   * @deprecated Use {@link ProxyPeerAddressHandler}.
    */
+  @Deprecated
   @Nonnull String getRequestURL(@Nonnull String path, boolean useProxy);
 
   /**
    * The IP address of the client or last proxy that sent the request.
+   *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
    *
    * @return The IP address of the client or last proxy that sent the request.
    */
   @Nonnull String getRemoteAddress();
 
   /**
+   * Set IP address of client or last proxy that sent the request.
+   *
+   * @param remoteAddress Remote Address.
+   * @return This context.
+   */
+  @Nonnull Context setRemoteAddress(@Nonnull String remoteAddress);
+
+  /**
    * Return the host that this request was sent to, in general this will be the
-   * value of the Host header, minus the port specifier.
+   * value of the Host header, minus the port specifier. Unless, it is set manually using the
+   * {@link #setHost(String)} method.
+   *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
    *
    * @return Return the host that this request was sent to, in general this will be the
    *     value of the Host header, minus the port specifier.
    */
   @Nonnull String getHost();
+
+  /**
+   * Set the host (without the port value).
+   *
+   * Please keep in mind this method doesn't alter/modify the <code>host</code> header.
+   *
+   * @param host Host value.
+   * @return This context.
+   */
+  @Nonnull Context setHost(@Nonnull String host);
+
+  /**
+   * Return the host and port that this request was sent to, in general this will be the
+   * value of the Host.
+   *
+   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   *
+   * @return Return the host that this request was sent to, in general this will be the
+   *     value of the Host header.
+   */
+  @Nonnull String getHostAndPort();
 
   /**
    * Return the host and port that this request was sent to, in general this will be the
@@ -508,17 +555,29 @@ public interface Context extends Registry {
    * @param useProxy When true this method looks for host data in the X-Forwarded-Host header.
    * @return Return the host that this request was sent to, in general this will be the
    *     value of the Host header.
+   * @deprecated Use {@link ProxyPeerAddressHandler}.
    */
-  @Nullable String getHostAndPort(boolean useProxy);
+  @Deprecated
+  @Nonnull String getHostAndPort(boolean useProxy);
 
   /**
    * Return the port that this request was sent to. In general this will be the value of the Host
    * header, minus the host name.
    *
-   * @return Return the port that this request was sent to. In general this will be the value of the Host
-   *     header, minus the host name.
+   * If no host header is present, this method returns the value of {@link #getServerPort()}.
+   *
+   * @return Return the port that this request was sent to. In general this will be the value of
+   *    the Host header, minus the host name.
    */
   int getPort();
+
+  /**
+   * Set port this request was sent to.
+   *
+   * @param port Port.
+   * @return This context.
+   */
+  @Nonnull Context setPort(int port);
 
   /**
    * The name of the protocol the request. Always in lower-case.
@@ -556,6 +615,14 @@ public interface Context extends Registry {
    * @return HTTP scheme in lower case.
    */
   @Nonnull String getScheme();
+
+  /**
+   * Set HTTP scheme in lower case.
+   *
+   * @param scheme HTTP scheme in lower case.
+   * @return This context.
+   */
+  @Nonnull Context setScheme(@Nonnull String scheme);
 
   /* **********************************************************************************************
    * Form API

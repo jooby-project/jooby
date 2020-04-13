@@ -67,7 +67,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
@@ -97,6 +96,10 @@ public class JettyContext implements DefaultContext {
   private final String method;
   private String requestPath;
   private CompletionListeners listeners;
+  private String remoteAddress;
+  private String host;
+  private String scheme;
+  private int port;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
@@ -239,8 +242,31 @@ public class JettyContext implements DefaultContext {
     return headers;
   }
 
+  @Nonnull @Override public String getHost() {
+    return host == null ? DefaultContext.super.getHost() : host;
+  }
+
+  @Nonnull @Override public Context setHost(@Nonnull String host) {
+    this.host = host;
+    return this;
+  }
+
+  @Override public int getPort() {
+    return port > 0 ? port : DefaultContext.super.getPort();
+  }
+
+  @Nonnull @Override public Context setPort(int port) {
+    this.port = port;
+    return this;
+  }
+
   @Nonnull @Override public String getRemoteAddress() {
-    return request.getRemoteAddr();
+    return remoteAddress == null ? request.getRemoteAddr() : remoteAddress;
+  }
+
+  @Nonnull @Override public Context setRemoteAddress(@Nonnull String remoteAddress) {
+    this.remoteAddress = remoteAddress;
+    return this;
   }
 
   @Nonnull @Override public String getProtocol() {
@@ -248,7 +274,15 @@ public class JettyContext implements DefaultContext {
   }
 
   @Nonnull @Override public String getScheme() {
-    return request.isSecure() ? "https" : "http";
+    if (scheme == null) {
+      scheme = request.isSecure() ? "https" : "http";
+    }
+    return scheme;
+  }
+
+  @Nonnull @Override public Context setScheme(@Nonnull String scheme) {
+    this.scheme = scheme;
+    return this;
   }
 
   @Override public boolean isInIoThread() {

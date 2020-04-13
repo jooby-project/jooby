@@ -28,6 +28,10 @@ import static java.util.Objects.requireNonNull;
  * <a href="https://en.wikipedia.org/wiki/Common_Log_Format">NCSA format</a> (a.k.a common log
  * format).
  * </p>
+ *
+ * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+ * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+ *
  * <h2>usage</h2>
  *
  * <pre>{@code
