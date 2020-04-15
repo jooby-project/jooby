@@ -11,19 +11,21 @@ import javax.annotation.Nonnull;
  * Force SSL handler. Check for non-HTTPs request and force client to use HTTPs by redirecting the
  * call to the HTTPs version.
  *
+ * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+ * please consider to set {@link Router#setTrustProxy(boolean)} option.
+ *
  * @author edgar
  */
 public class SSLHandler implements Route.Before {
   private static final int SECURE_PORT = 443;
   private final String host;
   private final int port;
-  private boolean useProxy;
 
   /**
    * Creates a SSLHandler and redirect non-HTTPS request to the given host and port.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @param host Host to redirect.
    * @param port HTTP port.
@@ -37,7 +39,7 @@ public class SSLHandler implements Route.Before {
    * Creates a SSLHandler and redirect non-HTTPS request to the given host.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @param host Host to redirect.
    */
@@ -50,18 +52,15 @@ public class SSLHandler implements Route.Before {
    * is recreated from <code>Host</code> header or <code>X-Forwarded-Host</code>.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
-   * @param useProxy True for trust/use the <code>X-Forwarded-Host</code>. Otherwise, only the
-   *     <code>Host</code> header is used it.
    * @param port HTTPS port.
-   * @deprecated Use {@link ProxyPeerAddressHandler}.
+   * @deprecated Use {@link Router#setTrustProxy(boolean)}.
    */
   @Deprecated
-  public SSLHandler(boolean useProxy, int port) {
+  public SSLHandler(int port) {
     this.host = null;
     this.port = port;
-    this.useProxy = useProxy;
   }
 
   /**
@@ -69,22 +68,17 @@ public class SSLHandler implements Route.Before {
    * is recreated from <code>Host</code> header.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.*
-   *
-   * @param useProxy True for trust/use the <code>X-Forwarded-Host</code>. Otherwise, only the
-   *     <code>Host</code> header is used it.
-   * @deprecated Use {@link ProxyPeerAddressHandler}.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    */
-  @Deprecated
-  public SSLHandler(boolean useProxy) {
-    this(useProxy, SECURE_PORT);
+  public SSLHandler() {
+    this(SECURE_PORT);
   }
 
   @Override public void apply(@Nonnull Context ctx) {
     if (!ctx.isSecure()) {
       String host;
       if (this.host == null) {
-        String hostAndPort = ctx.getHostAndPort(useProxy);
+        String hostAndPort = ctx.getHostAndPort();
         int i = hostAndPort.lastIndexOf(':');
         host = i > 0 ? hostAndPort.substring(0, i) : hostAndPort;
       } else {

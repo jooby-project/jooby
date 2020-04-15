@@ -305,7 +305,7 @@ public class Pac4jModule implements Extension {
     /** Default URL resolver if none was set at client level: */
     clients.setUrlResolver(
         ofNullable(clients.getUrlResolver())
-            .orElseGet(() -> newUrlResolver(options.isTrustProxy())));
+            .orElseGet(() -> newUrlResolver()));
 
     /** Clients are ready, set all them: */
     clients.setClients(
@@ -452,11 +452,10 @@ public class Pac4jModule implements Extension {
   /**
    * Default url resolver.
    *
-   * @param trustProxy When true, we reconstruct urls from X-Proto-* header.
    * @return Default url resolver.
    */
-  public static final UrlResolver newUrlResolver(boolean trustProxy) {
-    return new UrlResolverImpl(trustProxy);
+  public static final UrlResolver newUrlResolver() {
+    return new UrlResolverImpl();
   }
 
   private Map<String, ProtectedPath> initializeClients(Config pac4j) {

@@ -29,7 +29,7 @@ public class LogoutImpl implements Route.Handler {
     if (redirectTo == null || redirectTo.length() == 0) {
       redirectTo = options.getDefaultUrl();
     }
-    redirectTo = ctx.getRequestURL(redirectTo, options.isTrustProxy());
+    redirectTo = ctx.getRequestURL(redirectTo);
     return config.getLogoutLogic()
         .perform(Pac4jContext.create(ctx, options), config, config.getHttpActionAdapter(), redirectTo,
             null, options.isLocalLogout(), options.isDestroySession(), options.isCentralLogout());

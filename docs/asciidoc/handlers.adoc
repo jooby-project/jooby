@@ -10,8 +10,6 @@ include::handlers/csrf.adoc[]
 
 include::handlers/head.adoc[]
 
-include::handlers/proxy-peer-address.adoc[]
-
 include::handlers/rate-limit.adoc[]
 
 include::handlers/ssl.adoc[]

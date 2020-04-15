@@ -11,14 +11,8 @@ import org.pac4j.core.http.url.UrlResolver;
 
 public class UrlResolverImpl implements UrlResolver {
 
-  private boolean trustProxy;
-
-  public UrlResolverImpl(boolean trustProxy) {
-    this.trustProxy = trustProxy;
-  }
-
   @Override public String compute(String path, WebContext context) {
-    String requestURL = ((Pac4jContext) context).getContext().getRequestURL(path, trustProxy);
+    String requestURL = ((Pac4jContext) context).getContext().getRequestURL(path);
     // no query String
     int i = requestURL.indexOf('?');
     return i > 0 ? requestURL.substring(0, i) : requestURL;

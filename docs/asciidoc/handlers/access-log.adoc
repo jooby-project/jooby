@@ -57,5 +57,5 @@ Extra request or response headers can be appended at the end using the available
 [TIP]
 ====
 If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-please consider to add the <<handlers-proxypeeraddresshandler, ProxyPeerAddressHandler>> to your pipeline.
+please consider to use <<router-trust-proxy, trust proxy>> option.
 ====

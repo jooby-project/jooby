@@ -5,11 +5,16 @@
  */
 package io.jooby.pac4j;
 
+import io.jooby.Router;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
  * Options to configure pac4j security, callback and logout actions.
+ *
+ * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+ * please consider to set {@link Router#setTrustProxy(boolean)} option.
  *
  * @author edgar
  * @since 2.4.0
@@ -33,8 +38,6 @@ public class Pac4jOptions {
   private boolean localLogout = true;
 
   private boolean destroySession = true;
-
-  private boolean trustProxy;
 
   private boolean centralLogout;
 
@@ -245,27 +248,6 @@ public class Pac4jOptions {
    */
   public @Nonnull Pac4jOptions setDestroySession(boolean destroySession) {
     this.destroySession = destroySession;
-    return this;
-  }
-
-  /**
-   * True for using the <code>X-Forwarded-*</code> headers to generates URL. Defauls to: false.
-   * See {@link io.jooby.Context#getRequestURL(boolean)}.
-   *
-   * @return Whether trust on <code>X-Forwarded-*</code> headers.
-   */
-  public boolean isTrustProxy() {
-    return trustProxy;
-  }
-
-  /**
-   * Set whether trust on <code>X-Forwarded-*</code> headers.
-   *
-   * @param trustProxy True or using <code>X-Forwarded-*</code> headers.
-   * @return This options.
-   */
-  public @Nonnull Pac4jOptions setTrustProxy(boolean trustProxy) {
-    this.trustProxy = trustProxy;
     return this;
   }
 }

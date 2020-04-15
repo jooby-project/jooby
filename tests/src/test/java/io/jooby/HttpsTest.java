@@ -51,12 +51,12 @@ public class HttpsTest {
   @ServerTest
   public void forceSSL(ServerTestRunner runner) {
     runner.define(app -> {
-
+      app.setTrustProxy(true);
       app.setContextPath("/secure");
 
       app.setServerOptions(new ServerOptions().setSecurePort(8433));
 
-      app.before(new SSLHandler(true));
+      app.before(new SSLHandler());
 
       app.get("/{path}", ctx -> ctx.getRequestPath());
     }).dontFollowRedirects().ready((http, https) -> {
@@ -78,10 +78,11 @@ public class HttpsTest {
   @ServerTest
   public void forceSSL2(ServerTestRunner runner) {
     runner.define(app -> {
+      app.setTrustProxy(true);
 
       app.setServerOptions(new ServerOptions().setSecurePort(8433));
 
-      app.before(new SSLHandler(true));
+      app.before(new SSLHandler());
 
       app.get("/{path}", ctx -> ctx.getRequestPath());
     }).dontFollowRedirects().ready((http, https) -> {

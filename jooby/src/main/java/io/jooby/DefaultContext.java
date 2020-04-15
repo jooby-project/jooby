@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /***
  * Like {@link Context} but with couple of default methods.
@@ -220,18 +221,10 @@ public interface DefaultContext extends Context {
   }
 
   @Override default @Nonnull String getRequestURL() {
-    return getRequestURL(false);
+    return getRequestURL("");
   }
 
   @Override default @Nonnull String getRequestURL(@Nonnull String path) {
-    return getRequestURL(path, false);
-  }
-
-  @Override default @Nonnull String getRequestURL(boolean useProxy) {
-    return getRequestURL("", useProxy);
-  }
-
-  @Override default @Nonnull String getRequestURL(@Nonnull String path, boolean useProxy) {
     String scheme = getScheme();
     String host = getHost();
     int port = getPort();
@@ -274,20 +267,17 @@ public interface DefaultContext extends Context {
   }
 
   @Override default @Nullable String getHostAndPort() {
-    return getHostAndPort(false);
-  }
-
-  @Override default @Nullable String getHostAndPort(boolean useProxy) {
-    return header(useProxy ? "X-Forwarded-Host" : "Host").toOptional()
-        .map(value -> {
-          int i = value.indexOf(',');
-          String host = i > 0 ? value.substring(0, i).trim() : value;
-          if (host.startsWith("[") && host.endsWith("]")) {
-            return host.substring(1, host.length() - 1).trim();
-          }
-          return host;
-        })
-        .orElseGet(() -> getServerHost() + ":" + getServerPort());
+    Optional<String> header = getRouter().isTrustProxy()
+        ? header("X-Forwarded-Host").toOptional()
+        : Optional.empty();
+    String value = header
+        .orElseGet(() -> header("Host").value(getServerHost() + ":" + getServerPort()));
+    int i = value.indexOf(',');
+    String host = i > 0 ? value.substring(0, i).trim() : value;
+    if (host.startsWith("[") && host.endsWith("]")) {
+      return host.substring(1, host.length() - 1).trim();
+    }
+    return host;
   }
 
   @Override default @Nonnull String getServerHost() {

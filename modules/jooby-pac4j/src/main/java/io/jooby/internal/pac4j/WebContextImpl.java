@@ -106,7 +106,7 @@ public class WebContextImpl implements Pac4jContext {
   }
 
   @Override public String getFullRequestURL() {
-    return context.getRequestURL(options.isTrustProxy());
+    return context.getRequestURL();
   }
 
   @Override public Collection<Cookie> getRequestCookies() {

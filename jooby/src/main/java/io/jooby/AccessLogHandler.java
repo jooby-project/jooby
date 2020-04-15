@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
  * </p>
  *
  * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
- * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+ * please consider to set {@link Router#setTrustProxy(boolean)} option.
  *
  * <h2>usage</h2>
  *

@@ -2709,7 +2709,7 @@ public class FeaturedTest {
   @ServerTest
   public void requestUrl(ServerTestRunner runner) {
     runner.define(app -> {
-      app.decorator(new ProxyPeerAddressHandler());
+      app.setTrustProxy(true);
 
       app.get("/{path}", ctx -> ctx.getRequestURL());
     }).ready(client -> {
@@ -2743,9 +2743,9 @@ public class FeaturedTest {
   @ServerTest
   public void requestUrlWithContextPath(ServerTestRunner runner) {
     runner.define(app -> {
-      app.decorator(new ProxyPeerAddressHandler());
+      app.setTrustProxy(true);
       app.setContextPath("/x");
-      app.get("/{path}", ctx -> ctx.getRequestURL(ctx.query("useProxy").booleanValue(false)));
+      app.get("/{path}", ctx -> ctx.getRequestURL());
     }).ready(client -> {
       client.get("/x/somepath", rsp -> {
         assertEquals("http://localhost:" + client.getPort() + "/x/somepath", rsp.body().string());

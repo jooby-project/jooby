@@ -254,24 +254,12 @@ public class ForwardingContext implements Context {
     return ctx.getHostAndPort();
   }
 
-  @Nullable @Override public String getHostAndPort(boolean useProxy) {
-    return ctx.getHostAndPort(useProxy);
-  }
-
   @Nonnull @Override public String getRequestURL() {
     return ctx.getRequestURL();
   }
 
-  @Nonnull @Override public String getRequestURL(boolean useProxy) {
-    return ctx.getRequestURL(useProxy);
-  }
-
   @Nonnull @Override public String getRequestURL(@Nonnull String path) {
     return ctx.getRequestURL(path);
-  }
-
-  @Nonnull @Override public String getRequestURL(@Nonnull String path, boolean useProxy) {
-    return ctx.getRequestURL(path, useProxy);
   }
 
   @Override @Nonnull public String getProtocol() {

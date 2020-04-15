@@ -453,7 +453,7 @@ public interface Context extends Registry {
    * Recreates full/entire request url using the <code>Host</code> header.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @return Full/entire request url using the <code>Host</code> header.
    */
@@ -463,7 +463,7 @@ public interface Context extends Registry {
    * Recreates full/entire request url using the <code>Host</code> header.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @param path Path to use.
    * @return Full/entire request url using the <code>Host</code> header.
@@ -471,35 +471,10 @@ public interface Context extends Registry {
   @Nonnull String getRequestURL(@Nonnull String path);
 
   /**
-   * Recreates full/entire request url using the <code>X-Forwarded-Host</code> when present
-   * or fallback to <code>Host</code> header when missing.
-   *
-   * @param useProxy True to trust/use the <code>X-Forwarded-Host</code>.
-   * @return Full/entire request url using the <code>X-Forwarded-Host</code> when present
-   *     or fallback to <code>Host</code> header when missing.
-   * @deprecated Use {@link ProxyPeerAddressHandler}.
-   */
-  @Deprecated
-  @Nonnull String getRequestURL(boolean useProxy);
-
-  /**
-   * Recreates full/entire request url using the <code>X-Forwarded-Host</code> when present
-   * or fallback to <code>Host</code> header when missing.
-   *
-   * @param path Path to use.
-   * @param useProxy True to trust/use the <code>X-Forwarded-Host</code>.
-   * @return Full/entire request url using the <code>X-Forwarded-Host</code> when present
-   *     or fallback to <code>Host</code> header when missing.
-   * @deprecated Use {@link ProxyPeerAddressHandler}.
-   */
-  @Deprecated
-  @Nonnull String getRequestURL(@Nonnull String path, boolean useProxy);
-
-  /**
    * The IP address of the client or last proxy that sent the request.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @return The IP address of the client or last proxy that sent the request.
    */
@@ -519,7 +494,7 @@ public interface Context extends Registry {
    * {@link #setHost(String)} method.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @return Return the host that this request was sent to, in general this will be the
    *     value of the Host header, minus the port specifier.
@@ -541,24 +516,12 @@ public interface Context extends Registry {
    * value of the Host.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to add {@link ProxyPeerAddressHandler} to your pipeline.
+   * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @return Return the host that this request was sent to, in general this will be the
    *     value of the Host header.
    */
   @Nonnull String getHostAndPort();
-
-  /**
-   * Return the host and port that this request was sent to, in general this will be the
-   * value of the Host or X-Forwarded-Host header.
-   *
-   * @param useProxy When true this method looks for host data in the X-Forwarded-Host header.
-   * @return Return the host that this request was sent to, in general this will be the
-   *     value of the Host header.
-   * @deprecated Use {@link ProxyPeerAddressHandler}.
-   */
-  @Deprecated
-  @Nonnull String getHostAndPort(boolean useProxy);
 
   /**
    * Return the port that this request was sent to. In general this will be the value of the Host
