@@ -163,10 +163,91 @@ public interface Router extends Registry {
    */
   @Nonnull String getContextPath();
 
+  /**
+   * When true handles X-Forwarded-* headers by updating the values on the current context to
+   * match what was sent in the header(s).
+   *
+   * This should only be installed behind a reverse proxy that has been configured to send the
+   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by
+   * sending a header with bogus values.
+   *
+   * The headers that are read/set are:
+   * <ul>
+   *  <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.</li>
+   *  <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.</li>
+   *  <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.</li>
+   *  <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.</li>
+   * </ul>
+   *
+   * @return True when enabled. Default is false.
+   */
+  boolean isTrustProxy();
+
+  /**
+   * When true handles X-Forwarded-* headers by updating the values on the current context to
+   * match what was sent in the header(s).
+   *
+   * This should only be installed behind a reverse proxy that has been configured to send the
+   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by
+   * sending a header with bogus values.
+   *
+   * The headers that are read/set are:
+   * <ul>
+   *  <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.</li>
+   *  <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.</li>
+   *  <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.</li>
+   *  <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.</li>
+   * </ul>
+   *
+   * @param trustProxy True to enabled.
+   * @return This router.
+   */
+  @Nonnull Router setTrustProxy(boolean trustProxy);
+
   /* ***********************************************************************************************
    * use(Router)
    * ***********************************************************************************************
    */
+
+  /**
+   * Enabled routes for specific domain. Domain matching is done using the <code>host</code> header.
+   *
+   * <pre>{@code
+   * {
+   *   domain("foo.com", new FooApp());
+   *   domain("bar.com", new BarApp());
+   * }
+   * }</pre>
+   *
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   *
+   * @param domain Predicate
+   * @param subrouter Subrouter.
+   * @return This router.
+   */
+  @Nonnull Router domain(@Nonnull String domain, @Nonnull Router subrouter);
+
+  /**
+   * Enabled routes for specific domain. Domain matching is done using the <code>host</code> header.
+   *
+   * <pre>{@code
+   * {
+   *   domain("foo.com", () -> {
+   *     get("/", ctx -> "foo");
+   *   });
+   *   domain("bar.com", () -> {
+   *     get("/", ctx -> "bar");
+   *   });
+   * }
+   * }</pre>
+   *
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   *
+   * @param domain Predicate
+   * @param body Route action.
+   * @return This router.
+   */
+  @Nonnull RouteSet domain(@Nonnull String domain, @Nonnull Runnable body);
 
   /**
    * Import routes from given router. Predicate works like a filter and only when predicate pass
@@ -176,7 +257,6 @@ public interface Router extends Registry {
    *
    * <pre>{@code
    * {
-   *
    *   use(ctx -> ctx.getHost().equals("foo.com"), new FooApp());
    *   use(ctx -> ctx.getHost().equals("bar.com"), new BarApp());
    * }
@@ -184,11 +264,38 @@ public interface Router extends Registry {
    *
    * Imported routes are matched only when predicate pass.
    *
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   *
    * @param predicate Context predicate.
-   * @param router Router to import.
+   * @param subrouter Router to import.
    * @return This router.
    */
-  @Nonnull Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router);
+  @Nonnull Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter);
+
+  /**
+   * Import routes from given action. Predicate works like a filter and only when predicate pass
+   * the routes match against the current request.
+   *
+   * Example of domain predicate filter:
+   *
+   * <pre>{@code
+   * {
+   *   use(ctx -> ctx.getHost().equals("foo.com"), () -> {
+   *     get("/", ctx -> "foo");
+   *   });
+   *   use(ctx -> ctx.getHost().equals("bar.com"), () -> {
+   *     get("/", ctx -> "bar");
+   *   });
+   * }
+   * }</pre>
+   *
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   *
+   * @param predicate Context predicate.
+   * @param body Route action.
+   * @return This router.
+   */
+  @Nonnull RouteSet use(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body);
 
   /**
    * Import all routes from the given router and prefix them with the given path.

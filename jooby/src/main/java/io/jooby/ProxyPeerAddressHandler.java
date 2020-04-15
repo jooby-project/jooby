@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby;
 
 import io.jooby.internal.ProxyPeerAddress;
@@ -26,11 +31,7 @@ import javax.annotation.Nonnull;
 public class ProxyPeerAddressHandler implements Route.Decorator {
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return ctx -> {
-      ProxyPeerAddress result = ProxyPeerAddress.parse(ctx);
-      ctx.setRemoteAddress(result.getRemoteAddress());
-      ctx.setHost(result.getHost());
-      ctx.setScheme(result.getScheme());
-      ctx.setPort(result.getPort());
+      ProxyPeerAddress.parse(ctx).set(ctx);
       return next.apply(ctx);
     };
   }

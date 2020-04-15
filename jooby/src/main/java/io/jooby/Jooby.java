@@ -267,9 +267,32 @@ public class Jooby implements Router, Registry {
     return router;
   }
 
+  @Override public boolean isTrustProxy() {
+    return router.isTrustProxy();
+  }
+
+  @Nonnull @Override public Jooby setTrustProxy(boolean trustProxy) {
+    this.router.setTrustProxy(trustProxy);
+    return this;
+  }
+
+  @Nonnull @Override public Router domain(@Nonnull String domain, @Nonnull Router subrouter) {
+    this.router.domain(domain, subrouter);
+    return this;
+  }
+
+  @Nonnull @Override public RouteSet domain(@Nonnull String domain, @Nonnull Runnable body) {
+    return router.domain(domain, body);
+  }
+
   @Nonnull @Override
-  public Jooby use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
-    this.router.use(predicate, router);
+  public RouteSet use(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body) {
+    return router.use(predicate, body);
+  }
+
+  @Nonnull @Override
+  public Jooby use(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter) {
+    this.router.use(predicate, subrouter);
     return this;
   }
 
@@ -452,7 +475,8 @@ public class Jooby implements Router, Registry {
 
   @Nonnull @Override public Path getTmpdir() {
     if (tmpdir == null) {
-      tmpdir = Paths.get(getEnvironment().getConfig().getString("application.tmpdir")).toAbsolutePath();
+      tmpdir = Paths.get(getEnvironment().getConfig().getString("application.tmpdir"))
+          .toAbsolutePath();
     }
     return tmpdir;
   }

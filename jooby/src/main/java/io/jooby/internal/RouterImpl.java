@@ -8,29 +8,29 @@ package io.jooby.internal;
 import com.typesafe.config.Config;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
-import io.jooby.Jooby;
-import io.jooby.RouteSet;
-import io.jooby.ServerSentEmitter;
-import io.jooby.exception.RegistryException;
-import io.jooby.RouterOption;
-import io.jooby.ServerOptions;
-import io.jooby.ServiceKey;
-import io.jooby.SessionStore;
-import io.jooby.exception.StatusCodeException;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
+import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ResponseHandler;
 import io.jooby.Route;
+import io.jooby.RouteSet;
 import io.jooby.Router;
+import io.jooby.RouterOption;
+import io.jooby.ServerOptions;
+import io.jooby.ServerSentEmitter;
+import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
+import io.jooby.SessionStore;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
-import io.jooby.WebSocket;
-import io.jooby.internal.asm.ClassSource;
 import io.jooby.ValueConverter;
+import io.jooby.WebSocket;
+import io.jooby.exception.RegistryException;
+import io.jooby.exception.StatusCodeException;
+import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
 import org.slf4j.Logger;
@@ -84,13 +84,15 @@ public class RouterImpl implements Router {
   }
 
   private static class Stack {
+    private RouteTree tree;
     private String pattern;
     private Executor executor;
     private List<Route.Decorator> decoratorList = new ArrayList<>();
     private List<Route.Before> beforeList = new ArrayList<>();
     private List<Route.After> afterList = new ArrayList<>();
 
-    public Stack(String pattern) {
+    public Stack(RouteTree tree, String pattern) {
+      this.tree = tree;
       this.pattern = pattern;
     }
 
@@ -175,11 +177,15 @@ public class RouterImpl implements Router {
 
   private ClassLoader classLoader;
 
+  private ContextInitializer initializer;
+
   private Set<RouterOption> routerOptions = EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR);
+
+  private boolean trustProxy;
 
   public RouterImpl(ClassLoader loader) {
     this.classLoader = loader;
-    stack.addLast(new Stack(null));
+    stack.addLast(new Stack(chi, null));
 
     converters = ValueConverters.defaultConverters();
     beanConverters = new ArrayList<>(3);
@@ -222,19 +228,50 @@ public class RouterImpl implements Router {
     return routes;
   }
 
+  @Override public boolean isTrustProxy() {
+    return trustProxy;
+  }
+
+  @Nonnull @Override public Router setTrustProxy(boolean trustProxy) {
+    this.trustProxy = trustProxy;
+    if (trustProxy) {
+      addInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
+    } else {
+      removeInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
+    }
+    return this;
+  }
+
+  @Nonnull @Override public RouteSet domain(@Nonnull String domain, @Nonnull Runnable body) {
+    return use(domainPredicate(domain), body);
+  }
+
+  @Nonnull @Override public Router domain(@Nonnull String domain, @Nonnull Router subrouter) {
+    return use(domainPredicate(domain), subrouter);
+  }
+
   @Nonnull @Override
-  public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
-    syncState(router);
+  public RouteSet use(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body) {
+    RouteSet routeSet = new RouteSet();
     Chi tree = new Chi();
-    if (predicateMap == null) {
-      predicateMap = new LinkedHashMap<>();
-    }
-    predicateMap.put(predicate, tree);
-    for (Route route : router.getRoutes()) {
-      Route newRoute = newRoute(route.getMethod(), route.getPattern(), route.getHandler(),
-          tree);
-      copy(route, newRoute);
-    }
+    putPredicate(predicate, tree);
+    int start = this.routes.size();
+    newStack(tree, "/", body);
+    routeSet.setRoutes(this.routes.subList(start, this.routes.size()));
+    return routeSet;
+  }
+
+  @Nonnull @Override
+  public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter) {
+    syncState(subrouter);
+    Chi tree = new Chi();
+    putPredicate(predicate, tree);
+    newStack(tree, "/", () -> {
+      for (Route route : subrouter.getRoutes()) {
+        Route newRoute = newRoute(route.getMethod(), route.getPattern(), route.getHandler());
+        copy(route, newRoute);
+      }
+    });
     return this;
   }
 
@@ -255,7 +292,7 @@ public class RouterImpl implements Router {
     String prefix = Router.leadingSlash(path);
     for (Route route : router.getRoutes()) {
       String routePattern = new PathBuilder(prefix, route.getPattern()).toString();
-      Route newRoute = newRoute(route.getMethod(), routePattern, route.getHandler(), chi);
+      Route newRoute = newRoute(route.getMethod(), routePattern, route.getHandler());
       copy(route, newRoute);
     }
     return this;
@@ -339,12 +376,12 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router dispatch(@Nonnull Runnable body) {
-    return newStack(push().executor(worker), body);
+    return newStack(push(chi).executor(worker), body);
   }
 
   @Nonnull @Override
   public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
-    return newStack(push().executor(executor), action);
+    return newStack(push(chi).executor(executor), action);
   }
 
   @Nonnull @Override public RouteSet routes(@Nonnull Runnable action) {
@@ -354,7 +391,7 @@ public class RouterImpl implements Router {
   @Override @Nonnull public RouteSet path(@Nonnull String pattern, @Nonnull Runnable action) {
     RouteSet routeSet = new RouteSet();
     int start = this.routes.size();
-    newStack(pattern, action);
+    newStack(chi, pattern, action);
     routeSet.setRoutes(this.routes.subList(start, this.routes.size()));
     return routeSet;
   }
@@ -400,11 +437,12 @@ public class RouterImpl implements Router {
   @Override
   public Route route(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler) {
-    return newRoute(method, pattern, handler, chi);
+    return newRoute(method, pattern, handler);
   }
 
   private Route newRoute(@Nonnull String method, @Nonnull String pattern,
-      @Nonnull Route.Handler handler, RouteTree tree) {
+      @Nonnull Route.Handler handler) {
+    RouteTree tree = stack.getLast().tree;
     /** Pattern: */
     PathBuilder pathBuilder = new PathBuilder();
     stack.stream().filter(Stack::hasPattern).forEach(it -> pathBuilder.append(it.pattern));
@@ -538,7 +576,7 @@ public class RouterImpl implements Router {
       /** Final render */
       route.setEncoder(encoder);
     }
-    ((Chi)chi).setEncoder(encoder);
+    ((Chi) chi).setEncoder(encoder);
 
     /** router options: */
     if (routerOptions.contains(RouterOption.IGNORE_CASE)) {
@@ -606,6 +644,9 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
+    if (initializer != null) {
+      initializer.apply(ctx);
+    }
     if (predicateMap != null) {
       for (Map.Entry<Predicate<Context>, RouteTree> e : predicateMap.entrySet()) {
         if (e.getKey().test(ctx)) {
@@ -707,17 +748,17 @@ public class RouterImpl implements Router {
     return buff.length() > 0 ? buff.substring(1) : "";
   }
 
-  private Router newStack(@Nonnull String pattern, @Nonnull Runnable action,
+  private Router newStack(RouteTree tree, String pattern, Runnable action,
       Route.Decorator... decorator) {
-    return newStack(push(pattern), action, decorator);
+    return newStack(push(tree, pattern), action, decorator);
   }
 
-  private Stack push() {
-    return new Stack(null);
+  private Stack push(RouteTree tree) {
+    return new Stack(tree, null);
   }
 
-  private Stack push(String pattern) {
-    Stack stack = new Stack(Router.leadingSlash(pattern));
+  private Stack push(RouteTree tree, String pattern) {
+    Stack stack = new Stack(tree, Router.leadingSlash(pattern));
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
       stack.executor = parent.executor;
@@ -760,5 +801,32 @@ public class RouterImpl implements Router {
     it.setAttributes(src.getAttributes());
     it.setExecutorKey(src.getExecutorKey());
     it.setHandle(src.getHandle());
+  }
+
+  private void putPredicate(@Nonnull Predicate<Context> predicate, Chi tree) {
+    if (predicateMap == null) {
+      predicateMap = new LinkedHashMap<>();
+    }
+    predicateMap.put(predicate, tree);
+  }
+
+  private void removeInitializer(ContextInitializer initializer) {
+    if (this.initializer instanceof ContextInitializerList) {
+      ((ContextInitializerList) initializer).remove(initializer);
+    }
+  }
+
+  private void addInitializer(ContextInitializer initializer) {
+    if (this.initializer instanceof ContextInitializerList) {
+      this.initializer.add(initializer);
+    } else if (this.initializer != null) {
+      this.initializer = new ContextInitializerList(this.initializer).add(initializer);
+    } else {
+      this.initializer = initializer;
+    }
+  }
+
+  private static Predicate<Context> domainPredicate(String domain) {
+    return ctx -> ctx.getHost().equals(domain);
   }
 }

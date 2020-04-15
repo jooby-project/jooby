@@ -1,3 +1,8 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal;
 
 import io.jooby.Context;
@@ -63,6 +68,13 @@ public class ProxyPeerAddress {
    */
   public int getPort() {
     return port;
+  }
+
+  public void set(Context ctx) {
+    ctx.setRemoteAddress(getRemoteAddress());
+    ctx.setHost(getHost());
+    ctx.setScheme(getScheme());
+    ctx.setPort(getPort());
   }
 
   public static ProxyPeerAddress parse(Context ctx) {
