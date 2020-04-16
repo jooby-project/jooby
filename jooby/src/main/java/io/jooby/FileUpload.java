@@ -66,9 +66,9 @@ public interface FileUpload {
   @Nonnull Path path();
 
   /**
-   * File size.
+   * File size or <code>-1</code> when unknown.
    *
-   * @return File size.
+   * @return File size or <code>-1</code> when unknown.
    */
   long getFileSize();
 

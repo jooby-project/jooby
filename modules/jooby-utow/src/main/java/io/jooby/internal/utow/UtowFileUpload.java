@@ -59,7 +59,11 @@ public class UtowFileUpload implements FileUpload {
   }
 
   @Override public long getFileSize() {
-    return Long.parseLong(upload.getHeaders().getFirst(Headers.CONTENT_LENGTH));
+    try {
+      return upload.getFileItem().getFileSize();
+    } catch (IOException x) {
+      return -1;
+    }
   }
 
   @Override public void destroy() {
