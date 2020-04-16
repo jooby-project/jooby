@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
  * Template engine will be able to access to the following attributes:
  *
  * - contextPath. Empty when context path is set to <code>/</code> or actual context path.
- * - path. Current request path, as defined by {@link Context#pathString()}.
+ * - path. Current request path, as defined by {@link Context#getRequestPath()}.
  * - user. Current user (if any) as defined by {@link Context#getUser()}.
  *
  * @author edgar

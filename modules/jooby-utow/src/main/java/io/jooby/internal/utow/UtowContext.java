@@ -141,10 +141,6 @@ public class UtowContext implements DefaultContext, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public String pathString() {
-    return getRequestPath();
-  }
-
   @Nonnull @Override public String getRequestPath() {
     return requestPath;
   }
@@ -501,7 +497,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Override public String toString() {
-    return getMethod() + " " + pathString();
+    return getMethod() + " " + getRequestPath();
   }
 
   private void ifSaveSession() {
@@ -519,10 +515,10 @@ public class UtowContext implements DefaultContext, IoCallback {
       if (cause != null) {
         Logger log = router.getLog();
         if (Server.connectionLost(cause)) {
-          log.debug("exception found while sending response {} {}", getMethod(), pathString(),
+          log.debug("exception found while sending response {} {}", getMethod(), getRequestPath(),
               cause);
         } else {
-          log.error("exception found while sending response {} {}", getMethod(), pathString(),
+          log.error("exception found while sending response {} {}", getMethod(), getRequestPath(),
               cause);
         }
       }

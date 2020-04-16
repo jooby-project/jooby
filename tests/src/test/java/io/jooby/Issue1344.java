@@ -12,7 +12,7 @@ public class Issue1344 {
     {
       decorator(next -> ctx -> "<" + next.apply(ctx) + ">");
 
-      get("/1344", Context::pathString);
+      get("/1344", Context::getRequestPath);
     }
   }
 

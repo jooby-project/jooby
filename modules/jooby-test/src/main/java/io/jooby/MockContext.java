@@ -199,10 +199,6 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
-  @Nonnull @Override public String pathString() {
-    return requestPath;
-  }
-
   @Nonnull @Override public String getRequestPath() {
     return requestPath;
   }
@@ -213,7 +209,7 @@ public class MockContext implements DefaultContext {
    * @param pathString Path string.
    * @return This context.
    */
-  public @Nonnull MockContext setRequestPath(@Nonnull String pathString) {
+  @Override public @Nonnull MockContext setRequestPath(@Nonnull String pathString) {
     int q = pathString.indexOf("?");
     if (q > 0) {
       this.requestPath = pathString.substring(0, q);

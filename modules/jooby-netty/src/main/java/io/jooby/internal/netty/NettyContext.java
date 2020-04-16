@@ -171,10 +171,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public final String pathString() {
-    return path;
-  }
-
   @Nonnull @Override public String getRequestPath() {
     return path;
   }
@@ -698,11 +694,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     if (cause != null) {
       if (Server.connectionLost(cause)) {
         router.getLog()
-            .debug("exception found while sending response {} {}", getMethod(), pathString(),
+            .debug("exception found while sending response {} {}", getMethod(), getRequestPath(),
                 cause);
       } else {
         router.getLog()
-            .error("exception found while sending response {} {}", getMethod(), pathString(),
+            .error("exception found while sending response {} {}", getMethod(), getRequestPath(),
                 cause);
       }
     }
@@ -798,6 +794,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Override public String toString() {
-    return getMethod() + " " + pathString();
+    return getMethod() + " " + getRequestPath();
   }
 }

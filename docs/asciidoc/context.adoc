@@ -134,7 +134,7 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 ----
 {
   get("/{name}", ctx -> {
-    String pathString = ctx.getRequestPath();         // <1>
+    String pathString = ctx.getRequestPath();     // <1>
     
     Value path = ctx.path();                      // <2>
     
@@ -152,7 +152,7 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 ----
 {
   get("/{name}") {
-    val pathString = ctx.getRequestPath()     // <1>
+    val pathString = ctx.getRequestPath()  // <1>
     
     val path = ctx.path()                 // <2>
     

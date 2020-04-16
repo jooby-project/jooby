@@ -159,10 +159,6 @@ public class JettyContext implements DefaultContext {
     return this;
   }
 
-  @Nonnull @Override public String pathString() {
-    return getRequestPath();
-  }
-
   @Nonnull @Override public String getRequestPath() {
     return requestPath;
   }
@@ -570,9 +566,9 @@ public class JettyContext implements DefaultContext {
       Logger log = router.getLog();
       if (x != null) {
         if (Server.connectionLost(x)) {
-          log.debug("exception found while sending response {} {}", getMethod(), pathString(), x);
+          log.debug("exception found while sending response {} {}", getMethod(), getRequestPath(), x);
         } else {
-          log.error("exception found while sending response {} {}", getMethod(), pathString(), x);
+          log.error("exception found while sending response {} {}", getMethod(), getRequestPath(), x);
         }
       }
     } finally {

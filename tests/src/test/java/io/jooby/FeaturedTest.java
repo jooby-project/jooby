@@ -1131,9 +1131,9 @@ public class FeaturedTest {
     runner.define(app -> {
 
       Jooby bar = new Jooby();
-      bar.get("/bar", Context::pathString);
+      bar.get("/bar", Context::getRequestPath);
 
-      app.get("/foo", Context::pathString);
+      app.get("/foo", Context::getRequestPath);
 
       app.use(bar);
 
@@ -1184,7 +1184,7 @@ public class FeaturedTest {
     runner.define(app -> {
 
       Jooby bar = new Jooby();
-      bar.get("/bar", Context::pathString);
+      bar.get("/bar", Context::getRequestPath);
 
       app.use("/prefix", bar);
 
@@ -1200,7 +1200,7 @@ public class FeaturedTest {
     runner.define(app -> {
 
       Jooby bar = new Jooby();
-      bar.get("/bar", Context::pathString);
+      bar.get("/bar", Context::getRequestPath);
 
       app.path("/api", () -> {
         app.use(bar);
@@ -1222,9 +1222,9 @@ public class FeaturedTest {
   public void routerCaseInsensitive(ServerTestRunner runner) {
     runner.define(app -> {
       app.setRouterOptions(RouterOption.IGNORE_CASE, RouterOption.IGNORE_TRAILING_SLASH);
-      app.get("/foo", Context::pathString);
+      app.get("/foo", Context::getRequestPath);
 
-      app.get("/bar", Context::pathString);
+      app.get("/bar", Context::getRequestPath);
     }).ready(client -> {
       client.get("/foo", rsp -> {
         assertEquals("/foo", rsp.body().string());
@@ -1250,9 +1250,9 @@ public class FeaturedTest {
     /** Now do it case sensitive: */
     runner.define(app -> {
 
-      app.get("/foo", Context::pathString);
+      app.get("/foo", Context::getRequestPath);
 
-      app.get("/BAR", Context::pathString);
+      app.get("/BAR", Context::getRequestPath);
     }).ready(client -> {
       client.get("/foo", rsp -> {
         assertEquals("/foo", rsp.body().string());
@@ -1327,7 +1327,7 @@ public class FeaturedTest {
   @ServerTest
   public void methodNotAllowed(ServerTestRunner runner) {
     runner.define(app -> {
-      app.post("/method", Context::pathString);
+      app.post("/method", Context::getRequestPath);
     }).ready(client -> {
       client.get("/method", rsp -> {
         assertEquals(StatusCode.METHOD_NOT_ALLOWED.value(), rsp.code());
@@ -1420,7 +1420,7 @@ public class FeaturedTest {
   @ServerTest
   public void defaultHeaders(ServerTestRunner runner) {
     runner.define(app -> {
-      app.get("/", Context::pathString);
+      app.get("/", Context::getRequestPath);
     }).ready(client -> {
       String serverHeader = String.valueOf(runner.getServer().charAt(0));
       client.get("/", rsp -> {
@@ -1699,7 +1699,7 @@ public class FeaturedTest {
   public void sendRedirect(ServerTestRunner runner) {
     runner.define(app -> {
       app.get("/", ctx -> ctx.sendRedirect("/foo"));
-      app.get("/foo", Context::pathString);
+      app.get("/foo", Context::getRequestPath);
     }).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("/foo", rsp.body().string());
@@ -2211,7 +2211,7 @@ public class FeaturedTest {
         return ctx.sendRedirect("/flash");
       });
 
-      app.post("/untouch", Context::pathString);
+      app.post("/untouch", Context::getRequestPath);
 
       app.get("/error", ctx -> {
         boolean noreset = !ctx.query("noreset").isMissing();
@@ -2565,13 +2565,13 @@ public class FeaturedTest {
   public void options(ServerTestRunner runner) {
     runner.define(app -> {
 
-      app.get("/foo", Context::pathString);
+      app.get("/foo", Context::getRequestPath);
 
-      app.post("/foo", Context::pathString);
+      app.post("/foo", Context::getRequestPath);
 
-      app.get("/foo/{id}", Context::pathString);
+      app.get("/foo/{id}", Context::getRequestPath);
 
-      app.patch("/foo/{id}", Context::pathString);
+      app.patch("/foo/{id}", Context::getRequestPath);
     }).ready(client -> {
       Function<String, Set<String>> toSet = value -> Stream.of(value.split("\\s*,\\s*")).collect(
           Collectors.toSet());
@@ -2594,7 +2594,7 @@ public class FeaturedTest {
     runner.define(app -> {
       app.decorator(new TraceHandler());
 
-      app.get("/foo", Context::pathString);
+      app.get("/foo", Context::getRequestPath);
     }).ready(client -> {
       client.trace("/foo", rsp -> {
         assertEquals(StatusCode.OK.value(), rsp.code());

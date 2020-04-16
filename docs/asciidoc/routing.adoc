@@ -1184,13 +1184,13 @@ Composition is available through the javadoc:Router[use, io.jooby.Router] operat
 ----
 public class Foo extends Jooby {
   {
-    get("/foo", Context::pathString);
+    get("/foo", Context::getRequestPath);
   }
 }
 
 public class Bar extends Jooby {
   {
-    get("/bar", Context::pathString);
+    get("/bar", Context::getRequestPath);
   }
 }
 
@@ -1200,7 +1200,7 @@ public class App extends Jooby {
 
     use(new Bar());                     // <2>
 
-    get("/app", Context::pathString);   // <3>
+    get("/app", Context::getRequestPath);   // <3>
   }
 }
 ----
@@ -1241,7 +1241,7 @@ class App: Kooby({
 ----
 public class Foo extends Jooby {
   {
-    get("/foo", Context::pathString);
+    get("/foo", Context::getRequestPath);
   }
 }
 

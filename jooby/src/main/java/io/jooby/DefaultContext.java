@@ -64,7 +64,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override default boolean matches(String pattern) {
-    return getRouter().match(pattern, pathString());
+    return getRouter().match(pattern, getRequestPath());
   }
 
   /**

@@ -83,7 +83,7 @@ public class ReturnTypeTest {
   public void methodInvocation() {
     assertType(String.class, ctx -> ctx.getRequestPath());
 
-    assertType(String.class, Context::pathString);
+    assertType(String.class, Context::getRequestPath);
   }
 
   @Test
