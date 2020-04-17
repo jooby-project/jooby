@@ -612,16 +612,6 @@ public interface Router extends Registry {
   }
 
   /**
-   * Add a static resource handler. Static resources are resolved from `/static` class path folder.
-   *
-   * @param pattern Path pattern.
-   * @return A route.
-   */
-  default @Nonnull Route assets(@Nonnull String pattern) {
-    return assets(pattern, AssetSource.create(getClass().getClassLoader(), "/static"));
-  }
-
-  /**
    * Add a static resource handler.
    *
    * @param pattern Path pattern.
