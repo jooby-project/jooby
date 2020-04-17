@@ -5,8 +5,6 @@
  */
 package io.jooby.pac4j;
 
-import io.jooby.Router;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -14,7 +12,7 @@ import javax.annotation.Nullable;
  * Options to configure pac4j security, callback and logout actions.
  *
  * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
- * please consider to set {@link Router#setTrustProxy(boolean)} option.
+ * please consider to set {@link io.jooby.Router#setTrustProxy(boolean)} option.
  *
  * @author edgar
  * @since 2.4.0
