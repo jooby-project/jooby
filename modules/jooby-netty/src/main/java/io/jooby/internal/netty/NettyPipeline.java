@@ -57,10 +57,10 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     if (sslContext != null) {
       p.addLast("ssl", sslContext.newHandler(ch.alloc()));
     }
-    p.addLast("encoder", new HttpResponseEncoder());
     p.addLast("decoder", new HttpRequestDecoder(_4KB, _8KB, bufferSize, false));
+    p.addLast("encoder", new HttpResponseEncoder());
     if (gzip) {
-      p.addLast("gzip", new HttpContentCompressor());
+      p.addLast("compressor", new HttpChunkContentCompressor());
     }
     p.addLast("handler", new NettyHandler(service, router, maxRequestSize, bufferSize, factory,
         defaultHeaders));

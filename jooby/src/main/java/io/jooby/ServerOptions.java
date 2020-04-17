@@ -24,12 +24,6 @@ import java.util.stream.Stream;
  */
 public class ServerOptions {
 
-  /** Default  port <code>80</code>. */
-  public static final int PORT = 80;
-
-  /** Default  port <code>443</code>. */
-  public static final int SECURE_PORT = 443;
-
   /** Default application port <code>8080</code> or the value of system property <code>server.port</code>. */
   public static final int SERVER_PORT = Integer
       .parseInt(System.getProperty("server.port", "8080"));

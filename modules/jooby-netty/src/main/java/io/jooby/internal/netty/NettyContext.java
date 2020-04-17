@@ -87,6 +87,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
@@ -584,7 +585,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
 
-      if (isSecure()) {
+      if (isSecure() || isGzip()) {
         prepareChunked();
 
         HttpChunkedInput chunkedInput = new HttpChunkedInput(
@@ -786,7 +787,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     // remove flusher, doesn't play well with streaming/chunked responses
     ChannelPipeline pipeline = ctx.pipeline();
     if (pipeline.get("chunker") == null) {
-      pipeline.addAfter("encoder", "chunker", new ChunkedWriteHandler());
+      Stream.of("compressor", "encoder")
+          .filter(name -> pipeline.get(name) != null)
+          .findFirst()
+          .ifPresent(name -> pipeline.addAfter(name, "chunker", new ChunkedWriteHandler()));
     }
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);
@@ -795,5 +799,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Override public String toString() {
     return getMethod() + " " + getRequestPath();
+  }
+
+  private boolean isGzip() {
+    return getRouter().getServerOptions().getGzip();
   }
 }
