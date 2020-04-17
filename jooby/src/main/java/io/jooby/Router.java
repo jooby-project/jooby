@@ -598,6 +598,8 @@ public interface Router extends Registry {
    * - file-system if the source folder exists in the current user directory
    * - or fallback to classpath when file-system folder doesn't exist.
    *
+   * NOTE: This method choose file-system or classpath, it doesn't merge them.
+   *
    * @param pattern Path pattern.
    * @param source File-System folder when exists, or fallback to a classpath folder.
    * @return A route.
