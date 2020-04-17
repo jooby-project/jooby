@@ -29,6 +29,10 @@ public class ClassPathAssetSource implements AssetSource {
   private final String prefix;
 
   public ClassPathAssetSource(ClassLoader loader, String source) {
+    if (source == null || source.trim().length() == 0 || source.trim().equals("/")) {
+      throw new IllegalArgumentException(
+          "For security reasons root classpath access is not allowed: " + source);
+    }
     this.loader = loader;
     this.source = source.startsWith("/") ? source.substring(1) : source;
     this.prefix = sourcePrefix(this.source);
