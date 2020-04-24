@@ -100,7 +100,7 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.5</jacoco.version>
-    <junit.version>5.6.0</junit.version>
+    <junit.version>5.6.2</junit.version>
     <rest-assured.version>4.3.0</rest-assured.version>
     <checkstyle.version>8.31</checkstyle.version>
     <mockito.version>3.3.3</mockito.version>
