@@ -75,7 +75,7 @@ Source code is available at https://github.com/jooby-project/jooby[GitHub]
 * link:modules/openapi[OpenAPI 3] supports
 * <<execution-model, Event Loop and blocking execution modes>>
 * <<responses, Reactive responses>> (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
-* <<server, Multi-server>> including https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
+* <<server, Multi-server>> including https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
 * Simple <<extensions-and-services, extension/plugin mechanism>> with a variety of <<modules, modules>>
 
 === Script API
