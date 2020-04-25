@@ -7,7 +7,7 @@
     "es6-promise": "^4.2.8",
     "fetch-min": "^1.0.0",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "react-dom": "^16.13.0",
     "graphql": "^14.5.8",
     "graphiql": "^0.17.1"
   }
