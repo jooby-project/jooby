@@ -5,6 +5,7 @@ import io.jooby.openapi.OpenAPITest;
 import issues.i1601.App1601;
 import issues.i1601.App1601b;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue1601 {
@@ -18,11 +19,11 @@ public class Issue1601 {
         + "  termsOfService: Terms\n"
         + "  contact:\n"
         + "    name: Jooby\n"
-        + "    url: https://jooby.io\n"
+        + "    url: \"https://jooby.io\"\n"
         + "    email: support@jooby.io\n"
         + "  license:\n"
         + "    name: Apache\n"
-        + "    url: https://jooby.io/LICENSE\n"
+        + "    url: \"https://jooby.io/LICENSE\"\n"
         + "  version: \"10\"\n"
         + "servers:\n"
         + "- url: serverurl\n"
@@ -36,7 +37,7 @@ public class Issue1601 {
         + "      - prod\n"
         + "security:\n"
         + "- oauth:\n"
-        + "  - read:write\n"
+        + "  - \"read:write\"\n"
         + "tags:\n"
         + "- name: mytag\n"
         + "paths:\n"
@@ -57,11 +58,11 @@ public class Issue1601 {
         + "  termsOfService: Terms\n"
         + "  contact:\n"
         + "    name: Jooby\n"
-        + "    url: https://jooby.io\n"
+        + "    url: \"https://jooby.io\"\n"
         + "    email: support@jooby.io\n"
         + "  license:\n"
         + "    name: Apache\n"
-        + "    url: https://jooby.io/LICENSE\n"
+        + "    url: \"https://jooby.io/LICENSE\"\n"
         + "  version: \"10\"\n"
         + "servers:\n"
         + "- url: serverurl\n"
@@ -75,7 +76,7 @@ public class Issue1601 {
         + "      default: dev\n"
         + "security:\n"
         + "- oauth:\n"
-        + "  - read:write\n"
+        + "  - \"read:write\"\n"
         + "tags:\n"
         + "- name: mytag\n"
         + "paths:\n"
@@ -90,7 +91,7 @@ public class Issue1601 {
         + "              schema:\n"
         + "                type: string\n";
     String output = result.toYaml();
-    assertTrue(output.equals(yaml1) || output.equals(yaml2));
+    assertTrue(output.equals(yaml1) || output.equals(yaml2), output);
   }
 
   @OpenAPITest(value = App1601b.class)
@@ -102,11 +103,11 @@ public class Issue1601 {
         + "  termsOfService: Terms\n"
         + "  contact:\n"
         + "    name: Jooby\n"
-        + "    url: https://jooby.io\n"
+        + "    url: \"https://jooby.io\"\n"
         + "    email: support@jooby.io\n"
         + "  license:\n"
         + "    name: Apache\n"
-        + "    url: https://jooby.io/LICENSE\n"
+        + "    url: \"https://jooby.io/LICENSE\"\n"
         + "  version: \"10\"\n"
         + "servers:\n"
         + "- url: serverurl\n"
@@ -120,7 +121,7 @@ public class Issue1601 {
         + "      - prod\n"
         + "security:\n"
         + "- oauth:\n"
-        + "  - read:write\n"
+        + "  - \"read:write\"\n"
         + "tags:\n"
         + "- name: mytag\n"
         + "paths:\n"
@@ -141,11 +142,11 @@ public class Issue1601 {
         + "  termsOfService: Terms\n"
         + "  contact:\n"
         + "    name: Jooby\n"
-        + "    url: https://jooby.io\n"
+        + "    url: \"https://jooby.io\"\n"
         + "    email: support@jooby.io\n"
         + "  license:\n"
         + "    name: Apache\n"
-        + "    url: https://jooby.io/LICENSE\n"
+        + "    url: \"https://jooby.io/LICENSE\"\n"
         + "  version: \"10\"\n"
         + "servers:\n"
         + "- url: serverurl\n"
@@ -159,7 +160,7 @@ public class Issue1601 {
         + "      default: dev\n"
         + "security:\n"
         + "- oauth:\n"
-        + "  - read:write\n"
+        + "  - \"read:write\"\n"
         + "tags:\n"
         + "- name: mytag\n"
         + "paths:\n"

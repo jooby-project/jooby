@@ -70,7 +70,7 @@ public class Issue1591 {
         + "                type: string\n"
         + "      security:\n"
         + "      - myOauth1:\n"
-        + "        - 'write: read'\n"
+        + "        - \"write: read\"\n"
         + "  /securityRequirement:\n"
         + "    get:\n"
         + "      operationId: securityRequirement\n"
@@ -83,7 +83,7 @@ public class Issue1591 {
         + "                type: string\n"
         + "      security:\n"
         + "      - myOauth2:\n"
-        + "        - 'write: read'\n"
+        + "        - \"write: read\"\n"
         + "  /operationSecurityRequirement:\n"
         + "    get:\n"
         + "      operationId: operationSecurityRequirement\n"
@@ -96,6 +96,6 @@ public class Issue1591 {
         + "                type: string\n"
         + "      security:\n"
         + "      - myOauth3:\n"
-        + "        - 'write: read'\n", result.toYaml());
+        + "        - \"write: read\"\n", result.toYaml());
   }
 }

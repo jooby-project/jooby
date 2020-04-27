@@ -23,14 +23,14 @@ public class Issue1592 {
         + "        content:\n"
         + "          application/json:\n"
         + "            schema:\n"
-        + "              $ref: '#/components/schemas/FairData'\n"
+        + "              $ref: \"#/components/schemas/FairData\"\n"
         + "      responses:\n"
         + "        \"200\":\n"
         + "          description: Success\n"
         + "          content:\n"
         + "            application/json:\n"
         + "              schema:\n"
-        + "                $ref: '#/components/schemas/FairData'\n"
+        + "                $ref: \"#/components/schemas/FairData\"\n"
         + "components:\n"
         + "  schemas:\n"
         + "    FairEmissionData:\n"
@@ -51,7 +51,7 @@ public class Issue1592 {
         + "          type: integer\n"
         + "          format: int32\n"
         + "        annualEmissions:\n"
-        + "          $ref: '#/components/schemas/FairEmissionData'\n", result.toYaml());
+        + "          $ref: \"#/components/schemas/FairEmissionData\"\n", result.toYaml());
   }
 
 }

@@ -23,7 +23,7 @@ public class Issue1585 {
         + "        in: path\n"
         + "        required: true\n"
         + "        schema:\n"
-        + "          pattern: '[0-9]+'\n"
+        + "          pattern: \"[0-9]+\"\n"
         + "          type: integer\n"
         + "          format: int32\n"
         + "      responses:\n"
