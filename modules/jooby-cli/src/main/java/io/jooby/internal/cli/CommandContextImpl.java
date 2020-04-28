@@ -23,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileOwnerAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -126,7 +128,11 @@ public class CommandContextImpl implements Context {
     }
 
     if (permissions.size() > 0) {
-      Files.setPosixFilePermissions(dest, permissions);
+      try {
+        Files.setPosixFilePermissions(dest, permissions);
+      } catch (UnsupportedOperationException x) {
+        // Windows OS, ignore it.
+      }
     }
   }
 
