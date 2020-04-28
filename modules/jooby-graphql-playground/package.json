@@ -4,6 +4,6 @@
   "private": true,
   "license": "ASF",
   "dependencies": {
-    "graphql-playground-react": "^1.7.20"
+    "graphql-playground-react": "^1.7.22"
   }
 }
