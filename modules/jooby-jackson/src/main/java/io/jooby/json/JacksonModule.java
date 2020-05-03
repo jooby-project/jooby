@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -159,12 +160,12 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    */
   public static final @Nonnull ObjectMapper create() {
     ObjectMapper mapper = JsonMapper.builder()
-    .addModule(new ParameterNamesModule())
-    .addModule(new Jdk8Module())
-    .addModule(new JavaTimeModule())
-    .addModule(new AfterburnerModule())
-    .build();
+        .addModule(new ParameterNamesModule())
+        .addModule(new Jdk8Module())
+        .addModule(new JavaTimeModule())
+        .addModule(new AfterburnerModule())
+        .build();
 
-    return objectMapper;
+    return mapper;
   }
 }
