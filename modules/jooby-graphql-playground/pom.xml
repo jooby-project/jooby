@@ -50,7 +50,7 @@
           <execution>
             <phase>generate-resources</phase>
             <configuration>
-              <tasks>
+              <target>
                 <property name="output"
                           value="${project.build.outputDirectory}${file.separator}graphql-playground${file.separator}"/>
 
@@ -63,7 +63,7 @@
                 <copy failonerror="true"
                       file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}static${file.separator}js${file.separator}middleware.js"
                       tofile="${output}middleware.js"/>
-              </tasks>
+              </target>
             </configuration>
             <goals>
               <goal>run</goal>
