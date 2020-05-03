@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Response generate by {@link MockRouter}. Contains all response metadata as well as route returns
@@ -49,6 +50,8 @@ public class MockResponse implements MockValue {
   private MediaType contentType;
 
   private long length = -1;
+
+  private CountDownLatch latch = new CountDownLatch(1);
 
   /**
    * Response headers.
@@ -172,6 +175,11 @@ public class MockResponse implements MockValue {
    */
   public @Nonnull MockResponse setResult(@Nullable Object result) {
     this.result = result;
+    latch.countDown();
     return this;
+  }
+
+  CountDownLatch getLatch() {
+    return latch;
   }
 }

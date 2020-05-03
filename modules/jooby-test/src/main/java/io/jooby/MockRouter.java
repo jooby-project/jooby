@@ -7,6 +7,8 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -49,6 +51,8 @@ public class MockRouter {
   private static final Consumer NOOP = value -> {
   };
 
+  private Executor worker;
+
   private Supplier<Jooby> supplier;
 
   private boolean fullExecution;
@@ -73,6 +77,26 @@ public class MockRouter {
    */
   public @Nonnull MockRouter setSession(@Nonnull MockSession session) {
     this.session = session;
+    return this;
+  }
+
+  /**
+   * Get the worker executor for running test.
+   *
+   * @return Worker executor or <code>null</code>.
+   */
+  public Executor getWorker() {
+    return worker;
+  }
+
+  /**
+   * Set the worker executor to use.
+   *
+   * @param worker Worker executor.
+   * @return This router.
+   */
+  public MockRouter setWorker(@Nonnull Executor worker) {
+    this.worker = worker;
     return this;
   }
 
@@ -416,6 +440,10 @@ public class MockRouter {
 
     Router.Match match = router.match(findContext);
     Route route = match.route();
+    boolean isCoroutine = route.attribute("coroutine") == Boolean.TRUE;
+    if (isCoroutine) {
+      router.setWorker(Optional.ofNullable(getWorker()).orElseGet(MockRouter::singleThreadWorker));
+    }
     findContext.setPathMap(match.pathMap());
     findContext.setRoute(route);
     Object value;
@@ -429,14 +457,21 @@ public class MockRouter {
         value = handler.apply(ctx);
         if (ctx instanceof MockContext) {
           MockResponse response = ((MockContext) ctx).getResponse();
-          if (value != null && !(value instanceof Context)) {
-            response.setResult(value);
+          Object responseValue;
+          if (isCoroutine) {
+            response.getLatch().await();
+            responseValue = response.value();
+          } else {
+            if (value != null && !(value instanceof Context)) {
+              response.setResult(value);
+            }
+            responseValue = Optional.ofNullable(response.value()).orElse(value);
           }
           if (response.getContentLength() <= 0) {
-            response.setContentLength(contentLength(value));
+            response.setContentLength(contentLength(responseValue));
           }
           consumer.accept(response);
-          return new SingleMockValue(Optional.ofNullable(response.value()).orElse(value));
+          return new SingleMockValue(responseValue);
         }
         return new SingleMockValue(value);
       }
@@ -453,5 +488,13 @@ public class MockRouter {
       return ((byte[]) value).length;
     }
     return -1;
+  }
+
+  private static Executor singleThreadWorker() {
+    return Executors.newSingleThreadExecutor(task -> {
+      Thread thread = new Thread(task, "single-thread");
+      thread.setDaemon(true);
+      return thread;
+    });
   }
 }

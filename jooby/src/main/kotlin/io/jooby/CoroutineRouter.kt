@@ -74,5 +74,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
         }
       }
     }.setHandle(handler)
+     .attribute("coroutine", true)
   }
 }
