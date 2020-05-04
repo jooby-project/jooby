@@ -9,6 +9,7 @@ import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -19,6 +20,10 @@ public class JettyFileUpload implements FileUpload {
 
   public JettyFileUpload(MultiPartFormInputStream.MultiPart upload) {
     this.upload = upload;
+  }
+
+  @Nonnull @Override public String getName() {
+    return upload.getName();
   }
 
   @Override public String getFileName() {

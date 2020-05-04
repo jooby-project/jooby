@@ -31,6 +31,14 @@ import java.nio.file.Path;
  * @author edgar
  */
 public interface FileUpload {
+
+  /**
+   * File key. That's the field form name, not the file name. Example:
+   *
+   * @return File key. That's the field form name, not the file name.
+   */
+  @Nonnull String getName();
+
   /**
    * Name of file upload.
    * @return Name of file upload.

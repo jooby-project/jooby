@@ -10,6 +10,7 @@ import io.jooby.SneakyThrows;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -24,6 +25,10 @@ public class NettyFileUpload implements FileUpload {
       io.netty.handler.codec.http.multipart.FileUpload upload) {
     this.basedir = basedir;
     this.upload = upload;
+  }
+
+  @Nonnull @Override public String getName() {
+    return upload.getName();
   }
 
   @Override public byte[] bytes() {

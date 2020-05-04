@@ -11,6 +11,7 @@ import io.jooby.SneakyThrows;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
 
+import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +20,10 @@ import java.nio.file.Path;
 public class UtowFileUpload implements FileUpload {
 
   private final FormData.FormValue upload;
+  private final String name;
 
-  public UtowFileUpload(FormData.FormValue upload) {
+  public UtowFileUpload(String name, FormData.FormValue upload) {
+    this.name = name;
     this.upload = upload;
   }
 
@@ -44,6 +47,10 @@ public class UtowFileUpload implements FileUpload {
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
+  }
+
+  @Nonnull @Override public String getName() {
+    return name;
   }
 
   @Override public String getFileName() {

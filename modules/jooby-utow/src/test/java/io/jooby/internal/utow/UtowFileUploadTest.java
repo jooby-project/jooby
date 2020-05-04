@@ -22,7 +22,7 @@ public class UtowFileUploadTest {
     FormData.FormValue upload = mock(FormData.FormValue.class);
     when(upload.getFileItem()).thenReturn(fileItem);
 
-    assertEquals(fileSize, new UtowFileUpload(upload).getFileSize());
+    assertEquals(fileSize, new UtowFileUpload("file", upload).getFileSize());
   }
 
   @Test
@@ -35,6 +35,6 @@ public class UtowFileUploadTest {
     FormData.FormValue upload = mock(FormData.FormValue.class);
     when(upload.getFileItem()).thenReturn(fileItem);
 
-    assertEquals(fileSize, new UtowFileUpload(upload).getFileSize());
+    assertEquals(fileSize, new UtowFileUpload("file", upload).getFileSize());
   }
 }
