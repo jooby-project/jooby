@@ -1,3 +1,9 @@
+# Assets
+
+- Remove Router.assets(String) to force user to say from where asset should read
+- Add check to ClassPathAssetSource and reject root classpath access
+- Added tests for checking invalid access: Issue1639
+
 * MVC: QueryParam annotation vs PathParam try to figure it out them and make optional (update open api)
 * MVC: introduce BodyParam
 * MVC: Add *Param annotations a statusCode attribute

@@ -1882,7 +1882,7 @@ public class FeaturedTest {
   public void staticSiteFromCp(ServerTestRunner runner) {
     runner.define(app -> {
 
-      app.assets("/?*");
+      app.assets("/www/?*", "/www");
 
     }).ready(client -> {
       client.get("/www", rsp -> {

@@ -14,8 +14,23 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ClassPathAssetSourceTest {
+
+  @Test
+  public void disallowedAccessToRootClasspath() {
+    assertThrows(IllegalArgumentException.class,
+        () -> new ClassPathAssetSource(getClass().getClassLoader(), null));
+    assertThrows(IllegalArgumentException.class,
+        () -> new ClassPathAssetSource(getClass().getClassLoader(), ""));
+    assertThrows(IllegalArgumentException.class,
+        () -> new ClassPathAssetSource(getClass().getClassLoader(), "  "));
+    assertThrows(IllegalArgumentException.class,
+        () -> new ClassPathAssetSource(getClass().getClassLoader(), "/"));
+    assertThrows(IllegalArgumentException.class,
+        () -> new ClassPathAssetSource(getClass().getClassLoader(), " / "));
+  }
 
   @Test
   public void checkclasspathFiles() {
@@ -47,7 +62,7 @@ public class ClassPathAssetSourceTest {
       assertEquals(MediaType.js, vuejs.getContentType());
     });
 
-    assetSource("/", source -> {
+    assetSource("/log", source -> {
       Asset logback = source.resolve("logback.xml");
       assertNotNull(logback);
       assertEquals(MediaType.xml, logback.getContentType());

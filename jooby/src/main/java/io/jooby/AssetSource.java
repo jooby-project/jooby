@@ -43,7 +43,8 @@ public interface AssetSource {
    * (including jar files).
    *
    * @param loader Class loader.
-   * @param location Classpath location.
+   * @param location Classpath location. For security reasons root of classpath <code>/</code> is
+   *     disallowed.
    * @return An asset source.
    */
   static @Nonnull AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
