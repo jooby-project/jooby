@@ -20,10 +20,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -203,6 +205,26 @@ public interface Router extends Registry {
    * @return This router.
    */
   @Nonnull Router setTrustProxy(boolean trustProxy);
+
+  /**
+   * Provides a way to override the current HTTP method. Request must be:
+   *
+   * - POST Form/multipart request
+   *
+   * For alternative strategy use the {@link #setHiddenMethod(Function)} method.
+   *
+   * @param parameterName Form field name.
+   * @return This router.
+   */
+  @Nonnull Router setHiddenMethod(@Nonnull String parameterName);
+
+  /**
+   * Provides a way to override the current HTTP method using lookup strategy.
+   *
+   * @param provider Lookup strategy.
+   * @return This router.
+   */
+  @Nonnull Router setHiddenMethod(@Nonnull Function<Context, Optional<String>> provider);
 
   /* ***********************************************************************************************
    * use(Router)

@@ -1,0 +1,53 @@
+==== Trust Proxy
+
+The javadoc:Router[setTrustProxy, boolean] option enables parsing of `X-Forwarded-*` headers.
+
+.Usage
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+...
+{
+  
+  setTrustProxy(true)                                 <1>
+
+  get("/", ctx -> {
+    String remoteAddress = ctx.getRemoteAddress();    <2>
+    String scheme = ctx.getScheme();                  <3>
+    String host = ctx.getHost();                      <4>
+    int port = ctx.getPort();                         <5>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+...
+{
+  trustProxy = true                                   <1>
+  
+  get("/") {
+    val remoteAddress = ctx.remoteAddress             <2>
+    val scheme = ctx.scheme                           <3>
+    val host = ctx.host                               <4>
+    val port = ctx.port                               <5>
+    ...
+  }
+}
+----
+
+<1> Set trust proxy
+<2> Set `remote address` from `X-Forwarded-For`
+<3> Set `scheme` from `X-Forwarded-Proto`
+<4> Set `host` from `X-Forwarded-Host`
+<5> Set `port` from `X-Forwarded-Host` or `X-Forwarded-Port`
+
+[IMPORTANT]
+====
+This should only be installed behind a reverse proxy that has been configured to send the
+`X-Forwarded-*` header, otherwise a remote user can spoof their address by sending a header with
+bogus values.
+====

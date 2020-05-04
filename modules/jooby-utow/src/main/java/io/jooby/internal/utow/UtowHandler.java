@@ -6,9 +6,9 @@
 package io.jooby.internal.utow;
 
 import io.jooby.Context;
-import io.jooby.exception.StatusCodeException;
 import io.jooby.Router;
 import io.jooby.StatusCode;
+import io.jooby.exception.StatusCodeException;
 import io.undertow.io.Receiver;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -36,7 +36,7 @@ public class UtowHandler implements HttpHandler {
 
   @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
     UtowContext context = new UtowContext(exchange, router);
-    Router.Match route = router.match(context);
+
     /** default headers: */
     HeaderMap responseHeaders = exchange.getResponseHeaders();
     responseHeaders.put(Headers.CONTENT_TYPE, "text/plain");
@@ -52,11 +52,7 @@ public class UtowHandler implements HttpHandler {
         context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
         return;
       }
-      /** Don't check/parse for body if there is no match: */
-      if (!route.matches()) {
-        route.execute(context);
-        return;
-      }
+
       /** Eager body parsing: */
       FormDataParser parser = FormParserFactory.builder(false)
           .addParser(new MultiPartParserDefinition(router.getTmpdir())
@@ -67,6 +63,7 @@ public class UtowHandler implements HttpHandler {
           .createParser(exchange);
       if (parser == null) {
         // Read raw body
+        Router.Match route = router.match(context);
         Receiver receiver = exchange.getRequestReceiver();
         UtowBodyHandler reader = new UtowBodyHandler(route, context, bufferSize, maxRequestSize);
         if (len > 0 && len <= bufferSize) {
@@ -76,12 +73,13 @@ public class UtowHandler implements HttpHandler {
         }
       } else {
         try {
-          parser.parse(execute(route, context));
+          parser.parse(execute(router, context));
         } catch (Exception x) {
           context.sendError(x, StatusCode.BAD_REQUEST);
         }
       }
     } else {
+      Router.Match route = router.match(context);
       route.execute(context);
     }
   }
@@ -94,7 +92,7 @@ public class UtowHandler implements HttpHandler {
     }
   }
 
-  private static HttpHandler execute(Router.Match route, Context ctx) {
-    return exchange -> route.execute(ctx);
+  private static HttpHandler execute(Router router, Context ctx) {
+    return exchange -> router.match(ctx).execute(ctx);
   }
 }

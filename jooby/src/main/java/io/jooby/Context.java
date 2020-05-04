@@ -182,6 +182,14 @@ public interface Context extends Registry {
   @Nonnull String getMethod();
 
   /**
+   * Set HTTP method in upper-case form.
+   *
+   * @param method HTTP method in upper-case form.
+   * @return This context.
+   */
+  @Nonnull Context setMethod(@Nonnull String method);
+
+  /**
    * Matching route.
    *
    * @return Matching route.

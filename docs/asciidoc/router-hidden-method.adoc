@@ -1,0 +1,70 @@
+==== Hidden Method
+
+The javadoc:Router[setHiddenMethod, java.lang.String] option allow clients to override the HTTP
+method using a hidden form field.
+
+.Client
+[source, html]
+----
+<form method="post" action="/form">
+  <input type="hidden" name="_method" value="put">
+</form>
+----
+
+.Server
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+...
+{
+
+  setHiddenMethod("_method");                         <1>
+
+  put("/form", ctx -> {                               <2>
+    
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+...
+{
+  setHiddenMethod("_method")                          <1>
+  
+  put("/form", ctx -> {                               <2>
+    
+  });
+}
+----
+
+<1> Configure hidden method property to read the form field: `_method`
+<2> Execute the put version of `/form`
+
+The default implementation looks for a form field from POST form/multipart request. You can provide
+a different strategy.
+
+.HTTP Header
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+...
+{
+
+  setHiddenMethod(ctx -> ctx.header("X-HTTP-Method-Override").toOptional());  <1>
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+...
+{
+  setHiddenMethod {ctx -> ctx.header("X-HTTP-Method-Override").toOptional()}  <1>
+}
+----
+
+<1> Look for a request header: `X-HTTP-Method-Override`

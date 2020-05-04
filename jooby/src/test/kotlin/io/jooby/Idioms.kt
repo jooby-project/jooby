@@ -49,6 +49,8 @@ class Idioms : Kooby({
 
   routerOptions(IGNORE_CASE, IGNORE_TRAILING_SLASH)
 
+  setHiddenMethod {ctx -> ctx.header("").toOptional()}
+
   environmentOptions {
     this.activeNames = listOf("foo")
     this.basedir = Paths.get(".").toString()

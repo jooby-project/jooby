@@ -54,6 +54,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -731,6 +732,17 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public ServerOptions getServerOptions() {
     throw new UnsupportedOperationException();
+  }
+
+  @Nonnull @Override public Router setHiddenMethod(@Nonnull String parameterName) {
+    setHiddenMethod(new DefaultHiddenMethodLookup(parameterName));
+    return this;
+  }
+
+  @Nonnull @Override public Router setHiddenMethod(
+      @Nonnull Function<Context, Optional<String>> provider) {
+    addInitializer(new HiddenMethodInitializer(provider));
+    return this;
   }
 
   @Override public String toString() {

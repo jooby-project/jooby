@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -603,7 +604,7 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Router converter(@Nonnull BeanConverter converter) {
+  @Nonnull @Override public Jooby converter(@Nonnull BeanConverter converter) {
     router.converter(converter);
     return this;
   }
@@ -614,6 +615,17 @@ public class Jooby implements Router, Registry {
 
   @Nonnull @Override public List<BeanConverter> getBeanConverters() {
     return router.getBeanConverters();
+  }
+
+  @Nonnull @Override public Jooby setHiddenMethod(
+      @Nonnull Function<Context, Optional<String>> provider) {
+    router.setHiddenMethod(provider);
+    return this;
+  }
+
+  @Nonnull @Override public Jooby setHiddenMethod(@Nonnull String parameterName) {
+    router.setHiddenMethod(parameterName);
+    return this;
   }
 
   /**

@@ -113,6 +113,11 @@ public class ForwardingContext implements Context {
     return ctx.getMethod();
   }
 
+  @Nonnull @Override public Context setMethod(@Nonnull String method) {
+    ctx.setMethod(method);
+    return this;
+  }
+
   @Override @Nonnull public Route getRoute() {
     return ctx.getRoute();
   }

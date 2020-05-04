@@ -93,7 +93,7 @@ public class JettyContext implements DefaultContext {
   private HashMap<String, String> responseCookies;
   private boolean responseStarted;
   private Boolean resetHeadersOnError;
-  private final String method;
+  private String method;
   private String requestPath;
   private CompletionListeners listeners;
   private String remoteAddress;
@@ -148,6 +148,11 @@ public class JettyContext implements DefaultContext {
 
   @Nonnull @Override public String getMethod() {
     return method;
+  }
+
+  @Nonnull @Override public Context setMethod(@Nonnull String method) {
+    this.method = method.toUpperCase();
+    return this;
   }
 
   @Nonnull @Override public Route getRoute() {

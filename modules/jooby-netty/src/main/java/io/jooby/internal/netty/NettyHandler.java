@@ -5,12 +5,12 @@
  */
 package io.jooby.internal.netty;
 
-import io.jooby.exception.StatusCodeException;
 import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Server;
 import io.jooby.StatusCode;
 import io.jooby.WebSocketCloseStatus;
+import io.jooby.exception.StatusCodeException;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
@@ -52,7 +52,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final int bufferSize;
   private final boolean defaultHeaders;
   private NettyContext context;
-  private Router.Match result;
 
   private final HttpDataFactory factory;
   private InterfaceHttpPostRequestDecoder decoder;
@@ -84,14 +83,11 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         }
         context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
 
-        result = router.match(context);
-
         contentLength = contentLength(req);
         if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
           decoder = newDecoder(req, factory);
         } else {
-          result.execute(context);
-          result = null;
+          router.match(context).execute(context);
         }
       } else if (decoder != null && msg instanceof HttpContent) {
         HttpContent chunk = (HttpContent) msg;
@@ -111,9 +107,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
         if (chunk instanceof LastHttpContent) {
           context.decoder = decoder;
-          resetDecoderState(false);
-          result.execute(context);
-          result = null;
+          Router.Match result = router.match(context);
+          if (result.matches()) {
+            resetDecoderState(false);
+            result.execute(context);
+          } else {
+            resetDecoderState(true);
+          }
         }
       } else if (msg instanceof WebSocketFrame) {
         if (context.webSocket != null) {

@@ -113,12 +113,12 @@ public class MockContext implements DefaultContext {
    * @param method HTTP method.
    * @return This context.
    */
-  @Nonnull public MockContext setMethod(@Nonnull String method) {
-    this.method = method;
+  @Override public @Nonnull MockContext setMethod(@Nonnull String method) {
+    this.method = method.toUpperCase();
     return this;
   }
 
-  @Nonnull @Override public Session session() {
+  @Override public @Nonnull Session session() {
     if (session == null) {
       session = new MockSession(this);
     }

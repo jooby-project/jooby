@@ -5,16 +5,15 @@
  */
 package io.jooby;
 
-import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.stream.Stream;
 
 /**
  * Handle preflight and simple CORS requests. CORS options are set via: {@link Cors}.
@@ -87,15 +86,10 @@ public class CorsHandler implements Route.Decorator {
           // OPTIONS?
           if (ctx.getMethod().equalsIgnoreCase(Router.OPTIONS)) {
             // handle normal OPTIONS
-            Router router = ctx.getRouter();
-            List<String> allow = new ArrayList<>();
-            for (String method : Router.METHODS) {
-              Router.Match match = router.match(methodContext(ctx, method));
-              if (match.matches()) {
-                allow.add(method);
-              }
-            }
-            ctx.setResponseHeader("Allow", allow.stream().collect(Collectors.joining(",")));
+            String allow = Router.METHODS.stream()
+                .flatMap(method -> allowMethod(ctx, method))
+                .collect(Collectors.joining(","));
+            ctx.setResponseHeader("Allow", allow);
             return ctx.send(StatusCode.OK);
           } else {
             log.debug("handling simple cors for: {}", origin);
@@ -108,12 +102,15 @@ public class CorsHandler implements Route.Decorator {
     };
   }
 
-  private static Context methodContext(Context ctx, String method) {
-    return new ForwardingContext(ctx) {
-      @Nonnull @Override public String getMethod() {
-        return method;
-      }
-    };
+  private Stream<String> allowMethod(Context ctx, String method) {
+    String existingMethod = ctx.getMethod();
+    try {
+      ctx.setMethod(method);
+      Router.Match match = ctx.getRouter().match(ctx);
+      return match.matches() ? Stream.of(method) : Stream.empty();
+    } finally {
+      ctx.setMethod(existingMethod);
+    }
   }
 
   private static void simple(final Context ctx, final Cors options, final String origin) {

@@ -129,7 +129,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Map<String, String> responseCookies;
   private Boolean resetHeadersOnError;
   NettyWebSocket webSocket;
-  private final String method;
+  private String method;
   private CompletionListeners listeners;
   private String remoteAddress;
   private String host;
@@ -161,6 +161,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public String getMethod() {
     return method;
+  }
+
+  @Nonnull @Override public Context setMethod(@Nonnull String method) {
+    this.method = method.toUpperCase();
+    return this;
   }
 
   @Nonnull @Override public Route getRoute() {
