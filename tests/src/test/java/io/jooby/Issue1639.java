@@ -15,6 +15,12 @@ public class Issue1639 {
     runner.define(app -> {
       app.assets("/static/?*", userdir("src", "test", "resources", "static"));
     }).ready(client -> {
+      client.get("/static/..%252ffiles/fileupload.js", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+      client.get("/static/../files/fileupload.js", rsp -> {
+        assertEquals(404, rsp.code());
+      });
       client.get("/static/js/index.js", rsp -> {
         assertEquals("(function () { console.log('index.js');});", rsp.body().string().trim());
       });

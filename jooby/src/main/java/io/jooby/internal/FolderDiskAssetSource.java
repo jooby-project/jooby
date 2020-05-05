@@ -25,8 +25,7 @@ public class FolderDiskAssetSource implements AssetSource {
     if (resource.startsWith(location)) {
       if (Files.isRegularFile(resource)) {
         return Asset.create(resource);
-      }
-      if (Files.isDirectory(resource)) {
+      } else if (Files.isDirectory(resource)) {
         Path index = resource.resolve("index.html");
         if (Files.isRegularFile(index)) {
           return Asset.create(index);
