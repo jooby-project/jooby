@@ -22,6 +22,8 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
+
 public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
 
   private String pattern;
@@ -79,6 +81,7 @@ public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
     SecurityLogic securityLogic = config.getSecurityLogic();
     String clients = ctx.getContext().query(clientName(securityLogic))
         .value(this.clients);
+    String authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);
     return securityLogic.perform(ctx, config, grantAccessAdapter, config.getHttpActionAdapter(),
         clients, authorizers, null, options.getMultiProfile());
   }

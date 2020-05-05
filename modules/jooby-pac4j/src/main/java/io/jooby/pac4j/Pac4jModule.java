@@ -16,6 +16,7 @@ import io.jooby.internal.pac4j.CallbackFilterImpl;
 import io.jooby.internal.pac4j.DevLoginForm;
 import io.jooby.internal.pac4j.ForwardingAuthorizer;
 import io.jooby.internal.pac4j.LogoutImpl;
+import io.jooby.internal.pac4j.NoopAuthorizer;
 import io.jooby.internal.pac4j.SavedRequestHandlerImpl;
 import io.jooby.internal.pac4j.SecurityFilterImpl;
 import io.jooby.internal.pac4j.UrlResolverImpl;
@@ -298,6 +299,8 @@ public class Pac4jModule implements Extension {
         }
       }
     }
+
+    pac4j.getAuthorizers().put(NoopAuthorizer.NAME, new NoopAuthorizer());
 
     /** Default callback URL if none was set at client level: */
     clients.setCallbackUrl(ofNullable(clients.getCallbackUrl())
