@@ -6,6 +6,7 @@ import io.jooby.json.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.netty.Netty;
+import io.jooby.thymeleaf.ThymeleafModule;
 import io.jooby.utow.Utow;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -2317,24 +2318,6 @@ public class FeaturedTest {
                 clearCookie);
           });
         });
-      });
-    });
-  }
-
-  @ServerTest
-  public void templateEngines(ServerTestRunner runner) {
-    runner.define(app -> {
-      app.install(new HandlebarsModule());
-      app.install(new FreemarkerModule());
-
-      app.get("/1", ctx -> new ModelAndView("index.hbs").put("name", "Handlebars"));
-      app.get("/2", ctx -> new ModelAndView("index.ftl").put("name", "Freemarker"));
-    }).ready(client -> {
-      client.get("/1", rsp -> {
-        assertEquals("Hello Handlebars!", rsp.body().string().trim());
-      });
-      client.get("/2", rsp -> {
-        assertEquals("Hello Freemarker!", rsp.body().string().trim());
       });
     });
   }

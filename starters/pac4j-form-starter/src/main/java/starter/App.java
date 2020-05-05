@@ -11,6 +11,7 @@ import io.jooby.pac4j.Pac4jModule;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.http.client.indirect.FormClient;
+import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 import starter.domain.UserRepository;
 import starter.service.PasswordService;
 import starter.service.UserAuthenticator;
@@ -42,9 +43,7 @@ public class App extends Jooby {
   }
 
   private Authenticator<UsernamePasswordCredentials> authenticator() {
-    return (credentials, context) ->
-        new UserAuthenticator(require(UserRepository.class), new PasswordService())
-            .validate(credentials, context);
+    return new SimpleTestUsernamePasswordAuthenticator();
   }
 
   public static void main(String[] args) {

@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import static io.jooby.TemplateEngine.TEMPLATE_PATH;
 import static io.jooby.TemplateEngine.normalizePath;
@@ -96,7 +97,9 @@ public class HandlebarsModule implements Extension {
 
     private TemplateCache cache;
 
-    private String templatesPath = TemplateEngine.PATH;
+    private String templatesPathString = TemplateEngine.PATH;
+
+    private Path templatesPath;
 
     /**
      * Set template cache.
@@ -112,10 +115,21 @@ public class HandlebarsModule implements Extension {
     /**
      * Template path.
      *
+     * @param templatesPathString Set template path.
+     * @return This builder.
+     */
+    public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPathString) {
+      this.templatesPathString = templatesPathString;
+      return this;
+    }
+
+    /**
+     * Template path.
+     *
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPath) {
+    public @Nonnull Builder setTemplatesPath(@Nonnull Path templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
@@ -139,8 +153,9 @@ public class HandlebarsModule implements Extension {
      */
     public @Nonnull Handlebars build(@Nonnull Environment env) {
       if (loader == null) {
-        String templatesPath = normalizePath(env.getProperty(TEMPLATE_PATH, this.templatesPath));
-        loader = defaultTemplateLoader(env, templatesPath);
+        String templatesPathString = normalizePath(
+            env.getProperty(TEMPLATE_PATH, Optional.ofNullable(this.templatesPathString).orElse(TemplateEngine.PATH)));
+        loader = defaultTemplateLoader(env, templatesPathString, templatesPath);
       }
       handlebars.with(loader);
 
@@ -156,13 +171,15 @@ public class HandlebarsModule implements Extension {
       return handlebars;
     }
 
-    private static TemplateLoader defaultTemplateLoader(Environment env, String templatePath) {
-      Path dir = Paths.get(System.getProperty("user.dir"), templatePath);
+    private static TemplateLoader defaultTemplateLoader(Environment env,
+        String templatePathString, Path templatesPath) {
+      Path dir = Optional.ofNullable(templatesPath)
+          .orElse(Paths.get(System.getProperty("user.dir"), templatePathString));
       if (Files.exists(dir)) {
         return new FileTemplateLoader(dir.toFile(), "");
       }
       ClassLoader classLoader = env.getClassLoader();
-      return new ClassPathTemplateLoader(templatePath, "") {
+      return new ClassPathTemplateLoader(templatePathString, "") {
         @Override protected URL getResource(String location) {
           return classLoader.getResource(location);
         }
@@ -174,8 +191,9 @@ public class HandlebarsModule implements Extension {
 
   private Handlebars handlebars;
 
-  private String templatesPath;
+  private String templatesPathString;
 
+  private Path templatesPath;
   /**
    * Creates a new handlebars module.
    *
@@ -192,6 +210,16 @@ public class HandlebarsModule implements Extension {
    *     classpath.
    */
   public HandlebarsModule(@Nonnull String templatesPath) {
+    this.templatesPathString = templatesPath;
+  }
+
+  /**
+   * Creates a new handlebars module.
+   *
+   * @param templatesPath Template location to use. First try to file-system or fallback to
+   *     classpath.
+   */
+  public HandlebarsModule(@Nonnull Path templatesPath) {
     this.templatesPath = templatesPath;
   }
 
@@ -204,7 +232,10 @@ public class HandlebarsModule implements Extension {
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
     if (handlebars == null) {
-      handlebars = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
+      handlebars = create()
+          .setTemplatesPath(templatesPathString)
+          .setTemplatesPath(templatesPath)
+          .build(application.getEnvironment());
     }
     application.encoder(new HbsTemplateEngine(handlebars, EXT));
 

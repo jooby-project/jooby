@@ -79,6 +79,9 @@ public interface TemplateEngine extends MessageEncoder {
    * @return Normalized path.
    */
   static @Nonnull String normalizePath(@Nonnull String templatesPath) {
+    if (templatesPath == null) {
+      return null;
+    }
     return templatesPath.startsWith("/") ? templatesPath.substring(1) : templatesPath;
   }
 }

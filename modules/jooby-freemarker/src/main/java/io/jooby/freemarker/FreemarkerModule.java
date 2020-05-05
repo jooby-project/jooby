@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import static io.jooby.TemplateEngine.TEMPLATE_PATH;
@@ -97,7 +98,9 @@ public class FreemarkerModule implements Extension {
 
     private OutputFormat outputFormat = HTMLOutputFormat.INSTANCE;
 
-    private String templatesPath = TemplateEngine.PATH;
+    private String templatesPathString = TemplateEngine.PATH;
+
+    private Path templatesPath;
 
     /**
      * Template loader to use.
@@ -140,7 +143,18 @@ public class FreemarkerModule implements Extension {
      * @return This builder.
      */
     public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPath) {
-        this.templatesPath = templatesPath;
+      this.templatesPathString = templatesPath;
+      return this;
+    }
+
+    /**
+     * Template path.
+     *
+     * @param templatesPath Set template path.
+     * @return This builder.
+     */
+    public @Nonnull Builder setTemplatesPath(@Nonnull Path templatesPath) {
+      this.templatesPath = templatesPath;
       return this;
     }
 
@@ -162,7 +176,6 @@ public class FreemarkerModule implements Extension {
           conf.getConfig("freemarker").root().unwrapped()
               .forEach((k, v) -> settings.put(k, v.toString()));
         }
-        String templatesPath = normalizePath(env.getProperty(TEMPLATE_PATH, this.templatesPath));
 
         settings.putIfAbsent("defaultEncoding", "UTF-8");
         /** Cache storage: */
@@ -175,12 +188,15 @@ public class FreemarkerModule implements Extension {
 
         /** Template loader: */
         if (templateLoader == null) {
-          templateLoader = defaultTemplateLoader(env, templatesPath);
+          String templatesPathString = normalizePath(
+              env.getProperty(TEMPLATE_PATH, Optional.ofNullable(this.templatesPathString).orElse(TemplateEngine.PATH)));
+          templateLoader = defaultTemplateLoader(env, templatesPathString, templatesPath);
         }
         freemarker.setTemplateLoader(templateLoader);
 
         /** Object wrapper: */
-        DefaultObjectWrapperBuilder dowb = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_22);
+        DefaultObjectWrapperBuilder dowb = new DefaultObjectWrapperBuilder(
+            Configuration.VERSION_2_3_22);
         dowb.setExposeFields(true);
         freemarker.setObjectWrapper(dowb.build());
 
@@ -194,13 +210,15 @@ public class FreemarkerModule implements Extension {
       }
     }
 
-    private TemplateLoader defaultTemplateLoader(Environment env, String templatesPath) {
+    private TemplateLoader defaultTemplateLoader(Environment env, String templatesPathString,
+        Path templatesPath) {
       try {
-        Path templateDir = Paths.get(System.getProperty("user.dir"), templatesPath);
+        Path templateDir = Optional.ofNullable(templatesPath)
+            .orElse(Paths.get(System.getProperty("user.dir"), templatesPathString));
         if (Files.exists(templateDir)) {
           return new FileTemplateLoader(templateDir.toFile());
         }
-        return new ClassTemplateLoader(env.getClassLoader(), "/" + templatesPath);
+        return new ClassTemplateLoader(env.getClassLoader(), "/" + templatesPathString);
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);
       }
@@ -211,7 +229,9 @@ public class FreemarkerModule implements Extension {
 
   private Configuration freemarker;
 
-  private String templatesPath;
+  private String templatesPathString;
+
+  private Path templatesPath;
 
   /**
    * Creates a new freemarker module using a the given freemarker instance.
@@ -229,6 +249,15 @@ public class FreemarkerModule implements Extension {
    * @param templatesPath Template path.
    */
   public FreemarkerModule(@Nonnull String templatesPath) {
+    this.templatesPathString = templatesPath;
+  }
+
+  /**
+   * Freemarker module which look at the given path.
+   *
+   * @param templatesPath Template path.
+   */
+  public FreemarkerModule(@Nonnull Path templatesPath) {
     this.templatesPath = templatesPath;
   }
 
@@ -241,14 +270,16 @@ public class FreemarkerModule implements Extension {
 
   @Override public void install(@Nonnull Jooby application) {
     if (freemarker == null) {
-      freemarker = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
+      freemarker = create()
+          .setTemplatesPath(templatesPathString)
+          .setTemplatesPath(templatesPath)
+          .build(application.getEnvironment());
     }
     application.encoder(new FreemarkerTemplateEngine(freemarker, EXT));
 
     ServiceRegistry services = application.getServices();
     services.put(Configuration.class, freemarker);
   }
-
 
   /**
    * Creates a new freemarker builder.

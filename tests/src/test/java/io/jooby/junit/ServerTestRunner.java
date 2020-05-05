@@ -6,14 +6,12 @@ import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.WebClient;
-import io.jooby.jetty.Jetty;
-import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public class ServerTestRunner {
 
@@ -104,6 +102,14 @@ public class ServerTestRunner {
     return server.matchesEventLoopThread(threadName);
   }
 
+  public Path resolvePath(String... segments) {
+    Path path = Paths.get(System.getProperty("user.dir"));
+    for (String segment : segments) {
+      path = path.resolve(segment);
+    }
+    return path;
+  }
+
   @Override public String toString() {
     StringBuilder message = new StringBuilder();
     message.append(testName).append("(");
@@ -113,19 +119,6 @@ public class ServerTestRunner {
     }
     message.append(")");
     return message.toString();
-  }
-
-  private static String testName(Exception x) {
-    StackTraceElement caller = Stream.of(x.getStackTrace())
-        .skip(1)
-        .findFirst()
-        .get();
-    String className = caller.getClassName();
-    int i = className.lastIndexOf('.');
-    if (i > 0) {
-      className = className.substring(i + 1);
-    }
-    return className + "." + caller.getMethodName();
   }
 
   private AssertionError serverInfo(AssertionError x) {

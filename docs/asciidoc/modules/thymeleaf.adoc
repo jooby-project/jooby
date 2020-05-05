@@ -1,0 +1,107 @@
+== Thymeleaf
+
+https://www.thymeleaf.org/index.html[Thymeleaf templates] template engine module.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-thymeleaf"]
+.
+
+2) Write your templates inside the `views` folder
+
+.views/index.html
+[source, html]
+----
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<p>
+  Hello <span th:text="${name}">World</span>
+</p>
+</body>
+</html>
+----
+
+3) Install and use thymeleaf templates
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.thymeleaf.ThymeleafModule;
+
+{
+  install(new ThymeleafModule());
+
+  get("/", ctx -> {
+    return new ModelAndView("index.html")
+        .put("name", "Jooby");
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.thymeleaf.ThymeleafModule
+
+{
+  install(ThymeleafModule())
+  
+  get("/") {
+    ModelAndView("index.html")
+        .put("name", "Jooby")
+  }
+}
+----
+
+Template engine supports the following file extensions: `.thl`, `.thl.html` and `.html`.
+
+=== Templates Location
+
+Template location is set to `views`. The `views` folder/location is expected to be at the current
+user directory or at root of classpath.
+
+You can override the default location by setting the `templates.path` property in the application
+configuration file or programmatically at creation time.
+
+=== Template Cache
+
+The thymeleaf module turn off cache while running in `dev` or `test` environment. For any other
+environment it use the https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#template-cache[default cache settings].
+
+=== Configuration
+
+Advanced configuration options are available by providing an instance of `TemplateEngine`
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.thymeleaf.ThymeleafModule;
+
+{
+  TemplateEngine templateEngine = new TemplateEngine();
+  // configure as need it
+
+  install(new ThymeleafModule(templateEngine));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.thymeleaf.ThymeleafModule
+
+{
+  val templateEngine = TemplateEngine()
+  // configure as need it
+ 
+  install(ThymeleafModule(templateEngine))
+}
+----
+
+[TIP]
+====
+There is a builder function to create a `TemplateEngine`: javadoc:thymeleaf.ThymeleafModule[create].
+====
