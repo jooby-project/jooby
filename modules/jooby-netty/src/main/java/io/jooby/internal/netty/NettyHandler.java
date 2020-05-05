@@ -108,12 +108,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         if (chunk instanceof LastHttpContent) {
           context.decoder = decoder;
           Router.Match result = router.match(context);
-          if (result.matches()) {
-            resetDecoderState(false);
-            result.execute(context);
-          } else {
-            resetDecoderState(true);
-          }
+          resetDecoderState(!result.matches());
+          result.execute(context);
         }
       } else if (msg instanceof WebSocketFrame) {
         if (context.webSocket != null) {
