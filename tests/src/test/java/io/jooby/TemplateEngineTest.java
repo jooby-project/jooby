@@ -34,7 +34,7 @@ public class TemplateEngineTest {
             + "  Hello <span>Thymeleaf</span>\n"
             + "</p>\n"
             + "</body>\n"
-            + "</html>", rsp.body().string().trim());
+            + "</html>", rsp.body().string().replace("\r", "").trim());
       });
     });
   }
@@ -54,7 +54,7 @@ public class TemplateEngineTest {
             + "  Hello <span>Thymeleaf</span>\n"
             + "</p>\n"
             + "</body>\n"
-            + "</html>", rsp.body().string().trim());
+            + "</html>", rsp.body().string().replace("\r", "").trim());
       });
     });
   }
