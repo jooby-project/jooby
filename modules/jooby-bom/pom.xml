@@ -29,7 +29,7 @@
   <compile-testing.version>0.18</compile-testing.version>
   <config.version>1.4.0</config.version>
   <cron-utils.version>9.0.2</cron-utils.version>
-  <ebean.version>12.2.4</ebean.version>
+  <ebean.version>12.3.1</ebean.version>
   <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
   <flyway.version>6.4.0</flyway.version>
   <freemarker.version>2.3.30</freemarker.version>
