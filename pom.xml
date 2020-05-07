@@ -32,7 +32,7 @@
     <mysql-connector-java.version>8.0.20</mysql-connector-java.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.200</h2.version>
-    <hibernate.version>5.4.14.Final</hibernate.version>
+    <hibernate.version>5.4.15.Final</hibernate.version>
     <ebean.version>12.3.1</ebean.version>
     <jdbi.version>3.12.2</jdbi.version>
     <flyway.version>6.4.1</flyway.version>
