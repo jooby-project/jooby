@@ -89,8 +89,19 @@ public @interface JoobyTest {
    */
   Class<? extends Jooby> value();
 
+  /**
+   * Factory class (owner of {@link #factoryMethod()}. Use for create an application
+   * programmatically.
+   *
+   * @return Factory class or fallback for current test class.
+   */
   Class<?> factoryClass() default Object.class;
 
+  /**
+   * Name of factory method  to create an application programmatically.
+   *
+   * @return  Name of factory method  to create an application programmatically.
+   */
   String factoryMethod() default "";
 
   /**
