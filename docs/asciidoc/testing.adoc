@@ -398,3 +398,86 @@ These values can be injected via parameter or instance fields.
 
 The javadoc:JoobyTest[] annotation starts the application using the `test` environment name. You can
 creates a `conf/application.test.conf` file to override any other values for testing purpose.
+
+==== Arguments
+
+Application arguments are supported using a `factory method` strategy:
+
+.App
+[source,java,role="primary"]
+----
+public class App extends Jooby {
+  public App(String argument) {         // <1>
+    get("/", ctx -> "Easy testing!");
+  }
+}
+----
+
+.Kotlin
+[source,java,role="kotlin"]
+----
+class App(argument: String): Kooby({    // <1>
+  get("/") { ctx ->
+    "Easy testing!"
+  }
+})
+----
+
+<1> Application requires a String argument
+
+Write a test:
+
+.TestApp
+[source,java,role="primary"]
+----
+import io.jooby.JoobyTest;
+
+public class TestApp {
+  
+  @JoobyTest(value = App.class, factoryMethod = "createApp")         // <1>
+  public void test() {
+    Request request = new Request.Builder()
+        .url("http://localhost:8911")
+        .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      assertEquals("Easy testing!", response.body().string());
+    }
+  }
+
+  public App createApp() {                                           // <2>
+    return new App("Argument");                                      // <3>
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.JoobyTest
+
+class TestApp {
+  
+  @JoobyTest(value = App.class, factoryMethod = "createApp")         // <1>
+  fun test() {
+    val request = Request.Builder()
+        .url("http://localhost:8911")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+      assertEquals("Easy testing!", response.body().string())
+    }
+  }
+
+  fun createApp() {                                                  // <2>
+    return App("Argument")                                           // <3>
+  }
+}
+----
+
+<1> Specify a factory method: `createApp`
+<2> Creates the method: must be public and without arguments
+<3> Creates your application
+
+If you prefer the annotation at class level (shared application between tests) the factory method
+must be static.

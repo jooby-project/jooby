@@ -33,4 +33,34 @@ public class AppPerTestUsingJoobyTest {
       assertEquals("OK", response.body().string());
     }
   }
+
+  @JoobyTest(value = TestArgApp.class, factoryMethod = "createApp")
+  public void shouldUseFactoryMethod(int serverPort) throws IOException {
+    Request request = new Request.Builder()
+        .url("http://localhost:" + serverPort + "/")
+        .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      assertEquals("TEST", response.body().string());
+    }
+  }
+
+  @JoobyTest(value = TestArgApp.class, factoryMethod = "createStaticApp")
+  public void shouldUseStaticFactoryMethod(int serverPort) throws IOException {
+    Request request = new Request.Builder()
+        .url("http://localhost:" + serverPort + "/")
+        .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      assertEquals("TEST", response.body().string());
+    }
+  }
+
+  public Jooby createApp() {
+    return new TestArgApp("TEST");
+  }
+
+  public static Jooby createStaticApp() {
+    return new TestArgApp("TEST");
+  }
 }

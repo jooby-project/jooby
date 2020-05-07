@@ -89,6 +89,10 @@ public @interface JoobyTest {
    */
   Class<? extends Jooby> value();
 
+  Class<?> factoryClass() default Object.class;
+
+  String factoryMethod() default "";
+
   /**
    * Application environment, default is <code>test</code>.
    *

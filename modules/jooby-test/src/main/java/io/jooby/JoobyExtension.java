@@ -17,11 +17,14 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static io.jooby.SneakyThrows.throwingConsumer;
 
 /**
  * JUnit extension that control lifecycle of Jooby applications on tests. The extension shouldn't
@@ -40,24 +43,29 @@ public class JoobyExtension implements BeforeAllCallback, BeforeEachCallback, Af
   }
 
   @Override public void beforeAll(ExtensionContext context) throws Exception {
-    context.getElement().ifPresent(element -> {
+    context.getElement().ifPresent(throwingConsumer(element -> {
       JoobyTest metadata = element.getAnnotation(JoobyTest.class);
       if (metadata != null) {
-        startApp(context, metadata.value(), metadata.environment(),
-            port(metadata.port(), DEFAULT_PORT), metadata.executionMode());
+        startApp(context, metadata);
       }
-    });
+    }));
   }
 
-  private Jooby startApp(ExtensionContext context, Class applicationClass,
-      String environment, int port, ExecutionMode executionMode) {
-    Jooby app = Jooby.createApp(new String[]{environment}, executionMode, applicationClass);
+  private Jooby startApp(ExtensionContext context, JoobyTest metadata) throws Exception {
+    Jooby app;
+    String factoryMethod = metadata.factoryMethod();
+    if (factoryMethod.isEmpty()) {
+      app = Jooby.createApp(new String[]{metadata.environment()}, metadata.executionMode(),
+          metadata.value());
+    } else {
+      app = fromFactoryMethod(context, metadata, factoryMethod);
+    }
     ServerOptions serverOptions = app.getServerOptions();
     if (serverOptions == null) {
       serverOptions = new ServerOptions();
       app.setServerOptions(serverOptions);
     }
-    serverOptions.setPort(port);
+    serverOptions.setPort(port(metadata.port(), DEFAULT_PORT));
     Server server = app.start();
     ExtensionContext.Store store = getStore(context);
     store.put("server", server);
@@ -66,13 +74,12 @@ public class JoobyExtension implements BeforeAllCallback, BeforeEachCallback, Af
   }
 
   @Override public void beforeEach(ExtensionContext context) throws Exception {
-    context.getElement().ifPresent(element -> {
+    context.getElement().ifPresent(throwingConsumer(element -> {
       JoobyTest metadata = element.getAnnotation(JoobyTest.class);
       if (metadata != null) {
-        startApp(context, metadata.value(), metadata.environment(),
-            port(metadata.port(), 0), metadata.executionMode());
+        startApp(context, metadata);
       }
-    });
+    }));
   }
 
   @Override public void afterAll(ExtensionContext context) throws Exception {
@@ -175,6 +182,30 @@ public class JoobyExtension implements BeforeAllCallback, BeforeEachCallback, Af
           field.set(instance, injectionPoint.get());
         }
       }
+    }
+  }
+
+  private Jooby fromFactoryMethod(ExtensionContext context, JoobyTest metadata,
+      String factoryMethod) throws Exception {
+    Class<?> factoryClass = metadata.factoryClass();
+    if (factoryClass == Object.class) {
+      factoryClass = context.getRequiredTestClass();
+    }
+    try {
+      Method factory = factoryClass.getMethod(factoryMethod);
+      Class<?> returnType = factory.getReturnType();
+      if (!Jooby.class.isAssignableFrom(returnType)) {
+        throw new IllegalStateException(
+            "Factory method must return a Jooby application: " + factory);
+      }
+      if (Modifier.isStatic(factory.getModifiers())) {
+        return (Jooby) factory.invoke(null);
+
+      } else {
+        return (Jooby) factory.invoke(context.getRequiredTestInstance());
+      }
+    } catch (InvocationTargetException e) {
+      throw SneakyThrows.propagate(e);
     }
   }
 }
