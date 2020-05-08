@@ -2,10 +2,11 @@
 <project default="redoc">
 
   <target name="redoc">
-    <property name="buildDir" value="${basedir}${file.separator}target${file.separator}classes" />
-    <property name="redocDir" value="${buildDir}${file.separator}redoc" />
-    <mkdir dir="${redocDir}" />
-    <get src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js" usetimestamp="true" skipexisting="true" dest="${redocDir}"/>
+    <property name="src" value="${basedir}${file.separator}src${file.separator}main${file.separator}resources" />
+    <property name="output" value="${src}${file.separator}redoc" />
+    <mkdir dir="${output}" />
+    <get src="https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js" usetimestamp="true"
+         dest="${output}"/>
   </target>
 
 </project>
