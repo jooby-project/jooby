@@ -2,11 +2,9 @@
 <project default="redoc">
 
   <target name="redoc">
-    <property name="src" value="${basedir}${file.separator}src${file.separator}main${file.separator}resources" />
-    <property name="output" value="${src}${file.separator}redoc" />
+    <property name="output" value="${basedir}${file.separator}target${file.separator}classes${file.separator}redoc" />
     <mkdir dir="${output}" />
-    <get src="https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js" usetimestamp="true"
-         dest="${output}"/>
+    <copy file="node_modules${file.separator}redoc${file.separator}bundles${file.separator}redoc.standalone.js" tofile="${output}${file.separator}redoc.standalone.js"/>
   </target>
 
 </project>

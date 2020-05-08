@@ -36,28 +36,28 @@
 
   <build>
     <plugins>
-<!--      <plugin>-->
-<!--        <groupId>com.github.eirslett</groupId>-->
-<!--        <artifactId>frontend-maven-plugin</artifactId>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <goals>-->
-<!--              <goal>install-node-and-npm</goal>-->
-<!--            </goals>-->
-<!--            <phase>generate-resources</phase>-->
-<!--          </execution>-->
-<!--          <execution>-->
-<!--            <id>npm install</id>-->
-<!--            <goals>-->
-<!--              <goal>npm</goal>-->
-<!--            </goals>-->
-<!--            <phase>generate-resources</phase>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--        <configuration>-->
-<!--          <nodeVersion>${node.version}</nodeVersion>-->
-<!--        </configuration>-->
-<!--      </plugin>-->
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <nodeVersion>${node.version}</nodeVersion>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
