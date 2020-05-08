@@ -72,7 +72,6 @@
     <!--OpenAPI-->
     <swagger.version>2.1.2</swagger.version>
     <swagger-parser.version>2.0.19</swagger-parser.version>
-    <swagger-ui.version>3.25.0</swagger-ui.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- javax -->
@@ -665,12 +664,6 @@
         <groupId>io.swagger.parser.v3</groupId>
         <artifactId>swagger-parser</artifactId>
         <version>${swagger-parser.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.webjars</groupId>
-        <artifactId>swagger-ui</artifactId>
-        <version>${swagger-ui.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.unbescape/unbescape -->

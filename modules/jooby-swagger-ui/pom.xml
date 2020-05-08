@@ -37,25 +37,25 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>${maven-dependency-plugin.version}</version>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
         <executions>
           <execution>
-            <phase>generate-resources</phase>
             <goals>
-              <goal>unpack</goal>
+              <goal>install-node-and-npm</goal>
             </goals>
+            <phase>generate-resources</phase>
+          </execution>
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
           </execution>
         </executions>
         <configuration>
-          <artifactItems>
-            <artifactItem>
-              <groupId>org.webjars</groupId>
-              <artifactId>swagger-ui</artifactId>
-              <version>${swagger-ui.version}</version>
-              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-            </artifactItem>
-          </artifactItems>
+          <nodeVersion>${node.version}</nodeVersion>
         </configuration>
       </plugin>
 
