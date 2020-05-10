@@ -1636,6 +1636,7 @@ public interface Route {
     public AssetDefinition(final String method, final String pattern,
         final Route.Filter handler, boolean caseSensitiveRouting) {
       super(method, pattern, handler, caseSensitiveRouting);
+      filter().setRoute(this);
     }
 
     @Nonnull

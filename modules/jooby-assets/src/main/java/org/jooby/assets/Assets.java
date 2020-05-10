@@ -209,6 +209,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.jooby.Env;
 import org.jooby.Jooby;
+import org.jooby.Route;
 import org.jooby.Router;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.assets.AssetVars;
