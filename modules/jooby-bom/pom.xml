@@ -107,7 +107,7 @@
   <spring.version>5.2.5.RELEASE</spring.version>
   <stork-maven-plugin.version>3.0.0</stork-maven-plugin.version>
   <swagger-parser.version>2.0.19</swagger-parser.version>
-  <swagger-ui.version>3.25.0</swagger-ui.version>
+  <swagger-ui.version>3.25.2</swagger-ui.version>
   <swagger.version>2.1.2</swagger.version>
   <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
   <truth.version>1.0.1</truth.version>
