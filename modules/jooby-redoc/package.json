@@ -4,6 +4,6 @@
   "private": true,
   "license": "ASF",
   "dependencies": {
-    "redoc": "^2.0.0-rc.28"
+    "redoc": "^2.0.0-rc.29"
   }
 }
