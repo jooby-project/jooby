@@ -14,6 +14,7 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -40,7 +41,16 @@ public class ClassPathAssetSource implements AssetSource {
   }
 
   @Nullable @Override public Asset resolve(@Nonnull String path) {
-    String fullpath = isDir ? prefix + path : source;
+    String fullpath;
+    if (isDir) {
+      fullpath = safePath(prefix + path);
+      if (!fullpath.startsWith(prefix)) {
+        return null;
+      }
+    } else {
+      fullpath = source;
+    }
+
     URL resource = loader.getResource(fullpath);
     if (resource == null) {
       return null;
@@ -84,5 +94,24 @@ public class ClassPathAssetSource implements AssetSource {
     } catch (Exception x) {
       return true;
     }
+  }
+
+  private static String safePath(String path) {
+    if (path.indexOf("./") > 0) {
+      return normalize(path.split("/"));
+    }
+    return path;
+  }
+
+  private static String normalize(String[] segments) {
+    Path path = Paths.get(segments[0]);
+    for (int i = 1; i < segments.length; i++) {
+      path = path.resolve(segments[i]);
+    }
+    StringBuilder buffer = new StringBuilder();
+    for (Path segment : path.normalize()) {
+      buffer.append("/").append(segment);
+    }
+    return buffer.substring(1);
   }
 }

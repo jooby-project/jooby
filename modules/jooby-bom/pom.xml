@@ -16,12 +16,12 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.8.2</jooby.version>
+  <jooby.version>2.8.3-SNAPSHOT</jooby.version>
   <HikariCP.version>3.4.4</HikariCP.version>
   <archetype-packaging.version>3.1.2</archetype-packaging.version>
   <asm.version>8.0.1</asm.version>
   <auto-service.version>1.0-rc6</auto-service.version>
-  <aws-java-sdk.version>1.11.770</aws-java-sdk.version>
+  <aws-java-sdk.version>1.11.778</aws-java-sdk.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
   <bucket4j-core.version>4.10.0</bucket4j-core.version>
   <checkstyle.version>8.32</checkstyle.version>
@@ -54,9 +54,9 @@
   <jdbi.version>3.12.2</jdbi.version>
   <jetty.version>9.4.28.v20200408</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jmespath-java.version>1.11.779</jmespath-java.version>
-  <jooby-maven-plugin.version>2.8.2</jooby-maven-plugin.version>
-  <jooby.version>2.8.2</jooby.version>
+  <jmespath-java.version>1.11.778</jmespath-java.version>
+  <jooby-maven-plugin.version>2.8.3-SNAPSHOT</jooby-maven-plugin.version>
+  <jooby.version>2.8.3-SNAPSHOT</jooby.version>
   <json.version>20190722</json.version>
   <jsonwebtoken.version>0.11.1</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -93,6 +93,7 @@
   <mysql-connector-java.version>8.0.20</mysql-connector-java.version>
   <netty.version>4.1.49.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+  <node.version>v12.16.3</node.version>
   <okhttp.version>4.6.0</okhttp.version>
   <pac4j.version>4.0.0</pac4j.version>
   <pebble.version>3.1.2</pebble.version>
@@ -107,7 +108,6 @@
   <spring.version>5.2.5.RELEASE</spring.version>
   <stork-maven-plugin.version>3.0.0</stork-maven-plugin.version>
   <swagger-parser.version>2.0.19</swagger-parser.version>
-  <swagger-ui.version>3.25.2</swagger-ui.version>
   <swagger.version>2.1.2</swagger.version>
   <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
   <truth.version>1.0.1</truth.version>
@@ -552,12 +552,6 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>swagger-ui</artifactId>
-      <version>${swagger-ui.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
       <groupId>org.unbescape</groupId>
       <artifactId>unbescape</artifactId>
       <version>${unbescape.version}</version>
@@ -939,6 +933,12 @@
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
       <version>${plexus-utils.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-iotsitewise</artifactId>
+      <version>${aws-java-sdk.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
