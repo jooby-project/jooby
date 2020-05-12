@@ -42,7 +42,7 @@
 
     <!-- dependency injection -->
     <weld.version>3.1.4.Final</weld.version>
-    <spring.version>5.2.5.RELEASE</spring.version>
+    <spring.version>5.2.6.RELEASE</spring.version>
     <guice.version>4.2.3</guice.version>
 
     <!-- logging -->
