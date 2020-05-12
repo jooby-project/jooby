@@ -226,6 +226,15 @@ public interface Router extends Registry {
    */
   @Nonnull Router setHiddenMethod(@Nonnull Function<Context, Optional<String>> provider);
 
+  /**
+   * Provides a way to set the current user from a {@link Context}. Current user can be retrieve it
+   * using {@link Context#getUser()}.
+   *
+   * @param provider User provider/factory.
+   * @return This router.
+   */
+  @Nonnull Router setCurrentUser(@Nullable Function<Context, Object> provider);
+
   /* ***********************************************************************************************
    * use(Router)
    * ***********************************************************************************************

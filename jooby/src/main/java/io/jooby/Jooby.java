@@ -623,6 +623,12 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  @Nonnull @Override public Jooby setCurrentUser(
+      @Nonnull Function<Context, Object> provider) {
+    router.setCurrentUser(provider);
+    return this;
+  }
+
   @Nonnull @Override public Jooby setHiddenMethod(@Nonnull String parameterName) {
     router.setHiddenMethod(parameterName);
     return this;

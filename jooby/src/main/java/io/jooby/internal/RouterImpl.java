@@ -745,6 +745,12 @@ public class RouterImpl implements Router {
     return this;
   }
 
+  @Nonnull @Override public Router setCurrentUser(
+      @Nonnull Function<Context, Object> provider) {
+    addInitializer(new CurrentUserInitializer(provider));
+    return this;
+  }
+
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
     if (routes != null) {

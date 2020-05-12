@@ -8,7 +8,6 @@ package io.jooby.internal.pac4j;
 import io.jooby.Context;
 import io.jooby.Value;
 import io.jooby.pac4j.Pac4jContext;
-import io.jooby.pac4j.Pac4jOptions;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.session.SessionStore;
 
@@ -24,11 +23,9 @@ import java.util.stream.Stream;
 public class WebContextImpl implements Pac4jContext {
 
   private Context context;
-  private Pac4jOptions options;
 
-  public WebContextImpl(Context context, Pac4jOptions options) {
+  public WebContextImpl(Context context) {
     this.context = context;
-    this.options = options;
   }
 
   @Override

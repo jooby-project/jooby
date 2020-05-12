@@ -17,6 +17,7 @@ import io.jooby.internal.pac4j.DevLoginForm;
 import io.jooby.internal.pac4j.ForwardingAuthorizer;
 import io.jooby.internal.pac4j.LogoutImpl;
 import io.jooby.internal.pac4j.NoopAuthorizer;
+import io.jooby.internal.pac4j.Pac4jCurrentUser;
 import io.jooby.internal.pac4j.SavedRequestHandlerImpl;
 import io.jooby.internal.pac4j.SecurityFilterImpl;
 import io.jooby.internal.pac4j.UrlResolverImpl;
@@ -321,7 +322,7 @@ public class Pac4jModule implements Extension {
 
     if (devLogin) {
       application
-          .get("/login", new DevLoginForm(pac4j, options, contextPath + options.getCallbackPath()));
+          .get("/login", new DevLoginForm(pac4j, contextPath + options.getCallbackPath()));
     }
 
     /** If we have multiple clients on specific paths, we collect those path and configure pac4j
@@ -405,6 +406,11 @@ public class Pac4jModule implements Extension {
         options.setDefaultUrl(defaultUrl);
       });
     }
+    /**
+     * Set current user provider
+     */
+    application.setCurrentUser(new Pac4jCurrentUser());
+    // cleanup
     clientMap.clear();
   }
 

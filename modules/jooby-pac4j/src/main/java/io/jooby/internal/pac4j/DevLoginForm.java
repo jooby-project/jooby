@@ -59,13 +59,10 @@ public class DevLoginForm implements Route.Handler {
 
   private Config pac4j;
 
-  private Pac4jOptions options;
-
   private String callbackPath;
 
-  public DevLoginForm(Config pac4j, Pac4jOptions options, String callbackPath) {
+  public DevLoginForm(Config pac4j, String callbackPath) {
     this.pac4j = pac4j;
-    this.options = options;
     this.callbackPath = callbackPath;
   }
 
@@ -77,7 +74,7 @@ public class DevLoginForm implements Route.Handler {
     ctx.attribute("error", error);
 
     UrlResolver urlResolver = pac4j.getClients().getUrlResolver();
-    String url = urlResolver.compute(callbackPath, Pac4jContext.create(ctx, options));
+    String url = urlResolver.compute(callbackPath, Pac4jContext.create(ctx));
     // default login form
     return ctx.setResponseType(MediaType.html)
         .send(String.format(FORM, error, url, username));
