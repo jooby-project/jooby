@@ -96,7 +96,7 @@
 
     <!-- Kotlin -->
     <kotlin.version>1.3.72</kotlin.version>
-    <kotlinx-coroutines-core.version>1.3.3</kotlinx-coroutines-core.version>
+    <kotlinx-coroutines-core.version>1.3.6</kotlinx-coroutines-core.version>
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.5</jacoco.version>
