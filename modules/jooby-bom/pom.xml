@@ -91,7 +91,7 @@
   <mockito.version>3.3.3</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
   <mysql-connector-java.version>8.0.20</mysql-connector-java.version>
-  <netty.version>4.1.49.Final</netty.version>
+  <netty.version>4.1.50.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <node.version>v12.16.3</node.version>
   <okhttp.version>4.6.0</okhttp.version>
