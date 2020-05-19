@@ -71,7 +71,7 @@
 
     <!--OpenAPI-->
     <swagger.version>2.1.2</swagger.version>
-    <swagger-parser.version>2.0.19</swagger-parser.version>
+    <swagger-parser.version>2.0.20</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- javax -->
