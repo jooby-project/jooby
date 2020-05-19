@@ -35,7 +35,7 @@
     <hibernate.version>5.4.15.Final</hibernate.version>
     <ebean.version>12.3.2</ebean.version>
     <jdbi.version>3.12.2</jdbi.version>
-    <flyway.version>6.4.1</flyway.version>
+    <flyway.version>6.4.2</flyway.version>
     <graphql-java.version>14.0</graphql-java.version>
 
     <config.version>1.4.0</config.version>
