@@ -9,6 +9,7 @@ import io.jooby.Context;
 import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +27,7 @@ public class SingleValue implements ValueNode {
 
   private final String name;
 
-  private final String value;
+  private String value;
 
   public SingleValue(Context ctx, String name, String value) {
     this.ctx = ctx;

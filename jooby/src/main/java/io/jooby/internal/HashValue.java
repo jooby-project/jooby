@@ -76,7 +76,7 @@ public class HashValue implements ValueNode, Formdata {
       for (String value : values) {
         ValueNode existing = scope.get(name);
         if (existing == null) {
-          scope.put(name, new SingleValue(ctx, name, value));
+          scope.put(name, new SingleValue(ctx, name, decode(value)));
         } else {
           ArrayValue list;
           if (existing instanceof ArrayValue) {
@@ -85,10 +85,14 @@ public class HashValue implements ValueNode, Formdata {
             list = new ArrayValue(ctx, name).add(existing);
             scope.put(name, list);
           }
-          list.add(value);
+          list.add(decode(value));
         }
       }
     });
+  }
+
+  protected String decode(String value) {
+    return value;
   }
 
   private void put(String path, BiConsumer<String, Map<String, ValueNode>> consumer) {

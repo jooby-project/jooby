@@ -62,6 +62,6 @@ public interface Multipart extends Formdata {
    * @return Multipart instance.
    */
   static @Nonnull Multipart create(@Nonnull Context ctx) {
-    return new MultipartNode(ctx, null);
+    return new MultipartNode(ctx);
   }
 }

@@ -16,14 +16,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public final class UrlParser {
   private static final char SPACE = 0x20;
 
   public static QueryString queryString(Context ctx, String queryString) {
     if (queryString == null || queryString.length() == 0) {
-      return new QueryStringValue(ctx,"");
+      return new QueryStringValue(ctx, "");
     }
     QueryStringValue result = new QueryStringValue(ctx, "?" + queryString);
     decodeParams(result, queryString, 0, StandardCharsets.UTF_8, 1024);
@@ -31,10 +30,14 @@ public final class UrlParser {
   }
 
   public static String decodePathSegment(String value) {
+    return decode(value, true);
+  }
+
+  public static String decode(String value, boolean isPath) {
     if (value == null || value.length() == 0) {
       return "";
     }
-    return decodeComponent(value, 0, value.length(), StandardCharsets.UTF_8, true);
+    return decodeComponent(value, 0, value.length(), StandardCharsets.UTF_8, isPath);
   }
 
   private static void decodeParams(HashValue root, String s, int from, Charset charset,

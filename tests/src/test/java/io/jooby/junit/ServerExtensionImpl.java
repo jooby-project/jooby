@@ -14,13 +14,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.StreamSupport.stream;
 import static org.junit.platform.commons.util.AnnotationUtils.isAnnotated;
 
 public class ServerExtensionImpl implements TestTemplateInvocationContextProvider {

@@ -1,18 +1,17 @@
 package io.jooby;
 
-import io.jooby.freemarker.FreemarkerModule;
 import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.json.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.netty.Netty;
-import io.jooby.thymeleaf.ThymeleafModule;
 import io.jooby.utow.Utow;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
+import io.undertow.util.URLUtils;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -29,8 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -507,7 +508,7 @@ public class FeaturedTest {
   }
 
   @ServerTest
-  public void queryString(ServerTestRunner runner) {
+  public void queryString(ServerTestRunner runner) throws UnsupportedEncodingException {
     runner.define(app -> {
       app.get("/", ctx -> ctx.queryString() + "@" + ctx.query("q").value(""));
 
@@ -2930,6 +2931,46 @@ public class FeaturedTest {
       client.get("/missing", rsp -> {
         assertEquals("Not Found (404)", rsp.body().string().trim());
         assertEquals(404, rsp.code());
+      });
+    });
+  }
+
+  @ServerTest
+  public void rawVsDecodedValues(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.get("/path/{v}", ctx -> ctx.path("v").value());
+
+      app.get("/tail/*", ctx -> ctx.path("*").value());
+
+      app.get("/query", ctx -> ctx.query("v").value());
+
+      app.post("/form", ctx -> ctx.form("v").value());
+
+      app.post("/multipart", ctx -> ctx.multipart("v").value());
+    }).ready(client-> {
+      client.get("/path/a+b%2f", rsp -> {
+        assertEquals("a+b/", rsp.body().string().trim());
+      });
+
+      client.get("/tail/a+b%2fbar", rsp -> {
+        assertEquals("a+b/bar", rsp.body().string().trim());
+      });
+
+      client.get("/query?v=a+b%2f", rsp -> {
+        assertEquals("a b/", rsp.body().string().trim());
+      });
+
+      client.post("/form", new FormBody.Builder()
+          .add("v", "a+b%2f")
+          .build(), rsp -> {
+        assertEquals("a b/", rsp.body().string());
+      });
+
+      client.post("/multipart", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("v", "a+b%2f")
+          .build(), rsp -> {
+        assertEquals("a b/", rsp.body().string());
       });
     });
   }

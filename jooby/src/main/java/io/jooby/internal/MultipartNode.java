@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MultipartNode extends HashValue implements Multipart {
+public class MultipartNode extends FormdataNode implements Multipart {
   private Map<String, List<FileUpload>> files = new HashMap<>();
 
-  public MultipartNode(Context ctx, String name) {
-    super(ctx, name);
+  public MultipartNode(Context ctx) {
+    super(ctx);
   }
 
   @Override public void put(String name, FileUpload file) {

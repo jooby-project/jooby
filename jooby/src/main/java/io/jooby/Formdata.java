@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import io.jooby.internal.HashValue;
+import io.jooby.internal.FormdataNode;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -51,6 +51,6 @@ public interface Formdata extends ValueNode {
    * @return Formdata.
    */
   static @Nonnull Formdata create(@Nonnull Context ctx) {
-    return new HashValue(ctx, null);
+    return new FormdataNode(ctx);
   }
 }

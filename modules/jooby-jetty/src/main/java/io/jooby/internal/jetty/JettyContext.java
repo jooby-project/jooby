@@ -67,6 +67,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
@@ -571,9 +572,11 @@ public class JettyContext implements DefaultContext {
       Logger log = router.getLog();
       if (x != null) {
         if (Server.connectionLost(x)) {
-          log.debug("exception found while sending response {} {}", getMethod(), getRequestPath(), x);
+          log.debug("exception found while sending response {} {}", getMethod(), getRequestPath(),
+              x);
         } else {
-          log.error("exception found while sending response {} {}", getMethod(), getRequestPath(), x);
+          log.error("exception found while sending response {} {}", getMethod(), getRequestPath(),
+              x);
         }
       }
     } finally {
