@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Arrays;
 
 import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;

@@ -9,7 +9,6 @@ import io.jooby.Context;
 import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;

@@ -14,7 +14,6 @@ import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.StatusCode;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.PrintWriter;

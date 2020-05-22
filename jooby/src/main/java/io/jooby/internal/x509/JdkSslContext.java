@@ -15,7 +15,6 @@
  */
 package io.jooby.internal.x509;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;

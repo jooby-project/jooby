@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,6 +18,6 @@ public class SwaggerResourceTest {
   }
 
   private String asset(String resource) throws IOException {
-    return IOUtils.toString(getClass().getResource("/swagger-ui/" + resource), "UTF-8");
+    return IOUtils.toString(getClass().getResource("/swagger-ui/" + resource), StandardCharsets.UTF_8);
   }
 }

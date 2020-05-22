@@ -5,7 +5,6 @@ import io.jooby.openapi.OpenAPITest;
 import issues.i1601.App1601;
 import issues.i1601.App1601b;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue1601 {

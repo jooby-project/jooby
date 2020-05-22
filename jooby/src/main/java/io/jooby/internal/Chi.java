@@ -28,7 +28,7 @@ class Chi implements RouteTree {
   private static final byte ntParam = 2;                // /{user}
   private static final byte ntCatchAll = 3;               // /api/v1/*
 
-  private static int NODE_SIZE = ntCatchAll + 1;
+  private static final int NODE_SIZE = ntCatchAll + 1;
 
   static final StaticRoute NO_MATCH = new StaticRoute(Collections.emptyMap());
 
@@ -54,10 +54,10 @@ class Chi implements RouteTree {
   static class ZeroCopyString {
     public static final ZeroCopyString EMPTY = new ZeroCopyString(new char[0], 0, 0);
 
-    private int offset;
-    private int length;
+    private final int offset;
+    private final int length;
     private int hash = 0;
-    private char[] value;
+    private final char[] value;
 
     public ZeroCopyString(String source) {
       this.offset = 0;
@@ -496,18 +496,14 @@ class Chi implements RouteTree {
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
     Route findRoute(RouterMatch rctx, String method, ZeroCopyString path) {
-      Node n = this;
-      Node nn = n;
-
-      ZeroCopyString search = path;
 
       for (int ntyp = 0; ntyp < NODE_SIZE; ntyp++) {
-        Node[] nds = nn.children[ntyp];
+        Node[] nds = this.children[ntyp];
         if (nds != null) {
           Node xn = null;
-          ZeroCopyString xsearch = search;
+          ZeroCopyString xsearch = path;
 
-          char label = search.length() > 0 ? search.charAt(0) : ZERO_CHAR;
+          char label = path.length() > 0 ? path.charAt(0) : ZERO_CHAR;
 
           switch (ntyp) {
             case ntStatic:
@@ -760,12 +756,12 @@ class Chi implements RouteTree {
     }
   }
 
-  private static String BASE_CATCH_ALL = "/?*";
+  private static final String BASE_CATCH_ALL = "/?*";
 
-  private Node root = new Node();
+  private final Node root = new Node();
 
   /** Not need to use a concurrent map, due we don't allow to add routes after application started. */
-  private Map<Object, StaticRoute> staticPaths = newMap(16);
+  private final Map<Object, StaticRoute> staticPaths = newMap(16);
 
   static <K, V> Map<K, V> newMap(int size) {
     return new ConcurrentHashMap<>(size);

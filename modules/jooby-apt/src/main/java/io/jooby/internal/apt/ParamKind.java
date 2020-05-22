@@ -8,7 +8,6 @@ package io.jooby.internal.apt;
 import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
-import io.jooby.Session;
 import io.jooby.apt.Annotations;
 import io.jooby.internal.apt.asm.ContextParamWriter;
 import io.jooby.internal.apt.asm.NamedParamWriter;

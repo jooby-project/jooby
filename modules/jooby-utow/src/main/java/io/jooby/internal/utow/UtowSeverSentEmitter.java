@@ -6,7 +6,6 @@
 package io.jooby.internal.utow;
 
 import io.jooby.Context;
-import io.jooby.Router;
 import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
 import io.jooby.ServerSentMessage;
@@ -17,14 +16,11 @@ import io.undertow.server.HttpServerExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.XnioIoThread;
-import org.xnio.XnioWorker;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 

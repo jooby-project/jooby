@@ -33,11 +33,11 @@ public class AttachedFile {
 
   private final MediaType contentType;
 
-  private String fileName;
+  private final String fileName;
 
-  private String contentDisposition;
+  private final String contentDisposition;
 
-  private InputStream content;
+  private final InputStream content;
 
   /**
    * Creates a new file attachment.

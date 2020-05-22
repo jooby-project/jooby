@@ -2,14 +2,11 @@ package io.jooby.openapi;
 
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.OpenAPIExt;
-import io.jooby.internal.openapi.OperationExt;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
-import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class OpenAPIResult {

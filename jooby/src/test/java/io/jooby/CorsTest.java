@@ -115,14 +115,13 @@ public class CorsTest {
   }
 
   private Config baseconf() {
-    Config config = ConfigFactory.empty()
+    return ConfigFactory.empty()
         .withValue("credentials", fromAnyRef(true))
         .withValue("maxAge", fromAnyRef("30m"))
         .withValue("origin", fromAnyRef(Lists.newArrayList()))
         .withValue("exposedHeaders", fromAnyRef(Lists.newArrayList("X")))
         .withValue("methods", fromAnyRef(Lists.newArrayList()))
         .withValue("headers", fromAnyRef(Lists.newArrayList()));
-    return config;
   }
 
 }

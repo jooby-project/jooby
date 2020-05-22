@@ -115,10 +115,9 @@ public class AsmUtils {
     if (value == null) {
       return Collections.emptyList();
     }
-    List<Map<String, Object>> values = value.stream()
+    return value.stream()
         .map(AsmUtils::toMap)
         .collect(Collectors.toList());
-    return values;
   }
 
   public static void boolValue(Map<String, Object> annotation, String property,

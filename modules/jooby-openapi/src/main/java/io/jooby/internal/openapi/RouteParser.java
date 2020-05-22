@@ -525,10 +525,7 @@ public class RouteParser {
             return true;
           }
           if (it instanceof MethodInsnNode) {
-            if (Signature.create((MethodInsnNode) it).matches("<init>", KT_FUN_1)) {
-              return false;
-            }
-            return true;
+            return !Signature.create((MethodInsnNode) it).matches("<init>", KT_FUN_1);
           }
           return false;
         })

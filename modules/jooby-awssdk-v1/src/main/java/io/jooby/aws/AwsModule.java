@@ -63,7 +63,7 @@ import java.util.stream.Stream;
  */
 public class AwsModule implements Extension {
 
-  private List<Function<AWSCredentialsProvider, Object>> factoryList = new ArrayList<>();
+  private final List<Function<AWSCredentialsProvider, Object>> factoryList = new ArrayList<>();
 
   /**
    * Setup a new AWS service. Supported outputs are:

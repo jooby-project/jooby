@@ -5,7 +5,6 @@
  */
 package io.jooby.internal;
 
-import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Router;
 

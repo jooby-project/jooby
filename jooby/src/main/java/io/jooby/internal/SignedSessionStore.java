@@ -6,7 +6,6 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Cookie;
 import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SessionToken;

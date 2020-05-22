@@ -84,7 +84,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -667,19 +666,15 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private void ifSaveSession() {
-    Session session = saveSession();
+    Session session = getSession();
     if (session != null) {
       SessionStore store = router.getSessionStore();
       store.saveSession(this, session);
     }
   }
 
-  private Session saveSession() {
-    Session session = (Session) getAttributes().get(Session.NAME);
-    if (session != null && (session.isNew() || session.isModify())) {
-      return session;
-    }
-    return session;
+  private Session getSession() {
+    return (Session) getAttributes().get(Session.NAME);
   }
 
   private ChannelPromise promise(ChannelFutureListener listener) {
@@ -690,7 +685,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private boolean pendingTasks() {
-    return (saveSession() != null) ||
+    return (getSession() != null) ||
         (listeners != null) ||
         (files != null && files.size() > 0) ||
         (decoder != null) ||

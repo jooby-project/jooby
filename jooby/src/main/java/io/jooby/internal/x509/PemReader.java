@@ -7,12 +7,10 @@ package io.jooby.internal.x509;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.security.KeyException;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;

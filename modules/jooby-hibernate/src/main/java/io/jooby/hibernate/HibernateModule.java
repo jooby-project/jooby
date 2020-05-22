@@ -301,9 +301,7 @@ public class HibernateModule implements Extension {
       if (registry.getOrNull(ServiceKey.key(flyway.get(), key)) != null) {
         return true;
       }
-      if (fallback && registry.getOrNull(flyway.get()) != null) {
-        return true;
-      }
+      return fallback && registry.getOrNull(flyway.get()) != null;
     }
     return false;
   }

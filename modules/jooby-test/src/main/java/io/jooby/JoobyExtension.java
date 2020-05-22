@@ -108,9 +108,9 @@ public class JoobyExtension implements BeforeAllCallback, BeforeEachCallback, Af
 
   private ExtensionContext.Store getStore(ExtensionContext context) {
     Optional<Method> testMethod = context.getTestMethod();
-    ExtensionContext.Namespace namespace = testMethod.isPresent()
-        ? ExtensionContext.Namespace.create(context.getRequiredTestClass(), testMethod.get())
-        : ExtensionContext.Namespace.create(context.getRequiredTestClass());
+    ExtensionContext.Namespace namespace = testMethod
+        .map(m -> ExtensionContext.Namespace.create(context.getRequiredTestClass(), m))
+        .orElseGet(() -> ExtensionContext.Namespace.create(context.getRequiredTestClass()));
     return context.getStore(namespace);
   }
 

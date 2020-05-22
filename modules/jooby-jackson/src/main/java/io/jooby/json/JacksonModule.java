@@ -158,7 +158,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    *
    * @return Object mapper instance.
    */
-  public static final @Nonnull ObjectMapper create() {
+  public static @Nonnull ObjectMapper create() {
     ObjectMapper mapper = JsonMapper.builder()
         .addModule(new ParameterNamesModule())
         .addModule(new Jdk8Module())

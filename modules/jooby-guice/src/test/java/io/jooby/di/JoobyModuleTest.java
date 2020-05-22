@@ -2,7 +2,6 @@ package io.jooby.di;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.AnnotatedConstantBindingBuilder;
 import com.google.inject.binder.ConstantBindingBuilder;

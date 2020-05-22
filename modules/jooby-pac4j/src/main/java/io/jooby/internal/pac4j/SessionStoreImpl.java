@@ -76,7 +76,7 @@ public class SessionStoreImpl
     return true;
   }
 
-  static final Optional<Object> strToObject(final Value node) {
+  static Optional<Object> strToObject(final Value node) {
     if (node.isMissing()) {
       return Optional.empty();
     }
@@ -92,7 +92,7 @@ public class SessionStoreImpl
     }
   }
 
-  static final String objToStr(final Object value) {
+  static String objToStr(final Object value) {
     if (value instanceof CharSequence || value instanceof Number || value instanceof Boolean) {
       return value.toString();
     }

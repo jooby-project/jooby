@@ -45,9 +45,6 @@ public class Utils {
     if (value instanceof Collection) {
       return ((Collection) value).isEmpty();
     }
-    if (value == null) {
-      return true;
-    }
-    return false;
+    return value == null;
   }
 }

@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,6 +24,6 @@ public class RedocResourceTest {
   }
 
   private String asset(String resource) throws IOException {
-    return IOUtils.toString(getClass().getResource("/redoc/" + resource), "UTF-8");
+    return IOUtils.toString(getClass().getResource("/redoc/" + resource), StandardCharsets.UTF_8);
   }
 }

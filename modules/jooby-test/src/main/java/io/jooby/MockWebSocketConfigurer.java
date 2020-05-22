@@ -17,7 +17,6 @@ import javax.annotation.Nonnull;
  */
 public class MockWebSocketConfigurer implements WebSocketConfigurer {
   private final Context ctx;
-  private final WebSocket.Initializer initializer;
   private final MockWebSocketClient client;
   private final MockWebSocket ws;
   private WebSocket.OnClose onClose;
@@ -27,8 +26,7 @@ public class MockWebSocketConfigurer implements WebSocketConfigurer {
 
   MockWebSocketConfigurer(Context ctx, WebSocket.Initializer initializer) {
     this.ctx = ctx;
-    this.initializer = initializer;
-    this.initializer.init(ctx, this);
+    initializer.init(ctx, this);
     this.client = new MockWebSocketClient(this);
     this.ws = new MockWebSocket(ctx, this);
   }

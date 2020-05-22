@@ -17,7 +17,7 @@ public class CallbackFilterImpl implements Route.Handler {
 
   private final Pac4jOptions options;
 
-  private Config config;
+  private final Config config;
 
   public CallbackFilterImpl(Config config, Pac4jOptions options) {
     this.config = config;

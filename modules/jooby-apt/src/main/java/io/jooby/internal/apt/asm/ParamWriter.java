@@ -12,7 +12,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import java.util.Map;
-import java.util.Set;
 
 import static org.objectweb.asm.Type.getType;
 

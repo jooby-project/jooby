@@ -1,7 +1,6 @@
 package io.jooby.apt;
 
 import io.jooby.SneakyThrows;
-import io.jooby.internal.apt.HandlerCompiler;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.ASMifier;
 import org.objectweb.asm.util.Printer;

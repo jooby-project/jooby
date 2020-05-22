@@ -55,9 +55,7 @@ public class SSLHandler implements Route.Before {
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @param port HTTPS port.
-   * @deprecated Use {@link Router#setTrustProxy(boolean)}.
    */
-  @Deprecated
   public SSLHandler(int port) {
     this.host = null;
     this.port = port;

@@ -9,7 +9,6 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.pac4j.Pac4jContext;
-import io.jooby.pac4j.Pac4jOptions;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.http.url.UrlResolver;
 

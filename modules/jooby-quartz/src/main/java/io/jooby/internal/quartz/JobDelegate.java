@@ -6,7 +6,6 @@
 package io.jooby.internal.quartz;
 
 import io.jooby.Registry;
-import io.jooby.Reified;
 import io.jooby.exception.RegistryException;
 import org.quartz.InterruptableJob;
 import org.quartz.JobDetail;

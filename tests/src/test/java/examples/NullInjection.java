@@ -1,7 +1,6 @@
 package examples;
 
 import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
 import io.jooby.annotations.QueryParam;
 
 public class NullInjection {

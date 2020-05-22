@@ -9,19 +9,11 @@ import io.jooby.Router;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpContentCompressor;
-import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.ssl.ApplicationProtocolConfig;
-import io.netty.handler.ssl.CipherSuiteFilter;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.IdentityCipherSuiteFilter;
-import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
 
-import javax.net.ssl.SSLContext;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static io.jooby.ServerOptions._4KB;

@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Map;
-import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Type.getMethodDescriptor;

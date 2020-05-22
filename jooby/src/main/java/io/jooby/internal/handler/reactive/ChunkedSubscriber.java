@@ -19,8 +19,8 @@ public class ChunkedSubscriber {
   private static final byte JSON_SEP = ',';
   private static final byte[] JSON_RBRACKET = {']'};
   private ChunkedSubscription subscription;
-  private Context ctx;
-  private Sender sender;
+  private final Context ctx;
+  private final Sender sender;
   private MediaType responseType;
 
   public ChunkedSubscriber(Context ctx) {

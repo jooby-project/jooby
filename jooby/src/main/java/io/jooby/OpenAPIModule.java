@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -181,7 +182,7 @@ public class OpenAPIModule implements Extension {
 
   private static String readString(AssetSource source, String resource) throws IOException {
     try (InputStream stream = source.resolve(resource).stream()) {
-      return IOUtils.toString(stream, "UTF-8");
+      return IOUtils.toString(stream, StandardCharsets.UTF_8);
     }
   }
 

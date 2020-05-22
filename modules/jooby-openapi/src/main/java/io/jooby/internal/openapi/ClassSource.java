@@ -11,7 +11,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.InputStream;
 
 public class ClassSource {
-  private ClassLoader classLoader;
+  private final ClassLoader classLoader;
 
   public ClassSource(ClassLoader loader) {
     this.classLoader = loader;

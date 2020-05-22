@@ -282,10 +282,7 @@ public class ParamDefinition {
     if (is(Session.class) || is(Optional.class, Session.class)) {
       return true;
     }
-    if (is(Route.class)) {
-      return true;
-    }
-    return false;
+    return is(Route.class);
   }
 
   private boolean isParam(VariableElement parameter, Set<String> annotations) {

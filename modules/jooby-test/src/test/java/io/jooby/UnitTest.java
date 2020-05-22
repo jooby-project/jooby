@@ -4,9 +4,7 @@ import io.reactivex.Single;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 import static io.jooby.StatusCode.NO_CONTENT;
 import static org.junit.jupiter.api.Assertions.assertEquals;

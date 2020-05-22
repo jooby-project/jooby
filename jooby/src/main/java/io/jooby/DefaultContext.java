@@ -197,7 +197,7 @@ public interface DefaultContext extends Context {
 
   @Override default boolean accept(@Nonnull MediaType contentType) {
     Value accept = header(ACCEPT);
-    return accept.isMissing() ? true : contentType.matches(accept.value());
+    return accept.isMissing() || contentType.matches(accept.value());
   }
 
   @Override default MediaType accept(@Nonnull List<MediaType> produceTypes) {
@@ -237,14 +237,10 @@ public interface DefaultContext extends Context {
       url.append(getRequestPath());
     } else {
       String contextPath = getContextPath();
-      if (contextPath.equals("/")) {
-        url.append(path);
-      } else {
-        if (!path.startsWith(contextPath)) {
-          url.append(contextPath);
-        }
-        url.append(path);
+      if (!contextPath.equals("/") && !path.startsWith(contextPath)) {
+        url.append(contextPath);
       }
+      url.append(path);
     }
     url.append(queryString());
 

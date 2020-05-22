@@ -108,7 +108,7 @@ public class JwtSessionStore implements SessionStore {
   static SneakyThrows.Function<String, Map<String, String>> decoder(Key key) {
     return value -> {
       try {
-        Jws<Claims> claims = Jwts.parser().setSigningKey(key).parseClaimsJws(value);
+        Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(value);
         Map<String, String> attributes = new HashMap<>();
         for (Map.Entry<String, Object> entry : claims.getBody().entrySet()) {
           attributes.put(entry.getKey(), entry.getValue().toString());

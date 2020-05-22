@@ -26,7 +26,7 @@ public class ByteArrayBody implements Body {
 
   protected final Context ctx;
 
-  private byte[] bytes;
+  private final byte[] bytes;
 
   public ByteArrayBody(Context ctx, byte[] bytes) {
     this.ctx = ctx;
@@ -81,7 +81,7 @@ public class ByteArrayBody implements Body {
     return Collections.emptyMap();
   }
 
-  public static final Body empty(Context ctx) {
+  public static Body empty(Context ctx) {
     return new ByteArrayBody(ctx, EMPTY);
   }
 }

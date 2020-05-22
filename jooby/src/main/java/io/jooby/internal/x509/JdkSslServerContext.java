@@ -15,7 +15,6 @@
  */
 package io.jooby.internal.x509;
 
-import java.io.File;
 import java.io.InputStream;
 
 import javax.net.ssl.KeyManager;

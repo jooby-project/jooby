@@ -89,7 +89,6 @@ public abstract class NettyTransport {
     @Override public EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio) {
       EpollEventLoopGroup loopGroup = new EpollEventLoopGroup(threads,
           new DefaultThreadFactory(threadName + "-epoll"));
-      loopGroup.setIoRatio(ioRatio);
       return loopGroup;
     }
 

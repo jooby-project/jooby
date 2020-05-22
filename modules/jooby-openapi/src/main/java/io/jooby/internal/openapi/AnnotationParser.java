@@ -325,9 +325,7 @@ public class AnnotationParser {
         ParamType paramType = ParamType.find(annotations);
 
         /** Required: */
-        boolean required = isPrimitive(javaType)
-            ? true
-            : !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
+        boolean required = isPrimitive(javaType) || !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
 
         if (paramType == ParamType.BODY) {
           RequestBodyExt body = new RequestBodyExt();

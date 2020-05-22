@@ -452,7 +452,7 @@ public class Pac4jModule implements Extension {
    * @param excludes Pattern to ignores.
    * @return Default callback logic.
    */
-  public static final DefaultCallbackLogic newCallbackLogic(Set<String> excludes) {
+  public static DefaultCallbackLogic newCallbackLogic(Set<String> excludes) {
     DefaultCallbackLogic callbackLogic = new DefaultCallbackLogic();
     callbackLogic.setSavedRequestHandler(new SavedRequestHandlerImpl(excludes));
     return callbackLogic;
@@ -463,7 +463,7 @@ public class Pac4jModule implements Extension {
    *
    * @return Default url resolver.
    */
-  public static final UrlResolver newUrlResolver() {
+  public static UrlResolver newUrlResolver() {
     return new UrlResolverImpl();
   }
 

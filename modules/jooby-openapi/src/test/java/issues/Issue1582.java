@@ -2,7 +2,6 @@ package issues;
 
 import io.jooby.internal.openapi.OpenAPIExt;
 import io.jooby.openapi.OpenAPIGenerator;
-import io.jooby.openapi.OpenAPIResult;
 import io.swagger.v3.oas.models.info.Info;
 import org.junit.jupiter.api.Test;
 
