@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Sync: 20-01-20
- * Commit: 17fb1065d2b256d20f68bed0b7bca6c2942aff49
+ * Sync: May 22, 2020
+ * Commit: 5704d7ee98edd3fe55169b506531bdd061667c70
  */
 class Chi implements RouteTree {
   private static final String EMPTY_STRING = "";
@@ -320,7 +320,7 @@ class Chi implements RouteTree {
 
           if (segTyp == ntRegexp) {
             child.prefix = seg.rexPat;
-            child.rex = Pattern.compile(seg.rexPat.toString());
+            child.rex = Pattern.compile(seg.rexPat);
           }
 
           if (segStartIdx == 0) {
@@ -471,7 +471,7 @@ class Chi implements RouteTree {
                 }
 
                 if (ntyp == ntRegexp && xn.rex != null) {
-                  if (!xn.rex.matcher(xsearch.substring(0, p).toString()).matches()) {
+                  if (!xn.rex.matcher(xsearch.substring(0, p)).matches()) {
                     continue;
                   }
                 } else if (xsearch.substring(0, p).indexOf('/') != -1) {
@@ -480,12 +480,32 @@ class Chi implements RouteTree {
                 }
 
                 // rctx.routeParams.Values = append(rctx.routeParams.Values, xsearch[:p])
+                int prevlen = rctx.vars.size();
                 rctx.value(xsearch.substring(0, p));
                 xsearch = xsearch.substring(p);
-                break;
+
+                if (xsearch.length() == 0) {
+                  if (xn.isLeaf()) {
+                    Route h = xn.endpoints.get(method);
+                    if (h != null) {
+                      rctx.key(h.getPathKeys());
+                      return h;
+                    }
+                    rctx.methodNotAllowed(xn.endpoints.keySet());
+                  }
+                }
+
+                // recursively find the next node on this branch
+                Route fin = xn.findRoute(rctx, method, xsearch);
+                if (fin != null) {
+                  return fin;
+                }
+
+                // not found on this branch, reset vars
+                rctx.truncate(prevlen);
+                xsearch = path;
               }
               break;
-
             default:
               // catch-all nodes
               // rctx.routeParams.Values = append(rctx.routeParams.Values, search)
@@ -649,7 +669,7 @@ class Chi implements RouteTree {
         int idx = key.indexOf(':');
         if (idx >= 0) {
           nt = ntRegexp;
-          rexpat = key.substring(idx + 1).toString();
+          rexpat = key.substring(idx + 1);
           //          key = key.substring(0, idx);
         }
 

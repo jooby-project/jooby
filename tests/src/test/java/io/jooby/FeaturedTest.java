@@ -2945,7 +2945,7 @@ public class FeaturedTest {
       app.post("/form", ctx -> ctx.form("v").value());
 
       app.post("/multipart", ctx -> ctx.multipart("v").value());
-    }).ready(client-> {
+    }).ready(client -> {
       client.get("/path/a+b%2f", rsp -> {
         assertEquals("a+b/", rsp.body().string().trim());
       });
@@ -2969,6 +2969,50 @@ public class FeaturedTest {
           .addFormDataPart("v", "a+b%2f")
           .build(), rsp -> {
         assertEquals("a b/", rsp.body().string());
+      });
+    });
+  }
+
+  @ServerTest
+  public void recursiveRegexMatch(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.get("/one/{firstId:[a-z0-9-]+}/{secondId:[a-z0-9-]+}/first",
+          ctx -> "/1/" + ctx.path("firstId").value() + "::" + ctx.path("secondId").value());
+
+      app.get("/one/{firstId:[a-z0-9-_]+}/{secondId:[a-z0-9-_]+}/second",
+          ctx -> "/2/" + ctx.path("firstId").value() + "::" + ctx.path("secondId").value());
+    }).ready(client -> {
+      client.get("/one/hello/peter/first", rsp -> {
+        assertEquals("/1/hello::peter", rsp.body().string());
+      });
+      client.get("/one/hithere/123/second", rsp -> {
+        assertEquals("/2/hithere::123", rsp.body().string());
+      });
+    });
+  }
+
+  @ServerTest
+  public void methodNotAllowedWithPathVariables(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.get("/{var}", Context::getRequestPath);
+    }).ready(client -> {
+      client.delete("/foo", rsp -> {
+        assertEquals(405, rsp.code());
+      });
+
+      client.get("/foo", rsp -> {
+        assertEquals(200, rsp.code());
+      });
+    });
+  }
+
+  @ServerTest
+  public void regexpRoutingShouldIncludeDefaultValueWhenParamIsNotMatched(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.get("/foo-{suffix:[a-z]{2,3}}.json", ctx -> ctx.path("suffix").value());
+    }).ready(client -> {
+      client.get("/foo-abc.json", rsp -> {
+        assertEquals("abc", rsp.body().string());
       });
     });
   }

@@ -23,7 +23,7 @@ public class RouterMatch implements Router.Match {
 
   private Route route;
 
-  private Map vars = Collections.EMPTY_MAP;
+  Map vars = Collections.EMPTY_MAP;
 
   private Route.Handler handler;
 
@@ -33,6 +33,12 @@ public class RouterMatch implements Router.Match {
   public void key(List<String> keys) {
     for (int i = 0; i < Math.min(keys.size(), vars.size()); i++) {
       vars.put(keys.get(i), vars.remove(i));
+    }
+  }
+
+  public void truncate(int size) {
+    while (size < vars.size()) {
+      vars.remove(size++);
     }
   }
 
