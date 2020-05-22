@@ -36,11 +36,11 @@ public class RouterMatch implements Router.Match {
     }
   }
 
-  public void value(Chi.ZeroCopyString value) {
+  public void value(String value) {
     if (vars == Collections.EMPTY_MAP) {
       vars = new LinkedHashMap();
     }
-    vars.put(vars.size(), value.toString());
+    vars.put(vars.size(), value);
   }
 
   public void pop() {

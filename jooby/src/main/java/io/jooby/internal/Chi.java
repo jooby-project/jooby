@@ -23,6 +23,7 @@ import java.util.stream.Stream;
  * Commit: 17fb1065d2b256d20f68bed0b7bca6c2942aff49
  */
 class Chi implements RouteTree {
+  private static final String EMPTY_STRING = "";
   private static final byte ntStatic = 0;// /home
   private static final byte ntRegexp = 1;                // /{id:[0-9]+}
   private static final byte ntParam = 2;                // /{user}
@@ -51,122 +52,10 @@ class Chi implements RouteTree {
     }
   }
 
-  static class ZeroCopyString {
-    public static final ZeroCopyString EMPTY = new ZeroCopyString(new char[0], 0, 0);
-
-    private final int offset;
-    private final int length;
-    private int hash = 0;
-    private final char[] value;
-
-    public ZeroCopyString(String source) {
-      this.offset = 0;
-      this.length = source.length();
-      this.value = source.toCharArray();
-    }
-
-    @Override public boolean equals(Object anObject) {
-      if (this == anObject) {
-        return true;
-      }
-      if (anObject instanceof ZeroCopyString) {
-        ZeroCopyString anotherString = (ZeroCopyString) anObject;
-        int n = length;
-        if (n == anotherString.length) {
-          char v1[] = value;
-          char v2[] = anotherString.value;
-          int i = 0;
-          while (n-- != 0) {
-            if (v1[i + offset] != v2[i + anotherString.offset])
-              return false;
-            i++;
-          }
-          return true;
-        }
-      }
-      return false;
-    }
-
-    public int hashCode() {
-      int h = hash;
-      if (h == 0 && length > 0) {
-        char val[] = value;
-        int len = offset + length;
-        for (int i = offset; i < len; i++) {
-          h = 31 * h + val[i];
-        }
-        hash = h;
-      }
-      return h;
-    }
-
-    protected ZeroCopyString(char[] source, int offset, int length) {
-      this.offset = offset;
-      this.length = length;
-      this.value = source;
-    }
-
-    public int length() {
-      return length;
-    }
-
-    public ZeroCopyString substring(int beginIndex) {
-      return (beginIndex == 0)
-          ? this
-          : new ZeroCopyString(value, offset + beginIndex, length - beginIndex);
-    }
-
-    public ZeroCopyString substring(int beginIndex, int endIndex) {
-      int len = endIndex - beginIndex;
-      return (beginIndex == 0 && len == length)
-          ? this
-          : new ZeroCopyString(value, offset + beginIndex, endIndex - beginIndex);
-    }
-
-    public char charAt(int index) {
-      return value[offset + index];
-    }
-
-    public int indexOf(int ch) {
-      int fromIndex = offset;
-      final int max = Math.min(value.length, offset + length);
-
-      final char[] value = this.value;
-      for (int i = fromIndex; i < max; i++) {
-        if (value[i] == ch) {
-          return i - offset;
-        }
-      }
-      return -1;
-    }
-
-    public boolean startsWith(ZeroCopyString prefix) {
-      char ta[] = value;
-      int to = offset;
-      char pa[] = prefix.value;
-      int po = prefix.offset;
-      int pc = prefix.length;
-      // Note: toffset might be near -1>>>1.
-      if (pc > length) {
-        return false;
-      }
-      while (--pc >= 0) {
-        if (ta[to++] != pa[po++]) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    @Override public String toString() {
-      return new String(value, offset, length);
-    }
-  }
-
   static class Segment {
     byte nodeType;
     //    String key = "";
-    ZeroCopyString rexPat = ZeroCopyString.EMPTY;
+    String rexPat = EMPTY_STRING;
     char tail;
     int startIndex;
     int endIndex;
@@ -174,7 +63,7 @@ class Chi implements RouteTree {
     public Segment() {
     }
 
-    public Segment(byte nodeType, /*String key,*/ ZeroCopyString regex, char tail, int startIndex,
+    public Segment(byte nodeType, /*String key,*/ String regex, char tail, int startIndex,
         int endIndex) {
       this.nodeType = nodeType;
       //      this.key = key;
@@ -196,7 +85,7 @@ class Chi implements RouteTree {
     char tail;
 
     // prefix is the common prefix we ignore
-    ZeroCopyString prefix;
+    String prefix;
 
     // regexp matcher for regexp nodes
     Pattern rex;
@@ -230,7 +119,7 @@ class Chi implements RouteTree {
       return this;
     }
 
-    public Node prefix(ZeroCopyString prefix) {
+    public Node prefix(String prefix) {
       this.prefix = prefix;
       return this;
     }
@@ -264,10 +153,10 @@ class Chi implements RouteTree {
       return node.toString();
     }
 
-    Node insertRoute(String method, ZeroCopyString pattern, Route route) {
+    Node insertRoute(String method, String pattern, Route route) {
       Node n = this;
       Node parent;
-      ZeroCopyString search = pattern;
+      String search = pattern;
 
       while (true) {
         // Handle key exhaustion
@@ -291,11 +180,11 @@ class Chi implements RouteTree {
           seg = new Segment();
         }
 
-        ZeroCopyString prefix;
+        String prefix;
         if (seg.nodeType == ntRegexp) {
           prefix = seg.rexPat;
         } else {
-          prefix = ZeroCopyString.EMPTY;
+          prefix = EMPTY_STRING;
         }
 
         // Look for the edge to attach to
@@ -358,7 +247,7 @@ class Chi implements RouteTree {
     // For a URL router like chi's, we split the static, param, regexp and wildcard segments
     // into different nodes. In addition, addChild will recursively call itself until every
     // pattern segment is added to the url pattern tree as individual nodes, depending on type.
-    Node addChild(Node child, ZeroCopyString search) {
+    Node addChild(Node child, String search) {
       Node n = this;
       //      String search = prefix.toString();
 
@@ -449,7 +338,7 @@ class Chi implements RouteTree {
       throw new IllegalArgumentException("chi: replacing missing child");
     }
 
-    Node getEdge(int ntyp, char label, char tail, ZeroCopyString prefix) {
+    Node getEdge(int ntyp, char label, char tail, String prefix) {
       Node n = this;
       Node[] nds = n.children[ntyp];
       for (int i = 0; nds != null && i < nds.length; i++) {
@@ -495,13 +384,13 @@ class Chi implements RouteTree {
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Route findRoute(RouterMatch rctx, String method, ZeroCopyString path) {
+    Route findRoute(RouterMatch rctx, String method, String path) {
 
       for (int ntyp = 0; ntyp < NODE_SIZE; ntyp++) {
         Node[] nds = this.children[ntyp];
         if (nds != null) {
           Node xn = null;
-          ZeroCopyString xsearch = path;
+          String xsearch = path;
 
           char label = path.length() > 0 ? path.charAt(0) : ZERO_CHAR;
 
@@ -558,7 +447,7 @@ class Chi implements RouteTree {
                 rctx.value(xsearch);
               }
               xn = nds[0];
-              xsearch = ZeroCopyString.EMPTY;
+              xsearch = EMPTY_STRING;
           }
 
           if (xn == null) {
@@ -625,7 +514,7 @@ class Chi implements RouteTree {
     }
 
     // longestPrefix finds the filesize of the shared prefix of two strings
-    int longestPrefix(ZeroCopyString k1, ZeroCopyString k2) {
+    int longestPrefix(String k1, String k2) {
       int len = Math.min(k1.length(), k2.length());
       for (int i = 0; i < len; i++) {
         if (k1.charAt(i) != k2.charAt(i)) {
@@ -661,12 +550,12 @@ class Chi implements RouteTree {
 
     // patNextSegment returns the next segment details from a pattern:
     // node type, param key, regexp string, param tail byte, param starting index, param ending index
-    Segment patNextSegment(ZeroCopyString pattern) {
+    Segment patNextSegment(String pattern) {
       int ps = pattern.indexOf('{');
       int ws = pattern.indexOf('*');
 
       if (ps < 0 && ws < 0) {
-        return new Segment(ntStatic, ZeroCopyString.EMPTY, (char) 0, 0,
+        return new Segment(ntStatic, EMPTY_STRING, (char) 0, 0,
             pattern.length()); // we return the entire thing
       }
 
@@ -685,7 +574,7 @@ class Chi implements RouteTree {
         // Read to closing } taking into account opens and closes in curl count (cc)
         int cc = 0;
         int pe = ps;
-        ZeroCopyString range = pattern.substring(ps);
+        String range = pattern.substring(ps);
         for (int i = 0; i < range.length(); i++) {
           char c = range.charAt(i);
           if (c == '{') {
@@ -703,7 +592,7 @@ class Chi implements RouteTree {
               "Router: route param closing delimiter '}' is missing");
         }
 
-        ZeroCopyString key = pattern.substring(ps + 1, pe);
+        String key = pattern.substring(ps + 1, pe);
         pe++; // set end to next position
 
         if (pe < pattern.length()) {
@@ -727,14 +616,14 @@ class Chi implements RouteTree {
           }
         }
 
-        return new Segment(nt, new ZeroCopyString(rexpat), tail, ps, pe);
+        return new Segment(nt, rexpat, tail, ps, pe);
       }
 
       // Wildcard pattern as finale
       // EDIT: should we panic if there is stuff after the * ???
       // We allow naming a wildcard: *path
       //String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1).toString();
-      return new Segment(ntCatchAll, ZeroCopyString.EMPTY, (char) 0, ws, pattern.length());
+      return new Segment(ntCatchAll, EMPTY_STRING, (char) 0, ws, pattern.length());
     }
 
     public void destroy() {
@@ -782,7 +671,7 @@ class Chi implements RouteTree {
       StaticRoute staticRoute = staticPaths.computeIfAbsent(pattern, k -> new StaticRoute());
       staticRoute.put(method, route);
     }
-    root.insertRoute(method, new ZeroCopyString(pattern), route);
+    root.insertRoute(method, pattern, route);
   }
 
   private String baseCatchAll(String pattern) {
@@ -803,7 +692,7 @@ class Chi implements RouteTree {
 
   public boolean exists(String method, String path) {
     if (!staticPaths.getOrDefault(path, NO_MATCH).methods.containsKey(method)) {
-      return root.findRoute(new RouterMatch(), method, new ZeroCopyString(path)) != null;
+      return root.findRoute(new RouterMatch(), method, path) != null;
     }
     return true;
   }
@@ -813,7 +702,7 @@ class Chi implements RouteTree {
     if (match == null) {
       // use radix tree
       RouterMatch result = new RouterMatch();
-      Route route = root.findRoute(result, method, new ZeroCopyString(path));
+      Route route = root.findRoute(result, method, path);
       if (route == null) {
         return result.missing(method, path, encoder);
       }
