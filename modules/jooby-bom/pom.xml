@@ -20,7 +20,7 @@
   <HikariCP.version>3.4.5</HikariCP.version>
   <archetype-packaging.version>3.1.2</archetype-packaging.version>
   <asm.version>8.0.1</asm.version>
-  <auto-service.version>1.0-rc6</auto-service.version>
+  <auto-service.version>1.0-rc7</auto-service.version>
   <aws-java-sdk.version>1.11.778</aws-java-sdk.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
   <bucket4j-core.version>4.10.0</bucket4j-core.version>
