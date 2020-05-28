@@ -129,6 +129,9 @@ public interface DefaultContext extends Context {
       Router router = getRouter();
       SessionStore store = router.getSessionStore();
       session = store.findSession(this);
+      if (session != null) {
+        getAttributes().put(Session.NAME, session);
+      }
     }
     return session;
   }
