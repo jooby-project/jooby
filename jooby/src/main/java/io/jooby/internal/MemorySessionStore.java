@@ -7,12 +7,15 @@ package io.jooby.internal;
 
 import io.jooby.Context;
 import io.jooby.Session;
-import io.jooby.SessionToken;
 import io.jooby.SessionStore;
+import io.jooby.SessionToken;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MemorySessionStore implements SessionStore {
@@ -32,8 +35,13 @@ public class MemorySessionStore implements SessionStore {
 
   private SessionToken token;
 
-  public MemorySessionStore(SessionToken token) {
+  private Duration timeout;
+
+  public MemorySessionStore(SessionToken token, Duration timeout) {
     this.token = token;
+    this.timeout = Optional.ofNullable(timeout)
+        .filter(t -> t.toMillis() > 0)
+        .orElse(null);
   }
 
   @Override public Session newSession(Context ctx) {
@@ -50,6 +58,7 @@ public class MemorySessionStore implements SessionStore {
   }
 
   @Override public Session findSession(Context ctx) {
+    purge();
     String sessionId = token.findToken(ctx);
     if (sessionId == null) {
       return null;
@@ -61,6 +70,24 @@ public class MemorySessionStore implements SessionStore {
       return session;
     }
     return null;
+  }
+
+  /**
+   * Check for expired session and delete them.
+   */
+  private void purge() {
+    if (timeout != null) {
+      Iterator<Map.Entry<String, SessionData>> iterator = sessions.entrySet().iterator();
+      Instant now = Instant.now();
+      while (iterator.hasNext()) {
+        Map.Entry<String, SessionData> entry = iterator.next();
+        SessionData session = entry.getValue();
+        Duration timeElapsed = Duration.between(session.lastAccessedTime, now);
+        if (timeElapsed.compareTo(timeout) > 0) {
+          iterator.remove();
+        }
+      }
+    }
   }
 
   @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
@@ -86,6 +113,11 @@ public class MemorySessionStore implements SessionStore {
     session.setId(newId);
     SessionData data = sessions.remove(oldId);
     sessions.put(newId, data);
+  }
+
+  public SessionStore setTimeout(Duration timeout) {
+    this.timeout = timeout;
+    return this;
   }
 
   private Session restore(Context ctx, String sessionId, SessionData data) {

@@ -10,6 +10,7 @@ import io.jooby.internal.MemorySessionStore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.function.Function;
@@ -90,6 +91,24 @@ public interface SessionStore {
    *
    * It uses the default session cookie: {@link SessionToken#SID}.
    *
+   * - Session data is not keep after restart.
+   *
+   * @param timeout Timeout in seconds. Use <code>-1</code> for no timeout.
+   * @return Session store.
+   */
+  static @Nonnull SessionStore memory(int timeout) {
+    return memory(SessionToken.SID, Duration.ofSeconds(timeout));
+  }
+
+  /**
+   * Creates a cookie based session and store data in memory. Session data is not keep after
+   * restart.
+   *
+   * It uses the default session cookie: {@link SessionToken#SID}.
+   *
+   * - Session expires after 30 minutes of inactivity.
+   * - Session data is not keep after restart.
+   *
    * @return Session store.
    */
   static @Nonnull SessionStore memory() {
@@ -100,6 +119,21 @@ public interface SessionStore {
    * Creates a cookie based session and store data in memory. Session data is not keep after
    * restart.
    *
+   * It uses the default session cookie: {@link SessionToken#SID}.
+   *
+   * @param timeout Expires session after amount of inactivity time.
+   * @return Session store.
+   */
+  static @Nonnull SessionStore memory(@Nonnull Duration timeout) {
+    return memory(SessionToken.SID, timeout);
+  }
+
+  /**
+   * Creates a cookie based session and store data in memory.
+   *
+   * - Session expires after 30 minutes of inactivity.
+   * - Session data is not keep after restart.
+   *
    * @param cookie Cookie to use.
    * @return Session store.
    */
@@ -108,13 +142,38 @@ public interface SessionStore {
   }
 
   /**
-   * Creates a session store that save data in memory. Session data is not keep after restart.
+   * Creates a cookie based session and store data in memory. Session data is not keep after
+   * restart.
+   *
+   * @param cookie Cookie to use.
+   * @param timeout Expires session after amount of inactivity time.
+   * @return Session store.
+   */
+  static @Nonnull SessionStore memory(@Nonnull Cookie cookie, @Nonnull Duration timeout) {
+    return memory(SessionToken.cookieId(cookie), timeout);
+  }
+
+  /**
+   * Creates a session store that save data in memory.
+   * - Session expires after 30 minutes of inactivity.
+   * - Session data is not keep after restart.
    *
    * @param token Session token.
    * @return Session store.
    */
   static @Nonnull SessionStore memory(@Nonnull SessionToken token) {
-    return new MemorySessionStore(token);
+    return new MemorySessionStore(token, Duration.ofMinutes(30));
+  }
+
+  /**
+   * Creates a session store that save data in memory. Session data is not keep after restart.
+   *
+   * @param token Session token.
+   * @param timeout Expires session after amount of inactivity time.
+   * @return Session store.
+   */
+  static @Nonnull SessionStore memory(@Nonnull SessionToken token, @Nonnull Duration timeout) {
+    return new MemorySessionStore(token, timeout);
   }
 
   /**
