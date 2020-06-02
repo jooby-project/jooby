@@ -36,7 +36,7 @@
     <ebean.version>12.3.2</ebean.version>
     <jdbi.version>3.13.0</jdbi.version>
     <flyway.version>6.4.2</flyway.version>
-    <graphql-java.version>14.0</graphql-java.version>
+    <graphql-java.version>15.0</graphql-java.version>
 
     <config.version>1.4.0</config.version>
 
