@@ -91,7 +91,7 @@
     <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
     <frontend-plugin-core.version>1.10.0</frontend-plugin-core.version>
 
-    <commons-io.version>2.6</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
 
     <!-- Kotlin -->
