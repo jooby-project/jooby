@@ -1,0 +1,54 @@
+=== JWT Session
+
+The javadoc:JWTSession[] session store works it also a stateless session that
+uses https://jwt.io[JSON Web Token] standard to decode/encode data.
+
+To use the javadoc:JWTSession[] session store you need to add the `jooby-jwt` dependency:
+
+[dependency, artifactId="jooby-jwt"]
+.
+
+.JWT Session
+[source,java,role="primary"]
+----
+
+import io.jooby.session.JwtSessionStore;
+
+{
+  String secret = "super secret key";           // <1>
+
+  setSessionStore(new JwtSessionStore(secret)); // <2>
+
+  get("/", ctx -> {
+    Session session = ctx.session();
+
+    session.put("foo", "bar");
+    
+    return session.get("foo").value();
+  }); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+
+import io.jooby.session.JwtSessionStore
+
+{
+  val secret = "super secret key"               // <1>
+
+  sessionStore = JwtSessionStore(secret)        // <2>
+
+  get("/") {
+    val session = ctx.session()
+
+    session.put("foo", "bar")
+
+    session.get("foo").value()
+  }
+}
+----
+
+<1> Set a secret key
+<2> Use `JwtSessionStore`

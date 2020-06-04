@@ -1,0 +1,182 @@
+== Redis
+
+Redis using https://lettuce.io[Lettuce] library.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-redis"]
+.
+
+2) Set redis property
+
+.application.conf
+[source, properties]
+----
+redis = "redis://localhost:6379"
+----
+
+3) Install and use Redis
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.redis.RedisModule;
+import io.lettuce.core.api.StatefulRedisConnection;
+
+{
+  install(new RedisModule());                                               <1>
+
+  get("/", ctx -> {
+    StatefulRedisConnection redis = require(StatefulRedisConnection.class); <2>
+    // work with redis
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.redis.RedisModule
+import io.lettuce.core.api.StatefulRedisConnection
+
+{
+  install(RedisModule())                                                    <1>
+  
+  get("/") {
+    val redis = require(StatefulRedisConnection::class)                     <2>
+    // work with Database
+  }
+}
+----
+
+<1> Install Redis
+<2> Use Redis
+
+The `io.lettuce.core.pubsub.StatefulRedisPubSubConnection` is also available.
+
+=== Redis URI
+
+Redis URI are allowed to pass it directly or from application configuration file:
+
+----
+{
+   new RedisModule("redis://localhost:6379");
+}
+----
+
+Or read it from configuration:
+
+----
+{
+   new RedisModule("redis");
+}
+----
+
+Either `redis` or `redis.uri` must be present in your application configuration file and must be a
+https://lettuce.io/core/release/reference/index.html#redisuri.uri-syntax[valid Redis URI].
+
+=== Multiple Connections
+
+Support for multiple connection is done using multiple configuration keys:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.redis.RedisModule;
+import io.lettuce.core.api.StatefulRedisConnection;
+
+{
+  install(new RedisModule("foo"));
+
+  install(new RedisModule("bar"));
+
+  get("/", ctx -> {
+    StatefulRedisConnection foo = require(StatefulRedisConnection.class, "foo");
+    // work with redis
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.redis.RedisModule
+import io.lettuce.core.api.StatefulRedisConnection
+
+{
+  install(RedisModule("foo"))
+
+  install(RedisModule("bar"))
+  
+  get("/") {
+    val redis = require(StatefulRedisConnection::class, "bar")
+    // work with Database
+  }
+}
+----
+
+Where `foo` and `bar` are redis URI in your application configuration file:
+
+.application.conf
+[source, properties]
+----
+foo = "redis://server1:6379"
+
+bar = "redis://server2:6379"
+----
+
+=== HTTP Session
+
+The Redis module provides a HTTP Session Store.
+
+.Usage
+[source, java, role="primary"]
+----
+import io.jooby.redis.RedisModule;
+import io.jooby.redis.RedisSessionStore;
+
+import io.lettuce.core.api.StatefulRedisConnection;
+
+{
+  install(new RedisModule());                                                     <1>
+
+  setSessionStore(new RedisSessionStore(require(StatefulRedisConnection.class))); <2>
+
+  get("/", ctx -> {
+    Session httpSession = ctx.session();                                          <3>
+    // HTTP session is backed by Redis
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.redis.RedisModule
+import io.jooby.redis.RedisSessionStore
+
+import io.lettuce.core.api.StatefulRedisConnection
+
+{
+  install(RedisModule())                                                           <1>
+  
+  sessionStore = RedisSessionStore(require(StatefulRedisConnection::class))        <2>
+
+  get("/") {
+    val httpSession = ctx.session()                                                <3>
+    // HTTP session is backed by Redis
+  }
+}
+----
+
+<1> Install Redis module
+<2> Configure session store to use Redis
+<3> Session data is persisted in Redis
+
+More Options:
+
+- javadoc:redis.RedisSessionStore[setTimeout, java.time.Duraction]: Set session timeout. Default is: `30 minutes`
+- javadoc:redis.RedisSessionStore[setNamespace, java.lang.String]: Set key prefix. Default is: `sessions`
+- javadoc:redis.RedisSessionStore[setToken, io.jooby.SessionToken]: Set session token. Default is a cookie token: `jooby.sid`

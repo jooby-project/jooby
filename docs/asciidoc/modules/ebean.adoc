@@ -98,7 +98,7 @@ import io.jooby.ebean.EbeanModule
 ----
 
 <1> Install and creates a `DataSource`
-<2> Install and Ebean
+<2> Install Ebean
 <3> Use Ebean Database
 
 === Transactional Request

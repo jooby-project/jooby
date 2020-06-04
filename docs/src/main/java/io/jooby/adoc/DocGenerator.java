@@ -144,7 +144,7 @@ public class DocGenerator {
       String moduleName = module.getFileName().toString().replace(".adoc", "");
 
       String title = moduleName.replace("-", " ");
-      if (name.equals("modules")) {
+      if (name.equals("modules") && !moduleName.equals("modules")) {
         title += " module";
       }
       Options options = createOptions(basedir, outdir, version, title);
@@ -153,7 +153,7 @@ public class DocGenerator {
 
       Path output = outdir.resolve(moduleName + ".html").toAbsolutePath();
       Path indexlike = output.getParent().resolve(name);
-      if (name.equals("modules")) {
+      if (name.equals("modules") && !moduleName.equals("modules")) {
         indexlike = indexlike.resolve(moduleName);
       }
       indexlike = indexlike.resolve("index.html");

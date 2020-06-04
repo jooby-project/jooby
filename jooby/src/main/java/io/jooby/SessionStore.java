@@ -23,6 +23,9 @@ import java.util.function.Function;
  */
 public interface SessionStore {
 
+  /** Default session timeout in minutes. */
+  int DEFAULT_TIMEOUT = 30;
+
   /**
    * Creates a new session. This method must:
    *
@@ -162,7 +165,7 @@ public interface SessionStore {
    * @return Session store.
    */
   static @Nonnull SessionStore memory(@Nonnull SessionToken token) {
-    return new MemorySessionStore(token, Duration.ofMinutes(30));
+    return new MemorySessionStore(token, Duration.ofMinutes(DEFAULT_TIMEOUT));
   }
 
   /**

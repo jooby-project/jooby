@@ -68,15 +68,15 @@ Source code is available at https://github.com/jooby-project/jooby[GitHub]
 
 === Features
 
-* Lightweight and fast. See https://www.techempower.com/benchmarks/#section=data-r18&hw=ph&test=fortune&l=zik0vz-f[Tech Empower Benchmark]
-* Fast startup time and <<hot-reload, Hot-Reload for development>> using Maven or Gradle
+* Lightweight and Fast. See https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=composite&l=xan9tr-1r[Tech Empower Benchmark]
+* Increase productivity with <<hot-reload, Hot-Reload for development>>
 * Script/lambda routes using fluent API
 * <<mvc-api, MVC routes>> using Jooby or JAX-RS annotations
 * link:modules/openapi[OpenAPI 3] supports
 * <<execution-model, Event Loop and blocking execution modes>>
 * <<responses, Reactive responses>> (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
 * <<server, Multi-server>> including https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
-* Simple <<extensions-and-services, extension/plugin mechanism>> with a variety of <<modules, modules>>
+* Jump to full-stack framework with extension/plugin mechanism and variety of link:modules[]
 
 === Script API
 

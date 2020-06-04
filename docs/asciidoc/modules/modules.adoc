@@ -1,0 +1,57 @@
+== Modules
+
+Modules are a key concept for building reusable and configurable pieces of software.
+
+Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap and configure an 
+external library, but they DO NOT provide a new level of abstraction nor [do] they provide a custom
+API to access functionality in that library. Instead they expose the library components as they are.
+
+Modules are distributed as separated jar/dependency and usually implement the javadoc:Extension[] API.
+
+In general they provide a `builder` class to create the and configure the external library from 
+configuration properties.
+
+Available modules are listed next.
+
+=== Cloud
+  * link:modules/aws[AWS]: Amazon Web Service module.
+
+=== Data
+   * link:modules/ebean[Ebean]: Ebean ORM module.
+   * link:modules/flyway[Flyway]: Flyway migration module.
+   * link:modules/graphql[GraphQL]: GraphQL Java module.
+   * link:modules/hikari[HikariCP]: A high-performance JDBC connection pool.
+   * link:modules/hibernate[Hibernate]: Hibernate ORM module.
+   * link:modules/jdbi[Jdbi]: Jdbi module.
+   * link:modules/redis[Redis]: Redis module.
+
+=== Development Tools
+   * link:#hot-reload[Jooby Run]: Run and hot reload your application. 
+   * link:modules/node[Node]: Download, Install and Run node locally.
+   * link:modules/whoops[Whoops]: Pretty page stacktrace reporter.
+
+=== JSON
+   * link:modules/gson[Gson]: Gson module for Jooby.
+   * link:modules/jackson[Jackson]: Jackson module for Jooby.
+
+=== OpenAPI
+   * link:modules/openapi[OpenAPI]: OpenAPI supports.
+
+=== Template Engine
+   * link:modules/handlebars[Handlebars]: Handlebars template engine.
+   * link:modules/freemarker[Freemarker]: Freemarker template engine.
+   * link:modules/pebble[Pebble]: Pebble template engine.
+   * link:modules/rocker[Rocker]: Rocker template engine.
+   * link:modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.
+
+=== Security
+   * link:modules/pac4j[Pac4j]: Security engine module.
+
+=== Session Store
+   * link:modules/jwt-session-store[JWT Session Store]: JSON Web Token session store.
+   * link:modules/redis#redis-http-session[Redis Session Store]: Save session data on redis.
+
+=== Scheduler
+   * link:modules/quartz[Quartz]: Quartz scheduler module.
+
+.

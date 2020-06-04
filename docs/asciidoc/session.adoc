@@ -250,54 +250,9 @@ Like with `memory` session store you can use HTTP headers:
 }
 ----
 
-=== JWT Session
+=== Stores
 
-The javadoc:JWTSession[] session store works it also a stateless session that 
-uses https://jwt.io[JSON Web Token] standard to decode/encode data.
+In addition to built-in memory stores we do provide:
 
-To use the javadoc:JWTSession[] session store you need to add the `jooby-jwt` dependency:
-
-[dependency, artifactId="jooby-jwt"]
-.
-
-.JWT Session
-[source,java,role="primary"]
-----
-
-import io.jooby.session.JwtSessionStore;
-
-{
-  String secret = "super secret key";           // <1>
-
-  setSessionStore(new JwtSessionStore(secret)); // <2>
-
-  get("/", ctx -> {
-    Session session = ctx.session();
-
-    session.put("foo", "bar");
-    
-    return session.get("foo").value();
-  }); 
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-
-import io.jooby.session.JwtSessionStore
-
-{
-  val secret = "super secret key"               // <1>
-
-  sessionStore = JwtSessionStore(secret)        // <2>
-
-  get("/") {
-    val session = ctx.session()
-
-    session.put("foo", "bar")
-
-    session.get("foo").value()
-  }
-}
-----
+* link:modules/jwt-session-store[JWT Session Store]: JSON Web Token session store.
+* link:modules/redis#redis-http-session[Redis Session Store]: Redis session store.
