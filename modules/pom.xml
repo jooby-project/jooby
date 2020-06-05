@@ -33,6 +33,7 @@
     <module>jooby-flyway</module>
     <module>jooby-ebean</module>
     <module>jooby-redis</module>
+    <module>jooby-caffeine</module>
 
     <module>jooby-jackson</module>
     <module>jooby-gson</module>

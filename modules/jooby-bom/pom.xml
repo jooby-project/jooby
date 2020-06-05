@@ -24,6 +24,7 @@
   <aws-java-sdk.version>1.11.791</aws-java-sdk.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
   <bucket4j-core.version>4.10.0</bucket4j-core.version>
+  <caffeine.version>2.8.4</caffeine.version>
   <checkstyle.version>8.32</checkstyle.version>
   <commons-io.version>2.7</commons-io.version>
   <compile-testing.version>0.18</compile-testing.version>
@@ -352,6 +353,18 @@
       <groupId>io.jooby</groupId>
       <artifactId>jooby-redis</artifactId>
       <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-caffeine</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>${caffeine.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

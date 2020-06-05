@@ -1,0 +1,54 @@
+== Caffeine
+
+SessionStore implementation using https://github.com/ben-manes/caffeine[Caffeine] library.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-caffeine"]
+.
+
+2) Configure session store
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.caffeine.CaffeineSessionStore;
+
+{
+  setSessionStore(new CaffeineSessionStore());   <1>
+
+  get("/", ctx -> {
+    Session session = ctx.session();             <2>
+    // work with session
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.caffeine.CaffeineSessionStore
+
+{
+  sessionStore = CaffeineSessionStore()          <1>
+  
+  get("/") {
+    val session = ctx.session()                  <2>
+    // work with session
+  }
+}
+----
+
+<1> Configure session store
+<2> Use HTTP Session
+
+Default time out is `30` minutes, to provide your own timeout:
+
+    new CaffeineSessionStore(Duration.ofHours(1))
+
+For absolute control you can provide your own cache:
+
+     Cache cache = ...;
+     new CaffeineSessionStore(Duration.ofHours(1))

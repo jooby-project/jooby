@@ -254,5 +254,6 @@ Like with `memory` session store you can use HTTP headers:
 
 In addition to built-in memory stores we do provide:
 
-* link:modules/jwt-session-store[JWT Session Store]: JSON Web Token session store.
-* link:modules/redis#redis-http-session[Redis Session Store]: Redis session store.
+* link:modules/caffeine[Caffeine]: In-memory session store using Caffeine cache.
+* link:modules/jwt-session-store[JWT]: JSON Web Token session store.
+* link:modules/redis#redis-http-session[Redis]: Redis session store.

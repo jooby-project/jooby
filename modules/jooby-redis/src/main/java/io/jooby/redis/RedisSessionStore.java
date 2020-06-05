@@ -158,17 +158,24 @@ public class RedisSessionStore implements SessionStore {
         .ifPresent(seconds -> commands.expire(redisId, seconds));
     Instant lastAccessedTime = Instant.parse(data.remove(LAST_ACCESSED_AT));
     Instant createdAt = Instant.parse(data.remove(CREATED_AT));
+
+    token.saveToken(ctx, sessionId);
+
     return Session.create(ctx, sessionId, new ConcurrentHashMap<>(data))
         .setCreationTime(createdAt)
         .setLastAccessedTime(lastAccessedTime);
   }
 
   @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
-    connection.async().del(key(session.getId()));
+    String sessionId = session.getId();
+    connection.async().del(key(sessionId));
+
+    token.deleteToken(ctx, sessionId);
   }
 
   @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
     saveSession(ctx, session);
+
     token.saveToken(ctx, session.getId());
   }
 

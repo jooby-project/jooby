@@ -48,8 +48,9 @@ Available modules are listed next.
    * link:modules/pac4j[Pac4j]: Security engine module.
 
 === Session Store
-   * link:modules/jwt-session-store[JWT Session Store]: JSON Web Token session store.
-   * link:modules/redis#redis-http-session[Redis Session Store]: Save session data on redis.
+   * link:modules/caffeine[Caffeine]: In-memory session store using Caffeine cache.
+   * link:modules/jwt-session-store[JWT]: JSON Web Token session store.
+   * link:modules/redis#redis-http-session[Redis]: Save session data on redis.
 
 === Scheduler
    * link:modules/quartz[Quartz]: Quartz scheduler module.
