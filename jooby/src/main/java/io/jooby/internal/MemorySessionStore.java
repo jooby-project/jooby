@@ -10,66 +10,47 @@ import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SessionToken;
 
-import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
-public class MemorySessionStore implements SessionStore {
-  private static class SessionData {
-    private Instant lastAccessedTime;
-    private Instant creationTime;
-    private Map hash;
+public class MemorySessionStore extends SessionStore.InMemory {
 
-    public SessionData(Instant creationTime, Instant lastAccessedTime, Map hash) {
-      this.creationTime = creationTime;
-      this.lastAccessedTime = lastAccessedTime;
-      this.hash = hash;
-    }
-  }
-
-  private ConcurrentHashMap<String, SessionData> sessions = new ConcurrentHashMap<>();
-
-  private SessionToken token;
+  private ConcurrentHashMap<String, Data> sessions = new ConcurrentHashMap<>();
 
   private Duration timeout;
 
   public MemorySessionStore(SessionToken token, Duration timeout) {
-    this.token = token;
+    super(token);
     this.timeout = Optional.ofNullable(timeout)
         .filter(t -> t.toMillis() > 0)
         .orElse(null);
   }
 
-  @Override public Session newSession(Context ctx) {
-    String sessionId = token.newToken();
-    SessionData data = sessions.computeIfAbsent(sessionId, sid -> {
-      Instant now = Instant.now();
-      return new SessionData(now, now, new ConcurrentHashMap());
-    });
+  @Override protected Data getOrCreate(String sessionId,
+      Function<String, Data> factory) {
+    return sessions.computeIfAbsent(sessionId, factory);
+  }
 
-    Session session = restore(ctx, sessionId, data);
+  @Override protected Data getOrNull(String sessionId) {
+    return sessions.get(sessionId);
+  }
 
-    token.saveToken(ctx, sessionId);
-    return session;
+  @Override protected Data remove(String sessionId) {
+    return sessions.remove(sessionId);
+  }
+
+  @Override protected void put(String sessionId, Data data) {
+    sessions.put(sessionId, data);
   }
 
   @Override public Session findSession(Context ctx) {
     purge();
-    String sessionId = token.findToken(ctx);
-    if (sessionId == null) {
-      return null;
-    }
-    SessionData data = sessions.get(sessionId);
-    if (data != null) {
-      Session session = restore(ctx, sessionId, data);
-      token.saveToken(ctx, sessionId);
-      return session;
-    }
-    return null;
+    return super.findSession(ctx);
   }
 
   /**
@@ -77,42 +58,15 @@ public class MemorySessionStore implements SessionStore {
    */
   private void purge() {
     if (timeout != null) {
-      Iterator<Map.Entry<String, SessionData>> iterator = sessions.entrySet().iterator();
-      Instant now = Instant.now();
+      Iterator<Map.Entry<String, Data>> iterator = sessions.entrySet().iterator();
       while (iterator.hasNext()) {
-        Map.Entry<String, SessionData> entry = iterator.next();
-        SessionData session = entry.getValue();
-        Duration timeElapsed = Duration.between(session.lastAccessedTime, now);
-        if (timeElapsed.compareTo(timeout) > 0) {
+        Map.Entry<String, Data> entry = iterator.next();
+        Data session = entry.getValue();
+        if (session.isExpired(timeout)) {
           iterator.remove();
         }
       }
     }
-  }
-
-  @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
-    String sessionId = session.getId();
-    sessions.remove(sessionId);
-    token.deleteToken(ctx, sessionId);
-  }
-
-  @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
-    saveSession(ctx, session);
-    token.saveToken(ctx, session.getId());
-  }
-
-  @Override public void saveSession(Context ctx, @Nonnull Session session) {
-    String sessionId = session.getId();
-    sessions.put(sessionId,
-        new SessionData(session.getCreationTime(), Instant.now(), session.toMap()));
-  }
-
-  @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
-    String oldId = session.getId();
-    String newId = token.newToken();
-    session.setId(newId);
-    SessionData data = sessions.remove(oldId);
-    sessions.put(newId, data);
   }
 
   public SessionStore setTimeout(Duration timeout) {
@@ -120,9 +74,4 @@ public class MemorySessionStore implements SessionStore {
     return this;
   }
 
-  private Session restore(Context ctx, String sessionId, SessionData data) {
-    return Session.create(ctx, sessionId, data.hash)
-        .setLastAccessedTime(data.lastAccessedTime)
-        .setCreationTime(data.creationTime);
-  }
 }

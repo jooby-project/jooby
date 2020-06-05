@@ -7,15 +7,12 @@ package io.jooby.caffeine;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import io.jooby.Context;
-import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SessionToken;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Caffeine session store.
@@ -32,18 +29,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author edgar
  * @since 2.8.5
  */
-public class CaffeineSessionStore implements SessionStore {
+public class CaffeineSessionStore extends SessionStore.InMemory {
 
-  private final Cache<String, Session> cache;
-
-  private SessionToken token = SessionToken.cookieId(SessionToken.SID);
+  private final Cache<String, Object> cache;
 
   /**
    * Creates a new session store using the given cache.
    *
    * @param cache Cache.
    */
-  public CaffeineSessionStore(@Nonnull Cache<String, Session> cache) {
+  public CaffeineSessionStore(@Nonnull Cache<String, Object> cache) {
+    super(SessionToken.cookieId(SessionToken.SID));
     this.cache = cache;
   }
 
@@ -53,6 +49,7 @@ public class CaffeineSessionStore implements SessionStore {
    * @param timeout Session timeout.
    */
   public CaffeineSessionStore(@Nonnull Duration timeout) {
+    super(SessionToken.cookieId(SessionToken.SID));
     this.cache = Caffeine.newBuilder()
         .expireAfterAccess(timeout)
         .build();
@@ -65,62 +62,22 @@ public class CaffeineSessionStore implements SessionStore {
     this(Duration.ofMinutes(DEFAULT_TIMEOUT));
   }
 
-  /**
-   * Session token.
-   *
-   * @return Session token. Uses a cookie by default: {@link SessionToken#SID}.
-   */
-  public @Nonnull SessionToken getToken() {
-    return token;
+  @Override protected Data getOrCreate(String sessionId,
+      Function<String, Data> factory) {
+    return (Data) cache.get(sessionId, factory);
   }
 
-  /**
-   * Set custom session token.
-   *
-   * @param token Session token.
-   * @return This store.
-   */
-  public @Nonnull CaffeineSessionStore setToken(@Nonnull SessionToken token) {
-    this.token = token;
-    return this;
+  @Override protected Data getOrNull(String sessionId) {
+    return (Data) cache.getIfPresent(sessionId);
   }
 
-  @Nonnull @Override public Session newSession(@Nonnull Context ctx) {
-    String sessionId = token.newToken();
-    Session session = cache
-        .get(sessionId, key -> Session.create(ctx, sessionId, new ConcurrentHashMap<>()));
-
-    token.saveToken(ctx, sessionId);
-
-    return session;
+  @Override protected Data remove(String sessionId) {
+    Data data = (Data) cache.getIfPresent(sessionId);
+    cache.invalidate(sessionId);
+    return data;
   }
 
-  @Nullable @Override public Session findSession(@Nonnull Context ctx) {
-    String sessionId = token.findToken(ctx);
-    if (sessionId == null) {
-      return null;
-    }
-    Session session = cache.getIfPresent(sessionId);
-    if (session != null) {
-      token.saveToken(ctx, sessionId);
-    }
-    return session;
-  }
-
-  @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
-    cache.invalidate(session.getId());
-    token.deleteToken(ctx, session.getId());
-  }
-
-  @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
-    token.saveToken(ctx, session.getId());
-  }
-
-  @Override public void saveSession(@Nonnull Context ctx, @Nonnull Session session) {
-    // NOOP due we do everything on memory
-  }
-
-  @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
-
+  @Override protected void put(String sessionId, Data data) {
+    cache.put(sessionId, data);
   }
 }

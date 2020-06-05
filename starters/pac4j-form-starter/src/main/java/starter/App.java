@@ -2,7 +2,6 @@ package starter;
 
 import io.jooby.Jooby;
 import io.jooby.ModelAndView;
-import io.jooby.SessionStore;
 import io.jooby.flyway.FlywayModule;
 import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.hikari.HikariModule;
@@ -14,10 +13,6 @@ import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 import starter.domain.UserRepository;
-import starter.service.PasswordService;
-import starter.service.UserAuthenticator;
-
-import java.time.Duration;
 
 public class App extends Jooby {
   {
@@ -37,8 +32,6 @@ public class App extends Jooby {
     decorator(new TransactionalRequest());
 
     get("/login", ctx -> new ModelAndView("login.hbs"));
-
-    setSessionStore(SessionStore.memory(Duration.of(-1)));
 
     install(new Pac4jModule()
         .client(conf -> new FormClient("/login", authenticator()))

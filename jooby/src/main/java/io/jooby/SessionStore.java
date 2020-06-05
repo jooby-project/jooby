@@ -5,14 +5,15 @@
  */
 package io.jooby;
 
-import io.jooby.internal.SignedSessionStore;
 import io.jooby.internal.MemorySessionStore;
+import io.jooby.internal.SignedSessionStore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -25,6 +26,129 @@ public interface SessionStore {
 
   /** Default session timeout in minutes. */
   int DEFAULT_TIMEOUT = 30;
+
+  /**
+   * Base class for in-memory session store.
+   *
+   * @author edgar.
+   * @since 2.0.0
+   */
+  abstract class InMemory implements SessionStore {
+    protected static class Data {
+      private Instant lastAccessedTime;
+      private Instant creationTime;
+      private Map hash;
+
+      public Data(Instant creationTime, Instant lastAccessedTime, Map hash) {
+        this.creationTime = creationTime;
+        this.lastAccessedTime = lastAccessedTime;
+        this.hash = hash;
+      }
+
+      public boolean isExpired(Duration timeout) {
+        Duration timeElapsed = Duration.between(lastAccessedTime, Instant.now());
+        return timeElapsed.compareTo(timeout) > 0;
+      }
+    }
+
+    private SessionToken token;
+
+    /**
+     * Creates a new in-memory session store.
+     *
+     * @param token Token.
+     */
+    protected InMemory(@Nonnull SessionToken token) {
+      this.token = token;
+    }
+
+    @Override public @Nonnull Session newSession(@Nonnull Context ctx) {
+      String sessionId = token.newToken();
+      Data data = getOrCreate(sessionId,
+          sid -> new Data(Instant.now(), Instant.now(), new ConcurrentHashMap()));
+
+      Session session = restore(ctx, sessionId, data);
+
+      token.saveToken(ctx, sessionId);
+      return session;
+    }
+
+    /**
+     * Session token.
+     *
+     * @return Session token. Uses a cookie by default: {@link SessionToken#SID}.
+     */
+    public @Nonnull SessionToken getToken() {
+      return token;
+    }
+
+    /**
+     * Set custom session token.
+     *
+     * @param token Session token.
+     * @return This store.
+     */
+    public @Nonnull SessionStore setToken(@Nonnull SessionToken token) {
+      this.token = token;
+      return this;
+    }
+
+    protected abstract @Nonnull Data getOrCreate(@Nonnull String sessionId,
+        @Nonnull Function<String, Data> factory);
+
+    protected abstract @Nullable Data getOrNull(@Nonnull String sessionId);
+
+    protected abstract @Nullable Data remove(@Nonnull String sessionId);
+
+    protected abstract void put(@Nonnull String sessionId, @Nonnull Data data);
+
+    @Override public Session findSession(Context ctx) {
+      String sessionId = token.findToken(ctx);
+      if (sessionId == null) {
+        return null;
+      }
+      Data data = getOrNull(sessionId);
+      if (data != null) {
+        Session session = restore(ctx, sessionId, data);
+        token.saveToken(ctx, sessionId);
+        return session;
+      }
+      return null;
+    }
+
+    @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
+      String sessionId = session.getId();
+      remove(sessionId);
+      token.deleteToken(ctx, sessionId);
+    }
+
+    @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
+      saveSession(ctx, session);
+      token.saveToken(ctx, session.getId());
+    }
+
+    @Override public void saveSession(Context ctx, @Nonnull Session session) {
+      String sessionId = session.getId();
+      put(sessionId, new Data(session.getCreationTime(), Instant.now(), session.toMap()));
+    }
+
+    @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
+      String oldId = session.getId();
+      Data data = remove(oldId);
+      if (data != null) {
+        String newId = token.newToken();
+        session.setId(newId);
+
+        put(newId, data);
+      }
+    }
+
+    private Session restore(Context ctx, String sessionId, Data data) {
+      return Session.create(ctx, sessionId, data.hash)
+          .setLastAccessedTime(data.lastAccessedTime)
+          .setCreationTime(data.creationTime);
+    }
+  }
 
   /**
    * Creates a new session. This method must:
