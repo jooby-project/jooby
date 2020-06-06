@@ -10,6 +10,7 @@ import io.jooby.Route;
 import io.jooby.Router;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,71 +31,24 @@ class Chi implements RouteTree {
 
   private static final int NODE_SIZE = ntCatchAll + 1;
 
+  static final StaticRoute NO_MATCH = new StaticRoute(Collections.emptyMap());
+
   static final char ZERO_CHAR = (char) 0;
   private MessageEncoder encoder;
 
-  private interface MethodMatcher {
-    StaticRouterMatch get(String method);
-
-    void put(String method, StaticRouterMatch route);
-
-    boolean matches(String method);
-  }
-
-  private static class SingleMethodMatcher implements MethodMatcher {
-    private String method;
-    private StaticRouterMatch route;
-
-    @Override public void put(String method, StaticRouterMatch route) {
-      this.method = method;
-      this.route = route;
-    }
-
-    @Override public StaticRouterMatch get(String method) {
-      return this.method.equals(method) ? route : null;
-    }
-
-    @Override public boolean matches(String method) {
-      return this.method.equals(method);
-    }
-
-    public void clear() {
-      this.method = null;
-      this.route = null;
-    }
-  }
-
-  private static class MultipleMethodMatcher implements MethodMatcher {
-    private Map<String, StaticRouterMatch> methods = new ConcurrentHashMap<>();
-
-    public MultipleMethodMatcher(SingleMethodMatcher matcher) {
-      methods.put(matcher.method, matcher.route);
-      matcher.clear();
-    }
-
-    @Override public StaticRouterMatch get(String method) {
-      return methods.get(method);
-    }
-
-    @Override public void put(String method, StaticRouterMatch route) {
-      methods.put(method, route);
-    }
-
-    @Override public boolean matches(String method) {
-      return this.methods.containsKey(method);
-    }
-  }
-
   static class StaticRoute {
-    private MethodMatcher matcher;
+    private final Map<String, StaticRouterMatch> methods;
+
+    public StaticRoute(Map<String, StaticRouterMatch> methods) {
+      this.methods = methods;
+    }
+
+    public StaticRoute() {
+      this(new ConcurrentHashMap<>(Router.METHODS.size()));
+    }
 
     public void put(String method, Route route) {
-      if (matcher == null) {
-        matcher = new SingleMethodMatcher();
-      } else if (matcher instanceof SingleMethodMatcher) {
-        matcher = new MultipleMethodMatcher((SingleMethodMatcher) matcher);
-      }
-      matcher.put(method, new StaticRouterMatch(route));
+      methods.put(method, new StaticRouterMatch(route));
     }
   }
 
@@ -753,27 +707,24 @@ class Chi implements RouteTree {
   }
 
   public boolean exists(String method, String path) {
-    return find(method, path) != null;
+    if (!staticPaths.getOrDefault(path, NO_MATCH).methods.containsKey(method)) {
+      return root.findRoute(new RouterMatch(), method, path) != null;
+    }
+    return true;
   }
 
   @Override public Router.Match find(String method, String path) {
-    StaticRoute staticRoute = staticPaths.get(path);
-    if (staticRoute == null) {
-      return findInternal(method, path);
-    } else {
-      StaticRouterMatch match = staticRoute.matcher.get(method);
-      return match == null ? findInternal(method, path) : match;
+    StaticRouterMatch match = staticPaths.getOrDefault(path, NO_MATCH).methods.get(method);
+    if (match == null) {
+      // use radix tree
+      RouterMatch result = new RouterMatch();
+      Route route = root.findRoute(result, method, path);
+      if (route == null) {
+        return result.missing(method, path, encoder);
+      }
+      return result.found(route);
     }
-  }
-
-  private Router.Match findInternal(String method, String path) {
-    // use radix tree
-    RouterMatch result = new RouterMatch();
-    Route route = root.findRoute(result, method, path);
-    if (route == null) {
-      return result.missing(method, path, encoder);
-    }
-    return result.found(route);
+    return match;
   }
 
   public void setEncoder(MessageEncoder encoder) {
