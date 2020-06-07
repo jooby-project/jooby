@@ -17,6 +17,8 @@ import io.jooby.annotations.HeaderParam;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -49,7 +51,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.jooby.internal.openapi.AsmUtils.findAnnotationByType;
+import static io.jooby.internal.openapi.AsmUtils.*;
 import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
 import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
 import static java.util.Collections.singletonList;
@@ -236,6 +238,11 @@ public class AnnotationParser {
     List<ParameterExt> arguments = routerArguments(ctx, method, requestBody::set);
     ResponseExt response = returnTypes(method);
 
+    // If the method is hidden, don't generate an operation for it
+    if (isHidden(method.visibleAnnotations)) {
+      return result;
+    }
+
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(ctx, classNode, method, httpMethod)) {
         OperationExt operation = new OperationExt(
@@ -262,6 +269,24 @@ public class AnnotationParser {
     if (annotations != null) {
       return annotations.stream()
           .anyMatch(a -> a.desc.equals(Type.getDescriptor(Deprecated.class)));
+    }
+    return false;
+  }
+
+  private static boolean isHidden(List<AnnotationNode> annotations) {
+    if (annotations != null) {
+      // If the method is annotated with @Hidden, it's always hidden
+      boolean hiddenAnnotationExists = annotations.stream()
+          .anyMatch(a -> a.desc.equals(Type.getDescriptor(Hidden.class)));
+
+      if (hiddenAnnotationExists) {
+        return true;
+      }
+
+      // If the method is annotated with @Operation, and the value of "hidden" is true, it's hidden
+      return findAnnotationByType(annotations, Operation.class)
+          .stream()
+          .anyMatch(it -> boolValue(toMap(it), "hidden"));
     }
     return false;
   }
