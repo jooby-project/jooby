@@ -8,6 +8,7 @@ package io.jooby;
 import io.jooby.exception.NotAcceptableException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -34,7 +35,7 @@ public interface MessageEncoder {
    * @return Value as byte array or <code>null</code> if given object isn't supported it.
    * @throws Exception If something goes wrong.
    */
-  @Nonnull byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
+  @Nullable byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
 
   /**
    * Execute this renderer only if the <code>Accept</code> header matches the content-type
