@@ -1122,7 +1122,7 @@ public class Jooby implements Router, Registry {
    */
   private Optional<MvcFactory> mvcReflectionFallback(Class source, ClassLoader classLoader) {
     try {
-      String moduleName = source.getName() + "$Factory";
+      String moduleName = source.getName() + "$Module";
       Class<?> moduleType = classLoader.loadClass(moduleName);
       Constructor<?> constructor = moduleType.getDeclaredConstructor();
       getLog().debug("Loading mvc using reflection: " + source);
