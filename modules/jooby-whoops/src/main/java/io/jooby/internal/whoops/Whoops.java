@@ -6,6 +6,7 @@
 package io.jooby.internal.whoops;
 
 import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.attributes.methodaccess.NoOpMethodAccessValidator;
 import com.mitchellbosecke.pebble.loader.ClasspathLoader;
 import io.jooby.Context;
 import io.jooby.ErrorHandler;
@@ -173,7 +174,7 @@ public class Whoops implements ErrorHandler {
     loader.setPrefix("io/jooby/whoops/views");
     loader.setSuffix(".html");
     return new PebbleEngine.Builder()
-        .allowUnsafeMethods(true)
+        .methodAccessValidator(new NoOpMethodAccessValidator())
         .loader(loader)
         .build();
   }

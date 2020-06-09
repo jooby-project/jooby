@@ -6,6 +6,8 @@
 package io.jooby.pebble;
 
 import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.attributes.methodaccess.BlacklistMethodAccessValidator;
+import com.mitchellbosecke.pebble.attributes.methodaccess.NoOpMethodAccessValidator;
 import com.mitchellbosecke.pebble.cache.CacheKey;
 import com.mitchellbosecke.pebble.cache.PebbleCache;
 import com.mitchellbosecke.pebble.loader.ClasspathLoader;
@@ -193,10 +195,15 @@ public class PebbleModule implements Extension {
         builder.strictVariables(conf.getBoolean("pebble.strictVariables"));
       }
       if (conf.hasPath("pebble.allowUnsafeMethods")) {
-        builder.allowUnsafeMethods(conf.getBoolean("pebble.allowUnsafeMethods"));
+        if (conf.getBoolean("")) {
+          builder.methodAccessValidator(new NoOpMethodAccessValidator());
+        } else {
+          builder.methodAccessValidator(new BlacklistMethodAccessValidator());
+        }
       }
       if (conf.hasPath("pebble.literalDecimalTreatedAsInteger")) {
-        builder.literalDecimalTreatedAsInteger(conf.getBoolean("pebble.literalDecimalTreatedAsInteger"));
+        builder.literalDecimalTreatedAsInteger(
+            conf.getBoolean("pebble.literalDecimalTreatedAsInteger"));
       }
       if (conf.hasPath("pebble.greedyMatchMethod")) {
         builder.greedyMatchMethod(conf.getBoolean("pebble.greedyMatchMethod"));
