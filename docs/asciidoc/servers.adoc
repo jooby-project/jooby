@@ -57,6 +57,7 @@ Server options are available via javadoc:ServerOptions[] class:
 {
   serverOptions {
     bufferSize = 16384
+    compressionLevel = 6
     port = 8080
     ioThreads = 16
     workerThreads = 64
@@ -71,10 +72,11 @@ Server options are available via javadoc:ServerOptions[] class:
 ----
 
 - bufferSize: Buffer size used by server for reading/writing data. Default is: `16k`.
+- compressionLevel: Gzip support. Set compression level. Value between: `0..9`.
 - port: Server HTTP port or `0` for random port. Default is: `8080`.
 - ioThreads: Number of IO threads used by the server. Used by Netty and Undertow. Default is: `Runtime.getRuntime().availableProcessors() * 2`
 - workerThreads: Number of worker (a.k.a application) threads. Default is: `ioThreads * 8`.
-- gzip: Gzip support. Default is: `false`.
+- gzip: Gzip support. Default is: `false`. Deprecated in favor of **compressionLevel**.
 - singleLoop: Indicates if the web server should use a single loop/group for doing IO or not. **Netty only**.
 - defaultHeaders: Configure server to set the following headers: `Date`, `Content-Type` and `Server` headers.
 - maxRequestSize: Maximum request size in bytes. Request exceeding this value results in 413(REQUEST_ENTITY_TOO_LARGE) response. Default is `10mb`.
