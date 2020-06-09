@@ -8,6 +8,7 @@ package io.jooby.internal;
 import com.typesafe.config.Config;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
+import io.jooby.Environment;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
@@ -193,6 +194,10 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Config getConfig() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nonnull @Override public Environment getEnvironment() {
     throw new UnsupportedOperationException();
   }
 

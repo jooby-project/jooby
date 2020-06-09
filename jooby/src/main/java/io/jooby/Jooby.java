@@ -688,13 +688,15 @@ public class Jooby implements Router, Registry {
    */
   public @Nonnull Jooby start(@Nonnull Server server) {
     Path tmpdir = getTmpdir();
-
-    /** Start router: */
     ensureTmpdir(tmpdir);
 
     if (mode == null) {
       mode = ExecutionMode.DEFAULT;
     }
+
+    ServiceRegistry services = getServices();
+    services.put(Environment.class, getEnvironment());
+    services.put(Config.class, getConfig());
 
     joobyRunHook(getClass().getClassLoader(), server);
 

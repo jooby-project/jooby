@@ -106,6 +106,13 @@ public interface Router extends Registry {
   @Nonnull Config getConfig();
 
   /**
+   * Application environment.
+   *
+   * @return Application environment.
+   */
+  @Nonnull Environment getEnvironment();
+
+  /**
    * Mutable map of application attributes.
    *
    * @return Mutable map of application attributes.
