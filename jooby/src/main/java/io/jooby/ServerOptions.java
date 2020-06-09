@@ -35,6 +35,9 @@ public class ServerOptions {
   public static final int SEVER_SECURE_PORT = Integer
       .parseInt(System.getProperty("server.securePort", "8443"));
 
+  /**  Default compression level for gzip. */
+  public static final int DEFAULT_COMPRESSION_LEVEL = 6;
+
   /** 4kb constant in bytes. */
   public static final int _4KB = 4096;
 
@@ -66,9 +69,6 @@ public class ServerOptions {
   /** Number of worker threads (a.k.a application) to use. */
   private Integer workerThreads;
 
-  /** Enabled gzip at server level. Default is: <code>false</code>. */
-  private boolean gzip;
-
   /**
    * Configure server to default headers: <code>Date</code>, <code>Content-Type</code> and
    * <code>Server</code> header.
@@ -89,6 +89,8 @@ public class ServerOptions {
   private SslOptions ssl;
 
   private Integer securePort;
+
+  private Integer compressionLevel;
 
   /**
    * Creates server options from config object. The configuration options must provided entries
@@ -121,6 +123,9 @@ public class ServerOptions {
       if (conf.hasPath("server.gzip")) {
         options.setGzip(conf.getBoolean("server.gzip"));
       }
+      if (conf.hasPath("server.compressionLevel")) {
+        options.setCompressionLevel(conf.getInt("server.compressionLevel"));
+      }
       if (conf.hasPath("server.maxRequestSize")) {
         options.setMaxRequestSize((int) conf.getMemorySize("server.maxRequestSize").toBytes());
       }
@@ -148,7 +153,7 @@ public class ServerOptions {
     buff.append(", workerThreads: ").append(getWorkerThreads());
     buff.append(", bufferSize: ").append(bufferSize);
     buff.append(", maxRequestSize: ").append(maxRequestSize);
-    if (gzip) {
+    if (compressionLevel != null) {
       buff.append(", gzip");
     }
     buff.append("}");
@@ -298,9 +303,11 @@ public class ServerOptions {
    * True if gzip is enabled.
    *
    * @return True if gzip is enabled.
+   * @deprecated In favor of {@link #getCompressionLevel()}.
    */
+  @Deprecated
   public boolean getGzip() {
-    return gzip;
+    return compressionLevel != null;
   }
 
   /**
@@ -308,9 +315,38 @@ public class ServerOptions {
    *
    * @param gzip True to enabled it. Default is disabled(false).
    * @return This options.
+   * @deprecated In favor of {@link #setCompressionLevel(Integer)}.
    */
+  @Deprecated
   public @Nonnull ServerOptions setGzip(boolean gzip) {
-    this.gzip = gzip;
+    if (gzip) {
+      this.compressionLevel = DEFAULT_COMPRESSION_LEVEL;
+    } else {
+      this.compressionLevel = null;
+    }
+    return this;
+  }
+
+  /**
+   * Indicates compression level to use while producing gzip responses.
+   *
+   *
+   * @return Compression level value between <code>0...9</code> or <code>null</code> when off.
+   */
+  public @Nullable Integer getCompressionLevel() {
+    return compressionLevel;
+  }
+
+  /**
+   * Set compression level to use while producing gzip responses.
+   *
+   * Gzip is off by default (compression level is null).
+   *
+   * @param compressionLevel Value between <code>0..9</code> or <code>null</code>.
+   * @return This options.
+   */
+  public @Nonnull ServerOptions setCompressionLevel(@Nullable Integer compressionLevel) {
+    this.compressionLevel = compressionLevel;
     return this;
   }
 

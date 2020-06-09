@@ -101,7 +101,8 @@ public class Jetty extends io.jooby.Server.Base {
 
       if (options.isSSLEnabled()) {
         SslContextFactory sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader()));
+        sslContextFactory
+            .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader()));
 
         HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
         httpsConf.addCustomizer(new SecureRequestCustomizer());
@@ -119,8 +120,9 @@ public class Jetty extends io.jooby.Server.Base {
       AbstractHandler handler = new JettyHandler(applications.get(0), options.getBufferSize(),
           options.getMaxRequestSize(), options.getDefaultHeaders());
 
-      if (options.getGzip()) {
+      if (options.getCompressionLevel() != null) {
         GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.setCompressionLevel(options.getCompressionLevel());
         gzipHandler.setHandler(handler);
         context.setHandler(gzipHandler);
       } else {

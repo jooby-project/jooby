@@ -12,6 +12,10 @@ import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContentCompressor;
 
 class HttpChunkContentCompressor extends HttpContentCompressor {
+  public HttpChunkContentCompressor(int compressionLevel) {
+    super(compressionLevel < 0 ? 0 : compressionLevel);
+  }
+
   @Override public void write(ChannelHandlerContext ctx, Object msg,
       ChannelPromise promise) throws Exception {
     if (msg instanceof ByteBuf) {

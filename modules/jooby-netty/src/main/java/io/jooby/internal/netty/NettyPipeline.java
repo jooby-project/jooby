@@ -23,7 +23,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
   private final Router router;
   private final HttpDataFactory factory;
-  private final boolean gzip;
+  private final Integer compressionLevel;
   private final int bufferSize;
   private final long maxRequestSize;
   private final boolean defaultHeaders;
@@ -32,13 +32,13 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
   public NettyPipeline(ScheduledExecutorService service, Router router, HttpDataFactory factory,
       SslContext sslContext,
-      boolean defaultHeaders, boolean gzip, int bufferSize, long maxRequestSize) {
+      boolean defaultHeaders, Integer compressionLevel, int bufferSize, long maxRequestSize) {
     this.service = service;
     this.router = router;
     this.factory = factory;
     this.sslContext = sslContext;
     this.defaultHeaders = defaultHeaders;
-    this.gzip = gzip;
+    this.compressionLevel = compressionLevel;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
   }
@@ -51,8 +51,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     }
     p.addLast("decoder", new HttpRequestDecoder(_4KB, _8KB, bufferSize, false));
     p.addLast("encoder", new HttpResponseEncoder());
-    if (gzip) {
-      p.addLast("compressor", new HttpChunkContentCompressor());
+    if (compressionLevel != null) {
+      p.addLast("compressor", new HttpChunkContentCompressor(compressionLevel));
     }
     p.addLast("handler", new NettyHandler(service, router, maxRequestSize, bufferSize, factory,
         defaultHeaders));

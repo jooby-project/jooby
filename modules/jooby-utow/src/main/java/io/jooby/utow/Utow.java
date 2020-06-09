@@ -14,7 +14,10 @@ import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.GracefulShutdownHandler;
+import io.undertow.server.handlers.encoding.ContentEncodingRepository;
+import io.undertow.server.handlers.encoding.DeflateEncodingProvider;
 import io.undertow.server.handlers.encoding.EncodingHandler;
+import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import org.xnio.Options;
 
 import javax.annotation.Nonnull;
@@ -35,6 +38,10 @@ import java.util.concurrent.TimeUnit;
 public class Utow extends Server.Base {
 
   private static final int BACKLOG = 8192;
+
+  private static final int _100 = 100;
+
+  private static final int _10 = 10;
 
   private Undertow server;
 
@@ -66,8 +73,11 @@ public class Utow extends Server.Base {
           options.getMaxRequestSize(),
           options.getDefaultHeaders());
 
-      if (options.getGzip()) {
-        handler = new EncodingHandler.Builder().build(null).wrap(handler);
+      if (options.getCompressionLevel() != null) {
+        int compressionLevel = options.getCompressionLevel();
+        handler = new EncodingHandler(handler, new ContentEncodingRepository()
+            .addEncodingHandler("gzip", new GzipEncodingProvider(compressionLevel), _100)
+            .addEncodingHandler("deflate", new DeflateEncodingProvider(compressionLevel), _10));
       }
 
       shutdown = new GracefulShutdownHandler(handler);

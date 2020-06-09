@@ -803,6 +803,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private boolean isGzip() {
-    return getRouter().getServerOptions().getGzip();
+    return getRouter().getServerOptions().getCompressionLevel() != null;
   }
 }

@@ -137,7 +137,7 @@ public class Netty extends Server.Base {
             factory,
             wrap(sslContext),
             options.getDefaultHeaders(),
-            options.getGzip(),
+            options.getCompressionLevel(),
             options.getBufferSize(),
             options.getMaxRequestSize()
         );
