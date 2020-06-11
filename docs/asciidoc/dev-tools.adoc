@@ -1,4 +1,4 @@
-== Hot Reload
+== Development
 
 The `jooby run` tool allows to restart your application on code changes without exiting the JVM.
 

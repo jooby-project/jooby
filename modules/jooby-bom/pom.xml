@@ -55,7 +55,7 @@
   <jdbi.version>3.13.0</jdbi.version>
   <jetty.version>9.4.29.v20200521</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jmespath-java.version>1.11.798</jmespath-java.version>
+  <jmespath-java.version>1.11.791</jmespath-java.version>
   <jooby-maven-plugin.version>2.8.6-SNAPSHOT</jooby-maven-plugin.version>
   <jooby.version>2.8.6-SNAPSHOT</jooby.version>
   <json.version>20200518</json.version>
@@ -90,6 +90,7 @@
   <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
   <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
   <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+  <maven-tiles-plugin.version>2.17</maven-tiles-plugin.version>
   <mockito.version>3.3.3</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
   <mysql-connector-java.version>8.0.20</mysql-connector-java.version>
@@ -2334,9 +2335,10 @@
           <!-- Javadoc -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
+            <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven-javadoc-plugin.version}</version>
             <configuration>
+              <aggregate>true</aggregate>
               <show>public</show>
             </configuration>
             <executions>
@@ -2383,31 +2385,6 @@
           </plugin>
         </plugins>
       </build>
-      <reporting>
-        <plugins>
-          <!-- Javadoc -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${maven-javadoc-plugin.version}</version>
-            <reportSets>
-              <reportSet>
-                <id>aggregate</id>
-                <inherited>false</inherited>
-                <reports>
-                  <report>aggregate</report>
-                </reports>
-              </reportSet>
-              <reportSet>
-                <id>default</id>
-                <reports>
-                  <report>javadoc</report>
-                </reports>
-              </reportSet>
-            </reportSets>
-          </plugin>
-        </plugins>
-      </reporting>
     </profile>
   </profiles>
 </project>

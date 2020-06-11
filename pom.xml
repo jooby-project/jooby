@@ -123,6 +123,7 @@
     <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>3.1.2</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+    <maven-tiles-plugin.version>2.17</maven-tiles-plugin.version>
     <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-core.version>3.6.3</maven-core.version>
@@ -1276,6 +1277,19 @@
           </executions>
         </plugin>
 
+        <!-- assembly -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven-assembly-plugin.version}</version>
+        </plugin>
+        <!-- tiles -->
+        <plugin>
+          <groupId>io.repaint.maven</groupId>
+          <artifactId>tiles-maven-plugin</artifactId>
+          <version>${maven-tiles-plugin.version}</version>
+        </plugin>
+
         <!-- ant plugin -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1306,7 +1320,8 @@
       <id>license</id>
       <activation>
         <file>
-          <exists>${user.dir}${file.separator}etc${file.separator}source${file.separator}LICENSE</exists>
+          <exists>${user.dir}${file.separator}etc${file.separator}source${file.separator}LICENSE
+          </exists>
         </file>
       </activation>
       <build>
@@ -1316,7 +1331,9 @@
             <artifactId>license-maven-plugin</artifactId>
             <version>${license-maven-plugin.version}</version>
             <configuration>
-              <header>${user.dir}${file.separator}etc${file.separator}source${file.separator}LICENSE</header>
+              <header>
+                ${user.dir}${file.separator}etc${file.separator}source${file.separator}LICENSE
+              </header>
               <strictCheck>true</strictCheck>
               <skipExistingHeaders>true</skipExistingHeaders>
               <includes>
@@ -1354,7 +1371,8 @@
               <consoleOutput>true</consoleOutput>
               <configLocation>${checkstyle-file}</configLocation>
               <failsOnError>true</failsOnError>
-              <excludes>**${file.separator}internal${file.separator}**${file.separator}*.*</excludes>
+              <excludes>**${file.separator}internal${file.separator}**${file.separator}*.*
+              </excludes>
             </configuration>
             <executions>
               <execution>

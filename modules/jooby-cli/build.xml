@@ -9,5 +9,6 @@
     <echo file="${file}" append="true">mavenSurefirePluginVersion=${maven-surefire-plugin.version}${line.separator}</echo>
     <echo file="${file}" append="true">mavenShadePluginVersion=${maven-shade-plugin.version}${line.separator}</echo>
     <echo file="${file}" append="true">storkMavenPluginVersion=${stork-maven-plugin.version}${line.separator}</echo>
+    <echo file="${file}" append="true">mavenTilesPluginVersion=${maven-tiles-plugin.version}${line.separator}</echo>
   </target>
 </project>

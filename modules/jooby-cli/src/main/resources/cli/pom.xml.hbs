@@ -143,29 +143,15 @@
       </plugin>
       {{#if stork}}
       <plugin>
-        <groupId>com.fizzed</groupId>
-        <artifactId>stork-maven-plugin</artifactId>
-        <version>{{storkMavenPluginVersion}}</version>
-        <executions>
-          <execution>
-            <id>stork-launcher</id>
-            <goals>
-              <goal>launcher</goal>
-            </goals>
-            <configuration>
-              <inputFiles>${project.basedir}${file.separator}src${file.separator}etc</inputFiles>
-            </configuration>
-          </execution>
-          <execution>
-            <id>stork-assembly</id>
-            <goals>
-              <goal>assembly</goal>
-            </goals>
-            <configuration>
-              <finalName>${project.artifactId}-${project.version}-stork</finalName>
-            </configuration>
-          </execution>
-        </executions>
+        <groupId>io.repaint.maven</groupId>
+        <artifactId>tiles-maven-plugin</artifactId>
+        <version>{{mavenTilesPluginVersion}}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <tiles>
+            <tile>io.jooby:jooby-stork:${jooby.version}</tile>
+          </tiles>
+        </configuration>
       </plugin>
       {{else}}
       <!-- Build uber jar -->

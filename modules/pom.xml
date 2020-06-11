@@ -68,6 +68,10 @@
     <!-- util -->
     <module>jooby-banner</module>
     <module>jooby-whoops</module>
+
+    <!-- distribution -->
+    <module>jooby-distribution</module>
+    <module>jooby-stork</module>
   </modules>
 
 </project>

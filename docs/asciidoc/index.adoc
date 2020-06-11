@@ -245,6 +245,8 @@ include::testing.adoc[]
 
 include::dev-tools.adoc[]
 
+include::packaging/packaging.adoc[]
+
 include::servers.adoc[]
 
 include::extension.adoc[]

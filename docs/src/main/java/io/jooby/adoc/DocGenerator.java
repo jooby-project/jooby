@@ -65,7 +65,7 @@ public class DocGenerator {
 
     asciidoctor.convertFile(asciidoc.resolve("index.adoc").toFile(),
         createOptions(asciidoc, outdir, version, null));
-    Stream.of("usage", "modules").forEach(SneakyThrows.throwingConsumer(name -> {
+    Stream.of("usage", "modules", "packaging").forEach(SneakyThrows.throwingConsumer(name -> {
       Path modules = outdir.resolve(name);
       Files.createDirectories(modules);
       Files.walk(asciidoc.resolve(name)).filter(Files::isRegularFile).forEach(module -> {
@@ -144,7 +144,7 @@ public class DocGenerator {
       String moduleName = module.getFileName().toString().replace(".adoc", "");
 
       String title = moduleName.replace("-", " ");
-      if (name.equals("modules") && !moduleName.equals("modules")) {
+      if (name.equals("modules") && !moduleName.equals("modules") && !moduleName.equals("packaging")) {
         title += " module";
       }
       Options options = createOptions(basedir, outdir, version, title);
@@ -153,7 +153,7 @@ public class DocGenerator {
 
       Path output = outdir.resolve(moduleName + ".html").toAbsolutePath();
       Path indexlike = output.getParent().resolve(name);
-      if (name.equals("modules") && !moduleName.equals("modules")) {
+      if (name.equals("modules") && !moduleName.equals("modules") && !moduleName.equals("packaging")) {
         indexlike = indexlike.resolve(moduleName);
       }
       indexlike = indexlike.resolve("index.html");

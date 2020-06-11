@@ -200,7 +200,7 @@ public class CreateCmd extends Cmd {
     }
 
     if (stork) {
-      stork(ctx, projectDir, model);
+      stork(ctx, projectDir);
     }
 
     if (docker) {
@@ -280,10 +280,9 @@ public class CreateCmd extends Cmd {
     }
   }
 
-  private void stork(Context ctx, Path projectDir, Map<String, Object> model)
-      throws IOException {
-    ctx.writeTemplate("stork.yml", model,
-        projectDir.resolve("src").resolve("etc").resolve("stork.yml"));
+  private void stork(Context ctx, Path projectDir) throws IOException {
+    ctx.copyResource("/cli/src/etc/stork/stork.yml", projectDir.resolve("src").resolve("etc")
+        .resolve("stork").resolve("stork.yml"));
   }
 
   private void gradleWrapper(Context ctx, Path projectDir, Map<String, Object> model)
