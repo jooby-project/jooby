@@ -9,6 +9,6 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "graphql": "^14.6.0",
-    "graphiql": "^0.17.1"
+    "graphiql": "^1.0.0"
   }
 }
