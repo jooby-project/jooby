@@ -29,6 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CommandContextImpl implements Context {
 
@@ -142,7 +144,13 @@ public class CommandContextImpl implements Context {
       }
     }
     Map result = new LinkedHashMap<>();
-    result.putAll(versions);
+    for (Map.Entry<Object, Object> entry : versions.entrySet()) {
+      String key = Stream.of(entry.getKey().toString().split("\\.|-"))
+          .map(name -> Character.toUpperCase(name.charAt(0)) + name.substring(1))
+          .collect(Collectors.joining());
+      key = Character.toLowerCase(key.charAt(0)) + key.substring(1);
+      result.put(key, entry.getValue().toString());
+    }
     return result;
   }
 }

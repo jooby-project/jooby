@@ -59,6 +59,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.jacoco</groupId>
       <artifactId>org.jacoco.agent</artifactId>
       <classifier>runtime</classifier>
@@ -69,18 +75,20 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0.0</version>
         <executions>
           <execution>
             <phase>generate-resources</phase>
-            <configuration>
-              <target>
-                <ant antfile="${project.basedir}/build.xml"></ant>
-              </target>
-            </configuration>
             <goals>
-              <goal>run</goal>
+              <goal>write-project-properties</goal>
             </goals>
+            <configuration>
+              <outputFile>
+                ${project.build.outputDirectory}${file.separator}dependencies.properties
+              </outputFile>
+            </configuration>
           </execution>
         </executions>
       </plugin>
