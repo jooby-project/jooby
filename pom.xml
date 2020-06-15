@@ -62,7 +62,7 @@
     <asm.version>8.0.1</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.1.0.Final</undertow.version>
+    <undertow.version>2.1.3.Final</undertow.version>
     <jetty.version>9.4.29.v20200521</jetty.version>
     <netty.version>4.1.50.Final</netty.version>
     <boringssl.version>2.0.27.Final</boringssl.version>
