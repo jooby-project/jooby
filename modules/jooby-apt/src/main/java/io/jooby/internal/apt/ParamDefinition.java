@@ -110,7 +110,7 @@ public class ParamDefinition {
 
   private boolean hasAnnotation(String type) {
     for (AnnotationMirror annotation : parameter.getAnnotationMirrors()) {
-      if (annotation.getAnnotationType().equals(type)) {
+      if (annotation.getAnnotationType().toString().equals(type)) {
         return true;
       }
     }
