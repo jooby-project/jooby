@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.extensions.Extensions;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -60,12 +61,12 @@ import static io.jooby.internal.openapi.AsmUtils.annotationList;
 import static io.jooby.internal.openapi.AsmUtils.annotationValue;
 import static io.jooby.internal.openapi.AsmUtils.boolValue;
 import static io.jooby.internal.openapi.AsmUtils.enumValue;
+import static io.jooby.internal.openapi.AsmUtils.findAnnotationByType;
 import static io.jooby.internal.openapi.AsmUtils.intValue;
 import static io.jooby.internal.openapi.AsmUtils.stringList;
+import static io.jooby.internal.openapi.AsmUtils.stringValue;
 import static io.jooby.internal.openapi.AsmUtils.stringValueOrNull;
 import static io.jooby.internal.openapi.AsmUtils.toMap;
-import static io.jooby.internal.openapi.AsmUtils.findAnnotationByType;
-import static io.jooby.internal.openapi.AsmUtils.stringValue;
 import static java.util.Collections.singletonList;
 
 /**
@@ -205,6 +206,19 @@ public class OpenAPIParser {
         .stream()
         .findFirst()
         .ifPresent(a -> parameters(ctx, operation, singletonList(toMap(a))));
+    /** @RequestBody: */
+    if (method.visibleParameterAnnotations != null) {
+      for (List<AnnotationNode> paramAnnotations : method.visibleParameterAnnotations) {
+        findAnnotationByType(paramAnnotations, RequestBody.class)
+            .stream()
+            .findFirst()
+            .ifPresent(a -> requestBody(ctx, operation, toMap(a)));
+      }
+    }
+    findAnnotationByType(method.visibleAnnotations, RequestBody.class)
+        .stream()
+        .findFirst()
+        .ifPresent(a -> requestBody(ctx, operation, toMap(a)));
 
     /** @ApiResponse: */
     findAnnotationByType(method.visibleAnnotations, ApiResponse.class)
