@@ -6,6 +6,7 @@
 package io.jooby.exception;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Missing exception. Used when a required attribute/value is missing.
@@ -35,7 +36,15 @@ public class MissingValueException extends BadRequestException {
     return name;
   }
 
-  public static <T> T requireNonNull(String name, T value)  {
+  /**
+   * Check if the given value is null and throw a {@link MissingValueException} exception.
+   *
+   * @param name Attribute's name.
+   * @param value Value to check.
+   * @param <T> Value type.
+   * @return Input value
+   */
+  public static <T> T requireNonNull(@Nonnull String name, @Nullable T value)  {
     if (value == null) {
       throw new MissingValueException(name);
     }
