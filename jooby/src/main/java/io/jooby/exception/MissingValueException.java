@@ -34,4 +34,11 @@ public class MissingValueException extends BadRequestException {
   public String getName() {
     return name;
   }
+
+  public static <T> T requireNonNull(String name, T value)  {
+    if (value == null) {
+      throw new MissingValueException(name);
+    }
+    return value;
+  }
 }

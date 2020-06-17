@@ -9,11 +9,14 @@ import io.jooby.Reified;
 import io.jooby.internal.apt.ParamDefinition;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -62,6 +65,14 @@ public abstract class ValueWriter implements ParamWriter {
 
     if (toClass || toReified) {
       visitor.visitTypeInsn(CHECKCAST, parameter.getType().toJvmType().getInternalName());
+      if (!parameter.isNullable()) {
+        visitor.visitVarInsn(ASTORE, 3);
+        visitor.visitVarInsn(ALOAD, 2);
+        visitor.visitLdcInsn(parameter.getHttpName());
+        visitor.visitVarInsn(ALOAD, 3);
+        visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/exception/MissingValueException", "requireNonNull", "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
+        visitor.visitTypeInsn(CHECKCAST, parameter.getType().toJvmType().getInternalName());
+      }
     }
   }
 

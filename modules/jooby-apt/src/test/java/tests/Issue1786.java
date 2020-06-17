@@ -7,6 +7,7 @@ import io.jooby.apt.MvcModuleCompilerRunner;
 import io.jooby.exception.MissingValueException;
 import org.junit.jupiter.api.Test;
 import source.Controller1786;
+import source.Controller1786b;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,6 +20,16 @@ public class Issue1786 {
         .module(app -> {
           MockRouter router = new MockRouter(app);
           assertThrows(MissingValueException.class, () -> router.get("/required-string-param"));
+        });
+  }
+
+  @Test
+  public void shouldThrowMissingValueExceptionIfRequiredParamNotSpecified() throws Exception {
+    new MvcModuleCompilerRunner(new Controller1786b())
+        .example(Expected1786b.class)
+        .module(app -> {
+          MockRouter router = new MockRouter(app);
+          assertThrows(MissingValueException.class, () -> router.get("/required-param"));
         });
   }
 

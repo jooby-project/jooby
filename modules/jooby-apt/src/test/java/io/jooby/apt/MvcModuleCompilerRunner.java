@@ -8,9 +8,11 @@ import io.jooby.Jooby;
 import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
+import org.objectweb.asm.util.ASMifier;
 
 import javax.inject.Provider;
 import javax.tools.JavaFileObject;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -24,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class MvcModuleCompilerRunner {
   private final TestMvcProcessor processor;
   private final Object instance;
+  private final List<String> examples = new ArrayList<>();
 
   public MvcModuleCompilerRunner(Object instance) throws Exception {
     this(instance, false);
@@ -55,7 +58,17 @@ public class MvcModuleCompilerRunner {
 
   public MvcModuleCompilerRunner debugModule(SneakyThrows.Consumer<Jooby> consumer)
       throws Exception {
+    for (String example : examples) {
+      printExample(example);
+    }
     return module(true, consumer);
+  }
+
+  private void printExample(String example) throws IOException {
+    System.out.println("*************************************************************************");
+    System.out.println("******************************** Example ********************************");
+    ASMifier.main(new String[]{example});
+    System.out.println("*************************************************************************");
   }
 
   private MvcModuleCompilerRunner module(boolean debug, SneakyThrows.Consumer<Jooby> consumer)
@@ -100,6 +113,11 @@ public class MvcModuleCompilerRunner {
       return path;
     }
     return path.resolve("modules").resolve("jooby-apt");
+  }
+
+  public MvcModuleCompilerRunner example(Class example) {
+    examples.add(example.getName());
+    return this;
   }
 }
 
