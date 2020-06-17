@@ -9,6 +9,7 @@ import io.jooby.AttachedFile;
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.ModelAndView;
+import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
 
 import javax.annotation.Nonnull;
@@ -50,6 +51,11 @@ public class HttpMessageEncoder implements MessageEncoder {
     /** InputStream: */
     if (value instanceof InputStream) {
       ctx.send((InputStream) value);
+      return null;
+    }
+    /** StatusCode: */
+    if (value instanceof StatusCode) {
+      ctx.send((StatusCode) value);
       return null;
     }
     /** FileChannel: */

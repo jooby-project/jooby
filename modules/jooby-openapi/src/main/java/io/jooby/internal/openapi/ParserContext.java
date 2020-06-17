@@ -12,6 +12,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
+import io.jooby.StatusCode;
 import io.jooby.openapi.DebugOption;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.converter.ResolvedSchema;
@@ -268,8 +269,10 @@ public class ParserContext {
   }
 
   private boolean isVoid(String type) {
-    return Context.class.getName().equals(type) || void.class.getName().equals(type) || Void.class
-        .getName().equals(type);
+    return Context.class.getName().equals(type)
+        || void.class.getName().equals(type)
+        || Void.class.getName().equals(type)
+        || StatusCode.class.getName().equals(type);
   }
 
   public ClassNode classNode(Type type) {
