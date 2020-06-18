@@ -8,6 +8,8 @@ include::handlers/cors.adoc[]
 
 include::handlers/csrf.adoc[]
 
+include::handlers/graceful-shutdown.adoc[]
+
 include::handlers/head.adoc[]
 
 include::handlers/rate-limit.adoc[]

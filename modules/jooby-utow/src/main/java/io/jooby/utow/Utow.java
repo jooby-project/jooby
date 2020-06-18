@@ -13,7 +13,6 @@ import io.jooby.internal.utow.UtowHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.GracefulShutdownHandler;
 import io.undertow.server.handlers.encoding.ContentEncodingRepository;
 import io.undertow.server.handlers.encoding.DeflateEncodingProvider;
 import io.undertow.server.handlers.encoding.EncodingHandler;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Web server implementation using <a href="http://undertow.io/">Undertow</a>.
@@ -44,8 +42,6 @@ public class Utow extends Server.Base {
   private static final int _10 = 10;
 
   private Undertow server;
-
-  private GracefulShutdownHandler shutdown;
 
   private List<Jooby> applications = new ArrayList<>();
 
@@ -80,8 +76,6 @@ public class Utow extends Server.Base {
             .addEncodingHandler("deflate", new DeflateEncodingProvider(compressionLevel), _10));
       }
 
-      shutdown = new GracefulShutdownHandler(handler);
-
       Undertow.Builder builder = Undertow.builder()
           .addHttpListener(options.getPort(), options.getHost())
           .setBufferSize(options.getBufferSize())
@@ -98,7 +92,7 @@ public class Utow extends Server.Base {
           .setIoThreads(options.getIoThreads())
           .setWorkerOption(Options.WORKER_NAME, "worker")
           .setWorkerThreads(options.getWorkerThreads())
-          .setHandler(shutdown);
+          .setHandler(handler);
 
       SSLContext sslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
       if (sslContext != null) {
@@ -123,11 +117,9 @@ public class Utow extends Server.Base {
   }
 
   @Nonnull @Override public synchronized Server stop() {
-    fireStop(applications);
-    applications = null;
     try {
-      shutdown.shutdown();
-      shutdown.awaitShutdown(TimeUnit.SECONDS.toMillis(1));
+      fireStop(applications);
+      applications = null;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     } finally {
