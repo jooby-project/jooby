@@ -47,8 +47,7 @@ public class GracefulShutdownHandler implements Route.Decorator {
       long snapshot = stateUpdater.updateAndGet(this, incrementActive);
       if (isShutdown(snapshot)) {
         decrementRequests();
-        return ctx.setResponseCode(StatusCode.SERVICE_UNAVAILABLE)
-            .send(StatusCode.SERVICE_UNAVAILABLE);
+        return ctx.send(StatusCode.SERVICE_UNAVAILABLE);
       } else {
         ctx.onComplete(context -> {
           decrementRequests();
