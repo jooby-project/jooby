@@ -139,8 +139,10 @@ public class SpringModule implements Extension {
       ServiceRegistry registry = application.getServices();
       for (Map.Entry<ServiceKey<?>, Provider<?>> entry : registry.entrySet()) {
         ServiceKey key = entry.getKey();
-        Provider provider = entry.getValue();
-        applicationContext.registerBean(key.getName(), key.getType(), () -> provider.get());
+        if (!ignoreEntry(key.getType())) {
+          Provider provider = entry.getValue();
+          applicationContext.registerBean(key.getName(), key.getType(), () -> provider.get());
+        }
       }
 
       application.onStop(applicationContext);
@@ -162,5 +164,9 @@ public class SpringModule implements Extension {
         application.mvc(mvcClass);
       }
     }
+  }
+
+  private boolean ignoreEntry(Class type) {
+    return type == Environment.class || type == Config.class;
   }
 }

@@ -89,9 +89,6 @@ public class JoobyExtension implements Extension {
     Environment environment = app.getEnvironment();
     Config config = environment.getConfig();
 
-    registerSingleton(abd, bm, Config.class, null, config);
-    registerSingleton(abd, bm, Environment.class, null, environment);
-
     for (Map.Entry<String, ConfigValue> configEntry : config.entrySet()) {
       final String configKey = configEntry.getKey();
       final Object configValue = configEntry.getValue().unwrapped();

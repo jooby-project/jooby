@@ -67,8 +67,6 @@ public class JoobyModule extends AbstractModule {
 
   /*package*/ void configureEnv(Environment env) {
     Config config = env.getConfig();
-    bind(Config.class).toInstance(config);
-    bind(Environment.class).toInstance(env);
 
     // configuration properties
     for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
