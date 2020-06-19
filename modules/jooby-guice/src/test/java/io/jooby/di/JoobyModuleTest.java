@@ -2,7 +2,6 @@ package io.jooby.di;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
-import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.AnnotatedConstantBindingBuilder;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
@@ -47,12 +46,6 @@ public class JoobyModuleTest {
 
     Binder binder = mock(Binder.class);
 
-    AnnotatedBindingBuilder<Environment> envbinding = mock(AnnotatedBindingBuilder.class);
-    when(binder.bind(Environment.class)).thenReturn(envbinding);
-
-    AnnotatedBindingBuilder<Config> confbinding = mock(AnnotatedBindingBuilder.class);
-    when(binder.bind(Config.class)).thenReturn(confbinding);
-
     LinkedBindingBuilder emptyListBinding = mock(LinkedBindingBuilder.class);
     emptyListBinding.toInstance(emptyList);
     when(binder.bind(Key.get(Types.listOf(String.class), Names.named("some")))).thenReturn(emptyListBinding);
@@ -72,9 +65,6 @@ public class JoobyModuleTest {
     JoobyModule module = new JoobyModule(app);
 
     module.configure(binder);
-
-    verify(envbinding).toInstance(environment);
-    verify(confbinding).toInstance(config);
   }
 
 }
