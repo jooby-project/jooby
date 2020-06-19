@@ -15,7 +15,7 @@ This is a **work in progress** document, if something is wrong or missing please
 |1.x|2.x
 |jooby-apitool| no real equivalent, use a combination of https://jooby.io/modules/openapi/[jooby-maven-plugin] and https://jooby.io/modules/openapi/#openapi-swagger-ui[jooby-swagger-ui]
 |jooby-hbv| n/a
-|jooby-lang-kotlin| n/a
+|jooby-lang-kotlin| not needed anymore, part of core now
 |jooby-servlet| n/a
 |===
 
