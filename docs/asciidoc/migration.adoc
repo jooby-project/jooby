@@ -7,6 +7,18 @@ You will find here notes/tips about how to migrate from 1.x to 2.x.
 This is a **work in progress** document, if something is wrong or missing please https://github.com/jooby-project/jooby/issues/new[report to Github] or better https://github.com/jooby-project/jooby/edit/2.x/docs/asciidoc/migration.adoc[edit this file and fix it] 
 =====
 
+==== Maven coordinates
+`org.jooby` became `io.jooby`. Hence, use `<groupId>org.jooby</groupId>` for all dependencies.
+
+==== Modules
+|===
+|1.x|2.x
+|jooby-apitool| no real equivalent, use a combination of https://jooby.io/modules/openapi/[jooby-maven-plugin] and https://jooby.io/modules/openapi/#openapi-swagger-ui[jooby-swagger-ui]
+|jooby-hbv| n/a
+|jooby-lang-kotlin| not needed anymore, part of core now
+|jooby-servlet| n/a
+|===
+
 ==== API
 
 API still similar/equivalent in 2.x. Except for the one listed below:
