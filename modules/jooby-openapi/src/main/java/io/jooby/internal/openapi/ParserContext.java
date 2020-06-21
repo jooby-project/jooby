@@ -49,6 +49,8 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -193,6 +195,9 @@ public class ParserContext {
     if (UUID.class == type) {
       return new UUIDSchema();
     }
+    if (URI.class == type || URL.class == type) {
+      return new StringSchema().format(type.getSimpleName().toLowerCase());
+    }
     if (BigInteger.class == type) {
       return new IntegerSchema()
           .format(null);
@@ -225,10 +230,11 @@ public class ParserContext {
           RefUtils.constructRef(resolvedSchema.schema.getName()));
       schemas.put(type.getName(), schemaRef);
 
-      if (resolvedSchema.referencedSchemas!= null) {
+      if (resolvedSchema.referencedSchemas != null) {
         for (Map.Entry<String, Schema> e : resolvedSchema.referencedSchemas.entrySet()) {
           if (!e.getKey().equals(schemaRef.schema.getName())) {
-            SchemaRef dependency = new SchemaRef(e.getValue(), RefUtils.constructRef(e.getValue().getName()));
+            SchemaRef dependency = new SchemaRef(e.getValue(),
+                RefUtils.constructRef(e.getValue().getName()));
             schemas.putIfAbsent(e.getKey(), dependency);
           }
         }
