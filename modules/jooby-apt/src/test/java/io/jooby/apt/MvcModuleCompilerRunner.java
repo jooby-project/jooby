@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
 
@@ -46,7 +47,7 @@ public class MvcModuleCompilerRunner {
   private String[] sourceNames(Class input) {
     List<String> result = new ArrayList<>();
     while (input != Object.class) {
-      result.add(input.getSimpleName() + ".java");
+      result.add(input.getName());
       input = input.getSuperclass();
     }
     return result.toArray(new String[result.size()]);
@@ -97,10 +98,14 @@ public class MvcModuleCompilerRunner {
   }
 
   private static List<JavaFileObject> sources(String... names) throws MalformedURLException {
-    Path basedir = basedir().resolve("src").resolve("test").resolve("java").resolve("source");
+    Path basedir = basedir().resolve("src").resolve("test").resolve("java");
     List<JavaFileObject> sources = new ArrayList<>();
     for (String name : names) {
-      Path path = basedir.resolve(name);
+      String[] segments = name.split("\\.");
+      Path path = Stream.of(segments)
+          .limit(segments.length - 1)
+          .reduce(basedir, Path::resolve, Path::resolve);
+      path = path.resolve(segments[segments.length - 1] + ".java");
       assertTrue(path.toString(), Files.exists(path));
       sources.add(JavaFileObjects.forResource(path.toUri().toURL()));
     }

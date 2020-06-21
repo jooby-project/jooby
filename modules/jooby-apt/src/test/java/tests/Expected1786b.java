@@ -1,6 +1,5 @@
 package tests;
 
-import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.MvcFactory;
 import io.jooby.exception.MissingValueException;
