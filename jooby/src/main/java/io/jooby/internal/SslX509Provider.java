@@ -19,7 +19,12 @@ public class SslX509Provider implements SslContextProvider {
 
   @Override public SSLContext create(ClassLoader loader, SslOptions options) {
     try {
-      InputStream trustCert = null;
+      InputStream trustCert;
+      if (options.getTrustCert() == null) {
+        trustCert = null;
+      } else {
+        trustCert = options.getResource(loader, options.getTrustCert());
+      }
       InputStream keyStoreCert = options.getResource(loader, options.getCert());
       InputStream keyStoreKey = options.getResource(loader, options.getPrivateKey());
       String keyStorePass = null;

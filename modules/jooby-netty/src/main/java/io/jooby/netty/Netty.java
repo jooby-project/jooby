@@ -9,6 +9,7 @@ import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
+import io.jooby.SslOptions;
 import io.jooby.internal.netty.NettyPipeline;
 import io.jooby.internal.netty.NettyTransport;
 import io.netty.bootstrap.ServerBootstrap;
@@ -30,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -109,8 +111,13 @@ public class Netty extends Server.Base {
       http.bind(options.getHost(), options.getPort()).get();
 
       if (options.isSSLEnabled()) {
+        SSLContext javaSslContext = options
+            .getSSLContext(application.getEnvironment().getClassLoader());
+        SslOptions.ClientAuth clientAuth = Optional.ofNullable(options.getSsl())
+            .map(SslOptions::getClientAuth)
+            .orElse(SslOptions.ClientAuth.NONE);
         ServerBootstrap https = transport.configure(acceptorloop, eventloop)
-            .childHandler(newPipeline(factory, options.getSSLContext(application.getEnvironment().getClassLoader())))
+            .childHandler(newPipeline(factory, wrap(javaSslContext, toClientAuth(clientAuth))))
             .childOption(ChannelOption.SO_REUSEADDR, true)
             .childOption(ChannelOption.TCP_NODELAY, true);
 
@@ -130,17 +137,28 @@ public class Netty extends Server.Base {
     return this;
   }
 
-  private NettyPipeline newPipeline(HttpDataFactory factory, SSLContext sslContext) {
+  private ClientAuth toClientAuth(SslOptions.ClientAuth clientAuth) {
+    switch (clientAuth) {
+      case REQUIRED:
+        return ClientAuth.REQUIRE;
+      case REQUESTED:
+        return ClientAuth.OPTIONAL;
+      default:
+        return ClientAuth.NONE;
+    }
+  }
+
+  private NettyPipeline newPipeline(HttpDataFactory factory, SslContext sslContext) {
     return new NettyPipeline(
-            acceptorloop.next(),
-            applications.get(0),
-            factory,
-            wrap(sslContext),
-            options.getDefaultHeaders(),
-            options.getCompressionLevel(),
-            options.getBufferSize(),
-            options.getMaxRequestSize()
-        );
+        acceptorloop.next(),
+        applications.get(0),
+        factory,
+        sslContext,
+        options.getDefaultHeaders(),
+        options.getCompressionLevel(),
+        options.getBufferSize(),
+        options.getMaxRequestSize()
+    );
   }
 
   @Nonnull @Override public synchronized Server stop() {
@@ -160,11 +178,8 @@ public class Netty extends Server.Base {
     return this;
   }
 
-  private SslContext wrap(SSLContext sslContext) {
-    if (sslContext != null) {
-      return new JdkSslContext(sslContext, false, null, IdentityCipherSuiteFilter.INSTANCE,
-          ApplicationProtocolConfig.DISABLED, ClientAuth.NONE, null, false);
-    }
-    return null;
+  private SslContext wrap(SSLContext sslContext, ClientAuth clientAuth) {
+    return new JdkSslContext(sslContext, false, null, IdentityCipherSuiteFilter.INSTANCE,
+        ApplicationProtocolConfig.DISABLED, clientAuth, null, false);
   }
 }

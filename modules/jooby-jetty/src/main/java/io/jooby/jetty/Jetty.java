@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
+import io.jooby.SslOptions;
 import io.jooby.WebSocket;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyWebSocket;
@@ -32,6 +33,7 @@ import javax.annotation.Nonnull;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -100,9 +102,18 @@ public class Jetty extends io.jooby.Server.Base {
       server.addConnector(http);
 
       if (options.isSSLEnabled()) {
-        SslContextFactory sslContextFactory = new SslContextFactory.Server();
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory
             .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader()));
+
+        SslOptions.ClientAuth clientAuth = Optional.ofNullable(options.getSsl())
+            .map(SslOptions::getClientAuth)
+            .orElse(SslOptions.ClientAuth.NONE);
+        if (clientAuth == SslOptions.ClientAuth.REQUESTED) {
+          sslContextFactory.setWantClientAuth(true);
+        } else if (clientAuth == SslOptions.ClientAuth.REQUIRED) {
+          sslContextFactory.setNeedClientAuth(true);
+        }
 
         HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
         httpsConf.addCustomizer(new SecureRequestCustomizer());

@@ -44,12 +44,16 @@ public class SslOptionsTest {
         .withValue("ssl.type", fromAnyRef("pkcs12"))
         .withValue("ssl.cert", fromAnyRef("ssl/test.p12"))
         .withValue("ssl.password", fromAnyRef("changeit"))
+        .withValue("ssl.trust.cert", fromAnyRef("ssl/trust.p12"))
+        .withValue("ssl.trust.password", fromAnyRef("pass"))
         .resolve();
 
     SslOptions options = SslOptions.from(config).get();
     assertEquals(SslOptions.PKCS12, options.getType());
     assertEquals("ssl/test.p12", options.getCert());
     assertEquals("changeit", options.getPassword());
+    assertEquals("ssl/trust.p12", options.getTrustCert());
+    assertEquals("pass", options.getTrustPassword());
   }
 
   @Test

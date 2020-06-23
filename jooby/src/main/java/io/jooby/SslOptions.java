@@ -32,6 +32,26 @@ import static io.jooby.SneakyThrows.throwingFunction;
  * @since 2.3.0
  */
 public final class SslOptions {
+  /**
+   * The desired SSL client authentication mode for SSL channels in server mode.
+   */
+  public enum ClientAuth {
+    /**
+     * SSL client authentication is NOT requested.
+     */
+    NONE,
+
+    /**
+     * SSL client authentication is requested but not required.
+     */
+    REQUESTED,
+
+    /**
+     * SSL client authentication is required.
+     */
+    REQUIRED
+  }
+
   /** X509 constant. */
   public static final String X509 = "X509";
 
@@ -44,7 +64,13 @@ public final class SslOptions {
 
   private String cert;
 
+  private String trustCert;
+
+  private String trustPassword;
+
   private String privateKey;
+
+  private ClientAuth clientAuth = ClientAuth.NONE;
 
   /**
    * Certificate type. Default is {@link #PKCS12}.
@@ -86,6 +112,50 @@ public final class SslOptions {
    */
   public @Nonnull SslOptions setCert(@Nonnull String cert) {
     this.cert = cert;
+    return this;
+  }
+
+  /**
+   * A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a
+   * classpath resource. Required for {@link ClientAuth#REQUIRED} or {@link ClientAuth#REQUESTED}.
+   *
+   * @return A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or
+   *     a classpath resource. Required for {@link ClientAuth#REQUIRED} or
+   *     {@link ClientAuth#REQUESTED}.
+   */
+  public @Nullable String getTrustCert() {
+    return trustCert;
+  }
+
+  /**
+   * Set certificate path. A PKCS12 or X.509 certificate chain file in PEM format.
+   * It can be an absolute path or a classpath resource. Required.
+   *
+   * @param trustCert Certificate path or location.
+   * @return Ssl options.
+   */
+  public @Nonnull SslOptions setTrustCert(@Nullable String trustCert) {
+    this.trustCert = trustCert;
+    return this;
+  }
+
+  /**
+   * Trust certificate password. Optional.
+   *
+   * @return Trust certificate password. Optional.
+   */
+  public @Nullable String getTrustPassword() {
+    return trustPassword;
+  }
+
+  /**
+   * Set trust certificate password.
+   *
+   * @param password Certificate password.
+   * @return SSL options.
+   */
+  public @Nonnull SslOptions setTrustPassword(@Nullable String password) {
+    this.trustPassword = password;
     return this;
   }
 
@@ -159,6 +229,28 @@ public final class SslOptions {
       throw new FileNotFoundException(path);
     }
     return resource;
+  }
+
+  /**
+   * The desired SSL client authentication mode for SSL channels in server mode.
+   *
+   * Default is: {@link ClientAuth#REQUESTED}.
+   *
+   * @return desired SSL client authentication mode for SSL channels in server mode.
+   */
+  public @Nonnull ClientAuth getClientAuth() {
+    return clientAuth;
+  }
+
+  /**
+   * Set desired SSL client authentication mode for SSL channels in server mode.
+   *
+   * @param clientAuth The desired SSL client authentication mode for SSL channels in server mode.
+   * @return This options.
+   */
+  public @Nonnull SslOptions setClientAuth(@Nonnull ClientAuth clientAuth) {
+    this.clientAuth = clientAuth;
+    return this;
   }
 
   @Override public String toString() {
@@ -307,10 +399,11 @@ public final class SslOptions {
           String type = conf.hasPath(path + ".type")
               ? conf.getString(path + ".type").toUpperCase()
               : PKCS12;
+          SslOptions options;
           if (type.equalsIgnoreCase("self-signed")) {
-            return SslOptions.selfSigned();
+            options = SslOptions.selfSigned();
           } else {
-            SslOptions options = new SslOptions();
+            options = new SslOptions();
             options.setType(type);
             if (X509.equalsIgnoreCase(type)) {
               options.setCert(conf.getString(path + ".cert"));
@@ -324,8 +417,18 @@ public final class SslOptions {
             } else {
               throw new UnsupportedOperationException("SSL type: " + type);
             }
-            return options;
           }
+          if (conf.hasPath(path + ".clientAuth")) {
+            options.setClientAuth(ClientAuth.valueOf(conf.getString(path + ".clientAuth")
+                .toUpperCase()));
+          }
+          if (conf.hasPath(path + ".trust.cert")) {
+            options.setTrustCert(conf.getString(path + ".trust.cert"));
+          }
+          if (conf.hasPath(path + ".trust.password")) {
+            options.setTrustPassword(conf.getString(path + ".trust.password"));
+          }
+          return options;
         });
   }
 }

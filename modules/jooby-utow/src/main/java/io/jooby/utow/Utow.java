@@ -9,6 +9,7 @@ import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
+import io.jooby.SslOptions;
 import io.jooby.internal.utow.UtowHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
@@ -18,6 +19,7 @@ import io.undertow.server.handlers.encoding.DeflateEncodingProvider;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import org.xnio.Options;
+import org.xnio.SslClientAuthMode;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLContext;
@@ -97,6 +99,11 @@ public class Utow extends Server.Base {
       SSLContext sslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
       if (sslContext != null) {
         builder.addHttpsListener(options.getSecurePort(), options.getHost(), sslContext);
+        Optional.ofNullable(options.getSsl())
+            .map(SslOptions::getClientAuth)
+            .map(this::toSslClientAuthMode)
+            .ifPresent(
+                clientAuth -> builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, clientAuth));
       }
 
       server = builder.build();
@@ -113,6 +120,17 @@ public class Utow extends Server.Base {
         cause = new BindException("Address already in use: " + options.getPort());
       }
       throw SneakyThrows.propagate(cause);
+    }
+  }
+
+  private SslClientAuthMode toSslClientAuthMode(SslOptions.ClientAuth clientAuth) {
+    switch (clientAuth) {
+      case REQUESTED:
+        return SslClientAuthMode.REQUESTED;
+      case REQUIRED:
+        return SslClientAuthMode.REQUIRED;
+      default:
+        return SslClientAuthMode.NOT_REQUESTED;
     }
   }
 
