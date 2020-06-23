@@ -106,7 +106,7 @@ public class ServerOptions {
         options.setPort(conf.getInt("server.port"));
       }
       if (conf.hasPath("server.securePort")) {
-        options.setPort(conf.getInt("server.securePort"));
+        options.setSecurePort(conf.getInt("server.securePort"));
       }
       if (conf.hasPath("server.ioThreads")) {
         options.setIoThreads(conf.getInt("server.ioThreads"));

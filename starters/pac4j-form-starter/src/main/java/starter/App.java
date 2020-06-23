@@ -8,6 +8,7 @@ import io.jooby.hikari.HikariModule;
 import io.jooby.jdbi.JdbiModule;
 import io.jooby.jdbi.TransactionalRequest;
 import io.jooby.pac4j.Pac4jModule;
+import io.jooby.pac4j.Pac4jOptions;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.http.client.indirect.FormClient;
@@ -16,6 +17,9 @@ import starter.domain.UserRepository;
 
 public class App extends Jooby {
   {
+    System.out.println("cccc");
+    setContextPath("/app");
+
     /** DataSource module: */
     install(new HikariModule());
 
@@ -33,11 +37,16 @@ public class App extends Jooby {
 
     get("/login", ctx -> new ModelAndView("login.hbs"));
 
-    install(new Pac4jModule()
+    Pac4jOptions options = new Pac4jOptions();
+    options.setDefaultUrl("/dashboard");
+    install(new Pac4jModule(options)
         .client(conf -> new FormClient("/login", authenticator()))
     );
 
-    get("/", ctx -> new ModelAndView("welcome.hbs").put("user", ctx.getUser()));
+    get("/", ctx -> new ModelAndView("welcome.hbs")
+        .put("user", ctx.getUser())
+        .put("defurl", ctx.getRequestURL(options.getDefaultUrl()))
+    );
   }
 
   private Authenticator<UsernamePasswordCredentials> authenticator() {
