@@ -67,7 +67,6 @@ public abstract class ValueWriter implements ParamWriter {
       visitor.visitTypeInsn(CHECKCAST, parameter.getType().toJvmType().getInternalName());
       if (!parameter.isNullable()) {
         visitor.visitVarInsn(ASTORE, 3);
-        visitor.visitVarInsn(ALOAD, 2);
         visitor.visitLdcInsn(parameter.getHttpName());
         visitor.visitVarInsn(ALOAD, 3);
         visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/exception/MissingValueException", "requireNonNull", "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);

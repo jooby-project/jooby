@@ -125,7 +125,7 @@ public class ParamDefinition {
     return getKind().singleValue(this);
   }
 
-  private boolean isSimpleType() {
+  public boolean isSimpleType() {
     for (Class builtinType : builtinTypes()) {
       if (is(builtinType) || is(Optional.class, builtinType) || is(List.class, builtinType) || is(
           Set.class, builtinType)) {

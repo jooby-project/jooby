@@ -9,8 +9,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Provider;
 
 /**
- * Created by a Jooby annotation processor tool and added discovered using the
- * {@link java.util.ServiceLoader} API.
+ * Created by a Jooby annotation processor tool using the {@link java.util.ServiceLoader} API.
  *
  * @since 2.1.0
  */
