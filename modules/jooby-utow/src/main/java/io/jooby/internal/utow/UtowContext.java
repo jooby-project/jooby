@@ -235,11 +235,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Formdata form() {
-    if (form == null) {
-      form = Formdata.create(this);
-      formData(form, exchange.getAttachment(FORM_DATA));
-    }
-    return form;
+    return multipart();
   }
 
   @Nonnull @Override public Multipart multipart() {

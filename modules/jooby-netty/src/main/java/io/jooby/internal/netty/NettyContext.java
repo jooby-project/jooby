@@ -223,11 +223,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Nonnull @Override public Formdata form() {
-    if (form == null) {
-      form = Formdata.create(this);
-      decodeForm(req, form);
-    }
-    return form;
+    return multipart();
   }
 
   @Nonnull @Override public Multipart multipart() {
