@@ -26,7 +26,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
-
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +67,8 @@ public class HandlerCompiler {
   private Types typeUtils;
   private TypeMirror annotation;
 
-  public HandlerCompiler(ProcessingEnvironment environment, TypeElement owner, ExecutableElement executable,
+  public HandlerCompiler(ProcessingEnvironment environment, TypeElement owner,
+      ExecutableElement executable,
       TypeElement httpMethod, String pattern) {
     this.httpMethod = httpMethod.getSimpleName().toString().toLowerCase();
     this.annotation = httpMethod.asType();

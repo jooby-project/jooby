@@ -40,12 +40,6 @@ public class TypeDefinition {
     this.type = type;
   }
 
-  public String getSimpleName() {
-    String name = getName();
-    int i = name.lastIndexOf('.');
-    return i > 0 ? name.substring(i + 1) : name;
-  }
-
   public String getName() {
     return getRawType().toString();
   }
@@ -122,7 +116,7 @@ public class TypeDefinition {
   }
 
   public Type toJvmType() {
-    return asmType(getName(type));
+    return asmType(getName(typeUtils.erasure(type)));
   }
 
   public boolean isRawType() {
