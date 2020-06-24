@@ -801,9 +801,9 @@ At this point it is too late to modify the exchange further. They are attached t
 ----
 {
    decorator {
-     val start = System.currentTimeInMillis()
+     val start = System.currentTimeMillis()
      ctx.onComplete {                                 <1>
-       val end = System.currentTimeInMillis()         <2>
+       val end = System.currentTimeMillis()           <2>
        println("Took: " + (end - start))
      }
    }
