@@ -559,6 +559,12 @@
         <version>${jackson.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-hibernate5</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
       <!-- Freemarker -->
       <dependency>
         <groupId>org.freemarker</groupId>
