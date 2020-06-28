@@ -41,7 +41,7 @@ public class SecuritySchemeTest {
         + "      in: header\n"
         + "      flows:\n"
         + "        implicit:\n"
-        + "          authorizationUrl: \"http://url.com/auth\"\n"
+        + "          authorizationUrl: http://url.com/auth\n"
         + "          scopes:\n"
         + "            write:pets: modify pets in your account\n", result.toYaml());
   }
