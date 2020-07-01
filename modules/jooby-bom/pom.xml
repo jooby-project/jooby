@@ -55,7 +55,7 @@
   <jdbi.version>3.13.0</jdbi.version>
   <jetty.version>9.4.30.v20200611</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jmespath-java.version>1.11.808</jmespath-java.version>
+  <jmespath-java.version>1.11.814</jmespath-java.version>
   <jooby-maven-plugin.version>2.8.9-SNAPSHOT</jooby-maven-plugin.version>
   <jooby.version>2.8.9-SNAPSHOT</jooby.version>
   <json.version>20200518</json.version>
