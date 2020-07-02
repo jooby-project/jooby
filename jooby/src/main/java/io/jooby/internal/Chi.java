@@ -753,7 +753,7 @@ class Chi implements RouteTree {
   }
 
   public boolean exists(String method, String path) {
-    return find(method, path) != null;
+    return find(method, path).matches();
   }
 
   @Override public Router.Match find(String method, String path) {

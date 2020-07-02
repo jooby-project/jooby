@@ -271,32 +271,30 @@ public class Pac4jModule implements Extension {
     boolean devLogin = false;
     if (clientMap.isEmpty()) {
       devLogin = true;
-      allClients.computeIfAbsent("*", k -> new ArrayList<>())
-          .add(new FormClient(contextPath + "/login",
-              new SimpleTestUsernamePasswordAuthenticator()));
-    } else {
-      com.typesafe.config.Config conf = application.getConfig();
-      /** Initialize clients from DSL: */
-      for (Map.Entry<String, ProtectedPath> routing : clientMap.entrySet()) {
-        List<Client> localClients = allClients
-            .computeIfAbsent(routing.getKey(), k -> new ArrayList<>());
-        ProtectedPath path = routing.getValue();
-        for (Object candidate : path.clients) {
-          if (candidate instanceof Client) {
-            localClients.add((Client) candidate);
-          } else {
-            Function<com.typesafe.config.Config, Client> clientProvider = (Function<com.typesafe.config.Config, Client>) candidate;
-            localClients.add(clientProvider.apply(conf));
-          }
+      client(conf -> new FormClient(contextPath + "/login",
+          new SimpleTestUsernamePasswordAuthenticator()));
+    }
+    com.typesafe.config.Config conf = application.getConfig();
+    /** Initialize clients from DSL: */
+    for (Map.Entry<String, ProtectedPath> routing : clientMap.entrySet()) {
+      List<Client> localClients = allClients
+          .computeIfAbsent(routing.getKey(), k -> new ArrayList<>());
+      ProtectedPath path = routing.getValue();
+      for (Object candidate : path.clients) {
+        if (candidate instanceof Client) {
+          localClients.add((Client) candidate);
+        } else {
+          Function<com.typesafe.config.Config, Client> clientProvider = (Function<com.typesafe.config.Config, Client>) candidate;
+          localClients.add(clientProvider.apply(conf));
         }
-        allClients.put(routing.getKey(), localClients);
+      }
+      allClients.put(routing.getKey(), localClients);
 
-        // check for forwarding authorizers
-        for (String authorizerName : path.authorizers) {
-          Authorizer authorizer = pac4j.getAuthorizers().get(authorizerName);
-          if (authorizer instanceof ForwardingAuthorizer) {
-            ((ForwardingAuthorizer) authorizer).setRegistry(application);
-          }
+      // check for forwarding authorizers
+      for (String authorizerName : path.authorizers) {
+        Authorizer authorizer = pac4j.getAuthorizers().get(authorizerName);
+        if (authorizer instanceof ForwardingAuthorizer) {
+          ((ForwardingAuthorizer) authorizer).setRegistry(application);
         }
       }
     }

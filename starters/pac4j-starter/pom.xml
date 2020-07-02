@@ -62,6 +62,12 @@
       <artifactId>pac4j-jwt</artifactId>
     </dependency>
 
+    <!-- required by pac4j oidc/oauth-->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+
     <!-- Tests -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
