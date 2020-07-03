@@ -1,7 +1,9 @@
 package {{package}};
 
 import io.jooby.Jooby;
+{{#if openapi}}
 import io.jooby.OpenAPIModule;
+{{/if}}
 
 public class App extends Jooby {
 
