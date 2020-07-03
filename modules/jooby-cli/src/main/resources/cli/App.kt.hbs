@@ -1,7 +1,9 @@
 package {{package}}
 
 import io.jooby.Kooby
+{{#if openapi}}
 import io.jooby.OpenAPIModule
+{{/if}}
 import io.jooby.runApp
 
 class App: Kooby({
