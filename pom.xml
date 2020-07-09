@@ -52,6 +52,9 @@
     <log4j.version>2.13.3</log4j.version>
     <slf4j.version>1.7.30</slf4j.version>
 
+    <!-- communication -->
+    <commons-email.version>1.5</commons-email.version>
+
     <!-- util -->
     <jfiglet.version>0.0.8</jfiglet.version>
 
@@ -942,6 +945,13 @@
         <groupId>com.github.lalyos</groupId>
         <artifactId>jfiglet</artifactId>
         <version>${jfiglet.version}</version>
+      </dependency>
+
+      <!-- commons email -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-email</artifactId>
+        <version>${commons-email.version}</version>
       </dependency>
 
       <!-- jboss-modules -->
