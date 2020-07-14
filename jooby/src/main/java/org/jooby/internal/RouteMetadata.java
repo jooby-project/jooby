@@ -289,7 +289,7 @@ public class RouteMetadata implements ParameterNameProvider {
   }
 
   private static ClassVisitor visitor(final Map<String, Object> md) {
-    return new ClassVisitor(Opcodes.ASM5) {
+    return new ClassVisitor(Opcodes.ASM7) {
 
       @Override
       public MethodVisitor visitMethod(final int access, final String name,
@@ -308,7 +308,7 @@ public class RouteMetadata implements ParameterNameProvider {
         int minIdx = ((access & Opcodes.ACC_STATIC) > 0) ? 0 : 1;
         int maxIdx = Arrays.stream(args).mapToInt(Type::getSize).sum();
 
-        return new MethodVisitor(Opcodes.ASM5) {
+        return new MethodVisitor(Opcodes.ASM7) {
 
           private int i = 0;
 

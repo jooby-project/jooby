@@ -222,7 +222,7 @@ class TypeDescriptorParser extends SignatureVisitor {
   private int index;
 
   private TypeDescriptorParser(final ClassLoader loader) {
-    super(Opcodes.ASM5);
+    super(Opcodes.ASM7);
     this.loader = loader;
   }
 
