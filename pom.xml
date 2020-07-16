@@ -89,7 +89,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.0.2</cron-utils.version>
     <bucket4j-core.version>4.10.0</bucket4j-core.version>
-    <aws-java-sdk.version>1.11.812</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.821</aws-java-sdk.version>
     <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
     <frontend-plugin-core.version>1.10.0</frontend-plugin-core.version>
 
