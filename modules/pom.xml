@@ -56,6 +56,8 @@
     <module>jooby-spring</module>
     <module>jooby-weld</module>
 
+    <module>jooby-commons-email</module>
+
     <module>jooby-archetype</module>
 
     <module>jooby-run</module>
