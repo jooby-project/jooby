@@ -92,7 +92,7 @@
   <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
   <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
   <maven-tiles-plugin.version>2.17</maven-tiles-plugin.version>
-  <mockito.version>3.4.0</mockito.version>
+  <mockito.version>3.4.2</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
   <mysql-connector-java.version>8.0.20</mysql-connector-java.version>
   <netty.version>4.1.51.Final</netty.version>
