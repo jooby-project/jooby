@@ -124,7 +124,7 @@ public class JoobyProcessor extends AbstractProcessor {
 
   private void build(Filer filer) throws Exception {
     Types typeUtils = processingEnv.getTypeUtils();
-    Map<String, List<HandlerCompiler>> classes = new LinkedHashMap<>();
+    Map<TypeElement, List<HandlerCompiler>> classes = new LinkedHashMap<>();
     for (Map.Entry<TypeElement, Map<TypeElement, List<ExecutableElement>>> e : routeMap
         .entrySet()) {
       TypeElement type = e.getKey();
@@ -150,7 +150,6 @@ public class JoobyProcessor extends AbstractProcessor {
             }
           }
         }
-        String typeName = typeUtils.erasure(type.asType()).toString();
         /** Route method ready, creates a Route.Handler for each of them: */
         for (Map.Entry<TypeElement, List<ExecutableElement>> mapping : mappings.entrySet()) {
           TypeElement httpMethod = mapping.getKey();
@@ -162,7 +161,7 @@ public class JoobyProcessor extends AbstractProcessor {
               debug("  route %s %s", httpMethod.getSimpleName(), path);
               HandlerCompiler compiler = new HandlerCompiler(processingEnv, type, method,
                   httpMethod, path);
-              classes.computeIfAbsent(typeName, k -> new ArrayList<>())
+              classes.computeIfAbsent(type, k -> new ArrayList<>())
                   .add(compiler);
             }
           }
@@ -171,18 +170,20 @@ public class JoobyProcessor extends AbstractProcessor {
     }
 
     List<String> moduleList = new ArrayList<>();
-    for (Map.Entry<String, List<HandlerCompiler>> entry : classes.entrySet()) {
+    for (Map.Entry<TypeElement, List<HandlerCompiler>> entry : classes.entrySet()) {
+      TypeElement type = entry.getKey();
+      String typeName = typeUtils.erasure(type.asType()).toString();
       List<HandlerCompiler> handlers = entry.getValue();
-      ModuleCompiler module = new ModuleCompiler(processingEnv, entry.getKey());
+      ModuleCompiler module = new ModuleCompiler(processingEnv, typeName);
       String moduleClass = module.getModuleClass();
       byte[] moduleBin = module.compile(handlers);
       onClass(moduleClass, moduleBin);
-      writeClass(filer.createClassFile(moduleClass), moduleBin);
+      writeClass(filer.createClassFile(moduleClass, type), moduleBin);
 
       moduleList.add(moduleClass);
     }
 
-    doServices(filer, moduleList);
+    //doServices(filer, moduleList);
   }
 
   private String signature(ExecutableElement method) {
