@@ -66,6 +66,21 @@ To create a new MVC project open the `jooby` console and type:
 The <<getting-started, jooby console>> takes care of all configuration steps required by the
 annotation processing tool.
 
+Using Gradle? You may enable incremental annotation processing support:
+
+.build.gradle
+[source, groovy, role = "secondary", subs="verbatim,attributes"]
+----
+tasks.withType(JavaCompile) {
+    options.compilerArgs += [
+        '-parameters',
+        '-Ajooby.incremental=true'
+    ]
+}
+----
+
+This will cause however – due to technical a limitation – that generated classes will be loaded with reflection instead of the `ServiceLoader`.
+
 === Registration
 
 Mvc routes need to be registered (no classpath scanning). Registration is done from your application
