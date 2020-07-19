@@ -5,15 +5,13 @@
  */
 package io.jooby.apt;
 
+import io.jooby.Jooby;
 import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.apt.HandlerCompiler;
 import io.jooby.internal.apt.ModuleCompiler;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -29,13 +27,7 @@ import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,7 +36,13 @@ import java.util.stream.Stream;
  *
  * @since 2.1.0
  */
+@SupportedOptions({
+    JoobyProcessor.OPT_DEBUG,
+    JoobyProcessor.OPT_INCREMENTAL })
 public class JoobyProcessor extends AbstractProcessor {
+
+  protected static final String OPT_DEBUG = "jooby.debug";
+  protected static final String OPT_INCREMENTAL = "jooby.incremental";
 
   private ProcessingEnvironment processingEnv;
 
@@ -57,8 +55,20 @@ public class JoobyProcessor extends AbstractProcessor {
   private Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
 
   private boolean debug;
+  private boolean incremental;
 
   private int round;
+
+  @Override public Set<String> getSupportedOptions() {
+    Set<String> options = new HashSet<>(super.getSupportedOptions());
+
+    if (incremental) {
+      // enables incremental annotation processing support in Gradle
+      options.add("org.gradle.annotation.processing.isolating");
+    }
+
+    return options;
+  }
 
   @Override public Set<String> getSupportedAnnotationTypes() {
     return Stream.concat(Annotations.PATH.stream(), Annotations.HTTP_METHODS.stream())
@@ -71,7 +81,11 @@ public class JoobyProcessor extends AbstractProcessor {
 
   @Override public void init(ProcessingEnvironment processingEnvironment) {
     this.processingEnv = processingEnvironment;
-    debug = Boolean.parseBoolean(processingEnvironment.getOptions().getOrDefault("debug", "false"));
+
+    debug = boolOpt(processingEnv, OPT_DEBUG, false);
+    incremental = boolOpt(processingEnv, OPT_INCREMENTAL, false);
+
+    debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
   }
 
   @Override
@@ -183,7 +197,11 @@ public class JoobyProcessor extends AbstractProcessor {
       moduleList.add(moduleClass);
     }
 
-    //doServices(filer, moduleList);
+    if (!incremental) {
+      // writing resource files would prevent incremental annotation processing in Gradle:
+      // https://docs.gradle.org/5.0/userguide/java_plugin.html#sec:incremental_annotation_processing
+      doServices(filer, moduleList);
+    }
   }
 
   private String signature(ExecutableElement method) {
@@ -290,5 +308,10 @@ public class JoobyProcessor extends AbstractProcessor {
         })
         .distinct()
         .collect(Collectors.toList());
+  }
+
+  private boolean boolOpt(ProcessingEnvironment processingEnvironment, String option, boolean defaultValue) {
+    return Boolean.parseBoolean(processingEnvironment
+        .getOptions().getOrDefault(option, String.valueOf(defaultValue)));
   }
 }
