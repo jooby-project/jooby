@@ -86,6 +86,11 @@
                   <version>${jooby.version}</version>
                 </annotationProcessorPath>
               </annotationProcessorPaths>
+              <annotationProcessorArgs>
+                <annotationProcessorArg>
+                  jooby.debug=false
+                </annotationProcessorArg>
+              </annotationProcessorArgs>
             </configuration>
           </execution>
         {{/if}}
@@ -116,6 +121,11 @@
               <version>${jooby.version}</version>
             </path>
           </annotationProcessorPaths>
+          <compilerArgs>
+            <compilerArg>
+              -Ajooby.debug=false
+            </compilerArg>
+          </compilerArgs>
         </configuration>
       {{/if}}
       </plugin>
