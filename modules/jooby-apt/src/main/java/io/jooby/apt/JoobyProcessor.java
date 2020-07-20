@@ -48,11 +48,13 @@ import java.util.stream.Stream;
  */
 @SupportedOptions({
     JoobyProcessor.OPT_DEBUG,
-    JoobyProcessor.OPT_INCREMENTAL })
+    JoobyProcessor.OPT_INCREMENTAL,
+    JoobyProcessor.OPT_SERVICES })
 public class JoobyProcessor extends AbstractProcessor {
 
   protected static final String OPT_DEBUG = "jooby.debug";
   protected static final String OPT_INCREMENTAL = "jooby.incremental";
+  protected static final String OPT_SERVICES = "jooby.services";
 
   private ProcessingEnvironment processingEnv;
 
@@ -66,6 +68,7 @@ public class JoobyProcessor extends AbstractProcessor {
 
   private boolean debug;
   private boolean incremental;
+  private boolean services;
 
   private int round;
 
@@ -73,8 +76,14 @@ public class JoobyProcessor extends AbstractProcessor {
     Set<String> options = new HashSet<>(super.getSupportedOptions());
 
     if (incremental) {
-      // enables incremental annotation processing support in Gradle
-      options.add("org.gradle.annotation.processing.aggregating");
+      // Enables incremental annotation processing support in Gradle.
+      // If service provider configuration is being generated,
+      // only 'aggregating' mode is supported since it's likely that
+      // more then one originating element is passed to the Filer
+      // API on writing the resource file - isolating mode does not
+      // allow this.
+      options.add(String.format("org.gradle.annotation.processing.%s",
+          services ? "aggregating" : "isolating"));
     }
 
     return options;
@@ -94,8 +103,10 @@ public class JoobyProcessor extends AbstractProcessor {
 
     debug = boolOpt(processingEnv, OPT_DEBUG, false);
     incremental = boolOpt(processingEnv, OPT_INCREMENTAL, true);
+    services = boolOpt(processingEnv, OPT_SERVICES, true);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
+    debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
   }
 
   @Override
@@ -207,7 +218,9 @@ public class JoobyProcessor extends AbstractProcessor {
       modules.put(type, moduleClass);
     }
 
-    doServices(filer, modules);
+    if (services) {
+      doServices(filer, modules);
+    }
   }
 
   private String signature(ExecutableElement method) {

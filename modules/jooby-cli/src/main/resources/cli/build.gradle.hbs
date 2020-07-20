@@ -70,6 +70,7 @@ tasks.withType(JavaCompile) {
     '-parameters',
 {{#if apt}}
     '-Ajooby.incremental=true',
+    '-Ajooby.services=true',
     '-Ajooby.debug=false'
 {{/if}}
   ]
@@ -81,6 +82,7 @@ tasks.withType(JavaCompile) {
 kapt {
   arguments {
     arg('jooby.incremental', true)
+    arg('jooby.services', true)
     arg('jooby.debug', false)
   }
 }
