@@ -6,15 +6,14 @@
 package io.jooby.email;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigException.Missing;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
-import io.jooby.internal.email.HtmlEmailProvider;
-import io.jooby.internal.email.ImageHtmlEmailProvider;
-import io.jooby.internal.email.MultiPartEmailProvider;
-import io.jooby.internal.email.SimpleEmailProvider;
+import io.jooby.internal.email.EmailFactory;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.ImageHtmlEmail;
@@ -23,9 +22,7 @@ import org.apache.commons.mail.SimpleEmail;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -91,19 +88,31 @@ public class CommonsEmailModule implements Extension {
   }
 
   @Override
-  public void install(@Nonnull Jooby application) throws Exception {
-    Config appConfig = application.getConfig();
-
-    Config mail = appConfig.getConfig(name)
-        .withFallback(appConfig.getConfig("mail"))
-        .withFallback(defaults(appConfig));
+  public void install(@Nonnull Jooby application) {
+    Config config = mailConfig(application.getConfig(), name);
 
     ServiceRegistry services = application.getServices();
 
-    register(services, SimpleEmail.class, new SimpleEmailProvider(mail));
-    register(services, HtmlEmail.class, new HtmlEmailProvider(mail));
-    register(services, MultiPartEmail.class, new MultiPartEmailProvider(mail));
-    register(services, ImageHtmlEmail.class, new ImageHtmlEmailProvider(mail));
+    EmailFactory factory = new EmailFactory(config);
+
+    register(services, SimpleEmail.class, factory::newSimpleEmail);
+    register(services, HtmlEmail.class, factory::newHtmlEmail);
+    register(services, MultiPartEmail.class, factory::newMultiPartEmail);
+    register(services, ImageHtmlEmail.class, factory::newImageHtmlEmail);
+  }
+
+  static Config mailConfig(Config config, String name) {
+    Config mail = Stream.of(name, "mail")
+        .distinct()
+        .filter(config::hasPath)
+        .map(config::getConfig)
+        .reduce(Config::withFallback)
+        .orElseThrow(() -> new Missing(Stream.of(name, "mail").distinct().findFirst().get()));
+
+    mail = mail.withFallback(ConfigFactory.empty()
+        .withValue("charset", config.getValue("application.charset"))
+    );
+    return mail;
   }
 
   private <T> void register(ServiceRegistry services, Class<T> clazz, Provider<T> provider) {
@@ -111,9 +120,4 @@ public class CommonsEmailModule implements Extension {
     services.put(ServiceKey.key(clazz, name), provider);
   }
 
-  private Config defaults(Config appConfig) {
-    final Map<String, Object> defaults = new HashMap<>();
-    defaults.put("charset", appConfig.getString("application.charset"));
-    return ConfigFactory.parseMap(defaults, CommonsEmailModule.class.getSimpleName() + "#defaults(...)");
-  }
 }
