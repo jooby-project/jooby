@@ -74,7 +74,7 @@ public class JoobyProcessor extends AbstractProcessor {
 
     if (incremental) {
       // enables incremental annotation processing support in Gradle
-      options.add("org.gradle.annotation.processing.isolating");
+      options.add("org.gradle.annotation.processing.aggregating");
     }
 
     return options;
@@ -93,7 +93,7 @@ public class JoobyProcessor extends AbstractProcessor {
     this.processingEnv = processingEnvironment;
 
     debug = boolOpt(processingEnv, OPT_DEBUG, false);
-    incremental = boolOpt(processingEnv, OPT_INCREMENTAL, false);
+    incremental = boolOpt(processingEnv, OPT_INCREMENTAL, true);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
   }
@@ -193,7 +193,7 @@ public class JoobyProcessor extends AbstractProcessor {
       }
     }
 
-    List<String> moduleList = new ArrayList<>();
+    Map<TypeElement, String> modules = new LinkedHashMap<>();
     for (Map.Entry<TypeElement, List<HandlerCompiler>> entry : classes.entrySet()) {
       TypeElement type = entry.getKey();
       String typeName = typeUtils.erasure(type.asType()).toString();
@@ -204,14 +204,10 @@ public class JoobyProcessor extends AbstractProcessor {
       onClass(moduleClass, moduleBin);
       writeClass(filer.createClassFile(moduleClass, type), moduleBin);
 
-      moduleList.add(moduleClass);
+      modules.put(type, moduleClass);
     }
 
-    if (!incremental) {
-      // writing resource files would prevent incremental annotation processing in Gradle:
-      // https://docs.gradle.org/5.0/userguide/java_plugin.html#sec:incremental_annotation_processing
-      doServices(filer, moduleList);
-    }
+    doServices(filer, modules);
   }
 
   private String signature(ExecutableElement method) {
@@ -244,12 +240,14 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  private void doServices(Filer filer, List<String> moduleList) throws IOException {
+  private void doServices(Filer filer, Map<TypeElement, String> modules) throws IOException {
     String location = "META-INF/services/" + MvcFactory.class.getName();
+    Element[] originatingElements = modules.keySet().toArray(new Element[0]);
     debug("%s", location);
-    FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
+    FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location, originatingElements);
     StringBuilder content = new StringBuilder();
-    for (String classname : moduleList) {
+    for (Map.Entry<TypeElement, String> e : modules.entrySet()) {
+      String classname = e.getValue();
       debug("  %s", classname);
       content.append(classname).append(System.getProperty("line.separator"));
     }
