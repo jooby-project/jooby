@@ -163,16 +163,22 @@ public class TypeDefinition {
         return CHAR_TYPE;
       case "char[]":
         return org.objectweb.asm.Type.getType(char[].class);
-      case "String":
+      case "java.lang.String":
         return org.objectweb.asm.Type.getType(String.class);
-      case "String[]":
+      case "java.lang.String[]":
         return org.objectweb.asm.Type.getType(String[].class);
       default:
-        String prefix = "";
-        if (type.endsWith("[]")) {
-          prefix = "[";
+        StringBuilder prefix = new StringBuilder();
+        String postfix = "";
+        while (type.endsWith("[]")) {
+          prefix.append("[");
+          type = type.substring(0, type.length() - 2);
         }
-        return getObjectType(prefix + type.replace(".", "/"));
+        if (prefix.length() > 0) {
+          prefix.append("L");
+          postfix = ";";
+        }
+        return getObjectType(prefix + type.replace(".", "/") + postfix);
     }
   }
 
