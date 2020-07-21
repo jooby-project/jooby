@@ -158,8 +158,10 @@ public class ModuleCompiler {
     visitor.visitParameter("provider", 0);
     visitor.visitCode();
 
+    String[] userAttrFilter = Opts.stringListOpt(processingEnv, Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS, "");
+
     RouteAttributesWriter routeAttributes = new RouteAttributesWriter(processingEnv.getElementUtils(),
-        processingEnv.getTypeUtils(), writer, moduleInternalName, visitor);
+        processingEnv.getTypeUtils(), writer, moduleInternalName, visitor, userAttrFilter);
 
     Map<String, Integer> nameRegistry = new HashMap<>();
     for (HandlerCompiler handler : handlers) {

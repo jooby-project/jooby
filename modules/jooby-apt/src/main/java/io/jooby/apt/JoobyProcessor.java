@@ -9,6 +9,7 @@ import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.apt.HandlerCompiler;
 import io.jooby.internal.apt.ModuleCompiler;
+import io.jooby.internal.apt.Opts;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -47,14 +48,11 @@ import java.util.stream.Stream;
  * @since 2.1.0
  */
 @SupportedOptions({
-    JoobyProcessor.OPT_DEBUG,
-    JoobyProcessor.OPT_INCREMENTAL,
-    JoobyProcessor.OPT_SERVICES })
+    Opts.OPT_DEBUG,
+    Opts.OPT_INCREMENTAL,
+    Opts.OPT_SERVICES,
+    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS })
 public class JoobyProcessor extends AbstractProcessor {
-
-  protected static final String OPT_DEBUG = "jooby.debug";
-  protected static final String OPT_INCREMENTAL = "jooby.incremental";
-  protected static final String OPT_SERVICES = "jooby.services";
 
   private ProcessingEnvironment processingEnv;
 
@@ -101,9 +99,9 @@ public class JoobyProcessor extends AbstractProcessor {
   @Override public void init(ProcessingEnvironment processingEnvironment) {
     this.processingEnv = processingEnvironment;
 
-    debug = boolOpt(processingEnv, OPT_DEBUG, false);
-    incremental = boolOpt(processingEnv, OPT_INCREMENTAL, true);
-    services = boolOpt(processingEnv, OPT_SERVICES, true);
+    debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
+    incremental = Opts.boolOpt(processingEnv, Opts.OPT_INCREMENTAL, true);
+    services = Opts.boolOpt(processingEnv, Opts.OPT_SERVICES, true);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
@@ -329,10 +327,5 @@ public class JoobyProcessor extends AbstractProcessor {
         })
         .distinct()
         .collect(Collectors.toList());
-  }
-
-  private boolean boolOpt(ProcessingEnvironment processingEnvironment, String option, boolean defaultValue) {
-    return Boolean.parseBoolean(processingEnvironment
-        .getOptions().getOrDefault(option, String.valueOf(defaultValue)));
   }
 }
