@@ -24,6 +24,8 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,9 +147,17 @@ public class RouteAttributesWriter {
       String root) {
     Map<String, Object> result = new HashMap<>();
     for (AnnotationMirror annotation : annotations) {
+      Retention retention = annotation.getAnnotationType().asElement().getAnnotation(Retention.class);
+      RetentionPolicy retentionPolicy = retention == null ? RetentionPolicy.CLASS : retention.value();
       String type = annotation.getAnnotationType().toString();
-      if (ATTR_FILTER.test(type) || Arrays.stream(userAttrFilter).anyMatch(type::startsWith)) {
-        // Ignore core,jars annotations
+      if (
+          // ignore annotations not available at runtime
+          retentionPolicy != RetentionPolicy.RUNTIME
+              // ignore core, jars annotations
+              || ATTR_FILTER.test(type)
+              // ignore user specified annotations
+              || Arrays.stream(userAttrFilter).anyMatch(type::startsWith)) {
+
         continue;
       }
       String prefix = root == null
