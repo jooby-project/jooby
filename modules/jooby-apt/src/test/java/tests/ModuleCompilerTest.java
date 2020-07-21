@@ -6,6 +6,8 @@ import io.jooby.Route;
 import io.jooby.StatusCode;
 import io.jooby.apt.MvcModuleCompilerRunner;
 import org.junit.jupiter.api.Test;
+import source.ArrayRoute;
+import source.Bean;
 import source.GetPostRoute;
 import source.JavaBeanParam;
 import source.MinRoute;
@@ -21,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,6 +35,26 @@ public class ModuleCompilerTest {
         .module(app -> {
           MockRouter router = new MockRouter(app);
           assertEquals("/mypath", router.get("/mypath").value());
+        });
+  }
+
+  @Test
+  public void arrayRoute() throws Exception {
+    new MvcModuleCompilerRunner(new ArrayRoute())
+        .module(app -> {
+          MockRouter router = new MockRouter(app);
+
+          Object value = router.get("/mypath").value();
+          assertTrue(value instanceof String[]);
+          assertArrayEquals(new String[] { "/mypath1", "/mypath2" }, (String[]) value);
+
+          value = router.get("/mybeans").value();
+          assertTrue(value instanceof Bean[]);
+          assertArrayEquals(new Bean[] { new Bean(1), new Bean(2) }, (Bean[]) value);
+
+          value = router.get("/mymultibeans").value();
+          assertTrue(value instanceof Bean[][]);
+          assertArrayEquals(new Bean[][] { { new Bean(1) }, { new Bean(2) } }, (Bean[][]) value);
         });
   }
 
