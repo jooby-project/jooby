@@ -604,7 +604,7 @@ public class OpenAPIParser {
 
     List<io.swagger.v3.oas.models.media.Schema> schemas = schemaMap.get("implementation");
     io.swagger.v3.oas.models.media.Schema schema;
-    if (schemas.isEmpty()) {
+    if (schemas == null || schemas.isEmpty()) {
       ComposedSchema composedSchema = new ComposedSchema();
 
       Optional.ofNullable(schemaMap.get("anyOf")).ifPresent(composedSchema::anyOf);
