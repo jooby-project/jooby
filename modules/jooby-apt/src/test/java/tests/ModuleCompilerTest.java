@@ -23,6 +23,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModuleCompilerTest {
@@ -147,6 +148,8 @@ public class ModuleCompilerTest {
           List<Map> array = (List) link.get("LinkAnnotation.array");
           assertEquals("1", array.get(0).get("ArrayAnnotation"));
           assertEquals("2", array.get(1).get("ArrayAnnotation"));
+          assertFalse(route.getAttributes().containsKey("sourceAnnotation"));
+          assertFalse(route.getAttributes().containsKey("classAnnotation"));
         })
     ;
   }
