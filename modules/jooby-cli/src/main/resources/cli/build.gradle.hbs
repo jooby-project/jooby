@@ -66,8 +66,25 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 {{else}}
 /** Java debug information: */
 tasks.withType(JavaCompile) {
-  options.compilerArgs << '-parameters'
+  options.compilerArgs += [
+    '-parameters',
+{{#if apt}}
+    '-Ajooby.incremental=true',
+    '-Ajooby.services=true',
+    '-Ajooby.debug=false'
+{{/if}}
+  ]
   options.debug = true
+}
+{{/if}}
+
+{{#if kapt}}
+kapt {
+  arguments {
+    arg('jooby.incremental', true)
+    arg('jooby.services', true)
+    arg('jooby.debug', false)
+  }
 }
 {{/if}}
 

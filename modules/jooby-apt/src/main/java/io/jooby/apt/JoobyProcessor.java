@@ -9,11 +9,13 @@ import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.apt.HandlerCompiler;
 import io.jooby.internal.apt.ModuleCompiler;
+import io.jooby.internal.apt.Opts;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -31,6 +33,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,6 +47,11 @@ import java.util.stream.Stream;
  *
  * @since 2.1.0
  */
+@SupportedOptions({
+    Opts.OPT_DEBUG,
+    Opts.OPT_INCREMENTAL,
+    Opts.OPT_SERVICES,
+    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS })
 public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnv;
@@ -57,8 +65,27 @@ public class JoobyProcessor extends AbstractProcessor {
   private Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
 
   private boolean debug;
+  private boolean incremental;
+  private boolean services;
 
   private int round;
+
+  @Override public Set<String> getSupportedOptions() {
+    Set<String> options = new HashSet<>(super.getSupportedOptions());
+
+    if (incremental) {
+      // Enables incremental annotation processing support in Gradle.
+      // If service provider configuration is being generated,
+      // only 'aggregating' mode is supported since it's likely that
+      // more then one originating element is passed to the Filer
+      // API on writing the resource file - isolating mode does not
+      // allow this.
+      options.add(String.format("org.gradle.annotation.processing.%s",
+          services ? "aggregating" : "isolating"));
+    }
+
+    return options;
+  }
 
   @Override public Set<String> getSupportedAnnotationTypes() {
     return Stream.concat(Annotations.PATH.stream(), Annotations.HTTP_METHODS.stream())
@@ -71,7 +98,13 @@ public class JoobyProcessor extends AbstractProcessor {
 
   @Override public void init(ProcessingEnvironment processingEnvironment) {
     this.processingEnv = processingEnvironment;
-    debug = Boolean.parseBoolean(processingEnvironment.getOptions().getOrDefault("debug", "false"));
+
+    debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
+    incremental = Opts.boolOpt(processingEnv, Opts.OPT_INCREMENTAL, true);
+    services = Opts.boolOpt(processingEnv, Opts.OPT_SERVICES, true);
+
+    debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
+    debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
   }
 
   @Override
@@ -124,7 +157,7 @@ public class JoobyProcessor extends AbstractProcessor {
 
   private void build(Filer filer) throws Exception {
     Types typeUtils = processingEnv.getTypeUtils();
-    Map<String, List<HandlerCompiler>> classes = new LinkedHashMap<>();
+    Map<TypeElement, List<HandlerCompiler>> classes = new LinkedHashMap<>();
     for (Map.Entry<TypeElement, Map<TypeElement, List<ExecutableElement>>> e : routeMap
         .entrySet()) {
       TypeElement type = e.getKey();
@@ -150,7 +183,6 @@ public class JoobyProcessor extends AbstractProcessor {
             }
           }
         }
-        String typeName = typeUtils.erasure(type.asType()).toString();
         /** Route method ready, creates a Route.Handler for each of them: */
         for (Map.Entry<TypeElement, List<ExecutableElement>> mapping : mappings.entrySet()) {
           TypeElement httpMethod = mapping.getKey();
@@ -162,7 +194,7 @@ public class JoobyProcessor extends AbstractProcessor {
               debug("  route %s %s", httpMethod.getSimpleName(), path);
               HandlerCompiler compiler = new HandlerCompiler(processingEnv, type, method,
                   httpMethod, path);
-              classes.computeIfAbsent(typeName, k -> new ArrayList<>())
+              classes.computeIfAbsent(type, k -> new ArrayList<>())
                   .add(compiler);
             }
           }
@@ -170,19 +202,23 @@ public class JoobyProcessor extends AbstractProcessor {
       }
     }
 
-    List<String> moduleList = new ArrayList<>();
-    for (Map.Entry<String, List<HandlerCompiler>> entry : classes.entrySet()) {
+    Map<TypeElement, String> modules = new LinkedHashMap<>();
+    for (Map.Entry<TypeElement, List<HandlerCompiler>> entry : classes.entrySet()) {
+      TypeElement type = entry.getKey();
+      String typeName = typeUtils.erasure(type.asType()).toString();
       List<HandlerCompiler> handlers = entry.getValue();
-      ModuleCompiler module = new ModuleCompiler(processingEnv, entry.getKey());
+      ModuleCompiler module = new ModuleCompiler(processingEnv, typeName);
       String moduleClass = module.getModuleClass();
       byte[] moduleBin = module.compile(handlers);
       onClass(moduleClass, moduleBin);
-      writeClass(filer.createClassFile(moduleClass), moduleBin);
+      writeClass(filer.createClassFile(moduleClass, type), moduleBin);
 
-      moduleList.add(moduleClass);
+      modules.put(type, moduleClass);
     }
 
-    doServices(filer, moduleList);
+    if (services) {
+      doServices(filer, modules);
+    }
   }
 
   private String signature(ExecutableElement method) {
@@ -215,12 +251,14 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  private void doServices(Filer filer, List<String> moduleList) throws IOException {
+  private void doServices(Filer filer, Map<TypeElement, String> modules) throws IOException {
     String location = "META-INF/services/" + MvcFactory.class.getName();
+    Element[] originatingElements = modules.keySet().toArray(new Element[0]);
     debug("%s", location);
-    FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
+    FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location, originatingElements);
     StringBuilder content = new StringBuilder();
-    for (String classname : moduleList) {
+    for (Map.Entry<TypeElement, String> e : modules.entrySet()) {
+      String classname = e.getValue();
       debug("  %s", classname);
       content.append(classname).append(System.getProperty("line.separator"));
     }

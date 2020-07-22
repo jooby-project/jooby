@@ -24,6 +24,8 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,12 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static io.jooby.SneakyThrows.throwingConsumer;
 import static java.util.Collections.singletonList;
-import static java.util.Collections.sort;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -84,12 +84,13 @@ public class RouteAttributesWriter {
 
   private static final Predicate<String> NULL_ANNOTATION = it -> it.endsWith("NonNull")
       || it.endsWith("NotNull")
+      || it.endsWith("Nonnull")
       || it.endsWith("Nullable");
 
   private static final Predicate<String> KOTLIN_ANNOTATION = it -> it.equals("kotlin.Metadata");
 
-  private static final Predicate<String> ATTR_FILTER = HTTP_ANNOTATION.negate()
-      .and(NULL_ANNOTATION.negate()).and(KOTLIN_ANNOTATION.negate());
+  private static final Predicate<String> ATTR_FILTER = HTTP_ANNOTATION
+      .or(NULL_ANNOTATION).or(KOTLIN_ANNOTATION);
 
   private final Elements elements;
 
@@ -101,13 +102,16 @@ public class RouteAttributesWriter {
 
   private final MethodVisitor visitor;
 
+  private final String[] userAttrFilter;
+
   public RouteAttributesWriter(Elements elements, Types types, ClassWriter writer,
-      String moduleInternalName, MethodVisitor visitor) {
+      String moduleInternalName, MethodVisitor visitor, String[] userAttrFilter) {
     this.elements = elements;
     this.types = types;
     this.writer = writer;
     this.moduleInternalName = moduleInternalName;
     this.visitor = visitor;
+    this.userAttrFilter = userAttrFilter;
   }
 
   public void process(ExecutableElement method, BiConsumer<String, Object[]> log)
@@ -143,8 +147,17 @@ public class RouteAttributesWriter {
       String root) {
     Map<String, Object> result = new HashMap<>();
     for (AnnotationMirror annotation : annotations) {
-      if (!ATTR_FILTER.test(annotation.getAnnotationType().toString())) {
-        // Ignore core,jars annotations
+      Retention retention = annotation.getAnnotationType().asElement().getAnnotation(Retention.class);
+      RetentionPolicy retentionPolicy = retention == null ? RetentionPolicy.CLASS : retention.value();
+      String type = annotation.getAnnotationType().toString();
+      if (
+          // ignore annotations not available at runtime
+          retentionPolicy != RetentionPolicy.RUNTIME
+              // ignore core, jars annotations
+              || ATTR_FILTER.test(type)
+              // ignore user specified annotations
+              || Arrays.stream(userAttrFilter).anyMatch(type::startsWith)) {
+
         continue;
       }
       String prefix = root == null

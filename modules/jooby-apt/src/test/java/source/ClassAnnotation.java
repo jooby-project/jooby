@@ -3,7 +3,8 @@ package source;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ArrayAnnotation {
-  String value() default "";
+@Retention(RetentionPolicy.CLASS)
+public @interface ClassAnnotation {
+
+  String key() default "value";
 }
