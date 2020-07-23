@@ -195,7 +195,7 @@ public class PebbleModule implements Extension {
         builder.strictVariables(conf.getBoolean("pebble.strictVariables"));
       }
       if (conf.hasPath("pebble.allowUnsafeMethods")) {
-        if (conf.getBoolean("")) {
+        if (conf.getBoolean("pebble.allowUnsafeMethods")) {
           builder.methodAccessValidator(new NoOpMethodAccessValidator());
         } else {
           builder.methodAccessValidator(new BlacklistMethodAccessValidator());
