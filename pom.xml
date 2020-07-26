@@ -3155,7 +3155,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <akka.version>2.5.13</akka.version>
     <antlr4-runtime.version>4.7</antlr4-runtime.version>
     <api-console.version>3.0.17</api-console.version>
-    <asm.version>7.2-beta</asm.version>
+    <asm.version>7.3.1</asm.version>
     <async-http-client.version>1.9.40</async-http-client.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
     <aws-java-sdk.version>1.11.358</aws-java-sdk.version>
