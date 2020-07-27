@@ -129,7 +129,7 @@ public class Netty extends Server.Base {
       throw SneakyThrows.propagate(x);
     } catch (ExecutionException x) {
       Throwable cause = x.getCause();
-      if (cause instanceof BindException) {
+      if (Server.isAddressInUse(cause)) {
         cause = new BindException("Address already in use: " + options.getPort());
       }
       throw SneakyThrows.propagate(cause);

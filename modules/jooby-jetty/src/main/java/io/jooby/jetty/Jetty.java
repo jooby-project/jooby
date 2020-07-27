@@ -159,7 +159,7 @@ public class Jetty extends io.jooby.Server.Base {
 
       fireReady(applications);
     } catch (Exception x) {
-      if (x.getCause() instanceof BindException) {
+      if (io.jooby.Server.isAddressInUse(x.getCause())) {
         x = new BindException("Address already in use: " + options.getPort());
       }
       throw SneakyThrows.propagate(x);

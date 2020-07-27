@@ -9,8 +9,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.BindException;
 import java.nio.channels.ClosedChannelException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -134,9 +136,27 @@ public interface Server {
       String message = cause.getMessage();
       if (message != null) {
         String msg = message.toLowerCase();
-        return msg.contains("reset by peer") || msg.contains("broken pipe") || msg.contains("forcibly closed");
+        return msg.contains("reset by peer") || msg.contains("broken pipe") || msg
+            .contains("forcibly closed");
       }
     }
     return (cause instanceof ClosedChannelException) || (cause instanceof EOFException);
+  }
+
+  /**
+   * Whenever the given exception is an address already in use. This probably won't work in none
+   * English locale systems.
+   *
+   * @param cause Exception to check.
+   * @return True address alaredy in use.
+   */
+  static boolean isAddressInUse(@Nullable Throwable cause) {
+    return (cause instanceof BindException) ||
+        (Optional.ofNullable(cause)
+            .map(Throwable::getMessage)
+            .map(String::toLowerCase)
+            .filter(msg -> msg.contains("address already in use"))
+            .isPresent()
+        );
   }
 }
