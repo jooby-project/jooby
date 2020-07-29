@@ -151,12 +151,12 @@ public interface Server {
    * @return True address alaredy in use.
    */
   static boolean isAddressInUse(@Nullable Throwable cause) {
-    return (cause instanceof BindException) ||
-        (Optional.ofNullable(cause)
-            .map(Throwable::getMessage)
-            .map(String::toLowerCase)
-            .filter(msg -> msg.contains("address already in use"))
-            .isPresent()
-        );
+    return (cause instanceof BindException)
+        || (Optional.ofNullable(cause)
+        .map(Throwable::getMessage)
+        .map(String::toLowerCase)
+        .filter(msg -> msg.contains("address already in use"))
+        .isPresent()
+    );
   }
 }

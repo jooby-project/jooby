@@ -6,7 +6,6 @@
 package io.jooby.email;
 
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigException.Missing;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Extension;
