@@ -6,6 +6,7 @@
 package io.jooby.internal.netty;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
@@ -93,7 +94,10 @@ public class NettyOutputStream extends OutputStream {
         buffer.clear();
       }
     } else {
-      ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(listener);
+      ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+      if (listener != null) {
+        future.addListener(listener);
+      }
     }
   }
 
