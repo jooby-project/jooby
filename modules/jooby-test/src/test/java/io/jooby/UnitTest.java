@@ -61,11 +61,11 @@ public class UnitTest {
     });
 
     PojoBody pojo = new PojoBody();
-    router.post("/pojo", new MockContext().setBody(pojo), result -> {
+    router.post("/pojo", new MockContext().setBodyObject(pojo), result -> {
       assertEquals(pojo, result.value());
     });
 
-    router.get("/x/notfound", new MockContext().setBody(pojo), result -> {
+    router.get("/x/notfound", new MockContext().setBodyObject(pojo), result -> {
       assertEquals(StatusCode.NOT_FOUND, result.getStatusCode());
     });
   }

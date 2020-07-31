@@ -378,9 +378,7 @@ public interface DefaultContext extends Context {
     try {
       if (MediaType.text.equals(contentType)) {
         T result = ValueConverters.convert(body(), type, getRouter());
-        if (result != null) {
-          return result;
-        }
+        return result;
       }
       return (T) decoder(contentType).decode(this, type);
     } catch (Exception x) {

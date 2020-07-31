@@ -19,6 +19,7 @@ import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
 
+import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -316,8 +317,14 @@ public class Provisioning {
   }
 
   @POST
+  @Path("/bodyStringParamNullable")
+  public String bodyStringParamNullable(String body) {
+    return body;
+  }
+
+  @POST
   @Path("/bodyStringParam")
-  public String bodyStringParam(String body) {
+  public String bodyStringParam(@Nonnull String body) {
     return body;
   }
 

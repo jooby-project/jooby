@@ -353,7 +353,7 @@ public class MockContext implements DefaultContext {
 
   @Nonnull @Override public <T> T decode(@Nonnull Type type, @Nonnull MediaType contentType) {
     if (bodyObject == null) {
-      throw new IllegalStateException("No body was set, use setBody() to set one.");
+      throw new IllegalStateException("No body was set, use setBodyObject() to set one.");
     }
     Reified<?> reified = Reified.get(type);
     if (!reified.getRawType().isInstance(bodyObject)) {
@@ -368,12 +368,19 @@ public class MockContext implements DefaultContext {
    * @param body Request body.
    * @return This context.
    */
-  @Nonnull public MockContext setBody(@Nonnull Object body) {
-    if (body instanceof Body) {
-      this.body = (Body) body;
-    } else {
-      this.bodyObject = body;
-    }
+  @Nonnull public MockContext setBody(@Nonnull Body body) {
+    this.body = body;
+    return this;
+  }
+
+  /**
+   * Set request body.
+   *
+   * @param body Request body.
+   * @return This context.
+   */
+  @Nonnull public MockContext setBodyObject(@Nonnull Object body) {
+    this.bodyObject = body;
     return this;
   }
 
@@ -395,7 +402,7 @@ public class MockContext implements DefaultContext {
    * @return This context.
    */
   @Nonnull public MockContext setBody(@Nonnull byte[] body) {
-    this.body = Body.of(this, new ByteArrayInputStream(body), body.length);
+    setBody(Body.of(this, new ByteArrayInputStream(body), body.length));
     return this;
   }
 

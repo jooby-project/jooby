@@ -109,14 +109,14 @@ public class MvcTest {
       app.decoder(io.jooby.MediaType.json, new MessageDecoder() {
         @Nonnull @Override public Message decode(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
-          return new Message("{" + ctx.body().value() + "}");
+          return new Message("{" + ctx.body().value("") + "}");
         }
       });
 
       app.decoder(xml, new MessageDecoder() {
         @Nonnull @Override public Message decode(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
-          return new Message("<" + ctx.body().value() + ">");
+          return new Message("<" + ctx.body().value("") + ">");
         }
       });
 

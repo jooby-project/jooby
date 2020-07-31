@@ -6,6 +6,7 @@
 package io.jooby.internal.apt.asm;
 
 import io.jooby.Body;
+import io.jooby.Value;
 import io.jooby.internal.apt.ParamDefinition;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -13,6 +14,7 @@ import org.objectweb.asm.MethodVisitor;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -42,6 +44,18 @@ public class BodyWriter extends ValueWriter {
       Method channel = Body.class.getDeclaredMethod("channel");
       visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Body", channel.getName(),
           getMethodDescriptor(channel), true);
+    } else if (parameter.is(String.class)) {
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
+          getMethodDescriptor(paramMethod), true);
+      String methodName;
+      if (parameter.isNullable()) {
+        methodName = "valueOrNull";
+      } else {
+        methodName = "value";
+      }
+      Method value = Value.class.getDeclaredMethod(methodName);
+      visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", value.getName(),
+          getMethodDescriptor(value), true);
     } else {
       Method convertMethod = parameter.getMethod();
       if (!convertMethod.getName().equals("body")) {

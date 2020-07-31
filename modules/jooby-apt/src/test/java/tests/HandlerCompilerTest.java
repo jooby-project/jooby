@@ -359,8 +359,22 @@ public class HandlerCompilerTest {
         .module(app -> {
           MockRouter router = new MockRouter(app);
 
+          Body body = mock(Body.class);
+          when(body.valueOrNull()).thenReturn("...");
+
+          Context ctx = mockContext("POST", "/p/bodyStringParamNullable");
+          when(ctx.body()).thenReturn(body);
+
+          assertEquals("...", router.post("/p/bodyStringParamNullable", ctx).value());
+        })
+        .module(app -> {
+          MockRouter router = new MockRouter(app);
+
+          Body body = mock(Body.class);
+          when(body.value()).thenReturn("...");
+
           Context ctx = mockContext("POST", "/p/bodyStringParam");
-          when(ctx.body(String.class)).thenReturn("...");
+          when(ctx.body()).thenReturn(body);
 
           assertEquals("...", router.post("/p/bodyStringParam", ctx).value());
         })

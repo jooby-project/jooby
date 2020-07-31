@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import io.jooby.exception.MissingValueException;
 import io.jooby.internal.ByteArrayBody;
 import io.jooby.internal.FileBody;
 import io.jooby.internal.InputStreamBody;
@@ -37,7 +38,11 @@ public interface Body extends ValueNode {
    * @return Body as string.
    */
   default @Nonnull String value(@Nonnull Charset charset) {
-    return new String(bytes(), charset);
+    byte[] bytes = bytes();
+    if (bytes.length == 0) {
+      throw new MissingValueException("body");
+    }
+    return new String(bytes, charset);
   }
 
   /**

@@ -885,19 +885,19 @@ public class FeaturedTest {
       app.decoder(io.jooby.MediaType.json, new MessageDecoder() {
         @Nonnull @Override public String decode(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
-          return "{" + ctx.body().value() + "}";
+          return "{" + ctx.body().value("") + "}";
         }
       });
 
       app.decoder(xml, new MessageDecoder() {
         @Nonnull @Override public String decode(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
-          return "<" + ctx.body().value() + ">";
+          return "<" + ctx.body().value("") + ">";
         }
       });
 
       app.get("/defaults", ctx -> {
-        return ctx.body(String.class);
+        return Optional.ofNullable(ctx.body(String.class)).orElse("");
       });
 
       app.get("/consumes", ctx -> ctx.body(String.class))
@@ -1276,9 +1276,9 @@ public class FeaturedTest {
       app.setServerOptions(new ServerOptions()
           .setBufferSize(ServerOptions._16KB / 2)
           .setMaxRequestSize(ServerOptions._16KB));
-      app.post("/request-size", ctx -> ctx.body().value());
+      app.post("/request-size", ctx -> ctx.body().value(""));
 
-      app.get("/request-size", ctx -> ctx.body().value());
+      app.get("/request-size", ctx -> ctx.body().value(""));
     }).ready(client -> {
       // Exceeds
       client.post("/request-size", RequestBody.create(_19kb, MediaType.get("text/plain")), rsp -> {
@@ -2356,7 +2356,7 @@ public class FeaturedTest {
   public void rawValue(ServerTestRunner runner) {
     runner.define(app -> {
       app.post("/body", ctx -> {
-        return ctx.body().value();
+        return ctx.body().value("");
       });
 
       app.post("/form", ctx -> {
