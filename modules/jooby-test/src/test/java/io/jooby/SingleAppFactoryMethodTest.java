@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@JoobyTest(value = TestArgApp.class, factoryMethod = "createStaticApp")
+@JoobyTest(value = TestArgApp.class, factoryMethod = "createStaticApp", port = 0)
 public class SingleAppFactoryMethodTest {
 
   static OkHttpClient client = new OkHttpClient();
