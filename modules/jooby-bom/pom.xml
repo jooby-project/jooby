@@ -52,7 +52,7 @@
   <jacoco.version>0.8.5</jacoco.version>
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
   <javax.inject.version>1</javax.inject.version>
-  <jboss-modules.version>1.10.1.Final</jboss-modules.version>
+  <jboss-modules.version>1.10.2.Final</jboss-modules.version>
   <jdbi.version>3.14.1</jdbi.version>
   <jetty.version>9.4.31.v20200723</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>

@@ -59,7 +59,7 @@
     <jfiglet.version>0.0.8</jfiglet.version>
 
     <!-- jboss modules -->
-    <jboss-modules.version>1.10.1.Final</jboss-modules.version>
+    <jboss-modules.version>1.10.2.Final</jboss-modules.version>
 
     <!-- ASM -->
     <asm.version>8.0.1</asm.version>
