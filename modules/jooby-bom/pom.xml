@@ -30,7 +30,7 @@
   <commons-io.version>2.7</commons-io.version>
   <compile-testing.version>0.18</compile-testing.version>
   <config.version>1.4.0</config.version>
-  <cron-utils.version>9.1.0</cron-utils.version>
+  <cron-utils.version>9.1.1</cron-utils.version>
   <ebean.version>12.3.7</ebean.version>
   <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
   <flyway.version>6.5.3</flyway.version>
