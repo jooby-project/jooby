@@ -43,7 +43,7 @@ public class DocApp extends Jooby {
 
     log.info("doc ready");
 
-    runApp(new String[]{"server.join=false", "server.port=4000"}, DocApp::new);
+    runApp(new String[]{"server.port=4000"}, DocApp::new);
 
     DirectoryWatcher watcher = DirectoryWatcher.builder()
         .path(basedir.resolve("asciidoc"))

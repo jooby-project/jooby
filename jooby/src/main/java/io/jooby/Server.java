@@ -107,8 +107,11 @@ public interface Server {
   @Nonnull Server start(@Nonnull Jooby application);
 
   /**
-   * Block current thread so JVM doesn't exit.
+   * Block current thread.
+   *
+   * @deprecated This method is planned to be removed in next major release (3.x)
    */
+  @Deprecated
   @Nonnull default void join() {
     try {
       Thread.currentThread().join();

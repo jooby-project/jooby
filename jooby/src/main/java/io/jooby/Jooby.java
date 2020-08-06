@@ -956,7 +956,7 @@ public class Jooby implements Router, Registry {
     Jooby app = createApp(args, executionMode, provider);
     Server server = app.start();
     Config conf = app.getConfig();
-    boolean join = !conf.hasPath("server.join") || conf.getBoolean("server.join");
+    boolean join = conf.hasPath("server.join") && conf.getBoolean("server.join");
     if (join) {
       server.join();
     }
