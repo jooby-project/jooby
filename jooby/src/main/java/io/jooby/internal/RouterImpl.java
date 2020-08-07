@@ -257,7 +257,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override
-  public RouteSet use(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body) {
+  public RouteSet mount(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body) {
     RouteSet routeSet = new RouteSet();
     Chi tree = new Chi();
     putPredicate(predicate, tree);
@@ -268,7 +268,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override
-  public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter) {
+  public Router mount(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter) {
     syncState(subrouter);
     Chi tree = new Chi();
     putPredicate(predicate, tree);
@@ -293,7 +293,7 @@ public class RouterImpl implements Router {
     }
   }
 
-  @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
+  @Nonnull @Override public Router mount(@Nonnull String path, @Nonnull Router router) {
     syncState(router);
     String prefix = Router.leadingSlash(path);
     for (Route route : router.getRoutes()) {
@@ -305,8 +305,8 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override
-  public Router use(@Nonnull Router router) {
-    return use("/", router);
+  public Router mount(@Nonnull Router router) {
+    return mount("/", router);
   }
 
   @Nonnull @Override public Router mvc(@Nonnull Object router) {

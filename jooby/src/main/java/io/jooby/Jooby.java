@@ -254,8 +254,8 @@ public class Jooby implements Router, Registry {
   }
 
   @Nonnull @Override
-  public Jooby use(@Nonnull Router router) {
-    this.router.use(router);
+  public Jooby mount(@Nonnull Router router) {
+    this.router.mount(router);
     return this;
   }
 
@@ -287,18 +287,18 @@ public class Jooby implements Router, Registry {
   }
 
   @Nonnull @Override
-  public RouteSet use(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body) {
-    return router.use(predicate, body);
+  public RouteSet mount(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body) {
+    return router.mount(predicate, body);
   }
 
   @Nonnull @Override
-  public Jooby use(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter) {
-    this.router.use(predicate, subrouter);
+  public Jooby mount(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter) {
+    this.router.mount(predicate, subrouter);
     return this;
   }
 
-  @Nonnull @Override public Jooby use(@Nonnull String path, @Nonnull Router router) {
-    this.router.use(path, router);
+  @Nonnull @Override public Jooby mount(@Nonnull String path, @Nonnull Router router) {
+    this.router.mount(path, router);
     return this;
   }
 

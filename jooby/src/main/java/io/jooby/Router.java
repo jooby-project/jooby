@@ -259,6 +259,8 @@ public interface Router extends Registry {
    *
    * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
    *
+   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   *
    * @param domain Predicate
    * @param subrouter Subrouter.
    * @return This router.
@@ -304,11 +306,42 @@ public interface Router extends Registry {
    *
    * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
    *
+   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   *
    * @param predicate Context predicate.
-   * @param subrouter Router to import.
+   * @param router Router to import.
+   * @return This router.
+   * @deprecated Use {@link #mount(Predicate, Router)}
+   */
+  @Deprecated
+  @Nonnull default Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
+    return mount(predicate, router);
+  }
+
+  /**
+   * Import routes from given router. Predicate works like a filter and only when predicate pass
+   * the routes match against the current request.
+   *
+   * Example of domain predicate filter:
+   *
+   * <pre>{@code
+   * {
+   *   use(ctx -> ctx.getHost().equals("foo.com"), new FooApp());
+   *   use(ctx -> ctx.getHost().equals("bar.com"), new BarApp());
+   * }
+   * }</pre>
+   *
+   * Imported routes are matched only when predicate pass.
+   *
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   *
+   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   *
+   * @param predicate Context predicate.
+   * @param router Router to import.
    * @return This router.
    */
-  @Nonnull Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter);
+  @Nonnull Router mount(@Nonnull Predicate<Context> predicate, @Nonnull Router router);
 
   /**
    * Import routes from given action. Predicate works like a filter and only when predicate pass
@@ -332,25 +365,89 @@ public interface Router extends Registry {
    * @param predicate Context predicate.
    * @param body Route action.
    * @return This router.
+   * @deprecated Use {@link #mount(Predicate, Runnable)}
    */
-  @Nonnull RouteSet use(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body);
+  @Deprecated
+  @Nonnull default RouteSet use(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body) {
+    return mount(predicate, body);
+  }
+
+  /**
+   * Import routes from given action. Predicate works like a filter and only when predicate pass
+   * the routes match against the current request.
+   *
+   * Example of domain predicate filter:
+   *
+   * <pre>{@code
+   * {
+   *   mount(ctx -> ctx.getHost().equals("foo.com"), () -> {
+   *     get("/", ctx -> "foo");
+   *   });
+   *   mount(ctx -> ctx.getHost().equals("bar.com"), () -> {
+   *     get("/", ctx -> "bar");
+   *   });
+   * }
+   * }</pre>
+   *
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   *
+   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   *
+   * @param predicate Context predicate.
+   * @param body Route action.
+   * @return This router.
+   */
+  @Nonnull RouteSet mount(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body);
 
   /**
    * Import all routes from the given router and prefix them with the given path.
+   *
+   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   *
+   * @param path Prefix path.
+   * @param router Router to import.
+   * @return This router.
+   * @deprecated Use {@link #mount(String, Router)}
+   */
+  @Deprecated
+  @Nonnull default Router use(@Nonnull String path, @Nonnull Router router) {
+    return mount(path, router);
+  }
+
+  /**
+   * Import all routes from the given router and prefix them with the given path.
+   *
+   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param path Prefix path.
    * @param router Router to import.
    * @return This router.
    */
-  @Nonnull Router use(@Nonnull String path, @Nonnull Router router);
+  @Nonnull Router mount(@Nonnull String path, @Nonnull Router router);
 
   /**
    * Import all routes from the given router.
    *
+   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   *
+   * @param router Router to import.
+   * @return This router.
+   * @deprecated Use {@link #mount(Router)}
+   */
+  @Deprecated
+  @Nonnull default Router use(@Nonnull Router router) {
+    return mount(router);
+  }
+
+  /**
+   * Import all routes from the given router.
+   *
+   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   *
    * @param router Router to import.
    * @return This router.
    */
-  @Nonnull Router use(@Nonnull Router router);
+  @Nonnull Router mount(@Nonnull Router router);
 
   /* ***********************************************************************************************
    * Mvc
