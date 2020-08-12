@@ -133,6 +133,9 @@ public class Pipeline {
     }
     /** Context: */
     if (Context.class.isAssignableFrom(type)) {
+      if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
+        return next(mode, executor, new DetachHandler(route.getPipeline()), false);
+      }
       return next(mode, executor, decorate(route, new SendDirect(route.getPipeline())), true);
     }
     /** InputStream: */

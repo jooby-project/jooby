@@ -35,7 +35,6 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
-import io.undertow.util.SameThreadExecutor;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -257,14 +256,9 @@ public class UtowContext implements DefaultContext, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public Context detach(@Nonnull Route.Handler next) {
-    exchange.dispatch(SameThreadExecutor.INSTANCE, () -> {
-      try {
-        next.apply(this);
-      } catch (Throwable x) {
-        sendError(x);
-      }
-    });
+  @Nonnull @Override public Context detach(@Nonnull Route.Handler next) throws Exception {
+    exchange.dispatch();
+    next.apply(this);
     return this;
   }
 
