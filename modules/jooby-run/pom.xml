@@ -30,7 +30,7 @@
     <dependency>
       <groupId>io.methvin</groupId>
       <artifactId>directory-watcher</artifactId>
-      <version>0.9.10</version>
+      <version>0.10.0</version>
     </dependency>
 
 
