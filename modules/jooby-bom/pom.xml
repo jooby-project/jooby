@@ -299,6 +299,12 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-commons-email</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-cli</artifactId>
       <version>${jooby.version}</version>
       <type>jar</type>
