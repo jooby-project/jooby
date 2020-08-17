@@ -388,6 +388,12 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-commons-email</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-cli</artifactId>
         <version>${jooby.version}</version>
       </dependency>
