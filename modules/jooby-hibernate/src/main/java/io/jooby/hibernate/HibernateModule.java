@@ -11,6 +11,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
+import io.jooby.internal.hibernate.EntityManagerHandlerProvider;
 import io.jooby.internal.hibernate.ScanEnvImpl;
 import io.jooby.internal.hibernate.SessionServiceProvider;
 import org.hibernate.Session;
@@ -290,6 +291,11 @@ public class HibernateModule implements Extension {
     /** Session Provider: */
     registry.putIfAbsent(SessionProvider.class, sessionBuilder);
     registry.put(ServiceKey.key(SessionProvider.class, name), sessionBuilder);
+
+    /** EntityManagerHandler Provider: */
+    EntityManagerHandlerProvider entityManagerHandlerProvider = new EntityManagerHandlerProvider(sf, sessionBuilder);
+    registry.putIfAbsent(EntityManagerHandler.class, entityManagerHandlerProvider);
+    registry.put(ServiceKey.key(EntityManagerHandler.class, name), entityManagerHandlerProvider);
 
     application.onStop(sf::close);
   }
