@@ -22,6 +22,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -231,13 +232,7 @@ public class ReturnTypeParser {
       return Object.class.getName();
     }
     Type returnType = Type.getReturnType(node.desc);
-    ClassNode classNode;
-    try {
-      classNode = ctx.classNode(Type.getObjectType(node.owner));
-    } catch (Exception x) {
-      return returnType.getClassName();
-    }
-    return classNode.methods.stream()
+    return classMethods(ctx, node.owner).stream()
         .filter(m -> m.name.equals(node.name) && m.desc.equals(node.desc))
         .findFirst()
         .map(m -> Optional.ofNullable(m.signature)
@@ -251,6 +246,21 @@ public class ReturnTypeParser {
         .orElse(returnType.getClassName());
   }
 
+  private static List<MethodNode> classMethods(ParserContext ctx, String owner) {
+    ClassNode classNode = ctx.classNodeOrNull(Type.getObjectType(owner));
+    if (classNode == null) {
+      return Collections.emptyList();
+    }
+    List<MethodNode> result = new ArrayList<>();
+    result.addAll(classNode.methods);
+    if (classNode.interfaces != null) {
+      for (String anInterface : classNode.interfaces) {
+        result.addAll(classMethods(ctx, anInterface));
+      }
+    }
+    return result;
+  }
+
   private static String localVariable(final ParserContext ctx, final MethodNode m,
       final VarInsnNode varInsn) {
     int opcode = varInsn.getOpcode();
@@ -262,6 +272,7 @@ public class ReturnTypeParser {
           .orElse(null);
       if (var != null) {
         if (var.signature == null) {
+          /** Kotlin traversal: */
           Optional<AbstractInsnNode> kt = InsnSupport.prev(varInsn).filter(kotlinIntrinsics())
               .findFirst();
           if (kt.isPresent()) {
@@ -277,11 +288,37 @@ public class ReturnTypeParser {
                         && !internalName.equals("kotlin/jvm/functions/Function1")
                         && !internalName.equals("io/jooby/HandlerContext")
                 );
-                return type;
+                if (!type.equals(Object.class.getName()) && !type.equals(void.class.getName())) {
+                  return type;
+                }
               }
             }
           }
-          return ASMType.parse(var.desc);
+
+          String type = ASMType.parse(var.desc);
+          if (type.startsWith("java.util.")) {
+            /** Try to find originating call to figure out element type <T> */
+            VarInsnNode astore = InsnSupport.prev(varInsn)
+                .filter(VarInsnNode.class::isInstance)
+                .map(VarInsnNode.class::cast)
+                .filter(varIns -> varIns.getOpcode() == Opcodes.ASTORE && varIns.var == var.index)
+                .findFirst()
+                .orElse(null);
+            if (astore != null) {
+              MethodInsnNode methodCall = InsnSupport.prev(astore)
+                  .filter(it -> (it instanceof MethodInsnNode) && !kotlinIntrinsics().test(it))
+                  .map(MethodInsnNode.class::cast)
+                  .findFirst()
+                  .orElse(null);
+              if (methodCall != null) {
+                String returnType = fromMethodCall(ctx, methodCall);
+                if (!returnType.equals(Object.class.getName()) && !returnType.equals(void.class.getName())) {
+                  return returnType;
+                }
+              }
+            }
+          }
+          return type;
         }
         return ASMType.parse(var.signature);
       }
