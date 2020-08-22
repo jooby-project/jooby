@@ -1203,12 +1203,12 @@ public interface Context extends Registry {
   @Nonnull Context send(@Nonnull InputStream input);
 
   /**
-   * Send a file attached response.
+   * Send a file download response.
    *
-   * @param file Attached file.
+   * @param file File download.
    * @return This context.
    */
-  @Nonnull Context send(@Nonnull AttachedFile file);
+  @Nonnull Context send(@Nonnull FileDownload file);
 
   /**
    * Send a file response.

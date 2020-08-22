@@ -118,8 +118,9 @@ automatically close the writer/stream:
 
 === File download
 
-The javadoc:AttachedFile[] is used to generate file downloads, i.e. responses with 
-`Content-Disposition` header.
+The javadoc:FileDownload[] is used to generate file downloads, i.e. responses with 
+`Content-Disposition` header. You can use the convenience subclasses javadoc:AttachedFile[]
+or javadoc:InlineFile[] to set the header value to `attachment` or `inline` respectively.
 
 .File download example
 [source,java,role="primary"]
@@ -130,9 +131,9 @@ The javadoc:AttachedFile[] is used to generate file downloads, i.e. responses wi
     return new AttachedFile(source);               // <1>
   });
   
-  get("/download-stream", ctx -> {
+  get("/view-stream", ctx -> {
     InputStream source = ...;
-    return new AttachedFile("myfile.txt", source); // <2>
+    return new InlineFile("myfile.txt", source); // <2>
   });
 }
 ----
@@ -146,15 +147,48 @@ The javadoc:AttachedFile[] is used to generate file downloads, i.e. responses wi
     AttachedFile(source)                // <1>
   }
 
-  get("/download-stream") {
+  get("/view-stream") {
     val source = ...
-    AttachedFile("myfile.txt", source)  // <2>
+    InlineFile("myfile.txt", source)  // <2>
   }
 }
 ----
 
 <1> Send a download from an `InputStream`
 <2> Send a download from a `File`
+
+Another possibility is to use one of the static builder methods of `FileDownload` and specify
+the download type (attachment or inline) later.
+
+.File download with builder method
+[source,java,role="primary"]
+----
+FileDownload.Builder produceDownload(Context ctx) {
+  return FileDownload.build(...);
+}
+
+{
+  get("/view", ctx -> produceDownload(ctx).inline());
+  
+  get("/download", ctx -> produceDownload(ctx).attachment());
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun produceDownload(ctx: Context) = FileDownload.build(...)
+
+{
+  get("/view") {
+    produceDownload(it).inline()
+  }
+
+  get("/download") {
+    produceDownload(it).attachment()
+  }
+}
+----
 
 === NonBlocking
 
@@ -646,5 +680,5 @@ Family of send methods include:
 - javadoc:Context[send, java.nio.file.Path]
 - javadoc:Context[send, java.io.File]
 - javadoc:Context[send, java.nio.channels.FileChannel]
-- javadoc:Context[send, io.jooby.AttachedFile]
+- javadoc:Context[send, io.jooby.FileDownload]
 - javadoc:Context[send, io.jooby.StatusCode]

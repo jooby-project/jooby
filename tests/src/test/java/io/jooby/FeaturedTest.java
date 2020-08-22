@@ -1526,6 +1526,18 @@ public class FeaturedTest {
         Path file = userdir("src", "test", "resources", "files", "19kb.txt");
         return new AttachedFile(file, ctx.query("name").value(file.getFileName().toString()));
       });
+      app.get("/inline", ctx -> {
+        Path file = userdir("src", "test", "resources", "files", "19kb.txt");
+        return new InlineFile(file, ctx.query("name").value(file.getFileName().toString()));
+      });
+      app.get("/attachment-builder", ctx -> {
+        Path file = userdir("src", "test", "resources", "files", "19kb.txt");
+        return FileDownload.build(file, ctx.query("name").value(file.getFileName().toString())).attachment();
+      });
+      app.get("/inline-builder", ctx -> {
+        Path file = userdir("src", "test", "resources", "files", "19kb.txt");
+        return FileDownload.build(file, ctx.query("name").value(file.getFileName().toString())).inline();
+      });
     }).ready(client -> {
       client.get("/filechannel", rsp -> {
         assertEquals(null, rsp.header("transfer-encoding"));
@@ -1558,6 +1570,36 @@ public class FeaturedTest {
             rsp.header("content-length").toLowerCase());
         assertEquals("text/plain;charset=utf-8", rsp.header("content-type").toLowerCase());
         assertEquals("attachment;filename=\"19kb.txt\"",
+            rsp.header("content-disposition").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+
+      client.get("/inline", rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()),
+            rsp.header("content-length").toLowerCase());
+        assertEquals("text/plain;charset=utf-8", rsp.header("content-type").toLowerCase());
+        assertEquals("inline;filename=\"19kb.txt\"",
+            rsp.header("content-disposition").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+
+      client.get("/attachment-builder", rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()),
+            rsp.header("content-length").toLowerCase());
+        assertEquals("text/plain;charset=utf-8", rsp.header("content-type").toLowerCase());
+        assertEquals("attachment;filename=\"19kb.txt\"",
+            rsp.header("content-disposition").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+
+      client.get("/inline-builder", rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()),
+            rsp.header("content-length").toLowerCase());
+        assertEquals("text/plain;charset=utf-8", rsp.header("content-type").toLowerCase());
+        assertEquals("inline;filename=\"19kb.txt\"",
             rsp.header("content-disposition").toLowerCase());
         assertEquals(_19kb, rsp.body().string());
       });
