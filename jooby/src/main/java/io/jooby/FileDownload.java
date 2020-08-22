@@ -20,6 +20,7 @@ import java.nio.file.Path;
  * Represents a file download.
  *
  * @author edgar
+ * @author imeszaros
  * @since 2.9.0
  */
 public class FileDownload {
