@@ -242,6 +242,15 @@ public interface Router extends Registry {
    */
   @Nonnull Router setCurrentUser(@Nullable Function<Context, Object> provider);
 
+  /**
+   * If enabled, allows to retrieve the {@link Context} object associated with the current
+   * request via the service registry while the request is being processed.
+   *
+   * @param contextAsService whether to enable or disable this feature
+   * @return This router.
+   */
+  @Nonnull Router setContextAsService(boolean contextAsService);
+
   /* ***********************************************************************************************
    * use(Router)
    * ***********************************************************************************************

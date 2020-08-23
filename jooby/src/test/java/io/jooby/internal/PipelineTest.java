@@ -219,7 +219,7 @@ public class PipelineTest {
   }
 
   private Route.Handler pipeline(Route route, ExecutionMode mode, Executor executor) {
-    return Pipeline.compute(getClass().getClassLoader(), route, mode, executor, null);
+    return Pipeline.compute(getClass().getClassLoader(), route, mode, executor, null, null);
   }
 
   private Route route(Type returnType, Route.Handler handler) {

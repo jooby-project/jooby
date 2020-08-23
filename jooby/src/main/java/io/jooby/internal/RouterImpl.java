@@ -179,11 +179,14 @@ public class RouterImpl implements Router {
 
   private ClassLoader classLoader;
 
-  private ContextInitializer initializer;
+  private ContextInitializer preDispatchInitializer;
+
+  private ContextInitializer postDispatchInitializer;
 
   private Set<RouterOption> routerOptions = EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR);
 
   private boolean trustProxy;
+  private boolean contextAsService;
 
   public RouterImpl(ClassLoader loader) {
     this.classLoader = loader;
@@ -241,9 +244,9 @@ public class RouterImpl implements Router {
   @Nonnull @Override public Router setTrustProxy(boolean trustProxy) {
     this.trustProxy = trustProxy;
     if (trustProxy) {
-      addInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
+      addPreDispatchInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
     } else {
-      removeInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
+      removePreDispatchInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
     }
     return this;
   }
@@ -577,7 +580,7 @@ public class RouterImpl implements Router {
       }
       /** Response handler: */
       Route.Handler pipeline = Pipeline
-          .compute(source.getLoader(), route, forceMode(route, mode), executor, handlers);
+          .compute(source.getLoader(), route, forceMode(route, mode), executor, postDispatchInitializer, handlers);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);
@@ -650,8 +653,8 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
-    if (initializer != null) {
-      initializer.apply(ctx);
+    if (preDispatchInitializer != null) {
+      preDispatchInitializer.apply(ctx);
     }
     if (predicateMap != null) {
       for (Map.Entry<Predicate<Context>, RouteTree> e : predicateMap.entrySet()) {
@@ -746,13 +749,31 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public Router setHiddenMethod(
       @Nonnull Function<Context, Optional<String>> provider) {
-    addInitializer(new HiddenMethodInitializer(provider));
+    addPreDispatchInitializer(new HiddenMethodInitializer(provider));
     return this;
   }
 
   @Nonnull @Override public Router setCurrentUser(
       @Nonnull Function<Context, Object> provider) {
-    addInitializer(new CurrentUserInitializer(provider));
+    addPreDispatchInitializer(new CurrentUserInitializer(provider));
+    return this;
+  }
+
+  @Nonnull @Override public Router setContextAsService(boolean contextAsService) {
+    if (this.contextAsService == contextAsService) {
+      return this;
+    }
+
+    this.contextAsService = contextAsService;
+
+    if (contextAsService) {
+      addPostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
+      getServices().put(Context.class, ContextAsServiceInitializer.INSTANCE);
+    } else {
+      removePostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
+      getServices().put(Context.class, (Provider<Context>) null);
+    }
+
     return this;
   }
 
@@ -833,19 +854,35 @@ public class RouterImpl implements Router {
     predicateMap.put(predicate, tree);
   }
 
-  private void removeInitializer(ContextInitializer initializer) {
-    if (this.initializer instanceof ContextInitializerList) {
+  private void removePreDispatchInitializer(ContextInitializer initializer) {
+    if (this.preDispatchInitializer instanceof ContextInitializerList) {
       ((ContextInitializerList) initializer).remove(initializer);
     }
   }
 
-  private void addInitializer(ContextInitializer initializer) {
-    if (this.initializer instanceof ContextInitializerList) {
-      this.initializer.add(initializer);
-    } else if (this.initializer != null) {
-      this.initializer = new ContextInitializerList(this.initializer).add(initializer);
+  private void addPreDispatchInitializer(ContextInitializer initializer) {
+    if (this.preDispatchInitializer instanceof ContextInitializerList) {
+      this.preDispatchInitializer.add(initializer);
+    } else if (this.preDispatchInitializer != null) {
+      this.preDispatchInitializer = new ContextInitializerList(this.preDispatchInitializer).add(initializer);
     } else {
-      this.initializer = initializer;
+      this.preDispatchInitializer = initializer;
+    }
+  }
+
+  private void removePostDispatchInitializer(ContextInitializer initializer) {
+    if (this.postDispatchInitializer instanceof ContextInitializerList) {
+      ((ContextInitializerList) postDispatchInitializer).remove(initializer);
+    }
+  }
+
+  private void addPostDispatchInitializer(ContextInitializer initializer) {
+    if (this.postDispatchInitializer instanceof ContextInitializerList) {
+      this.postDispatchInitializer.add(initializer);
+    } else if (this.postDispatchInitializer != null) {
+      this.postDispatchInitializer = new ContextInitializerList(this.postDispatchInitializer).add(initializer);
+    } else {
+      this.postDispatchInitializer = initializer;
     }
   }
 

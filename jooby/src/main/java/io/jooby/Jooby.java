@@ -629,6 +629,11 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  @Nonnull @Override public Jooby setContextAsService(boolean contextAsService) {
+    router.setContextAsService(contextAsService);
+    return this;
+  }
+
   @Nonnull @Override public Jooby setHiddenMethod(@Nonnull String parameterName) {
     router.setHiddenMethod(parameterName);
     return this;
