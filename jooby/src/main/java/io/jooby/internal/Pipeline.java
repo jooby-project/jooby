@@ -5,9 +5,9 @@
  */
 package io.jooby.internal;
 
-import io.jooby.AttachedFile;
 import io.jooby.Context;
 import io.jooby.ExecutionMode;
+import io.jooby.FileDownload;
 import io.jooby.Reified;
 import io.jooby.ResponseHandler;
 import io.jooby.Route;
@@ -147,8 +147,8 @@ public class Pipeline {
         .isAssignableFrom(type)) {
       return next(mode, executor, decorate(route, new SendFileChannel(route.getPipeline())), true);
     }
-    /** Attached file: */
-    if (AttachedFile.class.isAssignableFrom(type)) {
+    /** FileDownload: */
+    if (FileDownload.class.isAssignableFrom(type)) {
       return next(mode, executor, decorate(route, new SendAttachment(route.getPipeline())), true);
     }
     /** Strings: */

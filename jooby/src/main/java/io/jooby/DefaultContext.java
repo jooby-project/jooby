@@ -506,7 +506,7 @@ public interface DefaultContext extends Context {
     return send(data, StandardCharsets.UTF_8);
   }
 
-  @Override default @Nonnull Context send(@Nonnull AttachedFile file) {
+  @Override default @Nonnull Context send(@Nonnull FileDownload file) {
     setResponseHeader("Content-Disposition", file.getContentDisposition());
     InputStream content = file.stream();
     long length = file.getFileSize();

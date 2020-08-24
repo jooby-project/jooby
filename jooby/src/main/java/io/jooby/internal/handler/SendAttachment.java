@@ -5,8 +5,8 @@
  */
 package io.jooby.internal.handler;
 
-import io.jooby.AttachedFile;
 import io.jooby.Context;
+import io.jooby.FileDownload;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
@@ -24,7 +24,7 @@ public class SendAttachment implements LinkedHandler {
       if (ctx.isResponseStarted()) {
         return result;
       }
-      return ctx.send(((AttachedFile) result));
+      return ctx.send(((FileDownload) result));
     } catch (Throwable x) {
       return ctx.sendError(x);
     }

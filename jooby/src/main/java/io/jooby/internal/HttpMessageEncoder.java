@@ -5,8 +5,8 @@
  */
 package io.jooby.internal;
 
-import io.jooby.AttachedFile;
 import io.jooby.Context;
+import io.jooby.FileDownload;
 import io.jooby.MessageEncoder;
 import io.jooby.ModelAndView;
 import io.jooby.StatusCode;
@@ -71,9 +71,9 @@ public class HttpMessageEncoder implements MessageEncoder {
       ctx.send((Path) value);
       return null;
     }
-    /** Attached file: */
-    if (value instanceof AttachedFile) {
-      ctx.send((AttachedFile) value);
+    /** FileDownload: */
+    if (value instanceof FileDownload) {
+      ctx.send((FileDownload) value);
       return null;
     }
     /** Strings: */

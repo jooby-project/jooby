@@ -11,52 +11,52 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * Represents a file attachment response.
+ * Represents an inline file response.
  *
  * @author edgar
  * @since 2.0.0
  */
-public class AttachedFile extends FileDownload {
+public class InlineFile extends FileDownload {
 
   /**
-   * Creates a new file attachment.
+   * Creates a new inline file.
    *
    * @param content File content.
    * @param fileName Filename.
    * @param fileSize File size or <code>-1</code> if unknown.
    */
-  public AttachedFile(@Nonnull InputStream content, @Nonnull String fileName, long fileSize) {
-    super(Mode.ATTACHMENT, content, fileName, fileSize);
+  public InlineFile(@Nonnull InputStream content, @Nonnull String fileName, long fileSize) {
+    super(Mode.INLINE, content, fileName, fileSize);
   }
 
   /**
-   * Creates a new file attachment.
+   * Creates a new inline file.
    *
    * @param content File content.
    * @param fileName Filename.
    */
-  public AttachedFile(@Nonnull InputStream content, @Nonnull String fileName) {
-    super(Mode.ATTACHMENT, content, fileName);
+  public InlineFile(@Nonnull InputStream content, @Nonnull String fileName) {
+    super(Mode.INLINE, content, fileName);
   }
 
   /**
-   * Creates a new file attachment.
+   * Creates a new inline file.
    *
    * @param file File content.
    * @param fileName Filename.
    * @throws IOException For IO exception while reading file.
    */
-  public AttachedFile(@Nonnull Path file, @Nonnull String fileName) throws IOException {
-    super(Mode.ATTACHMENT, file, fileName);
+  public InlineFile(@Nonnull Path file, @Nonnull String fileName) throws IOException {
+    super(Mode.INLINE, file, fileName);
   }
 
   /**
-   * Creates a new file attachment.
+   * Creates a new inline file.
    *
    * @param file File content.
    * @throws IOException For IO exception while reading file.
    */
-  public AttachedFile(@Nonnull Path file) throws IOException {
-    super(Mode.ATTACHMENT, file);
+  public InlineFile(@Nonnull Path file) throws IOException {
+    super(Mode.INLINE, file);
   }
 }

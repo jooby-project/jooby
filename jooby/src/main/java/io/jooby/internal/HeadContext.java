@@ -5,8 +5,8 @@
  */
 package io.jooby.internal;
 
-import io.jooby.AttachedFile;
 import io.jooby.Context;
+import io.jooby.FileDownload;
 import io.jooby.ForwardingContext;
 import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
@@ -80,7 +80,7 @@ public class HeadContext extends ForwardingContext {
     }
   }
 
-  @Nonnull @Override public Context send(@Nonnull AttachedFile file) {
+  @Nonnull @Override public Context send(@Nonnull FileDownload file) {
     ctx.setResponseLength(file.getFileSize());
     ctx.setResponseType(file.getContentType());
     checkSizeHeaders();

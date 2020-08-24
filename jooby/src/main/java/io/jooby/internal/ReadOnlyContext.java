@@ -5,9 +5,9 @@
  */
 package io.jooby.internal;
 
-import io.jooby.AttachedFile;
 import io.jooby.Context;
 import io.jooby.Cookie;
+import io.jooby.FileDownload;
 import io.jooby.ForwardingContext;
 import io.jooby.MediaType;
 import io.jooby.Sender;
@@ -58,7 +58,7 @@ public class ReadOnlyContext extends ForwardingContext {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull AttachedFile file) {
+  @Nonnull @Override public Context send(@Nonnull FileDownload file) {
     throw new IllegalStateException(MESSAGE);
   }
 

@@ -578,7 +578,7 @@ public class ForwardingContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull AttachedFile file) {
+  @Nonnull @Override public Context send(@Nonnull FileDownload file) {
     ctx.send(file);
     return this;
   }

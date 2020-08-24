@@ -604,7 +604,7 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull AttachedFile file) {
+  @Nonnull @Override public Context send(@Nonnull FileDownload file) {
     responseStarted = true;
     this.response.setResult(file);
     listeners.run(this);
