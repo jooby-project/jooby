@@ -175,6 +175,10 @@ public class AnnotationParser {
       "kotlin.coroutines.Continuation"
   ).stream().collect(Collectors.toSet());
 
+  static final Set<String> IGNORED_ANNOTATIONS = Arrays.asList(
+      ContextParam.class.getName()
+  ).stream().collect(Collectors.toSet());
+
   public static List<OperationExt> parse(ParserContext ctx, String prefix,
       Signature signature, MethodInsnNode node) {
     if (signature.matches(Class.class) ||
@@ -347,6 +351,13 @@ public class AnnotationParser {
         } else {
           annotations = Collections.emptyList();
         }
+
+        if (annotations != null && annotations.stream()
+            .anyMatch(n -> IGNORED_ANNOTATIONS.contains(ASMType.parse(n.desc)))) {
+
+          continue;
+        }
+
         ParamType paramType = ParamType.find(annotations);
 
         /** Required: */
