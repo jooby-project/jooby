@@ -231,7 +231,7 @@ public class Pipeline {
   }
 
   private static Handler kotlinJob(ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(mode, executor, new DetachHandler(new KotlinJobHandler(next.getPipeline())),
+    return next(mode, executor, new DetachHandler(decorate(next, initializer, new KotlinJobHandler(next.getPipeline()))),
         false);
   }
 
