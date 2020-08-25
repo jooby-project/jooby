@@ -857,6 +857,8 @@ public class RouterImpl implements Router {
   private void removePreDispatchInitializer(ContextInitializer initializer) {
     if (this.preDispatchInitializer instanceof ContextInitializerList) {
       ((ContextInitializerList) initializer).remove(initializer);
+    } else if (this.preDispatchInitializer == initializer) {
+      this.preDispatchInitializer = null;
     }
   }
 
@@ -873,6 +875,8 @@ public class RouterImpl implements Router {
   private void removePostDispatchInitializer(ContextInitializer initializer) {
     if (this.postDispatchInitializer instanceof ContextInitializerList) {
       ((ContextInitializerList) postDispatchInitializer).remove(initializer);
+    } else if (this.postDispatchInitializer == initializer) {
+      this.postDispatchInitializer = null;
     }
   }
 
