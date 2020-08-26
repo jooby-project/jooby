@@ -557,8 +557,8 @@ public class JettyContext implements DefaultContext {
   @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {
     if (listeners == null) {
       listeners = new CompletionListeners();
-      listeners.addListener(task);
     }
+    listeners.addListener(task);
     return this;
   }
 

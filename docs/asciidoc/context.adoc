@@ -1,6 +1,46 @@
 == Context
 
-A javadoc:Context[Context] allows you to interact with the HTTP Request and manipulate the HTTP Response
+A javadoc:Context[Context] allows you to interact with the HTTP Request and manipulate the HTTP Response.
+
+In most of the cases you can access the context object as a parameter of your route handler:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  get("/", ctx -> { /* do important stuff with variable 'ctx'. */ });
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  get("/") { /* variable 'it' holds the context now. */ }
+}
+----
+
+If you need to access the context via the service registry or dependency injection, you need to
+explicitly request the registration of it as a service with the following invocation:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  setContextAsService(true);
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  setContextAsService(true)
+}
+----
+
+Important to note that the context is a *request scoped* object, it's only available through the service
+registry while the request it belongs to is being processed.
 
 === Parameters
 
@@ -35,14 +75,14 @@ response.
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/") {
+  get("/") { ctx ->
     val token = ctx.header("token").value() // <1>
 
     val headers = ctx.headers()             // <2>
 
-    val = ctx.headerMap();                  // <3>
+    val headerMap = ctx.headerMap();        // <3>
     ...
-  });
+  }
   
 }
 ----
@@ -74,12 +114,12 @@ Request cookies are send to the server using the `Cookie` header, but we do prov
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/") {
+  get("/") { ctx ->
     val token = ctx.cookie("token").value() // <1>
 
-    val = ctx.cookieMap();                  // <2>
+    val cookieMap = ctx.cookieMap()         // <2>
     ...
-  });
+  }
   
 }
 ----
@@ -111,15 +151,15 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/{id}") { ctx.path("id").value() }                                 // <1>
+  get("/{id}") { ctx -> ctx.path("id").value() }                                 // <1>
   
-  get("/@{id}") { ctx.path("id").value() }                                // <2>
+  get("/@{id}") { ctx -> ctx.path("id").value() }                                // <2>
   
-  get("/file/{name}.{ext}") { cxt.path("name") + "." + ctx.path("ext") }  // <3>
+  get("/file/{name}.{ext}") { ctx -> cxt.path("name") + "." + ctx.path("ext") }  // <3>
   
-  get("/file/*") { ctx.path("*") }                                        // <4>
+  get("/file/*") { ctx -> ctx.path("*") }                                        // <4>
 
-  get("/{id:[0-9]+}") { ctx.path("id) }                                   // <5>
+  get("/{id:[0-9]+}") { ctx -> ctx.path("id) }                                   // <5>
 }
 ----
 
@@ -151,7 +191,7 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/{name}") {
+  get("/{name}") { ctx ->
     val pathString = ctx.getRequestPath()  // <1>
     
     val path = ctx.path()                 // <2>
@@ -161,7 +201,7 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
     val name = ctx.path("name").value()   // <4>
 
     ...    
-  });
+  }
 }
 ----
 
@@ -226,7 +266,7 @@ class SearchQuery {
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/search") {
+  get("/search") { ctx ->
     val queryString = ctx.queryString()         // <1>
 
     val query = ctx.query()                     // <2>
@@ -238,7 +278,7 @@ class SearchQuery {
     val searchQuery = ctx.query<SearchQuery>()  // <5>
 
     ...
-  });
+  }
 }
 
 data class SearchQuery (val q: String)
@@ -316,7 +356,7 @@ class User {
 [source, kotlin, role="secondary"]
 ----
 {
-  post("/user") {
+  post("/user") { ctx ->
     val form = ctx.form()               // <1>
 
     val formMap = ctx.formMultimap()    // <2>
@@ -328,7 +368,7 @@ class User {
     val user = ctx.form<User>()         // <5>
     
     ...
-  });
+  }
 }
 
 data class User (val id: String, val pass: String)
@@ -390,7 +430,7 @@ class User {
 [source, kotlin, role="secondary"]
 ----
 {
-  post("/user") {
+  post("/user") { ctx ->
     val multipart = ctx.multipart()              // <1>
 
     val multipartMap = ctx.multipartMultimap()   // <2>
@@ -404,7 +444,7 @@ class User {
     val user = ctx.multipart<User>()             // <6>
 
     ...
-  });
+  }
 }
 
 data class User (val id: String, val pass: String, val pic: FileUpload)
@@ -499,7 +539,7 @@ a javadoc:Session[] but the lifecycle is shorter: *data is kept for only one req
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-  get("/") {
+  get("/") { ctx ->
     ctx.flash("success").value("Welcome!")         <3>
   }
   
