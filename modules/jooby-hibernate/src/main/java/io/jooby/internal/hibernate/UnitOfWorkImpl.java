@@ -6,7 +6,7 @@
 package io.jooby.internal.hibernate;
 
 import io.jooby.SneakyThrows;
-import io.jooby.hibernate.EntityManagerHandler;
+import io.jooby.hibernate.UnitOfWork;
 import org.hibernate.*;
 import org.hibernate.context.internal.ManagedSessionContext;
 import org.slf4j.Logger;
@@ -16,12 +16,12 @@ import javax.persistence.EntityManager;
 
 import static java.util.Objects.requireNonNull;
 
-public class EntityManagerHandlerImpl implements EntityManagerHandler {
+public class UnitOfWorkImpl implements UnitOfWork {
 
   private final Session session;
-  private final Logger logger = LoggerFactory.getLogger(EntityManagerHandlerImpl.class);
+  private final Logger logger = LoggerFactory.getLogger(UnitOfWorkImpl.class);
 
-  public EntityManagerHandlerImpl(Session session) {
+  public UnitOfWorkImpl(Session session) {
     this.session = requireNonNull(session);
     bind(session);
     session.setHibernateFlushMode(FlushMode.AUTO);
@@ -75,13 +75,13 @@ public class EntityManagerHandlerImpl implements EntityManagerHandler {
 
         @Override
         public void commit() {
-          EntityManagerHandlerImpl.this.commit();
+          UnitOfWorkImpl.this.commit();
           begin();
         }
 
         @Override
         public void rollback() {
-          EntityManagerHandlerImpl.this.rollback();
+          UnitOfWorkImpl.this.rollback();
           begin();
         }
       });

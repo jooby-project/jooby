@@ -188,6 +188,106 @@ Otherwise, you are going to see `LazyInitializationException`.
 There is a javadoc:hibernate.SessionRequest[] decorator that works identically but leaves transaction
 management to you, so no transaction is started/committed or rollback during a HTTP request.
 
+=== UnitOfWork
+
+Another way of managing the lifecycle of an EntityManager and transactions is working with an instance
+of `UnitOfWork`. You may acquire one from the service registry or inject it via DI.
+
+Usage:
+
+.UnitOfWork
+[source, java, role = "primary"]
+----
+{
+  get("/pets", ctx -> require(UnitOfWork.class)
+      .apply(em -> em.createQuery("from Pet", Pet.class).getResultList()));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  get("/pets") {
+    require(UnitOfWork::class.java)
+        .apply { em ->
+          em.createQuery("from Pet", Pet::class.java).resultList
+        }
+  }
+}
+----
+
+`UnitOfWork` automatically begins a transaction. After the code block passed to `apply(...)` or `accept(...)`
+returns the transaction is being committed and the `EntityManager` closed.
+
+If the code block throws an exception, the transaction is rolled back, and the `EntityManager` is released as well.
+You may access a `UnitOfWork.TransactionHandler` instance to be able to work with multiple transactions:
+
+.Multiple transactions
+[source, java, role = "primary"]
+----
+{
+  get("/update", ctx -> require(UnitOfWork.class)
+      .apply((em, txh) -> {
+        em.createQuery("from Pet", Pet.class).getResultList().forEach(pet -> {
+          pet.setName(pet.getName() + " Updated");
+          txh.commit(); // update each entity in a separate transaction
+        });
+        return "ok";
+      }));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  get("/update") {
+    require(UnitOfWork::class.java)
+        .apply { em, txh ->
+          em.createQuery("from Pet", Pet::class.java).resultList.forEach { pet ->
+            pet.name = "${pet.name} Updated"
+            txh.commit() // update each entity in a separate transaction
+          }
+          "ok"
+        }
+  }
+}
+----
+
+A call to `UnitOfWork.TransactionHandler.commit()` commits the current transaction and automatically begins a new one.
+Similarly, you can issue a rollback using `UnitOfWork.TransactionHandler.rollback()` which also begins a new transaction
+after rolling back the current one.
+
+`UnitOfWork` does *not* allow nesting:
+
+[source, java]
+----
+{
+  get("/nope", ctx -> require(UnitOfWork.class)
+      .apply(em -> {
+
+        // will lead to exception
+        require(UnitOfWork.class).accept(...);
+
+        return "ok";
+      }));
+}
+----
+
+Neither can it be used together with `SessionRequest` or `TransactionalRequest`:
+
+[source, java]
+----
+{
+  decorator(new TransactionalRequest());
+
+  // will lead to exception
+  get("/nope", ctx -> require(UnitOfWork.class)
+      .apply(em -> em.createQuery("from Pet", Pet.class).getResultList()));
+}
+----
+
 === Schema Creation
 
 Schema creation is controlled by the `hibernate.hbm2ddl.auto` property. The Hibernate module configure this property using the following rules:

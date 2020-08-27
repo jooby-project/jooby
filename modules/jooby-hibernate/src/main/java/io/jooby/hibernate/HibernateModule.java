@@ -11,7 +11,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
-import io.jooby.internal.hibernate.EntityManagerHandlerProvider;
+import io.jooby.internal.hibernate.UnitOfWorkProvider;
 import io.jooby.internal.hibernate.ScanEnvImpl;
 import io.jooby.internal.hibernate.SessionServiceProvider;
 import org.hibernate.Session;
@@ -292,10 +292,10 @@ public class HibernateModule implements Extension {
     registry.putIfAbsent(SessionProvider.class, sessionBuilder);
     registry.put(ServiceKey.key(SessionProvider.class, name), sessionBuilder);
 
-    /** EntityManagerHandler Provider: */
-    EntityManagerHandlerProvider entityManagerHandlerProvider = new EntityManagerHandlerProvider(sf, sessionBuilder);
-    registry.putIfAbsent(EntityManagerHandler.class, entityManagerHandlerProvider);
-    registry.put(ServiceKey.key(EntityManagerHandler.class, name), entityManagerHandlerProvider);
+    /** UnitOfWork Provider: */
+    UnitOfWorkProvider unitOfWorkProvider = new UnitOfWorkProvider(sf, sessionBuilder);
+    registry.putIfAbsent(UnitOfWork.class, unitOfWorkProvider);
+    registry.put(ServiceKey.key(UnitOfWork.class, name), unitOfWorkProvider);
 
     application.onStop(sf::close);
   }

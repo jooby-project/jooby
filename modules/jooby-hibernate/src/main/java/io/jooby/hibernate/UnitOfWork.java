@@ -17,7 +17,7 @@ import javax.persistence.EntityManager;
  *
  * <pre>{@code
  * {
- *   get("/pets", ctx -> require(EntityManagerHandler.class)
+ *   get("/pets", ctx -> require(UnitOfWork.class)
  *       .apply(em -> em.createQuery("from Pet", Pet.class).getResultList()));
  * }
  * }</pre>
@@ -26,7 +26,7 @@ import javax.persistence.EntityManager;
  * and transactions. After the code block passed to {@code apply} or {@code accept}
  * returns the transaction is being committed and the {@link EntityManager} closed.
  * <p>
- * If the code block throws an exception, the transaction is rolled back and the
+ * If the code block throws an exception, the transaction is rolled back, and the
  * {@link EntityManager} is released as well.
  * <p>
  * You may access a {@link TransactionHandler} instance to be able to work with
@@ -34,7 +34,7 @@ import javax.persistence.EntityManager;
  *
  * <pre>{@code
  * {
- *   get("/update", ctx -> require(EntityManagerHandler.class)
+ *   get("/update", ctx -> require(UnitOfWork.class)
  *       .apply((em, txh) -> {
  *         em.createQuery("from Pet", Pet.class).getResultList().forEach(pet -> {
  *           pet.setName(pet.getName() + " Updated");
@@ -46,37 +46,38 @@ import javax.persistence.EntityManager;
  * }</pre>
  *
  * A call to {@link TransactionHandler#commit()} commits the current transaction
- * and automatically begins a new one. Similarly you can issue a rollback using
- * {@link TransactionHandler#rollback()}.
+ * and automatically begins a new one. Similarly, you can issue a rollback using
+ * {@link TransactionHandler#rollback()} which also begins a new transaction
+ * after rolling back the current one.
  * <p>
- * {@link EntityManagerHandler} does NOT allow nesting:
+ * {@link UnitOfWork} does NOT allow nesting:
  *
  * <pre>{@code
  * {
- *   get("/nope", ctx -> require(EntityManagerHandler.class)
+ *   get("/nope", ctx -> require(UnitOfWork.class)
  *       .apply(em -> {
  *
  *         // will lead to exception
- *         require(EntityManagerHandler.class).accept(...);
+ *         require(UnitOfWork.class).accept(...);
  *
  *         return "ok";
  *       }));
  * }
  * }</pre>
  *
- * Also don't use it together with {@link SessionRequest} or {@link TransactionalRequest}:
+ * Neither can it be used together with {@link SessionRequest} or {@link TransactionalRequest}:
  *
  * <pre>{@code
  * {
  *   decorator(new TransactionalRequest());
  *
  *   // will lead to exception
- *   get("/nope", ctx -> require(EntityManagerHandler.class)
+ *   get("/nope", ctx -> require(UnitOfWork.class)
  *       .apply(em -> em.createQuery("from Pet", Pet.class).getResultList()));
  * }
  * }</pre>
  */
-public interface EntityManagerHandler {
+public interface UnitOfWork {
 
   /**
    * Allows committing or rolling back the current transaction, immediately
