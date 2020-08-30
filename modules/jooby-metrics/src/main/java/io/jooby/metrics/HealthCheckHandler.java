@@ -10,7 +10,6 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.StatusCode;
-import io.jooby.internal.metrics.NoCacheHeader;
 
 import javax.annotation.Nonnull;
 import java.util.SortedMap;
@@ -37,7 +36,7 @@ public class HealthCheckHandler implements Route.Handler {
             .map(it -> StatusCode.SERVER_ERROR)
             .orElse(StatusCode.OK));
 
-    NoCacheHeader.add(ctx);
+    ctx.setResponseHeader(MetricsModule.CACHE_HEADER_NAME, MetricsModule.CACHE_HEADER_VALUE);
 
     return checks;
   }

@@ -10,7 +10,6 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.StatusCode;
-import io.jooby.internal.metrics.NoCacheHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,20 +36,18 @@ public class ThreadDumpHandler implements Route.Handler {
   @Override
   public Object apply(@Nonnull Context ctx) {
     Object data;
-    StatusCode status;
     if (threadDump == null) {
       data = "Sorry your runtime environment does not allow to dump threads.";
-      status = StatusCode.NOT_IMPLEMENTED;
+      ctx.setResponseCode(StatusCode.NOT_IMPLEMENTED);
     } else {
       final ByteArrayOutputStream output = new ByteArrayOutputStream();
       threadDump.dump(output);
       data = output.toByteArray();
-      status = StatusCode.OK;
     }
 
-    ctx.setResponseCode(status);
     ctx.setResponseType(MediaType.text);
-    NoCacheHeader.add(ctx);
+    ctx.setResponseHeader(MetricsModule.CACHE_HEADER_NAME, MetricsModule.CACHE_HEADER_VALUE);
+
     return data;
   }
 }

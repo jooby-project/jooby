@@ -19,7 +19,6 @@ import com.codahale.metrics.Timer;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.StatusCode;
-import io.jooby.internal.metrics.NoCacheHeader;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class MetricHandler implements Route.Handler {
 
     if (allMetrics.isEmpty()) {
       ctx.setResponseCode(StatusCode.NOT_IMPLEMENTED);
-      NoCacheHeader.add(ctx);
+      ctx.setResponseHeader(MetricsModule.CACHE_HEADER_NAME, MetricsModule.CACHE_HEADER_VALUE);
       return allMetrics;
     } else {
       // params & filters
@@ -73,7 +72,7 @@ public class MetricHandler implements Route.Handler {
         metrics.put("histograms", histograms);
       }
       Map<String, Object> meters = meters(registry.getMeters(filter), rateUnitLabel, rateFactor,
-          durationUnitLabel, durationFactor);
+          durationUnitLabel);
       if (meters.size() > 0) {
         metrics.put("meters", meters);
       }
@@ -84,8 +83,7 @@ public class MetricHandler implements Route.Handler {
       }
 
       // send
-      ctx.setResponseCode(StatusCode.OK);
-      NoCacheHeader.add(ctx);
+      ctx.setResponseHeader(MetricsModule.CACHE_HEADER_NAME, MetricsModule.CACHE_HEADER_VALUE);
 
       //noinspection CollectionAddedToSelf
       return metrics.getOrDefault(type, metrics);
@@ -104,7 +102,7 @@ public class MetricHandler implements Route.Handler {
   private static Map<String, Object> timer(final Timer timer, final String rateUnit,
      final double rateFactor, final String durationUnit, final double durationFactor,
      final boolean showSamples) {
-    Map<String, Object> result = meter(timer, rateUnit, rateFactor, durationUnit, durationFactor);
+    Map<String, Object> result = meter(timer, rateUnit, rateFactor, durationUnit);
 
     result.putAll(snapshot(timer, durationFactor, showSamples));
 
@@ -164,16 +162,15 @@ public class MetricHandler implements Route.Handler {
   }
 
   private static Map<String, Object> meters(final SortedMap<String, Meter> timers,
-      final String rateUnit, final double rateFactor, final String durationUnit,
-      final double durationFactor) {
+      final String rateUnit, final double rateFactor, final String durationUnit) {
     Map<String, Object> result = new TreeMap<>();
     timers.forEach((name, timer) -> result.put(name,
-        meter(timer, rateUnit, rateFactor, durationUnit, durationFactor)));
+        meter(timer, rateUnit, rateFactor, durationUnit)));
     return result;
   }
 
   private static Map<String, Object> meter(final Metered meter, final String rateUnit,
-      final double rateFactor, final String durationUnit, final double durationFactor) {
+      final double rateFactor, final String durationUnit) {
     Map<String, Object> result = new TreeMap<>();
     result.put("count", meter.getCount());
     result.put("m15_rate", meter.getFifteenMinuteRate() * rateFactor);

@@ -8,8 +8,6 @@ package io.jooby.metrics;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
-import io.jooby.StatusCode;
-import io.jooby.internal.metrics.NoCacheHeader;
 
 import javax.annotation.Nonnull;
 
@@ -18,9 +16,8 @@ public class PingHandler implements Route.Handler {
   @Nonnull
   @Override
   public Object apply(@Nonnull Context ctx) {
-    ctx.setResponseCode(StatusCode.OK);
     ctx.setResponseType(MediaType.text);
-    NoCacheHeader.add(ctx);
+    ctx.setResponseHeader(MetricsModule.CACHE_HEADER_NAME, MetricsModule.CACHE_HEADER_VALUE);
     return "pong";
   }
 }

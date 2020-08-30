@@ -31,10 +31,12 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static io.jooby.SneakyThrows.throwingConsumer;
 import static java.util.Objects.requireNonNull;
 
 public class MetricsModule implements Extension {
+
+  static final String CACHE_HEADER_NAME = "Cache-Control";
+  static final String CACHE_HEADER_VALUE = "must-revalidate,no-cache,no-store";
 
   private final String pattern;
 
@@ -127,7 +129,7 @@ public class MetricsModule implements Extension {
    */
   public MetricsModule ping() {
     routes.add(router -> router
-        .route("GET", this.pattern + "/ping", new PingHandler()));
+        .get(this.pattern + "/ping", new PingHandler()));
 
     return this;
   }
@@ -139,7 +141,7 @@ public class MetricsModule implements Extension {
    */
   public MetricsModule threadDump() {
     routes.add(router -> router
-        .route("GET", this.pattern + "/thread-dump", new ThreadDumpHandler()));
+        .get(this.pattern + "/thread-dump", new ThreadDumpHandler()));
 
     return this;
   }
@@ -222,9 +224,9 @@ public class MetricsModule implements Extension {
   @Override
   public void install(@Nonnull Jooby application) {
     MetricHandler metricHandler = new MetricHandler();
-    application.route("GET", this.pattern + "/metrics", metricHandler);
-    application.route("GET", this.pattern + "/metrics/:type", metricHandler);
-    application.route("GET", this.pattern + "/healthcheck", new HealthCheckHandler());
+    application.get(this.pattern + "/metrics", metricHandler);
+    application.get(this.pattern + "/metrics/:type", metricHandler);
+    application.get(this.pattern + "/healthcheck", new HealthCheckHandler());
 
     routes.forEach(r -> r.accept(application));
 
@@ -233,30 +235,14 @@ public class MetricsModule implements Extension {
     registry.putIfAbsent(MetricRegistry.class, metricRegistry);
     registry.putIfAbsent(HealthCheckRegistry.class, healthCheckRegistry);
 
+    metrics.forEach(metricRegistry::register);
+    healthChecks.forEach(healthCheckRegistry::register);
+
     final Set<Reporter> reporters = new HashSet<>();
 
     application.onStarted(() -> {
-      metrics.forEach((name, instance) -> {
-        registry.putIfAbsent(ServiceKey.key(Metric.class, name), instance);
-        metricRegistry.register(name, instance);
-      });
-
-      metricClasses.forEach((name, clazz) -> {
-        Metric instance = application.require(clazz);
-        registry.putIfAbsent(ServiceKey.key(Metric.class, name), instance);
-        metricRegistry.register(name, instance);
-      });
-
-      healthChecks.forEach((name, instance) -> {
-        registry.putIfAbsent(ServiceKey.key(HealthCheck.class, name), instance);
-        healthCheckRegistry.register(name, instance);
-      });
-
-      healthCheckClasses.forEach((name, clazz) -> {
-        HealthCheck instance = application.require(clazz);
-        registry.putIfAbsent(ServiceKey.key(HealthCheck.class, name), instance);
-        healthCheckRegistry.register(name, instance);
-      });
+      metricClasses.forEach((name, clazz) -> metricRegistry.register(name, application.require(clazz)));
+      healthCheckClasses.forEach((name, clazz) -> healthCheckRegistry.register(name, application.require(clazz)));
 
       Config config = application.getConfig();
 
