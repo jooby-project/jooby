@@ -57,6 +57,7 @@
 
     <!-- util -->
     <jfiglet.version>0.0.8</jfiglet.version>
+    <metrics.version>4.1.12.1</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>1.10.2.Final</jboss-modules.version>
@@ -425,6 +426,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-whoops</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-metrics</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -951,6 +958,25 @@
         <groupId>com.github.lalyos</groupId>
         <artifactId>jfiglet</artifactId>
         <version>${jfiglet.version}</version>
+      </dependency>
+
+      <!-- metrics -->
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-healthchecks</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-jvm</artifactId>
+        <version>${metrics.version}</version>
       </dependency>
 
       <!-- commons email -->
