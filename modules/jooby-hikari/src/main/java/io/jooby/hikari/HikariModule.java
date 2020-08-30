@@ -128,6 +128,9 @@ public class HikariModule implements Extension {
 
   private String database;
 
+  private Object metricRegistry;
+  private Object healthCheckRegistry;
+
   /**
    * Creates a new Hikari module. The database parameter can be one of:
    *
@@ -165,10 +168,40 @@ public class HikariModule implements Extension {
     this.hikari = hikari;
   }
 
+  /**
+   * Sets a {@code MetricRegistry} to pass it forward to
+   * {@link HikariConfig} for instrumentation.
+   *
+   * @param metricRegistry an instance compatible with {@link HikariConfig#setMetricRegistry(Object)}
+   * @return this instance
+   * @see HikariConfig#setMetricRegistry(Object) 
+   */
+  public HikariModule metricRegistry(Object metricRegistry) {
+    this.metricRegistry = metricRegistry;
+    return this;
+  }
+
+  /**
+   * Sets a {@code HealthCheckRegistry} to pass it forward to
+   * {@link HikariConfig} for instrumentation.
+   *
+   * @param healthCheckRegistry an instance compatible with {@link HikariConfig#setHealthCheckRegistry(Object)}
+   * @return this instance
+   * @see HikariConfig#setHealthCheckRegistry(Object) 
+   */
+  public HikariModule healthCheckRegistry(Object healthCheckRegistry) {
+    this.healthCheckRegistry = healthCheckRegistry;
+    return this;
+  }
+
   @Override public void install(@Nonnull Jooby application) {
     if (hikari == null) {
       hikari = build(application.getEnvironment(), database);
     }
+
+    if (metricRegistry != null) hikari.setMetricRegistry(metricRegistry);
+    if (healthCheckRegistry != null) hikari.setHealthCheckRegistry(healthCheckRegistry);
+
     HikariDataSource dataSource = new HikariDataSource(hikari);
 
     ServiceRegistry registry = application.getServices();
