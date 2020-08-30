@@ -5,6 +5,7 @@
  */
 package io.jooby.hibernate;
 
+import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.ServiceKey;
 import io.jooby.SneakyThrows;
@@ -51,6 +52,8 @@ public class TransactionalRequest implements Route.Decorator {
 
   private ServiceKey<SessionFactory> key;
 
+  private boolean enabledByDefault = true;
+
   /**
    * Creates a new transactional request and attach the to a named session factory.
    *
@@ -76,28 +79,63 @@ public class TransactionalRequest implements Route.Decorator {
     this.sessionRequest = sessionRequest;
   }
 
+  /**
+   * Sets whether all routes in the scope of this decorator instance
+   * should be transactional or not ({@code true} by default).
+   * <p>
+   * You can use the {@link Transactional} annotation to override this
+   * option on a single route.
+   *
+   * @param enabledByDefault whether routes should be transactional by default
+   * @return this instance
+   * @see Transactional
+   */
+  public TransactionalRequest enabledByDefault(boolean enabledByDefault) {
+    this.enabledByDefault = enabledByDefault;
+    return this;
+  }
+
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return sessionRequest.apply(ctx -> {
-      SessionFactory sessionFactory = ctx.require(sessionRequest.getSessionFactoryKey());
-      Transaction trx = null;
-      try {
-        Session session = sessionFactory.getCurrentSession();
-        trx = session.getTransaction();
-        trx.begin();
+      if (isTransactional(ctx)) {
+        SessionFactory sessionFactory = ctx.require(sessionRequest.getSessionFactoryKey());
+        Transaction trx = null;
+        try {
+          Session session = sessionFactory.getCurrentSession();
+          trx = session.getTransaction();
+          trx.begin();
 
-        Object result = next.apply(ctx);
+          Object result = next.apply(ctx);
 
-        if (trx.isActive()) {
-          trx.commit();
+          if (trx.isActive()) {
+            trx.commit();
+          }
+
+          return result;
+        } catch (Throwable ex) {
+          if (trx != null && trx.isActive()) {
+            trx.rollback();
+          }
+          throw SneakyThrows.propagate(ex);
         }
-
-        return result;
-      } catch (Throwable ex) {
-        if (trx != null && trx.isActive()) {
-          trx.rollback();
-        }
-        throw SneakyThrows.propagate(ex);
+      } else {
+        return next.apply(ctx);
       }
     });
+  }
+
+  private boolean isTransactional(Context context) {
+    Object attribute = context.getRoute().attribute(Transactional.ATTRIBUTE);
+
+    if (attribute == null) {
+      return enabledByDefault;
+    }
+
+    if (!(attribute instanceof Boolean)) {
+      throw new RuntimeException("Invalid value for route attribute "
+          + Transactional.ATTRIBUTE + ": " + attribute);
+    }
+
+    return (Boolean) attribute;
   }
 }
