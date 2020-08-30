@@ -107,7 +107,7 @@ The next example shows all the available options with their default values:
     <configuration>
       <mainClass>${application.class}</mainClass>                  <1>
       <restartExtensions>conf,properties,class</restartExtensions> <2>
-      <compileExtensions>java,kt</compileExtensions>                  <3>
+      <compileExtensions>java,kt</compileExtensions>               <3>
       <port>8080</port>                                            <4>
     </configuration>
   </plugin>
@@ -133,9 +133,9 @@ apply plugin: "application"
 apply plugin: "jooby"
 
 joobyRun {
-  mainClass = "${mainClassName}"                                   <1>
+  mainClassName = "${mainClassName}"                               <1>
   restartExtensions = ["conf", "properties", "class"]              <2>
-  compileExtensions =  ["java", "kt"]                               <3>
+  compileExtensions = ["java", "kt"]                               <3>
   port = 8080                                                      <4>
 }
 ----
