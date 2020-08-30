@@ -18,6 +18,7 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -235,8 +236,6 @@ public class MetricsModule implements Extension {
     final Set<Reporter> reporters = new HashSet<>();
 
     application.onStarted(() -> {
-      Config config = application.getConfig();
-
       metrics.forEach((name, instance) -> {
         registry.putIfAbsent(ServiceKey.key(Metric.class, name), instance);
         metricRegistry.register(name, instance);
@@ -259,12 +258,20 @@ public class MetricsModule implements Extension {
         healthCheckRegistry.register(name, instance);
       });
 
+      Config config = application.getConfig();
+
       this.reporters.stream()
           .map(r -> r.apply(metricRegistry, config))
           .filter(Objects::nonNull)
           .forEachOrdered(reporters::add);
     });
 
-    application.onStop(() -> reporters.forEach(throwingConsumer(Reporter::close)));
+    application.onStop(() -> reporters.forEach(r -> {
+      try {
+        r.close();
+      } catch (IOException e) {
+        application.getLog().error("close of {} resulted in error", r, e);
+      }
+    }));
   }
 }
