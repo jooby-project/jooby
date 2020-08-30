@@ -174,7 +174,7 @@ public class HikariModule implements Extension {
    *
    * @param metricRegistry an instance compatible with {@link HikariConfig#setMetricRegistry(Object)}
    * @return this instance
-   * @see HikariConfig#setMetricRegistry(Object) 
+   * @see HikariConfig#setMetricRegistry(Object)
    */
   public HikariModule metricRegistry(Object metricRegistry) {
     this.metricRegistry = metricRegistry;
@@ -187,7 +187,7 @@ public class HikariModule implements Extension {
    *
    * @param healthCheckRegistry an instance compatible with {@link HikariConfig#setHealthCheckRegistry(Object)}
    * @return this instance
-   * @see HikariConfig#setHealthCheckRegistry(Object) 
+   * @see HikariConfig#setHealthCheckRegistry(Object)
    */
   public HikariModule healthCheckRegistry(Object healthCheckRegistry) {
     this.healthCheckRegistry = healthCheckRegistry;
@@ -199,8 +199,12 @@ public class HikariModule implements Extension {
       hikari = build(application.getEnvironment(), database);
     }
 
-    if (metricRegistry != null) hikari.setMetricRegistry(metricRegistry);
-    if (healthCheckRegistry != null) hikari.setHealthCheckRegistry(healthCheckRegistry);
+    if (metricRegistry != null) {
+      hikari.setMetricRegistry(metricRegistry);
+    }
+    if (healthCheckRegistry != null) {
+      hikari.setHealthCheckRegistry(healthCheckRegistry);
+    }
 
     HikariDataSource dataSource = new HikariDataSource(hikari);
 
