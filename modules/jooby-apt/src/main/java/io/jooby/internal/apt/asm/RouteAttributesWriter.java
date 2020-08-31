@@ -7,6 +7,7 @@ package io.jooby.internal.apt.asm;
 
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
+import io.jooby.internal.annotations.RouteAttribute;
 import io.jooby.internal.apt.Primitives;
 import io.jooby.internal.apt.TypeDefinition;
 import org.objectweb.asm.ClassWriter;
@@ -147,14 +148,16 @@ public class RouteAttributesWriter {
       String root) {
     Map<String, Object> result = new HashMap<>();
     for (AnnotationMirror annotation : annotations) {
-      Retention retention = annotation.getAnnotationType().asElement().getAnnotation(Retention.class);
+      Element elem = annotation.getAnnotationType().asElement();
+      Retention retention = elem.getAnnotation(Retention.class);
+      RouteAttribute routeAttribute = elem.getAnnotation(RouteAttribute.class);
       RetentionPolicy retentionPolicy = retention == null ? RetentionPolicy.CLASS : retention.value();
       String type = annotation.getAnnotationType().toString();
       if (
           // ignore annotations not available at runtime
           retentionPolicy != RetentionPolicy.RUNTIME
               // ignore core, jars annotations
-              || ATTR_FILTER.test(type)
+              || (ATTR_FILTER.test(type) && routeAttribute == null)
               // ignore user specified annotations
               || Arrays.stream(userAttrFilter).anyMatch(type::startsWith)) {
 

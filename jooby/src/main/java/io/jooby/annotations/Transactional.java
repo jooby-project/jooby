@@ -5,6 +5,8 @@
  */
 package io.jooby.annotations;
 
+import io.jooby.internal.annotations.RouteAttribute;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,6 +32,7 @@ import java.lang.annotation.Target;
  * <p>
  * This annotation has no effect on the behavior of {@code SessionRequest} decorator(s).
  */
+@RouteAttribute
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
