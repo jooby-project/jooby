@@ -1,0 +1,245 @@
+== Metrics
+
+https://github.com/dropwizard/metrics[Metrics] provides a powerful toolkit of ways to measure the behavior of critical
+components in your production environment.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-metrics:Metrics Module"]
+.
+
+2) Install and configure the module
+
+.Java
+[source, java, role="primary"]
+----
+{
+  install(new MetricsModule()
+      .threadDump()
+      .ping()
+      .healthCheck("deadlock", new ThreadDeadlockHealthCheck())
+      .metric("memory", new MemoryUsageGaugeSet())
+      .metric("threads", new ThreadStatesGaugeSet())
+      .metric("gc", new GarbageCollectorMetricSet())
+      .metric("fs", new FileDescriptorRatioGauge()));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  install(MetricsModule()
+      .threadDump()
+      .ping()
+      .healthCheck("deadlock", ThreadDeadlockHealthCheck())
+      .metric("memory", MemoryUsageGaugeSet())
+      .metric("threads", ThreadStatesGaugeSet())
+      .metric("gc", GarbageCollectorMetricSet())
+      .metric("fs", FileDescriptorRatioGauge()))
+}
+----
+
+Let's see what all these means.
+
+=== Metrics
+
+Metrics are available at `/sys/metrics` or `/sys/metrics/:type` via:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  install(new MetricsModule()
+      .metric("memory", new MemoryUsageGaugeSet())
+      .metric("threads", new ThreadStatesGaugeSet())
+      .metric("gc", new GarbageCollectorMetricSet())
+      .metric("fs", new FileDescriptorRatioGauge()));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  install(MetricsModule()
+      .metric("memory", MemoryUsageGaugeSet())
+      .metric("threads", ThreadStatesGaugeSet())
+      .metric("gc", GarbageCollectorMetricSet())
+      .metric("fs", FileDescriptorRatioGauge()))
+}
+----
+
+The `/:type` parameter is optional and let you filter metrics by type `counters`, `gauges`, etc.
+
+There is a `name` filter too: `/sys/metrics?name=memory` or `/sys/metrics/guages?name=memory`. The `name` parameter
+filter all the metrics where the name starts with the given `name`.
+
+=== Health Checks
+
+Health checks are available at `/sys/healthCheck` via:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  install(new MetricsModule()
+      .healthCheck("deadlock", new ThreadDeadlockHealthCheck());
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  install(MetricsModule()
+      .healthCheck("deadlock", ThreadDeadlockHealthCheck())
+}
+----
+
+=== Instrumented Requests
+
+Use the javadoc:io.jooby.metrics.MetricsDecorator[] decorator to capture request information (like active requests
+or min/mean/max execution time) and a breakdown of the response codes being returned for a selection of routes:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  decorator(new MetricsDecorator());
+
+  // inspected route
+  get("/", context -> "Hello metrics!");
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  decorator(MetricsDecorator())
+
+  // inspected route
+  get("/") { context: Context? -> "Hello metrics!" }
+}
+----
+
+=== Thread Dump
+
+A thread dump is available at `/sys/threadDump` via:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  install(new MetricsModule()
+      .threadDump();
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  install(MetricsModule()
+      .threadDump()
+}
+----
+
+=== Reporting
+
+Reporters are appended via a callback API:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  install(new MetricsModule()
+      .reporter(registry -> {
+        ConsoleReporter reporter = ConsoleReporter.forRegistry(registry)
+            .convertDurationsTo(TimeUnit.SECONDS)
+            .convertRatesTo(TimeUnit.SECONDS)
+            .build();
+        reporter.start(1, TimeUnit.HOURS);
+        return reporter;
+      });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  install(MetricsModule()
+      .reporter { registry: MetricRegistry ->
+        ConsoleReporter.forRegistry(registry)
+            .convertDurationsTo(TimeUnit.SECONDS)
+            .convertRatesTo(TimeUnit.SECONDS)
+            .build()
+            .also { it.start(1, TimeUnit.HOURS) }
+      }
+}
+----
+
+You can add all the reporters you want. Keep in mind you have to start them (if need it), but you don't have to stop
+them as long they implement the `java.io.Closeable` interface.
+
+=== Using with jooby-hikari
+
+You can instrument the database pool by passing `MetricRegistry` and `HealthCheckRegistry` instances to the configuration
+methods of `HikariModule`, but you must use the same instances with `MetricsModule`:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  MetricRegistry metricRegistry = new MetricRegistry();
+  HealthCheckRegistry healthCheckRegistry = new HealthCheckRegistry();
+
+  install(new HikariModule()
+      .metricRegistry(metricRegistry)
+      .healthCheckRegistry(healthCheckRegistry));
+
+  install(new MetricsModule(metricRegistry, healthCheckRegistry));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  val metricRegistry = MetricRegistry()
+  val healthCheckRegistry = HealthCheckRegistry()
+
+  install(HikariModule()
+      .metricRegistry(metricRegistry)
+      .healthCheckRegistry(healthCheckRegistry))
+
+  install(MetricsModule(metricRegistry, healthCheckRegistry)
+}
+----
+
+=== Alternate Routes
+
+Use constructor overloads of `MetricsModule` to change the default `/sys` prefix of the routes registered
+by the module:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  install(new MetricsModule("/diag")
+      .threadDump();
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  install(MetricsModule("/diag")
+      .threadDump()
+}
+----

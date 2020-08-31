@@ -70,6 +70,7 @@
     <!-- util -->
     <module>jooby-banner</module>
     <module>jooby-whoops</module>
+    <module>jooby-metrics</module>
 
     <!-- distribution -->
     <module>jooby-distribution</module>
