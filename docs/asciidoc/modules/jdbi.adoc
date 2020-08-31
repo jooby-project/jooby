@@ -136,7 +136,121 @@ import io.jooby.jdbi.TransactionalRequest
 The `Handle` is tied to the current HTTP request. Multiple `require`/`injection` calls produce
 the same `Handle`. It is a simple way of managed simple read/write operations.
 
-The decorator takes care of closing the `Handle` and releasing the JDBC connection. 
+The decorator takes care of closing the `Handle` and releasing the JDBC connection.
+
+==== @Transactional
+
+If you simply install the decorator it becomes enabled by default, this means that each route in its
+scope become transactional. You can exclude an MVC route by annotating it with the
+javadoc:annotations.Transactional[] annotation:
+
+.@Transactional
+[source, java, role = "primary"]
+----
+import io.jooby.annotations.Transactional;
+
+@Transactional(false)
+@GET("/")
+public void get(Context ctx) {
+  // no automatic transaction management here
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotations.Transactional
+
+@Transactional(false)
+@GET("/")
+fun get(ctx: Context) {
+  // no automatic transaction management here
+}
+----
+
+You also have the option to invert this logic by disabling the decorator by default:
+
+.TransactionalRequest disabled by default
+[source, java, role = "primary"]
+----
+import io.jooby.ebean.TransactionalRequest;
+
+{
+  ...
+  decorator(new TransactionalRequest().enabledByDefault(false));
+  ...
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.ebean.TransactionalRequest
+
+{
+  ...
+  decorator(TransactionalRequest().enabledByDefault(false))
+  ...
+}
+----
+
+Then you can enable it for the selected routes using `@Transactional(true)`:
+
+.@Transactional
+[source, java, role = "primary"]
+----
+import io.jooby.annotations.Transactional;
+
+@Inject
+private Handle handle;
+
+@Transactional(true)
+@GET("/")
+public void get(Context ctx) {
+  // work with Handle
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotations.Transactional
+
+@Inject
+private lateinit var handle: Handle
+
+@Transactional(true)
+@GET("/")
+fun get(ctx: Context) {
+  // work with Handle
+}
+----
+
+This feature is not limited to MVC routes. For script routes use the constant `Transactional.ATTRIBUTE`:
+
+.Transactional for script routes
+[source, java, role = "primary"]
+----
+import io.jooby.annotations.Transactional;
+
+{
+  get("/", ctx -> {
+    ...
+  }).attribute(Transactional.ATTRIBUTE, false);
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotations.Transactional
+
+{
+  get("/") {
+    ...
+  }).attribute(Transactional.ATTRIBUTE, false);
+}
+----
 
 === SQL Objects
 
