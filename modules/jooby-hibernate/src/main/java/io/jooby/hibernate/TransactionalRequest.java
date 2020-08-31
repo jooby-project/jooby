@@ -97,7 +97,7 @@ public class TransactionalRequest implements Route.Decorator {
 
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return sessionRequest.apply(ctx -> {
-      if (ctx.isTransactional(enabledByDefault)) {
+      if (ctx.getRoute().isTransactional(enabledByDefault)) {
         SessionFactory sessionFactory = ctx.require(sessionRequest.getSessionFactoryKey());
         Transaction trx = null;
         try {

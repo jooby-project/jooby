@@ -109,7 +109,7 @@ public class TransactionalRequest implements Decorator {
 
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return ctx -> {
-      if (ctx.isTransactional(enabledByDefault)) {
+      if (ctx.getRoute().isTransactional(enabledByDefault)) {
         Jdbi jdbi = ctx.require(key);
         try (Handle handle = jdbi.open()) {
           RequestScope.bind(jdbi, handle);

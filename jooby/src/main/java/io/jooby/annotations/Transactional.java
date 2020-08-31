@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
 
 /**
  * Useful together with the various route decorators like {@code TransactionalRequest}
- * provided by extensions {@code jooby-hibernate} or {@code jooby-jdbi} to toggle it's
- * effect for a single route.
+ * provided by extensions {@code jooby-hibernate}, {@code jooby-jdbi} or {@code jooby-ebean}
+ * to toggle it's effect for a single route.
  * <p>
  * Although {@code TransactionalRequest} is configured to be enabled by default,
  * for a route method annotated with {@code @Transactional(false)} it won't take effect.
