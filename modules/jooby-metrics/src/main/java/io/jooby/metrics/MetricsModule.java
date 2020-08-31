@@ -14,7 +14,6 @@ import com.typesafe.config.Config;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.Router;
-import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
