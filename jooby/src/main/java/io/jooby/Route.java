@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import io.jooby.annotations.Transactional;
 import io.jooby.exception.MethodNotAllowedException;
 import io.jooby.exception.NotAcceptableException;
 import io.jooby.exception.NotFoundException;
@@ -969,6 +970,28 @@ public class Route {
    */
   public @Nonnull Route description(@Nullable String description) {
     return setDescription(description);
+  }
+
+  /**
+   * Returns whether this route is marked as transactional, or returns
+   * {@code defaultValue} if this route has not been marked explicitly.
+   *
+   * @param defaultValue the value to return if this route was not explicitly marked
+   * @return whether this route should be considered as transactional
+   */
+  public boolean isTransactional(boolean defaultValue) {
+    Object attribute = attribute(Transactional.ATTRIBUTE);
+
+    if (attribute == null) {
+      return defaultValue;
+    }
+
+    if (attribute instanceof Boolean) {
+      return (Boolean) attribute;
+    }
+
+    throw new RuntimeException("Invalid value for route attribute "
+        + Transactional.ATTRIBUTE + ": " + attribute);
   }
 
   @Override public String toString() {

@@ -188,6 +188,122 @@ Otherwise, you are going to see `LazyInitializationException`.
 There is a javadoc:hibernate.SessionRequest[] decorator that works identically but leaves transaction
 management to you, so no transaction is started/committed or rollback during a HTTP request.
 
+==== @Transactional
+
+If you simply install the decorator it becomes enabled by default, this means that each route in its
+scope become transactional. You can exclude an MVC route by annotating it with the
+javadoc:annotations.Transactional[] annotation:
+
+.@Transactional
+[source, java, role = "primary"]
+----
+import io.jooby.annotations.Transactional;
+
+@Transactional(false)
+@GET("/")
+public void get(Context ctx) {
+  // no automatic transaction management here
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotations.Transactional
+
+@Transactional(false)
+@GET("/")
+fun get(ctx: Context) {
+  // no automatic transaction management here
+}
+----
+
+You also have the option to invert this logic by disabling the decorator by default:
+
+.TransactionalRequest disabled by default
+[source, java, role = "primary"]
+----
+import io.jooby.ebean.TransactionalRequest;
+
+{
+  ...
+  decorator(new TransactionalRequest().enabledByDefault(false));
+  ...
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.ebean.TransactionalRequest
+
+{
+  ...
+  decorator(TransactionalRequest().enabledByDefault(false))
+  ...
+}
+----
+
+Then you can enable it for the selected routes using `@Transactional(true)`:
+
+.@Transactional
+[source, java, role = "primary"]
+----
+import io.jooby.annotations.Transactional;
+
+@Inject
+private EntityManager entityManager;
+
+@Transactional(true)
+@GET("/")
+public void get(Context ctx) {
+  // work with EntityManager
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotations.Transactional
+
+@Inject
+private lateinit var entityManager: EntityManager
+
+@Transactional(true)
+@GET("/")
+fun get(ctx: Context) {
+  // work with EntityManager
+}
+----
+
+This feature is not limited to MVC routes. For script routes use the constant `Transactional.ATTRIBUTE`:
+
+.Transactional for script routes
+[source, java, role = "primary"]
+----
+import io.jooby.annotations.Transactional;
+
+{
+  get("/", ctx -> {
+    ...
+  }).attribute(Transactional.ATTRIBUTE, false);
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotations.Transactional
+
+{
+  get("/") {
+    ...
+  }).attribute(Transactional.ATTRIBUTE, false);
+}
+----
+
+The behavior of the `SessionRequest` decorator is not affected by `@Transactional`.
+
 === UnitOfWork
 
 Another way of managing the lifecycle of an EntityManager and transactions is working with an instance
