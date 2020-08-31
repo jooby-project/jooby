@@ -42,7 +42,8 @@ public @interface Transactional {
   boolean value() default true;
 
   /**
-   * Constant to use as attribute name for script routes:
+   * Constant to use as attribute name for script routes.
+   *
    * <pre>{@code
    * {
    *   get("/", ctx -> ...).attribute(Transactional.ATTRIBUTE, true);
