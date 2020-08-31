@@ -9,6 +9,7 @@ import io.jooby.Route;
 import io.jooby.Route.Decorator;
 import io.jooby.ServiceKey;
 import io.jooby.RequestScope;
+import io.jooby.annotations.Transactional;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
@@ -69,6 +70,8 @@ public class TransactionalRequest implements Decorator {
 
   private ServiceKey<Jdbi> key;
 
+  private boolean enabledByDefault = true;
+
   /**
    * Creates a transactional request. A jdbi with the given name must be available in the service
    * registry.
@@ -88,14 +91,34 @@ public class TransactionalRequest implements Decorator {
     key = ServiceKey.key(Jdbi.class);
   }
 
+  /**
+   * Sets whether all routes in the scope of this decorator instance
+   * should be transactional or not ({@code true} by default).
+   * <p>
+   * You can use the {@link Transactional} annotation to override this
+   * option on a single route.
+   *
+   * @param enabledByDefault whether routes should be transactional by default
+   * @return this instance
+   * @see Transactional
+   */
+  public TransactionalRequest enabledByDefault(boolean enabledByDefault) {
+    this.enabledByDefault = enabledByDefault;
+    return this;
+  }
+
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return ctx -> {
-      Jdbi jdbi = ctx.require(key);
-      try (Handle handle = jdbi.open()) {
-        RequestScope.bind(jdbi, handle);
-        return handle.inTransaction(h -> next.apply(ctx));
-      } finally {
-        RequestScope.unbind(jdbi);
+      if (ctx.isTransactional(enabledByDefault)) {
+        Jdbi jdbi = ctx.require(key);
+        try (Handle handle = jdbi.open()) {
+          RequestScope.bind(jdbi, handle);
+          return handle.inTransaction(h -> next.apply(ctx));
+        } finally {
+          RequestScope.unbind(jdbi);
+        }
+      } else {
+        return next.apply(ctx);
       }
     };
   }

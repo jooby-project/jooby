@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import io.jooby.annotations.Transactional;
 import io.jooby.internal.ReadOnlyContext;
 import io.jooby.internal.WebSocketSender;
 
@@ -1282,6 +1283,33 @@ public interface Context extends Registry {
    * @return This context.
    */
   @Nonnull Context onComplete(@Nonnull Route.Complete task);
+
+  /* **********************************************************************************************
+   * Default methods
+   * **********************************************************************************************
+   */
+
+  /**
+   * Returns whether the matched route is marked as transactional, or returns
+   * {@code defaultValue} if the route has not been marked explicitly.
+   *
+   * @param defaultValue the value to return if the route was not explicitly marked
+   * @return whether the route should be considered as transactional
+   */
+  default boolean isTransactional(boolean defaultValue) {
+    Object attribute = getRoute().attribute(Transactional.ATTRIBUTE);
+
+    if (attribute == null) {
+      return defaultValue;
+    }
+
+    if (attribute instanceof Boolean) {
+      return (Boolean) attribute;
+    }
+
+    throw new RuntimeException("Invalid value for route attribute "
+        + Transactional.ATTRIBUTE + ": " + attribute);
+  }
 
   /* **********************************************************************************************
    * Factory methods

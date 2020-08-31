@@ -5,10 +5,10 @@
  */
 package io.jooby.hibernate;
 
-import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.ServiceKey;
 import io.jooby.SneakyThrows;
+import io.jooby.annotations.Transactional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -97,7 +97,7 @@ public class TransactionalRequest implements Route.Decorator {
 
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return sessionRequest.apply(ctx -> {
-      if (isTransactional(ctx)) {
+      if (ctx.isTransactional(enabledByDefault)) {
         SessionFactory sessionFactory = ctx.require(sessionRequest.getSessionFactoryKey());
         Transaction trx = null;
         try {
@@ -122,20 +122,5 @@ public class TransactionalRequest implements Route.Decorator {
         return next.apply(ctx);
       }
     });
-  }
-
-  private boolean isTransactional(Context context) {
-    Object attribute = context.getRoute().attribute(Transactional.ATTRIBUTE);
-
-    if (attribute == null) {
-      return enabledByDefault;
-    }
-
-    if (!(attribute instanceof Boolean)) {
-      throw new RuntimeException("Invalid value for route attribute "
-          + Transactional.ATTRIBUTE + ": " + attribute);
-    }
-
-    return (Boolean) attribute;
   }
 }
