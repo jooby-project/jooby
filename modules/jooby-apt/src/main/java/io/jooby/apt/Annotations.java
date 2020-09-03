@@ -19,6 +19,7 @@ import io.jooby.annotations.OPTIONS;
 import io.jooby.annotations.PATCH;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.PUT;
+import io.jooby.annotations.Param;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.Produces;
@@ -135,6 +136,13 @@ public interface Annotations {
   )));
 
   /**
+   * Parameter lookup.
+   */
+  Set<String> PARAM_LOOKUP = unmodifiableSet(new LinkedHashSet<>(asList(
+      Param.class.getName()
+  )));
+
+  /**
    * Produces parameters.
    */
   Set<String> PRODUCES_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
@@ -166,25 +174,33 @@ public interface Annotations {
    * @return List of values.
    */
   static @Nonnull List<String> attribute(@Nonnull AnnotationMirror mirror, @Nonnull String name) {
-    Function<Object, String> cleanValue = arg -> {
-      if (arg instanceof AnnotationValue) {
-        return ((AnnotationValue) arg).getValue().toString();
-      }
-      return arg.toString();
-    };
+    return attribute(mirror, name, v -> v.getValue().toString());
+  }
+
+  /**
+   * Get an annotation value.
+   *
+   * @param mirror Annotation.
+   * @param name Attribute name.
+   * @param mapper Mapper function.
+   * @param <T> Return type.
+   * @return List of values.
+   */
+  static @Nonnull <T> List<T> attribute(@Nonnull AnnotationMirror mirror,
+      @Nonnull String name, @Nonnull Function<AnnotationValue, T> mapper) {
 
     for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror
         .getElementValues().entrySet()) {
       if (entry.getKey().getSimpleName().toString().equals(name)) {
         Object value = entry.getValue().getValue();
         if (value instanceof List) {
-          List values = (List) value;
-          return (List<String>) values.stream()
-              .map(cleanValue)
+          List<AnnotationValue> values = (List<AnnotationValue>) value;
+          return values.stream()
+              .map(mapper)
               .filter(Objects::nonNull)
               .collect(Collectors.toList());
         }
-        String singleValue = cleanValue.apply(value);
+        T singleValue = mapper.apply(entry.getValue());
         return singleValue == null
             ? Collections.emptyList()
             : Collections.singletonList(singleValue);

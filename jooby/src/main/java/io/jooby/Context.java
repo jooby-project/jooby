@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import io.jooby.internal.ParamLookupImpl;
 import io.jooby.internal.ReadOnlyContext;
 import io.jooby.internal.WebSocketSender;
 
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -714,6 +716,55 @@ public interface Context extends Registry {
    * @return A file upload.
    */
   @Nonnull FileUpload file(@Nonnull String name);
+
+  /* **********************************************************************************************
+   * Parameter Lookup
+   * **********************************************************************************************
+   */
+
+  /**
+   * Searches for a parameter in the specified sources, in the specified
+   * order, returning the first non-missing {@link Value}, or a 'missing'
+   * {@link Value} if none found.
+   * <p>
+   * At least one {@link ParamSource} must be specified.
+   *
+   * @param name The name of the parameter.
+   * @param sources Sources to search in.
+   * @return The first non-missing {@link Value} or a {@link Value} representing
+   * a missing value if none found.
+   * @throws IllegalArgumentException If no {@link ParamSource}s are specified.
+   */
+  default Value lookup(String name, ParamSource... sources) {
+    if (sources.length == 0) {
+      throw new IllegalArgumentException("No parameter sources were specified.");
+    }
+
+    return Arrays.stream(sources)
+        .map(source -> source.provider.apply(this, name))
+        .filter(value -> !value.isMissing())
+        .findFirst()
+        .orElseGet(() -> Value.missing(name));
+  }
+
+  /**
+   * Returns a {@link ParamLookup} instance which is a fluent interface covering
+   * the functionality of the {@link #lookup(String, ParamSource...)} method.
+   *
+   * <pre>{@code
+   *  Value foo = ctx.lookup()
+   *    .inQuery()
+   *    .inPath()
+   *    .get("foo");
+   * }</pre>
+   *
+   * @return A {@link ParamLookup} instance.
+   * @see ParamLookup
+   * @see #lookup(String, ParamSource...)
+   */
+  default ParamLookup lookup() {
+    return new ParamLookupImpl(this);
+  }
 
   /* **********************************************************************************************
    * Request Body

@@ -8,12 +8,14 @@ package io.jooby.internal.apt;
 import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
+import io.jooby.ParamSource;
 import io.jooby.apt.Annotations;
-import io.jooby.internal.apt.asm.ContextParamWriter;
-import io.jooby.internal.apt.asm.NamedParamWriter;
 import io.jooby.internal.apt.asm.BodyWriter;
+import io.jooby.internal.apt.asm.ContextParamWriter;
 import io.jooby.internal.apt.asm.FileUploadWriter;
+import io.jooby.internal.apt.asm.NamedParamWriter;
 import io.jooby.internal.apt.asm.ObjectTypeWriter;
+import io.jooby.internal.apt.asm.ParamLookupWriter;
 import io.jooby.internal.apt.asm.ParamWriter;
 
 import javax.lang.model.type.TypeMirror;
@@ -182,6 +184,19 @@ public enum ParamKind {
       return new NamedParamWriter();
     }
   },
+  PARAM_LOOKUP {
+    @Override public Set<String> annotations() {
+      return Annotations.PARAM_LOOKUP;
+    }
+
+    @Override public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return Context.class.getDeclaredMethod("lookup", String.class, ParamSource[].class);
+    }
+
+    @Override public ParamWriter newWriter() {
+      return new ParamLookupWriter();
+    }
+  },
 
   ROUTE_PARAM {
     @Override public Set<String> annotations() {
@@ -211,10 +226,12 @@ public enum ParamKind {
     throw new UnsupportedOperationException();
   }
 
-  public abstract Method valueObject(ParamDefinition param) throws NoSuchMethodException;
+  public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+    throw new UnsupportedOperationException("No value object method for: '" + param + "'");
+  }
 
   public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-    throw new UnsupportedOperationException("No value method for: '" + param + "'");
+    throw new UnsupportedOperationException("No single value method for: '" + param + "'");
   }
 
   public static ParamKind forTypeInjection(ParamDefinition param) {

@@ -1,7 +1,9 @@
 package tests;
 
 import io.jooby.Context;
+import io.jooby.MockContext;
 import io.jooby.MockRouter;
+import io.jooby.ParamSource;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 import io.jooby.apt.MvcModuleCompilerRunner;
@@ -12,10 +14,12 @@ import source.GetPostRoute;
 import source.JavaBeanParam;
 import source.MinRoute;
 import source.NoPathRoute;
+import source.ParamSourceCheckerContext;
 import source.PrimitiveReturnType;
 import source.RouteAttributes;
 import source.RouteDispatch;
 import source.RouteWithMimeTypes;
+import source.RouteWithParamLookup;
 import source.Routes;
 import source.VoidRoute;
 
@@ -23,10 +27,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static io.jooby.ParamSource.COOKIE;
+import static io.jooby.ParamSource.FLASH;
+import static io.jooby.ParamSource.FORM;
+import static io.jooby.ParamSource.HEADER;
+import static io.jooby.ParamSource.PATH;
+import static io.jooby.ParamSource.QUERY;
+import static io.jooby.ParamSource.SESSION;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModuleCompilerTest {
@@ -94,6 +106,81 @@ public class ModuleCompilerTest {
           assertEquals("/class/produces", router.get("/class/produces").value());
           assertEquals("/method/consumes", router.get("/method/consumes").value());
           assertEquals("/class/consumes", router.get("/class/consumes").value());
+        });
+  }
+
+  @Test
+  public void routesWithParamLookup() throws Exception {
+    new MvcModuleCompilerRunner(new RouteWithParamLookup())
+        .module(app -> {
+          MockRouter router = new MockRouter(app);
+
+          Throwable t = assertThrows(IllegalArgumentException.class, () -> router.get("/lookup/no-sources").value());
+
+          assertEquals(t.getMessage(), "No parameter sources were specified.");
+
+          {
+            MockContext context = new ParamSourceCheckerContext(sources -> assertArrayEquals(sources, new ParamSource[] {
+                PATH
+            }));
+            router.get("/lookup/source-num-1", context).value();
+          }
+
+          {
+            MockContext context = new ParamSourceCheckerContext(sources -> assertArrayEquals(sources, new ParamSource[] {
+                PATH, HEADER
+            }));
+            router.get("/lookup/source-num-2", context).value();
+          }
+
+          {
+            MockContext context = new ParamSourceCheckerContext(sources -> assertArrayEquals(sources, new ParamSource[] {
+                PATH, HEADER, COOKIE
+            }));
+            router.get("/lookup/source-num-3", context).value();
+          }
+
+          {
+            MockContext context = new ParamSourceCheckerContext(sources -> assertArrayEquals(sources, new ParamSource[] {
+                PATH, HEADER, COOKIE, FLASH
+            }));
+            router.get("/lookup/source-num-4", context).value();
+          }
+
+          {
+            MockContext context = new ParamSourceCheckerContext(sources -> assertArrayEquals(sources, new ParamSource[] {
+                PATH, HEADER, COOKIE, FLASH, SESSION
+            }));
+            router.get("/lookup/source-num-5", context).value();
+          }
+
+          {
+            MockContext context = new ParamSourceCheckerContext(sources -> assertArrayEquals(sources, new ParamSource[] {
+                PATH, HEADER, COOKIE, FLASH, SESSION, QUERY
+            }));
+            router.get("/lookup/source-num-6", context).value();
+          }
+
+          {
+            MockContext context = new ParamSourceCheckerContext(sources -> assertArrayEquals(sources, new ParamSource[] {
+                PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM
+            }));
+            router.get("/lookup/source-num-6plus", context).value();
+          }
+
+          {
+            MockContext context = new MockContext();
+            context.setQueryString("?myParam=69");
+            assertEquals("69", router.get("/lookup/query-path/42", context).value());
+          }
+
+          {
+            MockContext context = new MockContext();
+            context.setQueryString("?myParam=69");
+            assertEquals("42", router.get("/lookup/path-query/42", context).value());
+          }
+
+          assertEquals("null", router.get("/lookup/missing").value());
         });
   }
 
