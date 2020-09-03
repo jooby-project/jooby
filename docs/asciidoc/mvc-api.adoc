@@ -220,6 +220,9 @@ MVC routes (Singleton vs Non-Singleton routes).
 
 HTTP parameter provision is available via `*Param` annotations.
 
+There is also a javadoc:annotations.Param[] annotation which allows to retrieve parameters from
+<<mvc-api-parameters-multiple-sources,multiple sources>>.
+
 ==== Header
 
 Provisioning of headers is available via javadoc:annotations.HeaderParam[] annotation:
@@ -599,6 +602,36 @@ class MyController {
 ----
 
 <1> All context attributes must be set as arguments. They must be declared as `Map<String, Object>`
+
+==== Multiple Sources
+
+You can use the javadoc:annotations.Param[] annotation to search for a parameter in multiple sources.
+The sources and their precedence can be specified as follows:
+
+.Multiple Sources
+[source, java, role = "primary"]
+----
+public class FooController {
+
+  @GET("/{foo}")
+  public String multipleSources(@Param({ QUERY, PATH }) String foo) {
+    return "foo is: " + foo;
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class FooController {
+
+  @GET("/{foo}")
+  fun multipleSources(@Param(QUERY, PATH) foo: String) = "foo is: $foo"
+}
+----
+
+In case of a request like `/bar?foo=baz`, `foo is: baz` will be returned since the query parameter
+takes precedence over the path parameter.
 
 === Responses
 
