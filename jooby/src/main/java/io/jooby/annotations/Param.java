@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
  * The order of {@link ParamSource}s defines the search priority.
  *
  * <pre>{@code
- *  public String search(&#64;Param(sources = { ParamSource.QUERY, ParamSource.PATH }) String q) {
+ *  public String search(&#64;Param({ ParamSource.QUERY, ParamSource.PATH }) String q) {
  *    ...
  *  }
  * }</pre>
@@ -32,12 +32,12 @@ public @interface Param {
    *
    * @return Parameter name.
    */
-  String value() default "";
+  String name() default "";
 
   /**
    * Parameter sources to search in, the order defines the search priority.
    *
    * @return Parameter sources to search in.
    */
-  ParamSource[] sources();
+  ParamSource[] value();
 }

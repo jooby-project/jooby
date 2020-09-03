@@ -138,9 +138,9 @@ public interface Annotations {
   /**
    * Parameter lookup.
    */
-  Set<String> PARAM_LOOKUP = unmodifiableSet(new LinkedHashSet<>(asList(
+  Set<String> PARAM_LOOKUP = unmodifiableSet(Collections.singleton(
       Param.class.getName()
-  )));
+  ));
 
   /**
    * Produces parameters.

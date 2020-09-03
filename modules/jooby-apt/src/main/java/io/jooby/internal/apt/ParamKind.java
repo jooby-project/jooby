@@ -196,6 +196,10 @@ public enum ParamKind {
     @Override public ParamWriter newWriter() {
       return new ParamLookupWriter();
     }
+
+    @Override public String httpNameMemberName() {
+      return "name";
+    }
   },
 
   ROUTE_PARAM {
@@ -232,6 +236,10 @@ public enum ParamKind {
 
   public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
     throw new UnsupportedOperationException("No single value method for: '" + param + "'");
+  }
+
+  public String httpNameMemberName() {
+    return "value";
   }
 
   public static ParamKind forTypeInjection(ParamDefinition param) {
