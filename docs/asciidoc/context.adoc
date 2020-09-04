@@ -44,11 +44,14 @@ registry while the request it belongs to is being processed.
 
 === Parameters
 
-There are several parameter types: `header`, `cookie`, `path`, `query`, `form` and `multipart`.
-All them share an unified/type-safe API for accessing and manipulating their values.
+There are several parameter types: `header`, `cookie`, `path`, `query`, `form`, `multipart`,
+`session` and `flash`. All them share a unified/type-safe API for accessing and manipulating their values.
 
 We are going to describe them briefly in the next sections, then go into specific features of the
 <<Value API>>.
+
+There is also a <<context-parameters-parameter-lookup,parameter lookup>> feature by which you can access a parameter from any combination
+of the above types with well-defined priority.
 
 ==== Header
 
@@ -568,6 +571,41 @@ Flash attributes are implemented using an `HTTP Cookie`. To customize the cookie
   install(FlashScope(Cookie("myflash").setHttpOnly(true)))
 ----
 
+==== Parameter Lookup
+
+You can search for parameters in multiple sources with an explicitly defined priority using the
+javadoc:Context[lookup] or javadoc:Context[lookup, java.lang.String, ParamSource...] method:
+
+.Java
+[source,java,role="primary"]
+----
+get("/{foo}", ctx -> {
+  String foo = ctx.lookup("foo", ParamSource.QUERY, ParamSource.PATH).value();
+  return "foo is: " + foo;
+});
+
+get("/{foo}", ctx -> {
+  String foo = ctx.lookup().inQuery().inPath().get("foo").value();
+  return "foo is: " + foo;
+});
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+get("/{foo}") { ctx ->
+  val foo = ctx.lookup("foo", ParamSource.QUERY, ParamSource.PATH).value()
+  "foo is: $foo"
+}
+
+get("/{foo}") { ctx ->
+  val foo = ctx.lookup().inQuery().inPath()["foo"].value()
+  "foo is: $foo"
+}
+----
+
+In case of a request like `/bar?foo=baz`, `foo is: baz` will be returned since the query parameter
+takes precedence over the path parameter.
 
 include::value-api.adoc[]
 

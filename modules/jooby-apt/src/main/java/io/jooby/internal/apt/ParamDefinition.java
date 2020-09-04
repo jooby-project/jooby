@@ -135,6 +135,14 @@ public class ParamDefinition {
     return false;
   }
 
+  public String[] sources() {
+    return annotations(parameter.getAnnotationMirrors(), this.kind.annotations()).stream()
+        .flatMap(it -> Annotations.attribute(it, "value", v ->
+            ((VariableElement) v.getValue()).getSimpleName().toString()).stream())
+
+        .toArray(String[]::new);
+  }
+
   private Class[] builtinTypes() {
     return new Class[]{
         String.class,
@@ -303,7 +311,7 @@ public class ParamDefinition {
 
   private String parameterName(VariableElement parameter, Set<String> types) {
     return annotations(parameter.getAnnotationMirrors(), types).stream()
-        .flatMap(it -> Annotations.attribute(it, "value").stream())
+        .flatMap(it -> Annotations.attribute(it, kind.httpNameMemberName()).stream())
         .findFirst()
         .orElse(parameter.getSimpleName().toString());
   }
