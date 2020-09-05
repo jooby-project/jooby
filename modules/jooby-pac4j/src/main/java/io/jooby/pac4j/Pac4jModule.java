@@ -13,6 +13,7 @@ import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.internal.pac4j.ActionAdapterImpl;
 import io.jooby.internal.pac4j.CallbackFilterImpl;
+import io.jooby.internal.pac4j.ClientReference;
 import io.jooby.internal.pac4j.DevLoginForm;
 import io.jooby.internal.pac4j.ForwardingAuthorizer;
 import io.jooby.internal.pac4j.LogoutImpl;
@@ -44,12 +45,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.jooby.internal.pac4j.ClientReference.lazyClientNameList;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -249,12 +250,114 @@ public class Pac4jModule implements Extension {
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
-    Clients clients = pac4j.getClients();
-    /** No client? set a default one: */
-    if (clients == null) {
-      clients = new Clients();
+  /**
+   * Register a default security filter.
+   *
+   * @param client Client class.
+   * @return This module.
+   */
+  public Pac4jModule client(@Nonnull Class<? extends Client> client) {
+    return client("*", client);
+  }
+
+  /**
+   * Register a security filter under the given path.
+   *
+   * @param pattern Protected pattern.
+   * @param client Client class.
+   * @return This module.
+   */
+  public Pac4jModule client(@Nonnull String pattern, @Nonnull Class<? extends Client> client) {
+    return client(pattern, (String) null, client);
+  }
+
+  /**
+   * Register a default security filter.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param authorizer Authorizer to use. Authorizer must be provisioned by application registry.
+   * @param client Client class.
+   * @return This module.
+   */
+  public Pac4jModule client(@Nonnull Class<? extends Authorizer> authorizer,
+      @Nonnull Class<? extends Client> client) {
+    return client("*", authorizer, client);
+  }
+
+  /**
+   * Register a default security filter.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param authorizer Authorizer to use.
+   * @param client Client class.
+   * @return This module.
+   */
+  public @Nonnull Pac4jModule client(@Nonnull Authorizer authorizer,
+      @Nonnull Class<? extends Client> client) {
+    return client("*", authorizer, client);
+  }
+
+  /**
+   * Register a security filter under the given path.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param pattern Protected pattern. Use <code>*</code> for intercept all calls.
+   * @param authorizer Authorizer to use. Authorizer must be provisioned by application registry.
+   * @param client Client class.
+   * @return This module.
+   */
+  public @Nonnull Pac4jModule client(@Nonnull String pattern,
+      @Nonnull Class<? extends Authorizer> authorizer, @Nonnull Class<? extends Client> client) {
+    return client(pattern, registerAuthorizer(authorizer, new ForwardingAuthorizer(authorizer)), client);
+  }
+
+  /**
+   * Register a security filter under the given path.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param pattern Protected pattern. Use <code>*</code> for intercept all calls.
+   * @param authorizer Authorizer to use.
+   * @param client Client class.
+   * @return This module.
+   */
+  public @Nonnull Pac4jModule client(@Nonnull String pattern,
+      @Nonnull Authorizer authorizer, @Nonnull Class<? extends Client> client) {
+    return client(pattern, registerAuthorizer(authorizer.getClass(), authorizer), client);
+  }
+
+  /**
+   * Register a filter under the given path.
+   *
+   * NOTE: the authorizer is attached to the given path pattern (not the client). All the
+   * authorizers added to the path applies to all the registered clients.
+   *
+   * @param pattern Protected pattern. Use <code>*</code> for intercept all calls.
+   * @param authorizer Authorizer to use. Must be registered via
+   *     {@link Config#addAuthorizer(String, Authorizer)}. Null is allowed.
+   * @param client Client class.
+   * @return This module.
+   */
+  public @Nonnull Pac4jModule client(@Nonnull String pattern,
+      @Nullable String authorizer,  @Nonnull Class<? extends Client> client) {
+    if (clientMap == null) {
+      clientMap = initializeClients(pac4j);
     }
+    clientMap.computeIfAbsent(pattern, k -> new ProtectedPath()).add(authorizer, client);
+    return this;
+  }
+
+  @Override public void install(@Nonnull Jooby application) throws Exception {
+    Clients clients = ofNullable(pac4j.getClients())
+        /** No client? set a default one: */
+        .orElseGet(Clients::new);
 
     /** No client instance added from DSL, init them from pac4j config. */
     if (clientMap == null) {
@@ -265,7 +368,7 @@ public class Pac4jModule implements Extension {
         ? ""
         : application.getContextPath();
 
-    Map<String, List<Client>> allClients = new LinkedHashMap<>();
+    Map<String, List<ClientReference>> allClients = new LinkedHashMap<>();
 
     /** Should add simple login form? */
     boolean devLogin = false;
@@ -277,15 +380,17 @@ public class Pac4jModule implements Extension {
     com.typesafe.config.Config conf = application.getConfig();
     /** Initialize clients from DSL: */
     for (Map.Entry<String, ProtectedPath> routing : clientMap.entrySet()) {
-      List<Client> localClients = allClients
+      List<ClientReference> localClients = allClients
           .computeIfAbsent(routing.getKey(), k -> new ArrayList<>());
       ProtectedPath path = routing.getValue();
       for (Object candidate : path.clients) {
-        if (candidate instanceof Client) {
-          localClients.add((Client) candidate);
+        if (candidate instanceof Class) {
+          localClients.add(new ClientReference((Class<Client>) candidate));
+        } else if (candidate instanceof Client) {
+          localClients.add(new ClientReference((Client) candidate));
         } else {
           Function<com.typesafe.config.Config, Client> clientProvider = (Function<com.typesafe.config.Config, Client>) candidate;
-          localClients.add(clientProvider.apply(conf));
+          localClients.add(new ClientReference(clientProvider.apply(conf)));
         }
       }
       allClients.put(routing.getKey(), localClients);
@@ -309,10 +414,37 @@ public class Pac4jModule implements Extension {
         ofNullable(clients.getUrlResolver())
             .orElseGet(() -> newUrlResolver()));
 
-    /** Clients are ready, set all them: */
+    /** Set resolved clients: */
     clients.setClients(
-        allClients.values().stream().flatMap(List::stream).collect(Collectors.toList()));
+        allClients.values().stream()
+            .flatMap(List::stream)
+            .filter(ClientReference::isResolved)
+            .map(ClientReference::getClient)
+            .collect(Collectors.toList()));
     pac4j.setClients(clients);
+
+    /** Delay setting unresolved clients: */
+    List<ClientReference> unresolved = allClients.values().stream()
+        .flatMap(List::stream)
+        .filter(r -> !r.isResolved())
+        .collect(Collectors.toList());
+
+    if (!unresolved.isEmpty()) {
+      application.onStarted(() -> {
+        List<Client> clientList = new ArrayList<>(clients.getClients());
+        unresolved.stream()
+            .peek(r -> r.resolve(application::require))
+            .map(ClientReference::getClient)
+            .forEachOrdered(clientList::add);
+        clients.setClients(clientList);
+
+        /** If the global client was unresolved at initialization, try to set it now: */
+        List<ClientReference> defaultSecurityFilter = allClients.get("*");
+        if (defaultSecurityFilter != null && options.getDefaultClient() == null) {
+          options.setDefaultClient(defaultSecurityFilter.get(0).getClient().getName());
+        }
+      });
+    }
 
     /** Set default http action adapter: */
     pac4j.setHttpActionAdapter(ofNullable(pac4j.getHttpActionAdapter())
@@ -355,26 +487,27 @@ public class Pac4jModule implements Extension {
     }
 
     /** For each client to a specific path, add a security handler. */
-    for (Map.Entry<String, List<Client>> entry : allClients.entrySet()) {
+    for (Map.Entry<String, List<ClientReference>> entry : allClients.entrySet()) {
       String pattern = entry.getKey();
       if (!pattern.equals("*")) {
         List<String> keys = Router.pathKeys(pattern);
         if (keys.size() == 0) {
-          application.get(pattern, new SecurityFilterImpl(null, pac4j, options, entry.getValue(),
+          application.get(pattern, new SecurityFilterImpl(null, pac4j, options, lazyClientNameList(entry.getValue()),
               clientMap.get(pattern).authorizers));
         } else {
-          application.decorator(new SecurityFilterImpl(pattern, pac4j, options, entry.getValue(),
+          application.decorator(new SecurityFilterImpl(pattern, pac4j, options, lazyClientNameList(entry.getValue()),
               clientMap.get(pattern).authorizers));
         }
       }
     }
 
     /** Is there is a global client, use it as decorator/filter (default client): */
-    List<Client> defaultSecurityFilter = allClients.get("*");
+    List<ClientReference> defaultSecurityFilter = allClients.get("*");
     if (defaultSecurityFilter != null) {
-      options.setDefaultClient(Optional.ofNullable(options.getDefaultClient())
-          .orElse(defaultSecurityFilter.get(0).getName()));
-      application.decorator(new SecurityFilterImpl(null, pac4j, options, defaultSecurityFilter,
+      if (options.getDefaultClient() == null && defaultSecurityFilter.get(0).isResolved()) {
+        options.setDefaultClient(defaultSecurityFilter.get(0).getClient().getName());
+      }
+      application.decorator(new SecurityFilterImpl(null, pac4j, options, lazyClientNameList(defaultSecurityFilter),
           clientMap.get("*").authorizers));
     }
 
