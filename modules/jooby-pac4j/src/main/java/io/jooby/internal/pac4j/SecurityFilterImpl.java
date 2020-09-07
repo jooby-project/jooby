@@ -9,7 +9,6 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.pac4j.Pac4jContext;
 import io.jooby.pac4j.Pac4jOptions;
-import org.pac4j.core.client.Client;
 import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.client.finder.DefaultSecurityClientFinder;
 import org.pac4j.core.config.Config;
@@ -20,7 +19,7 @@ import org.pac4j.core.util.Pac4jConstants;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 import static java.util.Optional.ofNullable;
 
@@ -32,17 +31,16 @@ public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
 
   private Pac4jOptions options;
 
-  private String clients;
+  private Supplier<String> clients;
 
   private String authorizers;
 
   public SecurityFilterImpl(String pattern, Config config, Pac4jOptions options,
-      List<Client> clients, List<String> authorizers) {
+      Supplier<String> clients, List<String> authorizers) {
     this.pattern = pattern;
     this.config = config;
     this.options = options;
-    this.clients = clients.stream().map(it -> it.getName())
-        .collect(Collectors.joining(Pac4jConstants.ELEMENT_SEPARATOR));
+    this.clients = clients;
     authorizers.forEach(this::addAuthorizer);
   }
 
@@ -80,7 +78,7 @@ public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
   private Object perform(Pac4jContext ctx, GrantAccessAdapterImpl grantAccessAdapter) {
     SecurityLogic securityLogic = config.getSecurityLogic();
     String clients = ctx.getContext().query(clientName(securityLogic))
-        .value(this.clients);
+        .value(this.clients.get());
     String authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);
     return securityLogic.perform(ctx, config, grantAccessAdapter, config.getHttpActionAdapter(),
         clients, authorizers, null, options.getMultiProfile());
