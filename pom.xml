@@ -102,7 +102,7 @@
 
     <!-- Kotlin -->
     <kotlin.version>1.4.0</kotlin.version>
-    <kotlinx-coroutines-core.version>1.3.9</kotlinx-coroutines-core.version>
+    <kotlinx-coroutines-core.version>1.3.9-native-mt</kotlinx-coroutines-core.version>
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.5</jacoco.version>
