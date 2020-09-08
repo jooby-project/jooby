@@ -43,7 +43,7 @@
     <config.version>1.4.0</config.version>
 
     <!-- dependency injection -->
-    <weld.version>3.1.4.Final</weld.version>
+    <weld.version>3.1.5.Final</weld.version>
     <spring.version>5.2.8.RELEASE</spring.version>
     <guice.version>4.2.3</guice.version>
 
