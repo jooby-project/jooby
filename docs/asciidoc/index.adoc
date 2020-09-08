@@ -82,7 +82,7 @@ Source code is available at https://github.com/jooby-project/jooby[GitHub]
 
 Script API (a.k.a script routes) provides a fluent DSL, reflection and annotation free based on `lambda` functions.
 
-We usually extends `Jooby` and define routes in the instance initializer:
+We usually extend `Jooby` and define routes in the instance initializer:
 
 .Script with sub-class:
 [source,java,role="primary"]
@@ -118,8 +118,8 @@ fun main(args: Array<String>) {
 }
 ----
 
-For Java applications we favor extending `Jooby` because DSL looks better. For example, no need
-prefix the `get` method with a variable.
+For Java applications we favor extending `Jooby` because DSL looks better (no need
+prefix the `get` method with a variable)
 
 This is not strictly necessary (of course), you may prefer to do it without extending `Jooby`:
 
