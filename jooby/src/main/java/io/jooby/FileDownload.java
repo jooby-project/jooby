@@ -8,6 +8,7 @@ package io.jooby;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.annotation.Nonnull;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,6 +94,17 @@ public class FileDownload {
    */
   public FileDownload(Mode mode, @Nonnull InputStream content, @Nonnull String fileName) {
     this(mode, content, fileName, -1);
+  }
+
+  /**
+   * Creates a new file attachment.
+   *
+   * @param mode Download mode.
+   * @param content File content.
+   * @param fileName Filename.
+   */
+  public FileDownload(Mode mode, @Nonnull byte[] content, @Nonnull String fileName) {
+    this(mode, new ByteArrayInputStream(content), fileName, content.length);
   }
 
   /**
@@ -202,7 +214,7 @@ public class FileDownload {
 
   /**
    * Creates a builder with the specified content which can be used to create
-   * either a {@link FileDownload} with any {@link Mode}.
+   * a {@link FileDownload} with any {@link Mode}.
    *
    * @param content File content.
    * @param fileName Filename.
@@ -216,7 +228,7 @@ public class FileDownload {
 
   /**
    * Creates a builder with the specified content which can be used to create
-   * either a {@link FileDownload} with any {@link Mode}.
+   * a {@link FileDownload} with any {@link Mode}.
    *
    * @param content File content.
    * @param fileName Filename.
@@ -229,7 +241,20 @@ public class FileDownload {
 
   /**
    * Creates a builder with the specified content which can be used to create
-   * either a {@link FileDownload} with any {@link Mode}.
+   * a {@link FileDownload} with any {@link Mode}.
+   *
+   * @param content File content.
+   * @param fileName Filename.
+   *
+   * @return a {@link Builder} with the specified content
+   */
+  public static Builder build(@Nonnull byte[] content, @Nonnull String fileName) {
+    return mode -> new FileDownload(mode, content, fileName);
+  }
+
+  /**
+   * Creates a builder with the specified content which can be used to create
+   * a {@link FileDownload} with any {@link Mode}.
    *
    * @param file File content.
    * @param fileName Filename.
@@ -248,7 +273,7 @@ public class FileDownload {
 
   /**
    * Creates a builder with the specified content which can be used to create
-   * either a {@link FileDownload} with any {@link Mode}.
+   * a {@link FileDownload} with any {@link Mode}.
    *
    * @param file File content.
    *
