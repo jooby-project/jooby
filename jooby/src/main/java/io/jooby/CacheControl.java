@@ -14,7 +14,7 @@ import java.util.function.Function;
  * @see AssetHandler
  * @see AssetHandler#cacheControl(Function)
  */
-class CacheControl {
+public class CacheControl {
 
   /**
    * Constant for the max-age parameter, when set, no {@code Cache-Control} header is generated.
