@@ -7,6 +7,7 @@ package io.jooby.internal;
 
 import io.jooby.Context;
 import io.jooby.RequestScope;
+import io.jooby.exception.RegistryException;
 
 import javax.inject.Provider;
 
@@ -27,6 +28,10 @@ public class ContextAsServiceInitializer implements ContextInitializer, Provider
 
   @Override
   public Context get() {
-    return RequestScope.get(this);
+    Context context = RequestScope.get(this);
+    if (context == null) {
+      throw new RegistryException("Context is not available. Are you getting it from request scope?");
+    }
+    return context;
   }
 }
