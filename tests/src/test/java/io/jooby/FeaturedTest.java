@@ -2006,6 +2006,36 @@ public class FeaturedTest {
         assertNull(rsp.header("Cache-Control"));
       });
     });
+
+    // spa
+    runner.define(app -> {
+      app.assets("/www/?*", new AssetHandler("index.html", source)
+          .cacheControl(path -> {
+            if (path.endsWith("index.html")) {
+              return CacheControl.noCache();
+            } else {
+              return CacheControl.defaults();
+            }
+          }));
+    }).ready(client -> {
+      client.get("/www", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNull(rsp.header("Last-Modified"));
+        assertEquals("no-store, must-revalidate", rsp.header("Cache-Control"));
+      });
+
+      client.get("/www/index.html", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNull(rsp.header("Last-Modified"));
+        assertEquals("no-store, must-revalidate", rsp.header("Cache-Control"));
+      });
+
+      client.get("/www/some-fancy-spa-page", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNull(rsp.header("Last-Modified"));
+        assertEquals("no-store, must-revalidate", rsp.header("Cache-Control"));
+      });
+    });
   }
 
   @ServerTest
