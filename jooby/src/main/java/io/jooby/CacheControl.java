@@ -142,7 +142,7 @@ public class CacheControl {
    *   <li>max-age: {@link #NO_CACHE} (the {@code Cache-Control} header is set to {@code no-store, must-revalidate})</li>
    * </ul>
    *
-   * @return the default cache configuration.
+   * @return cache configuration that disables caching.
    */
   public static CacheControl noCache() {
     return defaults().setNoCache();

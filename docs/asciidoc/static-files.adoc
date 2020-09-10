@@ -127,7 +127,7 @@ SPAs mode never generates a `NOT FOUND (404)` response, unresolved assets fallba
 
 === Options
 
-The javadoc:AssetHandler[] automatically handles `E-Tag` and `Last-Modified` headers. You can turn
+The javadoc:AssetHandler[] automatically handles `E-Tag` and `Last-Modified` headers. You can
 control these headers programmatically:
 
 .Asset handler options:
@@ -175,5 +175,49 @@ The `maxAge` option set a `Cache-Control` header:
   assets("/static/*", AssetHandler(www)
     .setMaxAge(Duration.ofDays(365))
   );
+}
+----
+
+There is also a javadoc:AssetHandler[setNoCache] method that explicitly forbids web browsers
+to cache assets.
+
+You can use different cache configurations for different assets based on asset name if you
+specify a function via javadoc:AssetHandler[cacheControl, java.util.Function]:
+
+.Per-asset cache control:
+[source, java, role="primary"]
+----
+{
+  AssetSource www = AssetSource.create(Paths.get("www"));
+  assets("/static/*", new AssetHandler(www)
+      .cacheControl(path -> {
+        if (path.endsWith("dont-cache-me.html")) {
+          return CacheControl.noCache(); // disable caching
+        } else if (path.equals("foo.js")) {
+          return CacheControl.defaults()
+              .setETag(false)
+              .setMaxAge(Duration.ofDays(365));
+        } else {
+          return CacheControl.defaults(); // AssetHandler defaults
+        }
+      }));
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val www = AssetSource.create(Paths.get("www"))
+  assets("/static/*", AssetHandler(www)
+      .cacheControl {
+        when {
+          it.endsWith("dont-cache-me.html") -> CacheControl.noCache() // disable caching
+          it == "foo.js" -> CacheControl.defaults()
+              .setETag(false)
+              .setMaxAge(Duration.ofDays(365))
+          else -> CacheControl.defaults() // AssetHandler defaults
+        }
+      })
 }
 ----
