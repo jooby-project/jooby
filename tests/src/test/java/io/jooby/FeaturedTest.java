@@ -2999,15 +2999,32 @@ public class FeaturedTest {
         assertEquals("a b/", rsp.body().string().trim());
       });
 
+      // put in encoded value, expect urldecode(value)
       client.post("/form", new FormBody.Builder()
-          .add("v", "a+b%2f")
+          .addEncoded("v", "a+b%2f")
           .build(), rsp -> {
         assertEquals("a b/", rsp.body().string());
       });
 
+      // put in "raw" value, expect it as it is
+      client.post("/form", new FormBody.Builder()
+          .add("v", "a+b%2f")
+          .build(), rsp -> {
+        assertEquals("a+b%2f", rsp.body().string());
+      });
+
+      // no coding is done, expect it as it is
       client.post("/multipart", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
           .addFormDataPart("v", "a+b%2f")
+          .build(), rsp -> {
+        assertEquals("a+b%2f", rsp.body().string());
+      });
+
+      // no coding is done, expect it as it is
+      client.post("/multipart", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("v", "a b/")
           .build(), rsp -> {
         assertEquals("a b/", rsp.body().string());
       });

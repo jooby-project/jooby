@@ -30,14 +30,10 @@ public final class UrlParser {
   }
 
   public static String decodePathSegment(String value) {
-    return decode(value, true);
-  }
-
-  public static String decode(String value, boolean isPath) {
     if (value == null || value.length() == 0) {
       return "";
     }
-    return decodeComponent(value, 0, value.length(), StandardCharsets.UTF_8, isPath);
+    return decodeComponent(value, 0, value.length(), StandardCharsets.UTF_8, true);
   }
 
   private static void decodeParams(HashValue root, String s, int from, Charset charset,

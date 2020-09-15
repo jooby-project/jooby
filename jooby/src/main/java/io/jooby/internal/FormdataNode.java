@@ -12,8 +12,4 @@ public class FormdataNode extends HashValue implements Formdata {
   public FormdataNode(Context ctx) {
     super(ctx, null);
   }
-
-  @Override protected String decode(String value) {
-    return UrlParser.decode(value, false);
-  }
 }
