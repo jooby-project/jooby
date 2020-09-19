@@ -279,7 +279,9 @@ public class RouteParser {
             AbstractInsnNode routerInstruction = findRouterInstruction(node);
             String pattern = routePattern(node, node);
             handlerList.addAll(useRouter(ctx, path(prefix, pattern), node, routerInstruction));
-          } else if (signature.matches("path", String.class, Runnable.class)) {
+          } else if (signature.matches("path", String.class, Runnable.class)
+              || signature.matches("routes", Runnable.class)) {
+            boolean routes = signature.matches("routes", Runnable.class);
             routeIndex = handlerList.size();
             instructionTo = node;
             //  router path (Ljava/lang/String;Ljava/lang/Runnable;)Lio/jooby/Route;
@@ -289,7 +291,7 @@ public class RouteParser {
                   .findFirst()
                   .map(MethodInsnNode.class::cast)
                   .orElseThrow(() -> new IllegalStateException("Subroute definition not found"));
-              String path = routePattern(node, subrouteInsn);
+              String path = routes ? "/" : routePattern(node, subrouteInsn);
               handlerList.addAll(kotlinHandler(ctx, null, path(prefix, path), subrouteInsn));
             } else {
               InvokeDynamicInsnNode subrouteInsn = InsnSupport.prev(node)
@@ -297,7 +299,7 @@ public class RouteParser {
                   .findFirst()
                   .map(InvokeDynamicInsnNode.class::cast)
                   .orElseThrow(() -> new IllegalStateException("Subroute definition not found"));
-              String path = routePattern(node, subrouteInsn);
+              String path = routes ? "/" : routePattern(node, subrouteInsn);
               MethodNode methodLink = findLambda(ctx, subrouteInsn);
               ctx.debugHandlerLink(methodLink);
               handlerList.addAll(routeHandler(ctx, path(prefix, path), methodLink));

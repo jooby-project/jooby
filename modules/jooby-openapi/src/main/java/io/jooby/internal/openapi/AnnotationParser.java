@@ -28,6 +28,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -205,6 +206,10 @@ public class AnnotationParser {
           Type type = Type.getReturnType(methodInsnNode.desc);
           return parse(ctx, prefix, type);
         }
+      } else if (previous instanceof FieldInsnNode) {
+        FieldInsnNode fieldInsnNode = (FieldInsnNode) previous;
+        Type type = Type.getObjectType(fieldInsnNode.owner);
+        return parse(ctx, prefix, type);
       }
     }
     return Collections.emptyList();
