@@ -1950,6 +1950,95 @@ public class FeaturedTest {
   }
 
   @ServerTest
+  public void staticAssetsCaching(ServerTestRunner runner) {
+    AssetSource source = AssetSource.create(Router.class.getClassLoader(), "/www");
+
+    // defaults
+    runner.define(app -> {
+      app.assets("/www/?*", new AssetHandler(source));
+    }).ready(client -> {
+      client.get("/www/index.html", rsp -> {
+        assertNotNull(rsp.header("ETag"));
+        assertNotNull(rsp.header("Last-Modified"));
+        assertNull(rsp.header("Cache-Control"));
+      });
+    });
+
+    // no cache for all
+    runner.define(app -> {
+      app.assets("/www/?*", new AssetHandler(source).setNoCache());
+    }).ready(client -> {
+      client.get("/www/index.html", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNull(rsp.header("Last-Modified"));
+        assertEquals("no-store, must-revalidate", rsp.header("Cache-Control"));
+      });
+    });
+
+    // per path config
+    runner.define(app -> {
+      app.assets("/www/?*", new AssetHandler(source)
+        .cacheControl(path -> {
+          if (path.endsWith("about.html")) {
+            return CacheControl.noCache();
+          } else if (path.equals("foo.js")) {
+            return CacheControl.defaults().setETag(false);
+          } else {
+            return CacheControl.defaults();
+          }
+        }));
+    }).ready(client -> {
+      client.get("/www/index.html", rsp -> {
+        assertNotNull(rsp.header("ETag"));
+        assertNotNull(rsp.header("Last-Modified"));
+        assertNull(rsp.header("Cache-Control"));
+      });
+
+      client.get("/www/about.html", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNull(rsp.header("Last-Modified"));
+        assertEquals("no-store, must-revalidate", rsp.header("Cache-Control"));
+      });
+
+      client.get("/www/foo.js", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNotNull(rsp.header("Last-Modified"));
+        assertNull(rsp.header("Cache-Control"));
+      });
+    });
+
+    // spa
+    runner.define(app -> {
+      app.assets("/www/?*", new AssetHandler("index.html", source)
+          .cacheControl(path -> {
+            if (path.endsWith("index.html")) {
+              return CacheControl.noCache();
+            } else {
+              return CacheControl.defaults();
+            }
+          }));
+    }).ready(client -> {
+      client.get("/www", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNull(rsp.header("Last-Modified"));
+        assertEquals("no-store, must-revalidate", rsp.header("Cache-Control"));
+      });
+
+      client.get("/www/index.html", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNull(rsp.header("Last-Modified"));
+        assertEquals("no-store, must-revalidate", rsp.header("Cache-Control"));
+      });
+
+      client.get("/www/some-fancy-spa-page", rsp -> {
+        assertNull(rsp.header("ETag"));
+        assertNull(rsp.header("Last-Modified"));
+        assertEquals("no-store, must-revalidate", rsp.header("Cache-Control"));
+      });
+    });
+  }
+
+  @ServerTest
   public void staticSiteFromCpWithPrefixPathAndPrefixLocation(ServerTestRunner runner) {
     runner.define(app -> {
 
