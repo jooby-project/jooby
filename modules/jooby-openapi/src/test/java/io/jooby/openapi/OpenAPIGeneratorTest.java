@@ -29,6 +29,8 @@ import kt.KtAppWithMainKt;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtMvcApp;
 import kt.KtMvcAppWithRoutes;
+import kt.KtMvcInstanceApp;
+import kt.KtMvcObjectApp;
 import kt.KtNoAppClassKt;
 import kt.KtRouteIdioms;
 import kt.KtRouteImport;
@@ -1303,6 +1305,16 @@ public class OpenAPIGeneratorTest {
 
   @OpenAPITest(value = KtMvcApp.class)
   public void ktMvc(RouteIterator iterator) {
+    assertKtController(iterator);
+  }
+
+  @OpenAPITest(value = KtMvcInstanceApp.class)
+  public void ktMvcInstance(RouteIterator iterator) {
+    assertKtController(iterator);
+  }
+
+  @OpenAPITest(value = KtMvcObjectApp.class)
+  public void ktMvcObject(RouteIterator iterator) {
     assertKtController(iterator);
   }
 
