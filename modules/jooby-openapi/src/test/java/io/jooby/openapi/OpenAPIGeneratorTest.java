@@ -3,6 +3,7 @@ package io.jooby.openapi;
 import com.fasterxml.jackson.databind.JavaType;
 import examples.Letter;
 import examples.MvcApp;
+import examples.MvcAppWithRoutes;
 import examples.MvcInstanceApp;
 import examples.NoAppClass;
 import examples.RouteBodyArgs;
@@ -27,6 +28,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import kt.KtAppWithMainKt;
 import kt.KtCoroutineRouteIdioms;
 import kt.KtMvcApp;
+import kt.KtMvcAppWithRoutes;
 import kt.KtNoAppClassKt;
 import kt.KtRouteIdioms;
 import kt.KtRouteImport;
@@ -921,8 +923,7 @@ public class OpenAPIGeneratorTest {
         .verify();
   }
 
-  @OpenAPITest(value = MvcApp.class)
-  public void routeMvc(RouteIterator iterator) {
+  private void assertController(RouteIterator iterator) {
     iterator
         .next((route, args) -> {
           assertEquals("GET /api/foo", route.toString());
@@ -1067,6 +1068,16 @@ public class OpenAPIGeneratorTest {
           assertEquals(ABean.class.getName(), route.getRequestBody().getJavaType());
         })
         .verify();
+  }
+
+  @OpenAPITest(value = MvcApp.class)
+  public void routeMvc(RouteIterator iterator) {
+    assertController(iterator);
+  }
+
+  @OpenAPITest(value = MvcAppWithRoutes.class)
+  public void routeMvcWithRoutes(RouteIterator iterator) {
+    assertController(iterator);
   }
 
   @OpenAPITest(value = MvcInstanceApp.class)
@@ -1217,8 +1228,7 @@ public class OpenAPIGeneratorTest {
         .verify();
   }
 
-  @OpenAPITest(value = KtMvcApp.class)
-  public void ktMvc(RouteIterator iterator) {
+  private void assertKtController(RouteIterator iterator) {
     iterator
         .next(route -> {
           assertEquals("GET /", route.toString());
@@ -1289,6 +1299,16 @@ public class OpenAPIGeneratorTest {
               .verify();
         })
         .verify();
+  }
+
+  @OpenAPITest(value = KtMvcApp.class)
+  public void ktMvc(RouteIterator iterator) {
+    assertKtController(iterator);
+  }
+
+  @OpenAPITest(value = KtMvcAppWithRoutes.class)
+  public void ktMvcWithRoutes(RouteIterator iterator) {
+    assertKtController(iterator);
   }
 
   @OpenAPITest(value = KtRouteRef.class)
