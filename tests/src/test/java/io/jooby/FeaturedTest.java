@@ -2348,6 +2348,38 @@ public class FeaturedTest {
         assertEquals("f=success=Thank+you%21;Path=/custom;HttpOnly", setCookie);
       });
     });
+
+    runner.define(app -> {
+      app.setContextPath("/custom");
+      app.getFlashCookieTemplate().setName("f").setSameSite(SameSite.LAX);
+
+      app.get("/flash", ctx -> {
+        ctx.flash().put("success", "Thank you!");
+        return ctx.flash();
+      });
+    }).ready(client -> {
+      client.get("/custom/flash", rsp -> {
+        assertEquals(200, rsp.code());
+        String setCookie = rsp.header("Set-Cookie");
+        assertEquals("f=success=Thank+you%21;Path=/custom;SameSite=Lax;HttpOnly", setCookie);
+      });
+    });
+
+    runner.define(app -> {
+      app.setContextPath("/custom");
+      app.setFlashCookieTemplate(new Cookie("f").setSecure(true));
+
+      app.get("/flash", ctx -> {
+        ctx.flash().put("success", "Thank you!");
+        return ctx.flash();
+      });
+    }).ready(client -> {
+      client.get("/custom/flash", rsp -> {
+        assertEquals(200, rsp.code());
+        String setCookie = rsp.header("Set-Cookie");
+        assertEquals("f=success=Thank+you%21;Path=/custom;Secure", setCookie);
+      });
+    });
   }
 
   @ServerTest

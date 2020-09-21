@@ -964,16 +964,34 @@ public interface Router extends Registry {
    * Name of the flash cookie. Defaults is: <code>jooby.flash</code>.
    *
    * @return Name of the flash cookie. Defaults is: <code>jooby.flash</code>.
+   * @deprecated Use {@link #getFlashCookieTemplate()} instead.
    */
-  @Nonnull String getFlashCookie();
+  @Deprecated @Nonnull String getFlashCookie();
 
   /**
    * Set flash cookie name.
    *
    * @param name Flash cookie name.
    * @return This router.
+   * @deprecated Use {@link #setFlashCookieTemplate(Cookie)} instead.
    */
-  @Nonnull Router setFlashCookie(@Nonnull String name);
+  @Deprecated @Nonnull Router setFlashCookie(@Nonnull String name);
+
+  /**
+   * Template for the flash cookie. Default name is: <code>jooby.flash</code>.
+   *
+   * @return Template for the flash cookie.
+   */
+  @Nonnull Cookie getFlashCookieTemplate();
+
+  /**
+   * Sets a cookie used as a template to generate the flash cookie, allowing
+   * to customize the cookie name and other cookie parameters.
+   *
+   * @param flashCookie The cookie template.
+   * @return This router.
+   */
+  @Nonnull Router setFlashCookieTemplate(@Nonnull Cookie flashCookie);
 
   /**
    * Add a custom string value converter.
