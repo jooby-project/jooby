@@ -590,12 +590,17 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public String getFlashCookie() {
+  @Deprecated @Nonnull @Override public Jooby setFlashCookie(@Nonnull String name) {
+    router.setFlashCookie(name);
+    return this;
+  }
+
+  @Nonnull @Override public Cookie getFlashCookie() {
     return router.getFlashCookie();
   }
 
-  @Nonnull @Override public Jooby setFlashCookie(@Nonnull String name) {
-    router.setFlashCookie(name);
+  @Nonnull @Override public Jooby setFlashCookie(@Nonnull Cookie flashCookie) {
+    router.setFlashCookie(flashCookie);
     return this;
   }
 

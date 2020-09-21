@@ -1772,6 +1772,15 @@ public class FeaturedTest {
             .setResponseCookie(cookie)
             .send(StatusCode.OK);
       });
+
+      app.get("/same-site", ctx -> {
+        Cookie cookie = new Cookie("foo", "bar")
+            .setSecure(ctx.query("secure").booleanValue(false))
+            .setSameSite(ctx.query("sameSite").toOptional().map(SameSite::of).orElse(null));
+        return ctx
+            .setResponseCookie(cookie)
+            .send(StatusCode.OK);
+      });
     }).ready(client -> {
       client.get("/cookies", response -> {
         assertEquals("{}", response.body().string());
@@ -1822,6 +1831,26 @@ public class FeaturedTest {
         long minutes = Duration.between(date, expires).toMinutes();
         // Give it -/+5
         assertTrue(minutes >= 25 && minutes <= 35);
+      });
+      client.get("/same-site", response -> {
+        // browser session
+        assertEquals("[foo=bar;Path=/]", response.headers("Set-Cookie").toString());
+      });
+      client.get("/same-site?sameSite=Lax", response -> {
+        // browser session
+        assertEquals("[foo=bar;Path=/;SameSite=Lax]", response.headers("Set-Cookie").toString());
+      });
+      client.get("/same-site?sameSite=Strict", response -> {
+        // browser session
+        assertEquals("[foo=bar;Path=/;SameSite=Strict]", response.headers("Set-Cookie").toString());
+      });
+      client.get("/same-site?sameSite=None&secure=true", response -> {
+        // browser session
+        assertEquals("[foo=bar;Path=/;SameSite=None;Secure]", response.headers("Set-Cookie").toString());
+      });
+      client.get("/same-site?sameSite=None", response -> {
+        // browser session
+        assertEquals(400, response.code());
       });
     });
   }
@@ -2406,6 +2435,38 @@ public class FeaturedTest {
         assertEquals(200, rsp.code());
         String setCookie = rsp.header("Set-Cookie");
         assertEquals("f=success=Thank+you%21;Path=/custom;HttpOnly", setCookie);
+      });
+    });
+
+    runner.define(app -> {
+      app.setContextPath("/custom");
+      app.getFlashCookie().setName("f").setSameSite(SameSite.LAX);
+
+      app.get("/flash", ctx -> {
+        ctx.flash().put("success", "Thank you!");
+        return ctx.flash();
+      });
+    }).ready(client -> {
+      client.get("/custom/flash", rsp -> {
+        assertEquals(200, rsp.code());
+        String setCookie = rsp.header("Set-Cookie");
+        assertEquals("f=success=Thank+you%21;Path=/custom;SameSite=Lax;HttpOnly", setCookie);
+      });
+    });
+
+    runner.define(app -> {
+      app.setContextPath("/custom");
+      app.setFlashCookie(new Cookie("f").setSecure(true));
+
+      app.get("/flash", ctx -> {
+        ctx.flash().put("success", "Thank you!");
+        return ctx.flash();
+      });
+    }).ready(client -> {
+      client.get("/custom/flash", rsp -> {
+        assertEquals(200, rsp.code());
+        String setCookie = rsp.header("Set-Cookie");
+        assertEquals("f=success=Thank+you%21;Path=/custom;Secure", setCookie);
       });
     });
   }

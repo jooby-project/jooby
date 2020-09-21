@@ -70,6 +70,14 @@ public class Cookie {
   private long maxAge = -1;
 
   /**
+   * Value for the 'SameSite' cookie attribute.
+   *
+   * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite">
+   *   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
+   */
+  private SameSite sameSite;
+
+  /**
    * Creates a response cookie.
    *
    * @param name Cookie's name.
@@ -97,6 +105,7 @@ public class Cookie {
     this.path = cookie.path;
     this.secure = cookie.secure;
     this.httpOnly = cookie.httpOnly;
+    this.sameSite = cookie.sameSite;
   }
 
   /**
@@ -238,12 +247,19 @@ public class Cookie {
   }
 
   /**
-   * Set cookie secure flag..
+   * Set cookie secure flag.
    *
    * @param secure Cookie's secure.
    * @return This cookie.
+   * @throws IllegalArgumentException if {@code false} is specified and the 'SameSite'
+   * attribute value requires a secure cookie.
    */
   public @Nonnull Cookie setSecure(boolean secure) {
+    if (sameSite != null && sameSite.requiresSecure() && !secure) {
+      throw new IllegalArgumentException("Cookies with SameSite=" + sameSite.getValue()
+          + " must be flagged as Secure. Call Cookie.setSameSite(...) with an argument"
+          + " allowing non-secure cookies before calling Cookie.setSecure(false).");
+    }
     this.secure = secure;
     return this;
   }
@@ -297,6 +313,60 @@ public class Cookie {
     return this;
   }
 
+  /**
+   * Returns the value for the 'SameSite' parameter.
+   * <ul>
+   *   <li>{@link SameSite#LAX} - Cookies are allowed to be sent with top-level navigations and
+   *   will be sent along with GET request initiated by third party website. This is the default
+   *   value in modern browsers.</li>
+   *   <li>{@link SameSite#STRICT} - Cookies will only be sent in a first-party context and not be
+   *   sent along with requests initiated by third party websites.</li>
+   *   <li>{@link SameSite#NONE} - Cookies will be sent in all contexts, i.e sending cross-origin
+   *   is allowed. Requires the {@code Secure} attribute in latest browser versions.</li>
+   *   <li>{@code null} - Not specified.</li>
+   * </ul>
+   *
+   * @return the value for 'SameSite' parameter.
+   * @see #setSecure(boolean)
+   * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite">
+   *   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
+   */
+  @Nullable
+  public SameSite getSameSite() {
+    return sameSite;
+  }
+
+  /**
+   * Sets the value for the 'SameSite' parameter.
+   * <ul>
+   *   <li>{@link SameSite#LAX} - Cookies are allowed to be sent with top-level navigations and
+   *   will be sent along with GET request initiated by third party website. This is the default
+   *   value in modern browsers.</li>
+   *   <li>{@link SameSite#STRICT} - Cookies will only be sent in a first-party context and not be
+   *   sent along with requests initiated by third party websites.</li>
+   *   <li>{@link SameSite#NONE} - Cookies will be sent in all contexts, i.e sending cross-origin
+   *   is allowed. Requires the {@code Secure} attribute in latest browser versions.</li>
+   *   <li>{@code null} - Not specified.</li>
+   * </ul>
+   *
+   * @param sameSite the value for the 'SameSite' parameter.
+   * @return this instance.
+   * @throws IllegalArgumentException if a value requiring a secure cookie is specified and this
+   * cookie is not flagged as secure.
+   * @see #setSecure(boolean)
+   * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite">
+   *   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
+   */
+  public Cookie setSameSite(@Nullable SameSite sameSite) {
+    if (sameSite != null && sameSite.requiresSecure() && !isSecure()) {
+      throw new IllegalArgumentException("Cookies with SameSite=" + sameSite.getValue()
+          + " must be flagged as Secure. Call Cookie.setSecure(true)"
+          + " before calling Cookie.setSameSite(...).");
+    }
+    this.sameSite = sameSite;
+    return this;
+  }
+
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
     buff.append(name).append("=");
@@ -332,6 +402,12 @@ public class Cookie {
     if (domain != null) {
       sb.append(";Domain=");
       append(sb, domain);
+    }
+
+    // SameSite
+    if (sameSite != null) {
+      sb.append(";SameSite=");
+      append(sb, sameSite.getValue());
     }
 
     // Secure
@@ -491,6 +567,8 @@ public class Cookie {
       value(conf, namespace + ".httpOnly", Config::getBoolean, cookie::setHttpOnly);
       value(conf, namespace + ".maxAge", (c, path) -> c.getDuration(path, TimeUnit.SECONDS),
           cookie::setMaxAge);
+      value(conf, namespace + ".sameSite", (c, path) -> SameSite.of(c.getString(path)),
+          cookie::setSameSite);
       return Optional.of(cookie);
     }
     return Optional.empty();

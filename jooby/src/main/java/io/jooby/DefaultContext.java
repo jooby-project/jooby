@@ -92,7 +92,7 @@ public interface DefaultContext extends Context {
   @Override default @Nonnull FlashMap flash() {
     return (FlashMap) getAttributes()
         .computeIfAbsent(FlashMap.NAME, key -> FlashMap
-            .create(this, new Cookie(getRouter().getFlashCookie()).setHttpOnly(true)));
+            .create(this, getRouter().getFlashCookie().clone()));
   }
 
   /**

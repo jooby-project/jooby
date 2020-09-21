@@ -8,6 +8,7 @@ package io.jooby.internal;
 import com.typesafe.config.Config;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
+import io.jooby.Cookie;
 import io.jooby.Environment;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
@@ -60,6 +61,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static java.util.Objects.requireNonNull;
 
 public class RouterImpl implements Router {
 
@@ -171,7 +174,7 @@ public class RouterImpl implements Router {
 
   private SessionStore sessionStore = SessionStore.memory();
 
-  private String flashName = "jooby.flash";
+  private Cookie flashCookie = new Cookie("jooby.flash").setHttpOnly(true);
 
   private List<ValueConverter> converters;
 
@@ -729,12 +732,17 @@ public class RouterImpl implements Router {
     return services.require(key);
   }
 
-  @Nonnull @Override public String getFlashCookie() {
-    return flashName;
+  @Nonnull @Override public Router setFlashCookie(@Nonnull String name) {
+    this.flashCookie.setName(name);
+    return this;
   }
 
-  @Nonnull @Override public Router setFlashCookie(@Nonnull String name) {
-    this.flashName = name;
+  @Nonnull @Override public Cookie getFlashCookie() {
+    return flashCookie;
+  }
+
+  @Nonnull @Override public Router setFlashCookie(@Nonnull Cookie flashCookie) {
+    this.flashCookie = requireNonNull(flashCookie);
     return this;
   }
 

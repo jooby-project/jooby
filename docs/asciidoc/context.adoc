@@ -556,19 +556,29 @@ a javadoc:Session[] but the lifecycle is shorter: *data is kept for only one req
 <2> Redirect to home page
 <3> Display an existing flash attribute `success` or shows `Welcome!`
 
-Flash attributes are implemented using an `HTTP Cookie`. To customize the cookie name
-(defaults to `jooby.flash`) use the javadoc:FlashScope extension:
+Flash attributes are implemented using an `HTTP Cookie`. To customize the cookie
+(its name defaults to `jooby.flash`) use the javadoc:Router[setFlashCookie, Cookie] method:
 
 .Java
 [source,java,role="primary"]
 ----
-  install(new FlashScope(new Cookie("myflash").setHttpOnly(true)));
+{
+  setFlashCookie(new Cookie("myflash").setHttpOnly(true));
+  
+  // or if you're fine with the default name
+  getFlashCookie().setHttpOnly(true);
+}
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-  install(FlashScope(Cookie("myflash").setHttpOnly(true)))
+{
+  flashCookie = Cookie("myflash").setHttpOnly(true)
+
+  // or if you're fine with the default name
+  flashCookie.isHttpOnly = true
+}
 ----
 
 ==== Parameter Lookup

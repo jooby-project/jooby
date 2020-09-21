@@ -5,6 +5,8 @@
  */
 package io.jooby.pac4j;
 
+import io.jooby.SameSite;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -38,6 +40,8 @@ public class Pac4jOptions {
   private boolean destroySession = true;
 
   private boolean centralLogout;
+
+  private SameSite cookieSameSite;
 
   /**
    * Default url to redirect to after successful login.
@@ -246,6 +250,30 @@ public class Pac4jOptions {
    */
   public @Nonnull Pac4jOptions setDestroySession(boolean destroySession) {
     this.destroySession = destroySession;
+    return this;
+  }
+
+  /**
+   * Returns the 'SameSite' parameter value used for cookies generated
+   * by the pac4j security engine.
+   *
+   * @return An instance of {@link SameSite} or {@code null} if the
+   * 'SameSite' parameter should be omitted.
+   */
+  @Nullable public SameSite getCookieSameSite() {
+    return cookieSameSite;
+  }
+
+  /**
+   * Sets the 'SameSite' parameter value used for cookies generated
+   * by the pac4j security engine, pass {@code null} to omit the
+   * parameter.
+   *
+   * @param sameSite Value for the 'SameSite' parameter or {@code null} to omit it.
+   * @return This options.
+   */
+  public @Nonnull Pac4jOptions setCookieSameSite(@Nullable SameSite sameSite) {
+    cookieSameSite = sameSite;
     return this;
   }
 }
