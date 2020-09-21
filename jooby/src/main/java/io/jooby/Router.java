@@ -961,19 +961,11 @@ public interface Router extends Registry {
   @Nonnull Router executor(@Nonnull String name, @Nonnull Executor executor);
 
   /**
-   * Name of the flash cookie. Defaults is: <code>jooby.flash</code>.
-   *
-   * @return Name of the flash cookie. Defaults is: <code>jooby.flash</code>.
-   * @deprecated Use {@link #getFlashCookieTemplate()} instead.
-   */
-  @Deprecated @Nonnull String getFlashCookie();
-
-  /**
    * Set flash cookie name.
    *
    * @param name Flash cookie name.
    * @return This router.
-   * @deprecated Use {@link #setFlashCookieTemplate(Cookie)} instead.
+   * @deprecated Use {@link #setFlashCookie(Cookie)} instead.
    */
   @Deprecated @Nonnull Router setFlashCookie(@Nonnull String name);
 
@@ -982,7 +974,7 @@ public interface Router extends Registry {
    *
    * @return Template for the flash cookie.
    */
-  @Nonnull Cookie getFlashCookieTemplate();
+  @Nonnull Cookie getFlashCookie();
 
   /**
    * Sets a cookie used as a template to generate the flash cookie, allowing
@@ -991,7 +983,7 @@ public interface Router extends Registry {
    * @param flashCookie The cookie template.
    * @return This router.
    */
-  @Nonnull Router setFlashCookieTemplate(@Nonnull Cookie flashCookie);
+  @Nonnull Router setFlashCookie(@Nonnull Cookie flashCookie);
 
   /**
    * Add a custom string value converter.

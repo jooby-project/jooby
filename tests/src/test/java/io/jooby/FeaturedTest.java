@@ -2351,7 +2351,7 @@ public class FeaturedTest {
 
     runner.define(app -> {
       app.setContextPath("/custom");
-      app.getFlashCookieTemplate().setName("f").setSameSite(SameSite.LAX);
+      app.getFlashCookie().setName("f").setSameSite(SameSite.LAX);
 
       app.get("/flash", ctx -> {
         ctx.flash().put("success", "Thank you!");
@@ -2367,7 +2367,7 @@ public class FeaturedTest {
 
     runner.define(app -> {
       app.setContextPath("/custom");
-      app.setFlashCookieTemplate(new Cookie("f").setSecure(true));
+      app.setFlashCookie(new Cookie("f").setSecure(true));
 
       app.get("/flash", ctx -> {
         ctx.flash().put("success", "Thank you!");

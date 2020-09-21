@@ -732,20 +732,16 @@ public class RouterImpl implements Router {
     return services.require(key);
   }
 
-  @Nonnull @Override public String getFlashCookie() {
-    return flashCookie.getName();
-  }
-
   @Nonnull @Override public Router setFlashCookie(@Nonnull String name) {
     this.flashCookie.setName(name);
     return this;
   }
 
-  @Nonnull @Override public Cookie getFlashCookieTemplate() {
+  @Nonnull @Override public Cookie getFlashCookie() {
     return flashCookie;
   }
 
-  @Nonnull @Override public Router setFlashCookieTemplate(@Nonnull Cookie flashCookie) {
+  @Nonnull @Override public Router setFlashCookie(@Nonnull Cookie flashCookie) {
     this.flashCookie = requireNonNull(flashCookie);
     return this;
   }
