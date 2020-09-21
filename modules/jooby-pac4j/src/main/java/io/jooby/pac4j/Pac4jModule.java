@@ -355,6 +355,8 @@ public class Pac4jModule implements Extension {
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
+    application.getServices().putIfAbsent(Pac4jOptions.class, options);
+
     Clients clients = ofNullable(pac4j.getClients())
         /** No client? set a default one: */
         .orElseGet(Clients::new);

@@ -6,8 +6,10 @@
 package io.jooby.internal.pac4j;
 
 import io.jooby.Context;
+import io.jooby.SameSite;
 import io.jooby.Value;
 import io.jooby.pac4j.Pac4jContext;
+import io.jooby.pac4j.Pac4jOptions;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.session.SessionStore;
 
@@ -119,6 +121,12 @@ public class WebContextImpl implements Pac4jContext {
     rsp.setHttpOnly(cookie.isHttpOnly());
     rsp.setMaxAge(cookie.getMaxAge());
     rsp.setSecure(cookie.isSecure());
+
+    SameSite sameSite = context.require(Pac4jOptions.class).getCookieSameSite();
+    if (sameSite != null) {
+      rsp.setSecure(rsp.isSecure() || sameSite.requiresSecure());
+      rsp.setSameSite(sameSite);
+    }
 
     context.setResponseCookie(rsp);
   }
