@@ -49,7 +49,7 @@
     <dependency>
       <groupId>io.lettuce</groupId>
       <artifactId>lettuce-core</artifactId>
-      <version>5.3.3.RELEASE</version>
+      <version>5.3.4.RELEASE</version>
     </dependency>
 
     <!-- Test dependencies -->
