@@ -6,11 +6,11 @@ import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -983,7 +983,7 @@ public class FeaturedTest {
   }
 
   @ServerTest
-  public void rx2(ServerTestRunner runner) {
+  public void rx3(ServerTestRunner runner) {
     runner.define(app -> {
       app.get("/rx/flowable", ctx ->
           Flowable.range(1, 10)

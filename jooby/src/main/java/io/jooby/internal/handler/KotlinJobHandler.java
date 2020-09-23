@@ -7,7 +7,7 @@ package io.jooby.internal.handler;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import kotlinx.coroutines.Deferred;
 import kotlinx.coroutines.Job;
 

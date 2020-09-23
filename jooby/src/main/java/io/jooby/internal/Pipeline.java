@@ -54,37 +54,37 @@ public class Pipeline {
     if (CompletionStage.class.isAssignableFrom(type)) {
       return completableFuture(mode, route, executor, initializer);
     }
-    /** Rx 2: */
+    /** Rx 3: */
     // Single:
-    Optional<Class> single = loadClass(loader, "io.reactivex.Single");
+    Optional<Class> single = loadClass(loader, "io.reactivex.rxjava3.core.Single");
     if (single.isPresent()) {
       if (single.get().isAssignableFrom(type)) {
         return single(mode, route, executor, initializer);
       }
     }
     // Maybe:
-    Optional<Class> maybe = loadClass(loader, "io.reactivex.Maybe");
+    Optional<Class> maybe = loadClass(loader, "io.reactivex.rxjava3.core.Maybe");
     if (maybe.isPresent()) {
       if (maybe.get().isAssignableFrom(type)) {
         return rxMaybe(mode, route, executor, initializer);
       }
     }
     // Flowable:
-    Optional<Class> flowable = loadClass(loader, "io.reactivex.Flowable");
+    Optional<Class> flowable = loadClass(loader, "io.reactivex.rxjava3.core.Flowable");
     if (flowable.isPresent()) {
       if (flowable.get().isAssignableFrom(type)) {
         return rxFlowable(mode, route, executor, initializer);
       }
     }
     // Observable:
-    Optional<Class> observable = loadClass(loader, "io.reactivex.Observable");
+    Optional<Class> observable = loadClass(loader, "io.reactivex.rxjava3.core.Observable");
     if (observable.isPresent()) {
       if (observable.get().isAssignableFrom(type)) {
         return rxObservable(mode, route, executor, initializer);
       }
     }
     // Disposable
-    Optional<Class> disposable = loadClass(loader, "io.reactivex.disposables.Disposable");
+    Optional<Class> disposable = loadClass(loader, "io.reactivex.rxjava3.disposables.Disposable");
     if (disposable.isPresent()) {
       if (disposable.get().isAssignableFrom(type)) {
         return rxDisposable(mode, route, executor, initializer);

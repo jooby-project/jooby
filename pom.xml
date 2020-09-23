@@ -72,7 +72,7 @@
     <boringssl.version>2.0.27.Final</boringssl.version>
 
     <!-- Reactive -->
-    <rxjava.version>2.2.19</rxjava.version>
+    <rxjava.version>3.0.6</rxjava.version>
     <reactor.version>3.3.9.RELEASE</reactor.version>
 
     <!--OpenAPI-->
@@ -867,7 +867,7 @@
 
       <!-- rxjava -->
       <dependency>
-        <groupId>io.reactivex.rxjava2</groupId>
+        <groupId>io.reactivex.rxjava3</groupId>
         <artifactId>rxjava</artifactId>
         <version>${rxjava.version}</version>
       </dependency>
