@@ -63,7 +63,7 @@
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
   <junit.version>5.7.0</junit.version>
-  <kotlin.version>1.4.0</kotlin.version>
+  <kotlin.version>1.4.10</kotlin.version>
   <kotlinx-coroutines-core.version>1.3.9</kotlinx-coroutines-core.version>
   <lettuce.version>5.3.3.RELEASE</lettuce.version>
   <license-maven-plugin.version>3.0</license-maven-plugin.version>
