@@ -5,6 +5,7 @@
  */
 package io.jooby.freemarker;
 
+import freemarker.core.Environment;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import io.jooby.Context;
@@ -16,6 +17,7 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 class FreemarkerTemplateEngine implements TemplateEngine {
@@ -37,7 +39,13 @@ class FreemarkerTemplateEngine implements TemplateEngine {
     StringWriter writer = new StringWriter();
     Map<String, Object> model = new HashMap<>(ctx.getAttributes());
     model.putAll(modelAndView.getModel());
-    template.process(model, writer);
+    Locale locale = modelAndView.getLocale();
+    if (locale == null) {
+      locale = ctx.locale();
+    }
+    Environment env = template.createProcessingEnvironment(model, writer);
+    env.setLocale(locale);
+    env.process();
     return writer.toString();
   }
 }

@@ -7,6 +7,7 @@ package io.jooby;
 
 import com.typesafe.config.Config;
 import io.jooby.exception.RegistryException;
+import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,6 +45,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
@@ -100,6 +104,8 @@ public class Jooby implements Router, Registry {
 
   private EnvironmentOptions environmentOptions;
 
+  private List<Locale> locales;
+
   private boolean lateInit;
 
   private String name;
@@ -155,6 +161,27 @@ public class Jooby implements Router, Registry {
       env = Environment.loadEnvironment(environmentOptions);
     }
     return env;
+  }
+
+  /**
+   * Returns the list of supported locales, or
+   * {@code null} if none set.
+   *
+   * @return The supported locales.
+   */
+  @Nullable @Override public List<Locale> getLocales() {
+    return locales;
+  }
+
+  /**
+   * Sets the supported locales.
+   *
+   * @param locales The supported locales.
+   * @return This router.
+   */
+  public Router setLocales(@Nonnull List<Locale> locales) {
+    this.locales = requireNonNull(locales);
+    return this;
   }
 
   /**
@@ -646,6 +673,17 @@ public class Jooby implements Router, Registry {
    * @return Server.
    */
   public @Nonnull Server start() {
+    if (locales == null) {
+      String path = "application.lang";
+      locales = Optional.of(getConfig())
+          .filter(c -> c.hasPath(path))
+          .map(c -> c.getString(path))
+          .map(v -> LocaleUtils.parseLocales(v).orElseThrow(() -> new RuntimeException(String.format(
+                  "Invalid value for configuration property '%s'; check the documentation of %s#parse(): %s",
+                  path, Locale.LanguageRange.class.getName(), v))))
+          .orElseGet(() -> singletonList(Locale.getDefault()));
+    }
+
     List<Server> servers = stream(
         spliteratorUnknownSize(
             ServiceLoader.load(Server.class).iterator(),

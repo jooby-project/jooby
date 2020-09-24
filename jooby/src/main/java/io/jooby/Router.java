@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -111,6 +112,13 @@ public interface Router extends Registry {
    * @return Application environment.
    */
   @Nonnull Environment getEnvironment();
+
+  /**
+   * Returns the supported locales.
+   *
+   * @return The supported locales.
+   */
+  @Nonnull List<Locale> getLocales();
 
   /**
    * Mutable map of application attributes.

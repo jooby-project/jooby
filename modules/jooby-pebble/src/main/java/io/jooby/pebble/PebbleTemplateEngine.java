@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 class PebbleTemplateEngine implements TemplateEngine {
@@ -41,7 +42,11 @@ class PebbleTemplateEngine implements TemplateEngine {
     Writer writer = new StringWriter();
     Map<String, Object> model = new HashMap<>(ctx.getAttributes());
     model.putAll(modelAndView.getModel());
-    template.evaluate(writer, model);
+    Locale locale = modelAndView.getLocale();
+    if (locale == null) {
+      locale = ctx.locale();
+    }
+    template.evaluate(writer, model, locale);
     return writer.toString();
   }
 }

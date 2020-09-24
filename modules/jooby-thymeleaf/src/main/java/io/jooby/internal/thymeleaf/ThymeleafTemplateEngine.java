@@ -35,7 +35,15 @@ public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
     model.putAll(modelAndView.getModel());
 
     // Locale:
-    Locale locale = (Locale) model.getOrDefault("locale", Locale.getDefault());
+    Locale locale = modelAndView.getLocale();
+    if (locale == null) {
+      // keep compatibility with previous versions
+      locale = (Locale) model.getOrDefault("locale", null);
+
+      if (locale == null) {
+        locale = ctx.locale();
+      }
+    }
 
     Context context = new Context(locale, model);
     String templateName = modelAndView.getView();
