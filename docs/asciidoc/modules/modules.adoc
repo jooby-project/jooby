@@ -14,46 +14,46 @@ configuration properties.
 Available modules are listed next.
 
 === Cloud
-  * link:modules/aws[AWS]: Amazon Web Service module.
+  * link:/modules/aws[AWS]: Amazon Web Service module.
 
 === Data
-   * link:modules/ebean[Ebean]: Ebean ORM module.
-   * link:modules/flyway[Flyway]: Flyway migration module.
-   * link:modules/graphql[GraphQL]: GraphQL Java module.
-   * link:modules/hikari[HikariCP]: A high-performance JDBC connection pool.
-   * link:modules/hibernate[Hibernate]: Hibernate ORM module.
-   * link:modules/jdbi[Jdbi]: Jdbi module.
-   * link:modules/redis[Redis]: Redis module.
+   * link:/modules/ebean[Ebean]: Ebean ORM module.
+   * link:/modules/flyway[Flyway]: Flyway migration module.
+   * link:/modules/graphql[GraphQL]: GraphQL Java module.
+   * link:/modules/hikari[HikariCP]: A high-performance JDBC connection pool.
+   * link:/modules/hibernate[Hibernate]: Hibernate ORM module.
+   * link:/modules/jdbi[Jdbi]: Jdbi module.
+   * link:/modules/redis[Redis]: Redis module.
 
 === Development Tools
    * link:#hot-reload[Jooby Run]: Run and hot reload your application. 
-   * link:modules/node[Node]: Download, Install and Run node locally.
-   * link:modules/whoops[Whoops]: Pretty page stacktrace reporter.
-   * link:modules/metrics[Metrics]: Application metrics from the excellent metrics library.
+   * link:/modules/node[Node]: Download, Install and Run node locally.
+   * link:/modules/whoops[Whoops]: Pretty page stacktrace reporter.
+   * link:/modules/metrics[Metrics]: Application metrics from the excellent metrics library.
 
 === JSON
-   * link:modules/gson[Gson]: Gson module for Jooby.
-   * link:modules/jackson[Jackson]: Jackson module for Jooby.
+   * link:/modules/gson[Gson]: Gson module for Jooby.
+   * link:/modules/jackson[Jackson]: Jackson module for Jooby.
 
 === OpenAPI
-   * link:modules/openapi[OpenAPI]: OpenAPI supports.
+   * link:/modules/openapi[OpenAPI]: OpenAPI supports.
 
 === Template Engine
-   * link:modules/handlebars[Handlebars]: Handlebars template engine.
-   * link:modules/freemarker[Freemarker]: Freemarker template engine.
-   * link:modules/pebble[Pebble]: Pebble template engine.
-   * link:modules/rocker[Rocker]: Rocker template engine.
-   * link:modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.
+   * link:/modules/handlebars[Handlebars]: Handlebars template engine.
+   * link:/modules/freemarker[Freemarker]: Freemarker template engine.
+   * link:/modules/pebble[Pebble]: Pebble template engine.
+   * link:/modules/rocker[Rocker]: Rocker template engine.
+   * link:/modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.
 
 === Security
-   * link:modules/pac4j[Pac4j]: Security engine module.
+   * link:/modules/pac4j[Pac4j]: Security engine module.
 
 === Session Store
-   * link:modules/caffeine[Caffeine]: In-memory session store using Caffeine cache.
-   * link:modules/jwt-session-store[JWT]: JSON Web Token session store.
-   * link:modules/redis#redis-http-session[Redis]: Save session data on redis.
+   * link:/modules/caffeine[Caffeine]: In-memory session store using Caffeine cache.
+   * link:/modules/jwt-session-store[JWT]: JSON Web Token session store.
+   * link:/modules/redis#redis-http-session[Redis]: Save session data on redis.
 
 === Scheduler
-   * link:modules/quartz[Quartz]: Quartz scheduler module.
+   * link:/modules/quartz[Quartz]: Quartz scheduler module.
 
 .
