@@ -13,9 +13,13 @@ import io.jooby.ServiceRegistry;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.event.EventBus;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.resource.DefaultClientResources;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 import java.util.stream.Stream;
 
 /**
@@ -60,6 +64,11 @@ import java.util.stream.Stream;
 public class RedisModule implements Extension {
   private String name;
   private RedisURI uri;
+  private Object metricRegistry;
+  private Duration eventPublishInterval = Duration.ZERO;
+  private int ioThreadPoolSize = 0;
+  private int computationThreadPoolSize = 0;
+
 
   /**
    * Creates a new redis module. Value must be:
@@ -71,11 +80,12 @@ public class RedisModule implements Extension {
   public RedisModule(@Nonnull String value) {
     try {
       uri = RedisURI.create(value);
-      name = "redis";
+      name = value;
     } catch (IllegalArgumentException x) {
       name = value;
     }
   }
+
 
   /**
    * Create a new redis module. The application configuration file must have a redis property, like:
@@ -85,6 +95,52 @@ public class RedisModule implements Extension {
    */
   public RedisModule() {
     this("redis");
+  }
+
+
+  /**
+   * Sets a {@code MetricRegistry} from outside caller
+   * lettuce metrics is depends on <a href="https://github.com/LatencyUtils/LatencyUtils">LatencyUtils</a>. You should add it to your maven dependencies
+   *
+   * @param metricsInterval Redis EventPublisher EmitInterval.
+   * @param metricRegistry an instance of {@code MetricRegistry}
+   * @return this instance
+   */
+  public RedisModule metricRegistry(@Nonnull Duration metricsInterval, @Nonnull Object metricRegistry) {
+    this.eventPublishInterval = metricsInterval;
+    this.metricRegistry = metricRegistry;
+    return this;
+  }
+
+  /**
+   * Sets a {@code MetricRegistry} from outside caller
+   * Default EventPublisher EmitInterval is 10 MINUTES
+   * lettuce metrics is depends on <a href="https://github.com/LatencyUtils/LatencyUtils">LatencyUtils</a>. You should add it to your maven dependencies
+   *
+   * @param metricRegistry an instance of {@code MetricRegistry}
+   * @return this instance
+   */
+  public RedisModule metricRegistry(@Nonnull Object metricRegistry) {
+    this.metricRegistry = metricRegistry;
+    return this;
+  }
+
+  /**
+   * @param ioThreadPoolSize
+   * @return this instance
+   */
+  public RedisModule withIOThreadPoolSize(@Nonnull int ioThreadPoolSize) {
+    this.ioThreadPoolSize = ioThreadPoolSize;
+    return this;
+  }
+
+  /**
+   * @param computationThreadPoolSize
+   * @return this instance
+   */
+  public RedisModule withComputationThreadPoolSize(@Nonnull int computationThreadPoolSize) {
+    this.computationThreadPoolSize = computationThreadPoolSize;
+    return this;
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
@@ -98,7 +154,22 @@ public class RedisModule implements Extension {
           .orElseThrow(() -> new IllegalStateException(
               "Redis uri missing from application configuration: " + name));
     }
-    RedisClient client = RedisClient.create(uri);
+
+    ClientResources.Builder builder = DefaultClientResources.builder();
+    if (ioThreadPoolSize>0){
+      builder.ioThreadPoolSize(ioThreadPoolSize);
+    }
+    if (computationThreadPoolSize>0){
+      builder.computationThreadPoolSize(computationThreadPoolSize);
+    }
+
+    if (metricRegistry != null) {
+      if (!this.eventPublishInterval.isZero()) {
+        builder.commandLatencyPublisherOptions(()-> this.eventPublishInterval);
+      }
+    }
+
+    RedisClient client = RedisClient.create(builder.build(), uri);
     StatefulRedisConnection<String, String> connection = client.connect();
     StatefulRedisPubSubConnection<String, String> connectPubSub = client.connectPubSub();
 
@@ -117,5 +188,11 @@ public class RedisModule implements Extension {
 
     registry.putIfAbsent(ServiceKey.key(StatefulRedisPubSubConnection.class), connectPubSub);
     registry.put(ServiceKey.key(StatefulRedisPubSubConnection.class, name), connectPubSub);
+
+    if(metricRegistry != null) {
+      EventBus eventBus = connection.getResources().eventBus();
+      eventBus.get().subscribe(new RedisEventConsumer(metricRegistry, name));
+    }
   }
+
 }

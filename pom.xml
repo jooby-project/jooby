@@ -37,7 +37,8 @@
     <jdbi.version>3.14.4</jdbi.version>
     <flyway.version>6.5.5</flyway.version>
     <graphql-java.version>15.0</graphql-java.version>
-    <lettuce.version>5.3.3.RELEASE</lettuce.version>
+    <lettuce.version>5.3.4.RELEASE</lettuce.version>
+    <latencyutils.version>2.0.3</latencyutils.version>
     <caffeine.version>2.8.5</caffeine.version>
 
     <config.version>1.4.0</config.version>
@@ -1137,6 +1138,12 @@
         <groupId>io.lettuce</groupId>
         <artifactId>lettuce-core</artifactId>
         <version>${lettuce.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.latencyutils</groupId>
+        <artifactId>LatencyUtils</artifactId>
+        <version>${latencyutils.version}</version>
+        <type>jar</type>
       </dependency>
 
       <!-- Maven -->
