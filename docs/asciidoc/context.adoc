@@ -42,6 +42,14 @@ explicitly request the registration of it as a service with the following invoca
 Important to note that the context is a *request scoped* object, it's only available through the service
 registry while the request it belongs to is being processed.
 
+javadoc:Context[Context] also provides derived information about the current request such as a
+matching locale (or locales) based on the `Accept-Language` header (if presents). You may use
+the result of javadoc:Context[locale] or javadoc:Context[locales] to present content matching to
+the user's language preference.
+
+The above methods use `Locale.lookup(...)` and `Locale.filter(...)` respectively to perform the
+language tag matching. See their overrides if you need to plug in your own matching strategy.
+
 === Parameters
 
 There are several parameter types: `header`, `cookie`, `path`, `query`, `form`, `multipart`,

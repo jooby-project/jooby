@@ -32,6 +32,47 @@ Templates are available via javadoc:ModelAndView[] and requires a javadoc:Templa
 <2> Build the view model
 <3> Returns a ModelAndView instance
 
+javadoc:ModelAndView[] allows you to specify the desired locale used for template rendering:
+
+.Java
+[source, java, role = "primary"]
+----
+{
+  install(new MyTemplateEngineModule());
+
+  get("/", ctx -> {
+    Map<String, Object> model = ...;
+    return new ModelAndView("index.html", model)
+        .setLocale(Locale.GERMAN);                <1>
+  });
+}
+----
+
+.Kotlin
+[source, kt, role = "secondary"]
+----
+{
+  install(MyTemplateEngineModule())
+
+  get("/") { ctx ->
+    val model = mapOf(...)
+    ModelAndView("index.html", model)
+        .setLocale(Locale.GERMAN)                <1>
+  }
+}
+----
+
+<1> Set the preferred locale
+
+If no locale is specified explicitly, a locale matched by the `Accept-Language` header of the current
+request is used.
+
+[NOTE]
+====
+Not all template engines support setting and using a specific locale. If you use such a template
+engine, the above configuration does not have any effect.
+====
+
 === Template Engine
 
 Template engine does the view rendering/encoding. Template engine extends a javadoc:MessageEncoder[]
