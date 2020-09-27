@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -182,6 +183,16 @@ public class Jooby implements Router, Registry {
   public Router setLocales(@Nonnull List<Locale> locales) {
     this.locales = requireNonNull(locales);
     return this;
+  }
+
+  /**
+   * Sets the supported locales.
+   *
+   * @param locales The supported locales.
+   * @return This router.
+   */
+  public Router setLocales(Locale... locales) {
+    return setLocales(Arrays.asList(locales));
   }
 
   /**

@@ -48,7 +48,41 @@ the result of javadoc:Context[locale] or javadoc:Context[locales] to present con
 the user's language preference.
 
 The above methods use `Locale.lookup(...)` and `Locale.filter(...)` respectively to perform the
-language tag matching. See their overrides if you need to plug in your own matching strategy.
+language tag matching. See their overloads if you need to plug in your own matching strategy.
+
+To leverage language matching however, you need to tell Jooby which languages your application
+supports. This can be done by either setting the `application.lang` configuration property
+to a value compatible with the
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language[Accept-Language]
+header:
+
+.application.conf
+[source, properties]
+----
+application.lang = en, en-GB, de
+----
+
+or calling the javadoc:Jooby[setLocales, java.util.List]
+or javadoc:Jooby[setLocales, java.util.Locale...] method at runtime:
+
+.Java
+[source, java, role="primary"]
+----
+{
+  setLocales(Locale.GERMAN, new Locale("hu", "HU"));
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  setLocales(Locale.GERMAN, Locale("hu", "HU"))
+}
+----
+
+If you don't set the supported locales explicitly, Jooby uses a single locale provided by
+`Locale.getDefault()`.
 
 === Parameters
 
