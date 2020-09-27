@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * lettuce event metrics
+ * lettuce event metrics.
  *
  * @author aftershadow
  */
@@ -25,30 +25,37 @@ public class RedisEventConsumer implements Consumer<Event> {
   private final RedisCommandGauge min;
   private final RedisCommandGauge max;
 
+  /**
+   * Create a {@code Consumer<Event>} from eventbus
+   * lettuce metrics is depends on <a href="https://github.com/LatencyUtils/LatencyUtils">LatencyUtils</a>. You should add it to your maven dependencies
+   *
+   * @param registry receive MetricRegistry instance
+   * @param name metrics name prefix
+   */
   public RedisEventConsumer(@Nonnull Object registry, @Nonnull String name) {
-    this.registry = (MetricRegistry)registry;
-    this.name = "redis."+name+".";
+    this.registry = (MetricRegistry) registry;
+    this.name = "redis." + name + ".";
     this.min = new RedisCommandGauge();
     this.max = new RedisCommandGauge();
   }
 
   @Override
   public void accept(Event event) {
-    if (event instanceof CommandLatencyEvent){
-      ((CommandLatencyEvent)event).getLatencies().forEach((commandLatencyId, commandMetrics) -> {
+    if (event instanceof CommandLatencyEvent) {
+      ((CommandLatencyEvent) event).getLatencies().forEach((commandLatencyId, commandMetrics) -> {
         String key = name + "cmd." + commandLatencyId.commandType().name();
         TimeUnit timeUnit = commandMetrics.getTimeUnit();
         registry.counter(key).inc(commandMetrics.getCount());
         max.setValue(timeUnit.toMicros(commandMetrics.getCompletion().getMax()));
         min.setValue(timeUnit.toMicros(commandMetrics.getCompletion().getMin()));
-        registry.gauge(key+".max", () -> max);
-        registry.gauge(key+".min", () -> min);
+        registry.gauge(key + ".max", () -> max);
+        registry.gauge(key + ".min", () -> min);
       });
     }
   }
 
   private static class RedisCommandGauge implements Gauge<Long> {
-    private Long value = 0l;
+    private Long value = 0L;
 
     @Override
     public Long getValue() {

@@ -156,16 +156,16 @@ public class RedisModule implements Extension {
     }
 
     ClientResources.Builder builder = DefaultClientResources.builder();
-    if (ioThreadPoolSize>0){
+    if (ioThreadPoolSize > 0) {
       builder.ioThreadPoolSize(ioThreadPoolSize);
     }
-    if (computationThreadPoolSize>0){
+    if (computationThreadPoolSize > 0) {
       builder.computationThreadPoolSize(computationThreadPoolSize);
     }
 
     if (metricRegistry != null) {
       if (!this.eventPublishInterval.isZero()) {
-        builder.commandLatencyPublisherOptions(()-> this.eventPublishInterval);
+        builder.commandLatencyPublisherOptions(() -> this.eventPublishInterval);
       }
     }
 
@@ -189,7 +189,7 @@ public class RedisModule implements Extension {
     registry.putIfAbsent(ServiceKey.key(StatefulRedisPubSubConnection.class), connectPubSub);
     registry.put(ServiceKey.key(StatefulRedisPubSubConnection.class, name), connectPubSub);
 
-    if(metricRegistry != null) {
+    if (metricRegistry != null) {
       EventBus eventBus = connection.getResources().eventBus();
       eventBus.get().subscribe(new RedisEventConsumer(metricRegistry, name));
     }
