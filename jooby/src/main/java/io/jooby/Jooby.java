@@ -673,17 +673,6 @@ public class Jooby implements Router, Registry {
    * @return Server.
    */
   public @Nonnull Server start() {
-    if (locales == null) {
-      String path = "application.lang";
-      locales = Optional.of(getConfig())
-          .filter(c -> c.hasPath(path))
-          .map(c -> c.getString(path))
-          .map(v -> LocaleUtils.parseLocales(v).orElseThrow(() -> new RuntimeException(String.format(
-                  "Invalid value for configuration property '%s'; check the documentation of %s#parse(): %s",
-                  path, Locale.LanguageRange.class.getName(), v))))
-          .orElseGet(() -> singletonList(Locale.getDefault()));
-    }
-
     List<Server> servers = stream(
         spliteratorUnknownSize(
             ServiceLoader.load(Server.class).iterator(),
@@ -735,6 +724,17 @@ public class Jooby implements Router, Registry {
 
     if (mode == null) {
       mode = ExecutionMode.DEFAULT;
+    }
+
+    if (locales == null) {
+      String path = "application.lang";
+      locales = Optional.of(getConfig())
+          .filter(c -> c.hasPath(path))
+          .map(c -> c.getString(path))
+          .map(v -> LocaleUtils.parseLocales(v).orElseThrow(() -> new RuntimeException(String.format(
+              "Invalid value for configuration property '%s'; check the documentation of %s#parse(): %s",
+              path, Locale.LanguageRange.class.getName(), v))))
+          .orElseGet(() -> singletonList(Locale.getDefault()));
     }
 
     ServiceRegistry services = getServices();
