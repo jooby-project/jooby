@@ -15,6 +15,10 @@ import static java.util.stream.Collectors.toList;
 public class LocaleUtils {
 
   public static Optional<List<Locale.LanguageRange>> parseRanges(final String value) {
+    if (value == null) {
+      return Optional.empty();
+    }
+
     // remove trailing ';' well-formed vs ill-formed
     String wellFormed = value;
     if (wellFormed.endsWith(";")) {

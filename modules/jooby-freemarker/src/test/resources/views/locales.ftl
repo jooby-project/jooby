@@ -1,0 +1,1 @@
+${someDate?string["EEEE"]}

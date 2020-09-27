@@ -3058,6 +3058,32 @@ public class FeaturedTest {
     });
   }
 
+  @ServerTest
+  public void locales(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.get("/locales", Context::locales);
+      app.get("/locale", Context::locale);
+      app.setLocales(Arrays.asList(new Locale("en"),
+          new Locale("en", "GB"),
+          new Locale("de", "AT"),
+          new Locale("de", "CH"),
+          new Locale("fr"),
+          new Locale("hu")));
+    }).dontFollowRedirects().ready(client -> {
+      client.header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5")
+          .get("/locales", rsp -> assertEquals("[en, en_GB, de_AT, de_CH, fr, hu]", rsp.body().string()));
+
+      client.header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7")
+          .get("/locales", rsp -> assertEquals("[fr, en, en_GB, de_AT, de_CH]", rsp.body().string()));
+
+      client.header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5")
+          .get("/locale", rsp -> assertEquals("fr", rsp.body().string()));
+
+      client.header("Accept-Language", "de-AT, fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5")
+          .get("/locale", rsp -> assertEquals("de_AT", rsp.body().string()));
+    });
+  }
+
   private byte[][] partition(byte[] bytes, int size) {
     List<byte[]> result = new ArrayList<>();
     int offset = 0;

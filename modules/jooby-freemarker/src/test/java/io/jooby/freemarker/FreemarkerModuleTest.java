@@ -4,12 +4,20 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import freemarker.template.Configuration;
 import io.jooby.Environment;
+import io.jooby.Jooby;
 import io.jooby.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FreemarkerModuleTest {
@@ -50,7 +58,7 @@ public class FreemarkerModuleTest {
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
     FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker,
         Arrays.asList(".ftl"));
-    MockContext ctx = new MockContext();
+    MockContext ctx = new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
     String output = engine
         .render(ctx, new ModelAndView("index.ftl")
@@ -60,12 +68,35 @@ public class FreemarkerModuleTest {
   }
 
   @Test
+  public void renderWithLocale() throws Exception {
+    Configuration freemarker = FreemarkerModule.create()
+        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker,
+        Arrays.asList(".ftl"));
+    MockContext ctx = new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
+
+    Date nextFriday = Date.from(LocalDateTime.now()
+        .with(TemporalAdjusters.next(DayOfWeek.FRIDAY)).toInstant(ZoneOffset.UTC));
+
+    assertEquals("friday", engine.render(ctx, new ModelAndView("locales.ftl")
+        .put("someDate", nextFriday)).trim().toLowerCase());
+
+    assertEquals("friday", engine.render(ctx, new ModelAndView("locales.ftl")
+        .put("someDate", nextFriday)
+        .setLocale(new Locale("en", "GB"))).trim().toLowerCase());
+
+    assertEquals("freitag", engine.render(ctx, new ModelAndView("locales.ftl")
+        .put("someDate", nextFriday)
+        .setLocale(Locale.GERMAN)).trim().toLowerCase());
+  }
+
+  @Test
   public void publicField() throws Exception {
     Configuration freemarker = FreemarkerModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
     FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker,
         Arrays.asList(".ftl"));
-    MockContext ctx = new MockContext();
+    MockContext ctx = new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
     String output = engine
         .render(ctx, new ModelAndView("index.ftl")
@@ -82,7 +113,7 @@ public class FreemarkerModuleTest {
                 ConfigValueFactory.fromAnyRef("foo"))));
     FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker,
         Arrays.asList(".ftl"));
-    MockContext ctx = new MockContext();
+    MockContext ctx = new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
     String output = engine
         .render(ctx, new ModelAndView("index.ftl"));
