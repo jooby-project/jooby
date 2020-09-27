@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.ParamLookupImpl;
 import io.jooby.internal.ReadOnlyContext;
 import io.jooby.internal.WebSocketSender;
@@ -24,11 +25,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.function.BiFunction;
 
 /**
  * HTTP context allows you to interact with the HTTP Request and manipulate the HTTP Response.
@@ -433,6 +437,78 @@ public interface Context extends Registry {
    * @return Request <code>Content-Length</code> header or <code>-1</code> when missing.
    */
   long getRequestLength();
+
+  /**
+   * Returns a list of locales that best matches the current request.
+   *
+   * The first filter argument is the value of <code>Accept-Language</code> as a list of
+   * {@link Locale.LanguageRange} instances while the second argument is a list of supported
+   * locales specified by {@link Jooby#setLocales(List)} or by the
+   * <code>application.lang</code> configuration property.
+   *
+   * The next example returns a list of matching {@code Locale} instances using the filtering
+   * mechanism defined in RFC 4647:
+   *
+   * <pre>{@code
+   * ctx.locales(Locale::filter)
+   * }</pre>
+   *
+   * @param filter A locale filter.
+   * @return A list of matching locales.
+   */
+  @Nonnull default List<Locale> locales(BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter) {
+    return filter.apply(header("Accept-Language")
+        .toOptional()
+        .flatMap(LocaleUtils::parseRanges)
+        .orElseGet(Collections::emptyList), getRouter().getLocales());
+  }
+
+  /**
+   * Returns a list of locales that best matches the current request as per {@link Locale#filter}.
+   *
+   * @return A list of matching locales or empty list.
+   * @see #locales(BiFunction)
+   */
+  @Nonnull default List<Locale> locales() {
+    return locales(Locale::filter);
+  }
+
+  /**
+   * Returns a locale that best matches the current request.
+   *
+   * The first filter argument is the value of <code>Accept-Language</code> as a list of
+   * {@link Locale.LanguageRange} instances while the second argument is a list of supported
+   * locales specified by {@link Jooby#setLocales(List)} or by the
+   * <code>application.lang</code> configuration property.
+   *
+   * The next example returns a {@code Locale} instance for the best-matching language
+   * tag using the lookup mechanism defined in RFC 4647.
+   *
+   * <pre>{@code
+   * ctx.locale(Locale::lookup)
+   * }</pre>
+   *
+   * @param filter A locale filter.
+   * @return A matching locale.
+   */
+  @Nonnull default Locale locale(BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> filter) {
+    return filter.apply(header("Accept-Language")
+        .toOptional()
+        .flatMap(LocaleUtils::parseRanges)
+        .orElseGet(Collections::emptyList), getRouter().getLocales());
+  }
+
+  /**
+   * Returns a locale that best matches the current request or the default locale specified
+   * by {@link Jooby#setLocales(List)} or by the <code>application.lang</code>
+   * configuration property.
+   *
+   * @return A matching locale.
+   */
+  @Nonnull default Locale locale() {
+    return locale((priorityList, locales) -> Optional.ofNullable(Locale.lookup(priorityList, locales))
+        .orElse(locales.get(0)));
+  }
 
   /**
    * Current user or <code>null</code> if none was set.

@@ -6,7 +6,9 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -22,6 +24,9 @@ public class ModelAndView {
 
   /** View data. */
   private final Map<String, Object> model;
+
+  /** Locale used when rendering the view. */
+  private Locale locale;
 
   /**
    * Creates a new model and view.
@@ -67,6 +72,19 @@ public class ModelAndView {
   }
 
   /**
+   * Sets the locale used when rendering the view, if the template
+   * engine supports setting it. Specifying {@code null} triggers a
+   * fallback to a locale determined by the current request.
+   *
+   * @param locale The locale used when rendering the view.
+   * @return This instance.
+   */
+  public ModelAndView setLocale(@Nullable Locale locale) {
+    this.locale = locale;
+    return this;
+  }
+
+  /**
    * View data (a.k.a as model).
    *
    * @return View data (a.k.a as model).
@@ -82,6 +100,17 @@ public class ModelAndView {
    */
   public String getView() {
     return view;
+  }
+
+  /**
+   * Returns the locale used when rendering the view. Defaults to
+   * {@code null}, which triggers a fallback to a locale
+   * determined by the current request.
+   *
+   * @return The locale used when rendering the view.
+   */
+  @Nullable public Locale getLocale() {
+    return locale;
   }
 
   @Override public String toString() {
