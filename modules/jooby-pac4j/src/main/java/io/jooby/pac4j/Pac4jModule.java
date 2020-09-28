@@ -493,9 +493,13 @@ public class Pac4jModule implements Extension {
       String pattern = entry.getKey();
       if (!pattern.equals("*")) {
         List<String> keys = Router.pathKeys(pattern);
-        if (keys.size() == 0) {
-          application.get(pattern, new SecurityFilterImpl(null, pac4j, options, lazyClientNameList(entry.getValue()),
-              clientMap.get(pattern).authorizers));
+        if (keys.isEmpty()) {
+          SecurityFilterImpl securityFilter = new SecurityFilterImpl(null, pac4j, options,
+              lazyClientNameList(entry.getValue()),
+              clientMap.get(pattern).authorizers);
+          application.get(pattern, securityFilter);
+          // POST for direct authentication
+          application.post(pattern, securityFilter);
         } else {
           application.decorator(new SecurityFilterImpl(pattern, pac4j, options, lazyClientNameList(entry.getValue()),
               clientMap.get(pattern).authorizers));
