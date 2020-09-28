@@ -5,8 +5,16 @@
  */
 package io.jooby.gradle;
 
-import io.jooby.run.JoobyRun;
-import io.jooby.run.JoobyRunOptions;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.function.BiConsumer;
+
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.SourceSet;
@@ -17,14 +25,8 @@ import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
 
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.function.BiConsumer;
+import io.jooby.run.JoobyRun;
+import io.jooby.run.JoobyRunOptions;
 
 /**
  * Gradle plugin for Jooby run.
@@ -88,13 +90,6 @@ public class RunTask extends BaseTask {
           .forProjectDirectory(current.getRootDir())
           .connect();
 
-      Runnable shutdown = () -> {
-        joobyRun.shutdown();
-        connection.close();
-      };
-
-      Runtime.getRuntime().addShutdownHook(new Thread(shutdown));
-
       BiConsumer<String, Path> onFileChanged = (event, path) -> {
         if (config.isCompileExtension(path)) {
           BuildLauncher compiler = connection.newBuild()
@@ -147,7 +142,7 @@ public class RunTask extends BaseTask {
         dependencies(project, sourceSet).forEach(joobyRun::addResource);
       }
 
-      safeShutdown(shutdown);
+      safeShutdown(joobyRun::shutdown);
 
       // Block current thread.
       joobyRun.start();
@@ -234,19 +229,21 @@ public class RunTask extends BaseTask {
    *
    * Shutdown without killing gradle daemon on ENTER KEY.
    *
-   * @param quit
+   * @param shutdown
    */
-  private static void safeShutdown(Runnable quit) {
+  private static void safeShutdown(Runnable shutdown) {
     new Thread(() -> {
-      Scanner scanner = new Scanner(System.in);
-      while (true) {
-        scanner.nextLine();
-        try {
-          quit.run();
-        } finally {
-          break;
-        }
-      }
+      waitForCloseSignal();
+      shutdown.run();
     }, "jooby-shutdown").start();
+  }
+
+  private static void waitForCloseSignal() {
+    try (Scanner scanner = new Scanner(System.in)) {
+      // wait for enter to shutdown
+      scanner.nextLine();
+    } catch (NoSuchElementException | IllegalStateException x) {
+      // Ctrl+C All IO is disconnected, we are OK
+    }
   }
 }
