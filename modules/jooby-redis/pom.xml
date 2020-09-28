@@ -49,8 +49,20 @@
     <dependency>
       <groupId>io.lettuce</groupId>
       <artifactId>lettuce-core</artifactId>
-      <version>5.3.3.RELEASE</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.latencyutils</groupId>
+      <artifactId>LatencyUtils</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.dropwizard.metrics</groupId>
+      <artifactId>metrics-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+
 
     <!-- Test dependencies -->
     <dependency>

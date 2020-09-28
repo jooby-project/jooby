@@ -3,8 +3,8 @@ package io.jooby
 import io.jooby.internal.mvc.KotlinMvc
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
-import io.reactivex.Flowable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Assertions.assertEquals
 

@@ -8,7 +8,7 @@ package io.jooby.internal.handler.reactive;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.internal.handler.LinkedHandler;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 import javax.annotation.Nonnull;
 

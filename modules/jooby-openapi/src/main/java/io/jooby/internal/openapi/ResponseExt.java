@@ -22,8 +22,8 @@ public class ResponseExt extends ApiResponse {
   private static final Set<String> ASYNC_TYPES =
       Arrays.asList(
           CompletionStage.class.getName(), CompletableFuture.class.getName(),
-          "io.reactivex.Single", "io.reactivex.Maybe", "io.reactivex.Flowable",
-          "io.reactivex.Observable",
+          "io.reactivex.rxjava3.core.Single", "io.reactivex.rxjava3.core.Maybe", "io.reactivex.rxjava3.core.Flowable",
+          "io.reactivex.rxjava3.core.Observable",
           "reactor.core.publisher.Flux", "reactor.core.publisher.Mono"
       ).stream().collect(toSet());
 

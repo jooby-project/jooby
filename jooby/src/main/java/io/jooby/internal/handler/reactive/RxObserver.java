@@ -5,7 +5,8 @@
  */
 package io.jooby.internal.handler.reactive;
 
-import io.reactivex.observers.DefaultObserver;
+
+import io.reactivex.rxjava3.observers.DefaultObserver;
 
 public class RxObserver extends DefaultObserver<Object> {
 

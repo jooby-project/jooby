@@ -13,9 +13,10 @@ import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
 import io.jooby.internal.handler.reactive.RxFlowableHandler;
 import io.jooby.internal.handler.reactive.RxMaybeHandler;
 import io.jooby.internal.handler.reactive.RxSingleHandler;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Single;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
