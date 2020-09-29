@@ -13,7 +13,7 @@ public class Issue1859 {
   public void shouldGetNullOnMissingBody() throws Exception {
     new MvcModuleCompilerRunner(new C1859())
         .example(Expected1859.class)
-        .debugModule(app -> {
+        .module(app -> {
           MockRouter router = new MockRouter(app);
           MockContext ctx = new MockContext();
           ctx.setBody(new byte[0]);
