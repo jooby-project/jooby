@@ -152,7 +152,7 @@ public class ModuleCompiler {
   private void install(ClassWriter writer, List<HandlerCompiler> handlers) throws Exception {
     MethodVisitor visitor = writer.visitMethod(ACC_PRIVATE | ACC_STATIC, "install",
         "(Lio/jooby/Jooby;Ljavax/inject/Provider;)V",
-        "(Lio/jooby/Jooby;Ljavax/inject/Provider<" + controllerClass + ">;)V",
+        "(Lio/jooby/Jooby;Ljavax/inject/Provider<" + Type.getObjectType(controllerClass.replace(".", "/")) + ">;)V",
         new String[]{"java/lang/Exception"});
     visitor.visitParameter("app", 0);
     visitor.visitParameter("provider", 0);
