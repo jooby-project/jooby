@@ -1,7 +1,9 @@
 package {{package}};
 
+{{#unless mvc}}
 import io.jooby.MockRouter;
 import io.jooby.StatusCode;
+{{/unless}}
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,10 +11,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UnitTest {
   @Test
   public void welcome() {
+{{#if mvc}}
+    Controller controller = new Controller();
+    assertEquals("Welcome to Jooby!", controller.sayHi());
+{{else}}
     MockRouter router = new MockRouter(new App());
     router.get("/", rsp -> {
       assertEquals("Welcome to Jooby!", rsp.value());
       assertEquals(StatusCode.OK, rsp.getStatusCode());
     });
+{{/if}}
   }
 }

@@ -109,9 +109,9 @@ public class CreateCmd extends Cmd {
     String server;
     boolean stork = !gradle && this.stork;
     if (interactive) {
-      gradle = yesNo(ctx.readLine("Use Gradle (yes/No): "));
+      gradle = yesNo(ctx.readLine("Use Gradle (yes/no): "));
 
-      kotlin = yesNo(ctx.readLine("Use Kotlin (yes/No): "));
+      kotlin = yesNo(ctx.readLine("Use Kotlin (yes/no): "));
 
       packageName = ctx.readLine("Enter a groupId/package: ");
 
@@ -120,9 +120,9 @@ public class CreateCmd extends Cmd {
         version = "1.0.0";
       }
 
-      mvc = yesNo(ctx.readLine("Use MVC (yes/No): "));
+      mvc = yesNo(ctx.readLine("Use MVC (yes/no): "));
 
-      openapi = yesNo(ctx.readLine("Configure OpenAPI (yes/No): "));
+      openapi = yesNo(ctx.readLine("Configure OpenAPI (yes/no): "));
 
       server = server(ctx.readLine("Choose a server (jetty, netty or undertow): "));
 
@@ -131,7 +131,7 @@ public class CreateCmd extends Cmd {
             .equals("stork");
       }
 
-      docker = yesNo(ctx.readLine("Generates Dockerfile (yes/No): "));
+      docker = yesNo(ctx.readLine("Generates Dockerfile (yes/no): "));
     } else {
       String[] parts = name.split(":");
       switch (parts.length) {
