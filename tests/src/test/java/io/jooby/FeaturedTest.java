@@ -2177,7 +2177,7 @@ public class FeaturedTest {
         .valueOf(userdir("src", "test", "www", "css", "styles.css").toFile().length());
     String cl5 = String.valueOf(userdir("src", "test", "www", "index.html").toFile().length());
     String vueSize = String.valueOf(
-        getClass().getResource("/META-INF/resources/webjars/vue/" + VUE + "/dist/vue.js")
+        getClass().getResource("/META-INF/resources/webjars/vue/" + VUE + "/dist/vue.cjs.js")
             .openConnection().getContentLength());
     runner.define(app -> {
       app.assets("/static/?*", userdir("src", "test", "www"));
@@ -2290,7 +2290,7 @@ public class FeaturedTest {
       });
 
       // Inside jar
-      client.get("/jar/dist/vue.js", rsp -> {
+      client.get("/jar/dist/vue.cjs.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
             rsp.header("Content-Type").toLowerCase());
         assertEquals(vueSize, rsp.header("Content-Length").toLowerCase());

@@ -35,7 +35,7 @@ public class ClassPathAssetSourceTest {
   @Test
   public void checkclasspathFiles() {
     assetSource("/META-INF/resources/webjars/vue/" + VUE, source -> {
-      Asset vuejs = source.resolve("dist/vue.js");
+      Asset vuejs = source.resolve("dist/vue.cjs.js");
       assertNotNull(vuejs);
       assertEquals(MediaType.js, vuejs.getContentType());
 
@@ -48,7 +48,7 @@ public class ClassPathAssetSourceTest {
     });
 
     assetSource("/META-INF/resources/webjars/vue/" + VUE + "/dist", source -> {
-      Asset vuejs = source.resolve("vue.js");
+      Asset vuejs = source.resolve("vue.cjs.js");
       assertNotNull(vuejs);
       assertEquals(MediaType.js, vuejs.getContentType());
 
@@ -56,8 +56,8 @@ public class ClassPathAssetSourceTest {
       assertNull(root);
     });
 
-    assetSource("/META-INF/resources/webjars/vue/" + VUE + "/dist/vue.js", source -> {
-      Asset vuejs = source.resolve("vue.js");
+    assetSource("/META-INF/resources/webjars/vue/" + VUE + "/dist/vue.cjs.js", source -> {
+      Asset vuejs = source.resolve("vue.cjs.js");
       assertNotNull(vuejs);
       assertEquals(MediaType.js, vuejs.getContentType());
     });
