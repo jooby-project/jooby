@@ -49,7 +49,7 @@
   <hibernate.version>5.4.21.Final</hibernate.version>
   <jackson.version>2.11.2</jackson.version>
   <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-  <jacoco.version>0.8.5</jacoco.version>
+  <jacoco.version>0.8.6</jacoco.version>
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.10.2.Final</jboss-modules.version>
