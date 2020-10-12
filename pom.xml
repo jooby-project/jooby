@@ -76,7 +76,7 @@
     <reactor.version>3.3.10.RELEASE</reactor.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.1.4</swagger.version>
+    <swagger.version>2.1.5</swagger.version>
     <swagger-parser.version>2.0.21</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
