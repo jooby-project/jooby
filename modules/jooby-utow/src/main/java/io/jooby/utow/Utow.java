@@ -115,11 +115,12 @@ public class Utow extends Server.Base {
 
       return this;
     } catch (RuntimeException x) {
+      Throwable sourceException = x;
       Throwable cause = Optional.ofNullable(x.getCause()).orElse(x);
       if (Server.isAddressInUse(cause)) {
-        cause = new BindException("Address already in use: " + options.getPort());
+        sourceException = new BindException("Address already in use: " + options.getPort());
       }
-      throw SneakyThrows.propagate(cause);
+      throw SneakyThrows.propagate(sourceException);
     }
   }
 
