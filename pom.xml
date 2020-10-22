@@ -113,7 +113,7 @@
     <guava.version>29.0-jre</guava.version>
 
     <auto-service.version>1.0-rc7</auto-service.version>
-    <compile-testing.version>0.18</compile-testing.version>
+    <compile-testing.version>0.19</compile-testing.version>
     <truth.version>1.0.1</truth.version>
 
     <!-- Gradle plugins -->
