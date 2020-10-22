@@ -19,7 +19,7 @@
   <jooby.version>2.9.1</jooby.version>
   <HikariCP.version>3.4.5</HikariCP.version>
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
-  <asm.version>8.0.1</asm.version>
+  <asm.version>9.0</asm.version>
   <auto-service.version>1.0-rc7</auto-service.version>
   <aws-java-sdk.version>1.11.867</aws-java-sdk.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
