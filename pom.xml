@@ -33,7 +33,7 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.200</h2.version>
     <hibernate.version>5.4.22.Final</hibernate.version>
-    <ebean.version>12.4.1</ebean.version>
+    <ebean.version>12.5.1</ebean.version>
     <jdbi.version>3.14.4</jdbi.version>
     <flyway.version>6.5.5</flyway.version>
     <graphql-java.version>15.0</graphql-java.version>
