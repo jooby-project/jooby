@@ -154,7 +154,7 @@
     <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.10.0</frontend-maven-plugin.version>
-    <node.version>v12.16.3</node.version>
+    <node.version>v12.19.0</node.version>
 
     <!-- Jooby  -->
     <jooby.version>${project.version}</jooby.version>
