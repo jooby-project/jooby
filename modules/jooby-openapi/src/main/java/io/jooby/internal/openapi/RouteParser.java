@@ -273,12 +273,12 @@ public class RouteParser {
             handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
           } else if (signature.matches("<init>", KT_FUN_1)) {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
-          } else if (signature.matches("use", Router.class)) {
-            handlerList.addAll(useRouter(ctx, prefix, node, findRouterInstruction(node)));
-          } else if (signature.matches("use", String.class, Router.class)) {
+          } else if (signature.matches("use", Router.class) || signature.matches("mount", Router.class)) {
+            handlerList.addAll(mountRouter(ctx, prefix, node, findRouterInstruction(node)));
+          } else if (signature.matches("use", String.class, Router.class) || signature.matches("mount", String.class, Router.class)) {
             AbstractInsnNode routerInstruction = findRouterInstruction(node);
             String pattern = routePattern(node, node);
-            handlerList.addAll(useRouter(ctx, path(prefix, pattern), node, routerInstruction));
+            handlerList.addAll(mountRouter(ctx, path(prefix, pattern), node, routerInstruction));
           } else if (signature.matches("path", String.class, Runnable.class)
               || signature.matches("routes", Runnable.class)) {
             boolean routes = signature.matches("routes", Runnable.class);
@@ -504,7 +504,7 @@ public class RouteParser {
             "Unsupported router type: " + InsnSupport.toString(node)));
   }
 
-  private List<OperationExt> useRouter(ParserContext ctx, String prefix,
+  private List<OperationExt> mountRouter(ParserContext ctx, String prefix,
       MethodInsnNode node, AbstractInsnNode routerInstruction) {
     Type router;
     if (routerInstruction instanceof TypeInsnNode) {
