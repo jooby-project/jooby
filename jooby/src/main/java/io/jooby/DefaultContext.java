@@ -5,17 +5,8 @@
  */
 package io.jooby;
 
-import io.jooby.exception.RegistryException;
-import io.jooby.exception.TypeMismatchException;
-import io.jooby.internal.HashValue;
-import io.jooby.internal.MissingValue;
-import io.jooby.internal.SingleValue;
-import io.jooby.internal.UrlParser;
-import io.jooby.internal.ValueConverters;
-import org.slf4j.Logger;
+import static java.util.Optional.ofNullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +23,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+
+import io.jooby.exception.RegistryException;
+import io.jooby.exception.TypeMismatchException;
+import io.jooby.internal.HashValue;
+import io.jooby.internal.MissingValue;
+import io.jooby.internal.SingleValue;
+import io.jooby.internal.UrlParser;
+import io.jooby.internal.ValueConverters;
 
 /***
  * Like {@link Context} but with couple of default methods.
@@ -270,7 +274,10 @@ public interface DefaultContext extends Context {
         ? header("X-Forwarded-Host").toOptional()
         : Optional.empty();
     String value = header
-        .orElseGet(() -> header("Host").value(getServerHost() + ":" + getServerPort()));
+        .orElseGet(() ->
+            ofNullable(header("Host").valueOrNull())
+                .orElseGet(() -> getServerHost() + ":" + getServerPort())
+        );
     int i = value.indexOf(',');
     String host = i > 0 ? value.substring(0, i).trim() : value;
     if (host.startsWith("[") && host.endsWith("]")) {
@@ -286,7 +293,10 @@ public interface DefaultContext extends Context {
 
   @Override default int getServerPort() {
     ServerOptions options = getRouter().getServerOptions();
-    return isSecure() ? options.getSecurePort() : options.getPort();
+    return isSecure()
+        // Buggy proxy where it report a https scheme but there is no HTTPS configured option
+        ? ofNullable(options.getSecurePort()).orElse(options.getPort())
+        : options.getPort();
   }
 
   @Override default int getPort() {
