@@ -5,19 +5,8 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.Usage;
-import io.jooby.exception.BadRequestException;
-import io.jooby.BeanConverter;
-import io.jooby.FileUpload;
-import io.jooby.exception.MissingValueException;
-import io.jooby.Multipart;
-import io.jooby.exception.ProvisioningException;
-import io.jooby.ValueNode;
-import io.jooby.internal.reflect.$Types;
+import static io.jooby.SneakyThrows.propagate;
 
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -32,7 +21,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static io.jooby.SneakyThrows.propagate;
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import io.jooby.BeanConverter;
+import io.jooby.FileUpload;
+import io.jooby.Multipart;
+import io.jooby.Usage;
+import io.jooby.ValueNode;
+import io.jooby.exception.BadRequestException;
+import io.jooby.exception.MissingValueException;
+import io.jooby.exception.ProvisioningException;
+import io.jooby.internal.reflect.$Types;
 
 public class ReflectiveBeanConverter implements BeanConverter {
   private static final String AMBIGUOUS_CONSTRUCTOR =
@@ -72,27 +73,33 @@ public class ReflectiveBeanConverter implements BeanConverter {
   }
 
   private static Constructor selectConstructor(Constructor[] constructors) {
-    Constructor result = null;
     if (constructors.length == 1) {
-      result = constructors[0];
+      return constructors[0];
     } else {
+      Constructor injectConstructor = null;
+      Constructor defaultConstructor = null;
       for (Constructor constructor : constructors) {
         if (Modifier.isPublic(constructor.getModifiers())) {
           Annotation inject = constructor.getAnnotation(Inject.class);
-          if (inject != null) {
-            if (result == null) {
-              result = constructor;
+          if (inject == null) {
+            if (constructor.getParameterCount() == 0) {
+              defaultConstructor = constructor;
+            }
+          } else {
+            if (injectConstructor == null) {
+              injectConstructor = constructor;
             } else {
               throw new IllegalStateException(AMBIGUOUS_CONSTRUCTOR);
             }
           }
         }
       }
+      Constructor result = injectConstructor == null ? defaultConstructor : injectConstructor;
+      if (result == null) {
+        throw new IllegalStateException(AMBIGUOUS_CONSTRUCTOR);
+      }
+      return result;
     }
-    if (result == null) {
-      throw new IllegalStateException(AMBIGUOUS_CONSTRUCTOR);
-    }
-    return result;
   }
 
   public static Object[] inject(ValueNode scope, Executable method, Consumer<ValueNode> state) {
