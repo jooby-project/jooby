@@ -8,7 +8,7 @@ import io.jooby.junit.ServerTestRunner;
 public class Issue2068 {
 
   @ServerTest
-  public void shouldFailIfContextAsServiceWasNotCalled(ServerTestRunner runner) {
+  public void shouldFavorEmptyConstructor(ServerTestRunner runner) {
     runner.define(app -> {
       app.get("/i2068", ctx -> {
         Bean2068 bean = ctx.query(Bean2068.class);

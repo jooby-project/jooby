@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -161,10 +162,10 @@ public class ReflectiveBeanConverter implements BeanConverter {
     try {
       if (isFileUpload(node, parameter)) {
         Multipart multipart = (Multipart) node;
-        if (List.class.isAssignableFrom(parameter.getType())) {
-          return multipart.files(value.name());
-        } else if (Set.class.isAssignableFrom(parameter.getType())) {
+        if (Set.class.isAssignableFrom(parameter.getType())) {
           return new HashSet<>(multipart.files(value.name()));
+        } else if (Collection.class.isAssignableFrom(parameter.getType())) {
+          return multipart.files(value.name());
         } else if (Optional.class.isAssignableFrom(parameter.getType())) {
           List<FileUpload> files = multipart.files(value.name());
           return files.isEmpty() ? Optional.empty() : Optional.of(files.get(0));
@@ -172,10 +173,10 @@ public class ReflectiveBeanConverter implements BeanConverter {
           return multipart.file(value.name());
         }
       } else {
-        if (List.class.isAssignableFrom(parameter.getType())) {
-          return value.toList($Types.parameterizedType0(parameter.getParameterizedType()));
-        } else if (Set.class.isAssignableFrom(parameter.getType())) {
+        if (Set.class.isAssignableFrom(parameter.getType())) {
           return value.toSet($Types.parameterizedType0(parameter.getParameterizedType()));
+        } else if (Collection.class.isAssignableFrom(parameter.getType())) {
+          return value.toList($Types.parameterizedType0(parameter.getParameterizedType()));
         } else if (Optional.class.isAssignableFrom(parameter.getType())) {
           return value.toOptional($Types.parameterizedType0(parameter.getParameterizedType()));
         } else {
