@@ -162,8 +162,9 @@ public class TestApp {
   @Test
   public void test() {
     MockRouter router = new MockRouter(new App());
-    MockContext context = new MockContext()
-        .setForm(Formdata.create()
+    MockContext context = new MockContext();
+    
+    context.setForm(Formdata.create(context)
             .put("name", "Test!")
         );
     assertEquals("Test!", router.post("/", context).value());
@@ -180,7 +181,7 @@ class TestApp {
   fun test() {
     MockRouter router = MockRouter(App())
     MockContext context = MockContext().apply {
-      form = Formdata.create().apply {
+      form = Formdata.create(this).apply {
         put("name", "Test!")
       }
     }
