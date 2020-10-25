@@ -53,7 +53,8 @@ Available modules are listed next.
    * link:/modules/jwt-session-store[JWT]: JSON Web Token session store.
    * link:/modules/redis#redis-http-session[Redis]: Save session data on redis.
 
-=== Scheduler
+=== Misc
+   * link:/modules/node[Node]: Node integration module.
    * link:/modules/quartz[Quartz]: Quartz scheduler module.
 
 .
