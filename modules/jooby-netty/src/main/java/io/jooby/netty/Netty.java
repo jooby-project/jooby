@@ -5,6 +5,16 @@
  */
 package io.jooby.netty;
 
+import java.net.BindException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.annotation.Nonnull;
+import javax.net.ssl.SSLContext;
+
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
@@ -25,16 +35,6 @@ import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.DefaultThreadFactory;
-
-import javax.annotation.Nonnull;
-import javax.net.ssl.SSLContext;
-import java.net.BindException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Web server implementation using <a href="https://netty.io/">Netty</a>.
@@ -113,11 +113,15 @@ public class Netty extends Server.Base {
       if (options.isSSLEnabled()) {
         SSLContext javaSslContext = options
             .getSSLContext(application.getEnvironment().getClassLoader());
-        SslOptions.ClientAuth clientAuth = Optional.ofNullable(options.getSsl())
-            .map(SslOptions::getClientAuth)
-            .orElse(SslOptions.ClientAuth.NONE);
+
+        SslOptions sslOptions = options.getSsl();
+        String[] protocol = sslOptions.getProtocol().stream()
+            .toArray(String[]::new);
+
+        SslOptions.ClientAuth clientAuth = sslOptions.getClientAuth();
         ServerBootstrap https = transport.configure(acceptorloop, eventloop)
-            .childHandler(newPipeline(factory, wrap(javaSslContext, toClientAuth(clientAuth))))
+            .childHandler(
+                newPipeline(factory, wrap(javaSslContext, toClientAuth(clientAuth), protocol)))
             .childOption(ChannelOption.SO_REUSEADDR, true)
             .childOption(ChannelOption.TCP_NODELAY, true);
 
@@ -178,8 +182,8 @@ public class Netty extends Server.Base {
     return this;
   }
 
-  private SslContext wrap(SSLContext sslContext, ClientAuth clientAuth) {
+  private SslContext wrap(SSLContext sslContext, ClientAuth clientAuth, String[] protocol) {
     return new JdkSslContext(sslContext, false, null, IdentityCipherSuiteFilter.INSTANCE,
-        ApplicationProtocolConfig.DISABLED, clientAuth, null, false);
+        ApplicationProtocolConfig.DISABLED, clientAuth, protocol, false);
   }
 }

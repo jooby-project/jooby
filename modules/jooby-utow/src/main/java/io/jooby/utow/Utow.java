@@ -5,6 +5,19 @@
  */
 package io.jooby.utow;
 
+import java.net.BindException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
+import javax.net.ssl.SSLContext;
+
+import org.xnio.Options;
+import org.xnio.Sequence;
+import org.xnio.SslClientAuthMode;
+
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
@@ -18,16 +31,6 @@ import io.undertow.server.handlers.encoding.ContentEncodingRepository;
 import io.undertow.server.handlers.encoding.DeflateEncodingProvider;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.server.handlers.encoding.GzipEncodingProvider;
-import org.xnio.Options;
-import org.xnio.SslClientAuthMode;
-
-import javax.annotation.Nonnull;
-import javax.net.ssl.SSLContext;
-import java.net.BindException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Web server implementation using <a href="http://undertow.io/">Undertow</a>.
@@ -99,6 +102,8 @@ public class Utow extends Server.Base {
       SSLContext sslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
       if (sslContext != null) {
         builder.addHttpsListener(options.getSecurePort(), options.getHost(), sslContext);
+        SslOptions ssl = options.getSsl();
+        builder.setSocketOption(Options.SSL_ENABLED_PROTOCOLS, Sequence.of(ssl.getProtocol()));
         Optional.ofNullable(options.getSsl())
             .map(SslOptions::getClientAuth)
             .map(this::toSslClientAuthMode)
