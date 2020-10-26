@@ -5,19 +5,22 @@
  */
 package io.jooby;
 
-import com.typesafe.config.Config;
+import static io.jooby.SneakyThrows.throwingFunction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static io.jooby.SneakyThrows.throwingFunction;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import com.typesafe.config.Config;
 
 /**
  * SSL options for enabling HTTPs in Jooby. Jooby supports two certificate formats:
@@ -52,6 +55,17 @@ public final class SslOptions {
     REQUIRED
   }
 
+  /** TLSv1.2. Default TLS protocol. */
+  public static final String TLS_V1_2 = "TLSv1.2";
+
+  /**
+   * TLSv1.3 protocol. Available in:
+   * - 8u261-b12 from Oracle JDK
+   * - TLS 1.3 support in OpenJDK is (beside Azul's OpenJSSE) expected to come into 8u272.
+   * - Java 11.0.3 or higher.
+   */
+  public static final String TLS_V1_3 = "TLSv1.3";
+
   /** X509 constant. */
   public static final String X509 = "X509";
 
@@ -71,6 +85,8 @@ public final class SslOptions {
   private String privateKey;
 
   private ClientAuth clientAuth = ClientAuth.NONE;
+
+  private List<String> protocol = Arrays.asList(TLS_V1_3, TLS_V1_2);
 
   /**
    * Certificate type. Default is {@link #PKCS12}.
@@ -253,6 +269,49 @@ public final class SslOptions {
     return this;
   }
 
+  /**
+   * Specify the enabled protocols for an SSL/TLS session. Default is: <code>TLSv1.2</code> and
+   * <code>TLSv1.3</code>.
+   *
+   * If a listed protocol is not supported, it is ignored; however, if you specify a list of
+   * protocols, none of which are supported, an exception will be thrown.
+   *
+   * Please note TLSv1.3 protocol is available in:
+   *  - 8u261-b12 from Oracle JDK
+   *  - TLS 1.3 support in OpenJDK is (beside Azul's OpenJSSE) expected to come into 8u272.
+   *  - Java 11.0.3 or higher.
+   *
+   * @return TLS protocols. Default is: <code>TLSv1.2</code> and <code>TLSv1.3</code>.
+   */
+  public @Nonnull List<String> getProtocol() {
+    return protocol;
+  }
+
+  /**
+   * Specify the enabled protocols for an SSL/TLS session. If a listed protocol is not supported,
+   * it is ignored; however, if you specify a list of protocols, none of which are supported,
+   * an exception will be thrown.
+   *
+   * @param protocol TLS protocols.
+   * @return This options.
+   */
+  public SslOptions setProtocol(@Nonnull String... protocol) {
+    return setProtocol(Arrays.asList(protocol));
+  }
+
+  /**
+   * Specify the enabled protocols for an SSL/TLS session. If a listed protocol is not supported,
+   * it is ignored; however, if you specify a list of protocols, none of which are supported,
+   * an exception will be thrown.
+   *
+   * @param protocol TLS protocols.
+   * @return This options.
+   */
+  public SslOptions setProtocol(@Nonnull List<String> protocol) {
+    this.protocol = protocol;
+    return this;
+  }
+
   @Override public String toString() {
     return type;
   }
@@ -427,6 +486,14 @@ public final class SslOptions {
           }
           if (conf.hasPath(path + ".trust.password")) {
             options.setTrustPassword(conf.getString(path + ".trust.password"));
+          }
+          if (conf.hasPath(path + ".protocol")) {
+            Object value = conf.getAnyRef(path + ".protocol");
+            if (value instanceof List) {
+              options.setProtocol((List) value);
+            } else {
+              options.setProtocol(value.toString());
+            }
           }
           return options;
         });

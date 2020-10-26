@@ -1,12 +1,16 @@
 package io.jooby;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import org.junit.jupiter.api.Test;
-
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.junit.jupiter.api.Test;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class SslOptionsTest {
 
@@ -84,5 +88,31 @@ public class SslOptionsTest {
     assertEquals("ssl/test.crt", options.getCert());
     assertEquals("ssl/test.key", options.getPrivateKey());
     assertEquals("changeit", options.getPassword());
+  }
+
+  @Test
+  public void shouldParseSingleProtocol() {
+    Config config = ConfigFactory.empty()
+        .withValue("ssl.protocol", fromAnyRef("TLSv1.2"))
+        .withValue("ssl.cert", fromAnyRef("ssl/test.crt"))
+        .withValue("ssl.key", fromAnyRef("ssl/test.key"))
+        .withValue("ssl.password", fromAnyRef("changeit"))
+        .resolve();
+
+    SslOptions options = SslOptions.from(config).get();
+    assertEquals(Collections.singletonList("TLSv1.2"), options.getProtocol());
+  }
+
+  @Test
+  public void shouldParseProtocols() {
+    Config config = ConfigFactory.empty()
+        .withValue("ssl.protocol", fromAnyRef(Arrays.asList("TLSv1.2", "TLSv1.3")))
+        .withValue("ssl.cert", fromAnyRef("ssl/test.crt"))
+        .withValue("ssl.key", fromAnyRef("ssl/test.key"))
+        .withValue("ssl.password", fromAnyRef("changeit"))
+        .resolve();
+
+    SslOptions options = SslOptions.from(config).get();
+    assertEquals(Arrays.asList("TLSv1.2", "TLSv1.3"), options.getProtocol());
   }
 }

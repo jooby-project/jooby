@@ -5,16 +5,21 @@
  */
 package io.jooby;
 
-import com.typesafe.config.Config;
-import io.jooby.internal.SslContextProvider;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Optional;
-import java.util.stream.Stream;
+
+import com.typesafe.config.Config;
+import io.jooby.internal.SslContextProvider;
 
 /**
  * Available server options.
@@ -480,7 +485,17 @@ public class ServerOptions {
           .findFirst()
           .orElseThrow(
               () -> new UnsupportedOperationException("SSL Type: " + options.getType()));
-      return provider.create(loader, options);
+      SSLContext sslContext = provider.create(loader, options);
+      // validate TLS protocol, at least one protocol must be supported
+      Set<String> supportedProtocols = new LinkedHashSet<>(Arrays
+          .asList(sslContext.getDefaultSSLParameters().getProtocols()));
+      Set<String> protocols = new LinkedHashSet<>(options.getProtocol());
+      protocols.retainAll(supportedProtocols);
+      if (protocols.isEmpty()) {
+        throw new IllegalArgumentException("Unsupported protocol: " + options.getProtocol());
+      }
+      ssl.setProtocol(new ArrayList<>(protocols));
+      return sslContext;
     }
     return null;
   }

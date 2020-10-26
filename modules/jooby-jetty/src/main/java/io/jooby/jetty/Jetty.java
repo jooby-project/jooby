@@ -5,14 +5,15 @@
  */
 package io.jooby.jetty;
 
-import com.typesafe.config.Config;
-import io.jooby.Jooby;
-import io.jooby.ServerOptions;
-import io.jooby.SneakyThrows;
-import io.jooby.SslOptions;
-import io.jooby.WebSocket;
-import io.jooby.internal.jetty.JettyHandler;
-import io.jooby.internal.jetty.JettyWebSocket;
+import java.net.BindException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import javax.annotation.Nonnull;
+
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.MultiPartFormDataCompliance;
@@ -29,12 +30,14 @@ import org.eclipse.jetty.websocket.api.WebSocketBehavior;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 
-import javax.annotation.Nonnull;
-import java.net.BindException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import com.typesafe.config.Config;
+import io.jooby.Jooby;
+import io.jooby.ServerOptions;
+import io.jooby.SneakyThrows;
+import io.jooby.SslOptions;
+import io.jooby.WebSocket;
+import io.jooby.internal.jetty.JettyHandler;
+import io.jooby.internal.jetty.JettyWebSocket;
 
 /**
  * Web server implementation using <a href="https://www.eclipse.org/jetty/">Jetty</a>.
@@ -105,6 +108,11 @@ public class Jetty extends io.jooby.Server.Base {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory
             .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader()));
+        List<String> protocol = options.getSsl().getProtocol();
+        sslContextFactory.setIncludeProtocols(protocol.toArray(new String[protocol.size()]));
+        // exclude
+        isNotInUse(protocol, "TLSv1", sslContextFactory::addExcludeProtocols);
+        isNotInUse(protocol, "TLSv1.1", sslContextFactory::addExcludeProtocols);
 
         SslOptions.ClientAuth clientAuth = Optional.ofNullable(options.getSsl())
             .map(SslOptions::getClientAuth)
@@ -166,6 +174,12 @@ public class Jetty extends io.jooby.Server.Base {
     }
 
     return this;
+  }
+
+  private void isNotInUse(List<String> protocols, String protocol, Consumer<String> consumer) {
+    if (!protocols.contains(protocol)) {
+      consumer.accept(protocol);
+    }
   }
 
   @Nonnull @Override public synchronized io.jooby.Server stop() {
