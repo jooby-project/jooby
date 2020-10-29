@@ -55,41 +55,78 @@ import java.util.Properties;
  * @since 2.8.5
  */
 public class KafkaModule implements Extension {
+  String producerKey;
+  String consumerKey;
   Properties producerProps;
   Properties consumerProps;
 
   /**
-   * Creates a new kafka module. Value must be:
-   * - Valid redis URI; or
-   * - Property name
+   * Creates a new kafka producer module using the <code>kafka.producer</code> property key.
+   * This key must be present in the application configuration file, like:
+   *
+   * <pre>{@code
+   *  kafka.producer.bootstrap.servers = "localhost:9092"
+   *  kafka.producer.acks = "all"
+   *  kafka.producer.retries = 0
+   *  kafka.producer.key.serializer = "org.apache.kafka.common.serialization.StringSerializer"
+   *  kafka.producer.value.serializer = "org.apache.kafka.common.serialization.StringSerializer"
+   * }</pre>
+   *
+   * Creates a new kafka consumer module using the <code>kafka.consumer</code> property key.
+   * This key must be present in the application configuration file, like:
+   *
+   * <pre>{@code
+   *  kafka.consumer.bootstrap.servers = "localhost:9092"
+   *  kafka.consumer.group.id = "group A"
+   *  kafka.consumer.key.deserializer = "org.apache.kafka.common.serialization.StringDeserializer"
+   *  kafka.consumer.value.deserializer = "org.apache.kafka.common.serialization.StringDeserializer"
+   * }</pre>
+   */
+  public KafkaModule() {
+    this("kafka.producer", "kafka.consumer");
+  }
+
+  /**
+   * Creates a new kafka producer module. The producer parameter can be one of:
+   *
+   * - A property key defined in your application configuration file, like <code>producerKey</code>.
+   *
+   * @param producerKey Database key
+   *
+   * Creates a new kafka consumer module. The consumer parameter can be one of:
+   *
+   * - A property key defined in your application configuration file, like <code>consumerKey</code>.
+   *
+   * @param consumerKey Database key
+   */
+  public KafkaModule(@Nonnull String producerKey, @Nonnull String consumerKey) {
+    this.producerKey = producerKey;
+    this.consumerKey = consumerKey;
+  }
+
+  /**
+   * Creates a new kafka module.
    *
    * @param producerProps kafka producer properties.
    * @param consumerProps kafka consumer properties.
    */
   public KafkaModule(@Nonnull Properties producerProps, @Nonnull Properties consumerProps) {
+    this("kafka.producer", "kafka.consumer");
     this.producerProps = producerProps;
     this.consumerProps = consumerProps;
   }
 
-  /**
-   * Create a new redis module. The application configuration file must have a redis property, like:
-   * <pre>
-   *   redis = "redis://localhost:6379"
-   * </pre>
-   */
-  public KafkaModule() {
-  }
 
   @Override
   public void install(@Nonnull Jooby application) {
     Config config = application.getConfig();
 
     if (this.producerProps == null) {
-      this.producerProps = properties(config, "kafka.producer");
+      this.producerProps = properties(config, this.producerKey);
     }
 
     if (this.consumerProps == null) {
-      this.consumerProps = properties(config, "kafka.consumer");
+      this.consumerProps = properties(config, this.consumerKey);
     }
 
     ServiceRegistry registry = application.getServices();
