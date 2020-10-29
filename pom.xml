@@ -73,7 +73,7 @@
 
     <!-- Reactive -->
     <rxjava.version>2.2.19</rxjava.version>
-    <reactor.version>3.3.10.RELEASE</reactor.version>
+    <reactor.version>3.4.0</reactor.version>
 
     <!--OpenAPI-->
     <swagger.version>2.1.5</swagger.version>
