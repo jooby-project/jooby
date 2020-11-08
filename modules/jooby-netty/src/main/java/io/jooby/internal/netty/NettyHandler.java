@@ -5,6 +5,16 @@
  */
 package io.jooby.internal.netty;
 
+import java.nio.charset.StandardCharsets;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.slf4j.Logger;
+
 import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -28,15 +38,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
 import io.netty.util.ReferenceCounted;
-import org.slf4j.Logger;
-
-import java.nio.charset.StandardCharsets;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private static final AtomicReference<String> cachedDateString = new AtomicReference<>();
@@ -83,11 +84,17 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         }
         context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
 
-        contentLength = contentLength(req);
-        if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
-          decoder = newDecoder(req, factory);
-        } else {
+        if (context.isHttpGet()) {
           router.match(context).execute(context);
+        } else {
+          // possibly body:
+          contentLength = contentLength(req);
+          if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
+            decoder = newDecoder(req, factory);
+          } else {
+            // no body, move on
+            router.match(context).execute(context);
+          }
         }
       } else if (decoder != null && msg instanceof HttpContent) {
         HttpContent chunk = (HttpContent) msg;

@@ -5,6 +5,36 @@
  */
 package io.jooby.internal.utow;
 
+import static io.undertow.server.handlers.form.FormDataParser.FORM_DATA;
+import static io.undertow.util.Headers.CONTENT_LENGTH;
+import static io.undertow.util.Headers.CONTENT_TYPE;
+import static io.undertow.util.Headers.RANGE;
+import static io.undertow.util.Headers.SET_COOKIE;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+
 import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
@@ -35,34 +65,6 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
-import org.slf4j.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.Executor;
-
-import static io.undertow.server.handlers.form.FormDataParser.FORM_DATA;
-import static io.undertow.util.Headers.CONTENT_LENGTH;
-import static io.undertow.util.Headers.CONTENT_TYPE;
-import static io.undertow.util.Headers.RANGE;
-import static io.undertow.util.Headers.SET_COOKIE;
 
 public class UtowContext implements DefaultContext, IoCallback {
 
@@ -94,6 +96,11 @@ public class UtowContext implements DefaultContext, IoCallback {
     this.router = router;
     this.method = exchange.getRequestMethod().toString().toUpperCase();
     this.requestPath = exchange.getRequestPath();
+  }
+
+  boolean isHttpGet() {
+    return this.method.length() == 3 && this.method.charAt(0) == 'G' && this.method.charAt(1) == 'E'
+        && this.method.charAt(2) == 'T';
   }
 
   @Nonnull @Override public Router getRouter() {
@@ -405,7 +412,7 @@ public class UtowContext implements DefaultContext, IoCallback {
       for (ByteBuffer b : data) {
         len += b.remaining();
       }
-      exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(len));
+      headers.put(Headers.CONTENT_LENGTH, Long.toString(len));
     }
 
     exchange.getResponseSender().send(data, this);
@@ -474,7 +481,7 @@ public class UtowContext implements DefaultContext, IoCallback {
 
   @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
     ifSaveSession();
-    destroy(null);
+    this.exchange.endExchange();
   }
 
   @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {

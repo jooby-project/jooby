@@ -5,27 +5,29 @@
  */
 package io.jooby.rocker;
 
+import javax.annotation.Nonnull;
+
 import com.fizzed.rocker.RockerModel;
-import com.fizzed.rocker.runtime.StringBuilderOutput;
+import com.fizzed.rocker.RockerOutputFactory;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
-
 class RockerHandler implements Route.Handler {
   private final Route.Handler next;
 
-  RockerHandler(Route.Handler next) {
+  private final RockerOutputFactory<ByteBufferOutput> factory;
+
+  RockerHandler(Route.Handler next, RockerOutputFactory<ByteBufferOutput> factory) {
     this.next = next;
+    this.factory = factory;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
       RockerModel template = (RockerModel) next.apply(ctx);
       ctx.setResponseType(MediaType.html);
-      ctx.send(template.render(StringBuilderOutput.FACTORY).toString());
-      return ctx;
+      return ctx.send(template.render(factory).toBuffer());
     } catch (Throwable x) {
       ctx.sendError(x);
       return x;
