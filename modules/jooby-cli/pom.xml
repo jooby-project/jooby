@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.jline</groupId>
       <artifactId>jline</artifactId>
-      <version>3.16.0</version>
+      <version>3.17.1</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.json/json -->
