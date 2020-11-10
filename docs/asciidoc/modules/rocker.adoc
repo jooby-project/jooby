@@ -94,3 +94,53 @@ import io.jooby.rocker.RockerModule
 
 <1> Install Rocker
 <2> Returns a rocker view
+
+=== Options
+
+Rocker uses a byte buffer to render a view. Default byte buffer size is `4k`. To change the buffer size:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.rocker.RockerModule;
+
+{
+  install(new RockerModule().bufferSize(1024));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.rocker.RockerModule
+
+{
+  install(RockerModule().bufferSize(1024)
+}
+----
+
+You can reuse/recycle the buffer using a thread-local approach by setting `reuseBuffer(true)`:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.rocker.RockerModule;
+
+{
+  install(new RockerModule().reuseBuffer(true));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.rocker.RockerModule
+
+{
+  install(RockerModule().reuseBuffer(true)
+}
+----
+
+CAUTION: Use with caution due it creates a buffer per thread memory consumption might be high.
+This technique works when the number of available threads is low enough
+(like the number of available processors).

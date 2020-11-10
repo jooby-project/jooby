@@ -44,43 +44,48 @@ public class UtowHandler implements HttpHandler {
       responseHeaders.put(Headers.SERVER, "U");
     }
 
-    HeaderMap headers = exchange.getRequestHeaders();
-    long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
-    String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);
-    if (len > 0 || chunked != null) {
-      if (len > maxRequestSize) {
-        context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
-        return;
-      }
+    if (context.isHttpGet()) {
+      router.match(context).execute(context);
+    } else {
+      // possibly  HTTP body
+      HeaderMap headers = exchange.getRequestHeaders();
+      long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
+      String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);
+      if (len > 0 || chunked != null) {
+        if (len > maxRequestSize) {
+          context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+          return;
+        }
 
-      /** Eager body parsing: */
-      FormDataParser parser = FormParserFactory.builder(false)
-          .addParser(new MultiPartParserDefinition(router.getTmpdir())
-              .setDefaultEncoding(StandardCharsets.UTF_8.name()))
-          .addParser(new FormEncodedDataDefinition()
-              .setDefaultEncoding(StandardCharsets.UTF_8.name()))
-          .build()
-          .createParser(exchange);
-      if (parser == null) {
-        // Read raw body
-        Router.Match route = router.match(context);
-        Receiver receiver = exchange.getRequestReceiver();
-        UtowBodyHandler reader = new UtowBodyHandler(route, context, bufferSize, maxRequestSize);
-        if (len > 0 && len <= bufferSize) {
-          receiver.receiveFullBytes(reader);
+        /** Eager body parsing: */
+        FormDataParser parser = FormParserFactory.builder(false)
+            .addParser(new MultiPartParserDefinition(router.getTmpdir())
+                .setDefaultEncoding(StandardCharsets.UTF_8.name()))
+            .addParser(new FormEncodedDataDefinition()
+                .setDefaultEncoding(StandardCharsets.UTF_8.name()))
+            .build()
+            .createParser(exchange);
+        if (parser == null) {
+          // Read raw body
+          Router.Match route = router.match(context);
+          Receiver receiver = exchange.getRequestReceiver();
+          UtowBodyHandler reader = new UtowBodyHandler(route, context, bufferSize, maxRequestSize);
+          if (len > 0 && len <= bufferSize) {
+            receiver.receiveFullBytes(reader);
+          } else {
+            receiver.receivePartialBytes(reader);
+          }
         } else {
-          receiver.receivePartialBytes(reader);
+          try {
+            parser.parse(execute(router, context));
+          } catch (Exception x) {
+            context.sendError(x, StatusCode.BAD_REQUEST);
+          }
         }
       } else {
-        try {
-          parser.parse(execute(router, context));
-        } catch (Exception x) {
-          context.sendError(x, StatusCode.BAD_REQUEST);
-        }
+        // no body move one:
+        router.match(context).execute(context);
       }
-    } else {
-      Router.Match route = router.match(context);
-      route.execute(context);
     }
   }
 

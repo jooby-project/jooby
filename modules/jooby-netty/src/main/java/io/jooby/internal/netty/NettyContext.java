@@ -146,6 +146,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.method = req.method().name().toUpperCase();
   }
 
+  boolean isHttpGet() {
+    return this.method.length() == 3 && this.method.charAt(0) == 'G' && this.method.charAt(1) == 'E'
+        && this.method.charAt(2) == 'T';
+  }
+
   @Nonnull @Override public Router getRouter() {
     return router;
   }
