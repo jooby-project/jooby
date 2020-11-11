@@ -1040,7 +1040,16 @@ public class Jooby implements Router, Registry {
     /** Fin application.env: */
     LogConfigurer.configure(new EnvironmentOptions().getActiveNames());
 
-    Jooby app = provider.get();
+    Jooby app;
+    try {
+      app = provider.get();
+    } catch (Throwable t) {
+      LoggerFactory.getLogger(Jooby.class)
+          .error("Application initialization resulted in exception", t);
+
+      throw t;
+    }
+
     if (app.mode == null) {
       app.mode = executionMode;
     }
