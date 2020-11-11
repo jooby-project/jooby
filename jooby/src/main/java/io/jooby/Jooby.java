@@ -725,7 +725,9 @@ public class Jooby implements Router, Registry {
         log.info("Server stop resulted in exception", stopx);
       }
       // rethrow
-      throw new StartupException("Application startup resulted in exception", x);
+      throw x instanceof StartupException
+          ? (StartupException) x
+          : new StartupException("Application startup resulted in exception", x);
     }
   }
 
@@ -1048,7 +1050,9 @@ public class Jooby implements Router, Registry {
       LoggerFactory.getLogger(Jooby.class)
           .error("Application initialization resulted in exception", t);
 
-      throw new StartupException("Application initialization resulted in exception", t);
+      throw t instanceof StartupException
+          ? (StartupException) t
+          : new StartupException("Application initialization resulted in exception", t);
     }
 
     if (app.mode == null) {

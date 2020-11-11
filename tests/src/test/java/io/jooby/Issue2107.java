@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue2107 {
 
@@ -21,9 +23,10 @@ public class Issue2107 {
     appender.start();
     log.addAppender(appender);
 
-    Throwable t = assertThrows(StartupException.class, () -> Jooby.runApp(new String[0], App::new));
+    Throwable t = assertThrows(StartupException.class, () -> Jooby.runApp(new String[0], AppWithRuntimeException::new));
     assertEquals("Application initialization resulted in exception", t.getMessage());
     assertNotNull(t.getCause());
+    assertTrue(t.getCause() instanceof RuntimeException);
     assertEquals("meh", t.getCause().getMessage());
     assertEquals(1, appender.list.size());
 
@@ -33,10 +36,35 @@ public class Issue2107 {
     assertEquals("meh", ev.getThrowableProxy().getMessage());
   }
 
-  static class App extends Jooby {
+  @Test
+  public void noMatryoshkaExceptionsPlease() {
+    Logger log = (Logger) LoggerFactory.getLogger(Jooby.class);
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    log.addAppender(appender);
+
+    Throwable t = assertThrows(StartupException.class, () -> Jooby.runApp(new String[0], AppWithStartupException::new));
+    assertEquals("meh", t.getMessage());
+    assertNull(t.getCause());
+    assertEquals(1, appender.list.size());
+
+    final ILoggingEvent ev = appender.list.get(0);
+    assertEquals(Level.ERROR, ev.getLevel());
+    assertEquals("Application initialization resulted in exception", ev.getMessage());
+    assertEquals("meh", ev.getThrowableProxy().getMessage());
+  }
+
+  static class AppWithRuntimeException extends Jooby {
 
     {
       if (true) throw new RuntimeException("meh");
+    }
+  }
+
+  static class AppWithStartupException extends Jooby {
+
+    {
+      if (true) throw new StartupException("meh");
     }
   }
 }

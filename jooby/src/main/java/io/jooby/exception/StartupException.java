@@ -7,6 +7,15 @@ package io.jooby.exception;
 public class StartupException extends RuntimeException {
 
   /**
+   * Creates a new instance of this class with the specified message.
+   *
+   * @param message The message
+   */
+  public StartupException(String message) {
+    super(message);
+  }
+
+  /**
    * Creates a new instance of this class with the specified message and cause.
    *
    * @param message The message
