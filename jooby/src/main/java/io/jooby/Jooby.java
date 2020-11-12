@@ -7,6 +7,7 @@ package io.jooby;
 
 import com.typesafe.config.Config;
 import io.jooby.exception.RegistryException;
+import io.jooby.exception.StartupException;
 import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
@@ -724,7 +725,9 @@ public class Jooby implements Router, Registry {
         log.info("Server stop resulted in exception", stopx);
       }
       // rethrow
-      throw SneakyThrows.propagate(x);
+      throw x instanceof StartupException
+          ? (StartupException) x
+          : new StartupException("Application startup resulted in exception", x);
     }
   }
 
@@ -1040,7 +1043,18 @@ public class Jooby implements Router, Registry {
     /** Fin application.env: */
     LogConfigurer.configure(new EnvironmentOptions().getActiveNames());
 
-    Jooby app = provider.get();
+    Jooby app;
+    try {
+      app = provider.get();
+    } catch (Throwable t) {
+      LoggerFactory.getLogger(Jooby.class)
+          .error("Application initialization resulted in exception", t);
+
+      throw t instanceof StartupException
+          ? (StartupException) t
+          : new StartupException("Application initialization resulted in exception", t);
+    }
+
     if (app.mode == null) {
       app.mode = executionMode;
     }
