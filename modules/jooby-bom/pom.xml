@@ -63,6 +63,7 @@
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
   <junit.version>5.7.0</junit.version>
+  <kafka.version>2.6.0</kafka.version>
   <kotlin.version>1.4.10</kotlin.version>
   <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
   <lettuce.version>6.0.0.RELEASE</lettuce.version>
@@ -181,6 +182,12 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-redoc</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-kafka</artifactId>
       <version>${jooby.version}</version>
       <type>jar</type>
     </dependency>
@@ -980,6 +987,12 @@
       <groupId>io.lettuce</groupId>
       <artifactId>lettuce-core</artifactId>
       <version>${lettuce.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>${kafka.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

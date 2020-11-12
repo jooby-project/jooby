@@ -23,6 +23,7 @@ Available modules are listed next.
    * link:/modules/hikari[HikariCP]: A high-performance JDBC connection pool.
    * link:/modules/hibernate[Hibernate]: Hibernate ORM module.
    * link:/modules/jdbi[Jdbi]: Jdbi module.
+   * link:/modules/kafka[Kafka]: Kafka module.
    * link:/modules/redis[Redis]: Redis module.
 
 === Development Tools

@@ -1,0 +1,77 @@
+== Kafka
+
+Kafka module for https://kafka.apache.org/documentation
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-kafka"]
+.
+
+2) Setup properties: 
+
+.application.conf
+[source, properties]
+----
+kafka.producer.bootstrap.servers = "localhost:9092"
+kafka.producer.key.serializer = "org.apache.kafka.common.serialization.StringSerializer"
+kafka.producer.value.serializer = "org.apache.kafka.common.serialization.StringSerializer"
+
+kafka.consumer.bootstrap.servers = "localhost:9092"
+kafka.consumer.key.deserializer = "org.apache.kafka.common.serialization.StringDeserializer"
+kafka.consumer.value.deserializer = "org.apache.kafka.common.serialization.StringDeserializer"
+----
+
+3) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.kafka.KafkaModule;
+
+{
+  install(new KafkaModule());                              <1>
+
+  get("/", ctx -> {
+    KafkaProducer producer = require(KafkaProducer.class); <2>
+    // work with producer
+
+    KafkaConsumer consumer = require(KafkaConsumer.class); <3>
+    // work with consumer
+
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.kafka.KafkaModule
+
+{
+  install(KafkaModule())                                   <1>
+
+  get("/") {
+    val producer = require(KafkaProducer::class);          <2>
+    // work with producer
+
+    val consumer = require(KafkaConsumer::class);          <3>
+    // work with consumer
+    ...
+  }
+}
+----
+
+<1> Install module
+<2> Use KafkaProducer
+<3> Use KafkaConsumer
+
+Optionally, you can install just a consumer:
+
+    install(new KafkaConsumerModule());
+
+Or producer:
+
+    install(new KafkaProducerModule());
