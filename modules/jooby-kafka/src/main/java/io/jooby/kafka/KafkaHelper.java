@@ -13,7 +13,10 @@ import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
-class KafkaHelper {
+final class KafkaHelper {
+
+  private KafkaHelper() {
+  }
 
   public static void install(Jooby application, String key,
       Function<Properties, AutoCloseable> factory) {
