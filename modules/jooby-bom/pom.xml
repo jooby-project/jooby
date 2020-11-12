@@ -67,7 +67,7 @@
   <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
   <lettuce.version>6.0.0.RELEASE</lettuce.version>
   <license-maven-plugin.version>3.0</license-maven-plugin.version>
-  <log4j.version>2.13.3</log4j.version>
+  <log4j.version>2.14.0</log4j.version>
   <log4jdbc.version>1.2</log4jdbc.version>
   <logback-classic.version>1.2.3</logback-classic.version>
   <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
