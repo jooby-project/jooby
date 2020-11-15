@@ -101,8 +101,8 @@ The next example produces a HTML or JSON response based on the value of the `Acc
 [source, java, role = "primary"]
 ----
 
-import static io.jooby.Medio.json;
-import static io.jooby.Medio.html;
+import static io.jooby.MediaType.json;
+import static io.jooby.MediaType.html;
 
 {
   install(new MyTemplateEngineModule());  <1>
@@ -129,8 +129,8 @@ import static io.jooby.Medio.html;
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.Medio.json
-import io.jooby.Medio.html
+import io.jooby.MediaType.json
+import io.jooby.MediaType.html
 
 {
   install(MyTemplateEngineModule())       <1>
