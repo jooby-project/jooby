@@ -1,6 +1,6 @@
 == Error Handler
 
-Jooby catches application exception using the javadoc:ErrorHandler class. The
+Jooby catches application exception using the javadoc:ErrorHandler[] class. The
 javadoc:ErrorHandler[DEFAULT] error handler produces simple HTML page or JSON based on the value
 of the `ACCEPT` header and log the exception.
 
@@ -32,7 +32,7 @@ io.jooby.StatusCodeException: Not found
 	at java.lang.Thread.run(Thread.java:748)
 ----
 
-The javadoc:StatusCodeException works as generic exception that let you specify an status code.
+The javadoc:StatusCodeException[] works as generic exception that let you specify an status code.
 
 ----
 throw new StatusCodeException(StatusCode.FORBIDDEN);
@@ -69,7 +69,7 @@ You can provide your own error handler using the javadoc:Router[error, io.jooby.
   error((ctx, cause, statusCode) -> {                                      <1>
     Router router = ctx.getRouter();
     router.getLog().error("found `{}` error", statusCode.value(), cause);  <2>
-    ctx.setResponseStatusCode(statusCode);
+    ctx.setResponseCode(statusCode);
     ctx.send("found `" + statusCode.value() + "` error");                  <3>
   });
 }
@@ -81,9 +81,9 @@ You can provide your own error handler using the javadoc:Router[error, io.jooby.
 {
   error { ctx, cause, statusCode ->                                        <1>
     val router = ctx.router
-    log.error("found `{}` error", statusCode.value(), cause)               <2>
-    ctx.responseStatusCode = statusCode
-    ctx.send("found `${statusCode.value}` error")                          <3>
+    router.log.error("found `{}` error", statusCode.value(), cause)        <2>
+    ctx.responseCode = statusCode
+    ctx.send("found `${statusCode.value()}` error")                        <3>
   }
 }
 ----
@@ -101,26 +101,25 @@ The next example produces a HTML or JSON response based on the value of the `Acc
 [source, java, role = "primary"]
 ----
 
-import static io.jooby.Medio.json;
-import static io.jooby.Medio.html;
+import static io.jooby.MediaType.json;
+import static io.jooby.MediaType.html;
 
 {
-  install(new MyTemplateEngineModule());  <1>
+  install(new MyTemplateEngineModule());                      <1>
   
-  install(new MyJsonModule());            <2>
+  install(new MyJsonModule());                                <2>
 
   error((ctx, cause, statusCode) -> {
     Router router = ctx.getRouter();
     router.getLog().error("found `{}` error", statusCode.value(), cause);
     
-    MediaType accept = ctx.accepts(json); <3>
-    if (json.equals(accept)) {            <4>
+    if (ctx.accept(json)) {                                   <3>
       Map error = ...;
-      ctx.render(error);
+      ctx.render(error);                                      <4>
     } else {
       // fallback to html
       Map error = ...;
-      ctx.render(new ModelAndView("error.template", error));
+      ctx.render(new ModelAndView("error.template", error));  <5>
     }
   });
 }
@@ -129,26 +128,25 @@ import static io.jooby.Medio.html;
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.Medio.json
-import io.jooby.Medio.html
+import io.jooby.MediaType.json
+import io.jooby.MediaType.html
 
 {
-  install(MyTemplateEngineModule())       <1>
+  install(MyTemplateEngineModule())                           <1>
   
-  install(MyJsonModule())                 <2>
+  install(MyJsonModule())                                     <2>
 
   error {ctx, cause, statusCode ->
     val router = ctx.router
     router.log.error("found `{}` error", statusCode.value(), cause)
     
-    val accept = ctx.accepts(json)        <3>
-    if (json == accept) {                 <4>
+    if (ctx.accept(json)) {                                   <3>
       val error = mapOf(...)
-      ctx.render(error)
+      ctx.render(error)                                       <4>
     } else {
-      // fallback to html
-      val error = mapOf(...)
-      ctx.render(ModelAndView("error.template", error))
+        // fallback to html
+        val error = mapOf(...)
+        ctx.render(ModelAndView("error.template", error))     <5>
     }
   }
 }
@@ -157,7 +155,8 @@ import io.jooby.Medio.html
 <1> Install one of the available <<modules-template-engine, template engines>>
 <2> Install one of the available <<modules-json, json modules>>
 <3> Test if the accept header matches the `application/json` content type
-<4> Render json or fallback to html 
+<4> Render json if matches
+<5> Render html as fallback
 
 === Catch by Code
 
