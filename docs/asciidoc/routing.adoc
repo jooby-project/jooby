@@ -1023,13 +1023,13 @@ A `scoped decorator` looks like:
     // Multiply by 2
     decorator {
       val n = next.apply(ctx) as Int
-      1 + n
+      2 * n
     }
     
     get("/4") { 4 }               // <2>
   }
   
-  get("/3") { 3 }                 // <3>
+  get("/1") { 1 }                 // <3>
 }
 ----
 
