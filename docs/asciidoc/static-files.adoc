@@ -75,7 +75,7 @@ The `assets` route works for static sites too. Just need to use a special path m
 ----
 {
   Path docs = Paths.get("docs"); <1>
-  assets("/docs/?*");            <2>
+  assets("/docs/?*", docs);      <2>
 }
 ----
 
