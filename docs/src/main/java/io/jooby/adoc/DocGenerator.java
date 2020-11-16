@@ -278,7 +278,7 @@ public class DocGenerator {
 
       Element tabs = doc.createElement("div").attr("class", "switch");
       Element tab1 = tabs.appendElement("div");
-      tab1.attr("class", "switch--item selected");
+      tab1.attr("class", "switch--item option-1 selected");
       if (secondaryTitle.equalsIgnoreCase("Kotlin")) {
         tab1.text("Java");
       } else {
@@ -290,12 +290,13 @@ public class DocGenerator {
       }
 
       Element tab2 = tabs.appendElement("div");
-      tab2.attr("class", "switch--item");
+      tab2.attr("class", "switch--item option-2");
       tab2.text(secondaryTitle);
       tabs.appendTo(primary);
+      primaryContent.addClass("option-1");
       primaryContent.appendTo(primary);
       secondaryContent.appendTo(primary);
-      secondaryContent.addClass("hidden");
+      secondaryContent.addClass("hidden").addClass("option-2");;
     }
   }
 
