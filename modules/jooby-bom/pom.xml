@@ -113,7 +113,7 @@
   <slf4j.version>1.7.30</slf4j.version>
   <spring.version>5.2.9.RELEASE</spring.version>
   <stork-maven-plugin.version>3.1.0</stork-maven-plugin.version>
-  <swagger-parser.version>2.0.21</swagger-parser.version>
+  <swagger-parser.version>2.0.23</swagger-parser.version>
   <swagger.version>2.1.5</swagger.version>
   <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
   <truth.version>1.1</truth.version>
