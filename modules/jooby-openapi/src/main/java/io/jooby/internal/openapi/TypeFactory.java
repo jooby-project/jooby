@@ -33,8 +33,6 @@ public class TypeFactory {
 
   public static final Type CONTEXT = Type.getType(Context.class);
 
-  public static final Type VALUE_NODE = Type.getType(ValueNode.class);
-
   public static final Type KOOBY = Type.getType("Lio/jooby/Kooby;");
 
   public static final Type KOOBYKT = Type.getType("Lio/jooby/KoobyKt;");

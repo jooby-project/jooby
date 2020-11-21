@@ -49,7 +49,7 @@ class Idioms : Kooby({
 
   routerOptions(IGNORE_CASE, IGNORE_TRAILING_SLASH)
 
-  setHiddenMethod {ctx -> ctx.header("").toOptional()}
+  setHiddenMethod { ctx -> ctx.header("").toOptional() }
 
   environmentOptions {
     this.activeNames = listOf("foo")
@@ -135,6 +135,10 @@ class Idioms : Kooby({
       ctx.getRequestPath()
     }
   }
+
+  install(::SubApp)
+
+  install("/with-path", ::SubApp)
 
   /** WebSocket: */
   ws("/ws") {

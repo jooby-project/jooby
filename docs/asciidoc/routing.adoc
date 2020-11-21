@@ -1116,12 +1116,14 @@ one or more routes under a common path pattern.
 <3> `GET /api/user`
 <4> `POST /api/user`
 
-=== Composing routes
+=== Composing
+
+==== Mount
 
 Composition is a technique for building modular applications. You can compose one or more
-router/application into a new one.
+router into a new one.
 
-Composition is available through the javadoc:Router[use, io.jooby.Router] operator:
+Composition is available through the javadoc:Router[mount, io.jooby.Router] operator:
 
 .Composing
 [source, java, role="primary"]
@@ -1140,9 +1142,9 @@ public class Bar extends Jooby {
 
 public class App extends Jooby {
   {
-    use(new Foo());                     // <1>
+    mount(new Foo());                       // <1>
 
-    use(new Bar());                     // <2>
+    mount(new Bar());                       // <2>
 
     get("/app", Context::getRequestPath);   // <3>
   }
@@ -1165,9 +1167,9 @@ class Bar: Kooby({
 })
 
 class App: Kooby({
-  use(Foo())                       // <1>
+  mount(Foo())                         // <1>
 
-  use(Bar())                       // <2>
+  mount(Bar())                         // <2>
 
   get("/app") { ctx.getRequestPath() } // <3>
 })
@@ -1191,7 +1193,7 @@ public class Foo extends Jooby {
 
 public class App extends Jooby {
   {
-    use("/prefix", new Foo());  // <1>
+    mount("/prefix", new Foo());  // <1>
   }
 }
 ----
@@ -1207,25 +1209,99 @@ class Foo: Kooby({
 
 class App: Kooby({
 
-  use("/prefix", Foo())  // <1>
+  mount("/prefix", Foo())  // <1>
 
 })
 ----
 
 <1> Now all routes from `Foo` will be prefixed with `/prefix`. Output: `/prefix/foo` => `/prefix/foo`
 
-[TIP]
-====
-Composition is a great option for modularization. You can easily develop/test/deploy each 
-application independently and compose them all in another application.
+The mount operator only import routes. Services, callbacks, etc... are not imported. Main application
+is responsible for assembly all the resources and services required by imported applications.
 
-We do provide <<mvc-api, MVC API>> as another alternative for modularization.
-====
+==== Install
+
+Alternative you can install a full application into a single one using the javadoc:Jooby[install, io.jooby.Jooby] operator:
+
+.Installing
+[source, java, role="primary"]
+----
+public class Foo extends Jooby {
+  {
+    get("/foo", ctx -> ...);
+  }
+}
+
+public class Bar extends Jooby {
+  {
+    get("/bar", ctx -> ...);
+  }
+}
+
+public class App extends Jooby {
+  {
+    install(Foo::new);                       // <1>
+
+    install(Bar::new);                       // <2>
+  }
+}
+----
+
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+class Foo: Kooby({
+   
+  get("/foo") { ... }
+
+})
+
+class Bar: Kooby({
+  
+  get("/bar") { ... }
+
+})
+
+class App: Kooby({
+  install(::Foo)                         // <1>
+
+  install(::Bar)                         // <2>
+})
+----
+
+<1> Imports all routes, services, callbacks, etc... from `Foo`. Output: `/foo` => `/foo`
+
+<2> Imports all routes, services, callbacks, etc... from `Bar`. Output: `/bar` => `/bar`
+
+This operator let you to deploy for example `Foo` as standalone application or integrated into a main one `App`.
+Install operator shared the state of the main application, so lazy initialization of child application is *required*.
+
+For example, this won't work:
+
+.Java
+[source, java]
+----
+{
+  Foo foo = new Foo();
+  install(() -> foo);        // Won't works
+}
+----
+
+The `Foo` application must be lazy initialized:
+
+.Java
+[source, java]
+----
+{
+  install(() -> new Foo());  // Works!
+}
+----
+
 
 === Dynamic Routing
 
-Dynamic routing is looks similar to <<composition, composition>> but enabled/disabled routes at runtime
-using a `predicate`.
+Dynamic routing looks similar to <<composition, composition>> but enabled/disabled routes at runtime
+using a `predicate`. 
 
 Suppose you own two version of an `API` and for some time you need to support both: `old` and `new` API:
 
@@ -1246,9 +1322,9 @@ public class V2 extends Jooby {
 
 public class App extends Jooby {
   {
-    use(ctx -> ctx.header("version").value().equals("v1"), new V1()); // <1>
+    mount(ctx -> ctx.header("version").value().equals("v1"), new V1()); // <1>
 
-    use(ctx -> ctx.header("version").value().equals("v2"), new V2()); // <2>
+    mount(ctx -> ctx.header("version").value().equals("v2"), new V2()); // <2>
   }
 }
 ----
@@ -1270,9 +1346,9 @@ class V2: Kooby({
 
 class App: Kooby({
 
-  use(ctx -> ctx.header("version").value().equals("v1"), V1()); // <1>
+  mount(ctx -> ctx.header("version").value().equals("v1"), V1()); // <1>
 
-  use(ctx -> ctx.header("version").value().equals("v2"), V2()); // <2>
+  mount(ctx -> ctx.header("version").value().equals("v2"), V2()); // <2>
 
 })
 ----
