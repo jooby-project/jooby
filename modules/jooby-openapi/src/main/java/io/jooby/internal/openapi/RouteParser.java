@@ -5,17 +5,31 @@
  */
 package io.jooby.internal.openapi;
 
-import io.jooby.Context;
-import io.jooby.MediaType;
-import io.jooby.Route;
-import io.jooby.RouteSet;
-import io.jooby.Router;
-import io.swagger.v3.oas.models.media.ComposedSchema;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.responses.ApiResponse;
+import static io.jooby.internal.openapi.RoutePath.path;
+import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
+import static io.jooby.internal.openapi.TypeFactory.JOOBY;
+import static io.jooby.internal.openapi.TypeFactory.KOOBY;
+import static io.jooby.internal.openapi.TypeFactory.KOOBYKT;
+import static io.jooby.internal.openapi.TypeFactory.KT_FUN_1;
+import static io.jooby.internal.openapi.TypeFactory.OBJECT;
+import static io.jooby.internal.openapi.TypeFactory.STRING;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -31,33 +45,26 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.jooby.internal.openapi.RoutePath.path;
-import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
-import static io.jooby.internal.openapi.TypeFactory.KOOBYKT;
-import static io.jooby.internal.openapi.TypeFactory.KT_FUN_1;
-import static io.jooby.internal.openapi.TypeFactory.STRING;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
+import io.jooby.Context;
+import io.jooby.MediaType;
+import io.jooby.Route;
+import io.jooby.RouteSet;
+import io.jooby.Router;
+import io.jooby.SneakyThrows;
+import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 
 public class RouteParser {
 
   public List<OperationExt> parse(ParserContext ctx) {
     List<OperationExt> operations = parse(ctx, null, ctx.classNode(ctx.getRouter()));
 
-    String applicationName = Optional.ofNullable(ctx.getMainClass()).orElse(ctx.getRouter().getClassName());
+    String applicationName = Optional.ofNullable(ctx.getMainClass())
+        .orElse(ctx.getRouter().getClassName());
     ClassNode application = ctx.classNode(Type.getObjectType(applicationName.replace(".", "/")));
 
     // swagger/openapi:
@@ -273,9 +280,16 @@ public class RouteParser {
             handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
           } else if (signature.matches("<init>", KT_FUN_1)) {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
-          } else if (signature.matches("use", Router.class) || signature.matches("mount", Router.class)) {
+          } else if (signature.matches("use", Router.class) || signature
+              .matches("mount", Router.class)) {
             handlerList.addAll(mountRouter(ctx, prefix, node, findRouterInstruction(node)));
-          } else if (signature.matches("use", String.class, Router.class) || signature.matches("mount", String.class, Router.class)) {
+          } else if (signature.matches("install", String.class, SneakyThrows.Supplier.class)) {
+            String pattern = routePattern(node, node);
+            handlerList.addAll(installApp(ctx, path(prefix, pattern), node, node));
+          } else if (signature.matches("install", SneakyThrows.Supplier.class)) {
+            handlerList.addAll(installApp(ctx, prefix, node, node));
+          } else if (signature.matches("use", String.class, Router.class) || signature
+              .matches("mount", String.class, Router.class)) {
             AbstractInsnNode routerInstruction = findRouterInstruction(node);
             String pattern = routePattern(node, node);
             handlerList.addAll(mountRouter(ctx, path(prefix, pattern), node, routerInstruction));
@@ -516,6 +530,98 @@ public class RouteParser {
     }
     ClassNode classNode = ctx.classNode(router);
     return parse(ctx.newContext(router), prefix, classNode);
+  }
+
+  private List<OperationExt> installApp(ParserContext ctx, String prefix,
+      MethodInsnNode node, AbstractInsnNode ins) {
+    Type router;
+    AbstractInsnNode previous = ins.getPrevious();
+    if (previous instanceof InvokeDynamicInsnNode) {
+      InvokeDynamicInsnNode idin = (InvokeDynamicInsnNode) previous;
+      Handle handle = (Handle) idin.bsmArgs[1];
+      router = TypeFactory.fromInternalName(handle.getOwner());
+      if (!handle.getName().equals("<init>")) {
+        MethodNode lambda = findLambda(ctx, idin);
+        router = ReturnTypeParser.parse(ctx, lambda).stream()
+            .findFirst()
+            .map(TypeFactory::fromJavaName)
+            .orElseThrow(() -> new UnsupportedOperationException(InsnSupport.toString(node)));
+      }
+    } else if (node.owner.equals("io/jooby/Kooby")) {
+      router = kotlinSupplier(ctx, node, previous);
+    } else {
+      throw new UnsupportedOperationException(InsnSupport.toString(node));
+    }
+    ClassNode classNode = ctx.classNode(router);
+    return parse(ctx.newContext(router), prefix, classNode);
+  }
+
+  private Type kotlinSupplier(ParserContext ctx, MethodInsnNode node, AbstractInsnNode ins) {
+    FieldInsnNode frame = InsnSupport.prev(ins)
+        .filter(FieldInsnNode.class::isInstance)
+        .map(FieldInsnNode.class::cast)
+        .filter(it -> it.getOpcode() == GETSTATIC)
+        .findFirst()
+        .orElse(null);
+    Type type = null;
+    if (frame != null) {
+      ClassNode lambdaClass = ctx.classNode(TypeFactory.fromInternalName(frame.owner));
+      type = findMethods(lambdaClass, "invoke", (method, signature) ->
+          (method.access & Opcodes.ACC_PUBLIC) != 0).stream()
+          .map(it -> {
+            // visitMethod(ACC_PUBLIC | ACC_FINAL, "invoke", "()LReturnType", null, null);
+            String desc = Optional.ofNullable(it.signature).orElse(it.desc);
+            return Type.getReturnType(desc);
+          })
+          .filter(it -> !it.equals(OBJECT))
+          .findFirst()
+          .orElseGet(() ->
+              // SneakyThrows.Supplier
+              findMethods(lambdaClass, "tryGet",
+                  (method, signature) -> Type.getReturnType(method.desc).equals(JOOBY) || Type
+                      .getReturnType(method.desc).equals(KOOBY)).stream()
+                  .findFirst()
+                  .map(it ->
+                      ReturnTypeParser.parseIgnoreSignature(ctx, it).stream()
+                          .findFirst()
+                          .map(TypeFactory::fromJavaName)
+                          .orElse(null)
+                  )
+                  .orElseGet(() ->
+                      findMethods(lambdaClass, "<init>", (method, signature) -> true)
+                          .stream()
+                          .findFirst()
+                          .map(init ->
+                              InsnSupport.next(init.instructions.getFirst())
+                                  .filter(LdcInsnNode.class::isInstance)
+                                  .map(LdcInsnNode.class::cast)
+                                  .filter(it -> Type.class.isInstance(it.cst))
+                                  .map(it -> (Type) it.cst)
+                                  .findFirst()
+                                  .orElse(null)
+                          )
+                          .orElse(null)
+                  )
+          );
+    }
+    if (type == null) {
+      throw new UnsupportedOperationException(InsnSupport.toString(node));
+    }
+    return type;
+  }
+
+  private List<MethodNode> findMethods(ClassNode clazz, String name,
+      BiPredicate<MethodNode, Signature> predicate) {
+    List<MethodNode> result = new ArrayList<>();
+    for (MethodNode method : clazz.methods) {
+      if (method.name.equals(name)) {
+        Signature signature = Signature.create(method);
+        if (predicate.test(method, signature)) {
+          result.add(method);
+        }
+      }
+    }
+    return result;
   }
 
   private List<OperationExt> kotlinHandler(ParserContext ctx, String httpMethod,

@@ -5,6 +5,15 @@
  */
 package io.jooby.internal.openapi;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -22,20 +31,13 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class ReturnTypeParser {
 
   public static List<String> parse(ParserContext ctx, MethodNode node) {
     Type returnType = Type.getReturnType(node.desc);
-    if (!TypeFactory.OBJECT.equals(returnType) && !TypeFactory.VOID.equals(returnType)) {
+    boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
+    if (notSynthetic && !TypeFactory.OBJECT.equals(returnType) && !TypeFactory.VOID
+        .equals(returnType)) {
       if (node.signature == null) {
         return Collections.singletonList(ASMType.parse(returnType.getDescriptor()));
       } else {
@@ -47,6 +49,11 @@ public class ReturnTypeParser {
         return Collections.singletonList(ASMType.parse(desc));
       }
     }
+    return parseIgnoreSignature(ctx, node);
+  }
+
+  public static List<String> parseIgnoreSignature(ParserContext ctx, MethodNode node) {
+    Type returnType = Type.getReturnType(node.desc);
     List<String> result = InsnSupport.next(node.instructions.getFirst())
         .filter(it -> it.getOpcode() == Opcodes.ARETURN || it.getOpcode() == Opcodes.IRETURN
             || it.getOpcode() == Opcodes.RETURN)
@@ -312,7 +319,8 @@ public class ReturnTypeParser {
                   .orElse(null);
               if (methodCall != null) {
                 String returnType = fromMethodCall(ctx, methodCall);
-                if (!returnType.equals(Object.class.getName()) && !returnType.equals(void.class.getName())) {
+                if (!returnType.equals(Object.class.getName()) && !returnType
+                    .equals(void.class.getName())) {
                   return returnType;
                 }
               }

@@ -5,17 +5,11 @@
  */
 package io.jooby;
 
-import com.typesafe.config.Config;
-import io.jooby.exception.RegistryException;
-import io.jooby.exception.StartupException;
-import io.jooby.internal.LocaleUtils;
-import io.jooby.internal.RouterImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.inject.Provider;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
@@ -47,10 +41,18 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Collections.singletonList;
-import static java.util.Objects.requireNonNull;
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.inject.Provider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.typesafe.config.Config;
+import io.jooby.exception.RegistryException;
+import io.jooby.exception.StartupException;
+import io.jooby.internal.LocaleUtils;
+import io.jooby.internal.RouterImpl;
 
 /**
  * <h1>Welcome to Jooby!</h1>
@@ -86,6 +88,8 @@ public class Jooby implements Router, Registry {
 
   private final transient AtomicBoolean started = new AtomicBoolean(true);
 
+  private static transient Jooby owner;
+
   private RouterImpl router;
 
   private ExecutionMode mode;
@@ -97,6 +101,8 @@ public class Jooby implements Router, Registry {
   private List<SneakyThrows.Runnable> startingCallbacks;
 
   private LinkedList<AutoCloseable> stopCallbacks;
+
+  private List<Extension> lateExtensions;
 
   private Environment env;
 
@@ -118,9 +124,17 @@ public class Jooby implements Router, Registry {
    * Creates a new Jooby instance.
    */
   public Jooby() {
-    ClassLoader classLoader = getClass().getClassLoader();
-    environmentOptions = new EnvironmentOptions().setClassLoader(classLoader);
-    router = new RouterImpl(classLoader);
+    if (owner == null) {
+      ClassLoader classLoader = getClass().getClassLoader();
+      environmentOptions = new EnvironmentOptions().setClassLoader(classLoader);
+      router = new RouterImpl(classLoader);
+      stopCallbacks = new LinkedList<>();
+      startingCallbacks = new ArrayList<>();
+      readyCallbacks = new ArrayList<>();
+      lateExtensions = new ArrayList<>();
+    } else {
+      copyState(owner, this);
+    }
   }
 
   /**
@@ -246,9 +260,6 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   public @Nonnull Jooby onStarting(@Nonnull SneakyThrows.Runnable body) {
-    if (startingCallbacks == null) {
-      startingCallbacks = new ArrayList<>();
-    }
     startingCallbacks.add(body);
     return this;
   }
@@ -261,9 +272,6 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   public @Nonnull Jooby onStarted(@Nonnull SneakyThrows.Runnable body) {
-    if (readyCallbacks == null) {
-      readyCallbacks = new ArrayList<>();
-    }
     readyCallbacks.add(body);
     return this;
   }
@@ -276,9 +284,6 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   public @Nonnull Jooby onStop(@Nonnull AutoCloseable body) {
-    if (stopCallbacks == null) {
-      stopCallbacks = new LinkedList<>();
-    }
     stopCallbacks.addFirst(body);
     return this;
   }
@@ -296,6 +301,84 @@ public class Jooby implements Router, Registry {
   public Jooby mount(@Nonnull Router router) {
     this.router.mount(router);
     return this;
+  }
+
+  /**
+   * Install/import a full application into this one. Applications shared services, registry,
+   * callbacks, etc.
+   *
+   * Application must be instantiated/created lazily via a supplier/factory. This is required due
+   * on how an application is usually initialized (constructor initializer).
+   *
+   * Working example:
+   *
+   * <pre>{@code
+   *
+   *  install(SubApp::new);
+   *
+   * }</pre>
+   *
+   * Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
+   * won't work:
+   *
+   * <pre>{@code
+   *
+   *  SubApp app = new SubApp();
+   *  install(app); // WONT WORK
+   *
+   * }</pre>
+   *
+   * Note: you must take care of application services between application. For example make sure
+   * you don't configure the same service twice or more times from main and imported applications.
+   *
+   * @param factory Application factory.
+   * @return This application.
+   */
+  @Nonnull public Jooby install(@Nonnull SneakyThrows.Supplier<Jooby> factory) {
+    return install("/", factory);
+  }
+
+  /**
+   * Install/import a full application into this one. Applications shared services, registry,
+   * callbacks, etc.
+   *
+   * Application must be instantiated/created lazily via a supplier/factory. This is required due
+   * on how an application is usually initialized (constructor initializer).
+   *
+   * Working example:
+   *
+   * <pre>{@code
+   *
+   *  install("/subapp", SubApp::new);
+   *
+   * }</pre>
+   *
+   * Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
+   * won't work:
+   *
+   * <pre>{@code
+   *
+   *  SubApp app = new SubApp();
+   *  install("/subapp", app); // WONT WORK
+   *
+   * }</pre>
+   *
+   * Note: you must take care of application services between application. For example make sure
+   * you don't configure the same service twice or more times from main and imported applications.
+   *
+   * @param path Path prefix.
+   * @param factory Application factory.
+   * @return This application.
+   */
+  @Nonnull
+  public Jooby install(@Nonnull String path, @Nonnull SneakyThrows.Supplier<Jooby> factory) {
+    try {
+      owner = this;
+      path(path, () -> factory.get());
+      return this;
+    } finally {
+      owner = null;
+    }
   }
 
   /**
@@ -429,7 +512,7 @@ public class Jooby implements Router, Registry {
    */
   @Nonnull public Jooby install(@Nonnull Extension extension) {
     if (lateInit || extension.lateinit()) {
-      onStarting(() -> extension.install(this));
+      lateExtensions.add(extension);
     } else {
       try {
         extension.install(this);
@@ -750,9 +833,10 @@ public class Jooby implements Router, Registry {
       locales = Optional.of(getConfig())
           .filter(c -> c.hasPath(path))
           .map(c -> c.getString(path))
-          .map(v -> LocaleUtils.parseLocales(v).orElseThrow(() -> new RuntimeException(String.format(
-              "Invalid value for configuration property '%s'; check the documentation of %s#parse(): %s",
-              path, Locale.LanguageRange.class.getName(), v))))
+          .map(
+              v -> LocaleUtils.parseLocales(v).orElseThrow(() -> new RuntimeException(String.format(
+                  "Invalid value for configuration property '%s'; check the documentation of %s#parse(): %s",
+                  path, Locale.LanguageRange.class.getName(), v))))
           .orElseGet(() -> singletonList(Locale.getDefault()));
     }
 
@@ -761,6 +845,16 @@ public class Jooby implements Router, Registry {
     services.put(Config.class, getConfig());
 
     joobyRunHook(getClass().getClassLoader(), server);
+
+    for (Extension extension : lateExtensions) {
+      try {
+        extension.install(this);
+      } catch (Throwable e) {
+        throw SneakyThrows.propagate(e);
+      }
+    }
+    this.lateExtensions.clear();
+    this.lateExtensions = null;
 
     this.startingCallbacks = fire(this.startingCallbacks);
 
@@ -1205,5 +1299,28 @@ public class Jooby implements Router, Registry {
     } catch (Exception x) {
       return Optional.empty();
     }
+  }
+
+  /**
+   * Copy internal state from one application into other.
+   *
+   * @param source Source application.
+   * @param dest Destination application.
+   */
+  private static void copyState(Jooby source, Jooby dest) {
+    dest.serverOptions = source.serverOptions;
+    dest.registry = source.registry;
+    dest.mode = source.mode;
+    dest.environmentOptions = source.environmentOptions;
+    dest.name = source.name;
+    dest.version = source.version;
+    dest.lateInit = source.lateInit;
+    dest.locales = source.locales;
+    dest.env = source.getEnvironment();
+    dest.router = source.router;
+    dest.lateExtensions = source.lateExtensions;
+    dest.readyCallbacks = source.readyCallbacks;
+    dest.startingCallbacks = source.startingCallbacks;
+    dest.stopCallbacks = source.stopCallbacks;
   }
 }

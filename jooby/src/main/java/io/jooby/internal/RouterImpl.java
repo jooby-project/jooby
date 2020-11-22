@@ -5,6 +5,37 @@
  */
 package io.jooby.internal;
 
+import static java.util.Objects.requireNonNull;
+
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import javax.annotation.Nonnull;
+import javax.inject.Provider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.typesafe.config.Config;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
@@ -35,35 +66,6 @@ import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.inject.Provider;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import static java.util.Objects.requireNonNull;
 
 public class RouterImpl implements Router {
 
@@ -190,6 +192,7 @@ public class RouterImpl implements Router {
   private Set<RouterOption> routerOptions = EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR);
 
   private boolean trustProxy;
+
   private boolean contextAsService;
 
   public RouterImpl(ClassLoader loader) {
@@ -280,10 +283,11 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router mount(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter) {
-    syncState(subrouter);
-    Chi tree = new Chi();
-    putPredicate(predicate, tree);
-    newStack(tree, "/", () -> {
+    /** Override services: */
+    overrideServices(subrouter);
+
+    /** Routes: */
+    mount(predicate, () -> {
       for (Route route : subrouter.getRoutes()) {
         Route newRoute = newRoute(route.getMethod(), route.getPattern(), route.getHandler());
         copy(route, newRoute);
@@ -292,26 +296,13 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  private void syncState(Router router) {
-    if (router instanceof Jooby) {
-      Jooby app = (Jooby) router;
-      syncState(app.getRouter());
-    } else if (router instanceof RouterImpl) {
-      RouterImpl that = (RouterImpl) router;
-      // Inherited the services from router owner
-      // TODO: what to do with existing services? Is there anything we can do?
-      that.services = this.services;
-    }
-  }
-
   @Nonnull @Override public Router mount(@Nonnull String path, @Nonnull Router router) {
-    syncState(router);
-    String prefix = Router.leadingSlash(path);
-    for (Route route : router.getRoutes()) {
-      String routePattern = new PathBuilder(prefix, route.getPattern()).toString();
-      Route newRoute = newRoute(route.getMethod(), routePattern, route.getHandler());
-      copy(route, newRoute);
-    }
+    /** Override services: */
+
+    overrideServices(router);
+
+    /** Routes: */
+    copyRoutes(path, router);
     return this;
   }
 
@@ -588,7 +579,8 @@ public class RouterImpl implements Router {
       }
       /** Response handler: */
       Route.Handler pipeline = Pipeline
-          .compute(source.getLoader(), route, forceMode(route, mode), executor, postDispatchInitializer, handlers);
+          .compute(source.getLoader(), route, forceMode(route, mode), executor,
+              postDispatchInitializer, handlers);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);
@@ -879,7 +871,8 @@ public class RouterImpl implements Router {
     if (this.preDispatchInitializer instanceof ContextInitializerList) {
       this.preDispatchInitializer.add(initializer);
     } else if (this.preDispatchInitializer != null) {
-      this.preDispatchInitializer = new ContextInitializerList(this.preDispatchInitializer).add(initializer);
+      this.preDispatchInitializer = new ContextInitializerList(this.preDispatchInitializer)
+          .add(initializer);
     } else {
       this.preDispatchInitializer = initializer;
     }
@@ -897,7 +890,8 @@ public class RouterImpl implements Router {
     if (this.postDispatchInitializer instanceof ContextInitializerList) {
       this.postDispatchInitializer.add(initializer);
     } else if (this.postDispatchInitializer != null) {
-      this.postDispatchInitializer = new ContextInitializerList(this.postDispatchInitializer).add(initializer);
+      this.postDispatchInitializer = new ContextInitializerList(this.postDispatchInitializer)
+          .add(initializer);
     } else {
       this.postDispatchInitializer = initializer;
     }
@@ -905,5 +899,25 @@ public class RouterImpl implements Router {
 
   private static Predicate<Context> domainPredicate(String domain) {
     return ctx -> ctx.getHost().equals(domain);
+  }
+
+  private void copyRoutes(@Nonnull String path, @Nonnull Router router) {
+    String prefix = Router.leadingSlash(path);
+    for (Route route : router.getRoutes()) {
+      String routePattern = new PathBuilder(prefix, route.getPattern()).toString();
+      Route newRoute = newRoute(route.getMethod(), routePattern, route.getHandler());
+      copy(route, newRoute);
+    }
+  }
+
+  private void overrideServices(Router router) {
+    if (router instanceof Jooby) {
+      Jooby app = (Jooby) router;
+      overrideServices(app.getRouter());
+    } else if (router instanceof RouterImpl) {
+      RouterImpl that = (RouterImpl) router;
+      // Inherited the services from router owner
+      that.services = this.services;
+    }
   }
 }
