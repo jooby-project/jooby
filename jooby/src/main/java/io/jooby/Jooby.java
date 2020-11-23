@@ -304,11 +304,11 @@ public class Jooby implements Router, Registry {
   }
 
   /**
-   * Install/import a full application into this one. Applications shared services, registry,
+   * Installs/imports a full application into this one. Applications share services, registry,
    * callbacks, etc.
    *
-   * Application must be instantiated/created lazily via a supplier/factory. This is required due
-   * on how an application is usually initialized (constructor initializer).
+   * Applications must be instantiated/created lazily via a supplier/factory. This is required due
+   * to the way an application is usually initialized (constructor initializer).
    *
    * Working example:
    *
@@ -328,8 +328,8 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Note: you must take care of application services between application. For example make sure
-   * you don't configure the same service twice or more times from main and imported applications.
+   * Note: you must take care of application services across the applications. For example make sure
+   * you don't configure the same service twice or more in the main and imported applications too.
    *
    * @param factory Application factory.
    * @return This application.
@@ -339,11 +339,11 @@ public class Jooby implements Router, Registry {
   }
 
   /**
-   * Install/import a full application into this one. Applications shared services, registry,
+   * Installs/imports a full application into this one. Applications share services, registry,
    * callbacks, etc.
    *
    * Application must be instantiated/created lazily via a supplier/factory. This is required due
-   * on how an application is usually initialized (constructor initializer).
+   * to the way an application is usually initialized (constructor initializer).
    *
    * Working example:
    *
@@ -363,8 +363,8 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Note: you must take care of application services between application. For example make sure
-   * you don't configure the same service twice or more times from main and imported applications.
+   * Note: you must take care of application services across the applications. For example make sure
+   * you don't configure the same service twice or more in the main and imported applications too.
    *
    * @param path Path prefix.
    * @param factory Application factory.
