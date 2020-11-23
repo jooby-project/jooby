@@ -1221,7 +1221,8 @@ is responsible for assembly all the resources and services required by imported 
 
 ==== Install
 
-Alternative you can install a full application into a single one using the javadoc:Jooby[install, io.jooby.Jooby] operator:
+Alternatively, you can install a standalone application into another one using the
+javadoc:Jooby[install, io.jooby.Jooby] operator:
 
 .Installing
 [source, java, role="primary"]
@@ -1273,8 +1274,9 @@ class App: Kooby({
 
 <2> Imports all routes, services, callbacks, etc... from `Bar`. Output: `/bar` => `/bar`
 
-This operator let you to deploy for example `Foo` as standalone application or integrated into a main one `App`.
-Install operator shared the state of the main application, so lazy initialization of child application is *required*.
+This operator lets you for example to deploy `Foo` as a standalone application or integrate it into a main one called `App`.
+The install operator shares the state of the main application, so lazy initialization (and therefore _instantiation_) of
+any child applications is *mandatory*.
 
 For example, this won't work:
 
@@ -1283,7 +1285,7 @@ For example, this won't work:
 ----
 {
   Foo foo = new Foo();
-  install(() -> foo);        // Won't works
+  install(() -> foo);        // Won't work
 }
 ----
 
@@ -1300,10 +1302,10 @@ The `Foo` application must be lazy initialized:
 
 === Dynamic Routing
 
-Dynamic routing looks similar to <<composition, composition>> but enabled/disabled routes at runtime
+Dynamic routing looks similar to <<composition, composition>> but enables/disables routes at runtime
 using a `predicate`. 
 
-Suppose you own two version of an `API` and for some time you need to support both: `old` and `new` API:
+Suppose you own two versions of an `API` and for some time you need to support both the `old` and `new` APIs:
 
 .Dynamic Routing
 [source,java,role="primary"]
