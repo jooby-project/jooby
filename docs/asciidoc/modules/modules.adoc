@@ -47,6 +47,7 @@ Available modules are listed next.
    * link:/modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.
 
 === Security
+   * link:/modules/jasypt[Jasypt]: Encripted configuration files.
    * link:/modules/pac4j[Pac4j]: Security engine module.
 
 === Session Store
