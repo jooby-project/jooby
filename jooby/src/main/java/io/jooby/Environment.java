@@ -42,7 +42,7 @@ public class Environment {
 
   private final List<String> actives;
 
-  private final Config conf;
+  private Config config;
 
   private final ClassLoader classLoader;
 
@@ -50,29 +50,29 @@ public class Environment {
    * Creates a new environment.
    *
    * @param classLoader Class loader.
-   * @param conf Application configuration.
+   * @param config Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config conf,
+  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config config,
       @Nonnull String... actives) {
-    this(classLoader, conf, Arrays.asList(actives));
+    this(classLoader, config, Arrays.asList(actives));
   }
 
   /**
    * Creates a new environment.
    *
    * @param classLoader Class loader.
-   * @param conf Application configuration.
+   * @param config Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config conf,
+  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config config,
       @Nonnull List<String> actives) {
     this.classLoader = classLoader;
     this.actives = actives.stream()
         .map(String::trim)
         .map(String::toLowerCase)
         .collect(Collectors.toList());
-    this.conf = conf;
+    this.config = config;
   }
 
   /**
@@ -83,8 +83,8 @@ public class Environment {
    * @return Property or default value.
    */
   public @Nonnull String getProperty(@Nonnull String key, @Nonnull String defaults) {
-    if (hasPath(conf, key)) {
-      return conf.getString(key);
+    if (hasPath(config, key)) {
+      return config.getString(key);
     }
     return defaults;
   }
@@ -96,8 +96,8 @@ public class Environment {
    * @return Property value or <code>null</code> when missing.
    */
   public @Nullable String getProperty(@Nonnull String key) {
-    if (hasPath(conf, key)) {
-      return conf.getString(key);
+    if (hasPath(config, key)) {
+      return config.getString(key);
     }
     return null;
   }
@@ -136,10 +136,10 @@ public class Environment {
    * @return Properties under that key or empty map.
    */
   public @Nonnull Map<String, String> getProperties(@Nonnull String key, @Nullable String prefix) {
-    if (hasPath(conf, key)) {
+    if (hasPath(config, key)) {
       Map<String, String> settings = new HashMap<>();
       String p = prefix == null || prefix.length() == 0 ? "" : prefix + ".";
-      conf.getConfig(key).entrySet().stream()
+      config.getConfig(key).entrySet().stream()
           .forEach(e -> {
             Object value = e.getValue().unwrapped();
             if (value instanceof List) {
@@ -159,7 +159,19 @@ public class Environment {
    * @return Application configuration.
    */
   public @Nonnull Config getConfig() {
-    return conf;
+    return config;
+  }
+
+  /**
+   * Set configuration properties. Please note setting a configuration object must be done at very
+   * early application stage.
+   *
+   * @param config Configuration properties.
+   * @return This environment.
+   */
+  public Environment setConfig(@Nonnull Config config) {
+    this.config = config;
+    return this;
   }
 
   /**
@@ -207,7 +219,7 @@ public class Environment {
   }
 
   @Override public String toString() {
-    return actives + "\n" + toString(conf).trim();
+    return actives + "\n" + toString(config).trim();
   }
 
   private String toString(final Config conf) {

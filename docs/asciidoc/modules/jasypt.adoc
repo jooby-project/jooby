@@ -1,0 +1,139 @@
+== Jasypt
+
+Decrypt configuration properties using http://www.jasypt.org
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-jasypt"]
+.
+
+2) Setup properties:
+
+.application.conf
+[source, properties]
+----
+jasypt.password = password                              <1>
+
+enc.property = "uTSqb9grs1+vUv3iN8lItC0kl65lMG+8"       <2>
+----
+
+3) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.jasypt.JasyptModule;
+
+{
+  install(new JasyptModule());                          <3>
+
+  String property = getConfig().getString("property");  <4>
+
+  System.out.println(property);
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+import io.jooby.jasypt.JasyptModule
+
+{
+  install(JasyptModule())                               <3>
+
+  val property = config.getString("property")           <4>
+
+  println(property)
+}
+----
+
+<1> Configure jasypt password. Jasypt use this to encrypt/decrypt values
+<2> Prefix encrypted properties with `enc`
+<3> Install Jasypt
+<4> Get a decrypted property
+
+Due Jasypt overrides configuration properties, must be installed at very beginning of the
+application. Once installed, you can access to decrypted properties.
+
+By default, encrypted properties must be prefixed with `enc`, you can change this by setting
+your own/preferred prefix:
+
+    install(new JasyptModule().setPrefix("secret"));
+
+Module also export an instance of `PBEStringEncryptor`:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.jasypt.JasyptModule;
+
+{
+  install(new JasyptModule());
+
+  PBEStringEncryptor encryptor = require(PBEStringEncryptor.class);
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+import io.jooby.jasypt.JasyptModule
+
+{
+  install(JasyptModule())
+
+  val encryptor = require(PBEStringEncryptor::class)
+}
+----
+
+==== Securing password
+
+Password can be configured as application property. It is accessed using the `jasypt.password`
+property name. It is important to keep your password safe and private.
+
+One simple way is to use a default password for development and override it with an environment variable. For example:
+
+.application.conf
+[source, properties]
+----
+jasypt.password = mypassword
+jasypt.password = ${?JASYPT_PASSWORD}
+----
+
+Here Jasypt will use a default value of `mypassword`, unless an environment variable `JASYPT_PASSWORD` is set.
+
+Another option is to keep the password in the file system. For that you need to provide your own
+password provider:
+
+.File password provider
+[source, java]
+----
+{
+  install(new JasyptModule(config -> {
+    return new String(Files.path(Paths.get("mypassword"), UTF-8));
+  }));
+}
+----
+
+The password provider let you read password from multiple sources.
+
+==== Options
+
+Advanced configuration options are available from configuration file:
+
+.application.conf
+[source, properties]
+----
+jasypt.password = mypassword
+
+jasypt.algorithm = PBEWithMD5AndDES
+jasypt.keyObtentionIterations = 1000
+jasypt.poolSize = 2
+jasypt.ivGeneratorClassName = classname
+jasypt.saltGeneratorClassName = org.jasypt.salt.RandomSaltGenerator
+jasypt.providerName = SunJCE
+----
+
+A `PooledPBEStringEncryptor` encryptor is configured when `poolSize` is set.

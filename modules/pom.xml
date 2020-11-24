@@ -72,6 +72,7 @@
     <module>jooby-banner</module>
     <module>jooby-whoops</module>
     <module>jooby-metrics</module>
+    <module>jooby-jasypt</module>
 
     <!-- distribution -->
     <module>jooby-distribution</module>
