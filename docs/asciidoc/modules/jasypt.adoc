@@ -88,6 +88,13 @@ import io.jooby.jasypt.JasyptModule
 }
 ----
 
+==== Encrypting values
+
+Jasypt offers a https://github.com/jasypt/jasypt/releases/latest[command line application] for
+doing encryption.
+
+Follow http://www.jasypt.org/cli.html[this guide] to see how to use it.
+
 ==== Securing password
 
 Password can be configured as application property. It is accessed using the `jasypt.password`
