@@ -5,43 +5,10 @@
  */
 package io.jooby.internal.openapi;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import io.jooby.Context;
-import io.jooby.FileUpload;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
-import io.jooby.openapi.DebugOption;
-import io.swagger.v3.core.converter.ModelConverters;
-import io.swagger.v3.core.converter.ResolvedSchema;
-import io.swagger.v3.core.util.Json;
-import io.swagger.v3.core.util.RefUtils;
-import io.swagger.v3.core.util.Yaml;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BinarySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ByteArraySchema;
-import io.swagger.v3.oas.models.media.FileSchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.media.UUIDSchema;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.util.ASMifier;
-import org.objectweb.asm.util.Printer;
-import org.objectweb.asm.util.TraceClassVisitor;
-import org.objectweb.asm.util.TraceMethodVisitor;
+import static io.jooby.internal.openapi.TypeFactory.COROUTINE_ROUTER;
+import static io.jooby.internal.openapi.TypeFactory.JOOBY;
+import static io.jooby.internal.openapi.TypeFactory.KOOBY;
+import static io.jooby.internal.openapi.TypeFactory.ROUTER;
 
 import java.io.File;
 import java.io.InputStream;
@@ -71,10 +38,45 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.jooby.internal.openapi.TypeFactory.COROUTINE_ROUTER;
-import static io.jooby.internal.openapi.TypeFactory.JOOBY;
-import static io.jooby.internal.openapi.TypeFactory.KOOBY;
-import static io.jooby.internal.openapi.TypeFactory.ROUTER;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.util.ASMifier;
+import org.objectweb.asm.util.Printer;
+import org.objectweb.asm.util.TraceClassVisitor;
+import org.objectweb.asm.util.TraceMethodVisitor;
+
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import io.jooby.Context;
+import io.jooby.FileUpload;
+import io.jooby.SneakyThrows;
+import io.jooby.StatusCode;
+import io.jooby.openapi.DebugOption;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.core.converter.ResolvedSchema;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.RefUtils;
+import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BinarySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.ByteArraySchema;
+import io.swagger.v3.oas.models.media.FileSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.UUIDSchema;
 
 public class ParserContext {
 
@@ -121,6 +123,13 @@ public class ParserContext {
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException x) {
       // Sshhhhh
     }
+    /** Ignore some conflictive setter in Jooby API: */
+    modules.add(new SimpleModule("jooby-openapi") {
+      @Override public void setupModule(SetupContext context) {
+        super.setupModule(context);
+        context.insertAnnotationIntrospector(new ConflictiveSetter());
+      }
+    });
     /** Java8/Optional: */
     modules.add(new Jdk8Module());
     modules.forEach(module -> mappers
