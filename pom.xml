@@ -111,7 +111,7 @@
     <junit.version>5.7.0</junit.version>
     <rest-assured.version>4.3.1</rest-assured.version>
     <checkstyle.version>8.37</checkstyle.version>
-    <mockito.version>3.6.0</mockito.version>
+    <mockito.version>3.6.28</mockito.version>
     <guava.version>29.0-jre</guava.version>
 
     <auto-service.version>1.0-rc7</auto-service.version>
