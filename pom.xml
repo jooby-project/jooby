@@ -84,7 +84,7 @@
     <!-- javax -->
     <javax.inject.version>1</javax.inject.version>
     <jsr305.version>3.0.2</jsr305.version>
-    <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
+    <jakarta.ws.rs-api.version>3.0.0</jakarta.ws.rs-api.version>
 
     <!-- Misc -->
     <okhttp.version>4.9.0</okhttp.version>

@@ -50,7 +50,7 @@
   <jackson.version>2.11.3</jackson.version>
   <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
   <jacoco.version>0.8.6</jacoco.version>
-  <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
+  <jakarta.ws.rs-api.version>3.0.0</jakarta.ws.rs-api.version>
   <jasypt.version>1.9.3</jasypt.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.10.2.Final</jboss-modules.version>
