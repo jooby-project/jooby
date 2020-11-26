@@ -66,7 +66,7 @@
   <junit.version>5.7.0</junit.version>
   <kafka.version>2.6.0</kafka.version>
   <kotlin.version>1.4.20</kotlin.version>
-  <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
+  <kotlinx-coroutines-core.version>1.4.1-native-mt</kotlinx-coroutines-core.version>
   <lettuce.version>6.0.1.RELEASE</lettuce.version>
   <license-maven-plugin.version>3.0</license-maven-plugin.version>
   <log4j.version>2.14.0</log4j.version>
