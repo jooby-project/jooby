@@ -58,7 +58,7 @@
 
     <!-- util -->
     <jfiglet.version>0.0.8</jfiglet.version>
-    <metrics.version>4.1.15</metrics.version>
+    <metrics.version>4.1.16</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>1.10.2.Final</jboss-modules.version>
