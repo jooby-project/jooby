@@ -60,7 +60,7 @@
   <jmespath-java.version>1.11.908</jmespath-java.version>
   <jooby-maven-plugin.version>2.9.4</jooby-maven-plugin.version>
   <jooby.version>2.9.4</jooby.version>
-  <json.version>20200518</json.version>
+  <json.version>20201115</json.version>
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
   <junit.version>5.7.0</junit.version>
