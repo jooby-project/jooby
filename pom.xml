@@ -61,7 +61,7 @@
     <metrics.version>4.1.15</metrics.version>
 
     <!-- jboss modules -->
-    <jboss-modules.version>1.10.2.Final</jboss-modules.version>
+    <jboss-modules.version>1.11.0.Final</jboss-modules.version>
 
     <!-- ASM -->
     <asm.version>9.0</asm.version>
