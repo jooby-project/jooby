@@ -5,6 +5,44 @@
  */
 package io.jooby.internal.netty;
 
+import static io.netty.buffer.Unpooled.copiedBuffer;
+import static io.netty.buffer.Unpooled.wrappedBuffer;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
+import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
+import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
+import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
+import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.typesafe.config.Config;
 import io.jooby.Body;
 import io.jooby.ByteRange;
@@ -65,46 +103,10 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ReferenceCounted;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
-import static io.netty.buffer.Unpooled.copiedBuffer;
-import static io.netty.buffer.Unpooled.wrappedBuffer;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
-import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
-import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
-import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
-import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
+  private static final String STREAM_ID = "x-http2-stream-id";
   DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(true);
   private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
@@ -144,6 +146,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.router = router;
     this.bufferSize = bufferSize;
     this.method = req.method().name().toUpperCase();
+    header(STREAM_ID).toOptional()
+        .ifPresent(streamId -> setResponseHeader(STREAM_ID, streamId));
   }
 
   boolean isHttpGet() {
@@ -269,7 +273,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Nonnull @Override public String getProtocol() {
-    return req.protocolVersion().text();
+    if (ctx.pipeline().get("http2") == null) {
+      return req.protocolVersion().text();
+    } else {
+      return "HTTP/2.0";
+    }
   }
 
   @Nonnull @Override public String getScheme() {
@@ -789,10 +797,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     // remove flusher, doesn't play well with streaming/chunked responses
     ChannelPipeline pipeline = ctx.pipeline();
     if (pipeline.get("chunker") == null) {
-      Stream.of("compressor", "encoder")
+      String base = Stream.of("compressor", "codec")
           .filter(name -> pipeline.get(name) != null)
           .findFirst()
-          .ifPresent(name -> pipeline.addAfter(name, "chunker", new ChunkedWriteHandler()));
+          .orElseThrow(() -> new IllegalStateException("No available handler for chunk writer"));
+      pipeline.addAfter(base, "chunker", new ChunkedWriteHandler());
     }
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);

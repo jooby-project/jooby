@@ -1,33 +1,23 @@
 package io.jooby;
 
-import io.jooby.handlebars.HandlebarsModule;
-import io.jooby.json.JacksonModule;
-import io.jooby.junit.ServerTest;
-import io.jooby.junit.ServerTestRunner;
-import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.DisplayName;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import static io.jooby.ExecutionMode.DEFAULT;
+import static io.jooby.ExecutionMode.EVENT_LOOP;
+import static io.jooby.ExecutionMode.WORKER;
+import static io.jooby.MediaType.text;
+import static io.jooby.MediaType.xml;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static okhttp3.RequestBody.create;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static reactor.core.scheduler.Schedulers.elastic;
 
-import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.channels.FileChannel;
@@ -59,18 +49,29 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
-import static io.jooby.ExecutionMode.DEFAULT;
-import static io.jooby.ExecutionMode.EVENT_LOOP;
-import static io.jooby.ExecutionMode.WORKER;
-import static io.jooby.MediaType.text;
-import static io.jooby.MediaType.xml;
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static okhttp3.RequestBody.create;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static reactor.core.scheduler.Schedulers.elastic;
+import javax.annotation.Nonnull;
+
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.DisplayName;
+
+import io.jooby.handlebars.HandlebarsModule;
+import io.jooby.utow.Utow;
+import io.jooby.json.JacksonModule;
+import io.jooby.junit.ServerTest;
+import io.jooby.junit.ServerTestRunner;
+import io.jooby.netty.Netty;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class FeaturedTest {
 
@@ -506,7 +507,7 @@ public class FeaturedTest {
   }
 
   @ServerTest
-  public void queryString(ServerTestRunner runner) throws UnsupportedEncodingException {
+  public void queryString(ServerTestRunner runner) {
     runner.define(app -> {
       app.get("/", ctx -> ctx.queryString() + "@" + ctx.query("q").value(""));
 
@@ -1532,11 +1533,13 @@ public class FeaturedTest {
       });
       app.get("/attachment-builder", ctx -> {
         Path file = userdir("src", "test", "resources", "files", "19kb.txt");
-        return FileDownload.build(file, ctx.query("name").value(file.getFileName().toString())).attachment();
+        return FileDownload.build(file, ctx.query("name").value(file.getFileName().toString()))
+            .attachment();
       });
       app.get("/inline-builder", ctx -> {
         Path file = userdir("src", "test", "resources", "files", "19kb.txt");
-        return FileDownload.build(file, ctx.query("name").value(file.getFileName().toString())).inline();
+        return FileDownload.build(file, ctx.query("name").value(file.getFileName().toString()))
+            .inline();
       });
     }).ready(client -> {
       client.get("/filechannel", rsp -> {
@@ -1846,7 +1849,8 @@ public class FeaturedTest {
       });
       client.get("/same-site?sameSite=None&secure=true", response -> {
         // browser session
-        assertEquals("[foo=bar;Path=/;SameSite=None;Secure]", response.headers("Set-Cookie").toString());
+        assertEquals("[foo=bar;Path=/;SameSite=None;Secure]",
+            response.headers("Set-Cookie").toString());
       });
       client.get("/same-site?sameSite=None", response -> {
         // browser session
@@ -2007,15 +2011,15 @@ public class FeaturedTest {
     // per path config
     runner.define(app -> {
       app.assets("/www/?*", new AssetHandler(source)
-        .cacheControl(path -> {
-          if (path.endsWith("about.html")) {
-            return CacheControl.noCache();
-          } else if (path.equals("foo.js")) {
-            return CacheControl.defaults().setETag(false);
-          } else {
-            return CacheControl.defaults();
-          }
-        }));
+          .cacheControl(path -> {
+            if (path.endsWith("about.html")) {
+              return CacheControl.noCache();
+            } else if (path.equals("foo.js")) {
+              return CacheControl.defaults().setETag(false);
+            } else {
+              return CacheControl.defaults();
+            }
+          }));
     }).ready(client -> {
       client.get("/www/index.html", rsp -> {
         assertNotNull(rsp.header("ETag"));
@@ -3238,10 +3242,12 @@ public class FeaturedTest {
           new Locale("hu")));
     }).dontFollowRedirects().ready(client -> {
       client.header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5")
-          .get("/locales", rsp -> assertEquals("[en, en_GB, de_AT, de_CH, fr, hu]", rsp.body().string()));
+          .get("/locales",
+              rsp -> assertEquals("[en, en_GB, de_AT, de_CH, fr, hu]", rsp.body().string()));
 
       client.header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7")
-          .get("/locales", rsp -> assertEquals("[fr, en, en_GB, de_AT, de_CH]", rsp.body().string()));
+          .get("/locales",
+              rsp -> assertEquals("[fr, en, en_GB, de_AT, de_CH]", rsp.body().string()));
 
       client.header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5")
           .get("/locale", rsp -> assertEquals("fr", rsp.body().string()));

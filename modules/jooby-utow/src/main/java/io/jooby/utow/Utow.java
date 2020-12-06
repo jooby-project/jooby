@@ -5,11 +5,16 @@
  */
 package io.jooby.utow;
 
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
+
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.Spliterator;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLContext;
@@ -18,6 +23,7 @@ import org.xnio.Options;
 import org.xnio.Sequence;
 import org.xnio.SslClientAuthMode;
 
+import io.jooby.Http2Configurer;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
@@ -98,6 +104,20 @@ public class Utow extends Server.Base {
           .setWorkerOption(Options.WORKER_NAME, "worker")
           .setWorkerThreads(options.getWorkerThreads())
           .setHandler(handler);
+
+      if (options.isHttp2() == null || options.isHttp2() == Boolean.TRUE) {
+        stream(spliteratorUnknownSize(
+            ServiceLoader.load(Http2Configurer.class).iterator(),
+            Spliterator.ORDERED),
+            false
+        )
+            .filter(it -> it.support(Undertow.Builder.class))
+            .findFirst()
+            .ifPresent(extension -> {
+              extension.configure(builder);
+              options.setHttp2(Boolean.TRUE);
+            });
+      }
 
       SSLContext sslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
       if (sslContext != null) {

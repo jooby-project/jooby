@@ -11,7 +11,7 @@ public class HttpsTest {
   public void httpsPkcs12(ServerTestRunner runner) {
     runner.define(app -> {
 
-      app.setServerOptions(new ServerOptions().setSecurePort(8433));
+      app.setServerOptions(new ServerOptions().setSecurePort(8443));
       app.get("/",
           ctx -> "schema: " + ctx.getScheme() + "; protocol: " + ctx.getProtocol() + "; secure: "
               + ctx.isSecure() + "; ssl: " + app.getServerOptions().getSsl().getType());
@@ -54,7 +54,7 @@ public class HttpsTest {
       app.setTrustProxy(true);
       app.setContextPath("/secure");
 
-      app.setServerOptions(new ServerOptions().setSecurePort(8433));
+      app.setServerOptions(new ServerOptions().setSecurePort(8443));
 
       app.before(new SSLHandler());
 
@@ -80,7 +80,7 @@ public class HttpsTest {
     runner.define(app -> {
       app.setTrustProxy(true);
 
-      app.setServerOptions(new ServerOptions().setSecurePort(8433));
+      app.setServerOptions(new ServerOptions().setSecurePort(8443));
 
       app.before(new SSLHandler());
 
@@ -106,7 +106,7 @@ public class HttpsTest {
   public void forceSSLStatic(ServerTestRunner runner) {
     runner.define(app -> {
 
-      app.setServerOptions(new ServerOptions().setSecurePort(8433));
+      app.setServerOptions(new ServerOptions().setSecurePort(8443));
 
       app.before(new SSLHandler("static.org"));
 
@@ -131,7 +131,7 @@ public class HttpsTest {
   public void forceSSLStatic2(ServerTestRunner runner) {
     runner.define(app -> {
       app.setContextPath("/ppp");
-      app.setServerOptions(new ServerOptions().setSecurePort(8433));
+      app.setServerOptions(new ServerOptions().setSecurePort(8443));
 
       app.before(new SSLHandler("static.org"));
 

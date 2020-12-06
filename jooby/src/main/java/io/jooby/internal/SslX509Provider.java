@@ -5,19 +5,20 @@
  */
 package io.jooby.internal;
 
+import java.io.InputStream;
+
+import javax.net.ssl.SSLContext;
+
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.internal.x509.SslContext;
-
-import javax.net.ssl.SSLContext;
-import java.io.InputStream;
 
 public class SslX509Provider implements SslContextProvider {
   @Override public boolean supports(String type) {
     return SslOptions.X509.equalsIgnoreCase(type);
   }
 
-  @Override public SSLContext create(ClassLoader loader, SslOptions options) {
+  @Override public SSLContext create(ClassLoader loader, String provider, SslOptions options) {
     try {
       InputStream trustCert;
       if (options.getTrustCert() == null) {
@@ -30,7 +31,8 @@ public class SslX509Provider implements SslContextProvider {
       String keyStorePass = null;
 
       SSLContext context = SslContext
-          .newServerContextInternal(trustCert, keyStoreCert, keyStoreKey, keyStorePass, 0, 0)
+          .newServerContextInternal(provider, trustCert, keyStoreCert, keyStoreKey,
+              keyStorePass, 0, 0)
           .context();
 
       return context;

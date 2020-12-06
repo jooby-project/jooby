@@ -21,17 +21,17 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-netty</artifactId>
+      <artifactId>jooby-http2-netty</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-utow</artifactId>
+      <artifactId>jooby-http2-undertow</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-jetty</artifactId>
+      <artifactId>jooby-http2-jetty</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
@@ -165,6 +165,13 @@
       <artifactId>fluent-hc</artifactId>
       <version>4.5.13</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>http2-client</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>

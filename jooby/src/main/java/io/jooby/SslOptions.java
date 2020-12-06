@@ -295,7 +295,7 @@ public final class SslOptions {
    * @param protocol TLS protocols.
    * @return This options.
    */
-  public SslOptions setProtocol(@Nonnull String... protocol) {
+  public @Nonnull SslOptions setProtocol(@Nonnull String... protocol) {
     return setProtocol(Arrays.asList(protocol));
   }
 
@@ -307,7 +307,7 @@ public final class SslOptions {
    * @param protocol TLS protocols.
    * @return This options.
    */
-  public SslOptions setProtocol(@Nonnull List<String> protocol) {
+  public @Nonnull SslOptions setProtocol(@Nonnull List<String> protocol) {
     this.protocol = protocol;
     return this;
   }

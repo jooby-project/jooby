@@ -97,6 +97,8 @@ public class ServerOptions {
 
   private Integer compressionLevel;
 
+  private Boolean http2;
+
   /**
    * Creates server options from config object. The configuration options must provided entries
    * like: <code>server.port</code>, <code>server.ioThreads</code>, etc...
@@ -142,6 +144,9 @@ public class ServerOptions {
       }
       // ssl
       SslOptions.from(conf, "server.ssl").ifPresent(options::setSsl);
+      if (conf.hasPath("server.http2")) {
+        options.setHttp2(conf.getBoolean("server.http2"));
+      }
 
       return Optional.of(options);
     }
@@ -463,6 +468,29 @@ public class ServerOptions {
   }
 
   /**
+   * Specify when HTTP/2 is enabled or not. This value is set to <code>null</code>, which allows
+   * Jooby to enabled by default when dependency is added it.
+   *
+   * To turn off set to false.
+   *
+   * @return Whenever HTTP/2 is enabled.
+   */
+  public @Nullable Boolean isHttp2() {
+    return http2;
+  }
+
+  /**
+   * Turn on/off HTTP/2 support.
+   *
+   * @param http2 True to enabled.
+   * @return This options.
+   */
+  public ServerOptions setHttp2(@Nullable Boolean http2) {
+    this.http2 = http2;
+    return this;
+  }
+
+  /**
    * Creates SSL context using the given resource loader. This method attempts to create a
    * SSLContext when:
    *
@@ -476,16 +504,36 @@ public class ServerOptions {
    * @return SSLContext or <code>null</code> when SSL is disabled.
    */
   public @Nullable SSLContext getSSLContext(@Nonnull ClassLoader loader) {
+    return getSSLContext(loader, null);
+  }
+
+  /**
+   * Creates SSL context using the given resource loader. This method attempts to create a
+   * SSLContext when:
+   *
+   * - {@link #getSecurePort()} has been set; or
+   * - {@link #getSsl()} has been set.
+   *
+   * If secure port is set and there is no SSL options, this method configure a SSL context using
+   * the a self-signed certificate for <code>localhost</code>.
+   *
+   * @param loader Resource loader.
+   * @param provider
+   * @return SSLContext or <code>null</code> when SSL is disabled.
+   */
+  public @Nullable SSLContext getSSLContext(@Nonnull ClassLoader loader,
+      @Nullable String provider) {
     if (isSSLEnabled()) {
       setSecurePort(Optional.ofNullable(securePort).orElse(SEVER_SECURE_PORT));
       setSsl(Optional.ofNullable(ssl).orElseGet(SslOptions::selfSigned));
       SslOptions options = getSsl();
-      SslContextProvider provider = Stream.of(SslContextProvider.providers())
+
+      SslContextProvider sslContextProvider = Stream.of(SslContextProvider.providers())
           .filter(it -> it.supports(options.getType()))
           .findFirst()
           .orElseThrow(
               () -> new UnsupportedOperationException("SSL Type: " + options.getType()));
-      SSLContext sslContext = provider.create(loader, options);
+      SSLContext sslContext = sslContextProvider.create(loader, provider, options);
       // validate TLS protocol, at least one protocol must be supported
       Set<String> supportedProtocols = new LinkedHashSet<>(Arrays
           .asList(sslContext.getDefaultSSLParameters().getProtocols()));

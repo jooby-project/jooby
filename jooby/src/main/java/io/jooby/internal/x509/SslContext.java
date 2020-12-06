@@ -86,11 +86,11 @@ public abstract class SslContext {
     }
   }
 
-  public static SslContext newServerContextInternal(
+  public static SslContext newServerContextInternal(final String provider,
       final InputStream trustCertChainFile,
       final InputStream keyCertChainFile, final InputStream keyFile, final String keyPassword,
       final long sessionCacheSize, final long sessionTimeout) throws SSLException {
-    return new JdkSslServerContext(trustCertChainFile, keyCertChainFile,
+    return new JdkSslServerContext(provider, trustCertChainFile, keyCertChainFile,
         keyFile, keyPassword, sessionCacheSize, sessionTimeout);
   }
 

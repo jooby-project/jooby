@@ -1,14 +1,14 @@
 package io.jooby.junit;
 
-import io.jooby.Server;
-import io.jooby.jetty.Jetty;
-import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
+import static java.util.stream.StreamSupport.stream;
 
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
 
-import static java.util.stream.StreamSupport.stream;
+import io.jooby.Server;
+import io.jooby.jetty.Jetty;
+import io.jooby.netty.Netty;
+import io.jooby.utow.Utow;
 
 public class ServerProvider implements Supplier<Server> {
   private Class serverClass;
@@ -40,4 +40,5 @@ public class ServerProvider implements Supplier<Server> {
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Server not found: " + serverClass));
   }
+
 }

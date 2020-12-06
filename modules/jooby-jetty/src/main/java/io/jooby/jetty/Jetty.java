@@ -5,21 +5,28 @@
  */
 package io.jooby.jetty;
 
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
+
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.Spliterator;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 
+import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.MultiPartFormDataCompliance;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -31,6 +38,7 @@ import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 
 import com.typesafe.config.Config;
+import io.jooby.Http2Configurer;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
@@ -90,6 +98,20 @@ public class Jetty extends io.jooby.Server.Base {
       this.server = new Server(executor);
       server.setStopAtShutdown(false);
 
+      Http2Configurer<HttpConfiguration, List<ConnectionFactory>> http2;
+      if (options.isHttp2() == null || options.isHttp2() == Boolean.TRUE) {
+        http2 = stream(spliteratorUnknownSize(
+            ServiceLoader.load(Http2Configurer.class).iterator(),
+            Spliterator.ORDERED),
+            false
+        )
+            .filter(it -> it.support(HttpConfiguration.class))
+            .findFirst()
+            .orElse(null);
+      } else {
+        http2 = null;
+      }
+
       HttpConfiguration httpConf = new HttpConfiguration();
       httpConf.setOutputBufferSize(options.getBufferSize());
       httpConf.setOutputAggregationSize(options.getBufferSize());
@@ -97,17 +119,24 @@ public class Jetty extends io.jooby.Server.Base {
       httpConf.setSendDateHeader(options.getDefaultHeaders());
       httpConf.setSendServerVersion(false);
       httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
-      ServerConnector http = new ServerConnector(server);
-      http.addConnectionFactory(new HttpConnectionFactory(httpConf));
+
+      List<ConnectionFactory> connectionFactories = new ArrayList<>();
+      connectionFactories.add(new HttpConnectionFactory(httpConf));
+      Optional.ofNullable(http2)
+          .ifPresent(extension -> connectionFactories.addAll(extension.configure(httpConf)));
+
+      ServerConnector http = new ServerConnector(server,
+          connectionFactories.toArray(new ConnectionFactory[connectionFactories.size()]));
       http.setPort(options.getPort());
       http.setHost(options.getHost());
 
       server.addConnector(http);
 
       if (options.isSSLEnabled()) {
+        String provider = http2 == null ? null : "Conscrypt";
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory
-            .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader()));
+            .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader(), provider));
         List<String> protocol = options.getSsl().getProtocol();
         sslContextFactory.setIncludeProtocols(protocol.toArray(new String[protocol.size()]));
         // exclude
@@ -126,12 +155,22 @@ public class Jetty extends io.jooby.Server.Base {
         HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
         httpsConf.addCustomizer(new SecureRequestCustomizer());
 
-        ServerConnector https = new ServerConnector(server, sslContextFactory);
-        https.addConnectionFactory(new HttpConnectionFactory(httpsConf));
-        https.setPort(options.getSecurePort());
-        https.setHost(options.getHost());
+        List<ConnectionFactory> secureConnectionFactories = new ArrayList<>();
+        if (http2 == null) {
+          secureConnectionFactories.add(new SslConnectionFactory(sslContextFactory, "http/1.1"));
+        } else {
+          secureConnectionFactories.add(new SslConnectionFactory(sslContextFactory, "alpn"));
+          http2.configure(httpsConf).forEach(secureConnectionFactories::add);
+        }
+        secureConnectionFactories.add(new HttpConnectionFactory(httpsConf));
 
-        server.addConnector(https);
+        ServerConnector secureConnector = new ServerConnector(server,
+            secureConnectionFactories
+                .toArray(new ConnectionFactory[secureConnectionFactories.size()]));
+        secureConnector.setPort(options.getSecurePort());
+        secureConnector.setHost(options.getHost());
+
+        server.addConnector(secureConnector);
       }
 
       ContextHandler context = new ContextHandler();
