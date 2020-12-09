@@ -1,17 +1,17 @@
 package io.jooby.junit;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.WebClient;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class ServerTestRunner {
 
@@ -64,7 +64,9 @@ public class ServerTestRunner {
       if (serverOptions != null) {
         server.setOptions(serverOptions);
       }
+      // HTTP/2 is off while testing unless explicit set
       ServerOptions options = server.getOptions();
+      options.setHttp2(Optional.ofNullable(options.isHttp2()).orElse(Boolean.FALSE));
       options.setPort(Integer.parseInt(System.getenv().getOrDefault("BUILD_PORT", "9999")));
       WebClient https;
       if (options.isSSLEnabled()) {

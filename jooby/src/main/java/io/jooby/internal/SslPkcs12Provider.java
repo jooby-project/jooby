@@ -5,16 +5,17 @@
  */
 package io.jooby.internal;
 
-import io.jooby.SneakyThrows;
-import io.jooby.SslOptions;
+import java.io.InputStream;
+import java.security.KeyStore;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import java.io.InputStream;
-import java.security.KeyStore;
+
+import io.jooby.SneakyThrows;
+import io.jooby.SslOptions;
 
 public class SslPkcs12Provider implements SslContextProvider {
 
@@ -22,14 +23,16 @@ public class SslPkcs12Provider implements SslContextProvider {
     return SslOptions.PKCS12.equalsIgnoreCase(type);
   }
 
-  @Override public SSLContext create(ClassLoader loader, SslOptions options) {
+  @Override public SSLContext create(ClassLoader loader, String provider, SslOptions options) {
     try {
       KeyStore store = keystore(options, loader, options.getCert(), options.getPassword());
       KeyManagerFactory kmf = KeyManagerFactory
           .getInstance(KeyManagerFactory.getDefaultAlgorithm());
       kmf.init(store, toCharArray(options.getPassword()));
       KeyManager[] kms = kmf.getKeyManagers();
-      SSLContext context = SSLContext.getInstance("TLS");
+      SSLContext context = provider == null
+          ? SSLContext.getInstance("TLS")
+          : SSLContext.getInstance("TLS", provider);
 
       TrustManager[] tms;
       if (options.getTrustCert() != null) {

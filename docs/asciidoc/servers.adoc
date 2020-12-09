@@ -47,6 +47,7 @@ Server options are available via javadoc:ServerOptions[] class:
       .setMaxRequestSize(10485760)
       .setSecurePort(8433)
       .setSsl(SslOptions.selfSigned())
+      .setHttp2(true)
   ); 
 }
 ----
@@ -67,6 +68,7 @@ Server options are available via javadoc:ServerOptions[] class:
     maxRequestSize = 10485760
     securePort = 8443
     ssl = SslOptions.selfSigned()
+    http2 = true
   }
 }
 ----
@@ -80,8 +82,9 @@ Server options are available via javadoc:ServerOptions[] class:
 - singleLoop: Indicates if the web server should use a single loop/group for doing IO or not. **Netty only**.
 - defaultHeaders: Configure server to set the following headers: `Date`, `Content-Type` and `Server` headers.
 - maxRequestSize: Maximum request size in bytes. Request exceeding this value results in 413(REQUEST_ENTITY_TOO_LARGE) response. Default is `10mb`.
-- securePort: Configure Jooby to do HTTPs. This option is fully convered in next section.
-- ssl: SSL options with certificate details.  This option is fully convered in next section.
+- securePort: Enable HTTPS. This option is fully covered in next section.
+- ssl: SSL options with certificate details. This option is fully covered in next section.
+- http2: Enable HTTP 2.0.
 
 Server options are available as application configuration properties too:
 
@@ -98,9 +101,10 @@ server.defaultHeaders = true
 server.maxRequestSize = 10485760
 server.securePort = 8443
 server.ssl.type = self-signed
+server.http2 = true
 ----
 
-=== SSL
+=== HTTPS Support
 
 Jooby supports HTTPS out of the box. By default HTTPS is disabled and all requests are served using 
 HTTP. Jooby supports two certificate formats:
@@ -157,13 +161,13 @@ A better option for development is the https://mkcert.dev[mkcert] tool:
 .Generates a PKCS12 certificate
 [source,bash,role="primary]
 ----
-mkcrt -pkcs12 localhost
+mkcert -pkcs12 localhost
 ----
 
 .Generates a X.509 certificate
 [source,bash,role="secondary"]
 ----
-mkcrt localhost
+mkcert localhost
 ----
 
 ==== Using X.509
@@ -328,4 +332,59 @@ none of which are supported, an exception will be thrown.
 - 8u261-b12 from Oracle JDK
 - TLS 1.3 support in OpenJDK is (beside Azul's OpenJSSE) expected to come into 8u272.
 - Java 11.0.3 or higher.
+====
+
+=== HTTP/2 Support
+
+HTTP2 support is provided across web server implementation. To enable it, you must add one of the
+following dependencies:
+
+HTTP/2 with Jetty:
+[dependency, artifactId="jooby-http2-jetty"]
+.
+
+HTTP/2 with Netty:
+[dependency, artifactId="jooby-http2-netty"]
+.
+
+HTTP/2 with Undertow:
+[dependency, artifactId="jooby-http2-undertow"]
+.
+
+Once the required dependencies are added, Jooby automatically configures HTTP/2.
+
+To use HTTP/2 from browsers you need TLS (the h2 protocol) please refer to
+<<server-https-support, HTTPS support>> to configure TLS.
+
+.HTTP/2
+[source,java,role="primary"]
+----
+{
+  setServerOptions(new ServerOptions()
+      .setSecurePort(8433)
+  );
+  
+  get("/", ctx -> {
+    ctx.getProtocol()
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    securePort = 8433
+  }
+  
+  get("/") {
+    ctx.protocol
+  } 
+}
+----
+
+[NOTE]
+====
+There is no support for HTTP/2 Push.
 ====

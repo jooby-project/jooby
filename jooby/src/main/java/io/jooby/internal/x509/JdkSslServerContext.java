@@ -62,7 +62,7 @@ public final class JdkSslServerContext extends JdkSslContext {
    * @param sessionTimeout the timeout for the cached SSL session objects, in seconds.
    *        {@code 0} to use the default value.
    */
-  public JdkSslServerContext(final InputStream trustCertChainFile,
+  public JdkSslServerContext(final String provider, final InputStream trustCertChainFile,
       final InputStream keyCertChainFile, final InputStream keyFile, final String keyPassword,
       final long sessionCacheSize, final long sessionTimeout) throws SSLException {
 
@@ -75,7 +75,10 @@ public final class JdkSslServerContext extends JdkSslContext {
           keyPassword);
 
       // Initialize the SSLContext to work with our key managers.
-      ctx = SSLContext.getInstance(PROTOCOL);
+      ctx = provider == null
+          ? SSLContext.getInstance(PROTOCOL)
+          : SSLContext.getInstance(PROTOCOL, provider);
+
       ctx.init(keyManagerFactory.getKeyManagers(),
           trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers(),
           null);

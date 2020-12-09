@@ -13,7 +13,7 @@ public interface SslContextProvider {
 
   boolean supports(String type);
 
-  SSLContext create(ClassLoader loader, SslOptions options);
+  SSLContext create(ClassLoader loader, String provider, SslOptions options);
 
   static SslContextProvider[] providers() {
     return new SslContextProvider[] {new SslPkcs12Provider(), new SslX509Provider()};
