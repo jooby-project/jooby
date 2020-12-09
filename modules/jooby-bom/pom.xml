@@ -36,7 +36,7 @@
   <flyway.version>7.3.0</flyway.version>
   <freemarker.version>2.3.30</freemarker.version>
   <frontend-maven-plugin.version>1.10.3</frontend-maven-plugin.version>
-  <frontend-plugin-core.version>1.10.3</frontend-plugin-core.version>
+  <frontend-plugin-core.version>1.10.4</frontend-plugin-core.version>
   <gradle-core.version>2.6</gradle-core.version>
   <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
   <gradle-tooling-api.version>2.6</gradle-tooling-api.version>
