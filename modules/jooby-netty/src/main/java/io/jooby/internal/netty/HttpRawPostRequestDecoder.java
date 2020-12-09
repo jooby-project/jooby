@@ -6,8 +6,10 @@
 package io.jooby.internal.netty;
 
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.multipart.HttpData;
+import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
@@ -18,10 +20,15 @@ import java.util.List;
 
 public class HttpRawPostRequestDecoder implements InterfaceHttpPostRequestDecoder {
 
+  private HttpRequest request;
+  private HttpDataFactory factory;
+
   private HttpData data;
 
-  public HttpRawPostRequestDecoder(HttpData data) {
-    this.data = data;
+  public HttpRawPostRequestDecoder(HttpDataFactory factory, HttpRequest request) {
+    this.factory = factory;
+    this.request = request;
+    this.data = factory.createAttribute(request, "body");
   }
 
   @Override public boolean isMultipart() {
@@ -69,12 +76,16 @@ public class HttpRawPostRequestDecoder implements InterfaceHttpPostRequestDecode
   }
 
   @Override public void destroy() {
+    cleanFiles();
+    removeHttpDataFromClean(data);
     data.delete();
   }
 
   @Override public void cleanFiles() {
+    factory.cleanRequestHttpData(request);
   }
 
   @Override public void removeHttpDataFromClean(InterfaceHttpData data) {
+    factory.removeHttpDataFromClean(request, data);
   }
 }

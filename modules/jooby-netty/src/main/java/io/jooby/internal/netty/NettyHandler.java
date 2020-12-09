@@ -202,7 +202,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         return new HttpPostStandardRequestDecoder(factory, request, StandardCharsets.UTF_8);
       }
     }
-    return new HttpRawPostRequestDecoder(factory.createAttribute(request, "body"));
+    return new HttpRawPostRequestDecoder(factory, request);
   }
 
   static String pathOnly(String uri) {
