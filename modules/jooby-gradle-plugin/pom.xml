@@ -99,10 +99,6 @@
 
   <repositories>
     <repository>
-      <id>central</id>
-      <url>https://central.maven.org/maven2</url>
-    </repository>
-    <repository>
       <id>gradle</id>
       <url>https://repo.gradle.org/gradle/libs-releases-local</url>
     </repository>
