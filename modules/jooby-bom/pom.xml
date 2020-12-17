@@ -102,7 +102,7 @@
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <node.version>v12.19.0</node.version>
   <okhttp.version>4.9.0</okhttp.version>
-  <pac4j.version>4.2.0</pac4j.version>
+  <pac4j.version>4.3.0</pac4j.version>
   <pebble.version>3.1.4</pebble.version>
   <plexus-utils.version>3.3.0</plexus-utils.version>
   <quartz.version>2.3.2</quartz.version>
