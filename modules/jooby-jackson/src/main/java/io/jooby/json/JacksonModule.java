@@ -138,16 +138,14 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     if (body.isInMemory()) {
       if (type == JsonNode.class) {
         return mapper.readTree(body.bytes());
-      } else {
-        return mapper.readValue(body.bytes(), typeFactory.constructType(type));
       }
+      return mapper.readValue(body.bytes(), typeFactory.constructType(type));
     } else {
       try (InputStream stream = body.stream()) {
         if (type == JsonNode.class) {
           return mapper.readTree(stream);
-        } else {
-          return mapper.readValue(stream, typeFactory.constructType(type));
         }
+        return mapper.readValue(stream, typeFactory.constructType(type));
       }
     }
   }
