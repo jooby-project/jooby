@@ -87,7 +87,7 @@ public class JoobyRun {
           args.add("server.port=" + port);
         }
         args.add("server.join=false");
-        module.run(conf.getMainClass(), args.toArray(new String[args.size()]));
+        module.run(conf.getMainClass(), args.toArray(new String[0]));
       } catch (ClassNotFoundException x) {
         String message = x.getMessage();
         if (message.trim().startsWith(conf.getMainClass())) {

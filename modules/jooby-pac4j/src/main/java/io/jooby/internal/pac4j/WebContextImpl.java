@@ -56,7 +56,7 @@ public class WebContextImpl implements Pac4jContext {
   }
 
   private void parameters(Map<String, List<String>> params, BiConsumer<String, String[]> consumer) {
-    params.forEach((k, v) -> consumer.accept(k, v.toArray(new String[v.size()])));
+    params.forEach((k, v) -> consumer.accept(k, v.toArray(new String[0])));
   }
 
   @Override public Optional getRequestAttribute(String name) {

@@ -193,7 +193,7 @@ public abstract class SslContext {
     KeyStore ks = KeyStore.getInstance("JKS");
     ks.load(null, null);
     ks.setKeyEntry("key", key, keyPasswordChars,
-        certChain.toArray(new Certificate[certChain.size()]));
+        certChain.toArray(new Certificate[0]));
     return ks;
   }
 

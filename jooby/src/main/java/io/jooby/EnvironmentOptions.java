@@ -62,7 +62,7 @@ public class EnvironmentOptions {
    * @return This options.
    */
   public @Nonnull EnvironmentOptions setActiveNames(@Nonnull List<String> activeNames) {
-    this.activeNames = activeNames.toArray(new String[activeNames.size()]);
+    this.activeNames = activeNames.toArray(new String[0]);
     return this;
   }
 

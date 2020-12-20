@@ -188,7 +188,7 @@ public class BaseTask extends DefaultTask {
   }
 
   private static URLClassLoader toClassLoader(final List<URL> cp, final ClassLoader parent) {
-    return new URLClassLoader(cp.toArray(new URL[cp.size()]), parent) {
+    return new URLClassLoader(cp.toArray(new URL[0]), parent) {
       @Override
       public String toString() {
         return cp.toString();

@@ -908,7 +908,7 @@ public class Jooby implements Router, Registry {
       buff.append("  https://{}:{}{}\n");
     }
 
-    log.info(buff.toString(), args.toArray(new Object[args.size()]));
+    log.info(buff.toString(), args.toArray(new Object[0]));
 
     this.readyCallbacks = fire(this.readyCallbacks);
     return this;

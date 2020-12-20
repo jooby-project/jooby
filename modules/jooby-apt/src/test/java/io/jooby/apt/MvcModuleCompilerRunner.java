@@ -50,7 +50,7 @@ public class MvcModuleCompilerRunner {
       result.add(input.getName());
       input = input.getSuperclass();
     }
-    return result.toArray(new String[result.size()]);
+    return result.toArray(new String[0]);
   }
 
   public MvcModuleCompilerRunner module(SneakyThrows.Consumer<Jooby> consumer) throws Exception {

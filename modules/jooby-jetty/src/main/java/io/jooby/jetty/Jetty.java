@@ -126,7 +126,7 @@ public class Jetty extends io.jooby.Server.Base {
           .ifPresent(extension -> connectionFactories.addAll(extension.configure(httpConf)));
 
       ServerConnector http = new ServerConnector(server,
-          connectionFactories.toArray(new ConnectionFactory[connectionFactories.size()]));
+          connectionFactories.toArray(new ConnectionFactory[0]));
       http.setPort(options.getPort());
       http.setHost(options.getHost());
 
@@ -138,7 +138,7 @@ public class Jetty extends io.jooby.Server.Base {
         sslContextFactory
             .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader(), provider));
         List<String> protocol = options.getSsl().getProtocol();
-        sslContextFactory.setIncludeProtocols(protocol.toArray(new String[protocol.size()]));
+        sslContextFactory.setIncludeProtocols(protocol.toArray(new String[0]));
         // exclude
         isNotInUse(protocol, "TLSv1", sslContextFactory::addExcludeProtocols);
         isNotInUse(protocol, "TLSv1.1", sslContextFactory::addExcludeProtocols);
@@ -166,7 +166,7 @@ public class Jetty extends io.jooby.Server.Base {
 
         ServerConnector secureConnector = new ServerConnector(server,
             secureConnectionFactories
-                .toArray(new ConnectionFactory[secureConnectionFactories.size()]));
+                .toArray(new ConnectionFactory[0]));
         secureConnector.setPort(options.getSecurePort());
         secureConnector.setHost(options.getHost());
 
