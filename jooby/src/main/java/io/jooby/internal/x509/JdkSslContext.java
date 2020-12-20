@@ -83,7 +83,7 @@ public abstract class JdkSslContext extends SslContext {
         "TLSv1.2", "TLSv1.1", "TLSv1");
 
     if (!protocols.isEmpty()) {
-      PROTOCOLS = protocols.toArray(new String[protocols.size()]);
+      PROTOCOLS = protocols.toArray(new String[0]);
     } else {
       PROTOCOLS = engine.getEnabledProtocols();
     }

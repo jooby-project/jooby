@@ -52,7 +52,7 @@ public class Git {
   private void execute(final List<String> args) throws Exception {
     System.out.println(args.stream().collect(Collectors.joining(" ")));
     int exit = new ProcessExecutor()
-        .command(args.toArray(new String[args.size()]))
+        .command(args.toArray(new String[0]))
         .redirectOutput(System.out)
         .directory(dir.toFile())
         .execute()
