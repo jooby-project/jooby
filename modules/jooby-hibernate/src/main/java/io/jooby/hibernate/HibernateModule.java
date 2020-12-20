@@ -169,6 +169,17 @@ public class HibernateModule implements Extension {
   }
 
   /**
+   * Creates a Hibernate module.
+   *
+   * @param name The name/key of the data source to attach.
+   * @param classes Persistent classes.
+   */
+  public HibernateModule(@Nonnull String name, List<Class> classes) {
+    this.name = name;
+    this.classes = classes;
+  }
+
+  /**
    * Scan packages and look for persistent classes.
    *
    * @param packages Package names.
@@ -176,6 +187,17 @@ public class HibernateModule implements Extension {
    */
   public @Nonnull HibernateModule scan(@Nonnull String... packages) {
     this.packages = Arrays.asList(packages);
+    return this;
+  }
+
+  /**
+   * Scan packages and look for persistent classes.
+   *
+   * @param packages Package names.
+   * @return This module.
+   */
+  public @Nonnull HibernateModule scan(@Nonnull List<String> packages) {
+    this.packages = packages;
     return this;
   }
 
