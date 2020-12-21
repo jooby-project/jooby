@@ -110,6 +110,15 @@ public class QuartzModule implements Extension {
   }
 
   /**
+   * Creates Quartz module and register the given jobs.
+   *
+   * @param jobs Job classes.
+   */
+  public QuartzModule(final List<Class<?>> jobs) {
+    this.jobs = jobs;
+  }
+
+  /**
    * Creates Quartz module and register the given jobs. Uses an user provided schedule, schedule
    * is started at application start up time and shutdown on application shutdown.
    *
@@ -119,6 +128,18 @@ public class QuartzModule implements Extension {
   public QuartzModule(@Nonnull Scheduler scheduler, final Class<?>... jobs) {
     this.scheduler = scheduler;
     this.jobs = Arrays.asList(jobs);
+  }
+
+  /**
+   * Creates Quartz module and register the given jobs. Uses an user provided schedule, schedule
+   * is started at application start up time and shutdown on application shutdown.
+   *
+   * @param scheduler Provided scheduler.
+   * @param jobs Job classes.
+   */
+  public QuartzModule(@Nonnull Scheduler scheduler, final List<Class<?>> jobs) {
+    this.scheduler = scheduler;
+    this.jobs = jobs;
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
