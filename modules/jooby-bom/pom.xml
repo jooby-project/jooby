@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>2.9.5-SNAPSHOT</version>
+    <version>2.9.5</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -16,16 +16,16 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.9.4</jooby.version>
+  <jooby.version>2.9.5</jooby.version>
   <HikariCP.version>3.4.5</HikariCP.version>
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
   <asm.version>9.0</asm.version>
   <auto-service.version>1.0-rc7</auto-service.version>
-  <aws-java-sdk.version>1.11.908</aws-java-sdk.version>
+  <aws-java-sdk.version>1.11.916</aws-java-sdk.version>
   <boringssl.version>2.0.27.Final</boringssl.version>
   <bucket4j-core.version>4.10.0</bucket4j-core.version>
   <caffeine.version>2.8.6</caffeine.version>
-  <checkstyle.version>8.37</checkstyle.version>
+  <checkstyle.version>8.38</checkstyle.version>
   <commons-email.version>1.5</commons-email.version>
   <commons-io.version>2.8.0</commons-io.version>
   <compile-testing.version>0.19</compile-testing.version>
@@ -35,7 +35,7 @@
   <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
   <flyway.version>7.3.1</flyway.version>
   <freemarker.version>2.3.30</freemarker.version>
-  <frontend-maven-plugin.version>1.10.3</frontend-maven-plugin.version>
+  <frontend-maven-plugin.version>1.10.4</frontend-maven-plugin.version>
   <frontend-plugin-core.version>1.10.4</frontend-plugin-core.version>
   <gradle-core.version>2.6</gradle-core.version>
   <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
@@ -57,9 +57,9 @@
   <jdbi.version>3.18.0</jdbi.version>
   <jetty.version>9.4.35.v20201120</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jmespath-java.version>1.11.917</jmespath-java.version>
-  <jooby-maven-plugin.version>2.9.4</jooby-maven-plugin.version>
-  <jooby.version>2.9.4</jooby.version>
+  <jmespath-java.version>1.11.916</jmespath-java.version>
+  <jooby-maven-plugin.version>2.9.5</jooby-maven-plugin.version>
+  <jooby.version>2.9.5</jooby.version>
   <json.version>20201115</json.version>
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -93,7 +93,7 @@
   <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
   <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
   <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-  <maven-tiles-plugin.version>2.18</maven-tiles-plugin.version>
+  <maven-tiles-plugin.version>2.19</maven-tiles-plugin.version>
   <metrics.version>4.1.16</metrics.version>
   <mockito.version>3.6.28</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
@@ -119,7 +119,7 @@
   <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
   <truth.version>1.1</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
-  <undertow.version>2.2.2.Final</undertow.version>
+  <undertow.version>2.2.3.Final</undertow.version>
   <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
   <weld.version>3.1.5.Final</weld.version>
 </properties>
@@ -146,13 +146,31 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-http2-undertow</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-netty</artifactId>
       <version>${jooby.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-http2-netty</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-jetty</artifactId>
+      <version>${jooby.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-http2-jetty</artifactId>
       <version>${jooby.version}</version>
       <type>jar</type>
     </dependency>
@@ -489,6 +507,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-afterburner</artifactId>
+      <version>${jackson.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-blackbird</artifactId>
       <version>${jackson.version}</version>
       <type>jar</type>
     </dependency>
@@ -1042,6 +1066,78 @@
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
       <version>${plexus-utils.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-auditmanager</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-healthlake</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-sagemakeredgemanager</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-emrcontainers</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-customerprofiles</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-lookoutforvision</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-connectcontactlens</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-amplifybackend</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-ecrpublic</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-appintegrations</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-sagemakerfeaturestoreruntime</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-devopsguru</artifactId>
+      <version>${aws-java-sdk.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
