@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.jooby.Body;
 import io.jooby.Context;
@@ -152,7 +152,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
 
   /**
    * Default object mapper. Install {@link Jdk8Module}, {@link JavaTimeModule},
-   * {@link ParameterNamesModule} and {@link AfterburnerModule}.
+   * {@link ParameterNamesModule} and {@link BlackbirdModule}.
    *
    * @return Object mapper instance.
    */
@@ -161,7 +161,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
         .addModule(new ParameterNamesModule())
         .addModule(new Jdk8Module())
         .addModule(new JavaTimeModule())
-        .addModule(new AfterburnerModule())
+        .addModule(new BlackbirdModule())
         .build();
 
     return mapper;
