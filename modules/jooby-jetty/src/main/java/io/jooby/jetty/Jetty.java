@@ -133,10 +133,9 @@ public class Jetty extends io.jooby.Server.Base {
       server.addConnector(http);
 
       if (options.isSSLEnabled()) {
-        String provider = http2 == null ? null : "Conscrypt";
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory
-            .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader(), provider));
+            .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader()));
         List<String> protocol = options.getSsl().getProtocol();
         sslContextFactory.setIncludeProtocols(protocol.toArray(new String[0]));
         // exclude

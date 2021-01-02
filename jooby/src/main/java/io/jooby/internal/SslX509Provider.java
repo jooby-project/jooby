@@ -28,11 +28,10 @@ public class SslX509Provider implements SslContextProvider {
       }
       InputStream keyStoreCert = options.getResource(loader, options.getCert());
       InputStream keyStoreKey = options.getResource(loader, options.getPrivateKey());
-      String keyStorePass = null;
 
       SSLContext context = SslContext
-          .newServerContextInternal(provider, trustCert, keyStoreCert, keyStoreKey,
-              keyStorePass, 0, 0)
+          .newServerContextInternal(provider, trustCert,
+              keyStoreCert, keyStoreKey, null, 0, 0)
           .context();
 
       return context;
