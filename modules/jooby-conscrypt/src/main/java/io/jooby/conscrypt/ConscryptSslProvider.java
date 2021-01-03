@@ -7,13 +7,19 @@ package io.jooby.conscrypt;
 
 import java.security.Provider;
 
-import org.conscrypt.Conscrypt;
 import org.conscrypt.OpenSSLProvider;
 
 import io.jooby.SslProvider;
 
+/**
+ * OpenSSL/Conscrypt SSL provider.
+ *
+ * @author edgar
+ * @since 2.9.6
+ */
 public class ConscryptSslProvider implements SslProvider {
   private static final String NAME = "Conscrypt";
+
   @Override public String getName() {
     return NAME;
   }

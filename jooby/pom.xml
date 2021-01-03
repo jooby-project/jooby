@@ -160,13 +160,6 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- SSL -->
-    <dependency>
-      <groupId>org.conscrypt</groupId>
-      <artifactId>conscrypt-openjdk-uber</artifactId>
-      <optional>true</optional>
-    </dependency>
-
     <!-- unbescape -->
     <dependency>
       <groupId>org.unbescape</groupId>

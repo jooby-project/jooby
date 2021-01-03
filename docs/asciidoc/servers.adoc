@@ -329,10 +329,25 @@ none of which are supported, an exception will be thrown.
 ====
 *TLSv1.3 protocol is available in*
 
+- Open SSL via Conscrypt (see next section)
 - 8u261-b12 from Oracle JDK
 - TLS 1.3 support in OpenJDK is (beside Azul's OpenJSSE) expected to come into 8u272.
 - Java 11.0.3 or higher.
 ====
+
+==== OpenSSL
+
+SSL support is provided using built-in JDK capabilities. Jooby offers an OpenSSL support using
+https://github.com/google/conscrypt[Conscrypt].
+
+To enable, just add the required dependency:
+
+[dependency, artifactId="jooby-conscrypt"]
+.
+
+Conscrypt is a Java Security Provider (JSP) that implements parts of the Java Cryptography Extension
+(JCE) and Java Secure Socket Extension (JSSE). It uses https://boringssl.googlesource.com/boringssl[BoringSSL] to provide cryptographic
+primitives and Transport Layer Security (TLS) for Java applications on Android and OpenJDK.
 
 === HTTP/2 Support
 
