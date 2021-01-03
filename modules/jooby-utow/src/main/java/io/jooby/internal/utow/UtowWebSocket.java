@@ -198,12 +198,19 @@ public class UtowWebSocket extends AbstractReceiveListener
   @Override protected void onError(WebSocketChannel channel, Throwable x) {
     // should close?
     if (Server.connectionLost(x) || SneakyThrows.isFatal(x)) {
-      handleClose(WebSocketCloseStatus.SERVER_ERROR);
+      if (channel.isOpen()) {
+        handleClose(WebSocketCloseStatus.SERVER_ERROR);
+      }
     }
 
     if (onErrorCallback == null) {
-      ctx.getRouter().getLog()
-          .error("Websocket resulted in exception: {}", ctx.getRequestPath(), x);
+      if (Server.connectionLost(x)) {
+        ctx.getRouter().getLog()
+            .debug("Websocket connection lost: {}", ctx.getRequestPath(), x);
+      } else {
+        ctx.getRouter().getLog()
+            .error("Websocket resulted in exception: {}", ctx.getRequestPath(), x);
+      }
     } else {
       onErrorCallback.onError(this, x);
     }
@@ -215,8 +222,10 @@ public class UtowWebSocket extends AbstractReceiveListener
 
   @Override protected void onCloseMessage(CloseMessage cm,
       WebSocketChannel channel) {
-    handleClose(WebSocketCloseStatus.valueOf(cm.getCode())
-        .orElseGet(() -> new WebSocketCloseStatus(cm.getCode(), cm.getReason())));
+    if (channel.isOpen()) {
+      handleClose(WebSocketCloseStatus.valueOf(cm.getCode())
+          .orElseGet(() -> new WebSocketCloseStatus(cm.getCode(), cm.getReason())));
+    }
   }
 
   private void handleClose(WebSocketCloseStatus closeStatus) {

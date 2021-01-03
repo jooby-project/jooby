@@ -5,6 +5,17 @@
  */
 package io.jooby.internal.netty;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+
+import javax.annotation.Nonnull;
+
 import io.jooby.Context;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -23,16 +34,6 @@ import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.AttributeKey;
-
-import javax.annotation.Nonnull;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 
 public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFutureListener {
   /** All connected websocket. */
@@ -155,20 +156,22 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
 
   private void handleMessage(WebSocketFrame frame) {
     try {
-      if (frame.isFinalFragment()) {
-        ByteBuf content;
-        if (buffer != null) {
-          buffer.writeBytes(frame.content());
-          content = buffer;
-          buffer = null;
-        } else {
-          content = frame.content();
-        }
-        WebSocketMessage message = WebSocketMessage.create(getContext(), array(content));
+      if (messageCallback != null) {
+        if (frame.isFinalFragment()) {
+          ByteBuf content;
+          if (buffer != null) {
+            buffer.writeBytes(frame.content());
+            content = buffer;
+            buffer = null;
+          } else {
+            content = frame.content();
+          }
+          WebSocketMessage message = WebSocketMessage.create(getContext(), array(content));
 
-        fireCallback(webSocketTask(() -> messageCallback.onMessage(this, message), false));
-      } else {
-        buffer = Unpooled.copiedBuffer(frame.content());
+          fireCallback(webSocketTask(() -> messageCallback.onMessage(this, message), false));
+        } else {
+          buffer = Unpooled.copiedBuffer(frame.content());
+        }
       }
     } finally {
       frame.release();
