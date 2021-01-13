@@ -139,8 +139,10 @@ public interface Server {
       String message = cause.getMessage();
       if (message != null) {
         String msg = message.toLowerCase();
-        return msg.contains("reset by peer") || msg.contains("broken pipe") || msg
-            .contains("forcibly closed");
+        return msg.contains("reset by peer")
+            || msg.contains("broken pipe")
+            || msg.contains("forcibly closed")
+            || msg.contains("connection reset");
       }
     }
     return (cause instanceof ClosedChannelException) || (cause instanceof EOFException);
