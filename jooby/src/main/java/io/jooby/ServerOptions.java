@@ -5,13 +5,19 @@
  */
 package io.jooby;
 
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
+
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -504,25 +510,6 @@ public class ServerOptions {
    * @return SSLContext or <code>null</code> when SSL is disabled.
    */
   public @Nullable SSLContext getSSLContext(@Nonnull ClassLoader loader) {
-    return getSSLContext(loader, null);
-  }
-
-  /**
-   * Creates SSL context using the given resource loader. This method attempts to create a
-   * SSLContext when:
-   *
-   * - {@link #getSecurePort()} has been set; or
-   * - {@link #getSsl()} has been set.
-   *
-   * If secure port is set and there is no SSL options, this method configure a SSL context using
-   * the a self-signed certificate for <code>localhost</code>.
-   *
-   * @param loader Resource loader.
-   * @param provider
-   * @return SSLContext or <code>null</code> when SSL is disabled.
-   */
-  public @Nullable SSLContext getSSLContext(@Nonnull ClassLoader loader,
-      @Nullable String provider) {
     if (isSSLEnabled()) {
       setSecurePort(Optional.ofNullable(securePort).orElse(SEVER_SECURE_PORT));
       setSsl(Optional.ofNullable(ssl).orElseGet(SslOptions::selfSigned));
@@ -533,7 +520,23 @@ public class ServerOptions {
           .findFirst()
           .orElseThrow(
               () -> new UnsupportedOperationException("SSL Type: " + options.getType()));
-      SSLContext sslContext = sslContextProvider.create(loader, provider, options);
+
+      String providerName = stream(spliteratorUnknownSize(
+          ServiceLoader.load(SslProvider.class).iterator(),
+          Spliterator.ORDERED),
+          false
+      )
+          .findFirst()
+          .map(provider -> {
+            String name = provider.getName();
+            if (Security.getProvider(name) == null) {
+              Security.addProvider(provider.create());
+            }
+            return name;
+          })
+          .orElse(null);
+
+      SSLContext sslContext = sslContextProvider.create(loader, providerName, options);
       // validate TLS protocol, at least one protocol must be supported
       Set<String> supportedProtocols = new LinkedHashSet<>(Arrays
           .asList(sslContext.getDefaultSSLParameters().getProtocols()));

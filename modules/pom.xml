@@ -18,6 +18,8 @@
 
     <module>jooby-apt</module>
 
+    <module>jooby-conscrypt</module>
+
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
     <module>jooby-utow</module>

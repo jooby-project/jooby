@@ -10,7 +10,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-utow</artifactId>
+  <artifactId>jooby-conscrypt</artifactId>
 
   <dependencies>
     <dependency>
@@ -25,16 +25,10 @@
       <version>${jooby.version}</version>
     </dependency>
 
-    <!-- utow -->
-    <dependency>
-      <groupId>io.undertow</groupId>
-      <artifactId>undertow-core</artifactId>
-    </dependency>
-
+    <!-- SSL -->
     <dependency>
       <groupId>org.conscrypt</groupId>
       <artifactId>conscrypt-openjdk-uber</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <!-- Test dependencies -->
@@ -57,4 +51,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
 </project>

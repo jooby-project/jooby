@@ -70,7 +70,6 @@
     <undertow.version>2.2.3.Final</undertow.version>
     <jetty.version>9.4.35.v20201120</jetty.version>
     <netty.version>4.1.56.Final</netty.version>
-    <boringssl.version>2.0.27.Final</boringssl.version>
 
     <!-- Reactive -->
     <rxjava.version>2.2.20</rxjava.version>
@@ -80,6 +79,9 @@
     <swagger.version>2.1.6</swagger.version>
     <swagger-parser.version>2.0.24</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
+
+    <!-- SSL -->
+    <conscrypt.version>2.5.1</conscrypt.version>
 
     <!-- javax -->
     <javax.inject.version>1</javax.inject.version>
@@ -509,6 +511,12 @@
         <version>${caffeine.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-conscrypt</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- ASM -->
       <dependency>
         <groupId>org.ow2.asm</groupId>
@@ -850,6 +858,13 @@
         <groupId>com.google.code.findbugs</groupId>
         <artifactId>jsr305</artifactId>
         <version>${jsr305.version}</version>
+      </dependency>
+
+      <!-- SSL -->
+      <dependency>
+        <groupId>org.conscrypt</groupId>
+        <artifactId>conscrypt-openjdk-uber</artifactId>
+        <version>${conscrypt.version}</version>
       </dependency>
 
       <!-- Undertow -->

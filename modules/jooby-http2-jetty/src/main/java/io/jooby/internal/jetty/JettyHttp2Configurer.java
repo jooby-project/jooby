@@ -5,12 +5,10 @@
  */
 package io.jooby.internal.jetty;
 
-import java.security.Security;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
@@ -22,12 +20,6 @@ import io.jooby.Http2Configurer;
 
 public class JettyHttp2Configurer
     implements Http2Configurer<HttpConfiguration, List<ConnectionFactory>> {
-
-  static {
-    if (Security.getProvider("Conscrypt") == null) {
-      Security.addProvider(new OpenSSLProvider());
-    }
-  }
 
   private static final String H2 = "h2";
   private static final String H2_17 = "h2-17";
