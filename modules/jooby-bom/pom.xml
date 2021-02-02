@@ -17,7 +17,7 @@
 
   <properties>
   <jooby.version>2.9.6-SNAPSHOT</jooby.version>
-  <HikariCP.version>3.4.5</HikariCP.version>
+  <HikariCP.version>4.0.1</HikariCP.version>
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
   <asm.version>9.0</asm.version>
   <auto-service.version>1.0-rc7</auto-service.version>
