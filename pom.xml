@@ -105,7 +105,7 @@
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
 
     <!-- Kotlin -->
-    <kotlin.version>1.4.21</kotlin.version>
+    <kotlin.version>1.4.21-2</kotlin.version>
     <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
