@@ -95,7 +95,7 @@
   <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
   <maven-tiles-plugin.version>2.19</maven-tiles-plugin.version>
   <metrics.version>4.1.16</metrics.version>
-  <mockito.version>3.6.28</mockito.version>
+  <mockito.version>3.7.7</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
   <mysql-connector-java.version>8.0.22</mysql-connector-java.version>
   <netty.version>4.1.58.Final</netty.version>
