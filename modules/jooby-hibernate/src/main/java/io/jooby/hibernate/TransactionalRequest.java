@@ -12,6 +12,10 @@ import io.jooby.annotations.Transactional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.context.internal.ManagedSessionContext;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 
@@ -48,9 +52,11 @@ import javax.annotation.Nonnull;
  */
 public class TransactionalRequest implements Route.Decorator {
 
-  private SessionRequest sessionRequest;
+  private static final Logger log = LoggerFactory.getLogger(SessionRequest.class);
 
-  private ServiceKey<SessionFactory> key;
+  private final ServiceKey<SessionFactory> sessionFactoryKey;
+
+  private final ServiceKey<SessionProvider> sessionProviderKey;
 
   private boolean enabledByDefault = true;
 
@@ -60,23 +66,21 @@ public class TransactionalRequest implements Route.Decorator {
    * @param name Name of the session factory.
    */
   public TransactionalRequest(@Nonnull String name) {
-    this(new SessionRequest(name));
+    this(ServiceKey.key(SessionFactory.class, name));
   }
 
   /**
    * Creates a new transactional request and attach to the default/first session factory registered.
    */
   public TransactionalRequest() {
-    this(new SessionRequest());
+    this(ServiceKey.key(SessionFactory.class));
   }
 
-  /**
-   * Creates a new transactional request.
-   *
-   * @param sessionRequest Session request instance.
-   */
-  public TransactionalRequest(@Nonnull SessionRequest sessionRequest) {
-    this.sessionRequest = sessionRequest;
+  private TransactionalRequest(ServiceKey<SessionFactory> sessionFactoryKey) {
+    this.sessionFactoryKey = sessionFactoryKey;
+    this.sessionProviderKey = sessionFactoryKey.getName() == null
+        ? ServiceKey.key(SessionProvider.class)
+        : ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName());
   }
 
   /**
@@ -95,32 +99,54 @@ public class TransactionalRequest implements Route.Decorator {
     return this;
   }
 
-  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
-    return sessionRequest.apply(ctx -> {
+  @Nonnull
+  @Override
+  public Route.Handler apply(@Nonnull Route.Handler next) {
+    return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
-        SessionFactory sessionFactory = ctx.require(sessionRequest.getSessionFactoryKey());
-        Transaction trx = null;
-        try {
-          Session session = sessionFactory.getCurrentSession();
-          trx = session.getTransaction();
-          trx.begin();
+        SessionFactory sessionFactory = ctx.require(sessionFactoryKey);
+        SessionProvider sessionProvider = ctx.require(sessionProviderKey);
 
-          Object result = next.apply(ctx);
+        try (Session session = sessionProvider.newSession(sessionFactory.withOptions())) {
+          ManagedSessionContext.bind(session);
 
-          if (trx.isActive()) {
-            trx.commit();
+          Object result;
+
+          Transaction trx = null;
+          try {
+            trx = session.getTransaction();
+            trx.begin();
+
+            result = next.apply(ctx);
+
+            if (trx.isActive()) {
+              trx.commit();
+            }
+          } catch (Throwable ex) {
+            if (trx != null && trx.isActive()) {
+              trx.rollback();
+            }
+            throw SneakyThrows.propagate(ex);
           }
+
+          ensureCompletion(session.getTransaction());
 
           return result;
-        } catch (Throwable ex) {
-          if (trx != null && trx.isActive()) {
-            trx.rollback();
-          }
-          throw SneakyThrows.propagate(ex);
+        } finally {
+          ManagedSessionContext.unbind(sessionFactory);
         }
       } else {
         return next.apply(ctx);
       }
-    });
+    };
+  }
+
+  private void ensureCompletion(Transaction transaction) {
+    if (transaction.getStatus() == TransactionStatus.ACTIVE) {
+      log.error("Transaction state is still active (expected to be committed, or rolled "
+          + "back) after route pipeline completed, rolling back.");
+
+      transaction.rollback();
+    }
   }
 }
