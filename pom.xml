@@ -29,7 +29,7 @@
 
     <!-- data -->
     <HikariCP.version>4.0.1</HikariCP.version>
-    <mysql-connector-java.version>8.0.22</mysql-connector-java.version>
+    <mysql-connector-java.version>8.0.23</mysql-connector-java.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.200</h2.version>
     <hibernate.version>5.4.27.Final</hibernate.version>
