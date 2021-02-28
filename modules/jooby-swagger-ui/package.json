@@ -4,6 +4,6 @@
   "private": true,
   "license": "ASF",
   "dependencies": {
-    "swagger-ui-dist": "^3.41.1"
+    "swagger-ui-dist": "^3.44.0"
   }
 }
