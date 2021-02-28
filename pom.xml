@@ -89,7 +89,7 @@
     <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
 
     <!-- Misc -->
-    <okhttp.version>4.9.0</okhttp.version>
+    <okhttp.version>4.9.1</okhttp.version>
     <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
     <json.version>20201115</json.version>
     <pac4j.version>4.3.1</pac4j.version>
