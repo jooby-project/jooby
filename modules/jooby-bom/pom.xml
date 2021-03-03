@@ -63,7 +63,7 @@
   <json.version>20201115</json.version>
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
-  <junit.version>5.7.0</junit.version>
+  <junit.version>5.7.1</junit.version>
   <kafka.version>2.7.0</kafka.version>
   <kotlin.version>1.4.21-2</kotlin.version>
   <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
