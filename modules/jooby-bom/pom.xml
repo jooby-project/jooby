@@ -65,7 +65,7 @@
   <jsr305.version>3.0.2</jsr305.version>
   <junit.version>5.7.0</junit.version>
   <kafka.version>2.7.0</kafka.version>
-  <kotlin.version>1.4.21-2</kotlin.version>
+  <kotlin.version>1.4.31</kotlin.version>
   <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
   <lettuce.version>6.0.1.RELEASE</lettuce.version>
   <license-maven-plugin.version>3.0</license-maven-plugin.version>
