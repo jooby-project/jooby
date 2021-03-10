@@ -117,7 +117,7 @@
   <swagger-parser.version>2.0.24</swagger-parser.version>
   <swagger.version>2.1.6</swagger.version>
   <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
-  <truth.version>1.1</truth.version>
+  <truth.version>1.1.2</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
   <undertow.version>2.2.3.Final</undertow.version>
   <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
