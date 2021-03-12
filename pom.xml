@@ -19,7 +19,7 @@
     <shaded.package>io.jooby.internal.\$shaded</shaded.package>
 
     <!-- Parser and Renderer -->
-    <freemarker.version>2.3.30</freemarker.version>
+    <freemarker.version>2.3.31</freemarker.version>
     <handlebars.version>4.2.0</handlebars.version>
     <pebble.version>3.1.4</pebble.version>
     <jackson.version>2.12.2</jackson.version>

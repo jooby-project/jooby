@@ -34,7 +34,7 @@
   <ebean.version>12.7.2</ebean.version>
   <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
   <flyway.version>7.5.1</flyway.version>
-  <freemarker.version>2.3.30</freemarker.version>
+  <freemarker.version>2.3.31</freemarker.version>
   <frontend-maven-plugin.version>1.10.4</frontend-maven-plugin.version>
   <frontend-plugin-core.version>1.11.2</frontend-plugin-core.version>
   <gradle-core.version>2.6</gradle-core.version>
