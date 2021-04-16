@@ -106,7 +106,7 @@
 
     <!-- Kotlin -->
     <kotlin.version>1.4.31</kotlin.version>
-    <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
+    <kotlinx-coroutines-core.version>1.4.3-native-mt</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
