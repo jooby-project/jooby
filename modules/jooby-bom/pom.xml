@@ -47,7 +47,7 @@
   <h2.version>1.4.200</h2.version>
   <handlebars.version>4.2.0</handlebars.version>
   <hibernate.version>5.4.29.Final</hibernate.version>
-  <jackson.version>2.12.2</jackson.version>
+  <jackson.version>2.12.3</jackson.version>
   <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
   <jacoco.version>0.8.6</jacoco.version>
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
