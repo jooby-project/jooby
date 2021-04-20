@@ -65,6 +65,7 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
+import io.undertow.util.SameThreadExecutor;
 
 public class UtowContext implements DefaultContext, IoCallback {
 
@@ -264,8 +265,13 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Context detach(@Nonnull Route.Handler next) throws Exception {
-    exchange.dispatch();
-    next.apply(this);
+    exchange.dispatch(SameThreadExecutor.INSTANCE, () -> {
+      try {
+        next.apply(this);
+      } catch (Throwable cause) {
+        sendError(cause);
+      }
+    });
     return this;
   }
 
