@@ -259,10 +259,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public String getRemoteAddress() {
     if (this.remoteAddress == null) {
-      InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-      String hostAddress = remoteAddress.getAddress().getHostAddress();
-      int i = hostAddress.lastIndexOf('%');
-      this.remoteAddress = i > 0 ? hostAddress.substring(0, i) : hostAddress;
+      InetSocketAddress inetAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+      if (inetAddress != null) {
+        String hostAddress = inetAddress.getAddress().getHostAddress();
+        int i = hostAddress.lastIndexOf('%');
+        this.remoteAddress = i > 0 ? hostAddress.substring(0, i) : hostAddress;
+      }
+      return "";
     }
     return remoteAddress;
   }

@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -67,6 +68,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
@@ -262,7 +264,13 @@ public class JettyContext implements DefaultContext {
   }
 
   @Nonnull @Override public String getRemoteAddress() {
-    return remoteAddress == null ? request.getRemoteAddr() : remoteAddress;
+    if (remoteAddress == null) {
+      String remoteAddr = Optional.ofNullable(request.getRemoteAddr())
+          .orElse("")
+          .trim();
+      return remoteAddr;
+    }
+    return remoteAddress;
   }
 
   @Nonnull @Override public Context setRemoteAddress(@Nonnull String remoteAddress) {

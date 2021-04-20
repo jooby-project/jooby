@@ -218,9 +218,11 @@ public class AccessLogHandler implements Route.Decorator {
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     long timestamp = System.currentTimeMillis();
     return ctx -> {
+      // Take remote address here (less chances of loosing it on interrupted requests).
+      String remoteAddr = ctx.getRemoteAddress();
       ctx.onComplete(context -> {
         StringBuilder sb = new StringBuilder(MESSAGE_SIZE);
-        sb.append(ctx.getRemoteAddress());
+        sb.append(remoteAddr);
         sb.append(SP).append(DASH).append(SP);
         sb.append(userId.apply(ctx));
         sb.append(SP);

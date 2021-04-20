@@ -553,7 +553,8 @@ public interface Context extends Registry {
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
-   * @return The IP address of the client or last proxy that sent the request.
+   * @return The IP address of the client or last proxy that sent the request or
+   *   <code>empty string</code> for interrupted requests.
    */
   @Nonnull String getRemoteAddress();
 
