@@ -152,10 +152,10 @@ public class UtowWebSocket extends AbstractReceiveListener
       addSession(this);
       Config conf = ctx.getRouter().getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
-          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
-          : 5;
+          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
+          : TimeUnit.MINUTES.toMillis(5);
       if (timeout > 0) {
-        channel.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
+        channel.setIdleTimeout(timeout);
       }
       if (onConnectCallback != null) {
         dispatch(webSocketTask(() -> onConnectCallback.onConnect(this), true));

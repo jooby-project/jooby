@@ -192,9 +192,9 @@ public class Jetty extends io.jooby.Server.Base {
       policy.setMaxTextMessageSize(WebSocket.MAX_BUFFER_SIZE);
       Config conf = application.getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
-          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
-          : 5;
-      policy.setIdleTimeout(TimeUnit.MINUTES.toMillis(timeout));
+          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
+          : TimeUnit.MINUTES.toMillis(5);
+      policy.setIdleTimeout(timeout);
       WebSocketServerFactory wssf = new WebSocketServerFactory(context.getServletContext(), policy);
       context.setAttribute(JettyWebSocket.WEBSOCKET_SERVER_FACTORY, wssf);
       context.addManaged(wssf);

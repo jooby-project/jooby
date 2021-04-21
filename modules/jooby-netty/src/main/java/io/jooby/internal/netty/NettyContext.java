@@ -17,6 +17,8 @@ import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -371,10 +373,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       webSocket.fireConnect();
       Config conf = getRouter().getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
-          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MINUTES)
-          : 5;
+          ? conf.getDuration("websocket.idleTimeout", MILLISECONDS)
+          : MINUTES.toMillis(5);
       if (timeout > 0) {
-        IdleStateHandler idle = new IdleStateHandler(timeout, 0, 0, TimeUnit.MINUTES);
+        IdleStateHandler idle = new IdleStateHandler(timeout, 0, 0, MILLISECONDS);
         ctx.pipeline().addBefore("handler", "idle", idle);
       }
     } catch (Throwable x) {
