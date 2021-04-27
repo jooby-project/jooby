@@ -228,10 +228,10 @@ public interface DefaultContext extends Context {
   }
 
   @Override default @Nonnull String getRequestURL() {
-    return getRequestURL("");
+    return getRequestURL(null);
   }
 
-  @Override default @Nonnull String getRequestURL(@Nonnull String path) {
+  @Override default @Nonnull String getRequestURL(String path) {
     String scheme = getScheme();
     String host = getHost();
     int port = getPort();
@@ -240,8 +240,8 @@ public interface DefaultContext extends Context {
     if (port > 0 && port != PORT && port != SECURE_PORT) {
       url.append(":").append(port);
     }
-    if (path == null || path.length() == 0) {
-      url.append(getRequestPath());
+    if (path == null || path.isEmpty()) {
+      url.append(getRequestPath()).append(queryString());
     } else {
       String contextPath = getContextPath();
       if (!contextPath.equals("/") && !path.startsWith(contextPath)) {
@@ -249,7 +249,6 @@ public interface DefaultContext extends Context {
       }
       url.append(path);
     }
-    url.append(queryString());
 
     return url.toString();
   }
