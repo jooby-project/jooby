@@ -16,6 +16,11 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     RouterCoroutineScope(router.worker.asCoroutineDispatcher())
   }
 
+  private var extendCoroutineContext: (CoroutineContext) -> CoroutineContext = { it }
+  fun launchContext(block: (CoroutineContext) -> CoroutineContext) {
+    extendCoroutineContext = block
+  }
+
   @RouterDsl
   fun get(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.GET, pattern, handler)
@@ -70,6 +75,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
 
   internal fun launch(ctx: Context, block: suspend CoroutineScope.() -> Unit) {
     val exceptionHandler = CoroutineExceptionHandler { _, x -> ctx.sendError(x) }
-    coroutineScope.launch(exceptionHandler, coroutineStart, block)
+    coroutineScope.launch(extendCoroutineContext(exceptionHandler), coroutineStart, block)
   }
 }
