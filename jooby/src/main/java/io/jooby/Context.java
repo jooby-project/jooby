@@ -527,7 +527,7 @@ public interface Context extends Registry {
   @Nonnull Context setUser(@Nullable Object user);
 
   /**
-   * Recreates full/entire request url using the <code>Host</code> header.
+   * Recreates full/entire url of the current request using the <code>Host</code> header.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
@@ -537,12 +537,12 @@ public interface Context extends Registry {
   @Nonnull String getRequestURL();
 
   /**
-   * Recreates full/entire request url using the <code>Host</code> header.
+   * Recreates full/entire request url using the <code>Host</code> header with a custom path/suffix.
    *
    * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
-   * @param path Path to use.
+   * @param path Path or suffix to use, can also include query string parameters.
    * @return Full/entire request url using the <code>Host</code> header.
    */
   @Nonnull String getRequestURL(@Nonnull String path);
