@@ -5,6 +5,7 @@
  */
 package io.jooby
 
+import io.jooby.Router.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -22,56 +23,46 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
   }
 
   @RouterDsl
-  fun get(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.GET, pattern, handler)
-  }
+  fun get(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(GET, pattern, handler)
 
   @RouterDsl
-  fun post(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.POST, pattern, handler)
-  }
+  fun post(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(POST, pattern, handler)
 
   @RouterDsl
-  fun put(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.PUT, pattern, handler)
-  }
+  fun put(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(PUT, pattern, handler)
 
   @RouterDsl
-  fun delete(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.DELETE, pattern, handler)
-  }
+  fun delete(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(DELETE, pattern, handler)
 
   @RouterDsl
-  fun patch(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.PATCH, pattern, handler)
-  }
+  fun patch(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(PATCH, pattern, handler)
 
   @RouterDsl
-  fun head(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.HEAD, pattern, handler)
-  }
+  fun head(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(HEAD, pattern, handler)
 
   @RouterDsl
-  fun trace(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.TRACE, pattern, handler)
-  }
+  fun trace(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(TRACE, pattern, handler)
 
   @RouterDsl
-  fun options(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.OPTIONS, pattern, handler)
-  }
+  fun options(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(OPTIONS, pattern, handler)
 
-  fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return router.route(method, pattern) { ctx ->
+  fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route =
+    router.route(method, pattern) { ctx ->
       launch(ctx) {
         val result = handler(HandlerContext(ctx))
         if (result != ctx) {
           ctx.render(result)
         }
       }
-    }.setHandle(handler)
-     .attribute("coroutine", true)
-  }
+    }.setHandle(handler).attribute("coroutine", true)
 
   internal fun launch(ctx: Context, block: suspend CoroutineScope.() -> Unit) {
     val exceptionHandler = CoroutineExceptionHandler { _, x -> ctx.sendError(x) }
