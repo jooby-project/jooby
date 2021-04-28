@@ -1,0 +1,111 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.gradle:gradle-core
+    versions:
+    - ">= 6.a, < 7"
+  - dependency-name: org.gradle:gradle-plugins
+    versions:
+    - ">= 6.a, < 7"
+  - dependency-name: org.gradle:gradle-tooling-api
+    versions:
+    - ">= 6.a, < 7"
+  - dependency-name: io.netty:netty-codec-http2
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-transport-native-kqueue:osx-x86_64
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-transport-native-epoll:linux-x86_64
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-transport-native-kqueue
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-codec-http
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-transport-native-epoll
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-transport
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-handler
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-buffer
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.netty:netty-common
+    versions:
+    - 4.1.61.Final
+    - 4.1.62.Final
+  - dependency-name: io.lettuce:lettuce-core
+    versions:
+    - 6.0.2.RELEASE
+    - 6.0.3.RELEASE
+  - dependency-name: io.projectreactor:reactor-core
+    versions:
+    - 3.4.3
+  - dependency-name: org.jboss.weld.se:weld-se-shaded
+    versions:
+    - 4.0.0.Final
+  - dependency-name: org.jetbrains.kotlinx:kotlinx-coroutines-core
+    versions:
+    - 1.4.2-native-mt
+  - dependency-name: com.github.eirslett:frontend-plugin-core
+    versions:
+    - 1.11.0
+  - dependency-name: com.puppycrawl.tools:checkstyle
+    versions:
+    - "8.40"
+- package-ecosystem: npm
+  directory: "/modules/jooby-graphiql"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: npm
+  directory: "/modules/jooby-graphql-playground"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: graphql-playground-react
+    versions:
+    - "> 1.7.26, < 1.8"
+- package-ecosystem: npm
+  directory: "/modules/jooby-redoc"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: redoc
+    versions:
+    - 2.0.0-rc.51
+- package-ecosystem: npm
+  directory: "/modules/jooby-swagger-ui"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: swagger-ui-dist
+    versions:
+    - 3.42.0
+    - 3.43.0
+    - 3.45.0
+    - 3.45.1
