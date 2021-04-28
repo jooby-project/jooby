@@ -16,7 +16,7 @@ public class DefaultContextTest {
     when(ctx.getScheme()).thenReturn("https");
     when(ctx.getHost()).thenReturn("some-host");
     when(ctx.getPort()).thenReturn(443);
-    when(ctx.getContextPath()).thenReturn("/context");
+    when(ctx.getContextPath()).thenReturn("/");
     when(ctx.getRequestPath()).thenReturn("/path");
     when(ctx.queryString()).thenReturn("?query");
 
@@ -30,6 +30,12 @@ public class DefaultContextTest {
   }
 
   @Test
+  public void getRequestURL_withContextPath() {
+    when(ctx.getContextPath()).thenReturn("/context");
+    assertEquals("https://some-host/context/path?query", ctx.getRequestURL());
+  }
+
+  @Test
   public void getRequestURL_withNonStandardPort() {
     when(ctx.getPort()).thenReturn(999);
     assertEquals("https://some-host:999/path?query", ctx.getRequestURL());
@@ -37,6 +43,6 @@ public class DefaultContextTest {
 
   @Test
   public void getRequestURL_withCustomPathWithoutQueryString() {
-    assertEquals("https://some-host/context/my-path", ctx.getRequestURL("/my-path"));
+    assertEquals("https://some-host/my-path", ctx.getRequestURL("/my-path"));
   }
 }
