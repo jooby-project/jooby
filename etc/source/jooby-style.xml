@@ -20,7 +20,7 @@
     - some best practices
 
   Checkstyle is very configurable. Be sure to read the documentation at
-  http://checkstyle.sf.net (or in your downloaded distribution).
+  https://checkstyle.sourceforge.io (or in your downloaded distribution).
 
   Most Checks are configurable, be sure to consult the documentation.
 
@@ -42,28 +42,28 @@
   <property name="fileExtensions" value="java, properties, xml"/>
 
   <!-- Checks that a package-info.java file exists for each package.     -->
-  <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocPackage
+  <!-- See https://checkstyle.sourceforge.io/config_javadoc.html#JavadocPackage
   <module name="JavadocPackage"/>
   -->
 
   <!-- Checks whether files end with a new line.                        -->
-  <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
+  <!-- See https://checkstyle.sourceforge.io/config_misc.html#NewlineAtEndOfFile -->
   <module name="NewlineAtEndOfFile"/>
 
   <!-- Checks that property files contain the same keys.         -->
-  <!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
+  <!-- See https://checkstyle.sourceforge.io/config_misc.html#Translation -->
   <module name="Translation"/>
 
   <!-- Checks for Size Violations.                    -->
-  <!-- See http://checkstyle.sf.net/config_sizes.html -->
+  <!-- See https://checkstyle.sourceforge.io/config_sizes.html -->
   <module name="FileLength"/>
 
   <!-- Checks for whitespace                               -->
-  <!-- See http://checkstyle.sf.net/config_whitespace.html -->
+  <!-- See https://checkstyle.sourceforge.io/config_whitespace.html -->
   <module name="FileTabCharacter"/>
 
   <!-- Miscellaneous other checks.                   -->
-  <!-- See http://checkstyle.sf.net/config_misc.html -->
+  <!-- See https://checkstyle.sourceforge.io/config_misc.html -->
   <module name="RegexpSingleline">
     <property name="format" value="\s+$"/>
     <property name="minimum" value="0"/>
@@ -71,14 +71,14 @@
     <property name="message" value="Line has trailing spaces."/>
   </module>
 
-  <!-- See http://checkstyle.sf.net/config_sizes.html -->
+  <!-- See https://checkstyle.sourceforge.io/config_sizes.html -->
   <module name="LineLength">
     <property name="max" value="100"/>
     <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://|^\\*"/>
   </module>
 
   <!-- Checks for Headers                                -->
-  <!-- See http://checkstyle.sf.net/config_header.html   -->
+  <!-- See https://checkstyle.sourceforge.io/config_header.html   -->
   <!-- <module name="Header"> -->
   <!--   <property name="headerFile" value="${checkstyle.header.file}"/> -->
   <!--   <property name="fileExtensions" value="java"/> -->
@@ -87,9 +87,9 @@
   <module name="TreeWalker">
 
     <!-- Checks for Javadoc comments.                     -->
-    <!-- See http://checkstyle.sf.net/config_javadoc.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_javadoc.html -->
     <module name="JavadocMethod">
-      <property name="scope" value="public" />
+      <property name="accessModifiers" value="public" />
     </module>
     <module name="MissingJavadocMethod">
       <property name="scope" value="public" />
@@ -103,7 +103,7 @@
     <module name="JavadocStyle"/>
 
     <!-- Checks for Naming Conventions.                  -->
-    <!-- See http://checkstyle.sf.net/config_naming.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_naming.html -->
     <!-- <module name="ConstantName"/> -->
     <module name="LocalFinalVariableName"/>
     <module name="LocalVariableName"/>
@@ -115,7 +115,7 @@
     <module name="TypeName"/>
 
     <!-- Checks for imports                              -->
-    <!-- See http://checkstyle.sf.net/config_import.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_import.html -->
     <module name="AvoidStarImport"/>
     <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
     <module name="RedundantImport"/>
@@ -137,7 +137,7 @@
     </module>
 
     <!-- Checks for whitespace                               -->
-    <!-- See http://checkstyle.sf.net/config_whitespace.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_whitespace.html -->
     <module name="EmptyForIteratorPad"/>
     <module name="GenericWhitespace"/>
     <module name="MethodParamPad"/>
@@ -150,12 +150,12 @@
     <module name="WhitespaceAround"/>
 
     <!-- Modifier Checks                                    -->
-    <!-- See http://checkstyle.sf.net/config_modifiers.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_modifiers.html -->
     <module name="ModifierOrder"/>
     <module name="RedundantModifier"/>
 
     <!-- Checks for blocks. You know, those {}'s         -->
-    <!-- See http://checkstyle.sf.net/config_blocks.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_blocks.html -->
     <module name="AvoidNestedBlocks"/>
     <module name="EmptyBlock"/>
     <module name="LeftCurly"/>
@@ -163,7 +163,7 @@
     <module name="RightCurly"/>
 
     <!-- Checks for common coding problems               -->
-    <!-- See http://checkstyle.sf.net/config_coding.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_coding.html -->
     <!--<module name="AvoidInlineConditionals"/> -->
     <module name="EmptyStatement"/>
     <module name="EqualsHashCode"/>
@@ -177,7 +177,7 @@
     <module name="SimplifyBooleanReturn"/>
 
     <!-- Checks for class design                         -->
-    <!-- See http://checkstyle.sf.net/config_design.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_design.html -->
     <!-- <module name="DesignForExtension"/> -->
     <module name="FinalClass"/>
     <module name="HideUtilityClassConstructor"/>
@@ -185,7 +185,7 @@
     <!--<module name="VisibilityModifier"/> -->
 
     <!-- Miscellaneous other checks.                   -->
-    <!-- See http://checkstyle.sf.net/config_misc.html -->
+    <!-- See https://checkstyle.sourceforge.io/config_misc.html -->
     <module name="ArrayTypeStyle"/>
     <!--<module name="TodoComment"/> -->
     <module name="UpperEll"/>
