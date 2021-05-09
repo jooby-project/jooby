@@ -103,7 +103,7 @@
   <node.version>v12.19.0</node.version>
   <okhttp.version>4.9.1</okhttp.version>
   <pac4j.version>4.4.0</pac4j.version>
-  <pebble.version>3.1.4</pebble.version>
+  <pebble.version>3.1.5</pebble.version>
   <plexus-utils.version>3.3.0</plexus-utils.version>
   <quartz.version>2.3.2</quartz.version>
   <reactor.version>3.4.5</reactor.version>
