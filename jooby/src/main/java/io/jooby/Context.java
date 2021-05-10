@@ -119,7 +119,7 @@ public interface Context extends Registry {
    * @param <T> Generic type.
    * @return Converted value.
    */
-  @Nullable <T> T convert(@Nonnull ValueNode value, @Nonnull Class<T> type);
+  @Nonnull <T> T convert(@Nonnull ValueNode value, @Nonnull Class<T> type);
 
   /*
    * **********************************************************************************************

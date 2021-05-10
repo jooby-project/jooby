@@ -371,7 +371,7 @@ public interface DefaultContext extends Context {
     return body().to(type);
   }
 
-  @Override default @Nullable <T> T convert(ValueNode value, Class<T> type) {
+  @Override default @Nonnull <T> T convert(@Nonnull ValueNode value, @Nonnull Class<T> type) {
     T result = ValueConverters.convert(value, type, getRouter());
     if (result == null) {
       throw new TypeMismatchException(value.name(), type);

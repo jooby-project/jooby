@@ -711,7 +711,7 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
-  @Nullable @Override public <T> T convert(ValueNode value, Class<T> type) {
+  @Nonnull @Override public <T> T convert(@Nonnull ValueNode value, @Nonnull Class<T> type) {
     return DefaultContext.super.convert(value, type);
   }
 
