@@ -81,9 +81,9 @@ public interface Context extends Registry {
    *
    * @param key Attribute key.
    * @param <T> Attribute type.
-   * @return Attribute value.
+   * @return Attribute value or <code>null</code>.
    */
-  @Nonnull <T> T attribute(@Nonnull String key);
+  @Nullable <T> T attribute(@Nonnull String key);
 
   /**
    * Set an application attribute.

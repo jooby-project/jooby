@@ -68,7 +68,7 @@ public class ForwardingContext implements Context {
     return ctx.getAttributes();
   }
 
-  @Nonnull @Override public <T> T attribute(@Nonnull String key) {
+  @Nullable @Override public <T> T attribute(@Nonnull String key) {
     return ctx.attribute(key);
   }
 
