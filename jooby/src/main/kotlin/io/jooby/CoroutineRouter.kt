@@ -5,16 +5,11 @@
  */
 package io.jooby
 
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
+import io.jooby.Router.*
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-internal class RouterCoroutineScope(coroutineContext: CoroutineContext) : CoroutineScope {
-  override val coroutineContext = coroutineContext
-}
+internal class RouterCoroutineScope(override val coroutineContext: CoroutineContext) : CoroutineScope
 
 class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
 
@@ -22,58 +17,55 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     RouterCoroutineScope(router.worker.asCoroutineDispatcher())
   }
 
-  @RouterDsl
-  fun get(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.GET, pattern, handler)
+  private var extendCoroutineContext: (CoroutineContext) -> CoroutineContext = { it }
+  fun launchContext(block: (CoroutineContext) -> CoroutineContext) {
+    extendCoroutineContext = block
   }
 
   @RouterDsl
-  fun post(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.POST, pattern, handler)
-  }
+  fun get(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(GET, pattern, handler)
 
   @RouterDsl
-  fun put(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.PUT, pattern, handler)
-  }
+  fun post(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(POST, pattern, handler)
 
   @RouterDsl
-  fun delete(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.DELETE, pattern, handler)
-  }
+  fun put(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(PUT, pattern, handler)
 
   @RouterDsl
-  fun patch(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.PATCH, pattern, handler)
-  }
+  fun delete(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(DELETE, pattern, handler)
 
   @RouterDsl
-  fun head(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.HEAD, pattern, handler)
-  }
+  fun patch(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(PATCH, pattern, handler)
 
   @RouterDsl
-  fun trace(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.TRACE, pattern, handler)
-  }
+  fun head(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(HEAD, pattern, handler)
 
   @RouterDsl
-  fun options(pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.OPTIONS, pattern, handler)
-  }
+  fun trace(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(TRACE, pattern, handler)
 
-  fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return router.route(method, pattern) { ctx ->
-      val xhandler = CoroutineExceptionHandler { _, x ->
-        ctx.sendError(x)
-      }
-      coroutineScope.launch(xhandler, coroutineStart) {
+  @RouterDsl
+  fun options(pattern: String, handler: suspend HandlerContext.() -> Any) =
+    route(OPTIONS, pattern, handler)
+
+  fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route =
+    router.route(method, pattern) { ctx ->
+      launch(ctx) {
         val result = handler(HandlerContext(ctx))
         if (result != ctx) {
           ctx.render(result)
         }
       }
-    }.setHandle(handler)
-     .attribute("coroutine", true)
+    }.setHandle(handler).attribute("coroutine", true)
+
+  internal fun launch(ctx: Context, block: suspend CoroutineScope.() -> Unit) {
+    val exceptionHandler = CoroutineExceptionHandler { _, x -> ctx.sendError(x) }
+    coroutineScope.launch(extendCoroutineContext(exceptionHandler), coroutineStart, block)
   }
 }
