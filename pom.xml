@@ -1756,5 +1756,53 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>gradlePlugin</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>${exec-maven-plugin.version}</version>
+            <inherited>false</inherited>
+            <configuration>
+              <workingDirectory>${project.basedir}${file.separator}modules${file.separator}jooby-gradle-plugin</workingDirectory>
+              <executable>./gradlew</executable>
+            </configuration>
+
+            <executions>
+              <execution>
+                <id>publishToMavenLocal</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <arguments>
+                    <argument>publishToMavenLocal</argument>
+                    <argument>-PjoobyVersion=${project.version}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>publishPlugins</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <arguments>
+                    <argument>publishPlugins</argument>
+                    <argument>-PjoobyVersion=${project.version}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>

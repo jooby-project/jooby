@@ -17,9 +17,9 @@ plugins {
   id "io.jooby.openAPI" version "${joobyVersion}"
 {{/if}}
   id "io.jooby.run" version "${joobyVersion}"
-  id "io.spring.dependency-management" version "1.0.9.RELEASE"
-  id "com.google.osdetector" version "1.6.2"
-  id "com.github.johnrengelman.shadow" version "5.2.0"
+  id "io.spring.dependency-management" version "1.0.11.RELEASE"
+  id "com.google.osdetector" version "1.7.0"
+  id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
 group "{{groupId}}"
@@ -30,7 +30,6 @@ sourceCompatibility = 1.8
 repositories {
   mavenLocal()
   mavenCentral()
-  jcenter()
 }
 
 dependencyManagement {
