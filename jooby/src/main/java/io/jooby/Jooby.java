@@ -52,6 +52,7 @@ import com.typesafe.config.Config;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.LocaleUtils;
+import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
 
 /**
@@ -106,7 +107,7 @@ public class Jooby implements Router, Registry {
 
   private Environment env;
 
-  private Registry registry;
+  private RegistryRef registry = new RegistryRef();
 
   private ServerOptions serverOptions;
 
@@ -660,11 +661,11 @@ public class Jooby implements Router, Registry {
     ServiceRegistry services = getServices();
     T service = services.getOrNull(key);
     if (service == null) {
-      if (registry == null) {
+      if (!registry.isSet()) {
         throw new RegistryException("Service not found: " + key);
       }
       String name = key.getName();
-      return name == null ? registry.require(key.getType()) : registry.require(key.getType(), name);
+      return name == null ? registry.get().require(key.getType()) : registry.get().require(key.getType(), name);
     }
     return service;
   }
@@ -676,7 +677,7 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   @Nonnull public Jooby registry(@Nonnull Registry registry) {
-    this.registry = registry;
+    this.registry.set(registry);
     return this;
   }
 
