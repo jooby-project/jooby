@@ -8,6 +8,8 @@ package io.jooby.gradle;
 import io.jooby.openapi.OpenAPIGenerator;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.gradle.api.Project;
+import org.gradle.api.model.ReplacedBy;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.annotation.Nonnull;
@@ -26,7 +28,7 @@ import java.util.Optional;
  */
 public class OpenAPITask extends BaseTask {
 
-  private String mainClassName;
+  private String mainClass;
 
   private String includes;
 
@@ -41,14 +43,14 @@ public class OpenAPITask extends BaseTask {
   public void generate() throws Throwable {
     List<Project> projects = getProjects();
 
-    String mainClass = Optional.ofNullable(mainClassName)
+    String mainClass = Optional.ofNullable(this.mainClass)
         .orElseGet(() -> computeMainClassName(projects));
 
     Path outputDir = classes(getProject());
 
     ClassLoader classLoader = createClassLoader(projects);
 
-    getLogger().info(" Generating OpenAPI: " + mainClass);
+    getLogger().info("Generating OpenAPI: " + mainClass);
     getLogger().debug("Using classloader: " + classLoader);
     getLogger().debug("Output directory: " + outputDir);
 
@@ -71,16 +73,38 @@ public class OpenAPITask extends BaseTask {
    *
    * @return Class to parse.
    */
-  public @Nonnull String getMainClassName() {
-    return mainClassName;
+  @Input
+  @org.gradle.api.tasks.Optional
+  public String getMainClass() {
+    return mainClass;
   }
 
   /**
    * Set Class to parse.
    * @param mainClassName Class to parse.
    */
-  public void setMainClassName(@Nonnull String mainClassName) {
-    this.mainClassName = mainClassName;
+  public void setMainClass(String mainClassName) {
+    this.mainClass = mainClassName;
+  }
+
+  /**
+   * Class to parse.
+   *
+   * @return Class to parse.
+   */
+  @Deprecated
+  @ReplacedBy("mainClass")
+  public String getMainClassName() {
+    return getMainClass();
+  }
+
+  /**
+   * Set Class to parse.
+   * @param mainClassName Class to parse.
+   */
+  @Deprecated
+  public void setMainClassName(String mainClassName) {
+    setMainClass(mainClassName);
   }
 
   /**
@@ -88,6 +112,8 @@ public class OpenAPITask extends BaseTask {
    *
    * @return Regular expression used to includes/keep route. Example: <code>/api/.*</code>.
    */
+  @Input
+  @org.gradle.api.tasks.Optional
   public @Nullable String getIncludes() {
     return includes;
   }
@@ -106,6 +132,8 @@ public class OpenAPITask extends BaseTask {
    *
    * @return Regular expression used to excludes route. Example: <code>/web</code>.
    */
+  @Input
+  @org.gradle.api.tasks.Optional
   public @Nullable String getExcludes() {
     return excludes;
   }

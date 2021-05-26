@@ -1,6 +1,7 @@
 // First, apply the publishing plugin
 plugins {
-  id "com.gradle.plugin-publish" version "0.11.0"
+  id "maven-publish"
+  id "com.gradle.plugin-publish" version "0.15.0"
   id "java-gradle-plugin"
 }
 
@@ -11,8 +12,10 @@ plugins {
 repositories {
   mavenLocal()
   mavenCentral()
-  jcenter()
 }
+
+def pom = new XmlSlurper().parse(projectDir.toPath().getParent().resolve("pom.xml").toFile())
+def joobyVersion = project.properties['joobyVersion'] ?: pom.parent.version
 
 // Unless overridden in the pluginBundle config DSL, the project version will
 // be used as your plugin version when publishing

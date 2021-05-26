@@ -69,7 +69,6 @@
     <module>jooby-run</module>
     <module>jooby-cli</module>
     <module>jooby-maven-plugin</module>
-    <module>jooby-gradle-plugin</module>
 
     <module>jooby-jwt</module>
 

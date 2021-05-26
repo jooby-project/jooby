@@ -17,6 +17,9 @@ import java.util.function.BiConsumer;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UncheckedIOException;
+import org.gradle.api.model.ReplacedBy;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.tooling.BuildLauncher;
@@ -42,9 +45,7 @@ public class RunTask extends BaseTask {
 
   private ProjectConnection connection;
 
-  private String projectName;
-
-  private String mainClassName;
+  private String mainClass;
 
   private List<String> restartExtensions;
 
@@ -68,7 +69,7 @@ public class RunTask extends BaseTask {
 
       List<Project> projects = getProjects();
 
-      String mainClass = Optional.ofNullable(this.mainClassName)
+      String mainClass = Optional.ofNullable(this.mainClass)
           .orElseGet(() -> computeMainClassName(projects));
 
       JoobyRunOptions config = new JoobyRunOptions();
@@ -156,8 +157,21 @@ public class RunTask extends BaseTask {
    *
    * @return Main class (one with main method).
    */
+  @Deprecated
+  @ReplacedBy("mainClass")
   public String getMainClassName() {
-    return mainClassName;
+    return getMainClass();
+  }
+
+  /**
+   * Main class to run.
+   *
+   * @return Main class (one with main method).
+   */
+  @Input
+  @org.gradle.api.tasks.Optional
+  public String getMainClass() {
+    return mainClass;
   }
 
   /**
@@ -165,8 +179,18 @@ public class RunTask extends BaseTask {
    *
    * @param mainClassName Main class name.
    */
+  @Deprecated
   public void setMainClassName(String mainClassName) {
-    this.mainClassName = mainClassName;
+    setMainClass(mainClassName);
+  }
+
+  /**
+   * Set main class name.
+   *
+   * @param mainClass Main class name.
+   */
+  public void setMainClass(String mainClass) {
+    this.mainClass = mainClass;
   }
 
   /**
@@ -175,6 +199,8 @@ public class RunTask extends BaseTask {
    *
    * @return Restart extensions.
    */
+  @Input
+  @org.gradle.api.tasks.Optional
   public List<String> getRestartExtensions() {
     return restartExtensions;
   }
@@ -194,6 +220,8 @@ public class RunTask extends BaseTask {
    *
    * @return Compile extensions.
    */
+  @Input
+  @org.gradle.api.tasks.Optional
   public List<String> getCompileExtensions() {
     return compileExtensions;
   }
@@ -212,6 +240,8 @@ public class RunTask extends BaseTask {
    *
    * @return Application port.
    */
+  @Input
+  @org.gradle.api.tasks.Optional
   public Integer getPort() {
     return port;
   }
@@ -242,7 +272,7 @@ public class RunTask extends BaseTask {
     try (Scanner scanner = new Scanner(System.in)) {
       // wait for enter to shutdown
       scanner.nextLine();
-    } catch (NoSuchElementException | IllegalStateException x) {
+    } catch (NoSuchElementException | IllegalStateException | UncheckedIOException x) {
       // Ctrl+C All IO is disconnected, we are OK
     }
   }
