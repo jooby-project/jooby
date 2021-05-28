@@ -7,6 +7,8 @@ package io.jooby;
 
 import io.jooby.exception.TypeMismatchException;
 
+import io.jooby.internal.HashValue;
+import io.jooby.internal.HeadersValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
@@ -248,7 +250,9 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public ValueNode header() {
-    return Value.hash(this, headers);
+    HashValue node = new HeadersValue(this);
+    node.put(headers);
+    return node;
   }
 
   /**

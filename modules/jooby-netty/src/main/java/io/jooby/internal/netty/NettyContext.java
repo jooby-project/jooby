@@ -20,6 +20,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
+import io.jooby.internal.HashValue;
+import io.jooby.internal.HeadersValue;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -314,7 +315,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       for (String name : names) {
         headerMap.put(name, headers.getAll(name));
       }
-      this.headers = Value.hash(this, headerMap);
+      HashValue node = new HeadersValue(this);
+      node.put(headerMap);
+      this.headers = node;
     }
     return headers;
   }

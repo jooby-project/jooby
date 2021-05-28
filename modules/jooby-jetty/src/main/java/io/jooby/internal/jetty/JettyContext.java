@@ -26,9 +26,10 @@ import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
+import io.jooby.internal.HashValue;
+import io.jooby.internal.HeadersValue;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
@@ -54,7 +55,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -240,7 +240,9 @@ public class JettyContext implements DefaultContext {
         String name = names.nextElement();
         headerMap.put(name, Collections.list(request.getHeaders(name)));
       }
-      headers = Value.hash(this, headerMap);
+      HashValue node = new HeadersValue(this);
+      node.put(headerMap);
+      headers = node;
     }
     return headers;
   }

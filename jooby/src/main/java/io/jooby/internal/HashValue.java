@@ -26,11 +26,11 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 public class HashValue implements ValueNode, Formdata {
-  private static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
+  protected static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
 
   private Context ctx;
 
-  private Map<String, ValueNode> hash = EMPTY;
+  protected Map<String, ValueNode> hash = EMPTY;
 
   private final String name;
 
@@ -151,7 +151,7 @@ public class HashValue implements ValueNode, Formdata {
     return true;
   }
 
-  private Map<String, ValueNode> hash() {
+  protected Map<String, ValueNode> hash() {
     if (hash == EMPTY) {
       hash = new LinkedHashMap<>();
     }
