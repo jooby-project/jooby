@@ -11,8 +11,6 @@ import static io.undertow.util.Headers.CONTENT_TYPE;
 import static io.undertow.util.Headers.RANGE;
 import static io.undertow.util.Headers.SET_COOKIE;
 
-import io.jooby.internal.HashValue;
-import io.jooby.internal.HeadersValue;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -240,9 +238,7 @@ public class UtowContext implements DefaultContext, IoCallback {
         HeaderValues values = map.get(name);
         headerMap.put(name.toString(), values);
       }
-      HashValue node = new HeadersValue(this);
-      node.put(headerMap);
-      headers = node;
+      headers = Value.headers(this, headerMap);
     }
     return headers;
   }

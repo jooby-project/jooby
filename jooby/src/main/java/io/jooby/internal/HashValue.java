@@ -10,6 +10,7 @@ import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.ValueNode;
 
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,13 +27,19 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 public class HashValue implements ValueNode, Formdata {
-  protected static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
+  private static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
 
   private Context ctx;
 
-  protected Map<String, ValueNode> hash = EMPTY;
+  private Map<String, ValueNode> hash = EMPTY;
 
   private final String name;
+
+  public HashValue(Context ctx, String name, Supplier<Map<String, ValueNode>> mapSupplier) {
+    this.ctx = ctx;
+    this.name = name;
+    this.hash = mapSupplier.get();
+  }
 
   public HashValue(Context ctx, String name) {
     this.ctx = ctx;
@@ -151,7 +158,7 @@ public class HashValue implements ValueNode, Formdata {
     return true;
   }
 
-  protected Map<String, ValueNode> hash() {
+  private Map<String, ValueNode> hash() {
     if (hash == EMPTY) {
       hash = new LinkedHashMap<>();
     }

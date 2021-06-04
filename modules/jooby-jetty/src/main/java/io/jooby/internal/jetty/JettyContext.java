@@ -26,10 +26,9 @@ import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
+import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
-import io.jooby.internal.HashValue;
-import io.jooby.internal.HeadersValue;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
@@ -240,9 +239,7 @@ public class JettyContext implements DefaultContext {
         String name = names.nextElement();
         headerMap.put(name, Collections.list(request.getHeaders(name)));
       }
-      HashValue node = new HeadersValue(this);
-      node.put(headerMap);
-      headers = node;
+      headers = Value.headers(this, headerMap);
     }
     return headers;
   }
