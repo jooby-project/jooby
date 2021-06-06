@@ -248,7 +248,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public ValueNode header() {
-    return Value.hash(this, headers);
+    return Value.headers(this, headers);
   }
 
   /**

@@ -10,6 +10,7 @@ import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.ValueNode;
 
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,12 @@ public class HashValue implements ValueNode, Formdata {
   private Map<String, ValueNode> hash = EMPTY;
 
   private final String name;
+
+  public HashValue(Context ctx, String name, Supplier<Map<String, ValueNode>> mapSupplier) {
+    this.ctx = ctx;
+    this.name = name;
+    this.hash = mapSupplier.get();
+  }
 
   public HashValue(Context ctx, String name) {
     this.ctx = ctx;

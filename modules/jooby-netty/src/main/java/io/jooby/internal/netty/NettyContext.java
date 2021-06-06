@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -314,7 +313,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       for (String name : names) {
         headerMap.put(name, headers.getAll(name));
       }
-      this.headers = Value.hash(this, headerMap);
+      this.headers = Value.headers(this, headerMap);
     }
     return headers;
   }

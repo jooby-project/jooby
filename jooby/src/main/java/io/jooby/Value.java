@@ -12,6 +12,7 @@ import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 
+import java.util.TreeMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -516,6 +517,19 @@ public interface Value {
    */
   static @Nonnull ValueNode hash(Context ctx, @Nonnull Map<String, Collection<String>> values) {
     HashValue node = new HashValue(ctx, null);
+    node.put(values);
+    return node;
+  }
+
+  /**
+   * Create a hash/object value using the map values.
+   *
+   * @param ctx Current context.
+   * @param values Map values.
+   * @return A hash/object value.
+   */
+  static @Nonnull ValueNode headers(Context ctx, @Nonnull Map<String, Collection<String>> values) {
+    HashValue node = new HashValue(ctx, null, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
     node.put(values);
     return node;
   }

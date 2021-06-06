@@ -238,7 +238,7 @@ public class UtowContext implements DefaultContext, IoCallback {
         HeaderValues values = map.get(name);
         headerMap.put(name.toString(), values);
       }
-      headers = Value.hash(this, headerMap);
+      headers = Value.headers(this, headerMap);
     }
     return headers;
   }

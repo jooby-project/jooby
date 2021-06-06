@@ -54,7 +54,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -240,7 +239,7 @@ public class JettyContext implements DefaultContext {
         String name = names.nextElement();
         headerMap.put(name, Collections.list(request.getHeaders(name)));
       }
-      headers = Value.hash(this, headerMap);
+      headers = Value.headers(this, headerMap);
     }
     return headers;
   }
