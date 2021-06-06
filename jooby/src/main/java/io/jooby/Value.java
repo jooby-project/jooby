@@ -325,6 +325,15 @@ public interface Value {
   }
 
   /**
+   * True for present values.
+   *
+   * @return True for present values.
+   */
+  default boolean isPresent() {
+    return !isMissing();
+  }
+
+  /**
    * True if this value is an array/sequence (not single or hash).
    *
    * @return True if this value is an array/sequence.
