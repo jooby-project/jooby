@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 internal class RouterCoroutineScope(override val coroutineContext: CoroutineContext) : CoroutineScope
 
@@ -28,9 +29,9 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     RouterCoroutineScope(router.worker.asCoroutineDispatcher())
   }
 
-  private var extendCoroutineContext: (CoroutineContext) -> CoroutineContext = { it }
-  fun launchContext(block: (CoroutineContext) -> CoroutineContext) {
-    extendCoroutineContext = block
+  private var extraCoroutineContextProvider: HandlerContext.() -> CoroutineContext = { EmptyCoroutineContext }
+  fun launchContext(provider: HandlerContext.() -> CoroutineContext) {
+    extraCoroutineContextProvider = provider
   }
 
   @RouterDsl
@@ -67,16 +68,18 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
 
   fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route =
       router.route(method, pattern) { ctx ->
-        launch(ctx) {
-          val result = handler(HandlerContext(ctx))
+        val handlerContext = HandlerContext(ctx)
+        launch(handlerContext) {
+          val result = handler(handlerContext)
           if (result != ctx) {
             ctx.render(result)
           }
         }
       }.setHandle(handler).attribute("coroutine", true)
 
-  internal fun launch(ctx: Context, block: suspend CoroutineScope.() -> Unit) {
-    val exceptionHandler = CoroutineExceptionHandler { _, x -> ctx.sendError(x) }
-    coroutineScope.launch(extendCoroutineContext(exceptionHandler), coroutineStart, block)
+  internal fun launch(handlerContext: HandlerContext, block: suspend CoroutineScope.() -> Unit) {
+    val exceptionHandler = CoroutineExceptionHandler { _, x -> handlerContext.ctx.sendError(x) }
+    val coroutineContext = exceptionHandler + handlerContext.extraCoroutineContextProvider()
+    coroutineScope.launch(coroutineContext, coroutineStart, block)
   }
 }

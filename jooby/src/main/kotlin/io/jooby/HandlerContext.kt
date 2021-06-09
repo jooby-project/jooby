@@ -9,8 +9,8 @@ class AfterContext(val ctx: Context, val result: Any?, val failure: Any?)
 
 class DecoratorContext(val ctx: Context, val next: Route.Handler)
 
-class HandlerContext (val ctx: Context)
+class HandlerContext(val ctx: Context)
 
-class WebSocketInitContext (val ctx: Context, val configurer: WebSocketConfigurer)
+class WebSocketInitContext(val ctx: Context, val configurer: WebSocketConfigurer)
 
-class ServerSentHandler (val ctx: Context, val sse: ServerSentEmitter)
+class ServerSentHandler(val ctx: Context, val sse: ServerSentEmitter)

@@ -6,7 +6,6 @@
 package io.jooby
 
 import kotlinx.coroutines.CoroutineStart
-import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -309,7 +308,7 @@ fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, application: KC
 }
 
 internal fun configurePackage(value: Any) {
-  var appname = value::class.java.name
+  val appname = value::class.java.name
   val start = appname.indexOf(".").let { if (it == -1) 0 else it + 1 }
 
   val end = appname.indexOf("Kt$")
