@@ -52,8 +52,8 @@ import io.jooby.json.GsonModule
 ----
 
 <1> Install Gson
-<2> Use Jackson to encode arbitrary object as JSON
-<3> Use Jackson to decode JSON to Java object. Client must specify the `Content-Type: application/json` header
+<2> Use Gson to encode arbitrary object as JSON
+<3> Use Gson to decode JSON to Java object. Client must specify the `Content-Type: application/json` header
 
 === Working with Gson
 
