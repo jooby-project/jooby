@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.exception.NotFoundException;
+
 import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.time.Instant;
@@ -73,8 +75,7 @@ public class AssetHandler implements Route.Handler {
       }
       // Still null?
       if (asset == null) {
-        ctx.send(StatusCode.NOT_FOUND);
-        return ctx;
+        return ctx.sendError(new NotFoundException(ctx.getRequestPath()));
       } else {
         resolvedPath = fallback;
       }
