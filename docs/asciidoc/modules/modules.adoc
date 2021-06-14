@@ -35,6 +35,7 @@ Available modules are listed next.
 === JSON
    * link:/modules/gson[Gson]: Gson module for Jooby.
    * link:/modules/jackson[Jackson]: Jackson module for Jooby.
+   * link:/modules/jsonb[JSON-B]: JSON-B module for Jooby.
 
 === OpenAPI
    * link:/modules/openapi[OpenAPI]: OpenAPI supports.

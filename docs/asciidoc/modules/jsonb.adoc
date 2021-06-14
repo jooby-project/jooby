@@ -1,0 +1,112 @@
+== JSON-B
+
+JSON support using https://github.com/eclipse-ee4j/jsonb-api[Jakarta JSON Binding (JSON-B)] library.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-jsonb"]
+.
+
+2) Install and encode/decode JSON
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.json.JsonbModule;
+
+{
+  install(new JsonbModule());                        <1>
+
+  get("/", ctx -> {
+    MyObject myObject = ...;
+    return myObject;                                <2>
+  });
+
+  post("/", ctx -> {
+    MyObject myObject = ctx.body(MyObject.class);   <3>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JsonbModule
+
+{
+  install(JsonbModule())                             <1>
+
+  get("/") {
+    val myObject = ...;
+    myObject                                        <2>
+  }
+
+  post("/") {
+    val myObject = ctx.body<MyObject>()             <3>
+    ...
+  }
+}
+----
+
+<1> Install JSON-B
+<2> Use JSON-B to encode arbitrary object as JSON
+<3> Use JSON-B to decode JSON to Java object. Client must specify the `Content-Type: application/json` header
+
+=== Working with JSON-B
+
+Access to default object mapper is available via require call:
+
+.Default object mapper
+[source, java, role="primary"]
+----
+import io.jooby.json.JsonbModule;
+
+{
+  install(new JsonbModule());
+
+  Jsonb jsonb = require(Jsonb.class);
+  
+  ...
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JsonbModule
+
+{
+  install(JsonbModule())
+
+  val mapper = require<Jsonb>()
+}
+----
+
+You can provide your own `Jsonb`:
+
+.Custom ObjectMapper
+[source, java, role="primary"]
+----
+import io.jooby.json.JsonbModule;
+
+{
+  Jsonb jsonb = JsonbBuilder.create();
+
+  install(new JsonbModule(jsonb));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JsonbModule
+
+{
+  val jsonb = JsonbBuilder.create()
+
+  install(JsonbModule(jsonb))
+}
+----
