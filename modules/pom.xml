@@ -43,6 +43,7 @@
 
     <module>jooby-jackson</module>
     <module>jooby-gson</module>
+    <module>jooby-yasson</module>
     <module>jooby-graphql</module>
     <module>jooby-graphiql</module>
     <module>jooby-graphql-playground</module>
