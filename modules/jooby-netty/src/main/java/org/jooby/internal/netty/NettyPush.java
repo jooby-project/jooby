@@ -261,7 +261,7 @@ public class NettyPush implements NativePushPromise {
       // TODO: Is there another way of handling a push promise?
       DefaultFullHttpRequest pushRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
           HttpMethod.valueOf(method.toUpperCase()), path, Unpooled.EMPTY_BUFFER,
-          new DefaultHttpHeaders(false).set(streamIdHeader, nextStreamId),
+          new DefaultHttpHeaders().set(streamIdHeader, nextStreamId),
           EmptyHttpHeaders.INSTANCE);
       ctx.pipeline().fireChannelRead(pushRequest);
       ctx.pipeline().fireChannelReadComplete();
