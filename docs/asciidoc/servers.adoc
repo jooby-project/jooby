@@ -329,8 +329,8 @@ To enable 2-way TLS (Mutual TLS), set the trust certificate and client authentic
 }
 ----
 
-<1> Set the trust certificate path
-<2> Set the trust certificate password
+<1> Set the trust certificate path.
+<2> Set the trust certificate password.
 <3> Set the client authentication mode. Possible values are REQUIRED, REQUESTED, or NONE. Default is NONE.
 
 Optionally you can define these SSL options in your application configuration file:
