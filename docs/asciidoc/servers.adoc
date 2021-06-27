@@ -322,8 +322,8 @@ To enable 2-way TLS (Mutual TLS), set the trust certificate and client authentic
 {
   serverOptions {
     ssl = SslOptions.pkcs12("path/to/server.p12", "password")
-      .trustCert("path/to/trustCert) <1>
-      .trustPassword("password) <2>
+      .trustCert("path/to/trustCert") <1>
+      .trustPassword("password") <2>
       .clientAuth(SslOptions.ClientAuth.REQUIRED) <3>
   }
 }
