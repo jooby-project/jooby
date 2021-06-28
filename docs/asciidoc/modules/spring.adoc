@@ -92,10 +92,10 @@ public class BillingService {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import javax.injext.Inject
+import javax.inject.Inject
 import org.springframework.beans.factory.annotation.Value
 
-class BillingService @Inject constructor(@Value("${currency}") currency: String) {
+class BillingService @Inject constructor(@Value("\${currency}") val currency: String) {
   ...
 }
 ----
