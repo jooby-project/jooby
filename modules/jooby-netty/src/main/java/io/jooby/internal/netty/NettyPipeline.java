@@ -18,9 +18,13 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.compression.ZlibCodecFactory;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.handler.codec.http.websocketx.extensions.WebSocketServerExtensionHandler;
+import io.netty.handler.codec.http.websocketx.extensions.compression.DeflateFrameServerExtensionHandshaker;
+import io.netty.handler.codec.http.websocketx.extensions.compression.PerMessageDeflateServerExtensionHandshaker;
 import io.netty.handler.ssl.SslContext;
 
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
@@ -70,6 +74,15 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
       if (compressionLevel != null) {
         p.addLast("compressor", new HttpChunkContentCompressor(compressionLevel));
+        p.addLast("ws-compressor", new WebSocketServerExtensionHandler(
+            new PerMessageDeflateServerExtensionHandshaker(
+                compressionLevel,
+                ZlibCodecFactory.isSupportingWindowSizeAndMemLevel(),
+                PerMessageDeflateServerExtensionHandshaker.MAX_WINDOW_SIZE,
+                false,
+                false
+            ),
+            new DeflateFrameServerExtensionHandshaker(compressionLevel)));
       }
 
       p.addLast("handler", createHandler());
