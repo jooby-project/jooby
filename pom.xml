@@ -68,7 +68,7 @@
 
     <!-- Server -->
     <undertow.version>2.2.7.Final</undertow.version>
-    <jetty.version>9.4.40.v20210413</jetty.version>
+    <jetty.version>9.4.43.v20210629</jetty.version>
     <netty.version>4.1.63.Final</netty.version>
 
     <!-- Reactive -->
