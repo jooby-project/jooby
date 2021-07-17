@@ -38,6 +38,7 @@ Server options are available via javadoc:ServerOptions[] class:
 {
   setServerOptions(new ServerOptions()
       .setBufferSize(16384)
+      .setCompressionLevel(6)
       .setPort(8080)
       .setIoThreads(16)
       .setWorkerThreads(64)
@@ -92,6 +93,7 @@ Server options are available as application configuration properties too:
 [source, properties]
 ----
 server.bufferSize = 16384
+server.compressionLevel = 6
 server.port = 8080
 server.ioThreads = 16
 server.workerThreads = 64
@@ -100,7 +102,7 @@ server.singleLoop = false
 server.defaultHeaders = true
 server.maxRequestSize = 10485760
 server.securePort = 8443
-server.ssl.type = self-signed
+server.ssl.type = self-signed | PKCS12 | X509
 server.http2 = true
 ----
 
@@ -114,9 +116,9 @@ HTTP. Jooby supports two certificate formats:
 
 The javadoc:SslOptions[] class provides options to configure SSL:
 
-- cert: A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a classpath resource. Required.
-- key:  A PKCS#8 private key file in PEM format. It can be an absolute path or a classpath resource. Required when using X.509 certificates.
-- password: Password to use (if any). Optional. Default is: null/empty.
+- cert: A PKCS12 or X.509 certificate chain file in PEM format. Most commonly, a .crt file for X509 and .p12 for PKCS12. It can be an absolute path or a classpath resource. Required.
+- key:  A PKCS#8 private key file in PEM format. Most commonly a .key file. It can be an absolute path or a classpath resource. Required when using X.509 certificates.
+- password: Password to use. Required when using PKCS12 certificates.
 
 
 .Hello HTTPS
@@ -228,7 +230,7 @@ server {
 ----
 {
   serverOptions {
-    ssl = SslOptions.from(config)
+    ssl = SslOptions.from(config).get()
   }
 }
 ----
@@ -253,14 +255,14 @@ To use a valid PKCS12 certificate:
 ----
 {
   serverOptions {
-    ssl = SslOptions.x509("path/to/server.p12", "password")             <1>
+    ssl = SslOptions.pkcs12("path/to/server.p12", "password")             <1>
   }
 }
 ----
 
 <1> Creates SslOptions using PKCS12 certificates path
 
-Certificate (.crt) location can be file system or class path locations.
+Certificate (.p12 location can be file system or class path locations.
 
 Optionally you can define the SSL options in your application configuration file:
 
@@ -291,7 +293,81 @@ server {
 ----
 {
   serverOptions {
-    ssl = SslOptions.from(config)
+    ssl = SslOptions.from(config).get()
+  }
+}
+----
+
+==== Client Authentication (Mutual TLS)
+
+To enable 2-way TLS (Mutual TLS), set the trust certificate and client authentication. Setting the trust certificate is required if using self-signed or custom generated certificates so that the server will trust the client's certificate signing authority.
+
+.Client Authentication
+[source,java,role="primary"]
+----
+{
+  SslOptions ssl = SslOptions.pkcs12("path/to/server.p12", "password")
+    .setTrustCert("path/to/trustCert") <1>
+    .setTrustPassword("password") <2>
+    .setClientAuth(SslOptions.ClientAuth.REQUIRED); <3>
+  setServerOptions(new ServerOptions()
+      .setSsl(ssl)                                                      
+  );
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    ssl = SslOptions.pkcs12("path/to/server.p12", "password")
+      .trustCert("path/to/trustCert") <1>
+      .trustPassword("password") <2>
+      .clientAuth(SslOptions.ClientAuth.REQUIRED) <3>
+  }
+}
+----
+
+<1> Set the trust certificate path.
+<2> Set the trust certificate password.
+<3> Set the client authentication mode. Possible values are REQUIRED, REQUESTED, or NONE. Default is NONE.
+
+Optionally you can define these SSL options in your application configuration file:
+
+.Ssl options:
+[source,json]
+----
+server {
+  ssl {
+    type: PKCS12,
+    cert: "path/to/server.p12",
+    password: "password",
+    trust {
+      cert: "path/to/trustCert",
+      password: "password"
+    }
+    clientAuth: REQUIRED
+  }
+}
+----
+
+.Mutual TLS from configuration
+[source,java,role="primary"]
+----
+{
+  setServerOptions(new ServerOptions()
+      .setSsl(SslOptions.from(getConfig()))
+  );
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    ssl = SslOptions.from(config).get()
   }
 }
 ----
