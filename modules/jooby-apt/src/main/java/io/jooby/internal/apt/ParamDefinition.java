@@ -14,6 +14,7 @@ import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.Value;
+import io.jooby.ValueConverter;
 import io.jooby.ValueNode;
 import io.jooby.apt.Annotations;
 import io.jooby.internal.apt.asm.ParamWriter;
@@ -92,7 +93,10 @@ public class ParamDefinition {
   }
 
   public boolean isNamed() {
-    return isSimpleType();
+    if (isSimpleType()) {
+      return true;
+    }
+    return false;
   }
 
   public boolean isNullable() {

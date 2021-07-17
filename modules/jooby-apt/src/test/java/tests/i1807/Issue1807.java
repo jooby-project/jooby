@@ -3,6 +3,8 @@ package tests.i1807;
 import io.jooby.MockContext;
 import io.jooby.MockRouter;
 import io.jooby.Multipart;
+import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.apt.MvcModuleCompilerRunner;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +22,9 @@ public class Issue1807 {
           Word1807 word = new Word1807();
           MockRouter router = new MockRouter(app);
           Multipart multipart = mock(Multipart.class);
+          ValueNode missing = mock(ValueNode.class);
+          when(missing.isMissing()).thenReturn(true);
+          when(multipart.get("data")).thenReturn(missing);
           when(multipart.to(Word1807.class)).thenReturn(word);
           MockContext ctx = new MockContext();
           ctx.setMultipart(multipart);

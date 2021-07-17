@@ -9,7 +9,6 @@ import io.jooby.Reified;
 import io.jooby.internal.apt.ParamDefinition;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -25,7 +24,8 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 
 public abstract class ValueWriter implements ParamWriter {
   @Override
-  public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
+  public void accept(ClassWriter writer, org.objectweb.asm.Type controller,
+      String handlerInternalName, MethodVisitor visitor,
       ParamDefinition parameter, Map<String, Integer> registry) throws Exception {
     Method convertMethod = parameter.getMethod();
     // to(Class)

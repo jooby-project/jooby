@@ -60,7 +60,6 @@ public class ModuleCompiler {
   private final String moduleInternalName;
   private final String moduleJava;
   private final ProcessingEnvironment processingEnv;
-  private final String moduleDescriptorName;
   private final boolean debug;
 
   public ModuleCompiler(ProcessingEnvironment processingEnv, String controllerClass) {
@@ -68,7 +67,6 @@ public class ModuleCompiler {
     this.moduleClass = this.controllerClass + "$Module";
     this.moduleJava = this.moduleClass + ".java";
     this.moduleInternalName = moduleClass.replace(".", "/");
-    this.moduleDescriptorName = "L" + moduleInternalName + ";";
     this.processingEnv = processingEnv;
     this.debug = Boolean.parseBoolean(processingEnv.getOptions().getOrDefault("debug", "false"));
   }
