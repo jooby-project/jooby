@@ -81,7 +81,7 @@
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
-    <conscrypt.version>2.5.1</conscrypt.version>
+    <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- javax -->
     <javax.inject.version>1</javax.inject.version>
