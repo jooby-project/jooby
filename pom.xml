@@ -573,18 +573,6 @@
         <version>${gson.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>jakarta.json.bind</groupId>
-        <artifactId>jakarta.json.bind-api</artifactId>
-        <version>1.0.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse</groupId>
-        <artifactId>yasson</artifactId>
-        <version>1.0.9</version>
-      </dependency>
-
       <!-- Jackson 2.x -->
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
