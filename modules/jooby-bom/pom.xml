@@ -77,7 +77,7 @@
   <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
   <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
   <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-  <maven-core.version>3.6.3</maven-core.version>
+  <maven-core.version>3.8.1</maven-core.version>
   <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
   <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
   <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
