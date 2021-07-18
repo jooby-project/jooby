@@ -5,16 +5,21 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import static java.util.Collections.singletonList;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.BindException;
 import java.nio.channels.ClosedChannelException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Web server contract. Defines operations to start, join and stop a web server. Jooby comes
@@ -48,6 +53,35 @@ public interface Server {
    * Base class for server.
    */
   abstract class Base implements Server {
+
+    private static final Predicate<Throwable> CONNECTION_LOST = cause -> {
+      if (cause instanceof IOException) {
+        String message = cause.getMessage();
+        if (message != null) {
+          String msg = message.toLowerCase();
+          return msg.contains("reset by peer")
+              || msg.contains("broken pipe")
+              || msg.contains("forcibly closed")
+              || msg.contains("connection reset");
+        }
+      }
+      return (cause instanceof ClosedChannelException) || (cause instanceof EOFException);
+    };
+
+    private static final Predicate<Throwable> ADDRESS_IN_USE = cause ->
+      (cause instanceof BindException) ||
+          (Optional.ofNullable(cause)
+              .map(Throwable::getMessage)
+              .map(String::toLowerCase)
+              .filter(msg -> msg.contains("address already in use"))
+              .isPresent()
+          );
+
+    private static final List<Predicate<Throwable>> connectionLostListeners =
+        new CopyOnWriteArrayList<>(singletonList(CONNECTION_LOST));
+
+    private static final List<Predicate<Throwable>> addressInUseListeners =
+        new CopyOnWriteArrayList<>(singletonList(ADDRESS_IN_USE));
 
     private static final boolean useShutdownHook = Boolean
         .parseBoolean(System.getProperty("jooby.useShutdownHook", "true"));
@@ -128,6 +162,28 @@ public interface Server {
   @Nonnull Server stop();
 
   /**
+   * Add a connection lost predicate. On unexpected exception, this method allows to customize which
+   * error are considered connection lost. If the error is considered a connection lost, no log
+   * statement will be emitted by the application.
+   *
+   * @param predicate Customize connection lost error.
+   */
+  static void addConnectionLost(@Nonnull Predicate<Throwable> predicate) {
+    Base.connectionLostListeners.add(predicate);
+  }
+
+  /**
+   * Add an address in use predicate. On unexpected exception, this method allows to customize which
+   * error are considered address in use. If the error is considered an address in use, no log
+   * statement will be emitted by the application.
+   *
+   * @param predicate Customize connection lost error.
+   */
+  static void addAddressInUse(@Nonnull Predicate<Throwable> predicate) {
+    Base.addressInUseListeners.add(predicate);
+  }
+
+  /**
    * Test whenever the given exception is a connection-lost. Connection-lost exceptions don't
    * generate log.error statements.
    *
@@ -135,17 +191,12 @@ public interface Server {
    * @return True for connection lost.
    */
   static boolean connectionLost(@Nullable Throwable cause) {
-    if (cause instanceof IOException) {
-      String message = cause.getMessage();
-      if (message != null) {
-        String msg = message.toLowerCase();
-        return msg.contains("reset by peer")
-            || msg.contains("broken pipe")
-            || msg.contains("forcibly closed")
-            || msg.contains("connection reset");
+    for (Predicate<Throwable> connectionLost : Base.connectionLostListeners) {
+      if (connectionLost.test(cause)) {
+        return true;
       }
     }
-    return (cause instanceof ClosedChannelException) || (cause instanceof EOFException);
+    return false;
   }
 
   /**
@@ -156,12 +207,11 @@ public interface Server {
    * @return True address alaredy in use.
    */
   static boolean isAddressInUse(@Nullable Throwable cause) {
-    return (cause instanceof BindException)
-        || (Optional.ofNullable(cause)
-        .map(Throwable::getMessage)
-        .map(String::toLowerCase)
-        .filter(msg -> msg.contains("address already in use"))
-        .isPresent()
-    );
+    for (Predicate<Throwable> addressInUse : Base.addressInUseListeners) {
+      if (addressInUse.test(cause)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
