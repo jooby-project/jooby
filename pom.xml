@@ -22,14 +22,14 @@
     <freemarker.version>2.3.31</freemarker.version>
     <handlebars.version>4.2.0</handlebars.version>
     <pebble.version>3.1.5</pebble.version>
-    <jackson.version>2.12.3</jackson.version>
+    <jackson.version>2.12.4</jackson.version>
     <gson.version>2.8.6</gson.version>
     <rocker.version>1.3.0</rocker.version>
     <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
 
     <!-- data -->
     <HikariCP.version>4.0.3</HikariCP.version>
-    <mysql-connector-java.version>8.0.24</mysql-connector-java.version>
+    <mysql-connector-java.version>8.0.25</mysql-connector-java.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.200</h2.version>
     <hibernate.version>5.4.30.Final</hibernate.version>
@@ -67,7 +67,7 @@
     <asm.version>9.1</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.2.7.Final</undertow.version>
+    <undertow.version>2.2.8.Final</undertow.version>
     <jetty.version>9.4.40.v20210413</jetty.version>
     <netty.version>4.1.63.Final</netty.version>
 
@@ -135,12 +135,12 @@
     <maven-tiles-plugin.version>2.20</maven-tiles-plugin.version>
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-    <maven-core.version>3.6.3</maven-core.version>
+    <maven-core.version>3.8.1</maven-core.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
     <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.0</archetype-packaging.version>
     <maven-plugin-annotations.version>3.6.0</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.8.1</maven-plugin-api.version>

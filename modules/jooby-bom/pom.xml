@@ -47,7 +47,7 @@
   <h2.version>1.4.200</h2.version>
   <handlebars.version>4.2.0</handlebars.version>
   <hibernate.version>5.4.30.Final</hibernate.version>
-  <jackson.version>2.12.3</jackson.version>
+  <jackson.version>2.12.4</jackson.version>
   <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
   <jacoco.version>0.8.6</jacoco.version>
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
@@ -77,13 +77,13 @@
   <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
   <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
   <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-  <maven-core.version>3.6.3</maven-core.version>
+  <maven-core.version>3.8.1</maven-core.version>
   <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
   <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
   <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
   <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
   <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-  <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+  <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
   <maven-plugin-annotations.version>3.6.0</maven-plugin-annotations.version>
   <maven-plugin-api.version>3.8.1</maven-plugin-api.version>
   <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
@@ -97,7 +97,7 @@
   <metrics.version>4.1.20</metrics.version>
   <mockito.version>3.10.0</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
-  <mysql-connector-java.version>8.0.24</mysql-connector-java.version>
+  <mysql-connector-java.version>8.0.25</mysql-connector-java.version>
   <netty.version>4.1.63.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <node.version>v12.19.0</node.version>
@@ -119,7 +119,7 @@
   <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
   <truth.version>1.1.2</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
-  <undertow.version>2.2.7.Final</undertow.version>
+  <undertow.version>2.2.8.Final</undertow.version>
   <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
   <weld.version>3.1.5.Final</weld.version>
 </properties>
