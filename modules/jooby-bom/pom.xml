@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
+    <version>2.10.0</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -16,7 +16,7 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.9.6</jooby.version>
+  <jooby.version>2.10.0</jooby.version>
   <HikariCP.version>4.0.3</HikariCP.version>
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
   <asm.version>9.1</asm.version>
@@ -48,18 +48,18 @@
   <handlebars.version>4.2.0</handlebars.version>
   <hibernate.version>5.4.30.Final</hibernate.version>
   <jackson.version>2.12.4</jackson.version>
-  <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
-  <jacoco.version>0.8.6</jacoco.version>
+  <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
+  <jacoco.version>0.8.7</jacoco.version>
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
   <jasypt.version>1.9.3</jasypt.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.11.0.Final</jboss-modules.version>
   <jdbi.version>3.20.0</jdbi.version>
-  <jetty.version>9.4.41.v20210516</jetty.version>
+  <jetty.version>9.4.43.v20210629</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
   <jmespath-java.version>1.11.916</jmespath-java.version>
-  <jooby-maven-plugin.version>2.9.6</jooby-maven-plugin.version>
-  <jooby.version>2.9.6</jooby.version>
+  <jooby-maven-plugin.version>2.10.0</jooby-maven-plugin.version>
+  <jooby.version>2.10.0</jooby.version>
   <json.version>20210307</json.version>
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -122,6 +122,7 @@
   <undertow.version>2.2.8.Final</undertow.version>
   <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
   <weld.version>3.1.5.Final</weld.version>
+  <yasson.version>1.0.9</yasson.version>
 </properties>
 
   <dependencyManagement>
@@ -183,12 +184,6 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-gson</artifactId>
-      <version>${jooby.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-yasson</artifactId>
       <version>${jooby.version}</version>
       <type>jar</type>
     </dependency>
@@ -472,6 +467,18 @@
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>${gson.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
+      <version>${json.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>yasson</artifactId>
+      <version>${yasson.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
