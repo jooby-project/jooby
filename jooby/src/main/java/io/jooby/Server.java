@@ -69,8 +69,8 @@ public interface Server {
     };
 
     private static final Predicate<Throwable> ADDRESS_IN_USE = cause ->
-      (cause instanceof BindException) ||
-          (Optional.ofNullable(cause)
+      (cause instanceof BindException)
+          || (Optional.ofNullable(cause)
               .map(Throwable::getMessage)
               .map(String::toLowerCase)
               .filter(msg -> msg.contains("address already in use"))

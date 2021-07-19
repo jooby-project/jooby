@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>io.jooby</groupId>
+    <artifactId>modules</artifactId>
+    <version>2.10.1-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>jooby-gradle-setup</artifactId>
+  <packaging>pom</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-openapi</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-run</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>gradlePlugin</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>${exec-maven-plugin.version}</version>
+            <inherited>false</inherited>
+            <configuration>
+              <workingDirectory>${project.basedir}${file.separator}..${file.separator}jooby-gradle-plugin</workingDirectory>
+              <executable>./gradlew</executable>
+            </configuration>
+
+            <executions>
+              <execution>
+                <id>publishToMavenLocal</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>install</phase>
+                <configuration>
+                  <arguments>
+                    <argument>publishToMavenLocal</argument>
+                    <argument>-PjoobyVersion=${project.version}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>publishPlugins</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <arguments>
+                    <argument>publishPlugins</argument>
+                    <argument>-PjoobyVersion=${project.version}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
