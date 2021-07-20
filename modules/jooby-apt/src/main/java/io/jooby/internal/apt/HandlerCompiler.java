@@ -174,7 +174,7 @@ public class HandlerCompiler {
     apply.visitVarInsn(ALOAD, 2);
 
     /** Arguments. */
-    processArguments(writer, apply, moduleInternalName, registry);
+    processArguments(writer, apply, owner, moduleInternalName, registry);
 
     setDefaultResponseType(apply);
 
@@ -202,7 +202,7 @@ public class HandlerCompiler {
   }
 
   private void processArguments(ClassWriter classWriter, MethodVisitor visitor,
-      String moduleInternalName, Map<String, Integer> registry) throws Exception {
+      Type controller, String moduleInternalName, Map<String, Integer> registry) throws Exception {
     for (VariableElement var : executable.getParameters()) {
       if (isSuspendFunction(var)) {
         visitor.visitVarInsn(ALOAD, 1);
@@ -216,7 +216,7 @@ public class HandlerCompiler {
         visitor.visitVarInsn(ALOAD, 1);
         ParamDefinition param = ParamDefinition.create(environment, var);
         ParamWriter writer = param.newWriter();
-        writer.accept(classWriter, moduleInternalName, visitor, param, registry);
+        writer.accept(classWriter, controller, moduleInternalName, visitor, param, registry);
       }
     }
   }

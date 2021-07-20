@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static reactor.core.scheduler.Schedulers.elastic;
+import static reactor.core.scheduler.Schedulers.parallel;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -1060,12 +1061,12 @@ public class FeaturedTest {
       app.get("/reactor/mono", ctx ->
           Mono.fromCallable(() -> "Mono")
               .map(s -> "Hello " + s)
-              .subscribeOn(elastic())
+              .subscribeOn(parallel())
       );
       app.get("/reactor/flux", ctx ->
           Flux.range(1, 10)
               .map(i -> i + ",")
-              .subscribeOn(elastic())
+              .subscribeOn(parallel())
       );
     }).ready(client -> {
       client.get("/reactor/mono", rsp -> {

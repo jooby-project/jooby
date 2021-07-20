@@ -18,6 +18,7 @@ import static org.objectweb.asm.Type.getType;
 public interface ParamWriter {
   Type CTX = getType(Context.class);
 
-  void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
+  void accept(ClassWriter writer, Type controller, String handlerInternalName,
+      MethodVisitor visitor,
       ParamDefinition parameter, Map<String, Integer> registry) throws Exception;
 }

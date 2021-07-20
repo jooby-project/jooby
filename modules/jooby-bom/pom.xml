@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
+    <version>2.10.1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -16,7 +16,7 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.9.6</jooby.version>
+  <jooby.version>2.10.0</jooby.version>
   <HikariCP.version>4.0.3</HikariCP.version>
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
   <asm.version>9.1</asm.version>
@@ -29,14 +29,14 @@
   <commons-io.version>2.8.0</commons-io.version>
   <compile-testing.version>0.19</compile-testing.version>
   <config.version>1.4.1</config.version>
-  <conscrypt.version>2.5.1</conscrypt.version>
+  <conscrypt.version>2.5.2</conscrypt.version>
   <cron-utils.version>9.1.3</cron-utils.version>
   <ebean.version>12.8.3</ebean.version>
   <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
   <flyway.version>7.5.1</flyway.version>
   <freemarker.version>2.3.31</freemarker.version>
   <frontend-maven-plugin.version>1.11.0</frontend-maven-plugin.version>
-  <frontend-plugin-core.version>1.11.2</frontend-plugin-core.version>
+  <frontend-plugin-core.version>1.12.0</frontend-plugin-core.version>
   <gradle-core.version>2.6</gradle-core.version>
   <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
   <gradle-tooling-api.version>2.6</gradle-tooling-api.version>
@@ -47,19 +47,19 @@
   <h2.version>1.4.200</h2.version>
   <handlebars.version>4.2.0</handlebars.version>
   <hibernate.version>5.4.30.Final</hibernate.version>
-  <jackson.version>2.12.3</jackson.version>
-  <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
-  <jacoco.version>0.8.6</jacoco.version>
+  <jackson.version>2.12.4</jackson.version>
+  <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
+  <jacoco.version>0.8.7</jacoco.version>
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
   <jasypt.version>1.9.3</jasypt.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.11.0.Final</jboss-modules.version>
   <jdbi.version>3.20.0</jdbi.version>
-  <jetty.version>9.4.40.v20210413</jetty.version>
+  <jetty.version>9.4.43.v20210629</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
   <jmespath-java.version>1.11.916</jmespath-java.version>
-  <jooby-maven-plugin.version>2.9.6</jooby-maven-plugin.version>
-  <jooby.version>2.9.6</jooby.version>
+  <jooby-maven-plugin.version>2.10.0</jooby-maven-plugin.version>
+  <jooby.version>2.10.0</jooby.version>
   <json.version>20210307</json.version>
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -77,15 +77,15 @@
   <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
   <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
   <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-  <maven-core.version>3.6.3</maven-core.version>
+  <maven-core.version>3.8.1</maven-core.version>
   <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
   <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
   <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
   <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
   <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-  <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+  <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
   <maven-plugin-annotations.version>3.6.0</maven-plugin-annotations.version>
-  <maven-plugin-api.version>3.6.3</maven-plugin-api.version>
+  <maven-plugin-api.version>3.8.1</maven-plugin-api.version>
   <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
   <maven-project.version>2.2.1</maven-project.version>
   <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
@@ -95,9 +95,9 @@
   <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
   <maven-tiles-plugin.version>2.20</maven-tiles-plugin.version>
   <metrics.version>4.1.20</metrics.version>
-  <mockito.version>3.9.0</mockito.version>
+  <mockito.version>3.10.0</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
-  <mysql-connector-java.version>8.0.24</mysql-connector-java.version>
+  <mysql-connector-java.version>8.0.25</mysql-connector-java.version>
   <netty.version>4.1.63.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <node.version>v12.19.0</node.version>
@@ -112,16 +112,17 @@
   <rocker.version>1.3.0</rocker.version>
   <rxjava.version>2.2.21</rxjava.version>
   <slf4j.version>1.7.30</slf4j.version>
-  <spring.version>5.3.4</spring.version>
+  <spring.version>5.3.7</spring.version>
   <stork-maven-plugin.version>3.1.1</stork-maven-plugin.version>
   <swagger-parser.version>2.0.24</swagger-parser.version>
   <swagger.version>2.1.6</swagger.version>
   <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
   <truth.version>1.1.2</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
-  <undertow.version>2.2.7.Final</undertow.version>
+  <undertow.version>2.2.8.Final</undertow.version>
   <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
   <weld.version>3.1.5.Final</weld.version>
+  <yasson.version>1.0.9</yasson.version>
 </properties>
 
   <dependencyManagement>
@@ -466,6 +467,18 @@
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>${gson.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
+      <version>${json.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>yasson</artifactId>
+      <version>${yasson.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

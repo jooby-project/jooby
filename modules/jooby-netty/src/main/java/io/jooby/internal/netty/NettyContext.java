@@ -73,6 +73,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
@@ -801,7 +802,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     // remove flusher, doesn't play well with streaming/chunked responses
     ChannelPipeline pipeline = ctx.pipeline();
     if (pipeline.get("chunker") == null) {
-      String base = Stream.of("compressor", "codec")
+      String base = Stream.of("compressor", "codec", "http2")
           .filter(name -> pipeline.get(name) != null)
           .findFirst()
           .orElseThrow(() -> new IllegalStateException("No available handler for chunk writer"));

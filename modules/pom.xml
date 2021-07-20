@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
+    <version>2.10.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>modules</artifactId>
@@ -43,6 +43,7 @@
 
     <module>jooby-jackson</module>
     <module>jooby-gson</module>
+    <module>jooby-yasson</module>
     <module>jooby-graphql</module>
     <module>jooby-graphiql</module>
     <module>jooby-graphql-playground</module>
@@ -81,6 +82,8 @@
     <!-- distribution -->
     <module>jooby-distribution</module>
     <module>jooby-stork</module>
+
+    <module>jooby-gradle-setup</module>
   </modules>
 
 </project>

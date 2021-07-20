@@ -20,7 +20,8 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 public class ObjectTypeWriter implements ParamWriter {
   @Override
-  public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
+  public void accept(ClassWriter writer, Type controller,
+      String handlerInternalName, MethodVisitor visitor,
       ParamDefinition parameter, Map<String, Integer> registry) throws Exception {
     if (!parameter.is(Context.class)) {
       Method method = ParamKind.forTypeInjection(parameter).valueObject(parameter);

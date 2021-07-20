@@ -7,6 +7,7 @@ package io.jooby.internal.mvc
 
 import io.jooby.Context
 import io.jooby.CoroutineRouter
+import io.jooby.HandlerContext
 import io.jooby.Route
 import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 
@@ -16,7 +17,7 @@ import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 class CoroutineLauncher(val next: Route.Handler) : Route.Handler {
   override fun apply(ctx: Context) = ctx.also {
     val router = ctx.router.attribute<CoroutineRouter>("coroutineRouter")
-    router.launch(ctx) {
+    router.launch(HandlerContext(ctx)) {
       val result = suspendCoroutineUninterceptedOrReturn<Any> {
         ctx.attribute("___continuation", it)
         next.apply(ctx)

@@ -14,6 +14,7 @@ import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.Value;
+import io.jooby.ValueConverter;
 import io.jooby.ValueNode;
 import io.jooby.apt.Annotations;
 import io.jooby.internal.apt.asm.ParamWriter;
@@ -92,15 +93,19 @@ public class ParamDefinition {
   }
 
   public boolean isNamed() {
-    return isSimpleType();
+    if (isSimpleType()) {
+      return true;
+    }
+    return false;
   }
 
   public boolean isNullable() {
-    if (hasAnnotation("org.jetbrains.annotations.Nullable")
+    if (hasAnnotation(".Nullable")
         || hasAnnotation("javax.annotation.Nullable")) {
       return true;
     }
-    boolean nonnull = hasAnnotation("org.jetbrains.annotations.NotNull")
+    boolean nonnull = hasAnnotation(".NotNull")
+        || hasAnnotation(".NonNull")
         || hasAnnotation("javax.annotation.Nonnull");
     if (nonnull) {
       return false;
@@ -110,7 +115,7 @@ public class ParamDefinition {
 
   private boolean hasAnnotation(String type) {
     for (AnnotationMirror annotation : parameter.getAnnotationMirrors()) {
-      if (annotation.getAnnotationType().toString().equals(type)) {
+      if (annotation.getAnnotationType().toString().endsWith(type)) {
         return true;
       }
     }

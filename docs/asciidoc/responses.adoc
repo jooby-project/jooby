@@ -625,7 +625,7 @@ Jooby allows you to use this experimental API by setting the `coroutineStart` op
 [source, kotlin]
 ----
 {
-  coroutine (CoroutineStart.UNDISPATCHED) {
+  coroutine(CoroutineStart.UNDISPATCHED) {
     get("/") {
       val n = 5 * 5        // <1>
       delay(100)           // <2>
@@ -638,6 +638,25 @@ Jooby allows you to use this experimental API by setting the `coroutineStart` op
 <1> Statement run in the *event loop* (caller thread)
 <2> Call a suspending function and dispatch to *worker executor*
 <3> Produces a response from *worker executor*
+
+You can also extend the `CoroutineContext` in which the coroutine routes run:
+
+.launchContext
+[source, kotlin]
+----
+{
+  coroutine {
+    launchContext { MDCContext() } // <1>
+  
+    get("/") {
+      ...
+    }
+  }
+}
+----
+
+<1> The lambda is run before launching each coroutine, so it can customize the `CoroutineContext` for
+the request, e.g. store/restore MDC, transaction, or anything else that your handlers need. 
 
 {love} {love}!
 

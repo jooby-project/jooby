@@ -31,7 +31,8 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 public class ParamLookupWriter extends ValueWriter {
 
   @Override
-  public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
+  public void accept(ClassWriter writer, Type controller,
+      String handlerInternalName, MethodVisitor visitor,
       ParamDefinition parameter, Map<String, Integer> registry) throws Exception {
 
     String parameterName = parameter.getHttpName();
@@ -54,7 +55,7 @@ public class ParamLookupWriter extends ValueWriter {
     visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
         getMethodDescriptor(paramMethod), true);
 
-    super.accept(writer, handlerInternalName, visitor, parameter, registry);
+    super.accept(writer, controller, handlerInternalName, visitor, parameter, registry);
   }
 
   private void pushInt(int value, MethodVisitor visitor) {

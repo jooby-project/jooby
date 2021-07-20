@@ -63,10 +63,6 @@ public class Primitives {
     return toPrimitive(type.name().toLowerCase());
   }
 
-  public static Method toPrimitive(Class type) throws NoSuchMethodException {
-    return toPrimitive(type.getSimpleName());
-  }
-
   public static Method toPrimitive(String name) throws NoSuchMethodException {
     switch (name.toLowerCase()) {
       case "boolean":
