@@ -3,17 +3,17 @@ updates:
 - package-ecosystem: maven
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 10
 - package-ecosystem: npm
   directory: "/modules/jooby-graphiql"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 10
 - package-ecosystem: npm
   directory: "/modules/jooby-graphql-playground"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 10
   ignore:
   - dependency-name: graphql-playground-react
@@ -22,7 +22,7 @@ updates:
 - package-ecosystem: npm
   directory: "/modules/jooby-redoc"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 10
   ignore:
   - dependency-name: redoc
@@ -31,7 +31,7 @@ updates:
 - package-ecosystem: npm
   directory: "/modules/jooby-swagger-ui"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 10
   ignore:
   - dependency-name: swagger-ui-dist
