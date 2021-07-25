@@ -269,6 +269,8 @@ public class Route {
           value = apply(ctx);
         } catch (Throwable x) {
           cause = x;
+          // Early mark context as errored response code:
+          ctx.setResponseCode(ctx.getRouter().errorCode(cause));
         }
         Object result;
         try {
