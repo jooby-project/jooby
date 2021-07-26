@@ -54,7 +54,7 @@ public class Issue1405 {
     }).ready(client -> {
       client.get("/recover", rsp -> {
         assertEquals("IllegalStateException", rsp.body().string());
-        assertEquals(200, rsp.code());
+        assertEquals(500, rsp.code());
       });
 
       client.get("/rethrow", rsp -> {
