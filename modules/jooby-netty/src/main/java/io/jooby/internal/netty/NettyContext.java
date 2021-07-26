@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +44,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import com.typesafe.config.Config;
 import io.jooby.Body;
@@ -98,6 +100,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
@@ -283,6 +286,18 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     } else {
       return "HTTP/2.0";
     }
+  }
+
+  @Nonnull @Override public Certificate[] getClientCertificates() {
+    SslHandler sslHandler = (SslHandler) ctx.channel().pipeline().get("ssl");
+    if (sslHandler != null) {
+      try {
+        return sslHandler.engine().getSession().getPeerCertificates();
+      } catch (SSLPeerUnverifiedException x) {
+         throw SneakyThrows.propagate(x);
+      }
+    }
+    return new Certificate[0];
   }
 
   @Nonnull @Override public String getScheme() {

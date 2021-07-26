@@ -59,6 +59,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -279,6 +280,10 @@ public class JettyContext implements DefaultContext {
 
   @Nonnull @Override public String getProtocol() {
     return request.getProtocol();
+  }
+
+  @Nonnull @Override public Certificate[] getClientCertificates() {
+    return (Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
   }
 
   @Nonnull @Override public String getScheme() {

@@ -18,6 +18,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.security.cert.Certificate;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
- * Utility to class that helps to wrap and delegate to another context.
+ * Utility class that helps to wrap and delegate to another context.
  *
  * @since 2.0.2
  * @author edgar
@@ -265,6 +266,10 @@ public class ForwardingContext implements Context {
 
   @Override @Nonnull public String getProtocol() {
     return ctx.getProtocol();
+  }
+
+  @Override @Nonnull public Certificate[] getClientCertificates() {
+    return ctx.getClientCertificates();
   }
 
   @Override @Nonnull public String getScheme() {
