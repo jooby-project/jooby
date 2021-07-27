@@ -32,6 +32,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -288,16 +289,16 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @Nonnull @Override public Certificate[] getClientCertificates() {
+  @Nonnull @Override public List<Certificate> getClientCertificates() {
     SslHandler sslHandler = (SslHandler) ctx.channel().pipeline().get("ssl");
     if (sslHandler != null) {
       try {
-        return sslHandler.engine().getSession().getPeerCertificates();
+        return Arrays.asList(sslHandler.engine().getSession().getPeerCertificates());
       } catch (SSLPeerUnverifiedException x) {
          throw SneakyThrows.propagate(x);
       }
     }
-    return new Certificate[0];
+    return new ArrayList<Certificate>();
   }
 
   @Nonnull @Override public String getScheme() {

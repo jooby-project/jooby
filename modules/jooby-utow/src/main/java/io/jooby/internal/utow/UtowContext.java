@@ -23,12 +23,15 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -210,16 +213,16 @@ public class UtowContext implements DefaultContext, IoCallback {
     return exchange.getProtocol().toString();
   }
 
-  @Nonnull @Override public Certificate[] getClientCertificates() {
+  @Nonnull @Override public List<Certificate> getClientCertificates() {
     SSLSessionInfo ssl = exchange.getConnection().getSslSessionInfo();
     if (ssl != null) {
       try {
-       return ssl.getPeerCertificates();
+       return Arrays.asList(ssl.getPeerCertificates());
       } catch (SSLPeerUnverifiedException | RenegotiationRequiredException x) {
         throw SneakyThrows.propagate(x);
       }
     }
-    return new Certificate[0];
+    return new ArrayList<Certificate>();
   }
 
   @Nonnull @Override public String getScheme() {

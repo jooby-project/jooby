@@ -541,8 +541,8 @@ public class MockContext implements DefaultContext {
     return "HTTP/1.1";
   }
 
-  @Nonnull @Override public Certificate[] getClientCertificates() {
-    return new Certificate[0];
+  @Nonnull @Override public List<Certificate> getClientCertificates() {
+    return new ArrayList<Certificate>();
   }
 
   @Nonnull @Override public String getScheme() {

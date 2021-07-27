@@ -659,6 +659,33 @@ get("/{foo}") { ctx ->
 In case of a request like `/bar?foo=baz`, `foo is: baz` will be returned since the query parameter
 takes precedence over the path parameter.
 
+==== Client Certificates
+
+If mutual TLS is enabled, you can access the client's certificates from the context. The first 
+certificate in the list is the peer certificate, followed by the ca certificates in the chain 
+(the order is preserved).
+
+.Java
+[source,java,role="primary"]
+----
+get("/{foo}", ctx -> {
+  List<Certificate> certificates = ctx.getClientCertificates(); <1>
+  Certificate peerCertificate = certificates.get(0);            <2>
+});
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+get("/{foo}") { ctx ->
+  val certificates = ctx.clientCertificates                     <1>
+  val peerCertificate = certificates.first()                    <2>
+}
+----
+
+<1> Get all of the certificates presented by the client during the SSL handshake.
+<2> Get only the peer certificate.
+
 include::value-api.adoc[]
 
 include::body.adoc[]

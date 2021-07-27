@@ -633,7 +633,7 @@ public interface Context extends Registry {
    *
    * @return The certificates presented by the client for mutual TLS. Empty if ssl is not enabled, or client authentication is not required.
    */
-  @Nonnull Certificate[] getClientCertificates();
+  @Nonnull List<Certificate> getClientCertificates();
 
   /**
    * Server port for current request.

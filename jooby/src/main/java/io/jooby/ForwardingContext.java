@@ -268,7 +268,7 @@ public class ForwardingContext implements Context {
     return ctx.getProtocol();
   }
 
-  @Override @Nonnull public Certificate[] getClientCertificates() {
+  @Override @Nonnull public List<Certificate> getClientCertificates() {
     return ctx.getClientCertificates();
   }
 
