@@ -119,6 +119,11 @@ public class ParamDefinition {
         return true;
       }
     }
+    for (AnnotationMirror annotation : this.type.getType().getAnnotationMirrors()) {
+      if (annotation.getAnnotationType().toString().endsWith(type)) {
+        return true;
+      }
+    }
     return false;
   }
 
