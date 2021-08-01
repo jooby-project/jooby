@@ -21,6 +21,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.security.cert.Certificate;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -626,6 +627,13 @@ public interface Context extends Registry {
    * @return The name of the protocol the request. Always in lower-case.
    */
   @Nonnull String getProtocol();
+
+  /**
+   * The certificates presented by the client for mutual TLS. Empty if ssl is not enabled, or client authentication is not required.
+   *
+   * @return The certificates presented by the client for mutual TLS. Empty if ssl is not enabled, or client authentication is not required.
+   */
+  @Nonnull List<Certificate> getClientCertificates();
 
   /**
    * Server port for current request.

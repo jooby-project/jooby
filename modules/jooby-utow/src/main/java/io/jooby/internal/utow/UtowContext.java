@@ -22,18 +22,23 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import org.slf4j.Logger;
 
@@ -62,6 +67,8 @@ import io.undertow.Handlers;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.RenegotiationRequiredException;
+import io.undertow.server.SSLSessionInfo;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
@@ -204,6 +211,18 @@ public class UtowContext implements DefaultContext, IoCallback {
 
   @Nonnull @Override public String getProtocol() {
     return exchange.getProtocol().toString();
+  }
+
+  @Nonnull @Override public List<Certificate> getClientCertificates() {
+    SSLSessionInfo ssl = exchange.getConnection().getSslSessionInfo();
+    if (ssl != null) {
+      try {
+       return Arrays.asList(ssl.getPeerCertificates());
+      } catch (SSLPeerUnverifiedException | RenegotiationRequiredException x) {
+        throw SneakyThrows.propagate(x);
+      }
+    }
+    return new ArrayList<Certificate>();
   }
 
   @Nonnull @Override public String getScheme() {

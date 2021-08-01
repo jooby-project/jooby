@@ -22,6 +22,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -538,6 +539,10 @@ public class MockContext implements DefaultContext {
 
   @Nonnull @Override public String getProtocol() {
     return "HTTP/1.1";
+  }
+
+  @Nonnull @Override public List<Certificate> getClientCertificates() {
+    return new ArrayList<Certificate>();
   }
 
   @Nonnull @Override public String getScheme() {
