@@ -215,7 +215,7 @@ public class AnnotationParser {
     return Collections.emptyList();
   }
 
-  private static List<OperationExt> parse(ParserContext ctx, String prefix, Type type) {
+  public static List<OperationExt> parse(ParserContext ctx, String prefix, Type type) {
     List<OperationExt> result = new ArrayList<>();
     ClassNode classNode = ctx.classNode(type);
     Collection<MethodNode> methods = methods(ctx, classNode).values();

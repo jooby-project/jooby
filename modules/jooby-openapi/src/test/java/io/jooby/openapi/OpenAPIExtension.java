@@ -29,12 +29,13 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
     AnnotatedElement method = context.getElement()
         .orElseThrow(() -> new IllegalStateException("Context: " + context));
     OpenAPITest metadata = method.getAnnotation(OpenAPITest.class);
-    String classname = metadata.value().getName();
+    Class klass = metadata.value();
+    String classname = klass.getName();
     Set<DebugOption> debugOptions = metadata.debug().length == 0
         ? Collections.emptySet()
         : EnumSet.copyOf(Arrays.asList(metadata.debug()));
 
-    OpenAPIGenerator tool = newTool(debugOptions);
+    OpenAPIGenerator tool = newTool(debugOptions, klass);
     String templateName = classname.replace(".", "/").toLowerCase() + ".yaml";
     tool.setTemplateName(templateName);
     if (metadata.includes().length() > 0) {
@@ -61,8 +62,14 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
     }
   }
 
-  private OpenAPIGenerator newTool(Set<DebugOption> debug) {
-    OpenAPIGenerator tool = new OpenAPIGenerator();
+  private OpenAPIGenerator newTool(Set<DebugOption> debug, Class klass) {
+    String metaInf = Optional.ofNullable( klass.getPackage())
+        .map(Package::getName)
+        .map(name  -> name.replace(".", "/") + "/")
+        .orElse("")
+        + klass.getSimpleName();
+
+    OpenAPIGenerator tool = new OpenAPIGenerator(metaInf);
     tool.setDebug(debug);
     return tool;
   }

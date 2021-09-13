@@ -8,6 +8,8 @@ package io.jooby.internal.openapi;
 import io.jooby.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class ClassSource {
@@ -21,7 +23,7 @@ public class ClassSource {
     return classLoader;
   }
 
-  public byte[] byteCode(String classname) {
+  public byte[] loadClass(String classname) {
     try (InputStream stream = classLoader.getResourceAsStream(classname.replace(".", "/") + ".class")) {
       if (stream == null) {
         throw new ClassNotFoundException(classname);
@@ -29,6 +31,15 @@ public class ClassSource {
       return IOUtils.toByteArray(stream);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
+    }
+  }
+
+  public byte[] loadResource(String path) throws IOException {
+    try (InputStream stream = classLoader.getResourceAsStream(path)) {
+      if (stream == null) {
+        throw new FileNotFoundException(path);
+      }
+      return IOUtils.toByteArray(stream);
     }
   }
 }

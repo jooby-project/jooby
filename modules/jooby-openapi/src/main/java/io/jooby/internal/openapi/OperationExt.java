@@ -199,8 +199,16 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     this.application = application;
   }
 
+  @JsonIgnore
   public ClassNode getController() {
     return controller;
+  }
+
+  @JsonIgnore
+  public String getControllerName() {
+    return Optional.ofNullable(controller)
+        .map(it -> it.name)
+        .orElse(null);
   }
 
   public void setController(ClassNode controller) {

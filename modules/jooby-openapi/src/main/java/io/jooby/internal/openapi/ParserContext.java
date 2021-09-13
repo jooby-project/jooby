@@ -11,6 +11,7 @@ import static io.jooby.internal.openapi.TypeFactory.KOOBY;
 import static io.jooby.internal.openapi.TypeFactory.ROUTER;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -302,8 +303,12 @@ public class ParserContext {
     }
   }
 
+  public byte[] loadResource(String path) throws IOException {
+    return source.loadResource(path);
+  }
+
   private ClassNode newClassNode(Type type) {
-    ClassReader reader = new ClassReader(source.byteCode(type.getClassName()));
+    ClassReader reader = new ClassReader(source.loadClass(type.getClassName()));
     if (debug.contains(DebugOption.ALL)) {
       debug(reader);
     }
