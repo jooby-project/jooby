@@ -45,11 +45,9 @@
       <version>3.20.0</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.json/json -->
     <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-      <version>20210307</version>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
     </dependency>
 
     <dependency>

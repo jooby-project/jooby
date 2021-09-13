@@ -5,15 +5,6 @@
  */
 package io.jooby.internal.cli;
 
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.github.jknack.handlebars.io.TemplateLoader;
-import io.jooby.cli.Context;
-import org.jline.reader.LineReader;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,8 +23,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CommandContextImpl implements Context {
+import javax.annotation.Nonnull;
 
+import org.jline.reader.LineReader;
+
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.github.jknack.handlebars.io.TemplateLoader;
+import io.jooby.cli.Cli;
+import io.jooby.cli.Context;
+
+public class CommandContextImpl implements Context {
   private final LineReader reader;
 
   private final Handlebars templates;
@@ -42,7 +42,7 @@ public class CommandContextImpl implements Context {
 
   private final String version;
 
-  private JSONObject configuration;
+  private Map configuration;
 
   private Properties versions;
 
@@ -57,9 +57,9 @@ public class CommandContextImpl implements Context {
     Path file = configurationPath();
 
     if (Files.exists(file)) {
-      configuration = new JSONObject(new JSONTokener(Files.newBufferedReader(file)));
+      configuration = Cli.gson.fromJson(Files.newBufferedReader(file), LinkedHashMap.class);
     } else {
-      configuration = new JSONObject();
+      configuration = new LinkedHashMap();
     }
   }
 
@@ -68,13 +68,13 @@ public class CommandContextImpl implements Context {
   }
 
   @Nonnull @Override public String getVersion() {
-    return configuration.has("version") ? configuration.getString("version") : version;
+    return (String) configuration.getOrDefault("version", version);
   }
 
   @Nonnull @Override public Path getWorkspace() {
-    return configuration.has("workspace")
-        ? Paths.get(configuration.getString("workspace"))
-        : Paths.get(System.getProperty("user.dir"));
+    String workspace = (String) configuration.getOrDefault("workspace",
+        System.getProperty("user.dir"));
+    return Paths.get(workspace);
   }
 
   @Override public void setWorkspace(@Nonnull Path workspace) throws IOException {
@@ -82,7 +82,8 @@ public class CommandContextImpl implements Context {
       throw new FileNotFoundException(workspace.toAbsolutePath().toString());
     }
     configuration.put("workspace", workspace.toAbsolutePath().toString());
-    Files.write(configurationPath(), configuration.toString().getBytes(StandardCharsets.UTF_8));
+    String json = Cli.gson.toJson(configuration);
+    Files.write(configurationPath(), json.getBytes(StandardCharsets.UTF_8));
 
   }
 

@@ -5,6 +5,8 @@
  */
 package io.jooby.cli;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.jooby.internal.cli.CommandContextImpl;
 import io.jooby.internal.cli.JLineCompleter;
 import org.jline.reader.EndOfFileException;
@@ -46,6 +48,10 @@ import java.util.stream.Collectors;
     version = "Print version information"
 )
 public class Cli extends Cmd {
+  /** JSON parser. */
+  public static final Gson gson = new GsonBuilder()
+      .create();
+
   /** Command line specification.  */
   private @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 

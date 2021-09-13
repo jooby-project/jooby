@@ -26,8 +26,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
       <optional>true</optional>
     </dependency>
 
@@ -74,13 +74,13 @@
               <minimizeJar>true</minimizeJar>
               <artifactSet>
                 <includes>
-                  <include>org.json:*</include>
+                  <include>com.google.code.gson:*</include>
                 </includes>
               </artifactSet>
               <relocations>
                 <relocation>
-                  <pattern>org.json</pattern>
-                  <shadedPattern>${shaded.package}.json</shadedPattern>
+                  <pattern>com.google.gson</pattern>
+                  <shadedPattern>${shaded.package}.gson</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

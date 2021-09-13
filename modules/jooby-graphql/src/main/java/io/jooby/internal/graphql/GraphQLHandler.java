@@ -5,19 +5,23 @@
  */
 package io.jooby.internal.graphql;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
-import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Map;
 
 public class GraphQLHandler implements Route.Handler {
+  private static final Gson json = new GsonBuilder()
+      .create();
+
   protected GraphQL graphQL;
 
   public GraphQLHandler(GraphQL graphQL) {
@@ -39,8 +43,7 @@ public class GraphQLHandler implements Route.Handler {
       String operationName = ctx.query("operationName").valueOrNull();
       Map<String, Object> variables = ctx.query("variables").toOptional()
           .filter(string -> !string.equals("{}"))
-          .map(JSONObject::new)
-          .map(JSONObject::toMap)
+          .map(str -> json.fromJson(str,Map.class))
           .orElseGet(Collections::emptyMap);
       request.setOperationName(operationName);
       request.setQuery(query);

@@ -16,7 +16,7 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.10.0</jooby.version>
+  <jooby.version>2.10.1-SNAPSHOT</jooby.version>
   <HikariCP.version>4.0.3</HikariCP.version>
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
   <asm.version>9.1</asm.version>
@@ -50,6 +50,7 @@
   <jackson.version>2.12.4</jackson.version>
   <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
   <jacoco.version>0.8.7</jacoco.version>
+  <jakarta.json.bind-api.version>1.0.2</jakarta.json.bind-api.version>
   <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
   <jasypt.version>1.9.3</jasypt.version>
   <javax.inject.version>1</javax.inject.version>
@@ -58,9 +59,8 @@
   <jetty.version>9.4.43.v20210629</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
   <jmespath-java.version>1.11.916</jmespath-java.version>
-  <jooby-maven-plugin.version>2.10.0</jooby-maven-plugin.version>
-  <jooby.version>2.10.0</jooby.version>
-  <json.version>20210307</json.version>
+  <jooby-maven-plugin.version>2.10.1-SNAPSHOT</jooby-maven-plugin.version>
+  <jooby.version>2.10.1-SNAPSHOT</jooby.version>
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
   <junit.version>5.7.1</junit.version>
@@ -472,7 +472,7 @@
     <dependency>
       <groupId>jakarta.json.bind</groupId>
       <artifactId>jakarta.json.bind-api</artifactId>
-      <version>${json.version}</version>
+      <version>${jakarta.json.bind-api.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
@@ -929,12 +929,6 @@
       <groupId>com.google.truth</groupId>
       <artifactId>truth</artifactId>
       <version>${truth.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-      <version>${json.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
