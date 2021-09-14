@@ -5,40 +5,6 @@
  */
 package io.jooby.internal.apt.asm;
 
-import io.jooby.Route;
-import io.jooby.SneakyThrows;
-import io.jooby.internal.annotations.RouteAttribute;
-import io.jooby.internal.apt.Primitives;
-import io.jooby.internal.apt.TypeDefinition;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-
 import static io.jooby.SneakyThrows.throwingConsumer;
 import static java.util.Collections.singletonList;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
@@ -65,6 +31,43 @@ import static org.objectweb.asm.Opcodes.LCONST_0;
 import static org.objectweb.asm.Opcodes.LCONST_1;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.SimpleAnnotationValueVisitor8;
+import javax.lang.model.util.Types;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+
+import io.jooby.Route;
+import io.jooby.SneakyThrows;
+import io.jooby.internal.annotations.RouteAttribute;
+import io.jooby.internal.apt.Primitives;
+import io.jooby.internal.apt.TypeDefinition;
 
 public class RouteAttributesWriter {
 
@@ -151,10 +154,11 @@ public class RouteAttributesWriter {
       Element elem = annotation.getAnnotationType().asElement();
       Retention retention = elem.getAnnotation(Retention.class);
       RouteAttribute routeAttribute = elem.getAnnotation(RouteAttribute.class);
-      RetentionPolicy retentionPolicy = retention == null ? RetentionPolicy.CLASS : retention.value();
+      RetentionPolicy retentionPolicy =
+          retention == null ? RetentionPolicy.CLASS : retention.value();
       String type = annotation.getAnnotationType().toString();
       if (
-          // ignore annotations not available at runtime
+        // ignore annotations not available at runtime
           retentionPolicy != RetentionPolicy.RUNTIME
               // ignore core, jars annotations
               || (ATTR_FILTER.test(type) && routeAttribute == null)
@@ -193,29 +197,39 @@ public class RouteAttributesWriter {
   }
 
   private Object annotationValue(AnnotationValue annotationValue) {
-    Object value = annotationValue.getValue();
-    if (value instanceof AnnotationMirror) {
-      Map<String, Object> annotation = annotationMap(singletonList((AnnotationMirror) value), null);
-      return annotation.isEmpty() ? null : annotation;
-    } else if (value instanceof VariableElement) {
-      // enum
-      VariableElement vare = (VariableElement) annotationValue.getValue();
-      TypeMirror typeMirror = vare.asType();
-      Element element = types.asElement(typeMirror);
-      Name binaryName = elements.getBinaryName((TypeElement) element);
-      return new EnumValue(binaryName.toString(), value.toString());
-    } else if (value instanceof List) {
-      List<AnnotationValue> values = (List) value;
-      if (values.size() > 0) {
-        List<Object> result = new ArrayList<>();
-        for (AnnotationValue it : values) {
-          result.add(annotationValue(it));
+    try {
+      return annotationValue.accept(new SimpleAnnotationValueVisitor8<Object, Void>() {
+        @Override protected Object defaultAction(Object value, Void unused) {
+          return value;
         }
-        return result;
-      }
+
+        @Override public Object visitAnnotation(AnnotationMirror mirror, Void unused) {
+          Map<String, Object> annotation = annotationMap(singletonList(mirror), null);
+          return annotation.isEmpty() ? null : annotation;
+        }
+
+        @Override public Object visitEnumConstant(VariableElement enumeration, Void unused) {
+          TypeMirror typeMirror = enumeration.asType();
+          Element element = types.asElement(typeMirror);
+          Name binaryName = elements.getBinaryName((TypeElement) element);
+          return new EnumValue(binaryName.toString(), enumeration.toString());
+        }
+
+        @Override public Object visitArray(List<? extends AnnotationValue> values, Void unused) {
+          if (values.size() > 0) {
+            List<Object> result = new ArrayList<>();
+            for (AnnotationValue it : values) {
+              result.add(annotationValue(it));
+            }
+            return result;
+          }
+          return null;
+        }
+      }, null);
+    } catch (UnsupportedOperationException x) {
+      // See https://github.com/jooby-project/jooby/issues/2417
       return null;
     }
-    return value;
   }
 
   private void annotationValue(ClassWriter writer, MethodVisitor visitor, Object value)
