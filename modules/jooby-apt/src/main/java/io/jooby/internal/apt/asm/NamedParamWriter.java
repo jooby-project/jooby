@@ -26,7 +26,7 @@ public class NamedParamWriter extends ValueWriter {
   @Override
   public void accept(ClassWriter writer, Type controller,
       String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, Map<String, Integer> registry) throws Exception {
+      ParamDefinition parameter, NameGenerator nameGenerator) throws Exception {
     String parameterName = parameter.getHttpName();
 
     Method paramMethod;
@@ -36,18 +36,16 @@ public class NamedParamWriter extends ValueWriter {
       visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
           getMethodDescriptor(paramMethod), true);
 
-      super.accept(writer, controller, handlerInternalName, visitor, parameter, registry);
+      super.accept(writer, controller, handlerInternalName, visitor, parameter, nameGenerator);
     } else {
-
       // Type getParamName(Context):
-
-      String methodName = "lookup_" + parameter.getName();
+      String methodName =  nameGenerator.generate("$lookup", parameter.getName());
       String descriptor = "(Lio/jooby/Context;)" + parameter.getType().toJvmType().getDescriptor();
       visitor.visitMethodInsn(Opcodes.INVOKESTATIC, handlerInternalName, methodName, descriptor,
           false);
 
       lookupParam(writer, controller, handlerInternalName, methodName, descriptor, parameter,
-          registry);
+          nameGenerator);
     }
   }
 
@@ -74,7 +72,7 @@ public class NamedParamWriter extends ValueWriter {
    */
   private void lookupParam(ClassWriter writer, Type controller, String handlerInternalName,
       String methodName, String descriptor, ParamDefinition parameter,
-      Map<String, Integer> registry) throws Exception {
+      NameGenerator registry) throws Exception {
     String paramName = parameter.getHttpName();
     Method paramMethod = parameter.getSingleValue();
     MethodVisitor methodVisitor = writer

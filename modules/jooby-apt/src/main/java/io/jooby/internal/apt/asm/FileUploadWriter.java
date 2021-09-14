@@ -16,7 +16,6 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
@@ -34,7 +33,7 @@ public class FileUploadWriter implements ParamWriter {
   @Override
   public void accept(ClassWriter writer, Type controller,
       String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, Map<String, Integer> registry)
+      ParamDefinition parameter, NameGenerator nameGenerator)
       throws Exception {
     if (parameter.isList()) {
       files(parameter.getName(), writer);

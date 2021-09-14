@@ -5,15 +5,6 @@
  */
 package io.jooby.internal.apt.asm;
 
-import io.jooby.Reified;
-import io.jooby.internal.apt.ParamDefinition;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.Map;
-
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -22,11 +13,22 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Map;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+
+import io.jooby.Reified;
+import io.jooby.internal.apt.ParamDefinition;
+
 public abstract class ValueWriter implements ParamWriter {
+
   @Override
   public void accept(ClassWriter writer, org.objectweb.asm.Type controller,
       String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, Map<String, Integer> registry) throws Exception {
+      ParamDefinition parameter, NameGenerator nameGenerator) throws Exception {
     Method convertMethod = parameter.getMethod();
     // to(Class)
     boolean toClass = is(convertMethod, 0, Class.class);
@@ -69,7 +71,8 @@ public abstract class ValueWriter implements ParamWriter {
         visitor.visitVarInsn(ASTORE, 3);
         visitor.visitLdcInsn(parameter.getHttpName());
         visitor.visitVarInsn(ALOAD, 3);
-        visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/exception/MissingValueException", "requireNonNull", "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
+        visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/exception/MissingValueException",
+            "requireNonNull", "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
         visitor.visitTypeInsn(CHECKCAST, parameter.getType().toJvmType().getInternalName());
       }
     }

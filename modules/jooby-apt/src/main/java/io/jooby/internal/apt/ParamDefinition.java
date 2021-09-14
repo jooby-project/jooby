@@ -93,10 +93,7 @@ public class ParamDefinition {
   }
 
   public boolean isNamed() {
-    if (isSimpleType()) {
-      return true;
-    }
-    return false;
+    return isSimpleType();
   }
 
   public boolean isNullable() {

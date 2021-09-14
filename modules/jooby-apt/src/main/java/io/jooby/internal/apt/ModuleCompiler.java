@@ -12,6 +12,7 @@ import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.annotations.Dispatch;
 import io.jooby.internal.apt.asm.ArrayWriter;
+import io.jooby.internal.apt.asm.NameGenerator;
 import io.jooby.internal.apt.asm.RouteAttributesWriter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
@@ -161,7 +162,7 @@ public class ModuleCompiler {
     RouteAttributesWriter routeAttributes = new RouteAttributesWriter(processingEnv.getElementUtils(),
         processingEnv.getTypeUtils(), writer, moduleInternalName, visitor, userAttrFilter);
 
-    Map<String, Integer> nameRegistry = new HashMap<>();
+    NameGenerator nameRegistry = new NameGenerator();
     for (HandlerCompiler handler : handlers) {
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitLdcInsn(handler.getPattern());

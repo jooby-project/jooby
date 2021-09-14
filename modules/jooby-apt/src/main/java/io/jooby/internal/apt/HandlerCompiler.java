@@ -9,6 +9,7 @@ import io.jooby.Context;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.apt.Annotations;
+import io.jooby.internal.apt.asm.NameGenerator;
 import io.jooby.internal.apt.asm.ParamWriter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
@@ -104,18 +105,11 @@ public class HandlerCompiler {
   }
 
   public void compile(String internalName, ClassWriter writer,
-      MethodVisitor methodVisitor, Map<String, Integer> nameRegistry)
+      MethodVisitor methodVisitor, NameGenerator nameRegistry)
       throws Exception {
     String key =
         httpMethod + camelCase(executable.getSimpleName().toString()) + arguments(executable);
-    int c = nameRegistry.computeIfAbsent(key, k -> 0);
-    String methodName;
-    if (c > 0) {
-      methodName = key + "$" + c;
-    } else {
-      methodName = key;
-    }
-    nameRegistry.put(key, c + 1);
+    String methodName = nameRegistry.generate(key);
 
     methodVisitor
         .visitInvokeDynamicInsn("apply", "(Ljavax/inject/Provider;)Lio/jooby/Route$Handler;",
@@ -146,8 +140,7 @@ public class HandlerCompiler {
   }
 
   private void apply(ClassWriter writer, String moduleInternalName, String lambdaName,
-      Map<String, Integer> registry)
-      throws Exception {
+      NameGenerator registry) throws Exception {
     Type owner = getController().toJvmType();
     String methodName = executable.getSimpleName().toString();
     String methodDescriptor = methodDescriptor();
@@ -202,7 +195,7 @@ public class HandlerCompiler {
   }
 
   private void processArguments(ClassWriter classWriter, MethodVisitor visitor,
-      Type controller, String moduleInternalName, Map<String, Integer> registry) throws Exception {
+      Type controller, String moduleInternalName, NameGenerator registry) throws Exception {
     for (VariableElement var : executable.getParameters()) {
       if (isSuspendFunction(var)) {
         visitor.visitVarInsn(ALOAD, 1);

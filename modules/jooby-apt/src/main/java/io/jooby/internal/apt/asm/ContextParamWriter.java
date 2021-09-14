@@ -33,7 +33,7 @@ public class ContextParamWriter extends ValueWriter {
   @Override
   public void accept(ClassWriter writer, Type controller,
       String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, Map<String, Integer> registry) throws Exception {
+      ParamDefinition parameter, NameGenerator nameGenerator) throws Exception {
     String methodName = parameter.getName();
     String name = parameter.getHttpName();
 
@@ -49,9 +49,8 @@ public class ContextParamWriter extends ValueWriter {
       visitor.visitTypeInsn(Opcodes.CHECKCAST, parameter.getType().toJvmType().getInternalName());
     }
 
-    if (!registry.containsKey(methodName)) {
-      attribute(writer, parameter, methodName);
-      registry.put(methodName, 1);
+    if (!nameGenerator.has(methodName)) {
+      attribute(writer, parameter, nameGenerator.generate(methodName));
     }
   }
 
