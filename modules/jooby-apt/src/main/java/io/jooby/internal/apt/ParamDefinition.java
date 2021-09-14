@@ -20,9 +20,13 @@ import io.jooby.apt.Annotations;
 import io.jooby.internal.apt.asm.ParamWriter;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
+
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -31,6 +35,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -111,13 +116,31 @@ public class ParamDefinition {
   }
 
   private boolean hasAnnotation(String type) {
-    for (AnnotationMirror annotation : parameter.getAnnotationMirrors()) {
-      if (annotation.getAnnotationType().toString().endsWith(type)) {
+    Set<String> annotations = annotations(parameter);
+    for (String annotation : annotations) {
+      if (annotation.endsWith(type)) {
         return true;
       }
     }
     return false;
   }
+
+  private Set<String> annotations(VariableElement parameter) {
+    Set<String> annotations = new LinkedHashSet<>();
+    annotations.addAll(annotationsFrom(parameter));
+    annotations.addAll(annotationsFrom(parameter.asType()));
+    return annotations;
+  }
+
+  private Set<String> annotationsFrom(AnnotatedConstruct annotated) {
+    Set<String> annotations = new LinkedHashSet<>();
+    for (AnnotationMirror annotation : annotated.getAnnotationMirrors()) {
+      TypeMirror typeMirror = annotation.getAnnotationType();
+      annotations.add(typeMirror.toString());
+    }
+    return annotations;
+  }
+
 
   public Method getObjectValue() throws NoSuchMethodException {
     return getKind().valueObject(this);

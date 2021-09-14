@@ -40,6 +40,25 @@ public class TypeDefinition {
     this.type = type;
   }
 
+  /**
+   * Check for declared type and get the underlying type. This is required for annotated type.
+   * Example:
+   *
+   * <pre>{@code
+   * @Nullable @QueryParam String name
+   * }</pre>
+   *
+   * @param type
+   * @return
+   */
+  private TypeMirror unwrapType(TypeMirror type) {
+    if (type instanceof DeclaredType) {
+      return ((DeclaredType) type).asElement().asType();
+    } else {
+      return type;
+    }
+  }
+
   public String getName() {
     return getRawType().toString();
   }
@@ -49,15 +68,15 @@ public class TypeDefinition {
   }
 
   public boolean isPrimitive() {
-    return getType().getKind().isPrimitive();
+    return unwrapType(getType()).getKind().isPrimitive();
   }
 
   public boolean isVoid() {
-    return type.getKind() == TypeKind.VOID;
+    return unwrapType(getType()).getKind() == TypeKind.VOID;
   }
 
   public TypeMirror getRawType() {
-    return typeUtils.erasure(type);
+    return typeUtils.erasure(unwrapType(getType()));
   }
 
   public boolean is(Class type, Class... arguments) {
@@ -84,10 +103,12 @@ public class TypeDefinition {
   }
 
   private boolean equalType(TypeMirror type, String typeName) {
-    if (!typeUtils.erasure(type).toString().equals(typeName)) {
+    TypeMirror realType = unwrapType(type);
+    TypeMirror erasure = typeUtils.erasure(realType);
+    if (!erasure.toString().equals(typeName)) {
       // check for enum subclasses:
       if (Enum.class.getName().equals(typeName)) {
-        return typeUtils.asElement(type).getKind() == ElementKind.ENUM;
+        return typeUtils.asElement(realType).getKind() == ElementKind.ENUM;
       } else {
         return false;
       }
