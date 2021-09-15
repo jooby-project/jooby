@@ -76,7 +76,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
@@ -113,6 +112,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   private static final String STREAM_ID = "x-http2-stream-id";
+  private final String streamId;
   DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(true);
   private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
@@ -152,8 +152,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.router = router;
     this.bufferSize = bufferSize;
     this.method = req.method().name().toUpperCase();
-    header(STREAM_ID).toOptional()
-        .ifPresent(streamId -> setResponseHeader(STREAM_ID, streamId));
+    // Safe streamId for HTTP/2
+    this.streamId = header(STREAM_ID).valueOrNull();
+    ifStreamId(this.streamId);
   }
 
   boolean isHttpGet() {
@@ -295,7 +296,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       try {
         return Arrays.asList(sslHandler.engine().getSession().getPeerCertificates());
       } catch (SSLPeerUnverifiedException x) {
-         throw SneakyThrows.propagate(x);
+        throw SneakyThrows.propagate(x);
       }
     }
     return new ArrayList<Certificate>();
@@ -441,6 +442,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public Context removeResponseHeaders() {
     setHeaders.clear();
+    ifStreamId(this.streamId);
     return this;
   }
 
@@ -831,6 +833,16 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Override public String toString() {
     return getMethod() + " " + getRequestPath();
+  }
+
+  /**
+   * Set stream ID response header.
+   * @param streamId Stream ID or null.
+   */
+  private void ifStreamId(String streamId) {
+    if (streamId != null && streamId.length() > 0) {
+      setResponseHeader(STREAM_ID, streamId);
+    }
   }
 
   private boolean isGzip() {
