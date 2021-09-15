@@ -5,8 +5,6 @@
  */
 package io.jooby.redis;
 
-import static io.lettuce.core.support.BoundedPoolConfig.create;
-
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -22,10 +20,7 @@ import io.jooby.ServiceRegistry;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import io.lettuce.core.support.AsyncConnectionPoolSupport;
-import io.lettuce.core.support.AsyncPool;
 import io.lettuce.core.support.ConnectionPoolSupport;
 
 /**
