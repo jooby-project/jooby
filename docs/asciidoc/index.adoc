@@ -17,7 +17,7 @@ Style guidelines:
 ////
 
 = Welcome to Jooby!
-Jooby Project <support@jooby.io>
+by Edgar Espina
 {joobyVersion}
 
 [discrete]
