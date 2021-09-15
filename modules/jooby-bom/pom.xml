@@ -21,12 +21,13 @@
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
   <asm.version>9.1</asm.version>
   <auto-service.version>1.0</auto-service.version>
-  <aws-java-sdk.version>1.11.916</aws-java-sdk.version>
+  <aws-java-sdk.version>1.12.57</aws-java-sdk.version>
   <bucket4j-core.version>6.0.1</bucket4j-core.version>
   <caffeine.version>2.8.8</caffeine.version>
   <checkstyle.version>8.42</checkstyle.version>
   <commons-email.version>1.5</commons-email.version>
   <commons-io.version>2.8.0</commons-io.version>
+  <commons-pool2.version>2.11.1</commons-pool2.version>
   <compile-testing.version>0.19</compile-testing.version>
   <config.version>1.4.1</config.version>
   <conscrypt.version>2.5.2</conscrypt.version>
@@ -58,7 +59,7 @@
   <jdbi.version>3.20.0</jdbi.version>
   <jetty.version>9.4.43.v20210629</jetty.version>
   <jfiglet.version>0.0.8</jfiglet.version>
-  <jmespath-java.version>1.11.916</jmespath-java.version>
+  <jmespath-java.version>1.12.57</jmespath-java.version>
   <jooby-maven-plugin.version>2.10.1-SNAPSHOT</jooby-maven-plugin.version>
   <jooby.version>2.10.1-SNAPSHOT</jooby.version>
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
@@ -98,7 +99,7 @@
   <mockito.version>3.10.0</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
   <mysql-connector-java.version>8.0.25</mysql-connector-java.version>
-  <netty.version>4.1.66.Final</netty.version>
+  <netty.version>4.1.68.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <node.version>v12.19.0</node.version>
   <okhttp.version>4.9.1</okhttp.version>
@@ -119,7 +120,7 @@
   <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
   <truth.version>1.1.2</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
-  <undertow.version>2.2.8.Final</undertow.version>
+  <undertow.version>2.2.10.Final</undertow.version>
   <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
   <weld.version>3.1.5.Final</weld.version>
   <yasson.version>1.0.9</yasson.version>
@@ -1046,6 +1047,12 @@
       <type>jar</type>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-pool2</artifactId>
+      <version>${commons-pool2.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
       <version>${kafka.version}</version>
@@ -1085,6 +1092,174 @@
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
       <version>${plexus-utils.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-memorydb</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-snowdevicemanagement</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-chimesdkidentity</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-chimesdkmessaging</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-route53recoverycluster</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-route53recoverycontrolconfig</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-route53recoveryreadiness</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-proton</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-apprunner</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-applicationcostprofiler</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-ssmcontacts</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-ssmincidents</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-finspacedata</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-finspace</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-nimblestudio</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-lookoutequipment</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-mgn</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-lookoutmetrics</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-fis</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-lexmodelsv2</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-lexruntimev2</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-wellarchitected</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-location</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-iotdeviceadvisor</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-iotfleethub</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-iotwireless</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-greengrassv2</artifactId>
+      <version>${aws-java-sdk.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-prometheus</artifactId>
+      <version>${aws-java-sdk.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

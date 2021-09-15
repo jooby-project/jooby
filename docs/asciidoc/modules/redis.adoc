@@ -137,12 +137,12 @@ The Redis module provides a HTTP Session Store.
 import io.jooby.redis.RedisModule;
 import io.jooby.redis.RedisSessionStore;
 
-import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.RedisClient;
 
 {
   install(new RedisModule());                                                     <1>
 
-  setSessionStore(new RedisSessionStore(require(StatefulRedisConnection.class))); <2>
+  setSessionStore(new RedisSessionStore(require(RedisClient.class)));             <2>
 
   get("/", ctx -> {
     Session httpSession = ctx.session();                                          <3>
@@ -157,12 +157,12 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import io.jooby.redis.RedisModule
 import io.jooby.redis.RedisSessionStore
 
-import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.RedisClient
 
 {
   install(RedisModule())                                                           <1>
   
-  sessionStore = RedisSessionStore(require(StatefulRedisConnection::class))        <2>
+  sessionStore = RedisSessionStore(require(RedisClient::class))                    <2>
 
   get("/") {
     val httpSession = ctx.session()                                                <3>

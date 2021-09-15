@@ -5,6 +5,15 @@
  */
 package io.jooby.redis;
 
+import static io.lettuce.core.support.BoundedPoolConfig.create;
+
+import java.util.stream.Stream;
+
+import javax.annotation.Nonnull;
+
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+
 import com.typesafe.config.Config;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -13,10 +22,11 @@ import io.jooby.ServiceRegistry;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-
-import javax.annotation.Nonnull;
-import java.util.stream.Stream;
+import io.lettuce.core.support.AsyncConnectionPoolSupport;
+import io.lettuce.core.support.AsyncPool;
+import io.lettuce.core.support.ConnectionPoolSupport;
 
 /**
  * Redis module: https://jooby.io/modules/redis.
@@ -102,7 +112,12 @@ public class RedisModule implements Extension {
     StatefulRedisConnection<String, String> connection = client.connect();
     StatefulRedisPubSubConnection<String, String> connectPubSub = client.connectPubSub();
 
+    GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+    GenericObjectPool<StatefulRedisConnection<String, String>> pool = ConnectionPoolSupport
+        .createGenericObjectPool(() -> client.connect(), poolConfig);
+
     // Close client and connection on shutdown
+    application.onStop(pool::close);
     application.onStop(connection::close);
     application.onStop(connectPubSub::close);
     application.onStop(client::shutdown);
@@ -114,6 +129,9 @@ public class RedisModule implements Extension {
 
     registry.putIfAbsent(ServiceKey.key(StatefulRedisConnection.class), connection);
     registry.put(ServiceKey.key(StatefulRedisConnection.class, name), connection);
+
+    registry.putIfAbsent(ServiceKey.key(GenericObjectPool.class), pool);
+    registry.put(ServiceKey.key(GenericObjectPool.class, name), pool);
 
     registry.putIfAbsent(ServiceKey.key(StatefulRedisPubSubConnection.class), connectPubSub);
     registry.put(ServiceKey.key(StatefulRedisPubSubConnection.class, name), connectPubSub);
