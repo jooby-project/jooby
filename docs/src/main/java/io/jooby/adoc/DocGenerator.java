@@ -120,6 +120,10 @@ public class DocGenerator {
           .replace("http://jooby.org", "https://jooby.org")
           .replace("href=\"/resources", "href=\"/v1/resources")
           .replace("src=\"/resources", "src=\"/v1/resources")
+          .replace("href=\"https://jooby.org/resources", "href=\"/v1/resources")
+          .replace("src=\"https://jooby.org/resources", "src=\"/v1/resources")
+          .replace("href=\"resources", "href=\"/v1/resources")
+          .replace("src=\"resources", "src=\"/v1/resources")
           .replace("src=\"http://ajax.", "src=\"https://ajax.")
           // remove/replace redirection
           .replace("<meta http-equiv=\"refresh\" content=\"0; URL=https://jooby.io\" />", "");
