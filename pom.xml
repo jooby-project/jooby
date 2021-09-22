@@ -54,7 +54,7 @@
     <!-- logging -->
     <logback-classic.version>1.2.3</logback-classic.version>
     <log4j.version>2.14.1</log4j.version>
-    <slf4j.version>1.7.30</slf4j.version>
+    <slf4j.version>1.7.32</slf4j.version>
 
     <!-- communication -->
     <commons-email.version>1.5</commons-email.version>
