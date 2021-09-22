@@ -33,6 +33,7 @@ import io.jooby.internal.utow.UtowHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.HttpContinueReadHandler;
 import io.undertow.server.handlers.encoding.ContentEncodingRepository;
 import io.undertow.server.handlers.encoding.DeflateEncodingProvider;
 import io.undertow.server.handlers.encoding.EncodingHandler;
@@ -85,6 +86,10 @@ public class Utow extends Server.Base {
         handler = new EncodingHandler(handler, new ContentEncodingRepository()
             .addEncodingHandler("gzip", new GzipEncodingProvider(compressionLevel), _100)
             .addEncodingHandler("deflate", new DeflateEncodingProvider(compressionLevel), _10));
+      }
+
+      if (options.isExpectContinue() == Boolean.TRUE) {
+        handler = new HttpContinueReadHandler(handler);
       }
 
       Undertow.Builder builder = Undertow.builder()

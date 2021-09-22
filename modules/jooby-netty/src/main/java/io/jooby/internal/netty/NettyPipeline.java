@@ -19,6 +19,7 @@ import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.ssl.SslContext;
@@ -35,11 +36,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final ScheduledExecutorService service;
   private final SslContext sslContext;
   private final Http2Configurer<Http2Extension, ChannelInboundHandler> http2;
+  private final boolean is100ContinueExpected;
 
   public NettyPipeline(ScheduledExecutorService service, Router router, HttpDataFactory factory,
       SslContext sslContext, Http2Configurer<Http2Extension, ChannelInboundHandler> http2,
-      boolean defaultHeaders,
-      Integer compressionLevel, int bufferSize, long maxRequestSize) {
+      boolean defaultHeaders, Integer compressionLevel, int bufferSize, long maxRequestSize,
+      boolean is100ContinueExpected) {
     this.service = service;
     this.router = router;
     this.factory = factory;
@@ -49,6 +51,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     this.compressionLevel = compressionLevel;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
+    this.is100ContinueExpected = is100ContinueExpected;
   }
 
   @Override
@@ -72,7 +75,9 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
         p.addLast("compressor", new HttpChunkContentCompressor(compressionLevel));
         p.addLast("ws-compressor", new NettyWebSocketCompressor(compressionLevel));
       }
-
+      if (is100ContinueExpected) {
+        p.addLast("expect-continue", new HttpServerExpectContinueHandler());
+      }
       p.addLast("handler", createHandler());
     }
   }
@@ -104,6 +109,9 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       p.addLast("compressor", new HttpChunkContentCompressor(compressionLevel));
       p.addLast("ws-compressor", new NettyWebSocketCompressor(compressionLevel));
     }
+    if (is100ContinueExpected) {
+      p.addLast("expect-continue", new HttpServerExpectContinueHandler());
+    }
     p.addLast("handler", createHandler());
   }
 
@@ -112,6 +120,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   }
 
   private NettyHandler createHandler() {
-    return new NettyHandler(service, router, maxRequestSize, bufferSize, factory, defaultHeaders);
+    return new NettyHandler(service, router, maxRequestSize, bufferSize, factory, defaultHeaders,
+        is100ContinueExpected);
   }
 }

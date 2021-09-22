@@ -189,7 +189,8 @@ public class Netty extends Server.Base {
         options.getDefaultHeaders(),
         options.getCompressionLevel(),
         options.getBufferSize(),
-        options.getMaxRequestSize()
+        options.getMaxRequestSize(),
+        options.isExpectContinue() ==  Boolean.TRUE
     );
   }
 

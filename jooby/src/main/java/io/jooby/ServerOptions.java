@@ -105,6 +105,8 @@ public class ServerOptions {
 
   private Boolean http2;
 
+  private Boolean expectContinue;
+
   /**
    * Creates server options from config object. The configuration options must provided entries
    * like: <code>server.port</code>, <code>server.ioThreads</code>, etc...
@@ -147,6 +149,9 @@ public class ServerOptions {
       }
       if (conf.hasPath("server.host")) {
         options.setHost(conf.getString("server.host"));
+      }
+      if (conf.hasPath("server.expectContinue")) {
+        options.setExpectContinue(conf.getBoolean("server.expectContinue"));
       }
       // ssl
       SslOptions.from(conf, "server.ssl").ifPresent(options::setSsl);
@@ -493,6 +498,28 @@ public class ServerOptions {
    */
   public ServerOptions setHttp2(@Nullable Boolean http2) {
     this.http2 = http2;
+    return this;
+  }
+
+  /**
+   * Whenever 100-Expect and continue requests are handled by the server.
+   * This is off by default, except for Jetty which is always ON.
+   *
+   * @return True when enabled.
+   */
+  public  @Nullable Boolean isExpectContinue() {
+    return expectContinue;
+  }
+
+  /**
+   * Set 100-Expect and continue requests are handled by the server.
+   * This is off by default, except for Jetty which is always ON.
+   *
+   * @param expectContinue True or false.
+   * @return This options.
+   */
+  public ServerOptions setExpectContinue(@Nullable Boolean expectContinue) {
+    this.expectContinue = expectContinue;
     return this;
   }
 

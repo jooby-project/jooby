@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.netty;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
+
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -21,13 +23,17 @@ import io.jooby.Server;
 import io.jooby.StatusCode;
 import io.jooby.WebSocketCloseStatus;
 import io.jooby.exception.StatusCodeException;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
@@ -52,6 +58,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Router router;
   private final int bufferSize;
   private final boolean defaultHeaders;
+  private final boolean is100ContinueExpected;
   private NettyContext context;
 
   private final HttpDataFactory factory;
@@ -62,13 +69,15 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long chunkSize;
 
   public NettyHandler(ScheduledExecutorService scheduler, Router router, long maxRequestSize,
-      int bufferSize, HttpDataFactory factory, boolean defaultHeaders) {
+      int bufferSize, HttpDataFactory factory, boolean defaultHeaders,
+      boolean is100ContinueExpected) {
     this.scheduler = scheduler;
     this.router = router;
     this.maxRequestSize = maxRequestSize;
     this.factory = factory;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
+    this.is100ContinueExpected = is100ContinueExpected;
   }
 
   @Override
@@ -76,6 +85,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     try {
       if (msg instanceof HttpRequest) {
         HttpRequest req = (HttpRequest) msg;
+
         context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
 
         if (defaultHeaders) {
