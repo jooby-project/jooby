@@ -4,6 +4,7 @@ import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,9 +40,7 @@ public class Issue2363 {
                   MediaType.parse("application/javascript")))
           .build(), rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals("(function () {\n"
-                + "  console.log('ready');\n"
-                + "})();\n",
+        assertEquals(new String(Files.readAllBytes(userdir("src", "test", "resources", "files", "fileupload.js")), StandardCharsets.UTF_8),
             rsp.body().string());
       });
     });
