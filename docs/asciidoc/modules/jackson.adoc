@@ -111,6 +111,52 @@ import io.jooby.json.JacksonModule
 }
 ----
 
+This allows to configure JacksonModule for doing `xml` processing:
+
+.XmlMapper
+[source, java, role="primary"]
+----
+import io.jooby.json.JacksonModule;
+
+{
+  install(new JacksonModule(new XmlMapper()));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JacksonModule
+
+{
+  install(JacksonModule(XmlMapper()))
+}
+----
+
+If you want `json` and `xml` processing then install twice:
+
+.XmlMapper
+[source, java, role="primary"]
+----
+import io.jooby.json.JacksonModule;
+
+{
+  install(new JacksonModule(new ObjectMapper()));
+  install(new JacksonModule(new XmlMapper()));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.JacksonModule
+
+{
+  install(JacksonModule(ObjectMapper()))
+  install(JacksonModule(XmlMapper()))
+}
+----
+
 === Provisioning Jackson Modules
 
 Jackson module can be provided by a link:/#dependency-injection[dependency injection] framework.
@@ -135,4 +181,4 @@ import io.jooby.json.JacksonModule
 }
 ----
 
-At startup time Jooby ask to the dependency injection framework to provide a `MyModule` instance.
+At startup time Jooby ask to dependency injection framework to provide a `MyModule` instance.

@@ -172,6 +172,12 @@
       <version>${jetty.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-xml</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

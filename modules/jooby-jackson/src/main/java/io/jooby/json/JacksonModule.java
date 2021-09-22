@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.jooby.Body;
 import io.jooby.Context;
@@ -28,8 +27,11 @@ import io.jooby.StatusCode;
 import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson.
@@ -75,11 +77,31 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class JacksonModule implements Extension, MessageDecoder, MessageEncoder {
+  private final MediaType mediaType;
+
   private final ObjectMapper mapper;
 
   private final TypeFactory typeFactory;
 
   private final Set<Class<? extends Module>> modules = new HashSet<>();
+
+  private static final Map<String, MediaType> defaultTypes = new HashMap<>();
+
+  static {
+    defaultTypes.put("XmlMapper", MediaType.xml);
+  }
+
+  /**
+   * Creates a Jackson module.
+   *
+   * @param mapper Object mapper to use.
+   * @param contentType Content type.
+   */
+  public JacksonModule(@Nonnull ObjectMapper mapper, @Nonnull MediaType contentType) {
+    this.mapper = mapper;
+    this.typeFactory = mapper.getTypeFactory();
+    this.mediaType = contentType;
+  }
 
   /**
    * Creates a Jackson module.
@@ -87,12 +109,11 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    * @param mapper Object mapper to use.
    */
   public JacksonModule(@Nonnull ObjectMapper mapper) {
-    this.mapper = mapper;
-    this.typeFactory = mapper.getTypeFactory();
+    this(mapper, defaultTypes.getOrDefault(mapper.getClass().getSimpleName(), MediaType.json));
   }
 
   /**
-   * Creates a Jackson module using the default object mapper from {@link #create()}.
+   * Creates a Jackson module using the default object mapper from {@link #create(Module...)}.
    */
   public JacksonModule() {
     this(create());
@@ -111,11 +132,12 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   }
 
   @Override public void install(@Nonnull Jooby application) {
-    application.decoder(MediaType.json, this);
-    application.encoder(MediaType.json, this);
+    application.decoder(mediaType, this);
+    application.encoder(mediaType, this);
 
     ServiceRegistry services = application.getServices();
-    services.put(ObjectMapper.class, mapper);
+    Class mapperType = mapper.getClass();
+    services.put(mapperType, mapper);
 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
@@ -129,7 +151,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   }
 
   @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
-    ctx.setDefaultResponseType(MediaType.json);
+    ctx.setDefaultResponseType(mediaType);
     return mapper.writer().writeValueAsBytes(value);
   }
 
@@ -152,18 +174,19 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
 
   /**
    * Default object mapper. Install {@link Jdk8Module}, {@link JavaTimeModule},
-   * {@link ParameterNamesModule} and {@link BlackbirdModule}.
+   * {@link ParameterNamesModule}.
    *
+   * @param modules Extra/additional modules to install.
    * @return Object mapper instance.
    */
-  public static @Nonnull ObjectMapper create() {
-    ObjectMapper mapper = JsonMapper.builder()
+  public static @Nonnull ObjectMapper create(Module... modules) {
+    JsonMapper.Builder builder = JsonMapper.builder()
         .addModule(new ParameterNamesModule())
         .addModule(new Jdk8Module())
-        .addModule(new JavaTimeModule())
-        .addModule(new BlackbirdModule())
-        .build();
+        .addModule(new JavaTimeModule());
 
-    return mapper;
+    Stream.of(modules).forEach(builder::addModule);
+
+    return builder.build();
   }
 }

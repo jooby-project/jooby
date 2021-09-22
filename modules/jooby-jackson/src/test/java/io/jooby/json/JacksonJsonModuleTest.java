@@ -1,5 +1,7 @@
 package io.jooby.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
@@ -14,13 +16,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class JacksonModuleTest {
+public class JacksonJsonModuleTest {
 
   @Test
-  public void render() throws Exception {
+  public void renderJson() throws Exception {
     Context ctx = mock(Context.class);
 
-    JacksonModule jackson = new JacksonModule();
+    JacksonModule jackson = new JacksonModule(new ObjectMapper());
 
     byte[] bytes = jackson.encode(ctx, mapOf("k", "v"));
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
@@ -29,7 +31,7 @@ public class JacksonModuleTest {
   }
 
   @Test
-  public void parse() throws Exception {
+  public void parseJson() throws Exception {
     byte[] bytes = "{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8);
     Body body = mock(Body.class);
     when(body.isInMemory()).thenReturn(true);
@@ -38,7 +40,35 @@ public class JacksonModuleTest {
     Context ctx = mock(Context.class);
     when(ctx.body()).thenReturn(body);
 
-    JacksonModule jackson = new JacksonModule();
+    JacksonModule jackson = new JacksonModule(new ObjectMapper());
+
+    Map<String, String> result = (Map<String, String>) jackson.decode(ctx, Map.class);
+    assertEquals(mapOf("k", "v"), result);
+  }
+
+  @Test
+  public void renderXml() throws Exception {
+    Context ctx = mock(Context.class);
+
+    JacksonModule jackson = new JacksonModule(new XmlMapper());
+
+    byte[] bytes = jackson.encode(ctx, mapOf("k", "v"));
+    assertEquals("<HashMap><k>v</k></HashMap>", new String(bytes, StandardCharsets.UTF_8));
+
+    verify(ctx).setDefaultResponseType(MediaType.xml);
+  }
+
+  @Test
+  public void parseXml() throws Exception {
+    byte[] bytes = "<HashMap><k>v</k></HashMap>".getBytes(StandardCharsets.UTF_8);
+    Body body = mock(Body.class);
+    when(body.isInMemory()).thenReturn(true);
+    when(body.bytes()).thenReturn(bytes);
+
+    Context ctx = mock(Context.class);
+    when(ctx.body()).thenReturn(body);
+
+    JacksonModule jackson = new JacksonModule(new XmlMapper());
 
     Map<String, String> result = (Map<String, String>) jackson.decode(ctx, Map.class);
     assertEquals(mapOf("k", "v"), result);
