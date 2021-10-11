@@ -64,7 +64,7 @@
   <jooby.version>2.11.1-SNAPSHOT</jooby.version>
   <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
-  <junit.version>5.7.1</junit.version>
+  <junit.version>5.8.1</junit.version>
   <kafka.version>2.7.0</kafka.version>
   <kotlin.version>1.4.32</kotlin.version>
   <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
