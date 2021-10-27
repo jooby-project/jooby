@@ -9,6 +9,7 @@ import static io.jooby.internal.openapi.TypeFactory.COROUTINE_ROUTER;
 import static io.jooby.internal.openapi.TypeFactory.JOOBY;
 import static io.jooby.internal.openapi.TypeFactory.KOOBY;
 import static io.jooby.internal.openapi.TypeFactory.ROUTER;
+import static java.util.Arrays.asList;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +85,7 @@ public class ParserContext {
     this.debug = Optional.ofNullable(debug).orElse(Collections.emptySet());
     this.nodes = nodes;
 
-    List<ObjectMapper> mappers = Arrays.asList(Json.mapper(), Yaml.mapper());
+    List<ObjectMapper> mappers = asList(Json.mapper(), Yaml.mapper());
     jacksonModules(source.getClassLoader(), mappers);
     this.converters = ModelConverters.getInstance();
     mappers.stream()
@@ -342,8 +343,7 @@ public class ParserContext {
   }
 
   public boolean isRouter(Type type) {
-    return Stream.of(router, JOOBY, KOOBY, ROUTER, COROUTINE_ROUTER)
-        .anyMatch(it -> it.equals(type));
+    return asList(router, JOOBY, KOOBY, ROUTER, COROUTINE_ROUTER).contains(type);
   }
 
   public boolean process(AbstractInsnNode instruction) {
@@ -351,8 +351,7 @@ public class ParserContext {
   }
 
   public ParserContext newContext(Type router) {
-    ParserContext ctx = new ParserContext(source, nodes, router, debug);
-    return ctx;
+    return new ParserContext(source, nodes, router, debug);
   }
 
   public String getMainClass() {
