@@ -21,24 +21,15 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.time.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.swagger.v3.oas.models.media.*;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
@@ -66,18 +57,6 @@ import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.core.util.Yaml;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BinarySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ByteArraySchema;
-import io.swagger.v3.oas.models.media.FileSchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.media.UUIDSchema;
 
 public class ParserContext {
 
@@ -209,12 +188,19 @@ public class ParserContext {
       return new StringSchema().format(type.getSimpleName().toLowerCase());
     }
     if (BigInteger.class == type) {
-      return new IntegerSchema()
-          .format(null);
+      return new IntegerSchema().format(null);
     }
     if (BigDecimal.class == type) {
-      return new NumberSchema()
-          .format(null);
+      return new NumberSchema().format(null);
+    }
+    if (Date.class == type || LocalDate.class == type) {
+      return new DateSchema();
+    }
+    if (LocalDateTime.class == type || Instant.class == type || OffsetDateTime.class == type || ZonedDateTime.class == type) {
+      return new DateTimeSchema();
+    }
+    if (Period.class == type || Duration.class == type || Currency.class == type || Locale.class == type) {
+      return new StringSchema();
     }
     if (type.isArray()) {
       return new ArraySchema();
