@@ -13,9 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EnvironmentTest {
 
@@ -23,11 +25,12 @@ public class EnvironmentTest {
   public void defaultEnv() {
 
     env("foo", (env, conf) -> {
-      assertEquals("[dev]\n"
-          + "└── system properties\n"
-          + " └── env variables\n"
-          + "  └── classpath://env/foo/application.conf\n"
-          + "   └── defaults", env.toString());
+      assertEnvMatches(env,
+          "[dev]"::equals,
+          "└── system properties"::equals,
+          " └── env variables"::equals,
+          pathEndsMatch("env/foo/application.conf"),
+          "   └── defaults"::equals);
       assertEquals("[dev]", env.getActiveNames().toString());
       assertEquals(System.getProperty("user.dir"), conf.getString("user.dir"));
       assertEquals("bar", conf.getString("foo"));
@@ -35,24 +38,26 @@ public class EnvironmentTest {
     });
 
     env("foo", mapOf("application.env", "PROD"), (env, conf) -> {
-      assertEquals("[prod]\n"
-          + "└── system properties\n"
-          + " └── env variables\n"
-          + "  └── classpath://env/foo/application.prod.conf\n"
-          + "   └── classpath://env/foo/application.conf\n"
-          + "    └── defaults", env.toString());
+      assertEnvMatches(env,
+          "[prod]"::equals,
+          "└── system properties"::equals,
+          " └── env variables"::equals,
+          pathEndsMatch("env/foo/application.prod.conf"),
+          pathEndsMatch("env/foo/application.conf"),
+          "    └── defaults"::equals);
       assertEquals("[prod]", env.getActiveNames().toString());
       assertEquals("bazz", conf.getString("foo"));
       assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
     });
 
     env("foo", mapOf("application.env", "Test, bar"), (env, conf) -> {
-      assertEquals("[test, bar]\n"
-          + "└── system properties\n"
-          + " └── env variables\n"
-          + "  └── classpath://env/foo/application.test.conf\n"
-          + "   └── classpath://env/foo/application.bar.conf\n"
-          + "    └── defaults", env.toString());
+      assertEnvMatches(env,
+          "[test, bar]"::equals,
+          "└── system properties"::equals,
+          " └── env variables"::equals,
+          pathEndsMatch("env/foo/application.test.conf"),
+          pathEndsMatch("env/foo/application.bar.conf"),
+          "    └── defaults"::equals);
       assertEquals("[test, bar]", env.getActiveNames().toString());
       assertEquals("test", conf.getString("foo"));
       assertEquals(asList("d"), conf.getStringList("letters"));
@@ -79,12 +84,13 @@ public class EnvironmentTest {
         .loadEnvironment(new EnvironmentOptions().setBasedir(basedir).setActiveNames("prod"));
     assertEquals("bazz", env.getConfig().getString("foo"));
     System.out.println(env.toString());
-    assertEquals("[prod]\n"
-        + "└── system properties\n"
-        + " └── env variables\n"
-        + "  └── "+ reldir.resolve("application.prod.conf")+"\n"
-        + "   └── "+ reldir.resolve("application.conf")+"\n"
-        + "    └── defaults", env.toString());
+    assertEnvMatches(env,
+        "[prod]"::equals,
+        "└── system properties"::equals,
+        " └── env variables"::equals,
+        pathEndsMatch(reldir.resolve("application.prod.conf").toString()),
+        pathEndsMatch(reldir.resolve("application.conf").toString()),
+        "    └── defaults"::equals);
   }
 
   @Test
@@ -146,5 +152,18 @@ public class EnvironmentTest {
       hash.put(values[i].toString(), values[i + 1]);
     }
     return hash;
+  }
+
+  private static Predicate<String> pathEndsMatch(String path) {
+    return line -> line.replaceAll("\\\\", "/").endsWith(path.replaceAll("\\\\", "/"));
+  }
+
+  @SafeVarargs
+  private static void assertEnvMatches(Environment environment, Predicate<String>... predicates) {
+    final String[] lines = environment.toString().split("\n");
+    assertEquals(lines.length, predicates.length);
+    for (int i = 0; i < predicates.length; ++i) {
+      assertTrue(predicates[i].test(lines[i]), "Predicate for line nr. " + i + " should succeed.");
+    }
   }
 }

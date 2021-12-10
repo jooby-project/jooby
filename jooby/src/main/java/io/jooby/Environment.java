@@ -362,7 +362,7 @@ public class Environment {
     }
 
     for (String name : names) {
-      Config it = fileConfig(userdir, rootdirs, name);
+      Config it = fileConfig(rootdirs, name);
       if (it == null) {
         // classpath
         it = classpathConfig(options.getClassLoader(), cpdirs, name);
@@ -410,15 +410,11 @@ public class Environment {
     return pid;
   }
 
-  private static Config fileConfig(Path userdir, Path[] basedirs, String name) {
+  private static Config fileConfig(Path[] basedirs, String name) {
     for (Path basedir : basedirs) {
       Path file = basedir.resolve(name);
       if (Files.exists(file)) {
-        String origin = file.startsWith(userdir)
-            ? userdir.relativize(file).toString()
-            : file.toString();
-        return ConfigFactory.parseFile(file.toFile(),
-            ConfigParseOptions.defaults().setOriginDescription(origin));
+        return ConfigFactory.parseFile(file.toFile());
       }
     }
     return null;
@@ -430,8 +426,7 @@ public class Environment {
           ? name
           : Stream.concat(Stream.of(basedir.split("/")), Stream.of(name))
           .collect(Collectors.joining("/"));
-      Config config = ConfigFactory.parseResources(classLoader, file,
-          ConfigParseOptions.defaults().setOriginDescription("classpath://" + file));
+      Config config = ConfigFactory.parseResources(classLoader, file);
       if (!config.isEmpty()) {
         return config;
       }
