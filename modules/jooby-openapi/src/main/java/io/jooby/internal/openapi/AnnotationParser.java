@@ -37,16 +37,7 @@ import org.objectweb.asm.tree.ParameterNode;
 
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -55,6 +46,7 @@ import java.util.stream.Stream;
 import static io.jooby.internal.openapi.AsmUtils.*;
 import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
 import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 public class AnnotationParser {
@@ -129,7 +121,7 @@ public class AnnotationParser {
     }
 
     public Optional<String> getHttpName(List<AnnotationNode> annotations) {
-      List<Class> names = new ArrayList<>(Arrays.asList(annotations()));
+      List<Class> names = new ArrayList<>(asList(annotations()));
       names.add(Named.class);
       return annotations.stream()
           .filter(a ->
@@ -169,16 +161,16 @@ public class AnnotationParser {
 
   static final String PACKAGE = GET.class.getPackage().getName();
 
-  static final Set<String> IGNORED_PARAM_TYPE = Arrays.asList(
+  static final Set<String> IGNORED_PARAM_TYPE = new HashSet<>(asList(
       Context.class.getName(),
       Session.class.getName(),
       "java.util.Optional<" + Session.class.getName() + ">",
       "kotlin.coroutines.Continuation"
-  ).stream().collect(Collectors.toSet());
+  ));
 
-  static final Set<String> IGNORED_ANNOTATIONS = Arrays.asList(
+  static final Set<String> IGNORED_ANNOTATIONS = new HashSet<>(asList(
       ContextParam.class.getName()
-  ).stream().collect(Collectors.toSet());
+  ));
 
   public static List<OperationExt> parse(ParserContext ctx, String prefix,
       Signature signature, MethodInsnNode node) {
@@ -328,12 +320,12 @@ public class AnnotationParser {
         ParameterNode parameter = method.parameters.get(i);
 
         List<String> javaName;
-        if (parameter.name.equals("continuation") && i == method.parameters.size() - 1) {
-          javaName = Arrays.asList(parameter.name, "$" + parameter.name);
+        if ((parameter.name.equals("continuation") || parameter.name.equals("$completion")) && i == method.parameters.size() - 1) {
+          javaName = asList(parameter.name, "$continuation");
         } else {
           javaName = singletonList(parameter.name);
         }
-        /** Java Type: */
+        /* Java Type: */
         LocalVariableNode variable = method.localVariables.stream()
             .filter(var -> javaName.contains(var.name))
             .findFirst()
@@ -348,7 +340,7 @@ public class AnnotationParser {
           continue;
         }
 
-        /** HTTP Type: */
+        /* HTTP Type: */
         List<AnnotationNode> annotations;
         if (method.visibleParameterAnnotations != null
             && i < method.visibleParameterAnnotations.length) {
@@ -365,7 +357,7 @@ public class AnnotationParser {
 
         ParamType paramType = ParamType.find(annotations);
 
-        /** Required: */
+        /* Required: */
         boolean required = isPrimitive(javaType) || !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
 
         if (paramType == ParamType.BODY) {
@@ -480,7 +472,7 @@ public class AnnotationParser {
     if (annotations != null) {
 
       List<Map<String, Object>> values = findAnnotationByType(annotations,
-          Arrays.asList(PACKAGE + "." + httpMethod)).stream()
+          singletonList(PACKAGE + "." + httpMethod)).stream()
           .flatMap(annotation -> Stream.of(annotation)
               .map(AsmUtils::toMap)
           )
@@ -488,7 +480,7 @@ public class AnnotationParser {
           .collect(Collectors.toList());
 
       if (values.isEmpty()) {
-        values = findAnnotationByType(annotations, Arrays.asList(Path.class.getName())).stream()
+        values = findAnnotationByType(annotations, singletonList(Path.class.getName())).stream()
             .flatMap(annotation -> Stream.of(annotation)
                 .map(AsmUtils::toMap)
             )
@@ -497,7 +489,7 @@ public class AnnotationParser {
 
         if (values.isEmpty()) {
           values = findAnnotationByType(annotations,
-              Arrays.asList(javax.ws.rs.Path.class.getName())).stream()
+              singletonList(javax.ws.rs.Path.class.getName())).stream()
               .flatMap(annotation -> Stream.of(annotation)
                   .map(AsmUtils::toMap)
               )
@@ -509,7 +501,7 @@ public class AnnotationParser {
       for (Map<String, Object> map : values) {
         Object value = map.getOrDefault("value", Collections.emptyList());
         if (!(value instanceof Collection)) {
-          value = Arrays.asList(value);
+          value = singletonList(value);
         }
         ((List) value)
             .forEach(v -> patterns.add(RoutePath.path(prefix, v.toString())));
@@ -531,7 +523,7 @@ public class AnnotationParser {
         .distinct()
         .collect(Collectors.toList());
     if (methods.size() == 1 && methods.contains("Path")) {
-      return Arrays.asList(Router.GET);
+      return singletonList(Router.GET);
     }
     methods.remove("Path");
     return methods;
@@ -568,5 +560,4 @@ public class AnnotationParser {
     }
     return annotationTypes;
   }
-
 }

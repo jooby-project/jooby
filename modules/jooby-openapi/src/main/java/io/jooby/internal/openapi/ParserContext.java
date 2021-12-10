@@ -9,6 +9,7 @@ import static io.jooby.internal.openapi.TypeFactory.COROUTINE_ROUTER;
 import static io.jooby.internal.openapi.TypeFactory.JOOBY;
 import static io.jooby.internal.openapi.TypeFactory.KOOBY;
 import static io.jooby.internal.openapi.TypeFactory.ROUTER;
+import static java.util.Arrays.asList;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,24 +22,15 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.time.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.swagger.v3.oas.models.media.*;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
@@ -66,18 +58,6 @@ import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.core.util.Yaml;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BinarySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ByteArraySchema;
-import io.swagger.v3.oas.models.media.FileSchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.media.UUIDSchema;
 
 public class ParserContext {
 
@@ -105,7 +85,7 @@ public class ParserContext {
     this.debug = Optional.ofNullable(debug).orElse(Collections.emptySet());
     this.nodes = nodes;
 
-    List<ObjectMapper> mappers = Arrays.asList(Json.mapper(), Yaml.mapper());
+    List<ObjectMapper> mappers = asList(Json.mapper(), Yaml.mapper());
     jacksonModules(source.getClassLoader(), mappers);
     this.converters = ModelConverters.getInstance();
     mappers.stream()
@@ -209,12 +189,19 @@ public class ParserContext {
       return new StringSchema().format(type.getSimpleName().toLowerCase());
     }
     if (BigInteger.class == type) {
-      return new IntegerSchema()
-          .format(null);
+      return new IntegerSchema().format(null);
     }
     if (BigDecimal.class == type) {
-      return new NumberSchema()
-          .format(null);
+      return new NumberSchema().format(null);
+    }
+    if (Date.class == type || LocalDate.class == type) {
+      return new DateSchema();
+    }
+    if (LocalDateTime.class == type || Instant.class == type || OffsetDateTime.class == type || ZonedDateTime.class == type) {
+      return new DateTimeSchema();
+    }
+    if (Period.class == type || Duration.class == type || Currency.class == type || Locale.class == type) {
+      return new StringSchema();
     }
     if (type.isArray()) {
       return new ArraySchema();
@@ -356,8 +343,7 @@ public class ParserContext {
   }
 
   public boolean isRouter(Type type) {
-    return Stream.of(router, JOOBY, KOOBY, ROUTER, COROUTINE_ROUTER)
-        .anyMatch(it -> it.equals(type));
+    return asList(router, JOOBY, KOOBY, ROUTER, COROUTINE_ROUTER).contains(type);
   }
 
   public boolean process(AbstractInsnNode instruction) {
@@ -365,8 +351,7 @@ public class ParserContext {
   }
 
   public ParserContext newContext(Type router) {
-    ParserContext ctx = new ParserContext(source, nodes, router, debug);
-    return ctx;
+    return new ParserContext(source, nodes, router, debug);
   }
 
   public String getMainClass() {

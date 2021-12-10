@@ -133,7 +133,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun after(handler: AfterContext.() -> Any): Kooby {
+  fun after(handler: AfterContext.() -> Unit): Kooby {
     super.after { ctx, result, failure -> AfterContext(ctx, result, failure).handler() }
     return this
   }
