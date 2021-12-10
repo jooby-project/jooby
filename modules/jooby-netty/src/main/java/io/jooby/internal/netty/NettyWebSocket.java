@@ -241,13 +241,9 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   private static byte[] array(ByteBuf buffer) {
-    if (buffer.hasArray()) {
-      return buffer.array();
-    } else {
-      byte[] bytes = new byte[buffer.readableBytes()];
-      buffer.getBytes(0, bytes);
-      return bytes;
-    }
+    byte[] bytes = new byte[buffer.readableBytes()];
+    buffer.getBytes(0, bytes);
+    return bytes;
   }
 
   private static WebSocketCloseStatus toWebSocketCloseStatus(CloseWebSocketFrame frame) {
