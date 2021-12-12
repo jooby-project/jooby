@@ -70,8 +70,8 @@
     <asm.version>9.1</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.2.10.Final</undertow.version>
-    <jetty.version>9.4.43.v20210629</jetty.version>
+    <undertow.version>2.2.14.Final</undertow.version>
+    <jetty.version>9.4.44.v20210927</jetty.version>
     <netty.version>4.1.71.Final</netty.version>
 
     <!-- Reactive -->
