@@ -71,8 +71,8 @@ public interface AssetSource {
    */
   static @Nonnull AssetSource webjars(@Nonnull ClassLoader loader, @Nonnull String name) {
     List<String> location = Arrays.asList(
-        "/META-INF/maven/org.webjars/" + name + "/pom.properties",
-        "/META-INF/maven/org.webjars.npm/" + name + "/pom.properties"
+        "META-INF/maven/org.webjars/" + name + "/pom.properties",
+        "META-INF/maven/org.webjars.npm/" + name + "/pom.properties"
     );
     String versionPath = location.stream().filter(it -> loader.getResource(it) != null)
         .findFirst()
