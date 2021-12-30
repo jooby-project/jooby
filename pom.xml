@@ -52,7 +52,7 @@
     <guice.version>4.2.3</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.2.3</logback-classic.version>
+    <logback-classic.version>1.2.9</logback-classic.version>
     <log4j.version>2.17.0</log4j.version>
     <slf4j.version>1.7.32</slf4j.version>
 
@@ -72,7 +72,7 @@
     <!-- Server -->
     <undertow.version>2.2.14.Final</undertow.version>
     <jetty.version>9.4.44.v20210927</jetty.version>
-    <netty.version>4.1.71.Final</netty.version>
+    <netty.version>4.1.72.Final</netty.version>
 
     <!-- Reactive -->
     <rxjava.version>2.2.21</rxjava.version>
