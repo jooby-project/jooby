@@ -86,7 +86,7 @@ public class JoobyProcessor extends AbstractProcessor {
   }
 
   @Override
-  public void init(ProcessingEnvironment processingEnvironment) {
+  public synchronized void init(ProcessingEnvironment processingEnvironment) {
     this.processingEnv = processingEnvironment;
 
     debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
@@ -105,7 +105,7 @@ public class JoobyProcessor extends AbstractProcessor {
       debug("Round #%s", round++);
       if (roundEnv.processingOver()) {
 
-        build(roundEnv, processingEnv.getFiler());
+        build(processingEnv.getFiler());
 
         return false;
       }
@@ -180,7 +180,7 @@ public class JoobyProcessor extends AbstractProcessor {
                       k -> new LinkedHashMap<>());
               List<ExecutableElement> list = mapping.computeIfAbsent(annotationType, k -> new ArrayList<>());
               //ensure that the same method wasnt already defined in parent
-              if (!list.stream().map(this::signature).anyMatch(signature(method)::equals))
+              if (list.stream().map(this::signature).noneMatch(signature(method)::equals))
                 list.add(method);
             }
           }
@@ -189,7 +189,7 @@ public class JoobyProcessor extends AbstractProcessor {
     });
   }
 
-  private void build(RoundEnvironment roundEnv, Filer filer) throws Exception {
+  private void build(Filer filer) throws Exception {
     Types typeUtils = processingEnv.getTypeUtils();
     Map<TypeElement, List<HandlerCompiler>> classes = new LinkedHashMap<>();
     for (Map.Entry<TypeElement, Map<TypeElement, List<ExecutableElement>>> e : routeMap
@@ -210,7 +210,7 @@ public class JoobyProcessor extends AbstractProcessor {
             } else {
               for (ExecutableElement it : be.getValue()) {
                 String signature = signature(it);
-                if (!methods.stream().map(this::signature).anyMatch(signature::equals)) {
+                if (methods.stream().map(this::signature).noneMatch(signature::equals)) {
                   methods.add(it);
                 }
               }
@@ -328,14 +328,14 @@ public class JoobyProcessor extends AbstractProcessor {
     // Favor GET("/path") over Path("/path") at method level
     List<String> path = path(annotation.getQualifiedName().toString(),
         annotation.getAnnotationMirrors());
-    if (path.size() == 0) {
+    if (path.isEmpty()) {
       path = path(annotation.getQualifiedName().toString(), exec.getAnnotationMirrors());
     }
     List<String> methodPath = path;
-    if (prefix.size() == 0) {
+    if (prefix.isEmpty()) {
       return path.isEmpty() ? Collections.singletonList("/") : path;
     }
-    if (path.size() == 0) {
+    if (path.isEmpty()) {
       return prefix.isEmpty() ? Collections.singletonList("/") : prefix;
     }
     return prefix.stream()
