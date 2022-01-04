@@ -11,18 +11,10 @@ import io.jooby.internal.apt.HandlerCompiler;
 import io.jooby.internal.apt.ModuleCompiler;
 import io.jooby.internal.apt.Opts;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedOptions;
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.FileObject;
@@ -31,14 +23,7 @@ import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,7 +36,7 @@ import java.util.stream.Stream;
     Opts.OPT_DEBUG,
     Opts.OPT_INCREMENTAL,
     Opts.OPT_SERVICES,
-    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS })
+    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS})
 public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnv;
@@ -59,7 +44,7 @@ public class JoobyProcessor extends AbstractProcessor {
   /**
    * Route Data.
    * {
-   *   HTTP_METHOD: [method1, ..., methodN]
+   * HTTP_METHOD: [method1, ..., methodN]
    * }
    */
   private Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
@@ -67,10 +52,12 @@ public class JoobyProcessor extends AbstractProcessor {
   private boolean debug;
   private boolean incremental;
   private boolean services;
+  private boolean inspectSuperTypes;
 
   private int round;
 
-  @Override public Set<String> getSupportedOptions() {
+  @Override
+  public Set<String> getSupportedOptions() {
     Set<String> options = new HashSet<>(super.getSupportedOptions());
 
     if (incremental) {
@@ -87,24 +74,29 @@ public class JoobyProcessor extends AbstractProcessor {
     return options;
   }
 
-  @Override public Set<String> getSupportedAnnotationTypes() {
+  @Override
+  public Set<String> getSupportedAnnotationTypes() {
     return Stream.concat(Annotations.PATH.stream(), Annotations.HTTP_METHODS.stream())
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  @Override public SourceVersion getSupportedSourceVersion() {
+  @Override
+  public SourceVersion getSupportedSourceVersion() {
     return SourceVersion.latestSupported();
   }
 
-  @Override public void init(ProcessingEnvironment processingEnvironment) {
+  @Override
+  public void init(ProcessingEnvironment processingEnvironment) {
     this.processingEnv = processingEnvironment;
 
     debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
     incremental = Opts.boolOpt(processingEnv, Opts.OPT_INCREMENTAL, true);
     services = Opts.boolOpt(processingEnv, Opts.OPT_SERVICES, true);
+    inspectSuperTypes = Opts.boolOpt(processingEnv, Opts.OPT_INSPECT_SUPER_TYPES, false);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
+    debug("Inspection of superTypes %s.", inspectSuperTypes ? "ON" : "OFF");
   }
 
   @Override
@@ -113,7 +105,7 @@ public class JoobyProcessor extends AbstractProcessor {
       debug("Round #%s", round++);
       if (roundEnv.processingOver()) {
 
-        build(processingEnv.getFiler());
+        build(roundEnv, processingEnv.getFiler());
 
         return false;
       }
@@ -146,16 +138,58 @@ public class JoobyProcessor extends AbstractProcessor {
                     k -> new LinkedHashMap<>());
             mapping.computeIfAbsent(annotation, k -> new ArrayList<>()).add(method);
           }
+        } else {
+          if (inspectSuperTypes) {
+            inspectSuperTypes(elements);
+          }
         }
       }
-
       return true;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
   }
 
-  private void build(Filer filer) throws Exception {
+  /**
+   * Crawls through the TypeElements (which represents a Java class) and extract all superTypes
+   * and inspects them for HTTP Method annotated entries
+   * @param elements
+   */
+  private void inspectSuperTypes(Set<? extends Element> elements) {
+    elements.stream().filter(TypeElement.class::isInstance).map(TypeElement.class::cast).forEach(parentTypeElement -> {
+      for (TypeElement superType : superTypes(parentTypeElement)) {
+        //collect all declared methods
+        Set<ExecutableElement> methods = superType.getEnclosedElements().stream()
+            .filter(ExecutableElement.class::isInstance)
+            .map(ExecutableElement.class::cast)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        for (ExecutableElement method : methods) {
+          //extract all annotation type elements
+          LinkedHashSet<TypeElement> annotationTypes = method.getAnnotationMirrors().stream()
+              .map(AnnotationMirror::getAnnotationType)
+              .map(DeclaredType::asElement)
+              .filter(TypeElement.class::isInstance)
+              .map(TypeElement.class::cast)
+              .collect(Collectors.toCollection(LinkedHashSet::new));
+
+          for (TypeElement annotationType : annotationTypes) {
+            if (Annotations.HTTP_METHODS.contains(annotationType.toString())) {
+              //ensure map is created for parent type element
+              Map<TypeElement, List<ExecutableElement>> mapping = routeMap
+                  .computeIfAbsent(parentTypeElement,
+                      k -> new LinkedHashMap<>());
+              List<ExecutableElement> list = mapping.computeIfAbsent(annotationType, k -> new ArrayList<>());
+              //ensure that the same method wasnt already defined in parent
+              if (!list.stream().map(this::signature).anyMatch(signature(method)::equals))
+                list.add(method);
+            }
+          }
+        }
+      }
+    });
+  }
+
+  private void build(RoundEnvironment roundEnv, Filer filer) throws Exception {
     Types typeUtils = processingEnv.getTypeUtils();
     Map<TypeElement, List<HandlerCompiler>> classes = new LinkedHashMap<>();
     for (Map.Entry<TypeElement, Map<TypeElement, List<ExecutableElement>>> e : routeMap
