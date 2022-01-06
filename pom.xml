@@ -49,7 +49,7 @@
     <!-- dependency injection -->
     <weld.version>3.1.5.Final</weld.version>
     <spring.version>5.3.7</spring.version>
-    <guice.version>4.2.3</guice.version>
+    <guice.version>5.0.1</guice.version>
 
     <!-- logging -->
     <logback-classic.version>1.2.9</logback-classic.version>
