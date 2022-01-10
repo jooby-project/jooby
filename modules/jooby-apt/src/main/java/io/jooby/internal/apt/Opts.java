@@ -13,7 +13,7 @@ public interface Opts {
   String OPT_INCREMENTAL = "jooby.incremental";
   String OPT_SERVICES = "jooby.services";
   String OPT_SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
-  String OPT_INSPECT_SUPER_TYPES = "jooby.inspectSuperTypes";
+  String OPT_INSPECT_SUB_CLASSES = "jooby.inspectSubClasses";
 
   static boolean boolOpt(ProcessingEnvironment processingEnvironment, String option, boolean defaultValue) {
     return Boolean.parseBoolean(processingEnvironment

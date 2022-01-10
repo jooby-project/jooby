@@ -36,7 +36,8 @@ import java.util.stream.Stream;
     Opts.OPT_DEBUG,
     Opts.OPT_INCREMENTAL,
     Opts.OPT_SERVICES,
-    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS})
+    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS,
+    Opts.OPT_INSPECT_SUB_CLASSES})
 public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnv;
@@ -52,7 +53,7 @@ public class JoobyProcessor extends AbstractProcessor {
   private boolean debug;
   private boolean incremental;
   private boolean services;
-  private boolean inspectSuperTypes;
+  private boolean inspectSubClasses;
 
   private int round;
 
@@ -92,11 +93,11 @@ public class JoobyProcessor extends AbstractProcessor {
     debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
     incremental = Opts.boolOpt(processingEnv, Opts.OPT_INCREMENTAL, true);
     services = Opts.boolOpt(processingEnv, Opts.OPT_SERVICES, true);
-    inspectSuperTypes = Opts.boolOpt(processingEnv, Opts.OPT_INSPECT_SUPER_TYPES, false);
+    inspectSubClasses = Opts.boolOpt(processingEnv, Opts.OPT_INSPECT_SUB_CLASSES, false);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
-    debug("Inspection of superTypes %s.", inspectSuperTypes ? "ON" : "OFF");
+    debug("Inspection of superTypes %s.", inspectSubClasses ? "ON" : "OFF");
   }
 
   @Override
@@ -139,8 +140,11 @@ public class JoobyProcessor extends AbstractProcessor {
             mapping.computeIfAbsent(annotation, k -> new ArrayList<>()).add(method);
           }
         } else {
-          if (inspectSuperTypes) {
-            inspectSuperTypes(elements);
+          if (inspectSubClasses) {
+            elements.stream().filter(TypeElement.class::isInstance).map(TypeElement.class::cast).forEach(parentTypeElement -> {
+              inspectSubClasses(parentTypeElement);
+            });
+
           }
         }
       }
@@ -151,42 +155,41 @@ public class JoobyProcessor extends AbstractProcessor {
   }
 
   /**
-   * Crawls through the TypeElements (which represents a Java class) and extract all superTypes
-   * and inspects them for HTTP Method annotated entries
-   * @param elements
+   * Crawls through the sub-classes. Inspects them for HTTP Method annotated entries
+   *
+   * @param parentTypeElement
    */
-  private void inspectSuperTypes(Set<? extends Element> elements) {
-    elements.stream().filter(TypeElement.class::isInstance).map(TypeElement.class::cast).forEach(parentTypeElement -> {
-      for (TypeElement superType : superTypes(parentTypeElement)) {
-        //collect all declared methods
-        Set<ExecutableElement> methods = superType.getEnclosedElements().stream()
-            .filter(ExecutableElement.class::isInstance)
-            .map(ExecutableElement.class::cast)
+  private void inspectSubClasses(TypeElement parentTypeElement) {
+    for (TypeElement superType : superTypes(parentTypeElement)) {
+      //collect all declared methods
+      Set<ExecutableElement> methods = superType.getEnclosedElements().stream()
+          .filter(ExecutableElement.class::isInstance)
+          .map(ExecutableElement.class::cast)
+          .collect(Collectors.toCollection(LinkedHashSet::new));
+      for (ExecutableElement method : methods) {
+        //extract all annotation type elements
+        LinkedHashSet<TypeElement> annotationTypes = method.getAnnotationMirrors().stream()
+            .map(AnnotationMirror::getAnnotationType)
+            .map(DeclaredType::asElement)
+            .filter(TypeElement.class::isInstance)
+            .map(TypeElement.class::cast)
             .collect(Collectors.toCollection(LinkedHashSet::new));
-        for (ExecutableElement method : methods) {
-          //extract all annotation type elements
-          LinkedHashSet<TypeElement> annotationTypes = method.getAnnotationMirrors().stream()
-              .map(AnnotationMirror::getAnnotationType)
-              .map(DeclaredType::asElement)
-              .filter(TypeElement.class::isInstance)
-              .map(TypeElement.class::cast)
-              .collect(Collectors.toCollection(LinkedHashSet::new));
 
-          for (TypeElement annotationType : annotationTypes) {
-            if (Annotations.HTTP_METHODS.contains(annotationType.toString())) {
-              //ensure map is created for parent type element
-              Map<TypeElement, List<ExecutableElement>> mapping = routeMap
-                  .computeIfAbsent(parentTypeElement,
-                      k -> new LinkedHashMap<>());
-              List<ExecutableElement> list = mapping.computeIfAbsent(annotationType, k -> new ArrayList<>());
-              //ensure that the same method wasnt already defined in parent
-              if (list.stream().map(this::signature).noneMatch(signature(method)::equals))
-                list.add(method);
+        for (TypeElement annotationType : annotationTypes) {
+          if (Annotations.HTTP_METHODS.contains(annotationType.toString())) {
+            //ensure map is created for parent type element
+            Map<TypeElement, List<ExecutableElement>> mapping = routeMap
+                .computeIfAbsent(parentTypeElement,
+                    k -> new LinkedHashMap<>());
+            List<ExecutableElement> list = mapping.computeIfAbsent(annotationType, k -> new ArrayList<>());
+            //ensure that the same method wasnt already defined in parent
+            if (list.stream().map(this::signature).noneMatch(signature(method)::equals)) {
+              list.add(method);
             }
           }
         }
       }
-    });
+    }
   }
 
   private void build(Filer filer) throws Exception {
