@@ -33,9 +33,9 @@
     <HikariCP.version>4.0.3</HikariCP.version>
     <mysql-connector-java.version>8.0.25</mysql-connector-java.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <h2.version>2.0.202</h2.version>
+    <h2.version>2.0.206</h2.version>
     <hibernate.version>5.5.7.Final</hibernate.version>
-    <ebean.version>12.11.4</ebean.version>
+    <ebean.version>12.14.0</ebean.version>
     <jdbi.version>3.20.0</jdbi.version>
     <flyway.version>7.5.1</flyway.version>
     <graphql-java.version>16.2</graphql-java.version>
@@ -49,7 +49,7 @@
     <!-- dependency injection -->
     <weld.version>3.1.5.Final</weld.version>
     <spring.version>5.3.7</spring.version>
-    <guice.version>4.2.3</guice.version>
+    <guice.version>5.0.1</guice.version>
 
     <!-- logging -->
     <logback-classic.version>1.2.9</logback-classic.version>
