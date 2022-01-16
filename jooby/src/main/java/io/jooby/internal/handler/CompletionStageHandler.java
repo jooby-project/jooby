@@ -9,7 +9,10 @@ import io.jooby.Context;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
+
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
 public class CompletionStageHandler implements LinkedHandler {
@@ -29,7 +32,11 @@ public class CompletionStageHandler implements LinkedHandler {
       return ((CompletionStage) result).whenComplete((value, x) -> {
         try {
           if (x != null) {
-            ctx.sendError((Throwable) x);
+            Throwable exception = (Throwable) x;
+            if (exception instanceof CompletionException) {
+              exception = Optional.ofNullable(exception.getCause()).orElse(exception);
+            }
+            ctx.sendError(exception);
           } else {
             ctx.render(value);
           }
