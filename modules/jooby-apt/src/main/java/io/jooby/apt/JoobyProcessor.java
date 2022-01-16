@@ -23,6 +23,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.FileObject;
@@ -51,7 +52,8 @@ import java.util.stream.Stream;
     Opts.OPT_DEBUG,
     Opts.OPT_INCREMENTAL,
     Opts.OPT_SERVICES,
-    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS })
+    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS,
+    Opts.OPT_INSPECT_SUB_CLASSES})
 public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnv;
@@ -59,7 +61,7 @@ public class JoobyProcessor extends AbstractProcessor {
   /**
    * Route Data.
    * {
-   *   HTTP_METHOD: [method1, ..., methodN]
+   * HTTP_METHOD: [method1, ..., methodN]
    * }
    */
   private Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
@@ -67,10 +69,12 @@ public class JoobyProcessor extends AbstractProcessor {
   private boolean debug;
   private boolean incremental;
   private boolean services;
+  private boolean inspectSubClasses;
 
   private int round;
 
-  @Override public Set<String> getSupportedOptions() {
+  @Override
+  public Set<String> getSupportedOptions() {
     Set<String> options = new HashSet<>(super.getSupportedOptions());
 
     if (incremental) {
@@ -87,24 +91,29 @@ public class JoobyProcessor extends AbstractProcessor {
     return options;
   }
 
-  @Override public Set<String> getSupportedAnnotationTypes() {
+  @Override
+  public Set<String> getSupportedAnnotationTypes() {
     return Stream.concat(Annotations.PATH.stream(), Annotations.HTTP_METHODS.stream())
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  @Override public SourceVersion getSupportedSourceVersion() {
+  @Override
+  public SourceVersion getSupportedSourceVersion() {
     return SourceVersion.latestSupported();
   }
 
-  @Override public void init(ProcessingEnvironment processingEnvironment) {
+  @Override
+  public synchronized void init(ProcessingEnvironment processingEnvironment) {
     this.processingEnv = processingEnvironment;
 
     debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
     incremental = Opts.boolOpt(processingEnv, Opts.OPT_INCREMENTAL, true);
     services = Opts.boolOpt(processingEnv, Opts.OPT_SERVICES, true);
+    inspectSubClasses = Opts.boolOpt(processingEnv, Opts.OPT_INSPECT_SUB_CLASSES, false);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
+    debug("Inspection of superTypes %s.", inspectSubClasses ? "ON" : "OFF");
   }
 
   @Override
@@ -146,12 +155,56 @@ public class JoobyProcessor extends AbstractProcessor {
                     k -> new LinkedHashMap<>());
             mapping.computeIfAbsent(annotation, k -> new ArrayList<>()).add(method);
           }
+        } else {
+          if (inspectSubClasses) {
+            elements.stream().filter(TypeElement.class::isInstance).map(TypeElement.class::cast).forEach(parentTypeElement -> {
+              inspectSubClasses(parentTypeElement);
+            });
+
+          }
         }
       }
-
       return true;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
+    }
+  }
+
+  /**
+   * Crawls through the sub-classes. Inspects them for HTTP Method annotated entries
+   *
+   * @param parentTypeElement
+   */
+  private void inspectSubClasses(TypeElement parentTypeElement) {
+    for (TypeElement superType : superTypes(parentTypeElement)) {
+      //collect all declared methods
+      Set<ExecutableElement> methods = superType.getEnclosedElements().stream()
+          .filter(ExecutableElement.class::isInstance)
+          .map(ExecutableElement.class::cast)
+          .collect(Collectors.toCollection(LinkedHashSet::new));
+      for (ExecutableElement method : methods) {
+        //extract all annotation type elements
+        LinkedHashSet<TypeElement> annotationTypes = method.getAnnotationMirrors().stream()
+            .map(AnnotationMirror::getAnnotationType)
+            .map(DeclaredType::asElement)
+            .filter(TypeElement.class::isInstance)
+            .map(TypeElement.class::cast)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        for (TypeElement annotationType : annotationTypes) {
+          if (Annotations.HTTP_METHODS.contains(annotationType.toString())) {
+            //ensure map is created for parent type element
+            Map<TypeElement, List<ExecutableElement>> mapping = routeMap
+                .computeIfAbsent(parentTypeElement,
+                    k -> new LinkedHashMap<>());
+            List<ExecutableElement> list = mapping.computeIfAbsent(annotationType, k -> new ArrayList<>());
+            //ensure that the same method wasnt already defined in parent
+            if (list.stream().map(this::signature).noneMatch(signature(method)::equals)) {
+              list.add(method);
+            }
+          }
+        }
+      }
     }
   }
 
@@ -176,7 +229,7 @@ public class JoobyProcessor extends AbstractProcessor {
             } else {
               for (ExecutableElement it : be.getValue()) {
                 String signature = signature(it);
-                if (!methods.stream().map(this::signature).anyMatch(signature::equals)) {
+                if (methods.stream().map(this::signature).noneMatch(signature::equals)) {
                   methods.add(it);
                 }
               }
@@ -294,14 +347,14 @@ public class JoobyProcessor extends AbstractProcessor {
     // Favor GET("/path") over Path("/path") at method level
     List<String> path = path(annotation.getQualifiedName().toString(),
         annotation.getAnnotationMirrors());
-    if (path.size() == 0) {
+    if (path.isEmpty()) {
       path = path(annotation.getQualifiedName().toString(), exec.getAnnotationMirrors());
     }
     List<String> methodPath = path;
-    if (prefix.size() == 0) {
+    if (prefix.isEmpty()) {
       return path.isEmpty() ? Collections.singletonList("/") : path;
     }
-    if (path.size() == 0) {
+    if (path.isEmpty()) {
       return prefix.isEmpty() ? Collections.singletonList("/") : prefix;
     }
     return prefix.stream()
