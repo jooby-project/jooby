@@ -5,11 +5,19 @@
  */
 package io.jooby.apt;
 
-import io.jooby.MvcFactory;
-import io.jooby.SneakyThrows;
-import io.jooby.internal.apt.HandlerCompiler;
-import io.jooby.internal.apt.ModuleCompiler;
-import io.jooby.internal.apt.Opts;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -29,19 +37,12 @@ import javax.lang.model.util.Types;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import io.jooby.MvcFactory;
+import io.jooby.SneakyThrows;
+import io.jooby.internal.apt.HandlerCompiler;
+import io.jooby.internal.apt.ModuleCompiler;
+import io.jooby.internal.apt.Opts;
 
 /**
  * Jooby Annotation Processing Tool. It generates byte code for MVC routes.
@@ -53,7 +54,7 @@ import java.util.stream.Stream;
     Opts.OPT_INCREMENTAL,
     Opts.OPT_SERVICES,
     Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS,
-    Opts.OPT_INSPECT_SUB_CLASSES})
+    Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES})
 public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnv;
@@ -69,7 +70,7 @@ public class JoobyProcessor extends AbstractProcessor {
   private boolean debug;
   private boolean incremental;
   private boolean services;
-  private boolean inspectSubClasses;
+  private boolean extendedLooupOfSuperTypes;
 
   private int round;
 
@@ -109,11 +110,11 @@ public class JoobyProcessor extends AbstractProcessor {
     debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
     incremental = Opts.boolOpt(processingEnv, Opts.OPT_INCREMENTAL, true);
     services = Opts.boolOpt(processingEnv, Opts.OPT_SERVICES, true);
-    inspectSubClasses = Opts.boolOpt(processingEnv, Opts.OPT_INSPECT_SUB_CLASSES, false);
+    extendedLooupOfSuperTypes = Opts.boolOpt(processingEnv, Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES, false);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
-    debug("Inspection of superTypes %s.", inspectSubClasses ? "ON" : "OFF");
+    debug("Extended lookup of superTypes %s.", extendedLooupOfSuperTypes ? "ON" : "OFF");
   }
 
   @Override
@@ -156,11 +157,11 @@ public class JoobyProcessor extends AbstractProcessor {
             mapping.computeIfAbsent(annotation, k -> new ArrayList<>()).add(method);
           }
         } else {
-          if (inspectSubClasses) {
-            elements.stream().filter(TypeElement.class::isInstance).map(TypeElement.class::cast).forEach(parentTypeElement -> {
-              inspectSubClasses(parentTypeElement);
-            });
-
+          if (extendedLooupOfSuperTypes) {
+            elements.stream()
+                .filter(TypeElement.class::isInstance)
+                .map(TypeElement.class::cast)
+                .forEach(parentTypeElement -> extendedLookupOfSuperTypes(parentTypeElement));
           }
         }
       }
@@ -175,7 +176,7 @@ public class JoobyProcessor extends AbstractProcessor {
    *
    * @param parentTypeElement
    */
-  private void inspectSubClasses(TypeElement parentTypeElement) {
+  private void extendedLookupOfSuperTypes(TypeElement parentTypeElement) {
     for (TypeElement superType : superTypes(parentTypeElement)) {
       //collect all declared methods
       Set<ExecutableElement> methods = superType.getEnclosedElements().stream()

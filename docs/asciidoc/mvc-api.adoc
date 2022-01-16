@@ -884,3 +884,87 @@ JAX-RS specification and there is no immediate plan to do it.
 
 The main reason to support JAX-RS annotations is to let you plug-in third-party tools that rely
 on them (mostly annotations processors).
+
+=== Annotation Processor Options
+
+[cols="1,1,1,1"]
+|===
+| Option | Value | Default Value| Description
+
+|jooby.debug
+|boolean
+|true
+|Run processor in debug mode
+
+|jooby.incremental
+|boolean
+|true
+|Hints maven/gradle to do incremental compilation. Useful for development.
+
+|jooby.services
+|boolean
+|true
+|Generates META-INF/services metadata
+
+|jooby.skipAttributeAnnotations
+|array
+|[]
+|Skip annotation during byte code generation (i.e. don't generate them as route attributes)
+
+|jooby.extendedLookupOfSuperTypes
+|boolean
+|false
+|Extended lookup of super/base types. Useful when base route/controller isn't part of current project (no sources code)
+
+|=== 
+
+==== Setting options
+
+.Maven
+[source, xml, role="primary", subs="verbatim,attributes"]
+----
+  <plugin>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <configuration>
+      <annotationProcessorPaths>
+        <path>
+          <groupId>io.jooby</groupId>
+          <artifactId>jooby-apt</artifactId>
+          <version>${jooby.version}</version>
+        </path>
+      </annotationProcessorPaths>
+      <compilerArgs>
+        <compilerArg>
+          -Ajooby.debug=false
+        </compilerArg>
+        <compilerArg>
+          -Ajooby.incremental=true
+        </compilerArg>
+        <compilerArg>
+          -Ajooby.services=true
+        </compilerArg>
+        <compilerArg>
+          -Ajooby.skipAttributeAnnotations=FooAnnotation,BarAnnotation
+        </compilerArg>
+        <compilerArg>
+          -Ajooby.extendedLookupOfSuperTypes=false
+        </compilerArg>
+      </compilerArgs>
+    </configuration>
+  </plugin>
+----
+
+.Gradle
+[source, groovy, role="secondary", subs="verbatim,attributes"]
+----
+tasks.withType(JavaCompile) {
+    options.compilerArgs += [
+        '-parameters',
+        '-Ajooby.debug=false',
+        '-Ajooby.incremental=true',
+        '-Ajooby.services=true',
+        '-Ajooby.skipAttributeAnnotations=FooAnnotation,BarAnnotation',
+        '-Ajooby.extendedLookupOfSuperTypes=false'
+    ]
+}
+----
