@@ -769,11 +769,11 @@ public interface Router extends Registry {
    * Add a static resource handler.
    *
    * @param pattern Path pattern.
-   * @param source Asset sources.
+   * @param sources Asset sources. At least one source is required.
    * @return A route.
    */
-  default @Nonnull Route assets(@Nonnull String pattern, @Nonnull AssetSource... source) {
-    return assets(pattern, new AssetHandler(source));
+  default @Nonnull Route assets(@Nonnull String pattern, @Nonnull AssetSource... sources) {
+    return assets(pattern, new AssetHandler(sources));
   }
 
   /**

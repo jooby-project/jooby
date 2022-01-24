@@ -47,20 +47,20 @@ public class AssetHandler implements Route.Handler {
    * The fallback option makes the asset handler to work like a SPA (Single-Application-Page).
    *
    * @param fallback Fallback asset.
-   * @param sources Asset sources.
+   * @param sources Asset sources. At least one source is required.
    */
   public AssetHandler(@Nonnull String fallback, AssetSource... sources) {
     this.fallback = fallback;
-    this.sources = sources;
+    this.sources = checkSource(sources);
   }
 
   /**
    * Creates a new asset handler.
    *
-   * @param sources Asset sources.
+   * @param sources Asset sources. At least one source is required.
    */
   public AssetHandler(AssetSource... sources) {
-    this.sources = sources;
+    this.sources = checkSource(sources);
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
@@ -208,5 +208,12 @@ public class AssetHandler implements Route.Handler {
     this.filekey = keys.size() == 0 ? route.getPattern().substring(1) : keys.get(0);
     // NOTE: It send an inputstream we don't need a renderer
     route.setReturnType(Context.class);
+  }
+
+  private static AssetSource[] checkSource(AssetSource[] sources) {
+    if (sources.length == 0) {
+      //throw new IllegalArgumentException("At least one source is required.");
+    }
+    return sources;
   }
 }
