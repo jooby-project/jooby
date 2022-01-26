@@ -255,7 +255,9 @@ public class ParserContext {
     String json = "{\"type\":\"" + type + "\"}";
     try {
       TypeLiteral literal = Json.mapper().readValue(json, TypeLiteral.class);
-      if (literal.type.isCollectionLikeType() || literal.type.isArrayType()) {
+      if (literal.type.isArrayType() && literal.type.getContentType().hasRawClass(byte.class)) {
+        return new ByteArraySchema();
+      } else if (literal.type.isCollectionLikeType() || literal.type.isArrayType()) {
         ArraySchema array = new ArraySchema();
         Class<?> itemType = literal.type.getContentType().getRawClass();
         Optional.ofNullable(schema(itemType)).ifPresent(array::setItems);
@@ -264,6 +266,10 @@ public class ParserContext {
         List<JavaType> typeParameters = literal.type.getBindings().getTypeParameters();
         Class<?> itemType = typeParameters.get(0).getRawClass();
         return schema(itemType);
+      } else if (literal.type.isMapLikeType()) {
+        MapSchema mapSchema = new MapSchema();
+        mapSchema.setAdditionalProperties(schema(literal.type.getContentType().getRawClass()));
+        return mapSchema;
       }
       return schema(literal.type.getRawClass());
     } catch (Exception x) {
