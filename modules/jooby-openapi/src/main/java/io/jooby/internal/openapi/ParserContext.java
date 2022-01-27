@@ -255,26 +255,28 @@ public class ParserContext {
     String json = "{\"type\":\"" + type + "\"}";
     try {
       TypeLiteral literal = Json.mapper().readValue(json, TypeLiteral.class);
-      if (literal.type.isArrayType() && literal.type.getContentType().hasRawClass(byte.class)) {
-        return new ByteArraySchema();
-      } else if (literal.type.isCollectionLikeType() || literal.type.isArrayType()) {
-        ArraySchema array = new ArraySchema();
-        Class<?> itemType = literal.type.getContentType().getRawClass();
-        Optional.ofNullable(schema(itemType)).ifPresent(array::setItems);
-        return array;
-      } else if (literal.type.getRawClass() == Optional.class) {
-        List<JavaType> typeParameters = literal.type.getBindings().getTypeParameters();
-        Class<?> itemType = typeParameters.get(0).getRawClass();
-        return schema(itemType);
-      } else if (literal.type.isMapLikeType()) {
-        MapSchema mapSchema = new MapSchema();
-        mapSchema.setAdditionalProperties(schema(literal.type.getContentType().getRawClass()));
-        return mapSchema;
-      }
-      return schema(literal.type.getRawClass());
+      return schema(literal.type);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
+  }
+
+  private Schema schema(JavaType type) {
+    if (type.isArrayType() && type.getContentType().hasRawClass(byte.class)) {
+      return new ByteArraySchema();
+    } else if (type.isCollectionLikeType() || type.isArrayType()) {
+      ArraySchema array = new ArraySchema();
+      Optional.ofNullable(schema(type.getContentType())).ifPresent(array::setItems);
+      return array;
+    } else if (type.getRawClass() == Optional.class) {
+      List<JavaType> typeParameters = type.getBindings().getTypeParameters();
+      return schema(typeParameters.get(0));
+    } else if (type.isMapLikeType()) {
+      MapSchema mapSchema = new MapSchema();
+      mapSchema.setAdditionalProperties(schema(type.getContentType()));
+      return mapSchema;
+    }
+    return schema(type.getRawClass());
   }
 
   private boolean isVoid(String type) {
