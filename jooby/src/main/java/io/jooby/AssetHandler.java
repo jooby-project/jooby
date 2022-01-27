@@ -212,7 +212,7 @@ public class AssetHandler implements Route.Handler {
 
   private static AssetSource[] checkSource(AssetSource[] sources) {
     if (sources.length == 0) {
-      //throw new IllegalArgumentException("At least one source is required.");
+      throw new IllegalArgumentException("At least one source is required.");
     }
     return sources;
   }
