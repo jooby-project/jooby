@@ -138,6 +138,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     ServiceRegistry services = application.getServices();
     Class mapperType = mapper.getClass();
     services.put(mapperType, mapper);
+    services.put(ObjectMapper.class, mapper);
 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
