@@ -617,6 +617,10 @@ public class OpenAPIParser {
     }
 
     Optional.ofNullable(schemaMap.get("not")).ifPresent(not -> schema.not(not.get(0)));
+    
+    Optional.ofNullable(annotation.get("nullable"))
+    	.filter(nullable -> nullable instanceof Boolean)
+    	.ifPresent(nullable -> schema.setNullable((Boolean)nullable));
 
     annotationValue(annotation, "externalDocs",
         value -> externalDocumentation(value, schema::setExternalDocs));
