@@ -6,7 +6,7 @@ Jooby allows overriding any property via system properties or environment variab
 
 === Environment
 
-The application environment is available via the javadoc:Env[Env] class, which allows specifying one 
+The application environment is available via the javadoc:Environment[Environment] class, which allows specifying one 
 or many unique environment names.
 
 The active environment names serve the purpose of allowing loading different configuration files
@@ -44,7 +44,7 @@ The javadoc:Jooby[getEnvironment] loads the default environment.
 
 === Default Environment
 
-The default environment is available via javadoc:Env[loadEnvironment, java.lang.ClassLoader] method.
+The default environment is available via javadoc:Environment[loadEnvironment, io.jooby.EnvironmentOptions] method.
 
 This method search for an `application.conf` file in three location (first-listed are higher priority):
 
