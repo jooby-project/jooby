@@ -298,9 +298,9 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public Router mount(@Nonnull String path, @Nonnull Router router) {
     /** Override services: */
-
     overrideServices(router);
-
+    /** Merge error handler:  */
+    mergeErrorHandler(router);
     /** Routes: */
     copyRoutes(path, router);
     return this;
@@ -913,6 +913,18 @@ public class RouterImpl implements Router {
       RouterImpl that = (RouterImpl) router;
       // Inherited the services from router owner
       that.services = this.services;
+    }
+  }
+
+  private void mergeErrorHandler(Router router) {
+    if (router instanceof Jooby) {
+      Jooby app = (Jooby) router;
+      mergeErrorHandler(app.getRouter());
+    } else if (router instanceof RouterImpl) {
+      RouterImpl that = (RouterImpl) router;
+      if (that.err != null) {
+        this.error(that.err);
+      }
     }
   }
 }
