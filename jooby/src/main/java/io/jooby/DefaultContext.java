@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 
 import java.io.FileInputStream;
@@ -23,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -203,23 +205,34 @@ public interface DefaultContext extends Context {
   }
 
   @Override default boolean accept(@Nonnull MediaType contentType) {
-    Value accept = header(ACCEPT);
-    return accept.isMissing() || contentType.matches(accept.value());
+    return accept(singletonList(contentType)) == contentType;
   }
 
   @Override default MediaType accept(@Nonnull List<MediaType> produceTypes) {
-    List<MediaType> acceptTypes = MediaType.parse(header(ACCEPT).valueOrNull());
+    Value accept = header(ACCEPT);
+    if (accept.isMissing()) {
+      // NO header? Pick first, which is the default.
+      return produceTypes.isEmpty() ? null : produceTypes.get(0);
+    }
+
+    // Sort accept by most relevant/specific first:
+    List<MediaType> acceptTypes = accept.toList().stream()
+        .flatMap(value -> MediaType.parse(value).stream())
+        .distinct()
+        .sorted()
+        .collect(Collectors.toList());
+
+    // Find most appropriated type:
+    int idx = Integer.MAX_VALUE;
     MediaType result = null;
-    for (MediaType acceptType : acceptTypes) {
-      for (MediaType produceType : produceTypes) {
+    for (MediaType produceType : produceTypes) {
+      for (int i = 0; i < acceptTypes.size(); i++) {
+        MediaType acceptType = acceptTypes.get(i);
         if (produceType.matches(acceptType)) {
-          if (result == null) {
+          if (i < idx) {
             result = produceType;
-          } else {
-            MediaType max = MediaType.MOST_SPECIFIC.apply(result, produceType);
-            if (max != result) {
-              result = max;
-            }
+            idx = i;
+            break;
           }
         }
       }

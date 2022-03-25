@@ -143,6 +143,10 @@ public class MediaTypeTest {
       assertEquals("text/*;q=0.3", types.get(3).toString());
       assertEquals("*/*;q=0.5", types.get(4).toString());
     });
+
+    accept("text/html, application/xhtml+xml, application/xml;q=0.9, image/webp, */*;q=0.8, application/json", types -> {
+      System.out.println(types);
+    });
   }
 
   public static void accept(String value, Consumer<List<MediaType>> consumer) {

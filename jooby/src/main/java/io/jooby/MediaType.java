@@ -843,7 +843,6 @@ public final class MediaType implements Comparable<MediaType> {
       default:
         return octetStream;
     }
-
   }
 
   private static boolean matchOne(String expected, int len1, String contentType) {

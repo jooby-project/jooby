@@ -140,7 +140,7 @@ public class WebClient implements AutoCloseable {
   private String scheme;
   private final int port;
   private OkHttpClient client;
-  private Map<String, String> headers;
+  private Headers.Builder headers;
 
   public WebClient(String scheme, int port, boolean followRedirects) {
     try {
@@ -155,8 +155,6 @@ public class WebClient implements AutoCloseable {
         configureSelfSigned(builder);
       }
       this.client = builder.build();
-      header("Accept",
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
@@ -164,9 +162,11 @@ public class WebClient implements AutoCloseable {
 
   public WebClient header(String name, String value) {
     if (headers == null) {
-      headers = new HashMap<>();
+      headers = new Headers.Builder();
     }
-    headers.put(name, value);
+    if (value != null && value.trim().length() >  0) {
+      headers.add(name, value);
+    }
     return this;
   }
 
@@ -183,11 +183,15 @@ public class WebClient implements AutoCloseable {
   }
 
   private void setRequestHeaders(okhttp3.Request.Builder req) {
-    if (headers != null) {
-      req.headers(Headers.of(headers));
-      headers = null;
+    if (headers == null) {
+      // set default headers:
       header("Accept",
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+
+    }
+    if (headers != null) {
+      req.headers(headers.build());
+      headers = null;
     }
   }
 

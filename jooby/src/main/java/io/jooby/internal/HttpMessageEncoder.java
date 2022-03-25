@@ -5,14 +5,6 @@
  */
 package io.jooby.internal;
 
-import io.jooby.Context;
-import io.jooby.FileDownload;
-import io.jooby.MessageEncoder;
-import io.jooby.ModelAndView;
-import io.jooby.StatusCode;
-import io.jooby.TemplateEngine;
-
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -20,20 +12,35 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+
+import io.jooby.Context;
+import io.jooby.FileDownload;
+import io.jooby.MediaType;
+import io.jooby.MessageEncoder;
+import io.jooby.ModelAndView;
+import io.jooby.StatusCode;
+import io.jooby.TemplateEngine;
 
 public class HttpMessageEncoder implements MessageEncoder {
 
-  private List<MessageEncoder> encoderList = new ArrayList<>(2);
+  private Map<MediaType, MessageEncoder> encoders;
 
   private List<TemplateEngine> templateEngineList = new ArrayList<>(2);
 
-  public HttpMessageEncoder add(MessageEncoder encoder) {
+  public HttpMessageEncoder add(MediaType type, MessageEncoder encoder) {
     if (encoder instanceof TemplateEngine) {
+      // media type is ignored for template engines. They  have a custom object type
       templateEngineList.add((TemplateEngine) encoder);
     } else {
-      this.encoderList.add(encoder);
+      if (encoders == null) {
+        encoders = new LinkedHashMap<>();
+      }
+      encoders.put(type, encoder);
     }
     return this;
   }
@@ -91,13 +98,13 @@ public class HttpMessageEncoder implements MessageEncoder {
       ctx.send((ByteBuffer) value);
       return null;
     }
-    Iterator<MessageEncoder> iterator = encoderList.iterator();
-    /** NOTE: looks like an infinite loop but there is a default renderer at the end of iterator. */
-    byte[] result = null;
-    while (result == null) {
-      MessageEncoder next = iterator.next();
-      result = next.encode(ctx, value);
+    if (encoders != null) {
+      // Content negotiation, find best:
+      MediaType type = ctx.accept(new ArrayList<>(encoders.keySet()));
+      MessageEncoder encoder = encoders.getOrDefault(type, MessageEncoder.TO_STRING);
+      return encoder.encode(ctx, value);
+    } else {
+      return MessageEncoder.TO_STRING.encode(ctx, value);
     }
-    return result;
   }
 }

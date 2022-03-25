@@ -37,20 +37,4 @@ public interface MessageEncoder {
    */
   @Nullable byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
 
-  /**
-   * Execute this renderer only if the <code>Accept</code> header matches the content-type
-   * parameter.
-   *
-   * @param contentType Mediatype to test.
-   * @return A new renderer with accept header matching.
-   */
-  @Nonnull default MessageEncoder accept(@Nonnull MediaType contentType) {
-    return (ctx, value) -> {
-      if (ctx.accept(contentType)) {
-        return encode(ctx, value);
-      }
-      return null;
-    };
-  }
-
 }

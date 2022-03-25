@@ -325,18 +325,14 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router encoder(@Nonnull MessageEncoder encoder) {
-    this.encoder.add(encoder);
+    this.encoder.add(MediaType.all, encoder);
     return this;
   }
 
   @Nonnull @Override
   public Router encoder(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder) {
-    if (encoder instanceof TemplateEngine) {
-      // Mime-Type is ignored for TemplateEngine due they depends on specific object type and file
-      // extension.
-      return encoder(encoder);
-    }
-    return encoder(encoder.accept(contentType));
+    this.encoder.add(contentType, encoder);
+    return this;
   }
 
   @Nonnull @Override public Router decoder(@Nonnull MediaType contentType, @Nonnull
@@ -529,7 +525,6 @@ public class RouterImpl implements Router {
     } else {
       err = err.then(ErrorHandler.create());
     }
-    encoder.add(MessageEncoder.TO_STRING);
 
     // Must be last, as fallback
     ValueConverters.addFallbackConverters(converters);

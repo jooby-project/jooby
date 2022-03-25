@@ -23,20 +23,37 @@ public class Issue2413 {
 
       http.header("Accept", "application/json")
           .get("/2413", rsp -> {
-            assertEquals("application/json;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+            assertEquals("application/json;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
             assertEquals("{\"id\":\"someId\",\"name\":\"someName\"}", rsp.body().string());
           });
 
       http.header("Accept", "application/xml")
           .get("/2413", rsp -> {
-            assertEquals("application/xml;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+            assertEquals("application/xml;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
             assertEquals("<B2413><id>someId</id><name>someName</name></B2413>",
                 rsp.body().string());
           });
 
-      http
+      http.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
           .get("/2413", rsp -> {
-            assertEquals("application/json;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+            assertEquals("application/xml;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
+            assertEquals("<B2413><id>someId</id><name>someName</name></B2413>", rsp.body().string());
+          });
+
+      http.header("Accept", "*/*")
+          .get("/2413", rsp -> {
+            assertEquals("application/json;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
+            assertEquals("{\"id\":\"someId\",\"name\":\"someName\"}", rsp.body().string());
+          });
+
+      http.header("Accept", null)
+          .get("/2413", rsp -> {
+            assertEquals("application/json;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
             assertEquals("{\"id\":\"someId\",\"name\":\"someName\"}", rsp.body().string());
           });
     });
@@ -54,22 +71,46 @@ public class Issue2413 {
 
       http.header("Accept", "application/json")
           .get("/2413", rsp -> {
-            assertEquals("application/json;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+            assertEquals("application/json;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
             assertEquals("{\"id\":\"someId\",\"name\":\"someName\"}", rsp.body().string());
           });
 
       http.header("Accept", "application/xml")
           .get("/2413", rsp -> {
-            assertEquals("application/xml;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+            assertEquals("application/xml;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
             assertEquals("<B2413><id>someId</id><name>someName</name></B2413>",
                 rsp.body().string());
           });
 
       http
           .get("/2413", rsp -> {
-            assertEquals("application/xml;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+            assertEquals("application/xml;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
             assertEquals("<B2413><id>someId</id><name>someName</name></B2413>",
                 rsp.body().string());
+          });
+
+      http.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+          .get("/2413", rsp -> {
+            assertEquals("application/xml;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
+            assertEquals("<B2413><id>someId</id><name>someName</name></B2413>", rsp.body().string());
+          });
+
+      http.header("Accept", "*/*")
+          .get("/2413", rsp -> {
+            assertEquals("application/xml;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
+            assertEquals("<B2413><id>someId</id><name>someName</name></B2413>", rsp.body().string());
+          });
+
+      http.header("Accept", null)
+          .get("/2413", rsp -> {
+            assertEquals("application/xml;charset=utf-8",
+                rsp.body().contentType().toString().toLowerCase());
+            assertEquals("<B2413><id>someId</id><name>someName</name></B2413>", rsp.body().string());
           });
     });
   }
