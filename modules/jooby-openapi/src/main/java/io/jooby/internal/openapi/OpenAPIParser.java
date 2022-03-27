@@ -582,7 +582,16 @@ public class OpenAPIParser {
       toArraySchema(ctx, toMap((AnnotationNode) annotation.get("arraySchema")))
           .ifPresent(arraySchema::setItems);
     } else {
-      toSchema(ctx, toMap((AnnotationNode) annotation.get("schema")))
+      Map<String, Object> schemaAnnotation = toMap((AnnotationNode) annotation.get("schema"));
+      if (schemaAnnotation.containsKey("implementation")) {
+        Type implementation = (Type) schemaAnnotation.get("implementation");
+        if (implementation.getClassName().equals("byte")) {
+          // byte array
+          schemaAnnotation.put("implementation", Type.getObjectType("[B"));
+          return toSchema(ctx, schemaAnnotation);
+        }
+      }
+      toSchema(ctx, schemaAnnotation)
           .ifPresent(arraySchema::setItems);
     }
     return Optional.of(arraySchema);
@@ -617,7 +626,7 @@ public class OpenAPIParser {
     }
 
     Optional.ofNullable(schemaMap.get("not")).ifPresent(not -> schema.not(not.get(0)));
-    
+
     Optional.ofNullable(annotation.get("nullable"))
     	.filter(nullable -> nullable instanceof Boolean)
     	.ifPresent(nullable -> schema.setNullable((Boolean)nullable));
@@ -641,7 +650,6 @@ public class OpenAPIParser {
     }
     if (types.size() > 0) {
       List<io.swagger.v3.oas.models.media.Schema> schemas = types.stream()
-          .map(Type::getClassName)
           .map(ctx::schema)
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
