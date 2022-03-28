@@ -54,7 +54,7 @@
     <dependency>
       <groupId>io.lettuce</groupId>
       <artifactId>lettuce-core</artifactId>
-      <version>6.1.1.RELEASE</version>
+      <version>6.1.6.RELEASE</version>
     </dependency>
 
     <!-- Test dependencies -->
