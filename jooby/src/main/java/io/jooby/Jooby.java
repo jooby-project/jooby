@@ -301,6 +301,10 @@ public class Jooby implements Router, Registry {
   @Nonnull @Override
   public Jooby mount(@Nonnull Router router) {
     this.router.mount(router);
+    if (router instanceof Jooby) {
+      Jooby child = (Jooby) router;
+      child.registry  = this.registry;
+    }
     return this;
   }
 
