@@ -23,7 +23,7 @@
     <handlebars.version>4.2.0</handlebars.version>
     <pebble.version>3.1.5</pebble.version>
     <jackson.version>2.13.2</jackson.version>
-    <jackson-databind.version>2.13.2.1</jackson-databind.version>
+    <jackson-databind.version>2.13.2.2</jackson-databind.version>
     <gson.version>2.9.0</gson.version>
     <jakarta.json.bind-api.version>1.0.2</jakarta.json.bind-api.version>
     <yasson.version>1.0.9</yasson.version>
@@ -37,7 +37,7 @@
     <h2.version>2.1.210</h2.version>
     <hibernate.version>5.6.3.Final</hibernate.version>
     <ebean.version>12.16.0</ebean.version>
-    <jdbi.version>3.27.0</jdbi.version>
+    <jdbi.version>3.28.0</jdbi.version>
     <flyway.version>7.5.1</flyway.version>
     <graphql-java.version>16.2</graphql-java.version>
     <lettuce.version>6.1.6.RELEASE</lettuce.version>
@@ -71,8 +71,8 @@
     <asm.version>9.1</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.2.14.Final</undertow.version>
-    <jetty.version>9.4.44.v20210927</jetty.version>
+    <undertow.version>2.2.16.Final</undertow.version>
+    <jetty.version>9.4.45.v20220203</jetty.version>
     <netty.version>4.1.75.Final</netty.version>
 
     <!-- Reactive -->
@@ -94,12 +94,12 @@
 
     <!-- Misc -->
     <okhttp.version>4.9.3</okhttp.version>
-    <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
-    <pac4j.version>4.4.0</pac4j.version>
+      <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
+    <pac4j.version>4.5.5</pac4j.version>
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.1.6</cron-utils.version>
     <bucket4j-core.version>6.4.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.57</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.191</aws-java-sdk.version>
     <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
     <frontend-plugin-core.version>1.12.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>

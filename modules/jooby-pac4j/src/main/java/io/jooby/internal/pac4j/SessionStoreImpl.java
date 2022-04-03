@@ -18,7 +18,6 @@ import org.pac4j.core.exception.http.NoContentAction;
 import org.pac4j.core.exception.http.OkAction;
 import org.pac4j.core.exception.http.SeeOtherAction;
 import org.pac4j.core.exception.http.StatusAction;
-import org.pac4j.core.exception.http.TemporaryRedirectAction;
 import org.pac4j.core.exception.http.UnauthorizedAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
@@ -161,14 +160,13 @@ public class SessionStoreImpl
         return BadRequestAction.INSTANCE;
       case FORBIDDEN_CODE:
         return ForbiddenAction.INSTANCE;
+      case TEMPORARY_REDIRECT_CODE:
       case FOUND_CODE:
         return new FoundAction(tail);
       case NO_CONTENT_CODE:
         return NoContentAction.INSTANCE;
       case OK_CODE:
         return new OkAction(tail);
-      case TEMPORARY_REDIRECT_CODE:
-        return new TemporaryRedirectAction(tail);
       case SEE_OTHER_CODE:
         return new SeeOtherAction(tail);
       case UNAUTHORIZED_CODE:
