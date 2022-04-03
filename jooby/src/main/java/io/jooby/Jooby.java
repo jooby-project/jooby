@@ -298,16 +298,6 @@ public class Jooby implements Router, Registry {
     return router.getContextPath();
   }
 
-  @Nonnull @Override
-  public Jooby mount(@Nonnull Router router) {
-    this.router.mount(router);
-    if (router instanceof Jooby) {
-      Jooby child = (Jooby) router;
-      child.registry  = this.registry;
-    }
-    return this;
-  }
-
   /**
    * Installs/imports a full application into this one. Applications share services, registry,
    * callbacks, etc.
@@ -323,7 +313,7 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
+   * Lazy creation configures and setup <code>SubApp</code> correctly, the next example
    * won't work:
    *
    * <pre>{@code
@@ -426,7 +416,16 @@ public class Jooby implements Router, Registry {
 
   @Nonnull @Override public Jooby mount(@Nonnull String path, @Nonnull Router router) {
     this.router.mount(path, router);
+    if (router instanceof Jooby) {
+      Jooby child = (Jooby) router;
+      child.registry  = this.registry;
+    }
     return this;
+  }
+
+  @Nonnull @Override
+  public Jooby mount(@Nonnull Router router) {
+    return mount("/", router);
   }
 
   @Nonnull @Override public Jooby mvc(@Nonnull Object router) {

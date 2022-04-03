@@ -58,7 +58,6 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import io.jooby.SessionStore;
 import io.jooby.StatusCode;
-import io.jooby.TemplateEngine;
 import io.jooby.ValueConverter;
 import io.jooby.WebSocket;
 import io.jooby.exception.RegistryException;
