@@ -14,6 +14,12 @@ public class SwaggerResourceTest {
   public void shouldCheckIndexPage() throws IOException {
     String index = asset("index.html");
     assertTrue(index.contains("${swaggerPath}"), index);
+    assertTrue(index.contains("${swaggerPath}/index.css"), index);
+  }
+
+  @Test
+  public void shouldCheckSwaggerInitializer() throws IOException {
+    String index = asset("swagger-initializer.js");
     assertTrue(index.contains("${openAPIPath}"), index);
   }
 

@@ -6,7 +6,8 @@
     <property name="swaggerDir" value="${buildDir}${file.separator}swagger-ui" />
     <move file="node_modules${file.separator}swagger-ui-dist" tofile="${swaggerDir}"/>
     <replace file="${swaggerDir}/index.html" token="./" value="${swaggerPath}/" />
-    <replace file="${swaggerDir}/index.html" token="https://petstore.swagger.io/v2/swagger.json" value="${openAPIPath}" />
+    <replace file="${swaggerDir}/index.html" token="index.css" value="${swaggerPath}/index.css" />
+    <replace file="${swaggerDir}/swagger-initializer.js" token="https://petstore.swagger.io/v2/swagger.json" value="${openAPIPath}" />
     <delete>
       <fileset dir="${swaggerDir}" includes="package.json"/>
       <fileset dir="${swaggerDir}" includes="absolute-path.js"/>
