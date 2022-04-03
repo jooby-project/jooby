@@ -54,11 +54,6 @@
               <target>
                 <property name="output" value="${project.build.outputDirectory}${file.separator}graphiql${file.separator}" />
 
-                <copy failonerror="true" file="node_modules${file.separator}es6-promise${file.separator}dist${file.separator}es6-promise.auto.min.js" tofile="${output}es6-promise.auto.min.js"/>
-                <copy failonerror="true" file="node_modules${file.separator}fetch-min${file.separator}index.js" tofile="${output}fetch.min.js"/>
-                <copy failonerror="true" file="node_modules${file.separator}react${file.separator}umd${file.separator}react.production.min.js" tofile="${output}react.min.js"/>
-                <copy failonerror="true" file="node_modules${file.separator}react-dom${file.separator}umd${file.separator}react-dom.production.min.js" tofile="${output}react-dom.min.js"/>
-
                 <copy failonerror="true" file="node_modules${file.separator}graphiql${file.separator}graphiql.css" tofile="${output}graphiql.css"/>
                 <copy failonerror="true" file="node_modules${file.separator}graphiql${file.separator}graphiql.js" tofile="${output}graphiql.min.js"/>
               </target>

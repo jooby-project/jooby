@@ -4,11 +4,7 @@
   "private": true,
   "license": "ASF",
   "dependencies": {
-    "es6-promise": "^4.2.8",
-    "fetch-min": "^1.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "graphql": "^16.3.0",
-    "graphiql": "^1.6.0"
+    "graphiql": "^1.8.3"
   }
 }
