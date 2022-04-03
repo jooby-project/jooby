@@ -560,11 +560,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     if (needsFlush) {
       needsFlush = false;
       ctx.flush();
-      this.ctx = null;
-      this.req = null;
-      this.route = null;
-      this.router = null;
-      this.headers = null;
     }
   }
 
