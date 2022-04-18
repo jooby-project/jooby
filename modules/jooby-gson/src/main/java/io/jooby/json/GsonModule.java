@@ -99,10 +99,10 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
       throws Exception {
     Body body = ctx.body();
     if (body.isInMemory()) {
-      return gson.fromJson(new InputStreamReader(new ByteArrayInputStream(body.bytes())), type);
+      return gson.fromJson(new InputStreamReader(new ByteArrayInputStream(body.bytes()), UTF_8), type);
     } else {
       try (InputStream stream = body.stream()) {
-        return gson.fromJson(new InputStreamReader(stream), type);
+        return gson.fromJson(new InputStreamReader(stream, UTF_8), type);
       }
     }
   }
