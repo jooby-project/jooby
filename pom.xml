@@ -73,7 +73,7 @@
     <!-- Server -->
     <undertow.version>2.2.16.Final</undertow.version>
     <jetty.version>9.4.45.v20220203</jetty.version>
-    <netty.version>4.1.75.Final</netty.version>
+    <netty.version>4.1.76.Final</netty.version>
 
     <!-- Reactive -->
     <rxjava.version>2.2.21</rxjava.version>
