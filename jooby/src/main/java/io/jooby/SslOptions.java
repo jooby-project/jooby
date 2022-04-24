@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -233,8 +235,21 @@ public final class SslOptions {
    */
   public @Nonnull InputStream getResource(@Nonnull ClassLoader loader, @Nonnull String path)
       throws IOException {
-    InputStream resource = Stream
-        .of(Paths.get(path), Paths.get(System.getProperty("user.dir"), path))
+    Path filepath = Paths.get(path);
+    Stream<Path> paths;
+    if (Files.exists(filepath)) {
+      // absolute file:
+      paths = Stream.of(filepath);
+    } else {
+      try {
+        // Try relative to current dir:
+        paths = Stream.of(Paths.get(System.getProperty("user.dir"), path));
+      } catch (InvalidPathException cause) {
+        // Try with classloader:
+        paths = Stream.empty();
+      }
+    }
+    InputStream resource = paths
         .map(it -> it.normalize().toAbsolutePath())
         .filter(Files::exists)
         .findFirst()
