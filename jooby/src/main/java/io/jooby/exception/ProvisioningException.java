@@ -6,6 +6,8 @@
 package io.jooby.exception;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
@@ -24,9 +26,9 @@ public class ProvisioningException extends BadRequestException {
    * Creates a provisioning exception.
    *
    * @param parameter Failing parameter.
-   * @param cause Cause.
+   * @param cause Cause. Nullable.
    */
-  public ProvisioningException(@Nonnull Parameter parameter, @Nonnull Throwable cause) {
+  public ProvisioningException(@Nonnull Parameter parameter, @Nullable Throwable cause) {
     this("Unable to provision parameter: '" + toString(parameter) + "', require by: " + toString(
         parameter.getDeclaringExecutable()), cause);
   }
@@ -37,7 +39,7 @@ public class ProvisioningException extends BadRequestException {
    * @param message Error message.
    * @param cause Cause.
    */
-  public ProvisioningException(@Nonnull String message, @Nonnull Throwable cause) {
+  public ProvisioningException(@Nonnull String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 
