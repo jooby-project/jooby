@@ -27,6 +27,13 @@
 
     <!-- utow -->
     <dependency>
+      <!-- remove xnio once we upgrade to 2.2.18 +  There is a Invalida Path on Windows-->
+      <groupId> org.jboss.xnio</groupId>
+      <artifactId>xnio-api</artifactId>
+      <version>3.8.7.Final</version>
+    </dependency>
+
+    <dependency>
       <groupId>io.undertow</groupId>
       <artifactId>undertow-core</artifactId>
     </dependency>
