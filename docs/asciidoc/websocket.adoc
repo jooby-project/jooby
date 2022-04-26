@@ -1,7 +1,6 @@
 == Web Sockets
 
-Jooby supports https://developer.mozilla.org/es/docs/Web/API/WebSockets_API[WebSockets].
-A javadoc:WebSocket[] is registered like any other handler:
+Adding a javadoc:WebSocket[]:
 
 .WebSocket
 [source,java,role="primary"]
@@ -170,7 +169,9 @@ import io.jooby.json.JacksonModule;
 Structure messages depends/requires a javadoc:MessageDecoder[] and jadoc:MessageEncoder[]. In this
 example both are provided by the JacksonModule.
 
-=== Connection Timeouts
+=== Options
+
+==== Connection Timeouts
 By default Jooby will timeout idle connections that have no activity after 5 minutes. You can 
 control this behaviour by setting the `websocket.idleTimeout` property:
 
@@ -181,3 +182,15 @@ websocket.idleTimeout = 1h
 ----
 
 See https://github.com/lightbend/config/blob/master/HOCON.md#duration-format[duration format]
+
+==== Max size
+
+Max size is set to `128K` you can override it like:
+
+.application.conf
+[source, properties]
+----
+websocket.maxSize = 128K
+----
+
+See https://github.com/lightbend/config/blob/master/HOCON.md#size-in-bytes-format[sizes in bytes]

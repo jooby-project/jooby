@@ -56,20 +56,26 @@ public class UtowWebSocket extends AbstractReceiveListener
   private String key;
   private CountDownLatch ready = new CountDownLatch(1);
   private AtomicBoolean open = new AtomicBoolean(false);
+  private int maxSize;
 
   public UtowWebSocket(UtowContext ctx, WebSocketChannel channel) {
     this.ctx = ctx;
     this.channel = channel;
     this.dispatch = !ctx.isInIoThread();
     this.key = ctx.getRoute().getPattern();
+
+    Config conf = ctx.getRouter().getConfig();
+    maxSize = conf.hasPath("websocket.maxSize")
+        ? conf.getBytes("websocket.maxSize").intValue()
+        : WebSocket.MAX_BUFFER_SIZE;
   }
 
   @Override protected long getMaxTextBufferSize() {
-    return MAX_BUFFER_SIZE;
+    return maxSize;
   }
 
   @Override protected long getMaxBinaryBufferSize() {
-    return MAX_BUFFER_SIZE;
+    return maxSize;
   }
 
   @Nonnull @Override public Context getContext() {

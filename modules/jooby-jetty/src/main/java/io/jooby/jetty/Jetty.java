@@ -186,11 +186,14 @@ public class Jetty extends io.jooby.Server.Base {
         context.setHandler(handler);
       }
       /* ********************************* WebSocket *************************************/
+      Config conf = application.getConfig();
+      int maxSize = conf.hasPath("websocket.maxSize")
+          ? conf.getBytes("websocket.maxSize").intValue()
+          : WebSocket.MAX_BUFFER_SIZE;
       context.setAttribute(DecoratedObjectFactory.ATTR, new DecoratedObjectFactory());
       WebSocketPolicy policy = new WebSocketPolicy(WebSocketBehavior.SERVER);
-      policy.setMaxTextMessageBufferSize(WebSocket.MAX_BUFFER_SIZE);
-      policy.setMaxTextMessageSize(WebSocket.MAX_BUFFER_SIZE);
-      Config conf = application.getConfig();
+      policy.setMaxTextMessageBufferSize(maxSize);
+      policy.setMaxTextMessageSize(maxSize);
       long timeout = conf.hasPath("websocket.idleTimeout")
           ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
           : TimeUnit.MINUTES.toMillis(5);

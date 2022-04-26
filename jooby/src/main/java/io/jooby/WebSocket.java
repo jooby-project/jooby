@@ -108,7 +108,7 @@ public interface WebSocket {
     void onError(@Nonnull WebSocket ws, @Nonnull Throwable cause);
   }
 
-  /** Max message size for websocket (13k). */
+  /** Max message size for websocket (128K). */
   int MAX_BUFFER_SIZE = 131072;
 
   /**

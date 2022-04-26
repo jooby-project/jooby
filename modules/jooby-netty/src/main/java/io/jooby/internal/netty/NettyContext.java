@@ -373,12 +373,16 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @Nonnull @Override public Context upgrade(WebSocket.Initializer handler) {
     try {
       responseStarted = true;
+      Config conf = getRouter().getConfig();
+      int maxSize = conf.hasPath("websocket.maxSize")
+          ? conf.getBytes("websocket.maxSize").intValue()
+          : WebSocket.MAX_BUFFER_SIZE;
       String webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
       WebSocketDecoderConfig config = WebSocketDecoderConfig.newBuilder()
           .allowExtensions(true)
           .allowMaskMismatch(false)
           .withUTF8Validator(false)
-          .maxFramePayloadLength(WebSocket.MAX_BUFFER_SIZE)
+          .maxFramePayloadLength(maxSize)
           .build();
       webSocket = new NettyWebSocket(this);
       handler.init(Context.readOnly(this), webSocket);
@@ -389,7 +393,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       WebSocketServerHandshaker handshaker = factory.newHandshaker(webSocketRequest);
       handshaker.handshake(ctx.channel(), webSocketRequest);
       webSocket.fireConnect();
-      Config conf = getRouter().getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
           ? conf.getDuration("websocket.idleTimeout", MILLISECONDS)
           : MINUTES.toMillis(5);
