@@ -5,20 +5,6 @@
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.Context;
-import io.jooby.Server;
-import io.jooby.SneakyThrows;
-import io.jooby.WebSocket;
-import io.jooby.WebSocketCloseStatus;
-import io.jooby.WebSocketConfigurer;
-import io.jooby.WebSocketMessage;
-import org.eclipse.jetty.websocket.api.CloseException;
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.api.WriteCallback;
-
-import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +13,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.Nonnull;
+
+import org.eclipse.jetty.websocket.api.CloseException;
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.eclipse.jetty.websocket.api.WriteCallback;
+
+import io.jooby.Context;
+import io.jooby.Server;
+import io.jooby.SneakyThrows;
+import io.jooby.WebSocket;
+import io.jooby.WebSocketCloseStatus;
+import io.jooby.WebSocketConfigurer;
+import io.jooby.WebSocketMessage;
 
 public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, WebSocket,
     WriteCallback {
@@ -41,8 +45,9 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   private Session session;
   private WebSocket.OnConnect onConnectCallback;
   private WebSocket.OnMessage onMessageCallback;
-  private WebSocket.OnClose onCloseCallback;
+  private AtomicReference<WebSocket.OnClose> onCloseCallback = new AtomicReference<>();
   private WebSocket.OnError onErrorCallback;
+  private AtomicBoolean open = new AtomicBoolean(false);
 
   public JettyWebSocket(JettyContext ctx) {
     this.ctx = ctx;
@@ -73,6 +78,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
 
   @Override public void onWebSocketConnect(Session session) {
     try {
+      open.set(true);
       this.session = session;
       addSession(this);
       if (onConnectCallback != null) {
@@ -86,7 +92,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   @Override public void onWebSocketError(Throwable x) {
     // should close?
     if (!isTimeout(x)) {
-      if (Server.connectionLost(x) || SneakyThrows.isFatal(x)) {
+      if (isOpen() && (Server.connectionLost(x) || SneakyThrows.isFatal(x))) {
         handleClose(WebSocketCloseStatus.SERVER_ERROR);
       }
 
@@ -131,7 +137,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   @Nonnull @Override public WebSocketConfigurer onClose(@Nonnull WebSocket.OnClose callback) {
-    onCloseCallback = callback;
+    onCloseCallback.set(callback);
     return this;
   }
 
@@ -150,7 +156,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   @Override public boolean isOpen() {
-    return session.isOpen();
+    return open.get() && session.isOpen();
   }
 
   @Nonnull @Override public WebSocket send(@Nonnull String message, boolean broadcast) {
@@ -167,7 +173,8 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
           onWebSocketError(x);
         }
       } else {
-        onWebSocketError(new IllegalStateException("Attempt to send a message on closed web socket"));
+        onWebSocketError(
+            new IllegalStateException("Attempt to send a message on closed web socket"));
       }
     }
     return this;
@@ -209,14 +216,34 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   private void handleClose(WebSocketCloseStatus closeStatus) {
+    WebSocket.OnClose callback = this.onCloseCallback.getAndSet(null);
+    Throwable cause = null;
+    // 1. close socket
     try {
-      if (onCloseCallback != null) {
-        onCloseCallback.onClose(this, closeStatus);
+      if (isOpen()) {
+        session.close(closeStatus.getCode(), closeStatus.getReason());
       }
     } catch (Throwable x) {
-      onWebSocketError(x);
-    } finally {
-      removeSession(this);
+      cause = x;
+    }
+    open.set(false);
+    // fire callback:
+    if (callback != null) {
+      try {
+        callback.onClose(this, closeStatus);
+      } catch (Throwable x) {
+        if (cause != null) {
+          x.addSuppressed(cause);
+        }
+        cause = x;
+      }
+    }
+    // clear from active sessions:
+    removeSession(this);
+
+    if (cause != null) {
+      // fire error:
+      onWebSocketError(cause);
     }
   }
 

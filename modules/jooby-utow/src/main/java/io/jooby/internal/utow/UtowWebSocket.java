@@ -5,6 +5,26 @@
  */
 package io.jooby.internal.utow;
 
+import static io.undertow.websockets.core.WebSockets.sendClose;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.Nonnull;
+
+import org.xnio.IoUtils;
+
 import com.typesafe.config.Config;
 import io.jooby.Context;
 import io.jooby.Server;
@@ -20,19 +40,6 @@ import io.undertow.websockets.core.WebSocketCallback;
 import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 public class UtowWebSocket extends AbstractReceiveListener
     implements WebSocketConfigurer, WebSocket, WebSocketCallback<Void> {
 
@@ -44,10 +51,11 @@ public class UtowWebSocket extends AbstractReceiveListener
   private final boolean dispatch;
   private OnConnect onConnectCallback;
   private OnMessage onMessageCallback;
-  private OnClose onCloseCallback;
+  private AtomicReference<OnClose> onCloseCallback = new AtomicReference<>();
   private OnError onErrorCallback;
   private String key;
   private CountDownLatch ready = new CountDownLatch(1);
+  private AtomicBoolean open = new AtomicBoolean(false);
 
   public UtowWebSocket(UtowContext ctx, WebSocketChannel channel) {
     this.ctx = ctx;
@@ -79,7 +87,7 @@ public class UtowWebSocket extends AbstractReceiveListener
   }
 
   @Override public boolean isOpen() {
-    return channel.isOpen();
+    return open.get() && channel.isOpen();
   }
 
   @Nonnull @Override public WebSocket send(@Nonnull String message, boolean broadcast) {
@@ -142,7 +150,7 @@ public class UtowWebSocket extends AbstractReceiveListener
   }
 
   @Nonnull @Override public WebSocketConfigurer onClose(@Nonnull OnClose callback) {
-    onCloseCallback = callback;
+    onCloseCallback.set(callback);
     return this;
   }
 
@@ -182,6 +190,7 @@ public class UtowWebSocket extends AbstractReceiveListener
   private void waitForConnect() {
     try {
       ready.await();
+      open.set(true);
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }
@@ -198,7 +207,7 @@ public class UtowWebSocket extends AbstractReceiveListener
   @Override protected void onError(WebSocketChannel channel, Throwable x) {
     // should close?
     if (Server.connectionLost(x) || SneakyThrows.isFatal(x)) {
-      if (channel.isOpen()) {
+      if (isOpen()) {
         handleClose(WebSocketCloseStatus.SERVER_ERROR);
       }
     }
@@ -222,20 +231,42 @@ public class UtowWebSocket extends AbstractReceiveListener
 
   @Override protected void onCloseMessage(CloseMessage cm,
       WebSocketChannel channel) {
-    if (channel.isOpen()) {
+    if (isOpen()) {
       handleClose(WebSocketCloseStatus.valueOf(cm.getCode())
           .orElseGet(() -> new WebSocketCloseStatus(cm.getCode(), cm.getReason())));
     }
   }
 
-  private void handleClose(WebSocketCloseStatus closeStatus) {
+  private void handleClose(WebSocketCloseStatus status) {
+    OnClose callback = onCloseCallback.getAndSet(null);
+    if (isOpen()) {
+      // close socket:
+      sendClose(status.getCode(), status.getReason(), channel,
+          new WebSocketCallback<UtowWebSocket>() {
+            @Override
+            public void onError(final WebSocketChannel channel, final UtowWebSocket ws,
+                final Throwable throwable) {
+              ws.onError(channel, throwable);
+              IoUtils.safeClose(channel);
+            }
+
+            @Override
+            public void complete(final WebSocketChannel channel, final UtowWebSocket ws) {
+              IoUtils.safeClose(channel);
+            }
+          }, this);
+    }
+    open.set(false);
     try {
-      if (onCloseCallback != null) {
-        onCloseCallback.onClose(this, closeStatus);
+      // fire callback:
+      if (callback != null) {
+        callback.onClose(this, status);
       }
     } catch (Throwable x) {
+      // fire error:
       onError(channel, x);
     } finally {
+      // clear from active sessions:
       removeSession(this);
     }
   }

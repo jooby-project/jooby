@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
 
@@ -48,9 +50,10 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   private ByteBuf buffer;
   private WebSocket.OnConnect connectCallback;
   private WebSocket.OnMessage messageCallback;
-  private OnClose onCloseCallback;
+  private AtomicReference<OnClose> onCloseCallback = new AtomicReference<>();
   private OnError onErrorCallback;
   private CountDownLatch ready = new CountDownLatch(1);
+  private AtomicBoolean open = new AtomicBoolean(false);
 
   public NettyWebSocket(NettyContext ctx) {
     this.netty = ctx;
@@ -112,7 +115,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   public boolean isOpen() {
-    return netty.ctx.channel().isOpen();
+    return open.get() && netty.ctx.channel().isOpen();
   }
 
   @Override public WebSocketConfigurer onConnect(WebSocket.OnConnect callback) {
@@ -126,7 +129,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   @Override public WebSocketConfigurer onClose(WebSocket.OnClose callback) {
-    onCloseCallback = callback;
+    onCloseCallback.set(callback);
     return this;
   }
 
@@ -179,23 +182,22 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   private void handleClose(WebSocketCloseStatus closeStatus) {
+    OnClose callback = onCloseCallback.getAndSet(null);
+    if (isOpen()) {
+      // close socket:
+      netty.ctx.channel()
+          .writeAndFlush(
+              new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()))
+          .addListener(ChannelFutureListener.CLOSE);
+    }
+    open.set(false);
     try {
-      if (isOpen()) {
-        if (onCloseCallback != null) {
-          Runnable closeCallback = () -> {
-            try {
-              webSocketTask(() -> onCloseCallback.onClose(this, closeStatus), false).run();
-            } finally {
-              netty.ctx.channel()
-                  .writeAndFlush(
-                      new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()))
-                  .addListener(ChannelFutureListener.CLOSE);
-            }
-          };
-          fireCallback(closeCallback);
-        }
+      if (callback != null) {
+        // fire callback:
+        fireCallback(webSocketTask(() -> callback.onClose(this, closeStatus), false));
       }
     } finally {
+      // clear from active sessions:
       this.netty.ctx.channel().attr(WS).set(null);
       removeSession(this);
     }
@@ -291,6 +293,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   private void waitForConnect() {
     try {
       ready.await();
+      open.set(true);
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }
