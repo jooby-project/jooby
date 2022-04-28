@@ -246,14 +246,15 @@ public class UtowWebSocket extends AbstractReceiveListener
   private void handleClose(WebSocketCloseStatus status) {
     OnClose callback = onCloseCallback.getAndSet(null);
     if (isOpen()) {
+      open.set(false);
       // close socket:
       sendClose(status.getCode(), status.getReason(), channel,
           new WebSocketCallback<UtowWebSocket>() {
             @Override
             public void onError(final WebSocketChannel channel, final UtowWebSocket ws,
                 final Throwable throwable) {
-              ws.onError(channel, throwable);
               IoUtils.safeClose(channel);
+              ws.onError(channel, throwable);
             }
 
             @Override
@@ -262,7 +263,6 @@ public class UtowWebSocket extends AbstractReceiveListener
             }
           }, this);
     }
-    open.set(false);
     try {
       // fire callback:
       if (callback != null) {

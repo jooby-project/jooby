@@ -184,13 +184,13 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   private void handleClose(WebSocketCloseStatus closeStatus) {
     OnClose callback = onCloseCallback.getAndSet(null);
     if (isOpen()) {
+      open.set(false);
       // close socket:
       netty.ctx.channel()
           .writeAndFlush(
               new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()))
           .addListener(ChannelFutureListener.CLOSE);
     }
-    open.set(false);
     try {
       if (callback != null) {
         // fire callback:

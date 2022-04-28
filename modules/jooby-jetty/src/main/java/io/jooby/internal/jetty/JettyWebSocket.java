@@ -221,12 +221,12 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     // 1. close socket
     try {
       if (isOpen()) {
+        open.set(false);
         session.close(closeStatus.getCode(), closeStatus.getReason());
       }
     } catch (Throwable x) {
       cause = x;
     }
-    open.set(false);
     // fire callback:
     if (callback != null) {
       try {
