@@ -22,6 +22,7 @@ public class ServerOptionsTest {
         .withValue("server.maxRequestSize", fromAnyRef(2048))
         .withValue("server.workerThreads", fromAnyRef(32))
         .withValue("server.host", fromAnyRef("0.0.0.0"))
+        .withValue("server.httpsOnly", fromAnyRef(true))
         .resolve()
     ).get();
     assertEquals(9090, options.getPort());
@@ -34,5 +35,6 @@ public class ServerOptionsTest {
     assertEquals(2048, options.getMaxRequestSize());
     assertEquals(32, options.getWorkerThreads());
     assertEquals("0.0.0.0", options.getHost());
+    assertEquals(true, options.isHttpsOnly());
   }
 }

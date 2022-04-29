@@ -3,7 +3,10 @@ package io.jooby;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
+import java.net.ConnectException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class HttpsTest {
 
@@ -149,6 +152,19 @@ public class HttpsTest {
             rsp.header("Location"));
         assertEquals(302, rsp.code());
       });
+    });
+  }
+
+  @ServerTest
+  public void httpsOnly(ServerTestRunner runner) {
+    runner.define(app -> {
+      app.setServerOptions(new ServerOptions().setSecurePort(8443).setHttpsOnly(true));
+
+      app.get("/test", ctx -> "test");
+    }).ready((http, https) -> {
+      assertThrows(ConnectException.class, () -> http.get("/test", null));
+
+      https.get("/test", rsp -> assertEquals("test", rsp.body().string()));
     });
   }
 }

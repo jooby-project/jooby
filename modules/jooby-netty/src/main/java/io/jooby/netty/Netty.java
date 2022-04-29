@@ -127,12 +127,13 @@ public class Netty extends Server.Base {
       }
 
       /** Bootstrap: */
-      ServerBootstrap http = transport.configure(acceptorloop, eventloop)
-          .childHandler(newPipeline(factory, null, http2))
-          .childOption(ChannelOption.SO_REUSEADDR, true)
-          .childOption(ChannelOption.TCP_NODELAY, true);
-
-      http.bind(options.getHost(), options.getPort()).get();
+      if (!options.isHttpsOnly()) {
+        ServerBootstrap http = transport.configure(acceptorloop, eventloop)
+            .childHandler(newPipeline(factory, null, http2))
+            .childOption(ChannelOption.SO_REUSEADDR, true)
+            .childOption(ChannelOption.TCP_NODELAY, true);
+        http.bind(options.getHost(), options.getPort()).get();
+      }
 
       if (options.isSSLEnabled()) {
         SSLContext javaSslContext = options
@@ -152,6 +153,8 @@ public class Netty extends Server.Base {
             .childOption(ChannelOption.TCP_NODELAY, true);
 
         https.bind(options.getHost(), options.getSecurePort()).get();
+      } else if (options.isHttpsOnly()) {
+        throw new IllegalArgumentException("Server configured for httpsOnly, but ssl options not set");
       }
 
       fireReady(applications);

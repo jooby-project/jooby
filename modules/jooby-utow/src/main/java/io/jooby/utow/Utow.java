@@ -61,7 +61,8 @@ public class Utow extends Server.Base {
       .setIoThreads(ServerOptions.IO_THREADS)
       .setServer("utow");
 
-  @Nonnull @Override public Utow setOptions(@Nonnull ServerOptions options) {
+  @Nonnull
+  @Override public Utow setOptions(@Nonnull ServerOptions options) {
     this.options = options
         .setIoThreads(options.getIoThreads());
     return this;
@@ -93,7 +94,6 @@ public class Utow extends Server.Base {
       }
 
       Undertow.Builder builder = Undertow.builder()
-          .addHttpListener(options.getPort(), options.getHost())
           .setBufferSize(options.getBufferSize())
           /** Socket : */
           .setSocketOption(Options.BACKLOG, BACKLOG)
@@ -110,10 +110,14 @@ public class Utow extends Server.Base {
           .setWorkerThreads(options.getWorkerThreads())
           .setHandler(handler);
 
+      if (!options.isHttpsOnly()) {
+        builder.addHttpListener(options.getPort(), options.getHost());
+      }
+
       if (options.isHttp2() == null || options.isHttp2() == Boolean.TRUE) {
         stream(spliteratorUnknownSize(
-            ServiceLoader.load(Http2Configurer.class).iterator(),
-            Spliterator.ORDERED),
+                ServiceLoader.load(Http2Configurer.class).iterator(),
+                Spliterator.ORDERED),
             false
         )
             .filter(it -> it.support(Undertow.Builder.class))
@@ -134,6 +138,8 @@ public class Utow extends Server.Base {
             .map(this::toSslClientAuthMode)
             .ifPresent(
                 clientAuth -> builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, clientAuth));
+      } else if (options.isHttpsOnly()) {
+        throw new IllegalArgumentException("Server configured for httpsOnly, but ssl options not set");
       }
 
       server = builder.build();
