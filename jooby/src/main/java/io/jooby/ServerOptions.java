@@ -266,6 +266,8 @@ public class ServerOptions {
 
   /**
    * Bind only https port. Default is false.
+   *
+   * @return True when only https is required.
    */
   public boolean isHttpsOnly() {
     return httpsOnly;
@@ -273,6 +275,9 @@ public class ServerOptions {
 
   /**
    * Bind only https port. Default is false.
+   *
+   * @param httpsOnly True to bind only HTTPS.
+   * @return This options.
    */
   public @Nonnull ServerOptions setHttpsOnly(boolean httpsOnly) {
     this.httpsOnly = httpsOnly;
