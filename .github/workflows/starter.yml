@@ -8,6 +8,9 @@ on:
     paths:
       - 'starters/**'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
