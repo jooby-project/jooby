@@ -17,6 +17,7 @@ import java.lang.reflect.Parameter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -66,7 +67,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
           Collections.emptySet());
     }
     Constructor constructor = selectConstructor(constructors);
-    Set<ValueNode> state = new HashSet<>();
+    Set<Object> state = new HashSet<>();
     Object[] args = constructor.getParameterCount() == 0
         ? NO_ARGS
         : inject(node, constructor, state::add);
@@ -130,15 +131,34 @@ public class ReflectiveBeanConverter implements BeanConverter {
     throw Usage.parameterNameNotPresent(parameter);
   }
 
-  private static <T> T setters(T newInstance, ValueNode node, Set<ValueNode> skip) {
+  /**
+   * Collect all possible values.
+   *
+   * @param node Root node.
+   * @return Names, including file names.
+   */
+  private static Set<String> names(ValueNode node) {
+    Set<String> names = new LinkedHashSet<>();
+    for (ValueNode item : node) {
+      names.add(item.name());
+    }
+    if (node instanceof Multipart) {
+      for (FileUpload file : ((Multipart) node).files()) {
+        names.add(file.getName());
+      }
+    }
+    return names;
+  }
+
+  private static <T> T setters(T newInstance, ValueNode node, Set<Object> skip) {
     Method[] methods = newInstance.getClass().getMethods();
-    for (ValueNode value : node) {
+    for (String name: names(node)) {
+      ValueNode value = node.get(name);
       if (!skip.contains(value)) {
-        String name = value.name();
-        String setter1 = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-        Method method = findMethod(methods, setter1);
+        String methodName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+        Method method = findSetter(methods, methodName);
         if (method == null) {
-          method = findMethod(methods, name);
+          method = findSetter(methods, name);
         }
         if (method != null) {
           Parameter parameter = method.getParameters()[0];
@@ -203,7 +223,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return FileUpload.class == type;
   }
 
-  private static Method findMethod(Method[] methods, String name) {
+  private static Method findSetter(Method[] methods, String name) {
     for (Method method : methods) {
       if (method.getName().equals(name) && method.getParameterCount() == 1) {
         return method;

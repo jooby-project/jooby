@@ -5,15 +5,17 @@
  */
 package io.jooby.internal;
 
-import io.jooby.exception.MissingValueException;
-import io.jooby.ValueNode;
-
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
+
+import io.jooby.ValueNode;
+import io.jooby.exception.MissingValueException;
 
 public class MissingValue implements ValueNode {
   private String name;
@@ -72,5 +74,16 @@ public class MissingValue implements ValueNode {
 
   @Override public String toString() {
     return "<missing>";
+  }
+
+  @Override public boolean equals(Object o) {
+    if (o instanceof MissingValue) {
+      return Objects.equals(name, ((MissingValue) o).name);
+    }
+    return false;
+  }
+
+  @Override public int hashCode() {
+    return Objects.hash(name);
   }
 }
