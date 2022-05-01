@@ -48,6 +48,7 @@ Server options are available via javadoc:ServerOptions[] class:
       .setMaxRequestSize(10485760)
       .setSecurePort(8433)
       .setSsl(SslOptions.selfSigned())
+      .setHttpsOnly(false)
       .setHttp2(true)
       .setExpectContinue(true)
   ); 
@@ -70,8 +71,9 @@ Server options are available via javadoc:ServerOptions[] class:
     maxRequestSize = 10485760
     securePort = 8443
     ssl = SslOptions.selfSigned()
-    http2 = true
-    expectContinue = true
+    isHttpsOnly = true
+    isHttp2 = true
+    isExpectContinue = true
   }
 }
 ----
@@ -87,8 +89,9 @@ Server options are available via javadoc:ServerOptions[] class:
 - maxRequestSize: Maximum request size in bytes. Request exceeding this value results in 413(REQUEST_ENTITY_TOO_LARGE) response. Default is `10mb`.
 - securePort: Enable HTTPS. This option is fully covered in next section.
 - ssl: SSL options with certificate details. This option is fully covered in next section.
-- http2: Enable HTTP 2.0.
-- expectContinue: Whenever 100-Expect and continue requests are handled by the server. This is off
+- isHttpsOnly: bind only to HTTPS port, not HTTP. This requires SSL options to be configured.
+- isHttp2: Enable HTTP 2.0.
+- isExpectContinue: Whenever 100-Expect and continue requests are handled by the server. This is off
   by default, except for Jetty which is always ON.
 
 Server options are available as application configuration properties too:
@@ -107,6 +110,7 @@ server.defaultHeaders = true
 server.maxRequestSize = 10485760
 server.securePort = 8443
 server.ssl.type = self-signed | PKCS12 | X509
+server.ssl.httpsOnly = false
 server.http2 = true
 server.expectContinue = false
 ----

@@ -893,17 +893,19 @@ public class Jooby implements Router, Registry {
     log.info("    app dir: {}", System.getProperty("user.dir"));
     log.info("    tmp dir: {}", tmpdir);
 
+    List<Object> args = new ArrayList<>();
     StringBuilder buff = new StringBuilder();
     buff.append("routes: \n\n{}\n\nlistening on:\n");
+    args.add(router);
 
     ServerOptions options = server.getOptions();
     String host = options.getHost().replace("0.0.0.0", "localhost");
-    List<Object> args = new ArrayList<>();
-    args.add(router);
-    args.add(host);
-    args.add(options.getPort());
-    args.add(router.getContextPath());
-    buff.append("  http://{}:{}{}\n");
+    if (!options.isHttpsOnly()) {
+      args.add(host);
+      args.add(options.getPort());
+      args.add(router.getContextPath());
+      buff.append("  http://{}:{}{}\n");
+    }
 
     if (options.isSSLEnabled()) {
       args.add(host);

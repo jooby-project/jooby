@@ -125,12 +125,14 @@ public class Jetty extends io.jooby.Server.Base {
       Optional.ofNullable(http2)
           .ifPresent(extension -> connectionFactories.addAll(extension.configure(httpConf)));
 
-      ServerConnector http = new ServerConnector(server,
-          connectionFactories.toArray(new ConnectionFactory[0]));
-      http.setPort(options.getPort());
-      http.setHost(options.getHost());
+      if (!options.isHttpsOnly()) {
+        ServerConnector http = new ServerConnector(server,
+            connectionFactories.toArray(new ConnectionFactory[0]));
+        http.setPort(options.getPort());
+        http.setHost(options.getHost());
 
-      server.addConnector(http);
+        server.addConnector(http);
+      }
 
       if (options.isSSLEnabled()) {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
@@ -170,6 +172,8 @@ public class Jetty extends io.jooby.Server.Base {
         secureConnector.setHost(options.getHost());
 
         server.addConnector(secureConnector);
+      } else if (options.isHttpsOnly()) {
+        throw new IllegalArgumentException("Server configured for httpsOnly, but ssl options not set");
       }
 
       ContextHandler context = new ContextHandler();

@@ -101,6 +101,11 @@ public class ServerOptions {
 
   private Integer securePort;
 
+  /**
+   * Bind only https port. Default is false.
+   */
+  private boolean httpsOnly;
+
   private Integer compressionLevel;
 
   private Boolean http2;
@@ -155,6 +160,9 @@ public class ServerOptions {
       }
       // ssl
       SslOptions.from(conf, "server.ssl").ifPresent(options::setSsl);
+      if (conf.hasPath("server.httpsOnly")) {
+        options.httpsOnly = conf.getBoolean("server.httpsOnly");
+      }
       if (conf.hasPath("server.http2")) {
         options.setHttp2(conf.getBoolean("server.http2"));
       }
@@ -174,6 +182,7 @@ public class ServerOptions {
     buff.append(", workerThreads: ").append(getWorkerThreads());
     buff.append(", bufferSize: ").append(bufferSize);
     buff.append(", maxRequestSize: ").append(maxRequestSize);
+    buff.append(", httpsOnly: ").append(httpsOnly);
     if (compressionLevel != null) {
       buff.append(", gzip");
     }
@@ -246,12 +255,27 @@ public class ServerOptions {
    * @param securePort Port number or <code>0</code> for random number.
    * @return This options.
    */
-  public @Nullable ServerOptions setSecurePort(@Nullable Integer securePort) {
+  public @Nonnull ServerOptions setSecurePort(@Nullable Integer securePort) {
     if (securePort == null) {
       this.securePort = null;
     } else {
       this.securePort = securePort.intValue() == 0 ? randomPort() : securePort.intValue();
     }
+    return this;
+  }
+
+  /**
+   * Bind only https port. Default is false.
+   */
+  public boolean isHttpsOnly() {
+    return httpsOnly;
+  }
+
+  /**
+   * Bind only https port. Default is false.
+   */
+  public @Nonnull ServerOptions setHttpsOnly(boolean httpsOnly) {
+    this.httpsOnly = httpsOnly;
     return this;
   }
 
