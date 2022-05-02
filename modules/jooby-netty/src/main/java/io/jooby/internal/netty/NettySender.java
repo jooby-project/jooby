@@ -32,6 +32,7 @@ public class NettySender implements Sender {
 
   @Override public void close() {
     context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ctx);
+    ctx.requestComplete();
   }
 
   private static ChannelFutureListener newChannelFutureListener(NettyContext ctx,

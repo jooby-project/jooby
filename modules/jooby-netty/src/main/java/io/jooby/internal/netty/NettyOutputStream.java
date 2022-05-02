@@ -18,16 +18,18 @@ import java.io.OutputStream;
 
 public class NettyOutputStream extends OutputStream {
   private final ByteBuf buffer;
-  private final ChannelHandlerContext ctx;
+  private final NettyContext ctx;
+  private final ChannelHandlerContext context;
   private final ChannelFutureListener closeListener;
   private HttpResponse headers;
 
-  public NettyOutputStream(ChannelHandlerContext ctx, int bufferSize, HttpResponse headers,
-      ChannelFutureListener closeListener) {
-    this.buffer = ctx.alloc().buffer(0, bufferSize);
+  public NettyOutputStream(NettyContext ctx, ChannelHandlerContext context, int bufferSize,
+      HttpResponse headers) {
     this.ctx = ctx;
+    this.buffer = context.alloc().buffer(0, bufferSize);
+    this.context = context;
     this.headers = headers;
-    this.closeListener = closeListener;
+    this.closeListener = ctx;
   }
 
   @Override
@@ -65,7 +67,7 @@ public class NettyOutputStream extends OutputStream {
 
   private void writeHeaders() {
     if (headers != null) {
-      ctx.write(headers, ctx.voidPromise());
+      context.write(headers, context.voidPromise());
       headers = null;
     }
   }
@@ -79,22 +81,22 @@ public class NettyOutputStream extends OutputStream {
     if (chunkSize > 0) {
       if (listener != null) {
         if (callback == null) {
-          ctx.write(new DefaultHttpContent(buffer.copy()), ctx.voidPromise());
+          context.write(new DefaultHttpContent(buffer.copy()), context.voidPromise());
         } else {
-          ctx.write(new DefaultHttpContent(buffer.copy())).addListener(callback);
+          context.write(new DefaultHttpContent(buffer.copy())).addListener(callback);
         }
-        ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(listener);
+        context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(listener);
         buffer.release();
       } else {
         if (callback == null) {
-          ctx.write(new DefaultHttpContent(buffer.copy()), ctx.voidPromise());
+          context.write(new DefaultHttpContent(buffer.copy()), context.voidPromise());
         } else {
-          ctx.write(new DefaultHttpContent(buffer.copy())).addListener(callback);
+          context.write(new DefaultHttpContent(buffer.copy())).addListener(callback);
         }
         buffer.clear();
       }
     } else {
-      ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+      ChannelFuture future = context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
       if (listener != null) {
         future.addListener(listener);
       }
@@ -103,6 +105,10 @@ public class NettyOutputStream extends OutputStream {
 
   @Override
   public void close() {
-    flush(null, closeListener);
+    try {
+      flush(null, closeListener);
+    } finally {
+      ctx.requestComplete();
+    }
   }
 }
