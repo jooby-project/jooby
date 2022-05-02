@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * This annotation has no effect on the behavior of {@code SessionRequest} decorator(s).
  */
 @RouteAttribute
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
 
