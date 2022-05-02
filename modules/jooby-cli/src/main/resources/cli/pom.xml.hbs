@@ -48,12 +48,15 @@
 
   <build>
   {{#if kotlin}}
-    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+    <sourceDirectory>${project.basedir}${file.separator}src${file.separator}main${file.separator}kotlin</sourceDirectory>
+    <testSourceDirectory>${project.basedir}${file.separator}src${file.separator}test${file.separator}kotlin</testSourceDirectory>
   {{/if}}
     <resources>
       <resource>
         <directory>conf</directory>
+      </resource>
+      <resource>
+        <directory>src${file.separator}main${file.separator}resources</directory>
       </resource>
     </resources>
     <plugins>
