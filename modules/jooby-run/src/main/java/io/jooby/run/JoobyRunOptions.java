@@ -28,6 +28,12 @@ public class JoobyRunOptions {
 
   private Integer port = null;
 
+  private Long waitTimeBeforeRestart = DEFAULT_WAIT_TIME_BEFORE_RESTART;
+
+  private static final long DEFAULT_WAIT_TIME_BEFORE_RESTART = 500L;
+
+  static final long INITIAL_DELAY_BEFORE_FIRST_RESTART = 5000L;
+
   /**
    * Project name.
    *
@@ -80,6 +86,26 @@ public class JoobyRunOptions {
    */
   public void setPort(Integer port) {
     this.port = port;
+  }
+
+  /**
+   * How long to wait after last file change to restart. Default is: <code>500</code> milliseconds.
+   *
+   * @return Wait time in milliseconds
+   */
+  public Long getWaitTimeBeforeRestart() {
+    return waitTimeBeforeRestart;
+  }
+
+  /**
+   * Set wait time before restart.
+   *
+   * @param waitTimeBeforeRestart
+   */
+  public void setWaitTimeBeforeRestart(Long waitTimeBeforeRestart) {
+    if (waitTimeBeforeRestart != null) {
+      this.waitTimeBeforeRestart = waitTimeBeforeRestart;
+    }
   }
 
   /**

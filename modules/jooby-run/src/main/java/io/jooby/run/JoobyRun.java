@@ -19,12 +19,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 /**
@@ -57,6 +63,13 @@ public class JoobyRun {
     private Module module;
     private ClassLoader contextClassLoader;
     private int counter;
+    private final AtomicInteger state = new AtomicInteger(CLOSED);
+    private static final int CLOSED = 1 << 0;
+    private static final int UNLOADING = 1 << 1;
+    private static final int UNLOADED = 1 << 2;
+    private static final int STARTING = 1 << 3;
+    private static final int RESTART = 1 << 4;
+    private static final int RUNNING = 1 << 5;
 
     AppModule(Logger logger, ExtModuleLoader loader, ClassLoader contextClassLoader,
         JoobyRunOptions conf) {
@@ -67,6 +80,11 @@ public class JoobyRun {
     }
 
     public Exception start() {
+      if (!(state.compareAndSet(CLOSED, STARTING)
+          || state.compareAndSet(UNLOADED, STARTING))) {
+        debugState("Jooby already starting.");
+        return null;
+      }
       try {
         module = loader.loadModule(conf.getProjectName());
         ModuleClassLoader classLoader = module.getClassLoader();
@@ -102,6 +120,9 @@ public class JoobyRun {
       } catch (Throwable x) {
         printErr(x);
       } finally {
+        if (state.compareAndSet(STARTING, RUNNING)) {
+          debugState("Jooby is now");
+        }
         Thread.currentThread().setContextClassLoader(contextClassLoader);
       }
       // In theory: application started successfully, then something went wrong. Still, users
@@ -139,10 +160,19 @@ public class JoobyRun {
           || cause instanceof VirtualMachineError;
     }
 
+    public boolean isStarting() {
+      long s = state.longValue();
+      return s > CLOSED && s < RUNNING;
+    }
+
     public void restart() {
-      closeServer();
-      unloadModule();
-      start();
+      if (state.compareAndSet(RUNNING, RESTART)) {
+        closeServer();
+        unloadModule();
+        start();
+      } else {
+        debugState("Already restarting.");
+      }
     }
 
     public void close() {
@@ -160,6 +190,10 @@ public class JoobyRun {
     }
 
     private void unloadModule() {
+      if (!state.compareAndSet(CLOSED, UNLOADING)) {
+        debugState("Cannot unload as server isn't closed.");
+        return;
+      }
       try {
         if (module != null) {
           loader.unload(conf.getProjectName(), module);
@@ -167,19 +201,53 @@ public class JoobyRun {
       } catch (Exception x) {
         logger.debug("unload module resulted in exception", x);
       } finally {
+        state.compareAndSet(UNLOADING, UNLOADED);
         module = null;
       }
     }
 
     private void closeServer() {
       try {
-        Class ref = module.getClassLoader().loadClass(SERVER_REF);
+        debugState("Closing server.");
+        Class<?> ref = module.getClassLoader().loadClass(SERVER_REF);
         ref.getDeclaredMethod(SERVER_REF_STOP).invoke(null);
       } catch (Exception x) {
         logger.error("Application shutdown resulted in exception", withoutReflection(x));
+      } finally {
+        state.set(CLOSED);
+      }
+    }
+
+    private void debugState(String message) {
+      if (logger.isDebugEnabled()) {
+        String name;
+        switch (state.get()) {
+          case CLOSED:
+            name = "CLOSED";
+            break;
+          case UNLOADING:
+            name = "UNLOADING";
+            break;
+          case UNLOADED:
+            name = "UNLOADED";
+            break;
+          case STARTING:
+            name = "STARTING";
+            break;
+          case RESTART:
+            name = "RESTART";
+            break;
+          case RUNNING:
+            name = "RUNNING";
+            break;
+          default:
+            throw new IllegalStateException("BUG");
+        }
+        logger.debug(message + " state: {}", name);
       }
     }
   }
+
 
   static final String SERVER_REF = "io.jooby.run.ServerRef";
 
@@ -199,6 +267,17 @@ public class JoobyRun {
 
   private AppModule module;
 
+  private final Clock clock;
+
+  private final ConcurrentLinkedQueue<Event> queue = new ConcurrentLinkedQueue<>();
+
+  /*
+   * How long we wait after the last change before restart
+   */
+  private final long waitTimeBeforeRestartMillis;
+
+  private final long initialDelayBeforeFirstRestartMillis;
+
   /**
    * Creates a new instances with the given options.
    *
@@ -206,6 +285,10 @@ public class JoobyRun {
    */
   public JoobyRun(JoobyRunOptions options) {
     this.options = options;
+    clock = Clock.systemUTC(); // Possibly change for unit test
+    waitTimeBeforeRestartMillis = options.getWaitTimeBeforeRestart();
+    // this might not need to be configurable
+    initialDelayBeforeFirstRestartMillis = JoobyRunOptions.INITIAL_DELAY_BEFORE_FIRST_RESTART;
   }
 
   /**
@@ -253,17 +336,26 @@ public class JoobyRun {
   public void start() throws Throwable {
     this.watcher = newWatcher();
     try {
+
       logger.debug("project: {}", toString());
 
-      ModuleFinder[] finders = {
-          new FlattenClasspath(options.getProjectName(), resources, dependencies)};
+      ModuleFinder[] finders =
+          {new FlattenClasspath(options.getProjectName(), resources, dependencies)};
 
       ExtModuleLoader loader = new ExtModuleLoader(finders);
-      module = new AppModule(logger, loader, Thread.currentThread().getContextClassLoader(),
-          options);
+      module =
+          new AppModule(logger, loader, Thread.currentThread().getContextClassLoader(), options);
+      ScheduledExecutorService se;
       Exception error = module.start();
       if (error == null) {
-        watcher.watch();
+        se = Executors.newScheduledThreadPool(1);
+        se.scheduleAtFixedRate(this::actualRestart, initialDelayBeforeFirstRestartMillis,
+            waitTimeBeforeRestartMillis, TimeUnit.MILLISECONDS);
+        try {
+          watcher.watch();
+        } finally {
+          se.shutdownNow();
+        }
       } else {
         // exit
         shutdown();
@@ -278,7 +370,36 @@ public class JoobyRun {
    * Restart the application.
    */
   public void restart() {
-    module.restart();
+    //module.restart();
+    queue.offer(new Event(clock.millis()));
+  }
+
+  private static class Event {
+    private final long time;
+    Event(long time) {
+      this.time = time;
+    }
+  };
+
+
+
+  private synchronized void actualRestart() {
+    if (module.isStarting()) {
+      return; // We don't empty the queue. This is the case a change was made while starting.
+    }
+    // Event e = queue.peek();
+    long t = clock.millis();
+    Event e = queue.peek();
+    if (e == null) {
+      return; // queue was empty
+    }
+    for (; e != null && (t - e.time) > waitTimeBeforeRestartMillis; e = queue.peek()) {
+      queue.poll();
+    }
+    // e will be null if the queue is empty which means all events were old enough
+    if (e == null) {
+      module.restart();
+    }
   }
 
   /**
