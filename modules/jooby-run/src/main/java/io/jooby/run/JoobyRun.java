@@ -333,6 +333,7 @@ public class JoobyRun {
    *
    * @throws Throwable If something goes wrong.
    */
+  @SuppressWarnings("FutureReturnValueIgnored")
   public void start() throws Throwable {
     this.watcher = newWatcher();
     try {

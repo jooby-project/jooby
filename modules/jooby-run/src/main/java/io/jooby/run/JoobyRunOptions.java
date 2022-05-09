@@ -91,16 +91,16 @@ public class JoobyRunOptions {
   /**
    * How long to wait after last file change to restart. Default is: <code>500</code> milliseconds.
    *
-   * @return Wait time in milliseconds
+   * @return Wait time in milliseconds.
    */
   public Long getWaitTimeBeforeRestart() {
     return waitTimeBeforeRestart;
   }
 
   /**
-   * Set wait time before restart.
+   * Set wait time before restart on file change.
    *
-   * @param waitTimeBeforeRestart
+   * @param waitTimeBeforeRestart the time in milliseconds.
    */
   public void setWaitTimeBeforeRestart(Long waitTimeBeforeRestart) {
     if (waitTimeBeforeRestart != null) {
