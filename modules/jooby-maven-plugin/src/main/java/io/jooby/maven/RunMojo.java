@@ -62,6 +62,12 @@ public class RunMojo extends BaseMojo {
   @Parameter(property = "jooby.port")
   private Integer port;
 
+  /**
+   * How long to wait after last file change to restart. Default is: <code>500</code> milliseconds.
+   */
+  @Parameter(property = "jooby.waitTimeBeforeRestart")
+  private Long waitTimeBeforeRestart;
+
   @Override protected void doExecute(List<MavenProject> projects, String mainClass)
       throws Throwable {
     Maven maven = getMaven();
@@ -122,6 +128,7 @@ public class RunMojo extends BaseMojo {
       options.setCompileExtensions(compileExtensions);
     }
     options.setPort(port);
+    options.setWaitTimeBeforeRestart(waitTimeBeforeRestart);
     options.setProjectName(session.getCurrentProject().getArtifactId());
     if (restartExtensions != null) {
       options.setRestartExtensions(restartExtensions);
