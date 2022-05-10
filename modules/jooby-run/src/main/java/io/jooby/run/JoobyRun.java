@@ -45,6 +45,13 @@ import java.util.function.BiConsumer;
  */
 public class JoobyRun {
 
+  private static class Event {
+    private final long time;
+    Event(long time) {
+      this.time = time;
+    }
+  }
+
   private static class ExtModuleLoader extends ModuleLoader {
 
     ExtModuleLoader(ModuleFinder... finders) {
@@ -371,24 +378,13 @@ public class JoobyRun {
    * Restart the application.
    */
   public void restart() {
-    //module.restart();
     queue.offer(new Event(clock.millis()));
   }
-
-  private static class Event {
-    private final long time;
-    Event(long time) {
-      this.time = time;
-    }
-  };
-
-
 
   private synchronized void actualRestart() {
     if (module.isStarting()) {
       return; // We don't empty the queue. This is the case a change was made while starting.
     }
-    // Event e = queue.peek();
     long t = clock.millis();
     Event e = queue.peek();
     if (e == null) {

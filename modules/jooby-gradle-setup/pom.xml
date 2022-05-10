@@ -44,6 +44,20 @@
 
             <executions>
               <execution>
+                <id>compilePlugin</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>compile</phase>
+                <configuration>
+                  <arguments>
+                    <argument>compileJava</argument>
+                    <argument>-PjoobyVersion=${project.version}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+
+              <execution>
                 <id>publishToMavenLocal</id>
                 <goals>
                   <goal>exec</goal>

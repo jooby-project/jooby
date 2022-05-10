@@ -54,6 +54,11 @@ public class RunTask extends BaseTask {
   private Integer port;
 
   /**
+   * How long to wait after last file change to restart. Default is: <code>500</code> milliseconds.
+   */
+  private Long waitTimeBeforeRestart;
+
+  /**
    * Run task.
    *
    * @throws Throwable If something goes wrong.
@@ -80,6 +85,9 @@ public class RunTask extends BaseTask {
       }
       if (restartExtensions != null) {
         config.setRestartExtensions(restartExtensions);
+      }
+      if (waitTimeBeforeRestart != null) {
+        config.setWaitTimeBeforeRestart(waitTimeBeforeRestart);
       }
       config.setProjectName(current.getName());
       getLogger().info("jooby options: {}", config);
@@ -253,6 +261,27 @@ public class RunTask extends BaseTask {
    */
   public void setPort(Integer port) {
     this.port = port;
+  }
+
+  /**
+   * How long to wait after last file change to restart. Default is: <code>500</code> milliseconds.
+   *
+   * @return How long to wait after last file change.
+   */
+  @Input
+  @org.gradle.api.tasks.Optional
+  public Long getWaitTimeBeforeRestart() {
+    return waitTimeBeforeRestart;
+  }
+
+  /**
+   * Set How long to wait after last file change to restart.
+   * Default is: <code>500</code> milliseconds.
+   *
+   * @param waitTimeBeforeRestart How long to wait after last file change to restart.
+   */
+  public void setWaitTimeBeforeRestart(Long waitTimeBeforeRestart) {
+    this.waitTimeBeforeRestart = waitTimeBeforeRestart;
   }
 
   /**
