@@ -163,6 +163,7 @@ public class UtowWebSocket extends AbstractReceiveListener
   void fireConnect() {
     // fire only once
     try {
+      open.set(true);
       addSession(this);
       Config conf = ctx.getRouter().getConfig();
       long timeout = conf.hasPath("websocket.idleTimeout")
@@ -196,7 +197,6 @@ public class UtowWebSocket extends AbstractReceiveListener
   private void waitForConnect() {
     try {
       ready.await();
-      open.set(true);
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }

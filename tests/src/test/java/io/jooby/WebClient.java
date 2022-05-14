@@ -100,6 +100,10 @@ public class WebClient implements AutoCloseable {
 
     public String send(String message) {
       ws.send(message);
+      return lastMessage();
+    }
+
+    public String lastMessage() {
       return listener.lastMessage();
     }
 

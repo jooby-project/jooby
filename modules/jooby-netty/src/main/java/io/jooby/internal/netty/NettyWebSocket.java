@@ -223,6 +223,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   void fireConnect() {
+    open.set(true);
     addSession(this);
     if (connectCallback != null) {
       fireCallback(webSocketTask(() -> {
@@ -293,7 +294,6 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   private void waitForConnect() {
     try {
       ready.await();
-      open.set(true);
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }
