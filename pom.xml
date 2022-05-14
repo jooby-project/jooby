@@ -20,10 +20,11 @@
 
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.31</freemarker.version>
-    <handlebars.version>4.2.0</handlebars.version>
+    <handlebars.version>4.3.0</handlebars.version>
     <pebble.version>3.1.5</pebble.version>
-    <jackson.version>2.13.2</jackson.version>
-    <jackson-databind.version>2.13.2.2</jackson-databind.version>
+    <jackson.version>2.13.3</jackson.version>
+    <jackson-dataformat-yaml.version>2.13.2</jackson-dataformat-yaml.version>
+    <jackson-databind.version>2.13.3</jackson-databind.version>
     <gson.version>2.9.0</gson.version>
     <jakarta.json.bind-api.version>1.0.2</jakarta.json.bind-api.version>
     <yasson.version>1.0.9</yasson.version>
@@ -32,9 +33,9 @@
 
     <!-- data -->
     <HikariCP.version>4.0.3</HikariCP.version>
-    <mysql-connector-java.version>8.0.27</mysql-connector-java.version>
+    <mysql-connector-java.version>8.0.29</mysql-connector-java.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <h2.version>2.1.210</h2.version>
+    <h2.version>2.1.212</h2.version>
     <hibernate.version>5.6.3.Final</hibernate.version>
     <ebean.version>12.16.0</ebean.version>
     <jdbi.version>3.28.0</jdbi.version>
@@ -45,12 +46,12 @@
     <kafka.version>2.7.0</kafka.version>
     <caffeine.version>2.8.8</caffeine.version>
 
-    <config.version>1.4.1</config.version>
+    <config.version>1.4.2</config.version>
 
     <!-- dependency injection -->
     <weld.version>3.1.5.Final</weld.version>
-    <spring.version>5.3.7</spring.version>
-    <guice.version>5.0.1</guice.version>
+    <spring.version>5.3.20</spring.version>
+    <guice.version>5.1.0</guice.version>
 
     <!-- logging -->
     <logback-classic.version>1.2.9</logback-classic.version>
@@ -61,14 +62,14 @@
     <commons-email.version>1.5</commons-email.version>
 
     <!-- util -->
-    <jfiglet.version>0.0.8</jfiglet.version>
-    <metrics.version>4.2.8</metrics.version>
+    <jfiglet.version>0.0.9</jfiglet.version>
+    <metrics.version>4.2.9</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>1.11.0.Final</jboss-modules.version>
 
     <!-- ASM -->
-    <asm.version>9.1</asm.version>
+    <asm.version>9.3</asm.version>
 
     <!-- Server -->
     <undertow.version>2.2.17.Final</undertow.version>
@@ -77,11 +78,11 @@
 
     <!-- Reactive -->
     <rxjava.version>2.2.21</rxjava.version>
-    <reactor.version>3.4.14</reactor.version>
+    <reactor.version>3.4.18</reactor.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.1.13</swagger.version>
-    <swagger-parser.version>2.0.30</swagger-parser.version>
+    <swagger.version>2.2.0</swagger.version>
+    <swagger-parser.version>2.0.32</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -94,17 +95,17 @@
 
     <!-- Misc -->
     <okhttp.version>4.9.3</okhttp.version>
-      <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
+    <jsonwebtoken.version>0.11.5</jsonwebtoken.version>
     <pac4j.version>4.5.6</pac4j.version>
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.1.6</cron-utils.version>
     <bucket4j-core.version>6.4.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.191</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.220</aws-java-sdk.version>
     <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
-    <frontend-plugin-core.version>1.12.0</frontend-plugin-core.version>
+    <frontend-plugin-core.version>1.12.1</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
 
-    <commons-io.version>2.8.0</commons-io.version>
+    <commons-io.version>2.11.0</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
 
     <!-- Kotlin -->
@@ -113,16 +114,16 @@
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
-    <jacoco.version>0.8.7</jacoco.version>
-    <junit.version>5.8.1</junit.version>
+    <jacoco.version>0.8.8</jacoco.version>
+    <junit.version>5.8.2</junit.version>
     <rest-assured.version>4.3.3</rest-assured.version>
     <checkstyle.version>8.42</checkstyle.version>
     <mockito.version>4.5.1</mockito.version>
-    <guava.version>30.0-jre</guava.version>
+    <guava.version>30.1-jre</guava.version>
 
-    <auto-service.version>1.0</auto-service.version>
+    <auto-service.version>1.0.1</auto-service.version>
     <compile-testing.version>0.19</compile-testing.version>
-    <truth.version>1.1.2</truth.version>
+    <truth.version>1.1.3</truth.version>
 
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
@@ -138,15 +139,15 @@
     <maven-tiles-plugin.version>2.24</maven-tiles-plugin.version>
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-    <maven-core.version>3.8.1</maven-core.version>
+    <maven-core.version>3.8.5</maven-core.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
     <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.0</archetype-packaging.version>
-    <maven-plugin-annotations.version>3.6.0</maven-plugin-annotations.version>
-    <maven-plugin-api.version>3.8.1</maven-plugin-api.version>
+    <maven-plugin-annotations.version>3.6.4</maven-plugin-annotations.version>
+    <maven-plugin-api.version>3.8.5</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
@@ -156,7 +157,7 @@
     <maven-surefire-plugin.version>3.0.0-M6</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
-    <plexus-utils.version>3.3.0</plexus-utils.version>
+    <plexus-utils.version>3.4.1</plexus-utils.version>
     <stork-maven-plugin.version>3.1.1</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
     <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
@@ -628,7 +629,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-yaml</artifactId>
-        <version>${jackson.version}</version>
+        <version>${jackson-dataformat-yaml.version}</version>
       </dependency>
 
       <dependency>
@@ -1439,7 +1440,7 @@
             <dependency>
               <groupId>org.apache.ant</groupId>
               <artifactId>ant</artifactId>
-              <version>1.10.11</version>
+              <version>1.10.12</version>
             </dependency>
           </dependencies>
         </plugin>
