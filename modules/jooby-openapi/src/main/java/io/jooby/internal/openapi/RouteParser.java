@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -666,67 +667,122 @@ public class RouteParser {
   private List<OperationExt> kotlinHandler(ParserContext ctx, String httpMethod,
       String prefix, MethodInsnNode node) {
     List<OperationExt> handlerList = new ArrayList<>();
-    String owner = InsnSupport.prev(node.getPrevious())
-        .filter(it -> {
+    // [0] - Owner
+    // [1] - Method name. Optional
+    // [2] - Method descriptor. Optional
+    List<String> lookup = InsnSupport.prev(node.getPrevious())
+        .map(it -> {
+          if (it instanceof InvokeDynamicInsnNode) {
+            InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) it;
+            Object[] args = invokeDynamic.bsmArgs;
+            if (args.length > 1 && args[1] instanceof Handle) {
+              Handle handle = (Handle) args[1];
+              return Arrays.asList(handle.getOwner(), handle.getName(), handle.getDesc());
+            }
+          }
           if (it instanceof FieldInsnNode) {
-            return true;
+            return Collections.singletonList(((FieldInsnNode) it).owner);
           }
           if (it instanceof MethodInsnNode) {
-            return !Signature.create((MethodInsnNode) it).matches("<init>", KT_FUN_1);
+            Signature signature = Signature.create((MethodInsnNode) it);
+            if (!signature.matches("<init>", KT_FUN_1)) {
+              return Collections.singletonList(((MethodInsnNode) it).owner);
+            }
           }
-          return false;
+          return null;
         })
+        .filter(Objects::nonNull)
         .findFirst()
-        .map(e -> {
-          if (e instanceof FieldInsnNode) {
-            return ((FieldInsnNode) e).owner;
-          }
-          return ((MethodInsnNode) e).owner;
-        })
         .orElseThrow(() -> new IllegalStateException(
             "Kotlin lambda not found: " + InsnSupport.toString(node)));
 
-    ClassNode classNode = ctx.classNode(Type.getObjectType(owner));
+    ClassNode classNode = ctx.classNode(Type.getObjectType(lookup.get(0)));
     MethodNode apply = null;
-    for (MethodNode method : classNode.methods) {
-      Signature signature = Signature.create(method);
-      if (signature.matches("invoke", TypeFactory.KOOBY)) {
-        ctx.debugHandlerLink(method);
+    if (lookup.size() > 1)  {
+      MethodNode method = classNode.methods.stream()
+          .filter(it -> it.name.equals(lookup.get(1)) && it.desc.equals(lookup.get(2)))
+          .findFirst()
+          .orElseThrow(() -> new IllegalStateException(
+              "Kotlin lambda not found: " + InsnSupport.toString(node)));
+      ctx.debugHandlerLink(method);
+      boolean synthetic = (method.access & Opcodes.ACC_PRIVATE) != 0;
+      if (synthetic && method.name.startsWith("invoke$")) {
+        method = ktFunRef160(ctx, method);
+      }
+      if (httpMethod == null) {
         handlerList.addAll(routeHandler(ctx, prefix, method));
-      } else if (signature.matches("invoke", TypeFactory.COROUTINE_ROUTER)) {
-        ctx.debugHandlerLink(method);
-        handlerList.addAll(routeHandler(ctx, prefix, method));
-      } else if (signature.matches("invoke", TypeFactory.HANDLER_CONTEXT)) {
-        ctx.debugHandler(method);
+      } else {
         handlerList.add(newRouteDescriptor(ctx, method, httpMethod, prefix));
-      } else if (signature.matches("invoke", TypeFactory.CONTEXT)) {
-        // fun reference
-        MethodNode ref = kotlinFunctionReference(ctx, classNode, method);
-        ctx.debugHandler(ref);
-        handlerList.add(newRouteDescriptor(ctx, ref, httpMethod, prefix));
-      } else if (signature.matches("invokeSuspend", Object.class)) {
-        ctx.debugHandler(method);
-        handlerList.add(newRouteDescriptor(ctx, method, httpMethod, prefix));
-      } else if (signature.matches("apply", TypeFactory.CONTEXT)) {
-        if (apply == null) {
-          apply = method;
-        } else {
-          // Should be a more specific apply method
-          if (returnTypePrecedence(method) > returnTypePrecedence(apply)) {
+      }
+    } else {
+      for (MethodNode method : classNode.methods) {
+        Signature signature = Signature.create(method);
+        if (signature.matches("invoke", TypeFactory.KOOBY)) {
+          ctx.debugHandlerLink(method);
+          handlerList.addAll(routeHandler(ctx, prefix, method));
+        } else if (signature.matches("invoke", TypeFactory.COROUTINE_ROUTER)) {
+          ctx.debugHandlerLink(method);
+          handlerList.addAll(routeHandler(ctx, prefix, method));
+        } else if (signature.matches("invoke", TypeFactory.HANDLER_CONTEXT)) {
+          ctx.debugHandler(method);
+          handlerList.add(newRouteDescriptor(ctx, method, httpMethod, prefix));
+        } else if (signature.matches("invoke", TypeFactory.CONTEXT)) {
+          // fun reference
+          MethodNode ref = kotlinFunctionReference(ctx, classNode, method);
+          ctx.debugHandler(ref);
+          handlerList.add(newRouteDescriptor(ctx, ref, httpMethod, prefix));
+        } else if (signature.matches("invokeSuspend", Object.class)) {
+          ctx.debugHandler(method);
+          handlerList.add(newRouteDescriptor(ctx, method, httpMethod, prefix));
+        } else if (signature.matches("apply", TypeFactory.CONTEXT)) {
+          if (apply == null) {
             apply = method;
+          } else {
+            // Should be a more specific apply method
+            if (returnTypePrecedence(method) > returnTypePrecedence(apply)) {
+              apply = method;
+            }
           }
+        } else if (signature.matches("run")) {
+          ctx.debugHandlerLink(method);
+          handlerList.addAll(routeHandler(ctx, prefix, method));
         }
-      } else if (signature.matches("run")) {
-        ctx.debugHandlerLink(method);
-        handlerList.addAll(routeHandler(ctx, prefix, method));
       }
     }
     if (apply != null) {
       // almost there can be one of two: 1) lambda itself or 2) method reference
+      Signature signature = Signature.create(node);
+      if (signature.matches(String.class, Route.Handler.class)) {
+        apply = ktFunRef160(ctx, apply);
+      }
       ctx.debugHandler(apply);
       handlerList.add(newRouteDescriptor(ctx, apply, httpMethod, prefix));
     }
     return handlerList;
+  }
+
+  private MethodNode ktFunRef160(ParserContext ctx, MethodNode method) {
+    AbstractInsnNode ref = InsnSupport.prev(method.instructions.getLast())
+        .filter(MethodInsnNode.class::isInstance)
+        .map(MethodInsnNode.class::cast)
+        .filter(it -> Signature.create(it).matches(Context.class))
+        .findFirst()
+        .orElse(null);
+    if (ref != null) {
+      MethodInsnNode call = (MethodInsnNode) ref;
+      ClassNode owner = ctx.classNodeOrNull(Type.getObjectType(call.owner));
+      if (owner != null) {
+        MethodNode methodRef = owner.methods.stream()
+            .filter(it -> it.name.equals(call.name) && it.desc.equals(call.desc))
+            .findFirst()
+            .orElse(null);
+        if (methodRef != null) {
+          return methodRef;
+        }
+      }
+    }
+    // fallback to what we found previously
+    return method;
   }
 
   private MethodNode kotlinFunctionReference(ParserContext ctx, ClassNode classNode,
@@ -767,7 +823,7 @@ public class RouteParser {
     OperationExt operation = new OperationExt(node, httpMethod, prefix, arguments, response);
 
     boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
-    boolean lambda = node.name.equals("apply") || node.name.equals("invoke");
+    boolean lambda = node.name.equals("apply") || node.name.equals("invoke") || node.name.startsWith("invoke$");
     if (notSynthetic && !lambda) {
       operation.setOperationId(node.name);
     }
@@ -815,7 +871,7 @@ public class RouteParser {
       return contextReference(handle);
     } else {
       return ctx.classNode(owner).methods.stream()
-          .filter(n -> n.name.equals(handle.getName()))
+          .filter(n -> n.name.equals(handle.getName()) && n.desc.equals(handle.getDesc()))
           .findFirst()
           .orElseThrow(() ->
               new IllegalStateException("Handler not found: " + InsnSupport.toString(node))

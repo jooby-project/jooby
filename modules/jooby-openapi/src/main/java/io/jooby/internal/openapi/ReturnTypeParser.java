@@ -31,13 +31,17 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import io.jooby.Context;
+
 public class ReturnTypeParser {
 
   public static List<String> parse(ParserContext ctx, MethodNode node) {
     Type returnType = Type.getReturnType(node.desc);
     boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
-    if (notSynthetic && !TypeFactory.OBJECT.equals(returnType) && !TypeFactory.VOID
-        .equals(returnType)) {
+    if (notSynthetic
+        && !TypeFactory.OBJECT.equals(returnType)
+        && !TypeFactory.VOID.equals(returnType)
+        && !TypeFactory.JOOBY.equals(returnType)) {
       if (node.signature == null) {
         return Collections.singletonList(ASMType.parse(returnType.getDescriptor()));
       } else {
@@ -53,172 +57,179 @@ public class ReturnTypeParser {
   }
 
   public static List<String> parseIgnoreSignature(ParserContext ctx, MethodNode node) {
-    Type returnType = Type.getReturnType(node.desc);
     List<String> result = InsnSupport.next(node.instructions.getFirst())
         .filter(it -> it.getOpcode() == Opcodes.ARETURN || it.getOpcode() == Opcodes.IRETURN
             || it.getOpcode() == Opcodes.RETURN)
-        .map(it -> {
-          if (it.getOpcode() == Opcodes.RETURN) {
-            return returnType.getClassName();
-          }
-          /** IRETURN */
-          if (it.getOpcode() == Opcodes.IRETURN) {
-            if (it instanceof InsnNode) {
-              AbstractInsnNode prev = it.getPrevious();
-              if (prev instanceof IntInsnNode) {
-                return Integer.class.getName();
-              }
-              if (prev instanceof InsnNode) {
-                if (prev.getOpcode() == Opcodes.ICONST_0
-                    || prev.getOpcode() == Opcodes.ICONST_1) {
-                  return Boolean.class.getName();
-                }
-              }
-            }
-          }
-
-          for (Iterator<AbstractInsnNode> iterator = InsnSupport
-              .prevIterator(it.getPrevious()); iterator.hasNext(); ) {
-            AbstractInsnNode i = iterator.next();
-            if (i instanceof MethodInsnNode && (((MethodInsnNode) i).owner
-                .equals("kotlin/jvm/internal/Intrinsics"))) {
-              // skip Ldc and load var
-              // dup or aload
-              // visitLdcInsn("$receiver");
-              // visitMethodInsn(INVOKESTATIC, "kotlin/jvm/internal/Intrinsics", "checkParameterIsNotNull", "(Ljava/lang/Object;Ljava/lang/String;)V", false);
-              iterator.next();
-              iterator.next();
-              continue;
-            }
-            if (i instanceof MethodInsnNode && (((MethodInsnNode) i).owner
-                .equals("kotlin/TypeCastException"))) {
-              continue;
-            }
-            if (i instanceof LineNumberNode || i instanceof LabelNode) {
-              continue;
-            }
-            String sourcedesc = null;
-            /** return 1; return true; return new Foo(); */
-            if (i instanceof MethodInsnNode) {
-              MethodInsnNode minnsn = (MethodInsnNode) i;
-              if (minnsn.name.equals("<init>")) {
-                return Type.getObjectType(minnsn.owner).getClassName();
-              }
-              if (i.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-                AbstractInsnNode invokeDynamic = InsnSupport.prev(i)
-                    .filter(InvokeDynamicInsnNode.class::isInstance)
-                    .findFirst()
-                    .orElse(null);
-                if (invokeDynamic != null) {
-                  sourcedesc = minnsn.desc;
-                  i = invokeDynamic;
-                } else {
-                  return fromMethodCall(ctx, minnsn);
-                }
-              } else {
-                return fromMethodCall(ctx, minnsn);
-              }
-            }
-            /** return "String" | int | double */
-            if (i instanceof LdcInsnNode) {
-              Object cst = ((LdcInsnNode) i).cst;
-              if (cst instanceof Type) {
-                return ((Type) cst).getClassName();
-              }
-              return cst.getClass().getName();
-            }
-
-            /** return variable */
-            if (i instanceof VarInsnNode) {
-              VarInsnNode varInsn = (VarInsnNode) i;
-              return localVariable(ctx, node, varInsn);
-            }
-            /** Invoke dynamic: */
-            if (i instanceof InvokeDynamicInsnNode) {
-              InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) i;
-              String handleDescriptor = Stream.of(invokeDynamic.bsmArgs)
-                  .filter(Handle.class::isInstance)
-                  .map(Handle.class::cast)
-                  .findFirst()
-                  .map(h -> {
-                    String desc = Type.getReturnType(h.getDesc()).getDescriptor();
-                    return "V".equals(desc) ? "java/lang/Object" : desc;
-                  })
-                  .orElse(null);
-              String descriptor = Type
-                  .getReturnType(Optional.ofNullable(sourcedesc).orElse(invokeDynamic.desc))
-                  .getDescriptor();
-              if (handleDescriptor != null && !handleDescriptor.equals("java/lang/Object")) {
-                if (descriptor.endsWith(";")) {
-                  descriptor = descriptor.substring(0, descriptor.length() - 1);
-                }
-                descriptor += "<" + handleDescriptor + ">;";
-              }
-              return ASMType.parse(descriptor);
-            }
-            /** array literal: */
-            if (i.getOpcode() == Opcodes.NEWARRAY) {
-              // empty primitive array
-              if (i instanceof IntInsnNode) {
-                switch (((IntInsnNode) i).operand) {
-                  case Opcodes.T_BOOLEAN:
-                    return boolean[].class.getName();
-                  case Opcodes.T_CHAR:
-                    return char[].class.getName();
-                  case Opcodes.T_BYTE:
-                    return byte[].class.getName();
-                  case Opcodes.T_SHORT:
-                    return short[].class.getName();
-                  case Opcodes.T_INT:
-                    return int[].class.getName();
-                  case Opcodes.T_LONG:
-                    return long[].class.getName();
-                  case Opcodes.T_FLOAT:
-                    return float[].class.getName();
-                  case Opcodes.T_DOUBLE:
-                    return double[].class.getName();
-                }
-              }
-            }
-            // empty array of objects
-            if (i.getOpcode() == Opcodes.ANEWARRAY) {
-              TypeInsnNode typeInsn = (TypeInsnNode) i;
-              return ASMType.parse("[L" + typeInsn.desc + ";");
-            }
-            // non empty array
-            switch (i.getOpcode()) {
-              case Opcodes.BASTORE:
-                return boolean[].class.getName();
-              case Opcodes.CASTORE:
-                return char[].class.getName();
-              case Opcodes.SASTORE:
-                return short[].class.getName();
-              case Opcodes.IASTORE:
-                return int[].class.getName();
-              case Opcodes.LASTORE:
-                return long[].class.getName();
-              case Opcodes.FASTORE:
-                return float[].class.getName();
-              case Opcodes.DASTORE:
-                return double[].class.getName();
-              case Opcodes.AASTORE:
-                return InsnSupport.prev(i)
-                    .filter(e -> e.getOpcode() == Opcodes.ANEWARRAY)
-                    .findFirst()
-                    .map(e -> {
-                      TypeInsnNode typeInsn = (TypeInsnNode) e;
-                      return ASMType.parse("[L" + typeInsn.desc + ";");
-                    })
-                    .orElse(Object.class.getName());
-            }
-          }
-
-          return returnType.getClassName();
-        })
+        .map(it -> handleReturnType(ctx, node, it))
         .map(Object::toString)
         .distinct()
         .collect(Collectors.toList());
     return result;
+  }
+
+  private static String handleReturnType(ParserContext ctx, MethodNode node, AbstractInsnNode it) {
+    Type returnType = Type.getReturnType(node.desc);
+
+    if (it.getOpcode() == Opcodes.RETURN) {
+      return returnType.getClassName();
+    }
+    /** IRETURN */
+    if (it.getOpcode() == Opcodes.IRETURN) {
+      if (it instanceof InsnNode) {
+        AbstractInsnNode prev = it.getPrevious();
+        if (prev instanceof IntInsnNode) {
+          return Integer.class.getName();
+        }
+        if (prev instanceof InsnNode) {
+          if (prev.getOpcode() == Opcodes.ICONST_0
+              || prev.getOpcode() == Opcodes.ICONST_1) {
+            return Boolean.class.getName();
+          }
+        }
+      }
+    }
+
+    for (Iterator<AbstractInsnNode> iterator = InsnSupport
+        .prevIterator(it.getPrevious()); iterator.hasNext(); ) {
+      AbstractInsnNode i = iterator.next();
+      if (i instanceof MethodInsnNode && (((MethodInsnNode) i).owner
+          .equals("kotlin/jvm/internal/Intrinsics"))) {
+        // skip Ldc and load var
+        // dup or aload
+        // visitLdcInsn("$receiver");
+        // visitMethodInsn(INVOKESTATIC, "kotlin/jvm/internal/Intrinsics", "checkParameterIsNotNull", "(Ljava/lang/Object;Ljava/lang/String;)V", false);
+        iterator.next();
+        iterator.next();
+        continue;
+      }
+      if (i instanceof MethodInsnNode && (((MethodInsnNode) i).owner
+          .equals("kotlin/TypeCastException"))) {
+        continue;
+      }
+      if (i instanceof LineNumberNode || i instanceof LabelNode) {
+        continue;
+      }
+      String sourcedesc = null;
+      /** return 1; return true; return new Foo(); */
+      if (i instanceof MethodInsnNode) {
+        MethodInsnNode minnsn = (MethodInsnNode) i;
+        if (minnsn.name.equals("<init>")) {
+          return Type.getObjectType(minnsn.owner).getClassName();
+        }
+        if (i.getOpcode() == Opcodes.INVOKEVIRTUAL) {
+          AbstractInsnNode invokeDynamic = InsnSupport.prev(i)
+              .filter(InvokeDynamicInsnNode.class::isInstance)
+              .findFirst()
+              .orElse(null);
+          if (invokeDynamic != null) {
+            sourcedesc = minnsn.desc;
+            i = invokeDynamic;
+          } else {
+            return fromMethodCall(ctx, minnsn);
+          }
+        } else {
+          return fromMethodCall(ctx, minnsn);
+        }
+      }
+      /** return "String" | int | double */
+      if (i instanceof LdcInsnNode) {
+        Object cst = ((LdcInsnNode) i).cst;
+        if (cst instanceof Type) {
+          return ((Type) cst).getClassName();
+        }
+        return cst.getClass().getName();
+      }
+
+      /** return variable */
+      if (i instanceof VarInsnNode) {
+        VarInsnNode varInsn = (VarInsnNode) i;
+        String varType = localVariable(ctx, node, varInsn);
+        // Is there local variable?
+        if (varType != null) {
+          return varType;
+        }
+      }
+      /** Invoke dynamic: */
+      if (i instanceof InvokeDynamicInsnNode) {
+        InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) i;
+        String handleDescriptor = Stream.of(invokeDynamic.bsmArgs)
+            .filter(Handle.class::isInstance)
+            .map(Handle.class::cast)
+            .findFirst()
+            .map(h -> {
+              String desc = Type.getReturnType(h.getDesc()).getDescriptor();
+              return "V".equals(desc) ? "java/lang/Object" : desc;
+            })
+            .orElse(null);
+        String descriptor = Type
+            .getReturnType(Optional.ofNullable(sourcedesc).orElse(invokeDynamic.desc))
+            .getDescriptor();
+        if (handleDescriptor != null && !handleDescriptor.equals("java/lang/Object")) {
+          if (descriptor.endsWith(";")) {
+            descriptor = descriptor.substring(0, descriptor.length() - 1);
+          }
+          descriptor += "<" + handleDescriptor + ">;";
+        }
+        return ASMType.parse(descriptor);
+      }
+      /** array literal: */
+      if (i.getOpcode() == Opcodes.NEWARRAY) {
+        // empty primitive array
+        if (i instanceof IntInsnNode) {
+          switch (((IntInsnNode) i).operand) {
+            case Opcodes.T_BOOLEAN:
+              return boolean[].class.getName();
+            case Opcodes.T_CHAR:
+              return char[].class.getName();
+            case Opcodes.T_BYTE:
+              return byte[].class.getName();
+            case Opcodes.T_SHORT:
+              return short[].class.getName();
+            case Opcodes.T_INT:
+              return int[].class.getName();
+            case Opcodes.T_LONG:
+              return long[].class.getName();
+            case Opcodes.T_FLOAT:
+              return float[].class.getName();
+            case Opcodes.T_DOUBLE:
+              return double[].class.getName();
+          }
+        }
+      }
+      // empty array of objects
+      if (i.getOpcode() == Opcodes.ANEWARRAY) {
+        TypeInsnNode typeInsn = (TypeInsnNode) i;
+        return ASMType.parse("[L" + typeInsn.desc + ";");
+      }
+      // non empty array
+      switch (i.getOpcode()) {
+        case Opcodes.BASTORE:
+          return boolean[].class.getName();
+        case Opcodes.CASTORE:
+          return char[].class.getName();
+        case Opcodes.SASTORE:
+          return short[].class.getName();
+        case Opcodes.IASTORE:
+          return int[].class.getName();
+        case Opcodes.LASTORE:
+          return long[].class.getName();
+        case Opcodes.FASTORE:
+          return float[].class.getName();
+        case Opcodes.DASTORE:
+          return double[].class.getName();
+        case Opcodes.AASTORE:
+          return InsnSupport.prev(i)
+              .filter(e -> e.getOpcode() == Opcodes.ANEWARRAY)
+              .findFirst()
+              .map(e -> {
+                TypeInsnNode typeInsn = (TypeInsnNode) e;
+                return ASMType.parse("[L" + typeInsn.desc + ";");
+              })
+              .orElse(Object.class.getName());
+      }
+    }
+
+    return returnType.getClassName();
   }
 
   private static String fromMethodCall(ParserContext ctx, MethodInsnNode node) {
@@ -239,8 +250,13 @@ public class ReturnTypeParser {
       return Object.class.getName();
     }
     Type returnType = Type.getReturnType(node.desc);
-    return classMethods(ctx, node.owner).stream()
-        .filter(m -> m.name.equals(node.name) && m.desc.equals(node.desc))
+    // Since Kotlin 1.6+
+    String methodName = node.name.startsWith("access$invoke$")
+        ? node.name.substring("access$".length())
+        : node.name;
+    List<MethodNode> methodNodes = classMethods(ctx, node.owner);
+    return methodNodes.stream()
+        .filter(m -> m.name.equals(methodName) && m.desc.equals(node.desc))
         .findFirst()
         .map(m -> Optional.ofNullable(m.signature)
             .map(s -> {
@@ -321,9 +337,23 @@ public class ReturnTypeParser {
                 String returnType = fromMethodCall(ctx, methodCall);
                 if (!returnType.equals(Object.class.getName()) && !returnType
                     .equals(void.class.getName())) {
-                  return returnType;
+                  type = returnType;
                 }
               }
+            }
+          }
+          if (type.equals(Context.class.getName())) {
+            // No var, look for last STORE matching index var
+            VarInsnNode store = InsnSupport.prev(varInsn.getPrevious())
+                .filter(
+                    it -> (it.getOpcode() >= Opcodes.ISTORE && it.getOpcode() <= Opcodes.SASTORE))
+                .filter(VarInsnNode.class::isInstance)
+                .map(VarInsnNode.class::cast)
+                .filter(it -> it.var == varInsn.var)
+                .findFirst()
+                .orElse(null);
+            if (store != null) {
+              type = handleReturnType(ctx, m, store);
             }
           }
           return type;
@@ -331,7 +361,7 @@ public class ReturnTypeParser {
         return ASMType.parse(var.signature);
       }
     }
-    return Object.class.getName();
+    return null;//Object.class.getName();
   }
 
   private static Predicate<AbstractInsnNode> kotlinIntrinsics() {
