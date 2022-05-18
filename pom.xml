@@ -56,7 +56,7 @@
     <!-- logging -->
     <logback-classic.version>1.2.9</logback-classic.version>
     <log4j.version>2.17.1</log4j.version>
-    <slf4j.version>1.7.32</slf4j.version>
+    <slf4j.version>1.7.36</slf4j.version>
 
     <!-- communication -->
     <commons-email.version>1.5</commons-email.version>
@@ -109,8 +109,8 @@
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
 
     <!-- Kotlin -->
-    <kotlin.version>1.4.32</kotlin.version>
-    <kotlinx-coroutines-core.version>1.4.1</kotlinx-coroutines-core.version>
+    <kotlin.version>1.6.21</kotlin.version>
+    <kotlinx-coroutines-core.version>1.6.1</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
