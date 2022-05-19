@@ -14,7 +14,6 @@ import examples.TopDispatch;
 import io.jooby.json.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
-import io.jooby.netty.Netty;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;

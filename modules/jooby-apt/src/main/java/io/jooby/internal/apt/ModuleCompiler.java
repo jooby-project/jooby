@@ -10,6 +10,7 @@ import io.jooby.MediaType;
 import io.jooby.MvcFactory;
 import io.jooby.Reified;
 import io.jooby.Route;
+import io.jooby.StatusCode;
 import io.jooby.annotations.Dispatch;
 import io.jooby.internal.apt.asm.ArrayWriter;
 import io.jooby.internal.apt.asm.NameGenerator;
@@ -266,7 +267,7 @@ public class ModuleCompiler {
     if (handler.isSuspendFunction()) {
       visitor.visitLdcInsn(Type.getType("Lkotlin/coroutines/Continuation;"));
     } else if (returnType.isVoid()) {
-      visitor.visitLdcInsn(Type.getType(Context.class));
+      visitor.visitLdcInsn(Type.getType(StatusCode.class));
     } else if (returnType.isPrimitive()) {
       Method wrapper = Primitives.wrapper(returnType);
       visitor.visitFieldInsn(GETSTATIC, Type.getInternalName(wrapper.getDeclaringClass()), "TYPE",

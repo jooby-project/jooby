@@ -324,21 +324,21 @@ public class HandlerCompilerTest {
               router.get("/p/returnChar", MockContextHelper.mockContext()).value());
 
           MockContext ctx = MockContextHelper.mockContext();
-          assertEquals(ctx,
+          assertEquals(StatusCode.NO_CONTENT,
               router.get("/p/returnStatusCode", ctx).value());
           assertEquals(StatusCode.NO_CONTENT, ctx.getResponseCode());
 
-          assertEquals(ctx,
+          assertEquals(StatusCode.OK,
               router.get("/p/statusCode", ctx.setQueryString("?statusCode=200&q=*:*")).value());
           assertEquals(StatusCode.OK, ctx.getResponseCode());
 
           ctx = MockContextHelper.mockContext();
-          assertEquals(ctx,
+          assertEquals(StatusCode.NO_CONTENT,
               router.delete("/p/noContent", ctx.setQueryString(null)).value());
           assertEquals(StatusCode.NO_CONTENT, ctx.getResponseCode());
 
           ctx = MockContextHelper.mockContext();
-          assertEquals(ctx, router.get("/p/sideEffect", ctx).value());
+          assertEquals(StatusCode.CREATED, router.get("/p/sideEffect", ctx).value());
           assertEquals(StatusCode.CREATED, ctx.getResponseCode());
         });
   }

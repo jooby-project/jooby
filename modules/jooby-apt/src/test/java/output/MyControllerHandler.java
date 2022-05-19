@@ -1,15 +1,11 @@
 package output;
 
-import io.jooby.Context;
-import io.jooby.Reified;
-import io.jooby.Route;
-import io.jooby.StatusCode;
-import io.jooby.ValueNode;
-
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
-import java.lang.reflect.Type;
-import java.util.Map;
+
+import io.jooby.Context;
+import io.jooby.Route;
+import io.jooby.StatusCode;
 
 public class MyControllerHandler implements Route.Handler {
 
@@ -20,12 +16,8 @@ public class MyControllerHandler implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    ctx.setResponseCode(StatusCode.NO_CONTENT);
-    provider.get().controllerMethod();
-    if (ctx.isResponseStarted()) {
-      return ctx;
-    } else {
-      return ctx.send(ctx.getResponseCode());
-    }
+    StatusCode statusCode = provider.get().controllerMethod();
+    ctx.setResponseCode(statusCode);
+    return statusCode;
   }
 }

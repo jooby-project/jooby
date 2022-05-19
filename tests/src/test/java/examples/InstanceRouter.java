@@ -30,7 +30,6 @@ public class InstanceRouter {
   @DELETE
   @Path("/void")
   public void noContent() {
-
   }
 
   @GET
