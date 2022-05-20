@@ -8,21 +8,22 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import io.jooby.ExecutionMode;
+import io.jooby.Jooby;
 import io.jooby.json.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
 public class Issue2572 {
-  @ServerTest(executionMode = {ExecutionMode.EVENT_LOOP, ExecutionMode.WORKER})
-  public void onCompleteShouldRunOnCallerThread(ServerTestRunner runner) {
-    runner.define(app -> {
-      Map<String, Object> state = new LinkedHashMap<>();
 
-      app.install(new JacksonModule());
+  private static class App2572 extends Jooby {
+    Map<String, Object> state = new LinkedHashMap<>();
 
-      app.get("/2572/state", ctx -> state);
+    {
+      install(new JacksonModule());
 
-      app.decorator(next -> ctx -> {
+      get("/2572/state", ctx -> state);
+
+      decorator(next -> ctx -> {
         state.put("caller", Thread.currentThread().getName());
         ctx.onComplete(context -> {
           state.put("onComplete", Thread.currentThread().getName());
@@ -30,9 +31,13 @@ public class Issue2572 {
         return next.apply(ctx);
       });
 
-      app.get("/2572/init", ctx -> "Initialized");
+      get("/2572/init", ctx -> "Initialized");
+    }
+  }
 
-    }).ready(http -> {
+  @ServerTest(executionMode = {ExecutionMode.EVENT_LOOP, ExecutionMode.WORKER})
+  public void onCompleteShouldRunOnCallerThread(ServerTestRunner runner) {
+    runner.use(App2572::new).ready(http -> {
       http.get("/2572/init", rsp -> {
         assertEquals("Initialized", rsp.body().string());
       });
