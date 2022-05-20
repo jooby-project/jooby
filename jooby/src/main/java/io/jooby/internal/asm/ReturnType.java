@@ -5,6 +5,16 @@
  */
 package io.jooby.internal.asm;
 
+import static io.jooby.internal.asm.Insns.last;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -21,21 +31,29 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.jooby.internal.asm.Insns.last;
-
 public class ReturnType extends MethodVisitor {
 
   private static final Predicate<AbstractInsnNode> LABEL = LabelNode.class::isInstance;
 
   private static final Predicate<AbstractInsnNode> LINE_NUMBER = LineNumberNode.class::isInstance;
+
+  private static final Predicate<AbstractInsnNode> KT_INTERNAL = it -> {
+    if (it instanceof MethodInsnNode) {
+      return ((MethodInsnNode) it).owner.startsWith("kotlin/jvm/internal");
+    }
+    return false;
+  };
+
+  private static final Predicate<AbstractInsnNode> KT_LDC = it -> {
+    if (it instanceof LdcInsnNode) {
+      return it.getPrevious() != null && it.getPrevious().getOpcode() == Opcodes.DUP;
+    }
+    return false;
+  };
+
+  private static final Predicate<AbstractInsnNode> IGNORE = KT_INTERNAL
+      .or(LABEL)
+      .or(LINE_NUMBER);
 
   private final TypeParser typeParser;
 
@@ -49,10 +67,11 @@ public class ReturnType extends MethodVisitor {
     Set<java.lang.reflect.Type> result = last(node.instructions)
         .filter(it -> it.getOpcode() == Opcodes.ARETURN)
         .map(it -> {
-          AbstractInsnNode previous = Insns.previous(it.getPrevious())
-              .filter(LABEL.negate().and(LINE_NUMBER.negate()))
-              .findFirst()
-              .orElse(it.getPrevious());
+          AbstractInsnNode previous = findReturnInstruction(it.getPrevious());
+          if (previous == null) {
+            // Nothing found:
+            return Object.class;
+          }
           String sourcedesc = null;
           /** return 1; return true; return new Foo(); */
           if (previous instanceof MethodInsnNode) {
@@ -186,6 +205,21 @@ public class ReturnType extends MethodVisitor {
         })
         .collect(Collectors.toSet());
     return typeParser.commonAncestor(result);
+  }
+
+  private AbstractInsnNode findReturnInstruction(AbstractInsnNode it) {
+    while (it != null) {
+      if (IGNORE.test(it)) {
+        it = it.getPrevious();
+      } else {
+        if (KT_LDC.test(it)) {
+          it = it.getPrevious().getPrevious();
+        } else {
+          return it;
+        }
+      }
+    }
+    return null;
   }
 
   private java.lang.reflect.Type localVariable(final MethodNode m, final VarInsnNode varInsn) {

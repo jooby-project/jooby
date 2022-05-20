@@ -42,13 +42,6 @@ public class MethodFinder extends ClassVisitor {
         return new TraceMethodVisitor(this.node, printer);
       }
       return this.node;
-    } else {
-      if (debug) {
-        if (printer == null) {
-          printer = new ASMifier();
-        }
-        return new TraceMethodVisitor(this.node, printer);
-      }
     }
     return up;
   }
