@@ -109,24 +109,11 @@ public class ReturnTypeParser {
       if (i instanceof LineNumberNode || i instanceof LabelNode) {
         continue;
       }
-      String sourcedesc = null;
       /** return 1; return true; return new Foo(); */
       if (i instanceof MethodInsnNode) {
         MethodInsnNode minnsn = (MethodInsnNode) i;
         if (minnsn.name.equals("<init>")) {
           return Type.getObjectType(minnsn.owner).getClassName();
-        }
-        if (i.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-          AbstractInsnNode invokeDynamic = InsnSupport.prev(i)
-              .filter(InvokeDynamicInsnNode.class::isInstance)
-              .findFirst()
-              .orElse(null);
-          if (invokeDynamic != null) {
-            sourcedesc = minnsn.desc;
-            i = invokeDynamic;
-          } else {
-            return fromMethodCall(ctx, minnsn);
-          }
         } else {
           return fromMethodCall(ctx, minnsn);
         }
@@ -162,7 +149,7 @@ public class ReturnTypeParser {
             })
             .orElse(null);
         String descriptor = Type
-            .getReturnType(Optional.ofNullable(sourcedesc).orElse(invokeDynamic.desc))
+            .getReturnType(invokeDynamic.desc)
             .getDescriptor();
         if (handleDescriptor != null && !handleDescriptor.equals("java/lang/Object")) {
           if (descriptor.endsWith(";")) {

@@ -23,7 +23,7 @@ public class MethodFinder extends ClassVisitor {
   public ASMifier printer;
 
   public MethodFinder(Method method, boolean debug) {
-    super(Opcodes.ASM7);
+    super(Opcodes.ASM9);
     this.descriptor = Type.getMethodDescriptor(method);
     this.name = method.getName();
     this.debug = debug;

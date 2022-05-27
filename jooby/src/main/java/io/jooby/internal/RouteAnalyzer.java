@@ -44,7 +44,6 @@ public class RouteAnalyzer {
       ClassReader reader = new ClassReader(source.byteCode(method.getDeclaringClass()));
       MethodFinder visitor = new MethodFinder(method, debug);
       reader.accept(visitor, 0);
-      ReturnType returnTypeVisitor = new ReturnType(typeParser, visitor.node);
 
       if (debug) {
         System.out.println(method);
@@ -53,7 +52,7 @@ public class RouteAnalyzer {
         writer.flush();
       }
 
-      return returnTypeVisitor.returnType();
+      return ReturnType.find(typeParser, visitor.node);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

@@ -9,7 +9,7 @@ class AfterContext(val ctx: Context, val result: Any?, val failure: Any?)
 
 class DecoratorContext(val ctx: Context, val next: Route.Handler)
 
-class HandlerContext(val ctx: Context)
+class HandlerContext(val ctx: Context): java.io.Serializable
 
 class WebSocketInitContext(val ctx: Context, val configurer: WebSocketConfigurer)
 

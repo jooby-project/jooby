@@ -104,7 +104,7 @@ public class ReturnTypeTest {
       return future;
     });
 
-    assertType(Reified.completableFuture(String.class), ctx ->
+    assertType(CompletableFuture.class, ctx ->
         CompletableFuture.supplyAsync(() -> 4)
             .thenApply(x -> x * 42)
             .thenApply(x -> x * 53)
