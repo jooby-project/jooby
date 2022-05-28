@@ -75,6 +75,13 @@ public class RouteParser {
   public List<OperationExt> parse(ParserContext ctx) {
     List<OperationExt> operations = parse(ctx, null, ctx.classNode(ctx.getRouter()));
 
+    // Checkout controllers without explicit mapping, just META-INF
+    Set<String> controllers = operations.stream()
+        .map(OperationExt::getControllerName)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toSet());
+    operations.addAll(metaInf(ctx, null, name -> !controllers.contains(name)));
+
     String applicationName = Optional.ofNullable(ctx.getMainClass())
         .orElse(ctx.getRouter().getClassName());
     ClassNode application = ctx.classNode(Type.getObjectType(applicationName.replace(".", "/")));
@@ -274,12 +281,6 @@ public class RouteParser {
     for (MethodNode method : node.methods) {
       handlerList.addAll(routeHandler(ctx, prefix, method));
     }
-    Set<String> controllers = handlerList.stream()
-        .map(OperationExt::getControllerName)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
-
-    handlerList.addAll(metaInf(ctx, prefix, name -> !controllers.contains(name)));
     return handlerList;
   }
 
@@ -698,7 +699,7 @@ public class RouteParser {
 
     ClassNode classNode = ctx.classNode(Type.getObjectType(lookup.get(0)));
     MethodNode apply = null;
-    if (lookup.size() > 1)  {
+    if (lookup.size() > 1) {
       MethodNode method = classNode.methods.stream()
           .filter(it -> it.name.equals(lookup.get(1)) && it.desc.equals(lookup.get(2)))
           .findFirst()
@@ -823,7 +824,8 @@ public class RouteParser {
     OperationExt operation = new OperationExt(node, httpMethod, prefix, arguments, response);
 
     boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
-    boolean lambda = node.name.equals("apply") || node.name.equals("invoke") || node.name.startsWith("invoke$");
+    boolean lambda =
+        node.name.equals("apply") || node.name.equals("invoke") || node.name.startsWith("invoke$");
     if (notSynthetic && !lambda) {
       operation.setOperationId(node.name);
     }
