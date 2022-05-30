@@ -119,7 +119,7 @@
   <stork-maven-plugin.version>3.1.1</stork-maven-plugin.version>
   <swagger-parser.version>2.0.33</swagger-parser.version>
   <swagger.version>2.2.0</swagger.version>
-  <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
+  <thymeleaf.version>3.0.15.RELEASE</thymeleaf.version>
   <truth.version>1.1.3</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
   <undertow.version>2.2.17.Final</undertow.version>
