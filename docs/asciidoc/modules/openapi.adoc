@@ -393,7 +393,7 @@ and/or `@Operation` annotations.
 
 ==== Responses & Status
 
-The default response code is `Success(200)` (or `NO_CONENT(204)` for DELETE mvc routes). Now, if
+The default response code is `Success(200)` (or `NO_CONTENT(204)` for DELETE mvc routes). Now, if
 you need to:
 
 - document the default response
