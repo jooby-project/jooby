@@ -11,13 +11,7 @@ import io.jooby.Multipart;
 import io.jooby.SneakyThrows;
 
 import javax.annotation.Nonnull;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MultipartNode extends FormdataNode implements Multipart {
@@ -42,7 +36,8 @@ public class MultipartNode extends FormdataNode implements Multipart {
   @Nonnull @Override public FileUpload file(@Nonnull String name) {
     List<FileUpload> files = files(name);
     if (files.isEmpty()) {
-      throw SneakyThrows.propagate(new FileNotFoundException(name));
+      final String error = "Field '" + name + "' is missing";
+      throw SneakyThrows.propagate(new NoSuchElementException(error));
     }
     return files.get(0);
   }
