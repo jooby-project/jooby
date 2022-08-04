@@ -110,7 +110,7 @@ server.defaultHeaders = true
 server.maxRequestSize = 10485760
 server.securePort = 8443
 server.ssl.type = self-signed | PKCS12 | X509
-server.ssl.httpsOnly = false
+server.httpsOnly = false
 server.http2 = true
 server.expectContinue = false
 ----
