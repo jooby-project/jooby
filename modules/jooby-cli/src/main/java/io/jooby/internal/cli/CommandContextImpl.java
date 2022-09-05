@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -46,6 +47,8 @@ public class CommandContextImpl implements Context {
 
   private Properties versions;
 
+  private Path configurationFile;
+
   public CommandContextImpl(LineReader reader, String version) throws IOException {
     this.reader = reader;
     this.out = reader.getTerminal().writer();
@@ -54,17 +57,27 @@ public class CommandContextImpl implements Context {
     this.templates.setPrettyPrint(true);
     this.version = version;
 
-    Path file = configurationPath();
+    // move from .jooby to .config/jooby.conf
+    configurationFile = Paths.get(System.getProperty("user.home"), ".config", "jooby.conf");
+    migrateOldConfiguration(Paths.get(System.getProperty("user.home"), ".jooby"), configurationFile);
 
-    if (Files.exists(file)) {
-      configuration = Cli.gson.fromJson(Files.newBufferedReader(file), LinkedHashMap.class);
+    if (Files.exists(configurationFile)) {
+      try (Reader in = Files.newBufferedReader(configurationFile)) {
+        configuration = Cli.gson.fromJson(in, LinkedHashMap.class);
+      }
     } else {
       configuration = new LinkedHashMap();
     }
   }
 
-  private Path configurationPath() {
-    return Paths.get(System.getProperty("user.home"), ".jooby");
+  private void migrateOldConfiguration(Path from, Path to) throws IOException {
+    if (Files.exists(from)) {
+      if (!Files.exists(to.getParent())) {
+        Files.createDirectories(to.getParent());
+      }
+      Files.copy(from, to);
+      Files.delete(from);
+    }
   }
 
   @Nonnull @Override public String getVersion() {
@@ -83,8 +96,7 @@ public class CommandContextImpl implements Context {
     }
     configuration.put("workspace", workspace.toAbsolutePath().toString());
     String json = Cli.gson.toJson(configuration);
-    Files.write(configurationPath(), json.getBytes(StandardCharsets.UTF_8));
-
+    Files.write(configurationFile, json.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override public void exit(int code) {
@@ -153,5 +165,9 @@ public class CommandContextImpl implements Context {
       result.put(key, entry.getValue().toString());
     }
     return result;
+  }
+
+  @Override public String toString() {
+    return "version: " + getVersion() + "; conf: " + configurationFile;
   }
 }

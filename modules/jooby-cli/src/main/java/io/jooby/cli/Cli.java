@@ -71,8 +71,8 @@ public class Cli extends Cmd {
       } else if ("-V".equalsIgnoreCase(arg) || "--version".equals(arg)) {
         ctx.println(ctx.getVersion());
       } else {
-        ctx.println(
-            "Unknown command or option(s): " + args.stream().collect(Collectors.joining(" ")));
+        ctx.println("Unknown command or option(s): " + args.stream().collect(Collectors.joining(" ")));
+        ctx.println("  " + ctx);
         ctx.println(spec.commandLine().getUsageMessage());
       }
     } else {

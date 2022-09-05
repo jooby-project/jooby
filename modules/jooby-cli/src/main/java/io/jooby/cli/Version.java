@@ -35,7 +35,7 @@ public class Version implements CommandLine.IVersionProvider {
   private static String doVersion() {
     try {
       URL url = URI
-          .create("http://search.maven.org/solrsearch/select?q=+g:io.jooby+a:jooby&start=0&rows=1")
+          .create("https://search.maven.org/solrsearch/select?q=+g:io.jooby+a:jooby&start=0&rows=1")
           .toURL();
       URLConnection connection = url.openConnection();
       try (Reader in = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)) {
@@ -49,7 +49,7 @@ public class Version implements CommandLine.IVersionProvider {
       return Optional.ofNullable(Version.class.getPackage())
           .map(Package::getImplementationVersion)
           .filter(Objects::nonNull)
-          .orElse("2.0.6");
+          .orElse("2.15.0");
     }
   }
 }
