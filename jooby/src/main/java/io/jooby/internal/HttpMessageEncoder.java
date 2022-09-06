@@ -100,7 +100,11 @@ public class HttpMessageEncoder implements MessageEncoder {
     }
     if (encoders != null) {
       // Content negotiation, find best:
-      MediaType type = ctx.accept(new ArrayList<>(encoders.keySet()));
+      List<MediaType> produces = ctx.getRoute().getProduces();
+      if (produces.isEmpty()) {
+        produces = new ArrayList<>(encoders.keySet());
+      }
+      MediaType type = ctx.accept(produces);
       MessageEncoder encoder = encoders.getOrDefault(type, MessageEncoder.TO_STRING);
       return encoder.encode(ctx, value);
     } else {

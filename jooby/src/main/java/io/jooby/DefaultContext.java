@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -205,7 +206,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override default boolean accept(@Nonnull MediaType contentType) {
-    return accept(singletonList(contentType)) == contentType;
+    return accept(singletonList(contentType)).equals(contentType);
   }
 
   @Override default MediaType accept(@Nonnull List<MediaType> produceTypes) {
