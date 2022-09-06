@@ -32,7 +32,7 @@
     <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
 
     <!-- data -->
-    <HikariCP.version>4.0.3</HikariCP.version>
+    <HikariCP.version>5.0.1</HikariCP.version>
     <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>2.1.212</h2.version>
