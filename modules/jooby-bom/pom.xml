@@ -16,12 +16,12 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.15.2-SNAPSHOT</jooby.version>
+  <jooby.version>3.0.0-SNAPSHOT</jooby.version>
   <HikariCP.version>4.0.3</HikariCP.version>
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
   <asm.version>9.3</asm.version>
   <auto-service.version>1.0.1</auto-service.version>
-  <aws-java-sdk.version>1.12.261</aws-java-sdk.version>
+  <aws-java-sdk.version>1.12.230</aws-java-sdk.version>
   <bucket4j-core.version>6.4.1</bucket4j-core.version>
   <caffeine.version>2.8.8</caffeine.version>
   <checkstyle.version>8.42</checkstyle.version>
@@ -42,15 +42,15 @@
   <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
   <gradle-tooling-api.version>2.6</gradle-tooling-api.version>
   <graphql-java.version>16.2</graphql-java.version>
-  <gson.version>2.9.0</gson.version>
+  <gson.version>2.9.1</gson.version>
   <guava.version>31.1-jre</guava.version>
   <guice.version>5.1.0</guice.version>
   <h2.version>2.1.212</h2.version>
   <handlebars.version>4.3.0</handlebars.version>
   <hibernate.version>5.6.3.Final</hibernate.version>
-  <jackson-databind.version>2.13.3</jackson-databind.version>
-  <jackson-dataformat-yaml.version>2.13.2</jackson-dataformat-yaml.version>
-  <jackson.version>2.13.3</jackson.version>
+  <jackson-databind.version>2.13.4</jackson-databind.version>
+  <jackson-dataformat-yaml.version>2.13.4</jackson-dataformat-yaml.version>
+  <jackson.version>2.13.4</jackson.version>
   <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
   <jacoco.version>0.8.8</jacoco.version>
   <jakarta.json.bind-api.version>1.0.2</jakarta.json.bind-api.version>
@@ -58,12 +58,12 @@
   <jasypt.version>1.9.3</jasypt.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.11.0.Final</jboss-modules.version>
-  <jdbi.version>3.29.0</jdbi.version>
-  <jetty.version>9.4.46.v20220331</jetty.version>
+  <jdbi.version>3.32.0</jdbi.version>
+  <jetty.version>9.4.48.v20220622</jetty.version>
   <jfiglet.version>0.0.9</jfiglet.version>
   <jmespath-java.version>1.12.230</jmespath-java.version>
-  <jooby-maven-plugin.version>2.15.2-SNAPSHOT</jooby-maven-plugin.version>
-  <jooby.version>2.15.2-SNAPSHOT</jooby.version>
+  <jooby-maven-plugin.version>3.0.0-SNAPSHOT</jooby-maven-plugin.version>
+  <jooby.version>3.0.0-SNAPSHOT</jooby.version>
   <jsonwebtoken.version>0.11.5</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
   <junit.version>5.8.2</junit.version>
@@ -100,8 +100,8 @@
   <metrics.version>4.2.9</metrics.version>
   <mockito.version>4.6.0</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
-  <mysql-connector-java.version>8.0.29</mysql-connector-java.version>
-  <netty.version>4.1.77.Final</netty.version>
+  <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
+  <netty.version>4.1.80.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <node.version>v12.19.0</node.version>
   <okhttp.version>4.9.3</okhttp.version>

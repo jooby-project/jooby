@@ -36,3 +36,4 @@ node_modules
 build
 .gradle
 package-lock.json
+!gradle-wrapper.jar
