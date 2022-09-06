@@ -37,4 +37,16 @@ public class ServerOptionsTest {
     assertEquals("0.0.0.0", options.getHost());
     assertEquals(true, options.isHttpsOnly());
   }
+
+  @Test
+  public void shouldSetCorrectLocalHost() {
+    ServerOptions options = new ServerOptions();
+    assertEquals("0.0.0.0", options.getHost());
+    options.setHost("localhost");
+    assertEquals("0.0.0.0", options.getHost());
+    options.setHost(null);
+    assertEquals("0.0.0.0", options.getHost());
+    options.setHost("");
+    assertEquals("0.0.0.0", options.getHost());
+  }
 }

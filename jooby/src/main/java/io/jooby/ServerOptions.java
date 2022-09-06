@@ -61,6 +61,8 @@ public class ServerOptions {
   /** 10mb constant in bytes. */
   public static final int _10MB = 10485760;
 
+  private static final String LOCAL_HOST = "0.0.0.0";
+
   /** Buffer size used by server. Usually for reading/writing data. */
   private int bufferSize = _16KB;
 
@@ -86,7 +88,7 @@ public class ServerOptions {
    */
   private boolean defaultHeaders = true;
 
-  /** Name of server: Jetty, Netty or Utow. */
+  /** Name of server: Jetty, Netty or Undertow. */
   private String server;
 
   /**
@@ -95,7 +97,7 @@ public class ServerOptions {
    */
   private int maxRequestSize = _10MB;
 
-  private String host = "0.0.0.0";
+  private String host = LOCAL_HOST;
 
   private SslOptions ssl;
 
@@ -481,7 +483,7 @@ public class ServerOptions {
    */
   public void setHost(String host) {
     if (host == null || host.trim().length() == 0 || "localhost".equalsIgnoreCase(host.trim())) {
-      this.host = "0.0.0";
+      this.host = LOCAL_HOST;
     } else {
       this.host = host;
     }
