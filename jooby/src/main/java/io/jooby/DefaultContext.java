@@ -206,7 +206,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override default boolean accept(@Nonnull MediaType contentType) {
-    return accept(singletonList(contentType)).equals(contentType);
+    return Objects.equals(accept(singletonList(contentType)), contentType);
   }
 
   @Override default MediaType accept(@Nonnull List<MediaType> produceTypes) {
