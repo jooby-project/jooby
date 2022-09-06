@@ -364,13 +364,13 @@ workerThreads = Math.max(Runtime.getRuntime().availableProcessors(), 2) * 8
 For example `8` cores gives us `64` worker threads.
 
 - Undertow: The javadoc:utow.Utow[text=Undertow server] implementation multiply the number of available processors
-(with a minimum of 2) by 8.
+by 8.
 
 ----
-workerThreads = Math.max(Runtime.getRuntime().availableProcessors(), 2) * 8
+workerThreads = Runtime.getRuntime().availableProcessors() * 8
 ----
 
-For example `8` cores gives us `64` worker threads.
+For `8` cores gives us `64` worker threads.
 
 - Jetty: The javadoc:jetty.Jetty[text=Jetty server] implementation uses the default configuration
 with `200` worker threads.
