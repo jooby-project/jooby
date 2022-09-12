@@ -18,11 +18,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
 
-import org.eclipse.jetty.websocket.api.CloseException;
+import org.eclipse.jetty.util.StaticException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.WriteCallback;
+import org.eclipse.jetty.websocket.api.exceptions.CloseException;
 
 import io.jooby.Context;
 import io.jooby.Server;
@@ -36,8 +37,6 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     WriteCallback {
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<WebSocket>> all = new ConcurrentHashMap<>();
-
-  public static final String WEBSOCKET_SERVER_FACTORY = "___ws_s_f_";
 
   private final JettyContext ctx;
   private final String key;
@@ -92,24 +91,30 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   @Override public void onWebSocketError(Throwable x) {
     // should close?
     if (!isTimeout(x)) {
-      if (isOpen() && (Server.connectionLost(x) || SneakyThrows.isFatal(x))) {
+      if (isOpen() && (connectionLost(x) || SneakyThrows.isFatal(x))) {
         handleClose(WebSocketCloseStatus.SERVER_ERROR);
       }
 
       if (onErrorCallback == null) {
-        if (Server.connectionLost(x)) {
+        if (connectionLost(x)) {
           ctx.getRouter().getLog().debug("Websocket resulted in exception: {}", path, x);
         } else {
           ctx.getRouter().getLog().error("Websocket resulted in exception: {}", path, x);
         }
       } else {
-        onErrorCallback.onError(this, x);
+        if (!connectionLost(x)) {
+          onErrorCallback.onError(this, x);
+        }
       }
 
       if (SneakyThrows.isFatal(x)) {
         throw SneakyThrows.propagate(x);
       }
     }
+  }
+
+  private boolean connectionLost(Throwable x) {
+    return Server.connectionLost(x) || (x instanceof StaticException &&  x.getMessage().equals("Closed"));
   }
 
   private boolean isTimeout(Throwable x) {

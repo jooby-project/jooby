@@ -9,6 +9,7 @@ import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
 import java.net.BindException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 
+import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -27,25 +29,26 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
+import org.eclipse.jetty.util.compression.CompressionPool;
+import org.eclipse.jetty.util.compression.DeflaterPool;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.websocket.api.WebSocketBehavior;
-import org.eclipse.jetty.websocket.api.WebSocketPolicy;
-import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
+import org.eclipse.jetty.util.thread.ThreadPool;
+import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
 
 import com.typesafe.config.Config;
 import io.jooby.Http2Configurer;
 import io.jooby.Jooby;
+import io.jooby.Router;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.WebSocket;
-import io.jooby.internal.jetty.JettyHandler;
-import io.jooby.internal.jetty.JettyWebSocket;
+import io.jooby.internal.jetty.JettyServlet;
 
 /**
  * Web server implementation using <a href="https://www.eclipse.org/jetty/">Jetty</a>.
@@ -65,9 +68,9 @@ public class Jetty extends io.jooby.Server.Base {
       .setServer("jetty")
       .setWorkerThreads(THREADS);
 
-  static {
-    System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");
-  }
+//  static {
+//    //System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");
+//  }
 
   @Nonnull @Override public Jetty setOptions(@Nonnull ServerOptions options) {
     this.options = options
@@ -81,7 +84,7 @@ public class Jetty extends io.jooby.Server.Base {
 
   @Nonnull @Override public io.jooby.Server start(Jooby application) {
     try {
-      System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
+      //System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
       /** Set max request size attribute: */
       System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
           Long.toString(options.getMaxRequestSize()));
@@ -113,6 +116,8 @@ public class Jetty extends io.jooby.Server.Base {
       }
 
       HttpConfiguration httpConf = new HttpConfiguration();
+      // TODO: we might need to remove legacy with default
+      httpConf.setUriCompliance(UriCompliance.LEGACY);
       httpConf.setOutputBufferSize(options.getBufferSize());
       httpConf.setOutputAggregationSize(options.getBufferSize());
       httpConf.setSendXPoweredBy(false);
@@ -176,38 +181,53 @@ public class Jetty extends io.jooby.Server.Base {
         throw new IllegalArgumentException("Server configured for httpsOnly, but ssl options not set");
       }
 
-      ContextHandler context = new ContextHandler();
+      ServletContextHandler context = new ServletContextHandler();
 
-      AbstractHandler handler = new JettyHandler(applications.get(0), options.getBufferSize(),
+      boolean webSockets = application.getRoutes().stream()
+          .anyMatch(it -> it.getMethod().equals(Router.WS));
+
+      /* ********************************* Compression *************************************/
+      boolean gzip = options.getCompressionLevel() != null;
+      boolean compress = gzip || webSockets;
+      if (compress) {
+        int compressionLevel = Optional.ofNullable(options.getCompressionLevel()).orElse(ServerOptions.DEFAULT_COMPRESSION_LEVEL);
+        DeflaterPool deflater = newDeflater(compressionLevel);
+        server.addBean(deflater, true);
+      }
+
+      /* ********************************* Servlet *************************************/
+      JettyServlet servlet = new JettyServlet(applications.get(0), options.getBufferSize(),
           options.getMaxRequestSize(), options.getDefaultHeaders());
+      context.addServlet(new ServletHolder(servlet), "/*");
 
-      if (options.getCompressionLevel() != null) {
+      /* ********************************* Gzip *************************************/
+      if (gzip) {
+        DeflaterPool deflater = server.getBean(DeflaterPool.class);
+
         GzipHandler gzipHandler = new GzipHandler();
-        gzipHandler.setCompressionLevel(options.getCompressionLevel());
-        gzipHandler.setHandler(handler);
-        context.setHandler(gzipHandler);
-      } else {
-        context.setHandler(handler);
+        gzipHandler.setDeflaterPool(deflater);
+
+        context.insertHandler(gzipHandler);
       }
       /* ********************************* WebSocket *************************************/
-      Config conf = application.getConfig();
-      int maxSize = conf.hasPath("websocket.maxSize")
-          ? conf.getBytes("websocket.maxSize").intValue()
-          : WebSocket.MAX_BUFFER_SIZE;
-      context.setAttribute(DecoratedObjectFactory.ATTR, new DecoratedObjectFactory());
-      WebSocketPolicy policy = new WebSocketPolicy(WebSocketBehavior.SERVER);
-      policy.setMaxTextMessageBufferSize(maxSize);
-      policy.setMaxTextMessageSize(maxSize);
-      long timeout = conf.hasPath("websocket.idleTimeout")
-          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
-          : TimeUnit.MINUTES.toMillis(5);
-      policy.setIdleTimeout(timeout);
-      WebSocketServerFactory wssf = new WebSocketServerFactory(context.getServletContext(), policy);
-      context.setAttribute(JettyWebSocket.WEBSOCKET_SERVER_FACTORY, wssf);
-      context.addManaged(wssf);
+      if (webSockets) {
+        Config conf = application.getConfig();
+        int maxSize = conf.hasPath("websocket.maxSize")
+            ? conf.getBytes("websocket.maxSize").intValue()
+            : WebSocket.MAX_BUFFER_SIZE;
+        context.setAttribute(DecoratedObjectFactory.ATTR, new DecoratedObjectFactory());
+        long timeout = conf.hasPath("websocket.idleTimeout")
+            ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
+            : TimeUnit.MINUTES.toMillis(5);
+
+        JettyWebSocketServletContainerInitializer.configure(context,
+            (servletContext, container) -> {
+              container.setMaxTextMessageSize(maxSize);
+              container.setIdleTimeout(Duration.ofMillis(timeout));
+            });
+      }
 
       server.setHandler(context);
-
       server.start();
 
       fireReady(applications);
@@ -219,6 +239,12 @@ public class Jetty extends io.jooby.Server.Base {
     }
 
     return this;
+  }
+
+  private DeflaterPool newDeflater(int compressionLevel) {
+    ThreadPool.SizedThreadPool threads = server.getBean(ThreadPool.SizedThreadPool.class);
+    int capacity = threads == null ? CompressionPool.DEFAULT_CAPACITY : threads.getMaxThreads();
+    return new DeflaterPool(capacity, compressionLevel, true);
   }
 
   private void isNotInUse(List<String> protocols, String protocol, Consumer<String> consumer) {

@@ -85,9 +85,9 @@ public class Http2Test {
 
   private void hc2(WebClient http, String path, SneakyThrows.Consumer<Response> consumer)
       throws ExecutionException, InterruptedException {
-    HttpFields requestFields = new HttpFields();
-    requestFields.put("User-Agent", h2c.getClass().getName() + "/" + Jetty.VERSION);
-    HttpURI uri = new HttpURI("http://localhost:" + http.getPort() + path);
+    HttpFields requestFields = HttpFields
+        .build();
+    HttpURI uri = HttpURI.from("http://localhost:" + http.getPort() + path);
     MetaData.Request metaData = new MetaData.Request("GET", uri, HttpVersion.HTTP_2,
         requestFields);
     HeadersFrame frame = new HeadersFrame(metaData, null, true);

@@ -7,13 +7,14 @@ package io.jooby.internal.jetty;
 
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
-import org.eclipse.jetty.http.MultiPartFormInputStream;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.eclipse.jetty.server.MultiPartFormInputStream;
 
 public class JettyFileUpload implements FileUpload {
   private final MultiPartFormInputStream.MultiPart upload;

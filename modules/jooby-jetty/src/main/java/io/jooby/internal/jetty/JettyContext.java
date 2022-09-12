@@ -29,26 +29,28 @@ import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
-import org.eclipse.jetty.http.HttpFields;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.Part;
+
+import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.http.MultiPartFormInputStream;
 import org.eclipse.jetty.server.HttpOutput;
+import org.eclipse.jetty.server.MultiPartFormInputStream;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.MultiMap;
-import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
+import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
+import org.eclipse.jetty.websocket.server.JettyWebSocketServerContainer;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.AsyncContext;
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletException;
-import javax.servlet.WriteListener;
-import javax.servlet.http.Part;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +76,7 @@ import java.util.concurrent.Executor;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
-import static org.eclipse.jetty.server.Request.MULTIPART_CONFIG_ELEMENT;
+import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
 public class JettyContext implements DefaultContext {
   private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.wrap(new byte[0]);
@@ -121,10 +123,10 @@ public class JettyContext implements DefaultContext {
   @Override public @Nonnull Map<String, String> cookieMap() {
     if (this.cookies == null) {
       this.cookies = Collections.emptyMap();
-      javax.servlet.http.Cookie[] cookies = request.getCookies();
+      jakarta.servlet.http.Cookie[] cookies = request.getCookies();
       if (cookies != null) {
         this.cookies = new LinkedHashMap<>(cookies.length);
-        for (javax.servlet.http.Cookie it : cookies) {
+        for (jakarta.servlet.http.Cookie it : cookies) {
           this.cookies.put(it.getName(), it.getValue());
         }
       }
@@ -205,7 +207,7 @@ public class JettyContext implements DefaultContext {
       multipart = Multipart.create(this);
       form = multipart;
 
-      request.setAttribute(MULTIPART_CONFIG_ELEMENT,
+      request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
           new MultipartConfigElement(router.getTmpdir().toString(), -1L, maxRequestSize,
               bufferSize));
 
@@ -215,7 +217,7 @@ public class JettyContext implements DefaultContext {
       String contentType = request.getContentType();
       if (contentType != null &&
           MimeTypes.Type.MULTIPART_FORM_DATA.is(
-              HttpFields.valueParameters(contentType, null))) {
+              HttpField.valueParameters(contentType, null))) {
         try {
           Collection<Part> parts = request.getParts();
           for (Part part : parts) {
@@ -328,11 +330,12 @@ public class JettyContext implements DefaultContext {
     try {
       responseStarted = true;
       request.setAttribute(JettyContext.class.getName(), this);
-      WebSocketServerFactory wssf = (WebSocketServerFactory) request.getContext()
-          .getAttribute(JettyWebSocket.WEBSOCKET_SERVER_FACTORY);
+      JettyWebSocketServerContainer container = JettyWebSocketServerContainer.getContainer(request.getServletContext());
+
       JettyWebSocket ws = new JettyWebSocket(this);
+      JettyWebSocketCreator creator = (upgradeRequest, upgradeResponse) -> ws;
       handler.init(Context.readOnly(this), ws);
-      wssf.acceptWebSocket((req, rsp) -> ws, request, response);
+      container.upgrade(creator, request, response);
       return this;
     } catch (Throwable x) {
       throw SneakyThrows.propagate(x);

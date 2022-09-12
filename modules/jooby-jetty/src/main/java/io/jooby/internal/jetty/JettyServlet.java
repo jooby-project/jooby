@@ -5,30 +5,31 @@
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.Router;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import io.jooby.Router;
+import jakarta.servlet.GenericServlet;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
-public class JettyHandler extends AbstractHandler {
-  private final Router router;
-  private final boolean defaultHeaders;
-  private final int bufferSize;
-  private final long maxRequestSize;
+public class JettyServlet extends GenericServlet {
+  private Router router;
+  private boolean defaultHeaders;
+  private int bufferSize;
+  private long maxRequestSize;
 
-  public JettyHandler(Router router, int bufferSize, long maxRequestSize, boolean defaultHeaders) {
+  public JettyServlet(Router router, int bufferSize, long maxRequestSize, boolean defaultHeaders) {
     this.router = router;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
     this.defaultHeaders = defaultHeaders;
   }
 
-  @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
-      HttpServletResponse response) {
-    request.setHandled(true);
+  @Override public void service(ServletRequest req, ServletResponse rsp) {
+    Request request = (Request) req;
+    HttpServletResponse response = (HttpServletResponse) rsp;
     response.setContentType("text/plain");
     if (defaultHeaders) {
       response.setHeader(HttpHeader.SERVER.asString(), "J");
