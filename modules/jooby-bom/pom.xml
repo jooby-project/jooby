@@ -32,7 +32,7 @@
   <config.version>1.4.2</config.version>
   <conscrypt.version>2.5.2</conscrypt.version>
   <cron-utils.version>9.1.6</cron-utils.version>
-  <ebean.version>12.16.0</ebean.version>
+  <ebean.version>13.9.3</ebean.version>
   <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
   <flyway.version>7.5.1</flyway.version>
   <freemarker.version>2.3.31</freemarker.version>
