@@ -17,15 +17,15 @@ plugins {
   id "io.jooby.openAPI" version "${joobyVersion}"
 {{/if}}
   id "io.jooby.run" version "${joobyVersion}"
-  id "io.spring.dependency-management" version "1.0.11.RELEASE"
-  id "com.google.osdetector" version "1.7.0"
-  id "com.github.johnrengelman.shadow" version "7.0.0"
+  id "io.spring.dependency-management" version "1.0.13.RELEASE"
+  id "com.google.osdetector" version "1.7.1"
+  id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
 group "{{groupId}}"
 version "{{version}}"
 mainClassName = "{{package}}.App{{#if kotlin}}Kt{{/if}}"
-sourceCompatibility = 1.8
+sourceCompatibility = 17
 
 repositories {
   mavenLocal()

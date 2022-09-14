@@ -16,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,20 +60,14 @@ public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnv;
 
-  /**
-   * Route Data.
-   * {
-   * HTTP_METHOD: [method1, ..., methodN]
-   * }
-   */
-  private Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
-
   private boolean debug;
   private boolean incremental;
   private boolean services;
-  private boolean extendedLooupOfSuperTypes;
+  private boolean extendedLookupOfSuperTypes;
 
   private int round;
+  private Map<TypeElement, String> modules = new LinkedHashMap<>();
+  private Set<String> alreadyProcessed = new HashSet<>();
 
   @Override
   public Set<String> getSupportedOptions() {
@@ -110,11 +105,12 @@ public class JoobyProcessor extends AbstractProcessor {
     debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
     incremental = Opts.boolOpt(processingEnv, Opts.OPT_INCREMENTAL, true);
     services = Opts.boolOpt(processingEnv, Opts.OPT_SERVICES, true);
-    extendedLooupOfSuperTypes = Opts.boolOpt(processingEnv, Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES, false);
+    extendedLookupOfSuperTypes = Opts.boolOpt(processingEnv, Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES,
+        true);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
-    debug("Extended lookup of superTypes %s.", extendedLooupOfSuperTypes ? "ON" : "OFF");
+    debug("Extended lookup of superTypes %s.", extendedLookupOfSuperTypes ? "ON" : "OFF");
   }
 
   @Override
@@ -122,61 +118,76 @@ public class JoobyProcessor extends AbstractProcessor {
     try {
       debug("Round #%s", round++);
       if (roundEnv.processingOver()) {
-
-        build(processingEnv.getFiler());
-
-        return false;
-      }
-
-      /**
-       * Do MVC handler: per each mvc method we create a Route.Handler.
-       */
-      for (TypeElement annotation : annotations) {
-        Set<? extends Element> elements = roundEnv
-            .getElementsAnnotatedWith(annotation);
-
-        /**
-         * Add empty-subclass (edge case where you mark something with @Path and didn't add any
-         * HTTP annotation.
-         */
-        elements.stream()
-            .filter(TypeElement.class::isInstance)
-            .map(TypeElement.class::cast)
-            .filter(type -> !type.getModifiers().contains(Modifier.ABSTRACT))
-            .forEach(e -> routeMap.computeIfAbsent(e, k -> new LinkedHashMap<>()));
-
-        if (Annotations.HTTP_METHODS.contains(annotation.asType().toString())) {
-          Set<ExecutableElement> methods = elements.stream()
-              .filter(ExecutableElement.class::isInstance)
-              .map(ExecutableElement.class::cast)
-              .collect(Collectors.toCollection(LinkedHashSet::new));
-          for (ExecutableElement method : methods) {
-            Map<TypeElement, List<ExecutableElement>> mapping = routeMap
-                .computeIfAbsent((TypeElement) method.getEnclosingElement(),
-                    k -> new LinkedHashMap<>());
-            mapping.computeIfAbsent(annotation, k -> new ArrayList<>()).add(method);
-          }
-        } else {
-          if (extendedLooupOfSuperTypes) {
-            elements.stream()
-                .filter(TypeElement.class::isInstance)
-                .map(TypeElement.class::cast)
-                .forEach(parentTypeElement -> extendedLookupOfSuperTypes(parentTypeElement));
-          }
+        if (services) {
+          doServices(processingEnv.getFiler(), modules);
         }
+        return false;
+      } else {
+        Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = collectRoutes(
+            annotations, roundEnv);
+
+        Map<TypeElement, String> modules = build(processingEnv.getFiler(), classes(routeMap), alreadyProcessed::add);
+        alreadyProcessed.addAll(modules.values());
+        this.modules.putAll(modules);
+
+        return true;
       }
-      return true;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
   }
 
+  private Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> collectRoutes(
+      Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
+
+    for (TypeElement annotation : annotations) {
+      Set<? extends Element> elements = roundEnv
+          .getElementsAnnotatedWith(annotation);
+
+      /**
+       * Add empty-subclass (edge case where you mark something with @Path and didn't add any
+       * HTTP annotation.
+       */
+      elements.stream()
+          .filter(TypeElement.class::isInstance)
+          .map(TypeElement.class::cast)
+          .filter(type -> !type.getModifiers().contains(Modifier.ABSTRACT))
+          .forEach(e -> routeMap.computeIfAbsent(e, k -> new LinkedHashMap<>()));
+
+      if (Annotations.HTTP_METHODS.contains(annotation.asType().toString())) {
+        Set<ExecutableElement> methods = elements.stream()
+            .filter(ExecutableElement.class::isInstance)
+            .map(ExecutableElement.class::cast)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        for (ExecutableElement method : methods) {
+          Map<TypeElement, List<ExecutableElement>> mapping = routeMap
+              .computeIfAbsent((TypeElement) method.getEnclosingElement(),
+                  k -> new LinkedHashMap<>());
+          mapping.computeIfAbsent(annotation, k -> new ArrayList<>()).add(method);
+        }
+      } else {
+        if (extendedLookupOfSuperTypes) {
+          elements.stream()
+              .filter(TypeElement.class::isInstance)
+              .map(TypeElement.class::cast)
+              .forEach(
+                  parentTypeElement -> extendedLookupOfSuperTypes(routeMap, parentTypeElement));
+        }
+      }
+    }
+    return routeMap;
+  }
+
   /**
    * Crawls through the sub-classes. Inspects them for HTTP Method annotated entries
    *
+   * @param routeMap
    * @param parentTypeElement
    */
-  private void extendedLookupOfSuperTypes(TypeElement parentTypeElement) {
+  private void extendedLookupOfSuperTypes(
+      Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap,
+      TypeElement parentTypeElement) {
     for (TypeElement superType : superTypes(parentTypeElement)) {
       //collect all declared methods
       Set<ExecutableElement> methods = superType.getEnclosedElements().stream()
@@ -198,7 +209,8 @@ public class JoobyProcessor extends AbstractProcessor {
             Map<TypeElement, List<ExecutableElement>> mapping = routeMap
                 .computeIfAbsent(parentTypeElement,
                     k -> new LinkedHashMap<>());
-            List<ExecutableElement> list = mapping.computeIfAbsent(annotationType, k -> new ArrayList<>());
+            List<ExecutableElement> list = mapping.computeIfAbsent(annotationType,
+                k -> new ArrayList<>());
             //ensure that the same method wasnt already defined in parent
             if (list.stream().map(this::signature).noneMatch(signature(method)::equals)) {
               list.add(method);
@@ -209,8 +221,30 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  private void build(Filer filer) throws Exception {
+  private Map<TypeElement, String> build(Filer filer,
+      Map<TypeElement, List<HandlerCompiler>> classes, Predicate<String> includes) throws Exception {
     Types typeUtils = processingEnv.getTypeUtils();
+
+    Map<TypeElement, String> modules = new LinkedHashMap<>();
+    for (Map.Entry<TypeElement, List<HandlerCompiler>> entry : classes.entrySet()) {
+      TypeElement type = entry.getKey();
+      String typeName = typeUtils.erasure(type.asType()).toString();
+      if (includes.test(typeName)) {
+        List<HandlerCompiler> handlers = entry.getValue();
+        ModuleCompiler module = new ModuleCompiler(processingEnv, typeName);
+        String moduleClass = module.getModuleClass();
+        byte[] moduleBin = module.compile(handlers);
+        onClass(moduleClass, moduleBin);
+        writeClass(filer.createClassFile(moduleClass, type), moduleBin);
+        modules.put(type, moduleClass);
+      }
+    }
+
+    return modules;
+  }
+
+  private Map<TypeElement, List<HandlerCompiler>> classes(
+      Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap) {
     Map<TypeElement, List<HandlerCompiler>> classes = new LinkedHashMap<>();
     for (Map.Entry<TypeElement, Map<TypeElement, List<ExecutableElement>>> e : routeMap
         .entrySet()) {
@@ -255,24 +289,7 @@ public class JoobyProcessor extends AbstractProcessor {
         }
       }
     }
-
-    Map<TypeElement, String> modules = new LinkedHashMap<>();
-    for (Map.Entry<TypeElement, List<HandlerCompiler>> entry : classes.entrySet()) {
-      TypeElement type = entry.getKey();
-      String typeName = typeUtils.erasure(type.asType()).toString();
-      List<HandlerCompiler> handlers = entry.getValue();
-      ModuleCompiler module = new ModuleCompiler(processingEnv, typeName);
-      String moduleClass = module.getModuleClass();
-      byte[] moduleBin = module.compile(handlers);
-      onClass(moduleClass, moduleBin);
-      writeClass(filer.createClassFile(moduleClass, type), moduleBin);
-
-      modules.put(type, moduleClass);
-    }
-
-    if (services) {
-      doServices(filer, modules);
-    }
+    return classes;
   }
 
   private String signature(ExecutableElement method) {
@@ -307,9 +324,11 @@ public class JoobyProcessor extends AbstractProcessor {
 
   private void doServices(Filer filer, Map<TypeElement, String> modules) throws IOException {
     String location = "META-INF/services/" + MvcFactory.class.getName();
-    Element[] originatingElements = modules.keySet().toArray(new Element[0]);
     debug("%s", location);
-    FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location, originatingElements);
+
+    Element[] originatingElements = modules.keySet().toArray(new Element[0]);
+    FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location,
+        originatingElements);
     StringBuilder content = new StringBuilder();
     for (Map.Entry<TypeElement, String> e : modules.entrySet()) {
       String classname = e.getValue();

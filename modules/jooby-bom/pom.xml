@@ -33,7 +33,7 @@
   <conscrypt.version>2.5.2</conscrypt.version>
   <cron-utils.version>9.1.6</cron-utils.version>
   <ebean.version>12.16.0</ebean.version>
-  <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+  <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
   <flyway.version>7.5.1</flyway.version>
   <freemarker.version>2.3.31</freemarker.version>
   <frontend-maven-plugin.version>1.11.0</frontend-maven-plugin.version>
@@ -59,7 +59,7 @@
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.11.0.Final</jboss-modules.version>
   <jdbi.version>3.32.0</jdbi.version>
-  <jetty.version>9.4.48.v20220622</jetty.version>
+  <jetty.version>11.0.11</jetty.version>
   <jfiglet.version>0.0.9</jfiglet.version>
   <jmespath-java.version>1.12.230</jmespath-java.version>
   <jooby-maven-plugin.version>3.0.0-SNAPSHOT</jooby-maven-plugin.version>
@@ -86,13 +86,13 @@
   <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
   <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
   <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
-  <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
+  <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
   <maven-plugin-annotations.version>3.6.4</maven-plugin-annotations.version>
   <maven-plugin-api.version>3.8.5</maven-plugin-api.version>
-  <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
+  <maven-plugin-plugin.version>3.6.4</maven-plugin-plugin.version>
   <maven-project.version>2.2.1</maven-project.version>
   <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
-  <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+  <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
   <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
   <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
   <maven-surefire-plugin.version>3.0.0-M6</maven-surefire-plugin.version>
