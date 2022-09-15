@@ -4,11 +4,11 @@ import examples.ABean
 import kotlinx.coroutines.delay
 import java.util.concurrent.CompletableFuture
 import javax.inject.Named
-import javax.ws.rs.DELETE
-import javax.ws.rs.GET
-import javax.ws.rs.HeaderParam
-import javax.ws.rs.Path
-import javax.ws.rs.QueryParam
+import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.HeaderParam
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.QueryParam
 
 class KtController {
 

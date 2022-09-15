@@ -58,7 +58,7 @@ public class AnnotationParser {
     },
     HEADER {
       @Override public Class[] annotations() {
-        return new Class[]{HeaderParam.class, javax.ws.rs.HeaderParam.class};
+        return new Class[]{HeaderParam.class, jakarta.ws.rs.HeaderParam.class};
       }
 
       @Override public void setIn(Parameter parameter) {
@@ -67,7 +67,7 @@ public class AnnotationParser {
     },
     COOKIE {
       @Override public Class[] annotations() {
-        return new Class[]{CookieParam.class, javax.ws.rs.CookieParam.class};
+        return new Class[]{CookieParam.class, jakarta.ws.rs.CookieParam.class};
       }
 
       @Override public void setIn(Parameter parameter) {
@@ -76,7 +76,7 @@ public class AnnotationParser {
     },
     PATH {
       @Override public Class[] annotations() {
-        return new Class[]{PathParam.class, javax.ws.rs.PathParam.class};
+        return new Class[]{PathParam.class, jakarta.ws.rs.PathParam.class};
       }
 
       @Override public void setIn(Parameter parameter) {
@@ -86,7 +86,7 @@ public class AnnotationParser {
     },
     QUERY {
       @Override public Class[] annotations() {
-        return new Class[]{QueryParam.class, javax.ws.rs.QueryParam.class};
+        return new Class[]{QueryParam.class, jakarta.ws.rs.QueryParam.class};
       }
 
       @Override public void setIn(Parameter parameter) {
@@ -96,7 +96,7 @@ public class AnnotationParser {
 
     FORM {
       @Override public Class[] annotations() {
-        return new Class[]{FormParam.class, javax.ws.rs.FormParam.class};
+        return new Class[]{FormParam.class, jakarta.ws.rs.FormParam.class};
       }
 
       @Override public void setIn(Parameter parameter) {
@@ -489,7 +489,7 @@ public class AnnotationParser {
 
         if (values.isEmpty()) {
           values = findAnnotationByType(annotations,
-              singletonList(javax.ws.rs.Path.class.getName())).stream()
+              singletonList(jakarta.ws.rs.Path.class.getName())).stream()
               .flatMap(annotation -> Stream.of(annotation)
                   .map(AsmUtils::toMap)
               )
@@ -547,7 +547,7 @@ public class AnnotationParser {
 
     // JAXRS annotations
     annotationTypes
-        .addAll(httpMethod(javax.ws.rs.GET.class.getPackage().getName(), javax.ws.rs.Path.class));
+        .addAll(httpMethod(jakarta.ws.rs.GET.class.getPackage().getName(), jakarta.ws.rs.Path.class));
     return annotationTypes;
   }
 

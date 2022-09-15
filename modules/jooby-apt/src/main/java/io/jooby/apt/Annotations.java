@@ -52,35 +52,35 @@ import io.jooby.annotations.TRACE;
  */
 public interface Annotations {
   /** JAXRS GET. */
-  String JAXRS_GET = "javax.ws.rs.GET";
+  String JAXRS_GET = "jakarta.ws.rs.GET";
   /** JAXRS POST. */
-  String JAXRS_POST = "javax.ws.rs.POST";
+  String JAXRS_POST = "jakarta.ws.rs.POST";
   /** JAXRS PUT. */
-  String JAXRS_PUT = "javax.ws.rs.PUT";
+  String JAXRS_PUT = "jakarta.ws.rs.PUT";
   /** JAXRS DELETE. */
-  String JAXRS_DELETE = "javax.ws.rs.DELETE";
+  String JAXRS_DELETE = "jakarta.ws.rs.DELETE";
   /** JAXRS PATCH. */
-  String JAXRS_PATCH = "javax.ws.rs.PATCH";
+  String JAXRS_PATCH = "jakarta.ws.rs.PATCH";
   /** JAXRS HEAD. */
-  String JAXRS_HEAD = "javax.ws.rs.HEAD";
+  String JAXRS_HEAD = "jakarta.ws.rs.HEAD";
   /** JAXRS OPTIONS. */
-  String JAXRS_OPTIONS = "javax.ws.rs.OPTIONS";
+  String JAXRS_OPTIONS = "jakarta.ws.rs.OPTIONS";
   /** JAXRS Context. */
-  String JAXRS_CONTEXT = "javax.ws.rs.core.Context";
+  String JAXRS_CONTEXT = "jakarta.ws.rs.core.Context";
   /** JAXRS Query Param. */
-  String JAXRS_QUERY = "javax.ws.rs.QueryParam";
+  String JAXRS_QUERY = "jakarta.ws.rs.QueryParam";
   /** JAXRS Cookie Param. */
-  String JAXRS_COOKIE = "javax.ws.rs.CookieParam";
+  String JAXRS_COOKIE = "jakarta.ws.rs.CookieParam";
   /** JAXRS Header Param. */
-  String JAXRS_HEADER = "javax.ws.rs.HeaderParam";
+  String JAXRS_HEADER = "jakarta.ws.rs.HeaderParam";
   /** JAXRS Form Param. */
-  String JAXRS_FORM = "javax.ws.rs.FormParam";
+  String JAXRS_FORM = "jakarta.ws.rs.FormParam";
   /** JAXRS PRODUCES. */
-  String JAXRS_PRODUCES = "javax.ws.rs.Produces";
+  String JAXRS_PRODUCES = "jakarta.ws.rs.Produces";
   /** JAXRS CONSUMES. */
-  String JAXRS_CONSUMES = "javax.ws.rs.Consumes";
+  String JAXRS_CONSUMES = "jakarta.ws.rs.Consumes";
   /** JAXRS PATH. */
-  String JAXRS_PATH = "javax.ws.rs.Path";
+  String JAXRS_PATH = "jakarta.ws.rs.Path";
 
   /**
    * HTTP method supported.
