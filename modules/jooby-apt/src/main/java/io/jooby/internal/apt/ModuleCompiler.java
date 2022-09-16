@@ -113,17 +113,17 @@ public class ModuleCompiler {
   private void create(ClassWriter writer) {
     String lambdaCreate = "makeExtension";
     MethodVisitor methodVisitor = writer
-        .visitMethod(ACC_PUBLIC, "create", "(Ljavax/inject/Provider;)Lio/jooby/Extension;", null,
+        .visitMethod(ACC_PUBLIC, "create", "(Ljakarta/inject/Provider;)Lio/jooby/Extension;", null,
             null);
     methodVisitor.visitParameter("provider", 0);
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(ALOAD, 1);
-    methodVisitor.visitInvokeDynamicInsn("install", "(Ljavax/inject/Provider;)Lio/jooby/Extension;",
+    methodVisitor.visitInvokeDynamicInsn("install", "(Ljakarta/inject/Provider;)Lio/jooby/Extension;",
         new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory", "metafactory",
             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
             false), new Object[]{Type.getType("(Lio/jooby/Jooby;)V"),
             new Handle(Opcodes.H_INVOKESTATIC, moduleInternalName, lambdaCreate,
-                "(Ljavax/inject/Provider;Lio/jooby/Jooby;)V", false),
+                "(Ljakarta/inject/Provider;Lio/jooby/Jooby;)V", false),
             Type.getType("(Lio/jooby/Jooby;)V")});
     methodVisitor.visitInsn(ARETURN);
     methodVisitor.visitMaxs(0, 0);
@@ -135,7 +135,7 @@ public class ModuleCompiler {
   private void makeExtension(ClassWriter writer, String methodName) {
     MethodVisitor methodVisitor = writer
         .visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, methodName,
-            "(Ljavax/inject/Provider;Lio/jooby/Jooby;)V", null,
+            "(Ljakarta/inject/Provider;Lio/jooby/Jooby;)V", null,
             new String[]{"java/lang/Exception"});
     methodVisitor.visitParameter("provider", Opcodes.ACC_FINAL | ACC_SYNTHETIC);
     methodVisitor.visitParameter("app", ACC_SYNTHETIC);
@@ -143,7 +143,7 @@ public class ModuleCompiler {
     methodVisitor.visitVarInsn(ALOAD, 1);
     methodVisitor.visitVarInsn(ALOAD, 0);
     methodVisitor.visitMethodInsn(INVOKESTATIC, moduleInternalName, "install",
-        "(Lio/jooby/Jooby;Ljavax/inject/Provider;)V", false);
+        "(Lio/jooby/Jooby;Ljakarta/inject/Provider;)V", false);
     methodVisitor.visitInsn(RETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
@@ -151,8 +151,8 @@ public class ModuleCompiler {
 
   private void install(ClassWriter writer, List<HandlerCompiler> handlers) throws Exception {
     MethodVisitor visitor = writer.visitMethod(ACC_PRIVATE | ACC_STATIC, "install",
-        "(Lio/jooby/Jooby;Ljavax/inject/Provider;)V",
-        "(Lio/jooby/Jooby;Ljavax/inject/Provider<" + Type.getObjectType(controllerClass.replace(".", "/")) + ">;)V",
+        "(Lio/jooby/Jooby;Ljakarta/inject/Provider;)V",
+        "(Lio/jooby/Jooby;Ljakarta/inject/Provider<" + Type.getObjectType(controllerClass.replace(".", "/")) + ">;)V",
         new String[]{"java/lang/Exception"});
     visitor.visitParameter("app", 0);
     visitor.visitParameter("provider", 0);
