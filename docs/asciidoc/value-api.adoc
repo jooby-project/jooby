@@ -400,15 +400,14 @@ The target `POJO` must follow one of these rules:
 
 - Has a zero argguments/default constructor, or
 - Has only one constructor
-- Has multiple constructors, but only one is annotated with 
-https://static.javadoc.io/jakarta.inject/jakarta.inject/1/javax/inject/Inject.html[Inject]
+- Has multiple constructors, but only one is annotated with https://javadoc.io/doc/jakarta.inject/jakarta.inject-api/2.0.1/jakarta.inject/jakarta/inject/Inject.html[Inject]
 
 The decoder matches HTTP parameters in the following order:
 
 - As constructor arguments
 - As setter method
 
-HTTP parameter name which are not a valid Java identifier must be annotated with https://static.javadoc.io/jakarta.inject/jakarta.inject/1/javax/inject/Named.html[Named]:
+HTTP parameter name which are not a valid Java identifier must be annotated with https://javadoc.io/doc/jakarta.inject/jakarta.inject-api/2.0.1/jakarta.inject/jakarta/inject/Named.html[Named]:
 
 .Java
 [source, java,role="primary"]
