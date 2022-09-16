@@ -186,7 +186,7 @@ This other example uses Guice as dependency provider:
 .Guice provisioning
 [source,java]
 ----
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 {
   install(new GuiceModule());

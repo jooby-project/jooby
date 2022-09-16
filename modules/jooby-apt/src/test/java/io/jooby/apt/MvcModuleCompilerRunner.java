@@ -10,7 +10,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
 import org.objectweb.asm.util.ASMifier;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.lang.reflect.Constructor;

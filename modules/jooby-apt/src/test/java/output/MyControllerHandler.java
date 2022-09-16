@@ -1,7 +1,7 @@
 package output;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import io.jooby.Context;
 import io.jooby.Route;

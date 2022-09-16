@@ -9,7 +9,7 @@ import io.jooby.Context;
 import io.jooby.RequestScope;
 import io.jooby.exception.RegistryException;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import static io.jooby.RequestScope.bind;
 import static io.jooby.RequestScope.unbind;

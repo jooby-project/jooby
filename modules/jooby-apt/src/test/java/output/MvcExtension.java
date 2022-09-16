@@ -6,7 +6,7 @@ import io.jooby.MvcFactory;
 import source.Controller1527;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 public class MvcExtension implements MvcFactory {
 

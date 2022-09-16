@@ -89,7 +89,7 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- javax -->
-    <javax.inject.version>1</javax.inject.version>
+    <jakarta.inject.version>2.0.1</jakarta.inject.version>
     <jsr305.version>3.0.2</jsr305.version>
     <jakarta.ws.rs-api.version>3.0.0</jakarta.ws.rs-api.version>
 
@@ -850,11 +850,11 @@
         <version>${h2.version}</version>
       </dependency>
 
-      <!-- javax.inject -->
+      <!-- jakarta.inject -->
       <dependency>
-        <groupId>javax.inject</groupId>
-        <artifactId>javax.inject</artifactId>
-        <version>${javax.inject.version}</version>
+        <groupId>jakarta.inject</groupId>
+        <artifactId>jakarta.inject-api</artifactId>
+        <version>${jakarta.inject.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.flywaydb/flyway-core -->

@@ -4,7 +4,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class DatabaseOrderRepository implements OrderRepository {
   private Jdbi jdbi;

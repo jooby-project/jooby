@@ -35,8 +35,8 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ParameterNode;
 
-import javax.inject.Named;
-import javax.inject.Provider;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;

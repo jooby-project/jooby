@@ -31,7 +31,7 @@ import org.quartz.TriggerKey;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.spi.MutableTrigger;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;

@@ -132,4 +132,4 @@ fun main(args: Array<String>) {
 The lifecycle of `MyController` is now managed by Guice. Also:
 
 - In Guice, the default scope is `prototype` (creates a new instance per request)
-- If you prefer a single instance add the `javax.inject.Singleton` annotation
+- If you prefer a single instance add the `jakarta.inject.Singleton` annotation

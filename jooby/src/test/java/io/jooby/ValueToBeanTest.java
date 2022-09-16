@@ -4,8 +4,8 @@ import io.jooby.internal.UrlParser;
 import io.jooby.internal.ValueConverterHelper;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

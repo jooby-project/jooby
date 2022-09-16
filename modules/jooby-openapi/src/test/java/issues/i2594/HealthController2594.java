@@ -1,6 +1,6 @@
 package issues.i2594;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.google.common.collect.ImmutableMap;
 import io.jooby.Context;

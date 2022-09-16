@@ -15,7 +15,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collections;

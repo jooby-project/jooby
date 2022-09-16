@@ -19,7 +19,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;

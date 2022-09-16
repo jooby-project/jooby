@@ -19,7 +19,7 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;

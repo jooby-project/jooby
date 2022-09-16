@@ -1,6 +1,6 @@
 package io.jooby.i2457;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;

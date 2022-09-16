@@ -1,6 +1,6 @@
 package tests.i2026;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import io.jooby.Extension;
 import io.jooby.Jooby;

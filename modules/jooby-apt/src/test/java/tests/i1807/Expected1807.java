@@ -6,7 +6,7 @@ import io.jooby.exception.MissingValueException;
 import source.Controller1786b;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.util.UUID;
 
 public class Expected1807 implements MvcFactory {

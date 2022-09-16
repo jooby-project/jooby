@@ -5,7 +5,7 @@ import io.jooby.MvcFactory;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 public class Expected1859 implements MvcFactory {
 

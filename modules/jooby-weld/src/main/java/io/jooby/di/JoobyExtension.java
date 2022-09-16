@@ -26,7 +26,7 @@ import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.WithAnnotations;
 import javax.enterprise.inject.spi.configurator.BeanConfigurator;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
