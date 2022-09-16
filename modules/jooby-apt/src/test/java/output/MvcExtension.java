@@ -5,7 +5,7 @@ import io.jooby.Jooby;
 import io.jooby.MvcFactory;
 import source.Controller1527;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 
 public class MvcExtension implements MvcFactory {
@@ -18,11 +18,11 @@ public class MvcExtension implements MvcFactory {
     }).attribute("RequireRole", Controller1527.Role.USER);
   }
 
-  @Override public boolean supports(@Nonnull Class type) {
+  @Override public boolean supports(@NonNull Class type) {
     return type == MyController.class;
   }
 
-  @Nonnull @Override public Extension create(@Nonnull Provider provider) {
+  @NonNull @Override public Extension create(@NonNull Provider provider) {
     return app -> install(app, provider);
   }
 }

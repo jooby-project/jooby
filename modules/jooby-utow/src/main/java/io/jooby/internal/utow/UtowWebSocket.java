@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.xnio.IoUtils;
 
@@ -78,11 +78,11 @@ public class UtowWebSocket extends AbstractReceiveListener
     return maxSize;
   }
 
-  @Nonnull @Override public Context getContext() {
+  @NonNull @Override public Context getContext() {
     return Context.readOnly(ctx);
   }
 
-  @Nonnull @Override public List<WebSocket> getSessions() {
+  @NonNull @Override public List<WebSocket> getSessions() {
     List<WebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();
@@ -96,11 +96,11 @@ public class UtowWebSocket extends AbstractReceiveListener
     return open.get() && channel.isOpen();
   }
 
-  @Nonnull @Override public WebSocket send(@Nonnull String message, boolean broadcast) {
+  @NonNull @Override public WebSocket send(@NonNull String message, boolean broadcast) {
     return send(message.getBytes(StandardCharsets.UTF_8), broadcast);
   }
 
-  @Nonnull @Override public WebSocket send(@Nonnull byte[] message, boolean broadcast) {
+  @NonNull @Override public WebSocket send(@NonNull byte[] message, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.send(message, false);
@@ -120,7 +120,7 @@ public class UtowWebSocket extends AbstractReceiveListener
     return this;
   }
 
-  @Nonnull @Override public WebSocket render(@Nonnull Object value, boolean broadcast) {
+  @NonNull @Override public WebSocket render(@NonNull Object value, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.render(value, false);
@@ -135,27 +135,27 @@ public class UtowWebSocket extends AbstractReceiveListener
     return this;
   }
 
-  @Nonnull @Override public WebSocket close(@Nonnull WebSocketCloseStatus closeStatus) {
+  @NonNull @Override public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
     handleClose(closeStatus);
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onConnect(@Nonnull OnConnect callback) {
+  @NonNull @Override public WebSocketConfigurer onConnect(@NonNull OnConnect callback) {
     onConnectCallback = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onMessage(@Nonnull OnMessage callback) {
+  @NonNull @Override public WebSocketConfigurer onMessage(@NonNull OnMessage callback) {
     onMessageCallback = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onError(@Nonnull OnError callback) {
+  @NonNull @Override public WebSocketConfigurer onError(@NonNull OnError callback) {
     onErrorCallback = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onClose(@Nonnull OnClose callback) {
+  @NonNull @Override public WebSocketConfigurer onClose(@NonNull OnClose callback) {
     onCloseCallback.set(callback);
     return this;
   }

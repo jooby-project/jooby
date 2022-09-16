@@ -17,7 +17,7 @@ import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.sql.DataSource;
 import java.util.Optional;
 import java.util.Properties;
@@ -67,7 +67,7 @@ public class EbeanModule implements Extension {
    *
    * @param name Ebean name.
    */
-  public EbeanModule(@Nonnull String name) {
+  public EbeanModule(@NonNull String name) {
     this.name = name;
     this.databaseConfig = null;
   }
@@ -84,12 +84,12 @@ public class EbeanModule implements Extension {
    *
    * @param config Database configuration.
    */
-  public EbeanModule(@Nonnull DatabaseConfig config) {
+  public EbeanModule(@NonNull DatabaseConfig config) {
     this.databaseConfig = config;
     this.name = databaseConfig.getName();
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     DatabaseConfig config = Optional.ofNullable(this.databaseConfig)
         .orElseGet(() -> create(application, name));
 
@@ -112,7 +112,7 @@ public class EbeanModule implements Extension {
    * @param name Ebean name.
    * @return Database configuration.
    */
-  public static @Nonnull DatabaseConfig create(@Nonnull Jooby application, @Nonnull String name) {
+  public static @NonNull DatabaseConfig create(@NonNull Jooby application, @NonNull String name) {
     Environment environment = application.getEnvironment();
     ServiceRegistry registry = application.getServices();
     DatabaseConfig databaseConfig = new DatabaseConfig();

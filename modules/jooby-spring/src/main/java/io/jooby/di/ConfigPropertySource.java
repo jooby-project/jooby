@@ -9,7 +9,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import org.springframework.core.env.PropertySource;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Property source backed by Jooby application configuration object.
@@ -23,7 +23,7 @@ public class ConfigPropertySource extends PropertySource<Config> {
    *
    * @param source Application configuration.
    */
-  public ConfigPropertySource(@Nonnull Config source) {
+  public ConfigPropertySource(@NonNull Config source) {
     super("jooby", source);
   }
 

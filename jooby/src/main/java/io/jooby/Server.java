@@ -18,8 +18,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Web server contract. Defines operations to start, join and stop a web server. Jooby comes
@@ -88,19 +88,19 @@ public interface Server {
 
     private AtomicBoolean stopping = new AtomicBoolean();
 
-    protected void fireStart(@Nonnull List<Jooby> applications, @Nonnull Executor defaultWorker) {
+    protected void fireStart(@NonNull List<Jooby> applications, @NonNull Executor defaultWorker) {
       for (Jooby app : applications) {
         app.setDefaultWorker(defaultWorker).start(this);
       }
     }
 
-    protected void fireReady(@Nonnull List<Jooby> applications) {
+    protected void fireReady(@NonNull List<Jooby> applications) {
       for (Jooby app : applications) {
         app.ready(this);
       }
     }
 
-    protected void fireStop(@Nonnull List<Jooby> applications) {
+    protected void fireStop(@NonNull List<Jooby> applications) {
       if (stopping.compareAndSet(false, true)) {
         if (applications != null) {
           for (Jooby app : applications) {
@@ -123,14 +123,14 @@ public interface Server {
    * @param options Server options.
    * @return This server.
    */
-  @Nonnull Server setOptions(@Nonnull ServerOptions options);
+  @NonNull Server setOptions(@NonNull ServerOptions options);
 
   /**
    * Get server options.
    *
    * @return Server options.
    */
-  @Nonnull ServerOptions getOptions();
+  @NonNull ServerOptions getOptions();
 
   /**
    * Start an application.
@@ -138,7 +138,7 @@ public interface Server {
    * @param application Application to start.
    * @return This server.
    */
-  @Nonnull Server start(@Nonnull Jooby application);
+  @NonNull Server start(@NonNull Jooby application);
 
   /**
    * Block current thread.
@@ -146,7 +146,7 @@ public interface Server {
    * @deprecated This method is planned to be removed in next major release (3.x)
    */
   @Deprecated
-  @Nonnull default void join() {
+  @NonNull default void join() {
     try {
       Thread.currentThread().join();
     } catch (InterruptedException x) {
@@ -159,7 +159,7 @@ public interface Server {
    *
    * @return Stop the server.
    */
-  @Nonnull Server stop();
+  @NonNull Server stop();
 
   /**
    * Add a connection lost predicate. On unexpected exception, this method allows to customize which
@@ -168,7 +168,7 @@ public interface Server {
    *
    * @param predicate Customize connection lost error.
    */
-  static void addConnectionLost(@Nonnull Predicate<Throwable> predicate) {
+  static void addConnectionLost(@NonNull Predicate<Throwable> predicate) {
     Base.connectionLostListeners.add(predicate);
   }
 
@@ -179,7 +179,7 @@ public interface Server {
    *
    * @param predicate Customize connection lost error.
    */
-  static void addAddressInUse(@Nonnull Predicate<Throwable> predicate) {
+  static void addAddressInUse(@NonNull Predicate<Throwable> predicate) {
     Base.addressInUseListeners.add(predicate);
   }
 

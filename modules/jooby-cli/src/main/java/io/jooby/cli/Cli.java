@@ -19,7 +19,7 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import picocli.CommandLine;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -58,7 +58,7 @@ public class Cli extends Cmd {
   /** Unmatched command line arguments. */
   private @CommandLine.Unmatched List<String> args;
 
-  @Override public void run(@Nonnull Context ctx) {
+  @Override public void run(@NonNull Context ctx) {
     List<String> args = this.args.stream()
         .filter(Objects::nonNull)
         .map(String::trim)

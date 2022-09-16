@@ -14,7 +14,7 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.Map;
 
@@ -28,12 +28,12 @@ public class GraphQLHandler implements Route.Handler {
     this.graphQL = graphQL;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     return graphQL.executeAsync(newExecutionInput(ctx))
         .thenApply(ExecutionResult::toSpecification);
   }
 
-  protected final ExecutionInput newExecutionInput(@Nonnull Context ctx) {
+  protected final ExecutionInput newExecutionInput(@NonNull Context ctx) {
     GraphQLRequest request;
     if (ctx.getMethod().equals(Router.POST)) {
       request = ctx.body(GraphQLRequest.class);

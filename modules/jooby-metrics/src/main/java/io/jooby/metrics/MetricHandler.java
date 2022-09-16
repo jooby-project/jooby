@@ -20,7 +20,7 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -31,9 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 public class MetricHandler implements Route.Handler {
 
-  @Nonnull
+  @NonNull
   @Override
-  public Object apply(@Nonnull Context ctx) {
+  public Object apply(@NonNull Context ctx) {
     MetricRegistry registry = ctx.require(MetricRegistry.class);
     Map<String, Metric> allMetrics = registry.getMetrics();
 

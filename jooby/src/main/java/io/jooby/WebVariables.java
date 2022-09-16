@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Add common variables to as {@link Context} attributes so they are accessible from template
@@ -37,7 +37,7 @@ public class WebVariables implements Route.Decorator {
    *
    * @param scope Scope to use.
    */
-  public WebVariables(@Nonnull String scope) {
+  public WebVariables(@NonNull String scope) {
     this.scope = scope;
   }
 
@@ -48,7 +48,7 @@ public class WebVariables implements Route.Decorator {
     this.scope = null;
   }
 
-  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
+  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> next.apply(webvariables(ctx));
   }
 

@@ -7,7 +7,7 @@ package io.jooby;
 
 import io.jooby.exception.MissingValueException;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -43,7 +43,7 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param index Position.
    * @return A value at the given position.
    */
-  @Nonnull ValueNode get(@Nonnull int index);
+  @NonNull ValueNode get(@NonNull int index);
 
   /**
    * Get a value that matches the given name.
@@ -51,7 +51,7 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param name Field name.
    * @return Field value.
    */
-  @Nonnull ValueNode get(@Nonnull String name);
+  @NonNull ValueNode get(@NonNull String name);
 
   /**
    * The number of values this one has. For single values size is <code>0</code>.
@@ -67,7 +67,7 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    *
    * @return Value iterator.
    */
-  @Nonnull default @Override Iterator<ValueNode> iterator() {
+  @NonNull default @Override Iterator<ValueNode> iterator() {
     return Collections.emptyIterator();
   }
 
@@ -84,7 +84,7 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param expression Text expression.
    * @return Resolved text.
    */
-  @Nonnull default String resolve(@Nonnull String expression) {
+  @NonNull default String resolve(@NonNull String expression) {
     return resolve(expression, "${", "}");
   }
 
@@ -102,7 +102,7 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param ignoreMissing On missing values, keep the expression as it is.
    * @return Resolved text.
    */
-  @Nonnull default String resolve(@Nonnull String expression, boolean ignoreMissing) {
+  @NonNull default String resolve(@NonNull String expression, boolean ignoreMissing) {
     return resolve(expression, ignoreMissing, "${", "}");
   }
 
@@ -121,8 +121,8 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param endDelim End delimiter.
    * @return Resolved text.
    */
-  @Nonnull default String resolve(@Nonnull String expression, @Nonnull String startDelim,
-      @Nonnull String endDelim) {
+  @NonNull default String resolve(@NonNull String expression, @NonNull String startDelim,
+      @NonNull String endDelim) {
     return resolve(expression, false, startDelim, endDelim);
   }
 
@@ -142,8 +142,8 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param endDelim End delimiter.
    * @return Resolved text.
    */
-  @Nonnull default String resolve(@Nonnull String expression, boolean ignoreMissing,
-      @Nonnull String startDelim, @Nonnull String endDelim) {
+  @NonNull default String resolve(@NonNull String expression, boolean ignoreMissing,
+      @NonNull String startDelim, @NonNull String endDelim) {
     if (expression.length() == 0) {
       return "";
     }

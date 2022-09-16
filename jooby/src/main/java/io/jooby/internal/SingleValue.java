@@ -8,7 +8,7 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.ValueNode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -38,11 +38,11 @@ public class SingleValue implements ValueNode {
     return name;
   }
 
-  @Override public ValueNode get(@Nonnull int index) {
+  @Override public ValueNode get(@NonNull int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
-  @Override public ValueNode get(@Nonnull String name) {
+  @Override public ValueNode get(@NonNull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
@@ -62,19 +62,19 @@ public class SingleValue implements ValueNode {
     return Collections.<ValueNode>singletonList(this).iterator();
   }
 
-  @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> List<T> toList(@NonNull Class<T> type) {
     return Collections.singletonList(to(type));
   }
 
-  @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> Set<T> toSet(@NonNull Class<T> type) {
     return Collections.singleton(to(type));
   }
 
-  @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> Optional<T> toOptional(@NonNull Class<T> type) {
     return Optional.of(to(type));
   }
 
-  @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T to(@NonNull Class<T> type) {
     return ctx.convert(this, type);
   }
 

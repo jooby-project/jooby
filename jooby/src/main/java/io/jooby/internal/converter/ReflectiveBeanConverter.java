@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
@@ -44,11 +44,11 @@ public class ReflectiveBeanConverter implements BeanConverter {
 
   private static final Object[] NO_ARGS = new Object[0];
 
-  @Override public boolean supports(@Nonnull Class type) {
+  @Override public boolean supports(@NonNull Class type) {
     return true;
   }
 
-  @Override public Object convert(@Nonnull ValueNode node, @Nonnull Class type) {
+  @Override public Object convert(@NonNull ValueNode node, @NonNull Class type) {
     try {
       return newInstance(type, node);
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {

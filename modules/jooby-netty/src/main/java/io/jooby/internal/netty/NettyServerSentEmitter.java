@@ -17,7 +17,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,11 +52,11 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
     return this;
   }
 
-  @Nonnull @Override public Context getContext() {
+  @NonNull @Override public Context getContext() {
     return Context.readOnly(netty);
   }
 
-  @Nonnull @Override public ServerSentEmitter send(ServerSentMessage data) {
+  @NonNull @Override public ServerSentEmitter send(ServerSentMessage data) {
     if (checkOpen()) {
       netty.ctx.writeAndFlush(Unpooled.wrappedBuffer(data.toByteArray(netty))).addListener(this);
     } else {
@@ -77,7 +77,7 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
     this.closeTask = task;
   }
 
-  @Nonnull @Override public void close() {
+  @NonNull @Override public void close() {
     if (open.compareAndSet(true, false)) {
       try {
         if (closeTask != null) {

@@ -8,7 +8,7 @@ package io.jooby.internal.handler;
 import io.jooby.Context;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class DetachHandler implements LinkedHandler {
   private final Route.Handler next;
@@ -17,7 +17,7 @@ public class DetachHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     return ctx.detach(next);
   }
 

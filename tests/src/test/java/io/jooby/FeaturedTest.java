@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -796,11 +796,11 @@ public class FeaturedTest {
     }
 
     runner.define(app -> {
-      app.encoder(io.jooby.MediaType.json, (@Nonnull Context ctx, @Nonnull Object value) ->
+      app.encoder(io.jooby.MediaType.json, (@NonNull Context ctx, @NonNull Object value) ->
           ("{" + value.toString() + "}").getBytes(StandardCharsets.UTF_8)
       );
 
-      app.encoder(io.jooby.MediaType.xml, (@Nonnull Context ctx, @Nonnull Object value) ->
+      app.encoder(io.jooby.MediaType.xml, (@NonNull Context ctx, @NonNull Object value) ->
           ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8)
       );
 
@@ -885,14 +885,14 @@ public class FeaturedTest {
   public void consumes(ServerTestRunner runner) {
     runner.define(app -> {
       app.decoder(io.jooby.MediaType.json, new MessageDecoder() {
-        @Nonnull @Override public String decode(@Nonnull Context ctx, @Nonnull Type type)
+        @NonNull @Override public String decode(@NonNull Context ctx, @NonNull Type type)
             throws Exception {
           return "{" + ctx.body().value("") + "}";
         }
       });
 
       app.decoder(xml, new MessageDecoder() {
-        @Nonnull @Override public String decode(@Nonnull Context ctx, @Nonnull Type type)
+        @NonNull @Override public String decode(@NonNull Context ctx, @NonNull Type type)
             throws Exception {
           return "<" + ctx.body().value("") + ">";
         }

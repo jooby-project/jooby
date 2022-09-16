@@ -18,8 +18,8 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.HashMap;
@@ -53,7 +53,7 @@ public class JwtSessionStore implements SessionStore {
    *
    * @param key Secret key.
    */
-  public JwtSessionStore(@Nonnull String key) {
+  public JwtSessionStore(@NonNull String key) {
     this(key, SessionToken.signedCookie(SessionToken.SID));
   }
 
@@ -65,7 +65,7 @@ public class JwtSessionStore implements SessionStore {
    * @param key Secret key.
    * @param token Session token.
    */
-  public JwtSessionStore(@Nonnull String key, @Nonnull SessionToken token) {
+  public JwtSessionStore(@NonNull String key, @NonNull SessionToken token) {
     this(Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8)), token);
   }
 
@@ -77,31 +77,31 @@ public class JwtSessionStore implements SessionStore {
    * @param key Secret key.
    * @param token Session token.
    */
-  public JwtSessionStore(@Nonnull Key key, @Nonnull SessionToken token) {
+  public JwtSessionStore(@NonNull Key key, @NonNull SessionToken token) {
     this.store = SessionStore.signed(token, decoder(key), encoder(key));
   }
 
-  @Nonnull @Override public Session newSession(@Nonnull Context ctx) {
+  @NonNull @Override public Session newSession(@NonNull Context ctx) {
     return store.newSession(ctx);
   }
 
-  @Nullable @Override public Session findSession(@Nonnull Context ctx) {
+  @Nullable @Override public Session findSession(@NonNull Context ctx) {
     return store.findSession(ctx);
   }
 
-  @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
     store.deleteSession(ctx, session);
   }
 
-  @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void touchSession(@NonNull Context ctx, @NonNull Session session) {
     store.touchSession(ctx, session);
   }
 
-  @Override public void saveSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void saveSession(@NonNull Context ctx, @NonNull Session session) {
     store.saveSession(ctx, session);
   }
 
-  @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
     store.renewSessionId(ctx, session);
   }
 

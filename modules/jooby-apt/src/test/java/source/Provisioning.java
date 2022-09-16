@@ -19,7 +19,7 @@ import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -324,7 +324,7 @@ public class Provisioning {
 
   @POST
   @Path("/bodyStringParam")
-  public String bodyStringParam(@Nonnull String body) {
+  public String bodyStringParam(@NonNull String body) {
     return body;
   }
 

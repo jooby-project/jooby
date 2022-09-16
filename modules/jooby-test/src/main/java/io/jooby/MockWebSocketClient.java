@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class MockWebSocketClient {
    * @param message Message.
    * @return This client.
    */
-  public MockWebSocketClient send(@Nonnull Object message) {
+  public MockWebSocketClient send(@NonNull Object message) {
     if (isOpen()) {
       configurer.fireOnMessage(message);
     } else {

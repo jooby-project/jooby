@@ -3,7 +3,7 @@ package source;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Param;
 
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import static io.jooby.ParamSource.COOKIE;
 import static io.jooby.ParamSource.FLASH;

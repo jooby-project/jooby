@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Value converter for complex values that come from query, path, form, etc... parameters into more
@@ -20,7 +20,7 @@ public interface BeanConverter {
    * @param type Conversion type.
    * @return True if the converter applies for the given type.
    */
-  boolean supports(@Nonnull Class type);
+  boolean supports(@NonNull Class type);
 
   /**
    * Convert a node value into more specific type.
@@ -29,5 +29,5 @@ public interface BeanConverter {
    * @param type Requested type.
    * @return Converted value.
    */
-  Object convert(@Nonnull ValueNode node, @Nonnull Class type);
+  Object convert(@NonNull ValueNode node, @NonNull Class type);
 }

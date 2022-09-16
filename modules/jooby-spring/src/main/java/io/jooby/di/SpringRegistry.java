@@ -11,7 +11,7 @@ import io.jooby.ServiceKey;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 class SpringRegistry implements Registry {
   private final ApplicationContext ctx;
@@ -20,7 +20,7 @@ class SpringRegistry implements Registry {
     this.ctx = ctx;
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type) {
     try {
       return ctx.getBean(type);
     } catch (BeansException cause) {
@@ -29,7 +29,7 @@ class SpringRegistry implements Registry {
     }
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type, @NonNull String name) {
     try {
       return ctx.getBean(name, type);
     } catch (BeansException cause) {
@@ -39,7 +39,7 @@ class SpringRegistry implements Registry {
     }
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+  @NonNull @Override public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     String name = key.getName();
     return name == null ? require(key.getType()) : require(key.getType(), name);
   }

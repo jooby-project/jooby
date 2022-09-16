@@ -26,8 +26,8 @@ import io.swagger.v3.oas.models.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,7 +79,7 @@ public class OpenAPIGenerator {
      *
      * @return File extension.
      */
-    public @Nonnull String extension() {
+    public @NonNull String extension() {
       return name().toLowerCase();
     }
 
@@ -90,8 +90,8 @@ public class OpenAPIGenerator {
      * @param result Model.
      * @return String (json or yaml content).
      */
-    public abstract @Nonnull String toString(@Nonnull OpenAPIGenerator tool,
-        @Nonnull OpenAPI result);
+    public abstract @NonNull String toString(@NonNull OpenAPIGenerator tool,
+        @NonNull OpenAPI result);
 
   }
 
@@ -137,7 +137,7 @@ public class OpenAPIGenerator {
    * @throws IOException
    * @return Output file.
    */
-  public @Nonnull Path export(@Nonnull OpenAPI openAPI, @Nonnull Format format) throws IOException {
+  public @NonNull Path export(@NonNull OpenAPI openAPI, @NonNull Format format) throws IOException {
     Path output;
     if (openAPI instanceof OpenAPIExt) {
       String source = ((OpenAPIExt) openAPI).getSource();
@@ -173,7 +173,7 @@ public class OpenAPIGenerator {
    * @param classname Application class name.
    * @return Model.
    */
-  public @Nonnull OpenAPI generate(@Nonnull String classname) {
+  public @NonNull OpenAPI generate(@NonNull String classname) {
     ClassLoader classLoader = Optional.ofNullable(this.classLoader)
         .orElseGet(getClass()::getClassLoader);
     ClassSource source = new ClassSource(classLoader);
@@ -303,7 +303,7 @@ public class OpenAPIGenerator {
    * @param openAPI Model.
    * @return YAML content.
    */
-  public @Nonnull String toYaml(@Nonnull OpenAPI openAPI) {
+  public @NonNull String toYaml(@NonNull OpenAPI openAPI) {
     try {
       return Yaml.mapper().writeValueAsString(openAPI);
     } catch (IOException x) {
@@ -317,7 +317,7 @@ public class OpenAPIGenerator {
    * @param openAPI Model.
    * @return JSON content.
    */
-  public @Nonnull String toJson(@Nonnull OpenAPI openAPI) {
+  public @NonNull String toJson(@NonNull OpenAPI openAPI) {
     try {
       return Json.mapper().writer().withDefaultPrettyPrinter().writeValueAsString(openAPI);
     } catch (IOException x) {
@@ -330,7 +330,7 @@ public class OpenAPIGenerator {
    *
    * @param classLoader Class loader.
    */
-  public void setClassLoader(@Nonnull ClassLoader classLoader) {
+  public void setClassLoader(@NonNull ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
 
@@ -357,7 +357,7 @@ public class OpenAPIGenerator {
    *
    * @param templateName OpenAPI template file name, defaults is: <code>openapi.yaml</code>.
    */
-  public void setTemplateName(@Nonnull String templateName) {
+  public void setTemplateName(@NonNull String templateName) {
     this.templateName = templateName;
   }
 
@@ -367,7 +367,7 @@ public class OpenAPIGenerator {
    *
    * @param basedir Base directory.
    */
-  public void setBasedir(@Nonnull Path basedir) {
+  public void setBasedir(@NonNull Path basedir) {
     this.basedir = basedir;
   }
 
@@ -434,7 +434,7 @@ public class OpenAPIGenerator {
    *
    * @param outputDir Output directory.
    */
-  public void setOutputDir(@Nonnull Path outputDir) {
+  public void setOutputDir(@NonNull Path outputDir) {
     this.outputDir = outputDir;
   }
 

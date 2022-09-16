@@ -9,7 +9,7 @@ import io.jooby.Asset;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
@@ -39,7 +39,7 @@ public class JarAsset implements Asset {
     return entry.getTime();
   }
 
-  @Nonnull @Override public MediaType getContentType() {
+  @NonNull @Override public MediaType getContentType() {
     return MediaType.byFile(entry.getName());
   }
 

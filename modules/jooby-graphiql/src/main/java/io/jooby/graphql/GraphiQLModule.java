@@ -5,7 +5,7 @@
  */
 package io.jooby.graphql;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -36,7 +36,7 @@ public class GraphiQLModule implements Extension {
 
   private static final String RESOURCES_JS = "  <script src=\"{{contextPath}}/graphql/static/graphiql.min.js\"></script>\n";
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     String cpath = application.getContextPath();
     if (cpath == null || cpath.equals("/")) {
       cpath = "";

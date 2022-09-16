@@ -10,7 +10,7 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.ValueNode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -53,19 +53,19 @@ public class ByteArrayBody implements Body {
     return new ByteArrayInputStream(bytes);
   }
 
-  @Nonnull @Override public String value() {
+  @NonNull @Override public String value() {
     return value(StandardCharsets.UTF_8);
   }
 
-  @Nonnull @Override public List<String> toList() {
+  @NonNull @Override public List<String> toList() {
     return Collections.singletonList(value());
   }
 
-  @Nonnull @Override public ValueNode get(@Nonnull int index) {
+  @NonNull @Override public ValueNode get(@NonNull int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
-  @Nonnull @Override public ValueNode get(@Nonnull String name) {
+  @NonNull @Override public ValueNode get(@NonNull String name) {
     return new MissingValue(name);
   }
 
@@ -73,7 +73,7 @@ public class ByteArrayBody implements Body {
     return "body";
   }
 
-  @Nonnull @Override public <T> T to(@Nonnull Type type) {
+  @NonNull @Override public <T> T to(@NonNull Type type) {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 

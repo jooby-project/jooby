@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 
 /**
@@ -20,7 +20,7 @@ public interface MvcFactory {
    * @param type MVC route.
    * @return True for matching factory.
    */
-  boolean supports(@Nonnull Class type);
+  boolean supports(@NonNull Class type);
 
   /**
    * Creates an extension module. The extension module are created at compilation time by Jooby
@@ -29,5 +29,5 @@ public interface MvcFactory {
    * @param provider MVC route instance provider.
    * @return All mvc route as extension module.
    */
-  @Nonnull Extension create(@Nonnull Provider provider);
+  @NonNull Extension create(@NonNull Provider provider);
 }

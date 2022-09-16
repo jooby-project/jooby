@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -49,7 +49,7 @@ public class AssetHandler implements Route.Handler {
    * @param fallback Fallback asset.
    * @param sources Asset sources. At least one source is required.
    */
-  public AssetHandler(@Nonnull String fallback, AssetSource... sources) {
+  public AssetHandler(@NonNull String fallback, AssetSource... sources) {
     this.fallback = fallback;
     this.sources = checkSource(sources);
   }
@@ -63,7 +63,7 @@ public class AssetHandler implements Route.Handler {
     this.sources = checkSource(sources);
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     final String resolvedPath;
     String filepath = ctx.pathMap().getOrDefault(filekey, "index.html");
     Asset asset = resolve(filepath);
@@ -188,7 +188,7 @@ public class AssetHandler implements Route.Handler {
    * @return this instance.
    * @see CacheControl
    */
-  public AssetHandler cacheControl(@Nonnull Function<String, CacheControl> cacheControl) {
+  public AssetHandler cacheControl(@NonNull Function<String, CacheControl> cacheControl) {
     this.cacheControl = requireNonNull(cacheControl);
     return this;
   }

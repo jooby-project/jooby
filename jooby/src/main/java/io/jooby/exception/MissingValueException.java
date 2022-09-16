@@ -5,8 +5,8 @@
  */
 package io.jooby.exception;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Missing exception. Used when a required attribute/value is missing.
@@ -22,7 +22,7 @@ public class MissingValueException extends BadRequestException {
    *
    * @param name Parameter/attribute name.
    */
-  public MissingValueException(@Nonnull String name) {
+  public MissingValueException(@NonNull String name) {
     super("Missing value: '" + name + "'");
     this.name = name;
   }
@@ -44,7 +44,7 @@ public class MissingValueException extends BadRequestException {
    * @param <T> Value type.
    * @return Input value
    */
-  public static <T> T requireNonNull(@Nonnull String name, @Nullable T value)  {
+  public static <T> T requireNonNull(@NonNull String name, @Nullable T value)  {
     if (value == null) {
       throw new MissingValueException(name);
     }

@@ -13,7 +13,7 @@ import io.jooby.ServiceRegistry;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class FlywayModule implements Extension {
    *
    * @param name The name/key of the data source to attach.
    */
-  public FlywayModule(@Nonnull String name) {
+  public FlywayModule(@NonNull String name) {
     this.name = name;
   }
 
@@ -69,7 +69,7 @@ public class FlywayModule implements Extension {
     this("db");
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     Environment environment = application.getEnvironment();
     ServiceRegistry registry = application.getServices();
     DataSource dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));

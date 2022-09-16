@@ -15,7 +15,7 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Attach {@link Session} and {@link javax.persistence.EntityManager} to the current request.
@@ -63,7 +63,7 @@ public class SessionRequest implements Route.Decorator {
    *
    * @param name Name of the session factory.
    */
-  public SessionRequest(@Nonnull String name) {
+  public SessionRequest(@NonNull String name) {
     this(ServiceKey.key(SessionFactory.class, name));
   }
 
@@ -79,9 +79,9 @@ public class SessionRequest implements Route.Decorator {
     this.sessionProviderKey = ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName());
   }
 
-  @Nonnull
+  @NonNull
   @Override
-  public Route.Handler apply(@Nonnull Route.Handler next) {
+  public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       SessionFactory sessionFactory = ctx.require(sessionFactoryKey);
       SessionProvider sessionProvider = ctx.require(sessionProviderKey);
@@ -114,7 +114,7 @@ public class SessionRequest implements Route.Decorator {
    *
    * @return The service key for accessing to the configured {@link SessionFactory} service.
    */
-  public @Nonnull ServiceKey<SessionFactory> getSessionFactoryKey() {
+  public @NonNull ServiceKey<SessionFactory> getSessionFactoryKey() {
     return sessionFactoryKey;
   }
 }

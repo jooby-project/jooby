@@ -168,7 +168,7 @@ Response enconding is achieved using the javadoc:MessageEncoder[] functional int
 ----
 public interface MessageEncoder {
 
-  byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
+  byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
 }
 ----
 

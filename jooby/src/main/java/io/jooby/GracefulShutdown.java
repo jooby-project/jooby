@@ -7,7 +7,7 @@ package io.jooby;
 
 import io.jooby.internal.GracefulShutdownHandler;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 
 /**
@@ -29,7 +29,7 @@ public class GracefulShutdown implements Extension {
    *
    * @param await Max time to wait for handlers to complete.
    */
-  public GracefulShutdown(@Nonnull Duration await) {
+  public GracefulShutdown(@NonNull Duration await) {
     this.await = await;
   }
 
@@ -39,7 +39,7 @@ public class GracefulShutdown implements Extension {
   public GracefulShutdown() {
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     GracefulShutdownHandler handler = new GracefulShutdownHandler(await);
     application.decorator(handler);
     application.onStop(handler::shutdown);

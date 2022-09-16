@@ -21,7 +21,7 @@ import io.jooby.ServiceRegistry;
 import io.jooby.SneakyThrows;
 import io.jooby.TemplateEngine;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -108,7 +108,7 @@ public class FreemarkerModule implements Extension {
      * @param loader Template loader to use.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplateLoader(@Nonnull TemplateLoader loader) {
+    public @NonNull Builder setTemplateLoader(@NonNull TemplateLoader loader) {
       this.templateLoader = loader;
       return this;
     }
@@ -120,7 +120,7 @@ public class FreemarkerModule implements Extension {
      * @param value Optiona value.
      * @return This builder.
      */
-    public @Nonnull Builder setSetting(@Nonnull String name, @Nonnull String value) {
+    public @NonNull Builder setSetting(@NonNull String name, @NonNull String value) {
       this.settings.put(name, value);
       return this;
     }
@@ -131,7 +131,7 @@ public class FreemarkerModule implements Extension {
      * @param outputFormat Output format.
      * @return This builder.
      */
-    public @Nonnull Builder setOutputFormat(@Nonnull OutputFormat outputFormat) {
+    public @NonNull Builder setOutputFormat(@NonNull OutputFormat outputFormat) {
       this.outputFormat = outputFormat;
       return this;
     }
@@ -142,7 +142,7 @@ public class FreemarkerModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPath) {
+    public @NonNull Builder setTemplatesPath(@NonNull String templatesPath) {
       this.templatesPathString = templatesPath;
       return this;
     }
@@ -153,7 +153,7 @@ public class FreemarkerModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplatesPath(@Nonnull Path templatesPath) {
+    public @NonNull Builder setTemplatesPath(@NonNull Path templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
@@ -164,7 +164,7 @@ public class FreemarkerModule implements Extension {
      * @param env Application environment.
      * @return A new freemarker instance.
      */
-    public @Nonnull Configuration build(@Nonnull Environment env) {
+    public @NonNull Configuration build(@NonNull Environment env) {
       try {
         Configuration freemarker = new Configuration(
             Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
@@ -238,7 +238,7 @@ public class FreemarkerModule implements Extension {
    *
    * @param freemarker Freemarker to use.
    */
-  public FreemarkerModule(@Nonnull Configuration freemarker) {
+  public FreemarkerModule(@NonNull Configuration freemarker) {
     this.freemarker = freemarker;
   }
 
@@ -248,7 +248,7 @@ public class FreemarkerModule implements Extension {
    *
    * @param templatesPath Template path.
    */
-  public FreemarkerModule(@Nonnull String templatesPath) {
+  public FreemarkerModule(@NonNull String templatesPath) {
     this.templatesPathString = templatesPath;
   }
 
@@ -257,7 +257,7 @@ public class FreemarkerModule implements Extension {
    *
    * @param templatesPath Template path.
    */
-  public FreemarkerModule(@Nonnull Path templatesPath) {
+  public FreemarkerModule(@NonNull Path templatesPath) {
     this.templatesPath = templatesPath;
   }
 
@@ -268,7 +268,7 @@ public class FreemarkerModule implements Extension {
     this(TemplateEngine.PATH);
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     if (freemarker == null) {
       freemarker = create()
           .setTemplatesPath(templatesPathString)
@@ -286,7 +286,7 @@ public class FreemarkerModule implements Extension {
    *
    * @return A builder.
    */
-  public static @Nonnull FreemarkerModule.Builder create() {
+  public static @NonNull FreemarkerModule.Builder create() {
     return new FreemarkerModule.Builder();
   }
 }

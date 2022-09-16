@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
@@ -82,12 +82,12 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
    *
    * @param jsonb Jsonb to use.
    */
-  public YassonModule(@Nonnull final Jsonb jsonb) {
+  public YassonModule(@NonNull final Jsonb jsonb) {
     this.jsonb = jsonb;
   }
 
   @Override
-  public void install(@Nonnull final Jooby application) throws Exception {
+  public void install(@NonNull final Jooby application) throws Exception {
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
@@ -95,11 +95,11 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
     services.put(Jsonb.class, jsonb);
   }
 
-  @Nonnull
+  @NonNull
   @Override
   public Object decode(
-      @Nonnull final Context ctx,
-      @Nonnull final Type type) throws IOException {
+      @NonNull final Context ctx,
+      @NonNull final Type type) throws IOException {
 
     Body body = ctx.body();
     try (InputStream stream = body.stream()) {
@@ -110,8 +110,8 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
   @Nullable
   @Override
   public byte[] encode(
-      @Nonnull final Context ctx,
-      @Nonnull final Object value) {
+      @NonNull final Context ctx,
+      @NonNull final Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     return jsonb.toJson(value).getBytes(UTF_8);
   }

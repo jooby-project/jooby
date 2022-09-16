@@ -39,8 +39,8 @@ import org.pac4j.core.http.url.UrlResolver;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -190,8 +190,8 @@ public class Pac4jModule implements Extension {
    * @param provider Client factory.
    * @return This module.
    */
-  public @Nonnull Pac4jModule client(@Nonnull Authorizer authorizer,
-      @Nonnull Function<com.typesafe.config.Config, Client> provider) {
+  public @NonNull Pac4jModule client(@NonNull Authorizer authorizer,
+      @NonNull Function<com.typesafe.config.Config, Client> provider) {
     return client("*", authorizer, provider);
   }
 
@@ -206,9 +206,9 @@ public class Pac4jModule implements Extension {
    * @param provider Client factory.
    * @return This module.
    */
-  public @Nonnull Pac4jModule client(@Nonnull String pattern,
-      @Nonnull Class<? extends Authorizer> authorizer,
-      @Nonnull Function<com.typesafe.config.Config, Client> provider) {
+  public @NonNull Pac4jModule client(@NonNull String pattern,
+      @NonNull Class<? extends Authorizer> authorizer,
+      @NonNull Function<com.typesafe.config.Config, Client> provider) {
     return client(pattern, registerAuthorizer(authorizer, new ForwardingAuthorizer(authorizer)),
         provider);
   }
@@ -224,8 +224,8 @@ public class Pac4jModule implements Extension {
    * @param provider Client factory.
    * @return This module.
    */
-  public @Nonnull Pac4jModule client(@Nonnull String pattern, @Nonnull Authorizer authorizer,
-      @Nonnull Function<com.typesafe.config.Config, Client> provider) {
+  public @NonNull Pac4jModule client(@NonNull String pattern, @NonNull Authorizer authorizer,
+      @NonNull Function<com.typesafe.config.Config, Client> provider) {
     return client(pattern, registerAuthorizer(authorizer.getClass(), authorizer), provider);
   }
 
@@ -241,8 +241,8 @@ public class Pac4jModule implements Extension {
    * @param provider Client factory.
    * @return This module.
    */
-  public @Nonnull Pac4jModule client(@Nonnull String pattern, @Nullable String authorizer,
-      @Nonnull Function<com.typesafe.config.Config, Client> provider) {
+  public @NonNull Pac4jModule client(@NonNull String pattern, @Nullable String authorizer,
+      @NonNull Function<com.typesafe.config.Config, Client> provider) {
     if (clientMap == null) {
       clientMap = initializeClients(pac4j);
     }
@@ -256,7 +256,7 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public Pac4jModule client(@Nonnull Class<? extends Client> client) {
+  public Pac4jModule client(@NonNull Class<? extends Client> client) {
     return client("*", client);
   }
 
@@ -267,7 +267,7 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public Pac4jModule client(@Nonnull String pattern, @Nonnull Class<? extends Client> client) {
+  public Pac4jModule client(@NonNull String pattern, @NonNull Class<? extends Client> client) {
     return client(pattern, (String) null, client);
   }
 
@@ -281,8 +281,8 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public Pac4jModule client(@Nonnull Class<? extends Authorizer> authorizer,
-      @Nonnull Class<? extends Client> client) {
+  public Pac4jModule client(@NonNull Class<? extends Authorizer> authorizer,
+      @NonNull Class<? extends Client> client) {
     return client("*", authorizer, client);
   }
 
@@ -296,8 +296,8 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public @Nonnull Pac4jModule client(@Nonnull Authorizer authorizer,
-      @Nonnull Class<? extends Client> client) {
+  public @NonNull Pac4jModule client(@NonNull Authorizer authorizer,
+      @NonNull Class<? extends Client> client) {
     return client("*", authorizer, client);
   }
 
@@ -312,8 +312,8 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public @Nonnull Pac4jModule client(@Nonnull String pattern,
-      @Nonnull Class<? extends Authorizer> authorizer, @Nonnull Class<? extends Client> client) {
+  public @NonNull Pac4jModule client(@NonNull String pattern,
+      @NonNull Class<? extends Authorizer> authorizer, @NonNull Class<? extends Client> client) {
     return client(pattern, registerAuthorizer(authorizer, new ForwardingAuthorizer(authorizer)), client);
   }
 
@@ -328,8 +328,8 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public @Nonnull Pac4jModule client(@Nonnull String pattern,
-      @Nonnull Authorizer authorizer, @Nonnull Class<? extends Client> client) {
+  public @NonNull Pac4jModule client(@NonNull String pattern,
+      @NonNull Authorizer authorizer, @NonNull Class<? extends Client> client) {
     return client(pattern, registerAuthorizer(authorizer.getClass(), authorizer), client);
   }
 
@@ -345,8 +345,8 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public @Nonnull Pac4jModule client(@Nonnull String pattern,
-      @Nullable String authorizer,  @Nonnull Class<? extends Client> client) {
+  public @NonNull Pac4jModule client(@NonNull String pattern,
+      @Nullable String authorizer,  @NonNull Class<? extends Client> client) {
     if (clientMap == null) {
       clientMap = initializeClients(pac4j);
     }
@@ -354,7 +354,7 @@ public class Pac4jModule implements Extension {
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     application.getServices().putIfAbsent(Pac4jOptions.class, options);
 
     Clients clients = ofNullable(pac4j.getClients())

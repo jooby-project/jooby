@@ -7,7 +7,7 @@ package io.jooby;
 
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Allow to configure a websocket client for unit tests.
@@ -31,22 +31,22 @@ public class MockWebSocketConfigurer implements WebSocketConfigurer {
     this.ws = new MockWebSocket(ctx, this);
   }
 
-  @Nonnull @Override public WebSocketConfigurer onConnect(@Nonnull WebSocket.OnConnect callback) {
+  @NonNull @Override public WebSocketConfigurer onConnect(@NonNull WebSocket.OnConnect callback) {
     this.onConnect = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onMessage(@Nonnull WebSocket.OnMessage callback) {
+  @NonNull @Override public WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback) {
     this.onMessage = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onError(@Nonnull WebSocket.OnError callback) {
+  @NonNull @Override public WebSocketConfigurer onError(@NonNull WebSocket.OnError callback) {
     this.onError = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onClose(@Nonnull WebSocket.OnClose callback) {
+  @NonNull @Override public WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback) {
     this.onClose = callback;
     return this;
   }

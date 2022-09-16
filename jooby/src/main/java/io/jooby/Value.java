@@ -13,8 +13,8 @@ import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 
 import java.util.TreeMap;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -221,7 +221,7 @@ public interface Value {
    * @param defaultValue Default value.
    * @return Convert this value to String (if possible) or fallback to given value when missing.
    */
-  @Nonnull default String value(@Nonnull String defaultValue) {
+  @NonNull default String value(@NonNull String defaultValue) {
     try {
       return value();
     } catch (MissingValueException x) {
@@ -245,7 +245,7 @@ public interface Value {
    * @param <T> Target type.
    * @return Converted value.
    */
-  @Nonnull default <T> T value(@Nonnull SneakyThrows.Function<String, T> fn) {
+  @NonNull default <T> T value(@NonNull SneakyThrows.Function<String, T> fn) {
     return fn.apply(value());
   }
 
@@ -254,21 +254,21 @@ public interface Value {
    *
    * @return String value.
    */
-  @Nonnull String value();
+  @NonNull String value();
 
   /**
    * Get list of values.
    *
    * @return List of values.
    */
-  @Nonnull List<String> toList();
+  @NonNull List<String> toList();
 
   /**
    * Get set of values.
    *
    * @return set of values.
    */
-  @Nonnull Set<String> toSet();
+  @NonNull Set<String> toSet();
 
   /**
    * Convert this value to an Enum.
@@ -277,7 +277,7 @@ public interface Value {
    * @param <T> Enum type.
    * @return Enum.
    */
-  @Nonnull default <T extends Enum<T>> T toEnum(@Nonnull SneakyThrows.Function<String, T> fn) {
+  @NonNull default <T extends Enum<T>> T toEnum(@NonNull SneakyThrows.Function<String, T> fn) {
     return toEnum(fn, String::toUpperCase);
   }
 
@@ -289,8 +289,8 @@ public interface Value {
    * @param <T> Enum type.
    * @return Enum.
    */
-  @Nonnull default <T extends Enum<T>> T toEnum(@Nonnull SneakyThrows.Function<String, T> fn,
-      @Nonnull Function<String, String> nameProvider) {
+  @NonNull default <T extends Enum<T>> T toEnum(@NonNull SneakyThrows.Function<String, T> fn,
+      @NonNull Function<String, String> nameProvider) {
     return fn.apply(nameProvider.apply(value()));
   }
 
@@ -299,7 +299,7 @@ public interface Value {
    *
    * @return Value or empty optional.
    */
-  @Nonnull default Optional<String> toOptional() {
+  @NonNull default Optional<String> toOptional() {
     try {
       return Optional.of(value());
     } catch (MissingValueException x) {
@@ -366,7 +366,7 @@ public interface Value {
    * @param <T> Item type.
    * @return Value or empty optional.
    */
-  @Nonnull default <T> Optional<T> toOptional(@Nonnull Class<T> type) {
+  @NonNull default <T> Optional<T> toOptional(@NonNull Class<T> type) {
     try {
       return Optional.ofNullable(to(type));
     } catch (MissingValueException x) {
@@ -381,7 +381,7 @@ public interface Value {
    * @param <T> Item type.
    * @return List of items.
    */
-  @Nonnull default <T> List<T> toList(@Nonnull Class<T> type) {
+  @NonNull default <T> List<T> toList(@NonNull Class<T> type) {
     return Collections.singletonList(to(type));
   }
 
@@ -392,7 +392,7 @@ public interface Value {
    * @param <T> Item type.
    * @return Set of items.
    */
-  @Nonnull default <T> Set<T> toSet(@Nonnull Class<T> type) {
+  @NonNull default <T> Set<T> toSet(@NonNull Class<T> type) {
     return Collections.singleton(to(type));
   }
 
@@ -404,7 +404,7 @@ public interface Value {
    * @param <T> Element type.
    * @return Instance of the type.
    */
-  @Nonnull <T> T to(@Nonnull Class<T> type);
+  @NonNull <T> T to(@NonNull Class<T> type);
 
   /**
    * Value as multi-value map.
@@ -418,7 +418,7 @@ public interface Value {
    *
    * @return Value as single-value map.
    */
-  default @Nonnull Map<String, String> toMap() {
+  default @NonNull Map<String, String> toMap() {
     Map<String, String> map = new LinkedHashMap<>();
     toMultimap().forEach((k, v) -> map.put(k, v.get(0)));
     return map;
@@ -435,7 +435,7 @@ public interface Value {
    * @param name Name of missing value.
    * @return Missing value.
    */
-  static @Nonnull ValueNode missing(@Nonnull String name) {
+  static @NonNull ValueNode missing(@NonNull String name) {
     return new MissingValue(name);
   }
 
@@ -447,8 +447,8 @@ public interface Value {
    * @param value Value.
    * @return Single value.
    */
-  static @Nonnull ValueNode value(@Nonnull Context ctx, @Nonnull String name,
-      @Nonnull String value) {
+  static @NonNull ValueNode value(@NonNull Context ctx, @NonNull String name,
+      @NonNull String value) {
     return new SingleValue(ctx, name, value);
   }
 
@@ -460,8 +460,8 @@ public interface Value {
    * @param values Field values.
    * @return Array value.
    */
-  static @Nonnull ValueNode array(@Nonnull Context ctx, @Nonnull String name,
-      @Nonnull List<String> values) {
+  static @NonNull ValueNode array(@NonNull Context ctx, @NonNull String name,
+      @NonNull List<String> values) {
     return new ArrayValue(ctx, name)
         .add(values);
   }
@@ -478,7 +478,7 @@ public interface Value {
    * @param values Field values.
    * @return A value.
    */
-  static @Nonnull ValueNode create(Context ctx, @Nonnull String name,
+  static @NonNull ValueNode create(Context ctx, @NonNull String name,
       @Nullable List<String> values) {
     if (values == null || values.size() == 0) {
       return missing(name);
@@ -501,7 +501,7 @@ public interface Value {
    * @param value Field values.
    * @return A value.
    */
-  static @Nonnull ValueNode create(Context ctx, @Nonnull String name, @Nullable String value) {
+  static @NonNull ValueNode create(Context ctx, @NonNull String name, @Nullable String value) {
     if (value == null) {
       return missing(name);
     }
@@ -515,7 +515,7 @@ public interface Value {
    * @param values Map values.
    * @return A hash/object value.
    */
-  static @Nonnull ValueNode hash(Context ctx, @Nonnull Map<String, Collection<String>> values) {
+  static @NonNull ValueNode hash(Context ctx, @NonNull Map<String, Collection<String>> values) {
     HashValue node = new HashValue(ctx, null);
     node.put(values);
     return node;
@@ -528,7 +528,7 @@ public interface Value {
    * @param values Map values.
    * @return A hash/object value.
    */
-  static @Nonnull ValueNode headers(Context ctx, @Nonnull Map<String, Collection<String>> values) {
+  static @NonNull ValueNode headers(Context ctx, @NonNull Map<String, Collection<String>> values) {
     HashValue node = new HashValue(ctx, null, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
     node.put(values);
     return node;

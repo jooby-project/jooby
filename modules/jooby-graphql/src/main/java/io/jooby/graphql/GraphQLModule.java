@@ -19,7 +19,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.graphql.BlockingGraphQLHandler;
 import io.jooby.internal.graphql.GraphQLHandler;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -61,7 +61,7 @@ public class GraphQLModule implements Extension {
    *
    * @param graphQL GraphQL instance.
    */
-  public GraphQLModule(@Nonnull GraphQL graphQL) {
+  public GraphQLModule(@NonNull GraphQL graphQL) {
     this.graphQL = graphQL;
   }
 
@@ -70,7 +70,7 @@ public class GraphQLModule implements Extension {
    *
    * @param schema GraphQL schema.
    */
-  public GraphQLModule(@Nonnull GraphQLSchema schema) {
+  public GraphQLModule(@NonNull GraphQLSchema schema) {
     this(GraphQL.newGraphQL(schema).build());
   }
 
@@ -80,7 +80,7 @@ public class GraphQLModule implements Extension {
    * @param path Classpath location for schema file. Usually <code>schema.graphql</code>.
    * @param wiring Runtime wiring to build a GraphQL instance.
    */
-  public GraphQLModule(@Nonnull String path, @Nonnull RuntimeWiring wiring) {
+  public GraphQLModule(@NonNull String path, @NonNull RuntimeWiring wiring) {
     this(newSchema(reader(GraphQLModule.class.getClassLoader(), path), wiring));
   }
 
@@ -90,7 +90,7 @@ public class GraphQLModule implements Extension {
    * @param path File system location for schema file. Usually <code>schema.graphqls</code>.
    * @param wiring Runtime wiring to build a GraphQL instance.
    */
-  public GraphQLModule(@Nonnull Path path, @Nonnull RuntimeWiring wiring) {
+  public GraphQLModule(@NonNull Path path, @NonNull RuntimeWiring wiring) {
     this(newSchema(fileReader(path), wiring));
   }
 
@@ -100,11 +100,11 @@ public class GraphQLModule implements Extension {
    *
    * @param wiring Runtime wiring to build a GraphQL instance.
    */
-  public GraphQLModule(@Nonnull RuntimeWiring wiring) {
+  public GraphQLModule(@NonNull RuntimeWiring wiring) {
     this("schema.graphql", wiring);
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     String graphqlPath = application.getEnvironment().getProperty("graphql.path", "/graphql");
 
     GraphQLHandler handler = async
@@ -159,7 +159,7 @@ public class GraphQLModule implements Extension {
     }
   }
 
-  private static Reader reader(ClassLoader loader, @Nonnull String path) {
+  private static Reader reader(ClassLoader loader, @NonNull String path) {
     try {
       return new InputStreamReader(
           loader.getResourceAsStream(path.startsWith("/") ? path.substring(0) : path),

@@ -10,7 +10,7 @@ import io.jooby.Jooby;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import static org.jboss.weld.environment.se.Weld.SHUTDOWN_HOOK_SYSTEM_PROPERTY;
 
@@ -49,7 +49,7 @@ public class WeldModule implements Extension {
    *
    * @param container Container to use.
    */
-  public WeldModule(@Nonnull WeldContainer container) {
+  public WeldModule(@NonNull WeldContainer container) {
     this.container = container;
   }
 
@@ -58,7 +58,7 @@ public class WeldModule implements Extension {
    *
    * @param packages Packages to scan, when empty it uses the {@link Jooby#getBasePackage()}.
    */
-  public WeldModule(@Nonnull String... packages) {
+  public WeldModule(@NonNull String... packages) {
     this.packages = packages;
   }
 
@@ -66,7 +66,7 @@ public class WeldModule implements Extension {
     return true;
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     if (container == null) {
       if (packages.length == 0) {
         String basePackage = application.getBasePackage();

@@ -14,8 +14,8 @@ import io.jooby.Sender;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -30,7 +30,7 @@ import java.util.Date;
 public class ReadOnlyContext extends ForwardingContext {
   private static final String MESSAGE = "The response has already been started";
 
-  public ReadOnlyContext(@Nonnull Context context) {
+  public ReadOnlyContext(@NonNull Context context) {
     super(context);
   }
 
@@ -38,172 +38,172 @@ public class ReadOnlyContext extends ForwardingContext {
     return true;
   }
 
-  @Nonnull @Override public Context send(@Nonnull Path file) {
+  @NonNull @Override public Context send(@NonNull Path file) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+  @NonNull @Override public Context send(@NonNull byte[] data) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data) {
+  @NonNull @Override public Context send(@NonNull String data) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
+  @NonNull @Override public Context send(@NonNull ByteBuffer data) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull FileChannel file) {
+  @NonNull @Override public Context send(@NonNull FileChannel file) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull FileDownload file) {
+  @NonNull @Override public Context send(@NonNull FileDownload file) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull InputStream input) {
+  @NonNull @Override public Context send(@NonNull InputStream input) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull StatusCode statusCode) {
+  @NonNull @Override public Context send(@NonNull StatusCode statusCode) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
+  @NonNull @Override public Context send(@NonNull ReadableByteChannel channel) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+  @NonNull @Override public Context send(@NonNull String data, @NonNull Charset charset) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context sendError(@Nonnull Throwable cause) {
+  @NonNull @Override public Context sendError(@NonNull Throwable cause) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override
-  public Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
+  @NonNull @Override
+  public Context sendError(@NonNull Throwable cause, @NonNull StatusCode statusCode) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context sendRedirect(@Nonnull String location) {
+  @NonNull @Override public Context sendRedirect(@NonNull String location) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override
-  public Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
+  @NonNull @Override
+  public Context sendRedirect(@NonNull StatusCode redirect, @NonNull String location) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context render(@Nonnull Object value) {
+  @NonNull @Override public Context render(@NonNull Object value) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override
-  public Context responseStream(@Nonnull SneakyThrows.Consumer<OutputStream> consumer)
+  @NonNull @Override
+  public Context responseStream(@NonNull SneakyThrows.Consumer<OutputStream> consumer)
       throws Exception {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context responseStream(@Nonnull MediaType contentType,
-      @Nonnull SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
+  @NonNull @Override public Context responseStream(@NonNull MediaType contentType,
+      @NonNull SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context responseWriter(@Nonnull MediaType contentType,
-      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
+  @NonNull @Override public Context responseWriter(@NonNull MediaType contentType,
+      @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override
-  public Context responseWriter(@Nonnull SneakyThrows.Consumer<PrintWriter> consumer)
+  @NonNull @Override
+  public Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override
-  public Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
-      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
+  @NonNull @Override
+  public Context responseWriter(@NonNull MediaType contentType, @Nullable Charset charset,
+      @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public OutputStream responseStream() {
+  @NonNull @Override public OutputStream responseStream() {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public OutputStream responseStream(@Nonnull MediaType contentType) {
+  @NonNull @Override public OutputStream responseStream(@NonNull MediaType contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public PrintWriter responseWriter() {
+  @NonNull @Override public PrintWriter responseWriter() {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public PrintWriter responseWriter(@Nonnull MediaType contentType) {
+  @NonNull @Override public PrintWriter responseWriter(@NonNull MediaType contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override
-  public PrintWriter responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  @NonNull @Override
+  public PrintWriter responseWriter(@NonNull MediaType contentType, @Nullable Charset charset) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Sender responseSender() {
+  @NonNull @Override public Sender responseSender() {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context removeResponseHeader(@Nonnull String name) {
+  @NonNull @Override public Context removeResponseHeader(@NonNull String name) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseCookie(@Nonnull Cookie cookie) {
+  @NonNull @Override public Context setResponseCookie(@NonNull Cookie cookie) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull Date value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull Date value) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseCode(int statusCode) {
+  @NonNull @Override public Context setResponseCode(int statusCode) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseCode(@Nonnull StatusCode statusCode) {
+  @NonNull @Override public Context setResponseCode(@NonNull StatusCode statusCode) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull Object value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull Object value) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull String value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull String value) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override
-  public Context setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
+  @NonNull @Override
+  public Context setResponseHeader(@NonNull String name, @NonNull Instant value) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseLength(long length) {
+  @NonNull @Override public Context setResponseLength(long length) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseType(@Nonnull String contentType) {
+  @NonNull @Override public Context setResponseType(@NonNull String contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setResponseType(@Nonnull MediaType contentType) {
+  @NonNull @Override public Context setResponseType(@NonNull MediaType contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override
-  public Context setResponseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  @NonNull @Override
+  public Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @Nonnull @Override public Context setDefaultResponseType(@Nonnull MediaType contentType) {
+  @NonNull @Override public Context setDefaultResponseType(@NonNull MediaType contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 }

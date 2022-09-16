@@ -9,7 +9,7 @@ import io.jooby.Asset;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ public class FileAsset implements Asset {
    * Creates a new file asset.
    * @param file Asset file.
    */
-  public FileAsset(@Nonnull Path file) {
+  public FileAsset(@NonNull Path file) {
     this.file = file;
   }
 
@@ -51,7 +51,7 @@ public class FileAsset implements Asset {
     }
   }
 
-  @Nonnull @Override public MediaType getContentType() {
+  @NonNull @Override public MediaType getContentType() {
     return MediaType.byFile(file);
   }
 

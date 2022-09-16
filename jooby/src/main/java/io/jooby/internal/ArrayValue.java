@@ -10,7 +10,7 @@ import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.ValueNode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +53,7 @@ public class ArrayValue implements ValueNode {
     return this.add(new SingleValue(ctx, name, value));
   }
 
-  @Override public ValueNode get(@Nonnull int index) {
+  @Override public ValueNode get(@NonNull int index) {
     try {
       return list.get(index);
     } catch (IndexOutOfBoundsException x) {
@@ -61,7 +61,7 @@ public class ArrayValue implements ValueNode {
     }
   }
 
-  @Override public ValueNode get(@Nonnull String name) {
+  @Override public ValueNode get(@NonNull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
@@ -82,15 +82,15 @@ public class ArrayValue implements ValueNode {
     return list.iterator();
   }
 
-  @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T to(@NonNull Class<T> type) {
     return ctx.convert(list.get(0), type);
   }
 
-  @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> List<T> toList(@NonNull Class<T> type) {
     return collect(new ArrayList<>(this.list.size()), type);
   }
 
-  @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> Optional<T> toOptional(@NonNull Class<T> type) {
     try {
       return Optional.ofNullable(to(type));
     } catch (MissingValueException x) {
@@ -98,7 +98,7 @@ public class ArrayValue implements ValueNode {
     }
   }
 
-  @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> Set<T> toSet(@NonNull Class<T> type) {
     return collect(new LinkedHashSet<>(this.list.size()), type);
   }
 

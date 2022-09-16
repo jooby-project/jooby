@@ -10,7 +10,7 @@ import io.jooby.FileUpload;
 import io.jooby.Multipart;
 import io.jooby.SneakyThrows;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,15 +25,15 @@ public class MultipartNode extends FormdataNode implements Multipart {
     files.computeIfAbsent(name, k -> new ArrayList<>()).add(file);
   }
 
-  @Nonnull @Override public List<FileUpload> files() {
+  @NonNull @Override public List<FileUpload> files() {
     return files.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
   }
 
-  @Nonnull @Override public List<FileUpload> files(@Nonnull String name) {
+  @NonNull @Override public List<FileUpload> files(@NonNull String name) {
     return this.files.getOrDefault(name, Collections.emptyList());
   }
 
-  @Nonnull @Override public FileUpload file(@Nonnull String name) {
+  @NonNull @Override public FileUpload file(@NonNull String name) {
     List<FileUpload> files = files(name);
     if (files.isEmpty()) {
       final String error = "Field '" + name + "' is missing";

@@ -12,8 +12,8 @@ import org.gradle.api.model.ReplacedBy;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;

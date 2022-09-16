@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +40,7 @@ public class RouteSet {
    *
    * @return Sub-routes.
    */
-  public @Nonnull List<Route> getRoutes() {
+  public @NonNull List<Route> getRoutes() {
     return routes;
   }
 
@@ -50,7 +50,7 @@ public class RouteSet {
    * @param routes Sub-routes.
    * @return This route.
    */
-  public @Nonnull RouteSet setRoutes(@Nonnull List<Route> routes) {
+  public @NonNull RouteSet setRoutes(@NonNull List<Route> routes) {
     this.routes = routes;
     return this;
   }
@@ -61,7 +61,7 @@ public class RouteSet {
    * @param produces Produce types.
    * @return This route.
    */
-  public @Nonnull RouteSet produces(@Nonnull MediaType... produces) {
+  public @NonNull RouteSet produces(@NonNull MediaType... produces) {
     return setProduces(Arrays.asList(produces));
   }
 
@@ -71,7 +71,7 @@ public class RouteSet {
    * @param produces Produce types.
    * @return This route.
    */
-  public @Nonnull RouteSet setProduces(@Nonnull Collection<MediaType> produces) {
+  public @NonNull RouteSet setProduces(@NonNull Collection<MediaType> produces) {
     routes.forEach(it -> {
       if (it.getProduces().isEmpty()) {
         it.setProduces(produces);
@@ -86,7 +86,7 @@ public class RouteSet {
    * @param consumes Consume types.
    * @return This route.
    */
-  public @Nonnull RouteSet consumes(@Nonnull MediaType... consumes) {
+  public @NonNull RouteSet consumes(@NonNull MediaType... consumes) {
     return setConsumes(Arrays.asList(consumes));
   }
 
@@ -96,7 +96,7 @@ public class RouteSet {
    * @param consumes Consume types.
    * @return This route.
    */
-  public @Nonnull RouteSet setConsumes(@Nonnull Collection<MediaType> consumes) {
+  public @NonNull RouteSet setConsumes(@NonNull Collection<MediaType> consumes) {
     routes.forEach(it -> {
       if (it.getConsumes().isEmpty()) {
         it.setConsumes(consumes);
@@ -111,7 +111,7 @@ public class RouteSet {
    * @param attributes .
    * @return This route.
    */
-  public @Nonnull RouteSet setAttributes(@Nonnull Map<String, Object> attributes) {
+  public @NonNull RouteSet setAttributes(@NonNull Map<String, Object> attributes) {
     routes.forEach(it -> attributes.forEach((k, v) -> it.getAttributes().putIfAbsent(k, v)));
     return this;
   }
@@ -123,7 +123,7 @@ public class RouteSet {
    * @param value attribute value
    * @return This route.
    */
-  public @Nonnull RouteSet attribute(@Nonnull String name, @Nonnull Object value) {
+  public @NonNull RouteSet attribute(@NonNull String name, @NonNull Object value) {
     routes.forEach(it -> it.getAttributes().putIfAbsent(name, value));
     return this;
   }
@@ -141,7 +141,7 @@ public class RouteSet {
    * @param executorKey Executor key.
    * @return This route.
    */
-  public @Nonnull RouteSet setExecutorKey(@Nullable String executorKey) {
+  public @NonNull RouteSet setExecutorKey(@Nullable String executorKey) {
     routes.forEach(it -> it.setExecutorKey(ofNullable(it.getExecutorKey()).orElse(executorKey)));
     return this;
   }
@@ -151,7 +151,7 @@ public class RouteSet {
    *
    * @return Route tags.
    */
-  public @Nonnull List<String> getTags() {
+  public @NonNull List<String> getTags() {
     return tags;
   }
 
@@ -161,7 +161,7 @@ public class RouteSet {
    * @param tags Tags.
    * @return This route.
    */
-  public @Nonnull RouteSet setTags(@Nonnull List<String> tags) {
+  public @NonNull RouteSet setTags(@NonNull List<String> tags) {
     if (this.tags == EMPTY_LIST) {
       this.tags = new ArrayList<>();
     }
@@ -175,7 +175,7 @@ public class RouteSet {
    * @param tags Tags.
    * @return This route.
    */
-  public @Nonnull RouteSet tags(@Nonnull String... tags) {
+  public @NonNull RouteSet tags(@NonNull String... tags) {
     return setTags(Arrays.asList(tags));
   }
 
@@ -194,7 +194,7 @@ public class RouteSet {
    * @param summary Summary.
    * @return This route.
    */
-  public @Nonnull RouteSet summary(@Nullable String summary) {
+  public @NonNull RouteSet summary(@Nullable String summary) {
     return setSummary(summary);
   }
 
@@ -204,7 +204,7 @@ public class RouteSet {
    * @param summary Summary.
    * @return This route.
    */
-  public @Nonnull RouteSet setSummary(@Nullable String summary) {
+  public @NonNull RouteSet setSummary(@Nullable String summary) {
     this.summary = summary;
     return this;
   }
@@ -224,7 +224,7 @@ public class RouteSet {
    * @param description Description.
    * @return This route.
    */
-  public @Nonnull RouteSet setDescription(@Nullable String description) {
+  public @NonNull RouteSet setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
@@ -235,7 +235,7 @@ public class RouteSet {
    * @param description Description.
    * @return This route.
    */
-  public @Nonnull RouteSet description(@Nullable String description) {
+  public @NonNull RouteSet description(@Nullable String description) {
     return setDescription(description);
   }
 }

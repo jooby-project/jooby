@@ -17,7 +17,7 @@ import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.sql.DataSource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -140,7 +140,7 @@ public class HikariModule implements Extension {
    *
    * @param database Database key, database type or connection string.
    */
-  public HikariModule(@Nonnull String database) {
+  public HikariModule(@NonNull String database) {
     this.database = database;
   }
 
@@ -163,7 +163,7 @@ public class HikariModule implements Extension {
    *
    * @param hikari Hikari configuration.
    */
-  public HikariModule(@Nonnull HikariConfig hikari) {
+  public HikariModule(@NonNull HikariConfig hikari) {
     this(hikari.getPoolName());
     this.hikari = hikari;
   }
@@ -194,7 +194,7 @@ public class HikariModule implements Extension {
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     if (hikari == null) {
       hikari = build(application.getEnvironment(), database);
     }
@@ -228,7 +228,7 @@ public class HikariModule implements Extension {
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database type or given jdbc connection string for unknown or bad urls.
    */
-  public static @Nonnull String databaseType(@Nonnull String url) {
+  public static @NonNull String databaseType(@NonNull String url) {
     String type = Arrays.stream(url.toLowerCase().split(":"))
         .filter(token -> !SKIP_TOKENS.contains(token))
         .findFirst()
@@ -245,7 +245,7 @@ public class HikariModule implements Extension {
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database name.
    */
-  public static @Nonnull String databaseName(@Nonnull String url) {
+  public static @NonNull String databaseName(@NonNull String url) {
     int len = url.length();
     int q = url.indexOf('?');
     if (q == -1) {

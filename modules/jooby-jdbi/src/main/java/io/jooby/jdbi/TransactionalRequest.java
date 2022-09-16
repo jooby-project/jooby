@@ -13,7 +13,7 @@ import io.jooby.annotations.Transactional;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Attach {@link Handle} to the current request. The route pipeline runs inside a transaction
@@ -80,7 +80,7 @@ public class TransactionalRequest implements Decorator {
    *
    * @param name Jdbi service name.
    */
-  public TransactionalRequest(@Nonnull String name) {
+  public TransactionalRequest(@NonNull String name) {
     key = ServiceKey.key(Jdbi.class, name);
   }
 
@@ -107,7 +107,7 @@ public class TransactionalRequest implements Decorator {
     return this;
   }
 
-  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
+  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
         Jdbi jdbi = ctx.require(key);

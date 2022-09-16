@@ -9,7 +9,7 @@ import io.jooby.Context;
 import io.jooby.internal.pac4j.WebContextImpl;
 import org.pac4j.core.context.WebContext;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Pac4j web context.
@@ -23,7 +23,7 @@ public interface Pac4jContext extends WebContext {
    *
    * @return The underlying context.
    */
-  @Nonnull Context getContext();
+  @NonNull Context getContext();
 
   /**
    * Wrap a Web context as pac4j context.
@@ -31,7 +31,7 @@ public interface Pac4jContext extends WebContext {
    * @param ctx Web context.
    * @return Pac4j web context.
    */
-  static @Nonnull Pac4jContext create(@Nonnull Context ctx) {
+  static @NonNull Pac4jContext create(@NonNull Context ctx) {
     return new WebContextImpl(ctx);
   }
 }

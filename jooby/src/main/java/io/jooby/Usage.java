@@ -7,7 +7,7 @@ package io.jooby;
 
 import io.jooby.exception.ProvisioningException;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class Usage extends RuntimeException {
    * @param message Message.
    * @param id Link to detailed section.
    */
-  public Usage(@Nonnull String message, @Nonnull String id) {
+  public Usage(@NonNull String message, @NonNull String id) {
     super((message + "\nFor more details, please visit: " + System
         .getProperty("jooby.host", "https://jooby.io") + "/usage#" + id));
   }
@@ -37,7 +37,7 @@ public class Usage extends RuntimeException {
    * @param mvcRoute Mvc route.
    * @return Usage exception.
    */
-  public static @Nonnull Usage mvcRouterNotFound(@Nonnull Class mvcRoute) {
+  public static @NonNull Usage mvcRouterNotFound(@NonNull Class mvcRoute) {
     return apt("Router not found: `" + mvcRoute.getName()
         + "`. Make sure Jooby annotation processor is configured properly.", "router-not-found");
   }
@@ -49,7 +49,7 @@ public class Usage extends RuntimeException {
    * @param parameter Parameter.
    * @return Usage exception.
    */
-  public static @Nonnull Usage parameterNameNotPresent(@Nonnull Parameter parameter) {
+  public static @NonNull Usage parameterNameNotPresent(@NonNull Parameter parameter) {
     Executable executable = parameter.getDeclaringExecutable();
     int p = Stream.of(executable.getParameters()).collect(Collectors.toList()).indexOf(parameter);
     String message = "Unable to provision parameter at position: '" + p + "', require by: "

@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import com.typesafe.config.Config;
 
@@ -105,7 +105,7 @@ public final class SslOptions {
    * @param type Certificate type.
    * @return Ssl options.
    */
-  public @Nonnull SslOptions setType(@Nonnull String type) {
+  public @NonNull SslOptions setType(@NonNull String type) {
     this.type = type;
     return this;
   }
@@ -117,7 +117,7 @@ public final class SslOptions {
    * @return A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or
    *     a classpath resource. Required.
    */
-  public @Nonnull String getCert() {
+  public @NonNull String getCert() {
     return cert;
   }
 
@@ -128,7 +128,7 @@ public final class SslOptions {
    * @param cert Certificate path or location.
    * @return Ssl options.
    */
-  public @Nonnull SslOptions setCert(@Nonnull String cert) {
+  public @NonNull SslOptions setCert(@NonNull String cert) {
     this.cert = cert;
     return this;
   }
@@ -152,7 +152,7 @@ public final class SslOptions {
    * @param trustCert Certificate path or location.
    * @return Ssl options.
    */
-  public @Nonnull SslOptions setTrustCert(@Nullable String trustCert) {
+  public @NonNull SslOptions setTrustCert(@Nullable String trustCert) {
     this.trustCert = trustCert;
     return this;
   }
@@ -172,7 +172,7 @@ public final class SslOptions {
    * @param password Certificate password.
    * @return SSL options.
    */
-  public @Nonnull SslOptions setTrustPassword(@Nullable String password) {
+  public @NonNull SslOptions setTrustPassword(@Nullable String password) {
     this.trustPassword = password;
     return this;
   }
@@ -196,7 +196,7 @@ public final class SslOptions {
    *     be an absolute path or a classpath resource. Required when using X.509 certificates.
    * @return Ssl options.
    */
-  public @Nonnull SslOptions setPrivateKey(@Nullable String privateKey) {
+  public @NonNull SslOptions setPrivateKey(@Nullable String privateKey) {
     this.privateKey = privateKey;
     return this;
   }
@@ -207,7 +207,7 @@ public final class SslOptions {
    * @param password Certificate password.
    * @return SSL options.
    */
-  public @Nonnull SslOptions setPassword(@Nullable String password) {
+  public @NonNull SslOptions setPassword(@Nullable String password) {
     this.password = password;
     return this;
   }
@@ -233,7 +233,7 @@ public final class SslOptions {
    * @return Resource.
    * @throws IOException If file not found or can't be read it.
    */
-  public @Nonnull InputStream getResource(@Nonnull ClassLoader loader, @Nonnull String path)
+  public @NonNull InputStream getResource(@NonNull ClassLoader loader, @NonNull String path)
       throws IOException {
     Path filepath = Paths.get(path);
     Stream<Path> paths;
@@ -269,7 +269,7 @@ public final class SslOptions {
    *
    * @return desired SSL client authentication mode for SSL channels in server mode.
    */
-  public @Nonnull ClientAuth getClientAuth() {
+  public @NonNull ClientAuth getClientAuth() {
     return clientAuth;
   }
 
@@ -279,7 +279,7 @@ public final class SslOptions {
    * @param clientAuth The desired SSL client authentication mode for SSL channels in server mode.
    * @return This options.
    */
-  public @Nonnull SslOptions setClientAuth(@Nonnull ClientAuth clientAuth) {
+  public @NonNull SslOptions setClientAuth(@NonNull ClientAuth clientAuth) {
     this.clientAuth = clientAuth;
     return this;
   }
@@ -298,7 +298,7 @@ public final class SslOptions {
    *
    * @return TLS protocols. Default is: <code>TLSv1.2</code> and <code>TLSv1.3</code>.
    */
-  public @Nonnull List<String> getProtocol() {
+  public @NonNull List<String> getProtocol() {
     return protocol;
   }
 
@@ -310,7 +310,7 @@ public final class SslOptions {
    * @param protocol TLS protocols.
    * @return This options.
    */
-  public @Nonnull SslOptions setProtocol(@Nonnull String... protocol) {
+  public @NonNull SslOptions setProtocol(@NonNull String... protocol) {
     return setProtocol(Arrays.asList(protocol));
   }
 
@@ -322,7 +322,7 @@ public final class SslOptions {
    * @param protocol TLS protocols.
    * @return This options.
    */
-  public @Nonnull SslOptions setProtocol(@Nonnull List<String> protocol) {
+  public @NonNull SslOptions setProtocol(@NonNull List<String> protocol) {
     this.protocol = protocol;
     return this;
   }
@@ -338,7 +338,7 @@ public final class SslOptions {
    * @param key Private key path or location.
    * @return New SSL options.
    */
-  public static @Nonnull SslOptions x509(@Nonnull String crt, @Nonnull String key) {
+  public static @NonNull SslOptions x509(@NonNull String crt, @NonNull String key) {
     return x509(crt, key, null);
   }
 
@@ -350,7 +350,7 @@ public final class SslOptions {
    * @param password Password.
    * @return New SSL options.
    */
-  public static @Nonnull SslOptions x509(@Nonnull String crt, @Nonnull String key,
+  public static @NonNull SslOptions x509(@NonNull String crt, @NonNull String key,
       @Nullable String password) {
     SslOptions options = new SslOptions();
     options.setType(X509);
@@ -367,7 +367,7 @@ public final class SslOptions {
    * @param password Password.
    * @return New SSL options.
    */
-  public static SslOptions pkcs12(@Nonnull String crt, @Nonnull String password) {
+  public static SslOptions pkcs12(@NonNull String crt, @NonNull String password) {
     SslOptions options = new SslOptions();
     options.setType(PKCS12);
     options.setCert(crt);
@@ -432,7 +432,7 @@ public final class SslOptions {
    * @param conf Application configuration.
    * @return SSl options or empty.
    */
-  public static @Nonnull Optional<SslOptions> from(@Nonnull Config conf) {
+  public static @NonNull Optional<SslOptions> from(@NonNull Config conf) {
     return from(conf, "server.ssl", "ssl");
   }
 
@@ -465,7 +465,7 @@ public final class SslOptions {
    * @param key Path to use for loading SSL options. Required.
    * @return SSl options or empty.
    */
-  public static @Nonnull Optional<SslOptions> from(@Nonnull Config conf, String... key) {
+  public static @NonNull Optional<SslOptions> from(@NonNull Config conf, String... key) {
     return Stream.of(key)
         .filter(conf::hasPath)
         .findFirst()

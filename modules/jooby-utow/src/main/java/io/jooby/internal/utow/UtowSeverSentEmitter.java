@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.XnioIoThread;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -40,11 +40,11 @@ public class UtowSeverSentEmitter implements ServerSentEmitter, IoCallback {
     this.id = UUID.randomUUID().toString();
   }
 
-  @Nonnull @Override public Context getContext() {
+  @NonNull @Override public Context getContext() {
     return Context.readOnly(utow);
   }
 
-  @Nonnull @Override public ServerSentEmitter send(ServerSentMessage data) {
+  @NonNull @Override public ServerSentEmitter send(ServerSentMessage data) {
     if (checkOpen()) {
       Sender sender = utow.exchange.getResponseSender();
       sender.send(ByteBuffer.wrap(data.toByteArray(utow)), this);
@@ -79,7 +79,7 @@ public class UtowSeverSentEmitter implements ServerSentEmitter, IoCallback {
     this.closeTask = task;
   }
 
-  @Nonnull @Override public void close() {
+  @NonNull @Override public void close() {
     if (open.compareAndSet(true, false)) {
       if (closeTask != null) {
         try {

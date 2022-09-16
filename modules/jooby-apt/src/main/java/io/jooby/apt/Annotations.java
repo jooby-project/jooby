@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
@@ -190,7 +190,7 @@ public interface Annotations {
    * @param name Attribute name.
    * @return List of values.
    */
-  static @Nonnull List<String> attribute(@Nonnull AnnotationMirror mirror, @Nonnull String name) {
+  static @NonNull List<String> attribute(@NonNull AnnotationMirror mirror, @NonNull String name) {
     return attribute(mirror, name, v -> v.getValue().toString());
   }
 
@@ -203,8 +203,8 @@ public interface Annotations {
    * @param <T> Return type.
    * @return List of values.
    */
-  static @Nonnull <T> List<T> attribute(@Nonnull AnnotationMirror mirror,
-      @Nonnull String name, @Nonnull Function<AnnotationValue, T> mapper) {
+  static @NonNull <T> List<T> attribute(@NonNull AnnotationMirror mirror,
+      @NonNull String name, @NonNull Function<AnnotationValue, T> mapper) {
 
     for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror
         .getElementValues().entrySet()) {

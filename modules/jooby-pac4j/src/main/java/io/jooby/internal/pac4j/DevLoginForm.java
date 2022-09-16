@@ -12,7 +12,7 @@ import io.jooby.pac4j.Pac4jContext;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.http.url.UrlResolver;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class DevLoginForm implements Route.Handler {
 
@@ -65,7 +65,7 @@ public class DevLoginForm implements Route.Handler {
     this.callbackPath = callbackPath;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     String error = ctx.query("error").value("");
     String username = ctx.query("username").value("");
 

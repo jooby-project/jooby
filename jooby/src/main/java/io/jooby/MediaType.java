@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -109,7 +109,7 @@ public final class MediaType implements Comparable<MediaType> {
 
   private final String value;
 
-  private MediaType(@Nonnull String value, Charset charset) {
+  private MediaType(@NonNull String value, Charset charset) {
     this.raw = value;
     this.subtypeStart = value.indexOf('/');
     if (subtypeStart < 0) {
@@ -147,7 +147,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param name Parameter name.
    * @return Parameter value or <code>null</code>.
    */
-  public @Nullable String getParameter(@Nonnull String name) {
+  public @Nullable String getParameter(@NonNull String name) {
     int paramStart = subtypeEnd + 1;
     for (int i = subtypeEnd; i < raw.length(); i++) {
       char ch = raw.charAt(i);
@@ -172,7 +172,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Media type value.
    */
-  public @Nonnull String getValue() {
+  public @NonNull String getValue() {
     return value;
   }
 
@@ -182,7 +182,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param charset Charset.
    * @return Content type header.
    */
-  public @Nonnull String toContentTypeHeader(@Nullable Charset charset) {
+  public @NonNull String toContentTypeHeader(@Nullable Charset charset) {
     if (charset == null) {
       Charset paramCharset = getCharset();
       if (paramCharset == null) {
@@ -198,7 +198,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Value of <code>q</code> parameter.
    */
-  @Nonnull public float getQuality() {
+  @NonNull public float getQuality() {
     String q = getParameter("q");
     return q == null ? 1f : Float.parseFloat(q);
   }
@@ -264,7 +264,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Type segment of mediatype (leading type).
    */
-  public @Nonnull String getType() {
+  public @NonNull String getType() {
     return raw.substring(0, subtypeStart).trim();
   }
 
@@ -273,7 +273,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Subtype segment of mediatype (trailing type).
    */
-  public @Nonnull String getSubtype() {
+  public @NonNull String getSubtype() {
     return raw.substring(subtypeStart + 1, subtypeEnd).trim();
   }
 
@@ -283,7 +283,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param mediaType Media type to test.
    * @return True if this mediatype is compatible with the given content type.
    */
-  public boolean matches(@Nonnull String mediaType) {
+  public boolean matches(@NonNull String mediaType) {
     return matches(value, mediaType);
   }
 
@@ -293,7 +293,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param type Media type to test.
    * @return True if this mediatype is compatible with the given content type.
    */
-  public boolean matches(@Nonnull MediaType type) {
+  public boolean matches(@NonNull MediaType type) {
     return matches(value, type.value);
   }
 
@@ -325,7 +325,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param value String media-type.
    * @return Media type.
    */
-  public static @Nonnull MediaType valueOf(@Nonnull String value) {
+  public static @NonNull MediaType valueOf(@NonNull String value) {
     if (value == null || value.length() == 0 || value.equals("*")) {
       return all;
     }
@@ -368,7 +368,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param value Mediatype comma separated value.
    * @return One or more mediatypes.
    */
-  public static @Nonnull List<MediaType> parse(@Nullable String value) {
+  public static @NonNull List<MediaType> parse(@Nullable String value) {
     if (value == null || value.length() == 0) {
       return Collections.emptyList();
     }
@@ -390,7 +390,7 @@ public final class MediaType implements Comparable<MediaType> {
     return result;
   }
 
-  static boolean matches(@Nonnull String expected, @Nonnull String contentType) {
+  static boolean matches(@NonNull String expected, @NonNull String contentType) {
     int start = 0;
     int len1 = expected.length();
     int end = contentType.indexOf(',');
@@ -414,7 +414,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param file File.
    * @return Mediatype.
    */
-  public static @Nonnull MediaType byFile(@Nonnull File file) {
+  public static @NonNull MediaType byFile(@NonNull File file) {
     return byFile(file.getName());
   }
 
@@ -424,7 +424,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param file File.
    * @return Mediatype.
    */
-  public static @Nonnull MediaType byFile(@Nonnull Path file) {
+  public static @NonNull MediaType byFile(@NonNull Path file) {
     return byFile(file.getFileName().toString());
   }
 
@@ -434,7 +434,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param filename File.
    * @return Mediatype.
    */
-  public static @Nonnull MediaType byFile(@Nonnull String filename) {
+  public static @NonNull MediaType byFile(@NonNull String filename) {
     int index = filename.lastIndexOf('.');
     return index > 0 ? byFileExtension(filename.substring(index + 1)) : octetStream;
   }
@@ -445,7 +445,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param ext File extension.
    * @return Mediatype.
    */
-  public static @Nonnull MediaType byFileExtension(@Nonnull String ext) {
+  public static @NonNull MediaType byFileExtension(@NonNull String ext) {
     switch (ext) {
       case "spl":
         return new MediaType("application/x-futuresplash", null);

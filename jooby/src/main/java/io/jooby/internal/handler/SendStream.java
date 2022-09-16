@@ -8,7 +8,7 @@ package io.jooby.internal.handler;
 import io.jooby.Context;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.InputStream;
 
 public class SendStream implements LinkedHandler {
@@ -18,7 +18,7 @@ public class SendStream implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     try {
       Object result = next.apply(ctx);
       if (ctx.isResponseStarted()) {

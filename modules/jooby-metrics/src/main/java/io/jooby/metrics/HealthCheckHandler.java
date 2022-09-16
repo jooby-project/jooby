@@ -11,15 +11,15 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class HealthCheckHandler implements Route.Handler {
 
-  @Nonnull
+  @NonNull
   @Override
-  public Object apply(@Nonnull Context ctx) {
+  public Object apply(@NonNull Context ctx) {
     HealthCheckRegistry registry = ctx.require(HealthCheckRegistry.class);
 
     SortedMap<String, Result> checks = ctx.query("name").toOptional().map(name -> {

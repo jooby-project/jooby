@@ -7,8 +7,8 @@ package io.jooby;
 
 import io.jooby.exception.NotAcceptableException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -35,6 +35,6 @@ public interface MessageEncoder {
    * @return Value as byte array or <code>null</code> if given object isn't supported it.
    * @throws Exception If something goes wrong.
    */
-  @Nullable byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
+  @Nullable byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
 
 }

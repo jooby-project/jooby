@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import io.jooby.Context;
 import io.jooby.Router;
@@ -104,7 +104,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     return Context.readOnly(netty);
   }
 
-  @Nonnull @Override public List<WebSocket> getSessions() {
+  @NonNull @Override public List<WebSocket> getSessions() {
     List<NettyWebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();

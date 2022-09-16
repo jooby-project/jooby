@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -24,7 +24,7 @@ public class CompletionListeners {
    *
    * @param listener Listener.
    */
-  public void addListener(@Nonnull Route.Complete listener) {
+  public void addListener(@NonNull Route.Complete listener) {
     if (listeners == null) {
       listeners = new ArrayList<>();
     }
@@ -36,7 +36,7 @@ public class CompletionListeners {
    *
    * @param ctx Listeners.
    */
-  public void run(@Nonnull Context ctx) {
+  public void run(@NonNull Context ctx) {
     if (listeners != null) {
       Throwable cause = null;
       for (int i = listeners.size() - 1; i >= 0; i--) {

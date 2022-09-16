@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -60,7 +60,7 @@ public class JasyptModule implements Extension {
    *
    * @param encryptor Encryptor.
    */
-  public JasyptModule(@Nonnull PBEStringEncryptor encryptor) {
+  public JasyptModule(@NonNull PBEStringEncryptor encryptor) {
     this.encryptor = encryptor;
   }
 
@@ -76,7 +76,7 @@ public class JasyptModule implements Extension {
    *
    * @param passwordProvider Password provider.
    */
-  public JasyptModule(@Nonnull SneakyThrows.Function<Config, String> passwordProvider) {
+  public JasyptModule(@NonNull SneakyThrows.Function<Config, String> passwordProvider) {
     this.passwordProvider = passwordProvider;
   }
 
@@ -87,12 +87,12 @@ public class JasyptModule implements Extension {
    * @param prefix Prefix of encrypted properties.
    * @return This module.
    */
-  public JasyptModule setPrefix(@Nonnull String prefix) {
+  public JasyptModule setPrefix(@NonNull String prefix) {
     this.prefix = prefix;
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     PBEStringEncryptor encryptor = Optional.ofNullable(this.encryptor)
         .orElseGet(() -> create(application, passwordProvider));
 
@@ -141,12 +141,12 @@ public class JasyptModule implements Extension {
    * @param application Application.
    * @return A new encryptor.
    */
-  public static PBEStringEncryptor create(@Nonnull Jooby application) {
+  public static PBEStringEncryptor create(@NonNull Jooby application) {
     return create(application, DEFAULT_PASSWORD_PROVIDER);
   }
 
-  private static PBEStringEncryptor create(@Nonnull Jooby application,
-      @Nonnull SneakyThrows.Function<Config, String> passwordProvider) {
+  private static PBEStringEncryptor create(@NonNull Jooby application,
+      @NonNull SneakyThrows.Function<Config, String> passwordProvider) {
     Config config = application.getConfig();
 
     String password = passwordProvider.apply(config);

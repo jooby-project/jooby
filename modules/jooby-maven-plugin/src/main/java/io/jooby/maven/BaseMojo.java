@@ -22,7 +22,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectDependenciesResolver;
 import org.eclipse.aether.graph.Dependency;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -100,7 +100,7 @@ public abstract class BaseMojo extends AbstractMojo {
    * @param mainClass Main class.
    * @throws Throwable If something goes wrong.
    */
-  protected abstract void doExecute(@Nonnull List<MavenProject> projects, @Nonnull String mainClass)
+  protected abstract void doExecute(@NonNull List<MavenProject> projects, @NonNull String mainClass)
       throws Throwable;
 
   /**

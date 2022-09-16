@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.net.ssl.SSLContext;
 
 import io.jooby.Http2Configurer;
@@ -74,16 +74,16 @@ public class Netty extends Server.Base {
   private ServerOptions options = new ServerOptions()
       .setServer("netty");
 
-  @Override public Netty setOptions(@Nonnull ServerOptions options) {
+  @Override public Netty setOptions(@NonNull ServerOptions options) {
     this.options = options;
     return this;
   }
 
-  @Nonnull @Override public ServerOptions getOptions() {
+  @NonNull @Override public ServerOptions getOptions() {
     return options;
   }
 
-  @Nonnull @Override public Server start(@Nonnull Jooby application) {
+  @NonNull @Override public Server start(@NonNull Jooby application) {
     try {
       applications.add(application);
 
@@ -197,7 +197,7 @@ public class Netty extends Server.Base {
     );
   }
 
-  @Nonnull @Override public synchronized Server stop() {
+  @NonNull @Override public synchronized Server stop() {
     fireStop(applications);
     if (acceptorloop != null) {
       acceptorloop.shutdownGracefully();

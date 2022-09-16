@@ -9,7 +9,7 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.internal.ContextInitializer;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class PostDispatchInitializerHandler implements LinkedHandler {
 
@@ -21,7 +21,7 @@ public class PostDispatchInitializerHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       initializer.apply(ctx);
       return next.apply(ctx);

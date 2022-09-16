@@ -7,7 +7,7 @@ package io.jooby.exception;
 
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * When a request doesn't match any of the available routes.
@@ -22,7 +22,7 @@ public class NotFoundException extends StatusCodeException {
    *
    * @param path Requested path.
    */
-  public NotFoundException(@Nonnull String path) {
+  public NotFoundException(@NonNull String path) {
     super(StatusCode.NOT_FOUND, path);
   }
 
@@ -31,7 +31,7 @@ public class NotFoundException extends StatusCodeException {
    *
    * @return Requested path.
    */
-  public @Nonnull String getRequestPath() {
+  public @NonNull String getRequestPath() {
     return getMessage();
   }
 }

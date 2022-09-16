@@ -10,7 +10,7 @@ import io.jooby.Route;
 import io.jooby.ServerSentEmitter;
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class ServerSentEventHandler implements Route.Handler {
   private ServerSentEmitter.Handler handler;
@@ -19,7 +19,7 @@ public class ServerSentEventHandler implements Route.Handler {
     this.handler = handler;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     ctx.setResponseHeader("Connection", "Close");
     ctx.setResponseType("text/event-stream; charset=utf-8");
     ctx.setResponseCode(StatusCode.OK);

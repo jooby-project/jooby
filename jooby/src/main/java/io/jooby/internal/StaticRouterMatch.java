@@ -9,7 +9,7 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.Map;
 
@@ -24,11 +24,11 @@ public class StaticRouterMatch implements Router.Match {
     return true;
   }
 
-  @Nonnull @Override public Route route() {
+  @NonNull @Override public Route route() {
     return route;
   }
 
-  @Override public void execute(@Nonnull Context context) {
+  @Override public void execute(@NonNull Context context) {
     context.setRoute(route);
     try {
       route.getPipeline().apply(context);
@@ -37,7 +37,7 @@ public class StaticRouterMatch implements Router.Match {
     }
   }
 
-  @Nonnull @Override public Map<String, String> pathMap() {
+  @NonNull @Override public Map<String, String> pathMap() {
     return Collections.emptyMap();
   }
 }

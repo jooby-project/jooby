@@ -16,7 +16,7 @@ import org.eclipse.jetty.util.thread.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -51,11 +51,11 @@ public class JettyServerSentEmitter implements ServerSentEmitter {
     return open.get();
   }
 
-  @Nonnull @Override public Context getContext() {
+  @NonNull @Override public Context getContext() {
     return Context.readOnly(jetty);
   }
 
-  @Nonnull @Override public ServerSentEmitter send(ServerSentMessage data) {
+  @NonNull @Override public ServerSentEmitter send(ServerSentMessage data) {
     if (isOpen()) {
       HttpOutput output = jetty.response.getHttpOutput();
       try {
@@ -88,7 +88,7 @@ public class JettyServerSentEmitter implements ServerSentEmitter {
     this.closeTask = task;
   }
 
-  @Nonnull @Override public void close() {
+  @NonNull @Override public void close() {
     if (open.compareAndSet(true, false)) {
       try {
         if (closeTask != null) {

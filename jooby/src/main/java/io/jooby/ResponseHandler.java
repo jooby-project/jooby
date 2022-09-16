@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Type;
 
 /**
@@ -47,7 +47,7 @@ public interface ResponseHandler {
    * @param type Type to test.
    * @return True if response route type is the one expected by the response handler.
    */
-  boolean matches(@Nonnull Type type);
+  boolean matches(@NonNull Type type);
 
   /**
    * Creates a handler for a response type. Example:
@@ -70,5 +70,5 @@ public interface ResponseHandler {
    * @param next Next route in pipeline (usually the route handler).
    * @return A response handler.
    */
-  @Nonnull Route.Handler create(Route.Handler next);
+  @NonNull Route.Handler create(Route.Handler next);
 }

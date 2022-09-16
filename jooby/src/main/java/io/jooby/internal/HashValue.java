@@ -11,7 +11,7 @@ import io.jooby.Formdata;
 import io.jooby.ValueNode;
 
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -169,7 +169,7 @@ public class HashValue implements ValueNode, Formdata {
     return (HashValue) hash().computeIfAbsent(name, k -> new HashValue(ctx, k));
   }
 
-  public ValueNode get(@Nonnull String name) {
+  public ValueNode get(@NonNull String name) {
     ValueNode value = hash.get(name);
     if (value == null) {
       return new MissingValue(scope(name));
@@ -181,7 +181,7 @@ public class HashValue implements ValueNode, Formdata {
     return this.name == null ? name : this.name + "." + name;
   }
 
-  @Override public ValueNode get(@Nonnull int index) {
+  @Override public ValueNode get(@NonNull int index) {
     return get(Integer.toString(index));
   }
 
@@ -208,30 +208,30 @@ public class HashValue implements ValueNode, Formdata {
     return hash.values().iterator();
   }
 
-  @Nonnull @Override public List<String> toList() {
+  @NonNull @Override public List<String> toList() {
     return toList(String.class);
   }
 
-  @Nonnull @Override public Set<String> toSet() {
+  @NonNull @Override public Set<String> toSet() {
     return toSet(String.class);
   }
 
-  @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> List<T> toList(@NonNull Class<T> type) {
     return toCollection(type, new ArrayList<>());
   }
 
-  @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> Set<T> toSet(@NonNull Class<T> type) {
     return toCollection(type, new LinkedHashSet<>());
   }
 
-  @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> Optional<T> toOptional(@NonNull Class<T> type) {
     if (hash.isEmpty()) {
       return Optional.empty();
     }
     return Optional.ofNullable(to(type));
   }
 
-  @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T to(@NonNull Class<T> type) {
     return ctx.convert(this, type);
   }
 
@@ -258,7 +258,7 @@ public class HashValue implements ValueNode, Formdata {
     }
   }
 
-  private <T, C extends Collection<T>> C toCollection(@Nonnull Class<T> type, C collection) {
+  private <T, C extends Collection<T>> C toCollection(@NonNull Class<T> type, C collection) {
     if (hash instanceof TreeMap) {
       // indexes access, treat like a list
       Collection<ValueNode> values = hash.values();

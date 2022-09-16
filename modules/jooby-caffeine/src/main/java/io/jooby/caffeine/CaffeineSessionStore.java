@@ -10,7 +10,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.jooby.SessionStore;
 import io.jooby.SessionToken;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 import java.util.function.Function;
 
@@ -38,7 +38,7 @@ public class CaffeineSessionStore extends SessionStore.InMemory {
    *
    * @param cache Cache.
    */
-  public CaffeineSessionStore(@Nonnull Cache<String, Object> cache) {
+  public CaffeineSessionStore(@NonNull Cache<String, Object> cache) {
     super(SessionToken.cookieId(SessionToken.SID));
     this.cache = cache;
   }
@@ -48,7 +48,7 @@ public class CaffeineSessionStore extends SessionStore.InMemory {
    *
    * @param timeout Session timeout.
    */
-  public CaffeineSessionStore(@Nonnull Duration timeout) {
+  public CaffeineSessionStore(@NonNull Duration timeout) {
     super(SessionToken.cookieId(SessionToken.SID));
     this.cache = Caffeine.newBuilder()
         .expireAfterAccess(timeout)

@@ -20,7 +20,7 @@ import io.jooby.ServiceRegistry;
 import io.jooby.internal.aws.ConfigCredentialsProvider;
 import io.jooby.internal.aws.ServiceShutdown;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -78,12 +78,12 @@ public class AwsModule implements Extension {
    * @param provider Service provider/factory.
    * @return AWS service.
    */
-  public @Nonnull AwsModule setup(@Nonnull Function<AWSCredentialsProvider, Object> provider) {
+  public @NonNull AwsModule setup(@NonNull Function<AWSCredentialsProvider, Object> provider) {
     factoryList.add(provider);
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     AWSCredentialsProvider credentialsProvider = newCredentialsProvider(application.getConfig());
     List<Object> serviceList = new ArrayList<>(factoryList.size());
     for (Function<AWSCredentialsProvider, Object> factory : factoryList) {
@@ -121,7 +121,7 @@ public class AwsModule implements Extension {
    * @param config Application properties.
    * @return Credentials provider.
    */
-  public static @Nonnull AWSCredentialsProvider newCredentialsProvider(@Nonnull Config config) {
+  public static @NonNull AWSCredentialsProvider newCredentialsProvider(@NonNull Config config) {
     return new AWSCredentialsProviderChain(
         new EnvironmentVariableCredentialsProvider(),
         new SystemPropertiesCredentialsProvider(),

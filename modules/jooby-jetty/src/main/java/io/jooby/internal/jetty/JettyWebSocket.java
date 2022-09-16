@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.eclipse.jetty.util.StaticException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
@@ -125,32 +125,32 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return false;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onConnect(
-      @Nonnull WebSocket.OnConnect callback) {
+  @NonNull @Override public WebSocketConfigurer onConnect(
+      @NonNull WebSocket.OnConnect callback) {
     onConnectCallback = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onMessage(@Nonnull WebSocket.OnMessage callback) {
+  @NonNull @Override public WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback) {
     onMessageCallback = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onError(@Nonnull WebSocket.OnError callback) {
+  @NonNull @Override public WebSocketConfigurer onError(@NonNull WebSocket.OnError callback) {
     onErrorCallback = callback;
     return this;
   }
 
-  @Nonnull @Override public WebSocketConfigurer onClose(@Nonnull WebSocket.OnClose callback) {
+  @NonNull @Override public WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback) {
     onCloseCallback.set(callback);
     return this;
   }
 
-  @Nonnull @Override public Context getContext() {
+  @NonNull @Override public Context getContext() {
     return Context.readOnly(ctx);
   }
 
-  @Nonnull @Override public List<WebSocket> getSessions() {
+  @NonNull @Override public List<WebSocket> getSessions() {
     List<WebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();
@@ -164,7 +164,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return open.get() && session.isOpen();
   }
 
-  @Nonnull @Override public WebSocket send(@Nonnull String message, boolean broadcast) {
+  @NonNull @Override public WebSocket send(@NonNull String message, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.send(message, false);
@@ -185,11 +185,11 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return this;
   }
 
-  @Nonnull @Override public WebSocket send(@Nonnull byte[] message, boolean broadcast) {
+  @NonNull @Override public WebSocket send(@NonNull byte[] message, boolean broadcast) {
     return send(new String(message, StandardCharsets.UTF_8), broadcast);
   }
 
-  @Nonnull @Override public WebSocket render(@Nonnull Object value, boolean broadcast) {
+  @NonNull @Override public WebSocket render(@NonNull Object value, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.render(value, false);
@@ -204,7 +204,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return this;
   }
 
-  @Nonnull @Override public WebSocket close(@Nonnull WebSocketCloseStatus closeStatus) {
+  @NonNull @Override public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
     handleClose(closeStatus);
     return this;
   }

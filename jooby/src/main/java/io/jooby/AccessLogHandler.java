@@ -8,7 +8,7 @@ package io.jooby;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -203,7 +203,7 @@ public class AccessLogHandler implements Route.Decorator {
    *
    * @param userId User ID provider.
    */
-  public AccessLogHandler(@Nonnull Function<Context, String> userId) {
+  public AccessLogHandler(@NonNull Function<Context, String> userId) {
     this.userId = requireNonNull(userId, "User ID provider required.");
     dateFormatter(FORMATTER);
   }
@@ -215,7 +215,7 @@ public class AccessLogHandler implements Route.Decorator {
     this(USER_OR_DASH);
   }
 
-  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
+  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
     long timestamp = System.currentTimeMillis();
     return ctx -> {
       // Take remote address here (less chances of loosing it on interrupted requests).
@@ -276,7 +276,7 @@ public class AccessLogHandler implements Route.Decorator {
    * @param log Log callback.
    * @return This instance.
    */
-  public @Nonnull AccessLogHandler log(@Nonnull Consumer<String> log) {
+  public @NonNull AccessLogHandler log(@NonNull Consumer<String> log) {
     this.logRecord = requireNonNull(log, "Consumer is required.");
     return this;
   }
@@ -287,7 +287,7 @@ public class AccessLogHandler implements Route.Decorator {
    * @param formatter New formatter to use.
    * @return This instance.
    */
-  public @Nonnull AccessLogHandler dateFormatter(@Nonnull DateTimeFormatter formatter) {
+  public @NonNull AccessLogHandler dateFormatter(@NonNull DateTimeFormatter formatter) {
     return dateFormatter(ts -> formatter.format(Instant.ofEpochMilli(ts)));
   }
 
@@ -297,7 +297,7 @@ public class AccessLogHandler implements Route.Decorator {
    * @param formatter New formatter to use.
    * @return This instance.
    */
-  public @Nonnull AccessLogHandler dateFormatter(final Function<Long, String> formatter) {
+  public @NonNull AccessLogHandler dateFormatter(final Function<Long, String> formatter) {
     requireNonNull(formatter, "Formatter required.");
     this.df = formatter;
     return this;
@@ -309,7 +309,7 @@ public class AccessLogHandler implements Route.Decorator {
    * @param zoneId Zone id.
    * @return This instance.
    */
-  public @Nonnull AccessLogHandler dateFormatter(@Nonnull ZoneId zoneId) {
+  public @NonNull AccessLogHandler dateFormatter(@NonNull ZoneId zoneId) {
     return dateFormatter(FORMATTER.withZone(zoneId));
   }
 
@@ -318,7 +318,7 @@ public class AccessLogHandler implements Route.Decorator {
    *
    * @return This instance.
    */
-  public @Nonnull AccessLogHandler extended() {
+  public @NonNull AccessLogHandler extended() {
     return requestHeader(USER_AGENT, REFERER);
   }
 
@@ -328,7 +328,7 @@ public class AccessLogHandler implements Route.Decorator {
    * @param names Header names.
    * @return This instance.
    */
-  public @Nonnull AccessLogHandler requestHeader(@Nonnull String... names) {
+  public @NonNull AccessLogHandler requestHeader(@NonNull String... names) {
     this.requestHeaders = Arrays.asList(names);
     return this;
   }
@@ -339,7 +339,7 @@ public class AccessLogHandler implements Route.Decorator {
    * @param names Header names.
    * @return This instance.
    */
-  public @Nonnull AccessLogHandler responseHeader(@Nonnull String... names) {
+  public @NonNull AccessLogHandler responseHeader(@NonNull String... names) {
     this.responseHeaders = Arrays.asList(names);
     return this;
   }

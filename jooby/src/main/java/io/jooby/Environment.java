@@ -10,8 +10,8 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigParseOptions;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,8 +53,8 @@ public class Environment {
    * @param config Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config config,
-      @Nonnull String... actives) {
+  public Environment(@NonNull ClassLoader classLoader, @NonNull Config config,
+      @NonNull String... actives) {
     this(classLoader, config, Arrays.asList(actives));
   }
 
@@ -65,8 +65,8 @@ public class Environment {
    * @param config Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config config,
-      @Nonnull List<String> actives) {
+  public Environment(@NonNull ClassLoader classLoader, @NonNull Config config,
+      @NonNull List<String> actives) {
     this.classLoader = classLoader;
     this.actives = actives.stream()
         .map(String::trim)
@@ -82,7 +82,7 @@ public class Environment {
    * @param defaults Default value.
    * @return Property or default value.
    */
-  public @Nonnull String getProperty(@Nonnull String key, @Nonnull String defaults) {
+  public @NonNull String getProperty(@NonNull String key, @NonNull String defaults) {
     if (hasPath(config, key)) {
       return config.getString(key);
     }
@@ -95,7 +95,7 @@ public class Environment {
    * @param key Property key.
    * @return Property value or <code>null</code> when missing.
    */
-  public @Nullable String getProperty(@Nonnull String key) {
+  public @Nullable String getProperty(@NonNull String key) {
     if (hasPath(config, key)) {
       return config.getString(key);
     }
@@ -116,7 +116,7 @@ public class Environment {
    * @param key Key.
    * @return Properties under that key or empty map.
    */
-  public @Nonnull Map<String, String> getProperties(@Nonnull String key) {
+  public @NonNull Map<String, String> getProperties(@NonNull String key) {
     return getProperties(key, key);
   }
 
@@ -135,7 +135,7 @@ public class Environment {
    * @param prefix Prefix to use or <code>null</code> for none.
    * @return Properties under that key or empty map.
    */
-  public @Nonnull Map<String, String> getProperties(@Nonnull String key, @Nullable String prefix) {
+  public @NonNull Map<String, String> getProperties(@NonNull String key, @Nullable String prefix) {
     if (hasPath(config, key)) {
       Map<String, String> settings = new HashMap<>();
       String p = prefix == null || prefix.length() == 0 ? "" : prefix + ".";
@@ -158,7 +158,7 @@ public class Environment {
    *
    * @return Application configuration.
    */
-  public @Nonnull Config getConfig() {
+  public @NonNull Config getConfig() {
     return config;
   }
 
@@ -169,7 +169,7 @@ public class Environment {
    * @param config Configuration properties.
    * @return This environment.
    */
-  public Environment setConfig(@Nonnull Config config) {
+  public Environment setConfig(@NonNull Config config) {
     this.config = config;
     return this;
   }
@@ -179,7 +179,7 @@ public class Environment {
    *
    * @return Active environment names.
    */
-  public @Nonnull List<String> getActiveNames() {
+  public @NonNull List<String> getActiveNames() {
     return Collections.unmodifiableList(actives);
   }
 
@@ -190,7 +190,7 @@ public class Environment {
    * @param names Optional environment names.
    * @return True if any of the given names is active.
    */
-  public boolean isActive(@Nonnull String name, String... names) {
+  public boolean isActive(@NonNull String name, String... names) {
     return this.actives.contains(name.toLowerCase())
         || Stream.of(names).map(String::toLowerCase).anyMatch(this.actives::contains);
   }
@@ -200,7 +200,7 @@ public class Environment {
    *
    * @return Application class loader.
    */
-  public @Nonnull ClassLoader getClassLoader() {
+  public @NonNull ClassLoader getClassLoader() {
     return classLoader;
   }
 
@@ -210,7 +210,7 @@ public class Environment {
    * @param className Class name.
    * @return Load a class or get an empty value.
    */
-  public @Nonnull Optional<Class> loadClass(@Nonnull String className) {
+  public @NonNull Optional<Class> loadClass(@NonNull String className) {
     try {
       return Optional.of(classLoader.loadClass(className));
     } catch (ClassNotFoundException x) {
@@ -258,7 +258,7 @@ public class Environment {
    *
    * @return Configuration object.
    */
-  public static @Nonnull Config systemProperties() {
+  public static @NonNull Config systemProperties() {
     return ConfigFactory.parseProperties(System.getProperties(),
         ConfigParseOptions.defaults().setOriginDescription("system properties"));
   }
@@ -268,7 +268,7 @@ public class Environment {
    *
    * @return Configuration object.
    */
-  public static @Nonnull Config systemEnv() {
+  public static @NonNull Config systemEnv() {
     return ConfigFactory.systemEnvironment();
   }
 
@@ -298,7 +298,7 @@ public class Environment {
    * @param options Options like basedir, filename, etc.
    * @return A new environment.
    */
-  public static @Nonnull Environment loadEnvironment(@Nonnull EnvironmentOptions options) {
+  public static @NonNull Environment loadEnvironment(@NonNull EnvironmentOptions options) {
     Config sys = systemProperties()
         .withFallback(systemEnv());
 
@@ -345,7 +345,7 @@ public class Environment {
     return new Environment(options.getClassLoader(), result, actives);
   }
 
-  private static Config resolveConfig(@Nonnull EnvironmentOptions options, Path userdir,
+  private static Config resolveConfig(@NonNull EnvironmentOptions options, Path userdir,
       String... names) {
     Config application = ConfigFactory.empty();
 
@@ -380,7 +380,7 @@ public class Environment {
    *
    * @return A configuration object.
    */
-  public static @Nonnull Config defaults() {
+  public static @NonNull Config defaults() {
     Path tmpdir = Paths.get(System.getProperty("user.dir"), "tmp");
     Map<String, String> defaultMap = new HashMap<>();
     defaultMap.put("application.tmpdir", tmpdir.toString());

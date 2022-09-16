@@ -11,7 +11,7 @@ import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +27,7 @@ class HbsTemplateEngine implements TemplateEngine {
     this.extensions = Collections.unmodifiableList(extensions);
   }
 
-  @Nonnull @Override public List<String> extensions() {
+  @NonNull @Override public List<String> extensions() {
     return extensions;
   }
 

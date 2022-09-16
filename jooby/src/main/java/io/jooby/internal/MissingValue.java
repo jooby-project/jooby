@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import io.jooby.ValueNode;
 import io.jooby.exception.MissingValueException;
@@ -28,15 +28,15 @@ public class MissingValue implements ValueNode {
     return name;
   }
 
-  @Override public ValueNode get(@Nonnull String name) {
+  @Override public ValueNode get(@NonNull String name) {
     return this.name.equals(name) ? this : new MissingValue(this.name + "." + name);
   }
 
-  @Override public ValueNode get(@Nonnull int index) {
+  @Override public ValueNode get(@NonNull int index) {
     return new MissingValue(this.name + "[" + index + "]");
   }
 
-  @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T to(@NonNull Class<T> type) {
     return null;
   }
 
@@ -44,7 +44,7 @@ public class MissingValue implements ValueNode {
     throw new MissingValueException(name);
   }
 
-  @Nonnull @Override public Map<String, String> toMap() {
+  @NonNull @Override public Map<String, String> toMap() {
     return Collections.emptyMap();
   }
 
@@ -52,23 +52,23 @@ public class MissingValue implements ValueNode {
     return Collections.emptyMap();
   }
 
-  @Nonnull @Override public List<String> toList() {
+  @NonNull @Override public List<String> toList() {
     return Collections.emptyList();
   }
 
-  @Nonnull @Override public Optional<String> toOptional() {
+  @NonNull @Override public Optional<String> toOptional() {
     return Optional.empty();
   }
 
-  @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> List<T> toList(@NonNull Class<T> type) {
     return Collections.emptyList();
   }
 
-  @Nonnull @Override public Set<String> toSet() {
+  @NonNull @Override public Set<String> toSet() {
     return Collections.emptySet();
   }
 
-  @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> Set<T> toSet(@NonNull Class<T> type) {
     return Collections.emptySet();
   }
 

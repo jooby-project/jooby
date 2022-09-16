@@ -5,8 +5,8 @@
  */
 package io.jooby.exception;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -28,7 +28,7 @@ public class ProvisioningException extends BadRequestException {
    * @param parameter Failing parameter.
    * @param cause Cause. Nullable.
    */
-  public ProvisioningException(@Nonnull Parameter parameter, @Nullable Throwable cause) {
+  public ProvisioningException(@NonNull Parameter parameter, @Nullable Throwable cause) {
     this("Unable to provision parameter: '" + toString(parameter) + "', require by: " + toString(
         parameter.getDeclaringExecutable()), cause);
   }
@@ -39,7 +39,7 @@ public class ProvisioningException extends BadRequestException {
    * @param message Error message.
    * @param cause Cause.
    */
-  public ProvisioningException(@Nonnull String message, @Nullable Throwable cause) {
+  public ProvisioningException(@NonNull String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 
@@ -49,7 +49,7 @@ public class ProvisioningException extends BadRequestException {
    * @param parameter Parameter.
    * @return Description.
    */
-  public static String toString(@Nonnull Parameter parameter) {
+  public static String toString(@NonNull Parameter parameter) {
     return parameter.getName() + ": " + parameter.getParameterizedType();
   }
 
@@ -59,7 +59,7 @@ public class ProvisioningException extends BadRequestException {
    * @param method Parameter.
    * @return Description.
    */
-  public static String toString(@Nonnull Executable method) {
+  public static String toString(@NonNull Executable method) {
     StringBuilder buff = new StringBuilder();
     if (method instanceof Constructor) {
       buff.append("constructor ");

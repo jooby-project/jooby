@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -56,7 +56,7 @@ public class RedisSessionStore implements SessionStore {
    * @param pool Redis connection pool.
    */
   public RedisSessionStore(
-      @Nonnull GenericObjectPool<StatefulRedisConnection<String, String>> pool) {
+      @NonNull GenericObjectPool<StatefulRedisConnection<String, String>> pool) {
     this.pool = pool;
   }
 
@@ -65,7 +65,7 @@ public class RedisSessionStore implements SessionStore {
    *
    * @param redis Redis connection.
    */
-  public RedisSessionStore(@Nonnull RedisClient redis) {
+  public RedisSessionStore(@NonNull RedisClient redis) {
     this(ConnectionPoolSupport
         .createGenericObjectPool(() -> redis.connect(), new GenericObjectPoolConfig()));
   }
@@ -75,7 +75,7 @@ public class RedisSessionStore implements SessionStore {
    *
    * @return Redis namespace (key prefix). Default is: <code>sessions</code>.
    */
-  public @Nonnull String getNamespace() {
+  public @NonNull String getNamespace() {
     return namespace;
   }
 
@@ -85,7 +85,7 @@ public class RedisSessionStore implements SessionStore {
    * @param namespace Redis namespace or key prefix.
    * @return This store.
    */
-  public @Nonnull RedisSessionStore setNamespace(@Nonnull String namespace) {
+  public @NonNull RedisSessionStore setNamespace(@NonNull String namespace) {
     this.namespace = namespace;
     return this;
   }
@@ -95,7 +95,7 @@ public class RedisSessionStore implements SessionStore {
    *
    * @return Session timeout. Default is: <code>30 minutes</code>.
    */
-  public @Nonnull Duration getTimeout() {
+  public @NonNull Duration getTimeout() {
     return timeout;
   }
 
@@ -105,7 +105,7 @@ public class RedisSessionStore implements SessionStore {
    * @param timeout Timeout must be positive value. Otherwise, timeout is disabled.
    * @return This store.
    */
-  public @Nonnull RedisSessionStore setTimeout(@Nonnull Duration timeout) {
+  public @NonNull RedisSessionStore setTimeout(@NonNull Duration timeout) {
     this.timeout = Optional.ofNullable(timeout)
         .filter(t -> t.getSeconds() > 0)
         .orElse(null);
@@ -117,7 +117,7 @@ public class RedisSessionStore implements SessionStore {
    *
    * @return This store.
    */
-  public @Nonnull RedisSessionStore noTimeout() {
+  public @NonNull RedisSessionStore noTimeout() {
     this.timeout = null;
     return this;
   }
@@ -127,7 +127,7 @@ public class RedisSessionStore implements SessionStore {
    *
    * @return Session token. Uses a cookie by default: {@link SessionToken#SID}.
    */
-  public @Nonnull SessionToken getToken() {
+  public @NonNull SessionToken getToken() {
     return token;
   }
 
@@ -137,12 +137,12 @@ public class RedisSessionStore implements SessionStore {
    * @param token Session token.
    * @return This store.
    */
-  public @Nonnull RedisSessionStore setToken(@Nonnull SessionToken token) {
+  public @NonNull RedisSessionStore setToken(@NonNull SessionToken token) {
     this.token = token;
     return this;
   }
 
-  @Nonnull @Override public Session newSession(@Nonnull Context ctx) {
+  @NonNull @Override public Session newSession(@NonNull Context ctx) {
     String sessionId = token.newToken();
 
     Instant now = Instant.now();
@@ -161,7 +161,7 @@ public class RedisSessionStore implements SessionStore {
         .setCreationTime(now);
   }
 
-  @Nullable @Override public Session findSession(@Nonnull Context ctx) {
+  @Nullable @Override public Session findSession(@NonNull Context ctx) {
     String sessionId = token.findToken(ctx);
     if (sessionId == null) {
       return null;
@@ -186,7 +186,7 @@ public class RedisSessionStore implements SessionStore {
     });
   }
 
-  @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
     String sessionId = session.getId();
 
     withConnection(connection -> connection.async().del(key(sessionId)));
@@ -194,17 +194,17 @@ public class RedisSessionStore implements SessionStore {
     token.deleteToken(ctx, sessionId);
   }
 
-  @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void touchSession(@NonNull Context ctx, @NonNull Session session) {
     saveSession(ctx, session);
 
     token.saveToken(ctx, session.getId());
   }
 
-  @Override public void saveSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void saveSession(@NonNull Context ctx, @NonNull Session session) {
     saveSession(session.getId(), new HashMap<>(session.toMap()));
   }
 
-  @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
 
   }
 

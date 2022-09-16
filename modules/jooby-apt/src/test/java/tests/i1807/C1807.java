@@ -4,12 +4,12 @@ import io.jooby.annotations.FormParam;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class C1807 {
   @Path("/test/{word}")
   @POST
-  public Word1807 hello(@FormParam @Nonnull Word1807 data) {
+  public Word1807 hello(@FormParam @NonNull Word1807 data) {
     return data;
   }
 }

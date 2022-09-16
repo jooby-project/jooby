@@ -14,7 +14,7 @@ import io.jooby.internal.jdbi.SqlObjectProvider;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -100,7 +100,7 @@ public class JdbiModule implements Extension {
    *
    * @param name The name/key of the data source to attach.
    */
-  public JdbiModule(@Nonnull String name) {
+  public JdbiModule(@NonNull String name) {
     this.name = name;
     this.factory = null;
   }
@@ -111,7 +111,7 @@ public class JdbiModule implements Extension {
    *
    * @param factory Jdbi factory.
    */
-  public JdbiModule(@Nonnull Function<DataSource, Jdbi> factory) {
+  public JdbiModule(@NonNull Function<DataSource, Jdbi> factory) {
     this("db", factory);
   }
 
@@ -121,7 +121,7 @@ public class JdbiModule implements Extension {
    * @param name Name for registering the service.
    * @param factory Jdbi factory.
    */
-  public JdbiModule(@Nonnull String name, @Nonnull Function<DataSource, Jdbi> factory) {
+  public JdbiModule(@NonNull String name, @NonNull Function<DataSource, Jdbi> factory) {
     this(name);
     this.factory = factory;
   }
@@ -148,12 +148,12 @@ public class JdbiModule implements Extension {
    * @param sqlObjects List of SQL object to register as services.
    * @return This module.
    */
-  public @Nonnull JdbiModule sqlObjects(@Nonnull Class... sqlObjects) {
+  public @NonNull JdbiModule sqlObjects(@NonNull Class... sqlObjects) {
     this.sqlObjects = Arrays.asList(sqlObjects);
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     ServiceRegistry registry = application.getServices();
     Jdbi jdbi;
     if (factory != null) {
@@ -176,7 +176,7 @@ public class JdbiModule implements Extension {
     }
   }
 
-  private DataSource findDataSource(@Nonnull ServiceRegistry registry) {
+  private DataSource findDataSource(@NonNull ServiceRegistry registry) {
     DataSource dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));
     if (dataSource == null) {
       // TODO: replace with usage exception

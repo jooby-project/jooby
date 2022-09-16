@@ -14,7 +14,7 @@ import io.jooby.Registry;
 import io.jooby.exception.RegistryException;
 import io.jooby.ServiceKey;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 class GuiceRegistry implements Registry {
   private Injector injector;
@@ -23,20 +23,20 @@ class GuiceRegistry implements Registry {
     this.injector = injector;
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type) {
     return require(Key.get(type));
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type, @NonNull String name) {
     return require(Key.get(type, Names.named(name)));
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+  @NonNull @Override public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     String name = key.getName();
     return name == null ? require(key.getType()) : require(key.getType(), name);
   }
 
-  @Nonnull private <T> T require(@Nonnull Key<T> key) {
+  @NonNull private <T> T require(@NonNull Key<T> key) {
     try {
       return injector.getInstance(key);
     } catch (ProvisionException | ConfigurationException x) {

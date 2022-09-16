@@ -12,7 +12,7 @@ import org.hibernate.boot.SessionFactoryBuilder;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Allow to customize Hibernate bootstrap components.
@@ -28,7 +28,7 @@ public class HibernateConfigurer {
    * @param builder Builder.
    * @param config Configuration.
    */
-  public void configure(@Nonnull BootstrapServiceRegistryBuilder builder, @Nonnull Config config) {
+  public void configure(@NonNull BootstrapServiceRegistryBuilder builder, @NonNull Config config) {
   }
 
   /**
@@ -37,7 +37,7 @@ public class HibernateConfigurer {
    * @param builder Builder.
    * @param config Configuration.
    */
-  public void configure(@Nonnull StandardServiceRegistryBuilder builder, @Nonnull Config config) {
+  public void configure(@NonNull StandardServiceRegistryBuilder builder, @NonNull Config config) {
   }
 
   /**
@@ -46,7 +46,7 @@ public class HibernateConfigurer {
    * @param sources Sources.
    * @param config Configuration.
    */
-  public void configure(@Nonnull MetadataSources sources, @Nonnull Config config) {
+  public void configure(@NonNull MetadataSources sources, @NonNull Config config) {
   }
 
   /**
@@ -55,7 +55,7 @@ public class HibernateConfigurer {
    * @param builder Builder.
    * @param config Configuration.
    */
-  public void configure(@Nonnull MetadataBuilder builder, @Nonnull Config config) {
+  public void configure(@NonNull MetadataBuilder builder, @NonNull Config config) {
   }
 
   /**
@@ -64,6 +64,6 @@ public class HibernateConfigurer {
    * @param builder Builder.
    * @param config Configuration.
    */
-  public void configure(@Nonnull SessionFactoryBuilder builder, @Nonnull Config config) {
+  public void configure(@NonNull SessionFactoryBuilder builder, @NonNull Config config) {
   }
 }

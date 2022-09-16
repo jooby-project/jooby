@@ -16,7 +16,7 @@ import io.jooby.Jooby;
 import io.jooby.Router;
 import io.jooby.ServiceRegistry;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -221,7 +221,7 @@ public class MetricsModule implements Extension {
   }
 
   @Override
-  public void install(@Nonnull Jooby application) {
+  public void install(@NonNull Jooby application) {
     MetricHandler metricHandler = new MetricHandler();
     application.get(this.pattern + "/metrics", metricHandler);
     application.get(this.pattern + "/metrics/:type", metricHandler);

@@ -3,7 +3,7 @@ package io.jooby.apt;
 import io.jooby.Context;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class TestHandler implements Route.Handler {
 
@@ -13,7 +13,7 @@ public class TestHandler implements Route.Handler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     return next.apply(ctx);
   }
 }

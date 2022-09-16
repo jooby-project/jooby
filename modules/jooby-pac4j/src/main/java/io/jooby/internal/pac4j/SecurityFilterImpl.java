@@ -17,7 +17,7 @@ import org.pac4j.core.engine.SecurityLogic;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.util.Pac4jConstants;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -52,7 +52,7 @@ public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
     }
   }
 
-  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
+  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (pattern == null) {
         return perform(Pac4jContext.create(ctx), new GrantAccessAdapterImpl(ctx, next));
@@ -66,7 +66,7 @@ public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
     };
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     Pac4jContext pac4j = Pac4jContext.create(ctx);
     String requestedUrl = (String) pac4j.getSessionStore().get(pac4j, Pac4jConstants.REQUESTED_URL)
         .filter(WithLocationAction.class::isInstance)

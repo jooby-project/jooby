@@ -8,7 +8,7 @@ package io.jooby.internal.handler;
 import io.jooby.Context;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.concurrent.Executor;
 
 public class DispatchHandler implements LinkedHandler {
@@ -20,7 +20,7 @@ public class DispatchHandler implements LinkedHandler {
     this.executor = executor;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     return ctx.dispatch(executor, () -> {
       try {
         next.apply(ctx);

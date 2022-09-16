@@ -103,12 +103,12 @@ public class ParamDefinition {
 
   public boolean isNullable() {
     if (hasAnnotation(".Nullable")
-        || hasAnnotation("javax.annotation.Nullable")) {
+        || hasAnnotation("edu.umd.cs.findbugs.annotations.Nullable")) {
       return true;
     }
     boolean nonnull = hasAnnotation(".NotNull")
         || hasAnnotation(".NonNull")
-        || hasAnnotation("javax.annotation.Nonnull");
+        || hasAnnotation("edu.umd.cs.findbugs.annotations.NonNull");
     if (nonnull) {
       return false;
     }

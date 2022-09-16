@@ -9,13 +9,13 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class PingHandler implements Route.Handler {
 
-  @Nonnull
+  @NonNull
   @Override
-  public Object apply(@Nonnull Context ctx) {
+  public Object apply(@NonNull Context ctx) {
     ctx.setResponseType(MediaType.text);
     ctx.setResponseHeader(MetricsModule.CACHE_HEADER_NAME, MetricsModule.CACHE_HEADER_VALUE);
     return "pong";

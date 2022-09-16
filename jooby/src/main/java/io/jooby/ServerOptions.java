@@ -20,8 +20,8 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import javax.net.ssl.SSLContext;
 
 import com.typesafe.config.Config;
@@ -121,7 +121,7 @@ public class ServerOptions {
    * @param conf Configuration object.
    * @return Server options.
    */
-  public static @Nonnull Optional<ServerOptions> from(@Nonnull Config conf) {
+  public static @NonNull Optional<ServerOptions> from(@NonNull Config conf) {
     if (conf.hasPath("server")) {
       ServerOptions options = new ServerOptions();
       if (conf.hasPath("server.port")) {
@@ -199,7 +199,7 @@ public class ServerOptions {
    * @param server Name of the underlying server.
    * @return This options.
    */
-  public @Nonnull ServerOptions setServer(@Nonnull String server) {
+  public @NonNull ServerOptions setServer(@NonNull String server) {
     this.server = server;
     return this;
   }
@@ -209,7 +209,7 @@ public class ServerOptions {
    *
    * @return Server name.
    */
-  public @Nonnull String getServer() {
+  public @NonNull String getServer() {
     return server;
   }
 
@@ -228,7 +228,7 @@ public class ServerOptions {
    * @param port Server port or <code>0</code> to pick a random port.
    * @return This options.
    */
-  public @Nonnull ServerOptions setPort(int port) {
+  public @NonNull ServerOptions setPort(int port) {
     this.port = port == 0 ? randomPort() : port;
     return this;
   }
@@ -257,7 +257,7 @@ public class ServerOptions {
    * @param securePort Port number or <code>0</code> for random number.
    * @return This options.
    */
-  public @Nonnull ServerOptions setSecurePort(@Nullable Integer securePort) {
+  public @NonNull ServerOptions setSecurePort(@Nullable Integer securePort) {
     if (securePort == null) {
       this.securePort = null;
     } else {
@@ -281,7 +281,7 @@ public class ServerOptions {
    * @param httpsOnly True to bind only HTTPS.
    * @return This options.
    */
-  public @Nonnull ServerOptions setHttpsOnly(boolean httpsOnly) {
+  public @NonNull ServerOptions setHttpsOnly(boolean httpsOnly) {
     this.httpsOnly = httpsOnly;
     return this;
   }
@@ -311,7 +311,7 @@ public class ServerOptions {
    * @param ioThreads Number of threads. Must be greater than <code>0</code>.
    * @return This options.
    */
-  public @Nonnull ServerOptions setIoThreads(int ioThreads) {
+  public @NonNull ServerOptions setIoThreads(int ioThreads) {
     this.ioThreads = ioThreads;
     return this;
   }
@@ -346,7 +346,7 @@ public class ServerOptions {
    * @param workerThreads Number of worker threads to use.
    * @return This options.
    */
-  public @Nonnull ServerOptions setWorkerThreads(int workerThreads) {
+  public @NonNull ServerOptions setWorkerThreads(int workerThreads) {
     this.workerThreads = workerThreads;
     return this;
   }
@@ -370,7 +370,7 @@ public class ServerOptions {
    * @deprecated In favor of {@link #setCompressionLevel(Integer)}.
    */
   @Deprecated
-  public @Nonnull ServerOptions setGzip(boolean gzip) {
+  public @NonNull ServerOptions setGzip(boolean gzip) {
     if (gzip) {
       this.compressionLevel = DEFAULT_COMPRESSION_LEVEL;
     } else {
@@ -397,7 +397,7 @@ public class ServerOptions {
    * @param compressionLevel Value between <code>0..9</code> or <code>null</code>.
    * @return This options.
    */
-  public @Nonnull ServerOptions setCompressionLevel(@Nullable Integer compressionLevel) {
+  public @NonNull ServerOptions setCompressionLevel(@Nullable Integer compressionLevel) {
     this.compressionLevel = compressionLevel;
     return this;
   }
@@ -420,7 +420,7 @@ public class ServerOptions {
    * @param defaultHeaders True for enabled.
    * @return This options.
    */
-  public @Nonnull ServerOptions setDefaultHeaders(boolean defaultHeaders) {
+  public @NonNull ServerOptions setDefaultHeaders(boolean defaultHeaders) {
     this.defaultHeaders = defaultHeaders;
     return this;
   }
@@ -441,7 +441,7 @@ public class ServerOptions {
    * @param bufferSize Buffer size.
    * @return This options.
    */
-  public @Nonnull ServerOptions setBufferSize(int bufferSize) {
+  public @NonNull ServerOptions setBufferSize(int bufferSize) {
     this.bufferSize = bufferSize;
     return this;
   }
@@ -462,7 +462,7 @@ public class ServerOptions {
    * @param maxRequestSize Max request size in bytes.
    * @return This options.
    */
-  public @Nonnull ServerOptions setMaxRequestSize(int maxRequestSize) {
+  public @NonNull ServerOptions setMaxRequestSize(int maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
     return this;
   }
@@ -504,7 +504,7 @@ public class ServerOptions {
    * @param ssl SSL options.
    * @return Server options.
    */
-  public @Nonnull ServerOptions setSsl(@Nullable SslOptions ssl) {
+  public @NonNull ServerOptions setSsl(@Nullable SslOptions ssl) {
     this.ssl = ssl;
     return this;
   }
@@ -567,7 +567,7 @@ public class ServerOptions {
    * @param loader Resource loader.
    * @return SSLContext or <code>null</code> when SSL is disabled.
    */
-  public @Nullable SSLContext getSSLContext(@Nonnull ClassLoader loader) {
+  public @Nullable SSLContext getSSLContext(@NonNull ClassLoader loader) {
     if (isSSLEnabled()) {
       setSecurePort(Optional.ofNullable(securePort).orElse(SEVER_SECURE_PORT));
       setSsl(Optional.ofNullable(ssl).orElseGet(SslOptions::selfSigned));

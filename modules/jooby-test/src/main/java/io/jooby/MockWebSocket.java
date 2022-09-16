@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,11 +47,11 @@ public class MockWebSocket implements WebSocket {
     this.configurer = configurer;
   }
 
-  @Nonnull @Override public Context getContext() {
+  @NonNull @Override public Context getContext() {
     return ctx;
   }
 
-  @Nonnull @Override public List<WebSocket> getSessions() {
+  @NonNull @Override public List<WebSocket> getSessions() {
     return Collections.emptyList();
   }
 
@@ -59,19 +59,19 @@ public class MockWebSocket implements WebSocket {
     return open;
   }
 
-  @Nonnull @Override public WebSocket send(@Nonnull String message, boolean broadcast) {
+  @NonNull @Override public WebSocket send(@NonNull String message, boolean broadcast) {
     return sendObject(message, broadcast);
   }
 
-  @Nonnull @Override public WebSocket send(@Nonnull byte[] message, boolean broadcast) {
+  @NonNull @Override public WebSocket send(@NonNull byte[] message, boolean broadcast) {
     return sendObject(message, broadcast);
   }
 
-  @Nonnull @Override public WebSocket render(@Nonnull Object value, boolean broadcast) {
+  @NonNull @Override public WebSocket render(@NonNull Object value, boolean broadcast) {
     return sendObject(value, broadcast);
   }
 
-  @Nonnull @Override public WebSocket close(@Nonnull WebSocketCloseStatus closeStatus) {
+  @NonNull @Override public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
     try {
       open = false;
       configurer.fireClose(closeStatus);

@@ -14,11 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import io.jooby.SneakyThrows.Consumer2;
 
@@ -70,7 +69,7 @@ public class OpenAPIModule implements Extension {
       return false;
     }
 
-    @NotNull @Override public MediaType getContentType() {
+    @NonNull @Override public MediaType getContentType() {
       return type;
     }
 
@@ -92,7 +91,7 @@ public class OpenAPIModule implements Extension {
       return this;
     }
 
-    @Nullable @Override public Asset resolve(@NotNull String path) {
+    @Nullable @Override public Asset resolve(@NonNull String path) {
       return assets.get(path);
     }
   }
@@ -128,7 +127,7 @@ public class OpenAPIModule implements Extension {
    *
    * @param path Custom path to use.
    */
-  public OpenAPIModule(@Nonnull String path) {
+  public OpenAPIModule(@NonNull String path) {
     this.openAPIPath = Router.normalizePath(path);
   }
 
@@ -147,7 +146,7 @@ public class OpenAPIModule implements Extension {
    * @param path Swagger-ui path.
    * @return This module.
    */
-  public @Nonnull OpenAPIModule swaggerUI(@Nonnull String path) {
+  public @NonNull OpenAPIModule swaggerUI(@NonNull String path) {
     this.swaggerUIPath = Router.normalizePath(path);
     return this;
   }
@@ -158,7 +157,7 @@ public class OpenAPIModule implements Extension {
    * @param path Redoc path.
    * @return This module.
    */
-  public @Nonnull OpenAPIModule redoc(@Nonnull String path) {
+  public @NonNull OpenAPIModule redoc(@NonNull String path) {
     this.redocPath = Router.normalizePath(path);
     return this;
   }
@@ -171,12 +170,12 @@ public class OpenAPIModule implements Extension {
    * @param format Supported formats.
    * @return This module.
    */
-  public @Nonnull OpenAPIModule format(@Nonnull Format... format) {
+  public @NonNull OpenAPIModule format(@NonNull Format... format) {
     this.format = EnumSet.copyOf(Arrays.asList(format));
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     String dir = Optional.ofNullable(application.getBasePackage())
         .orElse("/")
         .replace(".", "/");

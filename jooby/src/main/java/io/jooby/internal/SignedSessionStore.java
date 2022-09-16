@@ -10,8 +10,8 @@ import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SessionToken;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -31,11 +31,11 @@ public class SignedSessionStore implements SessionStore {
     this.token = token;
   }
 
-  @Nonnull @Override public Session newSession(@Nonnull Context ctx) {
+  @NonNull @Override public Session newSession(@NonNull Context ctx) {
     return Session.create(ctx, null).setNew(true);
   }
 
-  @Nullable @Override public Session findSession(@Nonnull Context ctx) {
+  @Nullable @Override public Session findSession(@NonNull Context ctx) {
     String signed = token.findToken(ctx);
     if (signed == null) {
       return null;
@@ -47,19 +47,19 @@ public class SignedSessionStore implements SessionStore {
     return Session.create(ctx, signed, new HashMap<>(attributes)).setNew(false);
   }
 
-  @Override public void deleteSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
     token.deleteToken(ctx, null);
   }
 
-  @Override public void touchSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void touchSession(@NonNull Context ctx, @NonNull Session session) {
     token.saveToken(ctx, encoder.apply(session.toMap()));
   }
 
-  @Override public void saveSession(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void saveSession(@NonNull Context ctx, @NonNull Session session) {
     // NOOP
   }
 
-  @Override public void renewSessionId(@Nonnull Context ctx, @Nonnull Session session) {
+  @Override public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
     token.saveToken(ctx, encoder.apply(session.toMap()));
   }
 }

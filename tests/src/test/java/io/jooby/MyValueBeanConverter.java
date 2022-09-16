@@ -1,13 +1,13 @@
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class MyValueBeanConverter implements BeanConverter {
-  @Override public boolean supports(@Nonnull Class type) {
+  @Override public boolean supports(@NonNull Class type) {
     return MyValue.class == type;
   }
 
-  @Override public Object convert(@Nonnull ValueNode value, @Nonnull Class type) {
+  @Override public Object convert(@NonNull ValueNode value, @NonNull Class type) {
     MyValue result = new MyValue();
     result.setString(value.get("string").value());
     return result;

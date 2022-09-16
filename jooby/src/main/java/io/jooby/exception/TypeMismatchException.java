@@ -5,7 +5,7 @@
  */
 package io.jooby.exception;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Type;
 
 /**
@@ -24,7 +24,7 @@ public class TypeMismatchException extends BadRequestException {
    * @param type Parameter/attribute type.
    * @param cause Cause.
    */
-  public TypeMismatchException(@Nonnull String name, @Nonnull Type type, @Nonnull Throwable cause) {
+  public TypeMismatchException(@NonNull String name, @NonNull Type type, @NonNull Throwable cause) {
     super("Cannot convert value: '" + name + "', to: '" + type.getTypeName() + "'", cause);
     this.name = name;
   }
@@ -35,7 +35,7 @@ public class TypeMismatchException extends BadRequestException {
    * @param name Parameter/attribute name.
    * @param type Parameter/attribute type.
    */
-  public TypeMismatchException(@Nonnull String name, @Nonnull Type type) {
+  public TypeMismatchException(@NonNull String name, @NonNull Type type) {
     this(name, type, null);
   }
 
@@ -44,7 +44,7 @@ public class TypeMismatchException extends BadRequestException {
    *
    * @return Parameter/attribute name.
    */
-  public @Nonnull String getName() {
+  public @NonNull String getName() {
     return name;
   }
 }

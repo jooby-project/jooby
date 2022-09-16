@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import io.jooby.Context;
 import io.jooby.FileDownload;
@@ -45,7 +45,7 @@ public class HttpMessageEncoder implements MessageEncoder {
     return this;
   }
 
-  @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+  @Override public byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     if (value instanceof ModelAndView) {
       ModelAndView modelAndView = (ModelAndView) value;
       for (TemplateEngine engine : templateEngineList) {

@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Value converter for simple values that come from query, path, form, etc... parameters into more
@@ -20,7 +20,7 @@ public interface ValueConverter {
    * @param type Conversion type.
    * @return True if the converter applies for the given type.
    */
-  boolean supports(@Nonnull Class type);
+  boolean supports(@NonNull Class type);
 
   /**
    * Convert simple to specific type.
@@ -29,5 +29,5 @@ public interface ValueConverter {
    * @param type Requested type.
    * @return Converted value.
    */
-  Object convert(@Nonnull Value value, @Nonnull Class type);
+  Object convert(@NonNull Value value, @NonNull Class type);
 }
