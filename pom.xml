@@ -118,7 +118,7 @@
     <jacoco.version>0.8.8</jacoco.version>
     <junit.version>5.8.2</junit.version>
     <rest-assured.version>5.1.0</rest-assured.version>
-    <checkstyle.version>8.42</checkstyle.version>
+    <checkstyle.version>10.3.3</checkstyle.version>
     <mockito.version>4.6.0</mockito.version>
     <guava.version>31.1-jre</guava.version>
 
@@ -138,7 +138,7 @@
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
     <maven-tiles-plugin.version>2.24</maven-tiles-plugin.version>
-    <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
+    <maven-checkstyle-plugin.version>3.2.0</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-core.version>3.8.5</maven-core.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -1519,7 +1519,7 @@
               <consoleOutput>true</consoleOutput>
               <configLocation>${checkstyle-file}</configLocation>
               <failsOnError>true</failsOnError>
-              <excludes>**${file.separator}internal${file.separator}**${file.separator}*.*
+              <excludes>**${file.separator}internal${file.separator}**${file.separator}*.*,**${file.separator}module-info.java
               </excludes>
             </configuration>
             <executions>
