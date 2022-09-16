@@ -1,11 +1,12 @@
 package examples;
 
-import io.jooby.Context;
-import io.jooby.Route;
 import io.jooby.annotations.DELETE;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
+import io.jooby.Context;
+import io.jooby.Route;
+
 import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -6,13 +6,13 @@ import java.util.concurrent.CompletableFuture;
 
 import org.jetbrains.annotations.NotNull;
 
-import io.jooby.Context;
-import io.jooby.ErrorHandler;
-import io.jooby.StatusCode;
-import io.jooby.WebClient;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.Context;
+import io.jooby.ErrorHandler;
+import io.jooby.StatusCode;
+import io.jooby.test.WebClient;
 
 public class Issue2452 {
   @ServerTest

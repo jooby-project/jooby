@@ -1,8 +1,8 @@
 package io.jooby.i1786;
 
-import io.jooby.StatusCode;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.StatusCode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

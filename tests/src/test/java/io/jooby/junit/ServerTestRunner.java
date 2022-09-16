@@ -11,7 +11,7 @@ import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
-import io.jooby.WebClient;
+import io.jooby.test.WebClient;
 
 public class ServerTestRunner {
 

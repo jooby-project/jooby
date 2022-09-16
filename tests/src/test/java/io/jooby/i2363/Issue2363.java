@@ -8,9 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import io.jooby.ServerOptions;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.ServerOptions;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 

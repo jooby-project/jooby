@@ -1,9 +1,9 @@
 package io.jooby.i2477;
 
-import io.jooby.StatusCode;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.PUT;
 import io.jooby.annotations.Path;
+import io.jooby.StatusCode;
 
 public class Controller2477 {
   @PUT

@@ -4,11 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import io.jooby.MediaType;
-import io.jooby.WebClient;
+
 import io.jooby.json.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.MediaType;
+import io.jooby.test.WebClient;
 
 public class Issue2413 {
   @ServerTest

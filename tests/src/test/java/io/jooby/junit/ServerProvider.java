@@ -5,9 +5,9 @@ import static java.util.stream.StreamSupport.stream;
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
 
-import io.jooby.Server;
 import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
+import io.jooby.Server;
 import io.jooby.utow.Utow;
 
 public class ServerProvider implements Supplier<Server> {

@@ -20,10 +20,10 @@ module io.jooby {
    * These are shaded and will have to be removed.
    */
   requires static org.apache.commons.io;
-  requires static org.objectweb.asm;
+  requires org.objectweb.asm;
   requires static org.objectweb.asm.tree;
   requires static org.objectweb.asm.tree.analysis;
-  requires static org.objectweb.asm.util;
+  requires org.objectweb.asm.util;
   requires static unbescape;
   
   /*
@@ -42,7 +42,7 @@ module io.jooby {
   /*
    * Kotlins dependencies are optional.
    */
-  requires static kotlinx.coroutines.core.jvm;
-  requires static kotlin.stdlib;
+  requires kotlinx.coroutines.core.jvm;
+  requires kotlin.stdlib;
 
 }

@@ -1,8 +1,9 @@
 package io.jooby.junit;
 
-import io.jooby.ExecutionMode;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import io.jooby.ExecutionMode;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

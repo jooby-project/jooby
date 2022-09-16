@@ -11,9 +11,9 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import io.jooby.SneakyThrows;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.SneakyThrows;
 import reactor.core.publisher.Mono;
 
 public class Issue2293 {

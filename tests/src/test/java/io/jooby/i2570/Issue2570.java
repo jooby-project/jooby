@@ -1,6 +1,6 @@
 package io.jooby.i2570;
 
-import static io.jooby.TestSupport.userdir;
+import static io.jooby.test.TestSupport.userdir;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

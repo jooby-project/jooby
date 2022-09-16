@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.json.JSONObject;
 
-import io.jooby.Jooby;
 import io.jooby.jetty.Jetty;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.Jooby;
 
 public class Issue2858 {
 
