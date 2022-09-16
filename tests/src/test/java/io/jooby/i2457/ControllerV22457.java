@@ -1,6 +1,5 @@
 package io.jooby.i2457;
 
-import jakarta.inject.Inject;
 
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
@@ -8,7 +7,7 @@ import io.jooby.annotations.Path;
 @Path("/")
 public class ControllerV22457 {
 
-  @Inject
+  @javax.inject.Inject // Guice does not support jakarta inject yet.
   private WelcomeService2457 welcomeService;
 
   @GET("/welcome")
