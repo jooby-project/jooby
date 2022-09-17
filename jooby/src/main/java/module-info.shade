@@ -4,11 +4,6 @@
  * Copyright 2014 Edgar Espina
  */
 
-// BEGIN
-// IMPORTANT this module-info VERSION IS ONLY for IDEs for Jooby Development
-// IMPORTANT the actual module is src/main/java/module-info.shade
-// IMPORTANT if you modify this file you might have to modify the other one
-// END
 module io.jooby {
 
   exports io.jooby;
@@ -16,10 +11,11 @@ module io.jooby {
   
   uses io.jooby.MvcFactory;
   uses io.jooby.Server;
+
   /*
    * True core deps
    */
-  requires jakarta.inject;
+  requires transitive jakarta.inject;
   requires org.slf4j;
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
@@ -37,25 +33,5 @@ module io.jooby {
    * Optional depedency for rate limiting
    */
   requires static io.github.bucket4j.core;
-
-  // BEGIN remove
-  
-  /*
-   * These are shaded and will have to be removed.
-   */
-  requires static org.apache.commons.io;
-  requires org.objectweb.asm;
-  requires static org.objectweb.asm.tree;
-  requires static org.objectweb.asm.tree.analysis;
-  requires org.objectweb.asm.util;
-  requires static unbescape;
-
-  /*
-   * Kotlins dependencies are optional.
-   */
-  requires kotlinx.coroutines.core.jvm;
-  requires kotlin.stdlib;
-  
-  // END
 
 }
