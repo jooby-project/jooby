@@ -19,7 +19,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -112,12 +112,12 @@ public class HandlerCompiler {
     String methodName = nameRegistry.generate(key);
 
     methodVisitor
-        .visitInvokeDynamicInsn("apply", "(Ljavax/inject/Provider;)Lio/jooby/Route$Handler;",
+        .visitInvokeDynamicInsn("apply", "(Ljakarta/inject/Provider;)Lio/jooby/Route$Handler;",
             new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory", "metafactory",
                 "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
                 false), new Object[]{Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;"),
                 new Handle(Opcodes.H_INVOKESTATIC, internalName, methodName,
-                    "(Ljavax/inject/Provider;Lio/jooby/Context;)Ljava/lang/Object;", false),
+                    "(Ljakarta/inject/Provider;Lio/jooby/Context;)Ljava/lang/Object;", false),
                 Type.getType("(Lio/jooby/Context;)Ljava/lang/Object;")});
 
     /** Apply implementation: */
@@ -146,7 +146,7 @@ public class HandlerCompiler {
     String methodDescriptor = methodDescriptor();
     MethodVisitor apply = writer
         .visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, lambdaName,
-            "(Ljavax/inject/Provider;Lio/jooby/Context;)Ljava/lang/Object;", null,
+            "(Ljakarta/inject/Provider;Lio/jooby/Context;)Ljava/lang/Object;", null,
             new String[]{"java/lang/Exception"});
     apply.visitParameter("provider", ACC_FINAL | ACC_SYNTHETIC);
     apply.visitParameter("ctx", ACC_SYNTHETIC);

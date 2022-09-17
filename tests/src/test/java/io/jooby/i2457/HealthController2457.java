@@ -1,6 +1,5 @@
 package io.jooby.i2457;
 
-import javax.inject.Inject;
 
 import com.google.common.collect.ImmutableMap;
 import io.jooby.Context;
@@ -10,8 +9,13 @@ import io.jooby.annotations.Path;
 @Path("/")
 public class HealthController2457 {
 
-  @Inject
   private WelcomeService2457 welcomeService;
+
+  @javax.inject.Inject //Guice does not support jakarta annotations
+  public HealthController2457(WelcomeService2457 welcomeService) {
+    super();
+    this.welcomeService = welcomeService;
+  }
 
   @GET("/healthcheck")
   public void healthCheck(Context ctx) {

@@ -8,6 +8,7 @@ target
 .classpath
 .project
 .settings
+.factorypath
 dependency-reduced-pom.xml
 bin
 

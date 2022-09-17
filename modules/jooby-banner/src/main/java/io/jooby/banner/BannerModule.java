@@ -10,7 +10,7 @@ import io.jooby.Jooby;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.util.Optional;
 
 import static com.github.lalyos.jfiglet.FigletFont.convertOneLine;

@@ -9,7 +9,7 @@ import io.jooby.RequestScope;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 public class HandleProvider implements Provider<Handle> {
   private Jdbi jdbi;

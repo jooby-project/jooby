@@ -1,6 +1,6 @@
 package io.jooby.i2325;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class MyID2325 {
 

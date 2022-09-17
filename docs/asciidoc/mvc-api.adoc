@@ -183,7 +183,7 @@ one you like most.
 [source, java, role = "primary"]
 ----
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 public class App extends Jooby {
   {
@@ -201,7 +201,7 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import javax.inject.Provider
+import jakarta.inject.Provider
 import io.jooby.*
 
 fun main(args: Array<String>) {
@@ -212,7 +212,7 @@ fun main(args: Array<String>) {
 }
 ----
 
-The javadoc:Jooby[mvc, javax.inject.Provider] does the same job, might or might not delegate
+The javadoc:Jooby[mvc, jakarta.inject.Provider] does the same job, might or might not delegate
 instantiation to a dependency injection framework but most important let you control lifecycle of
 MVC routes (Singleton vs Non-Singleton routes).
 

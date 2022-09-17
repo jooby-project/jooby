@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import starter.domain.Pet;
 import starter.domain.PetRepository;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.List;
 
 @Controller

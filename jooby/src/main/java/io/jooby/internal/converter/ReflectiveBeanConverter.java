@@ -24,8 +24,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import io.jooby.BeanConverter;
 import io.jooby.FileUpload;

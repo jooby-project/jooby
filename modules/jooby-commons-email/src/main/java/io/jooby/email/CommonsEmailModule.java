@@ -20,7 +20,7 @@ import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;

@@ -97,7 +97,7 @@ The Weld extension does a bit more in relation to MVC routes:
 automatically registered. No need to register it manually
 
 - The default scope is `prototype` (creates a new instance per request). If you prefer a single 
-instance add the `javax.inject.Singleton` annotation
+instance add the `jakarta.inject.Singleton` annotation
 
 .MVC route
 [source, java, role="primary"]

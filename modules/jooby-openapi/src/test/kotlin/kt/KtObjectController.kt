@@ -3,7 +3,7 @@ package kt
 import examples.ABean
 import kotlinx.coroutines.delay
 import java.util.concurrent.CompletableFuture
-import javax.inject.Named
+import jakarta.inject.Named
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.HeaderParam

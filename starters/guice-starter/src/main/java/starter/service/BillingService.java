@@ -3,7 +3,7 @@ package starter.service;
 import starter.domain.Order;
 import starter.domain.OrderRepository;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class BillingService {
   private final OrderRepository transactionLog;

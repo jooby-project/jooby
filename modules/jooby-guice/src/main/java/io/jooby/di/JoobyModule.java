@@ -19,7 +19,7 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +61,10 @@ public class JoobyModule extends AbstractModule {
       } else {
         binding = bind(key.getType());
       }
-      binding.toProvider(provider);
+      //Guice does not support jakarta inject yet
+      //https://github.com/google/guice/issues/1383
+      javax.inject.Provider legacyProvider = () -> provider.get();
+      binding.toProvider(legacyProvider);
     }
   }
 

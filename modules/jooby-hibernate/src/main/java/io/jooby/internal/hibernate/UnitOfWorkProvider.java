@@ -12,7 +12,7 @@ import io.jooby.hibernate.TransactionalRequest;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 public class UnitOfWorkProvider implements Provider<UnitOfWork> {
 

@@ -19,7 +19,7 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.util.Map;
 
 /**

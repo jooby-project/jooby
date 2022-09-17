@@ -10,7 +10,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 public class SessionServiceProvider implements Provider<Session> {
   private final SessionFactory sessionFactory;

@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

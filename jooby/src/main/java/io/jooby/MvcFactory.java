@@ -6,7 +6,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 /**
  * Created by a Jooby annotation processor tool using the {@link java.util.ServiceLoader} API.

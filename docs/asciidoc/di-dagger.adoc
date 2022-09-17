@@ -134,7 +134,7 @@ fun main(args: Array<String>) {
 <2> Register MVC route provided by Dagger
 
 Due the static nature of Dagger mvc integration identical to normal usage. For custom scopes/lifecycles
-Dagger generate a `javax.inject.Provider` on such use cases you need to switch and use the provider
+Dagger generate a `jakarta.inject.Provider` on such use cases you need to switch and use the provider
 version of the `mvc` method:
 
 .MVC and Dagger provider
