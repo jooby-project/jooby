@@ -102,7 +102,7 @@
   <mojo-executor.version>2.3.1</mojo-executor.version>
   <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
   <netty.version>4.1.80.Final</netty.version>
-  <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+  <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
   <node.version>v12.19.0</node.version>
   <okhttp.version>4.9.3</okhttp.version>
   <pac4j.version>4.5.6</pac4j.version>
