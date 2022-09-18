@@ -22,8 +22,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 
 /**
  * JSON module using JSON-B: https://github.com/eclipse-ee4j/jsonb-api.
