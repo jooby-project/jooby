@@ -8,7 +8,7 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.QueryString;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class QueryStringValue extends HashValue implements QueryString {
   private String queryString;
@@ -18,7 +18,7 @@ public class QueryStringValue extends HashValue implements QueryString {
     this.queryString = queryString;
   }
 
-  @Nonnull @Override public String queryString() {
+  @NonNull @Override public String queryString() {
     return queryString;
   }
 }

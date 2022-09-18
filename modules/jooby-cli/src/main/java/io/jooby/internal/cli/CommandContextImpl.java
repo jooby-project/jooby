@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.jline.reader.LineReader;
 
@@ -80,17 +80,17 @@ public class CommandContextImpl implements Context {
     }
   }
 
-  @Nonnull @Override public String getVersion() {
+  @NonNull @Override public String getVersion() {
     return (String) configuration.getOrDefault("version", version);
   }
 
-  @Nonnull @Override public Path getWorkspace() {
+  @NonNull @Override public Path getWorkspace() {
     String workspace = (String) configuration.getOrDefault("workspace",
         System.getProperty("user.dir"));
     return Paths.get(workspace);
   }
 
-  @Override public void setWorkspace(@Nonnull Path workspace) throws IOException {
+  @Override public void setWorkspace(@NonNull Path workspace) throws IOException {
     if (!Files.isDirectory(workspace)) {
       throw new FileNotFoundException(workspace.toAbsolutePath().toString());
     }

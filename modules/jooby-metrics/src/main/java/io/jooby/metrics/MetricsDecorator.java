@@ -10,13 +10,13 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class MetricsDecorator implements Route.Decorator {
 
-  @Nonnull
+  @NonNull
   @Override
-  public Route.Handler apply(@Nonnull Route.Handler next) {
+  public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       MetricRegistry registry = ctx.require(MetricRegistry.class);
       Counter counter = registry.counter("request.actives");

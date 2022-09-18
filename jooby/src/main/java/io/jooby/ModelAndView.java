@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class ModelAndView {
    * @param view View name must include file extension.
    * @param model View model.
    */
-  public ModelAndView(@Nonnull String view, @Nonnull Map<String, Object> model) {
+  public ModelAndView(@NonNull String view, @NonNull Map<String, Object> model) {
     this.view = view;
     this.model = model;
   }
@@ -44,7 +44,7 @@ public class ModelAndView {
    *
    * @param view View name  must include file extension.
    */
-  public ModelAndView(@Nonnull String view) {
+  public ModelAndView(@NonNull String view) {
     this(view, new HashMap<>());
   }
 
@@ -55,7 +55,7 @@ public class ModelAndView {
    * @param value Value.
    * @return This model and view.
    */
-  public ModelAndView put(@Nonnull String name, Object value) {
+  public ModelAndView put(@NonNull String name, Object value) {
     model.put(name, value);
     return this;
   }
@@ -66,7 +66,7 @@ public class ModelAndView {
    * @param attributes Attributes.
    * @return This model and view.
    */
-  public ModelAndView put(@Nonnull Map<String, Object> attributes) {
+  public ModelAndView put(@NonNull Map<String, Object> attributes) {
     model.putAll(attributes);
     return this;
   }

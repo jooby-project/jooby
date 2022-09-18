@@ -41,8 +41,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import jakarta.inject.Provider;
 
 import org.slf4j.Logger;
@@ -153,16 +153,16 @@ public class Jooby implements Router, Registry {
    * @param serverOptions Server options.
    * @return This application.
    */
-  public @Nonnull Jooby setServerOptions(@Nonnull ServerOptions serverOptions) {
+  public @NonNull Jooby setServerOptions(@NonNull ServerOptions serverOptions) {
     this.serverOptions = serverOptions;
     return this;
   }
 
-  @Nonnull @Override public Set<RouterOption> getRouterOptions() {
+  @NonNull @Override public Set<RouterOption> getRouterOptions() {
     return router.getRouterOptions();
   }
 
-  @Nonnull @Override public Jooby setRouterOptions(@Nonnull RouterOption... options) {
+  @NonNull @Override public Jooby setRouterOptions(@NonNull RouterOption... options) {
     router.setRouterOptions(options);
     return this;
   }
@@ -173,7 +173,7 @@ public class Jooby implements Router, Registry {
    *
    * @return Application environment.
    */
-  public @Nonnull Environment getEnvironment() {
+  public @NonNull Environment getEnvironment() {
     if (env == null) {
       env = Environment.loadEnvironment(environmentOptions);
     }
@@ -196,7 +196,7 @@ public class Jooby implements Router, Registry {
    * @param locales The supported locales.
    * @return This router.
    */
-  public Router setLocales(@Nonnull List<Locale> locales) {
+  public Router setLocales(@NonNull List<Locale> locales) {
     this.locales = requireNonNull(locales);
     return this;
   }
@@ -216,7 +216,7 @@ public class Jooby implements Router, Registry {
    *
    * @return Application class loader.
    */
-  public @Nonnull ClassLoader getClassLoader() {
+  public @NonNull ClassLoader getClassLoader() {
     return env == null ? environmentOptions.getClassLoader() : env.getClassLoader();
   }
 
@@ -225,7 +225,7 @@ public class Jooby implements Router, Registry {
    *
    * @return Application config.
    */
-  public @Nonnull Config getConfig() {
+  public @NonNull Config getConfig() {
     return getEnvironment().getConfig();
   }
 
@@ -235,7 +235,7 @@ public class Jooby implements Router, Registry {
    * @param environment Application environment.
    * @return This application.
    */
-  public @Nonnull Jooby setEnvironment(@Nonnull Environment environment) {
+  public @NonNull Jooby setEnvironment(@NonNull Environment environment) {
     this.env = environment;
     return this;
   }
@@ -246,7 +246,7 @@ public class Jooby implements Router, Registry {
    * @param options Environment options.
    * @return New environment.
    */
-  public @Nonnull Environment setEnvironmentOptions(@Nonnull EnvironmentOptions options) {
+  public @NonNull Environment setEnvironmentOptions(@NonNull EnvironmentOptions options) {
     this.environmentOptions = options;
     this.env = Environment.loadEnvironment(
         options.setClassLoader(options.getClassLoader(getClass().getClassLoader())));
@@ -260,7 +260,7 @@ public class Jooby implements Router, Registry {
    * @param body Start body.
    * @return This application.
    */
-  public @Nonnull Jooby onStarting(@Nonnull SneakyThrows.Runnable body) {
+  public @NonNull Jooby onStarting(@NonNull SneakyThrows.Runnable body) {
     startingCallbacks.add(body);
     return this;
   }
@@ -272,7 +272,7 @@ public class Jooby implements Router, Registry {
    * @param body Start body.
    * @return This application.
    */
-  public @Nonnull Jooby onStarted(@Nonnull SneakyThrows.Runnable body) {
+  public @NonNull Jooby onStarted(@NonNull SneakyThrows.Runnable body) {
     readyCallbacks.add(body);
     return this;
   }
@@ -284,17 +284,17 @@ public class Jooby implements Router, Registry {
    * @param body Stop body.
    * @return This application.
    */
-  public @Nonnull Jooby onStop(@Nonnull AutoCloseable body) {
+  public @NonNull Jooby onStop(@NonNull AutoCloseable body) {
     stopCallbacks.addFirst(body);
     return this;
   }
 
-  @Nonnull @Override public Jooby setContextPath(@Nonnull String basePath) {
+  @NonNull @Override public Jooby setContextPath(@NonNull String basePath) {
     router.setContextPath(basePath);
     return this;
   }
 
-  @Nonnull @Override public String getContextPath() {
+  @NonNull @Override public String getContextPath() {
     return router.getContextPath();
   }
 
@@ -329,7 +329,7 @@ public class Jooby implements Router, Registry {
    * @param factory Application factory.
    * @return This application.
    */
-  @Nonnull public Jooby install(@Nonnull SneakyThrows.Supplier<Jooby> factory) {
+  @NonNull public Jooby install(@NonNull SneakyThrows.Supplier<Jooby> factory) {
     return install("/", factory);
   }
 
@@ -365,8 +365,8 @@ public class Jooby implements Router, Registry {
    * @param factory Application factory.
    * @return This application.
    */
-  @Nonnull
-  public Jooby install(@Nonnull String path, @Nonnull SneakyThrows.Supplier<Jooby> factory) {
+  @NonNull
+  public Jooby install(@NonNull String path, @NonNull SneakyThrows.Supplier<Jooby> factory) {
     try {
       owner = this;
       path(path, () -> factory.get());
@@ -381,7 +381,7 @@ public class Jooby implements Router, Registry {
    *
    * @return The underlying router.
    */
-  public @Nonnull Router getRouter() {
+  public @NonNull Router getRouter() {
     return router;
   }
 
@@ -389,32 +389,32 @@ public class Jooby implements Router, Registry {
     return router.isTrustProxy();
   }
 
-  @Nonnull @Override public Jooby setTrustProxy(boolean trustProxy) {
+  @NonNull @Override public Jooby setTrustProxy(boolean trustProxy) {
     this.router.setTrustProxy(trustProxy);
     return this;
   }
 
-  @Nonnull @Override public Router domain(@Nonnull String domain, @Nonnull Router subrouter) {
+  @NonNull @Override public Router domain(@NonNull String domain, @NonNull Router subrouter) {
     this.router.domain(domain, subrouter);
     return this;
   }
 
-  @Nonnull @Override public RouteSet domain(@Nonnull String domain, @Nonnull Runnable body) {
+  @NonNull @Override public RouteSet domain(@NonNull String domain, @NonNull Runnable body) {
     return router.domain(domain, body);
   }
 
-  @Nonnull @Override
-  public RouteSet mount(@Nonnull Predicate<Context> predicate, @Nonnull Runnable body) {
+  @NonNull @Override
+  public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
     return router.mount(predicate, body);
   }
 
-  @Nonnull @Override
-  public Jooby mount(@Nonnull Predicate<Context> predicate, @Nonnull Router subrouter) {
+  @NonNull @Override
+  public Jooby mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
     this.router.mount(predicate, subrouter);
     return this;
   }
 
-  @Nonnull @Override public Jooby mount(@Nonnull String path, @Nonnull Router router) {
+  @NonNull @Override public Jooby mount(@NonNull String path, @NonNull Router router) {
     this.router.mount(path, router);
     if (router instanceof Jooby) {
       Jooby child = (Jooby) router;
@@ -423,22 +423,22 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override
-  public Jooby mount(@Nonnull Router router) {
+  @NonNull @Override
+  public Jooby mount(@NonNull Router router) {
     return mount("/", router);
   }
 
-  @Nonnull @Override public Jooby mvc(@Nonnull Object router) {
+  @NonNull @Override public Jooby mvc(@NonNull Object router) {
     Provider provider = () -> router;
     return mvc(router.getClass(), provider);
   }
 
-  @Nonnull @Override public Jooby mvc(@Nonnull Class router) {
+  @NonNull @Override public Jooby mvc(@NonNull Class router) {
     return mvc(router, () -> require(router));
   }
 
-  @Nonnull @Override
-  public <T> Jooby mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
+  @NonNull @Override
+  public <T> Jooby mvc(@NonNull Class<T> router, @NonNull Provider<T> provider) {
     try {
       ServiceLoader<MvcFactory> modules = ServiceLoader.load(MvcFactory.class);
       MvcFactory module = stream(modules.spliterator(), false)
@@ -457,53 +457,53 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  @Nonnull @Override
-  public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Initializer handler) {
+  @NonNull @Override
+  public Route ws(@NonNull String pattern, @NonNull WebSocket.Initializer handler) {
     return router.ws(pattern, handler);
   }
 
-  @Nonnull @Override
-  public Route sse(@Nonnull String pattern, @Nonnull ServerSentEmitter.Handler handler) {
+  @NonNull @Override
+  public Route sse(@NonNull String pattern, @NonNull ServerSentEmitter.Handler handler) {
     return router.sse(pattern, handler);
   }
 
-  @Nonnull @Override public List<Route> getRoutes() {
+  @NonNull @Override public List<Route> getRoutes() {
     return router.getRoutes();
   }
 
-  @Nonnull @Override public Jooby error(@Nonnull ErrorHandler handler) {
+  @NonNull @Override public Jooby error(@NonNull ErrorHandler handler) {
     router.error(handler);
     return this;
   }
 
-  @Nonnull @Override public Jooby decorator(@Nonnull Route.Decorator decorator) {
+  @NonNull @Override public Jooby decorator(@NonNull Route.Decorator decorator) {
     router.decorator(decorator);
     return this;
   }
 
-  @Nonnull @Override public Jooby before(@Nonnull Route.Before before) {
+  @NonNull @Override public Jooby before(@NonNull Route.Before before) {
     router.before(before);
     return this;
   }
 
-  @Nonnull @Override public Jooby after(@Nonnull Route.After after) {
+  @NonNull @Override public Jooby after(@NonNull Route.After after) {
     router.after(after);
     return this;
   }
 
-  @Nonnull @Override public Jooby encoder(@Nonnull MessageEncoder encoder) {
+  @NonNull @Override public Jooby encoder(@NonNull MessageEncoder encoder) {
     router.encoder(encoder);
     return this;
   }
 
-  @Nonnull @Override public Jooby decoder(@Nonnull MediaType contentType, @Nonnull
+  @NonNull @Override public Jooby decoder(@NonNull MediaType contentType, @NonNull
       MessageDecoder decoder) {
     router.decoder(contentType, decoder);
     return this;
   }
 
-  @Nonnull @Override
-  public Jooby encoder(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder) {
+  @NonNull @Override
+  public Jooby encoder(@NonNull MediaType contentType, @NonNull MessageEncoder encoder) {
     router.encoder(contentType, encoder);
     return this;
   }
@@ -514,7 +514,7 @@ public class Jooby implements Router, Registry {
    * @param extension Extension module.
    * @return This application.
    */
-  @Nonnull public Jooby install(@Nonnull Extension extension) {
+  @NonNull public Jooby install(@NonNull Extension extension) {
     if (lateInit || extension.lateinit()) {
       lateExtensions.add(extension);
     } else {
@@ -527,54 +527,54 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Jooby dispatch(@Nonnull Runnable body) {
+  @NonNull @Override public Jooby dispatch(@NonNull Runnable body) {
     router.dispatch(body);
     return this;
   }
 
-  @Nonnull @Override public Jooby dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+  @NonNull @Override public Jooby dispatch(@NonNull Executor executor, @NonNull Runnable action) {
     router.dispatch(executor, action);
     return this;
   }
 
-  @Nonnull @Override public RouteSet path(@Nonnull String pattern, @Nonnull Runnable action) {
+  @NonNull @Override public RouteSet path(@NonNull String pattern, @NonNull Runnable action) {
     return router.path(pattern, action);
   }
 
-  @Nonnull @Override public RouteSet routes(@Nonnull Runnable action) {
+  @NonNull @Override public RouteSet routes(@NonNull Runnable action) {
     return router.routes(action);
   }
 
-  @Nonnull @Override
-  public Route route(@Nonnull String method, @Nonnull String pattern,
-      @Nonnull Route.Handler handler) {
+  @NonNull @Override
+  public Route route(@NonNull String method, @NonNull String pattern,
+      @NonNull Route.Handler handler) {
     return router.route(method, pattern, handler);
   }
 
-  @Nonnull @Override public Match match(@Nonnull Context ctx) {
+  @NonNull @Override public Match match(@NonNull Context ctx) {
     return router.match(ctx);
   }
 
-  @Override public boolean match(@Nonnull String pattern, @Nonnull String path) {
+  @Override public boolean match(@NonNull String pattern, @NonNull String path) {
     return router.match(pattern, path);
   }
 
-  @Nonnull @Override
-  public Jooby errorCode(@Nonnull Class<? extends Throwable> type,
-      @Nonnull StatusCode statusCode) {
+  @NonNull @Override
+  public Jooby errorCode(@NonNull Class<? extends Throwable> type,
+      @NonNull StatusCode statusCode) {
     router.errorCode(type, statusCode);
     return this;
   }
 
-  @Nonnull @Override public StatusCode errorCode(@Nonnull Throwable cause) {
+  @NonNull @Override public StatusCode errorCode(@NonNull Throwable cause) {
     return router.errorCode(cause);
   }
 
-  @Nonnull @Override public Executor getWorker() {
+  @NonNull @Override public Executor getWorker() {
     return router.getWorker();
   }
 
-  @Nonnull @Override public Jooby setWorker(@Nonnull Executor worker) {
+  @NonNull @Override public Jooby setWorker(@NonNull Executor worker) {
     this.router.setWorker(worker);
     if (worker instanceof ExecutorService) {
       onStop(((ExecutorService) worker)::shutdown);
@@ -582,25 +582,25 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Jooby setDefaultWorker(@Nonnull Executor worker) {
+  @NonNull @Override public Jooby setDefaultWorker(@NonNull Executor worker) {
     this.router.setDefaultWorker(worker);
     return this;
   }
 
-  @Nonnull @Override public Logger getLog() {
+  @NonNull @Override public Logger getLog() {
     return LoggerFactory.getLogger(getClass());
   }
 
-  @Nonnull @Override public Jooby responseHandler(ResponseHandler handler) {
+  @NonNull @Override public Jooby responseHandler(ResponseHandler handler) {
     router.responseHandler(handler);
     return this;
   }
 
-  @Nonnull @Override public ErrorHandler getErrorHandler() {
+  @NonNull @Override public ErrorHandler getErrorHandler() {
     return router.getErrorHandler();
   }
 
-  @Nonnull @Override public Path getTmpdir() {
+  @NonNull @Override public Path getTmpdir() {
     if (tmpdir == null) {
       tmpdir = Paths.get(getEnvironment().getConfig().getString("application.tmpdir"))
           .toAbsolutePath();
@@ -614,7 +614,7 @@ public class Jooby implements Router, Registry {
    * @param tmpdir Temp directory.
    * @return This application.
    */
-  public @Nonnull Jooby setTmpdir(@Nonnull Path tmpdir) {
+  public @NonNull Jooby setTmpdir(@NonNull Path tmpdir) {
     this.tmpdir = tmpdir;
     return this;
   }
@@ -624,7 +624,7 @@ public class Jooby implements Router, Registry {
    *
    * @return Application execution mode.
    */
-  public @Nonnull ExecutionMode getExecutionMode() {
+  public @NonNull ExecutionMode getExecutionMode() {
     return mode == null ? ExecutionMode.DEFAULT : mode;
   }
 
@@ -634,33 +634,33 @@ public class Jooby implements Router, Registry {
    * @param mode Application execution mode.
    * @return This application.
    */
-  public @Nonnull Jooby setExecutionMode(@Nonnull ExecutionMode mode) {
+  public @NonNull Jooby setExecutionMode(@NonNull ExecutionMode mode) {
     this.mode = mode;
     return this;
   }
 
-  @Nonnull @Override public Map<String, Object> getAttributes() {
+  @NonNull @Override public Map<String, Object> getAttributes() {
     return router.getAttributes();
   }
 
-  @Nonnull @Override public Jooby attribute(@Nonnull String key, @Nonnull Object value) {
+  @NonNull @Override public Jooby attribute(@NonNull String key, @NonNull Object value) {
     router.attribute(key, value);
     return this;
   }
 
-  @Nonnull @Override public <T> T attribute(@Nonnull String key) {
+  @NonNull @Override public <T> T attribute(@NonNull String key) {
     return router.attribute(key);
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type, @NonNull String name) {
     return require(ServiceKey.key(type, name));
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type) {
     return require(ServiceKey.key(type));
   }
 
-  @Override public @Nonnull <T> T require(@Nonnull ServiceKey<T> key) {
+  @Override public @NonNull <T> T require(@NonNull ServiceKey<T> key) {
     ServiceRegistry services = getServices();
     T service = services.getOrNull(key);
     if (service == null) {
@@ -679,12 +679,12 @@ public class Jooby implements Router, Registry {
    * @param registry Application registry.
    * @return This application.
    */
-  @Nonnull public Jooby registry(@Nonnull Registry registry) {
+  @NonNull public Jooby registry(@NonNull Registry registry) {
     this.registry.set(registry);
     return this;
   }
 
-  @Nonnull @Override public ServiceRegistry getServices() {
+  @NonNull @Override public ServiceRegistry getServices() {
     return this.router.getServices();
   }
 
@@ -699,16 +699,16 @@ public class Jooby implements Router, Registry {
         Optional.ofNullable(getClass().getPackage()).map(Package::getName).orElse(null));
   }
 
-  @Nonnull @Override public SessionStore getSessionStore() {
+  @NonNull @Override public SessionStore getSessionStore() {
     return router.getSessionStore();
   }
 
-  @Nonnull @Override public Jooby setSessionStore(@Nonnull SessionStore store) {
+  @NonNull @Override public Jooby setSessionStore(@NonNull SessionStore store) {
     router.setSessionStore(store);
     return this;
   }
 
-  @Nonnull @Override public Jooby executor(@Nonnull String name, @Nonnull Executor executor) {
+  @NonNull @Override public Jooby executor(@NonNull String name, @NonNull Executor executor) {
     if (executor instanceof ExecutorService) {
       onStop(((ExecutorService) executor)::shutdown);
     }
@@ -716,56 +716,56 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Deprecated @Nonnull @Override public Jooby setFlashCookie(@Nonnull String name) {
+  @Deprecated @NonNull @Override public Jooby setFlashCookie(@NonNull String name) {
     router.setFlashCookie(name);
     return this;
   }
 
-  @Nonnull @Override public Cookie getFlashCookie() {
+  @NonNull @Override public Cookie getFlashCookie() {
     return router.getFlashCookie();
   }
 
-  @Nonnull @Override public Jooby setFlashCookie(@Nonnull Cookie flashCookie) {
+  @NonNull @Override public Jooby setFlashCookie(@NonNull Cookie flashCookie) {
     router.setFlashCookie(flashCookie);
     return this;
   }
 
-  @Nonnull @Override public Jooby converter(@Nonnull ValueConverter converter) {
+  @NonNull @Override public Jooby converter(@NonNull ValueConverter converter) {
     router.converter(converter);
     return this;
   }
 
-  @Nonnull @Override public Jooby converter(@Nonnull BeanConverter converter) {
+  @NonNull @Override public Jooby converter(@NonNull BeanConverter converter) {
     router.converter(converter);
     return this;
   }
 
-  @Nonnull @Override public List<ValueConverter> getConverters() {
+  @NonNull @Override public List<ValueConverter> getConverters() {
     return router.getConverters();
   }
 
-  @Nonnull @Override public List<BeanConverter> getBeanConverters() {
+  @NonNull @Override public List<BeanConverter> getBeanConverters() {
     return router.getBeanConverters();
   }
 
-  @Nonnull @Override public Jooby setHiddenMethod(
-      @Nonnull Function<Context, Optional<String>> provider) {
+  @NonNull @Override public Jooby setHiddenMethod(
+      @NonNull Function<Context, Optional<String>> provider) {
     router.setHiddenMethod(provider);
     return this;
   }
 
-  @Nonnull @Override public Jooby setCurrentUser(
-      @Nonnull Function<Context, Object> provider) {
+  @NonNull @Override public Jooby setCurrentUser(
+      @NonNull Function<Context, Object> provider) {
     router.setCurrentUser(provider);
     return this;
   }
 
-  @Nonnull @Override public Jooby setContextAsService(boolean contextAsService) {
+  @NonNull @Override public Jooby setContextAsService(boolean contextAsService) {
     router.setContextAsService(contextAsService);
     return this;
   }
 
-  @Nonnull @Override public Jooby setHiddenMethod(@Nonnull String parameterName) {
+  @NonNull @Override public Jooby setHiddenMethod(@NonNull String parameterName) {
     router.setHiddenMethod(parameterName);
     return this;
   }
@@ -776,7 +776,7 @@ public class Jooby implements Router, Registry {
    *
    * @return Server.
    */
-  public @Nonnull Server start() {
+  public @NonNull Server start() {
     List<Server> servers = stream(
         spliteratorUnknownSize(
             ServiceLoader.load(Server.class).iterator(),
@@ -824,7 +824,7 @@ public class Jooby implements Router, Registry {
    * @param server Server.
    * @return This application.
    */
-  public @Nonnull Jooby start(@Nonnull Server server) {
+  public @NonNull Jooby start(@NonNull Server server) {
     Path tmpdir = getTmpdir();
     ensureTmpdir(tmpdir);
 
@@ -874,7 +874,7 @@ public class Jooby implements Router, Registry {
    * @param server Server.
    * @return This application.
    */
-  public @Nonnull Jooby ready(@Nonnull Server server) {
+  public @NonNull Jooby ready(@NonNull Server server) {
     Logger log = getLog();
 
     this.serverOptions = server.getOptions();
@@ -939,7 +939,7 @@ public class Jooby implements Router, Registry {
    *
    * @return This application.
    */
-  public @Nonnull Jooby stop() {
+  public @NonNull Jooby stop() {
     if (started.compareAndSet(true, false)) {
       Logger log = getLog();
       log.debug("Stopping {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
@@ -975,7 +975,7 @@ public class Jooby implements Router, Registry {
    *
    * @return Application's name.
    */
-  public @Nonnull String getName() {
+  public @NonNull String getName() {
     if (name == null) {
       name = System.getProperty(APP_NAME);
       if (name == null) {
@@ -994,7 +994,7 @@ public class Jooby implements Router, Registry {
    * @param name Application's name.
    * @return This application.
    */
-  public @Nonnull Jooby setName(@Nonnull String name) {
+  public @NonNull Jooby setName(@NonNull String name) {
     this.name = name;
     return this;
   }
@@ -1009,7 +1009,7 @@ public class Jooby implements Router, Registry {
    *
    * @return Application version.
    */
-  public @Nonnull String getVersion() {
+  public @NonNull String getVersion() {
     if (version == null) {
       version = Optional.ofNullable(getClass().getPackage())
           .map(Package::getImplementationVersion)
@@ -1025,7 +1025,7 @@ public class Jooby implements Router, Registry {
    * @param version Application's version.
    * @return This application.
    */
-  public @Nonnull Jooby setVersion(@Nonnull String version) {
+  public @NonNull Jooby setVersion(@NonNull String version) {
     this.version = version;
     return this;
   }
@@ -1040,8 +1040,8 @@ public class Jooby implements Router, Registry {
    * @param args Application arguments.
    * @param applicationType Application type.
    */
-  public static void runApp(@Nonnull String[] args,
-      @Nonnull Class<? extends Jooby> applicationType) {
+  public static void runApp(@NonNull String[] args,
+      @NonNull Class<? extends Jooby> applicationType) {
     runApp(args, ExecutionMode.DEFAULT, applicationType);
   }
 
@@ -1052,8 +1052,8 @@ public class Jooby implements Router, Registry {
    * @param executionMode Application execution mode.
    * @param applicationType Application type.
    */
-  public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
-      @Nonnull Class<? extends Jooby> applicationType) {
+  public static void runApp(@NonNull String[] args, @NonNull ExecutionMode executionMode,
+      @NonNull Class<? extends Jooby> applicationType) {
     configurePackage(applicationType.getPackage());
     runApp(args, executionMode, reflectionProvider(applicationType));
   }
@@ -1066,8 +1066,8 @@ public class Jooby implements Router, Registry {
    * @param applicationType Application type.
    * @return Application.
    */
-  public static Jooby createApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
-      @Nonnull Class<? extends Jooby> applicationType) {
+  public static Jooby createApp(@NonNull String[] args, @NonNull ExecutionMode executionMode,
+      @NonNull Class<? extends Jooby> applicationType) {
     configurePackage(applicationType.getPackage());
     return createApp(args, executionMode, reflectionProvider(applicationType));
   }
@@ -1078,7 +1078,7 @@ public class Jooby implements Router, Registry {
    * @param args Application arguments.
    * @param provider Application provider.
    */
-  public static void runApp(@Nonnull String[] args, @Nonnull Supplier<Jooby> provider) {
+  public static void runApp(@NonNull String[] args, @NonNull Supplier<Jooby> provider) {
     runApp(args, ExecutionMode.DEFAULT, provider);
   }
 
@@ -1088,7 +1088,7 @@ public class Jooby implements Router, Registry {
    * @param args Application arguments.
    * @param consumer Application consumer.
    */
-  public static void runApp(@Nonnull String[] args, @Nonnull Consumer<Jooby> consumer) {
+  public static void runApp(@NonNull String[] args, @NonNull Consumer<Jooby> consumer) {
     configurePackage(consumer.getClass().getPackage());
     runApp(args, ExecutionMode.DEFAULT, consumerProvider(consumer));
   }
@@ -1100,8 +1100,8 @@ public class Jooby implements Router, Registry {
    * @param executionMode Application execution mode.
    * @param consumer Application consumer.
    */
-  public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
-      @Nonnull Consumer<Jooby> consumer) {
+  public static void runApp(@NonNull String[] args, @NonNull ExecutionMode executionMode,
+      @NonNull Consumer<Jooby> consumer) {
     configurePackage(consumer.getClass().getPackage());
     runApp(args, executionMode, consumerProvider(consumer));
   }
@@ -1113,8 +1113,8 @@ public class Jooby implements Router, Registry {
    * @param executionMode Application execution mode.
    * @param provider Application provider.
    */
-  public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
-      @Nonnull Supplier<Jooby> provider) {
+  public static void runApp(@NonNull String[] args, @NonNull ExecutionMode executionMode,
+      @NonNull Supplier<Jooby> provider) {
     Jooby app = createApp(args, executionMode, provider);
     Server server = app.start();
     Config conf = app.getConfig();
@@ -1132,8 +1132,8 @@ public class Jooby implements Router, Registry {
    * @param provider Application provider.
    * @return Application.
    */
-  public static Jooby createApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
-      @Nonnull Supplier<Jooby> provider) {
+  public static Jooby createApp(@NonNull String[] args, @NonNull ExecutionMode executionMode,
+      @NonNull Supplier<Jooby> provider) {
 
     configurePackage(provider.getClass().getPackage());
 
@@ -1253,7 +1253,7 @@ public class Jooby implements Router, Registry {
   }
 
   private static Supplier<Jooby> reflectionProvider(
-      @Nonnull Class<? extends Jooby> applicationType) {
+      @NonNull Class<? extends Jooby> applicationType) {
     return () ->
         (Jooby) Stream.of(applicationType.getDeclaredConstructors())
             .filter(it -> it.getParameterCount() == 0)

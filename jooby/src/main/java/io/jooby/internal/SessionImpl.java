@@ -11,8 +11,8 @@ import io.jooby.SessionStore;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,7 +47,7 @@ public class SessionImpl implements Session {
     return isNew;
   }
 
-  @Nonnull @Override public Session setNew(boolean aNew) {
+  @NonNull @Override public Session setNew(boolean aNew) {
     this.isNew = aNew;
     return this;
   }
@@ -56,7 +56,7 @@ public class SessionImpl implements Session {
     return modify;
   }
 
-  @Nonnull @Override public Session setModify(boolean modify) {
+  @NonNull @Override public Session setModify(boolean modify) {
     this.modify = modify;
     return this;
   }
@@ -65,45 +65,45 @@ public class SessionImpl implements Session {
     return id;
   }
 
-  @Nonnull @Override public Session setId(@Nullable String id) {
+  @NonNull @Override public Session setId(@Nullable String id) {
     this.id = id;
     return this;
   }
 
-  @Override public @Nonnull Value get(@Nonnull String name) {
+  @Override public @NonNull Value get(@NonNull String name) {
     return Value.create(ctx, name, attributes.get(name));
   }
 
-  @Override public @Nonnull Session put(@Nonnull String name, String value) {
+  @Override public @NonNull Session put(@NonNull String name, String value) {
     attributes.put(name, value);
     updateState();
     return this;
   }
 
-  @Override public @Nonnull ValueNode remove(@Nonnull String name) {
+  @Override public @NonNull ValueNode remove(@NonNull String name) {
     String value = attributes.remove(name);
     updateState();
     return value == null ? Value.missing(name) : Value.value(ctx, name, value);
   }
 
-  @Override public @Nonnull Map<String, String> toMap() {
+  @Override public @NonNull Map<String, String> toMap() {
     return attributes;
   }
 
-  @Override public @Nonnull Instant getCreationTime() {
+  @Override public @NonNull Instant getCreationTime() {
     return creationTime;
   }
 
-  @Nonnull @Override public Session setCreationTime(Instant creationTime) {
+  @NonNull @Override public Session setCreationTime(Instant creationTime) {
     this.creationTime = creationTime;
     return this;
   }
 
-  @Override public @Nonnull Instant getLastAccessedTime() {
+  @Override public @NonNull Instant getLastAccessedTime() {
     return lastAccessedTime;
   }
 
-  @Override public @Nonnull Session setLastAccessedTime(@Nonnull Instant lastAccessedTime) {
+  @Override public @NonNull Session setLastAccessedTime(@NonNull Instant lastAccessedTime) {
     this.lastAccessedTime = lastAccessedTime;
     return this;
   }

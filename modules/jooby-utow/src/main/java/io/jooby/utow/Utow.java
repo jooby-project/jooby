@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.net.ssl.SSLContext;
 
 import org.xnio.Options;
@@ -61,18 +61,18 @@ public class Utow extends Server.Base {
       .setIoThreads(ServerOptions.IO_THREADS)
       .setServer("utow");
 
-  @Nonnull
-  @Override public Utow setOptions(@Nonnull ServerOptions options) {
+  @NonNull
+  @Override public Utow setOptions(@NonNull ServerOptions options) {
     this.options = options
         .setIoThreads(options.getIoThreads());
     return this;
   }
 
-  @Nonnull @Override public ServerOptions getOptions() {
+  @NonNull @Override public ServerOptions getOptions() {
     return options;
   }
 
-  @Override public Server start(@Nonnull Jooby application) {
+  @Override public Server start(@NonNull Jooby application) {
     try {
       applications.add(application);
 
@@ -171,7 +171,7 @@ public class Utow extends Server.Base {
     }
   }
 
-  @Nonnull @Override public synchronized Server stop() {
+  @NonNull @Override public synchronized Server stop() {
     try {
       fireStop(applications);
       applications = null;

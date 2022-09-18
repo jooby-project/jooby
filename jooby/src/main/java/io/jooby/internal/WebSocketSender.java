@@ -13,8 +13,8 @@ import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.Date;
@@ -23,22 +23,22 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
 
   private final WebSocket ws;
 
-  public WebSocketSender(@Nonnull Context context, @Nonnull WebSocket ws) {
+  public WebSocketSender(@NonNull Context context, @NonNull WebSocket ws) {
     super(context);
     this.ws = ws;
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+  @NonNull @Override public Context send(@NonNull String data, @NonNull Charset charset) {
     ws.send(data);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+  @NonNull @Override public Context send(@NonNull byte[] data) {
     ws.send(data);
     return this;
   }
 
-  @Nonnull @Override public Context render(@Nonnull Object value) {
+  @NonNull @Override public Context render(@NonNull Object value) {
     DefaultContext.super.render(value);
     return this;
   }
@@ -48,64 +48,64 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
     return this;
   }
 
-  @Nonnull @Override public Context setDefaultResponseType(@Nonnull MediaType contentType) {
+  @NonNull @Override public Context setDefaultResponseType(@NonNull MediaType contentType) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseCode(int statusCode) {
+  @NonNull @Override public Context setResponseCode(int statusCode) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseCode(@Nonnull StatusCode statusCode) {
+  @NonNull @Override public Context setResponseCode(@NonNull StatusCode statusCode) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseCookie(@Nonnull Cookie cookie) {
+  @NonNull @Override public Context setResponseCookie(@NonNull Cookie cookie) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull String value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull String value) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull Date value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull Date value) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull Object value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull Object value) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override
-  public Context setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
+  @NonNull @Override
+  public Context setResponseHeader(@NonNull String name, @NonNull Instant value) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseLength(long length) {
+  @NonNull @Override public Context setResponseLength(long length) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseType(@Nonnull String contentType) {
+  @NonNull @Override public Context setResponseType(@NonNull String contentType) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseType(@Nonnull MediaType contentType,
+  @NonNull @Override public Context setResponseType(@NonNull MediaType contentType,
       @Nullable Charset charset) {
     // NOOP
     return this;
   }
 
-  @Nonnull @Override public Context setResponseType(@Nonnull MediaType contentType) {
+  @NonNull @Override public Context setResponseType(@NonNull MediaType contentType) {
     // NOOP
     return this;
   }

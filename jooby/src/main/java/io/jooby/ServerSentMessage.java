@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -43,7 +43,7 @@ public class ServerSentMessage {
    *
    * @param data Data. Must not be <code>null</code>.
    */
-  public ServerSentMessage(@Nonnull Object data) {
+  public ServerSentMessage(@NonNull Object data) {
     this.data = data;
   }
 
@@ -62,7 +62,7 @@ public class ServerSentMessage {
    * @param id Event ID. Converted to String.
    * @return This message.
    */
-  public @Nonnull ServerSentMessage setId(@Nullable Object id) {
+  public @NonNull ServerSentMessage setId(@Nullable Object id) {
     this.id = id == null ? null : id.toString();
     return this;
   }
@@ -85,7 +85,7 @@ public class ServerSentMessage {
    * @param event Event type.
    * @return This message.
    */
-  public @Nonnull ServerSentMessage setEvent(@Nullable String event) {
+  public @NonNull ServerSentMessage setEvent(@Nullable String event) {
     this.event = event;
     return this;
   }
@@ -97,7 +97,7 @@ public class ServerSentMessage {
    *
    * @return Data.
    */
-  public @Nonnull Object getData() {
+  public @NonNull Object getData() {
     return data;
   }
 
@@ -118,7 +118,7 @@ public class ServerSentMessage {
    * @param retry Retry option.
    * @return This message.
    */
-  public @Nonnull ServerSentMessage setRetry(@Nullable Long retry) {
+  public @NonNull ServerSentMessage setRetry(@Nullable Long retry) {
     this.retry = retry;
     return this;
   }
@@ -129,7 +129,7 @@ public class ServerSentMessage {
    * @param ctx Web context. To encode complex objects.
    * @return Encoded data.
    */
-  public @Nonnull byte[] toByteArray(@Nonnull Context ctx) {
+  public @NonNull byte[] toByteArray(@NonNull Context ctx) {
     try {
       Route route = ctx.getRoute();
       MessageEncoder encoder = route.getEncoder();

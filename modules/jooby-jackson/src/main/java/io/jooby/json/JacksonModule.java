@@ -24,7 +24,7 @@ import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -97,7 +97,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    * @param mapper Object mapper to use.
    * @param contentType Content type.
    */
-  public JacksonModule(@Nonnull ObjectMapper mapper, @Nonnull MediaType contentType) {
+  public JacksonModule(@NonNull ObjectMapper mapper, @NonNull MediaType contentType) {
     this.mapper = mapper;
     this.typeFactory = mapper.getTypeFactory();
     this.mediaType = contentType;
@@ -108,7 +108,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    *
    * @param mapper Object mapper to use.
    */
-  public JacksonModule(@Nonnull ObjectMapper mapper) {
+  public JacksonModule(@NonNull ObjectMapper mapper) {
     this(mapper, defaultTypes.getOrDefault(mapper.getClass().getSimpleName(), MediaType.json));
   }
 
@@ -131,7 +131,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     application.decoder(mediaType, this);
     application.encoder(mediaType, this);
 
@@ -151,7 +151,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     });
   }
 
-  @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+  @Override public byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     ctx.setDefaultResponseType(mediaType);
     return mapper.writer().writeValueAsBytes(value);
   }
@@ -180,7 +180,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    * @param modules Extra/additional modules to install.
    * @return Object mapper instance.
    */
-  public static @Nonnull ObjectMapper create(Module... modules) {
+  public static @NonNull ObjectMapper create(Module... modules) {
     JsonMapper.Builder builder = JsonMapper.builder()
         .addModule(new ParameterNamesModule())
         .addModule(new Jdk8Module())

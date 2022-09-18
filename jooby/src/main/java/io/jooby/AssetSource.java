@@ -9,8 +9,8 @@ import io.jooby.internal.ClassPathAssetSource;
 import io.jooby.internal.FileDiskAssetSource;
 import io.jooby.internal.FolderDiskAssetSource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +36,7 @@ public interface AssetSource {
    * @param path Path to look for.
    * @return An asset or <code>null</code>.
    */
-  @Nullable Asset resolve(@Nonnull String path);
+  @Nullable Asset resolve(@NonNull String path);
 
   /**
    * Classpath asset source. Useful for resolving files from classpath
@@ -47,7 +47,7 @@ public interface AssetSource {
    *     disallowed.
    * @return An asset source.
    */
-  static @Nonnull AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
+  static @NonNull AssetSource create(@NonNull ClassLoader loader, @NonNull String location) {
     return new ClassPathAssetSource(loader, location);
   }
 
@@ -69,7 +69,7 @@ public interface AssetSource {
    * @param name Web asset name.
    * @return A webjar source.
    */
-  static @Nonnull AssetSource webjars(@Nonnull ClassLoader loader, @Nonnull String name) {
+  static @NonNull AssetSource webjars(@NonNull ClassLoader loader, @NonNull String name) {
     List<String> location = Arrays.asList(
         "META-INF/maven/org.webjars/" + name + "/pom.properties",
         "META-INF/maven/org.webjars.npm/" + name + "/pom.properties"
@@ -94,7 +94,7 @@ public interface AssetSource {
    * @param location Asset directory.
    * @return A new file system asset source.
    */
-  static @Nonnull AssetSource create(@Nonnull Path location) {
+  static @NonNull AssetSource create(@NonNull Path location) {
     Path absoluteLocation = location.toAbsolutePath();
     if (Files.isDirectory(absoluteLocation)) {
       return new FolderDiskAssetSource(absoluteLocation);

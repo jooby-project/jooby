@@ -5,7 +5,7 @@
  */
 package io.jooby.kafka;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 
@@ -49,7 +49,7 @@ public class KafkaProducerModule implements Extension {
    *
    * @param key Kafka key.
    */
-  public KafkaProducerModule(@Nonnull String key) {
+  public KafkaProducerModule(@NonNull String key) {
     this.key = key;
   }
 
@@ -60,7 +60,7 @@ public class KafkaProducerModule implements Extension {
     this("kafka.producer");
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     KafkaHelper.install(application, key, KafkaProducer::new);
   }
 }

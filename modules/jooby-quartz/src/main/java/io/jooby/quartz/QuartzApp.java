@@ -24,7 +24,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;

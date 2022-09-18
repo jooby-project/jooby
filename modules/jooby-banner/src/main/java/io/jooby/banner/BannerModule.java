@@ -9,7 +9,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import org.slf4j.Logger;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 import java.util.Optional;
 
@@ -81,7 +81,7 @@ public class BannerModule implements Extension {
    *
    * @param text Text to display.
    */
-  public BannerModule(@Nonnull String text) {
+  public BannerModule(@NonNull String text) {
     this.text = Optional.of(text);
   }
 
@@ -93,7 +93,7 @@ public class BannerModule implements Extension {
   }
 
   @Override
-  public void install(@Nonnull Jooby application) throws Exception {
+  public void install(@NonNull Jooby application) throws Exception {
     Logger log = application.getLog();
     String text = this.text.orElseGet(application::getName);
     String version = application.getVersion();

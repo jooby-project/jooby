@@ -10,7 +10,7 @@ import io.jooby.Context;
 import io.jooby.StatusCode;
 import org.apache.commons.io.input.BoundedInputStream;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -79,11 +79,11 @@ public class SingleByteRange implements ByteRange {
    *
    * @return Value for <code>Content-Range</code> response header.
    */
-  @Override public @Nonnull String getContentRange() {
+  @Override public @NonNull String getContentRange() {
     return contentRange;
   }
 
-  @Nonnull @Override public StatusCode getStatusCode() {
+  @NonNull @Override public StatusCode getStatusCode() {
     return StatusCode.PARTIAL_CONTENT;
   }
 
@@ -103,7 +103,7 @@ public class SingleByteRange implements ByteRange {
    * @param ctx Web context.
    * @return This byte range request.
    */
-  @Override public @Nonnull ByteRange apply(@Nonnull Context ctx) {
+  @Override public @NonNull ByteRange apply(@NonNull Context ctx) {
     ctx.setResponseHeader("Accept-Ranges", "bytes");
     ctx.setResponseHeader("Content-Range", contentRange);
     ctx.setResponseLength(contentLength);
@@ -122,7 +122,7 @@ public class SingleByteRange implements ByteRange {
    * @return A truncated input stream for partial request or same input stream.
    * @throws IOException When truncation fails.
    */
-  @Override public @Nonnull InputStream apply(@Nonnull InputStream input) throws IOException {
+  @Override public @NonNull InputStream apply(@NonNull InputStream input) throws IOException {
     input.skip(start);
     return new BoundedInputStream(input, end);
   }

@@ -5,7 +5,7 @@
  */
 package io.jooby.rocker;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import com.fizzed.rocker.RockerOutputFactory;
 import com.fizzed.rocker.runtime.RockerRuntime;
@@ -35,7 +35,7 @@ public class RockerModule implements Extension {
    * @param reloading True for turning on.
    * @return This module.
    */
-  public @Nonnull RockerModule reloading(boolean reloading) {
+  public @NonNull RockerModule reloading(boolean reloading) {
     this.reloading = reloading;
     return this;
   }
@@ -47,7 +47,7 @@ public class RockerModule implements Extension {
    * @param bufferSize Buffer size.
    * @return This module.
    */
-  public @Nonnull RockerModule useBuffer(int bufferSize) {
+  public @NonNull RockerModule useBuffer(int bufferSize) {
     this.bufferSize = bufferSize;
     return this;
   }
@@ -64,7 +64,7 @@ public class RockerModule implements Extension {
     return this;
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     Environment env = application.getEnvironment();
     RockerRuntime runtime = RockerRuntime.getInstance();
     boolean reloading = this.reloading == null

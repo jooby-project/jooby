@@ -10,7 +10,7 @@ import io.jooby.Route;
 import io.jooby.internal.handler.LinkedHandler;
 import io.reactivex.Single;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class RxSingleHandler implements LinkedHandler {
 
@@ -20,7 +20,7 @@ public class RxSingleHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       Single result = (Single) next.apply(ctx);
       result.subscribe(new RxSubscriber(ctx));

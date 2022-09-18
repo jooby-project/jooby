@@ -10,7 +10,7 @@ import io.jooby.Route;
 import io.jooby.internal.handler.LinkedHandler;
 import io.reactivex.Flowable;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class RxFlowableHandler implements LinkedHandler {
 
@@ -20,7 +20,7 @@ public class RxFlowableHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       Flowable result = (Flowable) next.apply(ctx);
       result.subscribe(new ReactiveSubscriber(new ChunkedSubscriber(ctx)));

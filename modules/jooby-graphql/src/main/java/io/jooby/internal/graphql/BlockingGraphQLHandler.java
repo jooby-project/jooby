@@ -8,7 +8,7 @@ package io.jooby.internal.graphql;
 import graphql.GraphQL;
 import io.jooby.Context;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class BlockingGraphQLHandler extends GraphQLHandler {
 
@@ -16,7 +16,7 @@ public class BlockingGraphQLHandler extends GraphQLHandler {
     super(graphQL);
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     return graphQL.execute(newExecutionInput(ctx));
   }
 }

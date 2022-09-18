@@ -10,7 +10,7 @@ import io.jooby.Context;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -31,7 +31,7 @@ public class NotSatisfiableByteRange implements ByteRange {
     return -1;
   }
 
-  @Nonnull @Override public StatusCode getStatusCode() {
+  @NonNull @Override public StatusCode getStatusCode() {
     return StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE;
   }
 
@@ -39,15 +39,15 @@ public class NotSatisfiableByteRange implements ByteRange {
     return contentLength;
   }
 
-  @Nonnull @Override public String getContentRange() {
+  @NonNull @Override public String getContentRange() {
     return "bytes */" + contentLength;
   }
 
-  @Nonnull @Override public ByteRange apply(@Nonnull Context ctx) {
+  @NonNull @Override public ByteRange apply(@NonNull Context ctx) {
     throw new StatusCodeException(StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE, value);
   }
 
-  @Nonnull @Override public InputStream apply(@Nonnull InputStream input) throws IOException {
+  @NonNull @Override public InputStream apply(@NonNull InputStream input) throws IOException {
     throw new StatusCodeException(StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE, value);
   }
 }

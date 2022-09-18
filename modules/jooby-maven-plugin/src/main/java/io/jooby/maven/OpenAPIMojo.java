@@ -11,8 +11,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -42,7 +42,7 @@ public class OpenAPIMojo extends BaseMojo {
   @Parameter(property = "openAPI.excludes")
   private String excludes;
 
-  @Override protected void doExecute(@Nonnull List<MavenProject> projects, @Nonnull String mainClass)
+  @Override protected void doExecute(@NonNull List<MavenProject> projects, @NonNull String mainClass)
       throws Exception {
     ClassLoader classLoader = createClassLoader(projects);
     Path outputDir = Paths.get(project.getBuild().getOutputDirectory());

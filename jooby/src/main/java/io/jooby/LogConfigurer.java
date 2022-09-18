@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,7 +50,7 @@ public final class LogConfigurer {
    * @param names Actives environment names. Useful for choosing an environment specific logging
    *     configuration file.
    */
-  public static void configure(@Nonnull List<String> names) {
+  public static void configure(@NonNull List<String> names) {
     String[] keys = {"logback.configurationFile", "log4j.configurationFile"};
     for (String key : keys) {
       String file = property(key);

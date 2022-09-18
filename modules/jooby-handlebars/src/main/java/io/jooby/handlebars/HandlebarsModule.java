@@ -18,7 +18,7 @@ import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
 import io.jooby.TemplateEngine;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -107,7 +107,7 @@ public class HandlebarsModule implements Extension {
      * @param cache Template cache.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplateCache(@Nonnull TemplateCache cache) {
+    public @NonNull Builder setTemplateCache(@NonNull TemplateCache cache) {
       this.cache = cache;
       return this;
     }
@@ -118,7 +118,7 @@ public class HandlebarsModule implements Extension {
      * @param templatesPathString Set template path.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPathString) {
+    public @NonNull Builder setTemplatesPath(@NonNull String templatesPathString) {
       this.templatesPathString = templatesPathString;
       return this;
     }
@@ -129,7 +129,7 @@ public class HandlebarsModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplatesPath(@Nonnull Path templatesPath) {
+    public @NonNull Builder setTemplatesPath(@NonNull Path templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
@@ -140,7 +140,7 @@ public class HandlebarsModule implements Extension {
      * @param loader Template loader to use.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplateLoader(@Nonnull TemplateLoader loader) {
+    public @NonNull Builder setTemplateLoader(@NonNull TemplateLoader loader) {
       this.loader = loader;
       return this;
     }
@@ -151,7 +151,7 @@ public class HandlebarsModule implements Extension {
      * @param env Application environment.
      * @return A new handlebars instance.
      */
-    public @Nonnull Handlebars build(@Nonnull Environment env) {
+    public @NonNull Handlebars build(@NonNull Environment env) {
       if (loader == null) {
         String templatesPathString = normalizePath(
             env.getProperty(TEMPLATE_PATH, Optional.ofNullable(this.templatesPathString).orElse(TemplateEngine.PATH)));
@@ -199,7 +199,7 @@ public class HandlebarsModule implements Extension {
    *
    * @param handlebars Handlebars instance to use.
    */
-  public HandlebarsModule(@Nonnull Handlebars handlebars) {
+  public HandlebarsModule(@NonNull Handlebars handlebars) {
     this.handlebars = handlebars;
   }
 
@@ -209,7 +209,7 @@ public class HandlebarsModule implements Extension {
    * @param templatesPath Template location to use. First try to file-system or fallback to
    *     classpath.
    */
-  public HandlebarsModule(@Nonnull String templatesPath) {
+  public HandlebarsModule(@NonNull String templatesPath) {
     this.templatesPathString = templatesPath;
   }
 
@@ -219,7 +219,7 @@ public class HandlebarsModule implements Extension {
    * @param templatesPath Template location to use. First try to file-system or fallback to
    *     classpath.
    */
-  public HandlebarsModule(@Nonnull Path templatesPath) {
+  public HandlebarsModule(@NonNull Path templatesPath) {
     this.templatesPath = templatesPath;
   }
 
@@ -230,7 +230,7 @@ public class HandlebarsModule implements Extension {
     this(TemplateEngine.PATH);
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     if (handlebars == null) {
       handlebars = create()
           .setTemplatesPath(templatesPathString)
@@ -248,7 +248,7 @@ public class HandlebarsModule implements Extension {
    *
    * @return A builder.
    */
-  public static @Nonnull HandlebarsModule.Builder create() {
+  public static @NonNull HandlebarsModule.Builder create() {
     return new HandlebarsModule.Builder();
   }
 }

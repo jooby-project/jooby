@@ -7,7 +7,7 @@ package io.jooby;
 
 import org.apache.commons.io.FilenameUtils;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class FileDownload {
    * @param fileName Filename.
    * @param fileSize File size or <code>-1</code> if unknown.
    */
-  public FileDownload(Mode mode, @Nonnull InputStream content, @Nonnull String fileName, long fileSize) {
+  public FileDownload(Mode mode, @NonNull InputStream content, @NonNull String fileName, long fileSize) {
     try {
       this.fileName = FilenameUtils.getName(fileName);
       this.contentType = MediaType.byFile(this.fileName);
@@ -92,7 +92,7 @@ public class FileDownload {
    * @param content File content.
    * @param fileName Filename.
    */
-  public FileDownload(Mode mode, @Nonnull InputStream content, @Nonnull String fileName) {
+  public FileDownload(Mode mode, @NonNull InputStream content, @NonNull String fileName) {
     this(mode, content, fileName, -1);
   }
 
@@ -103,7 +103,7 @@ public class FileDownload {
    * @param content File content.
    * @param fileName Filename.
    */
-  public FileDownload(Mode mode, @Nonnull byte[] content, @Nonnull String fileName) {
+  public FileDownload(Mode mode, @NonNull byte[] content, @NonNull String fileName) {
     this(mode, new ByteArrayInputStream(content), fileName, content.length);
   }
 
@@ -115,7 +115,7 @@ public class FileDownload {
    * @param fileName Filename.
    * @throws IOException For IO exception while reading file.
    */
-  public FileDownload(Mode mode, @Nonnull Path file, @Nonnull String fileName) throws IOException {
+  public FileDownload(Mode mode, @NonNull Path file, @NonNull String fileName) throws IOException {
     this(mode, new FileInputStream(file.toFile()), fileName, Files.size(file));
   }
 
@@ -126,7 +126,7 @@ public class FileDownload {
    * @param file File content.
    * @throws IOException For IO exception while reading file.
    */
-  public FileDownload(Mode mode, @Nonnull Path file) throws IOException {
+  public FileDownload(Mode mode, @NonNull Path file) throws IOException {
     this(mode, file, file.getFileName().toString());
   }
 
@@ -222,7 +222,7 @@ public class FileDownload {
    *
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@Nonnull InputStream content, @Nonnull String fileName, long fileSize) {
+  public static Builder build(@NonNull InputStream content, @NonNull String fileName, long fileSize) {
     return mode -> new FileDownload(mode, content, fileName, fileSize);
   }
 
@@ -235,7 +235,7 @@ public class FileDownload {
    *
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@Nonnull InputStream content, @Nonnull String fileName) {
+  public static Builder build(@NonNull InputStream content, @NonNull String fileName) {
     return mode -> new FileDownload(mode, content, fileName);
   }
 
@@ -248,7 +248,7 @@ public class FileDownload {
    *
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@Nonnull byte[] content, @Nonnull String fileName) {
+  public static Builder build(@NonNull byte[] content, @NonNull String fileName) {
     return mode -> new FileDownload(mode, content, fileName);
   }
 
@@ -261,7 +261,7 @@ public class FileDownload {
    *
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@Nonnull Path file, @Nonnull String fileName) {
+  public static Builder build(@NonNull Path file, @NonNull String fileName) {
     return mode -> {
       try {
         return new FileDownload(mode, file, fileName);
@@ -279,7 +279,7 @@ public class FileDownload {
    *
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@Nonnull Path file) {
+  public static Builder build(@NonNull Path file) {
     return mode -> {
       try {
         return new FileDownload(mode, file);

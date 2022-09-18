@@ -7,7 +7,7 @@ package io.jooby.exception;
 
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Thrown when a required service is not available.
@@ -20,7 +20,7 @@ public class RegistryException extends StatusCodeException {
    * @param message Error message.
    * @param cause Cause.
    */
-  public RegistryException(@Nonnull String message, Throwable cause) {
+  public RegistryException(@NonNull String message, Throwable cause) {
     super(StatusCode.SERVER_ERROR, message, cause);
   }
 
@@ -29,7 +29,7 @@ public class RegistryException extends StatusCodeException {
    *
    * @param message Error message.
    */
-  public RegistryException(@Nonnull String message) {
+  public RegistryException(@NonNull String message) {
     super(StatusCode.SERVER_ERROR, message);
   }
 }

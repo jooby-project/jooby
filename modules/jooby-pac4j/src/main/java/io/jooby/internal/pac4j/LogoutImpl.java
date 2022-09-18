@@ -11,7 +11,7 @@ import io.jooby.pac4j.Pac4jContext;
 import io.jooby.pac4j.Pac4jOptions;
 import org.pac4j.core.config.Config;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class LogoutImpl implements Route.Handler {
 
@@ -24,7 +24,7 @@ public class LogoutImpl implements Route.Handler {
     this.options = options;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     String redirectTo = (String) ctx.getAttributes().get("pac4j.logout.redirectTo");
     if (redirectTo == null || redirectTo.length() == 0) {
       redirectTo = options.getDefaultUrl();

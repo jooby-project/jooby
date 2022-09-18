@@ -19,7 +19,7 @@ import org.apache.commons.mail.ImageHtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 import java.util.stream.Stream;
 
@@ -87,7 +87,7 @@ public class CommonsEmailModule implements Extension {
   }
 
   @Override
-  public void install(@Nonnull Jooby application) {
+  public void install(@NonNull Jooby application) {
     Config config = mailConfig(application.getConfig(), name);
 
     ServiceRegistry services = application.getServices();

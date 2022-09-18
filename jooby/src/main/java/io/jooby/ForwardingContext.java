@@ -7,8 +7,8 @@ package io.jooby;
 
 import io.jooby.exception.RegistryException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -39,7 +39,7 @@ public class ForwardingContext implements Context {
    *
    * @param context Source context.
    */
-  public ForwardingContext(@Nonnull Context context) {
+  public ForwardingContext(@NonNull Context context) {
     this.ctx = context;
   }
 
@@ -47,17 +47,17 @@ public class ForwardingContext implements Context {
     return ctx.getUser();
   }
 
-  @Nonnull @Override public Context setUser(@Nullable Object user) {
+  @NonNull @Override public Context setUser(@Nullable Object user) {
     ctx.setUser(user);
     return this;
   }
 
-  @Nonnull @Override public Context forward(@Nonnull String path) {
+  @NonNull @Override public Context forward(@NonNull String path) {
     ctx.forward(path);
     return this;
   }
 
-  @Override public boolean matches(@Nonnull String pattern) {
+  @Override public boolean matches(@NonNull String pattern) {
     return ctx.matches(pattern);
   }
 
@@ -65,36 +65,36 @@ public class ForwardingContext implements Context {
     return ctx.isSecure();
   }
 
-  @Override @Nonnull public Map<String, Object> getAttributes() {
+  @Override @NonNull public Map<String, Object> getAttributes() {
     return ctx.getAttributes();
   }
 
-  @Nullable @Override public <T> T attribute(@Nonnull String key) {
+  @Nullable @Override public <T> T attribute(@NonNull String key) {
     return ctx.attribute(key);
   }
 
-  @Nonnull @Override public Context attribute(@Nonnull String key, Object value) {
+  @NonNull @Override public Context attribute(@NonNull String key, Object value) {
     ctx.attribute(key, value);
     return this;
   }
 
-  @Override @Nonnull public Router getRouter() {
+  @Override @NonNull public Router getRouter() {
     return ctx.getRouter();
   }
 
-  @Nonnull @Override public FlashMap flash() {
+  @NonNull @Override public FlashMap flash() {
     return ctx.flash();
   }
 
-  @Nonnull @Override public Value flash(@Nonnull String name) {
+  @NonNull @Override public Value flash(@NonNull String name) {
     return ctx.flash(name);
   }
 
-  @Nonnull @Override public Value session(@Nonnull String name) {
+  @NonNull @Override public Value session(@NonNull String name) {
     return ctx.session(name);
   }
 
-  @Nonnull @Override public Session session() {
+  @NonNull @Override public Session session() {
     return ctx.session();
   }
 
@@ -102,106 +102,106 @@ public class ForwardingContext implements Context {
     return ctx.sessionOrNull();
   }
 
-  @Nonnull @Override public Value cookie(@Nonnull String name) {
+  @NonNull @Override public Value cookie(@NonNull String name) {
     return ctx.cookie(name);
   }
 
-  @Override @Nonnull public Map<String, String> cookieMap() {
+  @Override @NonNull public Map<String, String> cookieMap() {
     return ctx.cookieMap();
   }
 
-  @Override @Nonnull public String getMethod() {
+  @Override @NonNull public String getMethod() {
     return ctx.getMethod();
   }
 
-  @Nonnull @Override public Context setMethod(@Nonnull String method) {
+  @NonNull @Override public Context setMethod(@NonNull String method) {
     ctx.setMethod(method);
     return this;
   }
 
-  @Override @Nonnull public Route getRoute() {
+  @Override @NonNull public Route getRoute() {
     return ctx.getRoute();
   }
 
-  @Override @Nonnull public Context setRoute(@Nonnull Route route) {
+  @Override @NonNull public Context setRoute(@NonNull Route route) {
     return ctx.setRoute(route);
   }
 
-  @Nonnull @Override public String getRequestPath() {
+  @NonNull @Override public String getRequestPath() {
     return ctx.getRequestPath();
   }
 
-  @Nonnull @Override public Context setRequestPath(@Nonnull String path) {
+  @NonNull @Override public Context setRequestPath(@NonNull String path) {
     ctx.setRequestPath(path);
     return this;
   }
 
-  @Nonnull @Override public Value path(@Nonnull String name) {
+  @NonNull @Override public Value path(@NonNull String name) {
     return ctx.path(name);
   }
 
-  @Nonnull @Override public <T> T path(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T path(@NonNull Class<T> type) {
     return ctx.path(type);
   }
 
-  @Nonnull @Override public ValueNode path() {
+  @NonNull @Override public ValueNode path() {
     return ctx.path();
   }
 
-  @Override @Nonnull public Map<String, String> pathMap() {
+  @Override @NonNull public Map<String, String> pathMap() {
     return ctx.pathMap();
   }
 
-  @Override @Nonnull public Context setPathMap(@Nonnull Map<String, String> pathMap) {
+  @Override @NonNull public Context setPathMap(@NonNull Map<String, String> pathMap) {
     ctx.setPathMap(pathMap);
     return this;
   }
 
-  @Override @Nonnull public QueryString query() {
+  @Override @NonNull public QueryString query() {
     return ctx.query();
   }
 
-  @Nonnull @Override public ValueNode query(@Nonnull String name) {
+  @NonNull @Override public ValueNode query(@NonNull String name) {
     return ctx.query(name);
   }
 
-  @Nonnull @Override public String queryString() {
+  @NonNull @Override public String queryString() {
     return ctx.queryString();
   }
 
-  @Nonnull @Override public <T> T query(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T query(@NonNull Class<T> type) {
     return ctx.query(type);
   }
 
-  @Nonnull @Override public Map<String, String> queryMap() {
+  @NonNull @Override public Map<String, String> queryMap() {
     return ctx.queryMap();
   }
 
-  @Nonnull @Override public Map<String, List<String>> queryMultimap() {
+  @NonNull @Override public Map<String, List<String>> queryMultimap() {
     return ctx.queryMultimap();
   }
 
-  @Override @Nonnull public ValueNode header() {
+  @Override @NonNull public ValueNode header() {
     return ctx.header();
   }
 
-  @Nonnull @Override public Value header(@Nonnull String name) {
+  @NonNull @Override public Value header(@NonNull String name) {
     return ctx.header(name);
   }
 
-  @Nonnull @Override public Map<String, String> headerMap() {
+  @NonNull @Override public Map<String, String> headerMap() {
     return ctx.headerMap();
   }
 
-  @Nonnull @Override public Map<String, List<String>> headerMultimap() {
+  @NonNull @Override public Map<String, List<String>> headerMultimap() {
     return ctx.headerMultimap();
   }
 
-  @Override public boolean accept(@Nonnull MediaType contentType) {
+  @Override public boolean accept(@NonNull MediaType contentType) {
     return ctx.accept(contentType);
   }
 
-  @Nullable @Override public MediaType accept(@Nonnull List<MediaType> produceTypes) {
+  @Nullable @Override public MediaType accept(@NonNull List<MediaType> produceTypes) {
     return ctx.accept(produceTypes);
   }
 
@@ -209,7 +209,7 @@ public class ForwardingContext implements Context {
     return ctx.getRequestType();
   }
 
-  @Nonnull @Override public MediaType getRequestType(MediaType defaults) {
+  @NonNull @Override public MediaType getRequestType(MediaType defaults) {
     return ctx.getRequestType(defaults);
   }
 
@@ -217,20 +217,20 @@ public class ForwardingContext implements Context {
     return ctx.getRequestLength();
   }
 
-  @Override @Nonnull public String getRemoteAddress() {
+  @Override @NonNull public String getRemoteAddress() {
     return ctx.getRemoteAddress();
   }
 
-  @Nonnull @Override public Context setRemoteAddress(@Nonnull String remoteAddress) {
+  @NonNull @Override public Context setRemoteAddress(@NonNull String remoteAddress) {
     ctx.setRemoteAddress(remoteAddress);
     return this;
   }
 
-  @Nonnull @Override public String getHost() {
+  @NonNull @Override public String getHost() {
     return ctx.getHost();
   }
 
-  @Nonnull @Override public Context setHost(@Nonnull String host) {
+  @NonNull @Override public Context setHost(@NonNull String host) {
     ctx.setHost(host);
     return this;
   }
@@ -239,7 +239,7 @@ public class ForwardingContext implements Context {
     return ctx.getServerPort();
   }
 
-  @Nonnull @Override public String getServerHost() {
+  @NonNull @Override public String getServerHost() {
     return ctx.getServerHost();
   }
 
@@ -247,113 +247,113 @@ public class ForwardingContext implements Context {
     return ctx.getPort();
   }
 
-  @Nonnull @Override public Context setPort(int port) {
+  @NonNull @Override public Context setPort(int port) {
     this.ctx.setPort(port);
     return this;
   }
 
-  @Nonnull @Override public String getHostAndPort() {
+  @NonNull @Override public String getHostAndPort() {
     return ctx.getHostAndPort();
   }
 
-  @Nonnull @Override public String getRequestURL() {
+  @NonNull @Override public String getRequestURL() {
     return ctx.getRequestURL();
   }
 
-  @Nonnull @Override public String getRequestURL(@Nonnull String path) {
+  @NonNull @Override public String getRequestURL(@NonNull String path) {
     return ctx.getRequestURL(path);
   }
 
-  @Override @Nonnull public String getProtocol() {
+  @Override @NonNull public String getProtocol() {
     return ctx.getProtocol();
   }
 
-  @Override @Nonnull public List<Certificate> getClientCertificates() {
+  @Override @NonNull public List<Certificate> getClientCertificates() {
     return ctx.getClientCertificates();
   }
 
-  @Override @Nonnull public String getScheme() {
+  @Override @NonNull public String getScheme() {
     return ctx.getScheme();
   }
 
-  @Nonnull @Override public Context setScheme(@Nonnull String scheme) {
+  @NonNull @Override public Context setScheme(@NonNull String scheme) {
     this.ctx.setScheme(scheme);
     return this;
   }
 
-  @Override @Nonnull public Formdata form() {
+  @Override @NonNull public Formdata form() {
     return ctx.form();
   }
 
-  @Nonnull @Override public Map<String, List<String>> formMultimap() {
+  @NonNull @Override public Map<String, List<String>> formMultimap() {
     return ctx.formMultimap();
   }
 
-  @Nonnull @Override public Map<String, String> formMap() {
+  @NonNull @Override public Map<String, String> formMap() {
     return ctx.formMap();
   }
 
-  @Nonnull @Override public ValueNode form(@Nonnull String name) {
+  @NonNull @Override public ValueNode form(@NonNull String name) {
     return ctx.form(name);
   }
 
-  @Nonnull @Override public <T> T form(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T form(@NonNull Class<T> type) {
     return ctx.form(type);
   }
 
-  @Override @Nonnull public Multipart multipart() {
+  @Override @NonNull public Multipart multipart() {
     return ctx.multipart();
   }
 
-  @Nonnull @Override public ValueNode multipart(@Nonnull String name) {
+  @NonNull @Override public ValueNode multipart(@NonNull String name) {
     return ctx.multipart(name);
   }
 
-  @Nonnull @Override public <T> T multipart(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T multipart(@NonNull Class<T> type) {
     return ctx.multipart(type);
   }
 
-  @Nonnull @Override public Map<String, List<String>> multipartMultimap() {
+  @NonNull @Override public Map<String, List<String>> multipartMultimap() {
     return ctx.multipartMultimap();
   }
 
-  @Nonnull @Override public Map<String, String> multipartMap() {
+  @NonNull @Override public Map<String, String> multipartMap() {
     return ctx.multipartMap();
   }
 
-  @Nonnull @Override public List<FileUpload> files() {
+  @NonNull @Override public List<FileUpload> files() {
     return ctx.files();
   }
 
-  @Nonnull @Override public List<FileUpload> files(@Nonnull String name) {
+  @NonNull @Override public List<FileUpload> files(@NonNull String name) {
     return ctx.files(name);
   }
 
-  @Nonnull @Override public FileUpload file(@Nonnull String name) {
+  @NonNull @Override public FileUpload file(@NonNull String name) {
     return ctx.file(name);
   }
 
-  @Override @Nonnull public Body body() {
+  @Override @NonNull public Body body() {
     return ctx.body();
   }
 
-  @Nonnull @Override public <T> T body(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T body(@NonNull Class<T> type) {
     return ctx.body(type);
   }
 
-  @Nonnull @Override public <T> T body(@Nonnull Type type) {
+  @NonNull @Override public <T> T body(@NonNull Type type) {
     return ctx.body(type);
   }
 
-  @Nonnull @Override public <T> T convert(@Nonnull ValueNode value, @Nonnull Class<T> type) {
+  @NonNull @Override public <T> T convert(@NonNull ValueNode value, @NonNull Class<T> type) {
     return ctx.convert(value, type);
   }
 
-  @Nonnull @Override public <T> T decode(@Nonnull Type type, @Nonnull MediaType contentType) {
+  @NonNull @Override public <T> T decode(@NonNull Type type, @NonNull MediaType contentType) {
     return ctx.decode(type, contentType);
   }
 
-  @Nonnull @Override public MessageDecoder decoder(@Nonnull MediaType contentType) {
+  @NonNull @Override public MessageDecoder decoder(@NonNull MediaType contentType) {
     return ctx.decoder(contentType);
   }
 
@@ -361,63 +361,63 @@ public class ForwardingContext implements Context {
     return ctx.isInIoThread();
   }
 
-  @Override @Nonnull public Context dispatch(@Nonnull Runnable action) {
+  @Override @NonNull public Context dispatch(@NonNull Runnable action) {
     ctx.dispatch(action);
     return this;
   }
 
-  @Override @Nonnull public Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+  @Override @NonNull public Context dispatch(@NonNull Executor executor, @NonNull Runnable action) {
     ctx.dispatch(executor, action);
     return this;
   }
 
-  @Override @Nonnull public Context detach(@Nonnull Route.Handler next) throws Exception {
+  @Override @NonNull public Context detach(@NonNull Route.Handler next) throws Exception {
     ctx.detach(next);
     return this;
   }
 
-  @Nonnull @Override public Context upgrade(@Nonnull WebSocket.Initializer handler) {
+  @NonNull @Override public Context upgrade(@NonNull WebSocket.Initializer handler) {
     ctx.upgrade(handler);
     return this;
   }
 
-  @Nonnull @Override public Context upgrade(@Nonnull ServerSentEmitter.Handler handler) {
+  @NonNull @Override public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
     ctx.upgrade(handler);
     return this;
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull Date value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull Date value) {
     ctx.setResponseHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override
-  public Context setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
+  @NonNull @Override
+  public Context setResponseHeader(@NonNull String name, @NonNull Instant value) {
     ctx.setResponseHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull Object value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull Object value) {
     ctx.setResponseHeader(name, value);
     return this;
   }
 
-  @Override @Nonnull public Context setResponseHeader(@Nonnull String name, @Nonnull String value) {
+  @Override @NonNull public Context setResponseHeader(@NonNull String name, @NonNull String value) {
     ctx.setResponseHeader(name, value);
     return this;
   }
 
-  @Override @Nonnull public Context removeResponseHeader(@Nonnull String name) {
+  @Override @NonNull public Context removeResponseHeader(@NonNull String name) {
     ctx.removeResponseHeader(name);
     return this;
   }
 
-  @Nonnull @Override public Context removeResponseHeaders() {
+  @NonNull @Override public Context removeResponseHeaders() {
     ctx.removeResponseHeaders();
     return this;
   }
 
-  @Nullable @Override public String getResponseHeader(@Nonnull String name) {
+  @Nullable @Override public String getResponseHeader(@NonNull String name) {
     return ctx.getResponseHeader(name);
   }
 
@@ -425,191 +425,191 @@ public class ForwardingContext implements Context {
     return ctx.getResponseLength();
   }
 
-  @Override @Nonnull public Context setResponseLength(long length) {
+  @Override @NonNull public Context setResponseLength(long length) {
     ctx.setResponseLength(length);
     return this;
   }
 
-  @Override @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
+  @Override @NonNull public Context setResponseCookie(@NonNull Cookie cookie) {
     ctx.setResponseCookie(cookie);
     return this;
   }
 
-  @Override @Nonnull public Context setResponseType(@Nonnull String contentType) {
+  @Override @NonNull public Context setResponseType(@NonNull String contentType) {
     ctx.setResponseType(contentType);
     return this;
   }
 
-  @Nonnull @Override public Context setResponseType(@Nonnull MediaType contentType) {
+  @NonNull @Override public Context setResponseType(@NonNull MediaType contentType) {
     ctx.setResponseType(contentType);
     return this;
   }
 
-  @Override @Nonnull public Context setResponseType(@Nonnull MediaType contentType,
+  @Override @NonNull public Context setResponseType(@NonNull MediaType contentType,
       @Nullable Charset charset) {
     ctx.setResponseType(contentType, charset);
     return this;
   }
 
-  @Override @Nonnull public Context setDefaultResponseType(@Nonnull MediaType contentType) {
+  @Override @NonNull public Context setDefaultResponseType(@NonNull MediaType contentType) {
     ctx.setResponseType(contentType);
     return this;
   }
 
-  @Override @Nonnull public MediaType getResponseType() {
+  @Override @NonNull public MediaType getResponseType() {
     return ctx.getResponseType();
   }
 
-  @Nonnull @Override public Context setResponseCode(@Nonnull StatusCode statusCode) {
+  @NonNull @Override public Context setResponseCode(@NonNull StatusCode statusCode) {
     ctx.setResponseCode(statusCode);
     return this;
   }
 
-  @Override @Nonnull public Context setResponseCode(int statusCode) {
+  @Override @NonNull public Context setResponseCode(int statusCode) {
     ctx.setResponseCode(statusCode);
     return this;
   }
 
-  @Override @Nonnull public StatusCode getResponseCode() {
+  @Override @NonNull public StatusCode getResponseCode() {
     return ctx.getResponseCode();
   }
 
-  @Nonnull @Override public Context render(@Nonnull Object value) {
+  @NonNull @Override public Context render(@NonNull Object value) {
     ctx.render(value);
     return this;
   }
 
-  @Override @Nonnull public OutputStream responseStream() {
+  @Override @NonNull public OutputStream responseStream() {
     return ctx.responseStream();
   }
 
-  @Nonnull @Override public OutputStream responseStream(@Nonnull MediaType contentType) {
+  @NonNull @Override public OutputStream responseStream(@NonNull MediaType contentType) {
     return ctx.responseStream(contentType);
   }
 
-  @Nonnull @Override public Context responseStream(@Nonnull MediaType contentType,
-      @Nonnull SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
+  @NonNull @Override public Context responseStream(@NonNull MediaType contentType,
+      @NonNull SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
     return ctx.responseStream(contentType, consumer);
   }
 
-  @Nonnull @Override
-  public Context responseStream(@Nonnull SneakyThrows.Consumer<OutputStream> consumer)
+  @NonNull @Override
+  public Context responseStream(@NonNull SneakyThrows.Consumer<OutputStream> consumer)
       throws Exception {
     return ctx.responseStream(consumer);
   }
 
-  @Override @Nonnull public Sender responseSender() {
+  @Override @NonNull public Sender responseSender() {
     return ctx.responseSender();
   }
 
-  @Nonnull @Override public PrintWriter responseWriter() {
+  @NonNull @Override public PrintWriter responseWriter() {
     return ctx.responseWriter();
   }
 
-  @Nonnull @Override public PrintWriter responseWriter(@Nonnull MediaType contentType) {
+  @NonNull @Override public PrintWriter responseWriter(@NonNull MediaType contentType) {
     return ctx.responseWriter(contentType);
   }
 
-  @Override @Nonnull public PrintWriter responseWriter(@Nonnull MediaType contentType,
+  @Override @NonNull public PrintWriter responseWriter(@NonNull MediaType contentType,
       @Nullable Charset charset) {
     return ctx.responseWriter(contentType, charset);
   }
 
-  @Nonnull @Override
-  public Context responseWriter(@Nonnull SneakyThrows.Consumer<PrintWriter> consumer)
+  @NonNull @Override
+  public Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
     return ctx.responseWriter(consumer);
   }
 
-  @Nonnull @Override public Context responseWriter(@Nonnull MediaType contentType,
-      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
+  @NonNull @Override public Context responseWriter(@NonNull MediaType contentType,
+      @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
     return ctx.responseWriter(contentType, consumer);
   }
 
-  @Nonnull @Override
-  public Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
-      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
+  @NonNull @Override
+  public Context responseWriter(@NonNull MediaType contentType, @Nullable Charset charset,
+      @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
     return ctx.responseWriter(contentType, charset, consumer);
   }
 
-  @Nonnull @Override public Context sendRedirect(@Nonnull String location) {
+  @NonNull @Override public Context sendRedirect(@NonNull String location) {
     ctx.sendRedirect(location);
     return this;
   }
 
-  @Nonnull @Override
-  public Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
+  @NonNull @Override
+  public Context sendRedirect(@NonNull StatusCode redirect, @NonNull String location) {
     ctx.sendRedirect(redirect, location);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data) {
+  @NonNull @Override public Context send(@NonNull String data) {
     ctx.send(data);
     return this;
   }
 
-  @Override @Nonnull public Context send(@Nonnull String data, @Nonnull Charset charset) {
+  @Override @NonNull public Context send(@NonNull String data, @NonNull Charset charset) {
     ctx.send(data, charset);
     return this;
   }
 
-  @Override @Nonnull public Context send(@Nonnull byte[] data) {
+  @Override @NonNull public Context send(@NonNull byte[] data) {
     ctx.send(data);
     return this;
   }
 
-  @Override @Nonnull public Context send(@Nonnull ByteBuffer data) {
+  @Override @NonNull public Context send(@NonNull ByteBuffer data) {
     ctx.send(data);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull byte[]... data) {
+  @NonNull @Override public Context send(@NonNull byte[]... data) {
     ctx.send(data);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull ByteBuffer[] data) {
+  @NonNull @Override public Context send(@NonNull ByteBuffer[] data) {
     ctx.send(data);
     return this;
   }
 
-  @Override @Nonnull public Context send(@Nonnull ReadableByteChannel channel) {
+  @Override @NonNull public Context send(@NonNull ReadableByteChannel channel) {
     ctx.send(channel);
     return this;
   }
 
-  @Override @Nonnull public Context send(@Nonnull InputStream input) {
+  @Override @NonNull public Context send(@NonNull InputStream input) {
     ctx.send(input);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull FileDownload file) {
+  @NonNull @Override public Context send(@NonNull FileDownload file) {
     ctx.send(file);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull Path file) {
+  @NonNull @Override public Context send(@NonNull Path file) {
     ctx.send(file);
     return this;
   }
 
-  @Override @Nonnull public Context send(@Nonnull FileChannel file) {
+  @Override @NonNull public Context send(@NonNull FileChannel file) {
     ctx.send(file);
     return this;
   }
 
-  @Override @Nonnull public Context send(@Nonnull StatusCode statusCode) {
+  @Override @NonNull public Context send(@NonNull StatusCode statusCode) {
     ctx.send(statusCode);
     return this;
   }
 
-  @Nonnull @Override public Context sendError(@Nonnull Throwable cause) {
+  @NonNull @Override public Context sendError(@NonNull Throwable cause) {
     ctx.sendError(cause);
     return this;
   }
 
-  @Nonnull @Override
-  public Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode code) {
+  @NonNull @Override
+  public Context sendError(@NonNull Throwable cause, @NonNull StatusCode code) {
     ctx.sendError(cause, code);
     return this;
   }
@@ -627,21 +627,21 @@ public class ForwardingContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {
+  @NonNull @Override public Context onComplete(@NonNull Route.Complete task) {
     ctx.onComplete(task);
     return this;
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type) throws RegistryException {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type) throws RegistryException {
     return ctx.require(type);
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name)
+  @NonNull @Override public <T> T require(@NonNull Class<T> type, @NonNull String name)
       throws RegistryException {
     return ctx.require(type, name);
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+  @NonNull @Override public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     return ctx.require(key);
   }
 

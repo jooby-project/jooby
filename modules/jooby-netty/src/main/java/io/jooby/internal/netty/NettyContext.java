@@ -43,8 +43,8 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 import com.typesafe.config.Config;
@@ -162,7 +162,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
         && this.method.charAt(2) == 'T';
   }
 
-  @Nonnull @Override public Router getRouter() {
+  @NonNull @Override public Router getRouter() {
     return router;
   }
 
@@ -171,42 +171,42 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override public Map<String, Object> getAttributes() {
+  @NonNull @Override public Map<String, Object> getAttributes() {
     return attributes;
   }
 
-  @Nonnull @Override public String getMethod() {
+  @NonNull @Override public String getMethod() {
     return method;
   }
 
-  @Nonnull @Override public Context setMethod(@Nonnull String method) {
+  @NonNull @Override public Context setMethod(@NonNull String method) {
     this.method = method.toUpperCase();
     return this;
   }
 
-  @Nonnull @Override public Route getRoute() {
+  @NonNull @Override public Route getRoute() {
     return route;
   }
 
-  @Nonnull @Override public Context setRoute(@Nonnull Route route) {
+  @NonNull @Override public Context setRoute(@NonNull Route route) {
     this.route = route;
     return this;
   }
 
-  @Nonnull @Override public String getRequestPath() {
+  @NonNull @Override public String getRequestPath() {
     return path;
   }
 
-  @Nonnull @Override public Context setRequestPath(String path) {
+  @NonNull @Override public Context setRequestPath(String path) {
     this.path = path;
     return this;
   }
 
-  @Nonnull @Override public Map<String, String> pathMap() {
+  @NonNull @Override public Map<String, String> pathMap() {
     return pathMap;
   }
 
-  @Nonnull @Override public Context setPathMap(@Nonnull Map<String, String> pathMap) {
+  @NonNull @Override public Context setPathMap(@NonNull Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }
@@ -215,7 +215,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return ctx.channel().eventLoop().inEventLoop();
   }
 
-  @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
+  @NonNull @Override public Context dispatch(@NonNull Runnable action) {
     return dispatch(router.getWorker(), action);
   }
 
@@ -224,12 +224,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public Context detach(@Nonnull Route.Handler next) throws Exception {
+  @NonNull @Override public Context detach(@NonNull Route.Handler next) throws Exception {
     next.apply(this);
     return this;
   }
 
-  @Nonnull @Override public QueryString query() {
+  @NonNull @Override public QueryString query() {
     if (query == null) {
       String uri = req.uri();
       int q = uri.indexOf('?');
@@ -238,11 +238,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return query;
   }
 
-  @Nonnull @Override public Formdata form() {
+  @NonNull @Override public Formdata form() {
     return multipart();
   }
 
-  @Nonnull @Override public Multipart multipart() {
+  @NonNull @Override public Multipart multipart() {
     if (multipart == null) {
       multipart = Multipart.create(this);
       form = multipart;
@@ -251,20 +251,20 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return multipart;
   }
 
-  @Nonnull @Override public Value header(@Nonnull String name) {
+  @NonNull @Override public Value header(@NonNull String name) {
     return Value.create(this, name, req.headers().getAll(name));
   }
 
-  @Nonnull @Override public String getHost() {
+  @NonNull @Override public String getHost() {
     return host == null ? DefaultContext.super.getHost() : host;
   }
 
-  @Nonnull @Override public Context setHost(@Nonnull String host) {
+  @NonNull @Override public Context setHost(@NonNull String host) {
     this.host = host;
     return this;
   }
 
-  @Nonnull @Override public String getRemoteAddress() {
+  @NonNull @Override public String getRemoteAddress() {
     if (this.remoteAddress == null) {
       InetSocketAddress inetAddress = (InetSocketAddress) ctx.channel().remoteAddress();
       if (inetAddress != null) {
@@ -278,12 +278,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return remoteAddress;
   }
 
-  @Nonnull @Override public Context setRemoteAddress(@Nonnull String remoteAddress) {
+  @NonNull @Override public Context setRemoteAddress(@NonNull String remoteAddress) {
     this.remoteAddress = remoteAddress;
     return this;
   }
 
-  @Nonnull @Override public String getProtocol() {
+  @NonNull @Override public String getProtocol() {
     if (ctx.pipeline().get("http2") == null) {
       return req.protocolVersion().text();
     } else {
@@ -291,7 +291,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @Nonnull @Override public List<Certificate> getClientCertificates() {
+  @NonNull @Override public List<Certificate> getClientCertificates() {
     SslHandler sslHandler = (SslHandler) ctx.channel().pipeline().get("ssl");
     if (sslHandler != null) {
       try {
@@ -303,14 +303,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return new ArrayList<Certificate>();
   }
 
-  @Nonnull @Override public String getScheme() {
+  @NonNull @Override public String getScheme() {
     if (scheme == null) {
       scheme = ctx.pipeline().get("ssl") == null ? "http" : "https";
     }
     return scheme;
   }
 
-  @Nonnull @Override public Context setScheme(@Nonnull String scheme) {
+  @NonNull @Override public Context setScheme(@NonNull String scheme) {
     this.scheme = scheme;
     return this;
   }
@@ -319,12 +319,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return port > 0 ? port : DefaultContext.super.getPort();
   }
 
-  @Nonnull @Override public Context setPort(int port) {
+  @NonNull @Override public Context setPort(int port) {
     this.port = port;
     return this;
   }
 
-  @Nonnull @Override public ValueNode header() {
+  @NonNull @Override public ValueNode header() {
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
       HttpHeaders headers = req.headers();
@@ -337,14 +337,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return headers;
   }
 
-  @Nonnull @Override public Body body() {
+  @NonNull @Override public Body body() {
     if (decoder != null && decoder.hasNext()) {
       return new NettyBody(this, (HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
     }
     return Body.empty(this);
   }
 
-  @Override public @Nonnull Map<String, String> cookieMap() {
+  @Override public @NonNull Map<String, String> cookieMap() {
     if (this.cookies == null) {
       this.cookies = Collections.emptyMap();
       String cookieString = req.headers().get(HttpHeaderNames.COOKIE);
@@ -362,7 +362,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this.cookies;
   }
 
-  @Nonnull @Override public Context onComplete(@Nonnull Route.Complete task) {
+  @NonNull @Override public Context onComplete(@NonNull Route.Complete task) {
     if (listeners == null) {
       listeners = new CompletionListeners();
     }
@@ -370,7 +370,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public Context upgrade(WebSocket.Initializer handler) {
+  @NonNull @Override public Context upgrade(WebSocket.Initializer handler) {
     try {
       responseStarted = true;
       Config conf = getRouter().getConfig();
@@ -406,7 +406,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public Context upgrade(@Nonnull ServerSentEmitter.Handler handler) {
+  @NonNull @Override public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
     responseStarted = true;
     ctx.writeAndFlush(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
 
@@ -425,36 +425,36 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override public StatusCode getResponseCode() {
+  @NonNull @Override public StatusCode getResponseCode() {
     return StatusCode.valueOf(this.status.code());
   }
 
-  @Nonnull @Override public Context setResponseCode(int statusCode) {
+  @NonNull @Override public Context setResponseCode(int statusCode) {
     this.status = HttpResponseStatus.valueOf(statusCode);
     return this;
   }
 
-  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull String value) {
+  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull String value) {
     setHeaders.set(name, value);
     return this;
   }
 
-  @Nonnull @Override public Context removeResponseHeader(@Nonnull String name) {
+  @NonNull @Override public Context removeResponseHeader(@NonNull String name) {
     setHeaders.remove(name);
     return this;
   }
 
-  @Nonnull @Override public Context removeResponseHeaders() {
+  @NonNull @Override public Context removeResponseHeaders() {
     setHeaders.clear();
     ifStreamId(this.streamId);
     return this;
   }
 
-  @Nonnull @Override public MediaType getResponseType() {
+  @NonNull @Override public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
-  @Nonnull @Override public Context setDefaultResponseType(@Nonnull MediaType contentType) {
+  @NonNull @Override public Context setDefaultResponseType(@NonNull MediaType contentType) {
     if (responseType == null) {
       setResponseType(contentType, contentType.getCharset());
     }
@@ -467,17 +467,17 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public Context setResponseType(@Nonnull String contentType) {
+  @NonNull @Override public Context setResponseType(@NonNull String contentType) {
     this.responseType = MediaType.valueOf(contentType);
     setHeaders.set(CONTENT_TYPE, contentType);
     return this;
   }
 
-  @Nullable @Override public String getResponseHeader(@Nonnull String name) {
+  @Nullable @Override public String getResponseHeader(@NonNull String name) {
     return setHeaders.get(name);
   }
 
-  @Nonnull @Override public Context setResponseLength(long length) {
+  @NonNull @Override public Context setResponseLength(long length) {
     contentLength = length;
     setHeaders.set(CONTENT_LENGTH, Long.toString(length));
     return this;
@@ -490,7 +490,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return contentLength;
   }
 
-  @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
+  @NonNull public Context setResponseCookie(@NonNull Cookie cookie) {
     if (responseCookies == null) {
       responseCookies = new HashMap<>();
     }
@@ -503,25 +503,25 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
+  @NonNull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
     setResponseType(type, charset);
 
     return new PrintWriter(new NettyWriter(newOutputStream(), charset));
   }
 
-  @Nonnull @Override public Sender responseSender() {
+  @NonNull @Override public Sender responseSender() {
     responseStarted = true;
     prepareChunked();
     ctx.write(new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
     return new NettySender(this, ctx);
   }
 
-  @Nonnull @Override public OutputStream responseStream() {
+  @NonNull @Override public OutputStream responseStream() {
     return newOutputStream();
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data) {
+  @NonNull @Override public Context send(@NonNull String data) {
     return send(copiedBuffer(data, UTF_8));
   }
 
@@ -533,11 +533,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return send(wrappedBuffer(data));
   }
 
-  @Nonnull @Override public Context send(@Nonnull byte[]... data) {
+  @NonNull @Override public Context send(@NonNull byte[]... data) {
     return send(Unpooled.wrappedBuffer(data));
   }
 
-  @Nonnull @Override public Context send(@Nonnull ByteBuffer[] data) {
+  @NonNull @Override public Context send(@NonNull ByteBuffer[] data) {
     return send(Unpooled.wrappedBuffer(data));
   }
 
@@ -545,7 +545,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return send(wrappedBuffer(data));
   }
 
-  private Context send(@Nonnull ByteBuf data) {
+  private Context send(@NonNull ByteBuf data) {
     try {
       responseStarted = true;
       setHeaders.set(CONTENT_LENGTH, Long.toString(data.readableBytes()));
@@ -570,7 +570,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
+  @NonNull @Override public Context send(@NonNull ReadableByteChannel channel) {
     try {
       prepareChunked();
       DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
@@ -590,7 +590,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @Nonnull @Override public Context send(@Nonnull InputStream in) {
+  @NonNull @Override public Context send(@NonNull InputStream in) {
     if (in instanceof FileInputStream) {
       // use channel
       return send(((FileInputStream) in).getChannel());
@@ -620,7 +620,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @Nonnull @Override public Context send(@Nonnull FileChannel file) {
+  @NonNull @Override public Context send(@NonNull FileChannel file) {
     try {
       long len = file.size();
       setHeaders.set(CONTENT_LENGTH, Long.toString(len));
@@ -677,7 +677,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public Context send(StatusCode statusCode) {
+  @NonNull @Override public Context send(StatusCode statusCode) {
     try {
       setResponseCode(statusCode);
       responseStarted = true;

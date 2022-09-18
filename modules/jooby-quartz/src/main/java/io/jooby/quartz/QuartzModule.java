@@ -26,7 +26,7 @@ import org.quartz.impl.jdbcjobstore.JobStoreTX;
 import org.quartz.simpl.PropertySettingJobFactory;
 import org.quartz.utils.DBConnectionManager;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.sql.DataSource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -125,7 +125,7 @@ public class QuartzModule implements Extension {
    * @param scheduler Provided scheduler.
    * @param jobs Job classes.
    */
-  public QuartzModule(@Nonnull Scheduler scheduler, final Class<?>... jobs) {
+  public QuartzModule(@NonNull Scheduler scheduler, final Class<?>... jobs) {
     this.scheduler = scheduler;
     this.jobs = Arrays.asList(jobs);
   }
@@ -137,12 +137,12 @@ public class QuartzModule implements Extension {
    * @param scheduler Provided scheduler.
    * @param jobs Job classes.
    */
-  public QuartzModule(@Nonnull Scheduler scheduler, final List<Class<?>> jobs) {
+  public QuartzModule(@NonNull Scheduler scheduler, final List<Class<?>> jobs) {
     this.scheduler = scheduler;
     this.jobs = jobs;
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     Config config = application.getConfig();
     Map<JobDetail, Trigger> jobMap = JobGenerator.build(application, jobs);
 
@@ -201,7 +201,7 @@ public class QuartzModule implements Extension {
    * @param application Application.
    * @return New scheduler.
    */
-  public static @Nonnull Scheduler newScheduler(@Nonnull Jooby application) {
+  public static @NonNull Scheduler newScheduler(@NonNull Jooby application) {
     try {
       Scheduler scheduler = newScheduleFactory(application).getScheduler();
       scheduler.setJobFactory(new JobFactoryImpl(application, new PropertySettingJobFactory()));
@@ -217,7 +217,7 @@ public class QuartzModule implements Extension {
    * @param application Application.
    * @return New scheduler factory.
    */
-  public static @Nonnull StdSchedulerFactory newScheduleFactory(@Nonnull Jooby application) {
+  public static @NonNull StdSchedulerFactory newScheduleFactory(@NonNull Jooby application) {
     try {
       Properties properties = properties(application.getConfig());
       if (JobStoreTX.class.getName().equals(properties.getProperty("org.quartz.jobStore.class"))) {

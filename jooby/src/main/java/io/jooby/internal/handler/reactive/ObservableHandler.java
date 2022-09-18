@@ -10,7 +10,7 @@ import io.jooby.Route;
 import io.jooby.internal.handler.LinkedHandler;
 import io.reactivex.Observable;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class ObservableHandler implements LinkedHandler {
 
@@ -20,7 +20,7 @@ public class ObservableHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       Observable result = (Observable) next.apply(ctx);
       result.subscribe(new RxObserver(new ChunkedSubscriber(ctx)));

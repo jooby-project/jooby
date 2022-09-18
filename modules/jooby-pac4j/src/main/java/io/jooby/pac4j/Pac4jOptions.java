@@ -7,8 +7,8 @@ package io.jooby.pac4j;
 
 import io.jooby.SameSite;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Options to configure pac4j security, callback and logout actions.
@@ -59,7 +59,7 @@ public class Pac4jOptions {
    * @param defaultUrl Default url to redirect to after successful login.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setDefaultUrl(@Nullable String defaultUrl) {
+  public @NonNull Pac4jOptions setDefaultUrl(@Nullable String defaultUrl) {
     this.defaultUrl = defaultUrl;
     return this;
   }
@@ -80,7 +80,7 @@ public class Pac4jOptions {
    * @param saveInSession True to save profile in HTTP session.
    * @return This session.
    */
-  public @Nonnull Pac4jOptions setSaveInSession(@Nullable Boolean saveInSession) {
+  public @NonNull Pac4jOptions setSaveInSession(@Nullable Boolean saveInSession) {
     this.saveInSession = saveInSession;
     return this;
   }
@@ -101,7 +101,7 @@ public class Pac4jOptions {
    * @param multiProfile Whether multi profiles are supported.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setMultiProfile(@Nullable Boolean multiProfile) {
+  public @NonNull Pac4jOptions setMultiProfile(@Nullable Boolean multiProfile) {
     this.multiProfile = multiProfile;
     return this;
   }
@@ -122,7 +122,7 @@ public class Pac4jOptions {
    * @param renewSession whether the session must be renewed.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setRenewSession(@Nullable Boolean renewSession) {
+  public @NonNull Pac4jOptions setRenewSession(@Nullable Boolean renewSession) {
     this.renewSession = renewSession;
     return this;
   }
@@ -143,7 +143,7 @@ public class Pac4jOptions {
    * @param defaultClient Default client to use.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setDefaultClient(@Nullable String defaultClient) {
+  public @NonNull Pac4jOptions setDefaultClient(@Nullable String defaultClient) {
     this.defaultClient = defaultClient;
     return this;
   }
@@ -154,7 +154,7 @@ public class Pac4jOptions {
    *
    * @return Callback path, defaults to <code>/callback</code>.
    */
-  public @Nonnull String getCallbackPath() {
+  public @NonNull String getCallbackPath() {
     return callbackPath;
   }
 
@@ -164,7 +164,7 @@ public class Pac4jOptions {
    * @param callbackPath Callback path.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setCallbackPath(@Nonnull String callbackPath) {
+  public @NonNull Pac4jOptions setCallbackPath(@NonNull String callbackPath) {
     this.callbackPath = callbackPath;
     return this;
   }
@@ -175,7 +175,7 @@ public class Pac4jOptions {
    *
    * @return Logout path, defaults to <code>/logout</code>.
    */
-  public @Nonnull String getLogoutPath() {
+  public @NonNull String getLogoutPath() {
     return logoutPath;
   }
 
@@ -185,7 +185,7 @@ public class Pac4jOptions {
    * @param logoutPath Logout path.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setLogoutPath(@Nonnull String logoutPath) {
+  public @NonNull Pac4jOptions setLogoutPath(@NonNull String logoutPath) {
     this.logoutPath = logoutPath;
     return this;
   }
@@ -206,7 +206,7 @@ public class Pac4jOptions {
    * @param localLogout Logout option.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setLocalLogout(boolean localLogout) {
+  public @NonNull Pac4jOptions setLocalLogout(boolean localLogout) {
     this.localLogout = localLogout;
     return this;
   }
@@ -227,7 +227,7 @@ public class Pac4jOptions {
    * @param centralLogout Central logout option.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setCentralLogout(boolean centralLogout) {
+  public @NonNull Pac4jOptions setCentralLogout(boolean centralLogout) {
     this.centralLogout = centralLogout;
     return this;
   }
@@ -248,7 +248,7 @@ public class Pac4jOptions {
    * @param destroySession Destroy session option.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setDestroySession(boolean destroySession) {
+  public @NonNull Pac4jOptions setDestroySession(boolean destroySession) {
     this.destroySession = destroySession;
     return this;
   }
@@ -272,7 +272,7 @@ public class Pac4jOptions {
    * @param sameSite Value for the 'SameSite' parameter or {@code null} to omit it.
    * @return This options.
    */
-  public @Nonnull Pac4jOptions setCookieSameSite(@Nullable SameSite sameSite) {
+  public @NonNull Pac4jOptions setCookieSameSite(@Nullable SameSite sameSite) {
     cookieSameSite = sameSite;
     return this;
   }

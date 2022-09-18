@@ -8,7 +8,7 @@ package io.jooby.cli;
 import io.jooby.internal.cli.Dependency;
 import picocli.CommandLine;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -98,7 +98,7 @@ public class CreateCmd extends Cmd {
   )
   private boolean openapi;
 
-  @Override public void run(@Nonnull Context ctx) throws Exception {
+  @Override public void run(@NonNull Context ctx) throws Exception {
     Path projectDir = ctx.getWorkspace().resolve(name);
     if (Files.exists(projectDir)) {
       throw new IOException("Project directory already exists: " + projectDir);

@@ -9,7 +9,7 @@ import io.jooby.Sender;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -22,7 +22,7 @@ public class UtowSender implements Sender {
     this.exchange = exchange;
   }
 
-  @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
+  @Override public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
     exchange.getResponseSender().send(ByteBuffer.wrap(data), newIoCallback(ctx, callback));
     return this;
   }

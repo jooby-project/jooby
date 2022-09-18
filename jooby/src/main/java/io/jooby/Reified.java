@@ -7,7 +7,7 @@ package io.jooby;
 
 import io.jooby.internal.reflect.$Types;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -100,7 +100,7 @@ public class Reified<T> {
    *
    * @return Returns the raw (non-generic) type for this type.
    */
-  public final @Nonnull Class<? super T> getRawType() {
+  public final @NonNull Class<? super T> getRawType() {
     return rawType;
   }
 
@@ -109,7 +109,7 @@ public class Reified<T> {
    *
    * @return Gets underlying {@code Type} instance.
    */
-  public final @Nonnull Type getType() {
+  public final @NonNull Type getType() {
     return type;
   }
 
@@ -132,7 +132,7 @@ public class Reified<T> {
    * @param type Source type.
    * @return Gets type literal for the given {@code Type} instance.
    */
-  public static @Nonnull Reified<?> get(@Nonnull Type type) {
+  public static @NonNull Reified<?> get(@NonNull Type type) {
     return new Reified<>(type);
   }
 
@@ -142,7 +142,7 @@ public class Reified<T> {
    * @param type Type.
    * @return Raw type.
    */
-  public static @Nonnull Class<?> rawType(@Nonnull Type type) {
+  public static @NonNull Class<?> rawType(@NonNull Type type) {
     if (type instanceof Class) {
       return (Class<?>) type;
     }
@@ -156,7 +156,7 @@ public class Reified<T> {
    * @param <T> Generic type.
    * @return Gets type literal for the given {@code Class} instance.
    */
-  public static @Nonnull <T> Reified<T> get(@Nonnull Class<T> type) {
+  public static @NonNull <T> Reified<T> get(@NonNull Class<T> type) {
     return new Reified<>(type);
   }
 
@@ -167,7 +167,7 @@ public class Reified<T> {
    * @param <T> Item type.
    * @return A {@link List} type literal.
    */
-  public static @Nonnull <T> Reified<List<T>> list(@Nonnull Type type) {
+  public static @NonNull <T> Reified<List<T>> list(@NonNull Type type) {
     return (Reified<List<T>>) getParameterized(List.class, type);
   }
 
@@ -178,7 +178,7 @@ public class Reified<T> {
    * @param <T> Item type.
    * @return A {@link Set} type literal.
    */
-  public static @Nonnull <T> Reified<Set<T>> set(@Nonnull Type type) {
+  public static @NonNull <T> Reified<Set<T>> set(@NonNull Type type) {
     return (Reified<Set<T>>) getParameterized(Set.class, type);
   }
 
@@ -189,7 +189,7 @@ public class Reified<T> {
    * @param <T> Item type.
    * @return A {@link Optional} type literal.
    */
-  public static @Nonnull <T> Reified<Optional<T>> optional(@Nonnull Type type) {
+  public static @NonNull <T> Reified<Optional<T>> optional(@NonNull Type type) {
     return (Reified<Optional<T>>) getParameterized(Optional.class, type);
   }
 
@@ -202,7 +202,7 @@ public class Reified<T> {
    * @param <V> Key type.
    * @return A {@link Map} type literal.
    */
-  public static @Nonnull <K, V> Reified<Map<K, V>> map(@Nonnull Type key, @Nonnull Type value) {
+  public static @NonNull <K, V> Reified<Map<K, V>> map(@NonNull Type key, @NonNull Type value) {
     return (Reified<Map<K, V>>) getParameterized(Map.class, key, value);
   }
 
@@ -213,7 +213,7 @@ public class Reified<T> {
    * @param <T> Item type.
    * @return A {@link CompletableFuture} type literal.
    */
-  public static @Nonnull <T> Reified<CompletableFuture<T>> completableFuture(@Nonnull Type type) {
+  public static @NonNull <T> Reified<CompletableFuture<T>> completableFuture(@NonNull Type type) {
     return (Reified<CompletableFuture<T>>) getParameterized(CompletableFuture.class, type);
   }
 
@@ -226,8 +226,8 @@ public class Reified<T> {
    * @return Gets type literal for the parameterized type represented by applying
    *    {@code typeArguments} to {@code rawType}.
    */
-  public static @Nonnull Reified<?> getParameterized(@Nonnull Type rawType,
-      @Nonnull Type... typeArguments) {
+  public static @NonNull Reified<?> getParameterized(@NonNull Type rawType,
+      @NonNull Type... typeArguments) {
     return new Reified<>($Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
   }
 }

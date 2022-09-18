@@ -7,7 +7,7 @@ package io.jooby.exception;
 
 import io.jooby.StatusCode;
 
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Whether there is no decoder for the requested <code>Content-Type</code>.

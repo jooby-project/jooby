@@ -18,7 +18,7 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -104,7 +104,7 @@ public class ThymeleafModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPath) {
+    public @NonNull Builder setTemplatesPath(@NonNull String templatesPath) {
       this.templatesPathString = templatesPath;
       return this;
     }
@@ -115,7 +115,7 @@ public class ThymeleafModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplatesPath(@Nonnull Path templatesPath) {
+    public @NonNull Builder setTemplatesPath(@NonNull Path templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
@@ -126,7 +126,7 @@ public class ThymeleafModule implements Extension {
      * @param templateResolver Template resolver to use.
      * @return This builder.
      */
-    public @Nonnull Builder setTemplateResolver(@Nonnull ITemplateResolver templateResolver) {
+    public @NonNull Builder setTemplateResolver(@NonNull ITemplateResolver templateResolver) {
       this.templateResolver = templateResolver;
       return this;
     }
@@ -138,7 +138,7 @@ public class ThymeleafModule implements Extension {
      * @param cacheable Turn on/off cache.
      * @return This builder.
      */
-    public @Nonnull Builder setCacheable(boolean cacheable) {
+    public @NonNull Builder setCacheable(boolean cacheable) {
       this.cacheable = cacheable;
       return this;
     }
@@ -149,7 +149,7 @@ public class ThymeleafModule implements Extension {
      * @param cacheManager Cache manager.
      * @return This builder.
      */
-    public @Nonnull Builder setCacheManager(@Nonnull ICacheManager cacheManager) {
+    public @NonNull Builder setCacheManager(@NonNull ICacheManager cacheManager) {
       this.cacheManager = cacheManager;
       return this;
     }
@@ -160,7 +160,7 @@ public class ThymeleafModule implements Extension {
      * @param env Environment.
      * @return Template engine.
      */
-    public @Nonnull TemplateEngine build(@Nonnull Environment env) {
+    public @NonNull TemplateEngine build(@NonNull Environment env) {
       TemplateEngine engine = new TemplateEngine();
 
       if (templateResolver == null) {
@@ -222,7 +222,7 @@ public class ThymeleafModule implements Extension {
    *
    * @param templateEngine Template engine.
    */
-  public ThymeleafModule(@Nonnull TemplateEngine templateEngine) {
+  public ThymeleafModule(@NonNull TemplateEngine templateEngine) {
     this.templateEngine = templateEngine;
   }
 
@@ -232,7 +232,7 @@ public class ThymeleafModule implements Extension {
    *
    * @param templatesPath Template path.
    */
-  public ThymeleafModule(@Nonnull String templatesPath) {
+  public ThymeleafModule(@NonNull String templatesPath) {
     this.templatesPathString = templatesPath;
   }
 
@@ -241,7 +241,7 @@ public class ThymeleafModule implements Extension {
    *
    * @param templatesPath Template path.
    */
-  public ThymeleafModule(@Nonnull Path templatesPath) {
+  public ThymeleafModule(@NonNull Path templatesPath) {
     this.templatesPath = templatesPath;
   }
 
@@ -253,7 +253,7 @@ public class ThymeleafModule implements Extension {
     this(io.jooby.TemplateEngine.PATH);
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     if (templateEngine == null) {
       templateEngine = create()
           .setTemplatesPath(templatesPath)
@@ -272,7 +272,7 @@ public class ThymeleafModule implements Extension {
    *
    * @return A builder.
    */
-  public static @Nonnull ThymeleafModule.Builder create() {
+  public static @NonNull ThymeleafModule.Builder create() {
     return new ThymeleafModule.Builder();
   }
 }

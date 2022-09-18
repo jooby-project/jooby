@@ -12,7 +12,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class NettySender implements Sender {
 
@@ -24,7 +24,7 @@ public class NettySender implements Sender {
     this.context = context;
   }
 
-  @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
+  @Override public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
     context.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(data)))
         .addListener(newChannelFutureListener(ctx, callback));
     return this;

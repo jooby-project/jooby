@@ -1,6 +1,6 @@
 package output;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 
 import io.jooby.Context;
@@ -15,7 +15,7 @@ public class MyControllerHandler implements Route.Handler {
     this.provider = provider;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     StatusCode statusCode = provider.get().controllerMethod();
     ctx.setResponseCode(statusCode);
     return statusCode;

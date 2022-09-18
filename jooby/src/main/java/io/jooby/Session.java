@@ -7,8 +7,8 @@ package io.jooby;
 
 import io.jooby.internal.SessionImpl;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.time.Instant;
 import java.util.Map;
 
@@ -35,7 +35,7 @@ public interface Session {
    * @param id Session ID or <code>null</code>
    * @return Session.
    */
-  @Nonnull Session setId(@Nullable String id);
+  @NonNull Session setId(@Nullable String id);
 
   /**
    * Get a session attribute.
@@ -43,7 +43,7 @@ public interface Session {
    * @param name Attribute's name.
    * @return An attribute value or missing value.
    */
-  @Nonnull Value get(@Nonnull String name);
+  @NonNull Value get(@NonNull String name);
 
   /**
    * Put a session attribute.
@@ -52,7 +52,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  default @Nonnull Session put(@Nonnull String name, int value) {
+  default @NonNull Session put(@NonNull String name, int value) {
     return put(name, Integer.toString(value));
   }
 
@@ -63,7 +63,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  default @Nonnull Session put(@Nonnull String name, long value) {
+  default @NonNull Session put(@NonNull String name, long value) {
     return put(name, Long.toString(value));
   }
 
@@ -74,7 +74,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  default @Nonnull Session put(@Nonnull String name, @Nonnull CharSequence value) {
+  default @NonNull Session put(@NonNull String name, @NonNull CharSequence value) {
     return put(name, value.toString());
   }
 
@@ -85,7 +85,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, @Nonnull String value);
+  @NonNull Session put(@NonNull String name, @NonNull String value);
 
   /**
    * Put a session attribute.
@@ -94,7 +94,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  default @Nonnull Session put(@Nonnull String name, float value) {
+  default @NonNull Session put(@NonNull String name, float value) {
     return put(name, Float.toString(value));
   }
 
@@ -105,7 +105,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  default @Nonnull Session put(@Nonnull String name, double value) {
+  default @NonNull Session put(@NonNull String name, double value) {
     return put(name, Double.toString(value));
   }
 
@@ -116,7 +116,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  default @Nonnull Session put(@Nonnull String name, boolean value) {
+  default @NonNull Session put(@NonNull String name, boolean value) {
     return put(name, Boolean.toString(value));
   }
 
@@ -127,7 +127,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  default @Nonnull Session put(@Nonnull String name, @Nonnull Number value) {
+  default @NonNull Session put(@NonNull String name, @NonNull Number value) {
     return put(name, value.toString());
   }
 
@@ -137,21 +137,21 @@ public interface Session {
    * @param name Attribute's name.
    * @return Session attribute or missing value.
    */
-  @Nonnull Value remove(@Nonnull String name);
+  @NonNull Value remove(@NonNull String name);
 
   /**
    * Read-only copy of session attributes.
    *
    * @return Read-only attributes.
    */
-  @Nonnull Map<String, String> toMap();
+  @NonNull Map<String, String> toMap();
 
   /**
    * Session creation time.
    *
    * @return Session creation time.
    */
-  @Nonnull Instant getCreationTime();
+  @NonNull Instant getCreationTime();
 
   /**
    * Set session creation time.
@@ -159,14 +159,14 @@ public interface Session {
    * @param creationTime Session creation time.
    * @return This session.
    */
-  @Nonnull Session setCreationTime(@Nonnull Instant creationTime);
+  @NonNull Session setCreationTime(@NonNull Instant creationTime);
 
   /**
    * Session last accessed time.
    *
    * @return Session creation time.
    */
-  @Nonnull Instant getLastAccessedTime();
+  @NonNull Instant getLastAccessedTime();
 
   /**
    * Set session last accessed time.
@@ -174,7 +174,7 @@ public interface Session {
    * @param lastAccessedTime Session creation time.
    * @return This session.
    */
-  @Nonnull Session setLastAccessedTime(@Nonnull Instant lastAccessedTime);
+  @NonNull Session setLastAccessedTime(@NonNull Instant lastAccessedTime);
 
   /**
    * True for new sessions.
@@ -189,7 +189,7 @@ public interface Session {
    * @param isNew New flag.
    * @return This session.
    */
-  @Nonnull Session setNew(boolean isNew);
+  @NonNull Session setNew(boolean isNew);
 
   /**
    * True for modified/dirty sessions.
@@ -204,7 +204,7 @@ public interface Session {
    * @param modify Modify flag.
    * @return This session.
    */
-  @Nonnull Session setModify(boolean modify);
+  @NonNull Session setModify(boolean modify);
 
   /**
    * Remove all attributes.
@@ -231,7 +231,7 @@ public interface Session {
    * @param id Session ID or <code>null</code>.
    * @return A new session.
    */
-  static @Nonnull Session create(@Nonnull Context ctx, @Nullable String id) {
+  static @NonNull Session create(@NonNull Context ctx, @Nullable String id) {
     return new SessionImpl(ctx, id);
   }
 
@@ -243,8 +243,8 @@ public interface Session {
    * @param data Session attributes.
    * @return A new session.
    */
-  static @Nonnull Session create(@Nonnull Context ctx, @Nullable String id,
-      @Nonnull Map<String, String> data) {
+  static @NonNull Session create(@NonNull Context ctx, @Nullable String id,
+      @NonNull Map<String, String> data) {
     return new SessionImpl(ctx, id, data);
   }
 }

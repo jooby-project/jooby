@@ -8,8 +8,8 @@ package io.jooby.internal;
 import io.jooby.Asset;
 import io.jooby.AssetSource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -40,7 +40,7 @@ public class ClassPathAssetSource implements AssetSource {
     isDir = isDirectory(loader, this.source);
   }
 
-  @Nullable @Override public Asset resolve(@Nonnull String path) {
+  @Nullable @Override public Asset resolve(@NonNull String path) {
     String fullpath;
     if (isDir) {
       fullpath = safePath(prefix + path);

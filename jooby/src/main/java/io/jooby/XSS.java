@@ -11,7 +11,7 @@ import org.unbescape.json.JsonEscape;
 import org.unbescape.uri.UriEscape;
 import org.unbescape.xml.XmlEscape;
 
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Set of escaping routines for fixing cross-site scripting (XSS).

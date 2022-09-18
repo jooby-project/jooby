@@ -8,7 +8,7 @@ package io.jooby.internal.jetty;
 import io.jooby.Sender;
 import org.eclipse.jetty.server.HttpOutput;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 
 public class JettySender implements Sender {
@@ -20,7 +20,7 @@ public class JettySender implements Sender {
     this.sender = sender;
   }
 
-  @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
+  @Override public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
     try {
       sender.write(data);
       sender.flush();

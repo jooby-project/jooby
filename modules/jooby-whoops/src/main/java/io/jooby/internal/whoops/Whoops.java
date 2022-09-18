@@ -16,7 +16,7 @@ import io.jooby.Session;
 import io.jooby.StatusCode;
 import org.slf4j.Logger;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -85,8 +85,8 @@ public class Whoops implements ErrorHandler {
     this.log = log;
   }
 
-  @Nonnull @Override public void apply(@Nonnull Context ctx,
-      @Nonnull Throwable cause, @Nonnull StatusCode code) {
+  @NonNull @Override public void apply(@NonNull Context ctx,
+      @NonNull Throwable cause, @NonNull StatusCode code) {
     if (ctx.accept(MediaType.html)) {
       render(ctx, cause, code).handle((html, failure) -> {
         if (failure == null) {

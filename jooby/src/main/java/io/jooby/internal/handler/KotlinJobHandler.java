@@ -11,7 +11,7 @@ import io.reactivex.Flowable;
 import kotlinx.coroutines.Deferred;
 import kotlinx.coroutines.Job;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class KotlinJobHandler implements LinkedHandler {
   private final Route.Handler next;
@@ -20,7 +20,7 @@ public class KotlinJobHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       Object result = next.apply(ctx);
       if (ctx.isResponseStarted()) {

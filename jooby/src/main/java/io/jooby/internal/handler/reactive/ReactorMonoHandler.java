@@ -10,7 +10,7 @@ import io.jooby.Route;
 import io.jooby.internal.handler.LinkedHandler;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class ReactorMonoHandler implements LinkedHandler {
 
@@ -20,7 +20,7 @@ public class ReactorMonoHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       Mono result = (Mono) next.apply(ctx);
       result.subscribe(ctx::render, x -> ctx.sendError((Throwable) x));

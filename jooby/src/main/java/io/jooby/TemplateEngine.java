@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +35,7 @@ public interface TemplateEngine extends MessageEncoder {
    */
   String render(Context ctx, ModelAndView modelAndView) throws Exception;
 
-  @Override default byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+  @Override default byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     // initialize flash and session attributes (if any)
     ctx.flash();
     ctx.sessionOrNull();
@@ -52,7 +52,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @param modelAndView View to check.
    * @return True when view is supported.
    */
-  default boolean supports(@Nonnull ModelAndView modelAndView) {
+  default boolean supports(@NonNull ModelAndView modelAndView) {
     String view = modelAndView.getView();
     for (String extension : extensions()) {
       if (view.endsWith(extension)) {
@@ -68,7 +68,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @return Number of file extensions supported by the template engine.
    *     Default is <code>.html</code>.
    */
-  default @Nonnull List<String> extensions() {
+  default @NonNull List<String> extensions() {
     return Collections.singletonList(".html");
   }
 
@@ -78,7 +78,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @param templatesPath Template path.
    * @return Normalized path.
    */
-  static @Nonnull String normalizePath(@Nonnull String templatesPath) {
+  static @NonNull String normalizePath(@NonNull String templatesPath) {
     if (templatesPath == null) {
       return null;
     }

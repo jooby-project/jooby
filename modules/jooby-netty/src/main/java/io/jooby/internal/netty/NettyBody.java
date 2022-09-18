@@ -13,7 +13,7 @@ import io.jooby.ValueNode;
 import io.jooby.internal.MissingValue;
 import io.netty.handler.codec.http.multipart.HttpData;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -72,15 +72,15 @@ public class NettyBody implements Body {
     }
   }
 
-  @Nonnull @Override public String value() {
+  @NonNull @Override public String value() {
     return value(StandardCharsets.UTF_8);
   }
 
-  @Nonnull @Override public ValueNode get(@Nonnull int index) {
+  @NonNull @Override public ValueNode get(@NonNull int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
-  @Nonnull @Override public ValueNode get(@Nonnull String name) {
+  @NonNull @Override public ValueNode get(@NonNull String name) {
     return new MissingValue(name);
   }
 
@@ -88,7 +88,7 @@ public class NettyBody implements Body {
     return "body";
   }
 
-  @Nonnull @Override public <T> T to(@Nonnull Type type) {
+  @NonNull @Override public <T> T to(@NonNull Type type) {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 

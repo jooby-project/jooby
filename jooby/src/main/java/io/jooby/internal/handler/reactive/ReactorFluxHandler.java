@@ -10,7 +10,7 @@ import io.jooby.Route;
 import io.jooby.internal.handler.LinkedHandler;
 import reactor.core.publisher.Flux;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class ReactorFluxHandler implements LinkedHandler
 {
@@ -21,7 +21,7 @@ public class ReactorFluxHandler implements LinkedHandler
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       Flux result = (Flux) next.apply(ctx);
       result.subscribe(new ReactiveSubscriber(new ChunkedSubscriber(ctx)));

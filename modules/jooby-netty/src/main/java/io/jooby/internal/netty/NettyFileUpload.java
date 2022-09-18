@@ -10,7 +10,7 @@ import io.jooby.SneakyThrows;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -27,7 +27,7 @@ public class NettyFileUpload implements FileUpload {
     this.upload = upload;
   }
 
-  @Nonnull @Override public String getName() {
+  @NonNull @Override public String getName() {
     return upload.getName();
   }
 

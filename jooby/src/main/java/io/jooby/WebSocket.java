@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +51,7 @@ public interface WebSocket {
      * @param ctx Readonly context.
      * @param configurer WebSocket configurer.
      */
-    void init(@Nonnull Context ctx, @Nonnull WebSocketConfigurer configurer);
+    void init(@NonNull Context ctx, @NonNull WebSocketConfigurer configurer);
   }
 
   /**
@@ -63,7 +63,7 @@ public interface WebSocket {
      *
      * @param ws WebSocket.
      */
-    void onConnect(@Nonnull WebSocket ws);
+    void onConnect(@NonNull WebSocket ws);
   }
 
   /**
@@ -77,7 +77,7 @@ public interface WebSocket {
      * @param ws WebSocket.
      * @param message Client message.
      */
-    void onMessage(@Nonnull WebSocket ws, @Nonnull WebSocketMessage message);
+    void onMessage(@NonNull WebSocket ws, @NonNull WebSocketMessage message);
   }
 
   /**
@@ -92,7 +92,7 @@ public interface WebSocket {
      * @param ws WebSocket.
      * @param closeStatus Close status.
      */
-    void onClose(@Nonnull WebSocket ws, @Nonnull WebSocketCloseStatus closeStatus);
+    void onClose(@NonNull WebSocket ws, @NonNull WebSocketCloseStatus closeStatus);
   }
 
   /**
@@ -105,7 +105,7 @@ public interface WebSocket {
      * @param ws Websocket.
      * @param cause Cause.
      */
-    void onError(@Nonnull WebSocket ws, @Nonnull Throwable cause);
+    void onError(@NonNull WebSocket ws, @NonNull Throwable cause);
   }
 
   /** Max message size for websocket (128K). */
@@ -119,14 +119,14 @@ public interface WebSocket {
    *
    * @return Read-only originating HTTP request.
    */
-  @Nonnull Context getContext();
+  @NonNull Context getContext();
 
   /**
    * Context attributes (a.k.a request attributes).
    *
    * @return Context attributes.
    */
-  default @Nonnull Map<String, Object> getAttributes() {
+  default @NonNull Map<String, Object> getAttributes() {
     return getContext().getAttributes();
   }
 
@@ -138,7 +138,7 @@ public interface WebSocket {
    * @param <T> Attribute type.
    * @return Attribute value.
    */
-  default @Nonnull <T> T attribute(@Nonnull String key) {
+  default @NonNull <T> T attribute(@NonNull String key) {
     return getContext().attribute(key);
   }
 
@@ -149,7 +149,7 @@ public interface WebSocket {
    * @param value Attribute value.
    * @return This router.
    */
-  default @Nonnull WebSocket attribute(@Nonnull String key, Object value) {
+  default @NonNull WebSocket attribute(@NonNull String key, Object value) {
     getContext().attribute(key, value);
     return this;
   }
@@ -160,7 +160,7 @@ public interface WebSocket {
    * @param message Text Message.
    * @return This websocket.
    */
-  default @Nonnull WebSocket send(@Nonnull String message) {
+  default @NonNull WebSocket send(@NonNull String message) {
     return send(message, false);
   }
 
@@ -170,7 +170,7 @@ public interface WebSocket {
    *
    * @return Web sockets or empty list.
    */
-  @Nonnull List<WebSocket> getSessions();
+  @NonNull List<WebSocket> getSessions();
 
   /**
    * True if websocket is open.
@@ -187,7 +187,7 @@ public interface WebSocket {
    * @param broadcast True to send to all connected clients.
    * @return This websocket.
    */
-  @Nonnull WebSocket send(@Nonnull String message, boolean broadcast);
+  @NonNull WebSocket send(@NonNull String message, boolean broadcast);
 
   /**
    * Send a text message to client.
@@ -195,7 +195,7 @@ public interface WebSocket {
    * @param message Text Message.
    * @return This websocket.
    */
-  default @Nonnull WebSocket send(@Nonnull byte[] message) {
+  default @NonNull WebSocket send(@NonNull byte[] message) {
     return send(message, false);
   }
 
@@ -207,7 +207,7 @@ public interface WebSocket {
    * @param broadcast True to send to all connected clients.
    * @return This websocket.
    */
-  @Nonnull WebSocket send(@Nonnull byte[] message, boolean broadcast);
+  @NonNull WebSocket send(@NonNull byte[] message, boolean broadcast);
 
   /**
    * Encode a value and send a text message to client.
@@ -215,7 +215,7 @@ public interface WebSocket {
    * @param value Value to send.
    * @return This websocket.
    */
-  default @Nonnull WebSocket render(@Nonnull Object value) {
+  default @NonNull WebSocket render(@NonNull Object value) {
     return render(value, false);
   }
 
@@ -227,7 +227,7 @@ public interface WebSocket {
    * @param broadcast True to send to all connected clients.
    * @return This websocket.
    */
-  @Nonnull WebSocket render(@Nonnull Object value, boolean broadcast);
+  @NonNull WebSocket render(@NonNull Object value, boolean broadcast);
 
   /**
    * Close the web socket and send a {@link WebSocketCloseStatus#NORMAL} code to client.
@@ -236,7 +236,7 @@ public interface WebSocket {
    *
    * @return This websocket.
    */
-  default @Nonnull WebSocket close() {
+  default @NonNull WebSocket close() {
     return close(WebSocketCloseStatus.NORMAL);
   }
 
@@ -248,5 +248,5 @@ public interface WebSocket {
    * @param closeStatus Close status.
    * @return This websocket.
    */
-  @Nonnull WebSocket close(@Nonnull WebSocketCloseStatus closeStatus);
+  @NonNull WebSocket close(@NonNull WebSocketCloseStatus closeStatus);
 }

@@ -10,7 +10,7 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.internal.handler.LinkedHandler;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class HeadResponseHandler implements LinkedHandler {
   private Route.Handler next;
@@ -23,7 +23,7 @@ public class HeadResponseHandler implements LinkedHandler {
     return next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
     return ctx.getMethod().equals(Router.HEAD)
         ? next.apply(new HeadContext(ctx))
         : next.apply(ctx);

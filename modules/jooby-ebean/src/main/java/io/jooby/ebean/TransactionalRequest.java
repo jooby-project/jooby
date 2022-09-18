@@ -11,7 +11,7 @@ import io.jooby.Route;
 import io.jooby.ServiceKey;
 import io.jooby.annotations.Transactional;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Start a new transaction on each incoming request. Its commit the transaction is no exception is
@@ -32,7 +32,7 @@ public class TransactionalRequest implements Route.Decorator {
    *
    * @param name Ebean service name.
    */
-  public TransactionalRequest(@Nonnull String name) {
+  public TransactionalRequest(@NonNull String name) {
     key = ServiceKey.key(Database.class, name);
   }
 
@@ -59,7 +59,7 @@ public class TransactionalRequest implements Route.Decorator {
     return this;
   }
 
-  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
+  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
         Database db = ctx.require(key);

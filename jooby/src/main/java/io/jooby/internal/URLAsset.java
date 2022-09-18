@@ -9,7 +9,7 @@ import io.jooby.Asset;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -44,7 +44,7 @@ public class URLAsset implements Asset {
    * @param resource Asset resource url.
    * @param path Asset path.
    */
-  public URLAsset(@Nonnull URL resource, @Nonnull String path) {
+  public URLAsset(@NonNull URL resource, @NonNull String path) {
     this.resource = resource;
     this.path = path;
   }
@@ -59,7 +59,7 @@ public class URLAsset implements Asset {
     return lastModified;
   }
 
-  @Nonnull @Override public MediaType getContentType() {
+  @NonNull @Override public MediaType getContentType() {
     return MediaType.byFile(path);
   }
 

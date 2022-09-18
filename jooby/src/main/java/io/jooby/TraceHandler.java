@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class TraceHandler implements Route.Decorator {
   private static final String CRLF = "\r\n";
 
-  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
+  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getMethod().equals(Router.TRACE)) {
         // Handle trace
@@ -41,7 +41,7 @@ public class TraceHandler implements Route.Decorator {
     };
   }
 
-  @Nonnull @Override public void setRoute(@Nonnull Route route) {
+  @NonNull @Override public void setRoute(@NonNull Route route) {
     route.setHttpTrace(true);
   }
 }

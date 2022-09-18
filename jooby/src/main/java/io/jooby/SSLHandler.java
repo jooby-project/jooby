@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Force SSL handler. Check for non-HTTPs request and force client to use HTTPs by redirecting the
@@ -30,7 +30,7 @@ public class SSLHandler implements Route.Before {
    * @param host Host to redirect.
    * @param port HTTP port.
    */
-  public SSLHandler(@Nonnull String host, int port) {
+  public SSLHandler(@NonNull String host, int port) {
     this.host = host;
     this.port = port;
   }
@@ -43,7 +43,7 @@ public class SSLHandler implements Route.Before {
    *
    * @param host Host to redirect.
    */
-  public SSLHandler(@Nonnull String host) {
+  public SSLHandler(@NonNull String host) {
     this(host, SECURE_PORT);
   }
 
@@ -72,7 +72,7 @@ public class SSLHandler implements Route.Before {
     this(SECURE_PORT);
   }
 
-  @Override public void apply(@Nonnull Context ctx) {
+  @Override public void apply(@NonNull Context ctx) {
     if (!ctx.isSecure()) {
       String host;
       if (this.host == null) {

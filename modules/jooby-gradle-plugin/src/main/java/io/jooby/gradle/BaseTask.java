@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -49,7 +49,7 @@ public class BaseTask extends DefaultTask {
    * @return Available projects.
    */
   @Internal
-  public @Nonnull List<Project> getProjects() {
+  public @NonNull List<Project> getProjects() {
     return Collections.singletonList(getProject());
   }
 
@@ -59,7 +59,7 @@ public class BaseTask extends DefaultTask {
    * @param projects Projects.
    * @return Main class.
    */
-  protected @Nonnull String computeMainClassName(@Nonnull List<Project> projects) {
+  protected @NonNull String computeMainClassName(@NonNull List<Project> projects) {
     return projects.stream()
         .map(it -> {
           // Old way:
@@ -86,8 +86,8 @@ public class BaseTask extends DefaultTask {
    * @param sourceSet Source set.
    * @return Directories.
    */
-  protected @Nonnull Set<Path> binDirectories(@Nonnull Project project,
-      @Nonnull SourceSet sourceSet) {
+  protected @NonNull Set<Path> binDirectories(@NonNull Project project,
+      @NonNull SourceSet sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && Files.isDirectory(it));
   }
 
@@ -98,8 +98,8 @@ public class BaseTask extends DefaultTask {
    * @param sourceSet Source set.
    * @return Jar files.
    */
-  protected @Nonnull Set<Path> dependencies(@Nonnull Project project,
-      @Nonnull SourceSet sourceSet) {
+  protected @NonNull Set<Path> dependencies(@NonNull Project project,
+      @NonNull SourceSet sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && it.toString().endsWith(".jar"));
   }
 
@@ -109,7 +109,7 @@ public class BaseTask extends DefaultTask {
    * @param project Project.
    * @return Classes directory.
    */
-  protected @Nonnull Path classes(@Nonnull Project project) {
+  protected @NonNull Path classes(@NonNull Project project) {
     SourceSet sourceSet = sourceSet(project);
     return sourceSet.getRuntimeClasspath().getFiles().stream()
         .filter(f -> f.exists() && f.isDirectory() && f.toString().contains("classes"))
@@ -126,8 +126,8 @@ public class BaseTask extends DefaultTask {
    * @param predicate Path filter.
    * @return Classpath.
    */
-  protected @Nonnull Set<Path> classpath(@Nonnull Project project, @Nonnull SourceSet sourceSet,
-      @Nonnull Predicate<Path> predicate) {
+  protected @NonNull Set<Path> classpath(@NonNull Project project, @NonNull SourceSet sourceSet,
+      @NonNull Predicate<Path> predicate) {
     Set<Path> result = new LinkedHashSet<>();
     // classes/main, resources/main + jars
     sourceSet.getRuntimeClasspath().getFiles().stream()
@@ -151,8 +151,8 @@ public class BaseTask extends DefaultTask {
    * @param sourceSet Source set.
    * @return Source directories.
    */
-  protected @Nonnull Set<Path> sourceDirectories(@Nonnull Project project,
-      @Nonnull SourceSet sourceSet) {
+  protected @NonNull Set<Path> sourceDirectories(@NonNull Project project,
+      @NonNull SourceSet sourceSet) {
     Path eclipse = project.getProjectDir().toPath().resolve(".classpath");
     if (Files.exists(eclipse)) {
       // let eclipse to do the incremental compilation
@@ -170,7 +170,7 @@ public class BaseTask extends DefaultTask {
    * @param project Project.
    * @return SourceSet.
    */
-  protected @Nonnull SourceSet sourceSet(final @Nonnull Project project) {
+  protected @NonNull SourceSet sourceSet(final @NonNull Project project) {
     return getJavaConvention(project).getSourceSets()
         .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
   }
@@ -181,7 +181,7 @@ public class BaseTask extends DefaultTask {
    * @param project Project.
    * @return Java plugin convention.
    */
-  protected @Nonnull JavaPluginConvention getJavaConvention(final @Nonnull Project project) {
+  protected @NonNull JavaPluginConvention getJavaConvention(final @NonNull Project project) {
     return project.getConvention().getPlugin(JavaPluginConvention.class);
   }
 

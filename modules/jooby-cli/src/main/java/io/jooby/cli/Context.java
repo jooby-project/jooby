@@ -5,7 +5,7 @@
  */
 package io.jooby.cli;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -34,7 +34,7 @@ public interface Context {
    * @param file Output file.
    * @throws IOException If something goes wrong.
    */
-  void writeTemplate(@Nonnull String template, @Nonnull Object model, @Nonnull Path file)
+  void writeTemplate(@NonNull String template, @NonNull Object model, @NonNull Path file)
       throws IOException;
 
   /**
@@ -44,7 +44,7 @@ public interface Context {
    * @param dest Destination file.
    * @throws IOException If something goes wrong.
    */
-  void copyResource(@Nonnull String source, @Nonnull Path dest) throws IOException;
+  void copyResource(@NonNull String source, @NonNull Path dest) throws IOException;
 
   /**
    * Copy a classpath resource to a file.
@@ -54,8 +54,8 @@ public interface Context {
    * @param permissions File permissions.
    * @throws IOException If something goes wrong.
    */
-  void copyResource(@Nonnull String source, @Nonnull Path dest,
-      @Nonnull Set<PosixFilePermission> permissions) throws IOException;
+  void copyResource(@NonNull String source, @NonNull Path dest,
+      @NonNull Set<PosixFilePermission> permissions) throws IOException;
 
   /**
    * List all dependencies and their version. Like:
@@ -75,28 +75,28 @@ public interface Context {
    * @param prompt User prompt.
    * @return Input value.
    */
-  @Nonnull String readLine(@Nonnull String prompt);
+  @NonNull String readLine(@NonNull String prompt);
 
   /**
    * Write a message to console.
    *
    * @param message Message.
    */
-  void println(@Nonnull String message);
+  void println(@NonNull String message);
 
   /**
    * Jooby version to use.
    *
    * @return Jooby version to use.
    */
-  @Nonnull String getVersion();
+  @NonNull String getVersion();
 
   /**
    * Working directory (where the projects are created).
    *
    * @return Working directory (where the projects are created).
    */
-  @Nonnull Path getWorkspace();
+  @NonNull Path getWorkspace();
 
   /**
    * Set workspace/working directory.
@@ -104,5 +104,5 @@ public interface Context {
    * @param workspace Workspace/working directory.
    * @throws IOException When directory doesn't exist.
    */
-  void setWorkspace(@Nonnull Path workspace) throws IOException;
+  void setWorkspace(@NonNull Path workspace) throws IOException;
 }

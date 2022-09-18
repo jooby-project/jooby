@@ -5,7 +5,7 @@
  */
 package io.jooby.rocker;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerOutputFactory;
@@ -23,7 +23,7 @@ class RockerHandler implements Route.Handler {
     this.factory = factory;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       RockerModel template = (RockerModel) next.apply(ctx);
       ctx.setResponseType(MediaType.html);

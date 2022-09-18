@@ -7,8 +7,8 @@ package io.jooby;
 
 import io.jooby.internal.UrlParser;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Query string class for direct MVC parameter provisioning.
@@ -23,7 +23,7 @@ public interface QueryString extends ValueNode {
    *
    * @return Query string with the leading <code>?</code> or empty string.
    */
-  @Nonnull String queryString();
+  @NonNull String queryString();
 
   /**
    * Query string hash value.
@@ -38,7 +38,7 @@ public interface QueryString extends ValueNode {
    * @param queryString Query string.
    * @return A query string.
    */
-  static @Nonnull QueryString create(@Nonnull Context ctx, @Nullable String queryString) {
+  static @NonNull QueryString create(@NonNull Context ctx, @Nullable String queryString) {
     return UrlParser.queryString(ctx, queryString);
   }
 }

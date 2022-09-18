@@ -7,8 +7,8 @@ package io.jooby;
 
 import io.jooby.internal.MultipleSessionToken;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -36,15 +36,15 @@ public interface SessionToken {
      *
      * @param cookie Cookie to use.
      */
-    public CookieID(@Nonnull Cookie cookie) {
+    public CookieID(@NonNull Cookie cookie) {
       this.cookie = cookie;
     }
 
-    @Nullable @Override public String findToken(@Nonnull Context ctx) {
+    @Nullable @Override public String findToken(@NonNull Context ctx) {
       return ctx.cookieMap().get(cookie.getName());
     }
 
-    @Override public void saveToken(@Nonnull Context ctx, @Nonnull String token) {
+    @Override public void saveToken(@NonNull Context ctx, @NonNull String token) {
       // FIXME: Review, bc we don;t need this
       //  String existingId = findToken(ctx);
       // write cookie for new or expiring session
@@ -53,7 +53,7 @@ public interface SessionToken {
       //}
     }
 
-    @Override public void deleteToken(@Nonnull Context ctx, @Nonnull String token) {
+    @Override public void deleteToken(@NonNull Context ctx, @NonNull String token) {
       ctx.setResponseCookie(cookie.clone().setValue(token).setMaxAge(0));
     }
   }
@@ -74,19 +74,19 @@ public interface SessionToken {
      *
      * @param name Header's name.
      */
-    public HeaderID(@Nonnull String name) {
+    public HeaderID(@NonNull String name) {
       this.name = name;
     }
 
-    @Nullable @Override public String findToken(@Nonnull Context ctx) {
+    @Nullable @Override public String findToken(@NonNull Context ctx) {
       return ctx.headerMap().get(name);
     }
 
-    @Override public void saveToken(@Nonnull Context ctx, @Nonnull String token) {
+    @Override public void saveToken(@NonNull Context ctx, @NonNull String token) {
       ctx.setResponseHeader(name, token);
     }
 
-    @Override public void deleteToken(@Nonnull Context ctx, @Nonnull String token) {
+    @Override public void deleteToken(@NonNull Context ctx, @NonNull String token) {
       ctx.removeResponseHeader(name);
     }
   }
@@ -107,19 +107,19 @@ public interface SessionToken {
      *
      * @param cookie Cookie to use.
      */
-    public SignedCookie(@Nonnull Cookie cookie) {
+    public SignedCookie(@NonNull Cookie cookie) {
       this.cookie = cookie;
     }
 
-    @Nullable @Override public String findToken(@Nonnull Context ctx) {
+    @Nullable @Override public String findToken(@NonNull Context ctx) {
       return ctx.cookieMap().get(cookie.getName());
     }
 
-    @Override public void saveToken(@Nonnull Context ctx, @Nonnull String token) {
+    @Override public void saveToken(@NonNull Context ctx, @NonNull String token) {
       ctx.setResponseCookie(cookie.clone().setValue(token));
     }
 
-    @Override public void deleteToken(@Nonnull Context ctx, @Nonnull String token) {
+    @Override public void deleteToken(@NonNull Context ctx, @NonNull String token) {
       ctx.setResponseCookie(cookie.clone().setMaxAge(0));
     }
   }
@@ -145,7 +145,7 @@ public interface SessionToken {
    *
    * @return A new token.
    */
-  default @Nonnull String newToken() {
+  default @NonNull String newToken() {
     byte[] bytes = new byte[ID_SIZE];
     RND.nextBytes(bytes);
     return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
@@ -157,7 +157,7 @@ public interface SessionToken {
    * @param ctx Web context.
    * @return Session ID or <code>null</code>.
    */
-  @Nullable String findToken(@Nonnull Context ctx);
+  @Nullable String findToken(@NonNull Context ctx);
 
   /**
    * Save session ID in the web context.
@@ -165,7 +165,7 @@ public interface SessionToken {
    * @param ctx Web context.
    * @param token Token/data to save.
    */
-  void saveToken(@Nonnull Context ctx, @Nonnull String token);
+  void saveToken(@NonNull Context ctx, @NonNull String token);
 
   /**
    * Delete session ID in the web context.
@@ -173,7 +173,7 @@ public interface SessionToken {
    * @param ctx Web context.
    * @param token Token/data to delete.
    */
-  void deleteToken(@Nonnull Context ctx, @Nonnull String token);
+  void deleteToken(@NonNull Context ctx, @NonNull String token);
 
   /* **********************************************************************************************
    * Factory methods
@@ -190,7 +190,7 @@ public interface SessionToken {
    * @param cookie Cookie to use.
    * @return Session Token.
    */
-  static @Nonnull SessionToken cookieId(@Nonnull Cookie cookie) {
+  static @NonNull SessionToken cookieId(@NonNull Cookie cookie) {
     return new CookieID(cookie);
   }
 
@@ -204,7 +204,7 @@ public interface SessionToken {
    * @param cookie Cookie to use.
    * @return Session Token.
    */
-  static @Nonnull SessionToken signedCookie(@Nonnull Cookie cookie) {
+  static @NonNull SessionToken signedCookie(@NonNull Cookie cookie) {
     return new SignedCookie(cookie);
   }
 
@@ -218,7 +218,7 @@ public interface SessionToken {
    * @param name Header name.
    * @return Session Token.
    */
-  static @Nonnull SessionToken header(@Nonnull String name) {
+  static @NonNull SessionToken header(@NonNull String name) {
     return new HeaderID(name);
   }
 
@@ -240,7 +240,7 @@ public interface SessionToken {
    * @param tokens Tokens to use.
    * @return A composed session token.
    */
-  static @Nonnull SessionToken combine(@Nonnull SessionToken... tokens) {
+  static @NonNull SessionToken combine(@NonNull SessionToken... tokens) {
     return new MultipleSessionToken(tokens);
   }
 }

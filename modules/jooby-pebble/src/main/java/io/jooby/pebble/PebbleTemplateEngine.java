@@ -11,7 +11,7 @@ import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
@@ -30,7 +30,7 @@ class PebbleTemplateEngine implements TemplateEngine {
     this.extensions = Collections.unmodifiableList(extensions);
   }
 
-  @Nonnull
+  @NonNull
   @Override
   public List<String> extensions() {
     return extensions;

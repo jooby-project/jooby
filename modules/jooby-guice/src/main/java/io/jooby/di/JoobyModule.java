@@ -18,7 +18,7 @@ import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -41,7 +41,7 @@ public class JoobyModule extends AbstractModule {
    *
    * @param application Jooby application.
    */
-  public JoobyModule(@Nonnull Jooby application) {
+  public JoobyModule(@NonNull Jooby application) {
     this.application = application;
   }
 

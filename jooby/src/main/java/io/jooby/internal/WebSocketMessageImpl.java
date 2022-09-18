@@ -12,7 +12,7 @@ import io.jooby.ForwardingContext;
 import io.jooby.MediaType;
 import io.jooby.WebSocketMessage;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Type;
 
 public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMessage {
@@ -21,24 +21,24 @@ public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMess
 
     private final Body body;
 
-    public WebSocketMessageBody(@Nonnull Context context, Body body) {
+    public WebSocketMessageBody(@NonNull Context context, Body body) {
       super(context);
       this.body = body;
     }
 
-    @Nonnull @Override public Body body() {
+    @NonNull @Override public Body body() {
       return body;
     }
 
-    @Nonnull @Override public <T> T body(@Nonnull Type type) {
+    @NonNull @Override public <T> T body(@NonNull Type type) {
       return body.to(type);
     }
 
-    @Nonnull @Override public <T> T body(@Nonnull Class<T> type) {
+    @NonNull @Override public <T> T body(@NonNull Class<T> type) {
       return body.to(type);
     }
 
-    @Nonnull @Override public <T> T decode(@Nonnull Type type, @Nonnull MediaType contentType) {
+    @NonNull @Override public <T> T decode(@NonNull Type type, @NonNull MediaType contentType) {
       return DefaultContext.super.decode(type, contentType);
     }
   }
@@ -47,7 +47,7 @@ public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMess
     super(ctx, bytes);
   }
 
-  @Nonnull @Override public <T> T to(@Nonnull Type type) {
+  @NonNull @Override public <T> T to(@NonNull Type type) {
     MediaType contentType = ctx.getRoute().getConsumes().get(0);
     return new WebSocketMessageBody(ctx, this).decode(type, contentType);
   }

@@ -7,7 +7,7 @@ package io.jooby;
 
 import com.typesafe.config.Config;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -336,7 +336,7 @@ public class Cors {
    * @param conf Configuration.
    * @return Cors options.
    */
-  public static @Nonnull Cors from(@Nonnull Config conf) {
+  public static @NonNull Cors from(@NonNull Config conf) {
     Config cors = conf.hasPath("cors") ? conf.getConfig("cors") : conf;
     Cors options = new Cors();
     if (cors.hasPath("origin")) {

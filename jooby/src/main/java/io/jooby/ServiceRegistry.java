@@ -7,8 +7,8 @@ package io.jooby;
 
 import io.jooby.exception.RegistryException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import jakarta.inject.Provider;
 import java.util.Map;
 import java.util.Set;
@@ -26,14 +26,14 @@ public interface ServiceRegistry extends Registry {
    *
    * @return Service keys.
    */
-  @Nonnull Set<ServiceKey<?>> keySet();
+  @NonNull Set<ServiceKey<?>> keySet();
 
   /**
    * Registered service entries.
    *
    * @return Service entries.
    */
-  @Nonnull Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet();
+  @NonNull Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet();
 
   /**
    * Retrieve a service/resource by key.
@@ -43,7 +43,7 @@ public interface ServiceRegistry extends Registry {
    * @return Service.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  default @Nonnull <T> T get(@Nonnull ServiceKey<T> key) {
+  default @NonNull <T> T get(@NonNull ServiceKey<T> key) {
     T service = getOrNull(key);
     if (service == null) {
       throw new RegistryException("Service not found: " + key);
@@ -59,7 +59,7 @@ public interface ServiceRegistry extends Registry {
    * @return Service.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  default @Nonnull <T> T get(@Nonnull Class<T> type) {
+  default @NonNull <T> T get(@NonNull Class<T> type) {
     return get(ServiceKey.key(type));
   }
 
@@ -70,7 +70,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service/resource type.
    * @return Service or <code>null</code>.
    */
-  @Nullable <T> T getOrNull(@Nonnull ServiceKey<T> key);
+  @Nullable <T> T getOrNull(@NonNull ServiceKey<T> key);
 
   /**
    * Retrieve an existing service or <code>null</code> if not exists.
@@ -79,7 +79,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service/resource type.
    * @return Service or <code>null</code>.
    */
-  default @Nullable <T> T getOrNull(@Nonnull Class<T> type) {
+  default @Nullable <T> T getOrNull(@NonNull Class<T> type) {
     return getOrNull(ServiceKey.key(type));
   }
 
@@ -91,7 +91,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T put(@Nonnull Class<T> type, Provider<T> service) {
+  default @Nullable <T> T put(@NonNull Class<T> type, Provider<T> service) {
     return put(ServiceKey.key(type), service);
   }
 
@@ -103,7 +103,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T put(@Nonnull ServiceKey<T> key, Provider<T> service);
+  @Nullable <T> T put(@NonNull ServiceKey<T> key, Provider<T> service);
 
   /**
    * Put a service in this registry. This method overrides any previous registered service.
@@ -113,7 +113,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T put(@Nonnull Class<T> type, T service) {
+  default @Nullable <T> T put(@NonNull Class<T> type, T service) {
     return put(ServiceKey.key(type), service);
   }
 
@@ -125,7 +125,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T put(@Nonnull ServiceKey<T> key, T service);
+  @Nullable <T> T put(@NonNull ServiceKey<T> key, T service);
 
   /**
    * Put/register a service in this registry if there isn't the same service already registered.
@@ -136,7 +136,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T putIfAbsent(@Nonnull ServiceKey<T> key, T service);
+  @Nullable <T> T putIfAbsent(@NonNull ServiceKey<T> key, T service);
 
   /**
    * Put/register a service in this registry if there isn't the same service already registered.
@@ -147,7 +147,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T putIfAbsent(@Nonnull Class<T> type, T service) {
+  default @Nullable <T> T putIfAbsent(@NonNull Class<T> type, T service) {
     return putIfAbsent(ServiceKey.key(type), service);
   }
 
@@ -160,7 +160,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T putIfAbsent(@Nonnull ServiceKey<T> key, Provider<T> service);
+  @Nullable <T> T putIfAbsent(@NonNull ServiceKey<T> key, Provider<T> service);
 
   /**
    * Put/register a service in this registry if there isn't the same service already registered.
@@ -171,19 +171,19 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T putIfAbsent(@Nonnull Class<T> type, Provider<T> service) {
+  default @Nullable <T> T putIfAbsent(@NonNull Class<T> type, Provider<T> service) {
     return putIfAbsent(ServiceKey.key(type), service);
   }
 
-  default @Nonnull @Override <T> T require(@Nonnull Class<T> type) {
+  default @NonNull @Override <T> T require(@NonNull Class<T> type) {
     return get(ServiceKey.key(type));
   }
 
-  default @Nonnull @Override <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
+  default @NonNull @Override <T> T require(@NonNull Class<T> type, @NonNull String name) {
     return get(ServiceKey.key(type, name));
   }
 
-  default @Nonnull @Override <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+  default @NonNull @Override <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     return get(key);
   }
 }

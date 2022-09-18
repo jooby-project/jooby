@@ -10,7 +10,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.whoops.Whoops;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -43,7 +43,7 @@ public class WhoopsModule implements Extension {
    *
    * @param basedir Base dir.
    */
-  public WhoopsModule(@Nonnull Path basedir) {
+  public WhoopsModule(@NonNull Path basedir) {
     this.basedir = basedir;
   }
 
@@ -54,7 +54,7 @@ public class WhoopsModule implements Extension {
     this(Paths.get(System.getProperty("user.dir")));
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     Config config = application.getConfig();
 
     boolean enabled = config.hasPath(ENABLED)

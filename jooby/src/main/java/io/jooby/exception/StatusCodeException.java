@@ -7,8 +7,8 @@ package io.jooby.exception;
 
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Runtime exception with status code.
@@ -25,7 +25,7 @@ public class StatusCodeException extends RuntimeException {
    *
    * @param statusCode Status code.
    */
-  public StatusCodeException(@Nonnull StatusCode statusCode) {
+  public StatusCodeException(@NonNull StatusCode statusCode) {
     this(statusCode, statusCode.toString());
   }
 
@@ -35,7 +35,7 @@ public class StatusCodeException extends RuntimeException {
    * @param statusCode Status code.
    * @param message Error message.
    */
-  public StatusCodeException(@Nonnull StatusCode statusCode, @Nonnull String message) {
+  public StatusCodeException(@NonNull StatusCode statusCode, @NonNull String message) {
     this(statusCode, message, null);
   }
 
@@ -46,7 +46,7 @@ public class StatusCodeException extends RuntimeException {
    * @param message Error message.
    * @param cause Cause.
    */
-  public StatusCodeException(@Nonnull StatusCode statusCode, @Nonnull String message, @Nullable Throwable cause) {
+  public StatusCodeException(@NonNull StatusCode statusCode, @NonNull String message, @Nullable Throwable cause) {
     super(message, cause);
     this.statusCode = statusCode;
   }
@@ -56,7 +56,7 @@ public class StatusCodeException extends RuntimeException {
    *
    * @return Status code.
    */
-  public @Nonnull StatusCode getStatusCode() {
+  public @NonNull StatusCode getStatusCode() {
     return statusCode;
   }
 }

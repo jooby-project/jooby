@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Websocket configurer. Allow to register callbacks for websocket.
@@ -21,7 +21,7 @@ public interface WebSocketConfigurer {
    * @param callback Callback.
    * @return This configurer.
    */
-  @Nonnull WebSocketConfigurer onConnect(@Nonnull WebSocket.OnConnect callback);
+  @NonNull WebSocketConfigurer onConnect(@NonNull WebSocket.OnConnect callback);
 
   /**
    * Register an <code>onMessage</code> callback.
@@ -29,7 +29,7 @@ public interface WebSocketConfigurer {
    * @param callback Callback.
    * @return This configurer.
    */
-  @Nonnull WebSocketConfigurer onMessage(@Nonnull WebSocket.OnMessage callback);
+  @NonNull WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback);
 
   /**
    * Register an <code>onError</code> callback.
@@ -37,7 +37,7 @@ public interface WebSocketConfigurer {
    * @param callback Callback.
    * @return This configurer.
    */
-  @Nonnull WebSocketConfigurer onError(@Nonnull WebSocket.OnError callback);
+  @NonNull WebSocketConfigurer onError(@NonNull WebSocket.OnError callback);
 
   /**
    * Register an <code>onClose</code> callback.
@@ -45,5 +45,5 @@ public interface WebSocketConfigurer {
    * @param callback Callback.
    * @return This configurer.
    */
-  @Nonnull WebSocketConfigurer onClose(@Nonnull WebSocket.OnClose callback);
+  @NonNull WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback);
 }

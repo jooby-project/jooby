@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.Objects;
 
 /**
@@ -32,7 +32,7 @@ public final class ServiceKey<T> {
    *
    * @return Resource type.
    */
-  public @Nonnull Class<T> getType() {
+  public @NonNull Class<T> getType() {
     return type;
   }
 
@@ -71,7 +71,7 @@ public final class ServiceKey<T> {
    * @param <T> Type.
    * @return A new resource key.
    */
-  public static @Nonnull  <T> ServiceKey<T> key(@Nonnull Class<T> type) {
+  public static @NonNull  <T> ServiceKey<T> key(@NonNull Class<T> type) {
     return new ServiceKey<>(type, null);
   }
 
@@ -83,7 +83,7 @@ public final class ServiceKey<T> {
    * @param <T> Type.
    * @return A new resource key.
    */
-  public static @Nonnull  <T> ServiceKey<T> key(@Nonnull Class<T> type, @Nonnull String name) {
+  public static @NonNull  <T> ServiceKey<T> key(@NonNull Class<T> type, @NonNull String name) {
     return new ServiceKey<>(type, name);
   }
 }

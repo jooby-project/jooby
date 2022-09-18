@@ -13,7 +13,7 @@ import io.jooby.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayOutputStream;
 import java.lang.management.ManagementFactory;
 
@@ -32,9 +32,9 @@ public class ThreadDumpHandler implements Route.Handler {
     }
   }
 
-  @Nonnull
+  @NonNull
   @Override
-  public Object apply(@Nonnull Context ctx) {
+  public Object apply(@NonNull Context ctx) {
     Object data;
     if (threadDump == null) {
       data = "Sorry your runtime environment does not allow to dump threads.";

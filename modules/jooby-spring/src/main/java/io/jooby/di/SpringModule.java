@@ -18,7 +18,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Controller;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 import java.util.Map;
 
@@ -61,7 +61,7 @@ public class SpringModule implements Extension {
    *
    * @param applicationContext Application context to use.
    */
-  public SpringModule(@Nonnull AnnotationConfigApplicationContext applicationContext) {
+  public SpringModule(@NonNull AnnotationConfigApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
@@ -76,7 +76,7 @@ public class SpringModule implements Extension {
    *
    * @param packages Package to scan.
    */
-  public SpringModule(@Nonnull String... packages) {
+  public SpringModule(@NonNull String... packages) {
     this.packages = packages;
   }
 
@@ -105,7 +105,7 @@ public class SpringModule implements Extension {
     return true;
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     if (applicationContext == null) {
       String[] packages = this.packages;
       if (packages == null) {

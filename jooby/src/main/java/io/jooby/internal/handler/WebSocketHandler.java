@@ -10,7 +10,7 @@ import io.jooby.Route;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class WebSocketHandler implements Route.Handler {
   private WebSocket.Initializer handler;
@@ -19,7 +19,7 @@ public class WebSocketHandler implements Route.Handler {
     this.handler = handler;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     boolean webSocket = ctx.header("Upgrade").value("")
         .equalsIgnoreCase("WebSocket");
     if (webSocket) {

@@ -10,7 +10,7 @@ import io.jooby.exception.RegistryException;
 import io.jooby.ServiceKey;
 import org.jboss.weld.environment.se.WeldContainer;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.literal.NamedLiteral;
 
@@ -24,15 +24,15 @@ class WeldRegistry implements Registry {
     this.container = container;
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type) {
     return require(ServiceKey.key(type));
   }
 
-  @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
+  @NonNull @Override public <T> T require(@NonNull Class<T> type, @NonNull String name) {
     return require(ServiceKey.key(type, name));
   }
 
-  @Nonnull @Override public <T> T require(ServiceKey<T> key) {
+  @NonNull @Override public <T> T require(ServiceKey<T> key) {
     try {
       return container.select(key.getType(), literal(key)).get();
     } catch (Exception cause) {

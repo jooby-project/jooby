@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -25,7 +25,7 @@ public class AttachedFile extends FileDownload {
    * @param fileName Filename.
    * @param fileSize File size or <code>-1</code> if unknown.
    */
-  public AttachedFile(@Nonnull InputStream content, @Nonnull String fileName, long fileSize) {
+  public AttachedFile(@NonNull InputStream content, @NonNull String fileName, long fileSize) {
     super(Mode.ATTACHMENT, content, fileName, fileSize);
   }
 
@@ -35,7 +35,7 @@ public class AttachedFile extends FileDownload {
    * @param content File content.
    * @param fileName Filename.
    */
-  public AttachedFile(@Nonnull InputStream content, @Nonnull String fileName) {
+  public AttachedFile(@NonNull InputStream content, @NonNull String fileName) {
     super(Mode.ATTACHMENT, content, fileName);
   }
 
@@ -46,7 +46,7 @@ public class AttachedFile extends FileDownload {
    * @param fileName Filename.
    * @throws IOException For IO exception while reading file.
    */
-  public AttachedFile(@Nonnull Path file, @Nonnull String fileName) throws IOException {
+  public AttachedFile(@NonNull Path file, @NonNull String fileName) throws IOException {
     super(Mode.ATTACHMENT, file, fileName);
   }
 
@@ -56,7 +56,7 @@ public class AttachedFile extends FileDownload {
    * @param file File content.
    * @throws IOException For IO exception while reading file.
    */
-  public AttachedFile(@Nonnull Path file) throws IOException {
+  public AttachedFile(@NonNull Path file) throws IOException {
     super(Mode.ATTACHMENT, file);
   }
 }

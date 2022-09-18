@@ -7,7 +7,7 @@ package io.jooby;
 
 import io.jooby.exception.InvalidCsrfToken;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
@@ -106,7 +106,7 @@ public class CsrfHandler implements Route.Before {
     this("csrf");
   }
 
-  @Override public void apply(@Nonnull Context ctx) throws Exception {
+  @Override public void apply(@NonNull Context ctx) throws Exception {
 
     Session session = ctx.session();
     String token = session.get(name).toOptional().orElseGet(() -> {
@@ -138,7 +138,7 @@ public class CsrfHandler implements Route.Before {
    * @param generator A custom token generator.
    * @return This filter.
    */
-  public @Nonnull CsrfHandler setTokenGenerator(@Nonnull Function<Context, String> generator) {
+  public @NonNull CsrfHandler setTokenGenerator(@NonNull Function<Context, String> generator) {
     this.generator = generator;
     return this;
   }
@@ -151,7 +151,7 @@ public class CsrfHandler implements Route.Before {
    * @param filter Predicate to use.
    * @return This filter.
    */
-  public @Nonnull CsrfHandler setRequestFilter(@Nonnull Predicate<Context> filter) {
+  public @NonNull CsrfHandler setRequestFilter(@NonNull Predicate<Context> filter) {
     this.filter = filter;
     return this;
   }

@@ -7,7 +7,7 @@ package io.jooby;
 
 import io.jooby.internal.FormdataNode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collection;
 
 /**
@@ -26,7 +26,7 @@ public interface Formdata extends ValueNode {
    * @param path Form name/path.
    * @param value Form value.
    */
-  @Nonnull void put(@Nonnull String path, @Nonnull ValueNode value);
+  @NonNull void put(@NonNull String path, @NonNull ValueNode value);
 
   /**
    * Add a form field.
@@ -34,7 +34,7 @@ public interface Formdata extends ValueNode {
    * @param path Form name/path.
    * @param value Form value.
    */
-  @Nonnull void put(@Nonnull String path, @Nonnull String value);
+  @NonNull void put(@NonNull String path, @NonNull String value);
 
   /**
    * Add a form field.
@@ -42,7 +42,7 @@ public interface Formdata extends ValueNode {
    * @param path Form name/path.
    * @param values Form values.
    */
-  @Nonnull void put(@Nonnull String path, @Nonnull Collection<String> values);
+  @NonNull void put(@NonNull String path, @NonNull Collection<String> values);
 
   /**
    * Creates a formdata object.
@@ -50,7 +50,7 @@ public interface Formdata extends ValueNode {
    * @param ctx Current context.
    * @return Formdata.
    */
-  static @Nonnull Formdata create(@Nonnull Context ctx) {
+  static @NonNull Formdata create(@NonNull Context ctx) {
     return new FormdataNode(ctx);
   }
 }

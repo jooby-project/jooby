@@ -6,8 +6,8 @@
 package io.jooby;
 
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.InputStream;
 import java.nio.file.Path;
 
@@ -37,13 +37,13 @@ public interface FileUpload {
    *
    * @return File key. That's the field form name, not the file name.
    */
-  @Nonnull String getName();
+  @NonNull String getName();
 
   /**
    * Name of file upload.
    * @return Name of file upload.
    */
-  @Nonnull String getFileName();
+  @NonNull String getFileName();
 
   /**
    * Content type of file upload.
@@ -57,21 +57,21 @@ public interface FileUpload {
    *
    * @return Content as input stream.
    */
-  @Nonnull InputStream stream();
+  @NonNull InputStream stream();
 
   /**
    * Content as byte array.
    *
    * @return Content as byte array.
    */
-  @Nonnull byte[] bytes();
+  @NonNull byte[] bytes();
 
   /**
    * File system path to access file content.
    *
    * @return File system path to access file content.
    */
-  @Nonnull Path path();
+  @NonNull Path path();
 
   /**
    * File size or <code>-1</code> when unknown.

@@ -1,9 +1,9 @@
 package examples;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class ABean extends Bean {
-  @Nonnull
+  @NonNull
   private String foo;
 
   public String getFoo() {

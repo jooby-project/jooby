@@ -22,7 +22,7 @@ import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
 import io.jooby.TemplateEngine;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -105,8 +105,8 @@ public class PebbleModule implements Extension {
      * @param cache Template cache.
      * @return This builder.
      */
-    public @Nonnull
-    Builder setTemplateCache(@Nonnull PebbleCache<Object, PebbleTemplate> cache) {
+    public @NonNull
+    Builder setTemplateCache(@NonNull PebbleCache<Object, PebbleTemplate> cache) {
       this.templateCache = cache;
       return this;
     }
@@ -117,8 +117,8 @@ public class PebbleModule implements Extension {
      * @param tagCache Tag cache.
      * @return This builder.
      */
-    public @Nonnull
-    Builder setTagCache(@Nonnull PebbleCache<CacheKey, Object> tagCache) {
+    public @NonNull
+    Builder setTagCache(@NonNull PebbleCache<CacheKey, Object> tagCache) {
       this.tagCache = tagCache;
       return this;
     }
@@ -129,8 +129,8 @@ public class PebbleModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @Nonnull
-    Builder setTemplatesPath(@Nonnull String templatesPath) {
+    public @NonNull
+    Builder setTemplatesPath(@NonNull String templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
@@ -141,8 +141,8 @@ public class PebbleModule implements Extension {
      * @param executorService Set ExecutorService.
      * @return This builder.
      */
-    public @Nonnull
-    Builder setExecutorService(@Nonnull ExecutorService executorService) {
+    public @NonNull
+    Builder setExecutorService(@NonNull ExecutorService executorService) {
       this.executorService = executorService;
       return this;
     }
@@ -153,8 +153,8 @@ public class PebbleModule implements Extension {
      * @param defaultLocale Locale.
      * @return This builder.
      */
-    public @Nonnull
-    Builder setDefaultLocale(@Nonnull Locale defaultLocale) {
+    public @NonNull
+    Builder setDefaultLocale(@NonNull Locale defaultLocale) {
       this.defaultLocale = defaultLocale;
       return this;
     }
@@ -165,8 +165,8 @@ public class PebbleModule implements Extension {
      * @param loader Template loader to use.
      * @return This builder.
      */
-    public @Nonnull
-    Builder setTemplateLoader(@Nonnull Loader<?> loader) {
+    public @NonNull
+    Builder setTemplateLoader(@NonNull Loader<?> loader) {
       this.loader = loader;
       return this;
     }
@@ -177,8 +177,8 @@ public class PebbleModule implements Extension {
      * @param env Application environment.
      * @return A new PebbleEngine instance.
      */
-    public @Nonnull
-    PebbleEngine.Builder build(@Nonnull Environment env) {
+    public @NonNull
+    PebbleEngine.Builder build(@NonNull Environment env) {
 
       PebbleEngine.Builder builder = new PebbleEngine.Builder();
 
@@ -276,7 +276,7 @@ public class PebbleModule implements Extension {
    *
    * @param builder PebbleEngine.Builder instance to use.
    */
-  public PebbleModule(@Nonnull PebbleEngine.Builder builder) {
+  public PebbleModule(@NonNull PebbleEngine.Builder builder) {
     this.builder = builder;
   }
 
@@ -286,7 +286,7 @@ public class PebbleModule implements Extension {
    * @param templatesPath Template location to use. First try to file-system or fallback to
    *                      classpath.
    */
-  public PebbleModule(@Nonnull String templatesPath) {
+  public PebbleModule(@NonNull String templatesPath) {
     this.templatesPath = templatesPath;
   }
 
@@ -298,7 +298,7 @@ public class PebbleModule implements Extension {
   }
 
   @Override
-  public void install(@Nonnull Jooby application) throws Exception {
+  public void install(@NonNull Jooby application) throws Exception {
     if (builder == null) {
       builder = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
@@ -313,7 +313,7 @@ public class PebbleModule implements Extension {
    *
    * @return A builder.
    */
-  public static @Nonnull
+  public static @NonNull
   PebbleModule.Builder create() {
     return new PebbleModule.Builder();
   }

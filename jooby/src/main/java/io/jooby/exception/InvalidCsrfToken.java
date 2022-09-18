@@ -5,7 +5,7 @@
  */
 package io.jooby.exception;
 
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Generate by CSRF handler.

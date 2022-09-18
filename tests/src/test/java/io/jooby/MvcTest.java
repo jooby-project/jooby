@@ -18,7 +18,7 @@ import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -97,23 +97,23 @@ public class MvcTest {
   public void producesAndConsumes(ServerTestRunner runner) {
     runner.define(app -> {
 
-      app.encoder(io.jooby.MediaType.json, (@Nonnull Context ctx, @Nonnull Object value) ->
+      app.encoder(io.jooby.MediaType.json, (@NonNull Context ctx, @NonNull Object value) ->
           ("{" + value.toString() + "}").getBytes(StandardCharsets.UTF_8)
       );
 
-      app.encoder(io.jooby.MediaType.xml, (@Nonnull Context ctx, @Nonnull Object value) ->
+      app.encoder(io.jooby.MediaType.xml, (@NonNull Context ctx, @NonNull Object value) ->
           ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8)
       );
 
       app.decoder(io.jooby.MediaType.json, new MessageDecoder() {
-        @Nonnull @Override public Message decode(@Nonnull Context ctx, @Nonnull Type type)
+        @NonNull @Override public Message decode(@NonNull Context ctx, @NonNull Type type)
             throws Exception {
           return new Message("{" + ctx.body().value("") + "}");
         }
       });
 
       app.decoder(xml, new MessageDecoder() {
-        @Nonnull @Override public Message decode(@Nonnull Context ctx, @Nonnull Type type)
+        @NonNull @Override public Message decode(@NonNull Context ctx, @NonNull Type type)
             throws Exception {
           return new Message("<" + ctx.body().value("") + ">");
         }

@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import picocli.CommandLine;
 
@@ -32,7 +32,7 @@ public class SetCmd extends Cmd {
       "--force"}, description = "Force creation of workspace")
   private boolean force;
 
-  @Override public void run(@Nonnull Context ctx) throws Exception {
+  @Override public void run(@NonNull Context ctx) throws Exception {
     if (workspace != null) {
       Path path = Paths.get(
           workspace.replaceFirst("^~", Matcher.quoteReplacement(System.getProperty("user.home"))))

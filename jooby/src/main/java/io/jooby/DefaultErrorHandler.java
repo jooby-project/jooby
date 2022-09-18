@@ -7,7 +7,7 @@ package io.jooby;
 
 import org.slf4j.Logger;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -37,7 +37,7 @@ public class DefaultErrorHandler implements ErrorHandler {
    * @param statusCodes Status codes to mute.
    * @return This error handler.
    */
-  public @Nonnull DefaultErrorHandler mute(@Nonnull StatusCode... statusCodes) {
+  public @NonNull DefaultErrorHandler mute(@NonNull StatusCode... statusCodes) {
     Stream.of(statusCodes).forEach(muteCodes::add);
     return this;
   }
@@ -48,13 +48,13 @@ public class DefaultErrorHandler implements ErrorHandler {
    * @param exceptionTypes Exception types to mute.
    * @return This error handler.
    */
-  public @Nonnull DefaultErrorHandler mute(@Nonnull Class<? extends Exception>... exceptionTypes) {
+  public @NonNull DefaultErrorHandler mute(@NonNull Class<? extends Exception>... exceptionTypes) {
     Stream.of(exceptionTypes).forEach(muteTypes::add);
     return this;
   }
 
-  @Nonnull @Override public void apply(@Nonnull Context ctx, @Nonnull Throwable cause,
-      @Nonnull StatusCode code) {
+  @NonNull @Override public void apply(@NonNull Context ctx, @NonNull Throwable cause,
+      @NonNull StatusCode code) {
     Logger log = ctx.getRouter().getLog();
     if (isMuted(cause, code)) {
       log.debug(ErrorHandler.errorMessage(ctx, code), cause);

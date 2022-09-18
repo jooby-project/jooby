@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -58,7 +58,7 @@ public class MockResponse implements MockValue {
    *
    * @return Response headers.
    */
-  public @Nonnull Map<String, Object> getHeaders() {
+  public @NonNull Map<String, Object> getHeaders() {
     return headers == null ? Collections.emptyMap() : Collections.unmodifiableMap(headers);
   }
 
@@ -68,7 +68,7 @@ public class MockResponse implements MockValue {
    * @param headers Response headers.
    * @return This response.
    */
-  public @Nonnull MockResponse setHeaders(@Nonnull Map<String, Object> headers) {
+  public @NonNull MockResponse setHeaders(@NonNull Map<String, Object> headers) {
     headers.forEach(this::setHeader);
     return this;
   }
@@ -80,7 +80,7 @@ public class MockResponse implements MockValue {
    * @param value Header value.
    * @return This response.
    */
-  public @Nonnull MockResponse setHeader(@Nonnull String name, @Nonnull String value) {
+  public @NonNull MockResponse setHeader(@NonNull String name, @NonNull String value) {
     if ("content-type".equalsIgnoreCase(name)) {
       setContentType(MediaType.valueOf(value));
     } else if ("content-length".equalsIgnoreCase(name)) {
@@ -98,7 +98,7 @@ public class MockResponse implements MockValue {
    * @param value Header value.
    * @return This response.
    */
-  public @Nonnull MockResponse setHeader(@Nonnull String name, @Nonnull Object value) {
+  public @NonNull MockResponse setHeader(@NonNull String name, @NonNull Object value) {
     return setHeader(name, value.toString());
   }
 
@@ -117,7 +117,7 @@ public class MockResponse implements MockValue {
    * @param contentType Response content type.
    * @return This response.
    */
-  public @Nonnull MockResponse setContentType(@Nonnull MediaType contentType) {
+  public @NonNull MockResponse setContentType(@NonNull MediaType contentType) {
     this.contentType = contentType;
     headers.put("content-type", contentType.toContentTypeHeader(contentType.getCharset()));
     return this;
@@ -138,7 +138,7 @@ public class MockResponse implements MockValue {
    * @param length Response content length.
    * @return This response.
    */
-  public @Nonnull MockResponse setContentLength(long length) {
+  public @NonNull MockResponse setContentLength(long length) {
     this.length = length;
     headers.put("content-length", Long.toString(length));
     return this;
@@ -149,7 +149,7 @@ public class MockResponse implements MockValue {
    *
    * @return Response status code.
    */
-  public @Nonnull StatusCode getStatusCode() {
+  public @NonNull StatusCode getStatusCode() {
     return statusCode;
   }
 
@@ -159,7 +159,7 @@ public class MockResponse implements MockValue {
    * @param statusCode Response status code.
    * @return This response.
    */
-  public @Nonnull MockResponse setStatusCode(@Nonnull StatusCode statusCode) {
+  public @NonNull MockResponse setStatusCode(@NonNull StatusCode statusCode) {
     this.statusCode = statusCode;
     return this;
   }
@@ -173,7 +173,7 @@ public class MockResponse implements MockValue {
    * @param result Route response value.
    * @return This response.
    */
-  public @Nonnull MockResponse setResult(@Nullable Object result) {
+  public @NonNull MockResponse setResult(@Nullable Object result) {
     this.result = result;
     latch.countDown();
     return this;

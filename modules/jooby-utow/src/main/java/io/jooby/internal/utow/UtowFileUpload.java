@@ -11,7 +11,7 @@ import io.jooby.SneakyThrows;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +49,7 @@ public class UtowFileUpload implements FileUpload {
     }
   }
 
-  @Nonnull @Override public String getName() {
+  @NonNull @Override public String getName() {
     return name;
   }
 

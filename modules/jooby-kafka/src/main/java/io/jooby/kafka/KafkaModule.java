@@ -5,7 +5,7 @@
  */
 package io.jooby.kafka;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -71,13 +71,13 @@ public class KafkaModule implements Extension {
    * @param producerKey Database key
    * @param consumerKey Database key
    */
-  public KafkaModule(@Nonnull String producerKey, @Nonnull String consumerKey) {
+  public KafkaModule(@NonNull String producerKey, @NonNull String consumerKey) {
     this.producerKey = producerKey;
     this.consumerKey = consumerKey;
   }
 
   @Override
-  public void install(@Nonnull Jooby application) {
+  public void install(@NonNull Jooby application) {
     new KafkaConsumerModule(consumerKey).install(application);
 
     new KafkaProducerModule(producerKey).install(application);

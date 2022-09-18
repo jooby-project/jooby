@@ -1,6 +1,6 @@
 package issues.i2542;
 
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;

@@ -8,8 +8,8 @@ package io.jooby.internal;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import jakarta.inject.Provider;
 import java.util.Map;
 import java.util.Set;
@@ -19,15 +19,15 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
   private Map<ServiceKey<?>, Provider<?>> registry = new ConcurrentHashMap<>();
 
-  @Nonnull @Override public Set<ServiceKey<?>> keySet() {
+  @NonNull @Override public Set<ServiceKey<?>> keySet() {
     return registry.keySet();
   }
 
-  @Nonnull @Override public Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet() {
+  @NonNull @Override public Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet() {
     return registry.entrySet();
   }
 
-  @Nullable @Override public <T> T getOrNull(@Nonnull ServiceKey<T> key) {
+  @Nullable @Override public <T> T getOrNull(@NonNull ServiceKey<T> key) {
     Provider provider = registry.get(key);
     if (provider == null) {
       return null;
@@ -35,19 +35,19 @@ public class ServiceRegistryImpl implements ServiceRegistry {
     return (T) provider.get();
   }
 
-  @Nullable @Override public <T> T put(@Nonnull ServiceKey<T> key, T service) {
+  @Nullable @Override public <T> T put(@NonNull ServiceKey<T> key, T service) {
     return put(key, singleton(service));
   }
 
-  @Nullable @Override public <T> T put(@Nonnull ServiceKey<T> key, Provider<T> service) {
+  @Nullable @Override public <T> T put(@NonNull ServiceKey<T> key, Provider<T> service) {
     return (T) registry.put(key, service);
   }
 
-  @Nullable @Override public <T> T putIfAbsent(@Nonnull ServiceKey<T> type, T service) {
+  @Nullable @Override public <T> T putIfAbsent(@NonNull ServiceKey<T> type, T service) {
     return putIfAbsent(type, singleton(service));
   }
 
-  @Nullable @Override public <T> T putIfAbsent(@Nonnull ServiceKey<T> key, Provider<T> service) {
+  @Nullable @Override public <T> T putIfAbsent(@NonNull ServiceKey<T> key, Provider<T> service) {
     return (T) registry.putIfAbsent(key, service);
   }
 

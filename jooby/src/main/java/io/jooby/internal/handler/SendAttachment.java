@@ -9,7 +9,7 @@ import io.jooby.Context;
 import io.jooby.FileDownload;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class SendAttachment implements LinkedHandler {
   private Route.Handler next;
@@ -18,7 +18,7 @@ public class SendAttachment implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       Object result = next.apply(ctx);
       if (ctx.isResponseStarted()) {

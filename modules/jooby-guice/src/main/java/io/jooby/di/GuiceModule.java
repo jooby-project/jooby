@@ -13,7 +13,7 @@ import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -51,7 +51,7 @@ public class GuiceModule implements Extension {
    *
    * @param injector Injector to use.
    */
-  public GuiceModule(@Nonnull Injector injector) {
+  public GuiceModule(@NonNull Injector injector) {
     this.injector = injector;
   }
 
@@ -60,7 +60,7 @@ public class GuiceModule implements Extension {
    *
    * @param modules Module to add.
    */
-  public GuiceModule(@Nonnull Module... modules) {
+  public GuiceModule(@NonNull Module... modules) {
     Stream.of(modules).forEach(this.modules::add);
   }
 
@@ -68,7 +68,7 @@ public class GuiceModule implements Extension {
     return true;
   }
 
-  @Override public void install(@Nonnull Jooby application) {
+  @Override public void install(@NonNull Jooby application) {
     if (injector == null) {
       Environment env = application.getEnvironment();
       modules.add(new JoobyModule(application));

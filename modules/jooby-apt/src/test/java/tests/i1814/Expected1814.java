@@ -4,16 +4,16 @@ import io.jooby.Extension;
 import io.jooby.MvcFactory;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
 
 public class Expected1814 implements MvcFactory {
 
-  @Override public boolean supports(@Nonnull Class type) {
+  @Override public boolean supports(@NonNull Class type) {
     return false;
   }
 
-  @Nonnull @Override public Extension create(@Nonnull Provider provider) {
+  @NonNull @Override public Extension create(@NonNull Provider provider) {
     return application -> {
       Route route = application.get("/1814", ctx -> {
         C1814 controller = (C1814) provider.get();

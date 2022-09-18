@@ -8,7 +8,7 @@ package io.jooby;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +53,7 @@ public class CorsHandler implements Route.Decorator {
    *
    * @param options Cors options, or empty for using default options.
    */
-  public CorsHandler(@Nonnull final Cors options) {
+  public CorsHandler(@NonNull final Cors options) {
     this.options = options;
   }
 
@@ -64,7 +64,7 @@ public class CorsHandler implements Route.Decorator {
     this(new Cors());
   }
 
-  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
+  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       String origin = ctx.header("Origin").valueOrNull();
       if (origin != null) {
@@ -131,7 +131,7 @@ public class CorsHandler implements Route.Decorator {
     }
   }
 
-  @Nonnull @Override public void setRoute(@Nonnull Route route) {
+  @NonNull @Override public void setRoute(@NonNull Route route) {
     route.setHttpOptions(true);
   }
 

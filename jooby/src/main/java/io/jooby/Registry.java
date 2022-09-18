@@ -7,7 +7,7 @@ package io.jooby;
 
 import io.jooby.exception.RegistryException;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Service locator pattern which may be provided by a dependency injection framework.
@@ -25,7 +25,7 @@ public interface Registry {
    * @return Instance of this type.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  @Nonnull <T> T require(@Nonnull Class<T> type) throws RegistryException;
+  @NonNull <T> T require(@NonNull Class<T> type) throws RegistryException;
 
   /**
    * Provides an instance of the given type where name matches it.
@@ -36,7 +36,7 @@ public interface Registry {
    * @return Instance of this type.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  @Nonnull <T> T require(@Nonnull Class<T> type, @Nonnull String name) throws RegistryException;
+  @NonNull <T> T require(@NonNull Class<T> type, @NonNull String name) throws RegistryException;
 
   /**
    * Provides an instance of the given type.
@@ -46,5 +46,5 @@ public interface Registry {
    * @return Instance of this type.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  @Nonnull <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException;
+  @NonNull <T> T require(@NonNull ServiceKey<T> key) throws RegistryException;
 }

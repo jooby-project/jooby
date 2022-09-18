@@ -14,7 +14,7 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import io.jooby.annotations.Path;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.literal.NamedLiteral;
@@ -50,7 +50,7 @@ public class JoobyExtension implements Extension {
    *
    * @param application Application.
    */
-  public JoobyExtension(@Nonnull Jooby application) {
+  public JoobyExtension(@NonNull Jooby application) {
     this.app = application;
   }
 
@@ -69,8 +69,8 @@ public class JoobyExtension implements Extension {
    * @param beanDiscovery Bean discovery.
    * @param beanManager Bean Manager.
    */
-  public void configureServices(@Nonnull @Observes AfterBeanDiscovery beanDiscovery,
-      @Nonnull BeanManager beanManager) {
+  public void configureServices(@NonNull @Observes AfterBeanDiscovery beanDiscovery,
+      @NonNull BeanManager beanManager) {
     ServiceRegistry registry = app.getServices();
     Set<Map.Entry<ServiceKey<?>, Provider<?>>> entries = registry.entrySet();
     for (Map.Entry<ServiceKey<?>, Provider<?>> entry : entries) {

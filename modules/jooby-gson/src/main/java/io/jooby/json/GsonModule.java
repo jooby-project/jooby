@@ -16,7 +16,7 @@ import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -76,7 +76,7 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
    *
    * @param gson Gson to use.
    */
-  public GsonModule(@Nonnull Gson gson) {
+  public GsonModule(@NonNull Gson gson) {
     this.gson = gson;
   }
 
@@ -87,7 +87,7 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     this(new GsonBuilder().create());
   }
 
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
@@ -95,7 +95,7 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     services.put(Gson.class, gson);
   }
 
-  @Nonnull @Override public Object decode(@Nonnull Context ctx, @Nonnull Type type)
+  @NonNull @Override public Object decode(@NonNull Context ctx, @NonNull Type type)
       throws Exception {
     Body body = ctx.body();
     if (body.isInMemory()) {
@@ -107,7 +107,7 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     }
   }
 
-  @Nonnull @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) {
+  @NonNull @Override public byte[] encode(@NonNull Context ctx, @NonNull Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     return gson.toJson(value).getBytes(UTF_8);
   }

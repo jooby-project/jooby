@@ -5,14 +5,14 @@
  */
 package io.jooby.internal;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.concurrent.Executor;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class ForwardingExecutor implements Executor {
   Executor executor;
 
-  @Override public void execute(@NotNull Runnable command) {
+  @Override public void execute(@NonNull Runnable command) {
     if (executor == null) {
       throw new IllegalStateException("Worker executor not ready");
     }

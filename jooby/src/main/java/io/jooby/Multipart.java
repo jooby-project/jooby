@@ -7,7 +7,7 @@ package io.jooby;
 
 import io.jooby.internal.MultipartNode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 
 /**
@@ -26,14 +26,14 @@ public interface Multipart extends Formdata {
    * @param name HTTP name.
    * @param file File upload.
    */
-  void put(@Nonnull String name, @Nonnull FileUpload file);
+  void put(@NonNull String name, @NonNull FileUpload file);
 
   /**
    * All file uploads. Only for <code>multipart/form-data</code> request.
    *
    * @return All file uploads.
    */
-  @Nonnull List<FileUpload> files();
+  @NonNull List<FileUpload> files();
 
   /**
    * All file uploads that matches the given field name.
@@ -43,7 +43,7 @@ public interface Multipart extends Formdata {
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return All file uploads.
    */
-  @Nonnull List<FileUpload> files(@Nonnull String name);
+  @NonNull List<FileUpload> files(@NonNull String name);
 
   /**
    * A file upload that matches the given field name.
@@ -53,7 +53,7 @@ public interface Multipart extends Formdata {
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return A file upload.
    */
-  @Nonnull FileUpload file(@Nonnull String name);
+  @NonNull FileUpload file(@NonNull String name);
 
   /**
    * Creates a new multipart object.
@@ -61,7 +61,7 @@ public interface Multipart extends Formdata {
    * @param ctx Current context.
    * @return Multipart instance.
    */
-  static @Nonnull Multipart create(@Nonnull Context ctx) {
+  static @NonNull Multipart create(@NonNull Context ctx) {
     return new MultipartNode(ctx);
   }
 }

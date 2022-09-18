@@ -9,7 +9,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * GraphQL Playground module: https://github.com/prisma-labs/graphql-playground.
@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  * @since 2.4.0
  */
 public class GraphQLPlaygroundModule implements Extension {
-  @Override public void install(@Nonnull Jooby application) throws Exception {
+  @Override public void install(@NonNull Jooby application) throws Exception {
     String cpath = application.getContextPath();
     if (cpath == null || cpath.equals("/")) {
       cpath = "";

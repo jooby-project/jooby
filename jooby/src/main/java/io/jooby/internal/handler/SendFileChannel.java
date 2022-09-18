@@ -9,7 +9,7 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.channels.FileChannel;
@@ -24,7 +24,7 @@ public class SendFileChannel implements LinkedHandler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @NonNull @Override public Object apply(@NonNull Context ctx) {
     try {
       Object result = next.apply(ctx);
       if (ctx.isResponseStarted()) {

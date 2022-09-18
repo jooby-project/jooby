@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class MockSession implements Session {
    * @param ctx Mock context.
    * @param session Session.
    */
-  MockSession(@Nonnull MockContext ctx, @Nonnull MockSession session) {
+  MockSession(@NonNull MockContext ctx, @NonNull MockSession session) {
     this.ctx = ctx.setSession(this);
     this.data = session.data;
     this.isNew = session.isNew;
@@ -48,7 +48,7 @@ public class MockSession implements Session {
    * @param ctx Mock context.
    * @param sessionId Session ID.
    */
-  public MockSession(@Nonnull MockContext ctx, @Nonnull String sessionId) {
+  public MockSession(@NonNull MockContext ctx, @NonNull String sessionId) {
     this.ctx = ctx.setSession(this);
     this.sessionId = sessionId;
     this.creationTime = Instant.now();
@@ -60,7 +60,7 @@ public class MockSession implements Session {
    *
    * @param ctx Mock context.
    */
-  public MockSession(@Nonnull MockContext ctx) {
+  public MockSession(@NonNull MockContext ctx) {
     this(ctx, UUID.randomUUID().toString());
   }
 
@@ -74,50 +74,50 @@ public class MockSession implements Session {
     this.lastAccessedTime = Instant.now();
   }
 
-  @Nonnull @Override public String getId() {
+  @NonNull @Override public String getId() {
     return sessionId;
   }
 
-  @Nonnull @Override public MockSession setId(@Nullable String id) {
+  @NonNull @Override public MockSession setId(@Nullable String id) {
     this.sessionId = id;
     return this;
   }
 
-  @Nonnull @Override public Value get(@Nonnull String name) {
+  @NonNull @Override public Value get(@NonNull String name) {
     return Optional.ofNullable(data.get(name))
         .map(value -> Value.create(ctx, name, value))
         .orElse(Value.missing(name));
   }
 
-  @Nonnull @Override public Session put(@Nonnull String name, @Nonnull String value) {
+  @NonNull @Override public Session put(@NonNull String name, @NonNull String value) {
     data.put(name, value);
     return this;
   }
 
-  @Nonnull @Override public Value remove(@Nonnull String name) {
+  @NonNull @Override public Value remove(@NonNull String name) {
     Value value = get(name);
     data.remove(name);
     return value;
   }
 
-  @Nonnull @Override public Map<String, String> toMap() {
+  @NonNull @Override public Map<String, String> toMap() {
     return data;
   }
 
-  @Nonnull @Override public Instant getCreationTime() {
+  @NonNull @Override public Instant getCreationTime() {
     return creationTime;
   }
 
-  @Nonnull @Override public Session setCreationTime(@Nonnull Instant creationTime) {
+  @NonNull @Override public Session setCreationTime(@NonNull Instant creationTime) {
     this.creationTime = creationTime;
     return this;
   }
 
-  @Nonnull @Override public Instant getLastAccessedTime() {
+  @NonNull @Override public Instant getLastAccessedTime() {
     return lastAccessedTime;
   }
 
-  @Nonnull @Override public Session setLastAccessedTime(@Nonnull Instant lastAccessedTime) {
+  @NonNull @Override public Session setLastAccessedTime(@NonNull Instant lastAccessedTime) {
     this.lastAccessedTime = lastAccessedTime;
     return this;
   }
@@ -126,7 +126,7 @@ public class MockSession implements Session {
     return isNew;
   }
 
-  @Nonnull @Override public Session setNew(boolean isNew) {
+  @NonNull @Override public Session setNew(boolean isNew) {
     this.isNew = isNew;
     return this;
   }
@@ -135,7 +135,7 @@ public class MockSession implements Session {
     return modified;
   }
 
-  @Nonnull @Override public Session setModify(boolean modify) {
+  @NonNull @Override public Session setModify(boolean modify) {
     this.modified = modify;
     return this;
   }

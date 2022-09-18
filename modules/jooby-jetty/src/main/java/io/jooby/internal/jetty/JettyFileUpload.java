@@ -8,7 +8,7 @@ package io.jooby.internal.jetty;
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -23,7 +23,7 @@ public class JettyFileUpload implements FileUpload {
     this.upload = upload;
   }
 
-  @Nonnull @Override public String getName() {
+  @NonNull @Override public String getName() {
     return upload.getName();
   }
 

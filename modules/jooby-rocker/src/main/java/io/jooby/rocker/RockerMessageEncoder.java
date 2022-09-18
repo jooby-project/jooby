@@ -5,7 +5,7 @@
  */
 package io.jooby.rocker;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerOutputFactory;
@@ -20,7 +20,7 @@ class RockerMessageEncoder implements MessageEncoder {
     this.factory = factory;
   }
 
-  @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) {
+  @Override public byte[] encode(@NonNull Context ctx, @NonNull Object value) {
     if (value instanceof RockerModel) {
       RockerModel template = (RockerModel) value;
       ByteBufferOutput output = template.render(factory);

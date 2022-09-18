@@ -10,7 +10,7 @@ import io.jooby.internal.ByteArrayBody;
 import io.jooby.internal.FileBody;
 import io.jooby.internal.InputStreamBody;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
@@ -37,7 +37,7 @@ public interface Body extends ValueNode {
    * @param charset Charset.
    * @return Body as string.
    */
-  default @Nonnull String value(@Nonnull Charset charset) {
+  default @NonNull String value(@NonNull Charset charset) {
     byte[] bytes = bytes();
     if (bytes.length == 0) {
       throw new MissingValueException("body");
@@ -50,7 +50,7 @@ public interface Body extends ValueNode {
    *
    * @return Body as byte array.
    */
-  @Nonnull byte[] bytes();
+  @NonNull byte[] bytes();
 
   /**
    * True if body is on memory. False, indicates body is on file system. Body larger than
@@ -72,28 +72,28 @@ public interface Body extends ValueNode {
    *
    * @return Body as readable channel.
    */
-  @Nonnull ReadableByteChannel channel();
+  @NonNull ReadableByteChannel channel();
 
   /**
    * Body as input stream.
    *
    * @return Body as input stream.
    */
-  @Nonnull InputStream stream();
+  @NonNull InputStream stream();
 
-  @Nonnull @Override default <T> List<T> toList(@Nonnull Class<T> type) {
+  @NonNull @Override default <T> List<T> toList(@NonNull Class<T> type) {
     return to(Reified.list(type).getType());
   }
 
-  default @Nonnull @Override List<String> toList() {
+  default @NonNull @Override List<String> toList() {
     return Collections.singletonList(value());
   }
 
-  default @Nonnull @Override Set<String> toSet() {
+  default @NonNull @Override Set<String> toSet() {
     return Collections.singleton(value());
   }
 
-  @Override default @Nonnull <T> T to(@Nonnull Class<T> type) {
+  @Override default @NonNull <T> T to(@NonNull Class<T> type) {
     return to((Type) type);
   }
 
@@ -104,7 +104,7 @@ public interface Body extends ValueNode {
    * @param <T> Generic type.
    * @return Converted value.
    */
-  @Nonnull <T> T to(@Nonnull Type type);
+  @NonNull <T> T to(@NonNull Type type);
 
   /* **********************************************************************************************
    * Factory methods:
@@ -117,7 +117,7 @@ public interface Body extends ValueNode {
    * @param ctx Current context.
    * @return Empty body.
    */
-  static @Nonnull Body empty(@Nonnull Context ctx) {
+  static @NonNull Body empty(@NonNull Context ctx) {
     return ByteArrayBody.empty(ctx);
   }
 
@@ -129,7 +129,7 @@ public interface Body extends ValueNode {
    * @param size Size in bytes or <code>-1</code>.
    * @return A new body.
    */
-  static @Nonnull Body of(@Nonnull Context ctx, @Nonnull InputStream stream, long size) {
+  static @NonNull Body of(@NonNull Context ctx, @NonNull InputStream stream, long size) {
     return new InputStreamBody(ctx, stream, size);
   }
 
@@ -140,7 +140,7 @@ public interface Body extends ValueNode {
    * @param bytes byte array.
    * @return A new body.
    */
-  static @Nonnull Body of(@Nonnull Context ctx, @Nonnull byte[] bytes) {
+  static @NonNull Body of(@NonNull Context ctx, @NonNull byte[] bytes) {
     return new ByteArrayBody(ctx, bytes);
   }
 
@@ -151,7 +151,7 @@ public interface Body extends ValueNode {
    * @param file File.
    * @return A new body.
    */
-  static @Nonnull Body of(@Nonnull Context ctx, @Nonnull Path file) {
+  static @NonNull Body of(@NonNull Context ctx, @NonNull Path file) {
     return new FileBody(ctx, file);
   }
 }

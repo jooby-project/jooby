@@ -18,7 +18,7 @@ import java.util.Spliterator;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.ConnectionFactory;
@@ -72,17 +72,17 @@ public class Jetty extends io.jooby.Server.Base {
 //    //System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");
 //  }
 
-  @Nonnull @Override public Jetty setOptions(@Nonnull ServerOptions options) {
+  @NonNull @Override public Jetty setOptions(@NonNull ServerOptions options) {
     this.options = options
         .setWorkerThreads(options.getWorkerThreads(THREADS));
     return this;
   }
 
-  @Nonnull @Override public ServerOptions getOptions() {
+  @NonNull @Override public ServerOptions getOptions() {
     return options;
   }
 
-  @Nonnull @Override public io.jooby.Server start(Jooby application) {
+  @NonNull @Override public io.jooby.Server start(Jooby application) {
     try {
       //System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
       /** Set max request size attribute: */
@@ -253,7 +253,7 @@ public class Jetty extends io.jooby.Server.Base {
     }
   }
 
-  @Nonnull @Override public synchronized io.jooby.Server stop() {
+  @NonNull @Override public synchronized io.jooby.Server stop() {
     fireStop(applications);
     if (server != null) {
       try {

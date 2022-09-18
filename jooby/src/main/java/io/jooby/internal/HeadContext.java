@@ -14,9 +14,8 @@ import io.jooby.Route;
 import io.jooby.Sender;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,11 +34,11 @@ public class HeadContext extends ForwardingContext {
    *
    * @param context Source context.
    */
-  public HeadContext(@Nonnull Context context) {
+  public HeadContext(@NonNull Context context) {
     super(context);
   }
 
-  @Nonnull @Override public Context send(@Nonnull Path file) {
+  @NonNull @Override public Context send(@NonNull Path file) {
     try {
       ctx.setResponseLength(Files.size(file));
       checkSizeHeaders();
@@ -51,25 +50,25 @@ public class HeadContext extends ForwardingContext {
     }
   }
 
-  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+  @NonNull @Override public Context send(@NonNull byte[] data) {
     ctx.setResponseLength(data.length);
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data) {
+  @NonNull @Override public Context send(@NonNull String data) {
     return send(data, StandardCharsets.UTF_8);
   }
 
-  @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
+  @NonNull @Override public Context send(@NonNull ByteBuffer data) {
     ctx.setResponseLength(data.remaining());
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull FileChannel file) {
+  @NonNull @Override public Context send(@NonNull FileChannel file) {
     try {
       ctx.setResponseLength(file.size());
       checkSizeHeaders();
@@ -80,7 +79,7 @@ public class HeadContext extends ForwardingContext {
     }
   }
 
-  @Nonnull @Override public Context send(@Nonnull FileDownload file) {
+  @NonNull @Override public Context send(@NonNull FileDownload file) {
     ctx.setResponseLength(file.getFileSize());
     ctx.setResponseType(file.getContentType());
     checkSizeHeaders();
@@ -88,31 +87,31 @@ public class HeadContext extends ForwardingContext {
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull InputStream input) {
+  @NonNull @Override public Context send(@NonNull InputStream input) {
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull StatusCode statusCode) {
+  @NonNull @Override public Context send(@NonNull StatusCode statusCode) {
     ctx.send(statusCode);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
+  @NonNull @Override public Context send(@NonNull ReadableByteChannel channel) {
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+  @NonNull @Override public Context send(@NonNull String data, @NonNull Charset charset) {
     ctx.setResponseLength(data.getBytes(charset).length);
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @Nonnull @Override public Context render(@Nonnull Object value) {
+  @NonNull @Override public Context render(@NonNull Object value) {
     try {
       Route route = getRoute();
       MessageEncoder encoder = route.getEncoder();
@@ -130,19 +129,19 @@ public class HeadContext extends ForwardingContext {
     }
   }
 
-  @Nonnull @Override public Sender responseSender() {
+  @NonNull @Override public Sender responseSender() {
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return new NoopSender();
   }
 
-  @Nonnull @Override public OutputStream responseStream() {
+  @NonNull @Override public OutputStream responseStream() {
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return new NoopOutputStream();
   }
 
-  @Nonnull @Override public PrintWriter responseWriter() {
+  @NonNull @Override public PrintWriter responseWriter() {
     return new PrintWriter(responseStream());
   }
 
@@ -155,10 +154,10 @@ public class HeadContext extends ForwardingContext {
   }
 
   private static class NoopOutputStream extends OutputStream {
-    @Override public void write(@NotNull byte[] b) throws IOException {
+    @Override public void write(@NonNull byte[] b) throws IOException {
     }
 
-    @Override public void write(@NotNull byte[] b, int off, int len) throws IOException {
+    @Override public void write(@NonNull byte[] b, int off, int len) throws IOException {
     }
 
     @Override public void write(int b) throws IOException {
@@ -166,7 +165,7 @@ public class HeadContext extends ForwardingContext {
   }
 
   private static class NoopSender implements Sender {
-    @Nonnull @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
+    @NonNull @Override public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
       return this;
     }
 

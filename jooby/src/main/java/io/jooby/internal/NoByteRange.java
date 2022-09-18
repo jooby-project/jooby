@@ -9,7 +9,7 @@ import io.jooby.ByteRange;
 import io.jooby.Context;
 import io.jooby.StatusCode;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -32,19 +32,19 @@ public class NoByteRange implements ByteRange {
     return contentLength;
   }
 
-  @Nonnull @Override public StatusCode getStatusCode() {
+  @NonNull @Override public StatusCode getStatusCode() {
     return StatusCode.OK;
   }
 
-  @Nonnull @Override public String getContentRange() {
+  @NonNull @Override public String getContentRange() {
     return "bytes */" + contentLength;
   }
 
-  @Nonnull @Override public ByteRange apply(@Nonnull Context ctx) {
+  @NonNull @Override public ByteRange apply(@NonNull Context ctx) {
     return this;
   }
 
-  @Nonnull @Override public InputStream apply(@Nonnull InputStream input) throws IOException {
+  @NonNull @Override public InputStream apply(@NonNull InputStream input) throws IOException {
     return input;
   }
 }

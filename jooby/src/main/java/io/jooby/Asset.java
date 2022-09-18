@@ -9,7 +9,7 @@ import io.jooby.internal.FileAsset;
 import io.jooby.internal.JarAsset;
 import io.jooby.internal.URLAsset;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
@@ -34,7 +34,7 @@ public interface Asset extends AutoCloseable {
    * @param resource File resource.
    * @return File resource asset.
    */
-  static Asset create(@Nonnull Path resource) {
+  static Asset create(@NonNull Path resource) {
     return new FileAsset(resource);
   }
 
@@ -44,7 +44,7 @@ public interface Asset extends AutoCloseable {
    * @param resource Asset URL.
    * @return URL asset.
    */
-  static Asset create(@Nonnull String path, @Nonnull URL resource) {
+  static Asset create(@NonNull String path, @NonNull URL resource) {
     try {
       if ("jar".equals(resource.getProtocol())) {
         return new JarAsset((JarURLConnection) resource.openConnection());
@@ -78,7 +78,7 @@ public interface Asset extends AutoCloseable {
    *
    * @return A weak e-tag.
    */
-  default @Nonnull String getEtag() {
+  default @NonNull String getEtag() {
     StringBuilder b = new StringBuilder(32);
     b.append("W/\"");
 
@@ -102,7 +102,7 @@ public interface Asset extends AutoCloseable {
   /**
    * @return Asset media type.
    */
-  @Nonnull
+  @NonNull
   MediaType getContentType();
 
   /**
