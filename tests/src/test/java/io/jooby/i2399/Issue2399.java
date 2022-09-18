@@ -2,9 +2,9 @@ package io.jooby.i2399;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.jooby.ServerOptions;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.ServerOptions;
 
 public class Issue2399 {
 

@@ -2,10 +2,10 @@ package io.jooby.i2538;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.jooby.Jooby;
 import io.jooby.di.GuiceModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.Jooby;
 
 public class Issue2538 {
 

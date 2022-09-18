@@ -1,8 +1,8 @@
 package io.jooby.junit;
 
-import io.jooby.ExecutionMode;
 import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
+import io.jooby.ExecutionMode;
 import io.jooby.utow.Utow;
 
 import org.junit.jupiter.api.extension.Extension;

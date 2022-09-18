@@ -1,11 +1,5 @@
 package examples;
 
-import io.jooby.Context;
-import io.jooby.FlashMap;
-import io.jooby.Formdata;
-import io.jooby.Multipart;
-import io.jooby.QueryString;
-import io.jooby.StatusCode;
 import io.jooby.annotations.CookieParam;
 import io.jooby.annotations.FlashParam;
 import io.jooby.annotations.FormParam;
@@ -15,6 +9,12 @@ import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
+import io.jooby.Context;
+import io.jooby.FlashMap;
+import io.jooby.Formdata;
+import io.jooby.Multipart;
+import io.jooby.QueryString;
+import io.jooby.StatusCode;
 
 import java.math.BigDecimal;
 import java.util.List;

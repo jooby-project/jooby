@@ -1,8 +1,8 @@
 package examples;
 
-import io.jooby.MyValue;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.QueryParam;
+import io.jooby.test.MyValue;
 
 public class MyValueRouter {
 

@@ -2,9 +2,10 @@ package io.jooby.i2457;
 
 
 import com.google.common.collect.ImmutableMap;
-import io.jooby.Context;
+
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
+import io.jooby.Context;
 
 @Path("/")
 public class HealthController2457 {

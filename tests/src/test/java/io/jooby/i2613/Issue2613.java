@@ -7,12 +7,13 @@ import java.nio.charset.StandardCharsets;
 import org.json.JSONObject;
 
 import com.google.common.collect.ImmutableMap;
-import io.jooby.Context;
-import io.jooby.MediaType;
-import io.jooby.MessageEncoder;
+
 import io.jooby.json.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.Context;
+import io.jooby.MediaType;
+import io.jooby.MessageEncoder;
 
 public class Issue2613 {
 

@@ -1,10 +1,10 @@
 package io.jooby.i1937;
 
-import io.jooby.Context;
 import io.jooby.di.GuiceModule;
 import io.jooby.exception.RegistryException;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.Context;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

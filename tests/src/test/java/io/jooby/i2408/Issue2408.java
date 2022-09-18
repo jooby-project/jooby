@@ -2,9 +2,9 @@ package io.jooby.i2408;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.jooby.WebClient;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.test.WebClient;
 
 public class Issue2408 {
   @ServerTest

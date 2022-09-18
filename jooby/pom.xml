@@ -111,6 +111,29 @@
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-module-infos</id>
+            <phase>package</phase>
+            <goals>
+              <goal>add-module-info</goal>
+            </goals>
+            <configuration>
+              <overwriteExistingFiles>true</overwriteExistingFiles>
+              <module>
+                <moduleInfoFile>
+                  src/main/java/module-info.shade
+                </moduleInfoFile>
+              </module>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
 
       <!-- sure-fire -->
       <plugin>

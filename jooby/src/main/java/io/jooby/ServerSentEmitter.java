@@ -40,6 +40,11 @@ public interface ServerSentEmitter {
 
     private long retry;
 
+    /**
+     * Creates a KeepAlive.
+     * @param emitter not null.
+     * @param retry keepAlive for the emitter.
+     */
     public KeepAlive(final ServerSentEmitter emitter, final long retry) {
       this.emitter = emitter;
       this.retry = retry;

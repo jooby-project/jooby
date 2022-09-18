@@ -62,6 +62,11 @@ public interface Router extends Registry {
      */
     @NonNull Route route();
 
+    /**
+     * Executes matched route.
+     *
+     * @param context not null.
+     */
     void execute(@NonNull Context context);
 
     /**

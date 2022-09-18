@@ -24,7 +24,7 @@
   <aws-java-sdk.version>1.12.230</aws-java-sdk.version>
   <bucket4j-core.version>6.4.1</bucket4j-core.version>
   <caffeine.version>2.8.8</caffeine.version>
-  <checkstyle.version>8.42</checkstyle.version>
+  <checkstyle.version>10.3.3</checkstyle.version>
   <commons-email.version>1.5</commons-email.version>
   <commons-io.version>2.11.0</commons-io.version>
   <commons-pool2.version>2.11.1</commons-pool2.version>
@@ -53,10 +53,10 @@
   <jackson.version>2.13.4</jackson.version>
   <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
   <jacoco.version>0.8.8</jacoco.version>
+  <jakarta.inject.version>2.0.1</jakarta.inject.version>
   <jakarta.json.bind-api.version>1.0.2</jakarta.json.bind-api.version>
-  <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
+  <jakarta.ws.rs-api.version>3.0.0</jakarta.ws.rs-api.version>
   <jasypt.version>1.9.3</jasypt.version>
-  <jakarta.inject.version>1</jakarta.inject.version>
   <jboss-modules.version>1.11.0.Final</jboss-modules.version>
   <jdbi.version>3.32.0</jdbi.version>
   <jetty.version>11.0.11</jetty.version>
@@ -74,11 +74,11 @@
   <license-maven-plugin.version>4.1</license-maven-plugin.version>
   <log4j.version>2.17.2</log4j.version>
   <log4jdbc.version>1.2</log4jdbc.version>
-  <logback-classic.version>1.2.11</logback-classic.version>
+  <logback-classic.version>1.4.1</logback-classic.version>
   <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
   <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
   <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-  <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
+  <maven-checkstyle-plugin.version>3.2.0</maven-checkstyle-plugin.version>
   <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
   <maven-core.version>3.8.5</maven-core.version>
   <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
@@ -114,7 +114,8 @@
   <rest-assured.version>5.1.0</rest-assured.version>
   <rocker.version>1.3.0</rocker.version>
   <rxjava.version>2.2.21</rxjava.version>
-  <slf4j.version>1.7.36</slf4j.version>
+  <slf4j.version>2.0.1</slf4j.version>
+  <spotbugs-annotations.version>4.7.2</spotbugs-annotations.version>
   <spring.version>5.3.20</spring.version>
   <stork-maven-plugin.version>3.1.1</stork-maven-plugin.version>
   <swagger-parser.version>2.0.33</swagger-parser.version>
@@ -720,7 +721,7 @@
     </dependency>
     <dependency>
       <groupId>jakarta.inject</groupId>
-      <artifactId>jakarta.inject</artifactId>
+      <artifactId>jakarta.inject-api</artifactId>
       <version>${jakarta.inject.version}</version>
       <type>jar</type>
     </dependency>
@@ -746,6 +747,12 @@
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <version>${jsr305.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>${spotbugs-annotations.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

@@ -1,7 +1,7 @@
 package io.jooby.i1792;
 
-import io.jooby.StatusCode;
 import io.jooby.annotations.POST;
+import io.jooby.StatusCode;
 
 public class Controller1792 {
 
