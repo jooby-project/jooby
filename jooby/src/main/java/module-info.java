@@ -13,7 +13,7 @@ module io.jooby {
 
   exports io.jooby;
   exports io.jooby.annotations;
-  
+
   uses io.jooby.MvcFactory;
   uses io.jooby.Server;
   /*
@@ -24,7 +24,7 @@ module io.jooby {
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
   requires java.management;
-  
+
   /*
    * These reactive ones should be replaced with java 9 Flow
    * and or moved to a new module
@@ -32,14 +32,14 @@ module io.jooby {
   requires static io.reactivex.rxjava2;
   requires static org.reactivestreams;
   requires static reactor.core;
-  
+
   /*
-   * Optional depedency for rate limiting
+   * Optional dependency for rate limiting
    */
   requires static io.github.bucket4j.core;
 
   // BEGIN remove
-  
+
   /*
    * These are shaded and will have to be removed.
    */
@@ -55,7 +55,7 @@ module io.jooby {
    */
   requires kotlinx.coroutines.core.jvm;
   requires kotlin.stdlib;
-  
+
   // END
 
 }
