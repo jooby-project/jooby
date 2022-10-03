@@ -43,7 +43,7 @@
     <graphql-java.version>19.2</graphql-java.version>
     <lettuce.version>6.1.8.RELEASE</lettuce.version>
     <commons-pool2.version>2.11.1</commons-pool2.version>
-    <kafka.version>2.7.0</kafka.version>
+    <kafka.version>3.3.0</kafka.version>
     <caffeine.version>3.1.1</caffeine.version>
 
     <config.version>1.4.2</config.version>
