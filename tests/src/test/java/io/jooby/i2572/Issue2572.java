@@ -8,7 +8,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.json.JSONObject;
 
-import io.jooby.json.JacksonModule;
+import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 

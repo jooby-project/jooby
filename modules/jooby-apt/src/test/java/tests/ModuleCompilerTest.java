@@ -1,8 +1,8 @@
 package tests;
 
 import io.jooby.Context;
-import io.jooby.MockContext;
-import io.jooby.MockRouter;
+import io.jooby.test.MockContext;
+import io.jooby.test.MockRouter;
 import io.jooby.ParamSource;
 import io.jooby.Route;
 import io.jooby.StatusCode;

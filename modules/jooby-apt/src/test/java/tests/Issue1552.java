@@ -1,7 +1,7 @@
 package tests;
 
 import io.jooby.Context;
-import io.jooby.MockRouter;
+import io.jooby.test.MockRouter;
 import io.jooby.apt.MvcModuleCompilerRunner;
 import source.Controller1552;
 import source.Controller1552Empty;

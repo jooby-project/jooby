@@ -1,9 +1,9 @@
 package issues;
 
 import io.jooby.Context;
-import io.jooby.MockContext;
-import io.jooby.MockRouter;
-import io.jooby.MockSession;
+import io.jooby.test.MockContext;
+import io.jooby.test.MockRouter;
+import io.jooby.test.MockSession;
 import io.jooby.Session;
 import io.jooby.Value;
 import issues.i1570.App1570;

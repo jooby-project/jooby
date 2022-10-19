@@ -1,4 +1,4 @@
-package io.jooby.json;
+package io.jooby.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;

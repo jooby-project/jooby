@@ -28,9 +28,9 @@ This step is optional if you choose one of the https://docs.aws.amazon.com/sdk-f
 4) Install
 
 .Java
-[source, java, role="primary"]
+[source,java,role="primary"]
 ----
-import io.jooby.aws.AwsModule;
+import io.jooby.awssdkv1.AwsModule;
 
 {
   install(

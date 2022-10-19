@@ -13,6 +13,10 @@
   <artifactId>jooby-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
 
+  <properties>
+    <Automatic-Module-Name>io.jooby.maven</Automatic-Module-Name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

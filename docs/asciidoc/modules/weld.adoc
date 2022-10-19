@@ -9,9 +9,9 @@
 2) Install Weld:
 
 .Installing Weld
-[source, java, role = "primary"]
+[source,java,role = "primary"]
 ----
-import io.jooby.di.WeldModule;
+import io.jooby.guice.WeldModule;
 import static io.jooby.Jooby.runApp;
 
 public class App extends Jooby {

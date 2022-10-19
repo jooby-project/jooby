@@ -12,6 +12,10 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-run</artifactId>
 
+  <properties>
+    <Automatic-Module-Name>io.jooby.run</Automatic-Module-Name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
@@ -30,7 +34,7 @@
     <dependency>
       <groupId>io.methvin</groupId>
       <artifactId>directory-watcher</artifactId>
-      <version>0.15.1</version>
+      <version>0.16.1</version>
     </dependency>
 
 

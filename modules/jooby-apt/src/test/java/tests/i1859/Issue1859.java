@@ -1,7 +1,7 @@
 package tests.i1859;
 
-import io.jooby.MockContext;
-import io.jooby.MockRouter;
+import io.jooby.test.MockContext;
+import io.jooby.test.MockRouter;
 import io.jooby.apt.MvcModuleCompilerRunner;
 import org.junit.jupiter.api.Test;
 

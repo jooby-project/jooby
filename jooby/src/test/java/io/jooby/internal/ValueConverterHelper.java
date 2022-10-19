@@ -25,8 +25,8 @@ public class ValueConverterHelper {
     Stream.of(converters).filter(it -> (it instanceof BeanConverter)).forEach(it ->
         beans.add((BeanConverter) it)
     );
-    ValueConverters.addFallbackConverters(simple);
-    ValueConverters.addFallbackBeanConverters(beans);
+    ValueConverter.addFallbackConverters(simple);
+    BeanConverter.addFallbackConverters(beans);
 
     Context ctx = mock(Context.class);
     Router router = mock(Router.class);

@@ -1,7 +1,7 @@
 package issues;
 
 import io.jooby.Jooby;
-import io.jooby.MockRouter;
+import io.jooby.test.MockRouter;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

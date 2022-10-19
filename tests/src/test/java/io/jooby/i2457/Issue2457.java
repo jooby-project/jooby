@@ -2,7 +2,7 @@ package io.jooby.i2457;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.jooby.di.GuiceModule;
+import io.jooby.guice.GuiceModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 

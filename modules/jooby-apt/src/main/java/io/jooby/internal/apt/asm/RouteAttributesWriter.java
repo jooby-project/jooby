@@ -42,9 +42,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -65,7 +68,9 @@ import org.objectweb.asm.Type;
 
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.annotations.RouteAttribute;
+import io.jooby.annotations.Dispatch;
+import io.jooby.annotations.Transactional;
+import io.jooby.apt.Annotations;
 import io.jooby.internal.apt.Primitives;
 import io.jooby.internal.apt.TypeDefinition;
 
@@ -83,7 +88,8 @@ public class RouteAttributesWriter {
   }
 
   private static final Predicate<String> HTTP_ANNOTATION = it ->
-      it.startsWith("io.jooby.annotations")
+      (it.startsWith("io.jooby.annotations") && !it.equals(Transactional.class.getName()))
+          || it.startsWith("jakarta.ws.rs")
           || it.startsWith("javax.ws.rs");
 
   private static final Predicate<String> NULL_ANNOTATION = it -> it.endsWith("NonNull")
@@ -153,7 +159,6 @@ public class RouteAttributesWriter {
     for (AnnotationMirror annotation : annotations) {
       Element elem = annotation.getAnnotationType().asElement();
       Retention retention = elem.getAnnotation(Retention.class);
-      RouteAttribute routeAttribute = elem.getAnnotation(RouteAttribute.class);
       RetentionPolicy retentionPolicy =
           retention == null ? RetentionPolicy.CLASS : retention.value();
       String type = annotation.getAnnotationType().toString();
@@ -161,7 +166,7 @@ public class RouteAttributesWriter {
         // ignore annotations not available at runtime
           retentionPolicy != RetentionPolicy.RUNTIME
               // ignore core, jars annotations
-              || (ATTR_FILTER.test(type) && routeAttribute == null)
+              || ATTR_FILTER.test(type)
               // ignore user specified annotations
               || Arrays.stream(userAttrFilter).anyMatch(type::startsWith)) {
 

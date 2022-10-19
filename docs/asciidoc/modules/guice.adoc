@@ -8,10 +8,10 @@
 2) Install Guice:
 
 .Installing Guice
-[source, java, role = "primary"]
+[source,java,role = "primary"]
 ----
 
-import io.jooby.di.GuiceModule;
+import io.jooby.guice.GuiceModule;
 import io.jooby.runApp;
 
 public class App extends Jooby {
@@ -92,9 +92,9 @@ class BillingService @Inject constructor(@Named("currency") currency: String) {
 Guice will also provisioning MVC routes
 
 .MVC and Guice
-[source, java, role = "primary"]
+[source,java,role = "primary"]
 ----
-import io.jooby.di.GuiceModule;
+import io.jooby.guice.GuiceModule;
 import io.jooby.runApp
 
 public class App extends Jooby {

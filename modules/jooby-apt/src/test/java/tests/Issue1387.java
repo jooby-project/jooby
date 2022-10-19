@@ -1,10 +1,10 @@
 package tests;
 
-import io.jooby.MockContext;
-import io.jooby.MockRouter;
+import io.jooby.test.MockContext;
+import io.jooby.test.MockRouter;
 import io.jooby.Session;
 import io.jooby.apt.MvcModuleCompilerRunner;
-import io.jooby.internal.MockContextHelper;
+import io.jooby.internal.apt.MockContextHelper;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;

@@ -3,14 +3,16 @@ package io.jooby.apt;
 import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
+import io.jooby.BeanConverter;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.converter.ReflectiveBeanConverter;
 import org.objectweb.asm.util.ASMifier;
 
 import jakarta.inject.Provider;
+import source.Bean;
+
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -85,7 +87,7 @@ public class MvcModuleCompilerRunner {
     Extension extension = factory.create(provider);
     Jooby application = new Jooby();
 
-    application.converter(new ReflectiveBeanConverter());
+    application.converter(BeanConverter.reflective());
 
     application.install(extension);
 

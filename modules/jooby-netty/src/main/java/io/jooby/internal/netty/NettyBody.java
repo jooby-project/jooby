@@ -9,8 +9,8 @@ import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
+import io.jooby.Value;
 import io.jooby.ValueNode;
-import io.jooby.internal.MissingValue;
 import io.netty.handler.codec.http.multipart.HttpData;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -81,7 +81,7 @@ public class NettyBody implements Body {
   }
 
   @NonNull @Override public ValueNode get(@NonNull String name) {
-    return new MissingValue(name);
+    return Value.missing(name);
   }
 
   @Override public String name() {

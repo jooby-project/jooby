@@ -1,9 +1,8 @@
 package tests.i1807;
 
-import io.jooby.MockContext;
-import io.jooby.MockRouter;
+import io.jooby.test.MockContext;
+import io.jooby.test.MockRouter;
 import io.jooby.Multipart;
-import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.apt.MvcModuleCompilerRunner;
 import org.junit.jupiter.api.Test;

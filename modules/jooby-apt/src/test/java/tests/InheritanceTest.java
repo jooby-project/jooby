@@ -1,6 +1,6 @@
 package tests;
 
-import io.jooby.MockRouter;
+import io.jooby.test.MockRouter;
 import io.jooby.apt.MvcModuleCompilerRunner;
 import org.junit.jupiter.api.Test;
 import source.EmptySubClassController;

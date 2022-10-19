@@ -18,7 +18,7 @@ import com.typesafe.config.ConfigValueFactory;
 import freemarker.template.Configuration;
 import io.jooby.Environment;
 import io.jooby.Jooby;
-import io.jooby.MockContext;
+import io.jooby.test.MockContext;
 import io.jooby.ModelAndView;
 
 public class FreemarkerModuleTest {

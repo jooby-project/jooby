@@ -5,10 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.MockContext;
-import io.jooby.MockRouter;
+import io.jooby.test.MockContext;
+import io.jooby.test.MockRouter;
 import io.jooby.apt.MvcModuleCompilerRunner;
-import io.jooby.exception.MissingValueException;
 
 public class Issue2417 {
   @Test

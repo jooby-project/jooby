@@ -5,7 +5,10 @@
  */
 package io.jooby;
 
+import java.util.List;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.internal.converter.ReflectiveBeanConverter;
 
 /**
  * Value converter for complex values that come from query, path, form, etc... parameters into more
@@ -30,4 +33,17 @@ public interface BeanConverter {
    * @return Converted value.
    */
   Object convert(@NonNull ValueNode node, @NonNull Class type);
+
+  /**
+   * Creates a bean converter that uses reflection.
+   *
+   * @return Reflection bean converter.
+   */
+  static BeanConverter reflective() {
+    return new ReflectiveBeanConverter();
+  }
+
+  static void addFallbackConverters(List<BeanConverter> input) {
+    input.add(reflective());
+  }
 }

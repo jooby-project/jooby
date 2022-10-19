@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.di;
+package io.jooby.guice;
 
 import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;

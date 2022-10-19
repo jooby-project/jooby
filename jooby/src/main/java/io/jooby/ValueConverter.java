@@ -5,7 +5,11 @@
  */
 package io.jooby;
 
+import java.util.List;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.internal.ValueConverters;
+import io.jooby.internal.converter.ValueOfConverter;
 
 /**
  * Value converter for simple values that come from query, path, form, etc... parameters into more
@@ -30,4 +34,12 @@ public interface ValueConverter {
    * @return Converted value.
    */
   Object convert(@NonNull Value value, @NonNull Class type);
+
+  static List<ValueConverter> defaults() {
+    return ValueConverters.defaultConverters();
+  }
+
+  static void addFallbackConverters(List<ValueConverter> input) {
+    input.add(new ValueOfConverter());
+  }
 }

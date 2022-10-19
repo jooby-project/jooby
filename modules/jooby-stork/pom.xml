@@ -11,6 +11,10 @@
   <artifactId>jooby-stork</artifactId>
   <packaging>tile</packaging>
 
+  <properties>
+    <Automatic-Module-Name>io.jooby.stork</Automatic-Module-Name>
+  </properties>
+
   <build>
     <plugins>
       <plugin>

@@ -1,7 +1,7 @@
 package starter;
 
 import io.jooby.Jooby;
-import io.jooby.di.SpringModule;
+import io.jooby.guice.SpringModule;
 import io.jooby.json.JacksonModule;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

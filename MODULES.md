@@ -1,0 +1,9 @@
+- REFACTOR
+  - jooby-graphiql: io.jooby.graphql => io.jooby.graphiql
+  - jooby-graphql-playgroind: io.jooby.graphql => io.jooby.graphql.playground
+  - jooby-gson:  io.jooby.json => io.jooby.gson
+  - jooby-guice: io.jooby.di => io.jooby.guice
+  - jooby-spring: io.jooby.di => io.jooby.spring
+  - jooby-awssdk-v1: io.jooby.aws => io.jooby.awssdkv1
+  - jooby-commons-email=>jooby-commons-mail: io.jooby.email => io.jooby.commons.mail
+    - io.jooby.email.CommonsEmailModule => io.jooby.commons.mail.CommonsMailModule

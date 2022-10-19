@@ -8,8 +8,10 @@ package io.jooby;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.ArrayValue;
+import io.jooby.internal.FormdataNode;
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
+import io.jooby.internal.MultipartNode;
 import io.jooby.internal.SingleValue;
 
 import java.util.TreeMap;
@@ -519,6 +521,28 @@ public interface Value {
     HashValue node = new HashValue(ctx, null);
     node.put(values);
     return node;
+  }
+
+  /**
+   * Creates a formdata.
+   *
+   * @param ctx Current context.
+   * @param values Map values.
+   * @return A hash/object value.
+   */
+  static @NonNull Formdata formdata(Context ctx) {
+    return new FormdataNode(ctx);
+  }
+
+  /**
+   * Creates a multipart form.
+   *
+   * @param ctx Current context.
+   * @param values Map values.
+   * @return A hash/object value.
+   */
+  static @NonNull Multipart multipart(Context ctx) {
+    return new MultipartNode(ctx);
   }
 
   /**

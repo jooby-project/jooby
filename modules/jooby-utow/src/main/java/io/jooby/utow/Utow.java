@@ -5,6 +5,7 @@
  */
 package io.jooby.utow;
 
+import static io.undertow.UndertowOptions.ENABLE_HTTP2;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
@@ -29,6 +30,7 @@ import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
+import io.jooby.internal.undertow.UndertowHttp2Setup;
 import io.jooby.internal.utow.UtowHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
@@ -114,19 +116,8 @@ public class Utow extends Server.Base {
         builder.addHttpListener(options.getPort(), options.getHost());
       }
 
-      if (options.isHttp2() == null || options.isHttp2() == Boolean.TRUE) {
-        stream(spliteratorUnknownSize(
-                ServiceLoader.load(Http2Configurer.class).iterator(),
-                Spliterator.ORDERED),
-            false
-        )
-            .filter(it -> it.support(Undertow.Builder.class))
-            .findFirst()
-            .ifPresent(extension -> {
-              extension.configure(builder);
-              options.setHttp2(Boolean.TRUE);
-            });
-      }
+      // HTTP @
+      builder.setServerOption(ENABLE_HTTP2, options.isHttp2() == Boolean.TRUE);
 
       SSLContext sslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
       if (sslContext != null) {

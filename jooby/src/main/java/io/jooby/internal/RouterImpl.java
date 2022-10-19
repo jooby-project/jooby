@@ -526,8 +526,8 @@ public class RouterImpl implements Router {
     }
 
     // Must be last, as fallback
-    ValueConverters.addFallbackConverters(converters);
-    ValueConverters.addFallbackBeanConverters(beanConverters);
+    ValueConverter.addFallbackConverters(converters);
+    BeanConverter.addFallbackConverters(beanConverters);
 
     ClassSource source = new ClassSource(classLoader);
     RouteAnalyzer analyzer = new RouteAnalyzer(source, false);

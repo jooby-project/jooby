@@ -3,7 +3,7 @@ package io.jooby.handlebars;
 import com.github.jknack.handlebars.Handlebars;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Environment;
-import io.jooby.MockContext;
+import io.jooby.test.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
 

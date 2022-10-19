@@ -15,7 +15,7 @@ import io.jooby.Context;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.MessageDecoder;
-import io.jooby.json.JacksonModule;
+import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import okhttp3.FormBody;
@@ -25,8 +25,6 @@ import okhttp3.MultipartBody;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.concurrent.Executors;
 
 import static io.jooby.MediaType.xml;

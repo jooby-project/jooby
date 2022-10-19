@@ -3,12 +3,12 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.di;
+package io.jooby.guice;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import com.google.inject.Stage;
+import com.google.inject.Module;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  *
  * }</pre>
  *
- * Require calls are going to be resolve by Guice now.
+ * Require calls are going to be resolved by Guice now.
  *
  * @author edgar
  * @since 2.0.0

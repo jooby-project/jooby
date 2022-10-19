@@ -1,6 +1,6 @@
 package source;
 
-import io.jooby.MockContext;
+import io.jooby.test.MockContext;
 import io.jooby.ParamSource;
 import io.jooby.Value;
 

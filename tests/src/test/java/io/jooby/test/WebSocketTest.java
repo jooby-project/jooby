@@ -1,7 +1,7 @@
 package io.jooby.test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.jooby.json.JacksonModule;
+import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 

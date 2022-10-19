@@ -4,7 +4,7 @@ import com.mitchellbosecke.pebble.PebbleEngine;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Environment;
 import io.jooby.Jooby;
-import io.jooby.MockContext;
+import io.jooby.test.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnJre;

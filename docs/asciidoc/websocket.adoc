@@ -96,7 +96,7 @@ Structure data is supported using the Value API and the javadoc:WebSocket[render
 .JSON example
 [source,java,role="primary"]
 ----
-import io.jooby.json.JacksonModule;
+import io.jooby.jackson.JacksonModule;
 
 {
   install(new JackonModule());                         // <1>
@@ -134,7 +134,7 @@ Alternative you explicit tells with decoder/encoder to use using consumes/produc
 .Context
 [source,java,role="primary"]
 ----
-import io.jooby.json.JacksonModule;
+import io.jooby.jackson.JacksonModule;
 
 {
   install(new JackonModule());                         // <1>

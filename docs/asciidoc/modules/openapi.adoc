@@ -112,7 +112,7 @@ To learn how it works, let's write a simple Pet API:
 <1> Install `OpenAPIModule`
 <2> Write your API
 
-The javadoc:OpenAPIModule[] read from classpath the generated `json` and `yaml` files. To generate
+The javadoc:OpenAPIModule[] read from classpath the generated `jackson` and `yaml` files. To generate
 them you need to build your project.
 
 .Maven

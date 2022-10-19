@@ -1,4 +1,4 @@
-package io.jooby.di;
+package io.jooby.guice;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;

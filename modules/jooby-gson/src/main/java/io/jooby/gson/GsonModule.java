@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.json;
+package io.jooby.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -12,6 +12,10 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-awssdk-v1</artifactId>
 
+  <properties>
+    <Automatic-Module-Name>io.jooby.awssdkv1</Automatic-Module-Name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

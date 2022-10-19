@@ -13,6 +13,10 @@
   <groupId>io.jooby</groupId>
   <artifactId>tests</artifactId>
 
+  <properties>
+    <Automatic-Module-Name>io.jooby.tests</Automatic-Module-Name>
+  </properties>
+
   <dependencies>
       <dependency>
       <groupId>io.jooby</groupId>

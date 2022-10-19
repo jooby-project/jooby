@@ -1,1 +1,1 @@
-io.jooby.internal.netty.NettyHttp2Configurer
+io.jooby.internal.netty.http2.NettyHttp2Configurer

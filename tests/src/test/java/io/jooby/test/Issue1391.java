@@ -1,6 +1,6 @@
 package io.jooby.test;
 
-import io.jooby.json.JacksonModule;
+import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import okhttp3.MediaType;

@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static reactor.core.scheduler.Schedulers.elastic;
 import static reactor.core.scheduler.Schedulers.parallel;
 
 import java.io.ByteArrayInputStream;
@@ -85,7 +84,7 @@ import io.jooby.TraceHandler;
 import io.jooby.WebVariables;
 import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.utow.Utow;
-import io.jooby.json.JacksonModule;
+import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.netty.Netty;

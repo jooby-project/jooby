@@ -37,7 +37,7 @@ import java.util.Set;
 
 public class ValueConverters {
 
-  static List<ValueConverter> defaultConverters() {
+  public static List<ValueConverter> defaultConverters() {
     List<ValueConverter> result = new ArrayList<>();
     result.add(new UUIDConverter());
 
@@ -62,14 +62,6 @@ public class ValueConverters {
     result.add(new URIConverter());
 
     return result;
-  }
-
-  static void addFallbackConverters(List<ValueConverter> converters) {
-    converters.add(new ValueOfConverter());
-  }
-
-  static void addFallbackBeanConverters(List<BeanConverter> converters) {
-    converters.add(new ReflectiveBeanConverter());
   }
 
   public static <T> T convert(ValueNode value, Type type, Router router) {

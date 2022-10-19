@@ -133,7 +133,7 @@ import io.jooby.json.JacksonModule
 }
 ----
 
-If you want `json` and `xml` processing then install twice:
+If you want `jackson` and `xml` processing then install twice:
 
 .XmlMapper
 [source, java, role="primary"]

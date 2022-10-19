@@ -8,12 +8,12 @@
 2) Install Spring:
 
 .Installing Spring
-[source, java, role = "primary"]
+[source,java,role = "primary"]
 ----
 package myapp;                                       <1>
 
 import static io.jooby.Jooby.runApp;
-import io.jooby.di.SpringModule;
+import io.jooby.guice.SpringModule;
 
 public class App extends Jooby {
 

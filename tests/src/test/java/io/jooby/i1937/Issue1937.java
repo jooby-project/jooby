@@ -1,6 +1,6 @@
 package io.jooby.i1937;
 
-import io.jooby.di.GuiceModule;
+import io.jooby.guice.GuiceModule;
 import io.jooby.exception.RegistryException;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;

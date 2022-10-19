@@ -12,6 +12,10 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-commons-email</artifactId>
 
+  <properties>
+    <Automatic-Module-Name>io.jooby.commons.mail</Automatic-Module-Name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
