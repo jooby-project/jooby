@@ -19,6 +19,8 @@ module io.jooby.openapi {
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.datatype.jdk8;
   requires com.fasterxml.jackson.datatype.jsr310;
+
+  // SHADED: All content after this line will be removed at build time
   requires static org.apache.commons.io;
   requires org.objectweb.asm;
   requires static org.objectweb.asm.tree;

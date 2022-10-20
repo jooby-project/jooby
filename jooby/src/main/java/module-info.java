@@ -4,11 +4,6 @@
  * Copyright 2014 Edgar Espina
  */
 
-// BEGIN
-// IMPORTANT this module-info VERSION IS ONLY for IDEs for Jooby Development
-// IMPORTANT the actual module is src/main/java/module-info.shade
-// IMPORTANT if you modify this file you might have to modify the other one
-// END
 module io.jooby {
   exports io.jooby;
   exports io.jooby.annotations;
@@ -18,6 +13,7 @@ module io.jooby {
   uses io.jooby.Server;
   uses io.jooby.SslProvider;
   uses io.jooby.Http2Configurer;
+
   /*
    * True core deps
    */
@@ -28,7 +24,7 @@ module io.jooby {
   requires java.management;
 
   /*
-   * These reactive ones should be replaced with java 9 Flow
+   * TODO: These reactive ones should be replaced with java 9 Flow
    * and or moved to a new module
    */
   requires static io.reactivex.rxjava2;
@@ -40,24 +36,14 @@ module io.jooby {
    */
   requires static io.github.bucket4j.core;
 
-  // BEGIN remove
+  // SHADED: All content after this line will be removed at build time
 
-  /*
-   * These are shaded and will have to be removed.
-   */
   requires static org.apache.commons.io;
   requires org.objectweb.asm;
   requires static org.objectweb.asm.tree;
   requires static org.objectweb.asm.tree.analysis;
   requires org.objectweb.asm.util;
   requires static unbescape;
-
-  /*
-   * Kotlins dependencies are optional.
-   */
   requires kotlinx.coroutines.core.jvm;
   requires kotlin.stdlib;
-
-// END
-
 }

@@ -10,6 +10,8 @@ module io.jooby.whoops {
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
+
+  // SHADED: All content after this line will be removed at build time
   requires static unbescape;
   requires static io.pebbletemplates;
 }

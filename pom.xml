@@ -1547,7 +1547,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
+            <version>${maven-antrun-plugin.version}</version>
             <executions>
               <execution>
                 <phase>initialize</phase>
@@ -1693,6 +1693,61 @@
             </configuration>
           </plugin>
 
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>module-info.shade</id>
+      <activation>
+        <file>
+          <exists>src${file.separator}etc${file.separator}module-info.activator</exists>
+        </file>
+      </activation>
+      <properties>
+        <module-info.shade>${project.build.directory}${file.separator}module-info.shade</module-info.shade>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>${maven-antrun-plugin.version}</version>
+            <executions>
+              <execution>
+                <phase>process-resources</phase>
+                <configuration>
+                  <target>
+                    <property name="input" value="src${file.separator}main${file.separator}java${file.separator}module-info.java" />
+                    <copy file="${input}" tofile="${module-info.shade}"/>
+                    <replaceregexp file="${module-info.shade}" match="(// SHADED:).*" flags="s"  replace="}" />
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.moditect</groupId>
+            <artifactId>moditect-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-module-infos</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>add-module-info</goal>
+                </goals>
+                <configuration>
+                  <overwriteExistingFiles>true</overwriteExistingFiles>
+                  <module>
+                    <moduleInfoFile>${module-info.shade}</moduleInfoFile>
+                  </module>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>

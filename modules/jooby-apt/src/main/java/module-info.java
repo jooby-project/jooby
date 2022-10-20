@@ -10,6 +10,8 @@ module io.jooby.apt {
   requires java.compiler;
   requires com.github.spotbugs.annotations;
   requires jakarta.inject;
+
+  // SHADED: All content after this line will be removed at build time
   requires org.objectweb.asm;
   requires static org.objectweb.asm.tree;
   requires static org.objectweb.asm.tree.analysis;
