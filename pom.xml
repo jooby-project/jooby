@@ -176,6 +176,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <timestamp>${maven.build.timestamp}</timestamp>
 
+    <pre-commit-hook>etc${file.separator}source${file.separator}formatter.sh</pre-commit-hook>
 
     <sonar.projectKey>jooby-project_jooby</sonar.projectKey>
     <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
@@ -1536,6 +1537,55 @@
     </profile>
 
     <profile>
+      <id>git-hooks</id>
+      <activation>
+        <file>
+          <exists>${pre-commit-hook}</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
+            <executions>
+              <execution>
+                <phase>initialize</phase>
+                <configuration>
+                  <target>
+                    <chmod file="${pre-commit-hook}" perm="755"/>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Git Hooks -->
+          <plugin>
+            <groupId>com.rudikershaw.gitbuildhook</groupId>
+            <artifactId>git-build-hook-maven-plugin</artifactId>
+            <version>3.3.0</version>
+            <configuration>
+              <installHooks>
+                <pre-commit>${pre-commit-hook}</pre-commit>
+              </installHooks>
+            </configuration>
+            <executions>
+              <execution>
+                <id>install-hooks</id>
+                <goals>
+                  <goal>install</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
       <!-- We enable all these plugins by default. -->
       <id>development</id>
       <activation>
@@ -1599,6 +1649,10 @@
             <artifactId>spotless-maven-plugin</artifactId>
             <version>2.27.2</version>
             <configuration>
+              <upToDateChecking>
+                <enabled>true</enabled>
+                <indexFile>tmp/spotless</indexFile>
+              </upToDateChecking>
               <formats>
                 <!-- you can define as many formats as you want, each is independent -->
                 <format>
@@ -1609,7 +1663,6 @@
                   </includes>
                   <!-- define the steps to apply to those files -->
                   <trimTrailingWhitespace/>
-
                   <endWithNewline/>
                 </format>
               </formats>
