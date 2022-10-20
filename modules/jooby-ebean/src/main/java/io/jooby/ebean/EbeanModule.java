@@ -1,13 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.ebean;
 
+import java.util.Optional;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueType;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
@@ -16,11 +22,6 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.sql.DataSource;
-import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Persistence module using Ebean: https://ebean.io.
@@ -42,18 +43,17 @@ import java.util.Properties;
  * We do recommend the use of Hikari as connection pool, so make sure the hikari module is in your
  * project dependencies.
  *
- * Ebean depends on an annotation processor to do byte code enhancements. Please check
+ * <p>Ebean depends on an annotation processor to do byte code enhancements. Please check
  * https://ebean.io/docs/getting-started/maven for maven setup and
  * https://ebean.io/docs/getting-started/gradle for gradle setup.
  *
- * The module integrates Ebean with Jooby application properties and service registry (require
+ * <p>The module integrates Ebean with Jooby application properties and service registry (require
  * calls or DI framework).
  *
  * <h2>Properties</h2>
- * <p>
- *   Module checks for `ebean.[name]` and `ebean.*` properties (in that order) and creates a
- *   {@link DatabaseConfig}. Check {@link #create(Jooby, String)}.
- * </p>
+ *
+ * <p>Module checks for `ebean.[name]` and `ebean.*` properties (in that order) and creates a {@link
+ * DatabaseConfig}. Check {@link #create(Jooby, String)}.
  *
  * @since 2.6.1
  * @author edgar
@@ -72,9 +72,7 @@ public class EbeanModule implements Extension {
     this.databaseConfig = null;
   }
 
-  /**
-   * Creates a new ebean module using the default name: <code>db</code>.
-   */
+  /** Creates a new ebean module using the default name: <code>db</code>. */
   public EbeanModule() {
     this("db");
   }
@@ -89,9 +87,10 @@ public class EbeanModule implements Extension {
     this.name = databaseConfig.getName();
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
-    DatabaseConfig config = Optional.ofNullable(this.databaseConfig)
-        .orElseGet(() -> create(application, name));
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
+    DatabaseConfig config =
+        Optional.ofNullable(this.databaseConfig).orElseGet(() -> create(application, name));
 
     Database database = DatabaseFactory.create(config);
     ServiceRegistry services = application.getServices();
@@ -103,10 +102,9 @@ public class EbeanModule implements Extension {
    * Creates a new/default database configuration object from application configuration properties.
    * This method look for ebean properties at:
    *
-   * - ebean.[name]
-   * - ebean
+   * <p>- ebean.[name] - ebean
    *
-   * At look at ebean[.name] and fallbacks to [ebean].
+   * <p>At look at ebean[.name] and fallbacks to [ebean].
    *
    * @param application Application.
    * @param name Ebean name.
@@ -119,8 +117,7 @@ public class EbeanModule implements Extension {
     Properties properties = new Properties();
 
     Config config = environment.getConfig();
-    Config ebean = config(config, "ebean." + name)
-        .withFallback(config(config, "ebean"));
+    Config ebean = config(config, "ebean." + name).withFallback(config(config, "ebean"));
 
     ebean.entrySet().forEach(e -> properties.put(e.getKey(), e.getValue().unwrapped().toString()));
     databaseConfig.loadFromProperties(properties);

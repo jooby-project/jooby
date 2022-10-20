@@ -1,16 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Context;
-import io.jooby.exception.MissingValueException;
-import io.jooby.exception.TypeMismatchException;
-import io.jooby.ValueNode;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,6 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.ValueNode;
+import io.jooby.exception.MissingValueException;
+import io.jooby.exception.TypeMismatchException;
 
 public class ArrayValue implements ValueNode {
   private final Context ctx;
@@ -33,7 +33,8 @@ public class ArrayValue implements ValueNode {
     this.name = name;
   }
 
-  @Override public String name() {
+  @Override
+  public String name() {
     return name;
   }
 
@@ -53,7 +54,8 @@ public class ArrayValue implements ValueNode {
     return this.add(new SingleValue(ctx, name, value));
   }
 
-  @Override public ValueNode get(@NonNull int index) {
+  @Override
+  public ValueNode get(@NonNull int index) {
     try {
       return list.get(index);
     } catch (IndexOutOfBoundsException x) {
@@ -61,36 +63,44 @@ public class ArrayValue implements ValueNode {
     }
   }
 
-  @Override public ValueNode get(@NonNull String name) {
+  @Override
+  public ValueNode get(@NonNull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
-  @Override public int size() {
+  @Override
+  public int size() {
     return list.size();
   }
 
-  @Override public String value() {
+  @Override
+  public String value() {
     String name = name();
     throw new TypeMismatchException(name == null ? getClass().getSimpleName() : name, String.class);
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return list.toString();
   }
 
-  @Override public Iterator<ValueNode> iterator() {
+  @Override
+  public Iterator<ValueNode> iterator() {
     return list.iterator();
   }
 
-  @NonNull @Override public <T> T to(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> T to(@NonNull Class<T> type) {
     return ctx.convert(list.get(0), type);
   }
 
-  @NonNull @Override public <T> List<T> toList(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> List<T> toList(@NonNull Class<T> type) {
     return collect(new ArrayList<>(this.list.size()), type);
   }
 
-  @NonNull @Override public <T> Optional<T> toOptional(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> Optional<T> toOptional(@NonNull Class<T> type) {
     try {
       return Optional.ofNullable(to(type));
     } catch (MissingValueException x) {
@@ -98,21 +108,25 @@ public class ArrayValue implements ValueNode {
     }
   }
 
-  @NonNull @Override public <T> Set<T> toSet(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> Set<T> toSet(@NonNull Class<T> type) {
     return collect(new LinkedHashSet<>(this.list.size()), type);
   }
 
-  @Override public Map<String, List<String>> toMultimap() {
+  @Override
+  public Map<String, List<String>> toMultimap() {
     List<String> values = new ArrayList<>();
     list.stream().forEach(it -> it.toMultimap().values().forEach(values::addAll));
     return Collections.singletonMap(name, values);
   }
 
-  @Override public List<String> toList() {
+  @Override
+  public List<String> toList() {
     return collect(new ArrayList<>(), String.class);
   }
 
-  @Override public Set<String> toSet() {
+  @Override
+  public Set<String> toSet() {
     return collect(new LinkedHashSet<>(), String.class);
   }
 

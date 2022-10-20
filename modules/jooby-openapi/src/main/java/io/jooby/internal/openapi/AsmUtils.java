@@ -1,12 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
-
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AnnotationNode;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -16,14 +13,17 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AnnotationNode;
+
 public class AsmUtils {
-  public static List<AnnotationNode> findAnnotationByType(List<AnnotationNode> source,
-      Class annotation) {
+  public static List<AnnotationNode> findAnnotationByType(
+      List<AnnotationNode> source, Class annotation) {
     return findAnnotationByType(source, Collections.singletonList(annotation.getName()));
   }
 
-  public static List<AnnotationNode> findAnnotationByType(List<AnnotationNode> source,
-      List<String> types) {
+  public static List<AnnotationNode> findAnnotationByType(
+      List<AnnotationNode> source, List<String> types) {
     if (source == null) {
       return Collections.emptyList();
     }
@@ -46,8 +46,8 @@ public class AsmUtils {
     return map;
   }
 
-  public static void stringValue(Map<String, Object> annotation, String property,
-      Consumer<String> consumer) {
+  public static void stringValue(
+      Map<String, Object> annotation, String property, Consumer<String> consumer) {
     String value = stringValueOrNull(annotation, property);
     if (value != null) {
       consumer.accept(value.trim());
@@ -62,7 +62,8 @@ public class AsmUtils {
     return value;
   }
 
-  public static String stringValue(Map<String, Object> annotation, String property, String defaultValue) {
+  public static String stringValue(
+      Map<String, Object> annotation, String property, String defaultValue) {
     String value = stringValueOrNull(annotation, property);
     if (value == null) {
       return defaultValue;
@@ -78,20 +79,21 @@ public class AsmUtils {
     return null;
   }
 
-  public static void stringList(Map<String, Object> annotation, String property,
-      Consumer<List<String>> consumer) {
+  public static void stringList(
+      Map<String, Object> annotation, String property, Consumer<List<String>> consumer) {
     List<String> value = (List<String>) annotation.get(property);
     if (value != null && value.size() > 0) {
       consumer.accept(value);
     }
   }
 
-  public static void annotationValue(Map<String, Object> annotation, String property,
-      Consumer<Map<String, Object>> consumer) {
-   annotationValue(annotation, property).ifPresent(consumer);
+  public static void annotationValue(
+      Map<String, Object> annotation, String property, Consumer<Map<String, Object>> consumer) {
+    annotationValue(annotation, property).ifPresent(consumer);
   }
 
-  public static Optional<Map<String, Object>> annotationValue(Map<String, Object> annotation, String property) {
+  public static Optional<Map<String, Object>> annotationValue(
+      Map<String, Object> annotation, String property) {
     AnnotationNode value = (AnnotationNode) annotation.get(property);
     Map<String, Object> map = toMap(value);
     if (map.size() > 0) {
@@ -100,8 +102,9 @@ public class AsmUtils {
     return Optional.empty();
   }
 
-
-  public static void annotationList(Map<String, Object> annotation, String property,
+  public static void annotationList(
+      Map<String, Object> annotation,
+      String property,
       Consumer<List<Map<String, Object>>> consumer) {
     List<Map<String, Object>> values = annotationList(annotation, property);
     if (values.size() > 0) {
@@ -109,19 +112,17 @@ public class AsmUtils {
     }
   }
 
-  public static List<Map<String, Object>> annotationList(Map<String, Object> annotation,
-      String property) {
+  public static List<Map<String, Object>> annotationList(
+      Map<String, Object> annotation, String property) {
     List<AnnotationNode> value = (List<AnnotationNode>) annotation.get(property);
     if (value == null) {
       return Collections.emptyList();
     }
-    return value.stream()
-        .map(AsmUtils::toMap)
-        .collect(Collectors.toList());
+    return value.stream().map(AsmUtils::toMap).collect(Collectors.toList());
   }
 
-  public static void boolValue(Map<String, Object> annotation, String property,
-      Consumer<Boolean> consumer) {
+  public static void boolValue(
+      Map<String, Object> annotation, String property, Consumer<Boolean> consumer) {
     Boolean value = (Boolean) annotation.get(property);
     if (value != null) {
       consumer.accept(value);
@@ -133,16 +134,16 @@ public class AsmUtils {
     return value == Boolean.TRUE;
   }
 
-  public static void intValue(Map<String, Object> annotation, String property,
-      Consumer<Integer> consumer) {
+  public static void intValue(
+      Map<String, Object> annotation, String property, Consumer<Integer> consumer) {
     Integer value = (Integer) annotation.get(property);
     if (value != null) {
       consumer.accept(value);
     }
   }
 
-  public static void enumValue(Map<String, Object> annotation, String property,
-      Consumer<String> consumer) {
+  public static void enumValue(
+      Map<String, Object> annotation, String property, Consumer<String> consumer) {
     String[] values = (String[]) annotation.get(property);
     if (values != null) {
       String value = values[1];

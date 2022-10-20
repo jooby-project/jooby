@@ -1,19 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Asset;
-import io.jooby.MediaType;
-import io.jooby.SneakyThrows;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Asset;
+import io.jooby.MediaType;
+import io.jooby.SneakyThrows;
 
 /**
  * URL asset. Mostly represent a classpath file resource.
@@ -49,26 +49,31 @@ public class URLAsset implements Asset {
     this.path = path;
   }
 
-  @Override public long getSize() {
+  @Override
+  public long getSize() {
     checkOpen();
     return len;
   }
 
-  @Override public long getLastModified() {
+  @Override
+  public long getLastModified() {
     checkOpen();
     return lastModified;
   }
 
-  @NonNull @Override public MediaType getContentType() {
+  @NonNull @Override
+  public MediaType getContentType() {
     return MediaType.byFile(path);
   }
 
-  @Override public InputStream stream() {
+  @Override
+  public InputStream stream() {
     checkOpen();
     return content;
   }
 
-  @Override public void close() {
+  @Override
+  public void close() {
     try {
       if (content != null) {
         content.close();
@@ -80,22 +85,26 @@ public class URLAsset implements Asset {
     }
   }
 
-  @Override public boolean equals(Object obj) {
+  @Override
+  public boolean equals(Object obj) {
     if (obj instanceof io.jooby.internal.URLAsset) {
       return path.equals(((io.jooby.internal.URLAsset) obj).path);
     }
     return false;
   }
 
-  @Override public int hashCode() {
+  @Override
+  public int hashCode() {
     return path.hashCode();
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return path;
   }
 
-  @Override public boolean isDirectory() {
+  @Override
+  public boolean isDirectory() {
     return getSize() == 0;
   }
 

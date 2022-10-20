@@ -1,9 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
+
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
+import org.objectweb.asm.ClassReader;
 
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
@@ -12,11 +18,6 @@ import io.jooby.internal.asm.Lambdas;
 import io.jooby.internal.asm.MethodFinder;
 import io.jooby.internal.asm.ReturnType;
 import io.jooby.internal.asm.TypeParser;
-import org.objectweb.asm.ClassReader;
-
-import java.io.PrintWriter;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 public class RouteAnalyzer {
 
@@ -88,8 +89,8 @@ public class RouteAnalyzer {
   }
 
   private boolean isKotlinContinuation(Method method) {
-    if (method.getName().equals("create") && method.getReturnType().getName()
-        .equals(CONTINUATION)) {
+    if (method.getName().equals("create")
+        && method.getReturnType().getName().equals(CONTINUATION)) {
       Parameter[] parameters = method.getParameters();
       if (parameters.length > 0) {
         return parameters[parameters.length - 1].getType().getName().equals(CONTINUATION);
@@ -101,9 +102,10 @@ public class RouteAnalyzer {
   private boolean isContextFunction(Method method, String name) {
     if (method.getName().equals(name)) {
       Parameter[] parameters = method.getParameters();
-      if (parameters.length ==1) {
+      if (parameters.length == 1) {
         Parameter parameter = parameters[0];
-        return parameter.getType() == Context.class || parameter.getType().getName().equals("io.jooby.HandlerContext");
+        return parameter.getType() == Context.class
+            || parameter.getType().getName().equals("io.jooby.HandlerContext");
       }
     }
     return false;

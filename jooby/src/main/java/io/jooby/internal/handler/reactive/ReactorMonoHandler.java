@@ -1,16 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.handler.reactive;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.internal.handler.LinkedHandler;
 import reactor.core.publisher.Mono;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class ReactorMonoHandler implements LinkedHandler {
 
@@ -20,7 +19,8 @@ public class ReactorMonoHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @NonNull @Override public Object apply(@NonNull Context ctx) {
+  @NonNull @Override
+  public Object apply(@NonNull Context ctx) {
     try {
       Mono result = (Mono) next.apply(ctx);
       result.subscribe(ctx::render, x -> ctx.sendError((Throwable) x));
@@ -31,7 +31,8 @@ public class ReactorMonoHandler implements LinkedHandler {
     }
   }
 
-  @Override public Route.Handler next() {
+  @Override
+  public Route.Handler next() {
     return next;
   }
 }

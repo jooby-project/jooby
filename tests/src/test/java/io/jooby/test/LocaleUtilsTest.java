@@ -1,16 +1,22 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.test;
 
-import io.jooby.internal.LocaleUtils;
-import org.junit.jupiter.api.Test;
+import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import io.jooby.internal.LocaleUtils;
 
 public class LocaleUtilsTest {
 
@@ -67,10 +73,12 @@ public class LocaleUtilsTest {
     // then all french locales
     // then all german locales
     assertEquals(new Locale("fr", "CH"), locales.get(0));
-    assertEquals(Arrays.asList("en", "fr", "de"), locales.stream()
-        .skip(1) // skip fr-CH
-        .map(Locale::getLanguage)
-        .distinct()
-        .collect(toList()));
+    assertEquals(
+        Arrays.asList("en", "fr", "de"),
+        locales.stream()
+            .skip(1) // skip fr-CH
+            .map(Locale::getLanguage)
+            .distinct()
+            .collect(toList()));
   }
 }

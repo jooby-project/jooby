@@ -1,17 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Asset;
-import io.jooby.AssetSource;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import io.jooby.Asset;
+import io.jooby.AssetSource;
 
 public class FolderDiskAssetSource implements AssetSource {
   private Path location;
@@ -20,7 +20,8 @@ public class FolderDiskAssetSource implements AssetSource {
     this.location = location.normalize().toAbsolutePath();
   }
 
-  @Nullable @Override public Asset resolve(@NonNull String path) {
+  @Nullable @Override
+  public Asset resolve(@NonNull String path) {
     Path resource = location.resolve(path).normalize().toAbsolutePath();
     if (resource.startsWith(location)) {
       if (Files.isRegularFile(resource)) {
@@ -35,7 +36,8 @@ public class FolderDiskAssetSource implements AssetSource {
     return null;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return location.toString();
   }
 }

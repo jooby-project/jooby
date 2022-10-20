@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -12,20 +12,24 @@ import org.conscrypt.Conscrypt;
 import io.undertow.protocols.alpn.ALPNProvider;
 
 public class ConscriptAlpnProvider implements ALPNProvider {
-  @Override public boolean isEnabled(SSLEngine sslEngine) {
+  @Override
+  public boolean isEnabled(SSLEngine sslEngine) {
     return sslEngine.getClass().getName().startsWith("org.conscrypt.");
   }
 
-  @Override public SSLEngine setProtocols(SSLEngine engine, String[] protocols) {
+  @Override
+  public SSLEngine setProtocols(SSLEngine engine, String[] protocols) {
     Impl.setProtocols(engine, protocols);
     return engine;
   }
 
-  @Override public String getSelectedProtocol(SSLEngine engine) {
+  @Override
+  public String getSelectedProtocol(SSLEngine engine) {
     return Impl.getSelectedProtocol(engine);
   }
 
-  @Override public int getPriority() {
+  @Override
+  public int getPriority() {
     return 400;
   }
 

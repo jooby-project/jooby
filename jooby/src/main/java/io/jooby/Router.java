@@ -1,17 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import com.typesafe.config.Config;
-import io.jooby.exception.MissingValueException;
-import org.slf4j.Logger;
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNull;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import jakarta.inject.Provider;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,9 +29,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Objects.requireNonNull;
+import org.slf4j.Logger;
+
+import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.exception.MissingValueException;
+import jakarta.inject.Provider;
 
 /**
  * Routing DSL functions.
@@ -44,9 +45,7 @@ import static java.util.Objects.requireNonNull;
  */
 public interface Router extends Registry {
 
-  /**
-   * Find route result.
-   */
+  /** Find route result. */
   interface Match {
     /**
      * True for matching route.
@@ -95,8 +94,8 @@ public interface Router extends Registry {
   String TRACE = "TRACE";
 
   /** HTTP Methods. */
-  List<String> METHODS = unmodifiableList(
-      asList(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE));
+  List<String> METHODS =
+      unmodifiableList(asList(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE));
 
   /** Web socket. */
   String WS = "WS";
@@ -160,18 +159,18 @@ public interface Router extends Registry {
   }
 
   /**
-   * Application service registry. Services are accessible via this registry or
-   * {@link Jooby#require(Class)} calls.
+   * Application service registry. Services are accessible via this registry or {@link
+   * Jooby#require(Class)} calls.
    *
-   * This method returns a mutable registry. You are free to modify/alter the registry.
+   * <p>This method returns a mutable registry. You are free to modify/alter the registry.
    *
    * @return Service registry.
    */
   @NonNull ServiceRegistry getServices();
 
   /**
-   * Set application context path. Context path is the base path for all routes. Default is:
-   * <code>/</code>.
+   * Set application context path. Context path is the base path for all routes. Default is: <code>/
+   * </code>.
    *
    * @param contextPath Context path.
    * @return This router.
@@ -186,19 +185,20 @@ public interface Router extends Registry {
   @NonNull String getContextPath();
 
   /**
-   * When true handles X-Forwarded-* headers by updating the values on the current context to
-   * match what was sent in the header(s).
+   * When true handles X-Forwarded-* headers by updating the values on the current context to match
+   * what was sent in the header(s).
    *
-   * This should only be installed behind a reverse proxy that has been configured to send the
-   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by
-   * sending a header with bogus values.
+   * <p>This should only be installed behind a reverse proxy that has been configured to send the
+   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by sending a
+   * header with bogus values.
    *
-   * The headers that are read/set are:
+   * <p>The headers that are read/set are:
+   *
    * <ul>
-   *  <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.</li>
-   *  <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.</li>
-   *  <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.</li>
-   *  <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.</li>
+   *   <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.
+   *   <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.
+   *   <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.
+   *   <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.
    * </ul>
    *
    * @return True when enabled. Default is false.
@@ -206,19 +206,20 @@ public interface Router extends Registry {
   boolean isTrustProxy();
 
   /**
-   * When true handles X-Forwarded-* headers by updating the values on the current context to
-   * match what was sent in the header(s).
+   * When true handles X-Forwarded-* headers by updating the values on the current context to match
+   * what was sent in the header(s).
    *
-   * This should only be installed behind a reverse proxy that has been configured to send the
-   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by
-   * sending a header with bogus values.
+   * <p>This should only be installed behind a reverse proxy that has been configured to send the
+   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by sending a
+   * header with bogus values.
    *
-   * The headers that are read/set are:
+   * <p>The headers that are read/set are:
+   *
    * <ul>
-   *  <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.</li>
-   *  <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.</li>
-   *  <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.</li>
-   *  <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.</li>
+   *   <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.
+   *   <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.
+   *   <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.
+   *   <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.
    * </ul>
    *
    * @param trustProxy True to enabled.
@@ -229,9 +230,9 @@ public interface Router extends Registry {
   /**
    * Provides a way to override the current HTTP method. Request must be:
    *
-   * - POST Form/multipart request
+   * <p>- POST Form/multipart request
    *
-   * For alternative strategy use the {@link #setHiddenMethod(Function)} method.
+   * <p>For alternative strategy use the {@link #setHiddenMethod(Function)} method.
    *
    * @param parameterName Form field name.
    * @return This router.
@@ -256,8 +257,8 @@ public interface Router extends Registry {
   @NonNull Router setCurrentUser(@Nullable Function<Context, Object> provider);
 
   /**
-   * If enabled, allows to retrieve the {@link Context} object associated with the current
-   * request via the service registry while the request is being processed.
+   * If enabled, allows to retrieve the {@link Context} object associated with the current request
+   * via the service registry while the request is being processed.
    *
    * @param contextAsService whether to enable or disable this feature
    * @return This router.
@@ -281,7 +282,7 @@ public interface Router extends Registry {
    *
    * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
    *
-   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param domain Predicate
    * @param subrouter Subrouter.
@@ -312,10 +313,10 @@ public interface Router extends Registry {
   @NonNull RouteSet domain(@NonNull String domain, @NonNull Runnable body);
 
   /**
-   * Import routes from given router. Predicate works like a filter and only when predicate pass
-   * the routes match against the current request.
+   * Import routes from given router. Predicate works like a filter and only when predicate pass the
+   * routes match against the current request.
    *
-   * Example of domain predicate filter:
+   * <p>Example of domain predicate filter:
    *
    * <pre>{@code
    * {
@@ -326,9 +327,10 @@ public interface Router extends Registry {
    *
    * Imported routes are matched only when predicate pass.
    *
-   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   * <p>NOTE: if you run behind a reverse proxy you might to enabled {@link
+   * #setTrustProxy(boolean)}.
    *
-   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param predicate Context predicate.
    * @param router Router to import.
@@ -341,10 +343,10 @@ public interface Router extends Registry {
   }
 
   /**
-   * Import routes from given router. Predicate works like a filter and only when predicate pass
-   * the routes match against the current request.
+   * Import routes from given router. Predicate works like a filter and only when predicate pass the
+   * routes match against the current request.
    *
-   * Example of domain predicate filter:
+   * <p>Example of domain predicate filter:
    *
    * <pre>{@code
    * {
@@ -355,9 +357,10 @@ public interface Router extends Registry {
    *
    * Imported routes are matched only when predicate pass.
    *
-   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   * <p>NOTE: if you run behind a reverse proxy you might to enabled {@link
+   * #setTrustProxy(boolean)}.
    *
-   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param predicate Context predicate.
    * @param router Router to import.
@@ -366,10 +369,10 @@ public interface Router extends Registry {
   @NonNull Router mount(@NonNull Predicate<Context> predicate, @NonNull Router router);
 
   /**
-   * Import routes from given action. Predicate works like a filter and only when predicate pass
-   * the routes match against the current request.
+   * Import routes from given action. Predicate works like a filter and only when predicate pass the
+   * routes match against the current request.
    *
-   * Example of domain predicate filter:
+   * <p>Example of domain predicate filter:
    *
    * <pre>{@code
    * {
@@ -395,10 +398,10 @@ public interface Router extends Registry {
   }
 
   /**
-   * Import routes from given action. Predicate works like a filter and only when predicate pass
-   * the routes match against the current request.
+   * Import routes from given action. Predicate works like a filter and only when predicate pass the
+   * routes match against the current request.
    *
-   * Example of domain predicate filter:
+   * <p>Example of domain predicate filter:
    *
    * <pre>{@code
    * {
@@ -413,7 +416,7 @@ public interface Router extends Registry {
    *
    * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
    *
-   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param predicate Context predicate.
    * @param body Route action.
@@ -424,7 +427,7 @@ public interface Router extends Registry {
   /**
    * Import all routes from the given router and prefix them with the given path.
    *
-   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param path Prefix path.
    * @param router Router to import.
@@ -439,7 +442,7 @@ public interface Router extends Registry {
   /**
    * Import all routes from the given router and prefix them with the given path.
    *
-   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param path Prefix path.
    * @param router Router to import.
@@ -450,7 +453,7 @@ public interface Router extends Registry {
   /**
    * Import all routes from the given router.
    *
-   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param router Router to import.
    * @return This router.
@@ -464,7 +467,7 @@ public interface Router extends Registry {
   /**
    * Import all routes from the given router.
    *
-   * NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+   * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param router Router to import.
    * @return This router.
@@ -477,8 +480,8 @@ public interface Router extends Registry {
    */
 
   /**
-   * Import all route method from the given controller class. At runtime the controller instance
-   * is resolved by calling {@link Jooby#require(Class)}.
+   * Import all route method from the given controller class. At runtime the controller instance is
+   * resolved by calling {@link Jooby#require(Class)}.
    *
    * @param router Controller class.
    * @return This router.
@@ -546,8 +549,8 @@ public interface Router extends Registry {
   @NonNull Router encoder(@NonNull MediaType contentType, @NonNull MessageEncoder encoder);
 
   /**
-   * Application temporary directory. This method initialize the {@link Environment} when isn't
-   * set manually.
+   * Application temporary directory. This method initialize the {@link Environment} when isn't set
+   * manually.
    *
    * @return Application temporary directory.
    */
@@ -581,7 +584,8 @@ public interface Router extends Registry {
    * Set the default worker thread pool. Via this method the underlying web server set/suggests the
    * worker thread pool that should be used it.
    *
-   * A call to {@link #getWorker()} returns the default thread pool, unless you explicitly set one.
+   * <p>A call to {@link #getWorker()} returns the default thread pool, unless you explicitly set
+   * one.
    *
    * @param worker Default worker thread pool.
    * @return This router.
@@ -622,11 +626,11 @@ public interface Router extends Registry {
   @NonNull Router dispatch(@NonNull Runnable body);
 
   /**
-   * Dispatch route pipeline to the given executor. After dispatch application code is allowed to
-   * do blocking calls.
+   * Dispatch route pipeline to the given executor. After dispatch application code is allowed to do
+   * blocking calls.
    *
    * @param executor Executor. {@link java.util.concurrent.ExecutorService} instances automatically
-   *    shutdown at application exit.
+   *     shutdown at application exit.
    * @param body Dispatch body.
    * @return This router.
    */
@@ -641,8 +645,8 @@ public interface Router extends Registry {
   @NonNull RouteSet routes(@NonNull Runnable body);
 
   /**
-   * Group one or more routes under a common path prefix. Useful for applying cross cutting
-   * concerns to the enclosed routes.
+   * Group one or more routes under a common path prefix. Useful for applying cross cutting concerns
+   * to the enclosed routes.
    *
    * @param pattern Path pattern.
    * @param body Route body.
@@ -752,18 +756,19 @@ public interface Router extends Registry {
   /**
    * Add a static resource handler. Static resources are resolved from:
    *
-   * - file-system if the source folder exists in the current user directory
-   * - or fallback to classpath when file-system folder doesn't exist.
+   * <p>- file-system if the source folder exists in the current user directory - or fallback to
+   * classpath when file-system folder doesn't exist.
    *
-   * NOTE: This method choose file-system or classpath, it doesn't merge them.
+   * <p>NOTE: This method choose file-system or classpath, it doesn't merge them.
    *
    * @param pattern Path pattern.
    * @param source File-System folder when exists, or fallback to a classpath folder.
    * @return A route.
    */
   default @NonNull Route assets(@NonNull String pattern, @NonNull String source) {
-    Path path = Stream.of(source.split("/"))
-        .reduce(Paths.get(System.getProperty("user.dir")), Path::resolve, Path::resolve);
+    Path path =
+        Stream.of(source.split("/"))
+            .reduce(Paths.get(System.getProperty("user.dir")), Path::resolve, Path::resolve);
     if (Files.exists(path)) {
       return assets(pattern, path);
     }
@@ -800,14 +805,13 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull Route route(@NonNull String method, @NonNull String pattern, @NonNull
-      Route.Handler handler);
+  @NonNull Route route(@NonNull String method, @NonNull String pattern, @NonNull Route.Handler handler);
 
   /**
    * Find a matching route using the given context.
    *
-   * If no match exists this method returns a route with a <code>404</code> handler.
-   * See {@link Route#NOT_FOUND}.
+   * <p>If no match exists this method returns a route with a <code>404</code> handler. See {@link
+   * Route#NOT_FOUND}.
    *
    * @param ctx Web Context.
    * @return A route match result.
@@ -817,8 +821,8 @@ public interface Router extends Registry {
   /**
    * Find a matching route using the given context.
    *
-   * If no match exists this method returns a route with a <code>404</code> handler.
-   * See {@link Route#NOT_FOUND}.
+   * <p>If no match exists this method returns a route with a <code>404</code> handler. See {@link
+   * Route#NOT_FOUND}.
    *
    * @param method Method to match.
    * @param path Path to match.
@@ -835,8 +839,7 @@ public interface Router extends Registry {
    * @param statusCode Status code.
    * @return This router.
    */
-  @NonNull Router errorCode(@NonNull Class<? extends Throwable> type,
-      @NonNull StatusCode statusCode);
+  @NonNull Router errorCode(@NonNull Class<? extends Throwable> type, @NonNull StatusCode statusCode);
 
   /**
    * Computes the status code for the given exception.
@@ -853,8 +856,7 @@ public interface Router extends Registry {
    * @param handler Error handler.
    * @return This router.
    */
-  @NonNull
-  default Router error(@NonNull StatusCode statusCode, @NonNull ErrorHandler handler) {
+  @NonNull default Router error(@NonNull StatusCode statusCode, @NonNull ErrorHandler handler) {
     return error(statusCode::equals, handler);
   }
 
@@ -865,14 +867,13 @@ public interface Router extends Registry {
    * @param handler Error handler.
    * @return This router.
    */
-  @NonNull
-  default Router error(@NonNull Class<? extends Throwable> type,
-      @NonNull ErrorHandler handler) {
-    return error((ctx, x, statusCode) -> {
-      if (type.isInstance(x) || type.isInstance(x.getCause())) {
-        handler.apply(ctx, x, statusCode);
-      }
-    });
+  @NonNull default Router error(@NonNull Class<? extends Throwable> type, @NonNull ErrorHandler handler) {
+    return error(
+        (ctx, x, statusCode) -> {
+          if (type.isInstance(x) || type.isInstance(x.getCause())) {
+            handler.apply(ctx, x, statusCode);
+          }
+        });
   }
 
   /**
@@ -882,14 +883,13 @@ public interface Router extends Registry {
    * @param handler Error handler.
    * @return This router.
    */
-  @NonNull
-  default Router error(@NonNull Predicate<StatusCode> predicate,
-      @NonNull ErrorHandler handler) {
-    return error((ctx, x, statusCode) -> {
-      if (predicate.test(statusCode)) {
-        handler.apply(ctx, x, statusCode);
-      }
-    });
+  @NonNull default Router error(@NonNull Predicate<StatusCode> predicate, @NonNull ErrorHandler handler) {
+    return error(
+        (ctx, x, statusCode) -> {
+          if (predicate.test(statusCode)) {
+            handler.apply(ctx, x, statusCode);
+          }
+        });
   }
 
   /**
@@ -940,7 +940,7 @@ public interface Router extends Registry {
   /**
    * Session store. Default use a cookie ID with a memory storage.
    *
-   * See {@link SessionStore#memory()}.
+   * <p>See {@link SessionStore#memory()}.
    *
    * @return Session store.
    */
@@ -980,7 +980,8 @@ public interface Router extends Registry {
    * @return This router.
    * @deprecated Use {@link #setFlashCookie(Cookie)} instead.
    */
-  @Deprecated @NonNull Router setFlashCookie(@NonNull String name);
+  @Deprecated
+  @NonNull Router setFlashCookie(@NonNull String name);
 
   /**
    * Template for the flash cookie. Default name is: <code>jooby.flash</code>.
@@ -990,8 +991,8 @@ public interface Router extends Registry {
   @NonNull Cookie getFlashCookie();
 
   /**
-   * Sets a cookie used as a template to generate the flash cookie, allowing
-   * to customize the cookie name and other cookie parameters.
+   * Sets a cookie used as a template to generate the flash cookie, allowing to customize the cookie
+   * name and other cookie parameters.
    *
    * @param flashCookie The cookie template.
    * @return This router.
@@ -1109,8 +1110,7 @@ public interface Router extends Registry {
    * @return Path keys.
    */
   static @NonNull List<String> pathKeys(@NonNull String pattern) {
-    return pathKeys(pattern, (k, v) -> {
-    });
+    return pathKeys(pattern, (k, v) -> {});
   }
 
   /**
@@ -1122,8 +1122,8 @@ public interface Router extends Registry {
    * @param consumer Listen for key and regex variables found.
    * @return Path keys.
    */
-  static @NonNull List<String> pathKeys(@NonNull String pattern,
-      BiConsumer<String, String> consumer) {
+  static @NonNull List<String> pathKeys(
+      @NonNull String pattern, BiConsumer<String, String> consumer) {
     List<String> result = new ArrayList<>();
     int start = -1;
     int end = Integer.MAX_VALUE;
@@ -1200,24 +1200,29 @@ public interface Router extends Registry {
     int len = pattern.length();
     AtomicInteger key = new AtomicInteger();
     Map<Integer, StringBuilder> paths = new HashMap<>();
-    BiConsumer<Integer, StringBuilder> pathAppender = (index, segment) -> {
-      for (int i = index; i < index - 1; i++) {
-        paths.get(i).append(segment);
-      }
-      paths.computeIfAbsent(index, current -> {
-        StringBuilder value = new StringBuilder();
-        if (current > 0) {
-          StringBuilder previous = paths.get(current - 1);
-          if (!previous.toString().equals("/")) {
-            value.append(previous);
+    BiConsumer<Integer, StringBuilder> pathAppender =
+        (index, segment) -> {
+          for (int i = index; i < index - 1; i++) {
+            paths.get(i).append(segment);
           }
-        }
-        return value;
-      }).append(segment);
-    };
+          paths
+              .computeIfAbsent(
+                  index,
+                  current -> {
+                    StringBuilder value = new StringBuilder();
+                    if (current > 0) {
+                      StringBuilder previous = paths.get(current - 1);
+                      if (!previous.toString().equals("/")) {
+                        value.append(previous);
+                      }
+                    }
+                    return value;
+                  })
+              .append(segment);
+        };
     StringBuilder segment = new StringBuilder();
     boolean isLastOptional = false;
-    for (int i = 0; i < len;) {
+    for (int i = 0; i < len; ) {
       char ch = pattern.charAt(i);
       if (ch == '/') {
         if (segment.length() > 0) {
@@ -1269,9 +1274,7 @@ public interface Router extends Registry {
         paths.put(key.incrementAndGet(), segment);
       }
     }
-    return paths.values().stream()
-        .map(StringBuilder::toString)
-        .collect(Collectors.toList());
+    return paths.values().stream().map(StringBuilder::toString).collect(Collectors.toList());
   }
 
   /**

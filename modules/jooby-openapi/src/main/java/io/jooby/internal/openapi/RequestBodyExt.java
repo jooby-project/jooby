@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -10,11 +10,9 @@ import io.jooby.MediaType;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
 public class RequestBodyExt extends RequestBody {
-  @JsonIgnore
-  private String javaType;
+  @JsonIgnore private String javaType;
 
-  @JsonIgnore
-  private String contentType = MediaType.JSON;
+  @JsonIgnore private String contentType = MediaType.JSON;
 
   public String getJavaType() {
     return javaType;

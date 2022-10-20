@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -15,32 +15,37 @@ public class RxObserver extends DefaultObserver<Object> {
     this.subscriber = subscriber;
   }
 
-  @Override public void onNext(Object item) {
+  @Override
+  public void onNext(Object item) {
     subscriber.onNext(item);
   }
 
-  @Override public void onError(Throwable x) {
+  @Override
+  public void onError(Throwable x) {
     subscriber.onError(x);
   }
 
-  @Override public void onComplete() {
+  @Override
+  public void onComplete() {
     subscriber.onComplete();
   }
 
-  @Override protected void onStart() {
+  @Override
+  protected void onStart() {
     subscriber.onSubscribe(subcribe(this));
   }
 
   private static ChunkedSubscription subcribe(RxObserver rxObserver) {
     return new ChunkedSubscription() {
-      @Override public void request(long n) {
+      @Override
+      public void request(long n) {
         // NOOP
       }
 
-      @Override public void cancel() {
+      @Override
+      public void cancel() {
         rxObserver.cancel();
       }
     };
   }
-
 }

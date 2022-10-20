@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -25,11 +25,13 @@ public class JettyHttp2Configurer
   private static final String H2_17 = "h2-17";
   private static final String HTTP_1_1 = "http/1.1";
 
-  @Override public boolean support(Class type) {
+  @Override
+  public boolean support(Class type) {
     return HttpConfiguration.class == type;
   }
 
-  @Override public List<ConnectionFactory> configure(HttpConfiguration input) {
+  @Override
+  public List<ConnectionFactory> configure(HttpConfiguration input) {
     if (input.getCustomizer(SecureRequestCustomizer.class) != null) {
       ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory(H2, H2_17, HTTP_1_1);
       alpn.setDefaultProtocol(HTTP_1_1);

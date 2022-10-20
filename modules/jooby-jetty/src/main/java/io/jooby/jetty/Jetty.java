@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -17,8 +17,6 @@ import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.ConnectionFactory;
@@ -41,6 +39,7 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
 
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Http2Configurer;
 import io.jooby.Jooby;
 import io.jooby.Router;
@@ -64,29 +63,31 @@ public class Jetty extends io.jooby.Server.Base {
 
   private List<Jooby> applications = new ArrayList<>();
 
-  private ServerOptions options = new ServerOptions()
-      .setServer("jetty")
-      .setWorkerThreads(THREADS);
+  private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
 
-//  static {
-//    //System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");
-//  }
+  //  static {
+  //    //System.setProperty("org.eclipse.jetty.util.log.class",
+  // "org.eclipse.jetty.util.log.Slf4jLog");
+  //  }
 
-  @NonNull @Override public Jetty setOptions(@NonNull ServerOptions options) {
-    this.options = options
-        .setWorkerThreads(options.getWorkerThreads(THREADS));
+  @NonNull @Override
+  public Jetty setOptions(@NonNull ServerOptions options) {
+    this.options = options.setWorkerThreads(options.getWorkerThreads(THREADS));
     return this;
   }
 
-  @NonNull @Override public ServerOptions getOptions() {
+  @NonNull @Override
+  public ServerOptions getOptions() {
     return options;
   }
 
-  @NonNull @Override public io.jooby.Server start(Jooby application) {
+  @NonNull @Override
+  public io.jooby.Server start(Jooby application) {
     try {
-      //System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
+      // System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
       /** Set max request size attribute: */
-      System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
+      System.setProperty(
+          "org.eclipse.jetty.server.Request.maxFormContentSize",
           Long.toString(options.getMaxRequestSize()));
 
       applications.add(application);
@@ -103,14 +104,14 @@ public class Jetty extends io.jooby.Server.Base {
 
       Http2Configurer<HttpConfiguration, List<ConnectionFactory>> http2;
       if (options.isHttp2() == null || options.isHttp2() == Boolean.TRUE) {
-        http2 = stream(spliteratorUnknownSize(
-            ServiceLoader.load(Http2Configurer.class).iterator(),
-            Spliterator.ORDERED),
-            false
-        )
-            .filter(it -> it.support(HttpConfiguration.class))
-            .findFirst()
-            .orElse(null);
+        http2 =
+            stream(
+                    spliteratorUnknownSize(
+                        ServiceLoader.load(Http2Configurer.class).iterator(), Spliterator.ORDERED),
+                    false)
+                .filter(it -> it.support(HttpConfiguration.class))
+                .findFirst()
+                .orElse(null);
       } else {
         http2 = null;
       }
@@ -131,8 +132,8 @@ public class Jetty extends io.jooby.Server.Base {
           .ifPresent(extension -> connectionFactories.addAll(extension.configure(httpConf)));
 
       if (!options.isHttpsOnly()) {
-        ServerConnector http = new ServerConnector(server,
-            connectionFactories.toArray(new ConnectionFactory[0]));
+        ServerConnector http =
+            new ServerConnector(server, connectionFactories.toArray(new ConnectionFactory[0]));
         http.setPort(options.getPort());
         http.setHost(options.getHost());
 
@@ -141,17 +142,18 @@ public class Jetty extends io.jooby.Server.Base {
 
       if (options.isSSLEnabled()) {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory
-            .setSslContext(options.getSSLContext(application.getEnvironment().getClassLoader()));
+        sslContextFactory.setSslContext(
+            options.getSSLContext(application.getEnvironment().getClassLoader()));
         List<String> protocol = options.getSsl().getProtocol();
         sslContextFactory.setIncludeProtocols(protocol.toArray(new String[0]));
         // exclude
         isNotInUse(protocol, "TLSv1", sslContextFactory::addExcludeProtocols);
         isNotInUse(protocol, "TLSv1.1", sslContextFactory::addExcludeProtocols);
 
-        SslOptions.ClientAuth clientAuth = Optional.ofNullable(options.getSsl())
-            .map(SslOptions::getClientAuth)
-            .orElse(SslOptions.ClientAuth.NONE);
+        SslOptions.ClientAuth clientAuth =
+            Optional.ofNullable(options.getSsl())
+                .map(SslOptions::getClientAuth)
+                .orElse(SslOptions.ClientAuth.NONE);
         if (clientAuth == SslOptions.ClientAuth.REQUESTED) {
           sslContextFactory.setWantClientAuth(true);
         } else if (clientAuth == SslOptions.ClientAuth.REQUIRED) {
@@ -170,34 +172,41 @@ public class Jetty extends io.jooby.Server.Base {
         }
         secureConnectionFactories.add(new HttpConnectionFactory(httpsConf));
 
-        ServerConnector secureConnector = new ServerConnector(server,
-            secureConnectionFactories
-                .toArray(new ConnectionFactory[0]));
+        ServerConnector secureConnector =
+            new ServerConnector(
+                server, secureConnectionFactories.toArray(new ConnectionFactory[0]));
         secureConnector.setPort(options.getSecurePort());
         secureConnector.setHost(options.getHost());
 
         server.addConnector(secureConnector);
       } else if (options.isHttpsOnly()) {
-        throw new IllegalArgumentException("Server configured for httpsOnly, but ssl options not set");
+        throw new IllegalArgumentException(
+            "Server configured for httpsOnly, but ssl options not set");
       }
 
       ServletContextHandler context = new ServletContextHandler();
 
-      boolean webSockets = application.getRoutes().stream()
-          .anyMatch(it -> it.getMethod().equals(Router.WS));
+      boolean webSockets =
+          application.getRoutes().stream().anyMatch(it -> it.getMethod().equals(Router.WS));
 
       /* ********************************* Compression *************************************/
       boolean gzip = options.getCompressionLevel() != null;
       boolean compress = gzip || webSockets;
       if (compress) {
-        int compressionLevel = Optional.ofNullable(options.getCompressionLevel()).orElse(ServerOptions.DEFAULT_COMPRESSION_LEVEL);
+        int compressionLevel =
+            Optional.ofNullable(options.getCompressionLevel())
+                .orElse(ServerOptions.DEFAULT_COMPRESSION_LEVEL);
         DeflaterPool deflater = newDeflater(compressionLevel);
         server.addBean(deflater, true);
       }
 
       /* ********************************* Servlet *************************************/
-      JettyServlet servlet = new JettyServlet(applications.get(0), options.getBufferSize(),
-          options.getMaxRequestSize(), options.getDefaultHeaders());
+      JettyServlet servlet =
+          new JettyServlet(
+              applications.get(0),
+              options.getBufferSize(),
+              options.getMaxRequestSize(),
+              options.getDefaultHeaders());
       context.addServlet(new ServletHolder(servlet), "/*");
 
       /* ********************************* Gzip *************************************/
@@ -212,15 +221,18 @@ public class Jetty extends io.jooby.Server.Base {
       /* ********************************* WebSocket *************************************/
       if (webSockets) {
         Config conf = application.getConfig();
-        int maxSize = conf.hasPath("websocket.maxSize")
-            ? conf.getBytes("websocket.maxSize").intValue()
-            : WebSocket.MAX_BUFFER_SIZE;
+        int maxSize =
+            conf.hasPath("websocket.maxSize")
+                ? conf.getBytes("websocket.maxSize").intValue()
+                : WebSocket.MAX_BUFFER_SIZE;
         context.setAttribute(DecoratedObjectFactory.ATTR, new DecoratedObjectFactory());
-        long timeout = conf.hasPath("websocket.idleTimeout")
-            ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
-            : TimeUnit.MINUTES.toMillis(5);
+        long timeout =
+            conf.hasPath("websocket.idleTimeout")
+                ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
+                : TimeUnit.MINUTES.toMillis(5);
 
-        JettyWebSocketServletContainerInitializer.configure(context,
+        JettyWebSocketServletContainerInitializer.configure(
+            context,
             (servletContext, container) -> {
               container.setMaxTextMessageSize(maxSize);
               container.setIdleTimeout(Duration.ofMillis(timeout));
@@ -253,7 +265,8 @@ public class Jetty extends io.jooby.Server.Base {
     }
   }
 
-  @NonNull @Override public synchronized io.jooby.Server stop() {
+  @NonNull @Override
+  public synchronized io.jooby.Server stop() {
     fireStop(applications);
     if (server != null) {
       try {

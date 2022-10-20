@@ -1,18 +1,18 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.exception;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Provisioning exception, throws by MVC routes when parameter binding fails.
@@ -29,8 +29,12 @@ public class ProvisioningException extends BadRequestException {
    * @param cause Cause. Nullable.
    */
   public ProvisioningException(@NonNull Parameter parameter, @Nullable Throwable cause) {
-    this("Unable to provision parameter: '" + toString(parameter) + "', require by: " + toString(
-        parameter.getDeclaringExecutable()), cause);
+    this(
+        "Unable to provision parameter: '"
+            + toString(parameter)
+            + "', require by: "
+            + toString(parameter.getDeclaringExecutable()),
+        cause);
   }
 
   /**

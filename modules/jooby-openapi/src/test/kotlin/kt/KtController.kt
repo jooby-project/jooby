@@ -1,14 +1,19 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package kt
 
 import examples.ABean
-import kotlinx.coroutines.delay
-import java.util.concurrent.CompletableFuture
 import jakarta.inject.Named
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.QueryParam
+import java.util.concurrent.CompletableFuture
+import kotlinx.coroutines.delay
 
 class KtController {
 
@@ -17,10 +22,7 @@ class KtController {
     return ""
   }
 
-  @DELETE
-  @Path("/unit")
-  fun doUnit() {
-  }
+  @DELETE @Path("/unit") fun doUnit() {}
 
   @GET
   @Path("/doMap")
@@ -29,10 +31,12 @@ class KtController {
   }
 
   @Path("/doParams")
-  fun params(@QueryParam("I") i: Int,
-             @QueryParam("oI") oi: Int?,
-             @QueryParam("q") q: String,
-             @QueryParam("nullq") nullq: String?): ABean {
+  fun params(
+    @QueryParam("I") i: Int,
+    @QueryParam("oI") oi: Int?,
+    @QueryParam("q") q: String,
+    @QueryParam("nullq") nullq: String?
+  ): ABean {
     return ABean()
   }
 
@@ -51,8 +55,10 @@ class KtController {
 
   @GET
   @Path("/httpNames")
-  fun httpNames(@HeaderParam("Last-Modified-Since") lastModifiedSince: String,
-                @Named("x-search") @io.jooby.annotations.QueryParam q: String): String {
+  fun httpNames(
+    @HeaderParam("Last-Modified-Since") lastModifiedSince: String,
+    @Named("x-search") @io.jooby.annotations.QueryParam q: String
+  ): String {
     return lastModifiedSince
   }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -24,13 +24,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import org.jline.reader.LineReader;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.cli.Cli;
 import io.jooby.cli.Context;
 
@@ -59,7 +58,8 @@ public class CommandContextImpl implements Context {
 
     // move from .jooby to .config/jooby.conf
     configurationFile = Paths.get(System.getProperty("user.home"), ".config", "jooby.conf");
-    migrateOldConfiguration(Paths.get(System.getProperty("user.home"), ".jooby"), configurationFile);
+    migrateOldConfiguration(
+        Paths.get(System.getProperty("user.home"), ".jooby"), configurationFile);
 
     if (Files.exists(configurationFile)) {
       try (Reader in = Files.newBufferedReader(configurationFile)) {
@@ -80,17 +80,20 @@ public class CommandContextImpl implements Context {
     }
   }
 
-  @NonNull @Override public String getVersion() {
+  @NonNull @Override
+  public String getVersion() {
     return (String) configuration.getOrDefault("version", version);
   }
 
-  @NonNull @Override public Path getWorkspace() {
-    String workspace = (String) configuration.getOrDefault("workspace",
-        System.getProperty("user.dir"));
+  @NonNull @Override
+  public Path getWorkspace() {
+    String workspace =
+        (String) configuration.getOrDefault("workspace", System.getProperty("user.dir"));
     return Paths.get(workspace);
   }
 
-  @Override public void setWorkspace(@NonNull Path workspace) throws IOException {
+  @Override
+  public void setWorkspace(@NonNull Path workspace) throws IOException {
     if (!Files.isDirectory(workspace)) {
       throw new FileNotFoundException(workspace.toAbsolutePath().toString());
     }
@@ -99,19 +102,23 @@ public class CommandContextImpl implements Context {
     Files.write(configurationFile, json.getBytes(StandardCharsets.UTF_8));
   }
 
-  @Override public void exit(int code) {
+  @Override
+  public void exit(int code) {
     System.exit(code);
   }
 
-  @Override public String readLine(String prompt) {
+  @Override
+  public String readLine(String prompt) {
     return reader.readLine(prompt);
   }
 
-  @Override public void println(String message) {
+  @Override
+  public void println(String message) {
     out.println(message);
   }
 
-  @Override public void writeTemplate(String template, Object model, Path file) throws IOException {
+  @Override
+  public void writeTemplate(String template, Object model, Path file) throws IOException {
     Path parent = file.getParent();
     if (!Files.exists(parent)) {
       Files.createDirectories(parent);
@@ -121,16 +128,17 @@ public class CommandContextImpl implements Context {
     }
   }
 
-  private void writeTemplate(String template, Object model, Writer writer)
-      throws IOException {
+  private void writeTemplate(String template, Object model, Writer writer) throws IOException {
     templates.compile(template).apply(model, writer);
   }
 
-  @Override public void copyResource(String source, Path dest) throws IOException {
+  @Override
+  public void copyResource(String source, Path dest) throws IOException {
     copyResource(source, dest, Collections.emptySet());
   }
 
-  @Override public void copyResource(String source, Path dest, Set<PosixFilePermission> permissions)
+  @Override
+  public void copyResource(String source, Path dest, Set<PosixFilePermission> permissions)
       throws IOException {
     Path parent = dest.getParent();
     if (!Files.exists(parent)) {
@@ -158,16 +166,18 @@ public class CommandContextImpl implements Context {
     }
     Map result = new LinkedHashMap<>();
     for (Map.Entry<Object, Object> entry : versions.entrySet()) {
-      String key = Stream.of(entry.getKey().toString().split("\\.|-"))
-          .map(name -> Character.toUpperCase(name.charAt(0)) + name.substring(1))
-          .collect(Collectors.joining());
+      String key =
+          Stream.of(entry.getKey().toString().split("\\.|-"))
+              .map(name -> Character.toUpperCase(name.charAt(0)) + name.substring(1))
+              .collect(Collectors.joining());
       key = Character.toLowerCase(key.charAt(0)) + key.substring(1);
       result.put(key, entry.getValue().toString());
     }
     return result;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return "version: " + getVersion() + "; conf: " + configurationFile;
   }
 }

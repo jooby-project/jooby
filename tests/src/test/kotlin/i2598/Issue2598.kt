@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package i2598
 
 import io.jooby.Context
@@ -15,16 +20,14 @@ class Issue2598 {
     val analyzer = RouteAnalyzer(ClassSource(javaClass.classLoader), false)
 
     val app = App2598()
-    runner.use {
-      app
-    }.ready { _ ->
-      val router = app.router
-      val route = router.routes[0]
-      val type = analyzer.returnType(route.handle)
+    runner
+      .use { app }
+      .ready { _ ->
+        val router = app.router
+        val route = router.routes[0]
+        val type = analyzer.returnType(route.handle)
 
-      assertEquals(Context::class.java, type)
-    }
+        assertEquals(Context::class.java, type)
+      }
   }
-
 }
-

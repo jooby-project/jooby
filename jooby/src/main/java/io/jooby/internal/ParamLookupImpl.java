@@ -1,17 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.jooby.Context;
 import io.jooby.ParamLookup;
 import io.jooby.ParamSource;
 import io.jooby.Value;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ParamLookupImpl implements ParamLookup.Stage {
 

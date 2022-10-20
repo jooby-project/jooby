@@ -1,48 +1,43 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.internal.NoByteRange;
 import io.jooby.internal.NotSatisfiableByteRange;
 import io.jooby.internal.SingleByteRange;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import java.io.IOException;
-import java.io.InputStream;
-
 /**
- * Utility class to compute single byte range requests when response content length is known.
- * Jooby support single byte range requests on file responses, like: assets, input stream, files,
- * etc.
+ * Utility class to compute single byte range requests when response content length is known. Jooby
+ * support single byte range requests on file responses, like: assets, input stream, files, etc.
  *
- * Single byte range request looks like: <code>bytes=0-100</code>, <code>bytes=100-</code>,
+ * <p>Single byte range request looks like: <code>bytes=0-100</code>, <code>bytes=100-</code>,
  * <code>bytes=-100</code>.
  *
- * Multiple byte range request are not supported.
+ * <p>Multiple byte range request are not supported.
  *
  * @since 2.0.0
  * @author edgar
  */
 public interface ByteRange {
-  /**
-   * Byte range prefix.
-   */
+  /** Byte range prefix. */
   String BYTES_RANGE = "bytes=";
 
   /**
    * Parse a byte range request value. Example of valid values:
    *
-   * - bytes=0-100
-   * - bytes=-100
-   * - bytes=100-
+   * <p>- bytes=0-100 - bytes=-100 - bytes=100-
    *
-   * Any non-matching values produces a not satisfiable response.
+   * <p>Any non-matching values produces a not satisfiable response.
    *
-   * If value is null or content length less or equal to <code>0</code>, produces an empty/NOOP
+   * <p>If value is null or content length less or equal to <code>0</code>, produces an empty/NOOP
    * response.
    *
    * @param value Valid byte range request value.
@@ -101,8 +96,8 @@ public interface ByteRange {
       }
       // offset
       long limit = (end - start + 1);
-      return new SingleByteRange(value, start, limit, limit,
-          "bytes " + start + "-" + end + "/" + contentLength);
+      return new SingleByteRange(
+          value, start, limit, limit, "bytes " + start + "-" + end + "/" + contentLength);
     } catch (NumberFormatException expected) {
       return new NotSatisfiableByteRange(value, contentLength);
     }
@@ -139,9 +134,10 @@ public interface ByteRange {
   /**
    * For partial requests this method returns {@link StatusCode#PARTIAL_CONTENT}.
    *
-   * For not satisfiable requests this returns {@link StatusCode#REQUESTED_RANGE_NOT_SATISFIABLE}..
+   * <p>For not satisfiable requests this returns {@link
+   * StatusCode#REQUESTED_RANGE_NOT_SATISFIABLE}..
    *
-   * Otherwise just returns {@link StatusCode#OK}.
+   * <p>Otherwise just returns {@link StatusCode#OK}.
    *
    * @return Status code.
    */
@@ -150,15 +146,13 @@ public interface ByteRange {
   /**
    * For partial request this method set the following byte range response headers:
    *
-   *  - Accept-Ranges
-   *  - Content-Range
-   *  - Content-Length
+   * <p>- Accept-Ranges - Content-Range - Content-Length
    *
-   * For not satisfiable requests:
+   * <p>For not satisfiable requests:
    *
-   *  - Throws a {@link StatusCode#REQUESTED_RANGE_NOT_SATISFIABLE}
+   * <p>- Throws a {@link StatusCode#REQUESTED_RANGE_NOT_SATISFIABLE}
    *
-   * Otherwise this method does nothing.
+   * <p>Otherwise this method does nothing.
    *
    * @param ctx Web context.
    * @return This byte range request.
@@ -168,9 +162,9 @@ public interface ByteRange {
   /**
    * For partial requests this method generates a new truncated input stream.
    *
-   * For not satisfiable requests this method throws an exception.
+   * <p>For not satisfiable requests this method throws an exception.
    *
-   * If there is no range to apply this method returns the given input stream.
+   * <p>If there is no range to apply this method returns the given input stream.
    *
    * @param input Input stream.
    * @return A truncated input stream for partial request or same input stream.

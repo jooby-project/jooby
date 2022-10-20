@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -15,12 +15,14 @@ public interface Opts {
   String OPT_SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
   String OPT_EXTENDED_LOOKUP_OF_SUPERTYPES = "jooby.extendedLookupOfSuperTypes";
 
-  static boolean boolOpt(ProcessingEnvironment processingEnvironment, String option, boolean defaultValue) {
-    return Boolean.parseBoolean(processingEnvironment
-        .getOptions().getOrDefault(option, String.valueOf(defaultValue)));
+  static boolean boolOpt(
+      ProcessingEnvironment processingEnvironment, String option, boolean defaultValue) {
+    return Boolean.parseBoolean(
+        processingEnvironment.getOptions().getOrDefault(option, String.valueOf(defaultValue)));
   }
 
-  static String[] stringListOpt(ProcessingEnvironment processingEnvironment, String option, String defaultValue) {
+  static String[] stringListOpt(
+      ProcessingEnvironment processingEnvironment, String option, String defaultValue) {
     String value = processingEnvironment.getOptions().getOrDefault(option, defaultValue);
     return value == null || value.isEmpty() ? new String[0] : value.split(",");
   }

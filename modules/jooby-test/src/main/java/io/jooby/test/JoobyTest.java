@@ -1,19 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.test;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
@@ -21,7 +21,7 @@ import io.jooby.Jooby;
 /**
  * Startup Jooby applications using JUnit extension mechanism.
  *
- * When this annotation is set at class level, a single jooby application is started:
+ * <p>When this annotation is set at class level, a single jooby application is started:
  *
  * <pre>{@code
  * &#64;JoobyTest(MyApp.class)
@@ -37,7 +37,6 @@ import io.jooby.Jooby;
  * When this annotation is set at method level, a jooby application is started per test/method:
  *
  * <pre>{@code
- *
  * public class MyTest {
  *
  *   &#64;JoobyTest(MyApp.class)
@@ -55,7 +54,6 @@ import io.jooby.Jooby;
  * Server path and port can be injected as instance fields or method parameters:
  *
  * <pre>{@code
- *
  * &#64;JoobyTest(MyApp.class)
  * public MyTest {
  *
@@ -101,9 +99,9 @@ public @interface JoobyTest {
   Class<?> factoryClass() default Object.class;
 
   /**
-   * Name of factory method  to create an application programmatically.
+   * Name of factory method to create an application programmatically.
    *
-   * @return  Name of factory method  to create an application programmatically.
+   * @return Name of factory method to create an application programmatically.
    */
   String factoryMethod() default "";
 
@@ -115,8 +113,8 @@ public @interface JoobyTest {
   String environment() default "test";
 
   /**
-   * Server port. At class level default port is <code>8911</code>. At method level default port
-   * is random.
+   * Server port. At class level default port is <code>8911</code>. At method level default port is
+   * random.
    *
    * @return Server port. At class level default port is <code>8911</code>. At method level default
    *     port is random.

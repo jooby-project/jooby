@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -15,11 +15,13 @@ public class ReactiveSubscription implements ChunkedSubscription {
     this.subscription = subscription;
   }
 
-  @Override public void request(long n) {
+  @Override
+  public void request(long n) {
     subscription.request(n);
   }
 
-  @Override public void cancel() {
+  @Override
+  public void cancel() {
     subscription.cancel();
   }
 }

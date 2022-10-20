@@ -1,12 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.quartz;
 
-import io.jooby.Registry;
-import io.jooby.exception.RegistryException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.quartz.InterruptableJob;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -14,9 +16,8 @@ import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 import org.quartz.UnableToInterruptJobException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
+import io.jooby.Registry;
+import io.jooby.exception.RegistryException;
 
 public class JobDelegate implements InterruptableJob {
 
@@ -35,9 +36,8 @@ public class JobDelegate implements InterruptableJob {
       Registry registry = entry.getRegistry();
       Object job = newInstance(registry, method.getDeclaringClass());
       final Object result;
-      final Object[] args = method.getParameterCount() > 0
-          ? new Object[method.getParameterCount()]
-          : NO_ARGS;
+      final Object[] args =
+          method.getParameterCount() > 0 ? new Object[method.getParameterCount()] : NO_ARGS;
       Class<?>[] parameterTypes = method.getParameterTypes();
       for (int i = 0; i < args.length; i++) {
         Class parameterType = parameterTypes[i];
@@ -61,7 +61,8 @@ public class JobDelegate implements InterruptableJob {
     }
   }
 
-  @Override public void interrupt() throws UnableToInterruptJobException {
+  @Override
+  public void interrupt() throws UnableToInterruptJobException {
     interrupted.set(true);
   }
 
@@ -77,5 +78,4 @@ public class JobDelegate implements InterruptableJob {
       throw x;
     }
   }
-
 }

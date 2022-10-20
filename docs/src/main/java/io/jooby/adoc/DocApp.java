@@ -1,21 +1,22 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.adoc;
 
-import io.jooby.Jooby;
-import io.jooby.LogConfigurer;
-import io.methvin.watcher.DirectoryWatcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
+import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import io.jooby.Jooby;
+import io.jooby.LogConfigurer;
+import io.methvin.watcher.DirectoryWatcher;
 
 public class DocApp extends Jooby {
 
@@ -43,24 +44,26 @@ public class DocApp extends Jooby {
 
     log.info("doc ready");
 
-    runApp(new String[]{"server.port=4000"}, DocApp::new);
+    runApp(new String[] {"server.port=4000"}, DocApp::new);
 
-    DirectoryWatcher watcher = DirectoryWatcher.builder()
-        .path(basedir.resolve("asciidoc"))
-        .logger(NOP_LOGGER)
-        .listener(event -> {
-          Path file = event.path();
-          if (file.toString().endsWith(".adoc")) {
-            try {
-              DocGenerator.generate(basedir, false, false);
+    DirectoryWatcher watcher =
+        DirectoryWatcher.builder()
+            .path(basedir.resolve("asciidoc"))
+            .logger(NOP_LOGGER)
+            .listener(
+                event -> {
+                  Path file = event.path();
+                  if (file.toString().endsWith(".adoc")) {
+                    try {
+                      DocGenerator.generate(basedir, false, false);
 
-              log.info("doc ready");
-            } catch (Exception x) {
-              log.error("doc sync error", x);
-            }
-          }
-        })
-        .build();
+                      log.info("doc ready");
+                    } catch (Exception x) {
+                      log.error("doc sync error", x);
+                    }
+                  }
+                })
+            .build();
     watcher.watch();
   }
 }

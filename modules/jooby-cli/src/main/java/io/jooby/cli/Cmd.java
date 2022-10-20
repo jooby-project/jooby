@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -15,7 +15,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 public abstract class Cmd implements Runnable {
   private Context context;
 
-  @Override public void run() {
+  @Override
+  public void run() {
     try {
       run(context);
     } catch (Throwable x) {

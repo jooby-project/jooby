@@ -1,14 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.hibernate;
 
-import io.jooby.Route;
-import io.jooby.ServiceKey;
-import io.jooby.SneakyThrows;
-import io.jooby.annotations.Transactional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -18,18 +14,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Route;
+import io.jooby.ServiceKey;
+import io.jooby.SneakyThrows;
+import io.jooby.annotations.Transactional;
 
 /**
- * Attaches a {@link Session} and {@link javax.persistence.EntityManager} to the current request
- * via {@link SessionRequest}.
+ * Attaches a {@link Session} and {@link javax.persistence.EntityManager} to the current request via
+ * {@link SessionRequest}.
  *
- * The route pipeline runs inside a transaction which is commit on success or rollback in case of
+ * <p>The route pipeline runs inside a transaction which is commit on success or rollback in case of
  * exception.
  *
- * Applies the {@link SessionRequest} decorator, so there is no need to use session request in
+ * <p>Applies the {@link SessionRequest} decorator, so there is no need to use session request in
  * addition to transactional request.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -78,17 +78,17 @@ public class TransactionalRequest implements Route.Decorator {
 
   private TransactionalRequest(ServiceKey<SessionFactory> sessionFactoryKey) {
     this.sessionFactoryKey = sessionFactoryKey;
-    this.sessionProviderKey = sessionFactoryKey.getName() == null
-        ? ServiceKey.key(SessionProvider.class)
-        : ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName());
+    this.sessionProviderKey =
+        sessionFactoryKey.getName() == null
+            ? ServiceKey.key(SessionProvider.class)
+            : ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName());
   }
 
   /**
-   * Sets whether all routes in the scope of this decorator instance
-   * should be transactional or not ({@code true} by default).
-   * <p>
-   * You can use the {@link Transactional} annotation to override this
-   * option on a single route.
+   * Sets whether all routes in the scope of this decorator instance should be transactional or not
+   * ({@code true} by default).
+   *
+   * <p>You can use the {@link Transactional} annotation to override this option on a single route.
    *
    * @param enabledByDefault whether routes should be transactional by default
    * @return this instance
@@ -99,8 +99,7 @@ public class TransactionalRequest implements Route.Decorator {
     return this;
   }
 
-  @NonNull
-  @Override
+  @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
@@ -143,8 +142,9 @@ public class TransactionalRequest implements Route.Decorator {
 
   private void ensureCompletion(Transaction transaction) {
     if (transaction.getStatus() == TransactionStatus.ACTIVE) {
-      log.error("Transaction state is still active (expected to be committed, or rolled "
-          + "back) after route pipeline completed, rolling back.");
+      log.error(
+          "Transaction state is still active (expected to be committed, or rolled "
+              + "back) after route pipeline completed, rolling back.");
 
       transaction.rollback();
     }

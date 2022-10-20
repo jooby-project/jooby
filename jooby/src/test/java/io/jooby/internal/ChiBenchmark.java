@@ -1,6 +1,12 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal;
 
-import io.jooby.Route;
+import java.util.concurrent.TimeUnit;
+
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -12,7 +18,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
-import java.util.concurrent.TimeUnit;
+import io.jooby.Route;
 
 @Fork(5)
 @Warmup(iterations = 3)
@@ -51,5 +57,4 @@ public class ChiBenchmark {
   public void articlesEdit() {
     router.find("GET", "/articles/123/edit");
   }
-
 }

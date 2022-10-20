@@ -1,18 +1,24 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.yasson;
-
-import io.jooby.Body;
-import io.jooby.Context;
-import io.jooby.MediaType;
-import org.junit.jupiter.api.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import org.junit.jupiter.api.Test;
+
+import io.jooby.Body;
+import io.jooby.Context;
+import io.jooby.MediaType;
 
 public class YassonModuleTest {
 
@@ -33,14 +39,17 @@ public class YassonModuleTest {
 
     Context ctx = mock(Context.class);
     byte[] bytes = YassonModule.encode(ctx, user);
-    assertEquals("{\"age\":2147483647,\"id\":-1,\"name\":\"Lorem €@!?\"}", new String(bytes, StandardCharsets.UTF_8));
+    assertEquals(
+        "{\"age\":2147483647,\"id\":-1,\"name\":\"Lorem €@!?\"}",
+        new String(bytes, StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.json);
   }
 
   @Test
   public void parse() throws IOException {
-    byte[] bytes = "{\"age\":2147483647,\"id\":-1,\"name\":\"Lorem\"}".getBytes(StandardCharsets.UTF_8);
+    byte[] bytes =
+        "{\"age\":2147483647,\"id\":-1,\"name\":\"Lorem\"}".getBytes(StandardCharsets.UTF_8);
     Body body = mock(Body.class);
     when(body.stream()).thenReturn(new ByteArrayInputStream(bytes));
 

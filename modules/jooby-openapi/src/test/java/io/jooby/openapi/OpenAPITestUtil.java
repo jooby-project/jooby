@@ -1,11 +1,16 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.openapi;
+
+import java.util.function.Consumer;
 
 import io.jooby.internal.openapi.OperationExt;
 import io.jooby.internal.openapi.ResponseExt;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
-
-import java.util.function.Consumer;
 
 public class OpenAPITestUtil {
 

@@ -9,7 +9,6 @@ import io.jooby.internal.netty.http2.NettyHttp2Configurer;
 module io.jooby.http2.netty {
   requires io.jooby;
   requires io.jooby.netty;
-
   requires io.netty.buffer;
   requires io.netty.transport;
   requires io.netty.codec;
@@ -17,5 +16,6 @@ module io.jooby.http2.netty {
   requires io.netty.codec.http2;
   requires io.netty.handler;
 
-  provides Http2Configurer with NettyHttp2Configurer;
+  provides Http2Configurer with
+      NettyHttp2Configurer;
 }

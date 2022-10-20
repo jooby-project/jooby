@@ -11,5 +11,6 @@ module io.jooby.http2.jetty {
   requires org.eclipse.jetty.alpn.server;
   requires org.eclipse.jetty.http2.server;
 
-  provides Http2Configurer with JettyHttp2Configurer;
+  provides Http2Configurer with
+      JettyHttp2Configurer;
 }

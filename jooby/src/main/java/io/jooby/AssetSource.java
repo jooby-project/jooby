@@ -1,16 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.ClassPathAssetSource;
-import io.jooby.internal.FileDiskAssetSource;
-import io.jooby.internal.FolderDiskAssetSource;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,12 +14,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.internal.ClassPathAssetSource;
+import io.jooby.internal.FileDiskAssetSource;
+import io.jooby.internal.FolderDiskAssetSource;
+
 /**
  * An asset source is a collection or provider of {@link Asset}. There are two implementations:
  *
  * <ul>
- *   <li>File system: using {@link #create(Path)}.</li>
- *   <li>Classpath/URL: using {@link #create(ClassLoader, String)}.</li>
+ *   <li>File system: using {@link #create(Path)}.
+ *   <li>Classpath/URL: using {@link #create(ClassLoader, String)}.
  * </ul>
  */
 public interface AssetSource {
@@ -39,8 +39,7 @@ public interface AssetSource {
   @Nullable Asset resolve(@NonNull String path);
 
   /**
-   * Classpath asset source. Useful for resolving files from classpath
-   * (including jar files).
+   * Classpath asset source. Useful for resolving files from classpath (including jar files).
    *
    * @param loader Class loader.
    * @param location Classpath location. For security reasons root of classpath <code>/</code> is
@@ -55,14 +54,13 @@ public interface AssetSource {
    * Creates a webjar asset source. Usage:
    *
    * <ul>
-   *   <li>Add a webjar to your project, for example swagger-ui</li>
+   *   <li>Add a webjar to your project, for example swagger-ui
    *   <li>Create and add an asset handler:
-   *   <pre>{@code
+   *       <pre>{@code
+   * asset("/path/*", AssetSource.webjar(getClassLoader(), "swagger-ui"));
    *
-   *      asset("/path/*", AssetSource.webjar(getClassLoader(), "swagger-ui"));
    *
-   *   }</pre>
-   *   </li>
+   * }</pre>
    * </ul>
    *
    * @param loader Class loader.
@@ -70,13 +68,16 @@ public interface AssetSource {
    * @return A webjar source.
    */
   static @NonNull AssetSource webjars(@NonNull ClassLoader loader, @NonNull String name) {
-    List<String> location = Arrays.asList(
-        "META-INF/maven/org.webjars/" + name + "/pom.properties",
-        "META-INF/maven/org.webjars.npm/" + name + "/pom.properties"
-    );
-    String versionPath = location.stream().filter(it -> loader.getResource(it) != null)
-        .findFirst()
-        .orElseThrow(() -> SneakyThrows.propagate(new FileNotFoundException(location.toString())));
+    List<String> location =
+        Arrays.asList(
+            "META-INF/maven/org.webjars/" + name + "/pom.properties",
+            "META-INF/maven/org.webjars.npm/" + name + "/pom.properties");
+    String versionPath =
+        location.stream()
+            .filter(it -> loader.getResource(it) != null)
+            .findFirst()
+            .orElseThrow(
+                () -> SneakyThrows.propagate(new FileNotFoundException(location.toString())));
     try (InputStream in = loader.getResourceAsStream(versionPath)) {
       Properties properties = new Properties();
       properties.load(in);

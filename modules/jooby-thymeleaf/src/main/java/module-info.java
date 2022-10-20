@@ -9,6 +9,5 @@ module io.jooby.thymeleaf {
   requires io.jooby;
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
-
   requires thymeleaf;
 }

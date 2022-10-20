@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -16,19 +16,23 @@ public class ReactiveSubscriber implements Subscriber<Object> {
     this.subscriber = subscriber;
   }
 
-  @Override public void onSubscribe(Subscription s) {
+  @Override
+  public void onSubscribe(Subscription s) {
     subscriber.onSubscribe(new ReactiveSubscription(s));
   }
 
-  @Override public void onNext(Object item) {
+  @Override
+  public void onNext(Object item) {
     subscriber.onNext(item);
   }
 
-  @Override public void onError(Throwable x) {
+  @Override
+  public void onError(Throwable x) {
     subscriber.onError(x);
   }
 
-  @Override public void onComplete() {
+  @Override
+  public void onComplete() {
     subscriber.onComplete();
   }
 }

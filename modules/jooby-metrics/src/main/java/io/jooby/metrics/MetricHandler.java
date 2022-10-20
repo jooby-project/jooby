@@ -1,9 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.metrics;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
@@ -16,23 +24,14 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Sampling;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
-
 public class MetricHandler implements Route.Handler {
 
-  @NonNull
-  @Override
+  @NonNull @Override
   public Object apply(@NonNull Context ctx) {
     MetricRegistry registry = ctx.require(MetricRegistry.class);
     Map<String, Metric> allMetrics = registry.getMetrics();
@@ -44,9 +43,11 @@ public class MetricHandler implements Route.Handler {
     } else {
       // params & filters
       String type = ctx.query("type").value("*");
-      MetricFilter filter = ctx.query("name").toOptional()
-          .<MetricFilter>map(name -> (n, m) -> n.startsWith(name))
-          .orElse(MetricFilter.ALL);
+      MetricFilter filter =
+          ctx.query("name")
+              .toOptional()
+              .<MetricFilter>map(name -> (n, m) -> n.startsWith(name))
+              .orElse(MetricFilter.ALL);
 
       TimeUnit unit = TimeUnit.valueOf(ctx.query("unit").value("seconds").toUpperCase());
       String rateUnitLabel = calculateRateUnit(unit, "ops");
@@ -71,13 +72,19 @@ public class MetricHandler implements Route.Handler {
       if (histograms.size() > 0) {
         metrics.put("histograms", histograms);
       }
-      Map<String, Object> meters = meters(registry.getMeters(filter), rateUnitLabel, rateFactor,
-          durationUnitLabel);
+      Map<String, Object> meters =
+          meters(registry.getMeters(filter), rateUnitLabel, rateFactor, durationUnitLabel);
       if (meters.size() > 0) {
         metrics.put("meters", meters);
       }
-      Map<String, Object> timers = timers(registry.getTimers(filter), rateUnitLabel, rateFactor,
-          durationUnitLabel, durationFactor, showSamples);
+      Map<String, Object> timers =
+          timers(
+              registry.getTimers(filter),
+              rateUnitLabel,
+              rateFactor,
+              durationUnitLabel,
+              durationFactor,
+              showSamples);
       if (timers.size() > 0) {
         metrics.put("timers", timers);
       }
@@ -90,18 +97,29 @@ public class MetricHandler implements Route.Handler {
     }
   }
 
-  private static Map<String, Object> timers(final SortedMap<String, Timer> timers,
-      final String rateUnit, final double rateFactor, final String durationUnit,
-      final double durationFactor, final boolean showSamples) {
+  private static Map<String, Object> timers(
+      final SortedMap<String, Timer> timers,
+      final String rateUnit,
+      final double rateFactor,
+      final String durationUnit,
+      final double durationFactor,
+      final boolean showSamples) {
     Map<String, Object> result = new TreeMap<>();
-    timers.forEach((name, timer) -> result.put(name,
-        timer(timer, rateUnit, rateFactor, durationUnit, durationFactor, showSamples)));
+    timers.forEach(
+        (name, timer) ->
+            result.put(
+                name,
+                timer(timer, rateUnit, rateFactor, durationUnit, durationFactor, showSamples)));
     return result;
   }
 
-  private static Map<String, Object> timer(final Timer timer, final String rateUnit,
-     final double rateFactor, final String durationUnit, final double durationFactor,
-     final boolean showSamples) {
+  private static Map<String, Object> timer(
+      final Timer timer,
+      final String rateUnit,
+      final double rateFactor,
+      final String durationUnit,
+      final double durationFactor,
+      final boolean showSamples) {
     Map<String, Object> result = meter(timer, rateUnit, rateFactor, durationUnit);
 
     result.putAll(snapshot(timer, durationFactor, showSamples));
@@ -109,8 +127,8 @@ public class MetricHandler implements Route.Handler {
     return result;
   }
 
-  private static Map<String, Object> snapshot(final Sampling sampling, final double durationFactor,
-      final boolean showSamples) {
+  private static Map<String, Object> snapshot(
+      final Sampling sampling, final double durationFactor, final boolean showSamples) {
     Map<String, Object> result = new TreeMap<>();
     final Snapshot snapshot = sampling.getSnapshot();
     result.put("max", snapshot.getMax() * durationFactor);
@@ -138,13 +156,14 @@ public class MetricHandler implements Route.Handler {
   @SuppressWarnings("rawtypes")
   private static Map<String, Object> gauges(final SortedMap<String, Gauge> gauges) {
     Map<String, Object> result = new TreeMap<>();
-    gauges.forEach((name, gauge) -> {
-      try {
-        result.put(name, gauge.getValue());
-      } catch (Exception ex) {
-        result.put(name, ex.toString());
-      }
-    });
+    gauges.forEach(
+        (name, gauge) -> {
+          try {
+            result.put(name, gauge.getValue());
+          } catch (Exception ex) {
+            result.put(name, ex.toString());
+          }
+        });
     return result;
   }
 
@@ -154,23 +173,29 @@ public class MetricHandler implements Route.Handler {
     return result;
   }
 
-  private static Map<String, Object> histograms(final SortedMap<String, Histogram> histograms,
-      final boolean showSamples) {
+  private static Map<String, Object> histograms(
+      final SortedMap<String, Histogram> histograms, final boolean showSamples) {
     Map<String, Object> result = new TreeMap<>();
     histograms.forEach((name, timer) -> result.put(name, snapshot(timer, 1, showSamples)));
     return result;
   }
 
-  private static Map<String, Object> meters(final SortedMap<String, Meter> timers,
-      final String rateUnit, final double rateFactor, final String durationUnit) {
+  private static Map<String, Object> meters(
+      final SortedMap<String, Meter> timers,
+      final String rateUnit,
+      final double rateFactor,
+      final String durationUnit) {
     Map<String, Object> result = new TreeMap<>();
-    timers.forEach((name, timer) -> result.put(name,
-        meter(timer, rateUnit, rateFactor, durationUnit)));
+    timers.forEach(
+        (name, timer) -> result.put(name, meter(timer, rateUnit, rateFactor, durationUnit)));
     return result;
   }
 
-  private static Map<String, Object> meter(final Metered meter, final String rateUnit,
-      final double rateFactor, final String durationUnit) {
+  private static Map<String, Object> meter(
+      final Metered meter,
+      final String rateUnit,
+      final double rateFactor,
+      final String durationUnit) {
     Map<String, Object> result = new TreeMap<>();
     result.put("count", meter.getCount());
     result.put("m15_rate", meter.getFifteenMinuteRate() * rateFactor);

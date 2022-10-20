@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -12,11 +12,13 @@ public class RouteTreeNormPath extends RouteTreeForwarding {
     super(tree);
   }
 
-  @Override public boolean exists(String method, String path) {
+  @Override
+  public boolean exists(String method, String path) {
     return super.exists(method, Router.normalizePath(path));
   }
 
-  @Override public Router.Match find(String method, String path) {
+  @Override
+  public Router.Match find(String method, String path) {
     return super.find(method, Router.normalizePath(path));
   }
 }

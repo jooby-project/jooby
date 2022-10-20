@@ -1,14 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.run;
-
-import org.jboss.modules.ModuleFinder;
-import org.jboss.modules.ModuleLoadException;
-import org.jboss.modules.ModuleLoader;
-import org.jboss.modules.ModuleSpec;
 
 import java.io.IOException;
 import java.net.JarURLConnection;
@@ -19,6 +14,11 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.jboss.modules.ModuleFinder;
+import org.jboss.modules.ModuleLoadException;
+import org.jboss.modules.ModuleLoader;
+import org.jboss.modules.ModuleSpec;
 
 class FlattenClasspath implements ModuleFinder {
 
@@ -42,8 +42,7 @@ class FlattenClasspath implements ModuleFinder {
    */
   static Path joobyRunHook(Class loader) {
     try {
-      URL serverRef = loader
-          .getResource("/" + JoobyRun.SERVER_REF.replace(".", "/") + ".class");
+      URL serverRef = loader.getResource("/" + JoobyRun.SERVER_REF.replace(".", "/") + ".class");
       JarURLConnection connection = (JarURLConnection) serverRef.openConnection();
       return Paths.get(connection.getJarFileURL().toURI());
     } catch (IOException | URISyntaxException x) {
@@ -51,7 +50,8 @@ class FlattenClasspath implements ModuleFinder {
     }
   }
 
-  @Override public ModuleSpec findModule(String name, ModuleLoader delegateLoader)
+  @Override
+  public ModuleSpec findModule(String name, ModuleLoader delegateLoader)
       throws ModuleLoadException {
     if (this.name.equals(name)) {
       return Specs.spec(name, resources, Collections.emptySet());

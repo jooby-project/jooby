@@ -1,26 +1,26 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Server-Sent message emitter.
  *
  * <pre>{@code
- *
- *   sse("/pattern", sse -> {
- *     sse.send("Hello Server-Sent events");
- *   })
+ * sse("/pattern", sse -> {
+ *   sse.send("Hello Server-Sent events");
+ * })
  *
  * }</pre>
  *
@@ -29,9 +29,7 @@ import java.util.concurrent.TimeUnit;
  */
 public interface ServerSentEmitter {
 
-  /**
-   * Keep-alive task.
-   */
+  /** Keep-alive task. */
   class KeepAlive implements Runnable {
 
     private final Logger log = LoggerFactory.getLogger(ServerSentEmitter.class);
@@ -42,6 +40,7 @@ public interface ServerSentEmitter {
 
     /**
      * Creates a KeepAlive.
+     *
      * @param emitter not null.
      * @param retry keepAlive for the emitter.
      */
@@ -66,9 +65,7 @@ public interface ServerSentEmitter {
     }
   }
 
-  /**
-   * Server-Sent event handler.
-   */
+  /** Server-Sent event handler. */
   interface Handler {
     /**
      * Callback with a readonly context and sse configurer.
@@ -80,18 +77,17 @@ public interface ServerSentEmitter {
   }
 
   /**
-   * Generated when client close the connection or when explicit calls to
-   * {@link #close()}.
+   * Generated when client close the connection or when explicit calls to {@link #close()}.
    *
    * @param task Cleanup task.
    */
   void onClose(SneakyThrows.Runnable task);
 
   /**
-   * Originating HTTP context. Please note this is a read-only context, so you are not allowed
-   * to modify or produces a response from it.
+   * Originating HTTP context. Please note this is a read-only context, so you are not allowed to
+   * modify or produces a response from it.
    *
-   * The context let give you access to originating request (then one that was upgrade it).
+   * <p>The context let give you access to originating request (then one that was upgrade it).
    *
    * @return Read-only originating HTTP request.
    */
@@ -184,8 +180,8 @@ public interface ServerSentEmitter {
   @NonNull ServerSentEmitter send(@NonNull ServerSentMessage data);
 
   /**
-   * Send a comment message to the client. The comment line can be used to prevent connections
-   * from timing out; a server can send a comment periodically to keep the connection alive.
+   * Send a comment message to the client. The comment line can be used to prevent connections from
+   * timing out; a server can send a comment periodically to keep the connection alive.
    *
    * @param time Period of time.
    * @param unit Time unit.
@@ -196,8 +192,8 @@ public interface ServerSentEmitter {
   }
 
   /**
-   * Send a comment message to the client. The comment line can be used to prevent connections
-   * from timing out; a server can send a comment periodically to keep the connection alive.
+   * Send a comment message to the client. The comment line can be used to prevent connections from
+   * timing out; a server can send a comment periodically to keep the connection alive.
    *
    * @param timeInMillis Period of time in millis.
    * @return This emitter.
@@ -246,8 +242,6 @@ public interface ServerSentEmitter {
    */
   boolean isOpen();
 
-  /**
-   * Close the ServerSent and fir the close event.
-   */
+  /** Close the ServerSent and fir the close event. */
   void close();
 }

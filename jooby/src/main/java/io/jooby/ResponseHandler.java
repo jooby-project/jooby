@@ -1,25 +1,26 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Type;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Bind a route response type to a custom handler. The response handler works like a map function,
  * which applies to a specific response type.
  *
- * For example if your route produces a <code>Foo</code> type as response. You can write a
+ * <p>For example if your route produces a <code>Foo</code> type as response. You can write a
  * FooHandler that knows how to render the <code>Foo</code> object.
  *
- * Mapping is done efficiently, it doesn't test every single route response at runtime. Instead
- * analysis is done only once at application startup time, it generates a unique route pipeline
- * for all the routes that generates a <code>Foo</code> output.
+ * <p>Mapping is done efficiently, it doesn't test every single route response at runtime. Instead
+ * analysis is done only once at application startup time, it generates a unique route pipeline for
+ * all the routes that generates a <code>Foo</code> output.
  *
- * Example:
+ * <p>Example:
  *
  * <pre>{@code
  * {

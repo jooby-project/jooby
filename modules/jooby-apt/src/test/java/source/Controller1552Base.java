@@ -1,11 +1,16 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package source;
+
+import java.util.Arrays;
+import java.util.List;
 
 import io.jooby.Context;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
-
-import java.util.Arrays;
-import java.util.List;
 
 public abstract class Controller1552Base {
 

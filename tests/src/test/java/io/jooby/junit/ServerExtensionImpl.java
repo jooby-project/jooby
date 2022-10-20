@@ -1,14 +1,11 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.junit;
 
-import io.jooby.jetty.Jetty;
-import io.jooby.netty.Netty;
-import io.jooby.ExecutionMode;
-import io.jooby.utow.Utow;
-
-import org.junit.jupiter.api.extension.Extension;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
-import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
+import static org.junit.platform.commons.util.AnnotationUtils.isAnnotated;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +15,15 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.platform.commons.util.AnnotationUtils.isAnnotated;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
+import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
+
+import io.jooby.ExecutionMode;
+import io.jooby.jetty.Jetty;
+import io.jooby.netty.Netty;
+import io.jooby.utow.Utow;
 
 public class ServerExtensionImpl implements TestTemplateInvocationContextProvider {
 
@@ -37,7 +42,8 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
       this.index = index;
     }
 
-    @Override public int compareTo(ServerInfo o) {
+    @Override
+    public int compareTo(ServerInfo o) {
       int diff = description.compareTo(o.description);
       if (diff == 0) {
         return index - o.index;
@@ -48,11 +54,13 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
 
   private static final Class[] SERVERS = {Jetty.class, Netty.class, Utow.class};
 
-  @Override public boolean supportsTestTemplate(ExtensionContext context) {
+  @Override
+  public boolean supportsTestTemplate(ExtensionContext context) {
     return isAnnotated(context.getTestMethod(), ServerTest.class);
   }
 
-  @Override public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(
+  @Override
+  public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(
       ExtensionContext context) {
     ServerTest serverTest = context.getRequiredTestMethod().getAnnotation(ServerTest.class);
     Class[] servers = serverTest.server();
@@ -65,33 +73,34 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
     }
     int repetitions = serverTest.iterations();
     return Stream.of(servers)
-        .flatMap(it -> {
-          List<ServerInfo> serverInfos = new ArrayList<>();
-          IntStream.range(0, repetitions)
-              .forEach(i -> {
-                if (executionModes.isEmpty()) {
-                  serverInfos.add(
-                      new ServerInfo(
-                          new ServerProvider(it),
-                          null,
-                          i,
-                          displayName(it, null, i, repetitions)
-                      ));
-                } else {
-                  executionModes.stream()
-                      .map(mode ->
-                          new ServerInfo(
-                              new ServerProvider(it),
-                              mode,
-                              i,
-                              displayName(it, mode, i, repetitions)
-                          )
-                      ).forEach(serverInfos::add);
-                }
-              });
+        .flatMap(
+            it -> {
+              List<ServerInfo> serverInfos = new ArrayList<>();
+              IntStream.range(0, repetitions)
+                  .forEach(
+                      i -> {
+                        if (executionModes.isEmpty()) {
+                          serverInfos.add(
+                              new ServerInfo(
+                                  new ServerProvider(it),
+                                  null,
+                                  i,
+                                  displayName(it, null, i, repetitions)));
+                        } else {
+                          executionModes.stream()
+                              .map(
+                                  mode ->
+                                      new ServerInfo(
+                                          new ServerProvider(it),
+                                          mode,
+                                          i,
+                                          displayName(it, mode, i, repetitions)))
+                              .forEach(serverInfos::add);
+                        }
+                      });
 
-          return serverInfos.stream();
-        })
+              return serverInfos.stream();
+            })
         .sorted()
         .map(info -> invocationContext(info));
   }

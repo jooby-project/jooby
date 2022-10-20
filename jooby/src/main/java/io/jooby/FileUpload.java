@@ -1,19 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.InputStream;
 import java.nio.file.Path;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 /**
- * File upload class, file upload are available when request body is encoded as
- * {@link MediaType#MULTIPART_FORMDATA}. Example:
+ * File upload class, file upload are available when request body is encoded as {@link
+ * MediaType#MULTIPART_FORMDATA}. Example:
  *
  * <pre>{@code
  * {
@@ -41,6 +41,7 @@ public interface FileUpload {
 
   /**
    * Name of file upload.
+   *
    * @return Name of file upload.
    */
   @NonNull String getFileName();
@@ -80,8 +81,6 @@ public interface FileUpload {
    */
   long getFileSize();
 
-  /**
-   * Free resources, delete temporary file.
-   */
+  /** Free resources, delete temporary file. */
   void destroy();
 }

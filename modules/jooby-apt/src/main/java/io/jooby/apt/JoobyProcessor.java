@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -51,11 +51,12 @@ import io.jooby.internal.apt.Opts;
  * @since 2.1.0
  */
 @SupportedOptions({
-    Opts.OPT_DEBUG,
-    Opts.OPT_INCREMENTAL,
-    Opts.OPT_SERVICES,
-    Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS,
-    Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES})
+  Opts.OPT_DEBUG,
+  Opts.OPT_INCREMENTAL,
+  Opts.OPT_SERVICES,
+  Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS,
+  Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES
+})
 public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnv;
@@ -80,8 +81,9 @@ public class JoobyProcessor extends AbstractProcessor {
       // more then one originating element is passed to the Filer
       // API on writing the resource file - isolating mode does not
       // allow this.
-      options.add(String.format("org.gradle.annotation.processing.%s",
-          services ? "aggregating" : "isolating"));
+      options.add(
+          String.format(
+              "org.gradle.annotation.processing.%s", services ? "aggregating" : "isolating"));
     }
 
     return options;
@@ -105,8 +107,8 @@ public class JoobyProcessor extends AbstractProcessor {
     debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
     incremental = Opts.boolOpt(processingEnv, Opts.OPT_INCREMENTAL, true);
     services = Opts.boolOpt(processingEnv, Opts.OPT_SERVICES, true);
-    extendedLookupOfSuperTypes = Opts.boolOpt(processingEnv, Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES,
-        true);
+    extendedLookupOfSuperTypes =
+        Opts.boolOpt(processingEnv, Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES, true);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
@@ -123,10 +125,11 @@ public class JoobyProcessor extends AbstractProcessor {
         }
         return false;
       } else {
-        Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = collectRoutes(
-            annotations, roundEnv);
+        Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap =
+            collectRoutes(annotations, roundEnv);
 
-        Map<TypeElement, String> modules = build(processingEnv.getFiler(), classes(routeMap), alreadyProcessed::add);
+        Map<TypeElement, String> modules =
+            build(processingEnv.getFiler(), classes(routeMap), alreadyProcessed::add);
         alreadyProcessed.addAll(modules.values());
         this.modules.putAll(modules);
 
@@ -142,12 +145,11 @@ public class JoobyProcessor extends AbstractProcessor {
     Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap = new LinkedHashMap<>();
 
     for (TypeElement annotation : annotations) {
-      Set<? extends Element> elements = roundEnv
-          .getElementsAnnotatedWith(annotation);
+      Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(annotation);
 
       /**
-       * Add empty-subclass (edge case where you mark something with @Path and didn't add any
-       * HTTP annotation.
+       * Add empty-subclass (edge case where you mark something with @Path and didn't add any HTTP
+       * annotation.
        */
       elements.stream()
           .filter(TypeElement.class::isInstance)
@@ -156,14 +158,15 @@ public class JoobyProcessor extends AbstractProcessor {
           .forEach(e -> routeMap.computeIfAbsent(e, k -> new LinkedHashMap<>()));
 
       if (Annotations.HTTP_METHODS.contains(annotation.asType().toString())) {
-        Set<ExecutableElement> methods = elements.stream()
-            .filter(ExecutableElement.class::isInstance)
-            .map(ExecutableElement.class::cast)
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<ExecutableElement> methods =
+            elements.stream()
+                .filter(ExecutableElement.class::isInstance)
+                .map(ExecutableElement.class::cast)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         for (ExecutableElement method : methods) {
-          Map<TypeElement, List<ExecutableElement>> mapping = routeMap
-              .computeIfAbsent((TypeElement) method.getEnclosingElement(),
-                  k -> new LinkedHashMap<>());
+          Map<TypeElement, List<ExecutableElement>> mapping =
+              routeMap.computeIfAbsent(
+                  (TypeElement) method.getEnclosingElement(), k -> new LinkedHashMap<>());
           mapping.computeIfAbsent(annotation, k -> new ArrayList<>()).add(method);
         }
       } else {
@@ -189,29 +192,30 @@ public class JoobyProcessor extends AbstractProcessor {
       Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap,
       TypeElement parentTypeElement) {
     for (TypeElement superType : superTypes(parentTypeElement)) {
-      //collect all declared methods
-      Set<ExecutableElement> methods = superType.getEnclosedElements().stream()
-          .filter(ExecutableElement.class::isInstance)
-          .map(ExecutableElement.class::cast)
-          .collect(Collectors.toCollection(LinkedHashSet::new));
+      // collect all declared methods
+      Set<ExecutableElement> methods =
+          superType.getEnclosedElements().stream()
+              .filter(ExecutableElement.class::isInstance)
+              .map(ExecutableElement.class::cast)
+              .collect(Collectors.toCollection(LinkedHashSet::new));
       for (ExecutableElement method : methods) {
-        //extract all annotation type elements
-        LinkedHashSet<TypeElement> annotationTypes = method.getAnnotationMirrors().stream()
-            .map(AnnotationMirror::getAnnotationType)
-            .map(DeclaredType::asElement)
-            .filter(TypeElement.class::isInstance)
-            .map(TypeElement.class::cast)
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+        // extract all annotation type elements
+        LinkedHashSet<TypeElement> annotationTypes =
+            method.getAnnotationMirrors().stream()
+                .map(AnnotationMirror::getAnnotationType)
+                .map(DeclaredType::asElement)
+                .filter(TypeElement.class::isInstance)
+                .map(TypeElement.class::cast)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         for (TypeElement annotationType : annotationTypes) {
           if (Annotations.HTTP_METHODS.contains(annotationType.toString())) {
-            //ensure map is created for parent type element
-            Map<TypeElement, List<ExecutableElement>> mapping = routeMap
-                .computeIfAbsent(parentTypeElement,
-                    k -> new LinkedHashMap<>());
-            List<ExecutableElement> list = mapping.computeIfAbsent(annotationType,
-                k -> new ArrayList<>());
-            //ensure that the same method wasnt already defined in parent
+            // ensure map is created for parent type element
+            Map<TypeElement, List<ExecutableElement>> mapping =
+                routeMap.computeIfAbsent(parentTypeElement, k -> new LinkedHashMap<>());
+            List<ExecutableElement> list =
+                mapping.computeIfAbsent(annotationType, k -> new ArrayList<>());
+            // ensure that the same method wasnt already defined in parent
             if (list.stream().map(this::signature).noneMatch(signature(method)::equals)) {
               list.add(method);
             }
@@ -221,8 +225,9 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  private Map<TypeElement, String> build(Filer filer,
-      Map<TypeElement, List<HandlerCompiler>> classes, Predicate<String> includes) throws Exception {
+  private Map<TypeElement, String> build(
+      Filer filer, Map<TypeElement, List<HandlerCompiler>> classes, Predicate<String> includes)
+      throws Exception {
     Types typeUtils = processingEnv.getTypeUtils();
 
     Map<TypeElement, String> modules = new LinkedHashMap<>();
@@ -246,8 +251,8 @@ public class JoobyProcessor extends AbstractProcessor {
   private Map<TypeElement, List<HandlerCompiler>> classes(
       Map<TypeElement, Map<TypeElement, List<ExecutableElement>>> routeMap) {
     Map<TypeElement, List<HandlerCompiler>> classes = new LinkedHashMap<>();
-    for (Map.Entry<TypeElement, Map<TypeElement, List<ExecutableElement>>> e : routeMap
-        .entrySet()) {
+    for (Map.Entry<TypeElement, Map<TypeElement, List<ExecutableElement>>> e :
+        routeMap.entrySet()) {
       TypeElement type = e.getKey();
       boolean isAbstract = type.getModifiers().contains(Modifier.ABSTRACT);
       /** Ignore abstract routes: */
@@ -255,8 +260,8 @@ public class JoobyProcessor extends AbstractProcessor {
         /** Expand route method from superclass(es): */
         Map<TypeElement, List<ExecutableElement>> mappings = e.getValue();
         for (TypeElement superType : superTypes(type)) {
-          Map<TypeElement, List<ExecutableElement>> baseMappings = routeMap
-              .getOrDefault(superType, Collections.emptyMap());
+          Map<TypeElement, List<ExecutableElement>> baseMappings =
+              routeMap.getOrDefault(superType, Collections.emptyMap());
           for (Map.Entry<TypeElement, List<ExecutableElement>> be : baseMappings.entrySet()) {
             List<ExecutableElement> methods = mappings.get(be.getKey());
             if (methods == null) {
@@ -280,10 +285,9 @@ public class JoobyProcessor extends AbstractProcessor {
             List<String> paths = path(type, httpMethod, method);
             for (String path : paths) {
               debug("  route %s %s", httpMethod.getSimpleName(), path);
-              HandlerCompiler compiler = new HandlerCompiler(processingEnv, type, method,
-                  httpMethod, path);
-              classes.computeIfAbsent(type, k -> new ArrayList<>())
-                  .add(compiler);
+              HandlerCompiler compiler =
+                  new HandlerCompiler(processingEnv, type, method, httpMethod, path);
+              classes.computeIfAbsent(type, k -> new ArrayList<>()).add(compiler);
             }
           }
         }
@@ -298,8 +302,7 @@ public class JoobyProcessor extends AbstractProcessor {
 
   private List<TypeElement> superTypes(Element owner) {
     Types typeUtils = processingEnv.getTypeUtils();
-    List<? extends TypeMirror> supertypes = typeUtils
-        .directSupertypes(owner.asType());
+    List<? extends TypeMirror> supertypes = typeUtils.directSupertypes(owner.asType());
     if (supertypes == null || supertypes.isEmpty()) {
       return Collections.emptyList();
     }
@@ -327,8 +330,8 @@ public class JoobyProcessor extends AbstractProcessor {
     debug("%s", location);
 
     Element[] originatingElements = modules.keySet().toArray(new Element[0]);
-    FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location,
-        originatingElements);
+    FileObject resource =
+        filer.createResource(StandardLocation.CLASS_OUTPUT, "", location, originatingElements);
     StringBuilder content = new StringBuilder();
     for (Map.Entry<TypeElement, String> e : modules.entrySet()) {
       String classname = e.getValue();
@@ -341,11 +344,9 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  protected void onClass(String className, byte[] bytecode) {
-  }
+  protected void onClass(String className, byte[] bytecode) {}
 
-  protected void onResource(String location, String content) {
-  }
+  protected void onResource(String location, String content) {}
 
   private void writeClass(JavaFileObject javaFileObject, byte[] bytecode) throws IOException {
     try (OutputStream output = javaFileObject.openOutputStream()) {
@@ -365,8 +366,8 @@ public class JoobyProcessor extends AbstractProcessor {
     }
 
     // Favor GET("/path") over Path("/path") at method level
-    List<String> path = path(annotation.getQualifiedName().toString(),
-        annotation.getAnnotationMirrors());
+    List<String> path =
+        path(annotation.getQualifiedName().toString(), annotation.getAnnotationMirrors());
     if (path.isEmpty()) {
       path = path(annotation.getQualifiedName().toString(), exec.getAnnotationMirrors());
     }
@@ -390,14 +391,16 @@ public class JoobyProcessor extends AbstractProcessor {
   private List<String> path(String method, List<? extends AnnotationMirror> annotations) {
     return annotations.stream()
         .map(AnnotationMirror.class::cast)
-        .flatMap(mirror -> {
-          String type = mirror.getAnnotationType().toString();
-          if (Annotations.PATH.contains(type) || type.equals(method)) {
-            return Stream.concat(Annotations.attribute(mirror, "path").stream(),
-                Annotations.attribute(mirror, "value").stream());
-          }
-          return Stream.empty();
-        })
+        .flatMap(
+            mirror -> {
+              String type = mirror.getAnnotationType().toString();
+              if (Annotations.PATH.contains(type) || type.equals(method)) {
+                return Stream.concat(
+                    Annotations.attribute(mirror, "path").stream(),
+                    Annotations.attribute(mirror, "value").stream());
+              }
+              return Stream.empty();
+            })
         .distinct()
         .collect(Collectors.toList());
   }

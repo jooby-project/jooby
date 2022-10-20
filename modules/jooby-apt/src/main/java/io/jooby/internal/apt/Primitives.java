@@ -1,13 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.apt;
 
+import java.lang.reflect.Method;
+
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import java.lang.reflect.Method;
 
 public class Primitives {
   public static Method wrapper(TypeDefinition type) throws NoSuchMethodException {

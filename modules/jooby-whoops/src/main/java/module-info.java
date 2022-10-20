@@ -10,7 +10,6 @@ module io.jooby.whoops {
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
-
   requires static unbescape;
   requires static io.pebbletemplates;
 }

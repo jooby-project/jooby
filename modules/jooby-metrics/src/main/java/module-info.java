@@ -10,7 +10,6 @@ module io.jooby.metrics {
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
-
   requires com.codahale.metrics;
   requires com.codahale.metrics.health;
   requires com.codahale.metrics.jvm;

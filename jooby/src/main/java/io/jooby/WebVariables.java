@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -11,19 +11,19 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * Add common variables to as {@link Context} attributes so they are accessible from template
  * engine.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
- *    decorator(new WebVariables());
+ *  decorator(new WebVariables());
  *
- *   get("/", ctx -> new ModelAndView("index.ftl"));
+ * get("/", ctx -> new ModelAndView("index.ftl"));
  * }</pre>
  *
  * Template engine will be able to access to the following attributes:
  *
- * - contextPath. Empty when context path is set to <code>/</code> or actual context path.
- * - path. Current request path, as defined by {@link Context#getRequestPath()}.
- * - user. Current user (if any) as defined by {@link Context#getUser()}.
+ * <p>- contextPath. Empty when context path is set to <code>/</code> or actual context path. -
+ * path. Current request path, as defined by {@link Context#getRequestPath()}. - user. Current user
+ * (if any) as defined by {@link Context#getUser()}.
  *
  * @author edgar
  * @since 2.4.0
@@ -41,14 +41,13 @@ public class WebVariables implements Route.Decorator {
     this.scope = scope;
   }
 
-  /**
-   * Creates a new web variables.
-   */
+  /** Creates a new web variables. */
   public WebVariables() {
     this.scope = null;
   }
 
-  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
+  @NonNull @Override
+  public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> next.apply(webvariables(ctx));
   }
 

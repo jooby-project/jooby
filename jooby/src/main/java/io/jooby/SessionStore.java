@@ -1,20 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.MemorySessionStore;
-import io.jooby.internal.SignedSessionStore;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.internal.MemorySessionStore;
+import io.jooby.internal.SignedSessionStore;
 
 /**
  * Load and save sessions from store (memory, database, etc.).
@@ -62,10 +62,12 @@ public interface SessionStore {
       this.token = token;
     }
 
-    @Override public @NonNull Session newSession(@NonNull Context ctx) {
+    @Override
+    public @NonNull Session newSession(@NonNull Context ctx) {
       String sessionId = token.newToken();
-      Data data = getOrCreate(sessionId,
-          sid -> new Data(Instant.now(), Instant.now(), new ConcurrentHashMap()));
+      Data data =
+          getOrCreate(
+              sessionId, sid -> new Data(Instant.now(), Instant.now(), new ConcurrentHashMap()));
 
       Session session = restore(ctx, sessionId, data);
 
@@ -93,8 +95,8 @@ public interface SessionStore {
       return this;
     }
 
-    protected abstract @NonNull Data getOrCreate(@NonNull String sessionId,
-        @NonNull Function<String, Data> factory);
+    protected abstract @NonNull Data getOrCreate(
+        @NonNull String sessionId, @NonNull Function<String, Data> factory);
 
     protected abstract @Nullable Data getOrNull(@NonNull String sessionId);
 
@@ -102,7 +104,8 @@ public interface SessionStore {
 
     protected abstract void put(@NonNull String sessionId, @NonNull Data data);
 
-    @Override public Session findSession(Context ctx) {
+    @Override
+    public Session findSession(Context ctx) {
       String sessionId = token.findToken(ctx);
       if (sessionId == null) {
         return null;
@@ -116,23 +119,27 @@ public interface SessionStore {
       return null;
     }
 
-    @Override public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
+    @Override
+    public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
       String sessionId = session.getId();
       remove(sessionId);
       token.deleteToken(ctx, sessionId);
     }
 
-    @Override public void touchSession(@NonNull Context ctx, @NonNull Session session) {
+    @Override
+    public void touchSession(@NonNull Context ctx, @NonNull Session session) {
       saveSession(ctx, session);
       token.saveToken(ctx, session.getId());
     }
 
-    @Override public void saveSession(Context ctx, @NonNull Session session) {
+    @Override
+    public void saveSession(Context ctx, @NonNull Session session) {
       String sessionId = session.getId();
       put(sessionId, new Data(session.getCreationTime(), Instant.now(), session.toMap()));
     }
 
-    @Override public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
+    @Override
+    public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
       String oldId = session.getId();
       Data data = remove(oldId);
       if (data != null) {
@@ -153,9 +160,9 @@ public interface SessionStore {
   /**
    * Creates a new session. This method must:
    *
-   * - Set session as new {@link Session#setNew(boolean)}
-   * - Optionally, set session creation time {@link Session#setCreationTime(Instant)}
-   * - Optionally, set session last accessed time {@link Session#setLastAccessedTime(Instant)}
+   * <p>- Set session as new {@link Session#setNew(boolean)} - Optionally, set session creation time
+   * {@link Session#setCreationTime(Instant)} - Optionally, set session last accessed time {@link
+   * Session#setLastAccessedTime(Instant)}
    *
    * @param ctx Web context.
    * @return A new session.
@@ -165,8 +172,8 @@ public interface SessionStore {
   /**
    * Find an existing session by ID. For existing session this method must:
    *
-   * - Optionally, Retrieve/restore session creation time
-   * - Optionally, Set session last accessed time {@link Session#setLastAccessedTime(Instant)}
+   * <p>- Optionally, Retrieve/restore session creation time - Optionally, Set session last accessed
+   * time {@link Session#setLastAccessedTime(Instant)}
    *
    * @param ctx Web context.
    * @return An existing session or <code>null</code>.
@@ -182,8 +189,8 @@ public interface SessionStore {
   void deleteSession(@NonNull Context ctx, @NonNull Session session);
 
   /**
-   * Session attributes/state has changed. Every time a session attribute is put or removed it,
-   * this method is executed as notification callback.
+   * Session attributes/state has changed. Every time a session attribute is put or removed it, this
+   * method is executed as notification callback.
    *
    * @param ctx Web context.
    * @param session Current session.
@@ -193,10 +200,10 @@ public interface SessionStore {
   /**
    * Save a session. This method must save:
    *
-   * - Session attributes/data
-   * - Optionally set Session metadata like: creationTime, lastAccessed time, etc.
+   * <p>- Session attributes/data - Optionally set Session metadata like: creationTime, lastAccessed
+   * time, etc.
    *
-   * This method is call after response is send to client, so context and response shouldn't be
+   * <p>This method is call after response is send to client, so context and response shouldn't be
    * modified.
    *
    * @param ctx Web context.
@@ -216,9 +223,9 @@ public interface SessionStore {
    * Creates a cookie based session and store data in memory. Session data is not keep after
    * restart.
    *
-   * It uses the default session cookie: {@link SessionToken#SID}.
+   * <p>It uses the default session cookie: {@link SessionToken#SID}.
    *
-   * - Session data is not keep after restart.
+   * <p>- Session data is not keep after restart.
    *
    * @param timeout Timeout in seconds. Use <code>-1</code> for no timeout.
    * @return Session store.
@@ -231,10 +238,9 @@ public interface SessionStore {
    * Creates a cookie based session and store data in memory. Session data is not keep after
    * restart.
    *
-   * It uses the default session cookie: {@link SessionToken#SID}.
+   * <p>It uses the default session cookie: {@link SessionToken#SID}.
    *
-   * - Session expires after 30 minutes of inactivity.
-   * - Session data is not keep after restart.
+   * <p>- Session expires after 30 minutes of inactivity. - Session data is not keep after restart.
    *
    * @return Session store.
    */
@@ -246,7 +252,7 @@ public interface SessionStore {
    * Creates a cookie based session and store data in memory. Session data is not keep after
    * restart.
    *
-   * It uses the default session cookie: {@link SessionToken#SID}.
+   * <p>It uses the default session cookie: {@link SessionToken#SID}.
    *
    * @param timeout Expires session after amount of inactivity time.
    * @return Session store.
@@ -258,8 +264,7 @@ public interface SessionStore {
   /**
    * Creates a cookie based session and store data in memory.
    *
-   * - Session expires after 30 minutes of inactivity.
-   * - Session data is not keep after restart.
+   * <p>- Session expires after 30 minutes of inactivity. - Session data is not keep after restart.
    *
    * @param cookie Cookie to use.
    * @return Session store.
@@ -281,9 +286,8 @@ public interface SessionStore {
   }
 
   /**
-   * Creates a session store that save data in memory.
-   * - Session expires after 30 minutes of inactivity.
-   * - Session data is not keep after restart.
+   * Creates a session store that save data in memory. - Session expires after 30 minutes of
+   * inactivity. - Session data is not keep after restart.
    *
    * @param token Session token.
    * @return Session store.
@@ -304,10 +308,10 @@ public interface SessionStore {
   }
 
   /**
-   * Creates a session store that uses (un)signed data. Session data is signed it using
-   * <code>HMAC_SHA256</code>.
+   * Creates a session store that uses (un)signed data. Session data is signed it using <code>
+   * HMAC_SHA256</code>.
    *
-   * See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
+   * <p>See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
    *
    * @param secret Secret token to signed data.
    * @return A browser session store.
@@ -317,10 +321,10 @@ public interface SessionStore {
   }
 
   /**
-   * Creates a session store that uses (un)signed data. Session data is signed it using
-   * <code>HMAC_SHA256</code>.
+   * Creates a session store that uses (un)signed data. Session data is signed it using <code>
+   * HMAC_SHA256</code>.
    *
-   * See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
+   * <p>See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
    *
    * @param secret Secret token to signed data.
    * @param cookie Cookie to use.
@@ -331,40 +335,42 @@ public interface SessionStore {
   }
 
   /**
-   * Creates a session store that uses (un)signed data. Session data is signed it using
-   * <code>HMAC_SHA256</code>.
+   * Creates a session store that uses (un)signed data. Session data is signed it using <code>
+   * HMAC_SHA256</code>.
    *
-   * See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
+   * <p>See {@link Cookie#sign(String, String)} and {@link Cookie#unsign(String, String)}.
    *
    * @param secret Secret token to signed data.
    * @param token Session token to use.
    * @return A browser session store.
    */
   static @NonNull SessionStore signed(@NonNull String secret, @NonNull SessionToken token) {
-    SneakyThrows.Function<String, Map<String, String>> decoder = value -> {
-      String unsign = Cookie.unsign(value, secret);
-      if (unsign == null) {
-        return null;
-      }
-      return Cookie.decode(unsign);
-    };
+    SneakyThrows.Function<String, Map<String, String>> decoder =
+        value -> {
+          String unsign = Cookie.unsign(value, secret);
+          if (unsign == null) {
+            return null;
+          }
+          return Cookie.decode(unsign);
+        };
 
-    SneakyThrows.Function<Map<String, String>, String> encoder = attributes ->
-        Cookie.sign(Cookie.encode(attributes), secret);
+    SneakyThrows.Function<Map<String, String>, String> encoder =
+        attributes -> Cookie.sign(Cookie.encode(attributes), secret);
 
     return signed(token, decoder, encoder);
   }
 
   /**
-   * Creates a session store that save data into Cookie. Cookie data is (un)signed it using the given
-   * decoder and encoder.
+   * Creates a session store that save data into Cookie. Cookie data is (un)signed it using the
+   * given decoder and encoder.
    *
    * @param token Token to use.
    * @param decoder Decoder to use.
    * @param encoder Encoder to use.
    * @return Cookie session store.
    */
-  static @NonNull SessionStore signed(@NonNull SessionToken token,
+  static @NonNull SessionStore signed(
+      @NonNull SessionToken token,
       @NonNull Function<String, Map<String, String>> decoder,
       @NonNull Function<Map<String, String>, String> encoder) {
     return new SignedSessionStore(token, decoder, encoder);

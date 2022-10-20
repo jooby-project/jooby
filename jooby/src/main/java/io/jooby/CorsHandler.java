@@ -1,19 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Handle preflight and simple CORS requests. CORS options are set via: {@link Cors}.
@@ -57,14 +58,13 @@ public class CorsHandler implements Route.Decorator {
     this.options = options;
   }
 
-  /**
-   * Creates a new {@link CorsHandler} with default options.
-   */
+  /** Creates a new {@link CorsHandler} with default options. */
   public CorsHandler() {
     this(new Cors());
   }
 
-  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
+  @NonNull @Override
+  public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       String origin = ctx.header("Origin").valueOrNull();
       if (origin != null) {
@@ -78,17 +78,21 @@ public class CorsHandler implements Route.Decorator {
           if (preflight(ctx, options, origin)) {
             return ctx;
           } else {
-            log.debug("preflight for {} {} with origin: {} failed", ctx.header(AC_REQUEST_METHOD),
-                ctx.getRequestURL(), origin);
+            log.debug(
+                "preflight for {} {} with origin: {} failed",
+                ctx.header(AC_REQUEST_METHOD),
+                ctx.getRequestURL(),
+                origin);
             return ctx.send(StatusCode.FORBIDDEN);
           }
         } else {
           // OPTIONS?
           if (ctx.getMethod().equalsIgnoreCase(Router.OPTIONS)) {
             // handle normal OPTIONS
-            String allow = Router.METHODS.stream()
-                .flatMap(method -> allowMethod(ctx, method))
-                .collect(Collectors.joining(","));
+            String allow =
+                Router.METHODS.stream()
+                    .flatMap(method -> allowMethod(ctx, method))
+                    .collect(Collectors.joining(","));
             ctx.setResponseHeader("Allow", allow);
             return ctx.send(StatusCode.OK);
           } else {
@@ -125,13 +129,14 @@ public class CorsHandler implements Route.Decorator {
         ctx.setResponseHeader(AC_ALLOW_CREDENTIALS, true);
       }
       if (!options.getExposedHeaders().isEmpty()) {
-        ctx.setResponseHeader(AC_EXPOSE_HEADERS,
-            options.getExposedHeaders().stream().collect(Collectors.joining()));
+        ctx.setResponseHeader(
+            AC_EXPOSE_HEADERS, options.getExposedHeaders().stream().collect(Collectors.joining()));
       }
     }
   }
 
-  @NonNull @Override public void setRoute(@NonNull Route route) {
+  @NonNull @Override
+  public void setRoute(@NonNull Route route) {
     route.setHttpOptions(true);
   }
 
@@ -141,38 +146,39 @@ public class CorsHandler implements Route.Decorator {
 
   private boolean preflight(final Context ctx, final Cors options, final String origin) {
     /*
-      Allowed method
-     */
-    boolean allowMethod = ctx.header(AC_REQUEST_METHOD).toOptional()
-        .map(options::allowMethod)
-        .orElse(false);
+     Allowed method
+    */
+    boolean allowMethod =
+        ctx.header(AC_REQUEST_METHOD).toOptional().map(options::allowMethod).orElse(false);
     if (!allowMethod) {
       return false;
     }
 
     /*
-      Allowed headers
-     */
-    List<String> headers = ctx.header(AC_REQUEST_HEADERS).toOptional().map(header ->
-        Arrays.asList(header.split("\\s*,\\s*"))
-    ).orElse(Collections.emptyList());
+     Allowed headers
+    */
+    List<String> headers =
+        ctx.header(AC_REQUEST_HEADERS)
+            .toOptional()
+            .map(header -> Arrays.asList(header.split("\\s*,\\s*")))
+            .orElse(Collections.emptyList());
     if (!options.allowHeaders(headers)) {
       return false;
     }
 
     /*
-      Allowed methods
-     */
-    ctx.setResponseHeader(AC_ALLOW_METHODS,
-        options.getMethods().stream().collect(Collectors.joining(",")));
+     Allowed methods
+    */
+    ctx.setResponseHeader(
+        AC_ALLOW_METHODS, options.getMethods().stream().collect(Collectors.joining(",")));
 
     List<String> allowedHeaders = options.anyHeader() ? headers : options.getHeaders();
-    ctx.setResponseHeader(AC_ALLOW_HEADERS,
-        allowedHeaders.stream().collect(Collectors.joining(",")));
+    ctx.setResponseHeader(
+        AC_ALLOW_HEADERS, allowedHeaders.stream().collect(Collectors.joining(",")));
 
     /*
-      Allow credentials
-     */
+     Allow credentials
+    */
     if (options.getUseCredentials()) {
       ctx.setResponseHeader(AC_ALLOW_CREDENTIALS, true);
     }

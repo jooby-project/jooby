@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-
 import io.jooby.ValueNode;
 import io.jooby.exception.MissingValueException;
 
@@ -24,66 +23,81 @@ public class MissingValue implements ValueNode {
     this.name = name;
   }
 
-  @Override public String name() {
+  @Override
+  public String name() {
     return name;
   }
 
-  @Override public ValueNode get(@NonNull String name) {
+  @Override
+  public ValueNode get(@NonNull String name) {
     return this.name.equals(name) ? this : new MissingValue(this.name + "." + name);
   }
 
-  @Override public ValueNode get(@NonNull int index) {
+  @Override
+  public ValueNode get(@NonNull int index) {
     return new MissingValue(this.name + "[" + index + "]");
   }
 
-  @NonNull @Override public <T> T to(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> T to(@NonNull Class<T> type) {
     return null;
   }
 
-  @Override public String value() {
+  @Override
+  public String value() {
     throw new MissingValueException(name);
   }
 
-  @NonNull @Override public Map<String, String> toMap() {
+  @NonNull @Override
+  public Map<String, String> toMap() {
     return Collections.emptyMap();
   }
 
-  @Override public Map<String, List<String>> toMultimap() {
+  @Override
+  public Map<String, List<String>> toMultimap() {
     return Collections.emptyMap();
   }
 
-  @NonNull @Override public List<String> toList() {
+  @NonNull @Override
+  public List<String> toList() {
     return Collections.emptyList();
   }
 
-  @NonNull @Override public Optional<String> toOptional() {
+  @NonNull @Override
+  public Optional<String> toOptional() {
     return Optional.empty();
   }
 
-  @NonNull @Override public <T> List<T> toList(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> List<T> toList(@NonNull Class<T> type) {
     return Collections.emptyList();
   }
 
-  @NonNull @Override public Set<String> toSet() {
+  @NonNull @Override
+  public Set<String> toSet() {
     return Collections.emptySet();
   }
 
-  @NonNull @Override public <T> Set<T> toSet(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> Set<T> toSet(@NonNull Class<T> type) {
     return Collections.emptySet();
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return "<missing>";
   }
 
-  @Override public boolean equals(Object o) {
+  @Override
+  public boolean equals(Object o) {
     if (o instanceof MissingValue) {
       return Objects.equals(name, ((MissingValue) o).name);
     }
     return false;
   }
 
-  @Override public int hashCode() {
+  @Override
+  public int hashCode() {
     return Objects.hash(name);
   }
 }

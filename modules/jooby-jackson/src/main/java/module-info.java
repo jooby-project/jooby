@@ -9,7 +9,6 @@ module io.jooby.jackson {
   requires io.jooby;
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
-
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.datatype.jdk8;
   requires com.fasterxml.jackson.datatype.jsr310;

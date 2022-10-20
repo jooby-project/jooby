@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -14,11 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-
 import org.apache.commons.io.IOUtils;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SneakyThrows.Consumer2;
 
 /**
@@ -33,10 +32,10 @@ import io.jooby.SneakyThrows.Consumer2;
  * The <code>[openapi].json</code> and/or <code>[openapi].yaml</code> files must be present on
  * classpath.
  *
- * If <code>jooby-swagger-ui</code> is present (part of your project classpath) swagger-ui will
+ * <p>If <code>jooby-swagger-ui</code> is present (part of your project classpath) swagger-ui will
  * be available. Same for <code>jooby-redoc</code>.
  *
- * Complete documentation is available at: https://jooby.io/modules/openapi
+ * <p>Complete documentation is available at: https://jooby.io/modules/openapi
  *
  * @author edgar
  * @since 2.7.0
@@ -57,27 +56,33 @@ public class OpenAPIModule implements Extension {
       this.lastModified = lastModified;
     }
 
-    @Override public long getSize() {
+    @Override
+    public long getSize() {
       return content.length;
     }
 
-    @Override public long getLastModified() {
+    @Override
+    public long getLastModified() {
       return lastModified;
     }
 
-    @Override public boolean isDirectory() {
+    @Override
+    public boolean isDirectory() {
       return false;
     }
 
-    @NonNull @Override public MediaType getContentType() {
+    @NonNull @Override
+    public MediaType getContentType() {
       return type;
     }
 
-    @Override public InputStream stream() {
+    @Override
+    public InputStream stream() {
       return new ByteArrayInputStream(content);
     }
 
-    @Override public void close() throws Exception {
+    @Override
+    public void close() throws Exception {
       // NOOP
     }
   }
@@ -91,23 +96,18 @@ public class OpenAPIModule implements Extension {
       return this;
     }
 
-    @Nullable @Override public Asset resolve(@NonNull String path) {
+    @Nullable @Override
+    public Asset resolve(@NonNull String path) {
       return assets.get(path);
     }
   }
 
-  /**
-   * Available formats.
-   */
+  /** Available formats. */
   public enum Format {
-    /**
-     * JSON.
-     */
+    /** JSON. */
     JSON,
 
-    /**
-     * YAML.
-     */
+    /** YAML. */
     YAML
   }
 
@@ -120,7 +120,7 @@ public class OpenAPIModule implements Extension {
    * Creates an OpenAPI module. The path is used to route the open API files. For example:
    *
    * <pre>{@code
-   *   install(new OpenAPIModule("/docs"));
+   * install(new OpenAPIModule("/docs"));
    * }</pre>
    *
    * Files will be at <code>/docs/openapi.json</code>, <code>/docs/openapi.yaml</code>.
@@ -134,7 +134,7 @@ public class OpenAPIModule implements Extension {
   /**
    * Creates an OpenAPI module.
    *
-   * Files will be at <code>/openapi.json</code>, <code>/openapi.yaml</code>.
+   * <p>Files will be at <code>/openapi.json</code>, <code>/openapi.yaml</code>.
    */
   public OpenAPIModule() {
     this("/");
@@ -165,7 +165,7 @@ public class OpenAPIModule implements Extension {
   /**
    * Enable what format are available (json or yaml).
    *
-   * IMPORTANT: UI tools requires the JSON format.
+   * <p>IMPORTANT: UI tools requires the JSON format.
    *
    * @param format Supported formats.
    * @return This module.
@@ -175,19 +175,16 @@ public class OpenAPIModule implements Extension {
     return this;
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
-    String dir = Optional.ofNullable(application.getBasePackage())
-        .orElse("/")
-        .replace(".", "/");
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
+    String dir = Optional.ofNullable(application.getBasePackage()).orElse("/").replace(".", "/");
 
-    String appname = application.getName()
-        .replace("Jooby", "openapi")
-        .replace("Kooby", "openapi");
+    String appname = application.getName().replace("Jooby", "openapi").replace("Kooby", "openapi");
     for (Format ext : format) {
       String filename = String.format("/%s.%s", appname, ext.name().toLowerCase());
       String openAPIFileLocation = Router.normalizePath(dir) + filename;
-      application.assets(fullPath(openAPIPath, "/openapi." + ext.name().toLowerCase()),
-          openAPIFileLocation);
+      application.assets(
+          fullPath(openAPIPath, "/openapi." + ext.name().toLowerCase()), openAPIFileLocation);
     }
 
     /** Configure UI: */
@@ -214,39 +211,60 @@ public class OpenAPIModule implements Extension {
 
   private void redoc(Jooby application, AssetSource source) throws Exception {
 
-    String openAPIJSON = fullPath(
-        fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
+    String openAPIJSON =
+        fullPath(fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
 
-    AssetSource customSource = new OpenAPISource()
-        .put("index.html",
-            processAsset(source, MediaType.html, "index.html", "${openAPIPath}", openAPIJSON,
-                "${redocPath}", fullPath(application.getContextPath(), redocPath)));
+    AssetSource customSource =
+        new OpenAPISource()
+            .put(
+                "index.html",
+                processAsset(
+                    source,
+                    MediaType.html,
+                    "index.html",
+                    "${openAPIPath}",
+                    openAPIJSON,
+                    "${redocPath}",
+                    fullPath(application.getContextPath(), redocPath)));
 
     application.assets(redocPath + "/?*", customSource, source);
   }
 
   private void swaggerUI(Jooby application, AssetSource source) throws Exception {
-    String openAPIJSON = fullPath(
-        fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
+    String openAPIJSON =
+        fullPath(fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
 
-    AssetSource customSource = new OpenAPISource()
-        .put("index.html", processAsset(source, MediaType.html, "index.html", "${swaggerPath}",
-            fullPath(application.getContextPath(), swaggerUIPath)))
-        .put("swagger-initializer.js",
-            processAsset(source, MediaType.html, "swagger-initializer.js", "${openAPIPath}",
-                openAPIJSON));
+    AssetSource customSource =
+        new OpenAPISource()
+            .put(
+                "index.html",
+                processAsset(
+                    source,
+                    MediaType.html,
+                    "index.html",
+                    "${swaggerPath}",
+                    fullPath(application.getContextPath(), swaggerUIPath)))
+            .put(
+                "swagger-initializer.js",
+                processAsset(
+                    source,
+                    MediaType.html,
+                    "swagger-initializer.js",
+                    "${openAPIPath}",
+                    openAPIJSON));
     application.assets(swaggerUIPath + "/?*", customSource, source);
   }
 
-  private static Asset processAsset(AssetSource source, MediaType type, String resource,
-      String... replacements) throws Exception {
+  private static Asset processAsset(
+      AssetSource source, MediaType type, String resource, String... replacements)
+      throws Exception {
     try (Asset asset = source.resolve(resource)) {
       String content = IOUtils.toString(asset.stream(), StandardCharsets.UTF_8);
       for (int i = 0; i < replacements.length; i += 2) {
         content = content.replace(replacements[i], replacements[i + 1]);
       }
-      return new OpenAPIAsset(type, content.getBytes(StandardCharsets.UTF_8),
-          asset.getLastModified());
+      return new OpenAPIAsset(
+          type, content.getBytes(StandardCharsets.UTF_8), asset.getLastModified());
     }
   }
 

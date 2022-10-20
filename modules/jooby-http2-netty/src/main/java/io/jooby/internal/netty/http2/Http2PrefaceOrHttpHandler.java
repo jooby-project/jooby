@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -21,8 +21,8 @@ class Http2PrefaceOrHttpHandler extends ByteToMessageDecoder {
 
   private Consumer<ChannelPipeline> http2;
 
-  public Http2PrefaceOrHttpHandler(Consumer<ChannelPipeline> http1,
-      Consumer<ChannelPipeline> http2) {
+  public Http2PrefaceOrHttpHandler(
+      Consumer<ChannelPipeline> http1, Consumer<ChannelPipeline> http2) {
     this.http1 = http1;
     this.http2 = http2;
   }

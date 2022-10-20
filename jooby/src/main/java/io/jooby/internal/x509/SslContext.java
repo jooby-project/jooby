@@ -1,17 +1,7 @@
 /*
- * Copyright 2014 The Netty Project
- *
- * The Netty Project licenses this file to you under the Apache License,
- * version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at:
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.x509;
 
@@ -51,11 +41,12 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.x500.X500Principal;
 
 /**
- * A secure socket protocol implementation which acts as a factory for {@link SSLEngine} and
- * {@link SslHandler}.
- * Internally, it is implemented via JDK's {@link SSLContext} or OpenSSL's {@code SSL_CTX}.
+ * A secure socket protocol implementation which acts as a factory for {@link SSLEngine} and {@link
+ * SslHandler}. Internally, it is implemented via JDK's {@link SSLContext} or OpenSSL's {@code
+ * SSL_CTX}.
  *
  * <h3>Making your server support SSL/TLS</h3>
+ *
  * <pre>
  * // In your {@link ChannelInitializer}:
  * {@link ChannelPipeline} p = channel.pipeline();
@@ -65,6 +56,7 @@ import javax.security.auth.x500.X500Principal;
  * </pre>
  *
  * <h3>Making your client support SSL/TLS</h3>
+ *
  * <pre>
  * // In your {@link ChannelInitializer}:
  * {@link ChannelPipeline} p = channel.pipeline();
@@ -86,26 +78,33 @@ public abstract class SslContext {
     }
   }
 
-  public static SslContext newServerContextInternal(final String provider,
+  public static SslContext newServerContextInternal(
+      final String provider,
       final InputStream trustCertChainFile,
-      final InputStream keyCertChainFile, final InputStream keyFile, final String keyPassword,
-      final long sessionCacheSize, final long sessionTimeout) throws SSLException {
-    return new JdkSslServerContext(provider, trustCertChainFile, keyCertChainFile,
-        keyFile, keyPassword, sessionCacheSize, sessionTimeout);
+      final InputStream keyCertChainFile,
+      final InputStream keyFile,
+      final String keyPassword,
+      final long sessionCacheSize,
+      final long sessionTimeout)
+      throws SSLException {
+    return new JdkSslServerContext(
+        provider,
+        trustCertChainFile,
+        keyCertChainFile,
+        keyFile,
+        keyPassword,
+        sessionCacheSize,
+        sessionTimeout);
   }
 
-  /**
-   * Returns the size of the cache used for storing SSL session objects.
-   */
+  /** Returns the size of the cache used for storing SSL session objects. */
   public abstract long sessionCacheSize();
 
   public abstract long sessionTimeout();
 
   public abstract SSLContext context();
 
-  /**
-   * Returns the {@link SSLSessionContext} object held by this context.
-   */
+  /** Returns the {@link SSLSessionContext} object held by this context. */
   public abstract SSLSessionContext sessionContext();
 
   /**
@@ -113,32 +112,29 @@ public abstract class SslContext {
    *
    * @param password characters, if {@code null} or empty an unencrypted key is assumed
    * @param key bytes of the DER encoded private key
-   *
    * @return a key specification
-   *
    * @throws IOException if parsing {@code key} fails
    * @throws NoSuchAlgorithmException if the algorithm used to encrypt {@code key} is unkown
    * @throws NoSuchPaddingException if the padding scheme specified in the decryption algorithm is
-   *         unkown
+   *     unkown
    * @throws InvalidKeySpecException if the decryption key based on {@code password} cannot be
-   *         generated
+   *     generated
    * @throws InvalidKeyException if the decryption key based on {@code password} cannot be used to
-   *         decrypt
-   *         {@code key}
+   *     decrypt {@code key}
    * @throws InvalidAlgorithmParameterException if decryption algorithm parameters are somehow
-   *         faulty
+   *     faulty
    */
   protected static PKCS8EncodedKeySpec generateKeySpec(final char[] password, final byte[] key)
       throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException,
-      InvalidKeyException, InvalidAlgorithmParameterException {
+          InvalidKeyException, InvalidAlgorithmParameterException {
 
     if (password == null || password.length == 0) {
       return new PKCS8EncodedKeySpec(key);
     }
 
     EncryptedPrivateKeyInfo encryptedPrivateKeyInfo = new EncryptedPrivateKeyInfo(key);
-    SecretKeyFactory keyFactory = SecretKeyFactory
-        .getInstance(encryptedPrivateKeyInfo.getAlgName());
+    SecretKeyFactory keyFactory =
+        SecretKeyFactory.getInstance(encryptedPrivateKeyInfo.getAlgName());
     PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
     SecretKey pbeKey = keyFactory.generateSecret(pbeKeySpec);
 
@@ -153,15 +149,15 @@ public abstract class SslContext {
    *
    * @param certChainFile a X.509 certificate chain file in PEM format,
    * @param keyFile a PKCS#8 private key file in PEM format,
-   * @param keyPasswordChars the password of the {@code keyFile}.
-   *        {@code null} if it's not password-protected.
+   * @param keyPasswordChars the password of the {@code keyFile}. {@code null} if it's not
+   *     password-protected.
    * @return generated {@link KeyStore}.
    */
-  static KeyStore buildKeyStore(final InputStream certChainFile, final InputStream keyFile,
-      final char[] keyPasswordChars)
-      throws KeyStoreException, NoSuchAlgorithmException,
-      NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException,
-      CertificateException, KeyException, IOException {
+  static KeyStore buildKeyStore(
+      final InputStream certChainFile, final InputStream keyFile, final char[] keyPasswordChars)
+      throws KeyStoreException, NoSuchAlgorithmException, NoSuchPaddingException,
+          InvalidKeySpecException, InvalidAlgorithmParameterException, CertificateException,
+          KeyException, IOException {
     ByteBuffer encodedKeyBuf = PemReader.readPrivateKey(keyFile);
     byte[] encodedKey = encodedKeyBuf.array();
 
@@ -192,8 +188,7 @@ public abstract class SslContext {
 
     KeyStore ks = KeyStore.getInstance("JKS");
     ks.load(null, null);
-    ks.setKeyEntry("key", key, keyPasswordChars,
-        certChain.toArray(new Certificate[0]));
+    ks.setKeyEntry("key", key, keyPasswordChars, certChain.toArray(new Certificate[0]));
     return ks;
   }
 
@@ -202,11 +197,11 @@ public abstract class SslContext {
    *
    * @param certChainFile The certificate file to build from.
    * @param trustManagerFactory The existing {@link TrustManagerFactory} that will be used if not
-   *        {@code null}.
+   *     {@code null}.
    * @return A {@link TrustManagerFactory} which contains the certificates in {@code certChainFile}
    */
-  protected static TrustManagerFactory buildTrustManagerFactory(final InputStream certChainFile,
-      TrustManagerFactory trustManagerFactory)
+  protected static TrustManagerFactory buildTrustManagerFactory(
+      final InputStream certChainFile, TrustManagerFactory trustManagerFactory)
       throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
     KeyStore ks = KeyStore.getInstance("JKS");
     ks.load(null, null);
@@ -215,16 +210,16 @@ public abstract class SslContext {
     List<ByteBuffer> certs = PemReader.readCertificates(certChainFile);
 
     for (ByteBuffer buf : certs) {
-      X509Certificate cert = (X509Certificate) cf
-          .generateCertificate(new ByteArrayInputStream(buf.array()));
+      X509Certificate cert =
+          (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(buf.array()));
       X500Principal principal = cert.getSubjectX500Principal();
       ks.setCertificateEntry(principal.getName("RFC2253"), cert);
     }
 
     // Set up trust manager factory to use our key store.
     if (trustManagerFactory == null) {
-      trustManagerFactory = TrustManagerFactory
-          .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      trustManagerFactory =
+          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
     }
     trustManagerFactory.init(ks);
 

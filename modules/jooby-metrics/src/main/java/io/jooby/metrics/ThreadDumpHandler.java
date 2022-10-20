@@ -1,21 +1,22 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.metrics;
 
+import java.io.ByteArrayOutputStream;
+import java.lang.management.ManagementFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.codahale.metrics.jvm.ThreadDump;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.StatusCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.ByteArrayOutputStream;
-import java.lang.management.ManagementFactory;
 
 public class ThreadDumpHandler implements Route.Handler {
 
@@ -32,8 +33,7 @@ public class ThreadDumpHandler implements Route.Handler {
     }
   }
 
-  @NonNull
-  @Override
+  @NonNull @Override
   public Object apply(@NonNull Context ctx) {
     Object data;
     if (threadDump == null) {

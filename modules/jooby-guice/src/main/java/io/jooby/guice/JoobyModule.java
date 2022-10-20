@@ -1,9 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.guice;
+
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
@@ -13,18 +19,12 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Exposes Jooby objects to Guice. This module exposes {@link Environment}, {@link Config} and
@@ -45,7 +45,8 @@ public class JoobyModule extends AbstractModule {
     this.application = application;
   }
 
-  @Override protected void configure() {
+  @Override
+  protected void configure() {
     configureEnv(application.getEnvironment());
     configureResources(application.getServices());
   }
@@ -61,8 +62,8 @@ public class JoobyModule extends AbstractModule {
       } else {
         binding = bind(key.getType());
       }
-      //Guice does not support jakarta inject yet
-      //https://github.com/google/guice/issues/1383
+      // Guice does not support jakarta inject yet
+      // https://github.com/google/guice/issues/1383
       javax.inject.Provider legacyProvider = () -> provider.get();
       binding.toProvider(legacyProvider);
     }
@@ -78,11 +79,13 @@ public class JoobyModule extends AbstractModule {
       Object value = entry.getValue().unwrapped();
       if (value instanceof List) {
         List values = (List) value;
-        componentType(values).forEach(componentType -> {
-          Type listType = Types.listOf(componentType);
-          Key key = Key.get(listType, Names.named(name));
-          bind(key).toInstance(values);
-        });
+        componentType(values)
+            .forEach(
+                componentType -> {
+                  Type listType = Types.listOf(componentType);
+                  Key key = Key.get(listType, Names.named(name));
+                  bind(key).toInstance(values);
+                });
         value = values.stream().map(Object::toString).collect(Collectors.joining(","));
       }
       bindConstant().annotatedWith(named).to(value.toString());
@@ -92,8 +95,14 @@ public class JoobyModule extends AbstractModule {
   private Stream<Class> componentType(List values) {
     if (values.isEmpty()) {
       // For empty list we generates a binding for primitive wrappers.
-      return Stream.of(String.class, Integer.class, Long.class, Float.class, Double.class,
-          Boolean.class, Object.class);
+      return Stream.of(
+          String.class,
+          Integer.class,
+          Long.class,
+          Float.class,
+          Double.class,
+          Boolean.class,
+          Object.class);
     }
     return Stream.of(values.get(0).getClass());
   }

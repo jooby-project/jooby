@@ -1,32 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.apt;
 
-import io.jooby.Context;
-import io.jooby.FileUpload;
-import io.jooby.FlashMap;
-import io.jooby.Formdata;
-import io.jooby.Multipart;
-import io.jooby.QueryString;
-import io.jooby.Route;
-import io.jooby.Session;
-import io.jooby.Value;
-import io.jooby.ValueConverter;
-import io.jooby.ValueNode;
-import io.jooby.apt.Annotations;
-import io.jooby.internal.apt.asm.ParamWriter;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.AnnotatedConstruct;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
-
-import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -41,6 +19,26 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.AnnotatedConstruct;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
+
+import io.jooby.Context;
+import io.jooby.FileUpload;
+import io.jooby.FlashMap;
+import io.jooby.Formdata;
+import io.jooby.Multipart;
+import io.jooby.QueryString;
+import io.jooby.Route;
+import io.jooby.Session;
+import io.jooby.Value;
+import io.jooby.ValueNode;
+import io.jooby.apt.Annotations;
+import io.jooby.internal.apt.asm.ParamWriter;
 
 public class ParamDefinition {
 
@@ -102,13 +100,13 @@ public class ParamDefinition {
   }
 
   public boolean isNullable() {
-    if (hasAnnotation(".Nullable")
-        || hasAnnotation("edu.umd.cs.findbugs.annotations.Nullable")) {
+    if (hasAnnotation(".Nullable") || hasAnnotation("edu.umd.cs.findbugs.annotations.Nullable")) {
       return true;
     }
-    boolean nonnull = hasAnnotation(".NotNull")
-        || hasAnnotation(".NonNull")
-        || hasAnnotation("edu.umd.cs.findbugs.annotations.NonNull");
+    boolean nonnull =
+        hasAnnotation(".NotNull")
+            || hasAnnotation(".NonNull")
+            || hasAnnotation("edu.umd.cs.findbugs.annotations.NonNull");
     if (nonnull) {
       return false;
     }
@@ -141,7 +139,6 @@ public class ParamDefinition {
     return annotations;
   }
 
-
   public Method getObjectValue() throws NoSuchMethodException {
     return getKind().valueObject(this);
   }
@@ -152,8 +149,10 @@ public class ParamDefinition {
 
   public boolean isSimpleType() {
     for (Class builtinType : builtinTypes()) {
-      if (is(builtinType) || is(Optional.class, builtinType) || is(List.class, builtinType) || is(
-          Set.class, builtinType)) {
+      if (is(builtinType)
+          || is(Optional.class, builtinType)
+          || is(List.class, builtinType)
+          || is(Set.class, builtinType)) {
         return true;
       }
     }
@@ -162,61 +161,54 @@ public class ParamDefinition {
 
   public String[] sources() {
     return annotations(parameter.getAnnotationMirrors(), this.kind.annotations()).stream()
-        .flatMap(it -> Annotations.attribute(it, "value", v ->
-            ((VariableElement) v.getValue()).getSimpleName().toString()).stream())
-
+        .flatMap(
+            it ->
+                Annotations.attribute(
+                    it, "value", v -> ((VariableElement) v.getValue()).getSimpleName().toString())
+                    .stream())
         .toArray(String[]::new);
   }
 
   private Class[] builtinTypes() {
-    return new Class[]{
-        String.class,
-
-        Boolean.class,
-        Boolean.TYPE,
-        Byte.class,
-        Byte.TYPE,
-        Character.class,
-        Character.TYPE,
-        Short.class,
-        Short.TYPE,
-        Integer.class,
-        Integer.TYPE,
-        Long.class,
-        Long.TYPE,
-        Float.class,
-        Float.TYPE,
-        Double.class,
-        Double.TYPE,
-
-        Enum.class,
-
-        java.util.UUID.class,
-
-        java.time.Instant.class,
-        java.util.Date.class,
-        java.time.LocalDate.class,
-        java.time.LocalDateTime.class,
-
-        java.math.BigDecimal.class,
-        java.math.BigInteger.class,
-
-        Duration.class,
-        Period.class,
-
-        java.nio.charset.Charset.class,
-
-        io.jooby.StatusCode.class,
-
-        TimeZone.class,
-        ZoneId.class,
-
-        URI.class,
-        URL.class
+    return new Class[] {
+      String.class,
+      Boolean.class,
+      Boolean.TYPE,
+      Byte.class,
+      Byte.TYPE,
+      Character.class,
+      Character.TYPE,
+      Short.class,
+      Short.TYPE,
+      Integer.class,
+      Integer.TYPE,
+      Long.class,
+      Long.TYPE,
+      Float.class,
+      Float.TYPE,
+      Double.class,
+      Double.TYPE,
+      Enum.class,
+      java.util.UUID.class,
+      java.time.Instant.class,
+      java.util.Date.class,
+      java.time.LocalDate.class,
+      java.time.LocalDateTime.class,
+      java.math.BigDecimal.class,
+      java.math.BigInteger.class,
+      Duration.class,
+      Period.class,
+      java.nio.charset.Charset.class,
+      io.jooby.StatusCode.class,
+      TimeZone.class,
+      ZoneId.class,
+      URI.class,
+      URL.class
     };
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return parameter.getSimpleName() + ": " + parameter.asType();
   }
 
@@ -269,8 +261,8 @@ public class ParamDefinition {
     return ValueNode.class.getMethod("to", Class.class);
   }
 
-  public static ParamDefinition create(ProcessingEnvironment environment,
-      VariableElement parameter) {
+  public static ParamDefinition create(
+      ProcessingEnvironment environment, VariableElement parameter) {
     ParamDefinition definition = new ParamDefinition(environment, parameter);
     return definition;
   }
@@ -280,10 +272,10 @@ public class ParamDefinition {
       return ParamKind.TYPE;
     }
 
-    if (is(FileUpload.class) ||
-        is(List.class, FileUpload.class) ||
-        is(Optional.class, FileUpload.class) ||
-        is(Path.class)) {
+    if (is(FileUpload.class)
+        || is(List.class, FileUpload.class)
+        || is(Optional.class, FileUpload.class)
+        || is(Path.class)) {
       return ParamKind.FILE_UPLOAD;
     }
 
@@ -322,15 +314,15 @@ public class ParamDefinition {
     return annotations(parameter.getAnnotationMirrors(), annotations).size() > 0;
   }
 
-  private List<AnnotationMirror> annotations(List<? extends AnnotationMirror> annotationMirrors,
-      Set<String> annotations) {
+  private List<AnnotationMirror> annotations(
+      List<? extends AnnotationMirror> annotationMirrors, Set<String> annotations) {
     return annotationMirrors.stream()
-        .filter(it -> {
-          String rawType = new TypeDefinition(typeUtils, it.getAnnotationType())
-              .getRawType()
-              .toString();
-          return annotations.contains(rawType);
-        })
+        .filter(
+            it -> {
+              String rawType =
+                  new TypeDefinition(typeUtils, it.getAnnotationType()).getRawType().toString();
+              return annotations.contains(rawType);
+            })
         .collect(Collectors.toList());
   }
 
@@ -340,5 +332,4 @@ public class ParamDefinition {
         .findFirst()
         .orElse(parameter.getSimpleName().toString());
   }
-
 }

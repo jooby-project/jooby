@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues;
 
 import io.jooby.Context;
@@ -10,10 +15,12 @@ public class Controller1359 {
 
   @GET("/controller/1359")
   @ApiResponses({
-      @ApiResponse(description = "This is the default response", content = @Content(mediaType = "text/plain")),
-      @ApiResponse(responseCode = "500"),
-      @ApiResponse(responseCode = "400"),
-      @ApiResponse(responseCode = "404")
+    @ApiResponse(
+        description = "This is the default response",
+        content = @Content(mediaType = "text/plain")),
+    @ApiResponse(responseCode = "500"),
+    @ApiResponse(responseCode = "400"),
+    @ApiResponse(responseCode = "404")
   })
   public String defaultResponse(Context ctx) {
     return null;
@@ -21,9 +28,9 @@ public class Controller1359 {
 
   @GET("/controller/1359/missing")
   @ApiResponses({
-      @ApiResponse(responseCode = "500"),
-      @ApiResponse(responseCode = "400"),
-      @ApiResponse(responseCode = "404")
+    @ApiResponse(responseCode = "500"),
+    @ApiResponse(responseCode = "400"),
+    @ApiResponse(responseCode = "404")
   })
   public String defaultResponseMissing(Context ctx) {
     return null;
@@ -31,10 +38,13 @@ public class Controller1359 {
 
   @GET("/controller/1359/customcode")
   @ApiResponses({
-      @ApiResponse(responseCode = "201", description = "This is the default response", content = @Content(mediaType = "text/plain")),
-      @ApiResponse(responseCode = "500"),
-      @ApiResponse(responseCode = "400"),
-      @ApiResponse(responseCode = "404")
+    @ApiResponse(
+        responseCode = "201",
+        description = "This is the default response",
+        content = @Content(mediaType = "text/plain")),
+    @ApiResponse(responseCode = "500"),
+    @ApiResponse(responseCode = "400"),
+    @ApiResponse(responseCode = "404")
   })
   public String customStatusCode(Context ctx) {
     return null;
@@ -42,11 +52,11 @@ public class Controller1359 {
 
   @GET("/controller/1359/multiplesuccess")
   @ApiResponses({
-      @ApiResponse(content = @Content(mediaType = "text/plain")),
-      @ApiResponse(responseCode = "201", content = @Content(mediaType = "text/plain")),
-      @ApiResponse(responseCode = "500"),
-      @ApiResponse(responseCode = "400"),
-      @ApiResponse(responseCode = "404")
+    @ApiResponse(content = @Content(mediaType = "text/plain")),
+    @ApiResponse(responseCode = "201", content = @Content(mediaType = "text/plain")),
+    @ApiResponse(responseCode = "500"),
+    @ApiResponse(responseCode = "400"),
+    @ApiResponse(responseCode = "404")
   })
   public String multiplesuccess(Context ctx) {
     return null;

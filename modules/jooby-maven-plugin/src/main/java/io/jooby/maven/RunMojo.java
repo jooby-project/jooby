@@ -1,13 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.maven;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-import io.jooby.run.JoobyRun;
-import io.jooby.run.JoobyRunOptions;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
+import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+
 import org.apache.maven.Maven;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -17,15 +24,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
-import java.util.function.BiConsumer;
-
-import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
-import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import edu.emory.mathcs.backport.java.util.Collections;
+import io.jooby.run.JoobyRun;
+import io.jooby.run.JoobyRunOptions;
 
 /**
  * Maven plugin for jooby run.
@@ -33,7 +34,11 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
  * @author edgar
  * @since 2.0.0
  */
-@Mojo(name = "run", threadSafe = true, requiresDependencyResolution = COMPILE_PLUS_RUNTIME, aggregator = true)
+@Mojo(
+    name = "run",
+    threadSafe = true,
+    requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
+    aggregator = true)
 @Execute(phase = PROCESS_CLASSES)
 public class RunMojo extends BaseMojo {
 
@@ -56,9 +61,7 @@ public class RunMojo extends BaseMojo {
   @Parameter(property = "jooby.compileExtensions")
   private List<String> compileExtensions;
 
-  /**
-   * Application port.
-   */
+  /** Application port. */
   @Parameter(property = "jooby.port")
   private Integer port;
 
@@ -68,8 +71,8 @@ public class RunMojo extends BaseMojo {
   @Parameter(property = "jooby.waitTimeBeforeRestart")
   private Long waitTimeBeforeRestart;
 
-  @Override protected void doExecute(List<MavenProject> projects, String mainClass)
-      throws Throwable {
+  @Override
+  protected void doExecute(List<MavenProject> projects, String mainClass) throws Throwable {
     Maven maven = getMaven();
     JoobyRunOptions options = createOptions(mainClass);
     getLog().debug("jooby options: " + options);
@@ -78,30 +81,30 @@ public class RunMojo extends BaseMojo {
 
     Runtime.getRuntime().addShutdownHook(new Thread(joobyRun::shutdown));
 
-    BiConsumer<String, Path> onFileChanged = (event, path) -> {
-      if (options.isCompileExtension(path)) {
-        MavenExecutionResult result = maven.execute(mavenRequest("process-classes"));
-        // Success?
-        if (result.hasExceptions()) {
-          getLog().debug("Compilation error found: " + path);
-        } else {
-          getLog().debug("Restarting application on file change: " + path);
-          joobyRun.restart();
-        }
-      } else if (options.isRestartExtension(path)) {
-        getLog().debug("Restarting application on file change: " + path);
-        joobyRun.restart();
-      } else {
-        getLog().debug("Ignoring file change: " + path);
-      }
-    };
+    BiConsumer<String, Path> onFileChanged =
+        (event, path) -> {
+          if (options.isCompileExtension(path)) {
+            MavenExecutionResult result = maven.execute(mavenRequest("process-classes"));
+            // Success?
+            if (result.hasExceptions()) {
+              getLog().debug("Compilation error found: " + path);
+            } else {
+              getLog().debug("Restarting application on file change: " + path);
+              joobyRun.restart();
+            }
+          } else if (options.isRestartExtension(path)) {
+            getLog().debug("Restarting application on file change: " + path);
+            joobyRun.restart();
+          } else {
+            getLog().debug("Ignoring file change: " + path);
+          }
+        };
 
     for (MavenProject project : projects) {
       getLog().debug("Adding project: " + project.getArtifactId());
 
       // main resources + conf, etc..
-      resources(project)
-          .forEach(file -> joobyRun.addResource(file, onFileChanged));
+      resources(project).forEach(file -> joobyRun.addResource(file, onFileChanged));
 
       // target/classes
       bin(project).forEach(joobyRun::addResource);
@@ -194,7 +197,8 @@ public class RunMojo extends BaseMojo {
     return Collections.singleton(Paths.get(project.getBuild().getSourceDirectory()));
   }
 
-  @Override protected String mojoName() {
+  @Override
+  protected String mojoName() {
     return "run";
   }
 
@@ -206,9 +210,11 @@ public class RunMojo extends BaseMojo {
   //            && it.getVersion().equals(artifact.getVersion()));
   //  }
   //
-  //  private Collection<org.eclipse.aether.artifact.Artifact> resolveDependencies(Artifact artifact,
+  //  private Collection<org.eclipse.aether.artifact.Artifact> resolveDependencies(Artifact
+  // artifact,
   //      Predicate<org.eclipse.aether.artifact.Artifact> predicate) {
-  //    return resolveDependencies(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(),
+  //    return resolveDependencies(new DefaultArtifact(artifact.getGroupId(),
+  // artifact.getArtifactId(),
   //        artifact.getClassifier(), artifact.getType(), artifact.getVersion()), predicate);
   //  }
   //
@@ -241,4 +247,3 @@ public class RunMojo extends BaseMojo {
   //        .collect(toSet());
   //  }
 }
-

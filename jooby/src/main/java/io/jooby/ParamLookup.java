@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -8,14 +8,13 @@ package io.jooby;
 import java.util.Optional;
 
 /**
- * Fluent interface allowing to conveniently search context parameters
- * in multiple sources.
+ * Fluent interface allowing to conveniently search context parameters in multiple sources.
  *
  * <pre>{@code
- *  Value foo = ctx.lookup()
- *    .inQuery()
- *    .inPath()
- *    .get("foo");
+ * Value foo = ctx.lookup()
+ *   .inQuery()
+ *   .inPath()
+ *   .get("foo");
  * }</pre>
  *
  * @see Context#lookup()
@@ -104,14 +103,13 @@ public interface ParamLookup {
   }
 
   /**
-   * Fluent interface allowing to conveniently search context parameters
-   * in multiple sources.
+   * Fluent interface allowing to conveniently search context parameters in multiple sources.
    *
    * <pre>{@code
-   *  Value foo = ctx.lookup()
-   *    .inQuery()
-   *    .inPath()
-   *    .get("foo");
+   * Value foo = ctx.lookup()
+   *   .inQuery()
+   *   .inPath()
+   *   .get("foo");
    * }</pre>
    *
    * @see Context#lookup()
@@ -120,27 +118,24 @@ public interface ParamLookup {
   interface Stage extends ParamLookup {
 
     /**
-     * Searches for a parameter in the specified sources, in the specified
-     * order, returning the first non-missing {@link Value}, or a 'missing'
-     * {@link Value} if none found.
+     * Searches for a parameter in the specified sources, in the specified order, returning the
+     * first non-missing {@link Value}, or a 'missing' {@link Value} if none found.
      *
      * @param name The name of the parameter.
-     * @return The first non-missing {@link Value} or a {@link Value} representing
-     * a missing value if none found.
+     * @return The first non-missing {@link Value} or a {@link Value} representing a missing value
+     *     if none found.
      */
     Value get(String name);
 
     /**
-     * Wraps the result of {@link #get(String)} in an {@link Optional} if the
-     * value is a {@link ValueNode} or returns an empty {@link Optional}
-     * otherwise.
+     * Wraps the result of {@link #get(String)} in an {@link Optional} if the value is a {@link
+     * ValueNode} or returns an empty {@link Optional} otherwise.
      *
      * @param name The name of the parameter.
      * @return An {@link Optional} wrapping the result of {@link #get(String)}
      */
     default Optional<ValueNode> getNode(String name) {
-      return Optional.of(get(name))
-          .map(v -> v instanceof ValueNode ? (ValueNode) v : null);
+      return Optional.of(get(name)).map(v -> v instanceof ValueNode ? (ValueNode) v : null);
     }
   }
 }

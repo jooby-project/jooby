@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -10,7 +10,7 @@ import java.security.Provider;
 /**
  * Allow to configure a custom SSLContext provider. Default SSL Context is JDK specific.
  *
- * OpenSSL (via Conscryt) is available as separated dependency (jooby-conscrypt).
+ * <p>OpenSSL (via Conscryt) is available as separated dependency (jooby-conscrypt).
  *
  * @author edgar.
  */

@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package kt
 
 import examples.Pet
@@ -8,14 +13,9 @@ import io.jooby.body
 import io.jooby.require
 import io.swagger.v3.oas.annotations.Operation
 
+class KtRouteRef : Kooby({ post("/", ::createPetRef) })
 
-class KtRouteRef : Kooby({
-
-  post("/", ::createPetRef)
-
-})
-
-@Operation(summary = "Create a Pet",  description = "aaa")
+@Operation(summary = "Create a Pet", description = "aaa")
 fun createPetRef(ctx: Context) {
   val repo = ctx.require(PetRepo::class)
   val pet = ctx.body<Pet>()

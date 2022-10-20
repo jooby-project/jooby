@@ -1,4 +1,20 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.guice;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -12,17 +28,6 @@ import com.typesafe.config.ConfigFactory;
 import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class JoobyModuleTest {
   @Test
@@ -48,13 +53,20 @@ public class JoobyModuleTest {
 
     LinkedBindingBuilder emptyListBinding = mock(LinkedBindingBuilder.class);
     emptyListBinding.toInstance(emptyList);
-    when(binder.bind(Key.get(Types.listOf(String.class), Names.named("some")))).thenReturn(emptyListBinding);
-    when(binder.bind(Key.get(Types.listOf(Integer.class), Names.named("some")))).thenReturn(emptyListBinding);
-    when(binder.bind(Key.get(Types.listOf(Long.class), Names.named("some")))).thenReturn(emptyListBinding);
-    when(binder.bind(Key.get(Types.listOf(Float.class), Names.named("some")))).thenReturn(emptyListBinding);
-    when(binder.bind(Key.get(Types.listOf(Double.class), Names.named("some")))).thenReturn(emptyListBinding);
-    when(binder.bind(Key.get(Types.listOf(Boolean.class), Names.named("some")))).thenReturn(emptyListBinding);
-    when(binder.bind(Key.get(Types.listOf(Object.class), Names.named("some")))).thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(String.class), Names.named("some"))))
+        .thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Integer.class), Names.named("some"))))
+        .thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Long.class), Names.named("some"))))
+        .thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Float.class), Names.named("some"))))
+        .thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Double.class), Names.named("some"))))
+        .thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Boolean.class), Names.named("some"))))
+        .thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Object.class), Names.named("some"))))
+        .thenReturn(emptyListBinding);
 
     ConstantBindingBuilder constantBindingBuilder = mock(ConstantBindingBuilder.class);
     constantBindingBuilder.to("");
@@ -66,5 +78,4 @@ public class JoobyModuleTest {
 
     module.configure(binder);
   }
-
 }

@@ -1,9 +1,11 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.utow;
+
+import java.nio.charset.StandardCharsets;
 
 import io.jooby.Context;
 import io.jooby.Router;
@@ -19,8 +21,6 @@ import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
 
-import java.nio.charset.StandardCharsets;
-
 public class UtowHandler implements HttpHandler {
   protected final Router router;
   private final long maxRequestSize;
@@ -34,7 +34,8 @@ public class UtowHandler implements HttpHandler {
     this.defaultHeaders = defaultHeaders;
   }
 
-  @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
+  @Override
+  public void handleRequest(HttpServerExchange exchange) throws Exception {
     UtowContext context = new UtowContext(exchange, router);
 
     /** default headers: */
@@ -58,13 +59,16 @@ public class UtowHandler implements HttpHandler {
         }
 
         /** Eager body parsing: */
-        FormDataParser parser = FormParserFactory.builder(false)
-            .addParser(new MultiPartParserDefinition(router.getTmpdir())
-                .setDefaultEncoding(StandardCharsets.UTF_8.name()))
-            .addParser(new FormEncodedDataDefinition()
-                .setDefaultEncoding(StandardCharsets.UTF_8.name()))
-            .build()
-            .createParser(exchange);
+        FormDataParser parser =
+            FormParserFactory.builder(false)
+                .addParser(
+                    new MultiPartParserDefinition(router.getTmpdir())
+                        .setDefaultEncoding(StandardCharsets.UTF_8.name()))
+                .addParser(
+                    new FormEncodedDataDefinition()
+                        .setDefaultEncoding(StandardCharsets.UTF_8.name()))
+                .build()
+                .createParser(exchange);
         if (parser == null) {
           // Read raw body
           Router.Match route = router.match(context);

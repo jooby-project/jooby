@@ -1,13 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,19 +16,19 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
+import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * <h1>Cross-origin resource sharing</h1>
- * <p>
- * Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources (e.g. fonts,
- * JavaScript, etc.) on a web page to be requested from another domain outside the domain from which
- * the resource originated.
- * </p>
  *
- * <p>
- * This class represent the available options for configure CORS in Jooby.
- * </p>
+ *
+ * <h1>Cross-origin resource sharing</h1>
+ *
+ * <p>Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources (e.g.
+ * fonts, JavaScript, etc.) on a web page to be requested from another domain outside the domain
+ * from which the resource originated.
+ *
+ * <p>This class represent the available options for configure CORS in Jooby.
  *
  * <h2>usage</h2>
  *
@@ -39,9 +38,7 @@ import static java.util.Objects.requireNonNull;
  * }
  * </pre>
  *
- * <p>
- * Previous example, adds a cors filter using the default cors options.
- * </p>
+ * <p>Previous example, adds a cors filter using the default cors options.
  *
  * @author edgar
  * @since 2.0.4
@@ -67,7 +64,8 @@ public class Cors {
       return predicate.test(value);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return values.toString();
     }
   }
@@ -243,8 +241,8 @@ public class Cors {
   }
 
   /**
-   * @return List of allowed headers. Default are: <code>X-Requested-With</code>,
-   *         <code>Content-Type</code>, <code>Accept</code> and <code>Origin</code>.
+   * @return List of allowed headers. Default are: <code>X-Requested-With</code>, <code>Content-Type
+   *     </code>, <code>Accept</code> and <code>Origin</code>.
    */
   public List<String> getHeaders() {
     return headers.values;
@@ -372,13 +370,13 @@ public class Cors {
   }
 
   private static Matcher<String> firstMatch(final List<String> values) {
-    List<Pattern> patterns = values.stream()
-        .map(Cors::rewrite)
-        .collect(Collectors.toList());
-    Predicate<String> predicate = it -> patterns.stream()
-        .filter(pattern -> pattern.matcher(it).matches())
-        .findFirst()
-        .isPresent();
+    List<Pattern> patterns = values.stream().map(Cors::rewrite).collect(Collectors.toList());
+    Predicate<String> predicate =
+        it ->
+            patterns.stream()
+                .filter(pattern -> pattern.matcher(it).matches())
+                .findFirst()
+                .isPresent();
 
     return new Matcher<>(values, predicate);
   }
@@ -386,5 +384,4 @@ public class Cors {
   private static Pattern rewrite(final String origin) {
     return Pattern.compile(origin.replace(".", "\\.").replace("*", ".*"), Pattern.CASE_INSENSITIVE);
   }
-
 }

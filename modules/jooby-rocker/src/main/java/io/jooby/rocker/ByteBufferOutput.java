@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -25,23 +25,17 @@ public class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
   public static final int BUFFER_SIZE = 4096;
 
   /**
-   * The maximum size of array to allocate.
-   * Some VMs reserve some header words in an array.
-   * Attempts to allocate larger arrays may result in
-   * OutOfMemoryError: Requested array size exceeds VM limit
+   * The maximum size of array to allocate. Some VMs reserve some header words in an array. Attempts
+   * to allocate larger arrays may result in OutOfMemoryError: Requested array size exceeds VM limit
    */
   private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
   private final ContentType contentType;
 
-  /**
-   * The buffer where data is stored.
-   */
+  /** The buffer where data is stored. */
   protected byte[] buf;
 
-  /**
-   * The number of valid bytes in the buffer.
-   */
+  /** The number of valid bytes in the buffer. */
   protected int count;
 
   ByteBufferOutput(ContentType contentType, int bufferSize) {
@@ -53,19 +47,23 @@ public class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
     count = 0;
   }
 
-  @Override public ContentType getContentType() {
+  @Override
+  public ContentType getContentType() {
     return contentType;
   }
 
-  @Override public Charset getCharset() {
+  @Override
+  public Charset getCharset() {
     return StandardCharsets.UTF_8;
   }
 
-  @Override public ByteBufferOutput w(String string) {
+  @Override
+  public ByteBufferOutput w(String string) {
     return w(string.getBytes(StandardCharsets.UTF_8));
   }
 
-  @Override public ByteBufferOutput w(byte[] bytes) {
+  @Override
+  public ByteBufferOutput w(byte[] bytes) {
     int len = bytes.length;
     ensureCapacity(count + len);
     System.arraycopy(bytes, 0, buf, count, len);
@@ -73,7 +71,8 @@ public class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
     return this;
   }
 
-  @Override public int getByteLength() {
+  @Override
+  public int getByteLength() {
     return count;
   }
 
@@ -105,8 +104,8 @@ public class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
   }
 
   /**
-   * Increases the capacity to ensure that it can hold at least the
-   * number of elements specified by the minimum capacity argument.
+   * Increases the capacity to ensure that it can hold at least the number of elements specified by
+   * the minimum capacity argument.
    *
    * @param minCapacity the desired minimum capacity
    */
@@ -127,9 +126,7 @@ public class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
     if (minCapacity < 0) {
       throw new OutOfMemoryError();
     }
-    return (minCapacity > MAX_ARRAY_SIZE)
-        ? Integer.MAX_VALUE
-        : MAX_ARRAY_SIZE;
+    return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
   }
 
   static RockerOutputFactory<ByteBufferOutput> factory(int bufferSize) {
@@ -141,7 +138,8 @@ public class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
     return new RockerOutputFactory<ByteBufferOutput>() {
       private final ThreadLocal<ByteBufferOutput> thread = new ThreadLocal<>();
 
-      @Override public ByteBufferOutput create(ContentType contentType, String charsetName) {
+      @Override
+      public ByteBufferOutput create(ContentType contentType, String charsetName) {
         ByteBufferOutput output = thread.get();
         if (output == null) {
           output = factory.create(contentType, charsetName);

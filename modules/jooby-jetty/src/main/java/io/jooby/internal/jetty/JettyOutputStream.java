@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -18,23 +18,28 @@ public class JettyOutputStream extends OutputStream {
     this.jetty = jetty;
   }
 
-  @Override public void write(byte[] b, int off, int len) throws IOException {
+  @Override
+  public void write(byte[] b, int off, int len) throws IOException {
     out.write(b, off, len);
   }
 
-  @Override public void write(byte[] b) throws IOException {
+  @Override
+  public void write(byte[] b) throws IOException {
     out.write(b);
   }
 
-  @Override public void write(int b) throws IOException {
+  @Override
+  public void write(int b) throws IOException {
     out.write(b);
   }
 
-  @Override public void flush() throws IOException {
+  @Override
+  public void flush() throws IOException {
     out.flush();
   }
 
-  @Override public void close() throws IOException {
+  @Override
+  public void close() throws IOException {
     try {
       out.close();
     } finally {

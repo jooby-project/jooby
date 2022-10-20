@@ -1,15 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Asset;
-import io.jooby.AssetSource;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -18,6 +13,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.Asset;
+import io.jooby.AssetSource;
 
 public class ClassPathAssetSource implements AssetSource {
 
@@ -40,7 +40,8 @@ public class ClassPathAssetSource implements AssetSource {
     isDir = isDirectory(loader, this.source);
   }
 
-  @Nullable @Override public Asset resolve(@NonNull String path) {
+  @Nullable @Override
+  public Asset resolve(@NonNull String path) {
     String fullpath;
     if (isDir) {
       fullpath = safePath(prefix + path);

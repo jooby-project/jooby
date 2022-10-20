@@ -1,26 +1,28 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.commons.mail;
 
-import com.typesafe.config.Config;
-import io.jooby.SneakyThrows;
+import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.ImageHtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static java.util.Collections.singletonList;
-import static java.util.Objects.requireNonNull;
+import com.typesafe.config.Config;
+import io.jooby.SneakyThrows;
 
 public class EmailFactory {
 
@@ -56,19 +58,23 @@ public class EmailFactory {
     ifset("debug", p -> email.setDebug(mail.getBoolean(p)));
     ifset("from", p -> email.setFrom(mail.getString(p)));
     ifset("hostName", p -> email.setHostName(mail.getString(p)));
-    ifset("msg", p -> {
-      if (email instanceof HtmlEmail) {
-        ((HtmlEmail) email).setHtmlMsg(mail.getString(p));
-      } else {
-        email.setMsg(mail.getString(p));
-      }
-    });
+    ifset(
+        "msg",
+        p -> {
+          if (email instanceof HtmlEmail) {
+            ((HtmlEmail) email).setHtmlMsg(mail.getString(p));
+          } else {
+            email.setMsg(mail.getString(p));
+          }
+        });
     ifset("replyTo", p -> email.setReplyTo(address(mail.getStringList(p))));
     ifset("sendPartial", p -> email.setSendPartial(mail.getBoolean(p)));
     ifset("smtpPort", p -> email.setSmtpPort(mail.getInt(p)));
-    ifset("socketConnectionTimeout",
+    ifset(
+        "socketConnectionTimeout",
         p -> email.setSocketConnectionTimeout((int) mail.getDuration(p, TimeUnit.MILLISECONDS)));
-    ifset("socketTimeout",
+    ifset(
+        "socketTimeout",
         p -> email.setSocketTimeout((int) mail.getDuration(p, TimeUnit.MILLISECONDS)));
     ifset("ssl.checkServerIdentity", p -> email.setSSLCheckServerIdentity(mail.getBoolean(p)));
     ifset("ssl.onConnect", p -> email.setSSLOnConnect(mail.getBoolean(p)));

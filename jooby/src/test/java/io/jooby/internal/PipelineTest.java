@@ -1,4 +1,18 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.reflect.Type;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
+import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 import io.jooby.ExecutionMode;
 import io.jooby.MessageEncoder;
@@ -16,34 +30,24 @@ import io.jooby.internal.handler.reactive.RxSingleHandler;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.jupiter.api.Test;
-import org.reactivestreams.Publisher;
-
-import java.lang.reflect.Type;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PipelineTest {
 
   @Test
   public void eventLoopDoesNothingOnSimpleTypes() {
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(String.class, h),
-        ExecutionMode.EVENT_LOOP);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof SendCharSequence, pipeline.toString());
-    assertTrue(pipeline.next() == h,
-        "found: " + pipeline.next() + ", expected: " + h.getClass());
+    assertTrue(pipeline.next() == h, "found: " + pipeline.next() + ", expected: " + h.getClass());
   }
 
   @Test
   public void eventLoopAlwaysDispatchToExecutorOnSimpleTypes() {
-    Executor executor = task -> {
-    };
+    Executor executor = task -> {};
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(String.class, h),
-        ExecutionMode.EVENT_LOOP, executor);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP, executor);
     assertTrue(pipeline instanceof DispatchHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof SendCharSequence);
@@ -54,23 +58,22 @@ public class PipelineTest {
   @Test
   public void eventLoopDetachOnCompletableFutures() {
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(CompletableFuture.class, h),
-        ExecutionMode.EVENT_LOOP);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(CompletableFuture.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof CompletionStageHandler);
     CompletionStageHandler reactive = (CompletionStageHandler) next;
-    assertTrue(reactive.next() == h,
-        "found: " + reactive.next() + ", expected: " + h.getClass());
+    assertTrue(reactive.next() == h, "found: " + reactive.next() + ", expected: " + h.getClass());
   }
 
   @Test
   public void eventLoopAlwaysDispatchToExecutorOnReactiveTypes() {
-    Executor executor = task -> {
-    };
+    Executor executor = task -> {};
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(CompletableFuture.class, h),
-        ExecutionMode.EVENT_LOOP, executor);
+    LinkedHandler pipeline =
+        (LinkedHandler)
+            pipeline(route(CompletableFuture.class, h), ExecutionMode.EVENT_LOOP, executor);
     assertTrue(pipeline instanceof DispatchHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);
@@ -83,40 +86,37 @@ public class PipelineTest {
   @Test
   public void eventLoopDetachOnRx2Single() {
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(Single.class, h),
-        ExecutionMode.EVENT_LOOP);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(Single.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof RxSingleHandler);
     RxSingleHandler reactive = (RxSingleHandler) next;
-    assertTrue(reactive.next() == h,
-        "found: " + reactive.next() + ", expected: " + h.getClass());
+    assertTrue(reactive.next() == h, "found: " + reactive.next() + ", expected: " + h.getClass());
   }
 
   @Test
   public void eventLoopDetachOnPublisher() {
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(Publisher.class, h),
-        ExecutionMode.EVENT_LOOP);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(Publisher.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof ReactivePublisherHandler, next.toString());
     ReactivePublisherHandler reactive = (ReactivePublisherHandler) next;
-    assertTrue(reactive.next() == h,
-        "found: " + reactive.next() + ", expected: " + h.getClass());
+    assertTrue(reactive.next() == h, "found: " + reactive.next() + ", expected: " + h.getClass());
   }
 
   @Test
   public void eventLoopDetachOnFlowable() {
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(Flowable.class, h),
-        ExecutionMode.EVENT_LOOP);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(Flowable.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof RxFlowableHandler);
     RxFlowableHandler reactive = (RxFlowableHandler) next;
-    assertTrue(reactive.next() == h,
-        "found: " + reactive.next() + ", expected: " + h.getClass());
+    assertTrue(reactive.next() == h, "found: " + reactive.next() + ", expected: " + h.getClass());
   }
 
   @Test
@@ -133,8 +133,8 @@ public class PipelineTest {
   @Test
   public void workerDetachOnCompletableFutures() {
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(CompletableFuture.class, h),
-        ExecutionMode.WORKER);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(CompletableFuture.class, h), ExecutionMode.WORKER);
     assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
@@ -173,8 +173,8 @@ public class PipelineTest {
   @Test
   public void workerDetachOnCompletableRxPublisher() {
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(Publisher.class, h),
-        ExecutionMode.WORKER);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(Publisher.class, h), ExecutionMode.WORKER);
     assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
@@ -186,11 +186,10 @@ public class PipelineTest {
 
   @Test
   public void workerAlwaysDispatchToExecutorOnSimpleTypes() {
-    Executor executor = task -> {
-    };
+    Executor executor = task -> {};
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(String.class, h), ExecutionMode.WORKER,
-        executor);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(String.class, h), ExecutionMode.WORKER, executor);
     assertTrue(pipeline instanceof DispatchHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof SendCharSequence);
@@ -200,11 +199,10 @@ public class PipelineTest {
 
   @Test
   public void workerAlwaysDispatchToExecutorOnReactiveType() {
-    Executor executor = task -> {
-    };
+    Executor executor = task -> {};
     Route.Handler h = ctx -> "OK";
-    LinkedHandler pipeline = (LinkedHandler) pipeline(route(CompletableFuture.class, h),
-        ExecutionMode.WORKER, executor);
+    LinkedHandler pipeline =
+        (LinkedHandler) pipeline(route(CompletableFuture.class, h), ExecutionMode.WORKER, executor);
     assertTrue(pipeline instanceof DispatchHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);

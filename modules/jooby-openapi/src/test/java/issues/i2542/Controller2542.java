@@ -1,7 +1,11 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i2542;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
-
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -17,7 +21,10 @@ public class Controller2542 {
   }
 
   @GET("/2542/annotation")
-  @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = byte.class, nullable = true))))
+  @ApiResponse(
+      content =
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = byte.class, nullable = true))))
   public byte[] byteArrayWithAnnotation() {
     return new byte[0];
   }

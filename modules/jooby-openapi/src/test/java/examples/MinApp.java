@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
 
 import io.jooby.Context;
@@ -13,27 +18,30 @@ public class MinApp extends Jooby {
   {
     setContextPath("/myapp");
 
-    path("/api/pets", () -> {
+    path(
+        "/api/pets",
+        () -> {
+          get(
+              "/",
+              ctx -> {
+                PetRepo repo = require(PetRepo.class);
+                PetQuery query = ctx.query(PetQuery.class);
 
-      get("/", ctx -> {
-        PetRepo repo = require(PetRepo.class);
-        PetQuery query = ctx.query(PetQuery.class);
+                return repo.pets(query);
+              });
 
-        return repo.pets(query);
-      });
+          get("/{id}", this::findPetById);
 
-      get("/{id}", this::findPetById);
+          post("/", this::createPet);
 
-      post("/", this::createPet);
+          put("/", this::updatePet);
 
-      put("/", this::updatePet);
+          patch("/", this::updatePet);
 
-      patch("/", this::updatePet);
+          delete("/{id}", this::deletePet);
 
-      delete("/{id}", this::deletePet);
-
-      post("/form", this::formPet);
-    });
+          post("/form", this::formPet);
+        });
   }
 
   public Pet formPet(Context context) {
@@ -69,8 +77,7 @@ public class MinApp extends Jooby {
       summary = "Find a pet by ID",
       description = "Find a pet by ID or throws a 404",
       tags = {"find", "query"},
-      parameters = @Parameter(description = "Pet ID", in = ParameterIn.PATH)
-  )
+      parameters = @Parameter(description = "Pet ID", in = ParameterIn.PATH))
   public Pet findPetById(Context ctx) {
     PetRepo repo = require(PetRepo.class);
     long id = ctx.path("id").longValue();

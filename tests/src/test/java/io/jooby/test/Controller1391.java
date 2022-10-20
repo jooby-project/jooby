@@ -1,9 +1,14 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.test;
+
+import java.util.List;
 
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
-
-import java.util.List;
 
 @Path("/1391")
 public class Controller1391 {

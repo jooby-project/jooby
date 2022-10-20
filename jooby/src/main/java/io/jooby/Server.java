@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -22,16 +22,15 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
- * Web server contract. Defines operations to start, join and stop a web server. Jooby comes
- * with three web server implementation: Jetty, Netty and Undertow.
+ * Web server contract. Defines operations to start, join and stop a web server. Jooby comes with
+ * three web server implementation: Jetty, Netty and Undertow.
  *
- * A web server is automatically discovered using the Java Service Loader API. All you need is to
+ * <p>A web server is automatically discovered using the Java Service Loader API. All you need is to
  * add the server dependency to your project classpath.
  *
- * When service loader is not an option or do you want to manually bootstrap a server:
+ * <p>When service loader is not an option or do you want to manually bootstrap a server:
  *
  * <pre>{@code
- *
  * Server server = new Netty(); // or Jetty or Utow
  *
  * App app = new App();
@@ -49,33 +48,32 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  */
 public interface Server {
 
-  /**
-   * Base class for server.
-   */
+  /** Base class for server. */
   abstract class Base implements Server {
 
-    private static final Predicate<Throwable> CONNECTION_LOST = cause -> {
-      if (cause instanceof IOException) {
-        String message = cause.getMessage();
-        if (message != null) {
-          String msg = message.toLowerCase();
-          return msg.contains("reset by peer")
-              || msg.contains("broken pipe")
-              || msg.contains("forcibly closed")
-              || msg.contains("connection reset");
-        }
-      }
-      return (cause instanceof ClosedChannelException) || (cause instanceof EOFException);
-    };
+    private static final Predicate<Throwable> CONNECTION_LOST =
+        cause -> {
+          if (cause instanceof IOException) {
+            String message = cause.getMessage();
+            if (message != null) {
+              String msg = message.toLowerCase();
+              return msg.contains("reset by peer")
+                  || msg.contains("broken pipe")
+                  || msg.contains("forcibly closed")
+                  || msg.contains("connection reset");
+            }
+          }
+          return (cause instanceof ClosedChannelException) || (cause instanceof EOFException);
+        };
 
-    private static final Predicate<Throwable> ADDRESS_IN_USE = cause ->
-      (cause instanceof BindException)
-          || (Optional.ofNullable(cause)
-              .map(Throwable::getMessage)
-              .map(String::toLowerCase)
-              .filter(msg -> msg.contains("address already in use"))
-              .isPresent()
-          );
+    private static final Predicate<Throwable> ADDRESS_IN_USE =
+        cause ->
+            (cause instanceof BindException)
+                || (Optional.ofNullable(cause)
+                    .map(Throwable::getMessage)
+                    .map(String::toLowerCase)
+                    .filter(msg -> msg.contains("address already in use"))
+                    .isPresent());
 
     private static final List<Predicate<Throwable>> connectionLostListeners =
         new CopyOnWriteArrayList<>(singletonList(CONNECTION_LOST));
@@ -83,8 +81,8 @@ public interface Server {
     private static final List<Predicate<Throwable>> addressInUseListeners =
         new CopyOnWriteArrayList<>(singletonList(ADDRESS_IN_USE));
 
-    private static final boolean useShutdownHook = Boolean
-        .parseBoolean(System.getProperty("jooby.useShutdownHook", "true"));
+    private static final boolean useShutdownHook =
+        Boolean.parseBoolean(System.getProperty("jooby.useShutdownHook", "true"));
 
     private AtomicBoolean stopping = new AtomicBoolean();
 

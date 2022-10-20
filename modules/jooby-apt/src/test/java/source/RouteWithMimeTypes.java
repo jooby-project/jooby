@@ -1,14 +1,19 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package source;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Arrays;
 
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.annotations.Consumes;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Produces;
-
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Produces("text/produces")
 @Consumes("text/consumes")
@@ -20,7 +25,9 @@ public class RouteWithMimeTypes {
     return ctx.getRequestPath();
   }
 
-  @GET(value = "/consumes2", consumes = {"application/json", "application/xml"})
+  @GET(
+      value = "/consumes2",
+      consumes = {"application/json", "application/xml"})
   public String consumes2(Context ctx) {
     assertEquals(Arrays.asList(MediaType.json, MediaType.xml), ctx.getRoute().getConsumes());
     return ctx.getRequestPath();

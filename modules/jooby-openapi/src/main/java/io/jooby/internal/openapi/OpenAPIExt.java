@@ -1,14 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.jooby.SneakyThrows;
-import io.swagger.v3.core.util.Yaml;
-import io.swagger.v3.oas.models.OpenAPI;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,14 +13,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.jooby.SneakyThrows;
+import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.oas.models.OpenAPI;
+
 public class OpenAPIExt extends OpenAPI {
-  @JsonIgnore
-  private List<OperationExt> operations = Collections.emptyList();
+  @JsonIgnore private List<OperationExt> operations = Collections.emptyList();
 
-  @JsonIgnore
-  private String source;
+  @JsonIgnore private String source;
 
-  public static Optional<OpenAPI> fromTemplate(Path basedir, ClassLoader classLoader, String templateName) {
+  public static Optional<OpenAPI> fromTemplate(
+      Path basedir, ClassLoader classLoader, String templateName) {
     try {
       Path path = basedir.resolve("conf").resolve(templateName);
       if (Files.exists(path)) {

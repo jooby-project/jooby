@@ -1,28 +1,30 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.banner;
 
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import org.slf4j.Logger;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import jakarta.inject.Provider;
-import java.util.Optional;
-
 import static com.github.lalyos.jfiglet.FigletFont.convertOneLine;
 import static io.jooby.ServiceKey.key;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Optional;
+
+import org.slf4j.Logger;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import jakarta.inject.Provider;
+
 /**
+ *
+ *
  * <h1>banner</h1>
- * <p>
- * Prints out an ASCII art banner on startup using
- * <a href="https://github.com/lalyos/jfiglet">jfiglet</a>.
- * </p>
+ *
+ * <p>Prints out an ASCII art banner on startup using <a
+ * href="https://github.com/lalyos/jfiglet">jfiglet</a>.
  *
  * <h2>usage</h2>
  *
@@ -34,10 +36,8 @@ import static java.util.Objects.requireNonNull;
  * }
  * }</pre>
  *
- * <p>
- * Prints out the value of <code>application.name</code> which here is <code>myapp</code>. Or you
+ * <p>Prints out the value of <code>application.name</code> which here is <code>myapp</code>. Or you
  * can specify the text to prints out:
- * </p>
  *
  * <pre>{@code
  * package com.myapp;
@@ -48,9 +48,8 @@ import static java.util.Objects.requireNonNull;
  * }</pre>
  *
  * <h2>font</h2>
- * <p>
- * You can pick and use the font of your choice via {@link #font(String)} option:
- * </p>
+ *
+ * <p>You can pick and use the font of your choice via {@link #font(String)} option:
  *
  * <pre>{@code
  * package com.myapp;
@@ -60,10 +59,8 @@ import static java.util.Objects.requireNonNull;
  * }
  * }</pre>
  *
- * <p>
- * Font are distributed within the library inside the <code>/flf</code> classpath folder. A full
+ * <p>Font are distributed within the library inside the <code>/flf</code> classpath folder. A full
  * list of fonts is available <a href="http://patorjk.com/software/taag">here</a>.
- * </p>
  *
  * @author edgar
  * @since 2.0.0
@@ -85,9 +82,7 @@ public class BannerModule implements Extension {
     this.text = Optional.of(text);
   }
 
-  /**
-   * Default banner, defined by <code>application.name</code>.
-   */
+  /** Default banner, defined by <code>application.name</code>. */
   public BannerModule() {
     this.text = Optional.empty();
   }
@@ -98,13 +93,14 @@ public class BannerModule implements Extension {
     String text = this.text.orElseGet(application::getName);
     String version = application.getVersion();
 
-    Provider<String> ascii = () -> {
-      try {
-        return rtrim(convertOneLine(fontPath(font), text));
-      } catch (Throwable t) {
-        return text;
-      }
-    };
+    Provider<String> ascii =
+        () -> {
+          try {
+            return rtrim(convertOneLine(fontPath(font), text));
+          } catch (Throwable t) {
+            return text;
+          }
+        };
 
     application.getServices().put(key(String.class, "application.banner"), ascii);
 

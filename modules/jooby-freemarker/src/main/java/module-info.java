@@ -4,7 +4,6 @@
  * Copyright 2014 Edgar Espina
  */
 module io.jooby.freemarker {
-
   exports io.jooby.freemarker;
 
   requires io.jooby;

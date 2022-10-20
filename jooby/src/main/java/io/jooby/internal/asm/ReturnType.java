@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -36,23 +36,23 @@ public class ReturnType {
 
   private static final Predicate<AbstractInsnNode> LINE_NUMBER = LineNumberNode.class::isInstance;
 
-  private static final Predicate<AbstractInsnNode> KT_INTERNAL = it -> {
-    if (it instanceof MethodInsnNode) {
-      return ((MethodInsnNode) it).owner.startsWith("kotlin/jvm/internal");
-    }
-    return false;
-  };
+  private static final Predicate<AbstractInsnNode> KT_INTERNAL =
+      it -> {
+        if (it instanceof MethodInsnNode) {
+          return ((MethodInsnNode) it).owner.startsWith("kotlin/jvm/internal");
+        }
+        return false;
+      };
 
-  private static final Predicate<AbstractInsnNode> IGNORE = KT_INTERNAL
-      .or(LABEL)
-      .or(LINE_NUMBER);
+  private static final Predicate<AbstractInsnNode> IGNORE = KT_INTERNAL.or(LABEL).or(LINE_NUMBER);
 
-  private static final Predicate<AbstractInsnNode> KT_LDC = it -> {
-    if (it instanceof LdcInsnNode) {
-      return it.getPrevious() != null && it.getPrevious().getOpcode() == Opcodes.DUP;
-    }
-    return false;
-  };
+  private static final Predicate<AbstractInsnNode> KT_LDC =
+      it -> {
+        if (it instanceof LdcInsnNode) {
+          return it.getPrevious() != null && it.getPrevious().getOpcode() == Opcodes.DUP;
+        }
+        return false;
+      };
 
   public static java.lang.reflect.Type find(TypeParser typeParser, MethodNode node) {
     List<AbstractInsnNode> returns = findReturns(node);
@@ -68,25 +68,26 @@ public class ReturnType {
           types.add(typeParser.parseTypeDescriptor(Type.getReturnType(call.desc).getDescriptor()));
         }
       } else if (previous instanceof VarInsnNode) {
-        localVariable(typeParser, node, (VarInsnNode) previous)
-            .ifPresent(types::add);
+        localVariable(typeParser, node, (VarInsnNode) previous).ifPresent(types::add);
       } else if (previous instanceof InvokeDynamicInsnNode) {
-        // visitInvokeDynamicInsn("call", "()Ljava/util/concurrent/Callable;", new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory", "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;", false), new Object[]{Type.getType("()Ljava/lang/Object;"), new Handle(Opcodes.H_INVOKESTATIC, "io/jooby/internal/ReturnTypeTest", "lambda$null$11", "()Ljava/lang/Character;", false), Type.getType("()Ljava/lang/Character;")});
+        // visitInvokeDynamicInsn("call", "()Ljava/util/concurrent/Callable;", new
+        // Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory", "metafactory",
+        // "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;", false), new Object[]{Type.getType("()Ljava/lang/Object;"), new Handle(Opcodes.H_INVOKESTATIC, "io/jooby/internal/ReturnTypeTest", "lambda$null$11", "()Ljava/lang/Character;", false), Type.getType("()Ljava/lang/Character;")});
         // (Callable<Character>) () -> 'x'
         InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) previous;
-        String handleDescriptor = Stream.of(invokeDynamic.bsmArgs)
-            .filter(Handle.class::isInstance)
-            .map(Handle.class::cast)
-            .findFirst()
-            .map(h -> {
-              String desc = Type.getReturnType(h.getDesc()).getDescriptor();
-              return "V".equals(desc) ? "java/lang/Object" : desc;
-            })
-            .orElse(null);
+        String handleDescriptor =
+            Stream.of(invokeDynamic.bsmArgs)
+                .filter(Handle.class::isInstance)
+                .map(Handle.class::cast)
+                .findFirst()
+                .map(
+                    h -> {
+                      String desc = Type.getReturnType(h.getDesc()).getDescriptor();
+                      return "V".equals(desc) ? "java/lang/Object" : desc;
+                    })
+                .orElse(null);
         // Ljava/util/concurrent/Callable;
-        String descriptor = Type
-            .getReturnType(invokeDynamic.desc)
-            .getDescriptor();
+        String descriptor = Type.getReturnType(invokeDynamic.desc).getDescriptor();
         if (handleDescriptor != null) {
           // Handle: ()Ljava/lang/Character;
           if (descriptor.endsWith(";")) {
@@ -106,16 +107,17 @@ public class ReturnType {
       } else {
         // array
         switch (previous.getOpcode()) {
-          case Opcodes.NEWARRAY: {
-            ofNullable(primitiveEmptyArray(previous))
-                .ifPresent(types::add);
-          }
-          break;
-          case Opcodes.ANEWARRAY: {
-            TypeInsnNode typeInsn = (TypeInsnNode) previous;
-            types.add(typeParser.parseTypeDescriptor("[" + typeInsn.desc));
-          }
-          break;
+          case Opcodes.NEWARRAY:
+            {
+              ofNullable(primitiveEmptyArray(previous)).ifPresent(types::add);
+            }
+            break;
+          case Opcodes.ANEWARRAY:
+            {
+              TypeInsnNode typeInsn = (TypeInsnNode) previous;
+              types.add(typeParser.parseTypeDescriptor("[" + typeInsn.desc));
+            }
+            break;
           case Opcodes.BASTORE:
             types.add(boolean[].class);
             break;
@@ -141,10 +143,11 @@ public class ReturnType {
             return Insns.previous(previous)
                 .filter(e -> e.getOpcode() == Opcodes.ANEWARRAY)
                 .findFirst()
-                .map(e -> {
-                  TypeInsnNode typeInsn = (TypeInsnNode) e;
-                  return typeParser.parseTypeDescriptor("[" + typeInsn.desc);
-                })
+                .map(
+                    e -> {
+                      TypeInsnNode typeInsn = (TypeInsnNode) e;
+                      return typeParser.parseTypeDescriptor("[" + typeInsn.desc);
+                    })
                 .orElse(Object.class);
         }
       }
@@ -202,14 +205,12 @@ public class ReturnType {
     return result;
   }
 
-  private static Optional<java.lang.reflect.Type> localVariable(TypeParser typeParser, MethodNode m,
-      VarInsnNode varInsn) {
+  private static Optional<java.lang.reflect.Type> localVariable(
+      TypeParser typeParser, MethodNode m, VarInsnNode varInsn) {
     if (varInsn.getOpcode() == Opcodes.ALOAD) {
       List<LocalVariableNode> vars = m.localVariables;
-      LocalVariableNode var = vars.stream()
-          .filter(v -> v.index == varInsn.var)
-          .findFirst()
-          .orElse(null);
+      LocalVariableNode var =
+          vars.stream().filter(v -> v.index == varInsn.var).findFirst().orElse(null);
       if (var != null) {
         String signature = ofNullable(var.signature).orElse(var.desc);
         return Optional.of(typeParser.parseTypeDescriptor(signature));

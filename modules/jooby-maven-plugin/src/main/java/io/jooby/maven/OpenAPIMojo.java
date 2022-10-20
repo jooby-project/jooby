@@ -1,39 +1,41 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.maven;
 
-import io.jooby.openapi.OpenAPIGenerator;
-import io.swagger.v3.oas.models.OpenAPI;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
+import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-
-import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
-import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+import io.jooby.openapi.OpenAPIGenerator;
+import io.swagger.v3.oas.models.OpenAPI;
 
 /**
  * Generate an OpenAPI file from a jooby application.
  *
- * Usage: https://jooby.io/modules/openapi
+ * <p>Usage: https://jooby.io/modules/openapi
  *
  * @author edgar
  * @since 2.7.0
  */
-@Mojo(name = "openapi", threadSafe = true,
+@Mojo(
+    name = "openapi",
+    threadSafe = true,
     requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
     aggregator = true,
-    defaultPhase = PROCESS_CLASSES
-)
+    defaultPhase = PROCESS_CLASSES)
 public class OpenAPIMojo extends BaseMojo {
 
   @Parameter(property = "openAPI.includes")
@@ -42,7 +44,8 @@ public class OpenAPIMojo extends BaseMojo {
   @Parameter(property = "openAPI.excludes")
   private String excludes;
 
-  @Override protected void doExecute(@NonNull List<MavenProject> projects, @NonNull String mainClass)
+  @Override
+  protected void doExecute(@NonNull List<MavenProject> projects, @NonNull String mainClass)
       throws Exception {
     ClassLoader classLoader = createClassLoader(projects);
     Path outputDir = Paths.get(project.getBuild().getOutputDirectory());

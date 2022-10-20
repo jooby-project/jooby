@@ -1,12 +1,17 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.swagger;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Test;
 
 public class SwaggerResourceTest {
 
@@ -24,6 +29,7 @@ public class SwaggerResourceTest {
   }
 
   private String asset(String resource) throws IOException {
-    return IOUtils.toString(getClass().getResource("/swagger-ui/" + resource), StandardCharsets.UTF_8);
+    return IOUtils.toString(
+        getClass().getResource("/swagger-ui/" + resource), StandardCharsets.UTF_8);
   }
 }

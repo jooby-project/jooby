@@ -1,9 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.jackson;
+
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,6 +22,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.Extension;
@@ -24,19 +33,10 @@ import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.InputStream;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -58,10 +58,10 @@ import java.util.stream.Stream;
  * }
  * }</pre>
  *
- * For body decoding the client must specify the <code>Content-Type</code> header set to
- * <code>application/json</code>.
+ * For body decoding the client must specify the <code>Content-Type</code> header set to <code>
+ * application/json</code>.
  *
- * You can retrieve the {@link ObjectMapper} via require call:
+ * <p>You can retrieve the {@link ObjectMapper} via require call:
  *
  * <pre>{@code
  * {
@@ -112,16 +112,14 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     this(mapper, defaultTypes.getOrDefault(mapper.getClass().getSimpleName(), MediaType.json));
   }
 
-  /**
-   * Creates a Jackson module using the default object mapper from {@link #create(Module...)}.
-   */
+  /** Creates a Jackson module using the default object mapper from {@link #create(Module...)}. */
   public JacksonModule() {
     this(create());
   }
 
   /**
-   * Add a Jackson module to the object mapper. This method require a dependency injection
-   * framework which is responsible for provisioning a module instance.
+   * Add a Jackson module to the object mapper. This method require a dependency injection framework
+   * which is responsible for provisioning a module instance.
    *
    * @param module Module type.
    * @return This module.
@@ -131,7 +129,8 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     return this;
   }
 
-  @Override public void install(@NonNull Jooby application) {
+  @Override
+  public void install(@NonNull Jooby application) {
     application.decoder(mediaType, this);
     application.encoder(mediaType, this);
 
@@ -143,20 +142,23 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
 
-    application.onStarted(() -> {
-      for (Class<? extends Module> type : modules) {
-        Module module = application.require(type);
-        mapper.registerModule(module);
-      }
-    });
+    application.onStarted(
+        () -> {
+          for (Class<? extends Module> type : modules) {
+            Module module = application.require(type);
+            mapper.registerModule(module);
+          }
+        });
   }
 
-  @Override public byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  @Override
+  public byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     ctx.setDefaultResponseType(mediaType);
     return mapper.writer().writeValueAsBytes(value);
   }
 
-  @Override public Object decode(Context ctx, Type type) throws Exception {
+  @Override
+  public Object decode(Context ctx, Type type) throws Exception {
     Body body = ctx.body();
     if (body.isInMemory()) {
       if (type == JsonNode.class) {
@@ -174,17 +176,18 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   }
 
   /**
-   * Default object mapper. Install {@link Jdk8Module}, {@link JavaTimeModule},
-   * {@link ParameterNamesModule}.
+   * Default object mapper. Install {@link Jdk8Module}, {@link JavaTimeModule}, {@link
+   * ParameterNamesModule}.
    *
    * @param modules Extra/additional modules to install.
    * @return Object mapper instance.
    */
   public static @NonNull ObjectMapper create(Module... modules) {
-    JsonMapper.Builder builder = JsonMapper.builder()
-        .addModule(new ParameterNamesModule())
-        .addModule(new Jdk8Module())
-        .addModule(new JavaTimeModule());
+    JsonMapper.Builder builder =
+        JsonMapper.builder()
+            .addModule(new ParameterNamesModule())
+            .addModule(new Jdk8Module())
+            .addModule(new JavaTimeModule());
 
     Stream.of(modules).forEach(builder::addModule);
 

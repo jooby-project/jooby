@@ -1,22 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.metrics;
 
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Reporter;
-import com.codahale.metrics.health.HealthCheck;
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.typesafe.config.Config;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.Router;
-import io.jooby.ServiceRegistry;
+import static java.util.Objects.requireNonNull;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,7 +20,17 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Reporter;
+import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import io.jooby.Router;
+import io.jooby.ServiceRegistry;
 
 public class MetricsModule implements Extension {
 
@@ -45,7 +45,8 @@ public class MetricsModule implements Extension {
   private final Map<String, Class<? extends Metric>> metricClasses = new LinkedHashMap<>();
 
   private final Map<String, HealthCheck> healthChecks = new LinkedHashMap<>();
-  private final Map<String, Class<? extends HealthCheck>> healthCheckClasses = new LinkedHashMap<>();
+  private final Map<String, Class<? extends HealthCheck>> healthCheckClasses =
+      new LinkedHashMap<>();
 
   private final Set<BiFunction<MetricRegistry, Config, Reporter>> reporters = new LinkedHashSet<>();
 
@@ -59,10 +60,13 @@ public class MetricsModule implements Extension {
    * @param healthCheckRegistry Use the given healthCheckRegistry.
    * @param pattern A root pattern where to publish all the services. Default is: <code>/sys</code>.
    */
-  public MetricsModule(final MetricRegistry metricRegistry,
-      final HealthCheckRegistry healthCheckRegistry, final String pattern) {
+  public MetricsModule(
+      final MetricRegistry metricRegistry,
+      final HealthCheckRegistry healthCheckRegistry,
+      final String pattern) {
     this.metricRegistry = requireNonNull(metricRegistry, "Metric registry is required.");
-    this.healthCheckRegistry = requireNonNull(healthCheckRegistry, "Health check registry is required.");
+    this.healthCheckRegistry =
+        requireNonNull(healthCheckRegistry, "Health check registry is required.");
     this.pattern = requireNonNull(pattern, "A pattern is required.");
   }
 
@@ -72,7 +76,8 @@ public class MetricsModule implements Extension {
    * @param metricRegistry Use the given metricRegistry.
    * @param healthCheckRegistry Use the given healthCheckRegistry.
    */
-  public MetricsModule(final MetricRegistry metricRegistry, final HealthCheckRegistry healthCheckRegistry) {
+  public MetricsModule(
+      final MetricRegistry metricRegistry, final HealthCheckRegistry healthCheckRegistry) {
     this(metricRegistry, healthCheckRegistry, "/sys");
   }
 
@@ -113,22 +118,19 @@ public class MetricsModule implements Extension {
     this(metricRegistry, "/sys");
   }
 
-  /**
-   * Creates a new {@link MetricsModule}. Services will be available at: <code>/sys</code>.
-   */
+  /** Creates a new {@link MetricsModule}. Services will be available at: <code>/sys</code>. */
   public MetricsModule() {
     this("/sys");
   }
 
   /**
-   * Append a simple ping handler that results in a <code>200</code> responses with a
-   * <code>pong</code> body. See {@link PingHandler}
+   * Append a simple ping handler that results in a <code>200</code> responses with a <code>pong
+   * </code> body. See {@link PingHandler}
    *
    * @return This metrics module.
    */
   public MetricsModule ping() {
-    routes.add(router -> router
-        .get(this.pattern + "/ping", new PingHandler()));
+    routes.add(router -> router.get(this.pattern + "/ping", new PingHandler()));
 
     return this;
   }
@@ -139,15 +141,14 @@ public class MetricsModule implements Extension {
    * @return This metrics module.
    */
   public MetricsModule threadDump() {
-    routes.add(router -> router
-        .get(this.pattern + "/thread-dump", new ThreadDumpHandler()));
+    routes.add(router -> router.get(this.pattern + "/thread-dump", new ThreadDumpHandler()));
 
     return this;
   }
 
   /**
-   * Append a metric to the {@link MetricRegistry}, this call is identical to
-   * {@link MetricRegistry#register(String, Metric)}.
+   * Append a metric to the {@link MetricRegistry}, this call is identical to {@link
+   * MetricRegistry#register(String, Metric)}.
    *
    * @param name Name of the metric.
    * @param metric A metric object
@@ -173,8 +174,8 @@ public class MetricsModule implements Extension {
   }
 
   /**
-   * Append a health check to the {@link HealthCheckRegistry}. This call is identical to
-   * {@link HealthCheckRegistry#register(String, HealthCheck)}.
+   * Append a health check to the {@link HealthCheckRegistry}. This call is identical to {@link
+   * HealthCheckRegistry#register(String, HealthCheck)}.
    *
    * @param name Name of the check.
    * @param check A check object.
@@ -194,7 +195,8 @@ public class MetricsModule implements Extension {
    * @param <H> {@link HealthCheck} type.
    * @return This metrics module.
    */
-  public <H extends HealthCheck> MetricsModule healthCheck(final String name, final Class<H> check) {
+  public <H extends HealthCheck> MetricsModule healthCheck(
+      final String name, final Class<H> check) {
     healthCheckClasses.put(name, check);
     return this;
   }
@@ -239,24 +241,30 @@ public class MetricsModule implements Extension {
 
     final Set<Reporter> reporters = new HashSet<>();
 
-    application.onStarted(() -> {
-      metricClasses.forEach((name, clazz) -> metricRegistry.register(name, application.require(clazz)));
-      healthCheckClasses.forEach((name, clazz) -> healthCheckRegistry.register(name, application.require(clazz)));
+    application.onStarted(
+        () -> {
+          metricClasses.forEach(
+              (name, clazz) -> metricRegistry.register(name, application.require(clazz)));
+          healthCheckClasses.forEach(
+              (name, clazz) -> healthCheckRegistry.register(name, application.require(clazz)));
 
-      Config config = application.getConfig();
+          Config config = application.getConfig();
 
-      this.reporters.stream()
-          .map(r -> r.apply(metricRegistry, config))
-          .filter(Objects::nonNull)
-          .forEachOrdered(reporters::add);
-    });
+          this.reporters.stream()
+              .map(r -> r.apply(metricRegistry, config))
+              .filter(Objects::nonNull)
+              .forEachOrdered(reporters::add);
+        });
 
-    application.onStop(() -> reporters.forEach(r -> {
-      try {
-        r.close();
-      } catch (IOException e) {
-        application.getLog().error("close of {} resulted in error", r, e);
-      }
-    }));
+    application.onStop(
+        () ->
+            reporters.forEach(
+                r -> {
+                  try {
+                    r.close();
+                  } catch (IOException e) {
+                    application.getLog().error("close of {} resulted in error", r, e);
+                  }
+                }));
   }
 }

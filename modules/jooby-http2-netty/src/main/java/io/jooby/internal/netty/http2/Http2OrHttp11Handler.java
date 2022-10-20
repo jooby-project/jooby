@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -33,5 +33,4 @@ class Http2OrHttp11Handler extends ApplicationProtocolNegotiationHandler {
       throw new IllegalStateException("Unknown protocol: " + protocol);
     }
   }
-
 }

@@ -1,17 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.LocaleUtils;
-import io.jooby.internal.ParamLookupImpl;
-import io.jooby.internal.ReadOnlyContext;
-import io.jooby.internal.WebSocketSender;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -34,6 +27,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.internal.LocaleUtils;
+import io.jooby.internal.ParamLookupImpl;
+import io.jooby.internal.ReadOnlyContext;
+import io.jooby.internal.WebSocketSender;
 
 /**
  * HTTP context allows you to interact with the HTTP Request and manipulate the HTTP Response.
@@ -59,9 +59,7 @@ public interface Context extends Registry {
   String RFC1123_PATTERN = "EEE, dd MMM yyyy HH:mm:ss z";
 
   /** RFC1123 date formatter. */
-  DateTimeFormatter RFC1123 = DateTimeFormatter
-      .ofPattern(RFC1123_PATTERN, Locale.US)
-      .withZone(GMT);
+  DateTimeFormatter RFC1123 = DateTimeFormatter.ofPattern(RFC1123_PATTERN, Locale.US).withZone(GMT);
 
   /*
    * **********************************************************************************************
@@ -105,7 +103,7 @@ public interface Context extends Registry {
   /**
    * Forward executing to another route. We use the given path to find a matching route.
    *
-   * NOTE: the entire handler pipeline is executed (filter, decorator, etc.).
+   * <p>NOTE: the entire handler pipeline is executed (filter, decorator, etc.).
    *
    * @param path Path to forward the request.
    * @return This context.
@@ -262,6 +260,7 @@ public interface Context extends Registry {
 
   /**
    * Convert {@link #pathMap()} to a {@link ValueNode} object.
+   *
    * @return A value object.
    */
   @NonNull ValueNode path();
@@ -276,7 +275,9 @@ public interface Context extends Registry {
    * }</pre>
    *
    * A call to:
+   *
    * <pre>GET /678</pre>
+   *
    * Produces a path map like: <code>id: 678</code>
    *
    * @return Path map from path pattern.
@@ -326,7 +327,7 @@ public interface Context extends Registry {
    * without decoding it.
    *
    * @return Query string with the leading <code>?</code> or empty string. This is the raw query
-   *    string, without decoding it.
+   *     string, without decoding it.
    */
   @NonNull String queryString();
 
@@ -400,8 +401,8 @@ public interface Context extends Registry {
   @NonNull Map<String, List<String>> headerMultimap();
 
   /**
-   * True if the given type matches the `Accept` header. This method returns <code>true</code>
-   * if there is no accept header.
+   * True if the given type matches the `Accept` header. This method returns <code>true</code> if
+   * there is no accept header.
    *
    * @param contentType Content type to match.
    * @return True for matching type or if content header is absent.
@@ -409,8 +410,8 @@ public interface Context extends Registry {
   boolean accept(@NonNull MediaType contentType);
 
   /**
-   * Check if the accept type list matches the given produces list and return the most
-   * specific media type from produces list.
+   * Check if the accept type list matches the given produces list and return the most specific
+   * media type from produces list.
    *
    * @param produceTypes Produced types.
    * @return The most specific produces type.
@@ -442,12 +443,12 @@ public interface Context extends Registry {
   /**
    * Returns a list of locales that best matches the current request.
    *
-   * The first filter argument is the value of <code>Accept-Language</code> as a list of
-   * {@link Locale.LanguageRange} instances while the second argument is a list of supported
-   * locales specified by {@link Jooby#setLocales(List)} or by the
-   * <code>application.lang</code> configuration property.
+   * <p>The first filter argument is the value of <code>Accept-Language</code> as a list of {@link
+   * Locale.LanguageRange} instances while the second argument is a list of supported locales
+   * specified by {@link Jooby#setLocales(List)} or by the <code>application.lang</code>
+   * configuration property.
    *
-   * The next example returns a list of matching {@code Locale} instances using the filtering
+   * <p>The next example returns a list of matching {@code Locale} instances using the filtering
    * mechanism defined in RFC 4647:
    *
    * <pre>{@code
@@ -457,11 +458,14 @@ public interface Context extends Registry {
    * @param filter A locale filter.
    * @return A list of matching locales.
    */
-  @NonNull default List<Locale> locales(BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter) {
-    return filter.apply(header("Accept-Language")
-        .toOptional()
-        .flatMap(LocaleUtils::parseRanges)
-        .orElseGet(Collections::emptyList), getRouter().getLocales());
+  @NonNull default List<Locale> locales(
+      BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter) {
+    return filter.apply(
+        header("Accept-Language")
+            .toOptional()
+            .flatMap(LocaleUtils::parseRanges)
+            .orElseGet(Collections::emptyList),
+        getRouter().getLocales());
   }
 
   /**
@@ -477,13 +481,13 @@ public interface Context extends Registry {
   /**
    * Returns a locale that best matches the current request.
    *
-   * The first filter argument is the value of <code>Accept-Language</code> as a list of
-   * {@link Locale.LanguageRange} instances while the second argument is a list of supported
-   * locales specified by {@link Jooby#setLocales(List)} or by the
-   * <code>application.lang</code> configuration property.
+   * <p>The first filter argument is the value of <code>Accept-Language</code> as a list of {@link
+   * Locale.LanguageRange} instances while the second argument is a list of supported locales
+   * specified by {@link Jooby#setLocales(List)} or by the <code>application.lang</code>
+   * configuration property.
    *
-   * The next example returns a {@code Locale} instance for the best-matching language
-   * tag using the lookup mechanism defined in RFC 4647.
+   * <p>The next example returns a {@code Locale} instance for the best-matching language tag using
+   * the lookup mechanism defined in RFC 4647.
    *
    * <pre>{@code
    * ctx.locale(Locale::lookup)
@@ -493,22 +497,24 @@ public interface Context extends Registry {
    * @return A matching locale.
    */
   @NonNull default Locale locale(BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> filter) {
-    return filter.apply(header("Accept-Language")
-        .toOptional()
-        .flatMap(LocaleUtils::parseRanges)
-        .orElseGet(Collections::emptyList), getRouter().getLocales());
+    return filter.apply(
+        header("Accept-Language")
+            .toOptional()
+            .flatMap(LocaleUtils::parseRanges)
+            .orElseGet(Collections::emptyList),
+        getRouter().getLocales());
   }
 
   /**
-   * Returns a locale that best matches the current request or the default locale specified
-   * by {@link Jooby#setLocales(List)} or by the <code>application.lang</code>
-   * configuration property.
+   * Returns a locale that best matches the current request or the default locale specified by
+   * {@link Jooby#setLocales(List)} or by the <code>application.lang</code> configuration property.
    *
    * @return A matching locale.
    */
   @NonNull default Locale locale() {
-    return locale((priorityList, locales) -> Optional.ofNullable(Locale.lookup(priorityList, locales))
-        .orElse(locales.get(0)));
+    return locale(
+        (priorityList, locales) ->
+            Optional.ofNullable(Locale.lookup(priorityList, locales)).orElse(locales.get(0)));
   }
 
   /**
@@ -530,7 +536,7 @@ public interface Context extends Registry {
   /**
    * Recreates full/entire url of the current request using the <code>Host</code> header.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @return Full/entire request url using the <code>Host</code> header.
@@ -540,7 +546,7 @@ public interface Context extends Registry {
   /**
    * Recreates full/entire request url using the <code>Host</code> header with a custom path/suffix.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @param path Path or suffix to use, can also include query string parameters.
@@ -551,11 +557,11 @@ public interface Context extends Registry {
   /**
    * The IP address of the client or last proxy that sent the request.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
-   * @return The IP address of the client or last proxy that sent the request or
-   *   <code>empty string</code> for interrupted requests.
+   * @return The IP address of the client or last proxy that sent the request or <code>empty string
+   *     </code> for interrupted requests.
    */
   @NonNull String getRemoteAddress();
 
@@ -568,22 +574,22 @@ public interface Context extends Registry {
   @NonNull Context setRemoteAddress(@NonNull String remoteAddress);
 
   /**
-   * Return the host that this request was sent to, in general this will be the
-   * value of the Host header, minus the port specifier. Unless, it is set manually using the
-   * {@link #setHost(String)} method.
+   * Return the host that this request was sent to, in general this will be the value of the Host
+   * header, minus the port specifier. Unless, it is set manually using the {@link #setHost(String)}
+   * method.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
-   * @return Return the host that this request was sent to, in general this will be the
-   *     value of the Host header, minus the port specifier.
+   * @return Return the host that this request was sent to, in general this will be the value of the
+   *     Host header, minus the port specifier.
    */
   @NonNull String getHost();
 
   /**
    * Set the host (without the port value).
    *
-   * Please keep in mind this method doesn't alter/modify the <code>host</code> header.
+   * <p>Please keep in mind this method doesn't alter/modify the <code>host</code> header.
    *
    * @param host Host value.
    * @return This context.
@@ -591,14 +597,14 @@ public interface Context extends Registry {
   @NonNull Context setHost(@NonNull String host);
 
   /**
-   * Return the host and port that this request was sent to, in general this will be the
-   * value of the Host.
+   * Return the host and port that this request was sent to, in general this will be the value of
+   * the Host.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
-   * @return Return the host that this request was sent to, in general this will be the
-   *     value of the Host header.
+   * @return Return the host that this request was sent to, in general this will be the value of the
+   *     Host header.
    */
   @NonNull String getHostAndPort();
 
@@ -606,10 +612,10 @@ public interface Context extends Registry {
    * Return the port that this request was sent to. In general this will be the value of the Host
    * header, minus the host name.
    *
-   * If no host header is present, this method returns the value of {@link #getServerPort()}.
+   * <p>If no host header is present, this method returns the value of {@link #getServerPort()}.
    *
-   * @return Return the port that this request was sent to. In general this will be the value of
-   *    the Host header, minus the host name.
+   * @return Return the port that this request was sent to. In general this will be the value of the
+   *     Host header, minus the host name.
    */
   int getPort();
 
@@ -629,9 +635,11 @@ public interface Context extends Registry {
   @NonNull String getProtocol();
 
   /**
-   * The certificates presented by the client for mutual TLS. Empty if ssl is not enabled, or client authentication is not required.
+   * The certificates presented by the client for mutual TLS. Empty if ssl is not enabled, or client
+   * authentication is not required.
    *
-   * @return The certificates presented by the client for mutual TLS. Empty if ssl is not enabled, or client authentication is not required.
+   * @return The certificates presented by the client for mutual TLS. Empty if ssl is not enabled,
+   *     or client authentication is not required.
    */
   @NonNull List<Certificate> getClientCertificates();
 
@@ -650,7 +658,6 @@ public interface Context extends Registry {
   @NonNull String getServerHost();
 
   /**
-   *
    * Returns a boolean indicating whether this request was made using a secure channel, such as
    * HTTPS.
    *
@@ -682,8 +689,8 @@ public interface Context extends Registry {
    * Formdata as {@link ValueNode}. This method is for <code>application/form-url-encoded</code>
    * request.
    *
-   * @return Formdata as {@link ValueNode}. This method is for <code>application/form-url-encoded</code>
-   *    request.
+   * @return Formdata as {@link ValueNode}. This method is for <code>application/form-url-encoded
+   *     </code> request.
    */
   @NonNull Formdata form();
 
@@ -713,8 +720,7 @@ public interface Context extends Registry {
   @NonNull ValueNode form(@NonNull String name);
 
   /**
-   * Convert formdata to the given type. Only for <code>application/form-url-encoded</code>
-   * request.
+   * Convert formdata to the given type. Only for <code>application/form-url-encoded</code> request.
    *
    * @param type Target type.
    * @param <T> Target type.
@@ -737,9 +743,9 @@ public interface Context extends Registry {
   /**
    * Get a multipart field that matches the given name.
    *
-   * File upload retrieval is available using {@link Context#file(String)}.
+   * <p>File upload retrieval is available using {@link Context#file(String)}.
    *
-   * Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>multipart/form-data</code> request.
    *
    * @param name Field name.
    * @return Multipart value.
@@ -749,7 +755,7 @@ public interface Context extends Registry {
   /**
    * Convert multipart data to the given type.
    *
-   * Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>multipart/form-data</code> request.
    *
    * @param type Target type.
    * @param <T> Target type.
@@ -760,7 +766,7 @@ public interface Context extends Registry {
   /**
    * Multipart data as multi-value map.
    *
-   * Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>multipart/form-data</code> request.
    *
    * @return Multi-value map.
    */
@@ -769,7 +775,7 @@ public interface Context extends Registry {
   /**
    * Multipart data as single-value map.
    *
-   * Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>multipart/form-data</code> request.
    *
    * @return Single-value map.
    */
@@ -785,7 +791,7 @@ public interface Context extends Registry {
   /**
    * All file uploads that matches the given field name.
    *
-   * Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>multipart/form-data</code> request.
    *
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return All file uploads.
@@ -795,7 +801,7 @@ public interface Context extends Registry {
   /**
    * A file upload that matches the given field name.
    *
-   * Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>multipart/form-data</code> request.
    *
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return A file upload.
@@ -808,16 +814,15 @@ public interface Context extends Registry {
    */
 
   /**
-   * Searches for a parameter in the specified sources, in the specified
-   * order, returning the first non-missing {@link Value}, or a 'missing'
-   * {@link Value} if none found.
-   * <p>
-   * At least one {@link ParamSource} must be specified.
+   * Searches for a parameter in the specified sources, in the specified order, returning the first
+   * non-missing {@link Value}, or a 'missing' {@link Value} if none found.
+   *
+   * <p>At least one {@link ParamSource} must be specified.
    *
    * @param name The name of the parameter.
    * @param sources Sources to search in.
-   * @return The first non-missing {@link Value} or a {@link Value} representing
-   * a missing value if none found.
+   * @return The first non-missing {@link Value} or a {@link Value} representing a missing value if
+   *     none found.
    * @throws IllegalArgumentException If no {@link ParamSource}s are specified.
    */
   default Value lookup(String name, ParamSource... sources) {
@@ -833,14 +838,14 @@ public interface Context extends Registry {
   }
 
   /**
-   * Returns a {@link ParamLookup} instance which is a fluent interface covering
-   * the functionality of the {@link #lookup(String, ParamSource...)} method.
+   * Returns a {@link ParamLookup} instance which is a fluent interface covering the functionality
+   * of the {@link #lookup(String, ParamSource...)} method.
    *
    * <pre>{@code
-   *  Value foo = ctx.lookup()
-   *    .inQuery()
-   *    .inPath()
-   *    .get("foo");
+   * Value foo = ctx.lookup()
+   *   .inQuery()
+   *   .inPath()
+   *   .get("foo");
    * }</pre>
    *
    * @return A {@link ParamLookup} instance.
@@ -917,21 +922,20 @@ public interface Context extends Registry {
   boolean isInIoThread();
 
   /**
-   * Dispatch context to a worker threads. Worker threads allow to execute blocking code.
-   * The default worker thread pool is provided by web server or by application code using the
-   * {@link Jooby#setWorker(Executor)}.
+   * Dispatch context to a worker threads. Worker threads allow to execute blocking code. The
+   * default worker thread pool is provided by web server or by application code using the {@link
+   * Jooby#setWorker(Executor)}.
    *
-   * Example:
+   * <p>Example:
    *
    * <pre>{@code
+   * get("/", ctx -> {
+   *   return ctx.dispatch(() -> {
    *
-   *   get("/", ctx -> {
-   *     return ctx.dispatch(() -> {
+   *     // run blocking code
    *
-   *       // run blocking code
-   *
-   *     }):
-   *   });
+   *   }):
+   * });
    *
    * }</pre>
    *
@@ -943,18 +947,17 @@ public interface Context extends Registry {
   /**
    * Dispatch context to the given executor.
    *
-   * Example:
+   * <p>Example:
    *
    * <pre>{@code
+   * Executor executor = ...;
+   * get("/", ctx -> {
+   *   return ctx.dispatch(executor, () -> {
    *
-   *   Executor executor = ...;
-   *   get("/", ctx -> {
-   *     return ctx.dispatch(executor, () -> {
+   *     // run blocking code
    *
-   *       // run blocking code
-   *
-   *     }):
-   *   });
+   *   }):
+   * });
    *
    * }</pre>
    *
@@ -968,7 +971,7 @@ public interface Context extends Registry {
    * Tells context that response will be generated form a different thread. This operation is
    * similar to {@link #dispatch(Runnable)} except there is no thread dispatching here.
    *
-   * This operation integrates easily with third-party libraries like rxJava or others.
+   * <p>This operation integrates easily with third-party libraries like rxJava or others.
    *
    * @param next Application code.
    * @return This context.
@@ -979,7 +982,7 @@ public interface Context extends Registry {
   /**
    * Perform a websocket handsahke and upgrade a HTTP GET into a websocket protocol.
    *
-   * NOTE: This method is part of Public API, but shouldn't be used by client code.
+   * <p>NOTE: This method is part of Public API, but shouldn't be used by client code.
    *
    * @param handler Web socket initializer.
    * @return This context.
@@ -989,7 +992,7 @@ public interface Context extends Registry {
   /**
    * Perform a server-sent event handshake and upgrade HTTP GET into a Server-Sent protocol.
    *
-   * NOTE: This method is part of Public API, but shouldn't be used by client code.
+   * <p>NOTE: This method is part of Public API, but shouldn't be used by client code.
    *
    * @param handler Server-Sent event handler.
    * @return This context.
@@ -1179,8 +1182,9 @@ public interface Context extends Registry {
    * @return HTTP channel as output stream. Usually for chunked responses.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseStream(@NonNull MediaType contentType,
-      @NonNull SneakyThrows.Consumer<OutputStream> consumer) throws Exception;
+  @NonNull Context responseStream(
+      @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<OutputStream> consumer)
+      throws Exception;
 
   /**
    * HTTP response channel as output stream. Usually for chunked responses.
@@ -1189,8 +1193,7 @@ public interface Context extends Registry {
    * @return HTTP channel as output stream. Usually for chunked responses.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseStream(@NonNull SneakyThrows.Consumer<OutputStream> consumer)
-      throws Exception;
+  @NonNull Context responseStream(@NonNull SneakyThrows.Consumer<OutputStream> consumer) throws Exception;
 
   /**
    * HTTP response channel as chunker.
@@ -1202,7 +1205,7 @@ public interface Context extends Registry {
   /**
    * HTTP response channel as response writer.
    *
-   * @return HTTP channel as  response writer. Usually for chunked response.
+   * @return HTTP channel as response writer. Usually for chunked response.
    */
   @NonNull PrintWriter responseWriter();
 
@@ -1210,7 +1213,7 @@ public interface Context extends Registry {
    * HTTP response channel as response writer.
    *
    * @param contentType Content type.
-   * @return HTTP channel as  response writer. Usually for chunked response.
+   * @return HTTP channel as response writer. Usually for chunked response.
    */
   @NonNull PrintWriter responseWriter(@NonNull MediaType contentType);
 
@@ -1219,7 +1222,7 @@ public interface Context extends Registry {
    *
    * @param contentType Content type.
    * @param charset Charset.
-   * @return HTTP channel as  response writer. Usually for chunked response.
+   * @return HTTP channel as response writer. Usually for chunked response.
    */
   @NonNull PrintWriter responseWriter(@NonNull MediaType contentType, @Nullable Charset charset);
 
@@ -1230,8 +1233,7 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer)
-      throws Exception;
+  @NonNull Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
 
   /**
    * HTTP response channel as response writer.
@@ -1241,8 +1243,9 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseWriter(@NonNull MediaType contentType,
-      @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
+  @NonNull Context responseWriter(
+      @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
+      throws Exception;
 
   /**
    * HTTP response channel as response writer.
@@ -1253,8 +1256,11 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseWriter(@NonNull MediaType contentType, @Nullable Charset charset,
-      @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
+  @NonNull Context responseWriter(
+      @NonNull MediaType contentType,
+      @Nullable Charset charset,
+      @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
+      throws Exception;
 
   /**
    * Send a <code>302</code> response.
@@ -1390,7 +1396,7 @@ public interface Context extends Registry {
   /**
    * True if response already started.
    *
-   *  @return True if response already started.
+   * @return True if response already started.
    */
   boolean isResponseStarted();
 
@@ -1436,14 +1442,14 @@ public interface Context extends Registry {
   }
 
   /**
-   * Wrap a HTTP context and make it WebSocket friendly. Attempt to modify the HTTP response
-   * is completely ignored, except for {@link #send(byte[])} and {@link #send(String)} which
-   * are delegated to the given web socket.
+   * Wrap a HTTP context and make it WebSocket friendly. Attempt to modify the HTTP response is
+   * completely ignored, except for {@link #send(byte[])} and {@link #send(String)} which are
+   * delegated to the given web socket.
    *
-   * This context is necessary for creating a bridge between {@link MessageEncoder}
-   * and {@link WebSocket}.
+   * <p>This context is necessary for creating a bridge between {@link MessageEncoder} and {@link
+   * WebSocket}.
    *
-   * This method is part of Public API, but direct usage is discourage.
+   * <p>This method is part of Public API, but direct usage is discourage.
    *
    * @param ctx Originating context.
    * @param ws WebSocket.

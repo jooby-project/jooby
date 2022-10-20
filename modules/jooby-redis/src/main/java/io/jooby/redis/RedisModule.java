@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -7,12 +7,11 @@ package io.jooby.redis;
 
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
@@ -26,7 +25,7 @@ import io.lettuce.core.support.ConnectionPoolSupport;
 /**
  * Redis module: https://jooby.io/modules/redis.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -49,12 +48,13 @@ import io.lettuce.core.support.ConnectionPoolSupport;
  * to work with:
  *
  * <ul>
- *   <li>io.lettuce.core.RedisClient</li>
- *   <li>io.lettuce.core.api.StatefulRedisConnection</li>
- *   <li>io.lettuce.core.pubsub.StatefulRedisPubSubConnection</li>
+ *   <li>io.lettuce.core.RedisClient
+ *   <li>io.lettuce.core.api.StatefulRedisConnection
+ *   <li>io.lettuce.core.pubsub.StatefulRedisPubSubConnection
  * </ul>
  *
  * Alternative you can pass a redis URI:
+ *
  * <pre>
  *   install(new RedisModule("redis://localhost:6379"));
  * </pre>
@@ -67,9 +67,7 @@ public class RedisModule implements Extension {
   private RedisURI uri;
 
   /**
-   * Creates a new redis module. Value must be:
-   * - Valid redis URI; or
-   * - Property name
+   * Creates a new redis module. Value must be: - Valid redis URI; or - Property name
    *
    * @param value Redis URI or property name.
    */
@@ -84,6 +82,7 @@ public class RedisModule implements Extension {
 
   /**
    * Create a new redis module. The application configuration file must have a redis property, like:
+   *
    * <pre>
    *   redis = "redis://localhost:6379"
    * </pre>
@@ -92,24 +91,28 @@ public class RedisModule implements Extension {
     this("redis");
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     if (uri == null) {
       Config config = application.getConfig();
-      uri = Stream.of(name + ".uri", name)
-          .filter(config::hasPath)
-          .map(config::getString)
-          .map(RedisURI::create)
-          .findFirst()
-          .orElseThrow(() -> new IllegalStateException(
-              "Redis uri missing from application configuration: " + name));
+      uri =
+          Stream.of(name + ".uri", name)
+              .filter(config::hasPath)
+              .map(config::getString)
+              .map(RedisURI::create)
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new IllegalStateException(
+                          "Redis uri missing from application configuration: " + name));
     }
     RedisClient client = RedisClient.create(uri);
     StatefulRedisConnection<String, String> connection = client.connect();
     StatefulRedisPubSubConnection<String, String> connectPubSub = client.connectPubSub();
 
     GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
-    GenericObjectPool<StatefulRedisConnection<String, String>> pool = ConnectionPoolSupport
-        .createGenericObjectPool(() -> client.connect(), poolConfig);
+    GenericObjectPool<StatefulRedisConnection<String, String>> pool =
+        ConnectionPoolSupport.createGenericObjectPool(() -> client.connect(), poolConfig);
 
     // Close client and connection on shutdown
     application.onStop(pool::close);

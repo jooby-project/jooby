@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.regex.Matcher;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-
 import picocli.CommandLine;
 
 /**
@@ -21,23 +20,27 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(name = "set", description = "Set and save options in the ~/.jooby file")
 public class SetCmd extends Cmd {
-  @CommandLine.Spec
-  private CommandLine.Model.CommandSpec spec;
+  @CommandLine.Spec private CommandLine.Model.CommandSpec spec;
 
-  @CommandLine.Option(names = {"-w",
-      "--workspace"}, description = "Save the workspace directory. Projects are going to be created here")
+  @CommandLine.Option(
+      names = {"-w", "--workspace"},
+      description = "Save the workspace directory. Projects are going to be created here")
   private String workspace;
 
-  @CommandLine.Option(names = {"-f",
-      "--force"}, description = "Force creation of workspace")
+  @CommandLine.Option(
+      names = {"-f", "--force"},
+      description = "Force creation of workspace")
   private boolean force;
 
-  @Override public void run(@NonNull Context ctx) throws Exception {
+  @Override
+  public void run(@NonNull Context ctx) throws Exception {
     if (workspace != null) {
-      Path path = Paths.get(
-          workspace.replaceFirst("^~", Matcher.quoteReplacement(System.getProperty("user.home"))))
-          .normalize()
-          .toAbsolutePath();
+      Path path =
+          Paths.get(
+                  workspace.replaceFirst(
+                      "^~", Matcher.quoteReplacement(System.getProperty("user.home"))))
+              .normalize()
+              .toAbsolutePath();
       if (Files.exists(path)) {
         ctx.setWorkspace(path);
       } else {

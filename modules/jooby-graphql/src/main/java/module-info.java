@@ -9,7 +9,6 @@ module io.jooby.graphql {
   requires io.jooby;
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
-
   requires com.graphqljava;
   requires com.google.gson;
 }

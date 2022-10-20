@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -37,7 +37,6 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -110,8 +109,8 @@ public class ParserContext {
     this(source, new HashMap<>(), router, debug);
   }
 
-  private ParserContext(ClassSource source, Map<Type, ClassNode> nodes, Type router,
-      Set<DebugOption> debug) {
+  private ParserContext(
+      ClassSource source, Map<Type, ClassNode> nodes, Type router, Set<DebugOption> debug) {
     this.router = router;
     this.source = source;
     this.debug = Optional.ofNullable(debug).orElse(Collections.emptySet());
@@ -120,34 +119,34 @@ public class ParserContext {
     List<ObjectMapper> mappers = asList(Json.mapper(), Yaml.mapper());
     jacksonModules(source.getClassLoader(), mappers);
     this.converters = ModelConverters.getInstance();
-    mappers.stream()
-        .map(ModelConverterExt::new)
-        .forEach(converters::addConverter);
+    mappers.stream().map(ModelConverterExt::new).forEach(converters::addConverter);
   }
 
   private void jacksonModules(ClassLoader classLoader, List<ObjectMapper> mappers) {
     /** Kotlin module? */
     List<Module> modules = new ArrayList<>(2);
     try {
-      Module module = (Module) classLoader
-          .loadClass("com.fasterxml.jackson.module.kotlin.KotlinModule")
-          .newInstance();
+      Module module =
+          (Module)
+              classLoader
+                  .loadClass("com.fasterxml.jackson.module.kotlin.KotlinModule")
+                  .newInstance();
       modules.add(module);
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException x) {
       // Sshhhhh
     }
     /** Ignore some conflictive setter in Jooby API: */
-    modules.add(new SimpleModule("jooby-openapi") {
-      @Override public void setupModule(SetupContext context) {
-        super.setupModule(context);
-        context.insertAnnotationIntrospector(new ConflictiveSetter());
-      }
-    });
+    modules.add(
+        new SimpleModule("jooby-openapi") {
+          @Override
+          public void setupModule(SetupContext context) {
+            super.setupModule(context);
+            context.insertAnnotationIntrospector(new ConflictiveSetter());
+          }
+        });
     /** Java8/Optional: */
     modules.add(new Jdk8Module());
-    modules.forEach(module -> mappers
-        .forEach(mapper -> mapper.registerModule(module))
-    );
+    modules.forEach(module -> mappers.forEach(mapper -> mapper.registerModule(module)));
     /** Set class loader: */
     mappers.stream()
         .forEach(
@@ -171,9 +170,7 @@ public class ParserContext {
           .maximum(BigDecimal.valueOf(Byte.MAX_VALUE));
     }
     if (type == Character.class || type == char.class) {
-      return new StringSchema()
-          .minLength(0)
-          .maxLength(1);
+      return new StringSchema().minLength(0).maxLength(1);
     }
     if (type == Boolean.class || type == boolean.class) {
       return new BooleanSchema();
@@ -201,8 +198,9 @@ public class ParserContext {
     if (Collection.class.isAssignableFrom(type)) {
       return new ArraySchema();
     }
-    if (File.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || InputStream.class
-        .isAssignableFrom(type)) {
+    if (File.class.isAssignableFrom(type)
+        || Path.class.isAssignableFrom(type)
+        || InputStream.class.isAssignableFrom(type)) {
       return new BinarySchema();
     }
     if (FileUpload.class == type) {
@@ -229,11 +227,15 @@ public class ParserContext {
     if (Date.class == type || LocalDate.class == type) {
       return new DateSchema();
     }
-    if (LocalDateTime.class == type || Instant.class == type || OffsetDateTime.class == type
+    if (LocalDateTime.class == type
+        || Instant.class == type
+        || OffsetDateTime.class == type
         || ZonedDateTime.class == type) {
       return new DateTimeSchema();
     }
-    if (Period.class == type || Duration.class == type || Currency.class == type
+    if (Period.class == type
+        || Duration.class == type
+        || Currency.class == type
         || Locale.class == type) {
       return new StringSchema();
     }
@@ -257,15 +259,16 @@ public class ParserContext {
       if (resolvedSchema.schema == null) {
         throw new IllegalArgumentException("Unsupported type: " + type);
       }
-      schemaRef = new SchemaRef(resolvedSchema.schema,
-          RefUtils.constructRef(resolvedSchema.schema.getName()));
+      schemaRef =
+          new SchemaRef(
+              resolvedSchema.schema, RefUtils.constructRef(resolvedSchema.schema.getName()));
       schemas.put(type.getName(), schemaRef);
 
       if (resolvedSchema.referencedSchemas != null) {
         for (Map.Entry<String, Schema> e : resolvedSchema.referencedSchemas.entrySet()) {
           if (!e.getKey().equals(schemaRef.schema.getName())) {
-            SchemaRef dependency = new SchemaRef(e.getValue(),
-                RefUtils.constructRef(e.getValue().getName()));
+            SchemaRef dependency =
+                new SchemaRef(e.getValue(), RefUtils.constructRef(e.getValue().getName()));
             schemas.putIfAbsent(e.getKey(), dependency);
           }
         }
@@ -294,9 +297,9 @@ public class ParserContext {
   /**
    * TODO: This method should be private and replaced with {@link #schema(Type)}
    *
-   * There are some difference on how to handle array of primitives vs normal class names
-   * See https://github.com/jooby-project/jooby/issues/2542
-    */
+   * <p>There are some difference on how to handle array of primitives vs normal class names See
+   * https://github.com/jooby-project/jooby/issues/2542
+   */
   public Schema schema(String type) {
     if (isVoid(type)) {
       return null;

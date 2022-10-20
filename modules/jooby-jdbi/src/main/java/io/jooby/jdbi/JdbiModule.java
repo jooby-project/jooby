@@ -1,35 +1,37 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.jdbi;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+
+import javax.sql.DataSource;
+
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import io.jooby.internal.jdbi.HandleProvider;
 import io.jooby.internal.jdbi.SqlObjectProvider;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.inject.Provider;
-import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
 
 /**
- * Jdbi module:  https://jooby.io/modules/hikari.
+ * Jdbi module: https://jooby.io/modules/hikari.
  *
- * Usage:
+ * <p>Usage:
  *
- * - Add hikari and jdbi dependency
+ * <p>- Add hikari and jdbi dependency
  *
- * - Install them
+ * <p>- Install them
  *
  * <pre>{@code
  * {
@@ -68,7 +70,7 @@ import java.util.function.Function;
  *
  * The use of try-with-resources is required here. Handle must be closed once you finish.
  *
- * For automatic handle managment see the {@link TransactionalRequest} class.
+ * <p>For automatic handle managment see the {@link TransactionalRequest} class.
  *
  * @author edgar
  * @since 2.0.0
@@ -82,13 +84,13 @@ public class JdbiModule implements Extension {
   private List<Class> sqlObjects = Collections.emptyList();
 
   /**
-   * Creates a new Jdbi module using the <code>db</code> property key. This key must be
-   * present in the application configuration file, like:
+   * Creates a new Jdbi module using the <code>db</code> property key. This key must be present in
+   * the application configuration file, like:
    *
    * <pre>{@code
-   *  db.url = "jdbc:url"
-   *  db.user = dbuser
-   *  db.password = dbpass
+   * db.url = "jdbc:url"
+   * db.user = dbuser
+   * db.password = dbpass
    * }</pre>
    */
   public JdbiModule() {
@@ -106,8 +108,8 @@ public class JdbiModule implements Extension {
   }
 
   /**
-   * Creates a new Jdbi module. Use the default/first datasource and register objects using
-   * the <code>db</code> key.
+   * Creates a new Jdbi module. Use the default/first datasource and register objects using the
+   * <code>db</code> key.
    *
    * @param factory Jdbi factory.
    */
@@ -129,20 +131,20 @@ public class JdbiModule implements Extension {
   /**
    * Attach SQL objects to a jdbi handle.
    *
-   * This method simplify the injection or require of SQL objects. So, it is just a
-   * shortcut for {@link Handle#attach(Class)}. Due the SQL objects depends on a Handle this
-   * method is only available when the {@link TransactionalRequest} decorator is present.
+   * <p>This method simplify the injection or require of SQL objects. So, it is just a shortcut for
+   * {@link Handle#attach(Class)}. Due the SQL objects depends on a Handle this method is only
+   * available when the {@link TransactionalRequest} decorator is present.
    *
    * <pre>{@code
-   *   install(new JdbiModule()
-   *     .sqlObjects(UserDAO.class)
-   *   );
+   * install(new JdbiModule()
+   *   .sqlObjects(UserDAO.class)
+   * );
    *
-   *   decorator(new TransactionalRequest());
+   * decorator(new TransactionalRequest());
    *
-   *   get("/users", ctx -> {
-   *     UserDAO dao = require(UserDAO.class);
-   *   });
+   * get("/users", ctx -> {
+   *   UserDAO dao = require(UserDAO.class);
+   * });
    * }</pre>
    *
    * @param sqlObjects List of SQL object to register as services.
@@ -153,7 +155,8 @@ public class JdbiModule implements Extension {
     return this;
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     ServiceRegistry registry = application.getServices();
     Jdbi jdbi;
     if (factory != null) {

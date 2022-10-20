@@ -1,11 +1,23 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.freemarker;
 
+import static io.jooby.TemplateEngine.TEMPLATE_PATH;
+import static io.jooby.TemplateEngine.normalizePath;
+import static java.util.Arrays.asList;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
@@ -21,22 +33,10 @@ import io.jooby.ServiceRegistry;
 import io.jooby.SneakyThrows;
 import io.jooby.TemplateEngine;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-
-import static io.jooby.TemplateEngine.TEMPLATE_PATH;
-import static io.jooby.TemplateEngine.normalizePath;
-import static java.util.Arrays.asList;
-
 /**
  * Freemarker module: https://jooby.io/modules/freemarker.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -51,14 +51,14 @@ import static java.util.Arrays.asList;
  * }
  * }</pre>
  *
- * The template engine looks for a file-system directory: <code>views</code> in the current
- * user directory. If the directory doesn't exist, it looks for the same directory in the project
+ * The template engine looks for a file-system directory: <code>views</code> in the current user
+ * directory. If the directory doesn't exist, it looks for the same directory in the project
  * classpath.
  *
- * Template engine supports the following file extensions: <code>.ftl</code>,
- * <code>.ftl.html</code> and <code>.html</code>.
+ * <p>Template engine supports the following file extensions: <code>.ftl</code>, <code>.ftl.html
+ * </code> and <code>.html</code>.
  *
- * You can specify a different template location:
+ * <p>You can specify a different template location:
  *
  * <pre>{@code
  * {
@@ -70,7 +70,7 @@ import static java.util.Arrays.asList;
  *
  * The <code>mypath</code> location works in the same way: file-system or fallback to classpath.
  *
- * Direct access to {@link Configuration} is available via require call:
+ * <p>Direct access to {@link Configuration} is available via require call:
  *
  * <pre>{@code
  * {
@@ -87,9 +87,7 @@ import static java.util.Arrays.asList;
  */
 public class FreemarkerModule implements Extension {
 
-  /**
-   * Utility class for creating {@link Configuration} instances.
-   */
+  /** Utility class for creating {@link Configuration} instances. */
   public static class Builder {
 
     private TemplateLoader templateLoader;
@@ -166,37 +164,41 @@ public class FreemarkerModule implements Extension {
      */
     public @NonNull Configuration build(@NonNull Environment env) {
       try {
-        Configuration freemarker = new Configuration(
-            Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+        Configuration freemarker =
+            new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
         freemarker.setOutputFormat(outputFormat);
 
         /** Settings: */
         Config conf = env.getConfig();
         if (conf.hasPath("freemarker")) {
-          conf.getConfig("freemarker").root().unwrapped()
+          conf.getConfig("freemarker")
+              .root()
+              .unwrapped()
               .forEach((k, v) -> settings.put(k, v.toString()));
         }
 
         settings.putIfAbsent("defaultEncoding", "UTF-8");
         /** Cache storage: */
-        String defaultCacheStorage = env.isActive("dev", "test")
-            ? "freemarker.cache.NullCacheStorage"
-            : "soft";
+        String defaultCacheStorage =
+            env.isActive("dev", "test") ? "freemarker.cache.NullCacheStorage" : "soft";
         settings.putIfAbsent(Configuration.CACHE_STORAGE_KEY_CAMEL_CASE, defaultCacheStorage);
 
         freemarker.setSettings(settings);
 
         /** Template loader: */
         if (templateLoader == null) {
-          String templatesPathString = normalizePath(
-              env.getProperty(TEMPLATE_PATH, Optional.ofNullable(this.templatesPathString).orElse(TemplateEngine.PATH)));
+          String templatesPathString =
+              normalizePath(
+                  env.getProperty(
+                      TEMPLATE_PATH,
+                      Optional.ofNullable(this.templatesPathString).orElse(TemplateEngine.PATH)));
           templateLoader = defaultTemplateLoader(env, templatesPathString, templatesPath);
         }
         freemarker.setTemplateLoader(templateLoader);
 
         /** Object wrapper: */
-        DefaultObjectWrapperBuilder dowb = new DefaultObjectWrapperBuilder(
-            Configuration.VERSION_2_3_22);
+        DefaultObjectWrapperBuilder dowb =
+            new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_22);
         dowb.setExposeFields(true);
         freemarker.setObjectWrapper(dowb.build());
 
@@ -210,11 +212,12 @@ public class FreemarkerModule implements Extension {
       }
     }
 
-    private TemplateLoader defaultTemplateLoader(Environment env, String templatesPathString,
-        Path templatesPath) {
+    private TemplateLoader defaultTemplateLoader(
+        Environment env, String templatesPathString, Path templatesPath) {
       try {
-        Path templateDir = Optional.ofNullable(templatesPath)
-            .orElse(Paths.get(System.getProperty("user.dir"), templatesPathString));
+        Path templateDir =
+            Optional.ofNullable(templatesPath)
+                .orElse(Paths.get(System.getProperty("user.dir"), templatesPathString));
         if (Files.exists(templateDir)) {
           return new FileTemplateLoader(templateDir.toFile());
         }
@@ -243,8 +246,8 @@ public class FreemarkerModule implements Extension {
   }
 
   /**
-   * Freemarker module which look at the given path. It first look at the file-system or fallback
-   * to classpath.
+   * Freemarker module which look at the given path. It first look at the file-system or fallback to
+   * classpath.
    *
    * @param templatesPath Template path.
    */
@@ -261,19 +264,19 @@ public class FreemarkerModule implements Extension {
     this.templatesPath = templatesPath;
   }
 
-  /**
-   * Creates a new freemarker module using the default template path: <code>views</code>.
-   */
+  /** Creates a new freemarker module using the default template path: <code>views</code>. */
   public FreemarkerModule() {
     this(TemplateEngine.PATH);
   }
 
-  @Override public void install(@NonNull Jooby application) {
+  @Override
+  public void install(@NonNull Jooby application) {
     if (freemarker == null) {
-      freemarker = create()
-          .setTemplatesPath(templatesPathString)
-          .setTemplatesPath(templatesPath)
-          .build(application.getEnvironment());
+      freemarker =
+          create()
+              .setTemplatesPath(templatesPathString)
+              .setTemplatesPath(templatesPath)
+              .build(application.getEnvironment());
     }
     application.encoder(new FreemarkerTemplateEngine(freemarker, EXT));
 

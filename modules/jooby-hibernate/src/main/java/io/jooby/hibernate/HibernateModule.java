@@ -1,19 +1,25 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.hibernate;
 
-import com.typesafe.config.Config;
-import io.jooby.Environment;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.ServiceKey;
-import io.jooby.ServiceRegistry;
-import io.jooby.internal.hibernate.UnitOfWorkProvider;
-import io.jooby.internal.hibernate.ScanEnvImpl;
-import io.jooby.internal.hibernate.SessionServiceProvider;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+
 import org.hibernate.Session;
 import org.hibernate.SessionBuilder;
 import org.hibernate.SessionFactory;
@@ -27,30 +33,26 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
 
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Environment;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
+import io.jooby.internal.hibernate.ScanEnvImpl;
+import io.jooby.internal.hibernate.SessionServiceProvider;
+import io.jooby.internal.hibernate.UnitOfWorkProvider;
 import jakarta.inject.Provider;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Hibernate ORM module: https://jooby.io/modules/hibernate.
  *
- * Usage:
+ * <p>Usage:
  *
- * - Add hikari and hibernate dependency
+ * <p>- Add hikari and hibernate dependency
  *
- * - Install them
+ * <p>- Install them
  *
  * <pre>{@code
  * {
@@ -90,51 +92,51 @@ import java.util.stream.Stream;
  * persistent classes. To scan a different package use the {@link HibernateModule#scan(String...)}
  * method.
  *
- * To turn it off you need to specify all the persistent classes at creation time, using the
+ * <p>To turn it off you need to specify all the persistent classes at creation time, using the
  * {@link HibernateModule#HibernateModule(Class[])} constructor.
  *
- * It is important to close either an {@link EntityManager} or {@link Session} created manually
+ * <p>It is important to close either an {@link EntityManager} or {@link Session} created manually
  * from {@link javax.persistence.EntityManagerFactory} and {@link SessionFactory}.
  *
- * So code around session/entityManager looks like:
+ * <p>So code around session/entityManager looks like:
  *
  * <pre>{@code
- *   get("/", ctx -> {
- *     EntityManager em = require(EntityManager.class);
- *     Transaction trx = em.getTransaction();
- *     try {
- *       trx.begin();
+ * get("/", ctx -> {
+ *   EntityManager em = require(EntityManager.class);
+ *   Transaction trx = em.getTransaction();
+ *   try {
+ *     trx.begin();
  *
- *       // work with EntityManager compute a result
+ *     // work with EntityManager compute a result
  *
- *       trx.commit();
+ *     trx.commit();
  *
- *       return result;
- *     } catch(Exception x) {
- *       trx.rollback();
- *       throw x;
- *     } finally {
- *       em.close();
- *     }
- *   });
+ *     return result;
+ *   } catch(Exception x) {
+ *     trx.rollback();
+ *     throw x;
+ *   } finally {
+ *     em.close();
+ *   }
+ * });
  * }</pre>
  *
  * To avoid all these lines of code we do provide a {@link TransactionalRequest} decorator so code
  * looks more simple:
  *
  * <pre>{@code
- *   decorator(new TransactionalRequest());
+ * decorator(new TransactionalRequest());
  *
- *   get("/", ctx -> {
- *     EntityManager em = require(EntityManager.class);
- *     // work with EntityManager compute a result
- *     return result;
- *   });
+ * get("/", ctx -> {
+ *   EntityManager em = require(EntityManager.class);
+ *   // work with EntityManager compute a result
+ *   return result;
+ * });
  * }</pre>
  *
  * Transaction and lifecycle of session/entityManager is managed by {@link TransactionalRequest}.
  *
- * Complete documentation is available at: https://jooby.io/modules/hibernate.
+ * <p>Complete documentation is available at: https://jooby.io/modules/hibernate.
  *
  * @author edgar
  * @since 2.0.0
@@ -159,8 +161,8 @@ public class HibernateModule implements Extension {
   }
 
   /**
-   * Creates a new Hibernate module. Use the default/first datasource and register objects using
-   * the <code>db</code> key.
+   * Creates a new Hibernate module. Use the default/first datasource and register objects using the
+   * <code>db</code> key.
    *
    * @param classes Persistent classes.
    */
@@ -223,7 +225,8 @@ public class HibernateModule implements Extension {
     return this;
   }
 
-  @Override public void install(@NonNull Jooby application) {
+  @Override
+  public void install(@NonNull Jooby application) {
     Environment env = application.getEnvironment();
     Config config = application.getConfig();
     ServiceRegistry registry = application.getServices();
@@ -261,9 +264,10 @@ public class HibernateModule implements Extension {
 
     StandardServiceRegistry serviceRegistry = ssrb.build();
     if (packages.isEmpty() && classes.isEmpty()) {
-      packages = Stream.of(application.getBasePackage())
-          .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+      packages =
+          Stream.of(application.getBasePackage())
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList());
     }
 
     MetadataSources sources = new MetadataSources(serviceRegistry);
@@ -274,9 +278,10 @@ public class HibernateModule implements Extension {
 
     /** Scan package? */
     ClassLoader classLoader = env.getClassLoader();
-    List<URL> packages = sources.getAnnotatedPackages().stream()
-        .map(pkg -> classLoader.getResource(pkg.replace('.', '/')))
-        .collect(Collectors.toList());
+    List<URL> packages =
+        sources.getAnnotatedPackages().stream()
+            .map(pkg -> classLoader.getResource(pkg.replace('.', '/')))
+            .collect(Collectors.toList());
 
     MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
     if (packages.size() > 0) {
@@ -322,8 +327,8 @@ public class HibernateModule implements Extension {
     application.onStop(sf::close);
   }
 
-  private static boolean isFlywayPresent(Environment env, ServiceRegistry registry, String key,
-      boolean fallback) {
+  private static boolean isFlywayPresent(
+      Environment env, ServiceRegistry registry, String key, boolean fallback) {
     Optional<Class> flyway = env.loadClass("org.flywaydb.core.Flyway");
     if (flyway.isPresent()) {
       if (registry.getOrNull(ServiceKey.key(flyway.get(), key)) != null) {

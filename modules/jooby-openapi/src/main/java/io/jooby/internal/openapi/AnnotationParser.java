@@ -1,9 +1,33 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
+
+import static io.jooby.internal.openapi.AsmUtils.*;
+import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
+import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LocalVariableNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.ParameterNode;
 
 import io.jooby.Context;
 import io.jooby.MediaType;
@@ -23,89 +47,78 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.ParameterNode;
-
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.jooby.internal.openapi.AsmUtils.*;
-import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
-import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 public class AnnotationParser {
   enum ParamType {
     CONTEXT {
-      @Override public Class[] annotations() {
-        return new Class[]{ContextParam.class};
+      @Override
+      public Class[] annotations() {
+        return new Class[] {ContextParam.class};
       }
     },
     HEADER {
-      @Override public Class[] annotations() {
-        return new Class[]{HeaderParam.class, jakarta.ws.rs.HeaderParam.class};
+      @Override
+      public Class[] annotations() {
+        return new Class[] {HeaderParam.class, jakarta.ws.rs.HeaderParam.class};
       }
 
-      @Override public void setIn(Parameter parameter) {
+      @Override
+      public void setIn(Parameter parameter) {
         parameter.setIn("header");
       }
     },
     COOKIE {
-      @Override public Class[] annotations() {
-        return new Class[]{CookieParam.class, jakarta.ws.rs.CookieParam.class};
+      @Override
+      public Class[] annotations() {
+        return new Class[] {CookieParam.class, jakarta.ws.rs.CookieParam.class};
       }
 
-      @Override public void setIn(Parameter parameter) {
+      @Override
+      public void setIn(Parameter parameter) {
         parameter.setIn("cookie");
       }
     },
     PATH {
-      @Override public Class[] annotations() {
-        return new Class[]{PathParam.class, jakarta.ws.rs.PathParam.class};
+      @Override
+      public Class[] annotations() {
+        return new Class[] {PathParam.class, jakarta.ws.rs.PathParam.class};
       }
 
-      @Override public void setIn(Parameter parameter) {
+      @Override
+      public void setIn(Parameter parameter) {
         parameter.setIn("path");
         parameter.setRequired(true);
       }
     },
     QUERY {
-      @Override public Class[] annotations() {
-        return new Class[]{QueryParam.class, jakarta.ws.rs.QueryParam.class};
+      @Override
+      public Class[] annotations() {
+        return new Class[] {QueryParam.class, jakarta.ws.rs.QueryParam.class};
       }
 
-      @Override public void setIn(Parameter parameter) {
+      @Override
+      public void setIn(Parameter parameter) {
         parameter.setIn("query");
       }
     },
 
     FORM {
-      @Override public Class[] annotations() {
-        return new Class[]{FormParam.class, jakarta.ws.rs.FormParam.class};
+      @Override
+      public Class[] annotations() {
+        return new Class[] {FormParam.class, jakarta.ws.rs.FormParam.class};
       }
 
-      @Override public void setIn(Parameter parameter) {
+      @Override
+      public void setIn(Parameter parameter) {
         parameter.setIn("form");
       }
     },
 
     BODY {
-      @Override public Class[] annotations() {
+      @Override
+      public Class[] annotations() {
         return new Class[0];
       }
     };
@@ -113,33 +126,30 @@ public class AnnotationParser {
     public abstract Class[] annotations();
 
     public boolean matches(String annotationType) {
-      return Stream.of(annotations())
-          .anyMatch(t -> t.getName().equals(annotationType));
+      return Stream.of(annotations()).anyMatch(t -> t.getName().equals(annotationType));
     }
 
-    public void setIn(Parameter parameter) {
-    }
+    public void setIn(Parameter parameter) {}
 
     public Optional<String> getHttpName(List<AnnotationNode> annotations) {
       List<Class> names = new ArrayList<>(asList(annotations()));
       names.add(Named.class);
       return annotations.stream()
-          .filter(a ->
-              names.stream().anyMatch(c -> Type.getDescriptor(c).equals(a.desc))
-          )
-          .map(a -> {
-            if (a.values != null) {
-              for (int i = 0; i < a.values.size(); i++) {
-                if (a.values.get(i).equals("value")) {
-                  Object value = a.values.get(i + 1);
-                  if (value != null && value.toString().trim().length() > 0) {
-                    return value.toString().trim();
+          .filter(a -> names.stream().anyMatch(c -> Type.getDescriptor(c).equals(a.desc)))
+          .map(
+              a -> {
+                if (a.values != null) {
+                  for (int i = 0; i < a.values.size(); i++) {
+                    if (a.values.get(i).equals("value")) {
+                      Object value = a.values.get(i + 1);
+                      if (value != null && value.toString().trim().length() > 0) {
+                        return value.toString().trim();
+                      }
+                    }
                   }
                 }
-              }
-            }
-            return null;
-          })
+                return null;
+              })
           .filter(Objects::nonNull)
           .findFirst();
     }
@@ -161,29 +171,32 @@ public class AnnotationParser {
 
   static final String PACKAGE = GET.class.getPackage().getName();
 
-  static final Set<String> IGNORED_PARAM_TYPE = new HashSet<>(asList(
-      Context.class.getName(),
-      Session.class.getName(),
-      "java.util.Optional<" + Session.class.getName() + ">",
-      "kotlin.coroutines.Continuation"
-  ));
+  static final Set<String> IGNORED_PARAM_TYPE =
+      new HashSet<>(
+          asList(
+              Context.class.getName(),
+              Session.class.getName(),
+              "java.util.Optional<" + Session.class.getName() + ">",
+              "kotlin.coroutines.Continuation"));
 
-  static final Set<String> IGNORED_ANNOTATIONS = new HashSet<>(asList(
-      ContextParam.class.getName()
-  ));
+  static final Set<String> IGNORED_ANNOTATIONS =
+      new HashSet<>(asList(ContextParam.class.getName()));
 
-  public static List<OperationExt> parse(ParserContext ctx, String prefix,
-      Signature signature, MethodInsnNode node) {
-    if (signature.matches(Class.class) ||
-        signature.matches(Class.class, Provider.class)
+  public static List<OperationExt> parse(
+      ParserContext ctx, String prefix, Signature signature, MethodInsnNode node) {
+    if (signature.matches(Class.class)
+        || signature.matches(Class.class, Provider.class)
         || signature.matches(KT_KLASS)
         || signature.matches(KT_KLASS, KT_FUN_0)) {
-      Type type = InsnSupport.prev(node)
-          .filter(e -> e instanceof LdcInsnNode && ((LdcInsnNode) e).cst instanceof Type)
-          .findFirst()
-          .map(e -> (Type) ((LdcInsnNode) e).cst)
-          .orElseThrow(() -> new IllegalStateException(
-              "Mvc class not found: " + InsnSupport.toString(node)));
+      Type type =
+          InsnSupport.prev(node)
+              .filter(e -> e instanceof LdcInsnNode && ((LdcInsnNode) e).cst instanceof Type)
+              .findFirst()
+              .map(e -> (Type) ((LdcInsnNode) e).cst)
+              .orElseThrow(
+                  () ->
+                      new IllegalStateException(
+                          "Mvc class not found: " + InsnSupport.toString(node)));
       return parse(ctx, prefix, type);
     } else if (signature.matches(Object.class)) {
       AbstractInsnNode previous = node.getPrevious();
@@ -224,15 +237,18 @@ public class AnnotationParser {
     if (node.superName != null && !node.superName.equals(TypeFactory.OBJECT.getInternalName())) {
       methods.putAll(methods(ctx, ctx.classNode(Type.getObjectType(node.superName))));
     }
-    node.methods.stream().filter(AnnotationParser::isRouter).forEach(it -> {
-      String signature = it.name + it.desc.substring(0, it.desc.indexOf(')') + 1);
-      methods.put(signature, it);
-    });
+    node.methods.stream()
+        .filter(AnnotationParser::isRouter)
+        .forEach(
+            it -> {
+              String signature = it.name + it.desc.substring(0, it.desc.indexOf(')') + 1);
+              methods.put(signature, it);
+            });
     return methods;
   }
 
-  private static List<OperationExt> routerMethod(ParserContext ctx, String prefix,
-      ClassNode classNode, MethodNode method) {
+  private static List<OperationExt> routerMethod(
+      ParserContext ctx, String prefix, ClassNode classNode, MethodNode method) {
     List<OperationExt> result = new ArrayList<>();
 
     AtomicReference<RequestBodyExt> requestBody = new AtomicReference<>();
@@ -246,13 +262,9 @@ public class AnnotationParser {
 
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(ctx, classNode, method, httpMethod)) {
-        OperationExt operation = new OperationExt(
-            method,
-            httpMethod,
-            RoutePath.path(prefix, pattern),
-            arguments,
-            response
-        );
+        OperationExt operation =
+            new OperationExt(
+                method, httpMethod, RoutePath.path(prefix, pattern), arguments, response);
         operation.setOperationId(method.name);
         if (isDeprecated(method.visibleAnnotations)) {
           operation.setDeprecated(true);
@@ -277,16 +289,15 @@ public class AnnotationParser {
   private static boolean isHidden(List<AnnotationNode> annotations) {
     if (annotations != null) {
       // If the method is annotated with @Hidden, it's always hidden
-      boolean hiddenAnnotationExists = annotations.stream()
-          .anyMatch(a -> a.desc.equals(Type.getDescriptor(Hidden.class)));
+      boolean hiddenAnnotationExists =
+          annotations.stream().anyMatch(a -> a.desc.equals(Type.getDescriptor(Hidden.class)));
 
       if (hiddenAnnotationExists) {
         return true;
       }
 
       // If the method is annotated with @Operation, and the value of "hidden" is true, it's hidden
-      return findAnnotationByType(annotations, Operation.class)
-          .stream()
+      return findAnnotationByType(annotations, Operation.class).stream()
           .anyMatch(it -> boolValue(toMap(it), "hidden"));
     }
     return false;
@@ -310,8 +321,8 @@ public class AnnotationParser {
     return rrt;
   }
 
-  private static List<ParameterExt> routerArguments(ParserContext ctx, MethodNode method,
-      Consumer<RequestBodyExt> requestBody) {
+  private static List<ParameterExt> routerArguments(
+      ParserContext ctx, MethodNode method, Consumer<RequestBodyExt> requestBody) {
     List<ParameterExt> result = new ArrayList<>();
     Map<String, Schema> form = new LinkedHashMap<>();
     List<String> requiredFormFields = new ArrayList<>();
@@ -320,21 +331,28 @@ public class AnnotationParser {
         ParameterNode parameter = method.parameters.get(i);
 
         List<String> javaName;
-        if ((parameter.name.equals("continuation") || parameter.name.equals("$completion")) && i == method.parameters.size() - 1) {
+        if ((parameter.name.equals("continuation") || parameter.name.equals("$completion"))
+            && i == method.parameters.size() - 1) {
           javaName = asList(parameter.name, "$continuation");
         } else {
           javaName = singletonList(parameter.name);
         }
         /* Java Type: */
-        LocalVariableNode variable = method.localVariables.stream()
-            .filter(var -> javaName.contains(var.name))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException(
-                "Parameter type not found on method: " + method.name + ", parameter: "
-                    + parameter.name));
-        String javaType = variable.signature == null
-            ? ASMType.parse(variable.desc)
-            : ASMType.parse(variable.signature);
+        LocalVariableNode variable =
+            method.localVariables.stream()
+                .filter(var -> javaName.contains(var.name))
+                .findFirst()
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "Parameter type not found on method: "
+                                + method.name
+                                + ", parameter: "
+                                + parameter.name));
+        String javaType =
+            variable.signature == null
+                ? ASMType.parse(variable.desc)
+                : ASMType.parse(variable.signature);
 
         if (IGNORED_PARAM_TYPE.contains(javaType)) {
           continue;
@@ -349,8 +367,9 @@ public class AnnotationParser {
           annotations = Collections.emptyList();
         }
 
-        if (annotations != null && annotations.stream()
-            .anyMatch(n -> IGNORED_ANNOTATIONS.contains(ASMType.parse(n.desc)))) {
+        if (annotations != null
+            && annotations.stream()
+                .anyMatch(n -> IGNORED_ANNOTATIONS.contains(ASMType.parse(n.desc)))) {
 
           continue;
         }
@@ -358,7 +377,9 @@ public class AnnotationParser {
         ParamType paramType = ParamType.find(annotations);
 
         /* Required: */
-        boolean required = isPrimitive(javaType) || !isNullable(method, i);//!javaType.startsWith("java.util.Optional");
+        boolean required =
+            isPrimitive(javaType)
+                || !isNullable(method, i); // !javaType.startsWith("java.util.Optional");
 
         if (paramType == ParamType.BODY) {
           RequestBodyExt body = new RequestBodyExt();
@@ -403,7 +424,8 @@ public class AnnotationParser {
         schema.setRequired(requiredFormFields);
       }
 
-      io.swagger.v3.oas.models.media.MediaType mediaType = new io.swagger.v3.oas.models.media.MediaType();
+      io.swagger.v3.oas.models.media.MediaType mediaType =
+          new io.swagger.v3.oas.models.media.MediaType();
       mediaType.setSchema(schema);
 
       Content content = new Content();
@@ -441,8 +463,8 @@ public class AnnotationParser {
     return false;
   }
 
-  private static List<String> httpPattern(ParserContext ctx, ClassNode classNode, MethodNode method,
-      String httpMethod) {
+  private static List<String> httpPattern(
+      ParserContext ctx, ClassNode classNode, MethodNode method, String httpMethod) {
     List<String> patterns = new ArrayList<>();
 
     List<String> rootPattern = httpPattern(httpMethod, null, classNode.visibleAnnotations);
@@ -466,35 +488,31 @@ public class AnnotationParser {
     return patterns;
   }
 
-  private static List<String> httpPattern(String httpMethod, String prefix,
-      List<AnnotationNode> annotations) {
+  private static List<String> httpPattern(
+      String httpMethod, String prefix, List<AnnotationNode> annotations) {
     List<String> patterns = new ArrayList<>();
     if (annotations != null) {
 
-      List<Map<String, Object>> values = findAnnotationByType(annotations,
-          singletonList(PACKAGE + "." + httpMethod)).stream()
-          .flatMap(annotation -> Stream.of(annotation)
-              .map(AsmUtils::toMap)
-          )
-          .filter(m -> !m.isEmpty())
-          .collect(Collectors.toList());
-
-      if (values.isEmpty()) {
-        values = findAnnotationByType(annotations, singletonList(Path.class.getName())).stream()
-            .flatMap(annotation -> Stream.of(annotation)
-                .map(AsmUtils::toMap)
-            )
-            .filter(m -> !m.isEmpty())
-            .collect(Collectors.toList());
-
-        if (values.isEmpty()) {
-          values = findAnnotationByType(annotations,
-              singletonList(jakarta.ws.rs.Path.class.getName())).stream()
-              .flatMap(annotation -> Stream.of(annotation)
-                  .map(AsmUtils::toMap)
-              )
+      List<Map<String, Object>> values =
+          findAnnotationByType(annotations, singletonList(PACKAGE + "." + httpMethod)).stream()
+              .flatMap(annotation -> Stream.of(annotation).map(AsmUtils::toMap))
               .filter(m -> !m.isEmpty())
               .collect(Collectors.toList());
+
+      if (values.isEmpty()) {
+        values =
+            findAnnotationByType(annotations, singletonList(Path.class.getName())).stream()
+                .flatMap(annotation -> Stream.of(annotation).map(AsmUtils::toMap))
+                .filter(m -> !m.isEmpty())
+                .collect(Collectors.toList());
+
+        if (values.isEmpty()) {
+          values =
+              findAnnotationByType(annotations, singletonList(jakarta.ws.rs.Path.class.getName()))
+                  .stream()
+                  .flatMap(annotation -> Stream.of(annotation).map(AsmUtils::toMap))
+                  .filter(m -> !m.isEmpty())
+                  .collect(Collectors.toList());
         }
       }
 
@@ -503,8 +521,7 @@ public class AnnotationParser {
         if (!(value instanceof Collection)) {
           value = singletonList(value);
         }
-        ((List) value)
-            .forEach(v -> patterns.add(RoutePath.path(prefix, v.toString())));
+        ((List) value).forEach(v -> patterns.add(RoutePath.path(prefix, v.toString())));
       }
     }
     if (prefix != null && patterns.isEmpty()) {
@@ -514,14 +531,16 @@ public class AnnotationParser {
   }
 
   private static List<String> httpMethod(List<AnnotationNode> annotations) {
-    List<String> methods = findAnnotationByType(annotations, httpMethods()).stream()
-        .map(n -> Type.getType(n.desc).getClassName())
-        .map(name -> {
-          String[] names = name.split("\\.");
-          return names[names.length - 1];
-        })
-        .distinct()
-        .collect(Collectors.toList());
+    List<String> methods =
+        findAnnotationByType(annotations, httpMethods()).stream()
+            .map(n -> Type.getType(n.desc).getClassName())
+            .map(
+                name -> {
+                  String[] names = name.split("\\.");
+                  return names[names.length - 1];
+                })
+            .distinct()
+            .collect(Collectors.toList());
     if (methods.size() == 1 && methods.contains("Path")) {
       return singletonList(Router.GET);
     }
@@ -532,12 +551,12 @@ public class AnnotationParser {
   private static boolean isRouter(MethodNode node) {
     if (node.visibleAnnotations != null) {
       // Jooby annotations
-      List<String> annotationTypes = httpMethods().stream()
-          .map(classname -> Type.getObjectType(classname.replace(".", "/")).getDescriptor())
-          .collect(Collectors.toList());
+      List<String> annotationTypes =
+          httpMethods().stream()
+              .map(classname -> Type.getObjectType(classname.replace(".", "/")).getDescriptor())
+              .collect(Collectors.toList());
 
-      return node.visibleAnnotations.stream()
-          .anyMatch(a -> annotationTypes.contains(a.desc));
+      return node.visibleAnnotations.stream().anyMatch(a -> annotationTypes.contains(a.desc));
     }
     return false;
   }
@@ -546,15 +565,14 @@ public class AnnotationParser {
     List<String> annotationTypes = httpMethod(GET.class.getPackage().getName(), Path.class);
 
     // JAXRS annotations
-    annotationTypes
-        .addAll(httpMethod(jakarta.ws.rs.GET.class.getPackage().getName(), jakarta.ws.rs.Path.class));
+    annotationTypes.addAll(
+        httpMethod(jakarta.ws.rs.GET.class.getPackage().getName(), jakarta.ws.rs.Path.class));
     return annotationTypes;
   }
 
   private static List<String> httpMethod(String pkg, Class pathType) {
-    List<String> annotationTypes = Router.METHODS.stream()
-        .map(m -> pkg + "." + m)
-        .collect(Collectors.toList());
+    List<String> annotationTypes =
+        Router.METHODS.stream().map(m -> pkg + "." + m).collect(Collectors.toList());
     if (pathType != null) {
       annotationTypes.add(Type.getType(pathType).getClassName());
     }

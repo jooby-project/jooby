@@ -1,14 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.test;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Session;
-import io.jooby.Value;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -16,9 +11,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Mock session.
- */
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.Session;
+import io.jooby.Value;
+
+/** Mock session. */
 public class MockSession implements Session {
   private MockContext ctx;
   private String sessionId;
@@ -77,82 +75,99 @@ public class MockSession implements Session {
     this.lastAccessedTime = Instant.now();
   }
 
-  @NonNull @Override public String getId() {
+  @NonNull @Override
+  public String getId() {
     return sessionId;
   }
 
-  @NonNull @Override public MockSession setId(@Nullable String id) {
+  @NonNull @Override
+  public MockSession setId(@Nullable String id) {
     this.sessionId = id;
     return this;
   }
 
-  @NonNull @Override public Value get(@NonNull String name) {
+  @NonNull @Override
+  public Value get(@NonNull String name) {
     return Optional.ofNullable(data.get(name))
         .map(value -> Value.create(ctx, name, value))
         .orElse(Value.missing(name));
   }
 
-  @NonNull @Override public Session put(@NonNull String name, @NonNull String value) {
+  @NonNull @Override
+  public Session put(@NonNull String name, @NonNull String value) {
     data.put(name, value);
     return this;
   }
 
-  @NonNull @Override public Value remove(@NonNull String name) {
+  @NonNull @Override
+  public Value remove(@NonNull String name) {
     Value value = get(name);
     data.remove(name);
     return value;
   }
 
-  @NonNull @Override public Map<String, String> toMap() {
+  @NonNull @Override
+  public Map<String, String> toMap() {
     return data;
   }
 
-  @NonNull @Override public Instant getCreationTime() {
+  @NonNull @Override
+  public Instant getCreationTime() {
     return creationTime;
   }
 
-  @NonNull @Override public Session setCreationTime(@NonNull Instant creationTime) {
+  @NonNull @Override
+  public Session setCreationTime(@NonNull Instant creationTime) {
     this.creationTime = creationTime;
     return this;
   }
 
-  @NonNull @Override public Instant getLastAccessedTime() {
+  @NonNull @Override
+  public Instant getLastAccessedTime() {
     return lastAccessedTime;
   }
 
-  @NonNull @Override public Session setLastAccessedTime(@NonNull Instant lastAccessedTime) {
+  @NonNull @Override
+  public Session setLastAccessedTime(@NonNull Instant lastAccessedTime) {
     this.lastAccessedTime = lastAccessedTime;
     return this;
   }
 
-  @Override public boolean isNew() {
+  @Override
+  public boolean isNew() {
     return isNew;
   }
 
-  @NonNull @Override public Session setNew(boolean isNew) {
+  @NonNull @Override
+  public Session setNew(boolean isNew) {
     this.isNew = isNew;
     return this;
   }
 
-  @Override public boolean isModify() {
+  @Override
+  public boolean isModify() {
     return modified;
   }
 
-  @NonNull @Override public Session setModify(boolean modify) {
+  @NonNull @Override
+  public Session setModify(boolean modify) {
     this.modified = modify;
     return this;
   }
 
-  @Override public Session clear() {
+  @Override
+  public Session clear() {
     data.clear();
     return this;
   }
 
-  @Override public Session renewId() {
+  @Override
+  public Session renewId() {
     return this;
   }
 
-  @Override public void destroy() {
+  @Override
+  public void destroy() {
     clear();
   }
 }

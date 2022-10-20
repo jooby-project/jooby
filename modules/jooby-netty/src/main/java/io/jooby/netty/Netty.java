@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -18,9 +18,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.net.ssl.SSLContext;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Http2Configurer;
 import io.jooby.Jooby;
 import io.jooby.Server;
@@ -55,7 +55,8 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 public class Netty extends Server.Base {
 
   static {
-    System.setProperty("io.netty.leakDetection.level",
+    System.setProperty(
+        "io.netty.leakDetection.level",
         System.getProperty("io.netty.leakDetection.level", "disabled"));
   }
 
@@ -71,29 +72,30 @@ public class Netty extends Server.Base {
 
   private ExecutorService worker;
 
-  private ServerOptions options = new ServerOptions()
-      .setServer("netty");
+  private ServerOptions options = new ServerOptions().setServer("netty");
 
-  @Override public Netty setOptions(@NonNull ServerOptions options) {
+  @Override
+  public Netty setOptions(@NonNull ServerOptions options) {
     this.options = options;
     return this;
   }
 
-  @NonNull @Override public ServerOptions getOptions() {
+  @NonNull @Override
+  public ServerOptions getOptions() {
     return options;
   }
 
-  @NonNull @Override public Server start(@NonNull Jooby application) {
+  @NonNull @Override
+  public Server start(@NonNull Jooby application) {
     try {
       applications.add(application);
 
       addShutdownHook();
 
       /** Worker: Application blocking code */
-      worker = Executors.newFixedThreadPool(
-          options.getWorkerThreads(),
-          new DefaultThreadFactory("worker")
-      );
+      worker =
+          Executors.newFixedThreadPool(
+              options.getWorkerThreads(), new DefaultThreadFactory("worker"));
       fireStart(applications, worker);
 
       /** Disk attributes: */
@@ -114,47 +116,52 @@ public class Netty extends Server.Base {
 
       Http2Configurer<Http2Extension, ChannelInboundHandler> http2;
       if (options.isHttp2() == null || options.isHttp2() == Boolean.TRUE) {
-        http2 = stream(
-            spliteratorUnknownSize(
-                ServiceLoader.load(Http2Configurer.class).iterator(),
-                Spliterator.ORDERED),
-            false)
-            .filter(it -> it.support(Http2Extension.class))
-            .findFirst()
-            .orElse(null);
+        http2 =
+            stream(
+                    spliteratorUnknownSize(
+                        ServiceLoader.load(Http2Configurer.class).iterator(), Spliterator.ORDERED),
+                    false)
+                .filter(it -> it.support(Http2Extension.class))
+                .findFirst()
+                .orElse(null);
       } else {
         http2 = null;
       }
 
       /** Bootstrap: */
       if (!options.isHttpsOnly()) {
-        ServerBootstrap http = transport.configure(acceptorloop, eventloop)
-            .childHandler(newPipeline(factory, null, http2))
-            .childOption(ChannelOption.SO_REUSEADDR, true)
-            .childOption(ChannelOption.TCP_NODELAY, true);
+        ServerBootstrap http =
+            transport
+                .configure(acceptorloop, eventloop)
+                .childHandler(newPipeline(factory, null, http2))
+                .childOption(ChannelOption.SO_REUSEADDR, true)
+                .childOption(ChannelOption.TCP_NODELAY, true);
         http.bind(options.getHost(), options.getPort()).get();
       }
 
       if (options.isSSLEnabled()) {
-        SSLContext javaSslContext = options
-            .getSSLContext(application.getEnvironment().getClassLoader());
+        SSLContext javaSslContext =
+            options.getSSLContext(application.getEnvironment().getClassLoader());
 
         SslOptions sslOptions = options.getSsl();
-        String[] protocol = sslOptions.getProtocol().stream()
-            .toArray(String[]::new);
+        String[] protocol = sslOptions.getProtocol().stream().toArray(String[]::new);
 
         SslOptions.ClientAuth clientAuth = sslOptions.getClientAuth();
-        ServerBootstrap https = transport.configure(acceptorloop, eventloop)
-            .childHandler(
-                newPipeline(factory,
-                    wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2 != null),
-                    http2))
-            .childOption(ChannelOption.SO_REUSEADDR, true)
-            .childOption(ChannelOption.TCP_NODELAY, true);
+        ServerBootstrap https =
+            transport
+                .configure(acceptorloop, eventloop)
+                .childHandler(
+                    newPipeline(
+                        factory,
+                        wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2 != null),
+                        http2))
+                .childOption(ChannelOption.SO_REUSEADDR, true)
+                .childOption(ChannelOption.TCP_NODELAY, true);
 
         https.bind(options.getHost(), options.getSecurePort()).get();
       } else if (options.isHttpsOnly()) {
-        throw new IllegalArgumentException("Server configured for httpsOnly, but ssl options not set");
+        throw new IllegalArgumentException(
+            "Server configured for httpsOnly, but ssl options not set");
       }
 
       fireReady(applications);
@@ -181,8 +188,8 @@ public class Netty extends Server.Base {
     }
   }
 
-  private NettyPipeline newPipeline(HttpDataFactory factory, SslContext sslContext,
-      Http2Configurer http2) {
+  private NettyPipeline newPipeline(
+      HttpDataFactory factory, SslContext sslContext, Http2Configurer http2) {
     return new NettyPipeline(
         acceptorloop.next(),
         applications.get(0),
@@ -193,11 +200,11 @@ public class Netty extends Server.Base {
         options.getCompressionLevel(),
         options.getBufferSize(),
         options.getMaxRequestSize(),
-        options.isExpectContinue() ==  Boolean.TRUE
-    );
+        options.isExpectContinue() == Boolean.TRUE);
   }
 
-  @NonNull @Override public synchronized Server stop() {
+  @NonNull @Override
+  public synchronized Server stop() {
     fireStop(applications);
     if (acceptorloop != null) {
       acceptorloop.shutdownGracefully();
@@ -214,20 +221,29 @@ public class Netty extends Server.Base {
     return this;
   }
 
-  private SslContext wrap(SSLContext sslContext, ClientAuth clientAuth, String[] protocol,
-      boolean http2) {
+  private SslContext wrap(
+      SSLContext sslContext, ClientAuth clientAuth, String[] protocol, boolean http2) {
     ApplicationProtocolConfig protocolConfig;
     if (http2) {
-      protocolConfig = new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
-          ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
-          ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-          Arrays.asList(ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1));
+      protocolConfig =
+          new ApplicationProtocolConfig(
+              ApplicationProtocolConfig.Protocol.ALPN,
+              ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+              ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+              Arrays.asList(ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1));
     } else {
       protocolConfig = ApplicationProtocolConfig.DISABLED;
     }
-    JdkSslContext jdk = new JdkSslContext(sslContext, false, null,
-        IdentityCipherSuiteFilter.INSTANCE,
-        protocolConfig, clientAuth, protocol, false);
+    JdkSslContext jdk =
+        new JdkSslContext(
+            sslContext,
+            false,
+            null,
+            IdentityCipherSuiteFilter.INSTANCE,
+            protocolConfig,
+            clientAuth,
+            protocol,
+            false);
 
     return jdk;
   }

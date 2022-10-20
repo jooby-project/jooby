@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i1591;
 
 import io.jooby.Context;
@@ -13,9 +18,7 @@ public class App1591b extends Jooby {
     get("/operationSecurityRequirement", this::operationSecurityRequirement);
   }
 
-  @SecurityRequirements(
-      @SecurityRequirement(name = "myOauth1", scopes = "write: read")
-  )
+  @SecurityRequirements(@SecurityRequirement(name = "myOauth1", scopes = "write: read"))
   private String securityRequirements(Context context) {
     return null;
   }
@@ -25,9 +28,7 @@ public class App1591b extends Jooby {
     return null;
   }
 
-  @Operation(
-      security = @SecurityRequirement(name = "myOauth3", scopes = "write: read")
-  )
+  @Operation(security = @SecurityRequirement(name = "myOauth3", scopes = "write: read"))
   private String operationSecurityRequirement(Context context) {
     return null;
   }

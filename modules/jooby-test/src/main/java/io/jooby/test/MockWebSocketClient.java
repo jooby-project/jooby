@@ -1,21 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocketCloseStatus;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Websocket client for unit tests.
- */
+/** Websocket client for unit tests. */
 public class MockWebSocketClient {
   private MockWebSocketConfigurer configurer;
   private boolean open = true;
@@ -82,8 +80,9 @@ public class MockWebSocketClient {
     if (isOpen()) {
       open = false;
       if (initialized) {
-        configurer.fireClose(WebSocketCloseStatus.valueOf(code)
-            .orElseGet(() -> new WebSocketCloseStatus(code, reason)));
+        configurer.fireClose(
+            WebSocketCloseStatus.valueOf(code)
+                .orElseGet(() -> new WebSocketCloseStatus(code, reason)));
       } else {
         actions.add(() -> close(code, reason));
       }

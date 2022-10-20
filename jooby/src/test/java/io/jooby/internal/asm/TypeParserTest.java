@@ -1,8 +1,11 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.asm;
 
-import io.jooby.Reified;
-import org.junit.jupiter.api.Test;
-import org.objectweb.asm.Type;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -10,27 +13,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import org.objectweb.asm.Type;
+
+import io.jooby.Reified;
 
 public class TypeParserTest {
 
-  class X {
-  }
+  class X {}
 
-  class Y {
-  }
+  class Y {}
 
-  class User {
-  }
+  class User {}
 
-  class BaseUser extends User {
-  }
+  class BaseUser extends User {}
 
-  class BasicUser extends User {
-  }
+  class BasicUser extends User {}
 
-  class SuperUser extends BasicUser {
-  }
+  class SuperUser extends BasicUser {}
 
   @Test
   public void primitives() {
@@ -90,14 +90,15 @@ public class TypeParserTest {
 
   @Test
   public void parameterized() {
-    assertEquals(Reified.list(String.class).getType(),
-        parse("Ljava/util/List<Ljava/lang/String;>;"));
+    assertEquals(
+        Reified.list(String.class).getType(), parse("Ljava/util/List<Ljava/lang/String;>;"));
 
     assertEquals(
         Reified.getParameterized(List.class, Reified.list(String.class).getType()).getType(),
         parse("Ljava/util/List<Ljava/util/List<Ljava/lang/String;>;>;"));
 
-    assertEquals(Reified.map(String.class, Reified.list(String.class).getType()).getType(),
+    assertEquals(
+        Reified.map(String.class, Reified.list(String.class).getType()).getType(),
         parse("Ljava/util/Map<Ljava/lang/String;Ljava/util/List<Ljava/lang/String;>;>;"));
   }
 

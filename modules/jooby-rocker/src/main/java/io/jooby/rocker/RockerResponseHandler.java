@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -20,11 +20,13 @@ class RockerResponseHandler implements ResponseHandler {
     this.factory = factory;
   }
 
-  @Override public boolean matches(Type type) {
+  @Override
+  public boolean matches(Type type) {
     return RockerModel.class.isAssignableFrom(Reified.rawType(type));
   }
 
-  @Override public Route.Handler create(Route.Handler next) {
+  @Override
+  public Route.Handler create(Route.Handler next) {
     return new RockerHandler(next, factory);
   }
 }

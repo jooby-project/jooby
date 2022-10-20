@@ -1,22 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.exception.MissingValueException;
-import io.jooby.exception.TypeMismatchException;
-import io.jooby.internal.ArrayValue;
-import io.jooby.internal.FormdataNode;
-import io.jooby.internal.HashValue;
-import io.jooby.internal.MissingValue;
-import io.jooby.internal.MultipartNode;
-import io.jooby.internal.SingleValue;
-
-import java.util.TreeMap;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -28,25 +16,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.exception.MissingValueException;
+import io.jooby.exception.TypeMismatchException;
+import io.jooby.internal.ArrayValue;
+import io.jooby.internal.FormdataNode;
+import io.jooby.internal.HashValue;
+import io.jooby.internal.MissingValue;
+import io.jooby.internal.MultipartNode;
+import io.jooby.internal.SingleValue;
 
 /**
  * Unified API for HTTP value. This API plays two role:
  *
- * - unify access to HTTP values, like query, path, form and header parameter
- * - works as validation API, because it is able to check for required and type-safe values
+ * <p>- unify access to HTTP values, like query, path, form and header parameter - works as
+ * validation API, because it is able to check for required and type-safe values
  *
- * The value API is composed by three types:
+ * <p>The value API is composed by three types:
  *
- * - Single value
- * - Object value
- * - Sequence of values (array)
+ * <p>- Single value - Object value - Sequence of values (array)
  *
- * Single value are can be converted to string, int, boolean, enum like values.
- * Object value is a key:value structure (like a hash).
- * Sequence of values are index based structure.
+ * <p>Single value are can be converted to string, int, boolean, enum like values. Object value is a
+ * key:value structure (like a hash). Sequence of values are index based structure.
  *
- * All these 3 types are modeled into a single Value class. At any time you can treat a value as
+ * <p>All these 3 types are modeled into a single Value class. At any time you can treat a value as
  * 1) single, 2) hash or 3) array of them.
  *
  * @since 2.0.0
@@ -291,7 +288,8 @@ public interface Value {
    * @param <T> Enum type.
    * @return Enum.
    */
-  @NonNull default <T extends Enum<T>> T toEnum(@NonNull SneakyThrows.Function<String, T> fn,
+  @NonNull default <T extends Enum<T>> T toEnum(
+      @NonNull SneakyThrows.Function<String, T> fn,
       @NonNull Function<String, String> nameProvider) {
     return fn.apply(nameProvider.apply(value()));
   }
@@ -449,8 +447,8 @@ public interface Value {
    * @param value Value.
    * @return Single value.
    */
-  static @NonNull ValueNode value(@NonNull Context ctx, @NonNull String name,
-      @NonNull String value) {
+  static @NonNull ValueNode value(
+      @NonNull Context ctx, @NonNull String name, @NonNull String value) {
     return new SingleValue(ctx, name, value);
   }
 
@@ -462,41 +460,38 @@ public interface Value {
    * @param values Field values.
    * @return Array value.
    */
-  static @NonNull ValueNode array(@NonNull Context ctx, @NonNull String name,
-      @NonNull List<String> values) {
-    return new ArrayValue(ctx, name)
-        .add(values);
+  static @NonNull ValueNode array(
+      @NonNull Context ctx, @NonNull String name, @NonNull List<String> values) {
+    return new ArrayValue(ctx, name).add(values);
   }
 
   /**
    * Creates a value that fits better with the given values.
    *
-   * - For null/empty values. It produces a missing value.
-   * - For single element (size==1). It produces a single value
-   * - For multi-value elements (size&gt;1). It produces an array value.
+   * <p>- For null/empty values. It produces a missing value. - For single element (size==1). It
+   * produces a single value - For multi-value elements (size&gt;1). It produces an array value.
    *
    * @param ctx Current context.
    * @param name Field name.
    * @param values Field values.
    * @return A value.
    */
-  static @NonNull ValueNode create(Context ctx, @NonNull String name,
-      @Nullable List<String> values) {
+  static @NonNull ValueNode create(
+      Context ctx, @NonNull String name, @Nullable List<String> values) {
     if (values == null || values.size() == 0) {
       return missing(name);
     }
     if (values.size() == 1) {
       return value(ctx, name, values.get(0));
     }
-    return new ArrayValue(ctx, name)
-        .add(values);
+    return new ArrayValue(ctx, name).add(values);
   }
 
   /**
    * Creates a value that fits better with the given values.
    *
-   * - For null/empty values. It produces a missing value.
-   * - For single element (size==1). It produces a single value
+   * <p>- For null/empty values. It produces a missing value. - For single element (size==1). It
+   * produces a single value
    *
    * @param ctx Current context.
    * @param name Field name.

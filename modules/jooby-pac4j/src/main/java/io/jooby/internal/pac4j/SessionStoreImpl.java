@@ -1,14 +1,27 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.pac4j;
 
-import io.jooby.Session;
-import io.jooby.SneakyThrows;
-import io.jooby.Value;
-import io.jooby.pac4j.Pac4jContext;
+import static io.jooby.StatusCode.BAD_REQUEST_CODE;
+import static io.jooby.StatusCode.FORBIDDEN_CODE;
+import static io.jooby.StatusCode.FOUND_CODE;
+import static io.jooby.StatusCode.NO_CONTENT_CODE;
+import static io.jooby.StatusCode.OK_CODE;
+import static io.jooby.StatusCode.SEE_OTHER_CODE;
+import static io.jooby.StatusCode.TEMPORARY_REDIRECT_CODE;
+import static io.jooby.StatusCode.UNAUTHORIZED_CODE;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Base64;
+import java.util.Optional;
+
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.BadRequestAction;
 import org.pac4j.core.exception.http.ForbiddenAction;
@@ -22,25 +35,12 @@ import org.pac4j.core.exception.http.UnauthorizedAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Base64;
-import java.util.Optional;
+import io.jooby.Session;
+import io.jooby.SneakyThrows;
+import io.jooby.Value;
+import io.jooby.pac4j.Pac4jContext;
 
-import static io.jooby.StatusCode.BAD_REQUEST_CODE;
-import static io.jooby.StatusCode.FORBIDDEN_CODE;
-import static io.jooby.StatusCode.FOUND_CODE;
-import static io.jooby.StatusCode.NO_CONTENT_CODE;
-import static io.jooby.StatusCode.OK_CODE;
-import static io.jooby.StatusCode.SEE_OTHER_CODE;
-import static io.jooby.StatusCode.TEMPORARY_REDIRECT_CODE;
-import static io.jooby.StatusCode.UNAUTHORIZED_CODE;
-
-public class SessionStoreImpl
-    implements org.pac4j.core.context.session.SessionStore<Pac4jContext> {
+public class SessionStoreImpl implements org.pac4j.core.context.session.SessionStore<Pac4jContext> {
 
   private static final String PAC4J = "p4j~";
 
@@ -54,19 +54,23 @@ public class SessionStoreImpl
     return Optional.ofNullable(context.getContext().sessionOrNull());
   }
 
-  @Override public String getOrCreateSessionId(Pac4jContext context) {
+  @Override
+  public String getOrCreateSessionId(Pac4jContext context) {
     return getSession(context).getId();
   }
 
-  @Override public Optional<Object> get(Pac4jContext context, String key) {
-    Optional sessionValue = getSessionOrEmpty(context)
-        .map(session -> session.get(key))
-        .map(SessionStoreImpl::strToObject)
-        .orElseGet(Optional::empty);
+  @Override
+  public Optional<Object> get(Pac4jContext context, String key) {
+    Optional sessionValue =
+        getSessionOrEmpty(context)
+            .map(session -> session.get(key))
+            .map(SessionStoreImpl::strToObject)
+            .orElseGet(Optional::empty);
     return sessionValue;
   }
 
-  @Override public void set(Pac4jContext context, String key, Object value) {
+  @Override
+  public void set(Pac4jContext context, String key, Object value) {
     if (value == null || value.toString().length() == 0) {
       getSessionOrEmpty(context).ifPresent(session -> session.remove(key));
     } else {
@@ -75,17 +79,20 @@ public class SessionStoreImpl
     }
   }
 
-  @Override public boolean destroySession(Pac4jContext context) {
+  @Override
+  public boolean destroySession(Pac4jContext context) {
     Optional<Session> session = getSessionOrEmpty(context);
     session.ifPresent(Session::destroy);
     return session.isPresent();
   }
 
-  @Override public Optional getTrackableSession(Pac4jContext context) {
+  @Override
+  public Optional getTrackableSession(Pac4jContext context) {
     return getSessionOrEmpty(context);
   }
 
-  @Override public Optional<SessionStore<Pac4jContext>> buildFromTrackableSession(
+  @Override
+  public Optional<SessionStore<Pac4jContext>> buildFromTrackableSession(
       Pac4jContext context, Object trackableSession) {
     if (trackableSession != null) {
       return Optional.of(new SessionStoreImpl());
@@ -93,8 +100,9 @@ public class SessionStoreImpl
     return Optional.empty();
   }
 
-  @Override public boolean renewSession(Pac4jContext context) {
-    //getSessionOrEmpty(context).ifPresent(session -> session.renewId());
+  @Override
+  public boolean renewSession(Pac4jContext context) {
+    // getSessionOrEmpty(context).ifPresent(session -> session.renewId());
     return true;
   }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -9,7 +9,8 @@ import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.jruby.extension.spi.ExtensionRegistry;
 
 public class JoobyExtensionRegistry implements ExtensionRegistry {
-  @Override public void register(Asciidoctor asciidoctor) {
+  @Override
+  public void register(Asciidoctor asciidoctor) {
     asciidoctor.javaExtensionRegistry().block("dependency", DependencyProcessor.class);
     asciidoctor.javaExtensionRegistry().inlineMacro("javadoc", JavadocProcessor.class);
   }

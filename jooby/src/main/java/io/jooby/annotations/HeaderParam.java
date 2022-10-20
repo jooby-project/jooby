@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -14,13 +14,13 @@ import java.lang.annotation.Target;
  * Allow access to header value from MVC route method.
  *
  * <pre>{@code
- *  public String header(&#64;HeaderParam String version) {
- *    ...
- *  }
+ * public String header(&#64;HeaderParam String version) {
+ *   ...
+ * }
  *
- *  public String form(&#64;HeaderParam("If-Modified-Since") long ifModifiedSince) {
- *    ...
- *  }
+ * public String form(&#64;HeaderParam("If-Modified-Since") long ifModifiedSince) {
+ *   ...
+ * }
  * }</pre>
  */
 @Retention(RetentionPolicy.RUNTIME)

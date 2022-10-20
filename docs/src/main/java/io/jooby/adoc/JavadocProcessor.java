@@ -1,12 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.adoc;
-
-import org.asciidoctor.ast.ContentNode;
-import org.asciidoctor.extension.InlineMacroProcessor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.asciidoctor.ast.ContentNode;
+import org.asciidoctor.extension.InlineMacroProcessor;
 
 public class JavadocProcessor extends InlineMacroProcessor {
 
@@ -24,7 +24,8 @@ public class JavadocProcessor extends InlineMacroProcessor {
   @Override
   public Object process(ContentNode parent, String clazz, Map<String, Object> attributes) {
 
-    StringBuilder link = new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby/latest/io/jooby/");
+    StringBuilder link =
+        new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby/latest/io/jooby/");
     StringBuilder text = new StringBuilder();
     String[] names = clazz.split("\\.");
     List<String> pkg = new ArrayList<>();
@@ -60,10 +61,7 @@ public class JavadocProcessor extends InlineMacroProcessor {
       int index = 2;
       while (attributes.get(String.valueOf(index)) != null) {
         String qualifiedType = attributes.get(String.valueOf(index)).toString();
-        link.append(qualifiedType
-            .replace("[]", ":A")
-            .replace("&#8230;&#8203;", "...")
-        );
+        link.append(qualifiedType.replace("[]", ":A").replace("&#8230;&#8203;", "..."));
 
         int start = qualifiedType.lastIndexOf('.');
         String simpleName = start > 0 ? qualifiedType.substring(start + 1) : qualifiedType;
@@ -97,5 +95,4 @@ public class JavadocProcessor extends InlineMacroProcessor {
     options.put("target", link.toString());
     return createPhraseNode(parent, "anchor", text.toString(), attributes, options);
   }
-
 }

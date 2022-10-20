@@ -1,14 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.asm;
 
-import io.jooby.SneakyThrows;
-
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
+
+import io.jooby.SneakyThrows;
 
 public class Lambdas {
 
@@ -39,7 +39,7 @@ public class Lambdas {
     SerializedLambda lambda = getSerializedLambda(function);
     if (lambda != null) {
       String implClassName = lambda.getImplClass().replace('/', '.');
-      Class<?> implClass = loader.loadClass(implClassName);//Class.forName(implClassName);
+      Class<?> implClass = loader.loadClass(implClassName); // Class.forName(implClassName);
 
       String lambdaName = lambda.getImplMethodName();
 

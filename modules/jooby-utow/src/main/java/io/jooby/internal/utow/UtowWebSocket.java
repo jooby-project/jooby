@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -21,11 +21,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import org.xnio.IoUtils;
 
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.SneakyThrows;
@@ -65,24 +64,29 @@ public class UtowWebSocket extends AbstractReceiveListener
     this.key = ctx.getRoute().getPattern();
 
     Config conf = ctx.getRouter().getConfig();
-    maxSize = conf.hasPath("websocket.maxSize")
-        ? conf.getBytes("websocket.maxSize").intValue()
-        : WebSocket.MAX_BUFFER_SIZE;
+    maxSize =
+        conf.hasPath("websocket.maxSize")
+            ? conf.getBytes("websocket.maxSize").intValue()
+            : WebSocket.MAX_BUFFER_SIZE;
   }
 
-  @Override protected long getMaxTextBufferSize() {
+  @Override
+  protected long getMaxTextBufferSize() {
     return maxSize;
   }
 
-  @Override protected long getMaxBinaryBufferSize() {
+  @Override
+  protected long getMaxBinaryBufferSize() {
     return maxSize;
   }
 
-  @NonNull @Override public Context getContext() {
+  @NonNull @Override
+  public Context getContext() {
     return Context.readOnly(ctx);
   }
 
-  @NonNull @Override public List<WebSocket> getSessions() {
+  @NonNull @Override
+  public List<WebSocket> getSessions() {
     List<WebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();
@@ -92,15 +96,18 @@ public class UtowWebSocket extends AbstractReceiveListener
     return result;
   }
 
-  @Override public boolean isOpen() {
+  @Override
+  public boolean isOpen() {
     return open.get() && channel.isOpen();
   }
 
-  @NonNull @Override public WebSocket send(@NonNull String message, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket send(@NonNull String message, boolean broadcast) {
     return send(message.getBytes(StandardCharsets.UTF_8), broadcast);
   }
 
-  @NonNull @Override public WebSocket send(@NonNull byte[] message, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket send(@NonNull byte[] message, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.send(message, false);
@@ -113,14 +120,15 @@ public class UtowWebSocket extends AbstractReceiveListener
           onError(channel, x);
         }
       } else {
-        onError(channel,
-            new IllegalStateException("Attempt to send a message on closed web socket"));
+        onError(
+            channel, new IllegalStateException("Attempt to send a message on closed web socket"));
       }
     }
     return this;
   }
 
-  @NonNull @Override public WebSocket render(@NonNull Object value, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket render(@NonNull Object value, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.render(value, false);
@@ -135,27 +143,32 @@ public class UtowWebSocket extends AbstractReceiveListener
     return this;
   }
 
-  @NonNull @Override public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
+  @NonNull @Override
+  public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
     handleClose(closeStatus);
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onConnect(@NonNull OnConnect callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onConnect(@NonNull OnConnect callback) {
     onConnectCallback = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onMessage(@NonNull OnMessage callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onMessage(@NonNull OnMessage callback) {
     onMessageCallback = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onError(@NonNull OnError callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onError(@NonNull OnError callback) {
     onErrorCallback = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onClose(@NonNull OnClose callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onClose(@NonNull OnClose callback) {
     onCloseCallback.set(callback);
     return this;
   }
@@ -166,9 +179,10 @@ public class UtowWebSocket extends AbstractReceiveListener
       open.set(true);
       addSession(this);
       Config conf = ctx.getRouter().getConfig();
-      long timeout = conf.hasPath("websocket.idleTimeout")
-          ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
-          : TimeUnit.MINUTES.toMillis(5);
+      long timeout =
+          conf.hasPath("websocket.idleTimeout")
+              ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
+              : TimeUnit.MINUTES.toMillis(5);
       if (timeout > 0) {
         channel.setIdleTimeout(timeout);
       }
@@ -184,13 +198,18 @@ public class UtowWebSocket extends AbstractReceiveListener
     }
   }
 
-  @Override protected void onFullTextMessage(WebSocketChannel channel,
-      BufferedTextMessage message) throws IOException {
+  @Override
+  protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message)
+      throws IOException {
     waitForConnect();
 
     if (onMessageCallback != null) {
-      dispatch(webSocketTask(() -> onMessageCallback
-          .onMessage(this, WebSocketMessage.create(getContext(), message.getData())), false));
+      dispatch(
+          webSocketTask(
+              () ->
+                  onMessageCallback.onMessage(
+                      this, WebSocketMessage.create(getContext(), message.getData())),
+              false));
     }
   }
 
@@ -210,7 +229,8 @@ public class UtowWebSocket extends AbstractReceiveListener
     }
   }
 
-  @Override protected void onError(WebSocketChannel channel, Throwable x) {
+  @Override
+  protected void onError(WebSocketChannel channel, Throwable x) {
     // should close?
     if (Server.connectionLost(x) || SneakyThrows.isFatal(x)) {
       if (isOpen()) {
@@ -220,10 +240,10 @@ public class UtowWebSocket extends AbstractReceiveListener
 
     if (onErrorCallback == null) {
       if (Server.connectionLost(x)) {
-        ctx.getRouter().getLog()
-            .debug("Websocket connection lost: {}", ctx.getRequestPath(), x);
+        ctx.getRouter().getLog().debug("Websocket connection lost: {}", ctx.getRequestPath(), x);
       } else {
-        ctx.getRouter().getLog()
+        ctx.getRouter()
+            .getLog()
             .error("Websocket resulted in exception: {}", ctx.getRequestPath(), x);
       }
     } else {
@@ -235,11 +255,12 @@ public class UtowWebSocket extends AbstractReceiveListener
     }
   }
 
-  @Override protected void onCloseMessage(CloseMessage cm,
-      WebSocketChannel channel) {
+  @Override
+  protected void onCloseMessage(CloseMessage cm, WebSocketChannel channel) {
     if (isOpen()) {
-      handleClose(WebSocketCloseStatus.valueOf(cm.getCode())
-          .orElseGet(() -> new WebSocketCloseStatus(cm.getCode(), cm.getReason())));
+      handleClose(
+          WebSocketCloseStatus.valueOf(cm.getCode())
+              .orElseGet(() -> new WebSocketCloseStatus(cm.getCode(), cm.getReason())));
     }
   }
 
@@ -248,11 +269,14 @@ public class UtowWebSocket extends AbstractReceiveListener
     if (isOpen()) {
       open.set(false);
       // close socket:
-      sendClose(status.getCode(), status.getReason(), channel,
+      sendClose(
+          status.getCode(),
+          status.getReason(),
+          channel,
           new WebSocketCallback<UtowWebSocket>() {
             @Override
-            public void onError(final WebSocketChannel channel, final UtowWebSocket ws,
-                final Throwable throwable) {
+            public void onError(
+                final WebSocketChannel channel, final UtowWebSocket ws, final Throwable throwable) {
               IoUtils.safeClose(channel);
               ws.onError(channel, throwable);
             }
@@ -261,7 +285,8 @@ public class UtowWebSocket extends AbstractReceiveListener
             public void complete(final WebSocketChannel channel, final UtowWebSocket ws) {
               IoUtils.safeClose(channel);
             }
-          }, this);
+          },
+          this);
     }
     try {
       // fire callback:
@@ -288,11 +313,13 @@ public class UtowWebSocket extends AbstractReceiveListener
     }
   }
 
-  @Override public void complete(WebSocketChannel channel, Void context) {
+  @Override
+  public void complete(WebSocketChannel channel, Void context) {
     // NOOP
   }
 
-  @Override public void onError(WebSocketChannel channel, Void context, Throwable throwable) {
+  @Override
+  public void onError(WebSocketChannel channel, Void context, Throwable throwable) {
     ctx.getRouter().getLog().error("WebSocket.send resulted in exception", throwable);
   }
 

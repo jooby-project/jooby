@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.apt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,10 +20,11 @@ public class JaxrsTest {
   @Test
   public void shouldValidateJaxRSNames() {
     ClassLoader loader = getClass().getClassLoader();
-    List<String> annotations = Stream.of(Annotations.class.getDeclaredFields())
-        .filter(it -> it.getName().startsWith("JAXRS_"))
-        .map(SneakyThrows.throwingFunction(it -> it.get(null).toString()))
-        .collect(Collectors.toList());
+    List<String> annotations =
+        Stream.of(Annotations.class.getDeclaredFields())
+            .filter(it -> it.getName().startsWith("JAXRS_"))
+            .map(SneakyThrows.throwingFunction(it -> it.get(null).toString()))
+            .collect(Collectors.toList());
 
     assertEquals(15, annotations.size());
     annotations.forEach(SneakyThrows.throwingConsumer(annotation -> loader.loadClass(annotation)));

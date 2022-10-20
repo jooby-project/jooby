@@ -1,11 +1,16 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package source;
+
+import java.util.Map;
 
 import io.jooby.annotations.ContextParam;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.SessionParam;
-
-import java.util.Map;
 
 @Path("/1387")
 public class Issue1387 {

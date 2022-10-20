@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i1905;
 
 import io.jooby.Jooby;
@@ -8,11 +13,13 @@ public class App1905 extends Jooby {
 
     install("/inline", SubApp1905::new);
 
-    install("/lambda-body", () -> {
-      SubApp1905 app = new SubApp1905();
-      doSomething(app);
-      return app;
-    });
+    install(
+        "/lambda-body",
+        () -> {
+          SubApp1905 app = new SubApp1905();
+          doSomething(app);
+          return app;
+        });
 
     install("/instance-reference", this::instanceMethod);
 
@@ -31,7 +38,5 @@ public class App1905 extends Jooby {
     return app;
   }
 
-  private void doSomething(SubApp1905 app) {
-
-  }
+  private void doSomething(SubApp1905 app) {}
 }

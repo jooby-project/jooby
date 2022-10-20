@@ -1,19 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.jooby.MediaType;
-import io.jooby.Router;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.swagger.v3.oas.models.tags.Tag;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
+import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
+import static java.util.Optional.ofNullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,40 +17,35 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
-import static java.util.Optional.ofNullable;
+import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.jooby.MediaType;
+import io.jooby.Router;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.tags.Tag;
 
 public class OperationExt extends io.swagger.v3.oas.models.Operation {
 
-  @JsonIgnore
-  private final MethodNode node;
-  @JsonIgnore
-  private String method;
-  @JsonIgnore
-  private final String pattern;
-  @JsonIgnore
-  private Boolean hidden;
-  @JsonIgnore
-  private LinkedList<String> produces = new LinkedList<>();
-  @JsonIgnore
-  private LinkedList<String> consumes = new LinkedList<>();
-  @JsonIgnore
-  private ResponseExt defaultResponse;
-  @JsonIgnore
-  private List<String> responseCodes = new ArrayList<>();
-  @JsonIgnore
-  private String pathSummary;
-  @JsonIgnore
-  private String pathDescription;
-  @JsonIgnore
-  private List<Tag> globalTags = new ArrayList<>();
-  @JsonIgnore
-  private ClassNode application;
-  @JsonIgnore
-  private ClassNode controller;
+  @JsonIgnore private final MethodNode node;
+  @JsonIgnore private String method;
+  @JsonIgnore private final String pattern;
+  @JsonIgnore private Boolean hidden;
+  @JsonIgnore private LinkedList<String> produces = new LinkedList<>();
+  @JsonIgnore private LinkedList<String> consumes = new LinkedList<>();
+  @JsonIgnore private ResponseExt defaultResponse;
+  @JsonIgnore private List<String> responseCodes = new ArrayList<>();
+  @JsonIgnore private String pathSummary;
+  @JsonIgnore private String pathDescription;
+  @JsonIgnore private List<Tag> globalTags = new ArrayList<>();
+  @JsonIgnore private ClassNode application;
+  @JsonIgnore private ClassNode controller;
 
-  public OperationExt(MethodNode node, String method, String pattern, List arguments,
-      ResponseExt response) {
+  public OperationExt(
+      MethodNode node, String method, String pattern, List arguments, ResponseExt response) {
     this.node = node;
     this.method = method.toUpperCase();
     this.pattern = pattern;
@@ -78,7 +66,8 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     return node;
   }
 
-  @Override public RequestBodyExt getRequestBody() {
+  @Override
+  public RequestBodyExt getRequestBody() {
     return (RequestBodyExt) super.getRequestBody();
   }
 
@@ -146,20 +135,22 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   }
 
   public Optional<Parameter> getParameter(String name) {
-    return getParameters().stream()
-        .filter(p -> p.getName().equals(name))
-        .findFirst();
+    return getParameters().stream().filter(p -> p.getName().equals(name)).findFirst();
   }
 
   public ResponseExt addResponse(String code) {
     responseCodes.add(code);
-    return (ResponseExt) getResponses().computeIfAbsent(code, statusCode -> {
-      ResponseExt rsp = new ResponseExt(statusCode);
-      if (isSuccessCode(statusCode)) {
-        rsp.setJavaTypes(defaultResponse.getJavaTypes());
-      }
-      return rsp;
-    });
+    return (ResponseExt)
+        getResponses()
+            .computeIfAbsent(
+                code,
+                statusCode -> {
+                  ResponseExt rsp = new ResponseExt(statusCode);
+                  if (isSuccessCode(statusCode)) {
+                    rsp.setJavaTypes(defaultResponse.getJavaTypes());
+                  }
+                  return rsp;
+                });
   }
 
   public String getPathDescription() {
@@ -206,9 +197,7 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
 
   @JsonIgnore
   public String getControllerName() {
-    return Optional.ofNullable(controller)
-        .map(it -> it.name)
-        .orElse(null);
+    return Optional.ofNullable(controller).map(it -> it.name).orElse(null);
   }
 
   public void setController(ClassNode controller) {
@@ -218,10 +207,11 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   @JsonIgnore
   public List<AnnotationNode> getAllAnnotations() {
     return Stream.of(
-        ofNullable(controller).map(c -> c.visibleAnnotations)
-            .orElse(application.visibleAnnotations),
-        node.visibleAnnotations
-    ).filter(Objects::nonNull)
+            ofNullable(controller)
+                .map(c -> c.visibleAnnotations)
+                .orElse(application.visibleAnnotations),
+            node.visibleAnnotations)
+        .filter(Objects::nonNull)
         .flatMap(List::stream)
         .collect(Collectors.toList());
   }

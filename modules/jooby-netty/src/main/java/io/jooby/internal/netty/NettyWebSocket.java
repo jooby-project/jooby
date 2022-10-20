@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-
 import io.jooby.Context;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -41,8 +40,8 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<NettyWebSocket>> all = new ConcurrentHashMap<>();
 
-  static final AttributeKey<NettyWebSocket> WS = AttributeKey
-      .newInstance(NettyWebSocket.class.getName());
+  static final AttributeKey<NettyWebSocket> WS =
+      AttributeKey.newInstance(NettyWebSocket.class.getName());
 
   private final NettyContext netty;
   private final boolean dispatch;
@@ -70,7 +69,8 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     return send(Unpooled.wrappedBuffer(bytes), broadcast);
   }
 
-  @Override public WebSocket render(Object value, boolean broadcast) {
+  @Override
+  public WebSocket render(Object value, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.render(value, false);
@@ -100,11 +100,13 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     return this;
   }
 
-  @Override public Context getContext() {
+  @Override
+  public Context getContext() {
     return Context.readOnly(netty);
   }
 
-  @NonNull @Override public List<WebSocket> getSessions() {
+  @NonNull @Override
+  public List<WebSocket> getSessions() {
     List<NettyWebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();
@@ -118,27 +120,32 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     return open.get() && netty.ctx.channel().isOpen();
   }
 
-  @Override public WebSocketConfigurer onConnect(WebSocket.OnConnect callback) {
+  @Override
+  public WebSocketConfigurer onConnect(WebSocket.OnConnect callback) {
     connectCallback = callback;
     return this;
   }
 
-  @Override public WebSocketConfigurer onMessage(WebSocket.OnMessage callback) {
+  @Override
+  public WebSocketConfigurer onMessage(WebSocket.OnMessage callback) {
     messageCallback = callback;
     return this;
   }
 
-  @Override public WebSocketConfigurer onClose(WebSocket.OnClose callback) {
+  @Override
+  public WebSocketConfigurer onClose(WebSocket.OnClose callback) {
     onCloseCallback.set(callback);
     return this;
   }
 
-  @Override public WebSocketConfigurer onError(OnError callback) {
+  @Override
+  public WebSocketConfigurer onError(OnError callback) {
     onErrorCallback = callback;
     return this;
   }
 
-  @Override public WebSocket close(WebSocketCloseStatus closeStatus) {
+  @Override
+  public WebSocket close(WebSocketCloseStatus closeStatus) {
     handleClose(closeStatus);
     return this;
   }
@@ -146,7 +153,8 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   void handleFrame(WebSocketFrame frame) {
     waitForConnect();
     try {
-      if (frame instanceof TextWebSocketFrame || frame instanceof BinaryWebSocketFrame
+      if (frame instanceof TextWebSocketFrame
+          || frame instanceof BinaryWebSocketFrame
           || frame instanceof ContinuationWebSocketFrame) {
         handleMessage(frame);
       } else if (frame instanceof CloseWebSocketFrame) {
@@ -186,9 +194,10 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     if (isOpen()) {
       open.set(false);
       // close socket:
-      netty.ctx.channel()
-          .writeAndFlush(
-              new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()))
+      netty
+          .ctx
+          .channel()
+          .writeAndFlush(new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()))
           .addListener(ChannelFutureListener.CLOSE);
     }
     try {
@@ -210,7 +219,9 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     }
 
     if (onErrorCallback == null) {
-      netty.getRouter().getLog()
+      netty
+          .getRouter()
+          .getLog()
           .error("Websocket resulted in exception: {}", netty.getRequestPath(), x);
     } else {
       onErrorCallback.onError(this, x);
@@ -226,9 +237,12 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     open.set(true);
     addSession(this);
     if (connectCallback != null) {
-      fireCallback(webSocketTask(() -> {
-        connectCallback.onConnect(this);
-      }, true));
+      fireCallback(
+          webSocketTask(
+              () -> {
+                connectCallback.onConnect(this);
+              },
+              true));
     } else {
       ready.countDown();
     }
@@ -251,8 +265,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
 
   private static WebSocketCloseStatus toWebSocketCloseStatus(CloseWebSocketFrame frame) {
     try {
-      return WebSocketCloseStatus
-          .valueOf(frame.statusCode())
+      return WebSocketCloseStatus.valueOf(frame.statusCode())
           .orElseGet(() -> new WebSocketCloseStatus(frame.statusCode(), frame.reasonText()));
     } finally {
       frame.release();
@@ -270,7 +283,8 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     }
   }
 
-  @Override public void operationComplete(ChannelFuture future) throws Exception {
+  @Override
+  public void operationComplete(ChannelFuture future) throws Exception {
     Throwable cause = future.cause();
     if (cause != null) {
       netty.getRouter().getLog().error("WebSocket.send resulted in exception", cause);

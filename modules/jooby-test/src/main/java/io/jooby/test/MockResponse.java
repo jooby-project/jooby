@@ -1,25 +1,26 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.test;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.MediaType;
-import io.jooby.StatusCode;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.MediaType;
+import io.jooby.StatusCode;
+
 /**
  * Response generate by {@link MockRouter}. Contains all response metadata as well as route returns
  * value.
  *
- * App.java
+ * <p>App.java
+ *
  * <pre>{@code
  * {
  *
@@ -29,14 +30,15 @@ import java.util.concurrent.CountDownLatch;
  * }</pre>
  *
  * UnitTest:
+ *
  * <pre>{@code
- *   MockRouter router = new MockRouter(new App());
+ * MockRouter router = new MockRouter(new App());
  *
- *   router.get("/", response -> {
+ * router.get("/", response -> {
  *
- *     assertEquals("OK", response.getResult());
+ *   assertEquals("OK", response.getResult());
  *
- *   });
+ * });
  * }</pre>
  *
  * @author edgar
@@ -167,12 +169,14 @@ public class MockResponse implements MockValue {
     return this;
   }
 
-  @Nullable @Override public Object value() {
+  @Nullable @Override
+  public Object value() {
     return result;
   }
 
   /**
    * Set route response value.
+   *
    * @param result Route response value.
    * @return This response.
    */

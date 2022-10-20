@@ -1,47 +1,47 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Non-blocking sender. Reactive responses uses this class to send partial data in non-blocking
  * manner.
  *
- * RxJava example:
+ * <p>RxJava example:
  *
  * <pre>{@code
+ * Sender sender = ctx.getSender();
  *
- *   Sender sender = ctx.getSender();
+ * Flux.fromCallable(...)
+ *   .subscribe(new Subscriber () {
  *
- *   Flux.fromCallable(...)
- *     .subscribe(new Subscriber () {
+ *     onSubscribe(Subscription s) {
+ *       this.subscription = s;
+ *       this.subscription.request(1);
+ *     }
  *
- *       onSubscribe(Subscription s) {
- *         this.subscription = s;
- *         this.subscription.request(1);
- *       }
+ *     onNext(Object next) {
+ *       sender.write(next, (ctx, cause) -> {
+ *         subscription.request(1);
+ *       });
+ *     }
  *
- *       onNext(Object next) {
- *         sender.write(next, (ctx, cause) -> {
- *           subscription.request(1);
- *         });
- *       }
+ *     onError(Throwable error) {
+ *       subscription.cancel();
+ *     }
  *
- *       onError(Throwable error) {
- *         subscription.cancel();
- *       }
- *
- *       onComplete() {
- *         sender.close();
- *       }
- *     })
+ *     onComplete() {
+ *       sender.close();
+ *     }
+ *   })
  *
  * }</pre>
  *
@@ -50,9 +50,7 @@ import java.nio.charset.StandardCharsets;
  */
 public interface Sender {
 
-  /**
-   * Write callback.
-   */
+  /** Write callback. */
   interface Callback {
     /**
      * Callback after for <code>write</code> operation.
@@ -82,8 +80,7 @@ public interface Sender {
    * @param callback Callback.
    * @return This sender.
    */
-  @NonNull default Sender write(@NonNull String data, @NonNull Charset charset,
-      @NonNull Callback callback) {
+  @NonNull default Sender write(@NonNull String data, @NonNull Charset charset, @NonNull Callback callback) {
     return write(data.getBytes(charset), callback);
   }
 
@@ -96,8 +93,6 @@ public interface Sender {
    */
   @NonNull Sender write(@NonNull byte[] data, @NonNull Callback callback);
 
-  /**
-   * Close the sender.
-   */
+  /** Close the sender. */
   void close();
 }

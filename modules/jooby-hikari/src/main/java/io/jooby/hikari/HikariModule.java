@@ -1,24 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.hikari;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueType;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import io.jooby.Environment;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.ServiceKey;
-import io.jooby.ServiceRegistry;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.sql.DataSource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -33,19 +19,36 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.sql.DataSource;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigValue;
+import com.typesafe.config.ConfigValueType;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Environment;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
+
 /**
  * Hikari connection pool module: https://jooby.io/modules/hikari.
  *
- * mySQL Example:
+ * <p>mySQL Example:
  *
- * application.conf:
+ * <p>application.conf:
+ *
  * <pre>{@code
- *  db.url = "jdbc:mysql://localhost/mydb"
- *  db.user = myuser
- *  db.password = mypassword
+ * db.url = "jdbc:mysql://localhost/mydb"
+ * db.user = myuser
+ * db.password = mypassword
  * }</pre>
  *
  * App.java:
+ *
  * <pre>{@code
  * {
  *
@@ -56,41 +59,38 @@ import java.util.stream.Stream;
  *
  * To simplify development Jooby offers 3 special databases based on H2 Java database engine:
  *
- * - mem: for in-memory database
- * - local: for a file system database stored in the current project directory
- * - tmp: for a file system database stored in the operating system temporary directory
+ * <p>- mem: for in-memory database - local: for a file system database stored in the current
+ * project directory - tmp: for a file system database stored in the operating system temporary
+ * directory
  *
- * To use any of these database you first need to add the h2 driver to your project and then:
+ * <p>To use any of these database you first need to add the h2 driver to your project and then:
  *
- * - define the <code>db</code> property in your application configuration file, like
- *     <code>db=mem</code> or
- * - pass the database type to the HikariModule. <code>new HikariModule("mem")</code>
- *
- * Alternative you can specify a jdbc connection string:
+ * <p>- define the <code>db</code> property in your application configuration file, like <code>
+ * db=mem</code> or - pass the database type to the HikariModule. <code>new HikariModule("mem")
+ * </code> Alternative you can specify a jdbc connection string:
  *
  * <pre>{@code
- *   install(new HikariModule("jdbc:mysql://localhost/mydb"));
+ * install(new HikariModule("jdbc:mysql://localhost/mydb"));
  * }</pre>
  *
  * The module exposes a {@link DataSource} instance which can be retrieve it after installing:
  *
  * <pre>{@code
+ * install(new HikariModule("jdbc:mysql://localhost/mydb"));
  *
- *    install(new HikariModule("jdbc:mysql://localhost/mydb"));
- *
- *    DataSource dataSource = require(DataSource.class);
+ * DataSource dataSource = require(DataSource.class);
  * }</pre>
  *
  * Supports multiple database connections:
  *
  * <pre>{@code
- *  install(new HikariModule("maindb"));
+ * install(new HikariModule("maindb"));
  *
- *  install(new HikariModule("auditdb"));
+ * install(new HikariModule("auditdb"));
  *
- *  DataSource maindb = require(DataSource.class, "maindb");
+ * DataSource maindb = require(DataSource.class, "maindb");
  *
- *  DataSource auditdb = require(DataSource.class, "auditdb");
+ * DataSource auditdb = require(DataSource.class, "auditdb");
  * }</pre>
  *
  * Complete documentation is available at: https://jooby.io/modules/hikari.
@@ -118,8 +118,8 @@ public class HikariModule implements Extension {
   /** Minimum connection pool size. */
   private static final int MINIMUM_SIZE = 10;
 
-  private static final Set<String> SKIP_TOKENS = Stream.of("jdbc", "jtds")
-      .collect(Collectors.toSet());
+  private static final Set<String> SKIP_TOKENS =
+      Stream.of("jdbc", "jtds").collect(Collectors.toSet());
 
   /** Default datasource key. Used for retrieving the default datasource. */
   public static final ServiceKey<DataSource> KEY = ServiceKey.key(DataSource.class);
@@ -134,9 +134,9 @@ public class HikariModule implements Extension {
   /**
    * Creates a new Hikari module. The database parameter can be one of:
    *
-   * - A property key defined in your application configuration file, like <code>db</code>.
-   * - A special h2 database: mem, local or tmp.
-   * - A jdbc connection string, like: <code>jdbc:mysql://localhost/db</code>
+   * <p>- A property key defined in your application configuration file, like <code>db</code>. - A
+   * special h2 database: mem, local or tmp. - A jdbc connection string, like: <code>
+   * jdbc:mysql://localhost/db</code>
    *
    * @param database Database key, database type or connection string.
    */
@@ -145,13 +145,13 @@ public class HikariModule implements Extension {
   }
 
   /**
-   * Creates a new Hikari module using the <code>db</code> property key. This key must be
-   * present in the application configuration file, like:
+   * Creates a new Hikari module using the <code>db</code> property key. This key must be present in
+   * the application configuration file, like:
    *
    * <pre>{@code
-   *  db.url = "jdbc:url"
-   *  db.user = dbuser
-   *  db.password = dbpass
+   * db.url = "jdbc:url"
+   * db.user = dbuser
+   * db.password = dbpass
    * }</pre>
    */
   public HikariModule() {
@@ -169,10 +169,10 @@ public class HikariModule implements Extension {
   }
 
   /**
-   * Sets a {@code MetricRegistry} to pass it forward to
-   * {@link HikariConfig} for instrumentation.
+   * Sets a {@code MetricRegistry} to pass it forward to {@link HikariConfig} for instrumentation.
    *
-   * @param metricRegistry an instance compatible with {@link HikariConfig#setMetricRegistry(Object)}
+   * @param metricRegistry an instance compatible with {@link
+   *     HikariConfig#setMetricRegistry(Object)}
    * @return this instance
    * @see HikariConfig#setMetricRegistry(Object)
    */
@@ -182,10 +182,11 @@ public class HikariModule implements Extension {
   }
 
   /**
-   * Sets a {@code HealthCheckRegistry} to pass it forward to
-   * {@link HikariConfig} for instrumentation.
+   * Sets a {@code HealthCheckRegistry} to pass it forward to {@link HikariConfig} for
+   * instrumentation.
    *
-   * @param healthCheckRegistry an instance compatible with {@link HikariConfig#setHealthCheckRegistry(Object)}
+   * @param healthCheckRegistry an instance compatible with {@link
+   *     HikariConfig#setHealthCheckRegistry(Object)}
    * @return this instance
    * @see HikariConfig#setHealthCheckRegistry(Object)
    */
@@ -194,7 +195,8 @@ public class HikariModule implements Extension {
     return this;
   }
 
-  @Override public void install(@NonNull Jooby application) {
+  @Override
+  public void install(@NonNull Jooby application) {
     if (hikari == null) {
       hikari = build(application.getEnvironment(), database);
     }
@@ -222,25 +224,25 @@ public class HikariModule implements Extension {
   /**
    * Get a database type from jdbc url. Examples:
    *
-   * - jdbc:mysql://localhost/mydb =&gt; mysql
-   * - jdbc:postgresql://server/database =&gt; postgresql
+   * <p>- jdbc:mysql://localhost/mydb =&gt; mysql - jdbc:postgresql://server/database =&gt;
+   * postgresql
    *
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database type or given jdbc connection string for unknown or bad urls.
    */
   public static @NonNull String databaseType(@NonNull String url) {
-    String type = Arrays.stream(url.toLowerCase().split(":"))
-        .filter(token -> !SKIP_TOKENS.contains(token))
-        .findFirst()
-        .orElse(url);
+    String type =
+        Arrays.stream(url.toLowerCase().split(":"))
+            .filter(token -> !SKIP_TOKENS.contains(token))
+            .findFirst()
+            .orElse(url);
     return type;
   }
 
   /**
    * Get a database name from jdbc url. Examples:
    *
-   * - jdbc:mysql://localhost/mydb =&gt; mydb
-   * - jdbc:postgresql://server/database =&gt; database
+   * <p>- jdbc:mysql://localhost/mydb =&gt; mydb - jdbc:postgresql://server/database =&gt; database
    *
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database name.
@@ -282,7 +284,8 @@ public class HikariModule implements Extension {
 
   private static Map<String, Object> defaults(String database, Environment env) {
     Map<String, Object> defaults = new HashMap<>();
-    defaults.put("maximumPoolSize",
+    defaults.put(
+        "maximumPoolSize",
         Math.max(MINIMUM_SIZE, Runtime.getRuntime().availableProcessors() * WORKER_FACTOR));
     if ("derby".equals(database)) {
       // url => jdbc:derby:${db};create=true
@@ -291,7 +294,7 @@ public class HikariModule implements Extension {
       // url => jdbc:db2://127.0.0.1:50000/SAMPLE
       defaults.put("dataSourceClassName", "com.ibm.db2.jcc.DB2SimpleDataSource");
     } else if ("h2".equals(database)) {
-      //url => mem, fs or jdbc:h2:${db}
+      // url => mem, fs or jdbc:h2:${db}
       defaults.put("dataSourceClassName", "org.h2.jdbcx.JdbcDataSource");
       defaults.put("dataSource.user", "sa");
       defaults.put("dataSource.password", "");
@@ -308,17 +311,21 @@ public class HikariModule implements Extension {
           .ifPresent(klass -> defaults.put("dataSourceClassName", klass.getName()));
       // 5.x
       if (!defaults.containsKey("dataSourceClassName")) {
-        env.loadClass("com.mysql.jdbc.jdbc2.optional.MysqlDataSource").ifPresent(klass -> {
-          defaults.put("dataSourceClassName", klass.getName());
-          defaults.put("dataSource.encoding", env.getConfig().getString("application.charset"));
-          defaults.put("dataSource.cachePrepStmts", true);
-          defaults.put("dataSource.prepStmtCacheSize", MYSQL5_STT_CACHE_SIZE);
-          defaults.put("dataSource.prepStmtCacheSqlLimit", MYSQL5_STT_CACHE_SQL_LIMIT);
-          defaults.put("dataSource.useServerPrepStmts", true);
-        });
+        env.loadClass("com.mysql.jdbc.jdbc2.optional.MysqlDataSource")
+            .ifPresent(
+                klass -> {
+                  defaults.put("dataSourceClassName", klass.getName());
+                  defaults.put(
+                      "dataSource.encoding", env.getConfig().getString("application.charset"));
+                  defaults.put("dataSource.cachePrepStmts", true);
+                  defaults.put("dataSource.prepStmtCacheSize", MYSQL5_STT_CACHE_SIZE);
+                  defaults.put("dataSource.prepStmtCacheSqlLimit", MYSQL5_STT_CACHE_SQL_LIMIT);
+                  defaults.put("dataSource.useServerPrepStmts", true);
+                });
       }
     } else if ("sqlserver".equals(database)) {
-      // url => jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+      // url =>
+      // jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
       defaults.put("dataSourceClassName", "com.microsoft.sqlserver.jdbc.SQLServerDataSource");
     } else if ("oracle".equals(database)) {
       // url => jdbc:oracle:thin:@//<host>:<port>/<service_name>
@@ -348,12 +355,7 @@ public class HikariModule implements Extension {
   static HikariConfig build(Environment env, String database) {
     Properties properties;
     Config config = env.getConfig();
-    /**
-     * database:
-     *  - key
-     *  - jdbc url
-     *  - special database
-     */
+    /** database: - key - jdbc url - special database */
     boolean isProperty = isProperty(config, database);
     String dbkey = database;
     if (isProperty) {
@@ -380,16 +382,15 @@ public class HikariModule implements Extension {
     Stream.of(dbkey, dbname)
         .filter(Objects::nonNull)
         .distinct()
-        .forEach(key ->
-            dumpProperties(config, "hikari", "", properties::setProperty)
-        );
+        .forEach(key -> dumpProperties(config, "hikari", "", properties::setProperty));
     Stream.of(dbkey, dbname)
         .filter(Objects::nonNull)
         .distinct()
-        .forEach(key -> {
-          dumpProperties(config, key + ".dataSource", "dataSource.", properties::setProperty);
-          dumpProperties(config, key + ".hikari", "", properties::setProperty);
-        });
+        .forEach(
+            key -> {
+              dumpProperties(config, key + ".dataSource", "dataSource.", properties::setProperty);
+              dumpProperties(config, key + ".hikari", "", properties::setProperty);
+            });
 
     Map<String, Object> defaults = defaults(dbtype, env);
     Properties configuration = new Properties();
@@ -403,19 +404,20 @@ public class HikariModule implements Extension {
     }
 
     if (dbtype == null) {
-      String poolName = Stream.of(
-          configuration.getProperty(DATASOURCE_CLASS_NAME),
-          configuration.getProperty(DRIVER_CLASS_NAME),
-          configuration.getProperty("dataSource.database"),
-          configuration.getProperty("dataSource.databaseName")
-      )
-          .filter(Objects::nonNull)
-          .map(n -> n.replace("DataSource", "").replace("Driver", ""))
-          .map(n -> {
-            int i = n.lastIndexOf('.');
-            return i != -1 ? n.substring(i + 1).toLowerCase() : n;
-          })
-          .collect(Collectors.joining("."));
+      String poolName =
+          Stream.of(
+                  configuration.getProperty(DATASOURCE_CLASS_NAME),
+                  configuration.getProperty(DRIVER_CLASS_NAME),
+                  configuration.getProperty("dataSource.database"),
+                  configuration.getProperty("dataSource.databaseName"))
+              .filter(Objects::nonNull)
+              .map(n -> n.replace("DataSource", "").replace("Driver", ""))
+              .map(
+                  n -> {
+                    int i = n.lastIndexOf('.');
+                    return i != -1 ? n.substring(i + 1).toLowerCase() : n;
+                  })
+              .collect(Collectors.joining("."));
       configuration.put("poolName", poolName);
     } else {
       configuration.put("poolName", dbtype + "." + dbname);
@@ -428,8 +430,8 @@ public class HikariModule implements Extension {
     return new HikariConfig(configuration);
   }
 
-  private static void dumpProperties(Config config, String key, String prefix,
-      BiConsumer<String, String> consumer) {
+  private static void dumpProperties(
+      Config config, String key, String prefix, BiConsumer<String, String> consumer) {
     if (isProperty(config, key)) {
       Object anyRef = config.getAnyRef(key);
       if (anyRef instanceof Map) {
@@ -457,12 +459,14 @@ public class HikariModule implements Extension {
     }
 
     // Move dataSourceClassName/driverClassName
-    Stream.of(DATASOURCE_CLASS_NAME, DRIVER_CLASS_NAME).forEach(k -> {
-      String value = (String) hikari.remove("dataSource." + k);
-      if (value != null) {
-        hikari.setProperty(k, value);
-      }
-    });
+    Stream.of(DATASOURCE_CLASS_NAME, DRIVER_CLASS_NAME)
+        .forEach(
+            k -> {
+              String value = (String) hikari.remove("dataSource." + k);
+              if (value != null) {
+                hikari.setProperty(k, value);
+              }
+            });
     return hikari;
   }
 

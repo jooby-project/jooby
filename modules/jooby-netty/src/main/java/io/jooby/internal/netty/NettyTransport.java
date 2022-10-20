@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -72,27 +72,30 @@ public abstract class NettyTransport {
   }
 
   private static class JDKTransport extends NettyTransport {
-    @Override public EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio) {
-      NioEventLoopGroup loopGroup = new NioEventLoopGroup(threads,
-          new DefaultThreadFactory(threadName));
+    @Override
+    public EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio) {
+      NioEventLoopGroup loopGroup =
+          new NioEventLoopGroup(threads, new DefaultThreadFactory(threadName));
       loopGroup.setIoRatio(ioRatio);
       return loopGroup;
     }
 
-    @Override public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
-      return super.configure(acceptor, eventloop)
-          .channel(NioServerSocketChannel.class);
+    @Override
+    public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
+      return super.configure(acceptor, eventloop).channel(NioServerSocketChannel.class);
     }
   }
 
   private static class EpollTransport extends NettyTransport {
-    @Override public EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio) {
-      EpollEventLoopGroup loopGroup = new EpollEventLoopGroup(threads,
-          new DefaultThreadFactory(threadName + "-epoll"));
+    @Override
+    public EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio) {
+      EpollEventLoopGroup loopGroup =
+          new EpollEventLoopGroup(threads, new DefaultThreadFactory(threadName + "-epoll"));
       return loopGroup;
     }
 
-    @Override public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
+    @Override
+    public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
       return super.configure(acceptor, eventloop)
           .channel(EpollServerSocketChannel.class)
           .option(EpollChannelOption.SO_REUSEPORT, true);
@@ -100,16 +103,17 @@ public abstract class NettyTransport {
   }
 
   private static class KQueueTransport extends NettyTransport {
-    @Override public EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio) {
-      KQueueEventLoopGroup loopGroup = new KQueueEventLoopGroup(threads,
-          new DefaultThreadFactory(threadName + "-kqueue"));
+    @Override
+    public EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio) {
+      KQueueEventLoopGroup loopGroup =
+          new KQueueEventLoopGroup(threads, new DefaultThreadFactory(threadName + "-kqueue"));
       loopGroup.setIoRatio(ioRatio);
       return loopGroup;
     }
 
-    @Override public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
-      return super.configure(acceptor, eventloop)
-          .channel(KQueueServerSocketChannel.class);
+    @Override
+    public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
+      return super.configure(acceptor, eventloop).channel(KQueueServerSocketChannel.class);
     }
   }
 }

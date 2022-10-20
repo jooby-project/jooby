@@ -1,11 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.x509;
-
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,24 +18,32 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
+
 /**
- * Reads a PEM file and converts it into a list of DERs so that they are imported into a
- * {@link KeyStore} easily.
+ * Reads a PEM file and converts it into a list of DERs so that they are imported into a {@link
+ * KeyStore} easily.
  *
- * Borrowed from <a href="http://netty.io">Netty</a>
+ * <p>Borrowed from <a href="http://netty.io">Netty</a>
  */
 final class PemReader {
 
-  private static final Pattern CERT_PATTERN = Pattern.compile(
-      "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-          "([a-z0-9+/=\\r\\n]+)" + // Base64 text
-          "-+END\\s+.*CERTIFICATE[^-]*-+", // Footer
-      Pattern.CASE_INSENSITIVE);
-  private static final Pattern KEY_PATTERN = Pattern.compile(
-      "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-          "([a-z0-9+/=\\r\\n]+)" + // Base64 text
-          "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+", // Footer
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern CERT_PATTERN =
+      Pattern.compile(
+          "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+"
+              + // Header
+              "([a-z0-9+/=\\r\\n]+)"
+              + // Base64 text
+              "-+END\\s+.*CERTIFICATE[^-]*-+", // Footer
+          Pattern.CASE_INSENSITIVE);
+  private static final Pattern KEY_PATTERN =
+      Pattern.compile(
+          "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+"
+              + // Header
+              "([a-z0-9+/=\\r\\n]+)"
+              + // Base64 text
+              "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+", // Footer
+          Pattern.CASE_INSENSITIVE);
 
   static List<ByteBuffer> readCertificates(final InputStream file)
       throws CertificateException, IOException {
@@ -76,6 +82,5 @@ final class PemReader {
     return ByteBuffer.wrap(decode(value));
   }
 
-  private PemReader() {
-  }
+  private PemReader() {}
 }

@@ -1,15 +1,20 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.slf4j.LoggerFactory;
+
+import io.jooby.Context;
+import io.jooby.Route;
 import io.jooby.annotations.DELETE;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
-import io.jooby.Context;
-import io.jooby.Route;
-
-import org.slf4j.LoggerFactory;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Path("/")
 public class InstanceRouter {
@@ -30,15 +35,15 @@ public class InstanceRouter {
 
   @DELETE
   @Path("/void")
-  public void noContent() {
-  }
+  public void noContent() {}
 
   @GET
   @Path("/voidwriter")
   public void writer(Context ctx) throws Exception {
     LoggerFactory.getLogger(getClass()).info("blocking");
-    ctx.responseWriter(writer -> {
-      writer.println("writer");
-    });
+    ctx.responseWriter(
+        writer -> {
+          writer.println("writer");
+        });
   }
 }

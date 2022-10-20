@@ -1,11 +1,16 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i1805;
+
+import java.net.URI;
+import java.net.URL;
 
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.QueryParam;
-
-import java.net.URI;
-import java.net.URL;
 
 @Path("/1805")
 public class C1805 {

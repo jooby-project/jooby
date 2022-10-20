@@ -1,14 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Objects.requireNonNull;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -19,16 +17,18 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * <h1>Access Log Handler</h1>
- * <p>
- * Log incoming requested using the
- * <a href="https://en.wikipedia.org/wiki/Common_Log_Format">NCSA format</a> (a.k.a common log
- * format).
- * </p>
  *
+ *
+ * <h1>Access Log Handler</h1>
+ *
+ * <p>Log incoming requested using the <a
+ * href="https://en.wikipedia.org/wiki/Common_Log_Format">NCSA format</a> (a.k.a common log format).
  * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
  * please consider to set {@link Router#setTrustProxy(boolean)} option.
  *
@@ -42,17 +42,14 @@ import static java.util.Objects.requireNonNull;
  * }
  * }</pre>
  *
- * <p>
- * Output looks like:
- * </p>
+ * <p>Output looks like:
  *
  * <pre>
  * 127.0.0.1 - - [04/Oct/2016:17:51:42 +0000] "GET / HTTP/1.1" 200 2
  * </pre>
  *
- * <p>
- * You probably want to configure the <code>AccessLogHandler</code> logger to save output into a new file:
- * </p>
+ * <p>You probably want to configure the <code>AccessLogHandler</code> logger to save output into a
+ * new file:
  *
  * <pre>
  * &lt;appender name="ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender"&gt;
@@ -71,9 +68,7 @@ import static java.util.Objects.requireNonNull;
  * &lt;/logger&gt;
  * </pre>
  *
- * <p>
- * By defaults it log the available user context: {@link Context#getUser()}. To override this:
- * </p>
+ * <p>By defaults it log the available user context: {@link Context#getUser()}. To override this:
  *
  * <pre>{@code
  * {
@@ -85,15 +80,12 @@ import static java.util.Objects.requireNonNull;
  * }</pre>
  *
  * <h2>custom log function</h2>
- * <p>
- * By default it uses the underlying logging system: <a href="http://logback.qos.ch">logback</a>.
+ *
+ * <p>By default it uses the underlying logging system: <a href="http://logback.qos.ch">logback</a>.
  * That's why we previously show how to configure the <code>io.jooby.AccessLogHandler</code> in
  * <code>logback.xml</code>.
- * </p>
  *
- * <p>
- * If you want to log somewhere else and/or use a different method then:
- * </p>
+ * <p>If you want to log somewhere else and/or use a different method then:
  *
  * <pre>{@code
  * {
@@ -104,10 +96,8 @@ import static java.util.Objects.requireNonNull;
  * }
  * }</pre>
  *
- * <p>
- * This is just an example but of course you can log the <code>NCSA</code> line to database, jms
+ * <p>This is just an example but of course you can log the <code>NCSA</code> line to database, jms
  * queue, etc...
- * </p>
  *
  * <h2>latency</h2>
  *
@@ -118,15 +108,13 @@ import static java.util.Objects.requireNonNull;
  * }
  * }</pre>
  *
- * <p>
- * It add a new entry at the last of the <code>NCSA</code> output that represents the number of
+ * <p>It add a new entry at the last of the <code>NCSA</code> output that represents the number of
  * <code>ms</code> it took to process the incoming release.
  *
  * <h2>request and response headers</h2>
- * <p>
- * You can add extra headers using the {@link AccessLogHandler#requestHeader(String...)} and
+ *
+ * <p>You can add extra headers using the {@link AccessLogHandler#requestHeader(String...)} and
  * {@link AccessLogHandler#responseHeader(String...)}
- * </p>
  *
  * <h2>dateFormatter</h2>
  *
@@ -141,15 +129,11 @@ import static java.util.Objects.requireNonNull;
  * }
  * }</pre>
  *
- * <p>
- * You can provide a function or an instance of {@link DateTimeFormatter}.
- * </p>
+ * <p>You can provide a function or an instance of {@link DateTimeFormatter}.
  *
- * <p>
- * The default formatter use the default server time zone, provided by
- * {@link ZoneId#systemDefault()}. It's possible to just override the time zone (not the entirely
+ * <p>The default formatter use the default server time zone, provided by {@link
+ * ZoneId#systemDefault()}. It's possible to just override the time zone (not the entirely
  * formatter) too:
- * </p>
  *
  * <pre>{@code
  * {
@@ -166,9 +150,8 @@ public class AccessLogHandler implements Route.Decorator {
 
   private static final String REFERER = "Referer";
 
-  private static final DateTimeFormatter FORMATTER = DateTimeFormatter
-      .ofPattern("dd/MMM/yyyy:HH:mm:ss Z")
-      .withZone(ZoneId.systemDefault());
+  private static final DateTimeFormatter FORMATTER =
+      DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z").withZone(ZoneId.systemDefault());
 
   private static final String DASH = "-";
   private static final char SP = ' ';
@@ -176,10 +159,8 @@ public class AccessLogHandler implements Route.Decorator {
   private static final char BR = ']';
   private static final char Q = '\"';
 
-  private static final Function<Context, String> USER_OR_DASH = ctx ->
-      Optional.ofNullable(ctx.getUser())
-          .map(Object::toString)
-          .orElse(DASH);
+  private static final Function<Context, String> USER_OR_DASH =
+      ctx -> Optional.ofNullable(ctx.getUser()).map(Object::toString).orElse(DASH);
   /** Default buffer size. */
   private static final int MESSAGE_SIZE = 256;
 
@@ -208,50 +189,50 @@ public class AccessLogHandler implements Route.Decorator {
     dateFormatter(FORMATTER);
   }
 
-  /**
-   * Creates a new {@link AccessLogHandler} without user identifier.
-   */
+  /** Creates a new {@link AccessLogHandler} without user identifier. */
   public AccessLogHandler() {
     this(USER_OR_DASH);
   }
 
-  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
+  @NonNull @Override
+  public Route.Handler apply(@NonNull Route.Handler next) {
     long timestamp = System.currentTimeMillis();
     return ctx -> {
       // Take remote address here (less chances of loosing it on interrupted requests).
       String remoteAddr = ctx.getRemoteAddress();
-      ctx.onComplete(context -> {
-        StringBuilder sb = new StringBuilder(MESSAGE_SIZE);
-        sb.append(remoteAddr);
-        sb.append(SP).append(DASH).append(SP);
-        sb.append(userId.apply(ctx));
-        sb.append(SP);
-        sb.append(BL).append(df.apply(timestamp)).append(BR);
-        sb.append(SP);
-        sb.append(Q).append(ctx.getMethod());
-        sb.append(SP);
-        sb.append(ctx.getRequestPath());
-        sb.append(ctx.queryString());
-        sb.append(SP);
-        sb.append(ctx.getProtocol());
-        sb.append(Q).append(SP);
-        sb.append(ctx.getResponseCode().value());
-        sb.append(SP);
-        long responseLength = ctx.getResponseLength();
-        sb.append(responseLength >= 0 ? responseLength : DASH);
-        long now = System.currentTimeMillis();
-        sb.append(SP);
-        sb.append(now - timestamp);
-        appendHeaders(sb, requestHeaders, h -> ctx.header(h).valueOrNull());
-        appendHeaders(sb, responseHeaders, h -> ctx.getResponseHeader(h));
-        logRecord.accept(sb.toString());
-      });
+      ctx.onComplete(
+          context -> {
+            StringBuilder sb = new StringBuilder(MESSAGE_SIZE);
+            sb.append(remoteAddr);
+            sb.append(SP).append(DASH).append(SP);
+            sb.append(userId.apply(ctx));
+            sb.append(SP);
+            sb.append(BL).append(df.apply(timestamp)).append(BR);
+            sb.append(SP);
+            sb.append(Q).append(ctx.getMethod());
+            sb.append(SP);
+            sb.append(ctx.getRequestPath());
+            sb.append(ctx.queryString());
+            sb.append(SP);
+            sb.append(ctx.getProtocol());
+            sb.append(Q).append(SP);
+            sb.append(ctx.getResponseCode().value());
+            sb.append(SP);
+            long responseLength = ctx.getResponseLength();
+            sb.append(responseLength >= 0 ? responseLength : DASH);
+            long now = System.currentTimeMillis();
+            sb.append(SP);
+            sb.append(now - timestamp);
+            appendHeaders(sb, requestHeaders, h -> ctx.header(h).valueOrNull());
+            appendHeaders(sb, responseHeaders, h -> ctx.getResponseHeader(h));
+            logRecord.accept(sb.toString());
+          });
       return next.apply(ctx);
     };
   }
 
-  private void appendHeaders(StringBuilder buff, List<String> requestHeaders,
-      Function<String, String> headers) {
+  private void appendHeaders(
+      StringBuilder buff, List<String> requestHeaders, Function<String, String> headers) {
     for (String header : requestHeaders) {
       String value = headers.apply(header);
       if (value == null) {
@@ -266,11 +247,11 @@ public class AccessLogHandler implements Route.Decorator {
    * Log an NCSA line to somewhere.
    *
    * <pre>{@code
-   *  {
-   *    use("*", new RequestLogger()
-   *        .log(System.out::println)
-   *    );
-   *  }
+   * {
+   *   use("*", new RequestLogger()
+   *       .log(System.out::println)
+   *   );
+   * }
    * }</pre>
    *
    * @param log Log callback.

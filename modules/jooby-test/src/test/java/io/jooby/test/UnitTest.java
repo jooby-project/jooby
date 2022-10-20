@@ -1,4 +1,20 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.test;
+
+import static io.jooby.StatusCode.NO_CONTENT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.jooby.Context;
 import io.jooby.Formdata;
@@ -7,17 +23,6 @@ import io.jooby.StatusCode;
 import io.jooby.ValueNode;
 import io.jooby.WebSocketMessage;
 import io.reactivex.Single;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-
-import static io.jooby.StatusCode.NO_CONTENT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class UnitTest {
 
@@ -45,37 +50,52 @@ public class UnitTest {
 
     assertEquals("foo", router.get("/search", new MockContext().setQueryString("?q=foo")).value());
 
-    router.get("/", result -> {
-      Assertions.assertEquals(StatusCode.OK, result.getStatusCode());
-      Assertions.assertEquals("text/plain", result.getContentType().getValue());
-      assertEquals(2, result.getContentLength());
-      assertEquals("OK", result.value());
-    });
+    router.get(
+        "/",
+        result -> {
+          Assertions.assertEquals(StatusCode.OK, result.getStatusCode());
+          Assertions.assertEquals("text/plain", result.getContentType().getValue());
+          assertEquals(2, result.getContentLength());
+          assertEquals("OK", result.value());
+        });
 
-    router.get("/123", result -> {
-      Assertions.assertEquals(StatusCode.OK, result.getStatusCode());
-      Assertions.assertEquals("text/plain", result.getContentType().getValue());
-      assertEquals(3, result.getContentLength());
-      assertEquals(123, result.value(Integer.class).intValue());
-    });
+    router.get(
+        "/123",
+        result -> {
+          Assertions.assertEquals(StatusCode.OK, result.getStatusCode());
+          Assertions.assertEquals("text/plain", result.getContentType().getValue());
+          assertEquals(3, result.getContentLength());
+          assertEquals(123, result.value(Integer.class).intValue());
+        });
 
-    router.delete("/123", result -> {
-      Assertions.assertEquals(NO_CONTENT, result.getStatusCode());
-    });
+    router.delete(
+        "/123",
+        result -> {
+          Assertions.assertEquals(NO_CONTENT, result.getStatusCode());
+        });
 
     String body = "{\"message\":\"ok\"}";
-    router.post("/", new MockContext().setBody(body), result -> {
-      assertEquals(body, result.value());
-    });
+    router.post(
+        "/",
+        new MockContext().setBody(body),
+        result -> {
+          assertEquals(body, result.value());
+        });
 
     PojoBody pojo = new PojoBody();
-    router.post("/pojo", new MockContext().setBodyObject(pojo), result -> {
-      assertEquals(pojo, result.value());
-    });
+    router.post(
+        "/pojo",
+        new MockContext().setBodyObject(pojo),
+        result -> {
+          assertEquals(pojo, result.value());
+        });
 
-    router.get("/x/notfound", new MockContext().setBodyObject(pojo), result -> {
-      Assertions.assertEquals(StatusCode.NOT_FOUND, result.getStatusCode());
-    });
+    router.get(
+        "/x/notfound",
+        new MockContext().setBodyObject(pojo),
+        result -> {
+          Assertions.assertEquals(StatusCode.NOT_FOUND, result.getStatusCode());
+        });
   }
 
   @Test
@@ -86,14 +106,15 @@ public class UnitTest {
     app.after((ctx, result, failure) -> ctx.setResponseHeader("after", ">"));
     app.get("/", ctx -> "OK");
 
-    MockRouter router = new MockRouter(app)
-        .setFullExecution(true);
+    MockRouter router = new MockRouter(app).setFullExecution(true);
 
-    router.get("/", rsp -> {
-      assertEquals("OK", rsp.value());
-      assertEquals("<", rsp.getHeaders().get("before"));
-      assertEquals(">", rsp.getHeaders().get("after"));
-    });
+    router.get(
+        "/",
+        rsp -> {
+          assertEquals("OK", rsp.value());
+          assertEquals("<", rsp.getHeaders().get("before"));
+          assertEquals(">", rsp.getHeaders().get("after"));
+        });
   }
 
   @Test
@@ -143,29 +164,37 @@ public class UnitTest {
   public void websocket() {
     Jooby app = new Jooby();
 
-    app.ws("/ws", (ctx, initializer) -> {
-      initializer.onConnect(ws -> {
-        ws.send("#Connect");
-      });
-      initializer.onMessage((ws, message) -> {
-        ws.send("#" + message.value());
-      });
-      initializer.onClose((ws, status) -> {
-        System.out.println(status);
-      });
-    });
+    app.ws(
+        "/ws",
+        (ctx, initializer) -> {
+          initializer.onConnect(
+              ws -> {
+                ws.send("#Connect");
+              });
+          initializer.onMessage(
+              (ws, message) -> {
+                ws.send("#" + message.value());
+              });
+          initializer.onClose(
+              (ws, status) -> {
+                System.out.println(status);
+              });
+        });
 
     LinkedList<String> messages = new LinkedList<>(Arrays.asList("#Connect", "#First", "#Second"));
     MockRouter router = new MockRouter(app);
-    router.ws("/ws", ws -> {
-      ws.send("First");
-      ws.onMessage(message -> {
-        assertEquals(messages.removeFirst(), message);
-      });
-      ws.send("Second");
+    router.ws(
+        "/ws",
+        ws -> {
+          ws.send("First");
+          ws.onMessage(
+              message -> {
+                assertEquals(messages.removeFirst(), message);
+              });
+          ws.send("Second");
 
-      ws.close();
-    });
+          ws.close();
+        });
 
     assertEquals(0, messages.size());
   }
@@ -174,25 +203,31 @@ public class UnitTest {
   public void websocketObjectMessage() {
     Jooby app = new Jooby();
 
-    app.ws("/ws", (ctx, initializer) -> {
-      initializer.onMessage((ws, message) -> {
-        ws.render(message.to(PojoBody.class));
-      });
-    });
+    app.ws(
+        "/ws",
+        (ctx, initializer) -> {
+          initializer.onMessage(
+              (ws, message) -> {
+                ws.render(message.to(PojoBody.class));
+              });
+        });
 
     PojoBody pojo = new PojoBody();
 
     LinkedList<Object> messages = new LinkedList<>(Arrays.asList(pojo));
     MockRouter router = new MockRouter(app);
-    router.ws("/ws", ws -> {
-      ws.onMessage(message -> {
-        assertEquals(messages.removeFirst(), message);
-      });
+    router.ws(
+        "/ws",
+        ws -> {
+          ws.onMessage(
+              message -> {
+                assertEquals(messages.removeFirst(), message);
+              });
 
-      WebSocketMessage message = mock(WebSocketMessage.class);
-      when(message.to(PojoBody.class)).thenReturn(pojo);
-      ws.send(message);
-    });
+          WebSocketMessage message = mock(WebSocketMessage.class);
+          when(message.to(PojoBody.class)).thenReturn(pojo);
+          ws.send(message);
+        });
 
     assertEquals(0, messages.size());
   }

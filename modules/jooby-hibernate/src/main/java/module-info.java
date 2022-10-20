@@ -10,7 +10,6 @@ module io.jooby.hibernate {
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
-
   requires org.hibernate.orm.core;
   requires java.sql;
   requires jakarta.inject;

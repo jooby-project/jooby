@@ -1,15 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.WebSocketMessageImpl;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.internal.WebSocketMessageImpl;
 
 /**
  * Websocket message generated from a {@link WebSocket.OnMessage} callback. Message is a subclass.

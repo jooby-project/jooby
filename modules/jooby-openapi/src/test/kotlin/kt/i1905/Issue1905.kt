@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package kt.i1905
 
 import io.jooby.openapi.OpenAPIResult
@@ -8,7 +13,8 @@ class Issue1905 {
 
   @OpenAPITest(value = App1905::class)
   fun shouldParseInstallApp(result: OpenAPIResult) {
-    Assertions.assertEquals("""openapi: 3.0.1
+    Assertions.assertEquals(
+      """openapi: 3.0.1
 info:
   title: 1905 API
   description: 1905 API description
@@ -54,6 +60,8 @@ paths:
             application/json:
               schema:
                 type: string
-""", result.toYaml())
+""",
+      result.toYaml()
+    )
   }
 }

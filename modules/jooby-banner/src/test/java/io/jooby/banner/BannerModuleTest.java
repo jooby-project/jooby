@@ -1,15 +1,9 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.banner;
-
-import io.jooby.Jooby;
-import io.jooby.ServiceKey;
-import io.jooby.ServiceRegistry;
-import io.jooby.SneakyThrows;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.slf4j.Logger;
-
-import jakarta.inject.Provider;
 
 import static com.github.lalyos.jfiglet.FigletFont.convertOneLine;
 import static io.jooby.banner.BannerModule.fontPath;
@@ -18,6 +12,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
+
+import io.jooby.Jooby;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
+import io.jooby.SneakyThrows;
+import jakarta.inject.Provider;
 
 public class BannerModuleTest {
 
@@ -35,7 +40,8 @@ public class BannerModuleTest {
 
     assertEquals(String.class, keyCaptor.getValue().getType());
     assertEquals("application.banner", keyCaptor.getValue().getName());
-    assertEquals(rtrim(convertOneLine(fontPath("speed"), "banner")), providerCaptor.getValue().get());
+    assertEquals(
+        rtrim(convertOneLine(fontPath("speed"), "banner")), providerCaptor.getValue().get());
 
     verify(app).onStarting(Mockito.any(SneakyThrows.Runnable.class));
   }
@@ -64,7 +70,8 @@ public class BannerModuleTest {
     ArgumentCaptor<Provider<String>> providerCaptor = ArgumentCaptor.forClass(Provider.class);
     verify(app.getServices()).put(Mockito.<ServiceKey<String>>any(), providerCaptor.capture());
 
-    ArgumentCaptor<SneakyThrows.Runnable> runnableCaptor = ArgumentCaptor.forClass(SneakyThrows.Runnable.class);
+    ArgumentCaptor<SneakyThrows.Runnable> runnableCaptor =
+        ArgumentCaptor.forClass(SneakyThrows.Runnable.class);
     verify(app).onStarting(runnableCaptor.capture());
 
     runnableCaptor.getValue().run();
@@ -81,7 +88,8 @@ public class BannerModuleTest {
     ArgumentCaptor<Provider<String>> providerCaptor = ArgumentCaptor.forClass(Provider.class);
     verify(app.getServices()).put(Mockito.<ServiceKey<String>>any(), providerCaptor.capture());
 
-    assertEquals(rtrim(convertOneLine(fontPath("doom"), "banner")), providerCaptor.getValue().get());
+    assertEquals(
+        rtrim(convertOneLine(fontPath("doom"), "banner")), providerCaptor.getValue().get());
   }
 
   @Test
@@ -94,12 +102,14 @@ public class BannerModuleTest {
     ArgumentCaptor<Provider<String>> providerCaptor = ArgumentCaptor.forClass(Provider.class);
     verify(app.getServices()).put(Mockito.<ServiceKey<String>>any(), providerCaptor.capture());
 
-    assertEquals(rtrim(convertOneLine(fontPath("speed"), "Jooby")), providerCaptor.getValue().get());
+    assertEquals(
+        rtrim(convertOneLine(fontPath("speed"), "Jooby")), providerCaptor.getValue().get());
   }
 
   private Jooby setup(String appName, String appVersion) {
     ServiceRegistry registry = mock(ServiceRegistry.class);
-    when(registry.put(Mockito.<ServiceKey<String>>any(), Mockito.<Provider<String>>any())).thenReturn(null);
+    when(registry.put(Mockito.<ServiceKey<String>>any(), Mockito.<Provider<String>>any()))
+        .thenReturn(null);
 
     Logger logger = mock(Logger.class);
     doNothing().when(logger).info(anyString(), any(), any());

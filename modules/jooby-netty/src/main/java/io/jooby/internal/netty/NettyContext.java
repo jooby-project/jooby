@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -43,11 +43,11 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.CompletionListeners;
@@ -144,8 +144,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private String scheme;
   private int port;
 
-  public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
-      int bufferSize) {
+  public NettyContext(
+      ChannelHandlerContext ctx, HttpRequest req, Router router, String path, int bufferSize) {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
@@ -158,11 +158,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   boolean isHttpGet() {
-    return this.method.length() == 3 && this.method.charAt(0) == 'G' && this.method.charAt(1) == 'E'
+    return this.method.length() == 3
+        && this.method.charAt(0) == 'G'
+        && this.method.charAt(1) == 'E'
         && this.method.charAt(2) == 'T';
   }
 
-  @NonNull @Override public Router getRouter() {
+  @NonNull @Override
+  public Router getRouter() {
     return router;
   }
 
@@ -171,65 +174,79 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
    * **********************************************************************************************
    */
 
-  @NonNull @Override public Map<String, Object> getAttributes() {
+  @NonNull @Override
+  public Map<String, Object> getAttributes() {
     return attributes;
   }
 
-  @NonNull @Override public String getMethod() {
+  @NonNull @Override
+  public String getMethod() {
     return method;
   }
 
-  @NonNull @Override public Context setMethod(@NonNull String method) {
+  @NonNull @Override
+  public Context setMethod(@NonNull String method) {
     this.method = method.toUpperCase();
     return this;
   }
 
-  @NonNull @Override public Route getRoute() {
+  @NonNull @Override
+  public Route getRoute() {
     return route;
   }
 
-  @NonNull @Override public Context setRoute(@NonNull Route route) {
+  @NonNull @Override
+  public Context setRoute(@NonNull Route route) {
     this.route = route;
     return this;
   }
 
-  @NonNull @Override public String getRequestPath() {
+  @NonNull @Override
+  public String getRequestPath() {
     return path;
   }
 
-  @NonNull @Override public Context setRequestPath(String path) {
+  @NonNull @Override
+  public Context setRequestPath(String path) {
     this.path = path;
     return this;
   }
 
-  @NonNull @Override public Map<String, String> pathMap() {
+  @NonNull @Override
+  public Map<String, String> pathMap() {
     return pathMap;
   }
 
-  @NonNull @Override public Context setPathMap(@NonNull Map<String, String> pathMap) {
+  @NonNull @Override
+  public Context setPathMap(@NonNull Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }
 
-  @Override public final boolean isInIoThread() {
+  @Override
+  public final boolean isInIoThread() {
     return ctx.channel().eventLoop().inEventLoop();
   }
 
-  @NonNull @Override public Context dispatch(@NonNull Runnable action) {
+  @NonNull @Override
+  public Context dispatch(@NonNull Runnable action) {
     return dispatch(router.getWorker(), action);
   }
 
-  @Override public Context dispatch(Executor executor, Runnable action) {
+  @Override
+  public Context dispatch(Executor executor, Runnable action) {
     executor.execute(action);
     return this;
   }
 
-  @NonNull @Override public Context detach(@NonNull Route.Handler next) throws Exception {
+  @NonNull @Override
+  public Context detach(@NonNull Route.Handler next) throws Exception {
     next.apply(this);
     return this;
   }
 
-  @NonNull @Override public QueryString query() {
+  @NonNull @Override
+  public QueryString query() {
     if (query == null) {
       String uri = req.uri();
       int q = uri.indexOf('?');
@@ -238,11 +255,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return query;
   }
 
-  @NonNull @Override public Formdata form() {
+  @NonNull @Override
+  public Formdata form() {
     return multipart();
   }
 
-  @NonNull @Override public Multipart multipart() {
+  @NonNull @Override
+  public Multipart multipart() {
     if (multipart == null) {
       multipart = Multipart.create(this);
       form = multipart;
@@ -251,20 +270,24 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return multipart;
   }
 
-  @NonNull @Override public Value header(@NonNull String name) {
+  @NonNull @Override
+  public Value header(@NonNull String name) {
     return Value.create(this, name, req.headers().getAll(name));
   }
 
-  @NonNull @Override public String getHost() {
+  @NonNull @Override
+  public String getHost() {
     return host == null ? DefaultContext.super.getHost() : host;
   }
 
-  @NonNull @Override public Context setHost(@NonNull String host) {
+  @NonNull @Override
+  public Context setHost(@NonNull String host) {
     this.host = host;
     return this;
   }
 
-  @NonNull @Override public String getRemoteAddress() {
+  @NonNull @Override
+  public String getRemoteAddress() {
     if (this.remoteAddress == null) {
       InetSocketAddress inetAddress = (InetSocketAddress) ctx.channel().remoteAddress();
       if (inetAddress != null) {
@@ -278,12 +301,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return remoteAddress;
   }
 
-  @NonNull @Override public Context setRemoteAddress(@NonNull String remoteAddress) {
+  @NonNull @Override
+  public Context setRemoteAddress(@NonNull String remoteAddress) {
     this.remoteAddress = remoteAddress;
     return this;
   }
 
-  @NonNull @Override public String getProtocol() {
+  @NonNull @Override
+  public String getProtocol() {
     if (ctx.pipeline().get("http2") == null) {
       return req.protocolVersion().text();
     } else {
@@ -291,7 +316,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @NonNull @Override public List<Certificate> getClientCertificates() {
+  @NonNull @Override
+  public List<Certificate> getClientCertificates() {
     SslHandler sslHandler = (SslHandler) ctx.channel().pipeline().get("ssl");
     if (sslHandler != null) {
       try {
@@ -303,28 +329,33 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return new ArrayList<Certificate>();
   }
 
-  @NonNull @Override public String getScheme() {
+  @NonNull @Override
+  public String getScheme() {
     if (scheme == null) {
       scheme = ctx.pipeline().get("ssl") == null ? "http" : "https";
     }
     return scheme;
   }
 
-  @NonNull @Override public Context setScheme(@NonNull String scheme) {
+  @NonNull @Override
+  public Context setScheme(@NonNull String scheme) {
     this.scheme = scheme;
     return this;
   }
 
-  @Override public int getPort() {
+  @Override
+  public int getPort() {
     return port > 0 ? port : DefaultContext.super.getPort();
   }
 
-  @NonNull @Override public Context setPort(int port) {
+  @NonNull @Override
+  public Context setPort(int port) {
     this.port = port;
     return this;
   }
 
-  @NonNull @Override public ValueNode header() {
+  @NonNull @Override
+  public ValueNode header() {
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
       HttpHeaders headers = req.headers();
@@ -337,20 +368,22 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return headers;
   }
 
-  @NonNull @Override public Body body() {
+  @NonNull @Override
+  public Body body() {
     if (decoder != null && decoder.hasNext()) {
       return new NettyBody(this, (HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
     }
     return Body.empty(this);
   }
 
-  @Override public @NonNull Map<String, String> cookieMap() {
+  @Override
+  public @NonNull Map<String, String> cookieMap() {
     if (this.cookies == null) {
       this.cookies = Collections.emptyMap();
       String cookieString = req.headers().get(HttpHeaderNames.COOKIE);
       if (cookieString != null) {
-        Set<io.netty.handler.codec.http.cookie.Cookie> cookies = ServerCookieDecoder.STRICT
-            .decode(cookieString);
+        Set<io.netty.handler.codec.http.cookie.Cookie> cookies =
+            ServerCookieDecoder.STRICT.decode(cookieString);
         if (cookies.size() > 0) {
           this.cookies = new LinkedHashMap<>(cookies.size());
           for (io.netty.handler.codec.http.cookie.Cookie it : cookies) {
@@ -362,7 +395,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this.cookies;
   }
 
-  @NonNull @Override public Context onComplete(@NonNull Route.Complete task) {
+  @NonNull @Override
+  public Context onComplete(@NonNull Route.Complete task) {
     if (listeners == null) {
       listeners = new CompletionListeners();
     }
@@ -370,32 +404,42 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @NonNull @Override public Context upgrade(WebSocket.Initializer handler) {
+  @NonNull @Override
+  public Context upgrade(WebSocket.Initializer handler) {
     try {
       responseStarted = true;
       Config conf = getRouter().getConfig();
-      int maxSize = conf.hasPath("websocket.maxSize")
-          ? conf.getBytes("websocket.maxSize").intValue()
-          : WebSocket.MAX_BUFFER_SIZE;
+      int maxSize =
+          conf.hasPath("websocket.maxSize")
+              ? conf.getBytes("websocket.maxSize").intValue()
+              : WebSocket.MAX_BUFFER_SIZE;
       String webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
-      WebSocketDecoderConfig config = WebSocketDecoderConfig.newBuilder()
-          .allowExtensions(true)
-          .allowMaskMismatch(false)
-          .withUTF8Validator(false)
-          .maxFramePayloadLength(maxSize)
-          .build();
+      WebSocketDecoderConfig config =
+          WebSocketDecoderConfig.newBuilder()
+              .allowExtensions(true)
+              .allowMaskMismatch(false)
+              .withUTF8Validator(false)
+              .maxFramePayloadLength(maxSize)
+              .build();
       webSocket = new NettyWebSocket(this);
       handler.init(Context.readOnly(this), webSocket);
-      FullHttpRequest webSocketRequest = new DefaultFullHttpRequest(req.protocolVersion(),
-          req.method(), req.uri(), Unpooled.EMPTY_BUFFER, req.headers(), EmptyHttpHeaders.INSTANCE);
-      WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(webSocketURL,
-          null, config);
+      FullHttpRequest webSocketRequest =
+          new DefaultFullHttpRequest(
+              req.protocolVersion(),
+              req.method(),
+              req.uri(),
+              Unpooled.EMPTY_BUFFER,
+              req.headers(),
+              EmptyHttpHeaders.INSTANCE);
+      WebSocketServerHandshakerFactory factory =
+          new WebSocketServerHandshakerFactory(webSocketURL, null, config);
       WebSocketServerHandshaker handshaker = factory.newHandshaker(webSocketRequest);
       handshaker.handshake(ctx.channel(), webSocketRequest);
       webSocket.fireConnect();
-      long timeout = conf.hasPath("websocket.idleTimeout")
-          ? conf.getDuration("websocket.idleTimeout", MILLISECONDS)
-          : MINUTES.toMillis(5);
+      long timeout =
+          conf.hasPath("websocket.idleTimeout")
+              ? conf.getDuration("websocket.idleTimeout", MILLISECONDS)
+              : MINUTES.toMillis(5);
       if (timeout > 0) {
         IdleStateHandler idle = new IdleStateHandler(timeout, 0, 0, MILLISECONDS);
         ctx.pipeline().addBefore("handler", "idle", idle);
@@ -406,7 +450,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @NonNull @Override public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
+  @NonNull @Override
+  public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
     responseStarted = true;
     ctx.writeAndFlush(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
 
@@ -425,65 +470,77 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
    * **********************************************************************************************
    */
 
-  @NonNull @Override public StatusCode getResponseCode() {
+  @NonNull @Override
+  public StatusCode getResponseCode() {
     return StatusCode.valueOf(this.status.code());
   }
 
-  @NonNull @Override public Context setResponseCode(int statusCode) {
+  @NonNull @Override
+  public Context setResponseCode(int statusCode) {
     this.status = HttpResponseStatus.valueOf(statusCode);
     return this;
   }
 
-  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull String value) {
+  @NonNull @Override
+  public Context setResponseHeader(@NonNull String name, @NonNull String value) {
     setHeaders.set(name, value);
     return this;
   }
 
-  @NonNull @Override public Context removeResponseHeader(@NonNull String name) {
+  @NonNull @Override
+  public Context removeResponseHeader(@NonNull String name) {
     setHeaders.remove(name);
     return this;
   }
 
-  @NonNull @Override public Context removeResponseHeaders() {
+  @NonNull @Override
+  public Context removeResponseHeaders() {
     setHeaders.clear();
     ifStreamId(this.streamId);
     return this;
   }
 
-  @NonNull @Override public MediaType getResponseType() {
+  @NonNull @Override
+  public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
-  @NonNull @Override public Context setDefaultResponseType(@NonNull MediaType contentType) {
+  @NonNull @Override
+  public Context setDefaultResponseType(@NonNull MediaType contentType) {
     if (responseType == null) {
       setResponseType(contentType, contentType.getCharset());
     }
     return this;
   }
 
-  @Override public final Context setResponseType(MediaType contentType, Charset charset) {
+  @Override
+  public final Context setResponseType(MediaType contentType, Charset charset) {
     this.responseType = contentType;
     setHeaders.set(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
-  @NonNull @Override public Context setResponseType(@NonNull String contentType) {
+  @NonNull @Override
+  public Context setResponseType(@NonNull String contentType) {
     this.responseType = MediaType.valueOf(contentType);
     setHeaders.set(CONTENT_TYPE, contentType);
     return this;
   }
 
-  @Nullable @Override public String getResponseHeader(@NonNull String name) {
+  @Nullable @Override
+  public String getResponseHeader(@NonNull String name) {
     return setHeaders.get(name);
   }
 
-  @NonNull @Override public Context setResponseLength(long length) {
+  @NonNull @Override
+  public Context setResponseLength(long length) {
     contentLength = length;
     setHeaders.set(CONTENT_LENGTH, Long.toString(length));
     return this;
   }
 
-  @Override public long getResponseLength() {
+  @Override
+  public long getResponseLength() {
     if (contentLength == -1) {
       return Long.parseLong(setHeaders.get(CONTENT_LENGTH, "-1"));
     }
@@ -503,45 +560,54 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @NonNull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
+  @NonNull @Override
+  public PrintWriter responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
     setResponseType(type, charset);
 
     return new PrintWriter(new NettyWriter(newOutputStream(), charset));
   }
 
-  @NonNull @Override public Sender responseSender() {
+  @NonNull @Override
+  public Sender responseSender() {
     responseStarted = true;
     prepareChunked();
     ctx.write(new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
     return new NettySender(this, ctx);
   }
 
-  @NonNull @Override public OutputStream responseStream() {
+  @NonNull @Override
+  public OutputStream responseStream() {
     return newOutputStream();
   }
 
-  @NonNull @Override public Context send(@NonNull String data) {
+  @NonNull @Override
+  public Context send(@NonNull String data) {
     return send(copiedBuffer(data, UTF_8));
   }
 
-  @Override public final Context send(String data, Charset charset) {
+  @Override
+  public final Context send(String data, Charset charset) {
     return send(copiedBuffer(data, charset));
   }
 
-  @Override public final Context send(byte[] data) {
+  @Override
+  public final Context send(byte[] data) {
     return send(wrappedBuffer(data));
   }
 
-  @NonNull @Override public Context send(@NonNull byte[]... data) {
+  @NonNull @Override
+  public Context send(@NonNull byte[]... data) {
     return send(Unpooled.wrappedBuffer(data));
   }
 
-  @NonNull @Override public Context send(@NonNull ByteBuffer[] data) {
+  @NonNull @Override
+  public Context send(@NonNull ByteBuffer[] data) {
     return send(Unpooled.wrappedBuffer(data));
   }
 
-  @Override public final Context send(ByteBuffer data) {
+  @Override
+  public final Context send(ByteBuffer data) {
     return send(wrappedBuffer(data));
   }
 
@@ -549,8 +615,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     try {
       responseStarted = true;
       setHeaders.set(CONTENT_LENGTH, Long.toString(data.readableBytes()));
-      DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status,
-          data, setHeaders, NO_TRAILING);
+      DefaultFullHttpResponse response =
+          new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING);
       if (ctx.channel().eventLoop().inEventLoop()) {
         needsFlush = true;
         ctx.write(response, promise(this));
@@ -570,27 +636,32 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @NonNull @Override public Context send(@NonNull ReadableByteChannel channel) {
+  @NonNull @Override
+  public Context send(@NonNull ReadableByteChannel channel) {
     try {
       prepareChunked();
       DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
       int bufferSize = contentLength > 0 ? (int) contentLength : this.bufferSize;
-      ctx.channel().eventLoop().execute(() -> {
-        // Headers
-        ctx.write(rsp, ctx.voidPromise());
-        // Body
-        ctx.write(new ChunkedNioStream(channel, bufferSize), ctx.voidPromise());
-        // Finish
-        ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-      });
+      ctx.channel()
+          .eventLoop()
+          .execute(
+              () -> {
+                // Headers
+                ctx.write(rsp, ctx.voidPromise());
+                // Body
+                ctx.write(new ChunkedNioStream(channel, bufferSize), ctx.voidPromise());
+                // Finish
+                ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
+              });
       return this;
-    }finally {
+    } finally {
       requestComplete();
     }
   }
 
-  @NonNull @Override public Context send(@NonNull InputStream in) {
+  @NonNull @Override
+  public Context send(@NonNull InputStream in) {
     if (in instanceof FileInputStream) {
       // use channel
       return send(((FileInputStream) in).getChannel());
@@ -598,20 +669,22 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     try {
       prepareChunked();
       long len = responseLength();
-      ByteRange range = ByteRange.parse(req.headers().get(RANGE), len)
-          .apply(this);
+      ByteRange range = ByteRange.parse(req.headers().get(RANGE), len).apply(this);
       ChunkedStream chunkedStream = new ChunkedStream(range.apply(in), bufferSize);
 
       DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
-      ctx.channel().eventLoop().execute(() -> {
-        // Headers
-        ctx.write(rsp, ctx.voidPromise());
-        // Body
-        ctx.write(chunkedStream, ctx.voidPromise());
-        // Finish
-        ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-      });
+      ctx.channel()
+          .eventLoop()
+          .execute(
+              () -> {
+                // Headers
+                ctx.write(rsp, ctx.voidPromise());
+                // Body
+                ctx.write(chunkedStream, ctx.voidPromise());
+                // Finish
+                ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
+              });
       return this;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
@@ -620,13 +693,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @NonNull @Override public Context send(@NonNull FileChannel file) {
+  @NonNull @Override
+  public Context send(@NonNull FileChannel file) {
     try {
       long len = file.size();
       setHeaders.set(CONTENT_LENGTH, Long.toString(len));
 
-      ByteRange range = ByteRange.parse(req.headers().get(RANGE), len)
-          .apply(this);
+      ByteRange range = ByteRange.parse(req.headers().get(RANGE), len).apply(this);
 
       DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
@@ -634,25 +707,33 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       if (isSecure() || isGzip()) {
         prepareChunked();
 
-        HttpChunkedInput chunkedInput = new HttpChunkedInput(
-            new ChunkedNioFile(file, range.getStart(), range.getEnd(), bufferSize));
+        HttpChunkedInput chunkedInput =
+            new HttpChunkedInput(
+                new ChunkedNioFile(file, range.getStart(), range.getEnd(), bufferSize));
 
-        ctx.channel().eventLoop().execute(() -> {
-          // Headers
-          ctx.write(rsp, ctx.voidPromise());
-          // Body
-          ctx.writeAndFlush(chunkedInput, promise(this));
-        });
+        ctx.channel()
+            .eventLoop()
+            .execute(
+                () -> {
+                  // Headers
+                  ctx.write(rsp, ctx.voidPromise());
+                  // Body
+                  ctx.writeAndFlush(chunkedInput, promise(this));
+                });
       } else {
-        ctx.channel().eventLoop().execute(() -> {
-          // Headers
-          ctx.write(rsp, ctx.voidPromise());
-          // Body
-          ctx.write(new DefaultFileRegion(file, range.getStart(), range.getEnd()),
-              ctx.voidPromise());
-          // Finish
-          ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-        });
+        ctx.channel()
+            .eventLoop()
+            .execute(
+                () -> {
+                  // Headers
+                  ctx.write(rsp, ctx.voidPromise());
+                  // Body
+                  ctx.write(
+                      new DefaultFileRegion(file, range.getStart(), range.getEnd()),
+                      ctx.voidPromise());
+                  // Finish
+                  ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
+                });
       }
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
@@ -662,31 +743,35 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Override public boolean isResponseStarted() {
+  @Override
+  public boolean isResponseStarted() {
     return responseStarted;
   }
 
-  @Override public boolean getResetHeadersOnError() {
+  @Override
+  public boolean getResetHeadersOnError() {
     return resetHeadersOnError == null
         ? getRouter().getRouterOptions().contains(RouterOption.RESET_HEADERS_ON_ERROR)
         : resetHeadersOnError.booleanValue();
   }
 
-  @Override public Context setResetHeadersOnError(boolean value) {
+  @Override
+  public Context setResetHeadersOnError(boolean value) {
     this.resetHeadersOnError = value;
     return this;
   }
 
-  @NonNull @Override public Context send(StatusCode statusCode) {
+  @NonNull @Override
+  public Context send(StatusCode statusCode) {
     try {
       setResponseCode(statusCode);
       responseStarted = true;
       if (!setHeaders.contains(CONTENT_LENGTH)) {
         setHeaders.set(CONTENT_LENGTH, "0");
       }
-      DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
-          status, Unpooled.EMPTY_BUFFER, setHeaders,
-          NO_TRAILING);
+      DefaultFullHttpResponse rsp =
+          new DefaultFullHttpResponse(
+              HTTP_1_1, status, Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
       ctx.writeAndFlush(rsp, promise(this));
       return this;
     } finally {
@@ -699,7 +784,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     ifSaveSession();
   }
 
-  @Override public void operationComplete(ChannelFuture future) {
+  @Override
+  public void operationComplete(ChannelFuture future) {
     try {
       destroy(future.cause());
     } finally {
@@ -735,22 +821,30 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private boolean pendingTasks() {
-    return (getSession() != null) ||
-        (listeners != null) ||
-        (files != null && files.size() > 0) ||
-        (decoder != null) ||
-        shouldRelease(req);
+    return (getSession() != null)
+        || (listeners != null)
+        || (files != null && files.size() > 0)
+        || (decoder != null)
+        || shouldRelease(req);
   }
 
   void destroy(Throwable cause) {
     if (cause != null) {
       if (Server.connectionLost(cause)) {
-        router.getLog()
-            .debug("exception found while sending response {} {}", getMethod(), getRequestPath(),
+        router
+            .getLog()
+            .debug(
+                "exception found while sending response {} {}",
+                getMethod(),
+                getRequestPath(),
                 cause);
       } else {
-        router.getLog()
-            .error("exception found while sending response {} {}", getMethod(), getRequestPath(),
+        router
+            .getLog()
+            .error(
+                "exception found while sending response {} {}",
+                getMethod(),
+                getRequestPath(),
                 cause);
       }
     }
@@ -777,8 +871,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private NettyOutputStream newOutputStream() {
     prepareChunked();
-    return new NettyOutputStream(this, ctx, bufferSize,
-        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
+    return new NettyOutputStream(
+        this, ctx, bufferSize, new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
   }
 
   private FileUpload register(FileUpload upload) {
@@ -798,9 +892,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-          ((Multipart) form).put(next.getName(),
-              register(new NettyFileUpload(router.getTmpdir(),
-                  (io.netty.handler.codec.http.multipart.FileUpload) next)));
+          ((Multipart) form)
+              .put(
+                  next.getName(),
+                  register(
+                      new NettyFileUpload(
+                          router.getTmpdir(),
+                          (io.netty.handler.codec.http.multipart.FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));
         }
@@ -838,10 +936,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     // remove flusher, doesn't play well with streaming/chunked responses
     ChannelPipeline pipeline = ctx.pipeline();
     if (pipeline.get("chunker") == null) {
-      String base = Stream.of("compressor", "codec", "http2")
-          .filter(name -> pipeline.get(name) != null)
-          .findFirst()
-          .orElseThrow(() -> new IllegalStateException("No available handler for chunk writer"));
+      String base =
+          Stream.of("compressor", "codec", "http2")
+              .filter(name -> pipeline.get(name) != null)
+              .findFirst()
+              .orElseThrow(
+                  () -> new IllegalStateException("No available handler for chunk writer"));
       pipeline.addAfter(base, "chunker", new ChunkedWriteHandler());
     }
     if (!setHeaders.contains(CONTENT_LENGTH)) {
@@ -849,12 +949,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     }
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return getMethod() + " " + getRequestPath();
   }
 
   /**
    * Set stream ID response header.
+   *
    * @param streamId Stream ID or null.
    */
   private void ifStreamId(String streamId) {

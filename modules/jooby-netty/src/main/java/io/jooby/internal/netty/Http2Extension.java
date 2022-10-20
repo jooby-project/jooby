@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -20,13 +20,15 @@ public class Http2Extension {
 
   private Consumer<ChannelPipeline> http11;
 
-  private BiConsumer<ChannelPipeline, Supplier<HttpServerUpgradeHandler.UpgradeCodec>> http11Upgrade;
+  private BiConsumer<ChannelPipeline, Supplier<HttpServerUpgradeHandler.UpgradeCodec>>
+      http11Upgrade;
 
   private BiConsumer<ChannelPipeline, Supplier<ChannelOutboundHandler>> http2;
 
   private BiConsumer<ChannelPipeline, Supplier<ChannelOutboundHandler>> http2c;
 
-  public Http2Extension(Http2Settings settings,
+  public Http2Extension(
+      Http2Settings settings,
       Consumer<ChannelPipeline> http11,
       BiConsumer<ChannelPipeline, Supplier<HttpServerUpgradeHandler.UpgradeCodec>> http11Upgrade,
       BiConsumer<ChannelPipeline, Supplier<ChannelOutboundHandler>> http2,
@@ -46,17 +48,18 @@ public class Http2Extension {
     this.http11.accept(pipeline);
   }
 
-  public void http2(ChannelPipeline pipeline,
-      Function<Http2Settings, ChannelOutboundHandler> factory) {
+  public void http2(
+      ChannelPipeline pipeline, Function<Http2Settings, ChannelOutboundHandler> factory) {
     this.http2.accept(pipeline, () -> factory.apply(settings));
   }
 
-  public void http2c(ChannelPipeline pipeline,
-      Function<Http2Settings, ChannelOutboundHandler> factory) {
+  public void http2c(
+      ChannelPipeline pipeline, Function<Http2Settings, ChannelOutboundHandler> factory) {
     this.http2c.accept(pipeline, () -> factory.apply(settings));
   }
 
-  public void http11Upgrade(ChannelPipeline pipeline,
+  public void http11Upgrade(
+      ChannelPipeline pipeline,
       Function<Http2Settings, HttpServerUpgradeHandler.UpgradeCodec> factory) {
     this.http11Upgrade.accept(pipeline, () -> factory.apply(settings));
   }

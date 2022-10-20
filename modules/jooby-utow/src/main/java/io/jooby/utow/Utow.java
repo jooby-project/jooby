@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -13,13 +13,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.net.ssl.SSLContext;
 
 import org.xnio.Options;
 import org.xnio.Sequence;
 import org.xnio.SslClientAuthMode;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
@@ -53,58 +53,66 @@ public class Utow extends Server.Base {
 
   private List<Jooby> applications = new ArrayList<>();
 
-  private ServerOptions options = new ServerOptions()
-      .setIoThreads(ServerOptions.IO_THREADS)
-      .setServer("utow");
+  private ServerOptions options =
+      new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer("utow");
 
-  @NonNull
-  @Override public Utow setOptions(@NonNull ServerOptions options) {
-    this.options = options
-        .setIoThreads(options.getIoThreads());
+  @NonNull @Override
+  public Utow setOptions(@NonNull ServerOptions options) {
+    this.options = options.setIoThreads(options.getIoThreads());
     return this;
   }
 
-  @NonNull @Override public ServerOptions getOptions() {
+  @NonNull @Override
+  public ServerOptions getOptions() {
     return options;
   }
 
-  @Override public Server start(@NonNull Jooby application) {
+  @Override
+  public Server start(@NonNull Jooby application) {
     try {
       applications.add(application);
 
       addShutdownHook();
 
-      HttpHandler handler = new UtowHandler(applications.get(0), options.getBufferSize(),
-          options.getMaxRequestSize(),
-          options.getDefaultHeaders());
+      HttpHandler handler =
+          new UtowHandler(
+              applications.get(0),
+              options.getBufferSize(),
+              options.getMaxRequestSize(),
+              options.getDefaultHeaders());
 
       if (options.getCompressionLevel() != null) {
         int compressionLevel = options.getCompressionLevel();
-        handler = new EncodingHandler(handler, new ContentEncodingRepository()
-            .addEncodingHandler("gzip", new GzipEncodingProvider(compressionLevel), _100)
-            .addEncodingHandler("deflate", new DeflateEncodingProvider(compressionLevel), _10));
+        handler =
+            new EncodingHandler(
+                handler,
+                new ContentEncodingRepository()
+                    .addEncodingHandler("gzip", new GzipEncodingProvider(compressionLevel), _100)
+                    .addEncodingHandler(
+                        "deflate", new DeflateEncodingProvider(compressionLevel), _10));
       }
 
       if (options.isExpectContinue() == Boolean.TRUE) {
         handler = new HttpContinueReadHandler(handler);
       }
 
-      Undertow.Builder builder = Undertow.builder()
-          .setBufferSize(options.getBufferSize())
-          /** Socket : */
-          .setSocketOption(Options.BACKLOG, BACKLOG)
-          /** Server: */
-          // HTTP/1.1 is keep-alive by default, turn this option off
-          .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
-          .setServerOption(UndertowOptions.ALLOW_EQUALS_IN_COOKIE_VALUE, true)
-          .setServerOption(UndertowOptions.ALWAYS_SET_DATE, options.getDefaultHeaders())
-          .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
-          .setServerOption(UndertowOptions.DECODE_URL, false)
-          /** Worker: */
-          .setIoThreads(options.getIoThreads())
-          .setWorkerOption(Options.WORKER_NAME, "worker")
-          .setWorkerThreads(options.getWorkerThreads())
-          .setHandler(handler);
+      Undertow.Builder builder =
+          Undertow.builder()
+              .setBufferSize(options.getBufferSize())
+              /** Socket : */
+              .setSocketOption(Options.BACKLOG, BACKLOG)
+              /** Server: */
+              // HTTP/1.1 is keep-alive by default, turn this option off
+              .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
+              .setServerOption(UndertowOptions.ALLOW_EQUALS_IN_COOKIE_VALUE, true)
+              .setServerOption(UndertowOptions.ALWAYS_SET_DATE, options.getDefaultHeaders())
+              .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
+              .setServerOption(UndertowOptions.DECODE_URL, false)
+              /** Worker: */
+              .setIoThreads(options.getIoThreads())
+              .setWorkerOption(Options.WORKER_NAME, "worker")
+              .setWorkerThreads(options.getWorkerThreads())
+              .setHandler(handler);
 
       if (!options.isHttpsOnly()) {
         builder.addHttpListener(options.getPort(), options.getHost());
@@ -124,7 +132,8 @@ public class Utow extends Server.Base {
             .ifPresent(
                 clientAuth -> builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, clientAuth));
       } else if (options.isHttpsOnly()) {
-        throw new IllegalArgumentException("Server configured for httpsOnly, but ssl options not set");
+        throw new IllegalArgumentException(
+            "Server configured for httpsOnly, but ssl options not set");
       }
 
       server = builder.build();
@@ -156,7 +165,8 @@ public class Utow extends Server.Base {
     }
   }
 
-  @NonNull @Override public synchronized Server stop() {
+  @NonNull @Override
+  public synchronized Server stop() {
     try {
       fireStop(applications);
       applications = null;
@@ -177,5 +187,4 @@ public class Utow extends Server.Base {
       }
     }
   }
-
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -19,41 +19,31 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-
-import com.typesafe.config.Config;
 
 /**
  * SSL options for enabling HTTPs in Jooby. Jooby supports two certificate formats:
  *
- * - PKCS12
- * - X.509
+ * <p>- PKCS12 - X.509
  *
- * Jooby doesn't support JKS format due it is a proprietary format, it favors the use of PKCS12
+ * <p>Jooby doesn't support JKS format due it is a proprietary format, it favors the use of PKCS12
  * format.
  *
  * @author edgar
  * @since 2.3.0
  */
 public final class SslOptions {
-  /**
-   * The desired SSL client authentication mode for SSL channels in server mode.
-   */
+  /** The desired SSL client authentication mode for SSL channels in server mode. */
   public enum ClientAuth {
-    /**
-     * SSL client authentication is NOT requested.
-     */
+    /** SSL client authentication is NOT requested. */
     NONE,
 
-    /**
-     * SSL client authentication is requested but not required.
-     */
+    /** SSL client authentication is requested but not required. */
     REQUESTED,
 
-    /**
-     * SSL client authentication is required.
-     */
+    /** SSL client authentication is required. */
     REQUIRED
   }
 
@@ -61,10 +51,8 @@ public final class SslOptions {
   public static final String TLS_V1_2 = "TLSv1.2";
 
   /**
-   * TLSv1.3 protocol. Available in:
-   * - 8u261-b12 from Oracle JDK
-   * - TLS 1.3 support in OpenJDK is (beside Azul's OpenJSSE) expected to come into 8u272.
-   * - Java 11.0.3 or higher.
+   * TLSv1.3 protocol. Available in: - 8u261-b12 from Oracle JDK - TLS 1.3 support in OpenJDK is
+   * (beside Azul's OpenJSSE) expected to come into 8u272. - Java 11.0.3 or higher.
    */
   public static final String TLS_V1_3 = "TLSv1.3";
 
@@ -114,16 +102,16 @@ public final class SslOptions {
    * A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a
    * classpath resource. Required.
    *
-   * @return A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or
-   *     a classpath resource. Required.
+   * @return A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a
+   *     classpath resource. Required.
    */
   public @NonNull String getCert() {
     return cert;
   }
 
   /**
-   * Set certificate path. A PKCS12 or X.509 certificate chain file in PEM format.
-   * It can be an absolute path or a classpath resource. Required.
+   * Set certificate path. A PKCS12 or X.509 certificate chain file in PEM format. It can be an
+   * absolute path or a classpath resource. Required.
    *
    * @param cert Certificate path or location.
    * @return Ssl options.
@@ -137,17 +125,17 @@ public final class SslOptions {
    * A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a
    * classpath resource. Required for {@link ClientAuth#REQUIRED} or {@link ClientAuth#REQUESTED}.
    *
-   * @return A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or
-   *     a classpath resource. Required for {@link ClientAuth#REQUIRED} or
-   *     {@link ClientAuth#REQUESTED}.
+   * @return A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a
+   *     classpath resource. Required for {@link ClientAuth#REQUIRED} or {@link
+   *     ClientAuth#REQUESTED}.
    */
   public @Nullable String getTrustCert() {
     return trustCert;
   }
 
   /**
-   * Set certificate path. A PKCS12 or X.509 certificate chain file in PEM format.
-   * It can be an absolute path or a classpath resource. Required.
+   * Set certificate path. A PKCS12 or X.509 certificate chain file in PEM format. It can be an
+   * absolute path or a classpath resource. Required.
    *
    * @param trustCert Certificate path or location.
    * @return Ssl options.
@@ -192,8 +180,8 @@ public final class SslOptions {
    * Set private key file location. A PKCS#8 private key file in PEM format. It can be an absolute
    * path or a classpath resource. Required when using X.509 certificates.
    *
-   * @param privateKey Private key file location. A PKCS#8 private key file in PEM format. It can
-   *     be an absolute path or a classpath resource. Required when using X.509 certificates.
+   * @param privateKey Private key file location. A PKCS#8 private key file in PEM format. It can be
+   *     an absolute path or a classpath resource. Required when using X.509 certificates.
    * @return Ssl options.
    */
   public @NonNull SslOptions setPrivateKey(@Nullable String privateKey) {
@@ -224,9 +212,8 @@ public final class SslOptions {
   /**
    * Search for a resource at the given path. This method uses the following order:
    *
-   * - Look at file system for path as it is (absolute path)
-   * - Look at file system for path relative to current process dir
-   * - Look at class path for path
+   * <p>- Look at file system for path as it is (absolute path) - Look at file system for path
+   * relative to current process dir - Look at class path for path
    *
    * @param loader Class loader.
    * @param path Path (file system path or classpath).
@@ -249,13 +236,14 @@ public final class SslOptions {
         paths = Stream.empty();
       }
     }
-    InputStream resource = paths
-        .map(it -> it.normalize().toAbsolutePath())
-        .filter(Files::exists)
-        .findFirst()
-        .map(throwingFunction(file -> Files.newInputStream(file)))
-        .orElseGet(
-            () -> loader.getResourceAsStream(path.startsWith("/") ? path.substring(1) : path));
+    InputStream resource =
+        paths
+            .map(it -> it.normalize().toAbsolutePath())
+            .filter(Files::exists)
+            .findFirst()
+            .map(throwingFunction(file -> Files.newInputStream(file)))
+            .orElseGet(
+                () -> loader.getResourceAsStream(path.startsWith("/") ? path.substring(1) : path));
     if (resource == null) {
       throw new FileNotFoundException(path);
     }
@@ -265,7 +253,7 @@ public final class SslOptions {
   /**
    * The desired SSL client authentication mode for SSL channels in server mode.
    *
-   * Default is: {@link ClientAuth#REQUESTED}.
+   * <p>Default is: {@link ClientAuth#REQUESTED}.
    *
    * @return desired SSL client authentication mode for SSL channels in server mode.
    */
@@ -288,13 +276,11 @@ public final class SslOptions {
    * Specify the enabled protocols for an SSL/TLS session. Default is: <code>TLSv1.2</code> and
    * <code>TLSv1.3</code>.
    *
-   * If a listed protocol is not supported, it is ignored; however, if you specify a list of
+   * <p>If a listed protocol is not supported, it is ignored; however, if you specify a list of
    * protocols, none of which are supported, an exception will be thrown.
    *
-   * Please note TLSv1.3 protocol is available in:
-   *  - 8u261-b12 from Oracle JDK
-   *  - TLS 1.3 support in OpenJDK is (beside Azul's OpenJSSE) expected to come into 8u272.
-   *  - Java 11.0.3 or higher.
+   * <p>Please note TLSv1.3 protocol is available in: - 8u261-b12 from Oracle JDK - TLS 1.3 support
+   * in OpenJDK is (beside Azul's OpenJSSE) expected to come into 8u272. - Java 11.0.3 or higher.
    *
    * @return TLS protocols. Default is: <code>TLSv1.2</code> and <code>TLSv1.3</code>.
    */
@@ -303,9 +289,9 @@ public final class SslOptions {
   }
 
   /**
-   * Specify the enabled protocols for an SSL/TLS session. If a listed protocol is not supported,
-   * it is ignored; however, if you specify a list of protocols, none of which are supported,
-   * an exception will be thrown.
+   * Specify the enabled protocols for an SSL/TLS session. If a listed protocol is not supported, it
+   * is ignored; however, if you specify a list of protocols, none of which are supported, an
+   * exception will be thrown.
    *
    * @param protocol TLS protocols.
    * @return This options.
@@ -315,9 +301,9 @@ public final class SslOptions {
   }
 
   /**
-   * Specify the enabled protocols for an SSL/TLS session. If a listed protocol is not supported,
-   * it is ignored; however, if you specify a list of protocols, none of which are supported,
-   * an exception will be thrown.
+   * Specify the enabled protocols for an SSL/TLS session. If a listed protocol is not supported, it
+   * is ignored; however, if you specify a list of protocols, none of which are supported, an
+   * exception will be thrown.
    *
    * @param protocol TLS protocols.
    * @return This options.
@@ -327,7 +313,8 @@ public final class SslOptions {
     return this;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return type;
   }
 
@@ -350,8 +337,8 @@ public final class SslOptions {
    * @param password Password.
    * @return New SSL options.
    */
-  public static @NonNull SslOptions x509(@NonNull String crt, @NonNull String key,
-      @Nullable String password) {
+  public static @NonNull SslOptions x509(
+      @NonNull String crt, @NonNull String key, @Nullable String password) {
     SslOptions options = new SslOptions();
     options.setType(X509);
     options.setPrivateKey(key);
@@ -404,10 +391,11 @@ public final class SslOptions {
   }
 
   /**
-   * Get SSL options from application configuration. Configuration must be at
-   * <code>server.ssl</code> or <code>ssl</code>.
+   * Get SSL options from application configuration. Configuration must be at <code>server.ssl
+   * </code> or <code>ssl</code>.
    *
-   * PKCS12 example:
+   * <p>PKCS12 example:
+   *
    * <pre>
    *   server {
    *     ssl {
@@ -419,6 +407,7 @@ public final class SslOptions {
    * </pre>
    *
    * X509 example:
+   *
    * <pre>
    *   server {
    *     ssl {
@@ -439,7 +428,8 @@ public final class SslOptions {
   /**
    * Get SSL options from application configuration. It looks for ssl options at the given path(s).
    *
-   * PKCS12 example:
+   * <p>PKCS12 example:
+   *
    * <pre>
    *   server {
    *     ssl {
@@ -451,6 +441,7 @@ public final class SslOptions {
    * </pre>
    *
    * X509 example:
+   *
    * <pre>
    *   server {
    *     ssl {
@@ -469,48 +460,50 @@ public final class SslOptions {
     return Stream.of(key)
         .filter(conf::hasPath)
         .findFirst()
-        .map(path -> {
-          String type = conf.hasPath(path + ".type")
-              ? conf.getString(path + ".type").toUpperCase()
-              : PKCS12;
-          SslOptions options;
-          if (type.equalsIgnoreCase("self-signed")) {
-            options = SslOptions.selfSigned();
-          } else {
-            options = new SslOptions();
-            options.setType(type);
-            if (X509.equalsIgnoreCase(type)) {
-              options.setCert(conf.getString(path + ".cert"));
-              options.setPrivateKey(conf.getString(path + ".key"));
-              if (conf.hasPath(path + ".password")) {
-                options.setPassword(conf.getString(path + ".password"));
+        .map(
+            path -> {
+              String type =
+                  conf.hasPath(path + ".type")
+                      ? conf.getString(path + ".type").toUpperCase()
+                      : PKCS12;
+              SslOptions options;
+              if (type.equalsIgnoreCase("self-signed")) {
+                options = SslOptions.selfSigned();
+              } else {
+                options = new SslOptions();
+                options.setType(type);
+                if (X509.equalsIgnoreCase(type)) {
+                  options.setCert(conf.getString(path + ".cert"));
+                  options.setPrivateKey(conf.getString(path + ".key"));
+                  if (conf.hasPath(path + ".password")) {
+                    options.setPassword(conf.getString(path + ".password"));
+                  }
+                } else if (type.equalsIgnoreCase(PKCS12)) {
+                  options.setCert(conf.getString(path + ".cert"));
+                  options.setPassword(conf.getString(path + ".password"));
+                } else {
+                  throw new UnsupportedOperationException("SSL type: " + type);
+                }
               }
-            } else if (type.equalsIgnoreCase(PKCS12)) {
-              options.setCert(conf.getString(path + ".cert"));
-              options.setPassword(conf.getString(path + ".password"));
-            } else {
-              throw new UnsupportedOperationException("SSL type: " + type);
-            }
-          }
-          if (conf.hasPath(path + ".clientAuth")) {
-            options.setClientAuth(ClientAuth.valueOf(conf.getString(path + ".clientAuth")
-                .toUpperCase()));
-          }
-          if (conf.hasPath(path + ".trust.cert")) {
-            options.setTrustCert(conf.getString(path + ".trust.cert"));
-          }
-          if (conf.hasPath(path + ".trust.password")) {
-            options.setTrustPassword(conf.getString(path + ".trust.password"));
-          }
-          if (conf.hasPath(path + ".protocol")) {
-            Object value = conf.getAnyRef(path + ".protocol");
-            if (value instanceof List) {
-              options.setProtocol((List) value);
-            } else {
-              options.setProtocol(value.toString());
-            }
-          }
-          return options;
-        });
+              if (conf.hasPath(path + ".clientAuth")) {
+                options.setClientAuth(
+                    ClientAuth.valueOf(conf.getString(path + ".clientAuth").toUpperCase()));
+              }
+              if (conf.hasPath(path + ".trust.cert")) {
+                options.setTrustCert(conf.getString(path + ".trust.cert"));
+              }
+              if (conf.hasPath(path + ".trust.password")) {
+                options.setTrustPassword(conf.getString(path + ".trust.password"));
+              }
+              if (conf.hasPath(path + ".protocol")) {
+                Object value = conf.getAnyRef(path + ".protocol");
+                if (value instanceof List) {
+                  options.setProtocol((List) value);
+                } else {
+                  options.setProtocol(value.toString());
+                }
+              }
+              return options;
+            });
   }
 }

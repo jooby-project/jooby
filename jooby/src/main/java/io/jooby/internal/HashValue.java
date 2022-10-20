@@ -1,17 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Context;
-import io.jooby.FileUpload;
-import io.jooby.Formdata;
-import io.jooby.ValueNode;
-
-import java.util.function.Supplier;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +18,13 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.FileUpload;
+import io.jooby.Formdata;
+import io.jooby.ValueNode;
 
 public class HashValue implements ValueNode, Formdata {
   private static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
@@ -51,7 +51,8 @@ public class HashValue implements ValueNode, Formdata {
     this.name = null;
   }
 
-  @Override public String name() {
+  @Override
+  public String name() {
     return name;
   }
 
@@ -60,41 +61,45 @@ public class HashValue implements ValueNode, Formdata {
   }
 
   public void put(String path, ValueNode node) {
-    put(path, (name, scope) -> {
-      ValueNode existing = scope.get(name);
-      if (existing == null) {
-        scope.put(name, node);
-      } else {
-        ArrayValue list;
-        if (existing instanceof ArrayValue) {
-          list = (ArrayValue) existing;
-        } else {
-          list = new ArrayValue(ctx, name).add(existing);
-          scope.put(name, list);
-        }
-        list.add(node);
-      }
-    });
+    put(
+        path,
+        (name, scope) -> {
+          ValueNode existing = scope.get(name);
+          if (existing == null) {
+            scope.put(name, node);
+          } else {
+            ArrayValue list;
+            if (existing instanceof ArrayValue) {
+              list = (ArrayValue) existing;
+            } else {
+              list = new ArrayValue(ctx, name).add(existing);
+              scope.put(name, list);
+            }
+            list.add(node);
+          }
+        });
   }
 
   public void put(String path, Collection<String> values) {
-    put(path, (name, scope) -> {
-      for (String value : values) {
-        ValueNode existing = scope.get(name);
-        if (existing == null) {
-          scope.put(name, new SingleValue(ctx, name, decode(value)));
-        } else {
-          ArrayValue list;
-          if (existing instanceof ArrayValue) {
-            list = (ArrayValue) existing;
-          } else {
-            list = new ArrayValue(ctx, name).add(existing);
-            scope.put(name, list);
+    put(
+        path,
+        (name, scope) -> {
+          for (String value : values) {
+            ValueNode existing = scope.get(name);
+            if (existing == null) {
+              scope.put(name, new SingleValue(ctx, name, decode(value)));
+            } else {
+              ArrayValue list;
+              if (existing instanceof ArrayValue) {
+                list = (ArrayValue) existing;
+              } else {
+                list = new ArrayValue(ctx, name).add(existing);
+                scope.put(name, list);
+              }
+              list.add(decode(value));
+            }
           }
-          list.add(decode(value));
-        }
-      }
-    });
+        });
   }
 
   protected String decode(String value) {
@@ -181,7 +186,8 @@ public class HashValue implements ValueNode, Formdata {
     return this.name == null ? name : this.name + "." + name;
   }
 
-  @Override public ValueNode get(@NonNull int index) {
+  @Override
+  public ValueNode get(@NonNull int index) {
     return get(Integer.toString(index));
   }
 
@@ -189,66 +195,79 @@ public class HashValue implements ValueNode, Formdata {
     return hash.size();
   }
 
-  @Override public String value() {
+  @Override
+  public String value() {
     StringJoiner joiner = new StringJoiner("&");
-    hash.forEach((k, v) -> {
-      Iterator<ValueNode> it = v.iterator();
-      while (it.hasNext()) {
-        ValueNode value = it.next();
-        String str = value instanceof FileUpload
-            ? ((FileUpload) value).getFileName()
-            : value.toString();
-        joiner.add(k + "=" + str);
-      }
-    });
+    hash.forEach(
+        (k, v) -> {
+          Iterator<ValueNode> it = v.iterator();
+          while (it.hasNext()) {
+            ValueNode value = it.next();
+            String str =
+                value instanceof FileUpload ? ((FileUpload) value).getFileName() : value.toString();
+            joiner.add(k + "=" + str);
+          }
+        });
     return joiner.toString();
   }
 
-  @Override public Iterator<ValueNode> iterator() {
+  @Override
+  public Iterator<ValueNode> iterator() {
     return hash.values().iterator();
   }
 
-  @NonNull @Override public List<String> toList() {
+  @NonNull @Override
+  public List<String> toList() {
     return toList(String.class);
   }
 
-  @NonNull @Override public Set<String> toSet() {
+  @NonNull @Override
+  public Set<String> toSet() {
     return toSet(String.class);
   }
 
-  @NonNull @Override public <T> List<T> toList(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> List<T> toList(@NonNull Class<T> type) {
     return toCollection(type, new ArrayList<>());
   }
 
-  @NonNull @Override public <T> Set<T> toSet(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> Set<T> toSet(@NonNull Class<T> type) {
     return toCollection(type, new LinkedHashSet<>());
   }
 
-  @NonNull @Override public <T> Optional<T> toOptional(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> Optional<T> toOptional(@NonNull Class<T> type) {
     if (hash.isEmpty()) {
       return Optional.empty();
     }
     return Optional.ofNullable(to(type));
   }
 
-  @NonNull @Override public <T> T to(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> T to(@NonNull Class<T> type) {
     return ctx.convert(this, type);
   }
 
-  @Override public Map<String, List<String>> toMultimap() {
+  @Override
+  public Map<String, List<String>> toMultimap() {
     Map<String, List<String>> result = new LinkedHashMap<>(hash.size());
     Set<Map.Entry<String, ValueNode>> entries = hash.entrySet();
     String scope = name == null ? "" : name + ".";
     for (Map.Entry<String, ValueNode> entry : entries) {
       ValueNode value = entry.getValue();
-      value.toMultimap().forEach((k, v) -> {
-        result.put(scope + k, v);
-      });
+      value
+          .toMultimap()
+          .forEach(
+              (k, v) -> {
+                result.put(scope + k, v);
+              });
     }
     return result;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return hash.toString();
   }
 

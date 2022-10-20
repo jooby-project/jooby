@@ -1,16 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import com.typesafe.config.Config;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -29,9 +23,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 /**
- * Response cookie implementation. Response are send it back to client using
- * {@link Context#setResponseCookie(Cookie)}.
+ * Response cookie implementation. Response are send it back to client using {@link
+ * Context#setResponseCookie(Cookie)}.
  *
  * @author edgar
  * @since 2.0.0
@@ -41,9 +42,9 @@ public class Cookie {
   /** Algorithm name. */
   public static final String HMAC_SHA256 = "HmacSHA256";
 
-  private static final DateTimeFormatter fmt = DateTimeFormatter
-      .ofPattern("EEE, dd-MMM-yyyy HH:mm:ss z", Locale.US)
-      .withZone(ZoneId.of("GMT"));
+  private static final DateTimeFormatter fmt =
+      DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm:ss z", Locale.US)
+          .withZone(ZoneId.of("GMT"));
 
   /** Cookie's name. */
   private String name;
@@ -73,7 +74,7 @@ public class Cookie {
    * Value for the 'SameSite' cookie attribute.
    *
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite">
-   *   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
+   *     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
    */
   private SameSite sameSite;
 
@@ -251,14 +252,16 @@ public class Cookie {
    *
    * @param secure Cookie's secure.
    * @return This cookie.
-   * @throws IllegalArgumentException if {@code false} is specified and the 'SameSite'
-   * attribute value requires a secure cookie.
+   * @throws IllegalArgumentException if {@code false} is specified and the 'SameSite' attribute
+   *     value requires a secure cookie.
    */
   public @NonNull Cookie setSecure(boolean secure) {
     if (sameSite != null && sameSite.requiresSecure() && !secure) {
-      throw new IllegalArgumentException("Cookies with SameSite=" + sameSite.getValue()
-          + " must be flagged as Secure. Call Cookie.setSameSite(...) with an argument"
-          + " allowing non-secure cookies before calling Cookie.setSecure(false).");
+      throw new IllegalArgumentException(
+          "Cookies with SameSite="
+              + sameSite.getValue()
+              + " must be flagged as Secure. Call Cookie.setSameSite(...) with an argument"
+              + " allowing non-secure cookies before calling Cookie.setSecure(false).");
     }
     this.secure = secure;
     return this;
@@ -267,10 +270,10 @@ public class Cookie {
   /**
    * Max age value:
    *
-   * - <code>-1</code>: indicates a browser session. It is deleted when user closed the browser.
-   * - <code>0</code>: indicates a cookie has expired and browser must delete the cookie.
-   * - <code>positive value</code>: indicates the number of seconds from current date, where browser
-   *   must expires the cookie.
+   * <p>- <code>-1</code>: indicates a browser session. It is deleted when user closed the browser.
+   * - <code>0</code>: indicates a cookie has expired and browser must delete the cookie. - <code>
+   * positive value</code>: indicates the number of seconds from current date, where browser must
+   * expires the cookie.
    *
    * @return Max age, in seconds.
    */
@@ -281,10 +284,10 @@ public class Cookie {
   /**
    * Set max age value:
    *
-   * - <code>-1</code>: indicates a browser session. It is deleted when user closed the browser.
-   * - <code>0</code>: indicates a cookie has expired and browser must delete the cookie.
-   * - <code>positive value</code>: indicates the number of seconds from current date, where browser
-   *   must expires the cookie.
+   * <p>- <code>-1</code>: indicates a browser session. It is deleted when user closed the browser.
+   * - <code>0</code>: indicates a cookie has expired and browser must delete the cookie. - <code>
+   * positive value</code>: indicates the number of seconds from current date, where browser must
+   * expires the cookie.
    *
    * @param maxAge Cookie max age.
    * @return This options.
@@ -296,10 +299,10 @@ public class Cookie {
   /**
    * Set max age value:
    *
-   * - <code>-1</code>: indicates a browser session. It is deleted when user closed the browser.
-   * - <code>0</code>: indicates a cookie has expired and browser must delete the cookie.
-   * - <code>positive value</code>: indicates the number of seconds from current date, where browser
-   *   must expires the cookie.
+   * <p>- <code>-1</code>: indicates a browser session. It is deleted when user closed the browser.
+   * - <code>0</code>: indicates a cookie has expired and browser must delete the cookie. - <code>
+   * positive value</code>: indicates the number of seconds from current date, where browser must
+   * expires the cookie.
    *
    * @param maxAge Cookie max age, in seconds.
    * @return This options.
@@ -315,59 +318,63 @@ public class Cookie {
 
   /**
    * Returns the value for the 'SameSite' parameter.
+   *
    * <ul>
-   *   <li>{@link SameSite#LAX} - Cookies are allowed to be sent with top-level navigations and
-   *   will be sent along with GET request initiated by third party website. This is the default
-   *   value in modern browsers.</li>
+   *   <li>{@link SameSite#LAX} - Cookies are allowed to be sent with top-level navigations and will
+   *       be sent along with GET request initiated by third party website. This is the default
+   *       value in modern browsers.
    *   <li>{@link SameSite#STRICT} - Cookies will only be sent in a first-party context and not be
-   *   sent along with requests initiated by third party websites.</li>
-   *   <li>{@link SameSite#NONE} - Cookies will be sent in all contexts, i.e sending cross-origin
-   *   is allowed. Requires the {@code Secure} attribute in latest browser versions.</li>
-   *   <li>{@code null} - Not specified.</li>
+   *       sent along with requests initiated by third party websites.
+   *   <li>{@link SameSite#NONE} - Cookies will be sent in all contexts, i.e sending cross-origin is
+   *       allowed. Requires the {@code Secure} attribute in latest browser versions.
+   *   <li>{@code null} - Not specified.
    * </ul>
    *
    * @return the value for 'SameSite' parameter.
    * @see #setSecure(boolean)
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite">
-   *   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
+   *     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
    */
-  @Nullable
-  public SameSite getSameSite() {
+  @Nullable public SameSite getSameSite() {
     return sameSite;
   }
 
   /**
    * Sets the value for the 'SameSite' parameter.
+   *
    * <ul>
-   *   <li>{@link SameSite#LAX} - Cookies are allowed to be sent with top-level navigations and
-   *   will be sent along with GET request initiated by third party website. This is the default
-   *   value in modern browsers.</li>
+   *   <li>{@link SameSite#LAX} - Cookies are allowed to be sent with top-level navigations and will
+   *       be sent along with GET request initiated by third party website. This is the default
+   *       value in modern browsers.
    *   <li>{@link SameSite#STRICT} - Cookies will only be sent in a first-party context and not be
-   *   sent along with requests initiated by third party websites.</li>
-   *   <li>{@link SameSite#NONE} - Cookies will be sent in all contexts, i.e sending cross-origin
-   *   is allowed. Requires the {@code Secure} attribute in latest browser versions.</li>
-   *   <li>{@code null} - Not specified.</li>
+   *       sent along with requests initiated by third party websites.
+   *   <li>{@link SameSite#NONE} - Cookies will be sent in all contexts, i.e sending cross-origin is
+   *       allowed. Requires the {@code Secure} attribute in latest browser versions.
+   *   <li>{@code null} - Not specified.
    * </ul>
    *
    * @param sameSite the value for the 'SameSite' parameter.
    * @return this instance.
    * @throws IllegalArgumentException if a value requiring a secure cookie is specified and this
-   * cookie is not flagged as secure.
+   *     cookie is not flagged as secure.
    * @see #setSecure(boolean)
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite">
-   *   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
+   *     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
    */
   public Cookie setSameSite(@Nullable SameSite sameSite) {
     if (sameSite != null && sameSite.requiresSecure() && !isSecure()) {
-      throw new IllegalArgumentException("Cookies with SameSite=" + sameSite.getValue()
-          + " must be flagged as Secure. Call Cookie.setSecure(true)"
-          + " before calling Cookie.setSameSite(...).");
+      throw new IllegalArgumentException(
+          "Cookies with SameSite="
+              + sameSite.getValue()
+              + " must be flagged as Secure. Call Cookie.setSecure(true)"
+              + " before calling Cookie.setSameSite(...).");
     }
     this.sameSite = sameSite;
     return this;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     StringBuilder buff = new StringBuilder();
     buff.append(name).append("=");
     if (value != null) {
@@ -438,9 +445,8 @@ public class Cookie {
   }
 
   /**
-   * Sign a value using a secret key. A value and secret key are required. Sign is done with
-   * {@link #HMAC_SHA256}.
-   * Signed value looks like:
+   * Sign a value using a secret key. A value and secret key are required. Sign is done with {@link
+   * #HMAC_SHA256}. Signed value looks like:
    *
    * <pre>
    *   [signed value] '|' [raw value]
@@ -462,8 +468,8 @@ public class Cookie {
   }
 
   /**
-   * Un-sign a value, previously signed with {@link #sign(String, String)}.
-   * Produces a nonnull value or <code>null</code> for invalid.
+   * Un-sign a value, previously signed with {@link #sign(String, String)}. Produces a nonnull value
+   * or <code>null</code> for invalid.
    *
    * @param value A signed value.
    * @param secret A secret key.
@@ -479,8 +485,8 @@ public class Cookie {
   }
 
   /**
-   * Encode a hash into cookie value, like: <code>k1=v1&amp;...&amp;kn=vn</code>. Also,
-   * <code>key</code> and <code>value</code> are encoded using {@link URLEncoder}.
+   * Encode a hash into cookie value, like: <code>k1=v1&amp;...&amp;kn=vn</code>. Also, <code>key
+   * </code> and <code>value</code> are encoded using {@link URLEncoder}.
    *
    * @param attributes Map to encode.
    * @return URL encoded from map attributes.
@@ -493,7 +499,8 @@ public class Cookie {
       StringBuilder joiner = new StringBuilder();
       String enc = StandardCharsets.UTF_8.name();
       for (Map.Entry<String, String> attribute : attributes.entrySet()) {
-        joiner.append(URLEncoder.encode(attribute.getKey(), enc))
+        joiner
+            .append(URLEncoder.encode(attribute.getKey(), enc))
             .append('=')
             .append(URLEncoder.encode(attribute.getValue(), enc))
             .append('&');
@@ -532,7 +539,8 @@ public class Cookie {
         // parse attribute
         int eq = value.indexOf('=', start);
         if (eq > 0 && eq < len - 1) {
-          attributes.put(URLDecoder.decode(value.substring(start, eq), enc),
+          attributes.put(
+              URLDecoder.decode(value.substring(start, eq), enc),
               URLDecoder.decode(value.substring(eq + 1, end), enc));
         }
 
@@ -551,7 +559,7 @@ public class Cookie {
    * Attempt to create/parse a cookie from application configuration object. The namespace given
    * must be present and must defined a <code>name</code> property.
    *
-   * The namespace might optionally defined: value, path, domain, secure, httpOnly and maxAge.
+   * <p>The namespace might optionally defined: value, path, domain, secure, httpOnly and maxAge.
    *
    * @param namespace Cookie namespace/prefix.
    * @param conf Configuration object.
@@ -565,17 +573,23 @@ public class Cookie {
       value(conf, namespace + ".domain", Config::getString, cookie::setDomain);
       value(conf, namespace + ".secure", Config::getBoolean, cookie::setSecure);
       value(conf, namespace + ".httpOnly", Config::getBoolean, cookie::setHttpOnly);
-      value(conf, namespace + ".maxAge", (c, path) -> c.getDuration(path, TimeUnit.SECONDS),
+      value(
+          conf,
+          namespace + ".maxAge",
+          (c, path) -> c.getDuration(path, TimeUnit.SECONDS),
           cookie::setMaxAge);
-      value(conf, namespace + ".sameSite", (c, path) -> SameSite.of(c.getString(path)),
+      value(
+          conf,
+          namespace + ".sameSite",
+          (c, path) -> SameSite.of(c.getString(path)),
           cookie::setSameSite);
       return Optional.of(cookie);
     }
     return Optional.empty();
   }
 
-  private static <T> void value(Config conf, String name, BiFunction<Config, String, T> mapper,
-      Consumer<T> consumer) {
+  private static <T> void value(
+      Config conf, String name, BiFunction<Config, String, T> mapper, Consumer<T> consumer) {
     if (conf.hasPath(name)) {
       consumer.accept(mapper.apply(conf, name));
     }

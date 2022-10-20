@@ -1,15 +1,16 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.pac4j;
 
-import io.jooby.Registry;
+import java.util.List;
+
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.context.WebContext;
 
-import java.util.List;
+import io.jooby.Registry;
 
 public class ForwardingAuthorizer implements Authorizer {
   private Registry registry;
@@ -20,7 +21,8 @@ public class ForwardingAuthorizer implements Authorizer {
     this.authorizerType = authorizerType;
   }
 
-  @Override public boolean isAuthorized(WebContext context, List profiles) {
+  @Override
+  public boolean isAuthorized(WebContext context, List profiles) {
     return authorizer(authorizerType).isAuthorized(context, profiles);
   }
 

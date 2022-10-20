@@ -1,18 +1,21 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.i2457;
 
-
 import com.google.common.collect.ImmutableMap;
-
+import io.jooby.Context;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
-import io.jooby.Context;
 
 @Path("/")
 public class HealthController2457 {
 
   private WelcomeService2457 welcomeService;
 
-  @javax.inject.Inject //Guice does not support jakarta annotations
+  @javax.inject.Inject // Guice does not support jakarta annotations
   public HealthController2457(WelcomeService2457 welcomeService) {
     super();
     this.welcomeService = welcomeService;
@@ -21,10 +24,6 @@ public class HealthController2457 {
   @GET("/healthcheck")
   public void healthCheck(Context ctx) {
     String welcome = welcomeService.welcome("healthcheck");
-    ctx.setResponseCode(200)
-        .render(ImmutableMap.of(
-            "status", "Ok",
-            "welcome", welcome)
-        );
+    ctx.setResponseCode(200).render(ImmutableMap.of("status", "Ok", "welcome", welcome));
   }
 }

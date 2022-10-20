@@ -1,15 +1,16 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.Sender;
+import java.io.IOException;
+
 import org.eclipse.jetty.server.HttpOutput;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.IOException;
+import io.jooby.Sender;
 
 public class JettySender implements Sender {
   private final JettyContext ctx;
@@ -20,7 +21,8 @@ public class JettySender implements Sender {
     this.sender = sender;
   }
 
-  @Override public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
+  @Override
+  public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
     try {
       sender.write(data);
       sender.flush();
@@ -31,8 +33,8 @@ public class JettySender implements Sender {
     return this;
   }
 
-  @Override public void close() {
+  @Override
+  public void close() {
     ctx.complete(null);
   }
-
 }

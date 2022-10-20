@@ -1,4 +1,11 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.openapi;
+
+import java.util.stream.Collectors;
 
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.OpenAPIExt;
@@ -6,8 +13,6 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
-
-import java.util.stream.Collectors;
 
 public class OpenAPIResult {
   public final OpenAPIExt openAPI;
@@ -33,8 +38,10 @@ public class OpenAPIResult {
           return yaml;
         }
         throw new IllegalStateException(
-            "Invalid OpenAPI specification:\n\t- " + result.getMessages().stream()
-                .collect(Collectors.joining("\n\t- ")).trim() + "\n\n" + yaml);
+            "Invalid OpenAPI specification:\n\t- "
+                + result.getMessages().stream().collect(Collectors.joining("\n\t- ")).trim()
+                + "\n\n"
+                + yaml);
       }
       return yaml;
     } catch (Exception x) {
@@ -55,8 +62,10 @@ public class OpenAPIResult {
           return json;
         }
         throw new IllegalStateException(
-            "Invalid OpenAPI specification:\n\t- " + result.getMessages().stream()
-                .collect(Collectors.joining("\n\t- ")).trim() + "\n\n" + json);
+            "Invalid OpenAPI specification:\n\t- "
+                + result.getMessages().stream().collect(Collectors.joining("\n\t- ")).trim()
+                + "\n\n"
+                + json);
       }
       return json;
     } catch (Exception x) {

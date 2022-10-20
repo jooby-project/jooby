@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-
 import io.jooby.Context;
 import io.jooby.FileDownload;
 import io.jooby.MediaType;
@@ -45,7 +44,8 @@ public class HttpMessageEncoder implements MessageEncoder {
     return this;
   }
 
-  @Override public byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  @Override
+  public byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     if (value instanceof ModelAndView) {
       ModelAndView modelAndView = (ModelAndView) value;
       for (TemplateEngine engine : templateEngineList) {

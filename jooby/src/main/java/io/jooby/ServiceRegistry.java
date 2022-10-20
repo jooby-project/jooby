@@ -1,17 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.exception.RegistryException;
+import java.util.Map;
+import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.exception.RegistryException;
 import jakarta.inject.Provider;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Default registry which use a simply key/value mechanism for storing and retrieving services.
@@ -96,7 +96,7 @@ public interface ServiceRegistry extends Registry {
   }
 
   /**
-   * Put a service in this registry.  This method overrides any previous registered service.
+   * Put a service in this registry. This method overrides any previous registered service.
    *
    * @param key Service/resource key.
    * @param service Service instance.
@@ -118,7 +118,7 @@ public interface ServiceRegistry extends Registry {
   }
 
   /**
-   * Put a service in this registry.  This method overrides any previous registered service.
+   * Put a service in this registry. This method overrides any previous registered service.
    *
    * @param key Service/resource key.
    * @param service Service instance.
@@ -130,7 +130,6 @@ public interface ServiceRegistry extends Registry {
   /**
    * Put/register a service in this registry if there isn't the same service already registered.
    *
-   *
    * @param key Service/resource key.
    * @param service Service instance.
    * @param <T> Service type.
@@ -140,7 +139,6 @@ public interface ServiceRegistry extends Registry {
 
   /**
    * Put/register a service in this registry if there isn't the same service already registered.
-   *
    *
    * @param type Service/resource key.
    * @param service Service instance.
@@ -154,7 +152,6 @@ public interface ServiceRegistry extends Registry {
   /**
    * Put/register a service in this registry if there isn't the same service already registered.
    *
-   *
    * @param key Service/resource key.
    * @param service Service instance.
    * @param <T> Service type.
@@ -164,7 +161,6 @@ public interface ServiceRegistry extends Registry {
 
   /**
    * Put/register a service in this registry if there isn't the same service already registered.
-   *
    *
    * @param type Service/resource key.
    * @param service Service instance.

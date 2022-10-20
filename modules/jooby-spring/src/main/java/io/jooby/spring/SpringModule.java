@@ -1,16 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.spring;
 
-import com.typesafe.config.Config;
-import io.jooby.Environment;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.ServiceKey;
-import io.jooby.ServiceRegistry;
+import java.util.Map;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -18,16 +14,21 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Controller;
 
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Environment;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
 import jakarta.inject.Provider;
-import java.util.Map;
 
 /**
  * Spring module: https://jooby.io/modules/spring.
  *
- * Jooby integrates the {@link io.jooby.ServiceRegistry} into the Spring Core framework.
+ * <p>Jooby integrates the {@link io.jooby.ServiceRegistry} into the Spring Core framework.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -41,7 +42,7 @@ import java.util.Map;
  *
  * Require calls are going to be resolve by Spring now.
  *
- * Spring scan the {@link Jooby#getBasePackage()}, unless you specify them explicitly.
+ * <p>Spring scan the {@link Jooby#getBasePackage()}, unless you specify them explicitly.
  *
  * @author edgar
  * @since 2.0.0
@@ -65,11 +66,8 @@ public class SpringModule implements Extension {
     this.applicationContext = applicationContext;
   }
 
-  /**
-   * Creates a new Spring module, scan the default package: {@link Jooby#getBasePackage()}.
-   */
-  public SpringModule() {
-  }
+  /** Creates a new Spring module, scan the default package: {@link Jooby#getBasePackage()}. */
+  public SpringModule() {}
 
   /**
    * Creates a new Spring module and scan the provided packages.
@@ -101,11 +99,13 @@ public class SpringModule implements Extension {
     return this;
   }
 
-  @Override public boolean lateinit() {
+  @Override
+  public boolean lateinit() {
     return true;
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     if (applicationContext == null) {
       String[] packages = this.packages;
       if (packages == null) {
@@ -114,7 +114,7 @@ public class SpringModule implements Extension {
           throw new IllegalArgumentException(
               "SpringModule application context requires at least one package to scan.");
         }
-        packages = new String[]{basePackage};
+        packages = new String[] {basePackage};
       }
       Environment environment = application.getEnvironment();
 
@@ -155,8 +155,7 @@ public class SpringModule implements Extension {
     application.registry(new SpringRegistry(applicationContext));
 
     if (registerMvcRoutes) {
-      String[] names = applicationContext
-          .getBeanNamesForAnnotation(Controller.class);
+      String[] names = applicationContext.getBeanNamesForAnnotation(Controller.class);
       ClassLoader loader = application.getClass().getClassLoader();
       for (String name : names) {
         BeanDefinition bean = applicationContext.getBeanDefinition(name);

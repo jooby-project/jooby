@@ -1,17 +1,23 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues;
-
-import io.jooby.Context;
-import io.jooby.test.MockContext;
-import io.jooby.test.MockRouter;
-import io.jooby.test.MockSession;
-import io.jooby.Session;
-import io.jooby.Value;
-import issues.i1570.App1570;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
+
+import io.jooby.Context;
+import io.jooby.Session;
+import io.jooby.Value;
+import io.jooby.test.MockContext;
+import io.jooby.test.MockRouter;
+import io.jooby.test.MockSession;
+import issues.i1570.App1570;
 
 public class Issue1570 {
 
@@ -25,8 +31,8 @@ public class Issue1570 {
     when(ctx.session()).thenReturn(session);
 
     MockRouter router = new MockRouter(new App1570());
-    assertEquals("{\"clientName\": \"ClientVader\"}",
-        router.get("/registerClient/ClientVader").value());
+    assertEquals(
+        "{\"clientName\": \"ClientVader\"}", router.get("/registerClient/ClientVader").value());
     assertEquals("{\"clientName\": \"ClientVader\"}", router.get("/clientName", ctx).value());
   }
 
@@ -38,7 +44,8 @@ public class Issue1570 {
     session.put("handle", "ClientVader");
 
     MockRouter router = new MockRouter(new App1570());
-    assertEquals("{\"clientName\": \"ClientVader\"}", router.get("/registerClient/ClientVader").value());
+    assertEquals(
+        "{\"clientName\": \"ClientVader\"}", router.get("/registerClient/ClientVader").value());
 
     assertEquals("{\"clientName\": \"ClientVader\"}", router.get("/clientName", ctx).value());
   }
@@ -48,7 +55,8 @@ public class Issue1570 {
     MockRouter router = new MockRouter(new App1570());
     router.setSession(new MockSession());
 
-    assertEquals("{\"clientName\": \"ClientVader\"}", router.get("/registerClient/ClientVader").value());
+    assertEquals(
+        "{\"clientName\": \"ClientVader\"}", router.get("/registerClient/ClientVader").value());
 
     assertEquals("{\"clientName\": \"ClientVader\"}", router.get("/clientName").value());
   }

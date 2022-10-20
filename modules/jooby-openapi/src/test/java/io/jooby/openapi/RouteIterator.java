@@ -1,6 +1,9 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.openapi;
-
-import io.jooby.internal.openapi.OperationExt;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +13,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import io.jooby.internal.openapi.OperationExt;
 
 public class RouteIterator {
 

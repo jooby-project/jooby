@@ -1,11 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.netty;
-
-import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
@@ -64,8 +62,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long contentLength;
   private long chunkSize;
 
-  public NettyHandler(ScheduledExecutorService scheduler, Router router, long maxRequestSize,
-      int bufferSize, HttpDataFactory factory, boolean defaultHeaders,
+  public NettyHandler(
+      ScheduledExecutorService scheduler,
+      Router router,
+      long maxRequestSize,
+      int bufferSize,
+      HttpDataFactory factory,
+      boolean defaultHeaders,
       boolean is100ContinueExpected) {
     this.scheduler = scheduler;
     this.router = router;
@@ -139,13 +142,15 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  @Override public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+  @Override
+  public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
     if (context != null) {
       context.flush();
     }
   }
 
-  @Override public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+  @Override
+  public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
     if (evt instanceof IdleStateEvent) {
       NettyWebSocket ws = ctx.channel().attr(NettyWebSocket.WS).getAndSet(null);
       if (ws != null) {
@@ -197,8 +202,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     decoder = null;
   }
 
-  private static InterfaceHttpPostRequestDecoder newDecoder(HttpRequest request,
-      HttpDataFactory factory) {
+  private static InterfaceHttpPostRequestDecoder newDecoder(
+      HttpRequest request, HttpDataFactory factory) {
     String contentType = request.headers().get(HttpHeaderNames.CONTENT_TYPE);
     if (contentType != null) {
       String lowerContentType = contentType.toLowerCase();
@@ -231,9 +236,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private static String date(ScheduledExecutorService scheduler) {
     String dateString = cachedDateString.get();
     if (dateString == null) {
-      //set the time and register a timer to invalidate it
-      //note that this is racey, it does not matter if multiple threads do this
-      //the perf cost of synchronizing would be more than the perf cost of multiple threads running it
+      // set the time and register a timer to invalidate it
+      // note that this is racey, it does not matter if multiple threads do this
+      // the perf cost of synchronizing would be more than the perf cost of multiple threads running
+      // it
       long realTime = System.currentTimeMillis();
       long mod = realTime % DATE_INTERVAL;
       long toGo = DATE_INTERVAL - mod;
@@ -245,4 +251,3 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     return dateString;
   }
 }
-

@@ -1,16 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.exception.MissingValueException;
-import io.jooby.internal.ByteArrayBody;
-import io.jooby.internal.FileBody;
-import io.jooby.internal.InputStreamBody;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
@@ -20,10 +14,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.exception.MissingValueException;
+import io.jooby.internal.ByteArrayBody;
+import io.jooby.internal.FileBody;
+import io.jooby.internal.InputStreamBody;
+
 /**
  * HTTP body value. Allows to access HTTP body as string, byte[], stream, etc..
  *
- * HTTP body can be read it only once per request. Attempt to read more than one resulted in
+ * <p>HTTP body can be read it only once per request. Attempt to read more than one resulted in
  * unexpected behaviour.
  *
  * @author edgar
@@ -53,8 +53,8 @@ public interface Body extends ValueNode {
   @NonNull byte[] bytes();
 
   /**
-   * True if body is on memory. False, indicates body is on file system. Body larger than
-   * {@link ServerOptions#getMaxRequestSize()} will be dump to disk.
+   * True if body is on memory. False, indicates body is on file system. Body larger than {@link
+   * ServerOptions#getMaxRequestSize()} will be dump to disk.
    *
    * @return True if body is on memory. False, indicates body is on file system.
    */
@@ -81,7 +81,8 @@ public interface Body extends ValueNode {
    */
   @NonNull InputStream stream();
 
-  @NonNull @Override default <T> List<T> toList(@NonNull Class<T> type) {
+  @NonNull @Override
+  default <T> List<T> toList(@NonNull Class<T> type) {
     return to(Reified.list(type).getType());
   }
 
@@ -93,7 +94,8 @@ public interface Body extends ValueNode {
     return Collections.singleton(value());
   }
 
-  @Override default @NonNull <T> T to(@NonNull Class<T> type) {
+  @Override
+  default @NonNull <T> T to(@NonNull Class<T> type) {
     return to((Type) type);
   }
 

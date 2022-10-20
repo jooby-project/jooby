@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -22,15 +22,14 @@ public class ProxyPeerAddress {
 
   private int port;
 
-  private ProxyPeerAddress() {
-  }
+  private ProxyPeerAddress() {}
 
   /**
    * The X-Forwarded-For (XFF) header is a de-facto standard header for identifying the originating
    * IP address of a client connecting to a web server through an HTTP proxy or a load balancer.
-   * When traffic is intercepted between clients and servers, server access logs contain the
-   * IP address of the proxy or load balancer only. To see the original IP address of the client,
-   * the X-Forwarded-For request header is used.
+   * When traffic is intercepted between clients and servers, server access logs contain the IP
+   * address of the proxy or load balancer only. To see the original IP address of the client, the
+   * X-Forwarded-For request header is used.
    *
    * @return Remote address.
    */
@@ -80,19 +79,15 @@ public class ProxyPeerAddress {
   public static ProxyPeerAddress parse(Context ctx) {
     ProxyPeerAddress result = new ProxyPeerAddress();
 
-    String forwardedFor = ctx.header(X_FORWARDED_FOR)
-        .toOptional().orElseGet(ctx::getRemoteAddress);
+    String forwardedFor = ctx.header(X_FORWARDED_FOR).toOptional().orElseGet(ctx::getRemoteAddress);
     result.remoteAddress = mostRecent(forwardedFor);
 
-    String forwardedProto = ctx.header(X_FORWARDED_PROTO)
-        .toOptional().orElseGet(ctx::getScheme);
+    String forwardedProto = ctx.header(X_FORWARDED_PROTO).toOptional().orElseGet(ctx::getScheme);
     result.scheme = mostRecent(forwardedProto);
 
-    String forwardedHost = ctx.header(X_FORWARDED_HOST)
-        .toOptional().orElseGet(ctx::getHost);
+    String forwardedHost = ctx.header(X_FORWARDED_HOST).toOptional().orElseGet(ctx::getHost);
 
-    String forwardedPort = ctx.header(X_FORWARDED_PORT)
-        .valueOrNull();
+    String forwardedPort = ctx.header(X_FORWARDED_PORT).valueOrNull();
 
     String value = mostRecent(forwardedHost);
     if (value.startsWith("[")) {

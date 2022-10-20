@@ -1,20 +1,21 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.hibernate;
 
-import io.jooby.SneakyThrows;
-import io.jooby.hibernate.UnitOfWork;
+import static java.util.Objects.requireNonNull;
+
+import javax.persistence.EntityManager;
+
 import org.hibernate.*;
 import org.hibernate.context.internal.ManagedSessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-
-import static java.util.Objects.requireNonNull;
+import io.jooby.SneakyThrows;
+import io.jooby.hibernate.UnitOfWork;
 
 public class UnitOfWorkImpl implements UnitOfWork {
 
@@ -71,20 +72,23 @@ public class UnitOfWorkImpl implements UnitOfWork {
     try {
       begin();
 
-      final T result = callback.apply(session, new TransactionHandler() {
+      final T result =
+          callback.apply(
+              session,
+              new TransactionHandler() {
 
-        @Override
-        public void commit() {
-          UnitOfWorkImpl.this.commit();
-          begin();
-        }
+                @Override
+                public void commit() {
+                  UnitOfWorkImpl.this.commit();
+                  begin();
+                }
 
-        @Override
-        public void rollback() {
-          UnitOfWorkImpl.this.rollback();
-          begin();
-        }
-      });
+                @Override
+                public void rollback() {
+                  UnitOfWorkImpl.this.rollback();
+                  begin();
+                }
+              });
 
       commit();
 

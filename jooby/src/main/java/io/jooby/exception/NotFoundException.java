@@ -1,13 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.exception;
 
-import io.jooby.StatusCode;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.StatusCode;
 
 /**
  * When a request doesn't match any of the available routes.

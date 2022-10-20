@@ -1,11 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,37 +14,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 /**
  * Utility class that initializes logback or log4j2 logging implementation.
  *
- * Initializes the <code>logback.configurationFile</code> system property when a
- * <code>logback[.env].xml</code> file is found at <code>user.dir/conf</code> directory or
- * <code>user.dir</code>.
+ * <p>Initializes the <code>logback.configurationFile</code> system property when a <code>
+ * logback[.env].xml</code> file is found at <code>user.dir/conf</code> directory or <code>user.dir
+ * </code>.
  *
- * Initializes the <code>log4j.configurationFile</code> system property when a
- * <code>log4j[.env].[ext]</code> file is found at <code>user.dir/conf</code> directory or
- * <code>user.dir</code>. Extension can be one of: <code>.xml</code>, <code>.properties</code>,
- * <code>.yaml</code> or <code>.json</code>.
+ * <p>Initializes the <code>log4j.configurationFile</code> system property when a <code>
+ * log4j[.env].[ext]</code> file is found at <code>user.dir/conf</code> directory or <code>user.dir
+ * </code>. Extension can be one of: <code>.xml</code>, <code>.properties</code>, <code>.yaml</code>
+ * or <code>.json</code>.
  *
- * NOTE: This class must be call it before instantiating a logger instance. Otherwise, this setup
+ * <p>NOTE: This class must be call it before instantiating a logger instance. Otherwise, this setup
  * is completely ignored.
  *
  * @since 2.0.0
  * @author edgar
  */
 public final class LogConfigurer {
-  private LogConfigurer() {
-  }
+  private LogConfigurer() {}
 
   /**
-   * Initializes the <code>logback.configurationFile</code> system property when a
-   * <code>logback[.env].xml</code> file is found at <code>user.dir/conf</code> directory or
-   * <code>user.dir</code>.
+   * Initializes the <code>logback.configurationFile</code> system property when a <code>
+   * logback[.env].xml</code> file is found at <code>user.dir/conf</code> directory or <code>
+   * user.dir</code>.
    *
-   * Initializes the <code>log4j.configurationFile</code> system property when a
-   * <code>log4j[.env].[ext]</code> file is found at <code>user.dir/conf</code> directory or
-   * <code>user.dir</code>. Extension can be one of: <code>.xml</code>, <code>.properties</code>,
-   * <code>.yaml</code> or <code>.json</code>.
+   * <p>Initializes the <code>log4j.configurationFile</code> system property when a <code>
+   * log4j[.env].[ext]</code> file is found at <code>user.dir/conf</code> directory or <code>
+   * user.dir</code>. Extension can be one of: <code>.xml</code>, <code>.properties</code>, <code>
+   * .yaml</code> or <code>.json</code>.
    *
    * @param names Actives environment names. Useful for choosing an environment specific logging
    *     configuration file.
@@ -65,9 +65,8 @@ public final class LogConfigurer {
     options.put("logback.configurationFile", logbackFiles(userdir, names));
     options.put("log4j.configurationFile", log4jFiles(userdir, names));
     for (Map.Entry<String, List<Path>> entry : options.entrySet()) {
-      Optional<Path> logfile = entry.getValue().stream().filter(Files::exists)
-          .findFirst()
-          .map(Path::toAbsolutePath);
+      Optional<Path> logfile =
+          entry.getValue().stream().filter(Files::exists).findFirst().map(Path::toAbsolutePath);
       if (logfile.isPresent()) {
         System.setProperty(entry.getKey(), logfile.get().toString());
         break;

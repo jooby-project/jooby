@@ -1,15 +1,16 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Available environment options.
@@ -35,8 +36,8 @@ public class EnvironmentOptions {
   }
 
   /**
-   * Active environment names or fallback and read them from system property:
-   * <code>application.env</code>.
+   * Active environment names or fallback and read them from system property: <code>application.env
+   * </code>.
    *
    * @return Active environment names.
    */

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -20,11 +20,11 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import javax.net.ssl.SSLContext;
 
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.internal.SslContextProvider;
 
 /**
@@ -35,18 +35,20 @@ import io.jooby.internal.SslContextProvider;
  */
 public class ServerOptions {
 
-  /** Default application port <code>8080</code> or the value of system property <code>server.port</code>. */
-  public static final int SERVER_PORT = Integer
-      .parseInt(System.getProperty("server.port", "8080"));
+  /**
+   * Default application port <code>8080</code> or the value of system property <code>server.port
+   * </code>.
+   */
+  public static final int SERVER_PORT = Integer.parseInt(System.getProperty("server.port", "8080"));
 
   /**
-   * Default application secure port <code>8443</code> or the value of system property
-   * <code>server.securePort</code>.
+   * Default application secure port <code>8443</code> or the value of system property <code>
+   * server.securePort</code>.
    */
-  public static final int SEVER_SECURE_PORT = Integer
-      .parseInt(System.getProperty("server.securePort", "8443"));
+  public static final int SEVER_SECURE_PORT =
+      Integer.parseInt(System.getProperty("server.securePort", "8443"));
 
-  /**  Default compression level for gzip. */
+  /** Default compression level for gzip. */
   public static final int DEFAULT_COMPRESSION_LEVEL = 6;
 
   /** 4kb constant in bytes. */
@@ -69,8 +71,10 @@ public class ServerOptions {
   /** Number of available threads, but never smaller than <code>2</code>. */
   public static final int IO_THREADS = Runtime.getRuntime().availableProcessors() * 2;
 
-  /** Number of worker (a.k.a application) threads. It is the number of processors multiply by
-   * <code>8</code>. */
+  /**
+   * Number of worker (a.k.a application) threads. It is the number of processors multiply by <code>
+   * 8</code>.
+   */
   public static final int WORKER_THREADS = Runtime.getRuntime().availableProcessors() * 8;
 
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */
@@ -83,8 +87,8 @@ public class ServerOptions {
   private Integer workerThreads;
 
   /**
-   * Configure server to default headers: <code>Date</code>, <code>Content-Type</code> and
-   * <code>Server</code> header.
+   * Configure server to default headers: <code>Date</code>, <code>Content-Type</code> and <code>
+   * Server</code> header.
    */
   private boolean defaultHeaders = true;
 
@@ -92,8 +96,8 @@ public class ServerOptions {
   private String server;
 
   /**
-   * Maximum request size in bytes. Request exceeding this value results in
-   * {@link io.jooby.StatusCode#REQUEST_ENTITY_TOO_LARGE} response. Default is <code>10mb</code>.
+   * Maximum request size in bytes. Request exceeding this value results in {@link
+   * io.jooby.StatusCode#REQUEST_ENTITY_TOO_LARGE} response. Default is <code>10mb</code>.
    */
   private int maxRequestSize = _10MB;
 
@@ -103,9 +107,7 @@ public class ServerOptions {
 
   private Integer securePort;
 
-  /**
-   * Bind only https port. Default is false.
-   */
+  /** Bind only https port. Default is false. */
   private boolean httpsOnly;
 
   private Integer compressionLevel;
@@ -174,7 +176,8 @@ public class ServerOptions {
     return Optional.empty();
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     StringBuilder buff = new StringBuilder();
     buff.append(Optional.ofNullable(server).orElse("server")).append(" {");
     buff.append("port: ").append(port);
@@ -321,7 +324,7 @@ public class ServerOptions {
    * block.
    *
    * @return Number of worker threads (a.k.a application) to use. This are the threads which are
-   *   allowed to block.
+   *     allowed to block.
    */
   public int getWorkerThreads() {
     return getWorkerThreads(WORKER_THREADS);
@@ -333,15 +336,15 @@ public class ServerOptions {
    *
    * @param defaultWorkerThreads Default worker threads is none was set.
    * @return Number of worker threads (a.k.a application) to use. This are the threads which are
-   *   allowed to block.
+   *     allowed to block.
    */
   public int getWorkerThreads(int defaultWorkerThreads) {
     return workerThreads == null ? defaultWorkerThreads : workerThreads;
   }
 
   /**
-   * Set number of worker threads (a.k.a application) to use. This are the threads which are
-   * allowed to block.
+   * Set number of worker threads (a.k.a application) to use. This are the threads which are allowed
+   * to block.
    *
    * @param workerThreads Number of worker threads to use.
    * @return This options.
@@ -382,7 +385,6 @@ public class ServerOptions {
   /**
    * Indicates compression level to use while producing gzip responses.
    *
-   *
    * @return Compression level value between <code>0...9</code> or <code>null</code> when off.
    */
   public @Nullable Integer getCompressionLevel() {
@@ -392,7 +394,7 @@ public class ServerOptions {
   /**
    * Set compression level to use while producing gzip responses.
    *
-   * Gzip is off by default (compression level is null).
+   * <p>Gzip is off by default (compression level is null).
    *
    * @param compressionLevel Value between <code>0..9</code> or <code>null</code>.
    * @return This options.
@@ -406,8 +408,8 @@ public class ServerOptions {
    * True if default headers: <code>Date</code>, <code>Content-Type</code> and <code>Server</code>
    * are enabled.
    *
-   * @return True if default headers: <code>Date</code>, <code>Content-Type</code> and
-   * <code>Server</code> are enabled.
+   * @return True if default headers: <code>Date</code>, <code>Content-Type</code> and <code>Server
+   *     </code> are enabled.
    */
   public boolean getDefaultHeaders() {
     return defaultHeaders;
@@ -429,7 +431,7 @@ public class ServerOptions {
    * Server buffer size in bytes. Default is: <code>16kb</code>. Used for reading/writing data.
    *
    * @return Server buffer size in bytes. Default is: <code>16kb</code>. Used for reading/writing
-   *    data.
+   *     data.
    */
   public int getBufferSize() {
     return bufferSize;
@@ -447,8 +449,8 @@ public class ServerOptions {
   }
 
   /**
-   * Maximum request size in bytes. Request exceeding this value results in
-   * {@link io.jooby.StatusCode#REQUEST_ENTITY_TOO_LARGE} response. Default is <code>10mb</code>.
+   * Maximum request size in bytes. Request exceeding this value results in {@link
+   * io.jooby.StatusCode#REQUEST_ENTITY_TOO_LARGE} response. Default is <code>10mb</code>.
    *
    * @return Maximum request size in bytes.
    */
@@ -513,7 +515,7 @@ public class ServerOptions {
    * Specify when HTTP/2 is enabled or not. This value is set to <code>null</code>, which allows
    * Jooby to enabled by default when dependency is added it.
    *
-   * To turn off set to false.
+   * <p>To turn off set to false.
    *
    * @return Whenever HTTP/2 is enabled.
    */
@@ -533,18 +535,18 @@ public class ServerOptions {
   }
 
   /**
-   * Whenever 100-Expect and continue requests are handled by the server.
-   * This is off by default, except for Jetty which is always ON.
+   * Whenever 100-Expect and continue requests are handled by the server. This is off by default,
+   * except for Jetty which is always ON.
    *
    * @return True when enabled.
    */
-  public  @Nullable Boolean isExpectContinue() {
+  public @Nullable Boolean isExpectContinue() {
     return expectContinue;
   }
 
   /**
-   * Set 100-Expect and continue requests are handled by the server.
-   * This is off by default, except for Jetty which is always ON.
+   * Set 100-Expect and continue requests are handled by the server. This is off by default, except
+   * for Jetty which is always ON.
    *
    * @param expectContinue True or false.
    * @return This options.
@@ -558,10 +560,9 @@ public class ServerOptions {
    * Creates SSL context using the given resource loader. This method attempts to create a
    * SSLContext when:
    *
-   * - {@link #getSecurePort()} has been set; or
-   * - {@link #getSsl()} has been set.
+   * <p>- {@link #getSecurePort()} has been set; or - {@link #getSsl()} has been set.
    *
-   * If secure port is set and there is no SSL options, this method configure a SSL context using
+   * <p>If secure port is set and there is no SSL options, this method configure a SSL context using
    * the a self-signed certificate for <code>localhost</code>.
    *
    * @param loader Resource loader.
@@ -573,31 +574,33 @@ public class ServerOptions {
       setSsl(Optional.ofNullable(ssl).orElseGet(SslOptions::selfSigned));
       SslOptions options = getSsl();
 
-      SslContextProvider sslContextProvider = Stream.of(SslContextProvider.providers())
-          .filter(it -> it.supports(options.getType()))
-          .findFirst()
-          .orElseThrow(
-              () -> new UnsupportedOperationException("SSL Type: " + options.getType()));
+      SslContextProvider sslContextProvider =
+          Stream.of(SslContextProvider.providers())
+              .filter(it -> it.supports(options.getType()))
+              .findFirst()
+              .orElseThrow(
+                  () -> new UnsupportedOperationException("SSL Type: " + options.getType()));
 
-      String providerName = stream(spliteratorUnknownSize(
-          ServiceLoader.load(SslProvider.class).iterator(),
-          Spliterator.ORDERED),
-          false
-      )
-          .findFirst()
-          .map(provider -> {
-            String name = provider.getName();
-            if (Security.getProvider(name) == null) {
-              Security.addProvider(provider.create());
-            }
-            return name;
-          })
-          .orElse(null);
+      String providerName =
+          stream(
+                  spliteratorUnknownSize(
+                      ServiceLoader.load(SslProvider.class).iterator(), Spliterator.ORDERED),
+                  false)
+              .findFirst()
+              .map(
+                  provider -> {
+                    String name = provider.getName();
+                    if (Security.getProvider(name) == null) {
+                      Security.addProvider(provider.create());
+                    }
+                    return name;
+                  })
+              .orElse(null);
 
       SSLContext sslContext = sslContextProvider.create(loader, providerName, options);
       // validate TLS protocol, at least one protocol must be supported
-      Set<String> supportedProtocols = new LinkedHashSet<>(Arrays
-          .asList(sslContext.getDefaultSSLParameters().getProtocols()));
+      Set<String> supportedProtocols =
+          new LinkedHashSet<>(Arrays.asList(sslContext.getDefaultSSLParameters().getProtocols()));
       Set<String> protocols = new LinkedHashSet<>(options.getProtocol());
       protocols.retainAll(supportedProtocols);
       if (protocols.isEmpty()) {

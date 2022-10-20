@@ -1,16 +1,16 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.handler.reactive;
 
-import io.jooby.Context;
-import io.jooby.Route;
-import io.jooby.internal.handler.LinkedHandler;
 import org.reactivestreams.Publisher;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.Route;
+import io.jooby.internal.handler.LinkedHandler;
 
 public class ReactivePublisherHandler implements LinkedHandler {
 
@@ -20,7 +20,8 @@ public class ReactivePublisherHandler implements LinkedHandler {
     this.next = next;
   }
 
-  @NonNull @Override public Object apply(@NonNull Context ctx) {
+  @NonNull @Override
+  public Object apply(@NonNull Context ctx) {
     try {
       Publisher result = (Publisher) next.apply(ctx);
       result.subscribe(new ReactiveSubscriber(new ChunkedSubscriber(ctx)));
@@ -31,7 +32,8 @@ public class ReactivePublisherHandler implements LinkedHandler {
     }
   }
 
-  @Override public Route.Handler next() {
+  @Override
+  public Route.Handler next() {
     return next;
   }
 }

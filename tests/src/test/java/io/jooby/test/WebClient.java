@@ -1,5 +1,37 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.test;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import io.jooby.Server;
+import io.jooby.ServerSentMessage;
+import io.jooby.SneakyThrows;
+import io.jooby.WebSocketCloseStatus;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -9,34 +41,6 @@ import okhttp3.WebSocketListener;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import io.jooby.Server;
-import io.jooby.ServerSentMessage;
-import io.jooby.SneakyThrows;
-import io.jooby.WebSocketCloseStatus;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class WebClient implements AutoCloseable {
 
@@ -54,23 +58,27 @@ public class WebClient implements AutoCloseable {
       this.testName = testName;
     }
 
-    @Override public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+    @Override
+    public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
       opened.countDown();
     }
 
-    @Override public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+    @Override
+    public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
       closed.set(true);
     }
 
-    @Override public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable e,
-        @Nullable Response response) {
+    @Override
+    public void onFailure(
+        @NotNull WebSocket webSocket, @NotNull Throwable e, @Nullable Response response) {
       if (!Server.connectionLost(e)) {
         System.err.println("Unexpected web socket error: " + testName);
         e.printStackTrace();
       }
     }
 
-    @Override public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+    @Override
+    public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
       messages.offer(text);
     }
 
@@ -155,11 +163,12 @@ public class WebClient implements AutoCloseable {
     try {
       this.scheme = scheme;
       this.port = port;
-      OkHttpClient.Builder builder = new OkHttpClient.Builder()
-          .connectTimeout(5, TimeUnit.MINUTES)
-          .writeTimeout(5, TimeUnit.MINUTES)
-          .readTimeout(5, TimeUnit.MINUTES)
-          .followRedirects(followRedirects);
+      OkHttpClient.Builder builder =
+          new OkHttpClient.Builder()
+              .connectTimeout(5, TimeUnit.MINUTES)
+              .writeTimeout(5, TimeUnit.MINUTES)
+              .readTimeout(5, TimeUnit.MINUTES)
+              .followRedirects(followRedirects);
       if (scheme.equalsIgnoreCase("https")) {
         configureSelfSigned(builder);
       }
@@ -173,7 +182,7 @@ public class WebClient implements AutoCloseable {
     if (headers == null) {
       headers = new Headers.Builder();
     }
-    if (value != null && value.trim().length() >  0) {
+    if (value != null && value.trim().length() > 0) {
       headers.add(name, value);
     }
     return this;
@@ -194,9 +203,8 @@ public class WebClient implements AutoCloseable {
   private void setRequestHeaders(okhttp3.Request.Builder req) {
     if (headers == null) {
       // set default headers:
-      header("Accept",
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-
+      header(
+          "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
     }
     if (headers != null) {
       req.headers(headers.build());
@@ -214,29 +222,39 @@ public class WebClient implements AutoCloseable {
     req.url(scheme + "://localhost:" + port + path);
     EventSource.Factory factory = EventSources.createFactory(client);
     BlockingQueue<ServerSentMessage> messages = new LinkedBlockingQueue();
-    EventSource eventSource = factory.newEventSource(req.build(), new EventSourceListener() {
-      @Override public void onClosed(@NotNull EventSource eventSource) {
-        eventSource.cancel();
-      }
+    EventSource eventSource =
+        factory.newEventSource(
+            req.build(),
+            new EventSourceListener() {
+              @Override
+              public void onClosed(@NotNull EventSource eventSource) {
+                eventSource.cancel();
+              }
 
-      @Override public void onEvent(@NotNull EventSource eventSource, @Nullable String id,
-          @Nullable String type, @NotNull String data) {
-        // retry is not part of public API
-        ServerSentMessage message = new ServerSentMessage(data)
-            .setId(id)
-            .setEvent(type);
-        messages.offer(message);
-      }
+              @Override
+              public void onEvent(
+                  @NotNull EventSource eventSource,
+                  @Nullable String id,
+                  @Nullable String type,
+                  @NotNull String data) {
+                // retry is not part of public API
+                ServerSentMessage message = new ServerSentMessage(data).setId(id).setEvent(type);
+                messages.offer(message);
+              }
 
-      @Override public void onFailure(@NotNull EventSource eventSource, @Nullable Throwable t,
-          @Nullable Response response) {
-        super.onFailure(eventSource, t, response);
-      }
+              @Override
+              public void onFailure(
+                  @NotNull EventSource eventSource,
+                  @Nullable Throwable t,
+                  @Nullable Response response) {
+                super.onFailure(eventSource, t, response);
+              }
 
-      @Override public void onOpen(@NotNull EventSource eventSource, @NotNull Response response) {
-        super.onOpen(eventSource, response);
-      }
-    });
+              @Override
+              public void onOpen(@NotNull EventSource eventSource, @NotNull Response response) {
+                super.onOpen(eventSource, response);
+              }
+            });
     return new ServerSentMessageIterator(eventSource, messages);
   }
 
@@ -249,8 +267,12 @@ public class WebClient implements AutoCloseable {
     req.url("ws://localhost:" + port + path);
     setRequestHeaders(req);
     okhttp3.Request r = req.build();
-    SyncWebSocketListener listener = new SyncWebSocketListener(
-        System.getProperty("___app_name__") + "(" + System.getProperty("___server_name__") + ")");
+    SyncWebSocketListener listener =
+        new SyncWebSocketListener(
+            System.getProperty("___app_name__")
+                + "("
+                + System.getProperty("___server_name__")
+                + ")");
     WebSocket webSocket = client.newWebSocket(r, listener);
     BlockingWebSocket blockingWebSocket = new BlockingWebSocket(webSocket, listener);
     consumer.accept(blockingWebSocket);
@@ -332,26 +354,25 @@ public class WebClient implements AutoCloseable {
 
   private static void configureSelfSigned(OkHttpClient.Builder builder)
       throws NoSuchAlgorithmException, KeyManagementException {
-    X509TrustManager trustManager = new X509TrustManager() {
-      @Override
-      public X509Certificate[] getAcceptedIssuers() {
-        return new X509Certificate[0];
-      }
+    X509TrustManager trustManager =
+        new X509TrustManager() {
+          @Override
+          public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+          }
 
-      @Override
-      public void checkServerTrusted(final X509Certificate[] chain,
-          final String authType) throws CertificateException {
-      }
+          @Override
+          public void checkServerTrusted(final X509Certificate[] chain, final String authType)
+              throws CertificateException {}
 
-      @Override
-      public void checkClientTrusted(final X509Certificate[] chain,
-          final String authType) throws CertificateException {
-      }
-    };
+          @Override
+          public void checkClientTrusted(final X509Certificate[] chain, final String authType)
+              throws CertificateException {}
+        };
 
     SSLContext sslContext = SSLContext.getInstance("SSL");
 
-    sslContext.init(null, new TrustManager[]{trustManager}, new java.security.SecureRandom());
+    sslContext.init(null, new TrustManager[] {trustManager}, new java.security.SecureRandom());
     builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
     builder.hostnameVerifier((hostname, session) -> true);
   }
@@ -362,8 +383,8 @@ public class WebClient implements AutoCloseable {
 
     private BlockingQueue<ServerSentMessage> messages;
 
-    public ServerSentMessageIterator(EventSource source,
-        BlockingQueue<ServerSentMessage> messages) {
+    public ServerSentMessageIterator(
+        EventSource source, BlockingQueue<ServerSentMessage> messages) {
       this.source = source;
       this.messages = messages;
     }

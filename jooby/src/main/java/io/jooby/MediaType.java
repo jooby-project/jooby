@@ -1,12 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -15,7 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BinaryOperator;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Implementation of media/content type.
@@ -24,14 +25,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public final class MediaType implements Comparable<MediaType> {
 
-  /**
-   * Computes and returns the most specific media type of both.
-   */
-  public static final BinaryOperator<MediaType> MOST_SPECIFIC = (a, b) -> {
-    int aScore = a.getScore();
-    int bScore = b.getScore();
-    return aScore >= bScore ? a : b;
-  };
+  /** Computes and returns the most specific media type of both. */
+  public static final BinaryOperator<MediaType> MOST_SPECIFIC =
+      (a, b) -> {
+        int aScore = a.getScore();
+        int bScore = b.getScore();
+        return aScore >= bScore ? a : b;
+      };
 
   /** APPLICATION_JSON. */
   public static final String JSON = "application/json";
@@ -126,7 +126,8 @@ public final class MediaType implements Comparable<MediaType> {
     this.charset = charset;
   }
 
-  @Override public boolean equals(Object obj) {
+  @Override
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
@@ -137,7 +138,8 @@ public final class MediaType implements Comparable<MediaType> {
     return false;
   }
 
-  @Override public int hashCode() {
+  @Override
+  public int hashCode() {
     return value.hashCode();
   }
 
@@ -203,7 +205,8 @@ public final class MediaType implements Comparable<MediaType> {
     return q == null ? 1f : Float.parseFloat(q);
   }
 
-  @Override public int compareTo(MediaType other) {
+  @Override
+  public int compareTo(MediaType other) {
     if (this == other) {
       return 0;
     }
@@ -219,6 +222,7 @@ public final class MediaType implements Comparable<MediaType> {
 
   /**
    * Indicates whenever this is a textual mediatype.
+   *
    * @return True for textual mediatype.
    */
   public boolean isTextual() {
@@ -234,6 +238,7 @@ public final class MediaType implements Comparable<MediaType> {
 
   /**
    * Indicates whenever this is a json mediatype.
+   *
    * @return True for json mediatype.
    */
   public boolean isJson() {
@@ -885,7 +890,8 @@ public final class MediaType implements Comparable<MediaType> {
     return i == len && len1 == len2;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return raw;
   }
 }

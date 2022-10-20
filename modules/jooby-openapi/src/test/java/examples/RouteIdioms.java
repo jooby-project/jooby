@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
 
 import io.jooby.Context;
@@ -7,18 +12,24 @@ import io.jooby.Route;
 public class RouteIdioms extends Jooby {
 
   {
-    path("/aaa", () -> {
-      get("/bbb", ctx -> "some");
-      path("/ccc", () -> {
-        get("/ddd", ctx -> "some");
-      });
+    path(
+        "/aaa",
+        () -> {
+          get("/bbb", ctx -> "some");
+          path(
+              "/ccc",
+              () -> {
+                get("/ddd", ctx -> "some");
+              });
 
-      get("/eee", ctx -> "some");
-    });
+          get("/eee", ctx -> "some");
+        });
 
-    get("/inline", ctx -> {
-      return "...";
-    });
+    get(
+        "/inline",
+        ctx -> {
+          return "...";
+        });
 
     get("/routeReference", this::routeReference);
 
@@ -34,9 +45,10 @@ public class RouteIdioms extends Jooby {
 
     get("/aloneinline", new HandlerA());
 
-    Route.Handler h = ctx -> {
-      return null;
-    };
+    Route.Handler h =
+        ctx -> {
+          return null;
+        };
     get("/lambdaRef", h);
   }
 

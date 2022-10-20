@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -76,14 +76,15 @@ public class RouteParser {
     List<OperationExt> operations = parse(ctx, null, ctx.classNode(ctx.getRouter()));
 
     // Checkout controllers without explicit mapping, just META-INF
-    Set<String> controllers = operations.stream()
-        .map(OperationExt::getControllerName)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
+    Set<String> controllers =
+        operations.stream()
+            .map(OperationExt::getControllerName)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
     operations.addAll(metaInf(ctx, null, name -> !controllers.contains(name)));
 
-    String applicationName = Optional.ofNullable(ctx.getMainClass())
-        .orElse(ctx.getRouter().getClassName());
+    String applicationName =
+        Optional.ofNullable(ctx.getMainClass()).orElse(ctx.getRouter().getClassName());
     ClassNode application = ctx.classNode(Type.getObjectType(applicationName.replace(".", "/")));
 
     // swagger/openapi:
@@ -106,17 +107,11 @@ public class RouteParser {
 
     // Initialize schema types
     for (OperationExt operation : result) {
-      /**
-       * Parameters:
-       */
+      /** Parameters: */
       operation.setParameters(checkParameters(ctx, operation.getParameters()));
-      /**
-       * Request body
-       */
+      /** Request body */
       checkRequestBody(ctx, operation);
-      /**
-       * Responses:
-       */
+      /** Responses: */
       checkResponses(ctx, operation);
     }
 
@@ -128,14 +123,14 @@ public class RouteParser {
   }
 
   private void checkResponses(ParserContext ctx, OperationExt operation) {
-    //checkResponse(ctx, operation, 200, operation.getDefaultResponse());
+    // checkResponse(ctx, operation, 200, operation.getDefaultResponse());
     for (Map.Entry<String, ApiResponse> entry : operation.getResponses().entrySet()) {
       checkResponse(ctx, operation, entry.getKey(), (ResponseExt) entry.getValue());
     }
   }
 
-  private void checkResponse(ParserContext ctx, OperationExt operation,
-      String statusCode, ResponseExt response) {
+  private void checkResponse(
+      ParserContext ctx, OperationExt operation, String statusCode, ResponseExt response) {
     Schema defaultSchema = parseSchema(ctx, response);
     if (defaultSchema != null) {
       Content content = response.getContent();
@@ -145,10 +140,9 @@ public class RouteParser {
       }
 
       if (content.isEmpty()) {
-        io.swagger.v3.oas.models.media.MediaType mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
-        String mediaType = operation.getProduces().stream()
-            .findFirst()
-            .orElse(MediaType.JSON);
+        io.swagger.v3.oas.models.media.MediaType mediaTypeObject =
+            new io.swagger.v3.oas.models.media.MediaType();
+        String mediaType = operation.getProduces().stream().findFirst().orElse(MediaType.JSON);
         content.addMediaType(mediaType, mediaTypeObject);
       }
       if (isSuccessCode(statusCode)) {
@@ -170,8 +164,8 @@ public class RouteParser {
         io.swagger.v3.oas.models.media.MediaType mediaType =
             new io.swagger.v3.oas.models.media.MediaType();
         mediaType.setSchema(ctx.schema(requestBody.getJavaType()));
-        String mediaTypeName = operation.getConsumes().stream().findFirst()
-            .orElseGet(requestBody::getContentType);
+        String mediaTypeName =
+            operation.getConsumes().stream().findFirst().orElseGet(requestBody::getContentType);
         Content content = new Content();
         content.addMediaType(mediaTypeName, mediaType);
         requestBody.setContent(content);
@@ -190,9 +184,10 @@ public class RouteParser {
         parameter.getSchema().setFormat("password");
       }
       if (parameter.getIn().equals("query")) {
-        boolean expand = ctx.schemaRef(javaType)
-            .filter(ref -> "object".equals(ref.schema.getType()))
-            .isPresent();
+        boolean expand =
+            ctx.schemaRef(javaType)
+                .filter(ref -> "object".equals(ref.schema.getType()))
+                .isPresent();
         if (expand) {
           SchemaRef ref = ctx.schemaRef(javaType).get();
           for (Object e : ref.schema.getProperties().entrySet()) {
@@ -223,8 +218,7 @@ public class RouteParser {
     Map<String, AtomicInteger> names = new HashMap<>();
     for (OperationExt operation : operations) {
       String operationId = operationId(operation);
-      int c = names.computeIfAbsent(operationId, k -> new AtomicInteger())
-          .incrementAndGet();
+      int c = names.computeIfAbsent(operationId, k -> new AtomicInteger()).incrementAndGet();
       if (c > 1) {
         operation.setOperationId(operationId + c);
       } else {
@@ -235,8 +229,9 @@ public class RouteParser {
 
   private String operationId(OperationExt operation) {
     return Optional.ofNullable(operation.getOperationId())
-        .orElseGet(() -> operation.getMethod().toLowerCase() + patternToOperationId(
-            operation.getPattern()));
+        .orElseGet(
+            () ->
+                operation.getMethod().toLowerCase() + patternToOperationId(operation.getPattern()));
   }
 
   private String patternToOperationId(String pattern) {
@@ -245,9 +240,10 @@ public class RouteParser {
     }
     return Stream.of(pattern.split("\\W+"))
         .filter(s -> s.length() > 0)
-        .map(segment -> Character.toUpperCase(segment.charAt(0)) +
-            (segment.length() > 1 ? segment.substring(1) : "")
-        )
+        .map(
+            segment ->
+                Character.toUpperCase(segment.charAt(0))
+                    + (segment.length() > 1 ? segment.substring(1) : ""))
         .collect(Collectors.joining());
   }
 
@@ -265,10 +261,8 @@ public class RouteParser {
     if (javaTypes.size() == 1) {
       schema = ctx.schema(javaTypes.get(0));
     } else if (javaTypes.size() > 1) {
-      List<Schema> schemas = javaTypes.stream()
-          .map(ctx::schema)
-          .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+      List<Schema> schemas =
+          javaTypes.stream().map(ctx::schema).filter(Objects::nonNull).collect(Collectors.toList());
       schema = schemas.isEmpty() ? null : new ComposedSchema().oneOf(schemas);
     } else {
       schema = null;
@@ -284,8 +278,8 @@ public class RouteParser {
     return handlerList;
   }
 
-  private List<OperationExt> metaInf(ParserContext ctx, String prefix,
-      Predicate<String> predicate) {
+  private List<OperationExt> metaInf(
+      ParserContext ctx, String prefix, Predicate<String> predicate) {
     // META-INF (Spring or similar)
     try {
       String content = new String(ctx.loadResource(metaInf), StandardCharsets.UTF_8);
@@ -306,8 +300,7 @@ public class RouteParser {
     }
   }
 
-  private List<OperationExt> routeHandler(ParserContext ctx, String prefix,
-      MethodNode method) {
+  private List<OperationExt> routeHandler(ParserContext ctx, String prefix, MethodNode method) {
     List<OperationExt> handlerList = new ArrayList<>();
     /** Track the last router instruction and override with produces/consumes. */
     AbstractInsnNode instructionTo = null;
@@ -321,16 +314,16 @@ public class RouteParser {
             handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
           } else if (signature.matches("<init>", KT_FUN_1)) {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
-          } else if (signature.matches("use", Router.class) || signature
-              .matches("mount", Router.class)) {
+          } else if (signature.matches("use", Router.class)
+              || signature.matches("mount", Router.class)) {
             handlerList.addAll(mountRouter(ctx, prefix, node, findRouterInstruction(node)));
           } else if (signature.matches("install", String.class, SneakyThrows.Supplier.class)) {
             String pattern = routePattern(node, node);
             handlerList.addAll(installApp(ctx, path(prefix, pattern), node, node));
           } else if (signature.matches("install", SneakyThrows.Supplier.class)) {
             handlerList.addAll(installApp(ctx, prefix, node, node));
-          } else if (signature.matches("use", String.class, Router.class) || signature
-              .matches("mount", String.class, Router.class)) {
+          } else if (signature.matches("use", String.class, Router.class)
+              || signature.matches("mount", String.class, Router.class)) {
             AbstractInsnNode routerInstruction = findRouterInstruction(node);
             String pattern = routePattern(node, node);
             handlerList.addAll(mountRouter(ctx, path(prefix, pattern), node, routerInstruction));
@@ -341,19 +334,23 @@ public class RouteParser {
             instructionTo = node;
             //  router path (Ljava/lang/String;Ljava/lang/Runnable;)Lio/jooby/Route;
             if (node.owner.equals(TypeFactory.KOOBY.getInternalName())) {
-              MethodInsnNode subrouteInsn = InsnSupport.prev(node)
-                  .filter(MethodInsnNode.class::isInstance)
-                  .findFirst()
-                  .map(MethodInsnNode.class::cast)
-                  .orElseThrow(() -> new IllegalStateException("Subroute definition not found"));
+              MethodInsnNode subrouteInsn =
+                  InsnSupport.prev(node)
+                      .filter(MethodInsnNode.class::isInstance)
+                      .findFirst()
+                      .map(MethodInsnNode.class::cast)
+                      .orElseThrow(
+                          () -> new IllegalStateException("Subroute definition not found"));
               String path = routes ? "/" : routePattern(node, subrouteInsn);
               handlerList.addAll(kotlinHandler(ctx, null, path(prefix, path), subrouteInsn));
             } else {
-              InvokeDynamicInsnNode subrouteInsn = InsnSupport.prev(node)
-                  .filter(InvokeDynamicInsnNode.class::isInstance)
-                  .findFirst()
-                  .map(InvokeDynamicInsnNode.class::cast)
-                  .orElseThrow(() -> new IllegalStateException("Subroute definition not found"));
+              InvokeDynamicInsnNode subrouteInsn =
+                  InsnSupport.prev(node)
+                      .filter(InvokeDynamicInsnNode.class::isInstance)
+                      .findFirst()
+                      .map(InvokeDynamicInsnNode.class::cast)
+                      .orElseThrow(
+                          () -> new IllegalStateException("Subroute definition not found"));
               String path = routes ? "/" : routePattern(node, subrouteInsn);
               MethodNode methodLink = findLambda(ctx, subrouteInsn);
               ctx.debugHandlerLink(methodLink);
@@ -372,8 +369,7 @@ public class RouteParser {
               if (previous instanceof InvokeDynamicInsnNode) {
                 MethodNode handler = findLambda(ctx, (InvokeDynamicInsnNode) previous);
                 ctx.debugHandler(handler);
-                handlerList.add(
-                    newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
+                handlerList.add(newRouteDescriptor(ctx, handler, httpMethod, path(prefix, path)));
               } else if (previous instanceof MethodInsnNode) {
                 if (InsnSupport.opcode(Opcodes.INVOKESPECIAL).test(previous)) {
                   MethodInsnNode methodInsnNode = (MethodInsnNode) previous;
@@ -384,17 +380,20 @@ public class RouteParser {
               } else if (previous instanceof VarInsnNode) {
                 VarInsnNode varInsnNode = (VarInsnNode) previous;
                 if (varInsnNode.getOpcode() == Opcodes.ALOAD) {
-                  AbstractInsnNode astore = InsnSupport.prev(varInsnNode)
-                      .filter(InsnSupport.varInsn(Opcodes.ASTORE, varInsnNode.var))
-                      .findFirst()
-                      .orElse(null);
+                  AbstractInsnNode astore =
+                      InsnSupport.prev(varInsnNode)
+                          .filter(InsnSupport.varInsn(Opcodes.ASTORE, varInsnNode.var))
+                          .findFirst()
+                          .orElse(null);
                   if (astore != null) {
-                    AbstractInsnNode varType = InsnSupport.prev(astore)
-                        .filter(
-                            e -> (e instanceof InvokeDynamicInsnNode
-                                || e instanceof MethodInsnNode))
-                        .findFirst()
-                        .orElse(null);
+                    AbstractInsnNode varType =
+                        InsnSupport.prev(astore)
+                            .filter(
+                                e ->
+                                    (e instanceof InvokeDynamicInsnNode
+                                        || e instanceof MethodInsnNode))
+                            .findFirst()
+                            .orElse(null);
                     if (varType instanceof MethodInsnNode) {
                       MethodNode handler = findRouteHandler(ctx, (MethodInsnNode) varType);
                       ctx.debugHandler(handler);
@@ -430,33 +429,30 @@ public class RouteParser {
         } else if (signature.matches(Route.class, "produces", MediaType[].class)) {
           if (instructionTo != null) {
             OperationExt route = handlerList.get(handlerList.size() - 1);
-            InsnSupport.prev(it, instructionTo)
-                .flatMap(mediaType())
-                .forEach(route::addProduces);
+            InsnSupport.prev(it, instructionTo).flatMap(mediaType()).forEach(route::addProduces);
             instructionTo = it;
           }
         } else if (signature.matches(Route.class, "consumes", MediaType[].class)) {
           if (instructionTo != null) {
             OperationExt route = handlerList.get(handlerList.size() - 1);
-            InsnSupport.prev(it, instructionTo)
-                .flatMap(mediaType())
-                .forEach(route::addConsumes);
+            InsnSupport.prev(it, instructionTo).flatMap(mediaType()).forEach(route::addConsumes);
             instructionTo = it;
           }
         } else if (signature.matches(Route.class, "summary", String.class)) {
-          instructionTo = parseText(it, instructionTo,
-              handlerList.get(handlerList.size() - 1)::setSummary);
+          instructionTo =
+              parseText(it, instructionTo, handlerList.get(handlerList.size() - 1)::setSummary);
         } else if (signature.matches(Route.class, "description", String.class)) {
-          instructionTo = parseText(it, instructionTo,
-              handlerList.get(handlerList.size() - 1)::setDescription);
+          instructionTo =
+              parseText(it, instructionTo, handlerList.get(handlerList.size() - 1)::setDescription);
         } else if (signature.matches(Route.class, "tags", String[].class)) {
           instructionTo = parseTags(it, instructionTo, handlerList.get(handlerList.size() - 1));
         } else if (signature.matches(RouteSet.class, "summary", String.class)) {
-          instructionTo = parseText(it, instructionTo,
-              handlerList.get(handlerList.size() - 1)::setPathSummary);
+          instructionTo =
+              parseText(it, instructionTo, handlerList.get(handlerList.size() - 1)::setPathSummary);
         } else if (signature.matches(RouteSet.class, "description", String.class)) {
-          instructionTo = parseText(it, instructionTo,
-              handlerList.get(handlerList.size() - 1)::setPathDescription);
+          instructionTo =
+              parseText(
+                  it, instructionTo, handlerList.get(handlerList.size() - 1)::setPathDescription);
         } else if (signature.matches(RouteSet.class, "tags", String[].class)) {
           if (routeIndex >= 0) {
             for (int i = routeIndex; i < handlerList.size(); i++) {
@@ -470,8 +466,8 @@ public class RouteParser {
     return handlerList;
   }
 
-  private AbstractInsnNode parseText(AbstractInsnNode start, AbstractInsnNode end,
-      Consumer<String> consumer) {
+  private AbstractInsnNode parseText(
+      AbstractInsnNode start, AbstractInsnNode end, Consumer<String> consumer) {
     if (end != null) {
       InsnSupport.prev(start, end)
           .filter(LdcInsnNode.class::isInstance)
@@ -483,8 +479,8 @@ public class RouteParser {
     return start;
   }
 
-  private AbstractInsnNode parseTags(AbstractInsnNode start, AbstractInsnNode end,
-      OperationExt route) {
+  private AbstractInsnNode parseTags(
+      AbstractInsnNode start, AbstractInsnNode end, OperationExt route) {
     if (end != null) {
       InsnSupport.prev(start, end)
           .filter(LdcInsnNode.class::isInstance)
@@ -495,8 +491,7 @@ public class RouteParser {
     return start;
   }
 
-  private List<OperationExt> kotlinRunApp(ParserContext ctx, String prefix,
-      MethodInsnNode node) {
+  private List<OperationExt> kotlinRunApp(ParserContext ctx, String prefix, MethodInsnNode node) {
     List<OperationExt> handlerList = new ArrayList<>();
     Type type = null;
     for (AbstractInsnNode it : InsnSupport.prev(node).collect(Collectors.toList())) {
@@ -546,21 +541,24 @@ public class RouteParser {
 
   private AbstractInsnNode findRouterInstruction(MethodInsnNode node) {
     return InsnSupport.prev(node)
-        .filter(e -> {
-          if (e instanceof TypeInsnNode) {
-            return e.getOpcode() != Opcodes.CHECKCAST;
-          } else if (e instanceof LdcInsnNode) {
-            return ((LdcInsnNode) e).cst instanceof Type;
-          }
-          return false;
-        })
+        .filter(
+            e -> {
+              if (e instanceof TypeInsnNode) {
+                return e.getOpcode() != Opcodes.CHECKCAST;
+              } else if (e instanceof LdcInsnNode) {
+                return ((LdcInsnNode) e).cst instanceof Type;
+              }
+              return false;
+            })
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException(
-            "Unsupported router type: " + InsnSupport.toString(node)));
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "Unsupported router type: " + InsnSupport.toString(node)));
   }
 
-  private List<OperationExt> mountRouter(ParserContext ctx, String prefix,
-      MethodInsnNode node, AbstractInsnNode routerInstruction) {
+  private List<OperationExt> mountRouter(
+      ParserContext ctx, String prefix, MethodInsnNode node, AbstractInsnNode routerInstruction) {
     Type router;
     if (routerInstruction instanceof TypeInsnNode) {
       router = Type.getObjectType(((TypeInsnNode) routerInstruction).desc);
@@ -573,8 +571,8 @@ public class RouteParser {
     return parse(ctx.newContext(router), prefix, classNode);
   }
 
-  private List<OperationExt> installApp(ParserContext ctx, String prefix,
-      MethodInsnNode node, AbstractInsnNode ins) {
+  private List<OperationExt> installApp(
+      ParserContext ctx, String prefix, MethodInsnNode node, AbstractInsnNode ins) {
     Type router;
     AbstractInsnNode previous = ins.getPrevious();
     if (previous instanceof InvokeDynamicInsnNode) {
@@ -583,10 +581,11 @@ public class RouteParser {
       router = TypeFactory.fromInternalName(handle.getOwner());
       if (!handle.getName().equals("<init>")) {
         MethodNode lambda = findLambda(ctx, idin);
-        router = ReturnTypeParser.parse(ctx, lambda).stream()
-            .findFirst()
-            .map(TypeFactory::fromJavaName)
-            .orElseThrow(() -> new UnsupportedOperationException(InsnSupport.toString(node)));
+        router =
+            ReturnTypeParser.parse(ctx, lambda).stream()
+                .findFirst()
+                .map(TypeFactory::fromJavaName)
+                .orElseThrow(() -> new UnsupportedOperationException(InsnSupport.toString(node)));
       }
     } else if (node.owner.equals("io/jooby/Kooby")) {
       router = kotlinSupplier(ctx, node, previous);
@@ -598,52 +597,62 @@ public class RouteParser {
   }
 
   private Type kotlinSupplier(ParserContext ctx, MethodInsnNode node, AbstractInsnNode ins) {
-    FieldInsnNode frame = InsnSupport.prev(ins)
-        .filter(FieldInsnNode.class::isInstance)
-        .map(FieldInsnNode.class::cast)
-        .filter(it -> it.getOpcode() == GETSTATIC)
-        .findFirst()
-        .orElse(null);
+    FieldInsnNode frame =
+        InsnSupport.prev(ins)
+            .filter(FieldInsnNode.class::isInstance)
+            .map(FieldInsnNode.class::cast)
+            .filter(it -> it.getOpcode() == GETSTATIC)
+            .findFirst()
+            .orElse(null);
     Type type = null;
     if (frame != null) {
       ClassNode lambdaClass = ctx.classNode(TypeFactory.fromInternalName(frame.owner));
-      type = findMethods(lambdaClass, "invoke", (method, signature) ->
-          (method.access & Opcodes.ACC_PUBLIC) != 0).stream()
-          .map(it -> {
-            // visitMethod(ACC_PUBLIC | ACC_FINAL, "invoke", "()LReturnType", null, null);
-            String desc = Optional.ofNullable(it.signature).orElse(it.desc);
-            return Type.getReturnType(desc);
-          })
-          .filter(it -> !it.equals(OBJECT))
-          .findFirst()
-          .orElseGet(() ->
-              // SneakyThrows.Supplier
-              findMethods(lambdaClass, "tryGet",
-                  (method, signature) -> Type.getReturnType(method.desc).equals(JOOBY) || Type
-                      .getReturnType(method.desc).equals(KOOBY)).stream()
-                  .findFirst()
-                  .map(it ->
-                      ReturnTypeParser.parseIgnoreSignature(ctx, it).stream()
-                          .findFirst()
-                          .map(TypeFactory::fromJavaName)
-                          .orElse(null)
-                  )
-                  .orElseGet(() ->
-                      findMethods(lambdaClass, "<init>", (method, signature) -> true)
+      type =
+          findMethods(
+                  lambdaClass,
+                  "invoke",
+                  (method, signature) -> (method.access & Opcodes.ACC_PUBLIC) != 0)
+              .stream()
+              .map(
+                  it -> {
+                    // visitMethod(ACC_PUBLIC | ACC_FINAL, "invoke", "()LReturnType", null, null);
+                    String desc = Optional.ofNullable(it.signature).orElse(it.desc);
+                    return Type.getReturnType(desc);
+                  })
+              .filter(it -> !it.equals(OBJECT))
+              .findFirst()
+              .orElseGet(
+                  () ->
+                      // SneakyThrows.Supplier
+                      findMethods(
+                              lambdaClass,
+                              "tryGet",
+                              (method, signature) ->
+                                  Type.getReturnType(method.desc).equals(JOOBY)
+                                      || Type.getReturnType(method.desc).equals(KOOBY))
                           .stream()
                           .findFirst()
-                          .map(init ->
-                              InsnSupport.next(init.instructions.getFirst())
-                                  .filter(LdcInsnNode.class::isInstance)
-                                  .map(LdcInsnNode.class::cast)
-                                  .filter(it -> Type.class.isInstance(it.cst))
-                                  .map(it -> (Type) it.cst)
-                                  .findFirst()
-                                  .orElse(null)
-                          )
-                          .orElse(null)
-                  )
-          );
+                          .map(
+                              it ->
+                                  ReturnTypeParser.parseIgnoreSignature(ctx, it).stream()
+                                      .findFirst()
+                                      .map(TypeFactory::fromJavaName)
+                                      .orElse(null))
+                          .orElseGet(
+                              () ->
+                                  findMethods(lambdaClass, "<init>", (method, signature) -> true)
+                                      .stream()
+                                      .findFirst()
+                                      .map(
+                                          init ->
+                                              InsnSupport.next(init.instructions.getFirst())
+                                                  .filter(LdcInsnNode.class::isInstance)
+                                                  .map(LdcInsnNode.class::cast)
+                                                  .filter(it -> Type.class.isInstance(it.cst))
+                                                  .map(it -> (Type) it.cst)
+                                                  .findFirst()
+                                                  .orElse(null))
+                                      .orElse(null)));
     }
     if (type == null) {
       throw new UnsupportedOperationException(InsnSupport.toString(node));
@@ -651,8 +660,8 @@ public class RouteParser {
     return type;
   }
 
-  private List<MethodNode> findMethods(ClassNode clazz, String name,
-      BiPredicate<MethodNode, Signature> predicate) {
+  private List<MethodNode> findMethods(
+      ClassNode clazz, String name, BiPredicate<MethodNode, Signature> predicate) {
     List<MethodNode> result = new ArrayList<>();
     for (MethodNode method : clazz.methods) {
       if (method.name.equals(name)) {
@@ -665,46 +674,53 @@ public class RouteParser {
     return result;
   }
 
-  private List<OperationExt> kotlinHandler(ParserContext ctx, String httpMethod,
-      String prefix, MethodInsnNode node) {
+  private List<OperationExt> kotlinHandler(
+      ParserContext ctx, String httpMethod, String prefix, MethodInsnNode node) {
     List<OperationExt> handlerList = new ArrayList<>();
     // [0] - Owner
     // [1] - Method name. Optional
     // [2] - Method descriptor. Optional
-    List<String> lookup = InsnSupport.prev(node.getPrevious())
-        .map(it -> {
-          if (it instanceof InvokeDynamicInsnNode) {
-            InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) it;
-            Object[] args = invokeDynamic.bsmArgs;
-            if (args.length > 1 && args[1] instanceof Handle) {
-              Handle handle = (Handle) args[1];
-              return Arrays.asList(handle.getOwner(), handle.getName(), handle.getDesc());
-            }
-          }
-          if (it instanceof FieldInsnNode) {
-            return Collections.singletonList(((FieldInsnNode) it).owner);
-          }
-          if (it instanceof MethodInsnNode) {
-            Signature signature = Signature.create((MethodInsnNode) it);
-            if (!signature.matches("<init>", KT_FUN_1)) {
-              return Collections.singletonList(((MethodInsnNode) it).owner);
-            }
-          }
-          return null;
-        })
-        .filter(Objects::nonNull)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException(
-            "Kotlin lambda not found: " + InsnSupport.toString(node)));
+    List<String> lookup =
+        InsnSupport.prev(node.getPrevious())
+            .map(
+                it -> {
+                  if (it instanceof InvokeDynamicInsnNode) {
+                    InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) it;
+                    Object[] args = invokeDynamic.bsmArgs;
+                    if (args.length > 1 && args[1] instanceof Handle) {
+                      Handle handle = (Handle) args[1];
+                      return Arrays.asList(handle.getOwner(), handle.getName(), handle.getDesc());
+                    }
+                  }
+                  if (it instanceof FieldInsnNode) {
+                    return Collections.singletonList(((FieldInsnNode) it).owner);
+                  }
+                  if (it instanceof MethodInsnNode) {
+                    Signature signature = Signature.create((MethodInsnNode) it);
+                    if (!signature.matches("<init>", KT_FUN_1)) {
+                      return Collections.singletonList(((MethodInsnNode) it).owner);
+                    }
+                  }
+                  return null;
+                })
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Kotlin lambda not found: " + InsnSupport.toString(node)));
 
     ClassNode classNode = ctx.classNode(Type.getObjectType(lookup.get(0)));
     MethodNode apply = null;
     if (lookup.size() > 1) {
-      MethodNode method = classNode.methods.stream()
-          .filter(it -> it.name.equals(lookup.get(1)) && it.desc.equals(lookup.get(2)))
-          .findFirst()
-          .orElseThrow(() -> new IllegalStateException(
-              "Kotlin lambda not found: " + InsnSupport.toString(node)));
+      MethodNode method =
+          classNode.methods.stream()
+              .filter(it -> it.name.equals(lookup.get(1)) && it.desc.equals(lookup.get(2)))
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new IllegalStateException(
+                          "Kotlin lambda not found: " + InsnSupport.toString(node)));
       ctx.debugHandlerLink(method);
       boolean synthetic = (method.access & Opcodes.ACC_PRIVATE) != 0;
       if (synthetic && method.name.startsWith("invoke$")) {
@@ -763,20 +779,22 @@ public class RouteParser {
   }
 
   private MethodNode ktFunRef160(ParserContext ctx, MethodNode method) {
-    AbstractInsnNode ref = InsnSupport.prev(method.instructions.getLast())
-        .filter(MethodInsnNode.class::isInstance)
-        .map(MethodInsnNode.class::cast)
-        .filter(it -> Signature.create(it).matches(Context.class))
-        .findFirst()
-        .orElse(null);
+    AbstractInsnNode ref =
+        InsnSupport.prev(method.instructions.getLast())
+            .filter(MethodInsnNode.class::isInstance)
+            .map(MethodInsnNode.class::cast)
+            .filter(it -> Signature.create(it).matches(Context.class))
+            .findFirst()
+            .orElse(null);
     if (ref != null) {
       MethodInsnNode call = (MethodInsnNode) ref;
       ClassNode owner = ctx.classNodeOrNull(Type.getObjectType(call.owner));
       if (owner != null) {
-        MethodNode methodRef = owner.methods.stream()
-            .filter(it -> it.name.equals(call.name) && it.desc.equals(call.desc))
-            .findFirst()
-            .orElse(null);
+        MethodNode methodRef =
+            owner.methods.stream()
+                .filter(it -> it.name.equals(call.name) && it.desc.equals(call.desc))
+                .findFirst()
+                .orElse(null);
         if (methodRef != null) {
           return methodRef;
         }
@@ -786,36 +804,40 @@ public class RouteParser {
     return method;
   }
 
-  private MethodNode kotlinFunctionReference(ParserContext ctx, ClassNode classNode,
-      MethodNode node) {
-    MethodInsnNode ref = InsnSupport.prev(node.instructions.getLast())
-        .filter(MethodInsnNode.class::isInstance)
-        .map(MethodInsnNode.class::cast)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Kotlin reference function not found"));
-    String refname = ref.name.equals("invoke")
-        ? classNode.methods.stream()
-        .filter(m -> m.name.equals("getName"))
-        .findFirst()
-        .map(m -> InsnSupport.next(m.instructions.getFirst())
-            .filter(LdcInsnNode.class::isInstance)
+  private MethodNode kotlinFunctionReference(
+      ParserContext ctx, ClassNode classNode, MethodNode node) {
+    MethodInsnNode ref =
+        InsnSupport.prev(node.instructions.getLast())
+            .filter(MethodInsnNode.class::isInstance)
+            .map(MethodInsnNode.class::cast)
             .findFirst()
-            .map(LdcInsnNode.class::cast)
-            .map(n -> n.cst.toString())
-            .orElse(ref.name)
-        ).orElse(ref.name)
-        : ref.name;
-    MethodNode method = ctx
-        .classNode(Type.getObjectType(ref.owner)).methods.stream()
-        .filter(m -> m.name.equals(ref.name) && m.desc.equals(ref.desc))
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Kotlin reference function not found"));
+            .orElseThrow(() -> new IllegalStateException("Kotlin reference function not found"));
+    String refname =
+        ref.name.equals("invoke")
+            ? classNode.methods.stream()
+                .filter(m -> m.name.equals("getName"))
+                .findFirst()
+                .map(
+                    m ->
+                        InsnSupport.next(m.instructions.getFirst())
+                            .filter(LdcInsnNode.class::isInstance)
+                            .findFirst()
+                            .map(LdcInsnNode.class::cast)
+                            .map(n -> n.cst.toString())
+                            .orElse(ref.name))
+                .orElse(ref.name)
+            : ref.name;
+    MethodNode method =
+        ctx.classNode(Type.getObjectType(ref.owner)).methods.stream()
+            .filter(m -> m.name.equals(ref.name) && m.desc.equals(ref.desc))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Kotlin reference function not found"));
     method.name = refname;
     return method;
   }
 
-  private OperationExt newRouteDescriptor(ParserContext ctx, MethodNode node,
-      String httpMethod, String prefix) {
+  private OperationExt newRouteDescriptor(
+      ParserContext ctx, MethodNode node, String httpMethod, String prefix) {
     Optional<RequestBodyExt> requestBody = RequestParser.requestBody(ctx, node);
     List<ParameterExt> arguments = RequestParser.parameters(node);
     ResponseExt response = new ResponseExt();
@@ -838,8 +860,8 @@ public class RouteParser {
   }
 
   /**
-   * IMPORTANT: First lcdInsn must be the pattern. We don't support variable as pattern. Only
-   * string literal or final variables.
+   * IMPORTANT: First lcdInsn must be the pattern. We don't support variable as pattern. Only string
+   * literal or final variables.
    *
    * @param methodInsnNode
    * @param node
@@ -850,17 +872,20 @@ public class RouteParser {
         .filter(it -> it instanceof LdcInsnNode && (((LdcInsnNode) it).cst instanceof String))
         .findFirst()
         .map(it -> ((LdcInsnNode) it).cst.toString())
-        .orElseThrow(() -> new IllegalStateException(
-            "Route pattern not found: " + InsnSupport.toString(methodInsnNode)));
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "Route pattern not found: " + InsnSupport.toString(methodInsnNode)));
   }
 
   private MethodNode findRouteHandler(ParserContext ctx, MethodInsnNode node) {
     Type owner = TypeFactory.fromInternalName(node.owner);
     return ctx.classNode(owner).methods.stream()
-        .filter(m -> {
-          Signature signature = new Signature(owner, "apply", m.desc);
-          return Modifier.isPublic(m.access) && signature.matches(Context.class);
-        })
+        .filter(
+            m -> {
+              Signature signature = new Signature(owner, "apply", m.desc);
+              return Modifier.isPublic(m.access) && signature.matches(Context.class);
+            })
         .findFirst()
         .orElseThrow(
             () -> new IllegalStateException("Handler not found: " + InsnSupport.toString(node)));
@@ -875,9 +900,8 @@ public class RouteParser {
       return ctx.classNode(owner).methods.stream()
           .filter(n -> n.name.equals(handle.getName()) && n.desc.equals(handle.getDesc()))
           .findFirst()
-          .orElseThrow(() ->
-              new IllegalStateException("Handler not found: " + InsnSupport.toString(node))
-          );
+          .orElseThrow(
+              () -> new IllegalStateException("Handler not found: " + InsnSupport.toString(node)));
     }
   }
 
@@ -887,12 +911,17 @@ public class RouteParser {
     // method reference to a class outside application classpath.
     // Faked method has a return instruction for return type parser (no arguments).
     String suffix = Long.toHexString(UUID.randomUUID().getMostSignificantBits());
-    MethodNode method = new MethodNode(Opcodes.ACC_PRIVATE & Opcodes.ACC_SYNTHETIC,
-        "fake$" + handle.getName() + "$" + suffix, handle.getDesc(), null, null);
+    MethodNode method =
+        new MethodNode(
+            Opcodes.ACC_PRIVATE & Opcodes.ACC_SYNTHETIC,
+            "fake$" + handle.getName() + "$" + suffix,
+            handle.getDesc(),
+            null,
+            null);
     method.instructions = new InsnList();
     method.instructions.add(
-        new MethodInsnNode(Opcodes.INVOKEVIRTUAL, handle.getOwner(), handle.getName(),
-            handle.getDesc()));
+        new MethodInsnNode(
+            Opcodes.INVOKEVIRTUAL, handle.getOwner(), handle.getName(), handle.getDesc()));
     method.instructions.add(new InsnNode(Opcodes.ARETURN));
     return method;
   }

@@ -1,13 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import org.apache.commons.io.FilenameUtils;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,6 +13,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.apache.commons.io.FilenameUtils;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Represents a file download.
@@ -26,15 +27,16 @@ import java.nio.file.Path;
  */
 public class FileDownload {
 
-  /**
-   * Download mode.
-   */
+  /** Download mode. */
   public enum Mode {
 
     /** Value indicating that the file can be displayed inside the Web page, or as the Web page. */
     INLINE("inline"),
 
-    /** Value indicating that the file should be downloaded; most browsers present a 'Save as' dialog. */
+    /**
+     * Value indicating that the file should be downloaded; most browsers present a 'Save as'
+     * dialog.
+     */
     ATTACHMENT("attachment");
 
     final String value;
@@ -67,7 +69,8 @@ public class FileDownload {
    * @param fileName Filename.
    * @param fileSize File size or <code>-1</code> if unknown.
    */
-  public FileDownload(Mode mode, @NonNull InputStream content, @NonNull String fileName, long fileSize) {
+  public FileDownload(
+      Mode mode, @NonNull InputStream content, @NonNull String fileName, long fileSize) {
     try {
       this.fileName = FilenameUtils.getName(fileName);
       this.contentType = MediaType.byFile(this.fileName);
@@ -75,8 +78,9 @@ public class FileDownload {
       if (this.fileName.equals(filenameStar)) {
         this.contentDisposition = String.format(CONTENT_DISPOSITION, mode.value, this.fileName);
       } else {
-        this.contentDisposition = String.format(CONTENT_DISPOSITION, mode.value, this.fileName) + String
-            .format(FILENAME_STAR, CHARSET, filenameStar);
+        this.contentDisposition =
+            String.format(CONTENT_DISPOSITION, mode.value, this.fileName)
+                + String.format(FILENAME_STAR, CHARSET, filenameStar);
       }
       this.content = content;
       this.fileSize = fileSize;
@@ -150,6 +154,7 @@ public class FileDownload {
 
   /**
    * File name.
+   *
    * @return File name.
    */
   public String getFileName() {
@@ -174,19 +179,16 @@ public class FileDownload {
     return content;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return fileName;
   }
 
-  /**
-   * Allows creating a {@link FileDownload} with
-   * the specified {@link Mode}.
-   */
+  /** Allows creating a {@link FileDownload} with the specified {@link Mode}. */
   public interface Builder {
 
     /**
-     * Creates a {@link FileDownload} with
-     * the specified {@link Mode}.
+     * Creates a {@link FileDownload} with the specified {@link Mode}.
      *
      * @param mode the {@link Mode}
      * @return a {@link FileDownload} with the specified mode
@@ -213,26 +215,25 @@ public class FileDownload {
   }
 
   /**
-   * Creates a builder with the specified content which can be used to create
-   * a {@link FileDownload} with any {@link Mode}.
+   * Creates a builder with the specified content which can be used to create a {@link FileDownload}
+   * with any {@link Mode}.
    *
    * @param content File content.
    * @param fileName Filename.
    * @param fileSize File size or <code>-1</code> if unknown.
-   *
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@NonNull InputStream content, @NonNull String fileName, long fileSize) {
+  public static Builder build(
+      @NonNull InputStream content, @NonNull String fileName, long fileSize) {
     return mode -> new FileDownload(mode, content, fileName, fileSize);
   }
 
   /**
-   * Creates a builder with the specified content which can be used to create
-   * a {@link FileDownload} with any {@link Mode}.
+   * Creates a builder with the specified content which can be used to create a {@link FileDownload}
+   * with any {@link Mode}.
    *
    * @param content File content.
    * @param fileName Filename.
-   *
    * @return a {@link Builder} with the specified content
    */
   public static Builder build(@NonNull InputStream content, @NonNull String fileName) {
@@ -240,12 +241,11 @@ public class FileDownload {
   }
 
   /**
-   * Creates a builder with the specified content which can be used to create
-   * a {@link FileDownload} with any {@link Mode}.
+   * Creates a builder with the specified content which can be used to create a {@link FileDownload}
+   * with any {@link Mode}.
    *
    * @param content File content.
    * @param fileName Filename.
-   *
    * @return a {@link Builder} with the specified content
    */
   public static Builder build(@NonNull byte[] content, @NonNull String fileName) {
@@ -253,12 +253,11 @@ public class FileDownload {
   }
 
   /**
-   * Creates a builder with the specified content which can be used to create
-   * a {@link FileDownload} with any {@link Mode}.
+   * Creates a builder with the specified content which can be used to create a {@link FileDownload}
+   * with any {@link Mode}.
    *
    * @param file File content.
    * @param fileName Filename.
-   *
    * @return a {@link Builder} with the specified content
    */
   public static Builder build(@NonNull Path file, @NonNull String fileName) {
@@ -272,11 +271,10 @@ public class FileDownload {
   }
 
   /**
-   * Creates a builder with the specified content which can be used to create
-   * a {@link FileDownload} with any {@link Mode}.
+   * Creates a builder with the specified content which can be used to create a {@link FileDownload}
+   * with any {@link Mode}.
    *
    * @param file File content.
-   *
    * @return a {@link Builder} with the specified content
    */
   public static Builder build(@NonNull Path file) {

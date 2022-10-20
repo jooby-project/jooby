@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -24,9 +24,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import io.jooby.BeanConverter;
 import io.jooby.FileUpload;
 import io.jooby.Multipart;
@@ -36,6 +33,8 @@ import io.jooby.exception.BadRequestException;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.ProvisioningException;
 import io.jooby.internal.reflect.$Types;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 public class ReflectiveBeanConverter implements BeanConverter {
   private static final String AMBIGUOUS_CONSTRUCTOR =
@@ -44,11 +43,13 @@ public class ReflectiveBeanConverter implements BeanConverter {
 
   private static final Object[] NO_ARGS = new Object[0];
 
-  @Override public boolean supports(@NonNull Class type) {
+  @Override
+  public boolean supports(@NonNull Class type) {
     return true;
   }
 
-  @Override public Object convert(@NonNull ValueNode node, @NonNull Class type) {
+  @Override
+  public Object convert(@NonNull ValueNode node, @NonNull Class type) {
     try {
       return newInstance(type, node);
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
@@ -60,17 +61,15 @@ public class ReflectiveBeanConverter implements BeanConverter {
 
   private static <T> T newInstance(Class<T> type, ValueNode node)
       throws IllegalAccessException, InstantiationException, InvocationTargetException,
-      NoSuchMethodException {
+          NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
     if (constructors.length == 0) {
-      return setters(type.getDeclaredConstructor().newInstance(), node,
-          Collections.emptySet());
+      return setters(type.getDeclaredConstructor().newInstance(), node, Collections.emptySet());
     }
     Constructor constructor = selectConstructor(constructors);
     Set<Object> state = new HashSet<>();
-    Object[] args = constructor.getParameterCount() == 0
-        ? NO_ARGS
-        : inject(node, constructor, state::add);
+    Object[] args =
+        constructor.getParameterCount() == 0 ? NO_ARGS : inject(node, constructor, state::add);
     return (T) setters(constructor.newInstance(args), node, state);
   }
 
@@ -152,7 +151,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
 
   private static <T> T setters(T newInstance, ValueNode node, Set<Object> skip) {
     Method[] methods = newInstance.getClass().getMethods();
-    for (String name: names(node)) {
+    for (String name : names(node)) {
       ValueNode value = node.get(name);
       if (!skip.contains(value)) {
         String methodName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
@@ -215,8 +214,8 @@ public class ReflectiveBeanConverter implements BeanConverter {
   }
 
   private static boolean isFileUpload(ValueNode node, Parameter parameter) {
-    return (node instanceof Multipart) && isFileUpload(parameter.getType()) || isFileUpload(
-        $Types.parameterizedType0(parameter.getParameterizedType()));
+    return (node instanceof Multipart) && isFileUpload(parameter.getType())
+        || isFileUpload($Types.parameterizedType0(parameter.getParameterizedType()));
   }
 
   private static boolean isFileUpload(Class type) {

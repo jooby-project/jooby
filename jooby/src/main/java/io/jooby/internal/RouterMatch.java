@@ -1,14 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
-
-import io.jooby.Context;
-import io.jooby.MessageEncoder;
-import io.jooby.Route;
-import io.jooby.Router;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -16,6 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import io.jooby.Context;
+import io.jooby.MessageEncoder;
+import io.jooby.Route;
+import io.jooby.Router;
 
 public class RouterMatch implements Router.Match {
 
@@ -27,8 +27,7 @@ public class RouterMatch implements Router.Match {
 
   private Route.Handler handler;
 
-  public RouterMatch() {
-  }
+  public RouterMatch() {}
 
   public void key(List<String> keys) {
     for (int i = 0; i < Math.min(keys.size(), vars.size()); i++) {
@@ -55,22 +54,27 @@ public class RouterMatch implements Router.Match {
 
   public void methodNotAllowed(Set<String> allow) {
     String allowString = allow.stream().collect(Collectors.joining(","));
-    Route.Decorator decorator = next -> ctx -> {
-      ctx.setResponseHeader("Allow", allowString);
-      return next.apply(ctx);
-    };
+    Route.Decorator decorator =
+        next ->
+            ctx -> {
+              ctx.setResponseHeader("Allow", allowString);
+              return next.apply(ctx);
+            };
     handler = decorator.then(Route.METHOD_NOT_ALLOWED);
   }
 
-  @Override public boolean matches() {
+  @Override
+  public boolean matches() {
     return matches;
   }
 
-  @Override public Route route() {
+  @Override
+  public Route route() {
     return route;
   }
 
-  @Override public Map<String, String> pathMap() {
+  @Override
+  public Map<String, String> pathMap() {
     return vars;
   }
 

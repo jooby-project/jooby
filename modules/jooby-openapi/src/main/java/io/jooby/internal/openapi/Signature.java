@@ -1,17 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
 
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public class Signature {
 
@@ -86,7 +86,8 @@ public class Signature {
     return argumentTypes.length;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return getMethod() + getDescriptor();
   }
 

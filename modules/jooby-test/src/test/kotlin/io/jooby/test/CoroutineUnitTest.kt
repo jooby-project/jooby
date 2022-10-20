@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.test
 
 import io.jooby.Kooby
@@ -14,11 +19,7 @@ class CoroutineUnitTest {
   fun shouldSupportUnitTestWhileUsingCoroutineRouter() {
     val app = Kooby {
       coroutine {
-        get("/coroutine") {
-          withContext(coroutineScope.coroutineContext) {
-            ctx.requestPath
-          }
-        }
+        get("/coroutine") { withContext(coroutineScope.coroutineContext) { ctx.requestPath } }
 
         get("/delay") {
           delay(100)

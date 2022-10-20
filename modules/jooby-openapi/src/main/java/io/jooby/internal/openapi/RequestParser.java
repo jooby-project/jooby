@@ -1,25 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
-
-import io.jooby.FileUpload;
-import io.jooby.MediaType;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.IntInsnNode;
-import org.objectweb.asm.tree.InvokeDynamicInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +20,23 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+
+import io.jooby.FileUpload;
+import io.jooby.MediaType;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
 
 public class RequestParser {
 
@@ -61,7 +62,8 @@ public class RequestParser {
     }
 
     public Schema set(Schema argument) {
-      Optional.ofNullable(required).filter(Boolean.TRUE::equals)
+      Optional.ofNullable(required)
+          .filter(Boolean.TRUE::equals)
           .ifPresent(value -> argument.setRequired(Arrays.asList("true")));
       //      Optional.ofNullable(single).ifPresent(argument::setSingle);
       Optional.ofNullable(defaultValue).ifPresent(argument::setDefault);
@@ -70,15 +72,18 @@ public class RequestParser {
   }
 
   public static Optional<RequestBodyExt> requestBody(ParserContext ctx, MethodNode node) {
-    List<MethodInsnNode> instructions = StreamSupport.stream(
-        Spliterators.spliteratorUnknownSize(node.instructions.iterator(),
-            Spliterator.ORDERED),
-        false)
-        .filter(MethodInsnNode.class::isInstance)
-        .map(MethodInsnNode.class::cast)
-        .filter(i -> i.owner.equals(TypeFactory.CONTEXT.getInternalName()) &&
-            (isFormLike(i) || i.name.equals("body")))
-        .collect(Collectors.toList());
+    List<MethodInsnNode> instructions =
+        StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(
+                    node.instructions.iterator(), Spliterator.ORDERED),
+                false)
+            .filter(MethodInsnNode.class::isInstance)
+            .map(MethodInsnNode.class::cast)
+            .filter(
+                i ->
+                    i.owner.equals(TypeFactory.CONTEXT.getInternalName())
+                        && (isFormLike(i) || i.name.equals("body")))
+            .collect(Collectors.toList());
     if (instructions.size() == 0) {
       return Optional.empty();
     } else if (instructions.size() == 1) {
@@ -91,9 +96,12 @@ public class RequestParser {
         body.setContentType(MediaType.FORM_URLENCODED);
       }
       if (signature.matches(Class.class)) {
-        String bodyType = valueType(i)
-            .orElseThrow(() -> new IllegalStateException(
-                "Type not found, for: " + InsnSupport.toString(i)));
+        String bodyType =
+            valueType(i)
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "Type not found, for: " + InsnSupport.toString(i)));
         body.setJavaType(bodyType);
       } else {
         if (isFormLike(i)) {
@@ -105,8 +113,9 @@ public class RequestParser {
       return Optional.of(body);
     } else {
       RequestBodyExt body = new RequestBodyExt();
-      formFields(ctx,
-          instructions.stream().filter(RequestParser::isFormLike).collect(Collectors.toList()))
+      formFields(
+              ctx,
+              instructions.stream().filter(RequestParser::isFormLike).collect(Collectors.toList()))
           .ifPresent(body::setContent);
       boolean multipart = instructions.stream().anyMatch(RequestParser::isMultipart);
       if (multipart) {
@@ -142,7 +151,8 @@ public class RequestParser {
         schema.setRequired(required);
       }
 
-      io.swagger.v3.oas.models.media.MediaType mediaType = new io.swagger.v3.oas.models.media.MediaType();
+      io.swagger.v3.oas.models.media.MediaType mediaType =
+          new io.swagger.v3.oas.models.media.MediaType();
       mediaType.setSchema(schema);
 
       boolean multipart = nodes.stream().anyMatch(RequestParser::isMultipart);
@@ -171,8 +181,8 @@ public class RequestParser {
     return field.name.equals("file") || field.name.equals("files");
   }
 
-  private static void formField(ParserContext ctx, MethodInsnNode node,
-      BiConsumer<String, Schema> consumer) {
+  private static void formField(
+      ParserContext ctx, MethodInsnNode node, BiConsumer<String, Schema> consumer) {
     String name = argumentName(node);
     WebArgument argument = argumentValue(name, node);
     Optional.ofNullable(argument.javaType)
@@ -182,13 +192,15 @@ public class RequestParser {
   }
 
   public static List<ParameterExt> parameters(MethodNode node) {
-    List<MethodInsnNode> nodes = StreamSupport.stream(
-        Spliterators.spliteratorUnknownSize(node.instructions.iterator(), Spliterator.ORDERED),
-        false)
-        .filter(MethodInsnNode.class::isInstance)
-        .map(MethodInsnNode.class::cast)
-        .filter(i -> i.owner.equals("io/jooby/Context"))
-        .collect(Collectors.toList());
+    List<MethodInsnNode> nodes =
+        StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(
+                    node.instructions.iterator(), Spliterator.ORDERED),
+                false)
+            .filter(MethodInsnNode.class::isInstance)
+            .map(MethodInsnNode.class::cast)
+            .filter(i -> i.owner.equals("io/jooby/Context"))
+            .collect(Collectors.toList());
     List<ParameterExt> args = new ArrayList<>();
     for (MethodInsnNode methodInsnNode : nodes) {
       Signature signature = Signature.create(methodInsnNode);
@@ -200,18 +212,19 @@ public class RequestParser {
           required = true;
         case "header":
         case "cookie":
-        case "query": {
-          argument.setIn(scope);
-          if (signature.matches(String.class)) {
-            argument.setName(argumentName(methodInsnNode));
-            argumentValue(argument.getName(), methodInsnNode).set(argument);
-          } else if (signature.matches(Class.class)) {
-            argument.setName(signature.getMethod());
-            contextObjectToType(argument, methodInsnNode);
-          } else {
-            // Unsupported path usage
+        case "query":
+          {
+            argument.setIn(scope);
+            if (signature.matches(String.class)) {
+              argument.setName(argumentName(methodInsnNode));
+              argumentValue(argument.getName(), methodInsnNode).set(argument);
+            } else if (signature.matches(Class.class)) {
+              argument.setName(signature.getMethod());
+              contextObjectToType(argument, methodInsnNode);
+            } else {
+              // Unsupported path usage
+            }
           }
-        }
       }
       if (required != null) {
         argument.setRequired(required);
@@ -232,9 +245,12 @@ public class RequestParser {
    * @param node Node
    */
   private static void contextObjectToType(ParameterExt argument, MethodInsnNode node) {
-    String type = valueType(node)
-        .orElseThrow(() -> new IllegalStateException(
-            "Parameter type not found, for: " + argument.getName()));
+    String type =
+        valueType(node)
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Parameter type not found, for: " + argument.getName()));
     argument.setJavaType(type);
     argument.setSingle(false);
   }
@@ -250,16 +266,18 @@ public class RequestParser {
   }
 
   private static WebArgument argumentValue(String argumentName, MethodInsnNode node) {
-    MethodInsnNode convertCall = InsnSupport.next(node)
-        .filter(valueOwner())
-        .map(MethodInsnNode.class::cast)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException(
-            "Parameter type not found, for: " + argumentName));
+    MethodInsnNode convertCall =
+        InsnSupport.next(node)
+            .filter(valueOwner())
+            .map(MethodInsnNode.class::cast)
+            .findFirst()
+            .orElseThrow(
+                () -> new IllegalStateException("Parameter type not found, for: " + argumentName));
     Signature convert = Signature.create(convertCall);
     WebArgument argument = new WebArgument();
-    if (convert.matches("value") || convert.matches("valueOrNull") || convert.getMethod()
-        .endsWith("Value")) {
+    if (convert.matches("value")
+        || convert.matches("valueOrNull")
+        || convert.getMethod().endsWith("Value")) {
       argument.javaType = Type.getReturnType(convertCall.desc).getClassName();
       if (convert.matches("valueOrNull")) {
         argument.required = false;
@@ -284,37 +302,45 @@ public class RequestParser {
           .filter(optionalOrElse())
           .findFirst()
           .map(MethodInsnNode.class::cast)
-          .ifPresent(elseCall -> {
-            // validate the else branch belong to the same toOptional
-            InsnSupport.prev(elseCall)
-                .filter(valueToOptional())
-                .findFirst()
-                .map(MethodInsnNode.class::cast)
-                .ifPresent(toOptional -> {
-                  if (toOptional.equals(convertCall)) {
-                    argument.defaultValue = argumentDefaultValue(elseCall.getPrevious());
-                  }
-                });
-          });
+          .ifPresent(
+              elseCall -> {
+                // validate the else branch belong to the same toOptional
+                InsnSupport.prev(elseCall)
+                    .filter(valueToOptional())
+                    .findFirst()
+                    .map(MethodInsnNode.class::cast)
+                    .ifPresent(
+                        toOptional -> {
+                          if (toOptional.equals(convertCall)) {
+                            argument.defaultValue = argumentDefaultValue(elseCall.getPrevious());
+                          }
+                        });
+              });
     } else if (convert.matches("to")) {
-      Type toType = InsnSupport.prev(convertCall)
-          .filter(LdcInsnNode.class::isInstance)
-          .findFirst()
-          .map(LdcInsnNode.class::cast)
-          .map(e -> (Type) e.cst)
-          .orElseThrow(() -> new IllegalStateException(
-              "Parameter type not found: " + InsnSupport.toString(convertCall)));
+      Type toType =
+          InsnSupport.prev(convertCall)
+              .filter(LdcInsnNode.class::isInstance)
+              .findFirst()
+              .map(LdcInsnNode.class::cast)
+              .map(e -> (Type) e.cst)
+              .orElseThrow(
+                  () ->
+                      new IllegalStateException(
+                          "Parameter type not found: " + InsnSupport.toString(convertCall)));
       argument.javaType = toType.getClassName();
     } else if (convert.matches("toEnum")) {
-      Type toType = InsnSupport.prev(convertCall)
-          .filter(InvokeDynamicInsnNode.class::isInstance)
-          .map(InvokeDynamicInsnNode.class::cast)
-          .filter(i -> i.name.equals("tryApply"))
-          .findFirst()
-          .map(i -> (Handle) i.bsmArgs[1])
-          .map(h -> Type.getObjectType(h.getOwner()))
-          .orElseThrow(() -> new IllegalStateException(
-              "Parameter type not found: " + InsnSupport.toString(convertCall)));
+      Type toType =
+          InsnSupport.prev(convertCall)
+              .filter(InvokeDynamicInsnNode.class::isInstance)
+              .map(InvokeDynamicInsnNode.class::cast)
+              .filter(i -> i.name.equals("tryApply"))
+              .findFirst()
+              .map(i -> (Handle) i.bsmArgs[1])
+              .map(h -> Type.getObjectType(h.getOwner()))
+              .orElseThrow(
+                  () ->
+                      new IllegalStateException(
+                          "Parameter type not found: " + InsnSupport.toString(convertCall)));
       argument.javaType = toType.getClassName();
       argument.required = true;
     } else if (convert.matches("toMap")) {
@@ -343,31 +369,35 @@ public class RequestParser {
         return ((MethodInsnNode) e).owner.equals("io/jooby/Value")
             || ((MethodInsnNode) e).owner.equals("io/jooby/ValueNode")
             || ((MethodInsnNode) e).owner.equals("io/jooby/Body")
-            || (((MethodInsnNode) e).owner.equals("io/jooby/Context") && isFileUpload(
-            (MethodInsnNode) e));
+            || (((MethodInsnNode) e).owner.equals("io/jooby/Context")
+                && isFileUpload((MethodInsnNode) e));
       }
       return false;
     };
   }
 
   private static Predicate<AbstractInsnNode> optionalOrElse() {
-    return e -> (e instanceof MethodInsnNode && (((MethodInsnNode) e).owner
-        .equals("java/util/Optional")) && ((MethodInsnNode) e).name.equals("orElse"));
+    return e ->
+        (e instanceof MethodInsnNode
+            && (((MethodInsnNode) e).owner.equals("java/util/Optional"))
+            && ((MethodInsnNode) e).name.equals("orElse"));
   }
 
   private static Predicate<AbstractInsnNode> valueToOptional() {
     return valueOwner().and(e -> ((MethodInsnNode) e).name.equals("toOptional"));
   }
 
-  private static String toGenericOne(MethodInsnNode node, Signature signature,
-      Class collectionType) {
+  private static String toGenericOne(
+      MethodInsnNode node, Signature signature, Class collectionType) {
     StringBuilder type = new StringBuilder(collectionType.getName());
     type.append("<");
     if (signature.matches(Class.class)) {
-      String itemType = InsnSupport.prev(node).filter(LdcInsnNode.class::isInstance)
-          .findFirst()
-          .map(e -> ((Type) ((LdcInsnNode) e).cst).getClassName())
-          .orElse(String.class.getName());
+      String itemType =
+          InsnSupport.prev(node)
+              .filter(LdcInsnNode.class::isInstance)
+              .findFirst()
+              .map(e -> ((Type) ((LdcInsnNode) e).cst).getClassName())
+              .orElse(String.class.getName());
       type.append(itemType);
     } else {
       type.append(String.class.getName());
@@ -428,8 +458,9 @@ public class RequestParser {
         .filter(LdcInsnNode.class::isInstance)
         .map(it -> ((LdcInsnNode) it).cst.toString())
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException(
-            "Parameter name not found: " + InsnSupport.toString(node)));
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "Parameter name not found: " + InsnSupport.toString(node)));
   }
-
 }

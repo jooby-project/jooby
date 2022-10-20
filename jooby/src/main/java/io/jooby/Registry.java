@@ -1,13 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.exception.RegistryException;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.exception.RegistryException;
 
 /**
  * Service locator pattern which may be provided by a dependency injection framework.

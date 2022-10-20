@@ -1,17 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.adoc;
 
-import org.zeroturnaround.exec.ProcessExecutor;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.zeroturnaround.exec.ProcessExecutor;
 
 public class Git {
 
@@ -51,12 +51,13 @@ public class Git {
 
   private void execute(final List<String> args) throws Exception {
     System.out.println(args.stream().collect(Collectors.joining(" ")));
-    int exit = new ProcessExecutor()
-        .command(args.toArray(new String[0]))
-        .redirectOutput(System.out)
-        .directory(dir.toFile())
-        .execute()
-        .getExitValue();
+    int exit =
+        new ProcessExecutor()
+            .command(args.toArray(new String[0]))
+            .redirectOutput(System.out)
+            .directory(dir.toFile())
+            .execute()
+            .getExitValue();
     if (exit != 0) {
       throw new IllegalStateException("Execution of " + args + " resulted in exit code: " + exit);
     }

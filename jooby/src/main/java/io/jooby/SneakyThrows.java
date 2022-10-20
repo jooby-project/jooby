@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -8,38 +8,33 @@ package io.jooby;
 /**
  * Collection of throwable interfaces to simplify exception handling on lambdas.
  *
- * We do provide throwable and 100% compatible implementation of {@link java.util.function.Function}
- * , {@link java.util.function.Consumer}, {@link java.lang.Runnable},
- * {@link java.util.function.Supplier}, {@link java.util.function.Predicate} and
- * {@link java.util.function.BiPredicate}.
+ * <p>We do provide throwable and 100% compatible implementation of {@link
+ * java.util.function.Function} , {@link java.util.function.Consumer}, {@link java.lang.Runnable},
+ * {@link java.util.function.Supplier}, {@link java.util.function.Predicate} and {@link
+ * java.util.function.BiPredicate}.
  *
- * Examples:
+ * <p>Examples:
  *
  * <pre>{@code
+ * interface Query {
+ *   Item findById(String id) throws IOException;
+ * }
  *
- *  interface Query {
- *    Item findById(String id) throws IOException;
- *  }
+ * Query query = ...
  *
- *  Query query = ...
- *
- *  List<Item> items = Arrays.asList("1", "2", "3")
- *    .stream()
- *    .map(throwingFunction(query::findById))
- *    .collect(Collectors.toList());
+ * List<Item> items = Arrays.asList("1", "2", "3")
+ *   .stream()
+ *   .map(throwingFunction(query::findById))
+ *   .collect(Collectors.toList());
  *
  * }</pre>
- *
  *
  * @author edgar
  */
 public final class SneakyThrows {
 
-  /**
-   * Not allowed.
-   */
-  private SneakyThrows() {
-  }
+  /** Not allowed. */
+  private SneakyThrows() {}
 
   /**
    * Throwable version of {@link Predicate}.
@@ -62,7 +57,8 @@ public final class SneakyThrows {
      * @param v Input value.
      * @return True or false.
      */
-    @Override default boolean test(V v) {
+    @Override
+    default boolean test(V v) {
       try {
         return tryTest(v);
       } catch (Exception x) {
@@ -95,7 +91,8 @@ public final class SneakyThrows {
      * @param v2 Input value.
      * @return True or false.
      */
-    @Override default boolean test(V1 v1, V2 v2) {
+    @Override
+    default boolean test(V1 v1, V2 v2) {
       try {
         return tryTest(v1, v2);
       } catch (Exception x) {
@@ -104,9 +101,7 @@ public final class SneakyThrows {
     }
   }
 
-  /**
-   * Throwable version of {@link java.lang.Runnable}.
-   */
+  /** Throwable version of {@link java.lang.Runnable}. */
   @FunctionalInterface
   public interface Runnable extends java.lang.Runnable {
     /**
@@ -116,10 +111,9 @@ public final class SneakyThrows {
      */
     void tryRun() throws Exception;
 
-    /**
-     * Run task.
-     */
-    @Override default void run() {
+    /** Run task. */
+    @Override
+    default void run() {
       try {
         tryRun();
       } catch (Exception x) {
@@ -149,7 +143,8 @@ public final class SneakyThrows {
      *
      * @return A value.
      */
-    @Override default V get() {
+    @Override
+    default V get() {
       try {
         return tryGet();
       } catch (Exception x) {
@@ -161,7 +156,7 @@ public final class SneakyThrows {
   /**
    * Throwable version of {@link java.util.function.Consumer}.
    *
-   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
+   * <p>This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V> Input type.
    */
@@ -175,7 +170,8 @@ public final class SneakyThrows {
      */
     void tryAccept(V value) throws Exception;
 
-    @Override default void accept(V v) {
+    @Override
+    default void accept(V v) {
       try {
         tryAccept(v);
       } catch (Exception x) {
@@ -187,7 +183,7 @@ public final class SneakyThrows {
   /**
    * Two argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
+   * <p>This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -221,7 +217,7 @@ public final class SneakyThrows {
   /**
    * Three argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
+   * <p>This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -240,8 +236,8 @@ public final class SneakyThrows {
     void tryAccept(V1 v1, V2 v2, V3 v3) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using
-     * {@link #propagate(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using {@link
+     * #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -259,7 +255,7 @@ public final class SneakyThrows {
   /**
    * Four argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
+   * <p>This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -280,8 +276,8 @@ public final class SneakyThrows {
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using
-     * {@link #propagate(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using {@link
+     * #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -300,7 +296,7 @@ public final class SneakyThrows {
   /**
    * Five argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
+   * <p>This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -323,8 +319,8 @@ public final class SneakyThrows {
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using
-     * {@link #propagate(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using {@link
+     * #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -344,7 +340,7 @@ public final class SneakyThrows {
   /**
    * Six argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
+   * <p>This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -369,8 +365,8 @@ public final class SneakyThrows {
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using
-     * {@link #propagate(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using {@link
+     * #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -391,7 +387,7 @@ public final class SneakyThrows {
   /**
    * Seven argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
+   * <p>This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -418,8 +414,8 @@ public final class SneakyThrows {
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using
-     * {@link #propagate(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using {@link
+     * #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -441,7 +437,7 @@ public final class SneakyThrows {
   /**
    * Seven argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
+   * <p>This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -470,8 +466,8 @@ public final class SneakyThrows {
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7, V8 v8) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using
-     * {@link #propagate(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using {@link
+     * #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -494,7 +490,8 @@ public final class SneakyThrows {
   /**
    * Throwable version of {@link java.util.function.Function}.
    *
-   * The {@link #apply(Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
+   * <p>The {@link #apply(Object)} method throws checked exceptions using {@link
+   * #propagate(Throwable)} method.
    *
    * @param <V> Input type.
    * @param <R> Output type.
@@ -516,7 +513,8 @@ public final class SneakyThrows {
      * @param v Input argument.
      * @return Result.
      */
-    @Override default R apply(V v) {
+    @Override
+    default R apply(V v) {
       try {
         return tryApply(v);
       } catch (Exception x) {
@@ -528,7 +526,8 @@ public final class SneakyThrows {
   /**
    * Throwable version of {@link java.util.function.BiFunction}.
    *
-   * The {@link #apply(Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
+   * <p>The {@link #apply(Object, Object)} method throws checked exceptions using {@link
+   * #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -553,7 +552,8 @@ public final class SneakyThrows {
      * @param v2 Input argument.
      * @return Result.
      */
-    @Override default R apply(V1 v1, V2 v2) {
+    @Override
+    default R apply(V1 v1, V2 v2) {
       try {
         return tryApply(v1, v2);
       } catch (Exception x) {
@@ -565,7 +565,8 @@ public final class SneakyThrows {
   /**
    * Function with three arguments.
    *
-   * The {@link #apply(Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
+   * <p>The {@link #apply(Object, Object, Object)} method throws checked exceptions using {@link
+   * #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -605,7 +606,8 @@ public final class SneakyThrows {
   /**
    * Function with four arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
+   * <p>The {@link #apply(Object, Object, Object, Object)} method throws checked exceptions using
+   * {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -648,7 +650,8 @@ public final class SneakyThrows {
   /**
    * Function with five arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
+   * <p>The {@link #apply(Object, Object, Object, Object, Object)} method throws checked exceptions
+   * using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -694,7 +697,8 @@ public final class SneakyThrows {
   /**
    * Function with six arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
+   * <p>The {@link #apply(Object, Object, Object, Object, Object, Object)} method throws checked
+   * exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -743,7 +747,8 @@ public final class SneakyThrows {
   /**
    * Function with seven arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
+   * <p>The {@link #apply(Object, Object, Object, Object, Object, Object, Object)} method throws
+   * checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -795,7 +800,8 @@ public final class SneakyThrows {
   /**
    * Function with seven arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
+   * <p>The {@link #apply(Object, Object, Object, Object, Object, Object, Object, Object)} method
+   * throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -996,8 +1002,9 @@ public final class SneakyThrows {
    * @param <R> Return type.
    * @return SneakyThrows function.
    */
-  public static <V1, V2, V3, V4, V5, V6, V7, R> Function7<V1, V2, V3, V4, V5, V6, V7, R> throwingFunction(
-      Function7<V1, V2, V3, V4, V5, V6, V7, R> fn) {
+  public static <V1, V2, V3, V4, V5, V6, V7, R>
+      Function7<V1, V2, V3, V4, V5, V6, V7, R> throwingFunction(
+          Function7<V1, V2, V3, V4, V5, V6, V7, R> fn) {
     return fn;
   }
 
@@ -1016,8 +1023,9 @@ public final class SneakyThrows {
    * @param <R> Return type.
    * @return SneakyThrows function.
    */
-  public static <V1, V2, V3, V4, V5, V6, V7, V8, R> Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> throwingFunction(
-      Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> fn) {
+  public static <V1, V2, V3, V4, V5, V6, V7, V8, R>
+      Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> throwingFunction(
+          Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> fn) {
     return fn;
   }
 
@@ -1053,8 +1061,7 @@ public final class SneakyThrows {
    * @param <V3> Type 3.
    * @return SneakyThrows consumer.
    */
-  public static <V1, V2, V3> Consumer3<V1, V2, V3> throwingConsumer(
-      Consumer3<V1, V2, V3> action) {
+  public static <V1, V2, V3> Consumer3<V1, V2, V3> throwingConsumer(Consumer3<V1, V2, V3> action) {
     return action;
   }
 
@@ -1138,36 +1145,34 @@ public final class SneakyThrows {
    * @param <V8> Type 8.
    * @return SneakyThrows consumer.
    */
-  public static <V1, V2, V3, V4, V5, V6, V7, V8> Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> throwingConsumer(
-      Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> action) {
+  public static <V1, V2, V3, V4, V5, V6, V7, V8>
+      Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> throwingConsumer(
+          Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> action) {
     return action;
   }
 
   /**
    * Throws any throwable 'sneakily' - you don't need to catch it, nor declare that you throw it
-   * onwards.
-   * The exception is still thrown - javac will just stop whining about it.
-   * <p>
-   * Example usage:
+   * onwards. The exception is still thrown - javac will just stop whining about it.
+   *
+   * <p>Example usage:
+   *
    * <pre>public void run() {
    *     throw sneakyThrow(new IOException("You don't need to catch me!"));
    * }</pre>
-   * <p>
-   * NB: The exception is not wrapped, ignored, swallowed, or redefined. The JVM actually does not
-   * know or care
-   * about the concept of a 'checked exception'. All this method does is hide the act of throwing a
-   * checked exception from the java compiler.
-   * <p>
-   * Note that this method has a return type of {@code RuntimeException}; it is advised you always
-   * call this
-   * method as argument to the {@code throw} statement to avoid compiler errors regarding no return
-   * statement and similar problems. This method won't of course return an actual
-   * {@code RuntimeException} -
-   * it never returns, it always throws the provided exception.
+   *
+   * <p>NB: The exception is not wrapped, ignored, swallowed, or redefined. The JVM actually does
+   * not know or care about the concept of a 'checked exception'. All this method does is hide the
+   * act of throwing a checked exception from the java compiler.
+   *
+   * <p>Note that this method has a return type of {@code RuntimeException}; it is advised you
+   * always call this method as argument to the {@code throw} statement to avoid compiler errors
+   * regarding no return statement and similar problems. This method won't of course return an
+   * actual {@code RuntimeException} - it never returns, it always throws the provided exception.
    *
    * @param x The throwable to throw without requiring you to catch its type.
    * @return A dummy RuntimeException; this method never returns normally, it <em>always</em> throws
-   *         an exception!
+   *     an exception!
    */
   public static RuntimeException propagate(final Throwable x) {
     if (x == null) {
@@ -1183,8 +1188,8 @@ public final class SneakyThrows {
    * {@link ThreadDeath}, {@link VirtualMachineError}.
    *
    * @param x Exception to test.
-   * @return True if the given exception is one of {@link InterruptedException}, {@link LinkageError},
-   *     {@link ThreadDeath}, {@link VirtualMachineError}.
+   * @return True if the given exception is one of {@link InterruptedException}, {@link
+   *     LinkageError}, {@link ThreadDeath}, {@link VirtualMachineError}.
    */
   public static boolean isFatal(Throwable x) {
     return x instanceof InterruptedException

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -9,29 +9,29 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
 /**
- * The SameSite attribute of the Set-Cookie HTTP response header allows you to declare
- * if your cookie should be restricted to a first-party or same-site context.
+ * The SameSite attribute of the Set-Cookie HTTP response header allows you to declare if your
+ * cookie should be restricted to a first-party or same-site context.
  *
  * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite">
- *   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
+ *     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite</a>
  */
 public enum SameSite {
 
   /**
-   * Cookies are allowed to be sent with top-level navigations and will be sent along with
-   * GET request initiated by third party website. This is the default value in modern browsers.
+   * Cookies are allowed to be sent with top-level navigations and will be sent along with GET
+   * request initiated by third party website. This is the default value in modern browsers.
    */
   LAX("Lax"),
 
   /**
-   * Cookies will only be sent in a first-party context and not be sent along with
-   * requests initiated by third party websites.
+   * Cookies will only be sent in a first-party context and not be sent along with requests
+   * initiated by third party websites.
    */
   STRICT("Strict"),
 
   /**
-   * Cookies will be sent in all contexts, i.e sending cross-origin is allowed.
-   * Requires the {@code Secure} attribute in latest browser versions.
+   * Cookies will be sent in all contexts, i.e sending cross-origin is allowed. Requires the {@code
+   * Secure} attribute in latest browser versions.
    */
   NONE("None");
 
@@ -71,9 +71,12 @@ public enum SameSite {
     return stream(values())
         .filter(v -> v.getValue().equals(value))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Invalid SameSite value '"
-            + value + "'. Use one of: " + stream(values())
-            .map(SameSite::getValue)
-            .collect(joining(", "))));
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    "Invalid SameSite value '"
+                        + value
+                        + "'. Use one of: "
+                        + stream(values()).map(SameSite::getValue).collect(joining(", "))));
   }
 }

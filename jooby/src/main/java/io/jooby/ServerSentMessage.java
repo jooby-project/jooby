@@ -1,17 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Server-Sent message.
@@ -69,9 +69,9 @@ public class ServerSentMessage {
 
   /**
    * A string identifying the type of event described. If this is specified, an event will be
-   * dispatched on the browser to the listener for the specified event name; the website source
-   * code should use addEventListener() to listen for named events. The onmessage handler is
-   * called if no event name is specified for a message.
+   * dispatched on the browser to the listener for the specified event name; the website source code
+   * should use addEventListener() to listen for named events. The onmessage handler is called if no
+   * event name is specified for a message.
    *
    * @return Event type.
    */
@@ -103,8 +103,8 @@ public class ServerSentMessage {
 
   /**
    * The reconnection time to use when attempting to send the event. This must be an integer,
-   * specifying the reconnection time in milliseconds. If a non-integer value is specified,
-   * the field is ignored.
+   * specifying the reconnection time in milliseconds. If a non-integer value is specified, the
+   * field is ignored.
    *
    * @return Retry option.
    */

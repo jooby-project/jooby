@@ -1,8 +1,13 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import org.junit.jupiter.api.Test;
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,57 +20,71 @@ import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class EnvironmentTest {
 
   @Test
   public void defaultEnv() {
 
-    env("foo", (env, conf) -> {
-      assertEnvMatches(env,
-          "[dev]"::equals,
-          "└── system properties"::equals,
-          " └── env variables"::equals,
-          pathEndsMatch("env/foo/application.conf"),
-          "   └── defaults"::equals);
-      assertEquals("[dev]", env.getActiveNames().toString());
-      assertEquals(System.getProperty("user.dir"), conf.getString("user.dir"));
-      assertEquals("bar", conf.getString("foo"));
-      assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
-    });
+    env(
+        "foo",
+        (env, conf) -> {
+          assertEnvMatches(
+              env,
+              "[dev]"::equals,
+              "└── system properties"::equals,
+              " └── env variables"::equals,
+              pathEndsMatch("env/foo/application.conf"),
+              "   └── defaults"::equals);
+          assertEquals("[dev]", env.getActiveNames().toString());
+          assertEquals(System.getProperty("user.dir"), conf.getString("user.dir"));
+          assertEquals("bar", conf.getString("foo"));
+          assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
+        });
 
-    env("foo", mapOf("application.env", "PROD"), (env, conf) -> {
-      assertEnvMatches(env,
-          "[prod]"::equals,
-          "└── system properties"::equals,
-          " └── env variables"::equals,
-          pathEndsMatch("env/foo/application.prod.conf"),
-          pathEndsMatch("env/foo/application.conf"),
-          "    └── defaults"::equals);
-      assertEquals("[prod]", env.getActiveNames().toString());
-      assertEquals("bazz", conf.getString("foo"));
-      assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
-    });
+    env(
+        "foo",
+        mapOf("application.env", "PROD"),
+        (env, conf) -> {
+          assertEnvMatches(
+              env,
+              "[prod]"::equals,
+              "└── system properties"::equals,
+              " └── env variables"::equals,
+              pathEndsMatch("env/foo/application.prod.conf"),
+              pathEndsMatch("env/foo/application.conf"),
+              "    └── defaults"::equals);
+          assertEquals("[prod]", env.getActiveNames().toString());
+          assertEquals("bazz", conf.getString("foo"));
+          assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
+        });
 
-    env("foo", mapOf("application.env", "Test, bar"), (env, conf) -> {
-      assertEnvMatches(env,
-          "[test, bar]"::equals,
-          "└── system properties"::equals,
-          " └── env variables"::equals,
-          pathEndsMatch("env/foo/application.test.conf"),
-          pathEndsMatch("env/foo/application.bar.conf"),
-          "    └── defaults"::equals);
-      assertEquals("[test, bar]", env.getActiveNames().toString());
-      assertEquals("test", conf.getString("foo"));
-      assertEquals(asList("d"), conf.getStringList("letters"));
-    });
+    env(
+        "foo",
+        mapOf("application.env", "Test, bar"),
+        (env, conf) -> {
+          assertEnvMatches(
+              env,
+              "[test, bar]"::equals,
+              "└── system properties"::equals,
+              " └── env variables"::equals,
+              pathEndsMatch("env/foo/application.test.conf"),
+              pathEndsMatch("env/foo/application.bar.conf"),
+              "    └── defaults"::equals);
+          assertEquals("[test, bar]", env.getActiveNames().toString());
+          assertEquals("test", conf.getString("foo"));
+          assertEquals(asList("d"), conf.getStringList("letters"));
+        });
 
-    env("empty", (env, conf) -> {
-      assertEquals("[dev]", env.getActiveNames().toString());
-    });
+    env(
+        "empty",
+        (env, conf) -> {
+          assertEquals("[dev]", env.getActiveNames().toString());
+        });
   }
 
   @Test
@@ -76,15 +95,16 @@ public class EnvironmentTest {
       basedir = basedir.resolve("jooby");
     }
     Path reldir = Paths.get("src/test/resources/env/foo");
-    basedir = basedir.resolve("src").resolve("test").resolve("resources").resolve("env")
-        .resolve("foo");
+    basedir =
+        basedir.resolve("src").resolve("test").resolve("resources").resolve("env").resolve("foo");
 
-
-    Environment env = Environment
-        .loadEnvironment(new EnvironmentOptions().setBasedir(basedir).setActiveNames("prod"));
+    Environment env =
+        Environment.loadEnvironment(
+            new EnvironmentOptions().setBasedir(basedir).setActiveNames("prod"));
     assertEquals("bazz", env.getConfig().getString("foo"));
     System.out.println(env.toString());
-    assertEnvMatches(env,
+    assertEnvMatches(
+        env,
         "[prod]"::equals,
         "└── system properties"::equals,
         " └── env variables"::equals,
@@ -96,8 +116,11 @@ public class EnvironmentTest {
   @Test
   public void objectLookup() {
 
-    Environment env = new Environment(getClass().getClassLoader(),
-        ConfigFactory.parseMap(mapOf("h.pool", "1", "h.db.pool", "2")), "test");
+    Environment env =
+        new Environment(
+            getClass().getClassLoader(),
+            ConfigFactory.parseMap(mapOf("h.pool", "1", "h.db.pool", "2")),
+            "test");
 
     assertEquals("1", env.getConfig().getString("h.pool"));
     assertEquals("2", env.getConfig().getString("h.db.pool"));
@@ -119,16 +142,22 @@ public class EnvironmentTest {
 
   @Test
   public void flattenProperties() {
-    Config config = ConfigFactory
-        .parseMap(mapOf("k", "v", "root", mapOf("map", mapOf("key1", 1, "key2", "2", "list",
-            Arrays.asList("a", "b")))));
+    Config config =
+        ConfigFactory.parseMap(
+            mapOf(
+                "k",
+                "v",
+                "root",
+                mapOf("map", mapOf("key1", 1, "key2", "2", "list", Arrays.asList("a", "b")))));
     Environment environment = new Environment(getClass().getClassLoader(), config);
-    assertEquals(mapOf("root.map.key1", "1", "root.map.key2", "2", "root.map.list", "a, b"), environment.getProperties("root"));
+    assertEquals(
+        mapOf("root.map.key1", "1", "root.map.key2", "2", "root.map.list", "a, b"),
+        environment.getProperties("root"));
 
-    assertEquals(mapOf("p.map.key1", "1", "p.map.key2", "2", "p.map.list", "a, b"), environment.getProperties("root", "p"));
+    assertEquals(
+        mapOf("p.map.key1", "1", "p.map.key2", "2", "p.map.list", "a, b"),
+        environment.getProperties("root", "p"));
   }
-
-
 
   private void env(String dir, Map<String, Object> args, BiConsumer<Environment, Config> consumer) {
     Properties sysprops = new Properties();
@@ -136,10 +165,9 @@ public class EnvironmentTest {
     try {
       String[] names = args.getOrDefault("application.env", "dev").toString().split(",");
       args.forEach((k, v) -> System.setProperty(k, v.toString()));
-      Environment env = Environment.loadEnvironment(new EnvironmentOptions()
-          .setBasedir("env/" + dir)
-          .setActiveNames(names)
-      );
+      Environment env =
+          Environment.loadEnvironment(
+              new EnvironmentOptions().setBasedir("env/" + dir).setActiveNames(names));
       consumer.accept(env, env.getConfig());
     } finally {
       System.setProperties(sysprops);

@@ -1,12 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.hibernate;
 
-import io.jooby.Route;
-import io.jooby.ServiceKey;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -16,17 +14,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Route;
+import io.jooby.ServiceKey;
 
 /**
  * Attach {@link Session} and {@link javax.persistence.EntityManager} to the current request.
  *
- * The active {@link Session} is accessible via {@link SessionFactory#getCurrentSession()} for the
- * duration of the route pipeline.
+ * <p>The active {@link Session} is accessible via {@link SessionFactory#getCurrentSession()} for
+ * the duration of the route pipeline.
  *
- * Once route pipeline is executed the session/entityManager is detached from current request and
+ * <p>Once route pipeline is executed the session/entityManager is detached from current request and
  * closed.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -67,9 +67,7 @@ public class SessionRequest implements Route.Decorator {
     this(ServiceKey.key(SessionFactory.class, name));
   }
 
-  /**
-   * Creates a new session request and attach to the default/first session factory registered.
-   */
+  /** Creates a new session request and attach to the default/first session factory registered. */
   public SessionRequest() {
     this(ServiceKey.key(SessionFactory.class));
   }
@@ -79,8 +77,7 @@ public class SessionRequest implements Route.Decorator {
     this.sessionProviderKey = ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName());
   }
 
-  @NonNull
-  @Override
+  @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       SessionFactory sessionFactory = ctx.require(sessionFactoryKey);
@@ -93,8 +90,9 @@ public class SessionRequest implements Route.Decorator {
 
         Transaction transaction = session.getTransaction();
         if (transaction.getStatus() == TransactionStatus.ACTIVE) {
-          log.error("Transaction state is still active (expected to be committed, or rolled "
-              + "back) after route pipeline completed, rolling back.");
+          log.error(
+              "Transaction state is still active (expected to be committed, or rolled "
+                  + "back) after route pipeline completed, rolling back.");
 
           transaction.rollback();
         }
@@ -118,4 +116,3 @@ public class SessionRequest implements Route.Decorator {
     return sessionFactoryKey;
   }
 }
-

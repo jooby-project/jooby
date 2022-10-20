@@ -1,15 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.Context;
-import io.jooby.Server;
-import io.jooby.ServerSentEmitter;
-import io.jooby.ServerSentMessage;
-import io.jooby.SneakyThrows;
+import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.eclipse.jetty.io.EofException;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.util.thread.Scheduler;
@@ -17,10 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.IOException;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import io.jooby.Context;
+import io.jooby.Server;
+import io.jooby.ServerSentEmitter;
+import io.jooby.ServerSentMessage;
+import io.jooby.SneakyThrows;
 
 public class JettyServerSentEmitter implements ServerSentEmitter {
   private Logger log = LoggerFactory.getLogger(ServerSentEmitter.class);
@@ -38,24 +39,29 @@ public class JettyServerSentEmitter implements ServerSentEmitter {
     this.id = UUID.randomUUID().toString();
   }
 
-  @Override public String getId() {
+  @Override
+  public String getId() {
     return id;
   }
 
-  @Override public ServerSentEmitter setId(String id) {
+  @Override
+  public ServerSentEmitter setId(String id) {
     this.id = id;
     return this;
   }
 
-  @Override public boolean isOpen() {
+  @Override
+  public boolean isOpen() {
     return open.get();
   }
 
-  @NonNull @Override public Context getContext() {
+  @NonNull @Override
+  public Context getContext() {
     return Context.readOnly(jetty);
   }
 
-  @NonNull @Override public ServerSentEmitter send(ServerSentMessage data) {
+  @NonNull @Override
+  public ServerSentEmitter send(ServerSentMessage data) {
     if (isOpen()) {
       HttpOutput output = jetty.response.getHttpOutput();
       try {
@@ -65,8 +71,8 @@ public class JettyServerSentEmitter implements ServerSentEmitter {
         if (Server.connectionLost(x) || x instanceof EofException) {
           close();
         } else {
-          log.error("server-sent-event resulted in exception: id {} {}", id, jetty.getRequestPath(),
-              x);
+          log.error(
+              "server-sent-event resulted in exception: id {} {}", id, jetty.getRequestPath(), x);
           if (SneakyThrows.isFatal(x)) {
             throw SneakyThrows.propagate(x);
           }
@@ -76,7 +82,8 @@ public class JettyServerSentEmitter implements ServerSentEmitter {
     return this;
   }
 
-  @Override public ServerSentEmitter keepAlive(long timeInMillis) {
+  @Override
+  public ServerSentEmitter keepAlive(long timeInMillis) {
     if (isOpen()) {
       Scheduler scheduler = jetty.request.getHttpChannel().getConnector().getScheduler();
       scheduler.schedule(new KeepAlive(this, timeInMillis), timeInMillis, TimeUnit.MILLISECONDS);
@@ -84,11 +91,13 @@ public class JettyServerSentEmitter implements ServerSentEmitter {
     return this;
   }
 
-  @Override public void onClose(SneakyThrows.Runnable task) {
+  @Override
+  public void onClose(SneakyThrows.Runnable task) {
     this.closeTask = task;
   }
 
-  @NonNull @Override public void close() {
+  @NonNull @Override
+  public void close() {
     if (open.compareAndSet(true, false)) {
       try {
         if (closeTask != null) {

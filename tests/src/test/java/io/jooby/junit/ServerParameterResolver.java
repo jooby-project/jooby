@@ -1,4 +1,11 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.junit;
+
+import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -6,8 +13,6 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
 import io.jooby.ExecutionMode;
-
-import java.lang.reflect.Method;
 
 public class ServerParameterResolver implements ParameterResolver {
 
@@ -20,14 +25,19 @@ public class ServerParameterResolver implements ParameterResolver {
     this.executionMode = executionMode;
   }
 
-  @Override public boolean supportsParameter(ParameterContext parameterContext,
-      ExtensionContext extensionContext) throws ParameterResolutionException {
+  @Override
+  public boolean supportsParameter(
+      ParameterContext parameterContext, ExtensionContext extensionContext)
+      throws ParameterResolutionException {
     return parameterContext.getParameter().getType() == ServerTestRunner.class;
   }
 
-  @Override public Object resolveParameter(ParameterContext parameterContext,
-      ExtensionContext extensionContext) throws ParameterResolutionException {
+  @Override
+  public Object resolveParameter(
+      ParameterContext parameterContext, ExtensionContext extensionContext)
+      throws ParameterResolutionException {
     Method test = extensionContext.getRequiredTestMethod();
-    return new ServerTestRunner(test.getDeclaringClass().getSimpleName() + "." + test.getName(), server, executionMode);
+    return new ServerTestRunner(
+        test.getDeclaringClass().getSimpleName() + "." + test.getName(), server, executionMode);
   }
 }

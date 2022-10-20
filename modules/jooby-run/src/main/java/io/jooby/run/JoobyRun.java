@@ -1,18 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.run;
-
-import io.methvin.watcher.DirectoryChangeEvent;
-import io.methvin.watcher.DirectoryWatcher;
-import org.jboss.modules.Module;
-import org.jboss.modules.ModuleClassLoader;
-import org.jboss.modules.ModuleFinder;
-import org.jboss.modules.ModuleLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -33,11 +24,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleClassLoader;
+import org.jboss.modules.ModuleFinder;
+import org.jboss.modules.ModuleLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.methvin.watcher.DirectoryChangeEvent;
+import io.methvin.watcher.DirectoryWatcher;
+
 /**
- * Allow to restart an application on file changes. This lets client to listen for file changes
- * and trigger a restart.
+ * Allow to restart an application on file changes. This lets client to listen for file changes and
+ * trigger a restart.
  *
- * This class doesn't compile source code. Instead, let a client (Maven/Gradle) to listen for
+ * <p>This class doesn't compile source code. Instead, let a client (Maven/Gradle) to listen for
  * changes, fire a compilation process and restart the application once compilation finished.
  *
  * @author edgar
@@ -47,6 +48,7 @@ public class JoobyRun {
 
   private static class Event {
     private final long time;
+
     Event(long time) {
       this.time = time;
     }
@@ -78,7 +80,10 @@ public class JoobyRun {
     private static final int RESTART = 1 << 4;
     private static final int RUNNING = 1 << 5;
 
-    AppModule(Logger logger, ExtModuleLoader loader, ClassLoader contextClassLoader,
+    AppModule(
+        Logger logger,
+        ExtModuleLoader loader,
+        ClassLoader contextClassLoader,
         JoobyRunOptions conf) {
       this.logger = logger;
       this.loader = loader;
@@ -87,8 +92,7 @@ public class JoobyRun {
     }
 
     public Exception start() {
-      if (!(state.compareAndSet(CLOSED, STARTING)
-          || state.compareAndSet(UNLOADED, STARTING))) {
+      if (!(state.compareAndSet(CLOSED, STARTING) || state.compareAndSet(UNLOADED, STARTING))) {
         debugState("Jooby already starting.");
         return null;
       }
@@ -117,7 +121,9 @@ public class JoobyRun {
         String message = x.getMessage();
         if (message.trim().startsWith(conf.getMainClass())) {
           logger.error(
-              "Application class: '{}' not found. Possible solutions:\n  1) Make sure class exists\n  2) Class name is correct (no typo)",
+              "Application class: '{}' not found. Possible solutions:\n"
+                  + "  1) Make sure class exists\n"
+                  + "  2) Class name is correct (no typo)",
               conf.getMainClass());
           // We must exit the JVM, due it is impossible to guess the main application.
           return new ClassNotFoundException(conf.getMainClass());
@@ -255,7 +261,6 @@ public class JoobyRun {
     }
   }
 
-
   static final String SERVER_REF = "io.jooby.run.ServerRef";
 
   static final String SERVER_REF_STOP = "stop";
@@ -299,9 +304,8 @@ public class JoobyRun {
   }
 
   /**
-   * Add the given path to the project classpath. Path must be a jar or file system directory.
-   * File system directory are listen for changes on file changes this method invokes the given
-   * callback.
+   * Add the given path to the project classpath. Path must be a jar or file system directory. File
+   * system directory are listen for changes on file changes this method invokes the given callback.
    *
    * @param path Path.
    * @param callback Callback to listen for file changes.
@@ -347,8 +351,9 @@ public class JoobyRun {
 
       logger.debug("project: {}", toString());
 
-      ModuleFinder[] finders =
-          {new FlattenClasspath(options.getProjectName(), resources, dependencies)};
+      ModuleFinder[] finders = {
+        new FlattenClasspath(options.getProjectName(), resources, dependencies)
+      };
 
       ExtModuleLoader loader = new ExtModuleLoader(finders);
       module =
@@ -357,8 +362,11 @@ public class JoobyRun {
       Exception error = module.start();
       if (error == null) {
         se = Executors.newScheduledThreadPool(1);
-        se.scheduleAtFixedRate(this::actualRestart, initialDelayBeforeFirstRestartMillis,
-            waitTimeBeforeRestartMillis, TimeUnit.MILLISECONDS);
+        se.scheduleAtFixedRate(
+            this::actualRestart,
+            initialDelayBeforeFirstRestartMillis,
+            waitTimeBeforeRestartMillis,
+            TimeUnit.MILLISECONDS);
         try {
           watcher.watch();
         } finally {
@@ -374,9 +382,7 @@ public class JoobyRun {
     }
   }
 
-  /**
-   * Restart the application.
-   */
+  /** Restart the application. */
   public void restart() {
     queue.offer(new Event(clock.millis()));
   }
@@ -399,9 +405,7 @@ public class JoobyRun {
     }
   }
 
-  /**
-   * Stop and shutdown the application.
-   */
+  /** Stop and shutdown the application. */
   public void shutdown() {
     if (module != null) {
       module.close();
@@ -428,7 +432,8 @@ public class JoobyRun {
         .build();
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     StringBuilder buff = new StringBuilder();
     buff.append(options.getProjectName()).append("\n");
     buff.append("  watch-dirs: ").append("\n");
@@ -437,8 +442,7 @@ public class JoobyRun {
     buff.append("  build: ").append("\n");
     resources.forEach(it -> buff.append("    ").append(it.toAbsolutePath()).append("\n"));
     buff.append("  dependencies: ").append("\n");
-    dependencies
-        .forEach(it -> buff.append("    ").append(it.toAbsolutePath()).append("\n"));
+    dependencies.forEach(it -> buff.append("    ").append(it.toAbsolutePath()).append("\n"));
     return buff.toString();
   }
 

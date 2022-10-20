@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -11,7 +11,6 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -24,34 +23,49 @@ import io.jooby.internal.apt.ParamDefinition;
 public class NamedParamWriter extends ValueWriter {
 
   @Override
-  public void accept(ClassWriter writer, Type controller,
-      String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, NameGenerator nameGenerator) throws Exception {
+  public void accept(
+      ClassWriter writer,
+      Type controller,
+      String handlerInternalName,
+      MethodVisitor visitor,
+      ParamDefinition parameter,
+      NameGenerator nameGenerator)
+      throws Exception {
     String parameterName = parameter.getHttpName();
 
     Method paramMethod;
     if (parameter.isNamed()) {
       paramMethod = parameter.getSingleValue();
       visitor.visitLdcInsn(parameterName);
-      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
-          getMethodDescriptor(paramMethod), true);
+      visitor.visitMethodInsn(
+          INVOKEINTERFACE,
+          CTX.getInternalName(),
+          paramMethod.getName(),
+          getMethodDescriptor(paramMethod),
+          true);
 
       super.accept(writer, controller, handlerInternalName, visitor, parameter, nameGenerator);
     } else {
       // Type getParamName(Context):
-      String methodName =  nameGenerator.generate("$lookup", parameter.getName());
+      String methodName = nameGenerator.generate("$lookup", parameter.getName());
       String descriptor = "(Lio/jooby/Context;)" + parameter.getType().toJvmType().getDescriptor();
-      visitor.visitMethodInsn(Opcodes.INVOKESTATIC, handlerInternalName, methodName, descriptor,
-          false);
+      visitor.visitMethodInsn(
+          Opcodes.INVOKESTATIC, handlerInternalName, methodName, descriptor, false);
 
-      lookupParam(writer, controller, handlerInternalName, methodName, descriptor, parameter,
+      lookupParam(
+          writer,
+          controller,
+          handlerInternalName,
+          methodName,
+          descriptor,
+          parameter,
           nameGenerator);
     }
   }
 
   /**
-   * This method look for named parameter, if present favor single value assuming there is a
-   * custom converter for it. Otherwise, fallback to bean converter:
+   * This method look for named parameter, if present favor single value assuming there is a custom
+   * converter for it. Otherwise, fallback to bean converter:
    *
    * <pre>{@code
    * private static MyID2325 lookupMyId(io.jooby.Context ctx) {
@@ -70,14 +84,20 @@ public class NamedParamWriter extends ValueWriter {
    * @param registry
    * @throws Exception
    */
-  private void lookupParam(ClassWriter writer, Type controller, String handlerInternalName,
-      String methodName, String descriptor, ParamDefinition parameter,
-      NameGenerator registry) throws Exception {
+  private void lookupParam(
+      ClassWriter writer,
+      Type controller,
+      String handlerInternalName,
+      String methodName,
+      String descriptor,
+      ParamDefinition parameter,
+      NameGenerator registry)
+      throws Exception {
     String paramName = parameter.getHttpName();
     Method paramMethod = parameter.getSingleValue();
-    MethodVisitor methodVisitor = writer
-        .visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC, methodName,
-            descriptor, null, null);
+    MethodVisitor methodVisitor =
+        writer.visitMethod(
+            Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC, methodName, descriptor, null, null);
     methodVisitor.visitParameter("ctx", ACC_SYNTHETIC);
     methodVisitor.visitCode();
     Label label0 = new Label();
@@ -85,8 +105,12 @@ public class NamedParamWriter extends ValueWriter {
 
     methodVisitor.visitVarInsn(ALOAD, 0);
     methodVisitor.visitLdcInsn(paramName);
-    methodVisitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
-        getMethodDescriptor(paramMethod), true);
+    methodVisitor.visitMethodInsn(
+        INVOKEINTERFACE,
+        CTX.getInternalName(),
+        paramMethod.getName(),
+        getMethodDescriptor(paramMethod),
+        true);
     methodVisitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/ValueNode", "isMissing", "()Z", true);
     Label label1 = new Label();
     methodVisitor.visitJumpInsn(Opcodes.IFEQ, label1);
@@ -96,8 +120,12 @@ public class NamedParamWriter extends ValueWriter {
     methodVisitor.visitLabel(label2);
 
     Method objectValue = parameter.getObjectValue();
-    methodVisitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), objectValue.getName(),
-        getMethodDescriptor(objectValue), true);
+    methodVisitor.visitMethodInsn(
+        INVOKEINTERFACE,
+        CTX.getInternalName(),
+        objectValue.getName(),
+        getMethodDescriptor(objectValue),
+        true);
 
     super.accept(writer, controller, handlerInternalName, methodVisitor, parameter, registry);
 
@@ -110,14 +138,22 @@ public class NamedParamWriter extends ValueWriter {
     Label label4 = new Label();
     methodVisitor.visitLabel(label4);
 
-    methodVisitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
-        getMethodDescriptor(paramMethod), true);
+    methodVisitor.visitMethodInsn(
+        INVOKEINTERFACE,
+        CTX.getInternalName(),
+        paramMethod.getName(),
+        getMethodDescriptor(paramMethod),
+        true);
 
     super.accept(writer, controller, handlerInternalName, methodVisitor, parameter, registry);
 
     methodVisitor.visitLabel(label3);
-    methodVisitor.visitFrame(Opcodes.F_SAME1, 0, null, 1,
-        new Object[]{parameter.getType().toJvmType().getInternalName()});
+    methodVisitor.visitFrame(
+        Opcodes.F_SAME1,
+        0,
+        null,
+        1,
+        new Object[] {parameter.getType().toJvmType().getInternalName()});
     methodVisitor.visitInsn(Opcodes.ARETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();

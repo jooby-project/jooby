@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -16,10 +16,12 @@ class HttpChunkContentCompressor extends HttpContentCompressor {
     super(compressionLevel < 0 ? 0 : compressionLevel);
   }
 
-  @Override public void write(ChannelHandlerContext ctx, Object msg,
-      ChannelPromise promise) throws Exception {
+  @Override
+  public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise)
+      throws Exception {
     if (msg instanceof ByteBuf) {
-      // convert ByteBuf to HttpContent to make it work with compression. This is needed as we use the
+      // convert ByteBuf to HttpContent to make it work with compression. This is needed as we use
+      // the
       // ChunkedWriteHandler to send files when compression is enabled.
       ByteBuf buff = (ByteBuf) msg;
       if (buff.isReadable()) {

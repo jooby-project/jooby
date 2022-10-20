@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -24,40 +24,38 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * <h1>Path Patterns</h1>
- * <p>
- * Jooby supports Ant-style path patterns:
- * </p>
- * <p>
- * Some examples:
- * </p>
+ *
+ * <p>Jooby supports Ant-style path patterns:
+ *
+ * <p>Some examples:
+ *
  * <ul>
- * <li>{@code com/t?st.html} - matches {@code com/test.html} but also {@code com/tast.jsp} or
- * {@code com/txst.html}</li>
- * <li>{@code com/*.html} - matches all {@code .html} files in the {@code com} directory</li>
- * <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath the
- * {@code com} path</li>
- * <li>{@code **}/{@code *} - matches any path at any level.</li>
- * <li>{@code *} - matches any path at any level, shorthand for {@code **}/{@code *}.</li>
+ *   <li>{@code com/t?st.html} - matches {@code com/test.html} but also {@code com/tast.jsp} or
+ *       {@code com/txst.html}
+ *   <li>{@code com/*.html} - matches all {@code .html} files in the {@code com} directory
+ *   <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath
+ *       the {@code com} path
+ *   <li>{@code **}/{@code *} - matches any path at any level.
+ *   <li>{@code *} - matches any path at any level, shorthand for {@code **}/{@code *}.
  * </ul>
  *
  * <h2>Variables</h2>
- * <p>
- * Jooby supports path parameters too:
- * </p>
- * <p>
- * Some examples:
- * </p>
+ *
+ * <p>Jooby supports path parameters too:
+ *
+ * <p>Some examples:
+ *
  * <ul>
- * <li><code> /user/{id}</code> - /user/* and give you access to the <code>id</code> var.</li>
- * <li><code> /user/{id:\\d+}</code> - /user/[digits] and give you access to the numeric
- * <code>id</code> var.</li>
+ *   <li><code> /user/{id}</code> - /user/* and give you access to the <code>id</code> var.
+ *   <li><code> /user/{id:\\d+}</code> - /user/[digits] and give you access to the numeric <code>id
+ *       </code> var.
  * </ul>
  *
  * @author edgar
  * @since 0.1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Path {
   /**
    * @return Route path pattern.

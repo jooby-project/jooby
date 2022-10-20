@@ -1,11 +1,17 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.exception;
 
-import io.jooby.StatusCode;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import io.jooby.StatusCode;
 
 public class ExceptionTest {
 
@@ -41,7 +47,8 @@ public class ExceptionTest {
 
   @Test
   public void shouldCreateMethodNotAllowed() {
-    MethodNotAllowedException exception = new MethodNotAllowedException("GET", Collections.singletonList("POST"));
+    MethodNotAllowedException exception =
+        new MethodNotAllowedException("GET", Collections.singletonList("POST"));
     assertEquals(StatusCode.METHOD_NOT_ALLOWED, exception.getStatusCode());
     assertEquals("GET", exception.getMethod());
     assertEquals(Collections.singletonList("POST"), exception.getAllow());

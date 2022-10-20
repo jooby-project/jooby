@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -26,19 +26,24 @@ import io.jooby.internal.apt.ParamDefinition;
 public abstract class ValueWriter implements ParamWriter {
 
   @Override
-  public void accept(ClassWriter writer, org.objectweb.asm.Type controller,
-      String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter, NameGenerator nameGenerator) throws Exception {
+  public void accept(
+      ClassWriter writer,
+      org.objectweb.asm.Type controller,
+      String handlerInternalName,
+      MethodVisitor visitor,
+      ParamDefinition parameter,
+      NameGenerator nameGenerator)
+      throws Exception {
     Method convertMethod = parameter.getMethod();
     // to(Class)
     boolean toClass = is(convertMethod, 0, Class.class);
     boolean toReified = is(convertMethod, 0, Type.class);
     // toOptional(Class) or toList(Class) or toSet(Class)
     if (toClass) {
-      visitor.visitLdcInsn(parameter.getType().isParameterizedType()
-          ? parameter.getType().getArguments().get(0).toJvmType()
-          : parameter.getType().toJvmType()
-      );
+      visitor.visitLdcInsn(
+          parameter.getType().isParameterizedType()
+              ? parameter.getType().getArguments().get(0).toJvmType()
+              : parameter.getType().toJvmType());
     } else if (toReified) {
       Method reified;
       if (parameter.is(Map.class)) {
@@ -48,22 +53,30 @@ public abstract class ValueWriter implements ParamWriter {
       } else {
         visitor.visitLdcInsn(parameter.getType().toJvmType());
 
-        ArrayWriter.write(visitor, Type.class.getName(), parameter.getType().getArguments(), type ->
-            visitor.visitLdcInsn(type.toJvmType())
-        );
+        ArrayWriter.write(
+            visitor,
+            Type.class.getName(),
+            parameter.getType().getArguments(),
+            type -> visitor.visitLdcInsn(type.toJvmType()));
         reified = Reified.class.getMethod("getParameterized", Type.class, Type[].class);
       }
       Method getType = Reified.class.getDeclaredMethod("getType");
-      visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
-          getMethodDescriptor(reified), false);
-      visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Reified", getType.getName(),
-          getMethodDescriptor(getType), false);
+      visitor.visitMethodInsn(
+          INVOKESTATIC, "io/jooby/Reified", reified.getName(), getMethodDescriptor(reified), false);
+      visitor.visitMethodInsn(
+          INVOKEVIRTUAL,
+          "io/jooby/Reified",
+          getType.getName(),
+          getMethodDescriptor(getType),
+          false);
     }
 
-    visitor.visitMethodInsn(INVOKEINTERFACE,
+    visitor.visitMethodInsn(
+        INVOKEINTERFACE,
         org.objectweb.asm.Type.getInternalName(convertMethod.getDeclaringClass()),
         convertMethod.getName(),
-        getMethodDescriptor(convertMethod), true);
+        getMethodDescriptor(convertMethod),
+        true);
 
     if (toClass || toReified) {
       visitor.visitTypeInsn(CHECKCAST, parameter.getType().toJvmType().getInternalName());
@@ -71,8 +84,12 @@ public abstract class ValueWriter implements ParamWriter {
         visitor.visitVarInsn(ASTORE, 3);
         visitor.visitLdcInsn(parameter.getHttpName());
         visitor.visitVarInsn(ALOAD, 3);
-        visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/exception/MissingValueException",
-            "requireNonNull", "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
+        visitor.visitMethodInsn(
+            INVOKESTATIC,
+            "io/jooby/exception/MissingValueException",
+            "requireNonNull",
+            "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;",
+            false);
         visitor.visitTypeInsn(CHECKCAST, parameter.getType().toJvmType().getInternalName());
       }
     }

@@ -1,14 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Utility class that group one or more completion listeners and execute them in reverse order.
@@ -51,9 +52,13 @@ public class CompletionListeners {
         }
       }
       if (cause != null) {
-        ctx.getRouter().getLog()
-            .error("Completion listener(s) resulted in exception(s): {} {}", ctx.getMethod(),
-                ctx.getRequestPath(), cause);
+        ctx.getRouter()
+            .getLog()
+            .error(
+                "Completion listener(s) resulted in exception(s): {} {}",
+                ctx.getMethod(),
+                ctx.getRequestPath(),
+                cause);
         Stream.concat(Stream.of(cause), Stream.of(cause.getSuppressed()))
             .filter(SneakyThrows::isFatal)
             .findFirst()

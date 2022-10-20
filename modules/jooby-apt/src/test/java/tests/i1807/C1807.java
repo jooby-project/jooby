@@ -1,10 +1,14 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package tests.i1807;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotations.FormParam;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class C1807 {
   @Path("/test/{word}")

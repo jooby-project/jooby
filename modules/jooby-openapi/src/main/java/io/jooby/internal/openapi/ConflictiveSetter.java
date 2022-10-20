@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -15,19 +15,20 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 /**
  * Fix for:
  *
- * Caused by: java.lang.IllegalArgumentException: Conflicting setter definitions for property
- * 	at com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder.getSetter(POJOPropertyBuilder.java:504)
- * 	at io.swagger.v3.core.jackson.ModelResolver.ignore(ModelResolver.java:995)
- * 	at io.swagger.v3.core.jackson.ModelResolver.resolve(ModelResolver.java:572)
+ * <p>Caused by: java.lang.IllegalArgumentException: Conflicting setter definitions for property at
+ * com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder.getSetter(POJOPropertyBuilder.java:504)
+ * at io.swagger.v3.core.jackson.ModelResolver.ignore(ModelResolver.java:995) at
+ * io.swagger.v3.core.jackson.ModelResolver.resolve(ModelResolver.java:572)
  */
 class ConflictiveSetter extends AnnotationIntrospector {
-  @Override public Version version() {
+  @Override
+  public Version version() {
     return Version.unknownVersion();
   }
 
   @Override
-  public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config, AnnotatedMethod setter1,
-      AnnotatedMethod setter2) {
+  public AnnotatedMethod resolveSetterConflict(
+      MapperConfig<?> config, AnnotatedMethod setter1, AnnotatedMethod setter2) {
     Class<?> cls1 = setter1.getRawParameterType(0);
     Class<?> cls2 = setter2.getRawParameterType(0);
     if (isArrayLike(cls1, cls2)) {

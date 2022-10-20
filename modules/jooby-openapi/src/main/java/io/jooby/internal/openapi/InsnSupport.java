@@ -1,15 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
-
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InvokeDynamicInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -19,6 +13,12 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
+
 public class InsnSupport {
 
   private static class NodeIterator implements Iterator<org.objectweb.asm.tree.AbstractInsnNode> {
@@ -27,12 +27,14 @@ public class InsnSupport {
     private AbstractInsnNode node;
     private Function<AbstractInsnNode, AbstractInsnNode> next;
 
-    public NodeIterator(final AbstractInsnNode node,
-        final Function<AbstractInsnNode, AbstractInsnNode> next) {
+    public NodeIterator(
+        final AbstractInsnNode node, final Function<AbstractInsnNode, AbstractInsnNode> next) {
       this(node, null, next);
     }
 
-    public NodeIterator(final AbstractInsnNode node, AbstractInsnNode to,
+    public NodeIterator(
+        final AbstractInsnNode node,
+        AbstractInsnNode to,
         final Function<AbstractInsnNode, AbstractInsnNode> next) {
       this.node = node;
       this.next = next;
@@ -65,22 +67,22 @@ public class InsnSupport {
   }
 
   public static Stream<AbstractInsnNode> prev(AbstractInsnNode node) {
-    return StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(prevIterator(node), Spliterator.ORDERED),
-            false);
+    return StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(prevIterator(node), Spliterator.ORDERED), false);
   }
 
   public static Stream<AbstractInsnNode> prev(AbstractInsnNode from, AbstractInsnNode to) {
-    return StreamSupport
-        .stream(Spliterators
-                .spliteratorUnknownSize(new NodeIterator(from, to, AbstractInsnNode::getPrevious),
-                    Spliterator.ORDERED),
-            false);
+    return StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(
+            new NodeIterator(from, to, AbstractInsnNode::getPrevious), Spliterator.ORDERED),
+        false);
   }
 
   public static Stream<AbstractInsnNode> next(AbstractInsnNode node) {
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new NodeIterator(node,
-        AbstractInsnNode::getNext), Spliterator.ORDERED), false);
+    return StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(
+            new NodeIterator(node, AbstractInsnNode::getNext), Spliterator.ORDERED),
+        false);
   }
 
   public static String toString(InvokeDynamicInsnNode node) {

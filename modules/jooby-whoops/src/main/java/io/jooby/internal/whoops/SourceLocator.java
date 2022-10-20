@@ -1,12 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.whoops;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +23,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SourceLocator {
 
@@ -70,9 +70,10 @@ public class SourceLocator {
 
       String code;
       if (from >= 0 && to <= lines.size()) {
-        code = lines.subList(from, to).stream()
-            .map(l -> l.length() == 0 ? " " : l)
-            .collect(Collectors.joining("\n"));
+        code =
+            lines.subList(from, to).stream()
+                .map(l -> l.length() == 0 ? " " : l)
+                .collect(Collectors.joining("\n"));
       } else {
         code = "";
       }
@@ -86,7 +87,7 @@ public class SourceLocator {
         int to = Math.min(from + toset + size * 2, totalSize);
         int fromset = Math.abs((to - line) - size);
         from = Math.max(from - fromset, 0);
-        return new int[]{from, to};
+        return new int[] {from, to};
       }
       return RANGE;
     }
@@ -120,52 +121,61 @@ public class SourceLocator {
   }
 
   public Source source(String filename) {
-    return sources.computeIfAbsent(filename, f -> {
-      Set<String> skip = Stream.of("target", "bin", "build", "tmp", "temp", "node_modules", "node")
-          .collect(Collectors.toSet());
-      try {
-        List<String> files = Arrays.asList(filename,
-            filename.replace(".", File.separator) + ".java",
-            filename.replace(".", File.separator) + ".kt",
-            filename.replace(".", File.separator) + "Kt.kt");
-        List<Path> source = new ArrayList<>();
-        source.add(Paths.get(filename));
-        log.debug("scanning {}", basedir);
-        Files.walkFileTree(basedir, new SimpleFileVisitor<Path>() {
-          @Override
-          public FileVisitResult preVisitDirectory(final Path dir,
-              final BasicFileAttributes attrs) throws IOException {
-            String dirName = dir.getFileName().toString();
-            if (Files.isHidden(dir) || dirName.startsWith(".")) {
-              log.debug("skipping hidden directory: {}", dir);
-              return FileVisitResult.SKIP_SUBTREE;
-            }
-            if (skip.contains(dirName)) {
-              log.debug("skipping binary directory: {}", dir);
-              return FileVisitResult.SKIP_SUBTREE;
-            }
-            log.debug("found directory: {}", dir);
-            return FileVisitResult.CONTINUE;
-          }
+    return sources.computeIfAbsent(
+        filename,
+        f -> {
+          Set<String> skip =
+              Stream.of("target", "bin", "build", "tmp", "temp", "node_modules", "node")
+                  .collect(Collectors.toSet());
+          try {
+            List<String> files =
+                Arrays.asList(
+                    filename,
+                    filename.replace(".", File.separator) + ".java",
+                    filename.replace(".", File.separator) + ".kt",
+                    filename.replace(".", File.separator) + "Kt.kt");
+            List<Path> source = new ArrayList<>();
+            source.add(Paths.get(filename));
+            log.debug("scanning {}", basedir);
+            Files.walkFileTree(
+                basedir,
+                new SimpleFileVisitor<Path>() {
+                  @Override
+                  public FileVisitResult preVisitDirectory(
+                      final Path dir, final BasicFileAttributes attrs) throws IOException {
+                    String dirName = dir.getFileName().toString();
+                    if (Files.isHidden(dir) || dirName.startsWith(".")) {
+                      log.debug("skipping hidden directory: {}", dir);
+                      return FileVisitResult.SKIP_SUBTREE;
+                    }
+                    if (skip.contains(dirName)) {
+                      log.debug("skipping binary directory: {}", dir);
+                      return FileVisitResult.SKIP_SUBTREE;
+                    }
+                    log.debug("found directory: {}", dir);
+                    return FileVisitResult.CONTINUE;
+                  }
 
-          @Override
-          public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) {
-            return files.stream()
-                .filter(f -> file.toString().endsWith(f))
-                .findFirst()
-                .map(f -> {
-                  source.add(0, file.toAbsolutePath());
-                  return FileVisitResult.TERMINATE;
-                })
-                .orElse(FileVisitResult.CONTINUE);
+                  @Override
+                  public FileVisitResult visitFile(
+                      final Path file, final BasicFileAttributes attrs) {
+                    return files.stream()
+                        .filter(f -> file.toString().endsWith(f))
+                        .findFirst()
+                        .map(
+                            f -> {
+                              source.add(0, file.toAbsolutePath());
+                              return FileVisitResult.TERMINATE;
+                            })
+                        .orElse(FileVisitResult.CONTINUE);
+                  }
+                });
+            return new Source(source.get(0));
+          } catch (IOException x) {
+            return new Source(Paths.get(filename));
+          } finally {
+            log.debug("done scanning {}", basedir);
           }
         });
-        return new Source(source.get(0));
-      } catch (IOException x) {
-        return new Source(Paths.get(filename));
-      } finally {
-        log.debug("done scanning {}", basedir);
-      }
-    });
   }
 }

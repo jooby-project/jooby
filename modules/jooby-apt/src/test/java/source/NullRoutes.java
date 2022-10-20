@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package source;
 
 import io.jooby.annotations.GET;
@@ -14,11 +19,10 @@ public class NullRoutes {
       this.bar = bar;
     }
 
-    public void setBaz(int baz) {
+    public void setBaz(int baz) {}
 
-    }
-
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return foo + ":" + bar;
     }
   }

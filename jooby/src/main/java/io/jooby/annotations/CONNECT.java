@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * HTTP CONNECT verb for mvc routes.
+ *
  * <pre>
  *   class Resources {
  *
@@ -42,16 +43,16 @@ public @interface CONNECT {
   String[] path() default {};
 
   /**
-   * Produce types. Check the <code>Accept</code> header against this value or send a
-   * "406 Not Acceptable" response.
+   * Produce types. Check the <code>Accept</code> header against this value or send a "406 Not
+   * Acceptable" response.
    *
    * @return Produce types.
    */
   String[] produces() default {};
 
   /**
-   * Consume types. Check the <code>Content-Type</code> header against this value or send a
-   * "415 Unsupported Media Type" response.
+   * Consume types. Check the <code>Content-Type</code> header against this value or send a "415
+   * Unsupported Media Type" response.
    *
    * @return Consume types.
    */

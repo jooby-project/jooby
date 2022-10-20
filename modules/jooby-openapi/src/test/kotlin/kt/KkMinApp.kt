@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package kt
 
 import examples.Pet
@@ -36,15 +41,10 @@ fun deletePet(ctx: Context) {
 }
 
 @Operation(
-    summary = "Find a pet by ID",
-    description = "Find a pet by ID or throws a 404",
-    tags = ["find", "query"],
-    parameters = [
-      Parameter(
-          description = "Pet ID",
-          `in` = ParameterIn.PATH
-      )
-    ]
+  summary = "Find a pet by ID",
+  description = "Find a pet by ID or throws a 404",
+  tags = ["find", "query"],
+  parameters = [Parameter(description = "Pet ID", `in` = ParameterIn.PATH)]
 )
 @ApiResponse
 fun findPetById(ctx: Context): Pet {
@@ -59,27 +59,25 @@ fun formPet(ctx: Context): Pet {
   return repo.save(pet)
 }
 
-class KtMinApp : Kooby({
+class KtMinApp :
+  Kooby({
+    path("/api/pets") {
+      get("/") {
+        val repo = ctx.require(PetRepo::class)
+        val query = ctx.query<PetQuery>()
+        repo.pets(query)
+      }
 
-  path("/api/pets") {
-    get("/") {
-      val repo = ctx.require(PetRepo::class)
-      val query = ctx.query<PetQuery>()
-      repo.pets(query)
+      get("/{id}", ::findPetById)
+
+      post("/", ::createPet)
+
+      put("/", ::updatePet)
+
+      patch("/", ::updatePet)
+
+      delete("/{id}", ::deletePet)
+
+      post("/form", ::formPet)
     }
-
-    get("/{id}", ::findPetById)
-
-    post("/", ::createPet)
-
-    put("/", ::updatePet)
-
-    patch("/", ::updatePet)
-
-    delete("/{id}", ::deletePet)
-
-    post("/form", ::formPet)
-  }
-
-
-})
+  })

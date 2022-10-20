@@ -1,18 +1,18 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.exception;
 
-import io.jooby.StatusCode;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.StatusCode;
+
 /**
- * Whether a HTTP method isn't supported. The {@link #getAllow()} contains the supported
- * HTTP methods.
+ * Whether a HTTP method isn't supported. The {@link #getAllow()} contains the supported HTTP
+ * methods.
  *
  * @since 2.4.1
  * @author edgar

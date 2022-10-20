@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -10,11 +10,10 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
-import io.jooby.Registry;
-import io.jooby.exception.RegistryException;
-import io.jooby.ServiceKey;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Registry;
+import io.jooby.ServiceKey;
+import io.jooby.exception.RegistryException;
 
 class GuiceRegistry implements Registry {
   private Injector injector;
@@ -23,15 +22,18 @@ class GuiceRegistry implements Registry {
     this.injector = injector;
   }
 
-  @NonNull @Override public <T> T require(@NonNull Class<T> type) {
+  @NonNull @Override
+  public <T> T require(@NonNull Class<T> type) {
     return require(Key.get(type));
   }
 
-  @NonNull @Override public <T> T require(@NonNull Class<T> type, @NonNull String name) {
+  @NonNull @Override
+  public <T> T require(@NonNull Class<T> type, @NonNull String name) {
     return require(Key.get(type, Names.named(name)));
   }
 
-  @NonNull @Override public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
+  @NonNull @Override
+  public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     String name = key.getName();
     return name == null ? require(key.getType()) : require(key.getType(), name);
   }

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -23,8 +23,8 @@ public class UtowCompletionListener implements ExchangeCompletionListener {
     listeners.addListener(listener);
   }
 
-  @Override public void exchangeEvent(HttpServerExchange exchange,
-      NextListener nextListener) {
+  @Override
+  public void exchangeEvent(HttpServerExchange exchange, NextListener nextListener) {
     try {
       listeners.run(ctx);
     } finally {

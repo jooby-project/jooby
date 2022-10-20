@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
 
 import io.jooby.Context;
@@ -14,24 +19,46 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 
 @OpenAPIDefinition(
-    info = @Info(
-        extensions = @Extension(name = "api-json", properties = @ExtensionProperty(name = "properties", value = "{enabled: true}", parseValue = true))
-    )
-)
-@Tags(@Tag(name = "tag", extensions = @Extension(name = "tag", properties = @ExtensionProperty(name = "properties", value = "{value: 45}", parseValue = true))))
+    info =
+        @Info(
+            extensions =
+                @Extension(
+                    name = "api-json",
+                    properties =
+                        @ExtensionProperty(
+                            name = "properties",
+                            value = "{enabled: true}",
+                            parseValue = true))))
+@Tags(
+    @Tag(
+        name = "tag",
+        extensions =
+            @Extension(
+                name = "tag",
+                properties =
+                    @ExtensionProperty(
+                        name = "properties",
+                        value = "{value: 45}",
+                        parseValue = true))))
 public class ExtensionApp extends Jooby {
   {
     get("/op/{q}", this::extension);
   }
 
-  @Operation(extensions = {
-      @Extension(properties = {
-          @ExtensionProperty(name = "x", value = "y"),
-          @ExtensionProperty(name = "y", value = "z")
+  @Operation(
+      extensions = {
+        @Extension(
+            properties = {
+              @ExtensionProperty(name = "x", value = "y"),
+              @ExtensionProperty(name = "y", value = "z")
+            })
       })
-  })
-  @Parameters(@Parameter(name = "q", extensions = @Extension(properties = @ExtensionProperty(name = "q", value = "ext"))))
-  @ApiResponse(extensions = @Extension(properties = @ExtensionProperty(name = "rsp", value = "ext")))
+  @Parameters(
+      @Parameter(
+          name = "q",
+          extensions = @Extension(properties = @ExtensionProperty(name = "q", value = "ext"))))
+  @ApiResponse(
+      extensions = @Extension(properties = @ExtensionProperty(name = "rsp", value = "ext")))
   private String extension(Context context) {
     return context.path("q").value();
   }

@@ -1,13 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
-
-import io.jooby.Context;
-import io.jooby.QueryString;
-import io.jooby.SneakyThrows;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -16,6 +12,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
+
+import io.jooby.Context;
+import io.jooby.QueryString;
+import io.jooby.SneakyThrows;
 
 public final class UrlParser {
   private static final char SPACE = 0x20;
@@ -36,8 +36,8 @@ public final class UrlParser {
     return decodeComponent(value, 0, value.length(), StandardCharsets.UTF_8, true);
   }
 
-  private static void decodeParams(HashValue root, String s, int from, Charset charset,
-      int paramsLimit) {
+  private static void decodeParams(
+      HashValue root, String s, int from, Charset charset, int paramsLimit) {
     int len = s.length();
     if (from >= len) {
       return;
@@ -77,8 +77,8 @@ public final class UrlParser {
     addParam(root, s, nameStart, valueStart, i, charset);
   }
 
-  private static boolean addParam(HashValue root, String s, int nameStart, int valueStart,
-      int valueEnd, Charset charset) {
+  private static boolean addParam(
+      HashValue root, String s, int nameStart, int valueStart, int valueEnd, Charset charset) {
     if (nameStart >= valueEnd) {
       return false;
     }
@@ -91,8 +91,8 @@ public final class UrlParser {
     return true;
   }
 
-  private static String decodeComponent(String s, int from, int toExcluded, Charset charset,
-      boolean isPath) {
+  private static String decodeComponent(
+      String s, int from, int toExcluded, Charset charset, boolean isPath) {
     int len = toExcluded - from;
     if (len <= 0) {
       return "";
@@ -158,10 +158,11 @@ public final class UrlParser {
 
   /**
    * Helper to decode half of a hexadecimal number from a string.
-   * @param c The ASCII character of the hexadecimal number to decode.
-   * Must be in the range {@code [0-9a-fA-F]}.
-   * @return The hexadecimal value represented in the ASCII character
-   * given, or {@code -1} if the character is invalid.
+   *
+   * @param c The ASCII character of the hexadecimal number to decode. Must be in the range {@code
+   *     [0-9a-fA-F]}.
+   * @return The hexadecimal value represented in the ASCII character given, or {@code -1} if the
+   *     character is invalid.
    */
   private static int decodeHexNibble(final char c) {
     // Character.digit() is not used here, as it addresses a larger
@@ -178,15 +179,14 @@ public final class UrlParser {
     return -1;
   }
 
-  /**
-   * Decode a 2-digit hex byte from within a string.
-   */
+  /** Decode a 2-digit hex byte from within a string. */
   private static byte decodeHexByte(CharSequence s, int pos) {
     int hi = decodeHexNibble(s.charAt(pos));
     int lo = decodeHexNibble(s.charAt(pos + 1));
     if (hi == -1 || lo == -1) {
-      throw new IllegalArgumentException(String.format(
-          "invalid hex byte '%s' at index %d of '%s'", s.subSequence(pos, pos + 2), pos, s));
+      throw new IllegalArgumentException(
+          String.format(
+              "invalid hex byte '%s' at index %d of '%s'", s.subSequence(pos, pos + 2), pos, s));
     }
     return (byte) ((hi << 4) + lo);
   }

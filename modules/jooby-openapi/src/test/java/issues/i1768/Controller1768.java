@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i1768;
 
 import io.jooby.annotations.GET;
@@ -10,18 +15,12 @@ public class Controller1768 {
 
   @Hidden
   @GET("/hidden-with-annotation")
-  public void hiddenWithAnnotation() {
-
-  }
+  public void hiddenWithAnnotation() {}
 
   @Operation(hidden = true)
   @GET("/hidden-with-operation")
-  public void hiddenWithOperation() {
-
-  }
+  public void hiddenWithOperation() {}
 
   @GET("/not-hidden")
-  public void notHidden() {
-
-  }
+  public void notHidden() {}
 }

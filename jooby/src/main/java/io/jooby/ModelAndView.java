@@ -1,15 +1,16 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Used by template engines to renderer views.
@@ -42,7 +43,7 @@ public class ModelAndView {
   /**
    * Creates a new model and view.
    *
-   * @param view View name  must include file extension.
+   * @param view View name must include file extension.
    */
   public ModelAndView(@NonNull String view) {
     this(view, new HashMap<>());
@@ -72,9 +73,8 @@ public class ModelAndView {
   }
 
   /**
-   * Sets the locale used when rendering the view, if the template
-   * engine supports setting it. Specifying {@code null} triggers a
-   * fallback to a locale determined by the current request.
+   * Sets the locale used when rendering the view, if the template engine supports setting it.
+   * Specifying {@code null} triggers a fallback to a locale determined by the current request.
    *
    * @param locale The locale used when rendering the view.
    * @return This instance.
@@ -103,9 +103,8 @@ public class ModelAndView {
   }
 
   /**
-   * Returns the locale used when rendering the view. Defaults to
-   * {@code null}, which triggers a fallback to a locale
-   * determined by the current request.
+   * Returns the locale used when rendering the view. Defaults to {@code null}, which triggers a
+   * fallback to a locale determined by the current request.
    *
    * @return The locale used when rendering the view.
    */
@@ -113,7 +112,8 @@ public class ModelAndView {
     return locale;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return view;
   }
 }

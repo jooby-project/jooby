@@ -1,15 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.FileAsset;
-import io.jooby.internal.JarAsset;
-import io.jooby.internal.URLAsset;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
@@ -19,6 +14,11 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.internal.FileAsset;
+import io.jooby.internal.JarAsset;
+import io.jooby.internal.URLAsset;
 
 /**
  * Represent an static resource file. Asset from file system and classpath are supported.
@@ -40,6 +40,7 @@ public interface Asset extends AutoCloseable {
 
   /**
    * Creates a URL asset with the given path.
+   *
    * @param path Asset path.
    * @param resource Asset URL.
    * @return URL asset.
@@ -102,8 +103,7 @@ public interface Asset extends AutoCloseable {
   /**
    * @return Asset media type.
    */
-  @NonNull
-  MediaType getContentType();
+  @NonNull MediaType getContentType();
 
   /**
    * @return Asset content.

@@ -1,20 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.FileUpload;
-import io.jooby.SneakyThrows;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.jetty.server.MultiPartFormInputStream;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.FileUpload;
+import io.jooby.SneakyThrows;
 
 public class JettyFileUpload implements FileUpload {
   private final MultiPartFormInputStream.MultiPart upload;
@@ -23,15 +23,18 @@ public class JettyFileUpload implements FileUpload {
     this.upload = upload;
   }
 
-  @NonNull @Override public String getName() {
+  @NonNull @Override
+  public String getName() {
     return upload.getName();
   }
 
-  @Override public String getFileName() {
+  @Override
+  public String getFileName() {
     return upload.getSubmittedFileName();
   }
 
-  @Override public byte[] bytes() {
+  @Override
+  public byte[] bytes() {
     try {
       byte[] bytes = upload.getBytes();
       if (bytes == null) {
@@ -43,7 +46,8 @@ public class JettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public InputStream stream() {
+  @Override
+  public InputStream stream() {
     try {
       return upload.getInputStream();
     } catch (IOException x) {
@@ -51,11 +55,13 @@ public class JettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public String getContentType() {
+  @Override
+  public String getContentType() {
     return upload.getContentType();
   }
 
-  @Override public Path path() {
+  @Override
+  public Path path() {
     try {
       if (upload.getFile() == null) {
         upload.write("jetty" + System.currentTimeMillis() + ".tmp");
@@ -66,11 +72,13 @@ public class JettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public long getFileSize() {
+  @Override
+  public long getFileSize() {
     return upload.getSize();
   }
 
-  @Override public void destroy() {
+  @Override
+  public void destroy() {
     try {
       upload.cleanUp();
       upload.delete();
@@ -79,7 +87,8 @@ public class JettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return getFileName();
   }
 }

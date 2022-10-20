@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
 
 import io.jooby.Context;
@@ -14,9 +19,15 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
     name = "myOauth2Security",
     type = SecuritySchemeType.OAUTH2,
     in = SecuritySchemeIn.HEADER,
-    flows = @OAuthFlows(
-        implicit = @OAuthFlow(authorizationUrl = "http://url.com/auth",
-            scopes = @OAuthScope(name = "write:pets", description = "modify pets in your account"))))
+    flows =
+        @OAuthFlows(
+            implicit =
+                @OAuthFlow(
+                    authorizationUrl = "http://url.com/auth",
+                    scopes =
+                        @OAuthScope(
+                            name = "write:pets",
+                            description = "modify pets in your account"))))
 public class SecuritySchemeApp extends Jooby {
   {
     get("/ss", this::extension);

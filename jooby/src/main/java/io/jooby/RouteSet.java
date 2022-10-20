@@ -1,12 +1,13 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import static java.util.Collections.EMPTY_LIST;
+import static java.util.Optional.ofNullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,12 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import static java.util.Collections.EMPTY_LIST;
-import static java.util.Optional.ofNullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
- * Give you access to all routes created inside a {@link Router#path(String, Runnable)}.
- * Allow to globally apply attributes or metadata.
+ * Give you access to all routes created inside a {@link Router#path(String, Runnable)}. Allow to
+ * globally apply attributes or metadata.
  *
  * @author edgar
  * @since 2.7.3
@@ -72,11 +73,12 @@ public class RouteSet {
    * @return This route.
    */
   public @NonNull RouteSet setProduces(@NonNull Collection<MediaType> produces) {
-    routes.forEach(it -> {
-      if (it.getProduces().isEmpty()) {
-        it.setProduces(produces);
-      }
-    });
+    routes.forEach(
+        it -> {
+          if (it.getProduces().isEmpty()) {
+            it.setProduces(produces);
+          }
+        });
     return this;
   }
 
@@ -97,11 +99,12 @@ public class RouteSet {
    * @return This route.
    */
   public @NonNull RouteSet setConsumes(@NonNull Collection<MediaType> consumes) {
-    routes.forEach(it -> {
-      if (it.getConsumes().isEmpty()) {
-        it.setConsumes(consumes);
-      }
-    });
+    routes.forEach(
+        it -> {
+          if (it.getConsumes().isEmpty()) {
+            it.setConsumes(consumes);
+          }
+        });
     return this;
   }
 
@@ -132,11 +135,10 @@ public class RouteSet {
    * Set executor key. The route is going to use the given key to fetch an executor. Possible values
    * are:
    *
-   * - <code>null</code>: no specific executor, uses the default Jooby logic to choose one, based
-   *    on the value of {@link ExecutionMode};
-   * - <code>worker</code>: use the executor provided by the server.
-   * - <code>arbitrary name</code>: use an named executor which as registered using
-   *    {@link Router#executor(String, Executor)}.
+   * <p>- <code>null</code>: no specific executor, uses the default Jooby logic to choose one, based
+   * on the value of {@link ExecutionMode}; - <code>worker</code>: use the executor provided by the
+   * server. - <code>arbitrary name</code>: use an named executor which as registered using {@link
+   * Router#executor(String, Executor)}.
    *
    * @param executorKey Executor key.
    * @return This route.

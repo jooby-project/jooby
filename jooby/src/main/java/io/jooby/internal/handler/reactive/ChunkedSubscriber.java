@@ -1,9 +1,11 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.handler.reactive;
+
+import org.slf4j.Logger;
 
 import io.jooby.Context;
 import io.jooby.MediaType;
@@ -11,7 +13,6 @@ import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Sender;
 import io.jooby.Server;
-import org.slf4j.Logger;
 
 public class ChunkedSubscriber {
 
@@ -50,13 +51,15 @@ public class ChunkedSubscriber {
         }
       }
 
-      sender.write(data, (context, x) -> {
-        if (x == null) {
-          subscription.request(1);
-        } else {
-          onError(x, true);
-        }
-      });
+      sender.write(
+          data,
+          (context, x) -> {
+            if (x == null) {
+              subscription.request(1);
+            } else {
+              onError(x, true);
+            }
+          });
     } catch (Exception x) {
       onError(x, true);
     }
@@ -86,11 +89,13 @@ public class ChunkedSubscriber {
   public void onComplete() {
     if (responseType != null && responseType.isJson()) {
       responseType = null;
-      sender.write(JSON_RBRACKET, (ctx, x) -> {
-        if (x != null) {
-          onError(x);
-        }
-      });
+      sender.write(
+          JSON_RBRACKET,
+          (ctx, x) -> {
+            if (x != null) {
+              onError(x);
+            }
+          });
     }
     sender.close();
   }

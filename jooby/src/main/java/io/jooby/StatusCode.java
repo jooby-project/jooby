@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -8,14 +8,13 @@ package io.jooby;
 /**
  * HTTP status codes.
  *
- * <p>
- * This code has been borrowed from <a href="http://spring.io/">Spring</a>.
- * </p>
+ * <p>This code has been borrowed from <a href="http://spring.io/">Spring</a>.
  *
  * @author Arjen Poutsma
- * @see <a href="http://www.iana.org/assignments/http-status-codes">HTTP StatusCode Code Registry</a>
+ * @see <a href="http://www.iana.org/assignments/http-status-codes">HTTP StatusCode Code
+ *     Registry</a>
  * @see <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes -
- *      Wikipedia</a>
+ *     Wikipedia</a>
  */
 public final class StatusCode {
 
@@ -46,8 +45,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.1.2">HTTP/1.1</a>
    */
-  public static final StatusCode SWITCHING_PROTOCOLS = new StatusCode(SWITCHING_PROTOCOLS_CODE,
-      "Switching Protocols");
+  public static final StatusCode SWITCHING_PROTOCOLS =
+      new StatusCode(SWITCHING_PROTOCOLS_CODE, "Switching Protocols");
   /**
    * {@code 102 Processing}.
    *
@@ -65,7 +64,7 @@ public final class StatusCode {
    * {@code 103 Checkpoint}.
    *
    * @see <a href="http://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal for
-   *      supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
+   *     supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
    */
   public static final int CHECKPOINT_CODE = 103;
 
@@ -73,7 +72,7 @@ public final class StatusCode {
    * {@code 103 Checkpoint}.
    *
    * @see <a href="http://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal for
-   *      supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
+   *     supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
    */
   public static final StatusCode CHECKPOINT = new StatusCode(CHECKPOINT_CODE, "Checkpoint");
 
@@ -129,9 +128,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.4">HTTP/1.1</a>
    */
-  public static final StatusCode NON_AUTHORITATIVE_INFORMATION = new StatusCode(
-      NON_AUTHORITATIVE_INFORMATION_CODE,
-      "Non-Authoritative Information");
+  public static final StatusCode NON_AUTHORITATIVE_INFORMATION =
+      new StatusCode(NON_AUTHORITATIVE_INFORMATION_CODE, "Non-Authoritative Information");
   /**
    * {@code 204 No Content}.
    *
@@ -156,8 +154,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.7">HTTP/1.1</a>
    */
-  public static final StatusCode RESET_CONTENT = new StatusCode(RESET_CONTENT_CODE,
-      "Reset Content");
+  public static final StatusCode RESET_CONTENT =
+      new StatusCode(RESET_CONTENT_CODE, "Reset Content");
   /**
    * {@code 206 Partial Content}.
    *
@@ -170,8 +168,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-13">WebDAV</a>
    */
-  public static final StatusCode PARTIAL_CONTENT = new StatusCode(PARTIAL_CONTENT_CODE,
-      "Partial Content");
+  public static final StatusCode PARTIAL_CONTENT =
+      new StatusCode(PARTIAL_CONTENT_CODE, "Partial Content");
   /**
    * {@code 207 Multi-StatusCode}.
    *
@@ -183,8 +181,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-13">WebDAV</a>
    */
-  public static final StatusCode MULTI_STATUS = new StatusCode(MULTI_STATUS_CODE,
-      "Multi-StatusCode");
+  public static final StatusCode MULTI_STATUS =
+      new StatusCode(MULTI_STATUS_CODE, "Multi-StatusCode");
   /**
    * {@code 208 Already Reported}.
    *
@@ -196,8 +194,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc5842#section-7.1">WebDAV Binding Extensions</a>
    */
-  public static final StatusCode ALREADY_REPORTED = new StatusCode(ALREADY_REPORTED_CODE,
-      "Already Reported");
+  public static final StatusCode ALREADY_REPORTED =
+      new StatusCode(ALREADY_REPORTED_CODE, "Already Reported");
   /**
    * {@code 226 IM Used}.
    *
@@ -224,8 +222,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.1">HTTP/1.1</a>
    */
-  public static final StatusCode MULTIPLE_CHOICES = new StatusCode(MULTIPLE_CHOICES_CODE,
-      "Multiple Choices");
+  public static final StatusCode MULTIPLE_CHOICES =
+      new StatusCode(MULTIPLE_CHOICES_CODE, "Multiple Choices");
   /**
    * {@code 301 Moved Permanently}.
    *
@@ -237,8 +235,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.2">HTTP/1.1</a>
    */
-  public static final StatusCode MOVED_PERMANENTLY = new StatusCode(MOVED_PERMANENTLY_CODE,
-      "Moved Permanently");
+  public static final StatusCode MOVED_PERMANENTLY =
+      new StatusCode(MOVED_PERMANENTLY_CODE, "Moved Permanently");
   /**
    * {@code 302 Found}.
    *
@@ -299,23 +297,23 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.8">HTTP/1.1</a>
    */
-  public static final StatusCode TEMPORARY_REDIRECT = new StatusCode(TEMPORARY_REDIRECT_CODE,
-      "Temporary Redirect");
+  public static final StatusCode TEMPORARY_REDIRECT =
+      new StatusCode(TEMPORARY_REDIRECT_CODE, "Temporary Redirect");
   /**
    * {@code 308 Resume Incomplete}.
    *
    * @see <a href="http://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal for
-   *      supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
+   *     supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
    */
   public static final int RESUME_INCOMPLETE_CODE = 308;
   /**
    * {@code 308 Resume Incomplete}.
    *
    * @see <a href="http://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal for
-   *      supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
+   *     supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
    */
-  public static final StatusCode RESUME_INCOMPLETE = new StatusCode(RESUME_INCOMPLETE_CODE,
-      "Resume Incomplete");
+  public static final StatusCode RESUME_INCOMPLETE =
+      new StatusCode(RESUME_INCOMPLETE_CODE, "Resume Incomplete");
 
   // --- 4xx Client Error ---
 
@@ -355,8 +353,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.3">HTTP/1.1</a>
    */
-  public static final StatusCode PAYMENT_REQUIRED = new StatusCode(PAYMENT_REQUIRED_CODE,
-      "Payment Required");
+  public static final StatusCode PAYMENT_REQUIRED =
+      new StatusCode(PAYMENT_REQUIRED_CODE, "Payment Required");
   /**
    * {@code 403 Forbidden}.
    *
@@ -392,8 +390,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.6">HTTP/1.1</a>
    */
-  public static final StatusCode METHOD_NOT_ALLOWED = new StatusCode(METHOD_NOT_ALLOWED_CODE,
-      "Method Not Allowed");
+  public static final StatusCode METHOD_NOT_ALLOWED =
+      new StatusCode(METHOD_NOT_ALLOWED_CODE, "Method Not Allowed");
   /**
    * {@code 406 Not Acceptable}.
    *
@@ -405,8 +403,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.7">HTTP/1.1</a>
    */
-  public static final StatusCode NOT_ACCEPTABLE = new StatusCode(NOT_ACCEPTABLE_CODE,
-      "Not Acceptable");
+  public static final StatusCode NOT_ACCEPTABLE =
+      new StatusCode(NOT_ACCEPTABLE_CODE, "Not Acceptable");
   /**
    * {@code 407 Proxy Authentication Required}.
    *
@@ -418,9 +416,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.8">HTTP/1.1</a>
    */
-  public static final StatusCode PROXY_AUTHENTICATION_REQUIRED = new StatusCode(
-      PROXY_AUTHENTICATION_REQUIRED_CODE,
-      "Proxy Authentication Required");
+  public static final StatusCode PROXY_AUTHENTICATION_REQUIRED =
+      new StatusCode(PROXY_AUTHENTICATION_REQUIRED_CODE, "Proxy Authentication Required");
   /**
    * {@code 408 Request Timeout}.
    *
@@ -432,8 +429,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.9">HTTP/1.1</a>
    */
-  public static final StatusCode REQUEST_TIMEOUT = new StatusCode(REQUEST_TIMEOUT_CODE,
-      "Request Timeout");
+  public static final StatusCode REQUEST_TIMEOUT =
+      new StatusCode(REQUEST_TIMEOUT_CODE, "Request Timeout");
   /**
    * {@code 409 Conflict}.
    *
@@ -469,8 +466,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.12">HTTP/1.1</a>
    */
-  public static final StatusCode LENGTH_REQUIRED = new StatusCode(LENGTH_REQUIRED_CODE,
-      "Length Required");
+  public static final StatusCode LENGTH_REQUIRED =
+      new StatusCode(LENGTH_REQUIRED_CODE, "Length Required");
   /**
    * {@code 412 Precondition failed}.
    *
@@ -482,8 +479,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.13">HTTP/1.1</a>
    */
-  public static final StatusCode PRECONDITION_FAILED = new StatusCode(PRECONDITION_FAILED_CODE,
-      "Precondition Failed");
+  public static final StatusCode PRECONDITION_FAILED =
+      new StatusCode(PRECONDITION_FAILED_CODE, "Precondition Failed");
   /**
    * {@code 413 Request Entity Too Large}.
    *
@@ -495,9 +492,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.14">HTTP/1.1</a>
    */
-  public static final StatusCode REQUEST_ENTITY_TOO_LARGE = new StatusCode(
-      REQUEST_ENTITY_TOO_LARGE_CODE,
-      "Request Entity Too Large");
+  public static final StatusCode REQUEST_ENTITY_TOO_LARGE =
+      new StatusCode(REQUEST_ENTITY_TOO_LARGE_CODE, "Request Entity Too Large");
   /**
    * {@code 414 Request-URI Too Long}.
    *
@@ -509,8 +505,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.15">HTTP/1.1</a>
    */
-  public static final StatusCode REQUEST_URI_TOO_LONG = new StatusCode(REQUEST_URI_TOO_LONG_CODE,
-      "Request-URI Too Long");
+  public static final StatusCode REQUEST_URI_TOO_LONG =
+      new StatusCode(REQUEST_URI_TOO_LONG_CODE, "Request-URI Too Long");
   /**
    * {@code 415 Unsupported Media Type}.
    *
@@ -522,9 +518,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.16">HTTP/1.1</a>
    */
-  public static final StatusCode UNSUPPORTED_MEDIA_TYPE = new StatusCode(
-      UNSUPPORTED_MEDIA_TYPE_CODE,
-      "Unsupported Media Type");
+  public static final StatusCode UNSUPPORTED_MEDIA_TYPE =
+      new StatusCode(UNSUPPORTED_MEDIA_TYPE_CODE, "Unsupported Media Type");
   /**
    * {@code 416 Requested Range Not Satisfiable}.
    *
@@ -536,9 +531,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.17">HTTP/1.1</a>
    */
-  public static final StatusCode REQUESTED_RANGE_NOT_SATISFIABLE = new StatusCode(
-      REQUESTED_RANGE_NOT_SATISFIABLE_CODE,
-      "Requested range not satisfiable");
+  public static final StatusCode REQUESTED_RANGE_NOT_SATISFIABLE =
+      new StatusCode(REQUESTED_RANGE_NOT_SATISFIABLE_CODE, "Requested range not satisfiable");
   /**
    * {@code 417 Expectation Failed}.
    *
@@ -550,8 +544,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.18">HTTP/1.1</a>
    */
-  public static final StatusCode EXPECTATION_FAILED = new StatusCode(EXPECTATION_FAILED_CODE,
-      "Expectation Failed");
+  public static final StatusCode EXPECTATION_FAILED =
+      new StatusCode(EXPECTATION_FAILED_CODE, "Expectation Failed");
   /**
    * {@code 418 I'm a teapot}.
    *
@@ -575,8 +569,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.2">WebDAV</a>
    */
-  public static final StatusCode UNPROCESSABLE_ENTITY = new StatusCode(UNPROCESSABLE_ENTITY_CODE,
-      "Unprocessable Entity");
+  public static final StatusCode UNPROCESSABLE_ENTITY =
+      new StatusCode(UNPROCESSABLE_ENTITY_CODE, "Unprocessable Entity");
   /**
    * {@code 423 Locked}.
    *
@@ -600,63 +594,68 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.4">WebDAV</a>
    */
-  public static final StatusCode FAILED_DEPENDENCY = new StatusCode(FAILED_DEPENDENCY_CODE,
-      "Failed Dependency");
+  public static final StatusCode FAILED_DEPENDENCY =
+      new StatusCode(FAILED_DEPENDENCY_CODE, "Failed Dependency");
   /**
    * {@code 426 Upgrade Required}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2817#section-6">Upgrading to TLS Within
-   *      HTTP/1.1</a>
+   *     HTTP/1.1</a>
    */
   public static final int UPGRADE_REQUIRED_CODE = 426;
   /**
    * {@code 426 Upgrade Required}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2817#section-6">Upgrading to TLS Within
-   *      HTTP/1.1</a>
+   *     HTTP/1.1</a>
    */
-  public static final StatusCode UPGRADE_REQUIRED = new StatusCode(UPGRADE_REQUIRED_CODE,
-      "Upgrade Required");
+  public static final StatusCode UPGRADE_REQUIRED =
+      new StatusCode(UPGRADE_REQUIRED_CODE, "Upgrade Required");
   /**
    * {@code 428 Precondition Required}.
    *
-   * @see <a href="http://tools.ietf.org/html/rfc6585#section-3">Additional HTTP StatusCode Codes</a>
+   * @see <a href="http://tools.ietf.org/html/rfc6585#section-3">Additional HTTP StatusCode
+   *     Codes</a>
    */
   public static final int PRECONDITION_REQUIRED_CODE = 428;
   /**
    * {@code 428 Precondition Required}.
    *
-   * @see <a href="http://tools.ietf.org/html/rfc6585#section-3">Additional HTTP StatusCode Codes</a>
+   * @see <a href="http://tools.ietf.org/html/rfc6585#section-3">Additional HTTP StatusCode
+   *     Codes</a>
    */
-  public static final StatusCode PRECONDITION_REQUIRED = new StatusCode(PRECONDITION_REQUIRED_CODE,
-      "Precondition Required");
+  public static final StatusCode PRECONDITION_REQUIRED =
+      new StatusCode(PRECONDITION_REQUIRED_CODE, "Precondition Required");
   /**
    * {@code 429 Too Many Requests}.
    *
-   * @see <a href="http://tools.ietf.org/html/rfc6585#section-4">Additional HTTP StatusCode Codes</a>
+   * @see <a href="http://tools.ietf.org/html/rfc6585#section-4">Additional HTTP StatusCode
+   *     Codes</a>
    */
   public static final int TOO_MANY_REQUESTS_CODE = 429;
   /**
    * {@code 429 Too Many Requests}.
    *
-   * @see <a href="http://tools.ietf.org/html/rfc6585#section-4">Additional HTTP StatusCode Codes</a>
+   * @see <a href="http://tools.ietf.org/html/rfc6585#section-4">Additional HTTP StatusCode
+   *     Codes</a>
    */
-  public static final StatusCode TOO_MANY_REQUESTS = new StatusCode(TOO_MANY_REQUESTS_CODE,
-      "Too Many Requests");
+  public static final StatusCode TOO_MANY_REQUESTS =
+      new StatusCode(TOO_MANY_REQUESTS_CODE, "Too Many Requests");
   /**
    * {@code 431 Request Header Fields Too Large}.
    *
-   * @see <a href="http://tools.ietf.org/html/rfc6585#section-5">Additional HTTP StatusCode Codes</a>
+   * @see <a href="http://tools.ietf.org/html/rfc6585#section-5">Additional HTTP StatusCode
+   *     Codes</a>
    */
   public static final int REQUEST_HEADER_FIELDS_TOO_LARGE_CODE = 431;
   /**
    * {@code 431 Request Header Fields Too Large}.
    *
-   * @see <a href="http://tools.ietf.org/html/rfc6585#section-5">Additional HTTP StatusCode Codes</a>
+   * @see <a href="http://tools.ietf.org/html/rfc6585#section-5">Additional HTTP StatusCode
+   *     Codes</a>
    */
-  public static final StatusCode REQUEST_HEADER_FIELDS_TOO_LARGE = new StatusCode(
-      REQUEST_HEADER_FIELDS_TOO_LARGE_CODE,
-      "Request Header Fields Too Large");
+  public static final StatusCode REQUEST_HEADER_FIELDS_TOO_LARGE =
+      new StatusCode(REQUEST_HEADER_FIELDS_TOO_LARGE_CODE, "Request Header Fields Too Large");
 
   // --- 5xx Server Error ---
 
@@ -683,8 +682,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.2">HTTP/1.1</a>
    */
-  public static final StatusCode NOT_IMPLEMENTED = new StatusCode(NOT_IMPLEMENTED_CODE,
-      "Not Implemented");
+  public static final StatusCode NOT_IMPLEMENTED =
+      new StatusCode(NOT_IMPLEMENTED_CODE, "Not Implemented");
   /**
    * {@code 502 Bad Gateway}.
    *
@@ -708,8 +707,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.4">HTTP/1.1</a>
    */
-  public static final StatusCode SERVICE_UNAVAILABLE = new StatusCode(SERVICE_UNAVAILABLE_CODE,
-      "Service Unavailable");
+  public static final StatusCode SERVICE_UNAVAILABLE =
+      new StatusCode(SERVICE_UNAVAILABLE_CODE, "Service Unavailable");
   /**
    * {@code 504 Gateway Timeout}.
    *
@@ -721,8 +720,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.5">HTTP/1.1</a>
    */
-  public static final StatusCode GATEWAY_TIMEOUT = new StatusCode(GATEWAY_TIMEOUT_CODE,
-      "Gateway Timeout");
+  public static final StatusCode GATEWAY_TIMEOUT =
+      new StatusCode(GATEWAY_TIMEOUT_CODE, "Gateway Timeout");
   /**
    * {@code 505 HTTP Version Not Supported}.
    *
@@ -734,25 +733,23 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.6">HTTP/1.1</a>
    */
-  public static final StatusCode HTTP_VERSION_NOT_SUPPORTED = new StatusCode(
-      HTTP_VERSION_NOT_SUPPORTED_CODE,
-      "HTTP Version not supported");
+  public static final StatusCode HTTP_VERSION_NOT_SUPPORTED =
+      new StatusCode(HTTP_VERSION_NOT_SUPPORTED_CODE, "HTTP Version not supported");
   /**
    * {@code 506 Variant Also Negotiates}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2295#section-8.1">Transparent Content
-   *      Negotiation</a>
+   *     Negotiation</a>
    */
   public static final int VARIANT_ALSO_NEGOTIATES_CODE = 506;
   /**
    * {@code 506 Variant Also Negotiates}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2295#section-8.1">Transparent Content
-   *      Negotiation</a>
+   *     Negotiation</a>
    */
-  public static final StatusCode VARIANT_ALSO_NEGOTIATES = new StatusCode(
-      VARIANT_ALSO_NEGOTIATES_CODE,
-      "Variant Also Negotiates");
+  public static final StatusCode VARIANT_ALSO_NEGOTIATES =
+      new StatusCode(VARIANT_ALSO_NEGOTIATES_CODE, "Variant Also Negotiates");
   /**
    * {@code 507 Insufficient Storage}.
    *
@@ -764,8 +761,8 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.5">WebDAV</a>
    */
-  public static final StatusCode INSUFFICIENT_STORAGE = new StatusCode(INSUFFICIENT_STORAGE_CODE,
-      "Insufficient Storage");
+  public static final StatusCode INSUFFICIENT_STORAGE =
+      new StatusCode(INSUFFICIENT_STORAGE_CODE, "Insufficient Storage");
   /**
    * {@code 508 Loop Detected}.
    *
@@ -777,18 +774,13 @@ public final class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc5842#section-7.2">WebDAV Binding Extensions</a>
    */
-  public static final StatusCode LOOP_DETECTED = new StatusCode(LOOP_DETECTED_CODE,
-      "Loop Detected");
-  /**
-   * {@code 509 Bandwidth Limit Exceeded}.
-   */
+  public static final StatusCode LOOP_DETECTED =
+      new StatusCode(LOOP_DETECTED_CODE, "Loop Detected");
+  /** {@code 509 Bandwidth Limit Exceeded}. */
   public static final int BANDWIDTH_LIMIT_EXCEEDED_CODE = 509;
-  /**
-   * {@code 509 Bandwidth Limit Exceeded}.
-   */
-  public static final StatusCode BANDWIDTH_LIMIT_EXCEEDED = new StatusCode(
-      BANDWIDTH_LIMIT_EXCEEDED_CODE,
-      "Bandwidth Limit Exceeded");
+  /** {@code 509 Bandwidth Limit Exceeded}. */
+  public static final StatusCode BANDWIDTH_LIMIT_EXCEEDED =
+      new StatusCode(BANDWIDTH_LIMIT_EXCEEDED_CODE, "Bandwidth Limit Exceeded");
   /**
    * {@code 510 Not Extended}.
    *
@@ -804,17 +796,18 @@ public final class StatusCode {
   /**
    * {@code 511 Network Authentication Required}.
    *
-   * @see <a href="http://tools.ietf.org/html/rfc6585#section-6">Additional HTTP StatusCode Codes</a>
+   * @see <a href="http://tools.ietf.org/html/rfc6585#section-6">Additional HTTP StatusCode
+   *     Codes</a>
    */
   public static final int NETWORK_AUTHENTICATION_REQUIRED_CODE = 511;
   /**
    * {@code 511 Network Authentication Required}.
    *
-   * @see <a href="http://tools.ietf.org/html/rfc6585#section-6">Additional HTTP StatusCode Codes</a>
+   * @see <a href="http://tools.ietf.org/html/rfc6585#section-6">Additional HTTP StatusCode
+   *     Codes</a>
    */
-  public static final StatusCode NETWORK_AUTHENTICATION_REQUIRED = new StatusCode(
-      NETWORK_AUTHENTICATION_REQUIRED_CODE,
-      "Network Authentication Required");
+  public static final StatusCode NETWORK_AUTHENTICATION_REQUIRED =
+      new StatusCode(NETWORK_AUTHENTICATION_REQUIRED_CODE, "Network Authentication Required");
 
   private final int value;
 
@@ -839,22 +832,22 @@ public final class StatusCode {
     return reason;
   }
 
-  /**
-   * Return a string representation of this status code.
-   */
+  /** Return a string representation of this status code. */
   @Override
   public String toString() {
     return reason() + " (" + value + ")";
   }
 
-  @Override public boolean equals(Object obj) {
+  @Override
+  public boolean equals(Object obj) {
     if (obj instanceof StatusCode) {
       return this.value == ((StatusCode) obj).value;
     }
     return false;
   }
 
-  @Override public int hashCode() {
+  @Override
+  public int hashCode() {
     return value;
   }
 
@@ -988,7 +981,7 @@ public final class StatusCode {
       case NETWORK_AUTHENTICATION_REQUIRED_CODE:
         return NETWORK_AUTHENTICATION_REQUIRED;
       default:
-       return new StatusCode(statusCode, Integer.toString(statusCode));
+        return new StatusCode(statusCode, Integer.toString(statusCode));
     }
   }
 }

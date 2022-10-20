@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -38,9 +38,16 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final Http2Configurer<Http2Extension, ChannelInboundHandler> http2;
   private final boolean is100ContinueExpected;
 
-  public NettyPipeline(ScheduledExecutorService service, Router router, HttpDataFactory factory,
-      SslContext sslContext, Http2Configurer<Http2Extension, ChannelInboundHandler> http2,
-      boolean defaultHeaders, Integer compressionLevel, int bufferSize, long maxRequestSize,
+  public NettyPipeline(
+      ScheduledExecutorService service,
+      Router router,
+      HttpDataFactory factory,
+      SslContext sslContext,
+      Http2Configurer<Http2Extension, ChannelInboundHandler> http2,
+      boolean defaultHeaders,
+      Integer compressionLevel,
+      int bufferSize,
+      long maxRequestSize,
       boolean is100ContinueExpected) {
     this.service = service;
     this.router = router;
@@ -64,8 +71,9 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       http11(p);
     } else {
       Http2Settings settings = new Http2Settings(maxRequestSize, sslContext != null);
-      Http2Extension extension = new Http2Extension(settings,
-          this::http11, this::http11Upgrade, this::http2, this::http2c);
+      Http2Extension extension =
+          new Http2Extension(
+              settings, this::http11, this::http11Upgrade, this::http2, this::http2c);
 
       ChannelInboundHandler handshake = http2.configure(extension);
 
@@ -90,16 +98,18 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     pipeline.addAfter(H2_HANDSHAKE, "http2", factory.get());
   }
 
-  private void http11Upgrade(ChannelPipeline pipeline,
-      Supplier<HttpServerUpgradeHandler.UpgradeCodec> factory) {
+  private void http11Upgrade(
+      ChannelPipeline pipeline, Supplier<HttpServerUpgradeHandler.UpgradeCodec> factory) {
     // direct http1 to h2c
     HttpServerCodec serverCodec = createServerCodec();
     pipeline.addAfter(H2_HANDSHAKE, "codec", serverCodec);
-    pipeline.addAfter("codec", "h2upgrade",
-        new HttpServerUpgradeHandler(serverCodec,
+    pipeline.addAfter(
+        "codec",
+        "h2upgrade",
+        new HttpServerUpgradeHandler(
+            serverCodec,
             protocol -> protocol.toString().equals("h2c") ? factory.get() : null,
-            (int) maxRequestSize)
-    );
+            (int) maxRequestSize));
   }
 
   private void http11(ChannelPipeline p) {
@@ -120,7 +130,13 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   }
 
   private NettyHandler createHandler() {
-    return new NettyHandler(service, router, maxRequestSize, bufferSize, factory, defaultHeaders,
+    return new NettyHandler(
+        service,
+        router,
+        maxRequestSize,
+        bufferSize,
+        factory,
+        defaultHeaders,
         is100ContinueExpected);
   }
 }

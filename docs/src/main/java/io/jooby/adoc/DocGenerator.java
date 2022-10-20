@@ -1,21 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.adoc;
-
-import io.jooby.SneakyThrows;
-import org.apache.commons.io.FileUtils;
-import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.Attributes;
-import org.asciidoctor.Options;
-import org.asciidoctor.Placement;
-import org.asciidoctor.SafeMode;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +21,19 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.FileUtils;
+import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Attributes;
+import org.asciidoctor.Options;
+import org.asciidoctor.Placement;
+import org.asciidoctor.SafeMode;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+
+import io.jooby.SneakyThrows;
 
 public class DocGenerator {
   public static void main(String[] args) throws Exception {
@@ -54,33 +55,44 @@ public class DocGenerator {
     FileUtils.cleanDirectory(outdir.toFile());
 
     /** Copy /images and /js: */
-    copyFile(outdir,
+    copyFile(
+        outdir,
         // images
         basedir.resolve("images"),
         // js
-        basedir.resolve("js")
-    );
+        basedir.resolve("js"));
 
     Asciidoctor asciidoctor = Asciidoctor.Factory.create();
 
-    asciidoctor.convertFile(asciidoc.resolve("index.adoc").toFile(),
-        createOptions(asciidoc, outdir, version, null));
-    Stream.of("usage", "modules", "packaging").forEach(SneakyThrows.throwingConsumer(name -> {
-      Path modules = outdir.resolve(name);
-      Files.createDirectories(modules);
-      Files.walk(asciidoc.resolve(name)).filter(Files::isRegularFile).forEach(module -> {
-        processModule(asciidoctor, asciidoc, module, outdir, name, version);
-      });
-    }));
+    asciidoctor.convertFile(
+        asciidoc.resolve("index.adoc").toFile(), createOptions(asciidoc, outdir, version, null));
+    Stream.of("usage", "modules", "packaging")
+        .forEach(
+            SneakyThrows.throwingConsumer(
+                name -> {
+                  Path modules = outdir.resolve(name);
+                  Files.createDirectories(modules);
+                  Files.walk(asciidoc.resolve(name))
+                      .filter(Files::isRegularFile)
+                      .forEach(
+                          module -> {
+                            processModule(asciidoctor, asciidoc, module, outdir, name, version);
+                          });
+                }));
 
     // post process
-    Files.walk(outdir).filter(it -> it.getFileName().toString().endsWith("index.html"))
-        .forEach(SneakyThrows.throwingConsumer(it -> {
-          Files.write(it, document(it).getBytes(StandardCharsets.UTF_8));
-        }));
+    Files.walk(outdir)
+        .filter(it -> it.getFileName().toString().endsWith("index.html"))
+        .forEach(
+            SneakyThrows.throwingConsumer(
+                it -> {
+                  Files.write(it, document(it).getBytes(StandardCharsets.UTF_8));
+                }));
 
     // LICENSE
-    Files.copy(basedir.getParent().resolve("LICENSE"), outdir.resolve("LICENSE.txt"),
+    Files.copy(
+        basedir.getParent().resolve("LICENSE"),
+        outdir.resolve("LICENSE.txt"),
         StandardCopyOption.REPLACE_EXISTING);
 
     if (v1) {
@@ -88,8 +100,10 @@ public class DocGenerator {
     }
 
     if (publish) {
-      Path website = basedir.resolve("target")// Paths.get(System.getProperty("java.io.tmpdir"))
-          .resolve(Long.toHexString(UUID.randomUUID().getMostSignificantBits()));
+      Path website =
+          basedir
+              .resolve("target") // Paths.get(System.getProperty("java.io.tmpdir"))
+              .resolve(Long.toHexString(UUID.randomUUID().getMostSignificantBits()));
       Files.createDirectories(website);
       Git git = new Git("jooby-project", "jooby.io", website);
       git.clone();
@@ -114,27 +128,30 @@ public class DocGenerator {
     Path v1target = output.resolve("v1");
     FileUtils.copyDirectory(v1source.toFile(), v1target.toFile());
 
-    Collection<File> files = FileUtils.listFiles(v1target.toFile(), new String[]{"html"}, true);
+    Collection<File> files = FileUtils.listFiles(v1target.toFile(), new String[] {"html"}, true);
     for (File index : files) {
-      String content = FileUtils.readFileToString(index, "UTF-8")
-          .replace("http://jooby.org", "https://jooby.org")
-          .replace("href=\"/resources", "href=\"/v1/resources")
-          .replace("src=\"/resources", "src=\"/v1/resources")
-          .replace("href=\"https://jooby.org/resources", "href=\"/v1/resources")
-          .replace("src=\"https://jooby.org/resources", "src=\"/v1/resources")
-          .replace("href=\"resources", "href=\"/v1/resources")
-          .replace("src=\"resources", "src=\"/v1/resources")
-          .replace("src=\"http://ajax.", "src=\"https://ajax.")
-          // remove/replace redirection
-          .replace("<meta http-equiv=\"refresh\" content=\"0; URL=https://jooby.io\" />", "");
+      String content =
+          FileUtils.readFileToString(index, "UTF-8")
+              .replace("http://jooby.org", "https://jooby.org")
+              .replace("href=\"/resources", "href=\"/v1/resources")
+              .replace("src=\"/resources", "src=\"/v1/resources")
+              .replace("href=\"https://jooby.org/resources", "href=\"/v1/resources")
+              .replace("src=\"https://jooby.org/resources", "src=\"/v1/resources")
+              .replace("href=\"resources", "href=\"/v1/resources")
+              .replace("src=\"resources", "src=\"/v1/resources")
+              .replace("src=\"http://ajax.", "src=\"https://ajax.")
+              // remove/replace redirection
+              .replace("<meta http-equiv=\"refresh\" content=\"0; URL=https://jooby.io\" />", "");
       Document doc = Jsoup.parse(content);
-      doc.select("a").forEach(a -> {
-        String href = a.attr("href");
-        if (!href.startsWith("http") && !href.startsWith("#")) {
-          href = "/v1" + href;
-          a.attr("href", href);
-        }
-      });
+      doc.select("a")
+          .forEach(
+              a -> {
+                String href = a.attr("href");
+                if (!href.startsWith("http") && !href.startsWith("#")) {
+                  href = "/v1" + href;
+                  a.attr("href", href);
+                }
+              });
       FileUtils.writeStringToFile(index, doc.toString(), "UTF-8");
     }
     FileUtils.deleteQuietly(v1target.resolve(".git").toFile());
@@ -142,13 +159,20 @@ public class DocGenerator {
     FileUtils.deleteQuietly(v1target.resolve("CNAME").toFile());
   }
 
-  private static void processModule(Asciidoctor asciidoctor, Path basedir, Path module, Path outdir,
-      String name, String version) {
+  private static void processModule(
+      Asciidoctor asciidoctor,
+      Path basedir,
+      Path module,
+      Path outdir,
+      String name,
+      String version) {
     try {
       String moduleName = module.getFileName().toString().replace(".adoc", "");
 
       String title = moduleName.replace("-", " ");
-      if (name.equals("modules") && !moduleName.equals("modules") && !moduleName.equals("packaging")) {
+      if (name.equals("modules")
+          && !moduleName.equals("modules")
+          && !moduleName.equals("packaging")) {
         title += " module";
       }
       Options options = createOptions(basedir, outdir, version, title);
@@ -157,15 +181,18 @@ public class DocGenerator {
 
       Path output = outdir.resolve(moduleName + ".html").toAbsolutePath();
       Path indexlike = output.getParent().resolve(name);
-      if (name.equals("modules") && !moduleName.equals("modules") && !moduleName.equals("packaging")) {
+      if (name.equals("modules")
+          && !moduleName.equals("modules")
+          && !moduleName.equals("packaging")) {
         indexlike = indexlike.resolve(moduleName);
       }
       indexlike = indexlike.resolve("index.html");
       Files.createDirectories(indexlike.getParent());
       Files.move(output, indexlike);
-      String content = new String(Files.readAllBytes(indexlike), StandardCharsets.UTF_8)
-          .replace("js/", "../../js/")
-          .replace("images/", "../../images/");
+      String content =
+          new String(Files.readAllBytes(indexlike), StandardCharsets.UTF_8)
+              .replace("js/", "../../js/")
+              .replace("images/", "../../images/");
       Files.write(indexlike, content.getBytes(StandardCharsets.UTF_8));
     } catch (IOException x) {
       throw new IllegalStateException(x);
@@ -191,8 +218,8 @@ public class DocGenerator {
     attributes.setAttribute("idseparator", "-");
     attributes.setIcons("font");
     attributes.setAttribute("description", "The modular micro web framework for Java");
-    attributes.setAttribute("keywords",
-        "Java, Modern, Micro, Web, Framework, Reactive, Lightweight, Microservices");
+    attributes.setAttribute(
+        "keywords", "Java, Modern, Micro, Web, Framework, Reactive, Lightweight, Microservices");
     attributes.setImagesDir("images");
     attributes.setSourceHighlighter("highlightjs");
     attributes.setAttribute("highlightjsdir", "js");
@@ -200,8 +227,8 @@ public class DocGenerator {
     attributes.setAttribute("favicon", "images/favicon96.png");
 
     // versions:
-    Document pom = Jsoup
-        .parse(DocGenerator.basedir().getParent().resolve("pom.xml").toFile(), "UTF-8");
+    Document pom =
+        Jsoup.parse(DocGenerator.basedir().getParent().resolve("pom.xml").toFile(), "UTF-8");
     pom.select("properties > *").stream()
         .forEach(tag -> attributes.setAttribute(toJavaName(tag.tagName()), tag.text().trim()));
 
@@ -300,7 +327,8 @@ public class DocGenerator {
       primaryContent.addClass("option-1");
       primaryContent.appendTo(primary);
       secondaryContent.appendTo(primary);
-      secondaryContent.addClass("hidden").addClass("option-2");;
+      secondaryContent.addClass("hidden").addClass("option-2");
+      ;
     }
   }
 
@@ -311,30 +339,34 @@ public class DocGenerator {
   }
 
   private static void tocItems(Document doc, int level) {
-    doc.select("h" + level).forEach(h -> {
-      if (!h.hasClass("discrete")) {
-        String id = h.attr("id");
-        LinkedHashSet<String> name = new LinkedHashSet<>();
-        int parent = level - 1;
-        Element p = h.parents().select("h" + parent).first();
-        if (p != null && !p.hasClass("discrete")) {
-          String parentId = p.attr("id");
-          if (parentId != null && parentId.length() > 0) {
-            name.add(parentId);
-          }
-        }
-        name.add(id.replaceAll("([a-zA-Z-]+)-\\d+", "$1"));
-        String newId = name.stream().collect(Collectors.joining("-"));
-        if (!id.equals(newId)) {
-          h.attr("id", newId);
-          doc.select("a").forEach(a -> {
-            if (a.attr("href").equals("#" + id) && a.attr("class").length() > 0) {
-              a.attr("href", "#" + newId);
-            }
-          });
-        }
-      }
-    });
+    doc.select("h" + level)
+        .forEach(
+            h -> {
+              if (!h.hasClass("discrete")) {
+                String id = h.attr("id");
+                LinkedHashSet<String> name = new LinkedHashSet<>();
+                int parent = level - 1;
+                Element p = h.parents().select("h" + parent).first();
+                if (p != null && !p.hasClass("discrete")) {
+                  String parentId = p.attr("id");
+                  if (parentId != null && parentId.length() > 0) {
+                    name.add(parentId);
+                  }
+                }
+                name.add(id.replaceAll("([a-zA-Z-]+)-\\d+", "$1"));
+                String newId = name.stream().collect(Collectors.joining("-"));
+                if (!id.equals(newId)) {
+                  h.attr("id", newId);
+                  doc.select("a")
+                      .forEach(
+                          a -> {
+                            if (a.attr("href").equals("#" + id) && a.attr("class").length() > 0) {
+                              a.attr("href", "#" + newId);
+                            }
+                          });
+                }
+              }
+            });
   }
 
   private static void clipboard(Document doc) {

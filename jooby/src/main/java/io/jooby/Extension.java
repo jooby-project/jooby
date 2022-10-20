@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -11,7 +11,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * Simple extension contract for adding and reusing commons application infrastructure components
  * and/or integrate with external libraries.
  *
- * Extensions are expected to work via side-effects.
+ * <p>Extensions are expected to work via side-effects.
  *
  * @author edgar
  * @since 2.0.0

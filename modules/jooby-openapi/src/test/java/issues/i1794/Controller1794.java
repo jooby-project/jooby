@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i1794;
 
 import io.jooby.StatusCode;
@@ -15,8 +20,7 @@ public class Controller1794 {
   @Operation(
       summary = "This is the post for testSuite",
       description = "TestSuite change1234 Description",
-      operationId = "User creation"
-  )
+      operationId = "User creation")
   @ApiResponse(responseCode = "204", description = "Created")
   public StatusCode create(
       @RequestBody(required = true, description = "This is the requestBody") TestSuite testSuite) {
@@ -25,7 +29,9 @@ public class Controller1794 {
 
   @GET
   @Path("/{code}")
-  @Operation(description = "This is the description of the conducted application", summary = "Get testSuite")
+  @Operation(
+      description = "This is the description of the conducted application",
+      summary = "Get testSuite")
   public TestSuite find(@Parameter(name = "code", required = true) @PathParam String code) {
     TestSuite testSuite = new TestSuite();
     return testSuite;

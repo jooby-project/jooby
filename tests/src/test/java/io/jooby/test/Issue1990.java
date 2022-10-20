@@ -1,4 +1,19 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -9,15 +24,6 @@ import io.jooby.internal.pac4j.UrlResolverImpl;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.pac4j.Pac4jContext;
-import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue1990 {
 
@@ -35,9 +41,11 @@ public class Issue1990 {
 
     ILoggingEvent event = appender.list.get(0);
 
-    assertEquals("Unable to resolve URL from path '{}' since no web context was provided." +
-        " This may prevent some authentication clients to work properly." +
-        " Consider explicitly specifying an absolute callback URL or using a custom url resolver.", event.getMessage());
+    assertEquals(
+        "Unable to resolve URL from path '{}' since no web context was provided. This may prevent"
+            + " some authentication clients to work properly. Consider explicitly specifying an"
+            + " absolute callback URL or using a custom url resolver.",
+        event.getMessage());
 
     assertEquals(Level.WARN, event.getLevel());
     assertNotNull(event.getArgumentArray());
@@ -66,13 +74,21 @@ public class Issue1990 {
   public void withContext(ServerTestRunner runner) {
     AtomicInteger port = new AtomicInteger();
 
-    runner.define(app -> {
-      UrlResolverImpl resolver = new UrlResolverImpl();
-      app.get("/", ctx -> resolver.compute("/callback?q=foo", Pac4jContext.create(ctx)));
-      app.onStarted(() -> port.set(app.getServerOptions().getPort()));
-    }).ready(http -> {
-      String portFragment = port.get() == Context.PORT ? "" : ":" + port.get();
-      http.get("/", rsp -> assertEquals("http://localhost" + portFragment + "/callback", rsp.body().string()));
-    });
+    runner
+        .define(
+            app -> {
+              UrlResolverImpl resolver = new UrlResolverImpl();
+              app.get("/", ctx -> resolver.compute("/callback?q=foo", Pac4jContext.create(ctx)));
+              app.onStarted(() -> port.set(app.getServerOptions().getPort()));
+            })
+        .ready(
+            http -> {
+              String portFragment = port.get() == Context.PORT ? "" : ":" + port.get();
+              http.get(
+                  "/",
+                  rsp ->
+                      assertEquals(
+                          "http://localhost" + portFragment + "/callback", rsp.body().string()));
+            });
   }
 }

@@ -1,19 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.FormdataNode;
+import java.util.Collection;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.Collection;
+import io.jooby.internal.FormdataNode;
 
 /**
  * Formdata class for direct MVC parameter provisioning.
  *
- * HTTP request must be encoded as {@link MediaType#FORM_URLENCODED}.
+ * <p>HTTP request must be encoded as {@link MediaType#FORM_URLENCODED}.
  *
  * @author edgar
  * @since 2.0.0
@@ -26,7 +26,8 @@ public interface Formdata extends ValueNode {
    * @param path Form name/path.
    * @param value Form value.
    */
-  @NonNull void put(@NonNull String path, @NonNull ValueNode value);
+  @NonNull
+  void put(@NonNull String path, @NonNull ValueNode value);
 
   /**
    * Add a form field.
@@ -34,7 +35,8 @@ public interface Formdata extends ValueNode {
    * @param path Form name/path.
    * @param value Form value.
    */
-  @NonNull void put(@NonNull String path, @NonNull String value);
+  @NonNull
+  void put(@NonNull String path, @NonNull String value);
 
   /**
    * Add a form field.
@@ -42,7 +44,8 @@ public interface Formdata extends ValueNode {
    * @param path Form name/path.
    * @param values Form values.
    */
-  @NonNull void put(@NonNull String path, @NonNull Collection<String> values);
+  @NonNull
+  void put(@NonNull String path, @NonNull Collection<String> values);
 
   /**
    * Creates a formdata object.

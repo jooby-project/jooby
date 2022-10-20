@@ -133,7 +133,6 @@
 
     <!-- Maven plugins -->
     <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
-    <license-maven-plugin.version>4.1</license-maven-plugin.version>
     <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
@@ -1496,44 +1495,6 @@
     </plugins>
     </build>
     </profile>
-    <!-- license -->
-    <profile>
-      <id>license</id>
-      <activation>
-        <file>
-          <exists>${user.dir}${file.separator}etc${file.separator}source${file.separator}LICENSE
-          </exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.mycila</groupId>
-            <artifactId>license-maven-plugin</artifactId>
-            <version>${license-maven-plugin.version}</version>
-            <configuration>
-              <header>
-                ${user.dir}${file.separator}etc${file.separator}source${file.separator}LICENSE
-              </header>
-              <strictCheck>true</strictCheck>
-              <skipExistingHeaders>true</skipExistingHeaders>
-              <includes>
-                <include>src/main/java/**/*.java</include>
-                <include>src/main/kotlin/**/*.kt</include>
-              </includes>
-            </configuration>
-            <executions>
-              <execution>
-                <phase>verify</phase>
-                <goals>
-                  <goal>format</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
 
     <profile>
       <id>bom</id>
@@ -1632,6 +1593,53 @@
             <artifactId>maven-source-plugin</artifactId>
             <version>${maven-source-plugin.version}</version>
           </plugin>
+
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>2.27.2</version>
+            <configuration>
+              <formats>
+                <!-- you can define as many formats as you want, each is independent -->
+                <format>
+                  <!-- define the files to apply to -->
+                  <includes>
+                    <include>*.java</include>
+                    <include>*.kt</include>
+                  </includes>
+                  <!-- define the steps to apply to those files -->
+                  <trimTrailingWhitespace/>
+
+                  <endWithNewline/>
+                </format>
+              </formats>
+              <java>
+                <googleJavaFormat>
+                  <reflowLongStrings>true</reflowLongStrings>
+                </googleJavaFormat>
+
+                <formatAnnotations />
+
+                <importOrder>
+                  <order>java,javax,org,</order>
+                </importOrder>
+
+                <licenseHeader>
+                  <file>etc${file.separator}source${file.separator}LICENSE</file>
+                </licenseHeader>
+              </java>
+              <kotlin>
+                <ktfmt>
+                  <style>GOOGLE</style>
+                </ktfmt>
+
+                <licenseHeader>
+                  <file>etc${file.separator}source${file.separator}LICENSE</file>
+                </licenseHeader>
+              </kotlin>
+            </configuration>
+          </plugin>
+
         </plugins>
       </build>
     </profile>

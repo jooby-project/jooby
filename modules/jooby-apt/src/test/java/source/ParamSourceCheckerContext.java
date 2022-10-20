@@ -1,10 +1,15 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package source;
 
-import io.jooby.test.MockContext;
+import java.util.function.Consumer;
+
 import io.jooby.ParamSource;
 import io.jooby.Value;
-
-import java.util.function.Consumer;
+import io.jooby.test.MockContext;
 
 public class ParamSourceCheckerContext extends MockContext {
 

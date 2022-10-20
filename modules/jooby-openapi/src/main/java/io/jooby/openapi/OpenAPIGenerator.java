@@ -1,33 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.openapi;
 
-import io.jooby.Router;
-import io.jooby.SneakyThrows;
-import io.jooby.internal.openapi.ClassSource;
-import io.jooby.internal.openapi.ContextPathParser;
-import io.jooby.internal.openapi.OpenAPIExt;
-import io.jooby.internal.openapi.OpenAPIParser;
-import io.jooby.internal.openapi.ParserContext;
-import io.jooby.internal.openapi.OperationExt;
-import io.jooby.internal.openapi.RouteParser;
-import io.jooby.internal.openapi.TypeFactory;
-import io.swagger.v3.core.util.Json;
-import io.swagger.v3.core.util.Yaml;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.oas.models.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,35 +18,55 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.Router;
+import io.jooby.SneakyThrows;
+import io.jooby.internal.openapi.ClassSource;
+import io.jooby.internal.openapi.ContextPathParser;
+import io.jooby.internal.openapi.OpenAPIExt;
+import io.jooby.internal.openapi.OpenAPIParser;
+import io.jooby.internal.openapi.OperationExt;
+import io.jooby.internal.openapi.ParserContext;
+import io.jooby.internal.openapi.RouteParser;
+import io.jooby.internal.openapi.TypeFactory;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
+
 /**
  * Generate an {@link OpenAPI} model from a Jooby application.
  *
- * Optionally exports an {@link OpenAPI} model to a json or yaml file.
+ * <p>Optionally exports an {@link OpenAPI} model to a json or yaml file.
  *
- * Usage: https://jooby.io/modules/openapi
+ * <p>Usage: https://jooby.io/modules/openapi
  *
  * @author edgar
  */
 public class OpenAPIGenerator {
 
-  /**
-   * Supported formats.
-   */
+  /** Supported formats. */
   public enum Format {
-    /**
-     * JSON.
-     */
+    /** JSON. */
     JSON {
-      @Override public String toString(OpenAPIGenerator tool, OpenAPI result) {
+      @Override
+      public String toString(OpenAPIGenerator tool, OpenAPI result) {
         return tool.toJson(result);
       }
     },
 
-    /**
-     * YAML.
-     */
+    /** YAML. */
     YAML {
-      @Override public String toString(OpenAPIGenerator tool, OpenAPI result) {
+      @Override
+      public String toString(OpenAPIGenerator tool, OpenAPI result) {
         return tool.toYaml(result);
       }
     };
@@ -90,9 +87,8 @@ public class OpenAPIGenerator {
      * @param result Model.
      * @return String (json or yaml content).
      */
-    public abstract @NonNull String toString(@NonNull OpenAPIGenerator tool,
-        @NonNull OpenAPI result);
-
+    public abstract @NonNull String toString(
+        @NonNull OpenAPIGenerator tool, @NonNull OpenAPI result);
   }
 
   private Logger log = LoggerFactory.getLogger(getClass());
@@ -122,9 +118,7 @@ public class OpenAPIGenerator {
     this.metaInf = metaInf;
   }
 
-  /**
-   * Creates a new instance.
-   */
+  /** Creates a new instance. */
   public OpenAPIGenerator() {
     this("META-INF/services/io.jooby.MvcFactory");
   }
@@ -142,8 +136,8 @@ public class OpenAPIGenerator {
     if (openAPI instanceof OpenAPIExt) {
       String source = ((OpenAPIExt) openAPI).getSource();
       String[] names = source.split("\\.");
-      output = Stream.of(names).limit(names.length - 1)
-          .reduce(outputDir, Path::resolve, Path::resolve);
+      output =
+          Stream.of(names).limit(names.length - 1).reduce(outputDir, Path::resolve, Path::resolve);
       String appname = names[names.length - 1];
       if (appname.endsWith("Kt")) {
         appname = appname.substring(0, appname.length() - 2);
@@ -167,15 +161,15 @@ public class OpenAPIGenerator {
    * generates an open api model from it. Compilation must be done with debug information and
    * parameters name available.
    *
-   * Optionally, the <code>conf/openapi.yaml</code> is used as template and get merged into the
+   * <p>Optionally, the <code>conf/openapi.yaml</code> is used as template and get merged into the
    * final model.
    *
    * @param classname Application class name.
    * @return Model.
    */
   public @NonNull OpenAPI generate(@NonNull String classname) {
-    ClassLoader classLoader = Optional.ofNullable(this.classLoader)
-        .orElseGet(getClass()::getClassLoader);
+    ClassLoader classLoader =
+        Optional.ofNullable(this.classLoader).orElseGet(getClass()::getClassLoader);
     ClassSource source = new ClassSource(classLoader);
 
     RouteParser routes = new RouteParser(metaInf);
@@ -207,15 +201,15 @@ public class OpenAPIGenerator {
         continue;
       }
       Map<String, String> regexMap = new HashMap<>();
-      Router.pathKeys(pattern, (key, value) -> Optional.ofNullable(value)
-          .ifPresent(v -> regexMap.put(key, v)));
+      Router.pathKeys(
+          pattern, (key, value) -> Optional.ofNullable(value).ifPresent(v -> regexMap.put(key, v)));
       if (regexMap.size() > 0) {
         for (Map.Entry<String, String> e : regexMap.entrySet()) {
           String name = e.getKey();
           String regex = e.getValue();
-          operation.getParameter(name).ifPresent(parameter ->
-              parameter.getSchema().setPattern(regex)
-          );
+          operation
+              .getParameter(name)
+              .ifPresent(parameter -> parameter.getSchema().setPattern(regex));
           if (regex.equals("\\.*")) {
             if (name.equals("*")) {
               pattern = pattern.substring(0, pattern.length() - 1) + "{*}";
@@ -235,11 +229,14 @@ public class OpenAPIGenerator {
       // global tags
       operation.getGlobalTags().forEach(tag -> globalTags.put(tag.getName(), tag));
     }
-    globalTags.values().forEach(tag -> {
-      if (tag.getDescription() != null || tag.getExtensions() != null) {
-        openapi.addTagsItem(tag);
-      }
-    });
+    globalTags
+        .values()
+        .forEach(
+            tag -> {
+              if (tag.getDescription() != null || tag.getExtensions() != null) {
+                openapi.addTagsItem(tag);
+              }
+            });
     openapi.setOperations(operations);
     openapi.setPaths(paths);
 
@@ -250,8 +247,8 @@ public class OpenAPIGenerator {
     try {
       openapi.setComponents(
           Optional.ofNullable(openapi.getComponents()).orElseGet(template::getComponents));
-      openapi
-          .setSecurity(Optional.ofNullable(openapi.getSecurity()).orElseGet(template::getSecurity));
+      openapi.setSecurity(
+          Optional.ofNullable(openapi.getSecurity()).orElseGet(template::getSecurity));
       openapi.setServers(Optional.ofNullable(openapi.getServers()).orElseGet(template::getServers));
       openapi.setInfo(Optional.ofNullable(openapi.getInfo()).orElseGet(template::getInfo));
       openapi.setExternalDocs(
@@ -362,8 +359,8 @@ public class OpenAPIGenerator {
   }
 
   /**
-   * Set base directory used it for loading openAPI template file name.
-   * Defaults is <code>user.dir</code>.
+   * Set base directory used it for loading openAPI template file name. Defaults is <code>user.dir
+   * </code>.
    *
    * @param basedir Base directory.
    */
@@ -374,7 +371,7 @@ public class OpenAPIGenerator {
   /**
    * Base directory used it for loading openAPI template file name.
    *
-   * Defaults is <code>user.dir</code>.
+   * <p>Defaults is <code>user.dir</code>.
    *
    * @return Base directory used it for loading openAPI template file name.
    */
@@ -385,7 +382,7 @@ public class OpenAPIGenerator {
   /**
    * Set output directory used by {@link #export(OpenAPI, Format)} operation.
    *
-   * Defaults to {@link #getBasedir()}.
+   * <p>Defaults to {@link #getBasedir()}.
    *
    * @return Get output directory.
    */
@@ -443,9 +440,7 @@ public class OpenAPIGenerator {
     int i = name.lastIndexOf('.');
     if (i > 0) {
       name = name.substring(i + 1);
-      name = name.replace("App", "")
-          .replace("Kt", "")
-          .trim();
+      name = name.replace("App", "").replace("Kt", "").trim();
     }
     return name.length() == 0 ? "My App" : name;
   }

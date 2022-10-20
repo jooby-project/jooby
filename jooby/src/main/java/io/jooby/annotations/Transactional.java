@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -11,24 +11,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Useful together with the various route decorators like {@code TransactionalRequest}
- * provided by extensions {@code jooby-hibernate}, {@code jooby-jdbi} or {@code jooby-ebean}
- * to toggle it's effect for a single route.
- * <p>
- * Although {@code TransactionalRequest} is configured to be enabled by default,
- * for a route method annotated with {@code @Transactional(false)} it won't take effect.
- * <p>
- * Similarly, if the decorator is disabled by default, a for route method annotated with
+ * Useful together with the various route decorators like {@code TransactionalRequest} provided by
+ * extensions {@code jooby-hibernate}, {@code jooby-jdbi} or {@code jooby-ebean} to toggle it's
+ * effect for a single route.
+ *
+ * <p>Although {@code TransactionalRequest} is configured to be enabled by default, for a route
+ * method annotated with {@code @Transactional(false)} it won't take effect.
+ *
+ * <p>Similarly, if the decorator is disabled by default, a for route method annotated with
  * {@code @Transactional(true)} it will take effect.
- * <p>
- * Use the {@link #ATTRIBUTE} constant for script routes instead of the annotation itself:
+ *
+ * <p>Use the {@link #ATTRIBUTE} constant for script routes instead of the annotation itself:
+ *
  * <pre>{@code
  * {
  *   get("/", ctx -> ...).attribute(Transactional.ATTRIBUTE, true);
  * }
  * }</pre>
- * <p>
- * This annotation has no effect on the behavior of {@code SessionRequest} decorator(s).
+ *
+ * <p>This annotation has no effect on the behavior of {@code SessionRequest} decorator(s).
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

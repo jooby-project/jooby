@@ -9,9 +9,7 @@ module io.jooby.apt {
   requires io.jooby;
   requires java.compiler;
   requires com.github.spotbugs.annotations;
-
   requires jakarta.inject;
-
   requires org.objectweb.asm;
   requires static org.objectweb.asm.tree;
   requires static org.objectweb.asm.tree.analysis;

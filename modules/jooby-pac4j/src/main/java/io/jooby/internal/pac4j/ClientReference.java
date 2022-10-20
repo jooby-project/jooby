@@ -1,20 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.pac4j;
 
-import org.pac4j.core.client.Client;
-import org.pac4j.core.util.Pac4jConstants;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
+import org.pac4j.core.client.Client;
+import org.pac4j.core.util.Pac4jConstants;
 
 public class ClientReference {
 
@@ -33,7 +33,8 @@ public class ClientReference {
     if (isResolved()) {
       return client;
     }
-    throw new IllegalStateException("Client of class " + clientClass + " has not been resolved yet.");
+    throw new IllegalStateException(
+        "Client of class " + clientClass + " has not been resolved yet.");
   }
 
   public boolean isResolved() {
@@ -53,13 +54,14 @@ public class ClientReference {
     return () -> {
       String val = value.get();
       if (val == null) {
-        synchronized(value) {
+        synchronized (value) {
           val = value.get();
           if (val == null) {
-            val = references.stream()
-                .map(ClientReference::getClient)
-                .map(Client::getName)
-                .collect(joining(Pac4jConstants.ELEMENT_SEPARATOR));
+            val =
+                references.stream()
+                    .map(ClientReference::getClient)
+                    .map(Client::getName)
+                    .collect(joining(Pac4jConstants.ELEMENT_SEPARATOR));
             value.set(val);
           }
         }

@@ -14,7 +14,6 @@ module io.jooby.netty {
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
-
   requires io.netty.transport;
   requires io.netty.codec.http;
   requires io.netty.handler;
@@ -24,5 +23,6 @@ module io.jooby.netty {
   requires static io.netty.transport.classes.epoll;
   requires static io.netty.transport.classes.kqueue;
 
-  provides Server with Netty;
+  provides Server with
+      Netty;
 }

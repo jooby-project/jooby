@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -57,13 +57,17 @@ public class ReturnTypeParser {
   }
 
   public static List<String> parseIgnoreSignature(ParserContext ctx, MethodNode node) {
-    List<String> result = InsnSupport.next(node.instructions.getFirst())
-        .filter(it -> it.getOpcode() == Opcodes.ARETURN || it.getOpcode() == Opcodes.IRETURN
-            || it.getOpcode() == Opcodes.RETURN)
-        .map(it -> handleReturnType(ctx, node, it))
-        .map(Object::toString)
-        .distinct()
-        .collect(Collectors.toList());
+    List<String> result =
+        InsnSupport.next(node.instructions.getFirst())
+            .filter(
+                it ->
+                    it.getOpcode() == Opcodes.ARETURN
+                        || it.getOpcode() == Opcodes.IRETURN
+                        || it.getOpcode() == Opcodes.RETURN)
+            .map(it -> handleReturnType(ctx, node, it))
+            .map(Object::toString)
+            .distinct()
+            .collect(Collectors.toList());
     return result;
   }
 
@@ -81,29 +85,29 @@ public class ReturnTypeParser {
           return Integer.class.getName();
         }
         if (prev instanceof InsnNode) {
-          if (prev.getOpcode() == Opcodes.ICONST_0
-              || prev.getOpcode() == Opcodes.ICONST_1) {
+          if (prev.getOpcode() == Opcodes.ICONST_0 || prev.getOpcode() == Opcodes.ICONST_1) {
             return Boolean.class.getName();
           }
         }
       }
     }
 
-    for (Iterator<AbstractInsnNode> iterator = InsnSupport
-        .prevIterator(it.getPrevious()); iterator.hasNext(); ) {
+    for (Iterator<AbstractInsnNode> iterator = InsnSupport.prevIterator(it.getPrevious());
+        iterator.hasNext(); ) {
       AbstractInsnNode i = iterator.next();
-      if (i instanceof MethodInsnNode && (((MethodInsnNode) i).owner
-          .equals("kotlin/jvm/internal/Intrinsics"))) {
+      if (i instanceof MethodInsnNode
+          && (((MethodInsnNode) i).owner.equals("kotlin/jvm/internal/Intrinsics"))) {
         // skip Ldc and load var
         // dup or aload
         // visitLdcInsn("$receiver");
-        // visitMethodInsn(INVOKESTATIC, "kotlin/jvm/internal/Intrinsics", "checkParameterIsNotNull", "(Ljava/lang/Object;Ljava/lang/String;)V", false);
+        // visitMethodInsn(INVOKESTATIC, "kotlin/jvm/internal/Intrinsics",
+        // "checkParameterIsNotNull", "(Ljava/lang/Object;Ljava/lang/String;)V", false);
         iterator.next();
         iterator.next();
         continue;
       }
-      if (i instanceof MethodInsnNode && (((MethodInsnNode) i).owner
-          .equals("kotlin/TypeCastException"))) {
+      if (i instanceof MethodInsnNode
+          && (((MethodInsnNode) i).owner.equals("kotlin/TypeCastException"))) {
         continue;
       }
       if (i instanceof LineNumberNode || i instanceof LabelNode) {
@@ -139,18 +143,18 @@ public class ReturnTypeParser {
       /** Invoke dynamic: */
       if (i instanceof InvokeDynamicInsnNode) {
         InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) i;
-        String handleDescriptor = Stream.of(invokeDynamic.bsmArgs)
-            .filter(Handle.class::isInstance)
-            .map(Handle.class::cast)
-            .findFirst()
-            .map(h -> {
-              String desc = Type.getReturnType(h.getDesc()).getDescriptor();
-              return "V".equals(desc) ? "java/lang/Object" : desc;
-            })
-            .orElse(null);
-        String descriptor = Type
-            .getReturnType(invokeDynamic.desc)
-            .getDescriptor();
+        String handleDescriptor =
+            Stream.of(invokeDynamic.bsmArgs)
+                .filter(Handle.class::isInstance)
+                .map(Handle.class::cast)
+                .findFirst()
+                .map(
+                    h -> {
+                      String desc = Type.getReturnType(h.getDesc()).getDescriptor();
+                      return "V".equals(desc) ? "java/lang/Object" : desc;
+                    })
+                .orElse(null);
+        String descriptor = Type.getReturnType(invokeDynamic.desc).getDescriptor();
         if (handleDescriptor != null && !handleDescriptor.equals("java/lang/Object")) {
           if (descriptor.endsWith(";")) {
             descriptor = descriptor.substring(0, descriptor.length() - 1);
@@ -208,10 +212,11 @@ public class ReturnTypeParser {
           return InsnSupport.prev(i)
               .filter(e -> e.getOpcode() == Opcodes.ANEWARRAY)
               .findFirst()
-              .map(e -> {
-                TypeInsnNode typeInsn = (TypeInsnNode) e;
-                return ASMType.parse("[L" + typeInsn.desc + ";");
-              })
+              .map(
+                  e -> {
+                    TypeInsnNode typeInsn = (TypeInsnNode) e;
+                    return ASMType.parse("[L" + typeInsn.desc + ";");
+                  })
               .orElse(Object.class.getName());
       }
     }
@@ -231,28 +236,30 @@ public class ReturnTypeParser {
             .filter(it -> it.cst instanceof Type)
             .map(it -> (Type) it.cst)
             .orElse(TypeFactory.OBJECT)
-            .getClassName()
-            ;
+            .getClassName();
       }
       return Object.class.getName();
     }
     Type returnType = Type.getReturnType(node.desc);
     // Since Kotlin 1.6+
-    String methodName = node.name.startsWith("access$invoke$")
-        ? node.name.substring("access$".length())
-        : node.name;
+    String methodName =
+        node.name.startsWith("access$invoke$")
+            ? node.name.substring("access$".length())
+            : node.name;
     List<MethodNode> methodNodes = classMethods(ctx, node.owner);
     return methodNodes.stream()
         .filter(m -> m.name.equals(methodName) && m.desc.equals(node.desc))
         .findFirst()
-        .map(m -> Optional.ofNullable(m.signature)
-            .map(s -> {
-              int pos = s.indexOf(')');
-              return pos > 0 ? s.substring(pos + 1) : s;
-            })
-            .map(ASMType::parse)
-            .orElseGet(() -> Type.getReturnType(m.desc).getClassName())
-        )
+        .map(
+            m ->
+                Optional.ofNullable(m.signature)
+                    .map(
+                        s -> {
+                          int pos = s.indexOf(')');
+                          return pos > 0 ? s.substring(pos + 1) : s;
+                        })
+                    .map(ASMType::parse)
+                    .orElseGet(() -> Type.getReturnType(m.desc).getClassName()))
         .orElse(returnType.getClassName());
   }
 
@@ -271,33 +278,32 @@ public class ReturnTypeParser {
     return result;
   }
 
-  private static String localVariable(final ParserContext ctx, final MethodNode m,
-      final VarInsnNode varInsn) {
+  private static String localVariable(
+      final ParserContext ctx, final MethodNode m, final VarInsnNode varInsn) {
     int opcode = varInsn.getOpcode();
     if (opcode >= Opcodes.ILOAD && opcode <= Opcodes.ISTORE) {
       List<LocalVariableNode> vars = m.localVariables;
-      LocalVariableNode var = vars.stream()
-          .filter(v -> v.index == varInsn.var)
-          .findFirst()
-          .orElse(null);
+      LocalVariableNode var =
+          vars.stream().filter(v -> v.index == varInsn.var).findFirst().orElse(null);
       if (var != null) {
         if (var.signature == null) {
           /** Kotlin traversal: */
-          Optional<AbstractInsnNode> kt = InsnSupport.prev(varInsn).filter(kotlinIntrinsics())
-              .findFirst();
+          Optional<AbstractInsnNode> kt =
+              InsnSupport.prev(varInsn).filter(kotlinIntrinsics()).findFirst();
           if (kt.isPresent()) {
-            LocalVariableNode $this = vars.stream().filter(v -> v.name.equals("this"))
-                .findFirst()
-                .orElse(null);
+            LocalVariableNode $this =
+                vars.stream().filter(v -> v.name.equals("this")).findFirst().orElse(null);
             if ($this != null) {
               Type kotlinLambda = Type.getType($this.desc);
               ClassNode classNode = ctx.classNodeOrNull(kotlinLambda);
               if (classNode != null && classNode.signature != null) {
-                String type = ASMType.parse(classNode.signature, internalName ->
-                    !internalName.equals("kotlin/jvm/internal/Lambda")
-                        && !internalName.equals("kotlin/jvm/functions/Function1")
-                        && !internalName.equals("io/jooby/HandlerContext")
-                );
+                String type =
+                    ASMType.parse(
+                        classNode.signature,
+                        internalName ->
+                            !internalName.equals("kotlin/jvm/internal/Lambda")
+                                && !internalName.equals("kotlin/jvm/functions/Function1")
+                                && !internalName.equals("io/jooby/HandlerContext"));
                 if (!type.equals(Object.class.getName()) && !type.equals(void.class.getName())) {
                   return type;
                 }
@@ -308,22 +314,25 @@ public class ReturnTypeParser {
           String type = ASMType.parse(var.desc);
           if (type.startsWith("java.util.")) {
             /** Try to find originating call to figure out element type <T> */
-            VarInsnNode astore = InsnSupport.prev(varInsn)
-                .filter(VarInsnNode.class::isInstance)
-                .map(VarInsnNode.class::cast)
-                .filter(varIns -> varIns.getOpcode() == Opcodes.ASTORE && varIns.var == var.index)
-                .findFirst()
-                .orElse(null);
+            VarInsnNode astore =
+                InsnSupport.prev(varInsn)
+                    .filter(VarInsnNode.class::isInstance)
+                    .map(VarInsnNode.class::cast)
+                    .filter(
+                        varIns -> varIns.getOpcode() == Opcodes.ASTORE && varIns.var == var.index)
+                    .findFirst()
+                    .orElse(null);
             if (astore != null) {
-              MethodInsnNode methodCall = InsnSupport.prev(astore)
-                  .filter(it -> (it instanceof MethodInsnNode) && !kotlinIntrinsics().test(it))
-                  .map(MethodInsnNode.class::cast)
-                  .findFirst()
-                  .orElse(null);
+              MethodInsnNode methodCall =
+                  InsnSupport.prev(astore)
+                      .filter(it -> (it instanceof MethodInsnNode) && !kotlinIntrinsics().test(it))
+                      .map(MethodInsnNode.class::cast)
+                      .findFirst()
+                      .orElse(null);
               if (methodCall != null) {
                 String returnType = fromMethodCall(ctx, methodCall);
-                if (!returnType.equals(Object.class.getName()) && !returnType
-                    .equals(void.class.getName())) {
+                if (!returnType.equals(Object.class.getName())
+                    && !returnType.equals(void.class.getName())) {
                   type = returnType;
                 }
               }
@@ -331,14 +340,16 @@ public class ReturnTypeParser {
           }
           if (type.equals(Context.class.getName())) {
             // No var, look for last STORE matching index var
-            VarInsnNode store = InsnSupport.prev(varInsn.getPrevious())
-                .filter(
-                    it -> (it.getOpcode() >= Opcodes.ISTORE && it.getOpcode() <= Opcodes.SASTORE))
-                .filter(VarInsnNode.class::isInstance)
-                .map(VarInsnNode.class::cast)
-                .filter(it -> it.var == varInsn.var)
-                .findFirst()
-                .orElse(null);
+            VarInsnNode store =
+                InsnSupport.prev(varInsn.getPrevious())
+                    .filter(
+                        it ->
+                            (it.getOpcode() >= Opcodes.ISTORE && it.getOpcode() <= Opcodes.SASTORE))
+                    .filter(VarInsnNode.class::isInstance)
+                    .map(VarInsnNode.class::cast)
+                    .filter(it -> it.var == varInsn.var)
+                    .findFirst()
+                    .orElse(null);
             if (store != null) {
               type = handleReturnType(ctx, m, store);
             }
@@ -348,11 +359,12 @@ public class ReturnTypeParser {
         return ASMType.parse(var.signature);
       }
     }
-    return null;//Object.class.getName();
+    return null; // Object.class.getName();
   }
 
   private static Predicate<AbstractInsnNode> kotlinIntrinsics() {
-    return i -> (i instanceof MethodInsnNode && ((MethodInsnNode) i).owner
-        .equals("kotlin/jvm/internal/Intrinsics"));
+    return i ->
+        (i instanceof MethodInsnNode
+            && ((MethodInsnNode) i).owner.equals("kotlin/jvm/internal/Intrinsics"));
   }
 }

@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.jasypt;
 
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
@@ -18,14 +23,18 @@ public class JasyptModuleTest {
 
   @Test
   public void shouldDecryptProperties() {
-    Config config = ConfigFactory.empty()
-        .withValue("jasypt.password", fromAnyRef("password"))
-        .withValue("enc.property", fromAnyRef("uTSqb9grs1+vUv3iN8lItC0kl65lMG+8"));
-    Jooby app = new Jooby() {{
-      getEnvironment().setConfig(config);
+    Config config =
+        ConfigFactory.empty()
+            .withValue("jasypt.password", fromAnyRef("password"))
+            .withValue("enc.property", fromAnyRef("uTSqb9grs1+vUv3iN8lItC0kl65lMG+8"));
+    Jooby app =
+        new Jooby() {
+          {
+            getEnvironment().setConfig(config);
 
-      install(new JasyptModule());
-    }};
+            install(new JasyptModule());
+          }
+        };
 
     Config newConfig = app.getConfig();
     assertNotEquals(config, newConfig);
@@ -38,14 +47,18 @@ public class JasyptModuleTest {
 
   @Test
   public void shouldIgnoreWhenNothingToDecrypt() {
-    Config config = ConfigFactory.empty()
-        .withValue("jasypt.password", fromAnyRef("password"))
-        .withValue("foo.property", fromAnyRef("uTSqb9grs1+vUv3iN8lItC0kl65lMG+8"));
-    Jooby app = new Jooby() {{
-      getEnvironment().setConfig(config);
+    Config config =
+        ConfigFactory.empty()
+            .withValue("jasypt.password", fromAnyRef("password"))
+            .withValue("foo.property", fromAnyRef("uTSqb9grs1+vUv3iN8lItC0kl65lMG+8"));
+    Jooby app =
+        new Jooby() {
+          {
+            getEnvironment().setConfig(config);
 
-      install(new JasyptModule());
-    }};
+            install(new JasyptModule());
+          }
+        };
 
     Config newConfig = app.getConfig();
     assertEquals(config, newConfig);
@@ -57,15 +70,19 @@ public class JasyptModuleTest {
 
   @Test
   public void shouldCreatePooledEncryptor() {
-    Config config = ConfigFactory.empty()
-        .withValue("jasypt.password", fromAnyRef("password"))
-        .withValue("jasypt.poolSize", fromAnyRef(2))
-        .withValue("enc.property", fromAnyRef("uTSqb9grs1+vUv3iN8lItC0kl65lMG+8"));
-    Jooby app = new Jooby() {{
-      getEnvironment().setConfig(config);
+    Config config =
+        ConfigFactory.empty()
+            .withValue("jasypt.password", fromAnyRef("password"))
+            .withValue("jasypt.poolSize", fromAnyRef(2))
+            .withValue("enc.property", fromAnyRef("uTSqb9grs1+vUv3iN8lItC0kl65lMG+8"));
+    Jooby app =
+        new Jooby() {
+          {
+            getEnvironment().setConfig(config);
 
-      install(new JasyptModule());
-    }};
+            install(new JasyptModule());
+          }
+        };
 
     assertNotNull(app.require(PBEStringEncryptor.class));
     assertNotNull(app.require(PooledPBEStringEncryptor.class));

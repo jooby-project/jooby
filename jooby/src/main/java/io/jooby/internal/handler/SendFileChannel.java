@@ -1,21 +1,21 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.handler;
 
-import io.jooby.Context;
-import io.jooby.MediaType;
-import io.jooby.Route;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.MediaType;
+import io.jooby.Route;
 
 public class SendFileChannel implements LinkedHandler {
   private Route.Handler next;
@@ -24,7 +24,8 @@ public class SendFileChannel implements LinkedHandler {
     this.next = next;
   }
 
-  @NonNull @Override public Object apply(@NonNull Context ctx) {
+  @NonNull @Override
+  public Object apply(@NonNull Context ctx) {
     try {
       Object result = next.apply(ctx);
       if (ctx.isResponseStarted()) {
@@ -47,7 +48,8 @@ public class SendFileChannel implements LinkedHandler {
     }
   }
 
-  @Override public Route.Handler next() {
+  @Override
+  public Route.Handler next() {
     return next;
   }
 }

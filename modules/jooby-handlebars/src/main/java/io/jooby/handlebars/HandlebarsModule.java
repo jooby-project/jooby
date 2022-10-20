@@ -1,24 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.handlebars;
 
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.cache.HighConcurrencyTemplateCache;
-import com.github.jknack.handlebars.cache.NullTemplateCache;
-import com.github.jknack.handlebars.cache.TemplateCache;
-import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.github.jknack.handlebars.io.FileTemplateLoader;
-import com.github.jknack.handlebars.io.TemplateLoader;
-import io.jooby.Environment;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.ServiceRegistry;
-import io.jooby.TemplateEngine;
+import static io.jooby.TemplateEngine.TEMPLATE_PATH;
+import static io.jooby.TemplateEngine.normalizePath;
+import static java.util.Arrays.asList;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -27,14 +17,24 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-import static io.jooby.TemplateEngine.TEMPLATE_PATH;
-import static io.jooby.TemplateEngine.normalizePath;
-import static java.util.Arrays.asList;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.cache.HighConcurrencyTemplateCache;
+import com.github.jknack.handlebars.cache.NullTemplateCache;
+import com.github.jknack.handlebars.cache.TemplateCache;
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.github.jknack.handlebars.io.FileTemplateLoader;
+import com.github.jknack.handlebars.io.TemplateLoader;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Environment;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import io.jooby.ServiceRegistry;
+import io.jooby.TemplateEngine;
 
 /**
  * Handlebars module: https://jooby.io/modules/handlebars.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -49,11 +49,11 @@ import static java.util.Arrays.asList;
  * }
  * }</pre>
  *
- * The template engine looks for a file-system directory: <code>views</code> in the current
- * user directory. If the directory doesn't exist, it looks for the same directory in the project
+ * The template engine looks for a file-system directory: <code>views</code> in the current user
+ * directory. If the directory doesn't exist, it looks for the same directory in the project
  * classpath.
  *
- * You can specify a different template location:
+ * <p>You can specify a different template location:
  *
  * <pre>{@code
  * {
@@ -65,10 +65,10 @@ import static java.util.Arrays.asList;
  *
  * The <code>mypath</code> location works in the same way: file-system or fallback to classpath.
  *
- * Template engine supports the following file extensions: <code>.ftl</code>,
- * <code>.ftl.html</code> and <code>.html</code>.
+ * <p>Template engine supports the following file extensions: <code>.ftl</code>, <code>.ftl.html
+ * </code> and <code>.html</code>.
  *
- * Direct access to {@link Handlebars} is available via require call:
+ * <p>Direct access to {@link Handlebars} is available via require call:
  *
  * <pre>{@code
  * {
@@ -85,13 +85,10 @@ import static java.util.Arrays.asList;
  */
 public class HandlebarsModule implements Extension {
 
-  /**
-   * Utility class for creating {@link Handlebars} instances.
-   */
+  /** Utility class for creating {@link Handlebars} instances. */
   public static class Builder {
 
-    private Handlebars handlebars = new Handlebars()
-        .setCharset(StandardCharsets.UTF_8);
+    private Handlebars handlebars = new Handlebars().setCharset(StandardCharsets.UTF_8);
 
     private TemplateLoader loader;
 
@@ -153,16 +150,20 @@ public class HandlebarsModule implements Extension {
      */
     public @NonNull Handlebars build(@NonNull Environment env) {
       if (loader == null) {
-        String templatesPathString = normalizePath(
-            env.getProperty(TEMPLATE_PATH, Optional.ofNullable(this.templatesPathString).orElse(TemplateEngine.PATH)));
+        String templatesPathString =
+            normalizePath(
+                env.getProperty(
+                    TEMPLATE_PATH,
+                    Optional.ofNullable(this.templatesPathString).orElse(TemplateEngine.PATH)));
         loader = defaultTemplateLoader(env, templatesPathString, templatesPath);
       }
       handlebars.with(loader);
 
       if (cache == null) {
-        cache = env.isActive("dev", "test")
-            ? NullTemplateCache.INSTANCE
-            : new HighConcurrencyTemplateCache();
+        cache =
+            env.isActive("dev", "test")
+                ? NullTemplateCache.INSTANCE
+                : new HighConcurrencyTemplateCache();
       }
       handlebars.with(cache);
 
@@ -171,16 +172,18 @@ public class HandlebarsModule implements Extension {
       return handlebars;
     }
 
-    private static TemplateLoader defaultTemplateLoader(Environment env,
-        String templatePathString, Path templatesPath) {
-      Path dir = Optional.ofNullable(templatesPath)
-          .orElse(Paths.get(System.getProperty("user.dir"), templatePathString));
+    private static TemplateLoader defaultTemplateLoader(
+        Environment env, String templatePathString, Path templatesPath) {
+      Path dir =
+          Optional.ofNullable(templatesPath)
+              .orElse(Paths.get(System.getProperty("user.dir"), templatePathString));
       if (Files.exists(dir)) {
         return new FileTemplateLoader(dir.toFile(), "");
       }
       ClassLoader classLoader = env.getClassLoader();
       return new ClassPathTemplateLoader(templatePathString, "") {
-        @Override protected URL getResource(String location) {
+        @Override
+        protected URL getResource(String location) {
           return classLoader.getResource(location);
         }
       };
@@ -223,19 +226,19 @@ public class HandlebarsModule implements Extension {
     this.templatesPath = templatesPath;
   }
 
-  /**
-   * Creates a new handlebars module using the default path: <code>views</code>.
-   */
+  /** Creates a new handlebars module using the default path: <code>views</code>. */
   public HandlebarsModule() {
     this(TemplateEngine.PATH);
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     if (handlebars == null) {
-      handlebars = create()
-          .setTemplatesPath(templatesPathString)
-          .setTemplatesPath(templatesPath)
-          .build(application.getEnvironment());
+      handlebars =
+          create()
+              .setTemplatesPath(templatesPathString)
+              .setTemplatesPath(templatesPath)
+              .build(application.getEnvironment());
     }
     application.encoder(new HbsTemplateEngine(handlebars, EXT));
 

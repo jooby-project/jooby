@@ -1,17 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.utow;
 
-import io.jooby.Body;
-import io.jooby.exception.StatusCodeException;
-import io.jooby.Router;
-import io.jooby.StatusCode;
-import io.undertow.io.Receiver;
-import io.undertow.server.ExchangeCompletionListener;
-import io.undertow.server.HttpServerExchange;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,12 +16,18 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
+import io.jooby.Body;
+import io.jooby.Router;
+import io.jooby.StatusCode;
+import io.jooby.exception.StatusCodeException;
+import io.undertow.io.Receiver;
+import io.undertow.server.ExchangeCompletionListener;
+import io.undertow.server.HttpServerExchange;
 
 public class UtowBodyHandler
-    implements Receiver.FullBytesCallback, Receiver.PartialBytesCallback,
-    ExchangeCompletionListener {
+    implements Receiver.FullBytesCallback,
+        Receiver.PartialBytesCallback,
+        ExchangeCompletionListener {
 
   private final int bufferSize;
   private final long maxRequestSize;
@@ -38,20 +39,22 @@ public class UtowBodyHandler
   private FileChannel channel;
   private long position;
 
-  public UtowBodyHandler(Router.Match route, UtowContext context, int bufferSize,
-      long maxRequestSize) {
+  public UtowBodyHandler(
+      Router.Match route, UtowContext context, int bufferSize, long maxRequestSize) {
     this.route = route;
     this.context = context;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
   }
 
-  @Override public void handle(HttpServerExchange exchange, byte[] bytes) {
+  @Override
+  public void handle(HttpServerExchange exchange, byte[] bytes) {
     context.body = Body.of(context, bytes);
     route.execute(context);
   }
 
-  @Override public void exchangeEvent(HttpServerExchange exchange, NextListener next) {
+  @Override
+  public void exchangeEvent(HttpServerExchange exchange, NextListener next) {
     try {
       Files.deleteIfExists(file);
     } catch (IOException x) {
@@ -61,7 +64,8 @@ public class UtowBodyHandler
     }
   }
 
-  @Override public void handle(HttpServerExchange exchange, byte[] chunk, boolean last) {
+  @Override
+  public void handle(HttpServerExchange exchange, byte[] chunk, boolean last) {
     try {
       if (chunk.length > 0) {
         chunkSize += chunk.length;

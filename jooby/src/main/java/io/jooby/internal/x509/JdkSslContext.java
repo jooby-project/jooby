@@ -1,17 +1,7 @@
 /*
- * Copyright 2014 The Netty Project
- *
- * The Netty Project licenses this file to you under the Apache License,
- * version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at:
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.x509;
 
@@ -45,12 +35,12 @@ import org.slf4j.LoggerFactory;
 /**
  * An {@link SslContext} which uses JDK's SSL/TLS implementation.
  *
- * Borrowed from <a href="http://netty.io">Netty</a>
+ * <p>Borrowed from <a href="http://netty.io">Netty</a>
  */
 public abstract class JdkSslContext extends SslContext {
 
   /** The logging system. */
-  private final static Logger logger = LoggerFactory.getLogger(JdkSslContext.class);
+  private static final Logger logger = LoggerFactory.getLogger(JdkSslContext.class);
 
   static final String PROTOCOL = "TLS";
   static final String[] PROTOCOLS;
@@ -78,9 +68,7 @@ public abstract class JdkSslContext extends SslContext {
       supportedProtocolsSet.add(supportedProtocols[i]);
     }
     List<String> protocols = new ArrayList<String>();
-    addIfSupported(
-        supportedProtocolsSet, protocols,
-        "TLSv1.2", "TLSv1.1", "TLSv1");
+    addIfSupported(supportedProtocolsSet, protocols, "TLSv1.2", "TLSv1.1", "TLSv1");
 
     if (!protocols.isEmpty()) {
       PROTOCOLS = protocols.toArray(new String[0]);
@@ -96,7 +84,8 @@ public abstract class JdkSslContext extends SslContext {
     }
     List<String> ciphers = new ArrayList<String>();
     addIfSupported(
-        SUPPORTED_CIPHERS, ciphers,
+        SUPPORTED_CIPHERS,
+        ciphers,
         // XXX: Make sure to sync this list with OpenSslEngineFactory.
         // GCM (Galois/Counter Mode) requires JDK 8.
         "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
@@ -127,8 +116,8 @@ public abstract class JdkSslContext extends SslContext {
     }
   }
 
-  private static void addIfSupported(final Set<String> supported, final List<String> enabled,
-      final String... names) {
+  private static void addIfSupported(
+      final Set<String> supported, final List<String> enabled, final String... names) {
     for (String n : names) {
       if (supported.contains(n)) {
         enabled.add(n);
@@ -136,9 +125,7 @@ public abstract class JdkSslContext extends SslContext {
     }
   }
 
-  /**
-   * Returns the JDK {@link SSLSessionContext} object held by this context.
-   */
+  /** Returns the JDK {@link SSLSessionContext} object held by this context. */
   @Override
   public final SSLSessionContext sessionContext() {
     return context().getServerSessionContext();
@@ -160,17 +147,17 @@ public abstract class JdkSslContext extends SslContext {
    *
    * @param certChainFile a X.509 certificate chain file in PEM format
    * @param keyFile a PKCS#8 private key file in PEM format
-   * @param keyPassword the password of the {@code keyFile}.
-   *        {@code null} if it's not password-protected.
+   * @param keyPassword the password of the {@code keyFile}. {@code null} if it's not
+   *     password-protected.
    * @param kmf The existing {@link KeyManagerFactory} that will be used if not {@code null}
    * @return A {@link KeyManagerFactory} based upon a key file, key file password, and a certificate
-   *         chain.
+   *     chain.
    */
-  protected static KeyManagerFactory buildKeyManagerFactory(final InputStream certChainFile,
-      final InputStream keyFile, final String keyPassword)
+  protected static KeyManagerFactory buildKeyManagerFactory(
+      final InputStream certChainFile, final InputStream keyFile, final String keyPassword)
       throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException,
-      NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException,
-      CertificateException, KeyException, IOException {
+          NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException,
+          CertificateException, KeyException, IOException {
     String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
     if (algorithm == null) {
       algorithm = "SunX509";
@@ -179,24 +166,26 @@ public abstract class JdkSslContext extends SslContext {
   }
 
   /**
-   * Build a {@link KeyManagerFactory} based upon a key algorithm, key file, key file password,
-   * and a certificate chain.
+   * Build a {@link KeyManagerFactory} based upon a key algorithm, key file, key file password, and
+   * a certificate chain.
    *
    * @param certChainFile a X.509 certificate chain file in PEM format
    * @param keyAlgorithm the standard name of the requested algorithm. See the Java Secure Socket
-   *        Extension
-   *        Reference Guide for information about standard algorithm names.
+   *     Extension Reference Guide for information about standard algorithm names.
    * @param keyFile a PKCS#8 private key file in PEM format
-   * @param keyPassword the password of the {@code keyFile}.
-   *        {@code null} if it's not password-protected.
+   * @param keyPassword the password of the {@code keyFile}. {@code null} if it's not
+   *     password-protected.
    * @return A {@link KeyManagerFactory} based upon a key algorithm, key file, key file password,
-   *         and a certificate chain.
+   *     and a certificate chain.
    */
-  protected static KeyManagerFactory buildKeyManagerFactory(final InputStream certChainFile,
-      final String keyAlgorithm, final InputStream keyFile, final String keyPassword)
+  protected static KeyManagerFactory buildKeyManagerFactory(
+      final InputStream certChainFile,
+      final String keyAlgorithm,
+      final InputStream keyFile,
+      final String keyPassword)
       throws KeyStoreException, NoSuchAlgorithmException, NoSuchPaddingException,
-      InvalidKeySpecException, InvalidAlgorithmParameterException, IOException,
-      CertificateException, KeyException, UnrecoverableKeyException {
+          InvalidKeySpecException, InvalidAlgorithmParameterException, IOException,
+          CertificateException, KeyException, UnrecoverableKeyException {
     char[] keyPasswordChars = keyPassword == null ? EMPTY_CHARS : keyPassword.toCharArray();
     KeyStore ks = buildKeyStore(certChainFile, keyFile, keyPasswordChars);
     KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyAlgorithm);

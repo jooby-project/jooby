@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -15,7 +15,7 @@ import io.jooby.internal.converter.ValueOfConverter;
  * Value converter for simple values that come from query, path, form, etc... parameters into more
  * specific type.
  *
- * It is an extension point for {@link Value#to(Class)} calls.
+ * <p>It is an extension point for {@link Value#to(Class)} calls.
  */
 public interface ValueConverter {
   /**

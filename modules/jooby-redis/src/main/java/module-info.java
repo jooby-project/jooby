@@ -10,7 +10,6 @@ module io.jooby.redis {
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
-
   requires org.apache.commons.pool2;
   requires lettuce.core;
 }

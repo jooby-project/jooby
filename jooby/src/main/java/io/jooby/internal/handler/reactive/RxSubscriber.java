@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -21,20 +21,24 @@ public class RxSubscriber implements MaybeObserver<Object>, SingleObserver<Objec
     this.context = context;
   }
 
-  @Override public void onSubscribe(Disposable d) {
+  @Override
+  public void onSubscribe(Disposable d) {
     this.subscription = d;
   }
 
-  @Override public void onSuccess(Object value) {
+  @Override
+  public void onSuccess(Object value) {
     context.render(value);
   }
 
-  @Override public void onError(Throwable x) {
+  @Override
+  public void onError(Throwable x) {
     context.sendError(x);
     subscription.dispose();
   }
 
-  @Override public void onComplete() {
+  @Override
+  public void onComplete() {
     if (!context.isResponseStarted()) {
       // assume it is a maybe response:
       context.send(StatusCode.NOT_FOUND);

@@ -1,10 +1,18 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.jwt;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.Session;
@@ -18,16 +26,9 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 /**
  * A HTTP cookie session store using JSON Web Token. Usage:
+ *
  * <pre>{@code
  * {
  *   String key = "256 bit key"
@@ -38,7 +39,7 @@ import java.util.function.Function;
  * It uses <code>HMAC-SHA-256</code> for signing the cookie. Secret key and cookie option can be
  * specify programmatically or in your application configuration file.
  *
- * This session store delegates to {@link SessionStore#signed(SessionToken, Function, Function)}
+ * <p>This session store delegates to {@link SessionStore#signed(SessionToken, Function, Function)}
  * using JSON Web Token library.
  *
  * @author edgar
@@ -58,9 +59,8 @@ public class JwtSessionStore implements SessionStore {
   }
 
   /**
-   * Creates a JSON Web Token session store. Session token is usually a
-   * {@link SessionToken#signedCookie(Cookie)}, {@link SessionToken#header(String)} or combination
-   * of both.
+   * Creates a JSON Web Token session store. Session token is usually a {@link
+   * SessionToken#signedCookie(Cookie)}, {@link SessionToken#header(String)} or combination of both.
    *
    * @param key Secret key.
    * @param token Session token.
@@ -70,9 +70,8 @@ public class JwtSessionStore implements SessionStore {
   }
 
   /**
-   * Creates a JSON Web Token session store. Session token is usually a
-   * {@link SessionToken#signedCookie(Cookie)}, {@link SessionToken#header(String)} or combination
-   * of both.
+   * Creates a JSON Web Token session store. Session token is usually a {@link
+   * SessionToken#signedCookie(Cookie)}, {@link SessionToken#header(String)} or combination of both.
    *
    * @param key Secret key.
    * @param token Session token.
@@ -81,27 +80,33 @@ public class JwtSessionStore implements SessionStore {
     this.store = SessionStore.signed(token, decoder(key), encoder(key));
   }
 
-  @NonNull @Override public Session newSession(@NonNull Context ctx) {
+  @NonNull @Override
+  public Session newSession(@NonNull Context ctx) {
     return store.newSession(ctx);
   }
 
-  @Nullable @Override public Session findSession(@NonNull Context ctx) {
+  @Nullable @Override
+  public Session findSession(@NonNull Context ctx) {
     return store.findSession(ctx);
   }
 
-  @Override public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
+  @Override
+  public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
     store.deleteSession(ctx, session);
   }
 
-  @Override public void touchSession(@NonNull Context ctx, @NonNull Session session) {
+  @Override
+  public void touchSession(@NonNull Context ctx, @NonNull Session session) {
     store.touchSession(ctx, session);
   }
 
-  @Override public void saveSession(@NonNull Context ctx, @NonNull Session session) {
+  @Override
+  public void saveSession(@NonNull Context ctx, @NonNull Session session) {
     store.saveSession(ctx, session);
   }
 
-  @Override public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
+  @Override
+  public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
     store.renewSessionId(ctx, session);
   }
 

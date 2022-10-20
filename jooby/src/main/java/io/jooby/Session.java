@@ -1,16 +1,16 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.SessionImpl;
+import java.time.Instant;
+import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import java.time.Instant;
-import java.util.Map;
+import io.jooby.internal.SessionImpl;
 
 /**
  * HTTP session. Only basic data types can be saved into session.
@@ -213,13 +213,12 @@ public interface Session {
    */
   Session clear();
 
-  /**
-   * Destroy/invalidates this session.
-   */
+  /** Destroy/invalidates this session. */
   void destroy();
 
   /**
    * Assign a new ID to the existing session.
+   *
    * @return This session.
    */
   Session renewId();
@@ -243,8 +242,8 @@ public interface Session {
    * @param data Session attributes.
    * @return A new session.
    */
-  static @NonNull Session create(@NonNull Context ctx, @Nullable String id,
-      @NonNull Map<String, String> data) {
+  static @NonNull Session create(
+      @NonNull Context ctx, @Nullable String id, @NonNull Map<String, String> data) {
     return new SessionImpl(ctx, id, data);
   }
 }

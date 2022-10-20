@@ -1,25 +1,25 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.weld;
 
-import io.jooby.Extension;
-import io.jooby.Jooby;
+import static org.jboss.weld.environment.se.Weld.SHUTDOWN_HOOK_SYSTEM_PROPERTY;
+
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-
-import static org.jboss.weld.environment.se.Weld.SHUTDOWN_HOOK_SYSTEM_PROPERTY;
+import io.jooby.Extension;
+import io.jooby.Jooby;
 
 /**
  * Weld module: https://jooby.io/modules/weld.
  *
- * Jooby integrates the {@link io.jooby.ServiceRegistry} into the Weld DI framework.
+ * <p>Jooby integrates the {@link io.jooby.ServiceRegistry} into the Weld DI framework.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -33,7 +33,7 @@ import static org.jboss.weld.environment.se.Weld.SHUTDOWN_HOOK_SYSTEM_PROPERTY;
  *
  * Require calls are going to be resolve by Weld now.
  *
- * Weld scan the {@link Jooby#getBasePackage()}, unless you specify them explicitly.
+ * <p>Weld scan the {@link Jooby#getBasePackage()}, unless you specify them explicitly.
  *
  * @author edgar
  * @since 2.0.0
@@ -62,24 +62,27 @@ public class WeldModule implements Extension {
     this.packages = packages;
   }
 
-  @Override public boolean lateinit() {
+  @Override
+  public boolean lateinit() {
     return true;
   }
 
-  @Override public void install(@NonNull Jooby application) {
+  @Override
+  public void install(@NonNull Jooby application) {
     if (container == null) {
       if (packages.length == 0) {
         String basePackage = application.getBasePackage();
         if (basePackage == null) {
           throw new IllegalStateException("Weld requires at least one package to scan.");
         }
-        packages = new String[]{basePackage};
+        packages = new String[] {basePackage};
       }
-      Weld weld = new Weld()
-          .disableDiscovery()
-          .addPackages(true, toPackages(packages))
-          .addProperty(SHUTDOWN_HOOK_SYSTEM_PROPERTY, false)
-          .addExtension(new JoobyExtension(application));
+      Weld weld =
+          new Weld()
+              .disableDiscovery()
+              .addPackages(true, toPackages(packages))
+              .addProperty(SHUTDOWN_HOOK_SYSTEM_PROPERTY, false)
+              .addExtension(new JoobyExtension(application));
 
       application.onStop(weld::shutdown);
 

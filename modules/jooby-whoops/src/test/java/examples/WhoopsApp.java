@@ -1,18 +1,25 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import examples.utils.Utils;
 import io.jooby.Jooby;
 import io.jooby.whoops.WhoopsModule;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 public class WhoopsApp extends Jooby {
   {
-    get("/{id}", ctx -> {
-      Object id = ctx.path("id").intValue();
-      return function(id);
-    });
+    get(
+        "/{id}",
+        ctx -> {
+          Object id = ctx.path("id").intValue();
+          return function(id);
+        });
 
     install(new WhoopsModule(basedir()));
   }

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -24,7 +24,8 @@ public class CacheControl {
   public static final int UNDEFINED = -1;
 
   /**
-   * Constant for the max-age parameter, when set, the {@code Cache-Control} header is set to {@code no-store, must-revalidate}.
+   * Constant for the max-age parameter, when set, the {@code Cache-Control} header is set to {@code
+   * no-store, must-revalidate}.
    *
    * @see #setMaxAge(long)
    */
@@ -108,8 +109,8 @@ public class CacheControl {
   }
 
   /**
-   * Set cache-control header to {@code no-store, must-revalidate}, disables e-tag
-   * and {@code If-Modified-Since} header support.
+   * Set cache-control header to {@code no-store, must-revalidate}, disables e-tag and {@code
+   * If-Modified-Since} header support.
    *
    * @return This instance.
    */
@@ -122,10 +123,11 @@ public class CacheControl {
 
   /**
    * Returns the default caching configuration for assets.
+   *
    * <ul>
-   *   <li>e-tag support: enabled</li>
-   *   <li>{@code If-Modified-Since} support: enabled</li>
-   *   <li>max-age: {@link #UNDEFINED} (no {@code Cache-Control} header is generated)</li>
+   *   <li>e-tag support: enabled
+   *   <li>{@code If-Modified-Since} support: enabled
+   *   <li>max-age: {@link #UNDEFINED} (no {@code Cache-Control} header is generated)
    * </ul>
    *
    * @return the default cache configuration.
@@ -136,10 +138,12 @@ public class CacheControl {
 
   /**
    * Returns a caching configuration for disabling cache completely.
+   *
    * <ul>
-   *   <li>e-tag support: disabled</li>
-   *   <li>{@code If-Modified-Since} support: disabled</li>
-   *   <li>max-age: {@link #NO_CACHE} (the {@code Cache-Control} header is set to {@code no-store, must-revalidate})</li>
+   *   <li>e-tag support: disabled
+   *   <li>{@code If-Modified-Since} support: disabled
+   *   <li>max-age: {@link #NO_CACHE} (the {@code Cache-Control} header is set to {@code no-store,
+   *       must-revalidate})
    * </ul>
    *
    * @return cache configuration that disables caching.

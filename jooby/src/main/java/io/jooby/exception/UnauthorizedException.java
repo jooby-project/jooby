@@ -1,14 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.exception;
 
-import io.jooby.StatusCode;
+import java.util.Optional;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
-import java.util.Optional;
+import io.jooby.StatusCode;
 
 /**
  * Specific error for unauthorized access.
@@ -26,9 +26,7 @@ public class UnauthorizedException extends StatusCodeException {
     super(StatusCode.UNAUTHORIZED, Optional.ofNullable(message).orElse(""));
   }
 
-  /**
-   * Creates an unauthorized exception.
-   */
+  /** Creates an unauthorized exception. */
   public UnauthorizedException() {
     this(null);
   }

@@ -1,21 +1,21 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.utow;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
 
 public class UtowFileUpload implements FileUpload {
 
@@ -27,7 +27,8 @@ public class UtowFileUpload implements FileUpload {
     this.upload = upload;
   }
 
-  @Override public byte[] bytes() {
+  @Override
+  public byte[] bytes() {
     try (InputStream in = stream()) {
       ByteArrayOutputStream buffer = new ByteArrayOutputStream(ServerOptions._16KB);
       byte[] data = new byte[ServerOptions._16KB];
@@ -41,7 +42,8 @@ public class UtowFileUpload implements FileUpload {
     }
   }
 
-  @Override public InputStream stream() {
+  @Override
+  public InputStream stream() {
     try {
       return upload.getFileItem().getInputStream();
     } catch (IOException x) {
@@ -49,23 +51,28 @@ public class UtowFileUpload implements FileUpload {
     }
   }
 
-  @NonNull @Override public String getName() {
+  @NonNull @Override
+  public String getName() {
     return name;
   }
 
-  @Override public String getFileName() {
+  @Override
+  public String getFileName() {
     return upload.getFileName();
   }
 
-  @Override public String getContentType() {
+  @Override
+  public String getContentType() {
     return upload.getHeaders().getFirst(Headers.CONTENT_TYPE);
   }
 
-  @Override public Path path() {
+  @Override
+  public Path path() {
     return upload.getFileItem().getFile();
   }
 
-  @Override public long getFileSize() {
+  @Override
+  public long getFileSize() {
     try {
       return upload.getFileItem().getFileSize();
     } catch (IOException x) {
@@ -73,7 +80,8 @@ public class UtowFileUpload implements FileUpload {
     }
   }
 
-  @Override public void destroy() {
+  @Override
+  public void destroy() {
     try {
       upload.getFileItem().delete();
     } catch (IOException x) {
@@ -81,7 +89,8 @@ public class UtowFileUpload implements FileUpload {
     }
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return getFileName();
   }
 }

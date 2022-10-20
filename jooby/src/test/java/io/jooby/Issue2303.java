@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,8 +29,8 @@ public class Issue2303 {
     withResource(ssl, ssl.getPrivateKey(), Assertions::assertNotNull);
   }
 
-  private void withResource(SslOptions ssl, String file,
-      SneakyThrows.Consumer<InputStream> consumer) throws IOException {
+  private void withResource(
+      SslOptions ssl, String file, SneakyThrows.Consumer<InputStream> consumer) throws IOException {
     try (InputStream crtFile = ssl.getResource(getClass().getClassLoader(), file)) {
       consumer.accept(crtFile);
     }

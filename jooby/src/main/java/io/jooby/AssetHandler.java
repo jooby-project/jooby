@@ -1,22 +1,23 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import static java.util.Objects.requireNonNull;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Handler for static resources represented by the {@link Asset} contract.
  *
- * It has built-in support for static-static as well as SPAs (single page applications).
+ * <p>It has built-in support for static-static as well as SPAs (single page applications).
  *
  * @author edgar
  * @since 2.0.0
@@ -35,8 +36,8 @@ public class AssetHandler implements Route.Handler {
   private Function<String, CacheControl> cacheControl = path -> defaults;
 
   /**
-   * Creates a new asset handler that fallback to the given fallback asset when the asset
-   * is not found. Instead of produces a <code>404</code> its fallback to the given asset.
+   * Creates a new asset handler that fallback to the given fallback asset when the asset is not
+   * found. Instead of produces a <code>404</code> its fallback to the given asset.
    *
    * <pre>{@code
    * {
@@ -63,7 +64,8 @@ public class AssetHandler implements Route.Handler {
     this.sources = checkSource(sources);
   }
 
-  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
+  @NonNull @Override
+  public Object apply(@NonNull Context ctx) throws Exception {
     final String resolvedPath;
     String filepath = ctx.pathMap().getOrDefault(filekey, "index.html");
     Asset asset = resolve(filepath);
@@ -170,8 +172,8 @@ public class AssetHandler implements Route.Handler {
   }
 
   /**
-   * Set cache-control header to {@code no-store, must-revalidate}, disables e-tag
-   * and {@code If-Modified-Since} header support.
+   * Set cache-control header to {@code no-store, must-revalidate}, disables e-tag and {@code
+   * If-Modified-Since} header support.
    *
    * @return This handler.
    */
@@ -181,8 +183,8 @@ public class AssetHandler implements Route.Handler {
   }
 
   /**
-   * Sets a custom function that provides caching configuration for each individual
-   * asset response overriding the defaults set in {@link AssetHandler}.
+   * Sets a custom function that provides caching configuration for each individual asset response
+   * overriding the defaults set in {@link AssetHandler}.
    *
    * @param cacheControl a cache configuration provider function.
    * @return this instance.
@@ -203,7 +205,8 @@ public class AssetHandler implements Route.Handler {
     return null;
   }
 
-  @Override public void setRoute(Route route) {
+  @Override
+  public void setRoute(Route route) {
     List<String> keys = route.getPathKeys();
     this.filekey = keys.size() == 0 ? route.getPattern().substring(1) : keys.get(0);
     // NOTE: It send an inputstream we don't need a renderer

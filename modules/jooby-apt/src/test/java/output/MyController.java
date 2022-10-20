@@ -1,13 +1,12 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package output;
 
-import io.jooby.Context;
 import io.jooby.StatusCode;
 import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.PathParam;
-import io.jooby.annotations.QueryParam;
-
-import java.util.Map;
 
 public class MyController {
 

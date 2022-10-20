@@ -1,17 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigParseOptions;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,15 +18,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigParseOptions;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 /**
  * Application environment contains configuration object and active environment names.
  *
- * The active environment names serve the purpose of allowing loading different configuration files
- * depending on the environment. Also, {@link Extension} modules might configure application
- * services differently depending on the environment too. For example: turn on/off caches,
- * reload files, etc.
+ * <p>The active environment names serve the purpose of allowing loading different configuration
+ * files depending on the environment. Also, {@link Extension} modules might configure application
+ * services differently depending on the environment too. For example: turn on/off caches, reload
+ * files, etc.
  *
- * The <code>application.env</code> property controls the active environment names.
+ * <p>The <code>application.env</code> property controls the active environment names.
  *
  * @since 2.0.0
  * @author edgar
@@ -53,8 +53,8 @@ public class Environment {
    * @param config Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@NonNull ClassLoader classLoader, @NonNull Config config,
-      @NonNull String... actives) {
+  public Environment(
+      @NonNull ClassLoader classLoader, @NonNull Config config, @NonNull String... actives) {
     this(classLoader, config, Arrays.asList(actives));
   }
 
@@ -65,13 +65,11 @@ public class Environment {
    * @param config Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@NonNull ClassLoader classLoader, @NonNull Config config,
-      @NonNull List<String> actives) {
+  public Environment(
+      @NonNull ClassLoader classLoader, @NonNull Config config, @NonNull List<String> actives) {
     this.classLoader = classLoader;
-    this.actives = actives.stream()
-        .map(String::trim)
-        .map(String::toLowerCase)
-        .collect(Collectors.toList());
+    this.actives =
+        actives.stream().map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
     this.config = config;
   }
 
@@ -110,8 +108,8 @@ public class Environment {
    * user.password = "pass"
    * </pre>
    *
-   * A call to <code>getProperties("user")</code> give you a map like:
-   * <code>{user.name: name, user.password: pass}</code>
+   * A call to <code>getProperties("user")</code> give you a map like: <code>
+   * {user.name: name, user.password: pass}</code>
    *
    * @param key Key.
    * @return Properties under that key or empty map.
@@ -128,8 +126,8 @@ public class Environment {
    * user.password = "pass"
    * </pre>
    *
-   * A call to <code>getProperties("user", "u")</code> give you a map like:
-   * <code>{u.name: name, u.password: pass}</code>
+   * A call to <code>getProperties("user", "u")</code> give you a map like: <code>
+   * {u.name: name, u.password: pass}</code>
    *
    * @param key Key.
    * @param prefix Prefix to use or <code>null</code> for none.
@@ -140,14 +138,15 @@ public class Environment {
       Map<String, String> settings = new HashMap<>();
       String p = prefix == null || prefix.length() == 0 ? "" : prefix + ".";
       config.getConfig(key).entrySet().stream()
-          .forEach(e -> {
-            Object value = e.getValue().unwrapped();
-            if (value instanceof List) {
-              value = ((List) value).stream().collect(Collectors.joining(", "));
-            }
-            String k = p + e.getKey();
-            settings.put(k, value.toString());
-          });
+          .forEach(
+              e -> {
+                Object value = e.getValue().unwrapped();
+                if (value instanceof List) {
+                  value = ((List) value).stream().collect(Collectors.joining(", "));
+                }
+                String k = p + e.getKey();
+                settings.put(k, value.toString());
+              });
       return settings;
     }
     return Collections.emptyMap();
@@ -218,7 +217,8 @@ public class Environment {
     }
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return actives + "\n" + toString(config).trim();
   }
 
@@ -259,7 +259,8 @@ public class Environment {
    * @return Configuration object.
    */
   public static @NonNull Config systemProperties() {
-    return ConfigFactory.parseProperties(System.getProperties(),
+    return ConfigFactory.parseProperties(
+        System.getProperties(),
         ConfigParseOptions.defaults().setOriginDescription("system properties"));
   }
 
@@ -273,34 +274,33 @@ public class Environment {
   }
 
   /**
-   * This method search for an application.conf file in three location
-   * (first-listed are higher priority):
+   * This method search for an application.conf file in three location (first-listed are higher
+   * priority):
    *
    * <ul>
    *   <li>${user.dir}/conf: This is a file system location, useful is you want to externalize
-   *     configuration (outside of jar file).</li>
+   *       configuration (outside of jar file).
    *   <li>${user.dir}: This is a file system location, useful is you want to externalize
-   *     configuration (outside of jar file)</li>
+   *       configuration (outside of jar file)
    *   <li>classpath:// (root of classpath). No external configuration, configuration file lives
-   *     inside the jar file</li>
+   *       inside the jar file
    * </ul>
    *
    * Property overrides is done in the following order (first-listed are higher priority):
    *
    * <ul>
-   *   <li>Program arguments</li>
-   *   <li>System properties</li>
-   *   <li>Environment variables</li>
-   *   <li>Environment property file</li>
-   *   <li>Property file</li>
+   *   <li>Program arguments
+   *   <li>System properties
+   *   <li>Environment variables
+   *   <li>Environment property file
+   *   <li>Property file
    * </ul>
    *
    * @param options Options like basedir, filename, etc.
    * @return A new environment.
    */
   public static @NonNull Environment loadEnvironment(@NonNull EnvironmentOptions options) {
-    Config sys = systemProperties()
-        .withFallback(systemEnv());
+    Config sys = systemProperties().withFallback(systemEnv());
 
     List<String> actives = options.getActiveNames();
     String filename = options.getFilename();
@@ -314,7 +314,6 @@ public class Environment {
     }
     Path userdir = Paths.get(System.getProperty("user.dir"));
     /** Application file: */
-
     String[] names = new String[actives.size() + 1];
     for (int i = 0; i < actives.size(); i++) {
       names[i] = filename + "." + actives.get(i).trim().toLowerCase() + extension;
@@ -328,8 +327,8 @@ public class Environment {
       String env = application.getString("application.env");
       // Override environment only if the active environment is set to `dev`
       if (!actives.contains(env) && (actives.contains("dev") && actives.size() == 1)) {
-        Config envConfig = resolveConfig(options, userdir,
-            filename + "." + env.toLowerCase() + extension);
+        Config envConfig =
+            resolveConfig(options, userdir, filename + "." + env.toLowerCase() + extension);
         if (envConfig != null) {
           application = envConfig.withFallback(application);
           actives = Collections.singletonList(env.toLowerCase());
@@ -337,16 +336,13 @@ public class Environment {
       }
     }
 
-    Config result = sys
-        .withFallback(application)
-        .withFallback(defaults())
-        .resolve();
+    Config result = sys.withFallback(application).withFallback(defaults()).resolve();
 
     return new Environment(options.getClassLoader(), result, actives);
   }
 
-  private static Config resolveConfig(@NonNull EnvironmentOptions options, Path userdir,
-      String... names) {
+  private static Config resolveConfig(
+      @NonNull EnvironmentOptions options, Path userdir, String... names) {
     Config application = ConfigFactory.empty();
 
     String basedir = options.getBasedir();
@@ -354,11 +350,11 @@ public class Environment {
     Path[] rootdirs;
     String[] cpdirs;
     if (basedir == null) {
-      rootdirs = new Path[]{userdir.resolve("conf"), userdir};
-      cpdirs = new String[]{"conf", ""};
+      rootdirs = new Path[] {userdir.resolve("conf"), userdir};
+      cpdirs = new String[] {"conf", ""};
     } else {
-      rootdirs = new Path[]{Paths.get(basedir)};
-      cpdirs = new String[]{basedir};
+      rootdirs = new Path[] {Paths.get(basedir)};
+      cpdirs = new String[] {basedir};
     }
 
     for (String name : names) {
@@ -396,6 +392,7 @@ public class Environment {
 
   /**
    * Find JVM process ID.
+   *
    * @return JVM process ID or <code>null</code>.
    */
   public static @Nullable String pid() {
@@ -422,10 +419,11 @@ public class Environment {
 
   private static Config classpathConfig(ClassLoader classLoader, String[] basedirs, String name) {
     for (String basedir : basedirs) {
-      String file = basedir.isEmpty()
-          ? name
-          : Stream.concat(Stream.of(basedir.split("/")), Stream.of(name))
-          .collect(Collectors.joining("/"));
+      String file =
+          basedir.isEmpty()
+              ? name
+              : Stream.concat(Stream.of(basedir.split("/")), Stream.of(name))
+                  .collect(Collectors.joining("/"));
       Config config = ConfigFactory.parseResources(classLoader, file);
       if (!config.isEmpty()) {
         return config;

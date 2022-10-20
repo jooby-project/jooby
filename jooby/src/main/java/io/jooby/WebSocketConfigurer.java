@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -11,7 +11,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * Websocket configurer. Allow to register callbacks for websocket.
  *
  * @author edgar
- * @since  2.2.0
+ * @since 2.2.0
  */
 public interface WebSocketConfigurer {
 

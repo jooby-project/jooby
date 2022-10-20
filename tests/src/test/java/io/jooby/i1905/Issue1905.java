@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.i1905;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,14 +14,17 @@ public class Issue1905 {
 
   @ServerTest
   public void shouldInstallApp(ServerTestRunner runner) {
-    runner.define(app -> {
-      app.install(A1905::new);
-      app.install("/b", B1905::new);
+    runner
+        .define(
+            app -> {
+              app.install(A1905::new);
+              app.install("/b", B1905::new);
+            })
+        .ready(
+            http -> {
+              http.get("/a", rsp -> assertEquals("AService1905;2", rsp.body().string()));
 
-    }).ready(http -> {
-      http.get("/a", rsp -> assertEquals("AService1905;2", rsp.body().string()));
-
-      http.get("/b/b", rsp -> assertEquals("BService1905;2", rsp.body().string()));
-    });
+              http.get("/b/b", rsp -> assertEquals("BService1905;2", rsp.body().string()));
+            });
   }
 }

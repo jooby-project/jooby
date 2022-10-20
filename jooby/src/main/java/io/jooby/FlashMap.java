@@ -1,14 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.FlashMapImpl;
+import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.Map;
+import io.jooby.internal.FlashMapImpl;
 
 /**
  * Flash map.
@@ -38,5 +38,4 @@ public interface FlashMap extends Map<String, String> {
    * @return This flash map.
    */
   @NonNull FlashMap keep();
-
 }

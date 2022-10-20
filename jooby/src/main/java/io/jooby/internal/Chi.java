@@ -1,13 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
-
-import io.jooby.MessageEncoder;
-import io.jooby.Route;
-import io.jooby.Router;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -17,16 +13,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Sync: May 22, 2020
- * Commit: 5704d7ee98edd3fe55169b506531bdd061667c70
- */
+import io.jooby.MessageEncoder;
+import io.jooby.Route;
+import io.jooby.Router;
+
+/** Sync: May 22, 2020 Commit: 5704d7ee98edd3fe55169b506531bdd061667c70 */
 class Chi implements RouteTree {
   private static final String EMPTY_STRING = "";
-  private static final byte ntStatic = 0;// /home
-  private static final byte ntRegexp = 1;                // /{id:[0-9]+}
-  private static final byte ntParam = 2;                // /{user}
-  private static final byte ntCatchAll = 3;               // /api/v1/*
+  private static final byte ntStatic = 0; // /home
+  private static final byte ntRegexp = 1; // /{id:[0-9]+}
+  private static final byte ntParam = 2; // /{user}
+  private static final byte ntCatchAll = 3; // /api/v1/*
 
   private static final int NODE_SIZE = ntCatchAll + 1;
 
@@ -45,16 +42,19 @@ class Chi implements RouteTree {
     private String method;
     private StaticRouterMatch route;
 
-    @Override public void put(String method, StaticRouterMatch route) {
+    @Override
+    public void put(String method, StaticRouterMatch route) {
       this.method = method;
       this.route = route;
     }
 
-    @Override public StaticRouterMatch get(String method) {
+    @Override
+    public StaticRouterMatch get(String method) {
       return this.method.equals(method) ? route : null;
     }
 
-    @Override public boolean matches(String method) {
+    @Override
+    public boolean matches(String method) {
       return this.method.equals(method);
     }
 
@@ -72,15 +72,18 @@ class Chi implements RouteTree {
       matcher.clear();
     }
 
-    @Override public StaticRouterMatch get(String method) {
+    @Override
+    public StaticRouterMatch get(String method) {
       return methods.get(method);
     }
 
-    @Override public void put(String method, StaticRouterMatch route) {
+    @Override
+    public void put(String method, StaticRouterMatch route) {
       methods.put(method, route);
     }
 
-    @Override public boolean matches(String method) {
+    @Override
+    public boolean matches(String method) {
       return this.methods.containsKey(method);
     }
   }
@@ -106,11 +109,10 @@ class Chi implements RouteTree {
     int startIndex;
     int endIndex;
 
-    public Segment() {
-    }
+    public Segment() {}
 
-    public Segment(byte nodeType, /*String key,*/ String regex, char tail, int startIndex,
-        int endIndex) {
+    public Segment(
+        byte nodeType, /*String key,*/ String regex, char tail, int startIndex, int endIndex) {
       this.nodeType = nodeType;
       //      this.key = key;
       this.rexPat = regex;
@@ -140,7 +142,7 @@ class Chi implements RouteTree {
     Map<String, Route> endpoints;
 
     // subroutes on the leaf node
-    //Routes subroutes;
+    // Routes subroutes;
 
     // child nodes should be stored in-order for iteration,
     // in groups of the node type.
@@ -151,7 +153,8 @@ class Chi implements RouteTree {
       return this;
     }
 
-    @Override public int compareTo(Node o) {
+    @Override
+    public int compareTo(Node o) {
       return label - o.label;
     }
 
@@ -170,7 +173,8 @@ class Chi implements RouteTree {
       return this;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       StringBuilder node = new StringBuilder();
       if (prefix != null) {
         node.append(prefix);
@@ -189,11 +193,13 @@ class Chi implements RouteTree {
         default:
           node.append("catch-all");
       }
-      String nodes = Stream.of(children).filter(Objects::nonNull)
-          .flatMap(Stream::of)
-          .filter(Objects::nonNull)
-          .map(Node::toString)
-          .collect(Collectors.joining(", ", "[", "]"));
+      String nodes =
+          Stream.of(children)
+              .filter(Objects::nonNull)
+              .flatMap(Stream::of)
+              .filter(Objects::nonNull)
+              .map(Node::toString)
+              .collect(Collectors.joining(", ", "[", "]"));
       node.append(", children: ").append(nodes);
       node.append("}");
       return node.toString();
@@ -309,7 +315,6 @@ class Chi implements RouteTree {
       int segEndIdx = seg.endIndex;
       // Add child depending on next up segment
       switch (segTyp) {
-
         case ntStatic:
           // Search prefix is all static (that is, has no params in path)
           // noop
@@ -344,8 +349,7 @@ class Chi implements RouteTree {
 
               search = search.substring(segStartIdx); // advance search position
 
-              Node nn = new Node().typ(ntStatic).label(search.charAt(0))
-                  .prefix(search);
+              Node nn = new Node().typ(ntStatic).label(search.charAt(0)).prefix(search);
               hn = child.addChild(nn, search);
             }
 
@@ -425,7 +429,7 @@ class Chi implements RouteTree {
       //        h.handler = handler;
       //        h.pattern = pattern;
       //        h.paramKeys = paramKeys;
-      //}
+      // }
     }
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
@@ -545,7 +549,8 @@ class Chi implements RouteTree {
           // Did not returnType final handler, let's remove the param here if it was set
           if (xn.typ > ntStatic) {
             //          if len(rctx.routeParams.Values) > 0 {
-            //            rctx.routeParams.Values = rctx.routeParams.Values[:len(rctx.routeParams.Values) - 1]
+            //            rctx.routeParams.Values =
+            // rctx.routeParams.Values[:len(rctx.routeParams.Values) - 1]
             //          }
             rctx.pop();
           }
@@ -606,7 +611,7 @@ class Chi implements RouteTree {
 
     private Node[] append(Node[] src, Node child) {
       if (src == null) {
-        return new Node[]{child};
+        return new Node[] {child};
       }
       Node[] result = new Node[src.length + 1];
       System.arraycopy(src, 0, result, 0, src.length);
@@ -615,14 +620,15 @@ class Chi implements RouteTree {
     }
 
     // patNextSegment returns the next segment details from a pattern:
-    // node type, param key, regexp string, param tail byte, param starting index, param ending index
+    // node type, param key, regexp string, param tail byte, param starting index, param ending
+    // index
     Segment patNextSegment(String pattern) {
       int ps = pattern.indexOf('{');
       int ws = pattern.indexOf('*');
 
       if (ps < 0 && ws < 0) {
-        return new Segment(ntStatic, EMPTY_STRING, ZERO_CHAR, 0,
-            pattern.length()); // we return the entire thing
+        return new Segment(
+            ntStatic, EMPTY_STRING, ZERO_CHAR, 0, pattern.length()); // we return the entire thing
       }
 
       // Sanity check
@@ -688,7 +694,7 @@ class Chi implements RouteTree {
       // Wildcard pattern as finale
       // EDIT: should we panic if there is stuff after the * ???
       // We allow naming a wildcard: *path
-      //String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1).toString();
+      // String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1).toString();
       return new Segment(ntCatchAll, EMPTY_STRING, ZERO_CHAR, ws, pattern.length());
     }
 
@@ -715,7 +721,9 @@ class Chi implements RouteTree {
 
   private final Node root = new Node();
 
-  /** Not need to use a concurrent map, due we don't allow to add routes after application started. */
+  /**
+   * Not need to use a concurrent map, due we don't allow to add routes after application started.
+   */
   private final Map<Object, StaticRoute> staticPaths = new ConcurrentHashMap<>();
 
   public void insert(String method, String pattern, Route route) {
@@ -756,7 +764,8 @@ class Chi implements RouteTree {
     return find(method, path).matches();
   }
 
-  @Override public Router.Match find(String method, String path) {
+  @Override
+  public Router.Match find(String method, String path) {
     StaticRoute staticRoute = staticPaths.get(path);
     if (staticRoute == null) {
       return findInternal(method, path);

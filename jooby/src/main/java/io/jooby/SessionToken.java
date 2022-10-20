@@ -1,20 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.MultipleSessionToken;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.internal.MultipleSessionToken;
+
 /**
- * Find, save and delete a session token (cookie, header, parameter, etc)
- * into/from the web {@link Context}.
+ * Find, save and delete a session token (cookie, header, parameter, etc) into/from the web {@link
+ * Context}.
  *
  * @author edgar
  */
@@ -23,9 +23,8 @@ public interface SessionToken {
   /**
    * Looks for a session ID from request cookie headers. This strategy:
    *
-   * - find a token from a request cookie.
-   * - on save, set a response cookie on new sessions or when cookie has a max-age value.
-   * - on destroy, expire the cookie.
+   * <p>- find a token from a request cookie. - on save, set a response cookie on new sessions or
+   * when cookie has a max-age value. - on destroy, expire the cookie.
    */
   class CookieID implements SessionToken {
 
@@ -40,20 +39,23 @@ public interface SessionToken {
       this.cookie = cookie;
     }
 
-    @Nullable @Override public String findToken(@NonNull Context ctx) {
+    @Nullable @Override
+    public String findToken(@NonNull Context ctx) {
       return ctx.cookieMap().get(cookie.getName());
     }
 
-    @Override public void saveToken(@NonNull Context ctx, @NonNull String token) {
+    @Override
+    public void saveToken(@NonNull Context ctx, @NonNull String token) {
       // FIXME: Review, bc we don;t need this
       //  String existingId = findToken(ctx);
       // write cookie for new or expiring session
-      //if (existingId == null || cookie.getMaxAge() > 0) {
+      // if (existingId == null || cookie.getMaxAge() > 0) {
       ctx.setResponseCookie(cookie.clone().setValue(token));
-      //}
+      // }
     }
 
-    @Override public void deleteToken(@NonNull Context ctx, @NonNull String token) {
+    @Override
+    public void deleteToken(@NonNull Context ctx, @NonNull String token) {
       ctx.setResponseCookie(cookie.clone().setValue(token).setMaxAge(0));
     }
   }
@@ -61,9 +63,8 @@ public interface SessionToken {
   /**
    * Looks for a session ID from request headers. This strategy:
    *
-   * - find a token from a request header.
-   * - on save, send the header back as response header.
-   * - on session destroy. don't send response header back.
+   * <p>- find a token from a request header. - on save, send the header back as response header. -
+   * on session destroy. don't send response header back.
    */
   class HeaderID implements SessionToken {
 
@@ -78,15 +79,18 @@ public interface SessionToken {
       this.name = name;
     }
 
-    @Nullable @Override public String findToken(@NonNull Context ctx) {
+    @Nullable @Override
+    public String findToken(@NonNull Context ctx) {
       return ctx.headerMap().get(name);
     }
 
-    @Override public void saveToken(@NonNull Context ctx, @NonNull String token) {
+    @Override
+    public void saveToken(@NonNull Context ctx, @NonNull String token) {
       ctx.setResponseHeader(name, token);
     }
 
-    @Override public void deleteToken(@NonNull Context ctx, @NonNull String token) {
+    @Override
+    public void deleteToken(@NonNull Context ctx, @NonNull String token) {
       ctx.removeResponseHeader(name);
     }
   }
@@ -94,9 +98,8 @@ public interface SessionToken {
   /**
    * Looks for a session token from request cookie. This strategy:
    *
-   * - find a token from a request cookie.
-   * - on save, set a response cookie.
-   * - on destroy, expire the cookie.
+   * <p>- find a token from a request cookie. - on save, set a response cookie. - on destroy, expire
+   * the cookie.
    */
   class SignedCookie implements SessionToken {
 
@@ -111,27 +114,27 @@ public interface SessionToken {
       this.cookie = cookie;
     }
 
-    @Nullable @Override public String findToken(@NonNull Context ctx) {
+    @Nullable @Override
+    public String findToken(@NonNull Context ctx) {
       return ctx.cookieMap().get(cookie.getName());
     }
 
-    @Override public void saveToken(@NonNull Context ctx, @NonNull String token) {
+    @Override
+    public void saveToken(@NonNull Context ctx, @NonNull String token) {
       ctx.setResponseCookie(cookie.clone().setValue(token));
     }
 
-    @Override public void deleteToken(@NonNull Context ctx, @NonNull String token) {
+    @Override
+    public void deleteToken(@NonNull Context ctx, @NonNull String token) {
       ctx.setResponseCookie(cookie.clone().setMaxAge(0));
     }
   }
 
   /**
-   * Default cookie for cookie based session stores.
-   * Uses <code>jooby.sid</code> as name. It never expires, use the root, only for HTTP.
+   * Default cookie for cookie based session stores. Uses <code>jooby.sid</code> as name. It never
+   * expires, use the root, only for HTTP.
    */
-  Cookie SID = new Cookie("jooby.sid")
-      .setMaxAge(-1)
-      .setHttpOnly(true)
-      .setPath("/");
+  Cookie SID = new Cookie("jooby.sid").setMaxAge(-1).setHttpOnly(true).setPath("/");
 
   /** Secure random for default session token generator. */
   SecureRandom RND = new SecureRandom();
@@ -140,8 +143,8 @@ public interface SessionToken {
   int ID_SIZE = 30;
 
   /**
-   * Generate a new token. This implementation produces an url encoder ID using a secure random
-   * of {@link #ID_SIZE}.
+   * Generate a new token. This implementation produces an url encoder ID using a secure random of
+   * {@link #ID_SIZE}.
    *
    * @return A new token.
    */
@@ -183,9 +186,8 @@ public interface SessionToken {
   /**
    * Create a cookie-based Session ID. This strategy:
    *
-   * - find a token from a request cookie.
-   * - on save, set a response cookie on new sessions or when cookie has a max-age value.
-   * - on destroy, expire the cookie.
+   * <p>- find a token from a request cookie. - on save, set a response cookie on new sessions or
+   * when cookie has a max-age value. - on destroy, expire the cookie.
    *
    * @param cookie Cookie to use.
    * @return Session Token.
@@ -197,9 +199,8 @@ public interface SessionToken {
   /**
    * Create a signed-cookie-based Session token. This strategy:
    *
-   * - find a token from a request cookie.
-   * - on save, set a response cookie.
-   * - on destroy, expire the cookie.
+   * <p>- find a token from a request cookie. - on save, set a response cookie. - on destroy, expire
+   * the cookie.
    *
    * @param cookie Cookie to use.
    * @return Session Token.
@@ -211,9 +212,8 @@ public interface SessionToken {
   /**
    * Create a header-based Session Token. This strategy:
    *
-   * - find a token from a request header.
-   * - on save, send the header back as response header.
-   * - on session destroy. don't send response header back.
+   * <p>- find a token from a request header. - on save, send the header back as response header. -
+   * on session destroy. don't send response header back.
    *
    * @param name Header name.
    * @return Session Token.
@@ -226,16 +226,15 @@ public interface SessionToken {
    * Combine/compose two or more session tokens. Example:
    *
    * <pre>{@code
-   *   SessionToken token = SessionToken.combine(
-   *       SessionToken.header("TOKEN"),
-   *       SessionToken.cookie(SID)
-   *   );
-   * }
-   * </pre>
+   * SessionToken token = SessionToken.combine(
+   *     SessionToken.header("TOKEN"),
+   *     SessionToken.cookie(SID)
+   * );
+   * }</pre>
    *
-   * On new session, creates a response header and cookie.
-   * On save token, generates a response header or cookie based on best matches.
-   * On delete token, generates a response header or cookie based on best matches.
+   * On new session, creates a response header and cookie. On save token, generates a response
+   * header or cookie based on best matches. On delete token, generates a response header or cookie
+   * based on best matches.
    *
    * @param tokens Tokens to use.
    * @return A composed session token.

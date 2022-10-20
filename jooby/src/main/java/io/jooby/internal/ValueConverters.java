@@ -1,12 +1,21 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import io.jooby.BeanConverter;
 import io.jooby.Router;
+import io.jooby.ValueConverter;
 import io.jooby.ValueNode;
 import io.jooby.internal.converter.BigDecimalConverter;
 import io.jooby.internal.converter.BigIntegerConverter;
@@ -17,23 +26,12 @@ import io.jooby.internal.converter.InstantConverter;
 import io.jooby.internal.converter.LocalDateConverter;
 import io.jooby.internal.converter.LocalDateTimeConverter;
 import io.jooby.internal.converter.PeriodConverter;
-import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StatusCodeConverter;
 import io.jooby.internal.converter.TimeZoneConverter;
 import io.jooby.internal.converter.URIConverter;
 import io.jooby.internal.converter.UUIDConverter;
-import io.jooby.internal.converter.ValueOfConverter;
 import io.jooby.internal.converter.ZoneIdConverter;
 import io.jooby.internal.reflect.$Types;
-import io.jooby.ValueConverter;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 public class ValueConverters {
 
@@ -67,8 +65,7 @@ public class ValueConverters {
   public static <T> T convert(ValueNode value, Type type, Router router) {
     Class rawType = $Types.getRawType(type);
     if (List.class.isAssignableFrom(rawType)) {
-      return (T) Collections
-          .singletonList(convert(value, $Types.parameterizedType0(type), router));
+      return (T) Collections.singletonList(convert(value, $Types.parameterizedType0(type), router));
     }
     if (Set.class.isAssignableFrom(rawType)) {
       return (T) Collections.singleton(convert(value, $Types.parameterizedType0(type), router));

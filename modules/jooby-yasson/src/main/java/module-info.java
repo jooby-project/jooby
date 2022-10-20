@@ -9,6 +9,5 @@ module io.jooby.yasson {
   requires io.jooby;
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
-
   requires jakarta.json.bind;
 }

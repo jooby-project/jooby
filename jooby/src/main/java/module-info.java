@@ -10,7 +10,6 @@
 // IMPORTANT if you modify this file you might have to modify the other one
 // END
 module io.jooby {
-
   exports io.jooby;
   exports io.jooby.annotations;
   exports io.jooby.exception;
@@ -59,6 +58,6 @@ module io.jooby {
   requires kotlinx.coroutines.core.jvm;
   requires kotlin.stdlib;
 
-  // END
+// END
 
 }

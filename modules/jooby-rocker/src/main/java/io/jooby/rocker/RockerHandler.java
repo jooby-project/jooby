@@ -1,14 +1,13 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.rocker;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerOutputFactory;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
@@ -23,7 +22,8 @@ class RockerHandler implements Route.Handler {
     this.factory = factory;
   }
 
-  @NonNull @Override public Object apply(@NonNull Context ctx) {
+  @NonNull @Override
+  public Object apply(@NonNull Context ctx) {
     try {
       RockerModel template = (RockerModel) next.apply(ctx);
       ctx.setResponseType(MediaType.html);

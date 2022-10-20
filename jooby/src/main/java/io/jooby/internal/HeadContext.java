@@ -1,21 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Context;
-import io.jooby.FileDownload;
-import io.jooby.ForwardingContext;
-import io.jooby.MediaType;
-import io.jooby.MessageEncoder;
-import io.jooby.Route;
-import io.jooby.Sender;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,6 +17,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.FileDownload;
+import io.jooby.ForwardingContext;
+import io.jooby.MediaType;
+import io.jooby.MessageEncoder;
+import io.jooby.Route;
+import io.jooby.Sender;
+import io.jooby.SneakyThrows;
+import io.jooby.StatusCode;
+
 public class HeadContext extends ForwardingContext {
   /**
    * Creates a new forwarding context.
@@ -38,7 +38,8 @@ public class HeadContext extends ForwardingContext {
     super(context);
   }
 
-  @NonNull @Override public Context send(@NonNull Path file) {
+  @NonNull @Override
+  public Context send(@NonNull Path file) {
     try {
       ctx.setResponseLength(Files.size(file));
       checkSizeHeaders();
@@ -50,25 +51,29 @@ public class HeadContext extends ForwardingContext {
     }
   }
 
-  @NonNull @Override public Context send(@NonNull byte[] data) {
+  @NonNull @Override
+  public Context send(@NonNull byte[] data) {
     ctx.setResponseLength(data.length);
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @NonNull @Override public Context send(@NonNull String data) {
+  @NonNull @Override
+  public Context send(@NonNull String data) {
     return send(data, StandardCharsets.UTF_8);
   }
 
-  @NonNull @Override public Context send(@NonNull ByteBuffer data) {
+  @NonNull @Override
+  public Context send(@NonNull ByteBuffer data) {
     ctx.setResponseLength(data.remaining());
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @NonNull @Override public Context send(@NonNull FileChannel file) {
+  @NonNull @Override
+  public Context send(@NonNull FileChannel file) {
     try {
       ctx.setResponseLength(file.size());
       checkSizeHeaders();
@@ -79,7 +84,8 @@ public class HeadContext extends ForwardingContext {
     }
   }
 
-  @NonNull @Override public Context send(@NonNull FileDownload file) {
+  @NonNull @Override
+  public Context send(@NonNull FileDownload file) {
     ctx.setResponseLength(file.getFileSize());
     ctx.setResponseType(file.getContentType());
     checkSizeHeaders();
@@ -87,31 +93,36 @@ public class HeadContext extends ForwardingContext {
     return this;
   }
 
-  @NonNull @Override public Context send(@NonNull InputStream input) {
+  @NonNull @Override
+  public Context send(@NonNull InputStream input) {
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @NonNull @Override public Context send(@NonNull StatusCode statusCode) {
+  @NonNull @Override
+  public Context send(@NonNull StatusCode statusCode) {
     ctx.send(statusCode);
     return this;
   }
 
-  @NonNull @Override public Context send(@NonNull ReadableByteChannel channel) {
+  @NonNull @Override
+  public Context send(@NonNull ReadableByteChannel channel) {
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @NonNull @Override public Context send(@NonNull String data, @NonNull Charset charset) {
+  @NonNull @Override
+  public Context send(@NonNull String data, @NonNull Charset charset) {
     ctx.setResponseLength(data.getBytes(charset).length);
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
   }
 
-  @NonNull @Override public Context render(@NonNull Object value) {
+  @NonNull @Override
+  public Context render(@NonNull Object value) {
     try {
       Route route = getRoute();
       MessageEncoder encoder = route.getEncoder();
@@ -129,19 +140,22 @@ public class HeadContext extends ForwardingContext {
     }
   }
 
-  @NonNull @Override public Sender responseSender() {
+  @NonNull @Override
+  public Sender responseSender() {
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return new NoopSender();
   }
 
-  @NonNull @Override public OutputStream responseStream() {
+  @NonNull @Override
+  public OutputStream responseStream() {
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return new NoopOutputStream();
   }
 
-  @NonNull @Override public PrintWriter responseWriter() {
+  @NonNull @Override
+  public PrintWriter responseWriter() {
     return new PrintWriter(responseStream());
   }
 
@@ -154,22 +168,23 @@ public class HeadContext extends ForwardingContext {
   }
 
   private static class NoopOutputStream extends OutputStream {
-    @Override public void write(@NonNull byte[] b) throws IOException {
-    }
+    @Override
+    public void write(@NonNull byte[] b) throws IOException {}
 
-    @Override public void write(@NonNull byte[] b, int off, int len) throws IOException {
-    }
+    @Override
+    public void write(@NonNull byte[] b, int off, int len) throws IOException {}
 
-    @Override public void write(int b) throws IOException {
-    }
+    @Override
+    public void write(int b) throws IOException {}
   }
 
   private static class NoopSender implements Sender {
-    @NonNull @Override public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
+    @NonNull @Override
+    public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
       return this;
     }
 
-    @Override public void close() {
-    }
+    @Override
+    public void close() {}
   }
 }

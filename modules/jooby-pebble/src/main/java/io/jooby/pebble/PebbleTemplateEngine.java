@@ -1,17 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.pebble;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import io.jooby.Context;
-import io.jooby.ModelAndView;
-import io.jooby.TemplateEngine;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
@@ -19,6 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.template.PebbleTemplate;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.ModelAndView;
+import io.jooby.TemplateEngine;
 
 class PebbleTemplateEngine implements TemplateEngine {
 
@@ -30,8 +30,7 @@ class PebbleTemplateEngine implements TemplateEngine {
     this.extensions = Collections.unmodifiableList(extensions);
   }
 
-  @NonNull
-  @Override
+  @NonNull @Override
   public List<String> extensions() {
     return extensions;
   }

@@ -1,18 +1,9 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.test;
-
-import io.jooby.Formdata;
-import io.jooby.Multipart;
-import io.jooby.ParamLookup;
-import io.jooby.ParamSource;
-import io.jooby.Value;
-import io.jooby.exception.MissingValueException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 import static io.jooby.ParamSource.COOKIE;
 import static io.jooby.ParamSource.FLASH;
@@ -24,6 +15,21 @@ import static io.jooby.ParamSource.QUERY;
 import static io.jooby.ParamSource.SESSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import io.jooby.Formdata;
+import io.jooby.Multipart;
+import io.jooby.ParamLookup;
+import io.jooby.ParamSource;
+import io.jooby.Value;
+import io.jooby.exception.MissingValueException;
 
 public class LookupTest {
 
@@ -77,23 +83,120 @@ public class LookupTest {
     test(FORM, MULTIPART, PATH, HEADER, COOKIE, FLASH, SESSION, QUERY);
     test(MULTIPART, PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM);
 
-    test(PATH, l -> l.inPath().inHeader().inCookie().inFlash().inSession().inQuery().inForm().inMultipart());
-    test(HEADER, l -> l.inHeader().inCookie().inFlash().inSession().inQuery().inForm().inMultipart().inPath());
-    test(COOKIE, l -> l.inCookie().inFlash().inSession().inQuery().inForm().inMultipart().inPath().inHeader());
-    test(FLASH, l -> l.inFlash().inSession().inQuery().inForm().inMultipart().inPath().inHeader().inCookie());
-    test(SESSION, l -> l.inSession().inQuery().inForm().inMultipart().inPath().inHeader().inCookie().inFlash());
-    test(QUERY, l -> l.inQuery().inForm().inMultipart().inPath().inHeader().inCookie().inFlash().inSession());
-    test(FORM, l -> l.inForm().inMultipart().inPath().inHeader().inCookie().inFlash().inSession().inQuery());
-    test(MULTIPART, l -> l.inMultipart().inPath().inHeader().inCookie().inFlash().inSession().inQuery().inForm());
+    test(
+        PATH,
+        l ->
+            l.inPath()
+                .inHeader()
+                .inCookie()
+                .inFlash()
+                .inSession()
+                .inQuery()
+                .inForm()
+                .inMultipart());
+    test(
+        HEADER,
+        l ->
+            l.inHeader()
+                .inCookie()
+                .inFlash()
+                .inSession()
+                .inQuery()
+                .inForm()
+                .inMultipart()
+                .inPath());
+    test(
+        COOKIE,
+        l ->
+            l.inCookie()
+                .inFlash()
+                .inSession()
+                .inQuery()
+                .inForm()
+                .inMultipart()
+                .inPath()
+                .inHeader());
+    test(
+        FLASH,
+        l ->
+            l.inFlash()
+                .inSession()
+                .inQuery()
+                .inForm()
+                .inMultipart()
+                .inPath()
+                .inHeader()
+                .inCookie());
+    test(
+        SESSION,
+        l ->
+            l.inSession()
+                .inQuery()
+                .inForm()
+                .inMultipart()
+                .inPath()
+                .inHeader()
+                .inCookie()
+                .inFlash());
+    test(
+        QUERY,
+        l ->
+            l.inQuery()
+                .inForm()
+                .inMultipart()
+                .inPath()
+                .inHeader()
+                .inCookie()
+                .inFlash()
+                .inSession());
+    test(
+        FORM,
+        l ->
+            l.inForm()
+                .inMultipart()
+                .inPath()
+                .inHeader()
+                .inCookie()
+                .inFlash()
+                .inSession()
+                .inQuery());
+    test(
+        MULTIPART,
+        l ->
+            l.inMultipart()
+                .inPath()
+                .inHeader()
+                .inCookie()
+                .inFlash()
+                .inSession()
+                .inQuery()
+                .inForm());
   }
 
   @Test
   public void testMissingValue() {
-    assertThrows(MissingValueException.class,
-        () -> new MockContext().lookup("foo", PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM, MULTIPART).value());
+    assertThrows(
+        MissingValueException.class,
+        () ->
+            new MockContext()
+                .lookup("foo", PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM, MULTIPART)
+                .value());
 
-    assertThrows(MissingValueException.class,
-        () -> new MockContext().lookup().inPath().inHeader().inCookie().inFlash().inSession().inQuery().inForm().inMultipart().get("foo").value());
+    assertThrows(
+        MissingValueException.class,
+        () ->
+            new MockContext()
+                .lookup()
+                .inPath()
+                .inHeader()
+                .inCookie()
+                .inFlash()
+                .inSession()
+                .inQuery()
+                .inForm()
+                .inMultipart()
+                .get("foo")
+                .value());
   }
 
   private void test(ParamSource... sources) {

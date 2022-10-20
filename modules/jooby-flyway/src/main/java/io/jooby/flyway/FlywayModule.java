@@ -1,32 +1,34 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.flyway;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.sql.DataSource;
+
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Flyway database migration module: https://jooby.io/modules/flyway.
  *
- * Usage:
+ * <p>Usage:
  *
- * - Add hikari and flyway dependency
+ * <p>- Add hikari and flyway dependency
  *
- * - Install them
+ * <p>- Install them
  *
  * <pre>{@code
  * {
@@ -39,11 +41,8 @@ import java.util.Optional;
  * The default command is <code>migrate</code> which is controlled by the <code>flyway.run</code>
  * application configuration property.
  *
- * You can specify multiple commands:
- *
- * <code>flyway.run = [clean, migrate]</code>
- *
- * Complete documentation is available at: https://jooby.io/modules/flyway.
+ * <p>You can specify multiple commands: <code>flyway.run = [clean, migrate]</code> Complete
+ * documentation is available at: https://jooby.io/modules/flyway.
  *
  * @author edgar
  * @since 2.0.0
@@ -62,14 +61,15 @@ public class FlywayModule implements Extension {
   }
 
   /**
-   * Creates a new Flyway module.  Use the default/first datasource and register objects using
-   * the <code>db</code> key.
+   * Creates a new Flyway module. Use the default/first datasource and register objects using the
+   * <code>db</code> key.
    */
   public FlywayModule() {
     this("db");
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     Environment environment = application.getEnvironment();
     ServiceRegistry registry = application.getServices();
     DataSource dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));
@@ -86,8 +86,8 @@ public class FlywayModule implements Extension {
     properties.putAll(defaults);
     properties.putAll(overrides);
 
-    String[] commandString = Optional.ofNullable(properties.remove("flyway.run")).orElse("migrate")
-        .split("\\s*,\\s*");
+    String[] commandString =
+        Optional.ofNullable(properties.remove("flyway.run")).orElse("migrate").split("\\s*,\\s*");
 
     configuration.configuration(properties);
     configuration.dataSource(dataSource);

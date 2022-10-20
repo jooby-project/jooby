@@ -1,9 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.pebble;
+
+import static java.util.Arrays.asList;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
 
 import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.attributes.methodaccess.BlacklistMethodAccessValidator;
@@ -16,27 +26,17 @@ import com.mitchellbosecke.pebble.loader.FileLoader;
 import com.mitchellbosecke.pebble.loader.Loader;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
 import io.jooby.TemplateEngine;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-
-import static java.util.Arrays.asList;
-
 /**
  * Pebble module: https://jooby.io/modules/pebble.
- * <p>
- * Usage:
+ *
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -50,12 +50,12 @@ import static java.util.Arrays.asList;
  *   });
  * }
  * }</pre>
- * <p>
- * The template engine looks for a file-system directory: <code>views</code> in the current
- * user directory. If the directory doesn't exist, it looks for the same directory in the project
+ *
+ * <p>The template engine looks for a file-system directory: <code>views</code> in the current user
+ * directory. If the directory doesn't exist, it looks for the same directory in the project
  * classpath.
- * <p>
- * You can specify a different template location:
+ *
+ * <p>You can specify a different template location:
  *
  * <pre>{@code
  * {
@@ -64,12 +64,13 @@ import static java.util.Arrays.asList;
  *
  * }
  * }</pre>
- * <p>
- * The <code>mypath</code> location works in the same way: file-system or fallback to classpath.
- * <p>
- * Template engine supports the following file extensions: <code>.peb</code>, <code>.pebble</code> and <code>.html</code>.
- * <p>
- * Direct access to {@link PebbleEngine.Builder} is available via require call:
+ *
+ * <p>The <code>mypath</code> location works in the same way: file-system or fallback to classpath.
+ *
+ * <p>Template engine supports the following file extensions: <code>.peb</code>, <code>.pebble
+ * </code> and <code>.html</code>.
+ *
+ * <p>Direct access to {@link PebbleEngine.Builder} is available via require call:
  *
  * <pre>{@code
  * {
@@ -78,17 +79,15 @@ import static java.util.Arrays.asList;
  *
  * }
  * }</pre>
- * <p>
- * Complete documentation is available at: https://jooby.io/modules/pebble.
+ *
+ * <p>Complete documentation is available at: https://jooby.io/modules/pebble.
  *
  * @author sojin
  * @since 2.0.0
  */
 public class PebbleModule implements Extension {
 
-  /**
-   * Utility class for creating {@link PebbleModule} instances.
-   */
+  /** Utility class for creating {@link PebbleModule} instances. */
   public static class Builder {
 
     private Loader<?> loader;
@@ -105,8 +104,7 @@ public class PebbleModule implements Extension {
      * @param cache Template cache.
      * @return This builder.
      */
-    public @NonNull
-    Builder setTemplateCache(@NonNull PebbleCache<Object, PebbleTemplate> cache) {
+    public @NonNull Builder setTemplateCache(@NonNull PebbleCache<Object, PebbleTemplate> cache) {
       this.templateCache = cache;
       return this;
     }
@@ -117,8 +115,7 @@ public class PebbleModule implements Extension {
      * @param tagCache Tag cache.
      * @return This builder.
      */
-    public @NonNull
-    Builder setTagCache(@NonNull PebbleCache<CacheKey, Object> tagCache) {
+    public @NonNull Builder setTagCache(@NonNull PebbleCache<CacheKey, Object> tagCache) {
       this.tagCache = tagCache;
       return this;
     }
@@ -129,8 +126,7 @@ public class PebbleModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @NonNull
-    Builder setTemplatesPath(@NonNull String templatesPath) {
+    public @NonNull Builder setTemplatesPath(@NonNull String templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
@@ -141,8 +137,7 @@ public class PebbleModule implements Extension {
      * @param executorService Set ExecutorService.
      * @return This builder.
      */
-    public @NonNull
-    Builder setExecutorService(@NonNull ExecutorService executorService) {
+    public @NonNull Builder setExecutorService(@NonNull ExecutorService executorService) {
       this.executorService = executorService;
       return this;
     }
@@ -153,8 +148,7 @@ public class PebbleModule implements Extension {
      * @param defaultLocale Locale.
      * @return This builder.
      */
-    public @NonNull
-    Builder setDefaultLocale(@NonNull Locale defaultLocale) {
+    public @NonNull Builder setDefaultLocale(@NonNull Locale defaultLocale) {
       this.defaultLocale = defaultLocale;
       return this;
     }
@@ -165,8 +159,7 @@ public class PebbleModule implements Extension {
      * @param loader Template loader to use.
      * @return This builder.
      */
-    public @NonNull
-    Builder setTemplateLoader(@NonNull Loader<?> loader) {
+    public @NonNull Builder setTemplateLoader(@NonNull Loader<?> loader) {
       this.loader = loader;
       return this;
     }
@@ -177,13 +170,11 @@ public class PebbleModule implements Extension {
      * @param env Application environment.
      * @return A new PebbleEngine instance.
      */
-    public @NonNull
-    PebbleEngine.Builder build(@NonNull Environment env) {
+    public @NonNull PebbleEngine.Builder build(@NonNull Environment env) {
 
       PebbleEngine.Builder builder = new PebbleEngine.Builder();
 
       /** Settings: */
-
       if (env.isActive("dev", "test")) {
         builder.cacheActive(false);
       }
@@ -284,15 +275,13 @@ public class PebbleModule implements Extension {
    * Creates a new PebbleModule module.
    *
    * @param templatesPath Template location to use. First try to file-system or fallback to
-   *                      classpath.
+   *     classpath.
    */
   public PebbleModule(@NonNull String templatesPath) {
     this.templatesPath = templatesPath;
   }
 
-  /**
-   * Creates a new PebbleModule module using the default path: <code>views</code>.
-   */
+  /** Creates a new PebbleModule module using the default path: <code>views</code>. */
   public PebbleModule() {
     this(TemplateEngine.PATH);
   }
@@ -313,8 +302,7 @@ public class PebbleModule implements Extension {
    *
    * @return A builder.
    */
-  public static @NonNull
-  PebbleModule.Builder create() {
+  public static @NonNull PebbleModule.Builder create() {
     return new PebbleModule.Builder();
   }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -44,7 +44,7 @@ public class MissingValueException extends BadRequestException {
    * @param <T> Value type.
    * @return Input value
    */
-  public static <T> T requireNonNull(@NonNull String name, @Nullable T value)  {
+  public static <T> T requireNonNull(@NonNull String name, @Nullable T value) {
     if (value == null) {
       throw new MissingValueException(name);
     }

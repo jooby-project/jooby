@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -13,14 +13,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.Session;
 import io.jooby.SessionStore;
@@ -66,8 +65,9 @@ public class RedisSessionStore implements SessionStore {
    * @param redis Redis connection.
    */
   public RedisSessionStore(@NonNull RedisClient redis) {
-    this(ConnectionPoolSupport
-        .createGenericObjectPool(() -> redis.connect(), new GenericObjectPoolConfig()));
+    this(
+        ConnectionPoolSupport.createGenericObjectPool(
+            () -> redis.connect(), new GenericObjectPoolConfig()));
   }
 
   /**
@@ -106,9 +106,7 @@ public class RedisSessionStore implements SessionStore {
    * @return This store.
    */
   public @NonNull RedisSessionStore setTimeout(@NonNull Duration timeout) {
-    this.timeout = Optional.ofNullable(timeout)
-        .filter(t -> t.getSeconds() > 0)
-        .orElse(null);
+    this.timeout = Optional.ofNullable(timeout).filter(t -> t.getSeconds() > 0).orElse(null);
     return this;
   }
 
@@ -142,7 +140,8 @@ public class RedisSessionStore implements SessionStore {
     return this;
   }
 
-  @NonNull @Override public Session newSession(@NonNull Context ctx) {
+  @NonNull @Override
+  public Session newSession(@NonNull Context ctx) {
     String sessionId = token.newToken();
 
     Instant now = Instant.now();
@@ -161,32 +160,36 @@ public class RedisSessionStore implements SessionStore {
         .setCreationTime(now);
   }
 
-  @Nullable @Override public Session findSession(@NonNull Context ctx) {
+  @Nullable @Override
+  public Session findSession(@NonNull Context ctx) {
     String sessionId = token.findToken(ctx);
     if (sessionId == null) {
       return null;
     }
-    return withConnection(connection -> {
-      RedisCommands<String, String> commands = connection.sync();
-      String redisId = key(sessionId);
-      Map<String, String> data = commands.hgetall(redisId);
-      if (data == null || data.isEmpty()) {
-        return null;
-      }
-      Optional.ofNullable(timeout).map(Duration::getSeconds)
-          .ifPresent(seconds -> commands.expire(redisId, seconds));
-      Instant lastAccessedTime = Instant.parse(data.remove(LAST_ACCESSED_AT));
-      Instant createdAt = Instant.parse(data.remove(CREATED_AT));
+    return withConnection(
+        connection -> {
+          RedisCommands<String, String> commands = connection.sync();
+          String redisId = key(sessionId);
+          Map<String, String> data = commands.hgetall(redisId);
+          if (data == null || data.isEmpty()) {
+            return null;
+          }
+          Optional.ofNullable(timeout)
+              .map(Duration::getSeconds)
+              .ifPresent(seconds -> commands.expire(redisId, seconds));
+          Instant lastAccessedTime = Instant.parse(data.remove(LAST_ACCESSED_AT));
+          Instant createdAt = Instant.parse(data.remove(CREATED_AT));
 
-      token.saveToken(ctx, sessionId);
+          token.saveToken(ctx, sessionId);
 
-      return Session.create(ctx, sessionId, new ConcurrentHashMap<>(data))
-          .setCreationTime(createdAt)
-          .setLastAccessedTime(lastAccessedTime);
-    });
+          return Session.create(ctx, sessionId, new ConcurrentHashMap<>(data))
+              .setCreationTime(createdAt)
+              .setLastAccessedTime(lastAccessedTime);
+        });
   }
 
-  @Override public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
+  @Override
+  public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
     String sessionId = session.getId();
 
     withConnection(connection -> connection.async().del(key(sessionId)));
@@ -194,49 +197,54 @@ public class RedisSessionStore implements SessionStore {
     token.deleteToken(ctx, sessionId);
   }
 
-  @Override public void touchSession(@NonNull Context ctx, @NonNull Session session) {
+  @Override
+  public void touchSession(@NonNull Context ctx, @NonNull Session session) {
     saveSession(ctx, session);
 
     token.saveToken(ctx, session.getId());
   }
 
-  @Override public void saveSession(@NonNull Context ctx, @NonNull Session session) {
+  @Override
+  public void saveSession(@NonNull Context ctx, @NonNull Session session) {
     saveSession(session.getId(), new HashMap<>(session.toMap()));
   }
 
-  @Override public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
-
-  }
+  @Override
+  public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {}
 
   private void saveSession(String sessionId, Map<String, String> data) {
-    withConnection(connection -> {
+    withConnection(
+        connection -> {
+          Instant now = Instant.now();
+          String isoNow = DateTimeFormatter.ISO_INSTANT.format(now);
 
-      Instant now = Instant.now();
-      String isoNow = DateTimeFormatter.ISO_INSTANT.format(now);
+          data.put(LAST_ACCESSED_AT, isoNow);
+          data.put(CREATED_AT, isoNow);
 
-      data.put(LAST_ACCESSED_AT, isoNow);
-      data.put(CREATED_AT, isoNow);
-
-      RedisAsyncCommands<String, String> commands = connection.async();
-      String redisId = key(sessionId);
-      // start transaction
-      commands.multi();
-      // delete existing
-      commands.del(redisId);
-      // save again
-      commands.hset(redisId, data);
-      // commit
-      return commands.exec().handle((value, cause) -> {
-        if (cause != null) {
-          log.error("unable to create session: {}", sessionId, cause);
-          return sessionId;
-        } else {
-          Optional.ofNullable(timeout).map(Duration::getSeconds)
-              .ifPresent(seconds -> commands.expire(redisId, seconds));
-          return value;
-        }
-      });
-    });
+          RedisAsyncCommands<String, String> commands = connection.async();
+          String redisId = key(sessionId);
+          // start transaction
+          commands.multi();
+          // delete existing
+          commands.del(redisId);
+          // save again
+          commands.hset(redisId, data);
+          // commit
+          return commands
+              .exec()
+              .handle(
+                  (value, cause) -> {
+                    if (cause != null) {
+                      log.error("unable to create session: {}", sessionId, cause);
+                      return sessionId;
+                    } else {
+                      Optional.ofNullable(timeout)
+                          .map(Duration::getSeconds)
+                          .ifPresent(seconds -> commands.expire(redisId, seconds));
+                      return value;
+                    }
+                  });
+        });
   }
 
   private <T> T withConnection(SneakyThrows.Function<StatefulRedisConnection, T> callback) {

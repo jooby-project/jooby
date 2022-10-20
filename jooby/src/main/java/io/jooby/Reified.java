@@ -1,13 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.reflect.$Types;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -16,20 +13,21 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.internal.reflect.$Types;
+
 /**
- * Represents a generic type {@code T}. Java doesn't yet provide a way to
- * represent generic types, so this class does. Forces clients to create a
- * subclass of this class which enables retrieval the type information even at
- * runtime.
+ * Represents a generic type {@code T}. Java doesn't yet provide a way to represent generic types,
+ * so this class does. Forces clients to create a subclass of this class which enables retrieval the
+ * type information even at runtime.
  *
- * <p>For example, to create a type literal for {@code List<String>}, you can
- * create an empty anonymous inner class:
+ * <p>For example, to create a type literal for {@code List<String>}, you can create an empty
+ * anonymous inner class:
  *
- * <p>
- * {@code Reified<List<String>> list = new Reified<List<String>>() {};}
+ * <p>{@code Reified<List<String>> list = new Reified<List<String>>() {};}
  *
- * <p>This syntax cannot be used to create type literals that have wildcard
- * parameters, such as {@code Class<?>} or {@code List<? extends CharSequence>}.
+ * <p>This syntax cannot be used to create type literals that have wildcard parameters, such as
+ * {@code Class<?>} or {@code List<? extends CharSequence>}.
  *
  * @param <T> Target type.
  * @author Bob Lee
@@ -42,12 +40,10 @@ public class Reified<T> {
   private final int hashCode;
 
   /**
-   * Constructs a new type literal. Derives represented class from type
-   * parameter.
+   * Constructs a new type literal. Derives represented class from type parameter.
    *
-   * <p>Clients create an empty anonymous subclass. Doing so embeds the type
-   * parameter in the anonymous class's type hierarchy so we can reconstitute it
-   * at runtime despite erasure.
+   * <p>Clients create an empty anonymous subclass. Doing so embeds the type parameter in the
+   * anonymous class's type hierarchy so we can reconstitute it at runtime despite erasure.
    */
   @SuppressWarnings("unchecked")
   public Reified() {
@@ -80,8 +76,8 @@ public class Reified<T> {
   }
 
   /**
-   * Returns the type from super class's type parameter in {@link $Types#canonicalize
-   * canonical form}.
+   * Returns the type from super class's type parameter in {@link $Types#canonicalize canonical
+   * form}.
    *
    * @param subclass Subclass.
    * @return Type.
@@ -113,16 +109,18 @@ public class Reified<T> {
     return type;
   }
 
-  @Override public final int hashCode() {
+  @Override
+  public final int hashCode() {
     return this.hashCode;
   }
 
-  @Override public final boolean equals(Object o) {
-    return o instanceof Reified<?>
-        && $Types.equals(type, ((Reified<?>) o).type);
+  @Override
+  public final boolean equals(Object o) {
+    return o instanceof Reified<?> && $Types.equals(type, ((Reified<?>) o).type);
   }
 
-  @Override public final String toString() {
+  @Override
+  public final String toString() {
     return $Types.typeToString(type);
   }
 
@@ -223,11 +221,11 @@ public class Reified<T> {
    *
    * @param rawType Raw type.
    * @param typeArguments Parameter types.
-   * @return Gets type literal for the parameterized type represented by applying
-   *    {@code typeArguments} to {@code rawType}.
+   * @return Gets type literal for the parameterized type represented by applying {@code
+   *     typeArguments} to {@code rawType}.
    */
-  public static @NonNull Reified<?> getParameterized(@NonNull Type rawType,
-      @NonNull Type... typeArguments) {
+  public static @NonNull Reified<?> getParameterized(
+      @NonNull Type rawType, @NonNull Type... typeArguments) {
     return new Reified<>($Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
   }
 }

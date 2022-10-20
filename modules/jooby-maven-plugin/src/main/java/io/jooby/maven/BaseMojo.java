@@ -1,11 +1,23 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.maven;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.maven.Maven;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
@@ -22,25 +34,14 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectDependenciesResolver;
 import org.eclipse.aether.graph.Dependency;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Base class which provides common utility method to more specific plugins: like classpath
  * resources.
  *
- * Also, handle maven specific exceptions.
+ * <p>Also, handle maven specific exceptions.
  *
  * @author edgar
  */
@@ -57,30 +58,32 @@ public abstract class BaseMojo extends AbstractMojo {
   @Parameter(defaultValue = "${project}", required = true, readonly = true)
   protected MavenProject project;
 
-  @Component
-  private Maven maven;
+  @Component private Maven maven;
 
-  @Component
-  private ProjectDependenciesResolver dependenciesResolver;
+  @Component private ProjectDependenciesResolver dependenciesResolver;
 
-  @Override public void execute() throws MojoExecutionException, MojoFailureException {
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException {
     try {
       List<MavenProject> projects = getProjects();
       if (mainClass == null) {
-        mainClass = projects.stream()
-            .filter(it -> it.getProperties().containsKey(APP_CLASS))
-            .findFirst()
-            .map(it -> it.getProperties().getProperty(APP_CLASS))
-            .orElseThrow(() -> new MojoExecutionException(
-                "Application class not found. Did you forget to set `application.class`?"));
+        mainClass =
+            projects.stream()
+                .filter(it -> it.getProperties().containsKey(APP_CLASS))
+                .findFirst()
+                .map(it -> it.getProperties().getProperty(APP_CLASS))
+                .orElseThrow(
+                    () ->
+                        new MojoExecutionException(
+                            "Application class not found. Did you forget to set"
+                                + " `application.class`?"));
       }
       getLog().debug("Found `" + APP_CLASS + "`: " + mainClass);
       doExecute(projects, mainClass);
     } catch (MojoExecutionException | MojoFailureException x) {
       throw x;
     } catch (Throwable x) {
-      throw new MojoFailureException(
-          "execution of " + mojoName() + " resulted in exception", x);
+      throw new MojoFailureException("execution of " + mojoName() + " resulted in exception", x);
     }
   }
 
@@ -164,8 +167,7 @@ public abstract class BaseMojo extends AbstractMojo {
    *
    * @param dependenciesResolver Project dependencies resolver.
    */
-  public void setDependenciesResolver(
-      ProjectDependenciesResolver dependenciesResolver) {
+  public void setDependenciesResolver(ProjectDependenciesResolver dependenciesResolver) {
     this.dependenciesResolver = dependenciesResolver;
   }
 
@@ -195,10 +197,11 @@ public abstract class BaseMojo extends AbstractMojo {
   protected Set<Path> resources(MavenProject project) {
     // main/resources, etc..
     List<Resource> resourceList = project.getResources();
-    List<Path> paths = resourceList.stream()
-        .map(Resource::getDirectory)
-        .map(Paths::get)
-        .collect(Collectors.toList());
+    List<Path> paths =
+        resourceList.stream()
+            .map(Resource::getDirectory)
+            .map(Paths::get)
+            .collect(Collectors.toList());
     // conf directory
     Path conf = project.getBasedir().toPath().resolve("conf");
     paths.add(conf);
@@ -225,14 +228,11 @@ public abstract class BaseMojo extends AbstractMojo {
         classpath.add(path.toUri().toURL());
       }
     }
-    return classpath.stream()
-        .distinct()
-        .collect(Collectors.toList());
+    return classpath.stream().distinct().collect(Collectors.toList());
   }
 
   @SuppressWarnings("unchecked")
-  private Set<Path> classpath(MavenProject project)
-      throws DependencyResolutionException {
+  private Set<Path> classpath(MavenProject project) throws DependencyResolutionException {
     Set<Path> paths = new LinkedHashSet<>();
     resources(project).forEach(paths::add);
     bin(project).forEach(paths::add);
@@ -248,5 +248,4 @@ public abstract class BaseMojo extends AbstractMojo {
       }
     };
   }
-
 }

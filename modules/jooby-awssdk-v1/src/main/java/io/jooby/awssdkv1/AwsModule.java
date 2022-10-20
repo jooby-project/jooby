@@ -1,9 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.awssdkv1;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSCredentialsProviderChain;
@@ -14,29 +22,21 @@ import com.amazonaws.auth.WebIdentityTokenCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
 import io.jooby.internal.awssdkv1.ConfigCredentialsProvider;
 import io.jooby.internal.awssdkv1.ServiceShutdown;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
 /**
  * Aws module for aws-java-sdk 1.x. This module:
  *
- * - Integrates AWS credentials within application properties.
- * - Register AWS services as application services (so they can be used by require calls or DI).
- * - Add graceful shutdown to AWS services.
+ * <p>- Integrates AWS credentials within application properties. - Register AWS services as
+ * application services (so they can be used by require calls or DI). - Add graceful shutdown to AWS
+ * services.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -55,9 +55,9 @@ import java.util.stream.Stream;
  * }
  * }</pre>
  *
- * <p>Previous example register AmazonS3Client and TransferManager services</p>
+ * <p>Previous example register AmazonS3Client and TransferManager services
  *
- * <p>NOTE: You need to add the required service dependency to your project.</p>
+ * <p>NOTE: You need to add the required service dependency to your project.
  *
  * @author edgar
  */
@@ -68,11 +68,9 @@ public class AwsModule implements Extension {
   /**
    * Setup a new AWS service. Supported outputs are:
    *
-   * - Single amazon service
-   * - Stream of amazon services
-   * - Collection of amazon services
+   * <p>- Single amazon service - Stream of amazon services - Collection of amazon services
    *
-   * Each of the services returned by this function are added to the application service registry
+   * <p>Each of the services returned by this function are added to the application service registry
    * and shutdown at application shutdown time.
    *
    * @param provider Service provider/factory.
@@ -83,7 +81,8 @@ public class AwsModule implements Extension {
     return this;
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     AWSCredentialsProvider credentialsProvider = newCredentialsProvider(application.getConfig());
     List<Object> serviceList = new ArrayList<>(factoryList.size());
     for (Function<AWSCredentialsProvider, Object> factory : factoryList) {
@@ -99,12 +98,14 @@ public class AwsModule implements Extension {
     ServiceRegistry services = application.getServices();
     // for each service
     for (Object service : serviceList) {
-      Stream.of(service.getClass(),
-          Stream.of(service.getClass().getInterfaces()).findFirst().orElse(null))
+      Stream.of(
+              service.getClass(),
+              Stream.of(service.getClass().getInterfaces()).findFirst().orElse(null))
           .filter(Objects::nonNull)
-          .forEach(serviceType -> {
-            services.putIfAbsent((Class) serviceType, service);
-          });
+          .forEach(
+              serviceType -> {
+                services.putIfAbsent((Class) serviceType, service);
+              });
     }
     serviceList.stream()
         .distinct()
@@ -114,9 +115,9 @@ public class AwsModule implements Extension {
   }
 
   /**
-   * Creates a credentials provider, exactly like
-   * {@link com.amazonaws.auth.DefaultAWSCredentialsProviderChain} appending the application
-   * properties provider.
+   * Creates a credentials provider, exactly like {@link
+   * com.amazonaws.auth.DefaultAWSCredentialsProviderChain} appending the application properties
+   * provider.
    *
    * @param config Application properties.
    * @return Credentials provider.
@@ -129,8 +130,7 @@ public class AwsModule implements Extension {
         new ProfileCredentialsProvider(),
         new EC2ContainerCredentialsProviderWrapper(),
         // Application configuration
-        new ConfigCredentialsProvider(config)
-    );
+        new ConfigCredentialsProvider(config));
   }
 
   private void extractServices(Object value, Consumer<Object> consumer) {

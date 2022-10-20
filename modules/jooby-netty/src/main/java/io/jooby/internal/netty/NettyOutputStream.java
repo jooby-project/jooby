@@ -1,9 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.netty;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -13,9 +16,6 @@ import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 public class NettyOutputStream extends OutputStream {
   private final ByteBuf buffer;
   private final NettyContext ctx;
@@ -23,8 +23,8 @@ public class NettyOutputStream extends OutputStream {
   private final ChannelFutureListener closeListener;
   private HttpResponse headers;
 
-  public NettyOutputStream(NettyContext ctx, ChannelHandlerContext context, int bufferSize,
-      HttpResponse headers) {
+  public NettyOutputStream(
+      NettyContext ctx, ChannelHandlerContext context, int bufferSize, HttpResponse headers) {
     this.ctx = ctx;
     this.buffer = context.alloc().buffer(0, bufferSize);
     this.context = context;
@@ -72,7 +72,8 @@ public class NettyOutputStream extends OutputStream {
     }
   }
 
-  @Override public void flush() throws IOException {
+  @Override
+  public void flush() throws IOException {
     flush(null, null);
   }
 

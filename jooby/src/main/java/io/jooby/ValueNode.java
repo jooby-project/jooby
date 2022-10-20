@@ -1,35 +1,32 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.exception.MissingValueException;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.exception.MissingValueException;
+
 /**
  * Unified API for HTTP value. This API plays two role:
  *
- * - unify access to HTTP values, like query, path, form and header parameter
- * - works as validation API, because it is able to check for required and type-safe values
+ * <p>- unify access to HTTP values, like query, path, form and header parameter - works as
+ * validation API, because it is able to check for required and type-safe values
  *
- * The value API is composed by three types:
+ * <p>The value API is composed by three types:
  *
- * - Single value
- * - Object value
- * - Sequence of values (array)
+ * <p>- Single value - Object value - Sequence of values (array)
  *
- * Single value are can be converted to string, int, boolean, enum like values.
- * Object value is a key:value structure (like a hash).
- * Sequence of values are index based structure.
+ * <p>Single value are can be converted to string, int, boolean, enum like values. Object value is a
+ * key:value structure (like a hash). Sequence of values are index based structure.
  *
- * All these 3 types are modeled into a single Value class. At any time you can treat a value as
+ * <p>All these 3 types are modeled into a single Value class. At any time you can treat a value as
  * 1) single, 2) hash or 3) array of them.
  *
  * @since 2.0.0
@@ -75,10 +72,10 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * Process the given expression and resolve value references.
    *
    * <pre>{@code
-   *   Value value = Value.single("foo", "bar");
+   * Value value = Value.single("foo", "bar");
    *
-   *   String output = value.resolve("${foo}");
-   *   System.out.println(output);
+   * String output = value.resolve("${foo}");
+   * System.out.println(output);
    * }</pre>
    *
    * @param expression Text expression.
@@ -92,10 +89,10 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * Process the given expression and resolve value references.
    *
    * <pre>{@code
-   *   Value value = Value.single("foo", "bar");
+   * Value value = Value.single("foo", "bar");
    *
-   *   String output = value.resolve("${missing}", true);
-   *   System.out.println(output);
+   * String output = value.resolve("${missing}", true);
+   * System.out.println(output);
    * }</pre>
    *
    * @param expression Text expression.
@@ -110,10 +107,10 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * Process the given expression and resolve value references.
    *
    * <pre>{@code
-   *   Value value = Value.single("foo", "bar");
+   * Value value = Value.single("foo", "bar");
    *
-   *   String output = value.resolve("<%missing%>", "<%", "%>");
-   *   System.out.println(output);
+   * String output = value.resolve("<%missing%>", "<%", "%>");
+   * System.out.println(output);
    * }</pre>
    *
    * @param expression Text expression.
@@ -121,8 +118,8 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param endDelim End delimiter.
    * @return Resolved text.
    */
-  @NonNull default String resolve(@NonNull String expression, @NonNull String startDelim,
-      @NonNull String endDelim) {
+  @NonNull default String resolve(
+      @NonNull String expression, @NonNull String startDelim, @NonNull String endDelim) {
     return resolve(expression, false, startDelim, endDelim);
   }
 
@@ -130,10 +127,10 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * Process the given expression and resolve value references.
    *
    * <pre>{@code
-   *   Value value = Value.single("foo", "bar");
+   * Value value = Value.single("foo", "bar");
    *
-   *   String output = value.resolve("<%missing%>", "<%", "%>");
-   *   System.out.println(output);
+   * String output = value.resolve("<%missing%>", "<%", "%>");
+   * System.out.println(output);
    * }</pre>
    *
    * @param expression Text expression.
@@ -142,19 +139,22 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param endDelim End delimiter.
    * @return Resolved text.
    */
-  @NonNull default String resolve(@NonNull String expression, boolean ignoreMissing,
-      @NonNull String startDelim, @NonNull String endDelim) {
+  @NonNull default String resolve(
+      @NonNull String expression,
+      boolean ignoreMissing,
+      @NonNull String startDelim,
+      @NonNull String endDelim) {
     if (expression.length() == 0) {
       return "";
     }
 
-    BiFunction<Integer, BiFunction<Integer, Integer, RuntimeException>, RuntimeException> err = (
-        start, ex) -> {
-      String snapshot = expression.substring(0, start);
-      int line = Math.max(1, (int) snapshot.chars().filter(ch -> ch == '\n').count());
-      int column = start - snapshot.lastIndexOf('\n');
-      return ex.apply(line, column);
-    };
+    BiFunction<Integer, BiFunction<Integer, Integer, RuntimeException>, RuntimeException> err =
+        (start, ex) -> {
+          String snapshot = expression.substring(0, start);
+          int line = Math.max(1, (int) snapshot.chars().filter(ch -> ch == '\n').count());
+          int column = start - snapshot.lastIndexOf('\n');
+          return ex.apply(line, column);
+        };
 
     StringBuilder buffer = new StringBuilder();
     int offset = 0;
@@ -162,9 +162,18 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
     while (start >= 0) {
       int end = expression.indexOf(endDelim, start + startDelim.length());
       if (end == -1) {
-        throw err.apply(start, (line, column) -> new IllegalArgumentException(
-            "found '" + startDelim + "' expecting '" + endDelim + "' at " + line + ":"
-                + column));
+        throw err.apply(
+            start,
+            (line, column) ->
+                new IllegalArgumentException(
+                    "found '"
+                        + startDelim
+                        + "' expecting '"
+                        + endDelim
+                        + "' at "
+                        + line
+                        + ":"
+                        + column));
       }
       buffer.append(expression.substring(offset, start));
       String key = expression.substring(start + startDelim.length(), end);
@@ -181,8 +190,11 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
         if (ignoreMissing) {
           value = expression.substring(start, end + endDelim.length());
         } else {
-          throw err.apply(start, (line, column) -> new NoSuchElementException(
-              "Missing " + startDelim + key + endDelim + " at " + line + ":" + column));
+          throw err.apply(
+              start,
+              (line, column) ->
+                  new NoSuchElementException(
+                      "Missing " + startDelim + key + endDelim + " at " + line + ":" + column));
         }
       }
       buffer.append(value);

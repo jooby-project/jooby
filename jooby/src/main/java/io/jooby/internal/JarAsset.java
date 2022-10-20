@@ -1,20 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Asset;
-import io.jooby.MediaType;
-import io.jooby.SneakyThrows;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Asset;
+import io.jooby.MediaType;
+import io.jooby.SneakyThrows;
 
 public class JarAsset implements Asset {
 
@@ -27,23 +27,28 @@ public class JarAsset implements Asset {
     entry = jar.getEntry(connection.getEntryName());
   }
 
-  @Override public boolean isDirectory() {
+  @Override
+  public boolean isDirectory() {
     return entry.isDirectory();
   }
 
-  @Override public long getSize() {
+  @Override
+  public long getSize() {
     return entry.getSize();
   }
 
-  @Override public long getLastModified() {
+  @Override
+  public long getLastModified() {
     return entry.getTime();
   }
 
-  @NonNull @Override public MediaType getContentType() {
+  @NonNull @Override
+  public MediaType getContentType() {
     return MediaType.byFile(entry.getName());
   }
 
-  @Override public InputStream stream() {
+  @Override
+  public InputStream stream() {
     try {
       return jar.getInputStream(entry);
     } catch (IOException x) {
@@ -51,7 +56,8 @@ public class JarAsset implements Asset {
     }
   }
 
-  @Override public void close() {
+  @Override
+  public void close() {
     try {
       jar.close();
     } catch (Exception x) {

@@ -1,36 +1,36 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import java.util.Map;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Websocket. Usage:
  *
  * <pre>{@code
+ * ws("/pattern", (ctx, configurer) -> {
+ *   configurer.onConnect(ws -> {
+ *     // Connect callback
+ *   }):
  *
- *     ws("/pattern", (ctx, configurer) -> {
- *       configurer.onConnect(ws -> {
- *         // Connect callback
- *       }):
+ *   configurer.onMessage((ws, message) -> {
+ *     ws.send("Got: " + message.value());
+ *   });
  *
- *       configurer.onMessage((ws, message) -> {
- *         ws.send("Got: " + message.value());
- *       });
+ *   configurer.onClose((ws, closeStatus) -> {
+ *     // Closing websocket
+ *   });
  *
- *       configurer.onClose((ws, closeStatus) -> {
- *         // Closing websocket
- *       });
+ *   configurer.onError((ws, cause) -> {
  *
- *       configurer.onError((ws, cause) -> {
- *
- *       });
- *     });
+ *   });
+ * });
  *
  * }</pre>
  *
@@ -41,8 +41,8 @@ import java.util.Map;
  */
 public interface WebSocket {
   /**
-   * Websocket initializer. Give you access to a read-only {@link Context} you are free to access
-   * to request attributes, while attempt to modify a response results in exception.
+   * Websocket initializer. Give you access to a read-only {@link Context} you are free to access to
+   * request attributes, while attempt to modify a response results in exception.
    */
   interface Initializer {
     /**
@@ -54,9 +54,7 @@ public interface WebSocket {
     void init(@NonNull Context ctx, @NonNull WebSocketConfigurer configurer);
   }
 
-  /**
-   * On connect callback.
-   */
+  /** On connect callback. */
   interface OnConnect {
     /**
      * On connect callback with recently created web socket.
@@ -81,13 +79,13 @@ public interface WebSocket {
   }
 
   /**
-   * On close callback. Generated when client close the connection or when explicit calls to
-   * {@link #close(WebSocketCloseStatus)}.
+   * On close callback. Generated when client close the connection or when explicit calls to {@link
+   * #close(WebSocketCloseStatus)}.
    */
   interface OnClose {
     /**
-     * Generated when client close the connection or when explicit calls to
-     * {@link #close(WebSocketCloseStatus)}.
+     * Generated when client close the connection or when explicit calls to {@link
+     * #close(WebSocketCloseStatus)}.
      *
      * @param ws WebSocket.
      * @param closeStatus Close status.
@@ -95,9 +93,7 @@ public interface WebSocket {
     void onClose(@NonNull WebSocket ws, @NonNull WebSocketCloseStatus closeStatus);
   }
 
-  /**
-   * On error callback. Generated when unexpected error occurs.
-   */
+  /** On error callback. Generated when unexpected error occurs. */
   interface OnError {
     /**
      * Error callback, let you listen for exception. Websocket might or might not be open.
@@ -112,10 +108,10 @@ public interface WebSocket {
   int MAX_BUFFER_SIZE = 131072;
 
   /**
-   * Originating HTTP context. Please note this is a read-only context, so you are not allowed
-   * to modify or produces a response from it.
+   * Originating HTTP context. Please note this is a read-only context, so you are not allowed to
+   * modify or produces a response from it.
    *
-   * The context let give you access to originating request (then one that was upgrade it).
+   * <p>The context let give you access to originating request (then one that was upgrade it).
    *
    * @return Read-only originating HTTP request.
    */
@@ -165,8 +161,7 @@ public interface WebSocket {
   }
 
   /**
-   * Web sockets connected to the same path. This method doesn't include the current
-   * websocket.
+   * Web sockets connected to the same path. This method doesn't include the current websocket.
    *
    * @return Web sockets or empty list.
    */
@@ -232,7 +227,7 @@ public interface WebSocket {
   /**
    * Close the web socket and send a {@link WebSocketCloseStatus#NORMAL} code to client.
    *
-   * This method fires a {@link OnClose#onClose(WebSocket, WebSocketCloseStatus)} callback.
+   * <p>This method fires a {@link OnClose#onClose(WebSocket, WebSocketCloseStatus)} callback.
    *
    * @return This websocket.
    */
@@ -243,7 +238,7 @@ public interface WebSocket {
   /**
    * Close the web socket and send a close status code to client.
    *
-   * This method fires a {@link OnClose#onClose(WebSocket, WebSocketCloseStatus)} callback.
+   * <p>This method fires a {@link OnClose#onClose(WebSocket, WebSocketCloseStatus)} callback.
    *
    * @param closeStatus Close status.
    * @return This websocket.

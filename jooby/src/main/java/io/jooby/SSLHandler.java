@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -11,7 +11,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * Force SSL handler. Check for non-HTTPs request and force client to use HTTPs by redirecting the
  * call to the HTTPs version.
  *
- * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+ * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
  * please consider to set {@link Router#setTrustProxy(boolean)} option.
  *
  * @author edgar
@@ -24,7 +24,7 @@ public class SSLHandler implements Route.Before {
   /**
    * Creates a SSLHandler and redirect non-HTTPS request to the given host and port.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @param host Host to redirect.
@@ -38,7 +38,7 @@ public class SSLHandler implements Route.Before {
   /**
    * Creates a SSLHandler and redirect non-HTTPS request to the given host.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @param host Host to redirect.
@@ -48,10 +48,10 @@ public class SSLHandler implements Route.Before {
   }
 
   /**
-   * Creates a SSLHandler and redirect non-HTTPs requests to the HTTPS version of this call. Host
-   * is recreated from <code>Host</code> header or <code>X-Forwarded-Host</code>.
+   * Creates a SSLHandler and redirect non-HTTPs requests to the HTTPS version of this call. Host is
+   * recreated from <code>Host</code> header or <code>X-Forwarded-Host</code>.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    *
    * @param port HTTPS port.
@@ -62,17 +62,18 @@ public class SSLHandler implements Route.Before {
   }
 
   /**
-   * Creates a SSLHandler and redirect non-HTTPs requests to the HTTPS version of this call. Host
-   * is recreated from <code>Host</code> header.
+   * Creates a SSLHandler and redirect non-HTTPs requests to the HTTPS version of this call. Host is
+   * recreated from <code>Host</code> header.
    *
-   * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
+   * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
    * please consider to set {@link Router#setTrustProxy(boolean)} option.
    */
   public SSLHandler() {
     this(SECURE_PORT);
   }
 
-  @Override public void apply(@NonNull Context ctx) {
+  @Override
+  public void apply(@NonNull Context ctx) {
     if (!ctx.isSecure()) {
       String host;
       if (this.host == null) {

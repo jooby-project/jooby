@@ -1,5 +1,26 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package source;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.FlashMap;
@@ -18,22 +39,6 @@ import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Path("/p")
 public class Provisioning {
@@ -223,7 +228,11 @@ public class Provisioning {
   }
 
   @GET("/parameters/{path}")
-  public String parameters(@PathParam String path, Context ctx, @QueryParam int offset, @QueryParam JavaBeanParam javaBean) {
+  public String parameters(
+      @PathParam String path,
+      Context ctx,
+      @QueryParam int offset,
+      @QueryParam JavaBeanParam javaBean) {
     return path + ctx + offset + javaBean;
   }
 
@@ -308,8 +317,7 @@ public class Provisioning {
   }
 
   @DELETE("/noContent")
-  public void noContent() {
-  }
+  public void noContent() {}
 
   @GET("/sideEffect")
   public void sideEffect(Context ctx) {
@@ -333,7 +341,6 @@ public class Provisioning {
   public String bodyBytesParam(byte[] body) {
     return new String(body, StandardCharsets.UTF_8);
   }
-
 
   @POST
   @Path("/bodyInputStreamParam")

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -16,8 +16,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import org.eclipse.jetty.util.StaticException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
@@ -25,6 +23,7 @@ import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.eclipse.jetty.websocket.api.exceptions.CloseException;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.SneakyThrows;
@@ -33,8 +32,8 @@ import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 
-public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, WebSocket,
-    WriteCallback {
+public class JettyWebSocket
+    implements WebSocketListener, WebSocketConfigurer, WebSocket, WriteCallback {
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<WebSocket>> all = new ConcurrentHashMap<>();
 
@@ -54,10 +53,11 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     this.key = ctx.getRoute().getPattern();
   }
 
-  @Override public void onWebSocketBinary(byte[] payload, int offset, int len) {
-  }
+  @Override
+  public void onWebSocketBinary(byte[] payload, int offset, int len) {}
 
-  @Override public void onWebSocketText(String message) {
+  @Override
+  public void onWebSocketText(String message) {
     if (onMessageCallback != null) {
       try {
         onMessageCallback.onMessage(this, WebSocketMessage.create(getContext(), message));
@@ -67,15 +67,17 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     }
   }
 
-  @Override public void onWebSocketClose(int statusCode, String reason) {
+  @Override
+  public void onWebSocketClose(int statusCode, String reason) {
     if (onCloseCallback != null) {
-      handleClose(WebSocketCloseStatus.valueOf(statusCode)
-          .orElseGet(() -> new WebSocketCloseStatus(statusCode, reason))
-      );
+      handleClose(
+          WebSocketCloseStatus.valueOf(statusCode)
+              .orElseGet(() -> new WebSocketCloseStatus(statusCode, reason)));
     }
   }
 
-  @Override public void onWebSocketConnect(Session session) {
+  @Override
+  public void onWebSocketConnect(Session session) {
     try {
       open.set(true);
       this.session = session;
@@ -88,7 +90,8 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     }
   }
 
-  @Override public void onWebSocketError(Throwable x) {
+  @Override
+  public void onWebSocketError(Throwable x) {
     // should close?
     if (!isTimeout(x)) {
       if (isOpen() && (connectionLost(x) || SneakyThrows.isFatal(x))) {
@@ -114,7 +117,8 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   private boolean connectionLost(Throwable x) {
-    return Server.connectionLost(x) || (x instanceof StaticException &&  x.getMessage().equals("Closed"));
+    return Server.connectionLost(x)
+        || (x instanceof StaticException && x.getMessage().equals("Closed"));
   }
 
   private boolean isTimeout(Throwable x) {
@@ -125,32 +129,37 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return false;
   }
 
-  @NonNull @Override public WebSocketConfigurer onConnect(
-      @NonNull WebSocket.OnConnect callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onConnect(@NonNull WebSocket.OnConnect callback) {
     onConnectCallback = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback) {
     onMessageCallback = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onError(@NonNull WebSocket.OnError callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onError(@NonNull WebSocket.OnError callback) {
     onErrorCallback = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback) {
     onCloseCallback.set(callback);
     return this;
   }
 
-  @NonNull @Override public Context getContext() {
+  @NonNull @Override
+  public Context getContext() {
     return Context.readOnly(ctx);
   }
 
-  @NonNull @Override public List<WebSocket> getSessions() {
+  @NonNull @Override
+  public List<WebSocket> getSessions() {
     List<WebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();
@@ -160,11 +169,13 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return result;
   }
 
-  @Override public boolean isOpen() {
+  @Override
+  public boolean isOpen() {
     return open.get() && session.isOpen();
   }
 
-  @NonNull @Override public WebSocket send(@NonNull String message, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket send(@NonNull String message, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.send(message, false);
@@ -185,11 +196,13 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return this;
   }
 
-  @NonNull @Override public WebSocket send(@NonNull byte[] message, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket send(@NonNull byte[] message, boolean broadcast) {
     return send(new String(message, StandardCharsets.UTF_8), broadcast);
   }
 
-  @NonNull @Override public WebSocket render(@NonNull Object value, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket render(@NonNull Object value, boolean broadcast) {
     if (broadcast) {
       for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
         ws.render(value, false);
@@ -204,12 +217,14 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return this;
   }
 
-  @NonNull @Override public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
+  @NonNull @Override
+  public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
     handleClose(closeStatus);
     return this;
   }
 
-  @Override public void writeFailed(Throwable x) {
+  @Override
+  public void writeFailed(Throwable x) {
     if (Server.connectionLost(x)) {
       ctx.getRouter().getLog().debug("Websocket resulted in exception: {}", path, x);
     } else {
@@ -217,8 +232,8 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     }
   }
 
-  @Override public void writeSuccess() {
-  }
+  @Override
+  public void writeSuccess() {}
 
   private void handleClose(WebSocketCloseStatus closeStatus) {
     WebSocket.OnClose callback = this.onCloseCallback.getAndSet(null);

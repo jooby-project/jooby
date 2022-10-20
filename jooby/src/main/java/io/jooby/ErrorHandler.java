@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -22,8 +22,8 @@ public interface ErrorHandler {
    * @param cause Application error.
    * @param code Status code.
    */
-  @NonNull void apply(@NonNull Context ctx, @NonNull Throwable cause,
-      @NonNull StatusCode code);
+  @NonNull
+  void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code);
 
   /**
    * Chain this error handler with next and produces a new error handler.
@@ -63,6 +63,7 @@ public interface ErrorHandler {
 
   /**
    * Creates a default error handler.
+   *
    * @return Default error handler.
    */
   static @NonNull DefaultErrorHandler create() {

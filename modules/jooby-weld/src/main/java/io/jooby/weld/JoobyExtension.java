@@ -1,32 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.weld;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValue;
-import io.jooby.Environment;
-import io.jooby.Jooby;
-import io.jooby.Reified;
-import io.jooby.ServiceKey;
-import io.jooby.ServiceRegistry;
-import io.jooby.annotations.Path;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.inject.literal.NamedLiteral;
-import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
-import jakarta.enterprise.inject.spi.AnnotatedType;
-import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.enterprise.inject.spi.Extension;
-import jakarta.enterprise.inject.spi.InjectionTarget;
-import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
-import jakarta.enterprise.inject.spi.WithAnnotations;
-import jakarta.enterprise.inject.spi.configurator.BeanConfigurator;
-import jakarta.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +14,32 @@ import java.util.function.Function;
 import org.jboss.weld.manager.api.WeldInjectionTarget;
 import org.jboss.weld.manager.api.WeldManager;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValue;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Environment;
+import io.jooby.Jooby;
+import io.jooby.Reified;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
+import io.jooby.annotations.Path;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.literal.NamedLiteral;
+import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
+import jakarta.enterprise.inject.spi.AnnotatedType;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.InjectionTarget;
+import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
+import jakarta.enterprise.inject.spi.WithAnnotations;
+import jakarta.enterprise.inject.spi.configurator.BeanConfigurator;
+import jakarta.inject.Provider;
+
 /**
  * Weld extension. Exposes {@link Environment}, {@link Config} and application services into weld
  * container.
  *
- * Also, scan and register MVC routes annotated with {@link Path} annotation at top level class.
+ * <p>Also, scan and register MVC routes annotated with {@link Path} annotation at top level class.
  *
  * @author edgar
  * @since 2.0.0
@@ -72,13 +71,17 @@ public class JoobyExtension implements Extension {
    * @param beanDiscovery Bean discovery.
    * @param beanManager Bean Manager.
    */
-  public void configureServices(@NonNull @Observes AfterBeanDiscovery beanDiscovery,
-      @NonNull WeldManager beanManager) {
+  public void configureServices(
+      @NonNull @Observes AfterBeanDiscovery beanDiscovery, @NonNull WeldManager beanManager) {
     ServiceRegistry registry = app.getServices();
     Set<Map.Entry<ServiceKey<?>, Provider<?>>> entries = registry.entrySet();
     for (Map.Entry<ServiceKey<?>, Provider<?>> entry : entries) {
-      registerSingleton(beanDiscovery, beanManager, entry.getKey().getType(),
-          entry.getKey().getName(), entry.getValue());
+      registerSingleton(
+          beanDiscovery,
+          beanManager,
+          entry.getKey().getType(),
+          entry.getKey().getName(),
+          entry.getValue());
     }
   }
 
@@ -107,8 +110,7 @@ public class JoobyExtension implements Extension {
       }
       NamedLiteral literal = NamedLiteral.of(configKey);
       AnnotatedType<?> annotatedType = bm.createAnnotatedType(configClass);
-      WeldInjectionTarget<?> target = bm.createInjectionTargetBuilder(annotatedType)
-          .build();
+      WeldInjectionTarget<?> target = bm.createInjectionTargetBuilder(annotatedType).build();
       abd.addBean()
           .addQualifier(literal)
           .addTypes(configType, Object.class)
@@ -118,16 +120,19 @@ public class JoobyExtension implements Extension {
     }
   }
 
-  private <T> void registerSingleton(AfterBeanDiscovery beanDiscovery, WeldManager beanManager,
-      Class<T> type, String name, Object instance) {
+  private <T> void registerSingleton(
+      AfterBeanDiscovery beanDiscovery,
+      WeldManager beanManager,
+      Class<T> type,
+      String name,
+      Object instance) {
     BeanConfigurator<Object> configurator = beanDiscovery.addBean();
     if (name != null) {
       configurator.addQualifier(NamedLiteral.of(name)).name(name);
     }
     if (type.isPrimitive() || type == String.class || Number.class.isAssignableFrom(type)) {
       AnnotatedType<?> annotatedType = beanManager.createAnnotatedType(type);
-      InjectionTarget<?> target = beanManager.createInjectionTargetBuilder(annotatedType)
-          .build();
+      InjectionTarget<?> target = beanManager.createInjectionTargetBuilder(annotatedType).build();
       configurator
           .addTypes(type)
           .addInjectionPoints(target.getInjectionPoints())

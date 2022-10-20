@@ -1,15 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.quartz;
 
+import java.lang.reflect.Method;
+
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.quartz.impl.JobDetailImpl;
-
-import java.lang.reflect.Method;
 
 @SuppressWarnings("serial")
 public class JobMethodDetail extends JobDetailImpl {

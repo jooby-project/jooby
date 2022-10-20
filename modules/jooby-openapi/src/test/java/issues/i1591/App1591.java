@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i1591;
 
 import io.jooby.Context;
@@ -14,17 +19,17 @@ public class App1591 extends Jooby {
   }
 
   @Operation(
-      //this value does get respected
+      // this value does get respected
       summary = "Example.",
       security = @SecurityRequirement(name = "basicAuth"),
-      //this value doesn't get respected
+      // this value doesn't get respected
       parameters = {
-          @Parameter(name = "arg1", description = "Arg 1", example = "ex1", in = ParameterIn.PATH),
-          @Parameter(name = "arg2",
-              examples = {@ExampleObject("ex2"), @ExampleObject("ex3")}, in = ParameterIn.PATH
-          )
-      }
-  )
+        @Parameter(name = "arg1", description = "Arg 1", example = "ex1", in = ParameterIn.PATH),
+        @Parameter(
+            name = "arg2",
+            examples = {@ExampleObject("ex2"), @ExampleObject("ex3")},
+            in = ParameterIn.PATH)
+      })
   private String parameterExample(Context context) {
     String arg1 = context.path("arg1").value();
     String arg2 = context.path("arg2").value();

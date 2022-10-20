@@ -1,21 +1,21 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.hibernate;
 
-import org.hibernate.boot.archive.scan.spi.ScanEnvironment;
-
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+
+import org.hibernate.boot.archive.scan.spi.ScanEnvironment;
 
 public class ScanEnvImpl implements ScanEnvironment {
 
   private final List<URL> packages;
 
-  public ScanEnvImpl(final List<URL> packages)  {
+  public ScanEnvImpl(final List<URL> packages) {
     this.packages = packages;
   }
 
@@ -38,5 +38,4 @@ public class ScanEnvImpl implements ScanEnvironment {
   public List<String> getExplicitlyListedMappingFiles() {
     return Collections.emptyList();
   }
-
 }

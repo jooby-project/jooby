@@ -1,18 +1,12 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.apt;
 
-import com.google.common.truth.Truth;
-import com.google.testing.compile.JavaFileObjects;
-import com.google.testing.compile.JavaSourcesSubjectFactory;
-import io.jooby.BeanConverter;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.MvcFactory;
-import io.jooby.SneakyThrows;
-import org.objectweb.asm.util.ASMifier;
+import static org.junit.Assert.assertTrue;
 
-import jakarta.inject.Provider;
-
-import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
@@ -23,7 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertTrue;
+import javax.tools.JavaFileObject;
+
+import org.objectweb.asm.util.ASMifier;
+
+import com.google.common.truth.Truth;
+import com.google.testing.compile.JavaFileObjects;
+import com.google.testing.compile.JavaSourcesSubjectFactory;
+import io.jooby.BeanConverter;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import io.jooby.MvcFactory;
+import io.jooby.SneakyThrows;
+import jakarta.inject.Provider;
 
 public class MvcModuleCompilerRunner {
   private final TestMvcProcessor processor;
@@ -69,7 +75,7 @@ public class MvcModuleCompilerRunner {
   private void printExample(String example) throws IOException {
     System.out.println("*************************************************************************");
     System.out.println("******************************** Example ********************************");
-    ASMifier.main(new String[]{example});
+    ASMifier.main(new String[] {example});
     System.out.println("*************************************************************************");
   }
 
@@ -78,8 +84,8 @@ public class MvcModuleCompilerRunner {
     Class clazz = instance.getClass();
     ClassLoader classLoader = processor.getModuleClassLoader(debug);
     String factoryName = clazz.getName() + "$Module";
-    Class<? extends MvcFactory> factoryClass = (Class<? extends MvcFactory>) classLoader
-        .loadClass(factoryName);
+    Class<? extends MvcFactory> factoryClass =
+        (Class<? extends MvcFactory>) classLoader.loadClass(factoryName);
     Constructor<? extends MvcFactory> constructor = factoryClass.getDeclaredConstructor();
     MvcFactory factory = constructor.newInstance();
     Provider provider = () -> instance;
@@ -90,8 +96,9 @@ public class MvcModuleCompilerRunner {
 
     application.install(extension);
 
-    Path services = Paths
-        .get(classLoader.getResource("META-INF/services/" + MvcFactory.class.getName()).toURI());
+    Path services =
+        Paths.get(
+            classLoader.getResource("META-INF/services/" + MvcFactory.class.getName()).toURI());
     assertTrue(Files.exists(services));
 
     consumer.accept(application);
@@ -103,9 +110,10 @@ public class MvcModuleCompilerRunner {
     List<JavaFileObject> sources = new ArrayList<>();
     for (String name : names) {
       String[] segments = name.split("\\.");
-      Path path = Stream.of(segments)
-          .limit(segments.length - 1)
-          .reduce(basedir, Path::resolve, Path::resolve);
+      Path path =
+          Stream.of(segments)
+              .limit(segments.length - 1)
+              .reduce(basedir, Path::resolve, Path::resolve);
       path = path.resolve(segments[segments.length - 1] + ".java");
       assertTrue(path.toString(), Files.exists(path));
       sources.add(JavaFileObjects.forResource(path.toUri().toURL()));
@@ -126,4 +134,3 @@ public class MvcModuleCompilerRunner {
     return this;
   }
 }
-

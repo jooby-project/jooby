@@ -1,12 +1,17 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.openapi;
-
-import io.jooby.internal.openapi.ParameterExt;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+
+import io.jooby.internal.openapi.ParameterExt;
 
 public class RouteArgumentIterator {
 

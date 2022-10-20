@@ -1,12 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.gson;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.Extension;
@@ -16,18 +24,10 @@ import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 /**
  * JSON module using Gson: https://github.com/google/gson.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -49,10 +49,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * }
  * }</pre>
  *
- * For body decoding the client must specify the <code>Content-Type</code> header set to
- * <code>application/json</code>.
+ * For body decoding the client must specify the <code>Content-Type</code> header set to <code>
+ * application/json</code>.
  *
- * You can retrieve the {@link Gson} object via require call:
+ * <p>You can retrieve the {@link Gson} object via require call:
  *
  * <pre>{@code
  * {
@@ -80,14 +80,13 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     this.gson = gson;
   }
 
-  /**
-   * Creates a new Gson module.
-   */
+  /** Creates a new Gson module. */
   public GsonModule() {
     this(new GsonBuilder().create());
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
@@ -95,11 +94,12 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     services.put(Gson.class, gson);
   }
 
-  @NonNull @Override public Object decode(@NonNull Context ctx, @NonNull Type type)
-      throws Exception {
+  @NonNull @Override
+  public Object decode(@NonNull Context ctx, @NonNull Type type) throws Exception {
     Body body = ctx.body();
     if (body.isInMemory()) {
-      return gson.fromJson(new InputStreamReader(new ByteArrayInputStream(body.bytes()), UTF_8), type);
+      return gson.fromJson(
+          new InputStreamReader(new ByteArrayInputStream(body.bytes()), UTF_8), type);
     } else {
       try (InputStream stream = body.stream()) {
         return gson.fromJson(new InputStreamReader(stream, UTF_8), type);
@@ -107,7 +107,8 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     }
   }
 
-  @NonNull @Override public byte[] encode(@NonNull Context ctx, @NonNull Object value) {
+  @NonNull @Override
+  public byte[] encode(@NonNull Context ctx, @NonNull Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     return gson.toJson(value).getBytes(UTF_8);
   }

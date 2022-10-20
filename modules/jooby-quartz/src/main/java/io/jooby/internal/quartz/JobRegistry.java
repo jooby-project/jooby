@@ -1,16 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.quartz;
 
-import io.jooby.Registry;
-import org.quartz.JobKey;
-
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.quartz.JobKey;
+
+import io.jooby.Registry;
 
 public class JobRegistry {
 

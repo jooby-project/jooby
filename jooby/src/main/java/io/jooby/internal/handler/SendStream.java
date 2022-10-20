@@ -1,15 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.handler;
 
-import io.jooby.Context;
-import io.jooby.Route;
+import java.io.InputStream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.InputStream;
+import io.jooby.Context;
+import io.jooby.Route;
 
 public class SendStream implements LinkedHandler {
   private Route.Handler next;
@@ -18,7 +18,8 @@ public class SendStream implements LinkedHandler {
     this.next = next;
   }
 
-  @NonNull @Override public Object apply(@NonNull Context ctx) throws Exception {
+  @NonNull @Override
+  public Object apply(@NonNull Context ctx) throws Exception {
     try {
       Object result = next.apply(ctx);
       if (ctx.isResponseStarted()) {
@@ -31,7 +32,8 @@ public class SendStream implements LinkedHandler {
     return ctx;
   }
 
-  @Override public Route.Handler next() {
+  @Override
+  public Route.Handler next() {
     return next;
   }
 }

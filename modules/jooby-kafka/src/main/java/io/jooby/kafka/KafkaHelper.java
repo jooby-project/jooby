@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -15,11 +15,10 @@ import io.jooby.ServiceRegistry;
 
 final class KafkaHelper {
 
-  private KafkaHelper() {
-  }
+  private KafkaHelper() {}
 
-  public static void install(Jooby application, String key,
-      Function<Properties, AutoCloseable> factory) {
+  public static void install(
+      Jooby application, String key, Function<Properties, AutoCloseable> factory) {
     Environment environment = application.getEnvironment();
 
     Properties properties = new Properties();

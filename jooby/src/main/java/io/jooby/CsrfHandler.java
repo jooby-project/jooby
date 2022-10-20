@@ -1,20 +1,22 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.exception.InvalidCsrfToken;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.exception.InvalidCsrfToken;
+
 /**
+ *
+ *
  * <h1>Cross Site Request Forgery handler</h1>
  *
  * <pre>
@@ -23,42 +25,32 @@ import java.util.stream.Stream;
  * }
  * </pre>
  *
- * <p>
- * This filter require a token on <code>POST</code>, <code>PUT</code>, <code>PATCH</code> and
- * <code>DELETE</code> requests. A custom policy might be provided via:
- * {@link #setRequestFilter(Predicate)}.
- * </p>
+ * <p>This filter require a token on <code>POST</code>, <code>PUT</code>, <code>PATCH</code> and
+ * <code>DELETE</code> requests. A custom policy might be provided via: {@link
+ * #setRequestFilter(Predicate)}.
  *
- * <p>
- * Default token generator, use a {@link UUID#randomUUID()}. A custom token generator might be
+ * <p>Default token generator, use a {@link UUID#randomUUID()}. A custom token generator might be
  * provided via: {@link #setTokenGenerator(Function)}.
- * </p>
  *
- * <p>
- * Default token name is: <code>csrf</code>. If you want to use a different name, just pass the name
- * to the {@link #CsrfHandler(String)} constructor.
- * </p>
+ * <p>Default token name is: <code>csrf</code>. If you want to use a different name, just pass the
+ * name to the {@link #CsrfHandler(String)} constructor.
  *
  * <h2>Token verification</h2>
- * <p>
- * The {@link CsrfHandler} handler will read an existing token from {@link Session} (or created a
- * new one is necessary) and make available as a request local variable via:
- * {@link Context#attribute(String, Object)}.
- * </p>
  *
- * <p>
- * If the incoming request require a token verification, it will extract the token from:
- * </p>
+ * <p>The {@link CsrfHandler} handler will read an existing token from {@link Session} (or created a
+ * new one is necessary) and make available as a request local variable via: {@link
+ * Context#attribute(String, Object)}.
+ *
+ * <p>If the incoming request require a token verification, it will extract the token from:
+ *
  * <ol>
- * <li>HTTP header</li>
- * <li>HTTP cookie</li>
- * <li>HTTP parameter (query or form)</li>
+ *   <li>HTTP header
+ *   <li>HTTP cookie
+ *   <li>HTTP parameter (query or form)
  * </ol>
  *
- * <p>
- * If the extracted token doesn't match the existing token (from {@link Session}) a <code>403</code>
- * will be thrown.
- * </p>
+ * <p>If the extracted token doesn't match the existing token (from {@link Session}) a <code>403
+ * </code> will be thrown.
  *
  * @author edgar
  * @since 2.5.2
@@ -69,18 +61,17 @@ public class CsrfHandler implements Route.Before {
    * Default request filter. Requires an existing session and only check for POST, DELETE, PUT and
    * PATCH methods.
    */
-  public static final Predicate<Context> DEFAULT_FILTER = ctx -> {
-    return Router.POST.equals(ctx.getMethod())
-        || Router.DELETE.equals(ctx.getMethod())
-        || Router.PATCH.equals(ctx.getMethod())
-        || Router.PUT.equals(ctx.getMethod());
-  };
+  public static final Predicate<Context> DEFAULT_FILTER =
+      ctx -> {
+        return Router.POST.equals(ctx.getMethod())
+            || Router.DELETE.equals(ctx.getMethod())
+            || Router.PATCH.equals(ctx.getMethod())
+            || Router.PUT.equals(ctx.getMethod());
+      };
 
-  /**
-   * UUID token generator.
-   */
-  public static final Function<Context, String> DEFAULT_GENERATOR = ctx -> UUID.randomUUID()
-      .toString();
+  /** UUID token generator. */
+  public static final Function<Context, String> DEFAULT_GENERATOR =
+      ctx -> UUID.randomUUID().toString();
 
   private String name;
 
@@ -106,26 +97,33 @@ public class CsrfHandler implements Route.Before {
     this("csrf");
   }
 
-  @Override public void apply(@NonNull Context ctx) throws Exception {
+  @Override
+  public void apply(@NonNull Context ctx) throws Exception {
 
     Session session = ctx.session();
-    String token = session.get(name).toOptional().orElseGet(() -> {
-      String newToken = generator.apply(ctx);
-      session.put(name, newToken);
-      return newToken;
-    });
+    String token =
+        session
+            .get(name)
+            .toOptional()
+            .orElseGet(
+                () -> {
+                  String newToken = generator.apply(ctx);
+                  session.put(name, newToken);
+                  return newToken;
+                });
 
     ctx.attribute(name, token);
 
     if (filter.test(ctx)) {
-      String clientToken = Stream.of(
-          ctx.header(name).valueOrNull(),
-          ctx.cookie(name).valueOrNull(),
-          ctx.form(name).valueOrNull(),
-          ctx.query(name).valueOrNull()
-      ).filter(Objects::nonNull)
-          .findFirst()
-          .orElse(null);
+      String clientToken =
+          Stream.of(
+                  ctx.header(name).valueOrNull(),
+                  ctx.cookie(name).valueOrNull(),
+                  ctx.form(name).valueOrNull(),
+                  ctx.query(name).valueOrNull())
+              .filter(Objects::nonNull)
+              .findFirst()
+              .orElse(null);
       if (!token.equals(clientToken)) {
         throw new InvalidCsrfToken(clientToken);
       }
@@ -145,8 +143,8 @@ public class CsrfHandler implements Route.Before {
 
   /**
    * Decided whenever or not an incoming request require token verification. Default predicate
-   * requires verification on: <code>POST</code>, <code>PUT</code>, <code>PATCH</code> and
-   * <code>DELETE</code> requests.
+   * requires verification on: <code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>
+   * DELETE</code> requests.
    *
    * @param filter Predicate to use.
    * @return This filter.

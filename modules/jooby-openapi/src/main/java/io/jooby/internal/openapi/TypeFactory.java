@@ -1,18 +1,18 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
 
+import java.util.Optional;
+
+import org.objectweb.asm.Type;
+
 import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.Route;
 import io.jooby.Router;
-import io.jooby.ValueNode;
-import org.objectweb.asm.Type;
-
-import java.util.Optional;
 
 public class TypeFactory {
   public static final Type OBJECT = Type.getType(Object.class);

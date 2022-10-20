@@ -1,16 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
 
-import io.jooby.SneakyThrows;
-import org.apache.commons.io.IOUtils;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
+
+import io.jooby.SneakyThrows;
 
 public class ClassSource {
   private final ClassLoader classLoader;
@@ -24,7 +25,8 @@ public class ClassSource {
   }
 
   public byte[] loadClass(String classname) {
-    try (InputStream stream = classLoader.getResourceAsStream(classname.replace(".", "/") + ".class")) {
+    try (InputStream stream =
+        classLoader.getResourceAsStream(classname.replace(".", "/") + ".class")) {
       if (stream == null) {
         throw new ClassNotFoundException(classname);
       }

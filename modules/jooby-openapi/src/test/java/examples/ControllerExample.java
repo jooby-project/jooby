@@ -1,4 +1,12 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
+
+import java.util.List;
+import java.util.Optional;
 
 import io.jooby.Context;
 import io.jooby.Session;
@@ -6,9 +14,6 @@ import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.QueryParam;
-
-import java.util.List;
-import java.util.Optional;
 
 @Path("/api")
 public class ControllerExample {
@@ -18,13 +23,21 @@ public class ControllerExample {
     return "xxx";
   }
 
-  @GET @POST("/post")
-  public String twoMethods(@QueryParam boolean bool, @QueryParam short s, @QueryParam int i,
-      @QueryParam char c, @QueryParam long l, @QueryParam float f, @QueryParam double d) {
+  @GET
+  @POST("/post")
+  public String twoMethods(
+      @QueryParam boolean bool,
+      @QueryParam short s,
+      @QueryParam int i,
+      @QueryParam char c,
+      @QueryParam long l,
+      @QueryParam float f,
+      @QueryParam double d) {
     return "xxx";
   }
 
-  @GET @Path(("/path"))
+  @GET
+  @Path(("/path"))
   public String pathAtMethodLevel(Context ctx) {
     return "xxx";
   }

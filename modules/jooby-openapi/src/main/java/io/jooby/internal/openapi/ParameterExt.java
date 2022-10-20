@@ -1,23 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.openapi;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class ParameterExt extends io.swagger.v3.oas.models.parameters.Parameter {
-  @JsonIgnore
-  private String javaType;
+  @JsonIgnore private String javaType;
 
-  @JsonIgnore
-  private Object defaultValue;
+  @JsonIgnore private Object defaultValue;
 
-  @JsonIgnore
-  private boolean single = true;
+  @JsonIgnore private boolean single = true;
 
   public void setJavaType(String javaType) {
     this.javaType = javaType;
@@ -48,11 +45,13 @@ public class ParameterExt extends io.swagger.v3.oas.models.parameters.Parameter 
     this.defaultValue = defaultValue;
   }
 
-  @Override public void setRequired(Boolean required) {
+  @Override
+  public void setRequired(Boolean required) {
     super.setRequired(required);
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return javaType + " " + getName();
   }
 }

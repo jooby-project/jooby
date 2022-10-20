@@ -1,10 +1,21 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.graphql;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
@@ -19,25 +30,13 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.graphql.BlockingGraphQLHandler;
 import io.jooby.internal.graphql.GraphQLHandler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
 /**
  * GraphQL module on top of https://www.graphql-java.com.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
- *
- *   install(new GrapQLModule(graphQL));
+ * install(new GrapQLModule(graphQL));
  *
  * }</pre>
  *
@@ -95,8 +94,8 @@ public class GraphQLModule implements Extension {
   }
 
   /**
-   * Creates a new GraphQL module. Load schema from default classpath location:
-   * <code>schema.graphql</code>.
+   * Creates a new GraphQL module. Load schema from default classpath location: <code>schema.graphql
+   * </code>.
    *
    * @param wiring Runtime wiring to build a GraphQL instance.
    */
@@ -104,12 +103,12 @@ public class GraphQLModule implements Extension {
     this("schema.graphql", wiring);
   }
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     String graphqlPath = application.getEnvironment().getProperty("graphql.path", "/graphql");
 
-    GraphQLHandler handler = async
-        ? new GraphQLHandler(graphQL)
-        : new BlockingGraphQLHandler(graphQL);
+    GraphQLHandler handler =
+        async ? new GraphQLHandler(graphQL) : new BlockingGraphQLHandler(graphQL);
 
     if (supportGetRequest) {
       executionMode(application.get(graphqlPath, handler), async);

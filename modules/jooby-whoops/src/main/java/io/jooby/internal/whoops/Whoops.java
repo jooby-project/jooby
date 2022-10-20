@@ -1,22 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.whoops;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
-import com.mitchellbosecke.pebble.attributes.methodaccess.NoOpMethodAccessValidator;
-import com.mitchellbosecke.pebble.loader.ClasspathLoader;
-import io.jooby.Context;
-import io.jooby.ErrorHandler;
-import io.jooby.MediaType;
-import io.jooby.Route;
-import io.jooby.Session;
-import io.jooby.StatusCode;
-import org.slf4j.Logger;
+import static io.jooby.ErrorHandler.errorMessage;
+import static io.jooby.internal.whoops.Utils.mapOf;
+import static io.jooby.internal.whoops.Utils.multimap;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -29,9 +21,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-import static io.jooby.ErrorHandler.errorMessage;
-import static io.jooby.internal.whoops.Utils.mapOf;
-import static io.jooby.internal.whoops.Utils.multimap;
+import org.slf4j.Logger;
+
+import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.attributes.methodaccess.NoOpMethodAccessValidator;
+import com.mitchellbosecke.pebble.loader.ClasspathLoader;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.ErrorHandler;
+import io.jooby.MediaType;
+import io.jooby.Route;
+import io.jooby.Session;
+import io.jooby.StatusCode;
 
 public class Whoops implements ErrorHandler {
 
@@ -85,21 +86,21 @@ public class Whoops implements ErrorHandler {
     this.log = log;
   }
 
-  @NonNull @Override public void apply(@NonNull Context ctx,
-      @NonNull Throwable cause, @NonNull StatusCode code) {
+  @NonNull @Override
+  public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
     if (ctx.accept(MediaType.html)) {
-      render(ctx, cause, code).handle((html, failure) -> {
-        if (failure == null) {
-          // Handle the exception
-          log.error(errorMessage(ctx, code), cause);
-          ctx.setResponseType(MediaType.html)
-              .setResponseCode(code)
-              .send(html);
-        } else {
-          // most probably its a bug in whoops: log it and move to next error handler
-          log.error("whoops resulted in exception", failure);
-        }
-      });
+      render(ctx, cause, code)
+          .handle(
+              (html, failure) -> {
+                if (failure == null) {
+                  // Handle the exception
+                  log.error(errorMessage(ctx, code), cause);
+                  ctx.setResponseType(MediaType.html).setResponseCode(code).send(html);
+                } else {
+                  // most probably its a bug in whoops: log it and move to next error handler
+                  log.error("whoops resulted in exception", failure);
+                }
+              });
     }
   }
 
@@ -145,27 +146,30 @@ public class Whoops implements ErrorHandler {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("Response", mapOf("code", statusCode));
 
-    map.put("Request", mapOf(
-        "path", ctx.getRequestPath(),
-        "headers", multimap(ctx.queryMultimap()),
-        "path", ctx.pathMap(),
-        "query", multimap(ctx.queryMultimap()),
-        "form", multimap(ctx.multipartMultimap()),
-        "attributes", ctx.getAttributes()
-        )
-    );
-    map.put("Session", Optional.ofNullable(ctx.sessionOrNull()).map(Session::toMap).orElse(
-        Collections.emptyMap()));
+    map.put(
+        "Request",
+        mapOf(
+            "path", ctx.getRequestPath(),
+            "headers", multimap(ctx.queryMultimap()),
+            "path", ctx.pathMap(),
+            "query", multimap(ctx.queryMultimap()),
+            "form", multimap(ctx.multipartMultimap()),
+            "attributes", ctx.getAttributes()));
+    map.put(
+        "Session",
+        Optional.ofNullable(ctx.sessionOrNull())
+            .map(Session::toMap)
+            .orElse(Collections.emptyMap()));
 
     Route route = ctx.getRoute();
-    map.put("Route", mapOf(
-        "method", route.getMethod(),
-        "pattern", route.getPattern(),
-        "attributes", route.getAttributes(),
-        "consumes", route.getConsumes(),
-        "produces", route.getProduces()
-        )
-    );
+    map.put(
+        "Route",
+        mapOf(
+            "method", route.getMethod(),
+            "pattern", route.getPattern(),
+            "attributes", route.getAttributes(),
+            "consumes", route.getConsumes(),
+            "produces", route.getProduces()));
     return map;
   }
 

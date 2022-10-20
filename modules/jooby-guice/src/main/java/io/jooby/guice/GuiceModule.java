@@ -1,29 +1,29 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.guice;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
-import com.google.inject.Module;
-import io.jooby.Environment;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.Stage;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Environment;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+
 /**
  * Guice module: https://jooby.io/modules/guice.
  *
- * Jooby integrates the {@link io.jooby.ServiceRegistry} into the Guice framework.
+ * <p>Jooby integrates the {@link io.jooby.ServiceRegistry} into the Guice framework.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -64,11 +64,13 @@ public class GuiceModule implements Extension {
     Stream.of(modules).forEach(this.modules::add);
   }
 
-  @Override public boolean lateinit() {
+  @Override
+  public boolean lateinit() {
     return true;
   }
 
-  @Override public void install(@NonNull Jooby application) {
+  @Override
+  public void install(@NonNull Jooby application) {
     if (injector == null) {
       Environment env = application.getEnvironment();
       modules.add(new JoobyModule(application));

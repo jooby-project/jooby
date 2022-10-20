@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package kt.i2121
 
 import io.jooby.openapi.OpenAPIResult
@@ -8,7 +13,8 @@ class Issue2121 {
 
   @OpenAPITest(value = App2121::class)
   fun shouldParseInstallApp(result: OpenAPIResult) {
-    Assertions.assertEquals("""openapi: 3.0.1
+    Assertions.assertEquals(
+      """openapi: 3.0.1
 info:
   title: 2121 API
   description: 2121 API description
@@ -42,6 +48,8 @@ paths:
             application/json:
               schema:
                 type: object
-""", result.toYaml())
+""",
+      result.toYaml()
+    )
   }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -36,22 +36,26 @@ public class MockWebSocketConfigurer implements WebSocketConfigurer {
     this.ws = new MockWebSocket(ctx, this);
   }
 
-  @NonNull @Override public WebSocketConfigurer onConnect(@NonNull WebSocket.OnConnect callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onConnect(@NonNull WebSocket.OnConnect callback) {
     this.onConnect = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback) {
     this.onMessage = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onError(@NonNull WebSocket.OnError callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onError(@NonNull WebSocket.OnError callback) {
     this.onError = callback;
     return this;
   }
 
-  @NonNull @Override public WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback) {
+  @NonNull @Override
+  public WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback) {
     this.onClose = callback;
     return this;
   }
@@ -76,9 +80,11 @@ public class MockWebSocketConfigurer implements WebSocketConfigurer {
 
   void fireOnMessage(Object message) {
     if (onMessage != null) {
-      onMessage.onMessage(ws, message instanceof WebSocketMessage
-          ? (WebSocketMessage) message
-          : WebSocketMessage.create(ctx, message.toString()));
+      onMessage.onMessage(
+          ws,
+          message instanceof WebSocketMessage
+              ? (WebSocketMessage) message
+              : WebSocketMessage.create(ctx, message.toString()));
     }
   }
 

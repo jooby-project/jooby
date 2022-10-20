@@ -1,11 +1,17 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal;
-
-import io.jooby.MessageEncoder;
-import io.jooby.Route;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
+import io.jooby.MessageEncoder;
+import io.jooby.Route;
 
 public class Issue1822 {
 
@@ -24,7 +30,6 @@ public class Issue1822 {
   }
 
   private Route route(String method, String pattern, Route.Handler handler) {
-    return new Route(method, pattern, handler)
-        .setEncoder(MessageEncoder.TO_STRING);
+    return new Route(method, pattern, handler).setEncoder(MessageEncoder.TO_STRING);
   }
 }

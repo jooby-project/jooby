@@ -1,9 +1,16 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.adoc;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.extension.BlockProcessor;
@@ -13,21 +20,21 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-
 public class DependencyProcessor extends BlockProcessor {
 
   private final Document pom;
 
   public DependencyProcessor(String name, Map<String, Object> config) throws IOException {
     super(name, config);
-    pom = Jsoup
-        .parse(DocGenerator.basedir().getParent().resolve("modules").resolve("jooby-bom").resolve("pom.xml").toFile(), "UTF-8");
+    pom =
+        Jsoup.parse(
+            DocGenerator.basedir()
+                .getParent()
+                .resolve("modules")
+                .resolve("jooby-bom")
+                .resolve("pom.xml")
+                .toFile(),
+            "UTF-8");
   }
 
   @Override
@@ -35,12 +42,18 @@ public class DependencyProcessor extends BlockProcessor {
     List<String> lines = new ArrayList<>();
     String[] artifactId = ((String) attributes.get("artifactId")).split("\\s*,\\s*");
 
-    maven((String) attributes.get("groupId"), artifactId, (String) attributes.get("version"),
+    maven(
+        (String) attributes.get("groupId"),
+        artifactId,
+        (String) attributes.get("version"),
         lines::add);
 
     lines.add("");
 
-    gradle((String) attributes.get("groupId"), artifactId, (String) attributes.get("version"),
+    gradle(
+        (String) attributes.get("groupId"),
+        artifactId,
+        (String) attributes.get("version"),
         lines::add);
     lines.add("");
 
@@ -52,23 +65,22 @@ public class DependencyProcessor extends BlockProcessor {
     if (artifactId.startsWith("jooby-")) {
       return "io.jooby";
     }
-    return findArtifact(artifactId)
-        .select("groupId").text().trim();
+    return findArtifact(artifactId).select("groupId").text().trim();
   }
 
   private String version(String artifactId) {
     if (artifactId.startsWith("jooby-")) {
       return pom.selectFirst("version").text().trim();
     }
-    String version = findArtifact(artifactId)
-        .select("version").text().trim();
+    String version = findArtifact(artifactId).select("version").text().trim();
     if (version.startsWith("${") && version.endsWith("}")) {
       String versionProp = version.substring(2, version.length() - 1);
-      version = pom.select("properties > *").stream()
-          .filter(it -> versionProp.equalsIgnoreCase(it.tagName()))
-          .findFirst()
-          .map(Element::text)
-          .orElseThrow(() -> new IllegalArgumentException("Missing version: " + artifactId));
+      version =
+          pom.select("properties > *").stream()
+              .filter(it -> versionProp.equalsIgnoreCase(it.tagName()))
+              .findFirst()
+              .map(Element::text)
+              .orElseThrow(() -> new IllegalArgumentException("Missing version: " + artifactId));
     }
     return version;
   }
@@ -90,8 +102,12 @@ public class DependencyProcessor extends BlockProcessor {
       }
       comment(artifactId[i], "//", "").ifPresent(lines::accept);
       lines.accept(
-          "implementation '" + (groupId == null ? groupId(artifactId(artifactId[i])) : groupId) + ":" + artifactId(artifactId[i])
-              + ":" + (version == null ? version(artifactId(artifactId[i])) : version)
+          "implementation '"
+              + (groupId == null ? groupId(artifactId(artifactId[i])) : groupId)
+              + ":"
+              + artifactId(artifactId[i])
+              + ":"
+              + (version == null ? version(artifactId(artifactId[i])) : version)
               + "'");
     }
     lines.accept("----");
@@ -99,7 +115,7 @@ public class DependencyProcessor extends BlockProcessor {
 
   private String artifactId(String artifactId) {
     int s = artifactId.indexOf(":");
-    return s > 0 ? artifactId.substring(0, s): artifactId;
+    return s > 0 ? artifactId.substring(0, s) : artifactId;
   }
 
   private Optional<String> comment(String text, String prefix, String suffix) {
@@ -118,18 +134,20 @@ public class DependencyProcessor extends BlockProcessor {
       comment(artifactId[i], "<!--", "-->").ifPresent(lines::accept);
       lines.accept("<dependency>");
       lines.accept(
-          "  <groupId>" + (groupId == null ? groupId(artifactId(artifactId[i])) : groupId) + "</groupId>");
+          "  <groupId>"
+              + (groupId == null ? groupId(artifactId(artifactId[i])) : groupId)
+              + "</groupId>");
       lines.accept("  <artifactId>" + artifactId(artifactId[i]) + "</artifactId>");
       lines.accept(
-          "  <version>" + (version == null ? version(artifactId(artifactId[i])) : version) + "</version>");
+          "  <version>"
+              + (version == null ? version(artifactId(artifactId[i])) : version)
+              + "</version>");
       lines.accept("</dependency>");
     }
     lines.accept("----");
   }
 
   private Elements dependencies() {
-    return pom.select("dependencyManagement")
-        .select("dependencies")
-        .select("dependency");
+    return pom.select("dependencyManagement").select("dependencies").select("dependency");
   }
 }

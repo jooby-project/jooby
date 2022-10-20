@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -26,15 +26,15 @@ import java.util.NoSuchElementException;
  * @author Jesse Wilson
  */
 public final class $Types {
-  static final Type[] EMPTY_TYPE_ARRAY = new Type[]{};
+  static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
   private $Types() {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Returns a new parameterized type, applying {@code typeArguments} to
-   * {@code rawType} and enclosed by {@code ownerType}.
+   * Returns a new parameterized type, applying {@code typeArguments} to {@code rawType} and
+   * enclosed by {@code ownerType}.
    *
    * @return a {@link java.io.Serializable serializable} parameterized type.
    */
@@ -44,8 +44,7 @@ public final class $Types {
   }
 
   /**
-   * Returns an array type whose elements are all instances of
-   * {@code componentType}.
+   * Returns an array type whose elements are all instances of {@code componentType}.
    *
    * @return a {@link java.io.Serializable serializable} generic array type.
    */
@@ -54,40 +53,38 @@ public final class $Types {
   }
 
   /**
-   * Returns a type that represents an unknown type that extends {@code bound}.
-   * For example, if {@code bound} is {@code CharSequence.class}, this returns
-   * {@code ? extends CharSequence}. If {@code bound} is {@code Object.class},
-   * this returns {@code ?}, which is shorthand for {@code ? extends Object}.
+   * Returns a type that represents an unknown type that extends {@code bound}. For example, if
+   * {@code bound} is {@code CharSequence.class}, this returns {@code ? extends CharSequence}. If
+   * {@code bound} is {@code Object.class}, this returns {@code ?}, which is shorthand for {@code ?
+   * extends Object}.
    */
   public static WildcardType subtypeOf(Type bound) {
     Type[] upperBounds;
     if (bound instanceof WildcardType) {
       upperBounds = ((WildcardType) bound).getUpperBounds();
     } else {
-      upperBounds = new Type[]{bound};
+      upperBounds = new Type[] {bound};
     }
     return new WildcardTypeImpl(upperBounds, EMPTY_TYPE_ARRAY);
   }
 
   /**
-   * Returns a type that represents an unknown supertype of {@code bound}. For
-   * example, if {@code bound} is {@code String.class}, this returns {@code ?
-   * super String}.
+   * Returns a type that represents an unknown supertype of {@code bound}. For example, if {@code
+   * bound} is {@code String.class}, this returns {@code ? super String}.
    */
   public static WildcardType supertypeOf(Type bound) {
     Type[] lowerBounds;
     if (bound instanceof WildcardType) {
       lowerBounds = ((WildcardType) bound).getLowerBounds();
     } else {
-      lowerBounds = new Type[]{bound};
+      lowerBounds = new Type[] {bound};
     }
-    return new WildcardTypeImpl(new Type[]{Object.class}, lowerBounds);
+    return new WildcardTypeImpl(new Type[] {Object.class}, lowerBounds);
   }
 
   /**
-   * Returns a type that is functionally equal but not necessarily equal
-   * according to {@link Object#equals(Object) Object.equals()}. The returned
-   * type is {@link java.io.Serializable}.
+   * Returns a type that is functionally equal but not necessarily equal according to {@link
+   * Object#equals(Object) Object.equals()}. The returned type is {@link java.io.Serializable}.
    */
   public static Type canonicalize(Type type) {
     if (type instanceof Class) {
@@ -96,8 +93,8 @@ public final class $Types {
 
     } else if (type instanceof ParameterizedType) {
       ParameterizedType p = (ParameterizedType) type;
-      return new ParameterizedTypeImpl(p.getOwnerType(),
-          p.getRawType(), p.getActualTypeArguments());
+      return new ParameterizedTypeImpl(
+          p.getOwnerType(), p.getRawType(), p.getActualTypeArguments());
 
     } else if (type instanceof GenericArrayType) {
       GenericArrayType g = (GenericArrayType) type;
@@ -145,8 +142,12 @@ public final class $Types {
 
     } else {
       String className = type == null ? "null" : type.getClass().getName();
-      throw new IllegalArgumentException("Expected a Class, ParameterizedType, or "
-          + "GenericArrayType, but <" + type + "> is of type " + className);
+      throw new IllegalArgumentException(
+          "Expected a Class, ParameterizedType, or "
+              + "GenericArrayType, but <"
+              + type
+              + "> is of type "
+              + className);
     }
   }
 
@@ -154,9 +155,7 @@ public final class $Types {
     return a == b || (a != null && a.equals(b));
   }
 
-  /**
-   * Returns true if {@code a} and {@code b} are equal.
-   */
+  /** Returns true if {@code a} and {@code b} are equal. */
   public static boolean equals(Type a, Type b) {
     if (a == b) {
       // also handles (a == null && b == null)
@@ -237,8 +236,7 @@ public final class $Types {
         if (interfaces[i] == toResolve) {
           return rawType.getGenericInterfaces()[i];
         } else if (toResolve.isAssignableFrom(interfaces[i])) {
-          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i],
-              toResolve);
+          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
         }
       }
     }
@@ -250,8 +248,7 @@ public final class $Types {
         if (rawSupertype == toResolve) {
           return rawType.getGenericSuperclass();
         } else if (toResolve.isAssignableFrom(rawSupertype)) {
-          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype,
-              toResolve);
+          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
         }
         rawType = rawSupertype;
       }
@@ -270,22 +267,25 @@ public final class $Types {
    */
   static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
     if (context instanceof WildcardType) {
-      // wildcards are useless for resolving supertypes. As the upper bound has the same raw type, use it instead
+      // wildcards are useless for resolving supertypes. As the upper bound has the same raw type,
+      // use it instead
       context = ((WildcardType) context).getUpperBounds()[0];
     }
     if (!supertype.isAssignableFrom(contextRawType)) {
-      throw new IllegalArgumentException(
-          supertype + " not assignable from " + contextRawType);
+      throw new IllegalArgumentException(supertype + " not assignable from " + contextRawType);
     }
-    return resolve(context, contextRawType,
-        $Types.getGenericSupertype(context, contextRawType, supertype));
+    return resolve(
+        context, contextRawType, $Types.getGenericSupertype(context, contextRawType, supertype));
   }
 
   public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
     return resolve(context, contextRawType, toResolve, new HashSet<TypeVariable>());
   }
 
-  private static Type resolve(Type context, Class<?> contextRawType, Type toResolve,
+  private static Type resolve(
+      Type context,
+      Class<?> contextRawType,
+      Type toResolve,
       Collection<TypeVariable> visitedTypeVariables) {
     // this implementation is made a little more complicated in an attempt to avoid object-creation
     while (true) {
@@ -305,32 +305,27 @@ public final class $Types {
       } else if (toResolve instanceof Class && ((Class<?>) toResolve).isArray()) {
         Class<?> original = (Class<?>) toResolve;
         Type componentType = original.getComponentType();
-        Type newComponentType = resolve(context, contextRawType, componentType,
-            visitedTypeVariables);
-        return componentType == newComponentType
-            ? original
-            : arrayOf(newComponentType);
+        Type newComponentType =
+            resolve(context, contextRawType, componentType, visitedTypeVariables);
+        return componentType == newComponentType ? original : arrayOf(newComponentType);
 
       } else if (toResolve instanceof GenericArrayType) {
         GenericArrayType original = (GenericArrayType) toResolve;
         Type componentType = original.getGenericComponentType();
-        Type newComponentType = resolve(context, contextRawType, componentType,
-            visitedTypeVariables);
-        return componentType == newComponentType
-            ? original
-            : arrayOf(newComponentType);
+        Type newComponentType =
+            resolve(context, contextRawType, componentType, visitedTypeVariables);
+        return componentType == newComponentType ? original : arrayOf(newComponentType);
 
       } else if (toResolve instanceof ParameterizedType) {
         ParameterizedType original = (ParameterizedType) toResolve;
         Type ownerType = original.getOwnerType();
-        Type newOwnerType = resolve(context, contextRawType, ownerType,
-            visitedTypeVariables);
+        Type newOwnerType = resolve(context, contextRawType, ownerType, visitedTypeVariables);
         boolean changed = newOwnerType != ownerType;
 
         Type[] args = original.getActualTypeArguments();
         for (int t = 0, length = args.length; t < length; t++) {
-          Type resolvedTypeArgument = resolve(context, contextRawType, args[t],
-              visitedTypeVariables);
+          Type resolvedTypeArgument =
+              resolve(context, contextRawType, args[t], visitedTypeVariables);
           if (resolvedTypeArgument != args[t]) {
             if (!changed) {
               args = args.clone();
@@ -350,14 +345,14 @@ public final class $Types {
         Type[] originalUpperBound = original.getUpperBounds();
 
         if (originalLowerBound.length == 1) {
-          Type lowerBound = resolve(context, contextRawType, originalLowerBound[0],
-              visitedTypeVariables);
+          Type lowerBound =
+              resolve(context, contextRawType, originalLowerBound[0], visitedTypeVariables);
           if (lowerBound != originalLowerBound[0]) {
             return supertypeOf(lowerBound);
           }
         } else if (originalUpperBound.length == 1) {
-          Type upperBound = resolve(context, contextRawType, originalUpperBound[0],
-              visitedTypeVariables);
+          Type upperBound =
+              resolve(context, contextRawType, originalUpperBound[0], visitedTypeVariables);
           if (upperBound != originalUpperBound[0]) {
             return subtypeOf(upperBound);
           }
@@ -370,8 +365,7 @@ public final class $Types {
     }
   }
 
-  static Type resolveTypeVariable(Type context, Class<?> contextRawType,
-      TypeVariable<?> unknown) {
+  static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
     Class<?> declaredByRaw = declaringClassOf(unknown);
 
     // we can't reduce this further
@@ -403,9 +397,7 @@ public final class $Types {
    */
   private static Class<?> declaringClassOf(TypeVariable<?> typeVariable) {
     GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
-    return genericDeclaration instanceof Class
-        ? (Class<?>) genericDeclaration
-        : null;
+    return genericDeclaration instanceof Class ? (Class<?>) genericDeclaration : null;
   }
 
   static void checkNotPrimitive(Type type) {
@@ -438,11 +430,11 @@ public final class $Types {
       // require an owner type if the raw type needs it
       if (rawType instanceof Class<?>) {
         Class<?> rawTypeAsClass = (Class<?>) rawType;
-        boolean isStaticOrTopLevelClass = Modifier.isStatic(rawTypeAsClass.getModifiers())
-            || rawTypeAsClass.getEnclosingClass() == null;
+        boolean isStaticOrTopLevelClass =
+            Modifier.isStatic(rawTypeAsClass.getModifiers())
+                || rawTypeAsClass.getEnclosingClass() == null;
         if (!(ownerType != null || isStaticOrTopLevelClass)) {
-          throw new IllegalArgumentException(
-              "RawType requires an owner type: " + rawType);
+          throw new IllegalArgumentException("RawType requires an owner type: " + rawType);
         }
       }
 
@@ -471,25 +463,27 @@ public final class $Types {
       return ownerType;
     }
 
-    @Override public boolean equals(Object other) {
-      return other instanceof ParameterizedType
-          && $Types.equals(this, (ParameterizedType) other);
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof ParameterizedType && $Types.equals(this, (ParameterizedType) other);
     }
 
-    @Override public int hashCode() {
-      return Arrays.hashCode(typeArguments)
-          ^ rawType.hashCode()
-          ^ hashCodeOrZero(ownerType);
+    @Override
+    public int hashCode() {
+      return Arrays.hashCode(typeArguments) ^ rawType.hashCode() ^ hashCodeOrZero(ownerType);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       int length = typeArguments.length;
       if (length == 0) {
         return typeToString(rawType);
       }
 
       StringBuilder stringBuilder = new StringBuilder(30 * (length + 1));
-      stringBuilder.append(typeToString(rawType)).append("<")
+      stringBuilder
+          .append(typeToString(rawType))
+          .append("<")
           .append(typeToString(typeArguments[0]));
       for (int i = 1; i < length; i++) {
         stringBuilder.append(", ").append(typeToString(typeArguments[i]));
@@ -511,16 +505,18 @@ public final class $Types {
       return componentType;
     }
 
-    @Override public boolean equals(Object o) {
-      return o instanceof GenericArrayType
-          && $Types.equals(this, (GenericArrayType) o);
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof GenericArrayType && $Types.equals(this, (GenericArrayType) o);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
       return componentType.hashCode();
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return typeToString(componentType) + "[]";
     }
 
@@ -528,9 +524,9 @@ public final class $Types {
   }
 
   /**
-   * The WildcardType interface supports multiple upper bounds and multiple
-   * lower bounds. We only support what the Java 6 language needs - at most one
-   * bound. If a lower bound is set, the upper bound must be Object.class.
+   * The WildcardType interface supports multiple upper bounds and multiple lower bounds. We only
+   * support what the Java 6 language needs - at most one bound. If a lower bound is set, the upper
+   * bound must be Object.class.
    */
   private static final class WildcardTypeImpl implements WildcardType, Serializable {
     private final Type upperBound;
@@ -543,7 +539,7 @@ public final class $Types {
       if (lowerBounds.length == 1) {
         // checkNotNull(lowerBounds[0]);
         checkNotPrimitive(lowerBounds[0]);
-        //checkArgument(upperBounds[0] == Object.class);
+        // checkArgument(upperBounds[0] == Object.class);
         this.lowerBound = canonicalize(lowerBounds[0]);
         this.upperBound = Object.class;
 
@@ -556,25 +552,26 @@ public final class $Types {
     }
 
     public Type[] getUpperBounds() {
-      return new Type[]{upperBound};
+      return new Type[] {upperBound};
     }
 
     public Type[] getLowerBounds() {
-      return lowerBound != null ? new Type[]{lowerBound} : EMPTY_TYPE_ARRAY;
+      return lowerBound != null ? new Type[] {lowerBound} : EMPTY_TYPE_ARRAY;
     }
 
-    @Override public boolean equals(Object other) {
-      return other instanceof WildcardType
-          && $Types.equals(this, (WildcardType) other);
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof WildcardType && $Types.equals(this, (WildcardType) other);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
       // this equals Arrays.hashCode(getLowerBounds()) ^ Arrays.hashCode(getUpperBounds());
-      return (lowerBound != null ? 31 + lowerBound.hashCode() : 1)
-          ^ (31 + upperBound.hashCode());
+      return (lowerBound != null ? 31 + lowerBound.hashCode() : 1) ^ (31 + upperBound.hashCode());
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       if (lowerBound != null) {
         return "? super " + typeToString(lowerBound);
       } else if (upperBound == Object.class) {
@@ -587,4 +584,3 @@ public final class $Types {
     private static final long serialVersionUID = 0;
   }
 }
-

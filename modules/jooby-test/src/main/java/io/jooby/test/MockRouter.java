@@ -1,9 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.test;
+
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
@@ -13,16 +19,11 @@ import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocket;
 
-import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 /**
  * Utility class that allows us to execute routes using a {@link MockContext}.
  *
- * App.java
+ * <p>App.java
+ *
  * <pre>{@code
  * {
  *
@@ -32,10 +33,11 @@ import java.util.function.Supplier;
  * }</pre>
  *
  * UnitTest:
- * <pre>{@code
- *   MockRouter router = new MockRouter(new App());
  *
- *   assertEquals("OK", router.get("/"));
+ * <pre>{@code
+ * MockRouter router = new MockRouter(new App());
+ *
+ * assertEquals("OK", router.get("/"));
  * }</pre>
  *
  * @author edgar
@@ -50,13 +52,13 @@ public class MockRouter {
       this.value = value;
     }
 
-    @NonNull @Override public Object value() {
+    @NonNull @Override
+    public Object value() {
       return value;
     }
   }
 
-  private static final Consumer NOOP = value -> {
-  };
+  private static final Consumer NOOP = value -> {};
 
   private Executor worker;
 
@@ -76,8 +78,8 @@ public class MockRouter {
   }
 
   /**
-   * Set a global session. So all route invocations are going to shared the same session as
-   * long as they don't use a custom context per invocation.
+   * Set a global session. So all route invocations are going to shared the same session as long as
+   * they don't use a custom context per invocation.
    *
    * @param session Global session.
    * @return This router.
@@ -118,30 +120,32 @@ public class MockRouter {
   }
 
   /**
-   * Execute a GET request and find a websocket, perform the upgrade and produces a websocket client.
+   * Execute a GET request and find a websocket, perform the upgrade and produces a websocket
+   * client.
    *
-   * App:
+   * <p>App:
+   *
    * <pre>{@code
-   *   ws("/path", (ctx, initializer) -> {
-   *     initializer.onConnect(ws -> {
-   *       ws.send("OnConnect");
-   *     });
+   * ws("/path", (ctx, initializer) -> {
+   *   initializer.onConnect(ws -> {
+   *     ws.send("OnConnect");
    *   });
+   * });
    * }</pre>
    *
    * Test:
+   *
    * <pre>{@code
-   *   MockRouter router = new MockRouter(new App());
-   *   router.ws("/path", ws -> {
+   * MockRouter router = new MockRouter(new App());
+   * router.ws("/path", ws -> {
    *
-   *     ws.onMessage(message -> {
-   *       System.out.println("Got: " + message);
-   *     });
+   *   ws.onMessage(message -> {
+   *     System.out.println("Got: " + message);
+   *   });
    *
-   *     ws.send("Another message");
-   *   })
+   *   ws.send("Another message");
+   * })
    * }</pre>
-   *
    *
    * @param path Path to match.
    * @param callback Websocket client callback.
@@ -199,7 +203,9 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue get(@NonNull String path, @NonNull MockContext context,
+  public MockValue get(
+      @NonNull String path,
+      @NonNull MockContext context,
       @NonNull Consumer<MockResponse> consumer) {
     return call(Router.GET, path, context, consumer);
   }
@@ -244,7 +250,9 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue post(@NonNull String path, @NonNull MockContext context,
+  public MockValue post(
+      @NonNull String path,
+      @NonNull MockContext context,
       @NonNull Consumer<MockResponse> consumer) {
     return call(Router.POST, path, context, consumer);
   }
@@ -289,7 +297,9 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue delete(@NonNull String path, @NonNull MockContext context,
+  public MockValue delete(
+      @NonNull String path,
+      @NonNull MockContext context,
       @NonNull Consumer<MockResponse> consumer) {
     return call(Router.DELETE, path, context, consumer);
   }
@@ -334,7 +344,9 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue put(@NonNull String path, @NonNull MockContext context,
+  public MockValue put(
+      @NonNull String path,
+      @NonNull MockContext context,
       @NonNull Consumer<MockResponse> consumer) {
     return call(Router.PUT, path, context, consumer);
   }
@@ -379,7 +391,9 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue patch(@NonNull String path, @NonNull MockContext context,
+  public MockValue patch(
+      @NonNull String path,
+      @NonNull MockContext context,
       @NonNull Consumer<MockResponse> consumer) {
     return call(Router.PATCH, path, context, consumer);
   }
@@ -392,8 +406,7 @@ public class MockRouter {
    * @param context Web context.
    * @return Route response.
    */
-  public MockValue call(@NonNull String method, @NonNull String path,
-      @NonNull Context context) {
+  public MockValue call(@NonNull String method, @NonNull String path, @NonNull Context context) {
     return call(supplier.get(), method, path, context, NOOP);
   }
 
@@ -405,8 +418,8 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue call(@NonNull String method, @NonNull String path,
-      @NonNull Consumer<MockResponse> consumer) {
+  public MockValue call(
+      @NonNull String method, @NonNull String path, @NonNull Consumer<MockResponse> consumer) {
     return call(method, path, newContext(), consumer);
   }
 
@@ -419,14 +432,17 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue call(@NonNull String method, @NonNull String path, @NonNull MockContext ctx,
+  public MockValue call(
+      @NonNull String method,
+      @NonNull String path,
+      @NonNull MockContext ctx,
       @NonNull Consumer<MockResponse> consumer) {
     return call(supplier.get(), method, path, ctx, consumer);
   }
 
   /**
-   * Set whenever to execute the entire pipeline (decorators + handler) or just the handler.
-   * This flag is off by default, so only the handlers is executed.
+   * Set whenever to execute the entire pipeline (decorators + handler) or just the handler. This
+   * flag is off by default, so only the handlers is executed.
    *
    * @param enabled True for enabled the entire pipeline.
    * @return This mock router.
@@ -436,8 +452,8 @@ public class MockRouter {
     return this;
   }
 
-  private MockValue call(Jooby router, String method, String path, Context ctx,
-      Consumer<MockResponse> consumer) {
+  private MockValue call(
+      Jooby router, String method, String path, Context ctx, Consumer<MockResponse> consumer) {
     MockContext findContext = ctx instanceof MockContext ? (MockContext) ctx : newContext();
     findContext.setMethod(method.toUpperCase());
     findContext.setRequestPath(path);
@@ -498,10 +514,11 @@ public class MockRouter {
   }
 
   private static Executor singleThreadWorker() {
-    return Executors.newSingleThreadExecutor(task -> {
-      Thread thread = new Thread(task, "single-thread");
-      thread.setDaemon(true);
-      return thread;
-    });
+    return Executors.newSingleThreadExecutor(
+        task -> {
+          Thread thread = new Thread(task, "single-thread");
+          thread.setDaemon(true);
+          return thread;
+        });
   }
 }

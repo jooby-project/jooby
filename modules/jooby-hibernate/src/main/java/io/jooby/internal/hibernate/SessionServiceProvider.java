@@ -1,15 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.hibernate;
 
-import io.jooby.hibernate.SessionProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 
+import io.jooby.hibernate.SessionProvider;
 import jakarta.inject.Provider;
 
 public class SessionServiceProvider implements Provider<Session> {
@@ -21,7 +21,8 @@ public class SessionServiceProvider implements Provider<Session> {
     this.sessionProvider = sessionProvider;
   }
 
-  @Override public Session get() {
+  @Override
+  public Session get() {
     return ManagedSessionContext.hasBind(sessionFactory)
         ? sessionFactory.getCurrentSession()
         : sessionProvider.newSession(sessionFactory.withOptions());

@@ -1,5 +1,23 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import io.jooby.Context;
+import io.jooby.FlashMap;
+import io.jooby.Formdata;
+import io.jooby.Multipart;
+import io.jooby.QueryString;
+import io.jooby.StatusCode;
 import io.jooby.annotations.CookieParam;
 import io.jooby.annotations.FlashParam;
 import io.jooby.annotations.FormParam;
@@ -9,19 +27,6 @@ import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
-import io.jooby.Context;
-import io.jooby.FlashMap;
-import io.jooby.Formdata;
-import io.jooby.Multipart;
-import io.jooby.QueryString;
-import io.jooby.StatusCode;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/args")
 public class Provisioning {
@@ -100,8 +105,14 @@ public class Provisioning {
 
   @GET
   @Path("/{s}/{i}/{j}/{f}/{d}/{b}")
-  public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
-      @PathParam long j, @PathParam Float f, @PathParam boolean b) {
+  public String mix(
+      @PathParam String s,
+      @PathParam Integer i,
+      @PathParam double d,
+      Context ctx,
+      @PathParam long j,
+      @PathParam Float f,
+      @PathParam boolean b) {
     return Stream.of(ctx.getMethod(), s, i, j, f, d, b)
         .map(Objects::toString)
         .collect(Collectors.joining("/"));

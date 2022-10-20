@@ -1,37 +1,38 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.netty;
 
-import io.jooby.FileUpload;
-import io.jooby.SneakyThrows;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.handler.codec.http.multipart.DiskFileUpload;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.FileUpload;
+import io.jooby.SneakyThrows;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.handler.codec.http.multipart.DiskFileUpload;
 
 public class NettyFileUpload implements FileUpload {
   private final io.netty.handler.codec.http.multipart.FileUpload upload;
   private final Path basedir;
   private Path path;
 
-  public NettyFileUpload(Path basedir,
-      io.netty.handler.codec.http.multipart.FileUpload upload) {
+  public NettyFileUpload(Path basedir, io.netty.handler.codec.http.multipart.FileUpload upload) {
     this.basedir = basedir;
     this.upload = upload;
   }
 
-  @NonNull @Override public String getName() {
+  @NonNull @Override
+  public String getName() {
     return upload.getName();
   }
 
-  @Override public byte[] bytes() {
+  @Override
+  public byte[] bytes() {
     try {
       if (upload.isInMemory()) {
         return upload.get();
@@ -42,7 +43,8 @@ public class NettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public InputStream stream() {
+  @Override
+  public InputStream stream() {
     try {
       if (upload.isInMemory()) {
         return new ByteBufInputStream(upload.content(), true);
@@ -53,24 +55,28 @@ public class NettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public String getFileName() {
+  @Override
+  public String getFileName() {
     return upload.getFilename();
   }
 
-  @Override public String getContentType() {
+  @Override
+  public String getContentType() {
     return upload.getContentType();
   }
 
-  @Override public long getFileSize() {
+  @Override
+  public long getFileSize() {
     return upload.length();
   }
 
-  @Override public Path path() {
+  @Override
+  public Path path() {
     try {
       if (path == null) {
         if (upload.isInMemory()) {
-          path = basedir
-              .resolve(DiskFileUpload.prefix + System.nanoTime() + DiskFileUpload.postfix);
+          path =
+              basedir.resolve(DiskFileUpload.prefix + System.nanoTime() + DiskFileUpload.postfix);
           upload.renameTo(path.toFile());
           upload.release();
         } else {
@@ -83,7 +89,8 @@ public class NettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public void destroy() {
+  @Override
+  public void destroy() {
     try {
       if (upload.refCnt() > 0) {
         upload.release();
@@ -97,7 +104,8 @@ public class NettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return getFileName();
   }
 }

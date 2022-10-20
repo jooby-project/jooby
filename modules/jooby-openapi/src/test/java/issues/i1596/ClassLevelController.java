@@ -1,12 +1,17 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i1596;
+
+import java.util.List;
 
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
-
-import java.util.List;
 
 @Tags(@Tag(name = "pets", description = "Group pets"))
 public class ClassLevelController {

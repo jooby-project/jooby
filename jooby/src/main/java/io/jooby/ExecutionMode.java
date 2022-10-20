@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -14,7 +14,8 @@ public enum ExecutionMode {
   /**
    * Execute route handler in the event loop thread (non-blocking). Handler must never block.
    *
-   * Examples:
+   * <p>Examples:
+   *
    * <pre>{@code
    * {
    *   mode(EVENT_LOOP);
@@ -37,7 +38,8 @@ public enum ExecutionMode {
   /**
    * Execute handler in a worker/io thread (blocking). Handler is allowed to block.
    *
-   * Examples:
+   * <p>Examples:
+   *
    * <pre>{@code
    * {
    *
@@ -56,19 +58,19 @@ public enum ExecutionMode {
   /**
    * Default execution mode.
    *
-   * Automatically choose between {@link ExecutionMode#EVENT_LOOP} and {@link ExecutionMode#WORKER}.
+   * <p>Automatically choose between {@link ExecutionMode#EVENT_LOOP} and {@link
+   * ExecutionMode#WORKER}.
    *
-   * If route handler returns a `reactive` type, then Jooby run the route handler in the event-loop
-   * thread. Otherwise, run the handler in the worker thread.
+   * <p>If route handler returns a `reactive` type, then Jooby run the route handler in the
+   * event-loop thread. Otherwise, run the handler in the worker thread.
    *
-   * A reactive type is one of:
+   * <p>A reactive type is one of:
    *
-   * - {@link java.util.concurrent.CompletableFuture}.
-   * - A reactive stream Publisher
-   * - Rx types: Observable, Flowable, Single, Maybe, etc..
-   * - Reactor types: Flux and Mono.
+   * <p>- {@link java.util.concurrent.CompletableFuture}. - A reactive stream Publisher - Rx types:
+   * Observable, Flowable, Single, Maybe, etc.. - Reactor types: Flux and Mono.
    *
-   * Examples:
+   * <p>Examples:
+   *
    * <pre>{@code
    * {
    *

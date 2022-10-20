@@ -1,18 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 /**
- * Template engine renderer. This class renderer instances of {@link ModelAndView} objects.
- * Template engine rendering is done by checking view name and supported file {@link #extensions()}.
+ * Template engine renderer. This class renderer instances of {@link ModelAndView} objects. Template
+ * engine rendering is done by checking view name and supported file {@link #extensions()}.
  *
  * @since 2.0.0
  * @author edgar
@@ -35,7 +36,8 @@ public interface TemplateEngine extends MessageEncoder {
    */
   String render(Context ctx, ModelAndView modelAndView) throws Exception;
 
-  @Override default byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  @Override
+  default byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     // initialize flash and session attributes (if any)
     ctx.flash();
     ctx.sessionOrNull();
@@ -65,8 +67,8 @@ public interface TemplateEngine extends MessageEncoder {
   /**
    * Number of file extensions supported by the template engine. Default is <code>.html</code>.
    *
-   * @return Number of file extensions supported by the template engine.
-   *     Default is <code>.html</code>.
+   * @return Number of file extensions supported by the template engine. Default is <code>.html
+   *     </code>.
    */
   default @NonNull List<String> extensions() {
     return Collections.singletonList(".html");

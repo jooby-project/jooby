@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -27,7 +27,8 @@ public class JettyServlet extends GenericServlet {
     this.defaultHeaders = defaultHeaders;
   }
 
-  @Override public void service(ServletRequest req, ServletResponse rsp) {
+  @Override
+  public void service(ServletRequest req, ServletResponse rsp) {
     Request request = (Request) req;
     HttpServletResponse response = (HttpServletResponse) rsp;
     response.setContentType("text/plain");

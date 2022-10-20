@@ -1,6 +1,13 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby
 
 import io.jooby.Router.GET
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import org.junit.jupiter.api.Assertions.assertSame
@@ -11,8 +18,6 @@ import org.mockito.Mockito.RETURNS_DEEP_STUBS
 import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-import kotlin.coroutines.AbstractCoroutineContextElement
-import kotlin.coroutines.CoroutineContext
 
 class CoroutineRouterTest {
   private val router = mock(Router::class.java, RETURNS_DEEP_STUBS)
@@ -20,9 +25,7 @@ class CoroutineRouterTest {
 
   @Test
   fun withoutLaunchContext() {
-    CoroutineRouter(CoroutineStart.UNDISPATCHED, router).apply {
-      get("/path") { "Result" }
-    }
+    CoroutineRouter(CoroutineStart.UNDISPATCHED, router).apply { get("/path") { "Result" } }
 
     val handlerCaptor = ArgumentCaptor.forClass(Route.Handler::class.java)
     verify(router).route(eq(GET), eq("/path"), handlerCaptor.capture())

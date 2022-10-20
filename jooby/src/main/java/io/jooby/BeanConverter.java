@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -14,7 +14,7 @@ import io.jooby.internal.converter.ReflectiveBeanConverter;
  * Value converter for complex values that come from query, path, form, etc... parameters into more
  * specific type.
  *
- * It is an extension point for {@link ValueNode#to(Class)} calls.
+ * <p>It is an extension point for {@link ValueNode#to(Class)} calls.
  */
 public interface BeanConverter {
   /**

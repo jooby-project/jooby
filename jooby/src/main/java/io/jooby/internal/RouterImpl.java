@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -30,13 +30,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import jakarta.inject.Provider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.Cookie;
@@ -65,6 +63,7 @@ import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
+import jakarta.inject.Provider;
 
 public class RouterImpl implements Router {
 
@@ -85,7 +84,8 @@ public class RouterImpl implements Router {
       return this;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return buffer == null ? "/" : buffer.toString();
     }
   }
@@ -202,32 +202,39 @@ public class RouterImpl implements Router {
     beanConverters = new ArrayList<>(3);
   }
 
-  @NonNull @Override public Config getConfig() {
+  @NonNull @Override
+  public Config getConfig() {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override public Environment getEnvironment() {
+  @NonNull @Override
+  public Environment getEnvironment() {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override public List<Locale> getLocales() {
+  @NonNull @Override
+  public List<Locale> getLocales() {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override public Map<String, Object> getAttributes() {
+  @NonNull @Override
+  public Map<String, Object> getAttributes() {
     return attributes;
   }
 
-  @NonNull @Override public Set<RouterOption> getRouterOptions() {
+  @NonNull @Override
+  public Set<RouterOption> getRouterOptions() {
     return routerOptions;
   }
 
-  @NonNull @Override public Router setRouterOptions(@NonNull RouterOption... options) {
+  @NonNull @Override
+  public Router setRouterOptions(@NonNull RouterOption... options) {
     Stream.of(options).forEach(routerOptions::add);
     return this;
   }
 
-  @NonNull @Override public Router setContextPath(@NonNull String basePath) {
+  @NonNull @Override
+  public Router setContextPath(@NonNull String basePath) {
     if (routes.size() > 0) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
@@ -235,23 +242,28 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override public Path getTmpdir() {
+  @NonNull @Override
+  public Path getTmpdir() {
     return Paths.get(System.getProperty("java.io.tmpdir"));
   }
 
-  @NonNull @Override public String getContextPath() {
+  @NonNull @Override
+  public String getContextPath() {
     return basePath == null ? "/" : basePath;
   }
 
-  @NonNull @Override public List<Route> getRoutes() {
+  @NonNull @Override
+  public List<Route> getRoutes() {
     return routes;
   }
 
-  @Override public boolean isTrustProxy() {
+  @Override
+  public boolean isTrustProxy() {
     return trustProxy;
   }
 
-  @NonNull @Override public Router setTrustProxy(boolean trustProxy) {
+  @NonNull @Override
+  public Router setTrustProxy(boolean trustProxy) {
     this.trustProxy = trustProxy;
     if (trustProxy) {
       addPreDispatchInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
@@ -261,11 +273,13 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override public RouteSet domain(@NonNull String domain, @NonNull Runnable body) {
+  @NonNull @Override
+  public RouteSet domain(@NonNull String domain, @NonNull Runnable body) {
     return use(domainPredicate(domain), body);
   }
 
-  @NonNull @Override public Router domain(@NonNull String domain, @NonNull Router subrouter) {
+  @NonNull @Override
+  public Router domain(@NonNull String domain, @NonNull Router subrouter) {
     return use(domainPredicate(domain), subrouter);
   }
 
@@ -286,19 +300,22 @@ public class RouterImpl implements Router {
     overrideServices(subrouter);
 
     /** Routes: */
-    mount(predicate, () -> {
-      for (Route route : subrouter.getRoutes()) {
-        Route newRoute = newRoute(route.getMethod(), route.getPattern(), route.getHandler());
-        copy(route, newRoute);
-      }
-    });
+    mount(
+        predicate,
+        () -> {
+          for (Route route : subrouter.getRoutes()) {
+            Route newRoute = newRoute(route.getMethod(), route.getPattern(), route.getHandler());
+            copy(route, newRoute);
+          }
+        });
     return this;
   }
 
-  @NonNull @Override public Router mount(@NonNull String path, @NonNull Router router) {
+  @NonNull @Override
+  public Router mount(@NonNull String path, @NonNull Router router) {
     /** Override services: */
     overrideServices(router);
-    /** Merge error handler:  */
+    /** Merge error handler: */
     mergeErrorHandler(router);
     /** Routes: */
     copyRoutes(path, router);
@@ -310,11 +327,13 @@ public class RouterImpl implements Router {
     return mount("/", router);
   }
 
-  @NonNull @Override public Router mvc(@NonNull Object router) {
+  @NonNull @Override
+  public Router mvc(@NonNull Object router) {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override public Router mvc(@NonNull Class router) {
+  @NonNull @Override
+  public Router mvc(@NonNull Class router) {
     throw new UnsupportedOperationException();
   }
 
@@ -323,7 +342,8 @@ public class RouterImpl implements Router {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override public Router encoder(@NonNull MessageEncoder encoder) {
+  @NonNull @Override
+  public Router encoder(@NonNull MessageEncoder encoder) {
     this.encoder.add(MediaType.all, encoder);
     return this;
   }
@@ -334,23 +354,26 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override public Router decoder(@NonNull MediaType contentType, @NonNull
-      MessageDecoder decoder) {
+  @NonNull @Override
+  public Router decoder(@NonNull MediaType contentType, @NonNull MessageDecoder decoder) {
     decoders.put(contentType.getValue(), decoder);
     return this;
   }
 
-  @NonNull @Override public Executor getWorker() {
+  @NonNull @Override
+  public Executor getWorker() {
     return worker;
   }
 
-  @NonNull @Override public Router setWorker(Executor worker) {
+  @NonNull @Override
+  public Router setWorker(Executor worker) {
     ForwardingExecutor workerRef = (ForwardingExecutor) this.worker;
     workerRef.executor = worker;
     return this;
   }
 
-  @NonNull @Override public Router setDefaultWorker(@NonNull Executor worker) {
+  @NonNull @Override
+  public Router setDefaultWorker(@NonNull Executor worker) {
     ForwardingExecutor workerRef = (ForwardingExecutor) this.worker;
     if (workerRef.executor == null) {
       workerRef.executor = worker;
@@ -358,27 +381,32 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @NonNull public Router decorator(@NonNull Route.Decorator decorator) {
+  @Override
+  @NonNull public Router decorator(@NonNull Route.Decorator decorator) {
     stack.peekLast().then(decorator);
     return this;
   }
 
-  @Override @NonNull public Router after(@NonNull Route.After after) {
+  @Override
+  @NonNull public Router after(@NonNull Route.After after) {
     stack.peekLast().then(after);
     return this;
   }
 
-  @NonNull @Override public Router before(@NonNull Route.Before before) {
+  @NonNull @Override
+  public Router before(@NonNull Route.Before before) {
     stack.peekLast().then(before);
     return this;
   }
 
-  @NonNull @Override public Router error(@NonNull ErrorHandler handler) {
+  @NonNull @Override
+  public Router error(@NonNull ErrorHandler handler) {
     err = err == null ? handler : err.then(handler);
     return this;
   }
 
-  @NonNull @Override public Router dispatch(@NonNull Runnable body) {
+  @NonNull @Override
+  public Router dispatch(@NonNull Runnable body) {
     return newStack(push(chi).executor(worker), body);
   }
 
@@ -387,11 +415,13 @@ public class RouterImpl implements Router {
     return newStack(push(chi).executor(executor), action);
   }
 
-  @NonNull @Override public RouteSet routes(@NonNull Runnable action) {
+  @NonNull @Override
+  public RouteSet routes(@NonNull Runnable action) {
     return path("/", action);
   }
 
-  @Override @NonNull public RouteSet path(@NonNull String pattern, @NonNull Runnable action) {
+  @Override
+  @NonNull public RouteSet path(@NonNull String pattern, @NonNull Runnable action) {
     RouteSet routeSet = new RouteSet();
     int start = this.routes.size();
     newStack(chi, pattern, action);
@@ -399,30 +429,36 @@ public class RouterImpl implements Router {
     return routeSet;
   }
 
-  @NonNull @Override public SessionStore getSessionStore() {
+  @NonNull @Override
+  public SessionStore getSessionStore() {
     return sessionStore;
   }
 
-  @NonNull @Override public Router setSessionStore(SessionStore sessionStore) {
+  @NonNull @Override
+  public Router setSessionStore(SessionStore sessionStore) {
     this.sessionStore = sessionStore;
     return this;
   }
 
-  @NonNull @Override public Router converter(ValueConverter converter) {
+  @NonNull @Override
+  public Router converter(ValueConverter converter) {
     converters.add(converter);
     return this;
   }
 
-  @NonNull @Override public Router converter(@NonNull BeanConverter converter) {
+  @NonNull @Override
+  public Router converter(@NonNull BeanConverter converter) {
     beanConverters.add(converter);
     return this;
   }
 
-  @NonNull @Override public List<ValueConverter> getConverters() {
+  @NonNull @Override
+  public List<ValueConverter> getConverters() {
     return converters;
   }
 
-  @NonNull @Override public List<BeanConverter> getBeanConverters() {
+  @NonNull @Override
+  public List<BeanConverter> getBeanConverters() {
     return beanConverters;
   }
 
@@ -433,18 +469,19 @@ public class RouterImpl implements Router {
 
   @NonNull @Override
   public Route sse(@NonNull String pattern, @NonNull ServerSentEmitter.Handler handler) {
-    return route(SSE, pattern, new ServerSentEventHandler(handler)).setHandle(handler)
+    return route(SSE, pattern, new ServerSentEventHandler(handler))
+        .setHandle(handler)
         .setExecutorKey("worker");
   }
 
   @Override
-  public Route route(@NonNull String method, @NonNull String pattern,
-      @NonNull Route.Handler handler) {
+  public Route route(
+      @NonNull String method, @NonNull String pattern, @NonNull Route.Handler handler) {
     return newRoute(method, pattern, handler);
   }
 
-  private Route newRoute(@NonNull String method, @NonNull String pattern,
-      @NonNull Route.Handler handler) {
+  private Route newRoute(
+      @NonNull String method, @NonNull String pattern, @NonNull Route.Handler handler) {
     RouteTree tree = stack.getLast().tree;
     /** Pattern: */
     PathBuilder pathBuilder = new PathBuilder();
@@ -452,21 +489,22 @@ public class RouterImpl implements Router {
     pathBuilder.append(pattern);
 
     /** Before: */
-    Route.Before before = stack.stream()
-        .flatMap(Stack::toBefore)
-        .reduce(null, (it, next) -> it == null ? next : it.then(next));
+    Route.Before before =
+        stack.stream()
+            .flatMap(Stack::toBefore)
+            .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** Decorator: */
-    List<Route.Decorator> decoratorList = stack.stream()
-        .flatMap(Stack::toDecorator)
-        .collect(Collectors.toList());
-    Route.Decorator decorator = decoratorList.stream()
-        .reduce(null, (it, next) -> it == null ? next : it.then(next));
+    List<Route.Decorator> decoratorList =
+        stack.stream().flatMap(Stack::toDecorator).collect(Collectors.toList());
+    Route.Decorator decorator =
+        decoratorList.stream().reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** After: */
-    Route.After after = stack.stream()
-        .flatMap(Stack::toAfter)
-        .reduce(null, (it, next) -> it == null ? next : it.then(next));
+    Route.After after =
+        stack.stream()
+            .flatMap(Stack::toAfter)
+            .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** Route: */
     String safePattern = pathBuilder.toString();
@@ -486,9 +524,8 @@ public class RouterImpl implements Router {
       routeExecutor.put(route, stack.executor);
     }
 
-    String finalPattern = basePath == null
-        ? safePattern
-        : new PathBuilder(basePath, safePattern).toString();
+    String finalPattern =
+        basePath == null ? safePattern : new PathBuilder(basePath, safePattern).toString();
 
     if (routerOptions.contains(RouterOption.IGNORE_CASE)) {
       finalPattern = finalPattern.toLowerCase();
@@ -543,9 +580,10 @@ public class RouterImpl implements Router {
         }
       } else {
         if (executorKey.equals("worker")) {
-          executor = (worker instanceof ForwardingExecutor)
-              ? ((ForwardingExecutor) worker).executor
-              : worker;
+          executor =
+              (worker instanceof ForwardingExecutor)
+                  ? ((ForwardingExecutor) worker).executor
+                  : worker;
         } else {
           executor = executor(executorKey);
         }
@@ -572,9 +610,14 @@ public class RouterImpl implements Router {
         route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT));
       }
       /** Response handler: */
-      Route.Handler pipeline = Pipeline
-          .compute(source.getLoader(), route, forceMode(route, mode), executor,
-              postDispatchInitializer, handlers);
+      Route.Handler pipeline =
+          Pipeline.compute(
+              source.getLoader(),
+              route,
+              forceMode(route, mode),
+              executor,
+              postDispatchInitializer,
+              handlers);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);
@@ -610,19 +653,21 @@ public class RouterImpl implements Router {
     return mode;
   }
 
-  private Route.Before prependMediaType(List<MediaType> contentTypes, Route.Before before,
-      Route.Before prefix) {
+  private Route.Before prependMediaType(
+      List<MediaType> contentTypes, Route.Before before, Route.Before prefix) {
     if (contentTypes.size() > 0) {
       return before == null ? prefix : prefix.then(before);
     }
     return before;
   }
 
-  @Override public Logger getLog() {
+  @Override
+  public Logger getLog() {
     return LoggerFactory.getLogger(getClass());
   }
 
-  @NonNull @Override public Router executor(@NonNull String name, @NonNull Executor executor) {
+  @NonNull @Override
+  public Router executor(@NonNull String name, @NonNull Executor executor) {
     services.put(ServiceKey.key(Executor.class, name), executor);
     return this;
   }
@@ -642,11 +687,13 @@ public class RouterImpl implements Router {
     }
   }
 
-  @NonNull @Override public ErrorHandler getErrorHandler() {
+  @NonNull @Override
+  public ErrorHandler getErrorHandler() {
     return err;
   }
 
-  @NonNull @Override public Match match(@NonNull Context ctx) {
+  @NonNull @Override
+  public Match match(@NonNull Context ctx) {
     if (preDispatchInitializer != null) {
       preDispatchInitializer.apply(ctx);
     }
@@ -663,14 +710,16 @@ public class RouterImpl implements Router {
     return chi.find(ctx.getMethod(), ctx.getRequestPath());
   }
 
-  @Override public boolean match(@NonNull String pattern, @NonNull String path) {
+  @Override
+  public boolean match(@NonNull String pattern, @NonNull String path) {
     Chi chi = new Chi();
     chi.insert(Router.GET, pattern, ROUTE_MARK);
     return chi.exists(Router.GET, path);
   }
 
-  @NonNull @Override public Router errorCode(@NonNull Class<? extends Throwable> type,
-      @NonNull StatusCode statusCode) {
+  @NonNull @Override
+  public Router errorCode(
+      @NonNull Class<? extends Throwable> type, @NonNull StatusCode statusCode) {
     if (errorCodes == null) {
       errorCodes = new HashMap<>();
     }
@@ -678,7 +727,8 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override public StatusCode errorCode(@NonNull Throwable x) {
+  @NonNull @Override
+  public StatusCode errorCode(@NonNull Throwable x) {
     if (x instanceof StatusCodeException) {
       return ((StatusCodeException) x).getStatusCode();
     }
@@ -701,64 +751,74 @@ public class RouterImpl implements Router {
     return StatusCode.SERVER_ERROR;
   }
 
-  @NonNull @Override public Router responseHandler(ResponseHandler handler) {
+  @NonNull @Override
+  public Router responseHandler(ResponseHandler handler) {
     handlers.add(handler);
     return this;
   }
 
-  @NonNull @Override public ServiceRegistry getServices() {
+  @NonNull @Override
+  public ServiceRegistry getServices() {
     return services;
   }
 
-  @NonNull @Override public <T> T require(@NonNull Class<T> type, @NonNull String name)
-      throws RegistryException {
+  @NonNull @Override
+  public <T> T require(@NonNull Class<T> type, @NonNull String name) throws RegistryException {
     return services.require(type, name);
   }
 
-  @NonNull @Override public <T> T require(@NonNull Class<T> type) throws RegistryException {
+  @NonNull @Override
+  public <T> T require(@NonNull Class<T> type) throws RegistryException {
     return services.require(type);
   }
 
-  @NonNull @Override public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
+  @NonNull @Override
+  public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     return services.require(key);
   }
 
-  @NonNull @Override public Router setFlashCookie(@NonNull String name) {
+  @NonNull @Override
+  public Router setFlashCookie(@NonNull String name) {
     this.flashCookie.setName(name);
     return this;
   }
 
-  @NonNull @Override public Cookie getFlashCookie() {
+  @NonNull @Override
+  public Cookie getFlashCookie() {
     return flashCookie;
   }
 
-  @NonNull @Override public Router setFlashCookie(@NonNull Cookie flashCookie) {
+  @NonNull @Override
+  public Router setFlashCookie(@NonNull Cookie flashCookie) {
     this.flashCookie = requireNonNull(flashCookie);
     return this;
   }
 
-  @NonNull @Override public ServerOptions getServerOptions() {
+  @NonNull @Override
+  public ServerOptions getServerOptions() {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override public Router setHiddenMethod(@NonNull String parameterName) {
+  @NonNull @Override
+  public Router setHiddenMethod(@NonNull String parameterName) {
     setHiddenMethod(new DefaultHiddenMethodLookup(parameterName));
     return this;
   }
 
-  @NonNull @Override public Router setHiddenMethod(
-      @NonNull Function<Context, Optional<String>> provider) {
+  @NonNull @Override
+  public Router setHiddenMethod(@NonNull Function<Context, Optional<String>> provider) {
     addPreDispatchInitializer(new HiddenMethodInitializer(provider));
     return this;
   }
 
-  @NonNull @Override public Router setCurrentUser(
-      @NonNull Function<Context, Object> provider) {
+  @NonNull @Override
+  public Router setCurrentUser(@NonNull Function<Context, Object> provider) {
     addPreDispatchInitializer(new CurrentUserInitializer(provider));
     return this;
   }
 
-  @NonNull @Override public Router setContextAsService(boolean contextAsService) {
+  @NonNull @Override
+  public Router setContextAsService(boolean contextAsService) {
     if (this.contextAsService == contextAsService) {
       return this;
     }
@@ -776,23 +836,26 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     StringBuilder buff = new StringBuilder();
     if (routes != null) {
-      int size = IntStream.range(0, routes.size())
-          .map(i -> routes.get(i).getMethod().length() + 1)
-          .max()
-          .orElse(0);
+      int size =
+          IntStream.range(0, routes.size())
+              .map(i -> routes.get(i).getMethod().length() + 1)
+              .max()
+              .orElse(0);
 
       routes.forEach(
-          r -> buff.append(String.format("\n  %-" + size + "s", r.getMethod()))
-              .append(r.getPattern()));
+          r ->
+              buff.append(String.format("\n  %-" + size + "s", r.getMethod()))
+                  .append(r.getPattern()));
     }
     return buff.length() > 0 ? buff.substring(1) : "";
   }
 
-  private Router newStack(RouteTree tree, String pattern, Runnable action,
-      Route.Decorator... decorator) {
+  private Router newStack(
+      RouteTree tree, String pattern, Runnable action, Route.Decorator... decorator) {
     return newStack(push(tree, pattern), action, decorator);
   }
 
@@ -809,8 +872,8 @@ public class RouterImpl implements Router {
     return stack;
   }
 
-  private Router newStack(@NonNull Stack stack, @NonNull Runnable action,
-      Route.Decorator... filter) {
+  private Router newStack(
+      @NonNull Stack stack, @NonNull Runnable action, Route.Decorator... filter) {
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     if (action != null) {
@@ -821,17 +884,20 @@ public class RouterImpl implements Router {
   }
 
   private void copy(Route src, Route it) {
-    Route.Before before = Optional.ofNullable(it.getBefore())
-        .map(filter -> Optional.ofNullable(src.getBefore()).map(filter::then).orElse(filter))
-        .orElseGet(src::getBefore);
+    Route.Before before =
+        Optional.ofNullable(it.getBefore())
+            .map(filter -> Optional.ofNullable(src.getBefore()).map(filter::then).orElse(filter))
+            .orElseGet(src::getBefore);
 
-    Route.Decorator decorator = Optional.ofNullable(it.getDecorator())
-        .map(filter -> Optional.ofNullable(src.getDecorator()).map(filter::then).orElse(filter))
-        .orElseGet(src::getDecorator);
+    Route.Decorator decorator =
+        Optional.ofNullable(it.getDecorator())
+            .map(filter -> Optional.ofNullable(src.getDecorator()).map(filter::then).orElse(filter))
+            .orElseGet(src::getDecorator);
 
-    Route.After after = Optional.ofNullable(it.getAfter())
-        .map(filter -> Optional.ofNullable(src.getAfter()).map(filter::then).orElse(filter))
-        .orElseGet(src::getAfter);
+    Route.After after =
+        Optional.ofNullable(it.getAfter())
+            .map(filter -> Optional.ofNullable(src.getAfter()).map(filter::then).orElse(filter))
+            .orElseGet(src::getAfter);
 
     it.setBefore(before);
     it.setDecorator(decorator);
@@ -865,8 +931,8 @@ public class RouterImpl implements Router {
     if (this.preDispatchInitializer instanceof ContextInitializerList) {
       this.preDispatchInitializer.add(initializer);
     } else if (this.preDispatchInitializer != null) {
-      this.preDispatchInitializer = new ContextInitializerList(this.preDispatchInitializer)
-          .add(initializer);
+      this.preDispatchInitializer =
+          new ContextInitializerList(this.preDispatchInitializer).add(initializer);
     } else {
       this.preDispatchInitializer = initializer;
     }
@@ -884,8 +950,8 @@ public class RouterImpl implements Router {
     if (this.postDispatchInitializer instanceof ContextInitializerList) {
       this.postDispatchInitializer.add(initializer);
     } else if (this.postDispatchInitializer != null) {
-      this.postDispatchInitializer = new ContextInitializerList(this.postDispatchInitializer)
-          .add(initializer);
+      this.postDispatchInitializer =
+          new ContextInitializerList(this.postDispatchInitializer).add(initializer);
     } else {
       this.postDispatchInitializer = initializer;
     }

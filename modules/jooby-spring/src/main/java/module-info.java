@@ -9,9 +9,7 @@ module io.jooby.spring {
   requires io.jooby;
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
-
   requires jakarta.inject;
-
   requires spring.core;
   requires spring.beans;
   requires spring.context;

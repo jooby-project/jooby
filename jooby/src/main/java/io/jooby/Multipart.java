@@ -1,19 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.MultipartNode;
+import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.List;
+import io.jooby.internal.MultipartNode;
 
 /**
  * Multipart class for direct MVC parameter provisioning.
  *
- * HTTP request must be encoded as {@link MediaType#MULTIPART_FORMDATA}.
+ * <p>HTTP request must be encoded as {@link MediaType#MULTIPART_FORMDATA}.
  *
  * @author edgar
  * @since 2.0.0
@@ -38,7 +38,7 @@ public interface Multipart extends Formdata {
   /**
    * All file uploads that matches the given field name.
    *
-   * Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>multipart/form-data</code> request.
    *
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return All file uploads.
@@ -48,7 +48,7 @@ public interface Multipart extends Formdata {
   /**
    * A file upload that matches the given field name.
    *
-   * Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>multipart/form-data</code> request.
    *
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return A file upload.

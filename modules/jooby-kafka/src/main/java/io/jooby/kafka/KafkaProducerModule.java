@@ -1,22 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.kafka;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import org.apache.kafka.clients.producer.KafkaProducer;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
 /**
  * Kafka producer module: https://jooby.io/modules/kafka.
- * <p>
- * Usage:
- * </p>
+ *
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -30,12 +28,13 @@ import io.jooby.Jooby;
  * }</pre>
  *
  * application.conf:
+ *
  * <pre>{@code
- *  kafka.producer.bootstrap.servers = "localhost:9092"
- *  kafka.producer.acks = "all"
- *  kafka.producer.retries = 0
- *  kafka.producer.key.serializer = "org.apache.kafka.common.serialization.StringSerializer"
- *  kafka.producer.value.serializer = "org.apache.kafka.common.serialization.StringSerializer"
+ * kafka.producer.bootstrap.servers = "localhost:9092"
+ * kafka.producer.acks = "all"
+ * kafka.producer.retries = 0
+ * kafka.producer.key.serializer = "org.apache.kafka.common.serialization.StringSerializer"
+ * kafka.producer.value.serializer = "org.apache.kafka.common.serialization.StringSerializer"
  * }</pre>
  *
  * @author edgar
@@ -53,14 +52,13 @@ public class KafkaProducerModule implements Extension {
     this.key = key;
   }
 
-  /**
-   *  Creates a kafka producer. Uses the default key: <code>kafka.producer</code>.
-   */
+  /** Creates a kafka producer. Uses the default key: <code>kafka.producer</code>. */
   public KafkaProducerModule() {
     this("kafka.producer");
   }
 
-  @Override public void install(@NonNull Jooby application) {
+  @Override
+  public void install(@NonNull Jooby application) {
     KafkaHelper.install(application, key, KafkaProducer::new);
   }
 }

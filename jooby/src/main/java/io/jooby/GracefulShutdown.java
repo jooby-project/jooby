@@ -1,22 +1,22 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.internal.GracefulShutdownHandler;
+import java.time.Duration;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.time.Duration;
+import io.jooby.internal.GracefulShutdownHandler;
 
 /**
  * Install a handler that at application shutdown time:
  *
- * - Waits for existing requests to finished with an optional timeout
- * - Incoming requests are resolved as Service Unavailable(503)
+ * <p>- Waits for existing requests to finished with an optional timeout - Incoming requests are
+ * resolved as Service Unavailable(503)
  *
- * NOTE: This extension must be installed at very beginning of your route pipeline.
+ * <p>NOTE: This extension must be installed at very beginning of your route pipeline.
  *
  * @author edgar
  */
@@ -33,13 +33,11 @@ public class GracefulShutdown implements Extension {
     this.await = await;
   }
 
-  /**
-   * Creates a new shutdown handler and waits for existing request to finish.
-   */
-  public GracefulShutdown() {
-  }
+  /** Creates a new shutdown handler and waits for existing request to finish. */
+  public GracefulShutdown() {}
 
-  @Override public void install(@NonNull Jooby application) throws Exception {
+  @Override
+  public void install(@NonNull Jooby application) throws Exception {
     GracefulShutdownHandler handler = new GracefulShutdownHandler(await);
     application.decorator(handler);
     application.onStop(handler::shutdown);

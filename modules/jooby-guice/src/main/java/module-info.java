@@ -9,7 +9,6 @@ module io.jooby.guice {
   requires io.jooby;
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
-
   requires com.google.guice;
   requires jakarta.inject;
   requires javax.inject;

@@ -9,7 +9,6 @@ module io.jooby.jdbi {
   requires io.jooby;
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
-
   requires java.sql;
   requires org.jdbi.v3.core;
   requires jakarta.inject;

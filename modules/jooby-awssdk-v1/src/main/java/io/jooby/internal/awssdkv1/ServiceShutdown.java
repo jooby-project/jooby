@@ -1,18 +1,19 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.awssdkv1;
 
-import com.amazonaws.AmazonWebServiceClient;
-import io.jooby.SneakyThrows;
-import org.slf4j.Logger;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+
+import com.amazonaws.AmazonWebServiceClient;
+import io.jooby.SneakyThrows;
 
 public class ServiceShutdown implements AutoCloseable {
   private Object service;
@@ -24,7 +25,8 @@ public class ServiceShutdown implements AutoCloseable {
     this.service = service;
   }
 
-  @Override public void close() throws Exception {
+  @Override
+  public void close() throws Exception {
     if (service instanceof AmazonWebServiceClient) {
       log.debug("Stopping {}", ((AmazonWebServiceClient) service).getServiceName());
       ((AmazonWebServiceClient) service).shutdown();
@@ -32,10 +34,11 @@ public class ServiceShutdown implements AutoCloseable {
       // reflection based
       try {
         log.debug("Stopping {}", service.getClass().getSimpleName());
-        Method shutdown = Stream.of(shutdownMethod("shutdown"), shutdownMethod("shutdownNow"))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+        Method shutdown =
+            Stream.of(shutdownMethod("shutdown"), shutdownMethod("shutdownNow"))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
         if (shutdown == null) {
           log.info("Unable to stop {}", service.getClass().getSimpleName());
         } else {

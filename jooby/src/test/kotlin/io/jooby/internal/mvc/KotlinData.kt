@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.mvc
 
 import io.jooby.annotations.GET
@@ -23,7 +28,11 @@ class KotlinMvc {
 
   @GET
   @Path("/point")
-  fun queryBean(@QueryParam point: QueryPoint, @QueryParam x: String, @QueryParam y: String): String {
+  fun queryBean(
+    @QueryParam point: QueryPoint,
+    @QueryParam x: String,
+    @QueryParam y: String
+  ): String {
     return point.toString() + ";" + x + ";" + y
   }
 }

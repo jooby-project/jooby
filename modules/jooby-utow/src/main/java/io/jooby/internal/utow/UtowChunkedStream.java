@@ -1,20 +1,21 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.utow;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+
+import org.xnio.IoUtils;
+
 import io.undertow.connector.PooledByteBuffer;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.ServerConnection;
-import org.xnio.IoUtils;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
 
 public class UtowChunkedStream implements IoCallback, Runnable {
 
@@ -36,7 +37,9 @@ public class UtowChunkedStream implements IoCallback, Runnable {
     this.len = len;
   }
 
-  public void send(final ReadableByteChannel source, final HttpServerExchange exchange,
+  public void send(
+      final ReadableByteChannel source,
+      final HttpServerExchange exchange,
       final IoCallback callback) {
     this.source = source;
     this.exchange = exchange;
@@ -83,8 +86,8 @@ public class UtowChunkedStream implements IoCallback, Runnable {
   }
 
   @Override
-  public void onException(final HttpServerExchange exchange, final Sender sender,
-      final IOException ex) {
+  public void onException(
+      final HttpServerExchange exchange, final Sender sender, final IOException ex) {
     done();
     callback.onException(exchange, sender, ex);
   }
@@ -94,5 +97,4 @@ public class UtowChunkedStream implements IoCallback, Runnable {
     pooled = null;
     IoUtils.safeClose(source);
   }
-
 }

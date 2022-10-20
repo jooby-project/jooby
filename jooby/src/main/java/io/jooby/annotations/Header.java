@@ -1,18 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.annotations;
 
-import jakarta.inject.Qualifier;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import jakarta.inject.Qualifier;
+
 /**
  * Mark a MVC method parameter as a request header.
+ *
  * <pre>
  *   class Resources {
  *
@@ -25,8 +27,7 @@ import java.lang.annotation.Target;
  * @author edgar
  * @since 0.1.0
  */
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
+@Qualifier @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Header {
   /**

@@ -1,14 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.spring;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
 import org.springframework.core.env.PropertySource;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
@@ -27,7 +27,8 @@ public class ConfigPropertySource extends PropertySource<Config> {
     super("jooby", source);
   }
 
-  @Override public boolean containsProperty(String key) {
+  @Override
+  public boolean containsProperty(String key) {
     try {
       return source.hasPath(key);
     } catch (ConfigException x) {
@@ -35,7 +36,8 @@ public class ConfigPropertySource extends PropertySource<Config> {
     }
   }
 
-  @Override public Object getProperty(String key) {
+  @Override
+  public Object getProperty(String key) {
     return containsProperty(key) ? source.getAnyRef(key) : null;
   }
 }

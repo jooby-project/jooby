@@ -1,17 +1,16 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.ebean;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.ebean.Database;
 import io.ebean.Transaction;
 import io.jooby.Route;
 import io.jooby.ServiceKey;
 import io.jooby.annotations.Transactional;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Start a new transaction on each incoming request. Its commit the transaction is no exception is
@@ -28,7 +27,7 @@ public class TransactionalRequest implements Route.Decorator {
   /**
    * Creates a transactional request.
    *
-   * This constructor should be used only if you have multiple Ebean installations.
+   * <p>This constructor should be used only if you have multiple Ebean installations.
    *
    * @param name Ebean service name.
    */
@@ -36,19 +35,16 @@ public class TransactionalRequest implements Route.Decorator {
     key = ServiceKey.key(Database.class, name);
   }
 
-  /**
-   * Creates a transactional request.
-   */
+  /** Creates a transactional request. */
   public TransactionalRequest() {
     key = ServiceKey.key(Database.class);
   }
 
   /**
-   * Sets whether all routes in the scope of this decorator instance
-   * should be transactional or not ({@code true} by default).
-   * <p>
-   * You can use the {@link Transactional} annotation to override this
-   * option on a single route.
+   * Sets whether all routes in the scope of this decorator instance should be transactional or not
+   * ({@code true} by default).
+   *
+   * <p>You can use the {@link Transactional} annotation to override this option on a single route.
    *
    * @param enabledByDefault whether routes should be transactional by default
    * @return this instance
@@ -59,7 +55,8 @@ public class TransactionalRequest implements Route.Decorator {
     return this;
   }
 
-  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
+  @NonNull @Override
+  public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
         Database db = ctx.require(key);

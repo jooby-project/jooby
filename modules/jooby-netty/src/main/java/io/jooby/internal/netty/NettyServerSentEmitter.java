@@ -1,10 +1,18 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.netty;
 
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
@@ -14,13 +22,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureListener {
 
@@ -39,24 +40,29 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
     this.id = UUID.randomUUID().toString();
   }
 
-  @Override public String getId() {
+  @Override
+  public String getId() {
     return id;
   }
 
-  @Override public boolean isOpen() {
+  @Override
+  public boolean isOpen() {
     return open.get();
   }
 
-  @Override public ServerSentEmitter setId(String id) {
+  @Override
+  public ServerSentEmitter setId(String id) {
     this.id = id;
     return this;
   }
 
-  @NonNull @Override public Context getContext() {
+  @NonNull @Override
+  public Context getContext() {
     return Context.readOnly(netty);
   }
 
-  @NonNull @Override public ServerSentEmitter send(ServerSentMessage data) {
+  @NonNull @Override
+  public ServerSentEmitter send(ServerSentMessage data) {
     if (checkOpen()) {
       netty.ctx.writeAndFlush(Unpooled.wrappedBuffer(data.toByteArray(netty))).addListener(this);
     } else {
@@ -65,7 +71,8 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
     return this;
   }
 
-  @Override public ServerSentEmitter keepAlive(long timeInMillis) {
+  @Override
+  public ServerSentEmitter keepAlive(long timeInMillis) {
     if (checkOpen()) {
       EventLoop executor = netty.ctx.channel().eventLoop().next();
       executor.schedule(new KeepAlive(this, timeInMillis), timeInMillis, TimeUnit.MILLISECONDS);
@@ -73,11 +80,13 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
     return this;
   }
 
-  @Override public void onClose(SneakyThrows.Runnable task) {
+  @Override
+  public void onClose(SneakyThrows.Runnable task) {
     this.closeTask = task;
   }
 
-  @NonNull @Override public void close() {
+  @NonNull @Override
+  public void close() {
     if (open.compareAndSet(true, false)) {
       try {
         if (closeTask != null) {
@@ -91,12 +100,16 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
     }
   }
 
-  @Override public void operationComplete(Future future) throws Exception {
+  @Override
+  public void operationComplete(Future future) throws Exception {
     if (!future.isSuccess()) {
       if (Server.connectionLost(future.cause())) {
         close();
       } else {
-        log.error("server-sent-event resulted in exception: id {} {}", id, netty.getRequestPath(),
+        log.error(
+            "server-sent-event resulted in exception: id {} {}",
+            id,
+            netty.getRequestPath(),
             future.cause());
         if (SneakyThrows.isFatal(future.cause())) {
           throw SneakyThrows.propagate(future.cause());

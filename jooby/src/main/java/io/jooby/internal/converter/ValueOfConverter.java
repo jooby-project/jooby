@@ -1,13 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.converter;
-
-import io.jooby.Value;
-import io.jooby.ValueConverter;
-import io.jooby.SneakyThrows;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,15 +12,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
+import io.jooby.SneakyThrows;
+import io.jooby.Value;
+import io.jooby.ValueConverter;
+
 public class ValueOfConverter implements ValueConverter, BiFunction<Class, Method, Method> {
 
   private Map<Class, Method> cache = new ConcurrentHashMap<>();
 
-  @Override public boolean supports(Class type) {
+  @Override
+  public boolean supports(Class type) {
     return cache.compute(type, this) != null;
   }
 
-  @Override public Object convert(Value value, Class type) {
+  @Override
+  public Object convert(Value value, Class type) {
     try {
       return cache.compute(type, this).invoke(null, value.value());
     } catch (InvocationTargetException x) {
@@ -34,12 +36,13 @@ public class ValueOfConverter implements ValueConverter, BiFunction<Class, Metho
     }
   }
 
-  @Override public Method apply(Class type, Method method) {
+  @Override
+  public Method apply(Class type, Method method) {
     if (method == null) {
       try {
         Method valueOf = type.getDeclaredMethod("valueOf", String.class);
-        if (Modifier.isStatic(valueOf.getModifiers()) && Modifier
-            .isPublic(valueOf.getModifiers())) {
+        if (Modifier.isStatic(valueOf.getModifiers())
+            && Modifier.isPublic(valueOf.getModifiers())) {
           return valueOf;
         }
         return null;

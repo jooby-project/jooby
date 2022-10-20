@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -23,8 +23,7 @@ public interface MvcFactory {
   boolean supports(@NonNull Class type);
 
   /**
-   * Creates an extension module. The extension module are created at compilation time by Jooby
-   * APT.
+   * Creates an extension module. The extension module are created at compilation time by Jooby APT.
    *
    * @param provider MVC route instance provider.
    * @return All mvc route as extension module.

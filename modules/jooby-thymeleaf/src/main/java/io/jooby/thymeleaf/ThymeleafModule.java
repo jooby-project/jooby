@@ -1,15 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.thymeleaf;
 
-import io.jooby.Environment;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.ServiceRegistry;
-import io.jooby.internal.thymeleaf.ThymeleafTemplateEngine;
+import static io.jooby.TemplateEngine.TEMPLATE_PATH;
+import static io.jooby.TemplateEngine.normalizePath;
+import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.cache.ICacheManager;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -19,20 +24,16 @@ import org.thymeleaf.templateresolver.FileTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-import static io.jooby.TemplateEngine.TEMPLATE_PATH;
-import static io.jooby.TemplateEngine.normalizePath;
-import static java.util.Arrays.asList;
-import static java.util.Optional.ofNullable;
+import io.jooby.Environment;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import io.jooby.ServiceRegistry;
+import io.jooby.internal.thymeleaf.ThymeleafTemplateEngine;
 
 /**
  * Thymeleaf module: https://jooby.io/modules/thymeleaf.
  *
- * Usage:
+ * <p>Usage:
  *
  * <pre>{@code
  * {
@@ -47,14 +48,14 @@ import static java.util.Optional.ofNullable;
  * }
  * }</pre>
  *
- * The template engine looks for a file-system directory: <code>views</code> in the current
- * user directory. If the directory doesn't exist, it looks for the same directory in the project
+ * The template engine looks for a file-system directory: <code>views</code> in the current user
+ * directory. If the directory doesn't exist, it looks for the same directory in the project
  * classpath.
  *
- * Template engine supports the following file extensions: <code>.thl</code>,
- * <code>.thl.html</code> and <code>.html</code>.
+ * <p>Template engine supports the following file extensions: <code>.thl</code>, <code>.thl.html
+ * </code> and <code>.html</code>.
  *
- * You can specify a different template location:
+ * <p>You can specify a different template location:
  *
  * <pre>{@code
  * {
@@ -66,7 +67,7 @@ import static java.util.Optional.ofNullable;
  *
  * The <code>mypath</code> location works in the same way: file-system or fallback to classpath.
  *
- * Direct access to {@link TemplateEngine} is available via require call:
+ * <p>Direct access to {@link TemplateEngine} is available via require call:
  *
  * <pre>{@code
  * {
@@ -83,9 +84,7 @@ import static java.util.Optional.ofNullable;
  */
 public class ThymeleafModule implements Extension {
 
-  /**
-   * Utility class for creating {@link TemplateEngine} instances.
-   */
+  /** Utility class for creating {@link TemplateEngine} instances. */
   public static class Builder {
 
     private ITemplateResolver templateResolver;
@@ -132,8 +131,8 @@ public class ThymeleafModule implements Extension {
     }
 
     /**
-     * Turn on/off cache. By default cache is enabled when running in <code>dev</code> or
-     * <code>test</code> mode.
+     * Turn on/off cache. By default cache is enabled when running in <code>dev</code> or <code>test
+     * </code> mode.
      *
      * @param cacheable Turn on/off cache.
      * @return This builder.
@@ -164,12 +163,13 @@ public class ThymeleafModule implements Extension {
       TemplateEngine engine = new TemplateEngine();
 
       if (templateResolver == null) {
-        String templatesPathString = normalizePath(
-            env.getProperty(TEMPLATE_PATH, ofNullable(this.templatesPathString)
-                .orElse(io.jooby.TemplateEngine.PATH))
-        );
-        templateResolver = defaultTemplateLoader(env, templatesPathString, templatesPath,
-            cacheable);
+        String templatesPathString =
+            normalizePath(
+                env.getProperty(
+                    TEMPLATE_PATH,
+                    ofNullable(this.templatesPathString).orElse(io.jooby.TemplateEngine.PATH)));
+        templateResolver =
+            defaultTemplateLoader(env, templatesPathString, templatesPath, cacheable);
       }
 
       engine.setTemplateResolver(templateResolver);
@@ -179,17 +179,17 @@ public class ThymeleafModule implements Extension {
       return engine;
     }
 
-    private ITemplateResolver defaultTemplateLoader(Environment env, String templatesPathString,
-        Path templatesPath, Boolean cacheable) {
-      Path templateDir = ofNullable(templatesPath)
-          .orElse(Paths.get(System.getProperty("user.dir"), templatesPathString));
+    private ITemplateResolver defaultTemplateLoader(
+        Environment env, String templatesPathString, Path templatesPath, Boolean cacheable) {
+      Path templateDir =
+          ofNullable(templatesPath)
+              .orElse(Paths.get(System.getProperty("user.dir"), templatesPathString));
       AbstractConfigurableTemplateResolver resolver;
       if (Files.exists(templateDir)) {
         resolver = new FileTemplateResolver();
         resolver.setPrefix(templateDir.toAbsolutePath().toString());
       } else {
-        resolver = new ClassLoaderTemplateResolver(
-            env.getClassLoader());
+        resolver = new ClassLoaderTemplateResolver(env.getClassLoader());
         if (templatesPathString.startsWith("/")) {
           resolver.setPrefix(templatesPathString);
         } else {
@@ -217,8 +217,8 @@ public class ThymeleafModule implements Extension {
   private Path templatesPath;
 
   /**
-   * Creates a new module uses the given template engine. You can create a default engine using
-   * the {@link #create()} method.
+   * Creates a new module uses the given template engine. You can create a default engine using the
+   * {@link #create()} method.
    *
    * @param templateEngine Template engine.
    */
@@ -227,8 +227,8 @@ public class ThymeleafModule implements Extension {
   }
 
   /**
-   * Creates module which look at the given path. It first look at the file-system or fallback
-   * to classpath.
+   * Creates module which look at the given path. It first look at the file-system or fallback to
+   * classpath.
    *
    * @param templatesPath Template path.
    */
@@ -246,19 +246,21 @@ public class ThymeleafModule implements Extension {
   }
 
   /**
-   * Creates module module using the default template path: <code>views</code>. It first look at
-   * the file-system or fallback to classpath.
+   * Creates module module using the default template path: <code>views</code>. It first look at the
+   * file-system or fallback to classpath.
    */
   public ThymeleafModule() {
     this(io.jooby.TemplateEngine.PATH);
   }
 
-  @Override public void install(@NonNull Jooby application) {
+  @Override
+  public void install(@NonNull Jooby application) {
     if (templateEngine == null) {
-      templateEngine = create()
-          .setTemplatesPath(templatesPath)
-          .setTemplatesPath(templatesPathString)
-          .build(application.getEnvironment());
+      templateEngine =
+          create()
+              .setTemplatesPath(templatesPath)
+              .setTemplatesPath(templatesPathString)
+              .build(application.getEnvironment());
     }
 
     application.encoder(new ThymeleafTemplateEngine(templateEngine, EXT));

@@ -1,22 +1,22 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Context;
-import io.jooby.Cookie;
-import io.jooby.FlashMap;
-import io.jooby.Value;
+import static io.jooby.Cookie.decode;
+import static java.util.Collections.emptyMap;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static io.jooby.Cookie.decode;
-import static java.util.Collections.emptyMap;
+import io.jooby.Context;
+import io.jooby.Cookie;
+import io.jooby.FlashMap;
+import io.jooby.Value;
 
 public class FlashMapImpl extends HashMap<String, String> implements FlashMap {
 
@@ -40,7 +40,8 @@ public class FlashMapImpl extends HashMap<String, String> implements FlashMap {
     }
   }
 
-  @Override public FlashMap keep() {
+  @Override
+  public FlashMap keep() {
     if (size() > 0) {
       Cookie cookie = this.template.clone().setValue(Cookie.encode(this));
       ctx.setResponseCookie(cookie);
@@ -75,70 +76,83 @@ public class FlashMapImpl extends HashMap<String, String> implements FlashMap {
     }
   }
 
-  @Override public String compute(String key,
-      BiFunction<? super String, ? super String, ? extends String> remappingFunction) {
+  @Override
+  public String compute(
+      String key, BiFunction<? super String, ? super String, ? extends String> remappingFunction) {
     String result = super.compute(key, remappingFunction);
     syncCookie();
     return result;
   }
 
-  @Override public String computeIfAbsent(String key,
-      Function<? super String, ? extends String> mappingFunction) {
+  @Override
+  public String computeIfAbsent(
+      String key, Function<? super String, ? extends String> mappingFunction) {
     String result = super.computeIfAbsent(key, mappingFunction);
     syncCookie();
     return result;
   }
 
-  @Override public String computeIfPresent(String key,
-      BiFunction<? super String, ? super String, ? extends String> remappingFunction) {
+  @Override
+  public String computeIfPresent(
+      String key, BiFunction<? super String, ? super String, ? extends String> remappingFunction) {
     String result = super.computeIfPresent(key, remappingFunction);
     syncCookie();
     return result;
   }
 
-  @Override public String merge(String key, String value,
+  @Override
+  public String merge(
+      String key,
+      String value,
       BiFunction<? super String, ? super String, ? extends String> remappingFunction) {
     String result = super.merge(key, value, remappingFunction);
     syncCookie();
     return result;
   }
 
-  @Override public String put(String key, String value) {
+  @Override
+  public String put(String key, String value) {
     String result = super.put(key, value);
     syncCookie();
     return result;
   }
 
-  @Override public String putIfAbsent(String key, String value) {
+  @Override
+  public String putIfAbsent(String key, String value) {
     String result = super.putIfAbsent(key, value);
     syncCookie();
     return result;
   }
 
-  @Override public void putAll(Map<? extends String, ? extends String> m) {
+  @Override
+  public void putAll(Map<? extends String, ? extends String> m) {
     super.putAll(m);
     syncCookie();
   }
 
-  @Override public boolean remove(Object key, Object value) {
+  @Override
+  public boolean remove(Object key, Object value) {
     boolean result = super.remove(key, value);
     syncCookie();
     return result;
   }
 
-  @Override public String remove(Object key) {
+  @Override
+  public String remove(Object key) {
     String result = super.remove(key);
     syncCookie();
     return result;
   }
 
-  @Override public boolean replace(String key, String oldValue, String newValue) {
+  @Override
+  public boolean replace(String key, String oldValue, String newValue) {
     boolean result = super.replace(key, oldValue, newValue);
     syncCookie();
     return result;
   }
 
-  @Override public String replace(String key, String value) {
+  @Override
+  public String replace(String key, String value) {
     String result = super.replace(key, value);
     syncCookie();
     return result;
@@ -149,6 +163,4 @@ public class FlashMapImpl extends HashMap<String, String> implements FlashMap {
     super.replaceAll(function);
     syncCookie();
   }
-
 }
-

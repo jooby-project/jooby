@@ -1,23 +1,9 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal.apt;
-
-import org.objectweb.asm.Type;
-
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
 
 import static org.objectweb.asm.Type.BOOLEAN_TYPE;
 import static org.objectweb.asm.Type.BYTE_TYPE;
@@ -29,6 +15,20 @@ import static org.objectweb.asm.Type.LONG_TYPE;
 import static org.objectweb.asm.Type.SHORT_TYPE;
 import static org.objectweb.asm.Type.VOID_TYPE;
 import static org.objectweb.asm.Type.getObjectType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
+
+import org.objectweb.asm.Type;
 
 public class TypeDefinition {
 
@@ -144,7 +144,8 @@ public class TypeDefinition {
     return type.toString().equals(getRawType().toString());
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return type.toString();
   }
 

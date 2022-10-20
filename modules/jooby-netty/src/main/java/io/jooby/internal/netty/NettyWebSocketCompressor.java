@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -12,7 +12,8 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.PerMessageD
 
 class NettyWebSocketCompressor extends WebSocketServerExtensionHandler {
   public NettyWebSocketCompressor(int compressionLevel) {
-    super(new PerMessageDeflateServerExtensionHandshaker(
+    super(
+        new PerMessageDeflateServerExtensionHandshaker(
             compressionLevel,
             ZlibCodecFactory.isSupportingWindowSizeAndMemLevel(),
             PerMessageDeflateServerExtensionHandshaker.MAX_WINDOW_SIZE,

@@ -1,14 +1,15 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * The TRACE method performs a message loop-back test along the path to the target resource.
@@ -19,15 +20,23 @@ import java.util.stream.Collectors;
 public class TraceHandler implements Route.Decorator {
   private static final String CRLF = "\r\n";
 
-  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
+  @NonNull @Override
+  public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getMethod().equals(Router.TRACE)) {
         // Handle trace
-        StringBuilder buffer = new StringBuilder(Router.TRACE).append(" ").append(ctx.getRequestPath())
-            .append(" ").append(ctx.getProtocol());
+        StringBuilder buffer =
+            new StringBuilder(Router.TRACE)
+                .append(" ")
+                .append(ctx.getRequestPath())
+                .append(" ")
+                .append(ctx.getProtocol());
 
         for (Map.Entry<String, List<String>> entry : ctx.headerMultimap().entrySet()) {
-          buffer.append(CRLF).append(entry.getKey()).append(": ")
+          buffer
+              .append(CRLF)
+              .append(entry.getKey())
+              .append(": ")
               .append(entry.getValue().stream().collect(Collectors.joining(", ")));
         }
 
@@ -41,7 +50,8 @@ public class TraceHandler implements Route.Decorator {
     };
   }
 
-  @NonNull @Override public void setRoute(@NonNull Route route) {
+  @NonNull @Override
+  public void setRoute(@NonNull Route route) {
     route.setHttpTrace(true);
   }
 }

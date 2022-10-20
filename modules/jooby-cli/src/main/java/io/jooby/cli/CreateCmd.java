@@ -1,14 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.cli;
 
-import io.jooby.internal.cli.Dependency;
-import picocli.CommandLine;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,10 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.internal.cli.Dependency;
+import picocli.CommandLine;
+
 /**
  * Create application command.
  *
- * Usage:
+ * <p>Usage:
+ *
  * <pre>{@code
  * jooby> help create
  * Missing required parameter: <name>
@@ -46,59 +47,51 @@ import java.util.stream.Stream;
 @CommandLine.Command(name = "create", description = "Creates a new application")
 public class CreateCmd extends Cmd {
   @CommandLine.Parameters(
-      description = "Application name or coordinates (groupId:artifactId:version)"
-  )
+      description = "Application name or coordinates (groupId:artifactId:version)")
   private String name;
 
   @CommandLine.Option(
       names = {"-g", "--gradle"},
-      description = "Generates a Gradle project"
-  )
+      description = "Generates a Gradle project")
   private boolean gradle;
 
   @CommandLine.Option(
       names = {"-k", "--kotlin"},
-      description = "Generates a Kotlin application"
-  )
+      description = "Generates a Kotlin application")
   private boolean kotlin;
 
   @CommandLine.Option(
       names = {"--stork"},
-      description = "Add Stork Maven plugin to build (Maven only)"
-  )
+      description = "Add Stork Maven plugin to build (Maven only)")
   private boolean stork;
 
   @CommandLine.Option(
       names = {"-i"},
-      description = "Start interactive mode"
-  )
+      description = "Start interactive mode")
   private boolean interactive;
 
   @CommandLine.Option(
       names = {"--server"},
-      description = "Choose one of the available servers: jetty, netty or undertow"
-  )
+      description = "Choose one of the available servers: jetty, netty or undertow")
   private String server;
 
   @CommandLine.Option(
       names = {"--docker"},
-      description = "Generates a Dockerfile"
-  )
+      description = "Generates a Dockerfile")
   private boolean docker;
 
   @CommandLine.Option(
       names = {"-m", "--mvc"},
-      description = "Generates a MVC application"
-  )
+      description = "Generates a MVC application")
   private boolean mvc;
 
   @CommandLine.Option(
       names = {"--openapi"},
-      description = "Configure build to generate OpenAPI files"
-  )
+      description = "Configure build to generate OpenAPI files")
   private boolean openapi;
 
-  @Override public void run(@NonNull Context ctx) throws Exception {
+  @Override
+  public void run(@NonNull Context ctx) throws Exception {
     Path projectDir = ctx.getWorkspace().resolve(name);
     if (Files.exists(projectDir)) {
       throw new IOException("Project directory already exists: " + projectDir);
@@ -127,8 +120,8 @@ public class CreateCmd extends Cmd {
       server = server(ctx.readLine("Choose a server (jetty, netty or undertow): "));
 
       if (!gradle) {
-        stork = distribution(ctx.readLine("Distribution (uber/fat jar or stork): "))
-            .equals("stork");
+        stork =
+            distribution(ctx.readLine("Distribution (uber/fat jar or stork): ")).equals("stork");
       }
 
       docker = yesNo(ctx.readLine("Generates Dockerfile (yes/no): "));
@@ -158,8 +151,7 @@ public class CreateCmd extends Cmd {
 
     String finalArtifactId;
     if (gradle) {
-      finalArtifactId = Paths.get("build", "libs", name + "-" + version + "-all.jar")
-          .toString();
+      finalArtifactId = Paths.get("build", "libs", name + "-" + version + "-all.jar").toString();
     } else {
       finalArtifactId = name + "-" + version + (stork ? ".zip" : ".jar");
     }
@@ -210,24 +202,26 @@ public class CreateCmd extends Cmd {
     /** Source directories: */
     Path sourcePath = projectDir.resolve("src").resolve("main");
     Path javaPath = sourcePath.resolve(language);
-    Path packagePath = Stream.of(packageName.split("\\."))
-        .reduce(javaPath, Path::resolve, Path::resolve);
+    Path packagePath =
+        Stream.of(packageName.split("\\.")).reduce(javaPath, Path::resolve, Path::resolve);
 
     ctx.writeTemplate("App." + extension, model, packagePath.resolve("App." + extension));
     if (mvc) {
-      ctx.writeTemplate("Controller." + extension, model,
-          packagePath.resolve("Controller." + extension));
+      ctx.writeTemplate(
+          "Controller." + extension, model, packagePath.resolve("Controller." + extension));
     }
 
     /** Test directories: */
     Path testPath = projectDir.resolve("src").resolve("test");
     Path testJavaPath = testPath.resolve(language);
-    Path testPackagePath = Stream.of(packageName.split("\\."))
-        .reduce(testJavaPath, Path::resolve, Path::resolve);
+    Path testPackagePath =
+        Stream.of(packageName.split("\\.")).reduce(testJavaPath, Path::resolve, Path::resolve);
 
-    ctx.writeTemplate("UnitTest." + extension, model,
-        testPackagePath.resolve("UnitTest." + extension));
-    ctx.writeTemplate("IntegrationTest." + extension, model,
+    ctx.writeTemplate(
+        "UnitTest." + extension, model, testPackagePath.resolve("UnitTest." + extension));
+    ctx.writeTemplate(
+        "IntegrationTest." + extension,
+        model,
         testPackagePath.resolve("IntegrationTest." + extension));
 
     ctx.println("Try it! Open a terminal and type: ");
@@ -281,8 +275,9 @@ public class CreateCmd extends Cmd {
   }
 
   private void stork(Context ctx, Path projectDir) throws IOException {
-    ctx.copyResource("/cli/src/etc/stork/stork.yml", projectDir.resolve("src").resolve("etc")
-        .resolve("stork").resolve("stork.yml"));
+    ctx.copyResource(
+        "/cli/src/etc/stork/stork.yml",
+        projectDir.resolve("src").resolve("etc").resolve("stork").resolve("stork.yml"));
   }
 
   private void gradleWrapper(Context ctx, Path projectDir, Map<String, Object> model)
@@ -290,14 +285,17 @@ public class CreateCmd extends Cmd {
     Path wrapperDir = projectDir.resolve("gradle").resolve("wrapper");
 
     ctx.writeTemplate("gradle/settings.gradle", model, projectDir.resolve("settings.gradle"));
-    ctx.copyResource("/cli/gradle/gradlew", projectDir.resolve("gradlew"),
+    ctx.copyResource(
+        "/cli/gradle/gradlew",
+        projectDir.resolve("gradlew"),
         EnumSet.allOf(PosixFilePermission.class));
 
     ctx.copyResource("/cli/gradle/gradlew.bat", projectDir.resolve("gradlew.bat"));
 
-    ctx.copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.jar",
-        wrapperDir.resolve("gradle-wrapper.jar"));
-    ctx.copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.properties",
+    ctx.copyResource(
+        "/cli/gradle/gradle/wrapper/gradle-wrapper.jar", wrapperDir.resolve("gradle-wrapper.jar"));
+    ctx.copyResource(
+        "/cli/gradle/gradle/wrapper/gradle-wrapper.properties",
         wrapperDir.resolve("gradle-wrapper.properties"));
   }
 

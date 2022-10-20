@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
@@ -18,6 +16,7 @@ import org.jasypt.encryption.pbe.config.SimplePBEConfig;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -25,13 +24,13 @@ import io.jooby.ServiceRegistry;
 import io.jooby.SneakyThrows;
 
 /**
- * Jasypt module:  https://jooby.io/modules/jasypt.
+ * Jasypt module: https://jooby.io/modules/jasypt.
  *
- * Usage:
+ * <p>Usage:
  *
- * - Add jasypt dependency
+ * <p>- Add jasypt dependency
  *
- * - Install them
+ * <p>- Install them
  *
  * <pre>{@code
  * {
@@ -46,8 +45,8 @@ import io.jooby.SneakyThrows;
  */
 public class JasyptModule implements Extension {
 
-  private static final SneakyThrows.Function<Config, String> DEFAULT_PASSWORD_PROVIDER = config -> config
-      .getString("jasypt.password");
+  private static final SneakyThrows.Function<Config, String> DEFAULT_PASSWORD_PROVIDER =
+      config -> config.getString("jasypt.password");
 
   private SneakyThrows.Function<Config, String> passwordProvider;
 
@@ -64,9 +63,7 @@ public class JasyptModule implements Extension {
     this.encryptor = encryptor;
   }
 
-  /**
-   * Creates a new Jasypt module.
-   */
+  /** Creates a new Jasypt module. */
   public JasyptModule() {
     this(DEFAULT_PASSWORD_PROVIDER);
   }
@@ -81,8 +78,8 @@ public class JasyptModule implements Extension {
   }
 
   /**
-   * Set encryption prefix. All properties using this prefix are going to be decrypted.
-   * Defaults is <code>enc</code>.
+   * Set encryption prefix. All properties using this prefix are going to be decrypted. Defaults is
+   * <code>enc</code>.
    *
    * @param prefix Prefix of encrypted properties.
    * @return This module.
@@ -92,9 +89,10 @@ public class JasyptModule implements Extension {
     return this;
   }
 
-  @Override public void install(@NonNull Jooby application) {
-    PBEStringEncryptor encryptor = Optional.ofNullable(this.encryptor)
-        .orElseGet(() -> create(application, passwordProvider));
+  @Override
+  public void install(@NonNull Jooby application) {
+    PBEStringEncryptor encryptor =
+        Optional.ofNullable(this.encryptor).orElseGet(() -> create(application, passwordProvider));
 
     // Process properties
     Environment environment = application.getEnvironment();
@@ -106,8 +104,8 @@ public class JasyptModule implements Extension {
         entry.setValue(plainValue);
       }
       // Override
-      Config newConfig = ConfigFactory.parseMap(encrypted, "jasypt")
-          .withFallback(environment.getConfig());
+      Config newConfig =
+          ConfigFactory.parseMap(encrypted, "jasypt").withFallback(environment.getConfig());
       environment.setConfig(newConfig);
     }
 
@@ -122,7 +120,8 @@ public class JasyptModule implements Extension {
    * jasypt password and possible other customization. Please note the <code>key.password</code>
    * must be present in order to configure proper password setup.
    *
-   * Properties:
+   * <p>Properties:
+   *
    * <pre>
    *   # Required:
    *   jasypt.password = password uses to encrypt
@@ -145,8 +144,8 @@ public class JasyptModule implements Extension {
     return create(application, DEFAULT_PASSWORD_PROVIDER);
   }
 
-  private static PBEStringEncryptor create(@NonNull Jooby application,
-      @NonNull SneakyThrows.Function<Config, String> passwordProvider) {
+  private static PBEStringEncryptor create(
+      @NonNull Jooby application, @NonNull SneakyThrows.Function<Config, String> passwordProvider) {
     Config config = application.getConfig();
 
     String password = passwordProvider.apply(config);

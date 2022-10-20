@@ -1,9 +1,12 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.test;
+
+import java.util.Collections;
+import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
@@ -11,32 +14,31 @@ import io.jooby.SneakyThrows;
 import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Mock implementation of {@link WebSocket} for unit testing purpose.
  *
- * App:
+ * <p>App:
+ *
  * <pre>{@code
- *   ws("/path", (ctx, initializer) -> {
- *     initializer.onConnect(ws -> {
- *       ws.send("OnConnect");
- *     });
+ * ws("/path", (ctx, initializer) -> {
+ *   initializer.onConnect(ws -> {
+ *     ws.send("OnConnect");
  *   });
+ * });
  * }</pre>
  *
  * Test:
+ *
  * <pre>{@code
- *   MockRouter router = new MockRouter(new App());
- *   router.ws("/path", ws -> {
+ * MockRouter router = new MockRouter(new App());
+ * router.ws("/path", ws -> {
  *
- *     ws.onMessage(message -> {
- *       System.out.println("Got: " + message);
- *     });
+ *   ws.onMessage(message -> {
+ *     System.out.println("Got: " + message);
+ *   });
  *
- *     ws.send("Another message");
- *   })
+ *   ws.send("Another message");
+ * })
  * }</pre>
  *
  * @author edgar
@@ -52,31 +54,38 @@ public class MockWebSocket implements WebSocket {
     this.configurer = configurer;
   }
 
-  @NonNull @Override public Context getContext() {
+  @NonNull @Override
+  public Context getContext() {
     return ctx;
   }
 
-  @NonNull @Override public List<WebSocket> getSessions() {
+  @NonNull @Override
+  public List<WebSocket> getSessions() {
     return Collections.emptyList();
   }
 
-  @Override public boolean isOpen() {
+  @Override
+  public boolean isOpen() {
     return open;
   }
 
-  @NonNull @Override public WebSocket send(@NonNull String message, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket send(@NonNull String message, boolean broadcast) {
     return sendObject(message, broadcast);
   }
 
-  @NonNull @Override public WebSocket send(@NonNull byte[] message, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket send(@NonNull byte[] message, boolean broadcast) {
     return sendObject(message, broadcast);
   }
 
-  @NonNull @Override public WebSocket render(@NonNull Object value, boolean broadcast) {
+  @NonNull @Override
+  public WebSocket render(@NonNull Object value, boolean broadcast) {
     return sendObject(value, broadcast);
   }
 
-  @NonNull @Override public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
+  @NonNull @Override
+  public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
     try {
       open = false;
       configurer.fireClose(closeStatus);

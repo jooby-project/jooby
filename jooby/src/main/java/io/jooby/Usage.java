@@ -1,17 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.exception.ProvisioningException;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.exception.ProvisioningException;
 
 /**
  * Usage exceptions. They provide a descriptive message with a link for a detailed section.
@@ -27,8 +27,12 @@ public class Usage extends RuntimeException {
    * @param id Link to detailed section.
    */
   public Usage(@NonNull String message, @NonNull String id) {
-    super((message + "\nFor more details, please visit: " + System
-        .getProperty("jooby.host", "https://jooby.io") + "/usage#" + id));
+    super(
+        (message
+            + "\nFor more details, please visit: "
+            + System.getProperty("jooby.host", "https://jooby.io")
+            + "/usage#"
+            + id));
   }
 
   /**
@@ -38,13 +42,16 @@ public class Usage extends RuntimeException {
    * @return Usage exception.
    */
   public static @NonNull Usage mvcRouterNotFound(@NonNull Class mvcRoute) {
-    return apt("Router not found: `" + mvcRoute.getName()
-        + "`. Make sure Jooby annotation processor is configured properly.", "router-not-found");
+    return apt(
+        "Router not found: `"
+            + mvcRoute.getName()
+            + "`. Make sure Jooby annotation processor is configured properly.",
+        "router-not-found");
   }
 
   /**
-   * Thrown when the reflective bean converter has no access to a parameter name. Compilation
-   * must be done using <code>parameters</code> compiler option.
+   * Thrown when the reflective bean converter has no access to a parameter name. Compilation must
+   * be done using <code>parameters</code> compiler option.
    *
    * @param parameter Parameter.
    * @return Usage exception.
@@ -52,9 +59,12 @@ public class Usage extends RuntimeException {
   public static @NonNull Usage parameterNameNotPresent(@NonNull Parameter parameter) {
     Executable executable = parameter.getDeclaringExecutable();
     int p = Stream.of(executable.getParameters()).collect(Collectors.toList()).indexOf(parameter);
-    String message = "Unable to provision parameter at position: '" + p + "', require by: "
-        + ProvisioningException.toString(parameter.getDeclaringExecutable())
-        + ". Parameter's name is missing";
+    String message =
+        "Unable to provision parameter at position: '"
+            + p
+            + "', require by: "
+            + ProvisioningException.toString(parameter.getDeclaringExecutable())
+            + ". Parameter's name is missing";
     return new Usage(message, "bean-converter-parameter-name-missing");
   }
 

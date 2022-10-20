@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package source;
 
 import io.jooby.Context;
@@ -10,8 +15,7 @@ import io.jooby.annotations.Path;
 @TopAnnotation(TopEnum.FOO)
 public class Controller1545 {
   @DELETE
-  public void voidDefault() {
-  }
+  public void voidDefault() {}
 
   @DELETE("/success")
   public void voidDeleteSuccess(Context ctx) {
@@ -28,5 +32,4 @@ public class Controller1545 {
     ctx.setResponseCode(StatusCode.CREATED);
     return "OK";
   }
-
 }

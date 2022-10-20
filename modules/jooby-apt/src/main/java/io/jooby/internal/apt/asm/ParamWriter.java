@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -17,7 +17,12 @@ import io.jooby.internal.apt.ParamDefinition;
 public interface ParamWriter {
   Type CTX = getType(Context.class);
 
-  void accept(ClassWriter writer, Type controller, String handlerInternalName,
-      MethodVisitor visitor, ParamDefinition parameter, NameGenerator nameGenerator)
+  void accept(
+      ClassWriter writer,
+      Type controller,
+      String handlerInternalName,
+      MethodVisitor visitor,
+      ParamDefinition parameter,
+      NameGenerator nameGenerator)
       throws Exception;
 }

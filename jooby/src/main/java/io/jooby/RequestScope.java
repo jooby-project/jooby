@@ -1,20 +1,21 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 /**
- * Thread-Local request scope implementation useful for save/store request attribute and access
- * to them using a static way.
+ * Thread-Local request scope implementation useful for save/store request attribute and access to
+ * them using a static way.
  *
- * This is part of public API but usage must be keep to minimum.
+ * <p>This is part of public API but usage must be keep to minimum.
  *
  * @author edgar
  */
@@ -22,12 +23,10 @@ public final class RequestScope {
 
   private static final ThreadLocal<Map<Object, Object>> CONTEXT_TL = new ThreadLocal<>();
 
-  private RequestScope() {
-  }
+  private RequestScope() {}
 
   /**
-   * Check to see if there is already a value associated with the current
-   * thread for the given key.
+   * Check to see if there is already a value associated with the current thread for the given key.
    *
    * @param key The key against which to check for a given value within the current thread.
    * @return True if there is currently a session bound.
@@ -49,8 +48,7 @@ public final class RequestScope {
   }
 
   /**
-   * Unbinds the session (if one) current associated with the context for the
-   * given session.
+   * Unbinds the session (if one) current associated with the context for the given session.
    *
    * @param key The factory for which to unbind the current session.
    * @param <T> Bind type.

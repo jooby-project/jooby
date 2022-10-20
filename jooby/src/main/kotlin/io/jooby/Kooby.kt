@@ -1,20 +1,30 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby
 
-import kotlinx.coroutines.CoroutineStart
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlinx.coroutines.CoroutineStart
 
 @DslMarker
-@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
+@Target(
+  AnnotationTarget.CLASS,
+  AnnotationTarget.TYPEALIAS,
+  AnnotationTarget.TYPE,
+  AnnotationTarget.FUNCTION
+)
 annotation class RouterDsl
 
 @DslMarker
-@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
+@Target(
+  AnnotationTarget.CLASS,
+  AnnotationTarget.TYPEALIAS,
+  AnnotationTarget.TYPE,
+  AnnotationTarget.FUNCTION
+)
 annotation class OptionsDsl
 
 /** Registry: */
@@ -51,7 +61,6 @@ fun <T : Any> ServiceRegistry.putIfAbsent(klass: KClass<T>, service: T): T? {
 }
 
 /** Value: */
-
 inline operator fun <reified T> ValueNode.getValue(thisRef: Any?, property: KProperty<*>): T {
   return this.get(property.name).to(T::class.java)
 }
@@ -229,8 +238,13 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun coroutine(coroutineStart: CoroutineStart = CoroutineStart.DEFAULT, block: CoroutineRouter.() -> Unit): CoroutineRouter {
-    val router = attributes.computeIfAbsent("coroutineRouter") { CoroutineRouter(coroutineStart, this) } as CoroutineRouter
+  fun coroutine(
+    coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
+    block: CoroutineRouter.() -> Unit
+  ): CoroutineRouter {
+    val router =
+      attributes.computeIfAbsent("coroutineRouter") { CoroutineRouter(coroutineStart, this) }
+        as CoroutineRouter
     router.block()
     return router
   }

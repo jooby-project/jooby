@@ -1,20 +1,20 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Asset;
-import io.jooby.MediaType;
-import io.jooby.SneakyThrows;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Asset;
+import io.jooby.MediaType;
+import io.jooby.SneakyThrows;
 
 /**
  * File system asset.
@@ -29,13 +29,15 @@ public class FileAsset implements Asset {
 
   /**
    * Creates a new file asset.
+   *
    * @param file Asset file.
    */
   public FileAsset(@NonNull Path file) {
     this.file = file;
   }
 
-  @Override public long getSize() {
+  @Override
+  public long getSize() {
     try {
       return Files.size(file);
     } catch (IOException x) {
@@ -43,7 +45,8 @@ public class FileAsset implements Asset {
     }
   }
 
-  @Override public long getLastModified() {
+  @Override
+  public long getLastModified() {
     try {
       return Files.getLastModifiedTime(file).toMillis();
     } catch (IOException x) {
@@ -51,11 +54,13 @@ public class FileAsset implements Asset {
     }
   }
 
-  @NonNull @Override public MediaType getContentType() {
+  @NonNull @Override
+  public MediaType getContentType() {
     return MediaType.byFile(file);
   }
 
-  @Override public InputStream stream() {
+  @Override
+  public InputStream stream() {
     try {
       return new FileInputStream(file.toFile());
     } catch (IOException x) {
@@ -63,26 +68,31 @@ public class FileAsset implements Asset {
     }
   }
 
-  @Override public void close() {
+  @Override
+  public void close() {
     // NOOP
   }
 
-  @Override public boolean isDirectory() {
+  @Override
+  public boolean isDirectory() {
     return Files.isDirectory(file);
   }
 
-  @Override public boolean equals(Object obj) {
+  @Override
+  public boolean equals(Object obj) {
     if (obj instanceof io.jooby.internal.FileAsset) {
       return file.equals(((io.jooby.internal.FileAsset) obj).file);
     }
     return false;
   }
 
-  @Override public int hashCode() {
+  @Override
+  public int hashCode() {
     return file.hashCode();
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return file.toString();
   }
 }

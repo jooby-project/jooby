@@ -1,9 +1,14 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.i1859;
+
+import java.util.Optional;
 
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
-
-import java.util.Optional;
 
 @Path(("/c"))
 public class C1859 {

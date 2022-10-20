@@ -1,34 +1,36 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Route;
-import io.jooby.StatusCode;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.function.LongUnaryOperator;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Route;
+import io.jooby.StatusCode;
 
 public class GracefulShutdownHandler implements Route.Decorator {
   private static final long SHUTDOWN_MASK = 1L << 63;
   private static final long ACTIVE_COUNT_MASK = (1L << 63) - 1;
 
-  private static final LongUnaryOperator incrementActive = current -> {
-    long incrementedActiveCount = activeCount(current) + 1;
-    return incrementedActiveCount | (current & ~ACTIVE_COUNT_MASK);
-  };
+  private static final LongUnaryOperator incrementActive =
+      current -> {
+        long incrementedActiveCount = activeCount(current) + 1;
+        return incrementedActiveCount | (current & ~ACTIVE_COUNT_MASK);
+      };
 
   private static final LongUnaryOperator incrementActiveAndShutdown =
       incrementActive.andThen(current -> current | SHUTDOWN_MASK);
 
-  private static final LongUnaryOperator decrementActive = current -> {
-    long decrementedActiveCount = activeCount(current) - 1;
-    return decrementedActiveCount | (current & ~ACTIVE_COUNT_MASK);
-  };
+  private static final LongUnaryOperator decrementActive =
+      current -> {
+        long decrementedActiveCount = activeCount(current) - 1;
+        return decrementedActiveCount | (current & ~ACTIVE_COUNT_MASK);
+      };
 
   private final Object lock = new Object();
 
@@ -42,16 +44,18 @@ public class GracefulShutdownHandler implements Route.Decorator {
     this.await = await;
   }
 
-  @NonNull @Override public Route.Handler apply(@NonNull Route.Handler next) {
+  @NonNull @Override
+  public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       long snapshot = stateUpdater.updateAndGet(this, incrementActive);
       if (isShutdown(snapshot)) {
         decrementRequests();
         return ctx.send(StatusCode.SERVICE_UNAVAILABLE);
       } else {
-        ctx.onComplete(context -> {
-          decrementRequests();
-        });
+        ctx.onComplete(
+            context -> {
+              decrementRequests();
+            });
         return next.apply(ctx);
       }
     };
@@ -66,7 +70,7 @@ public class GracefulShutdownHandler implements Route.Decorator {
   }
 
   public void shutdown() throws InterruptedException {
-    //the request count is never zero when shutdown is set to true
+    // the request count is never zero when shutdown is set to true
     stateUpdater.updateAndGet(this, incrementActiveAndShutdown);
     decrementRequests();
 
@@ -89,9 +93,7 @@ public class GracefulShutdownHandler implements Route.Decorator {
     }
   }
 
-  /**
-   * Waits for the handler to shutdown.
-   */
+  /** Waits for the handler to shutdown. */
   private void awaitShutdown() throws InterruptedException {
     synchronized (lock) {
       if (!isShutdown(stateUpdater.get(this))) {

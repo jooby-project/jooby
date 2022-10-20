@@ -1,21 +1,10 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.Context;
-import io.jooby.Cookie;
-import io.jooby.FileDownload;
-import io.jooby.ForwardingContext;
-import io.jooby.MediaType;
-import io.jooby.Sender;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -27,6 +16,17 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Date;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.Context;
+import io.jooby.Cookie;
+import io.jooby.FileDownload;
+import io.jooby.ForwardingContext;
+import io.jooby.MediaType;
+import io.jooby.Sender;
+import io.jooby.SneakyThrows;
+import io.jooby.StatusCode;
+
 public class ReadOnlyContext extends ForwardingContext {
   private static final String MESSAGE = "The response has already been started";
 
@@ -34,51 +34,63 @@ public class ReadOnlyContext extends ForwardingContext {
     super(context);
   }
 
-  @Override public boolean isResponseStarted() {
+  @Override
+  public boolean isResponseStarted() {
     return true;
   }
 
-  @NonNull @Override public Context send(@NonNull Path file) {
+  @NonNull @Override
+  public Context send(@NonNull Path file) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull byte[] data) {
+  @NonNull @Override
+  public Context send(@NonNull byte[] data) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull String data) {
+  @NonNull @Override
+  public Context send(@NonNull String data) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull ByteBuffer data) {
+  @NonNull @Override
+  public Context send(@NonNull ByteBuffer data) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull FileChannel file) {
+  @NonNull @Override
+  public Context send(@NonNull FileChannel file) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull FileDownload file) {
+  @NonNull @Override
+  public Context send(@NonNull FileDownload file) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull InputStream input) {
+  @NonNull @Override
+  public Context send(@NonNull InputStream input) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull StatusCode statusCode) {
+  @NonNull @Override
+  public Context send(@NonNull StatusCode statusCode) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull ReadableByteChannel channel) {
+  @NonNull @Override
+  public Context send(@NonNull ReadableByteChannel channel) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context send(@NonNull String data, @NonNull Charset charset) {
+  @NonNull @Override
+  public Context send(@NonNull String data, @NonNull Charset charset) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context sendError(@NonNull Throwable cause) {
+  @NonNull @Override
+  public Context sendError(@NonNull Throwable cause) {
     throw new IllegalStateException(MESSAGE);
   }
 
@@ -87,7 +99,8 @@ public class ReadOnlyContext extends ForwardingContext {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context sendRedirect(@NonNull String location) {
+  @NonNull @Override
+  public Context sendRedirect(@NonNull String location) {
     throw new IllegalStateException(MESSAGE);
   }
 
@@ -96,7 +109,8 @@ public class ReadOnlyContext extends ForwardingContext {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context render(@NonNull Object value) {
+  @NonNull @Override
+  public Context render(@NonNull Object value) {
     throw new IllegalStateException(MESSAGE);
   }
 
@@ -106,13 +120,17 @@ public class ReadOnlyContext extends ForwardingContext {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context responseStream(@NonNull MediaType contentType,
-      @NonNull SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
+  @NonNull @Override
+  public Context responseStream(
+      @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<OutputStream> consumer)
+      throws Exception {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context responseWriter(@NonNull MediaType contentType,
-      @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
+  @NonNull @Override
+  public Context responseWriter(
+      @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
+      throws Exception {
     throw new IllegalStateException(MESSAGE);
   }
 
@@ -123,24 +141,31 @@ public class ReadOnlyContext extends ForwardingContext {
   }
 
   @NonNull @Override
-  public Context responseWriter(@NonNull MediaType contentType, @Nullable Charset charset,
-      @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
+  public Context responseWriter(
+      @NonNull MediaType contentType,
+      @Nullable Charset charset,
+      @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
+      throws Exception {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public OutputStream responseStream() {
+  @NonNull @Override
+  public OutputStream responseStream() {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public OutputStream responseStream(@NonNull MediaType contentType) {
+  @NonNull @Override
+  public OutputStream responseStream(@NonNull MediaType contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public PrintWriter responseWriter() {
+  @NonNull @Override
+  public PrintWriter responseWriter() {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public PrintWriter responseWriter(@NonNull MediaType contentType) {
+  @NonNull @Override
+  public PrintWriter responseWriter(@NonNull MediaType contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 
@@ -149,35 +174,43 @@ public class ReadOnlyContext extends ForwardingContext {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Sender responseSender() {
+  @NonNull @Override
+  public Sender responseSender() {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context removeResponseHeader(@NonNull String name) {
+  @NonNull @Override
+  public Context removeResponseHeader(@NonNull String name) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseCookie(@NonNull Cookie cookie) {
+  @NonNull @Override
+  public Context setResponseCookie(@NonNull Cookie cookie) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull Date value) {
+  @NonNull @Override
+  public Context setResponseHeader(@NonNull String name, @NonNull Date value) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseCode(int statusCode) {
+  @NonNull @Override
+  public Context setResponseCode(int statusCode) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseCode(@NonNull StatusCode statusCode) {
+  @NonNull @Override
+  public Context setResponseCode(@NonNull StatusCode statusCode) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull Object value) {
+  @NonNull @Override
+  public Context setResponseHeader(@NonNull String name, @NonNull Object value) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseHeader(@NonNull String name, @NonNull String value) {
+  @NonNull @Override
+  public Context setResponseHeader(@NonNull String name, @NonNull String value) {
     throw new IllegalStateException(MESSAGE);
   }
 
@@ -186,15 +219,18 @@ public class ReadOnlyContext extends ForwardingContext {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseLength(long length) {
+  @NonNull @Override
+  public Context setResponseLength(long length) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseType(@NonNull String contentType) {
+  @NonNull @Override
+  public Context setResponseType(@NonNull String contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setResponseType(@NonNull MediaType contentType) {
+  @NonNull @Override
+  public Context setResponseType(@NonNull MediaType contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 
@@ -203,7 +239,8 @@ public class ReadOnlyContext extends ForwardingContext {
     throw new IllegalStateException(MESSAGE);
   }
 
-  @NonNull @Override public Context setDefaultResponseType(@NonNull MediaType contentType) {
+  @NonNull @Override
+  public Context setDefaultResponseType(@NonNull MediaType contentType) {
     throw new IllegalStateException(MESSAGE);
   }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
@@ -18,11 +18,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotations.CONNECT;
 import io.jooby.annotations.Consumes;
 import io.jooby.annotations.ContextParam;
@@ -82,106 +82,72 @@ public interface Annotations {
   /** JAXRS PATH. */
   String JAXRS_PATH = "jakarta.ws.rs.Path";
 
-  /**
-   * HTTP method supported.
-   */
-  Set<String> HTTP_METHODS = unmodifiableSet(new LinkedHashSet<>(Arrays.asList(
-      GET.class.getName(), JAXRS_GET,
+  /** HTTP method supported. */
+  Set<String> HTTP_METHODS =
+      unmodifiableSet(
+          new LinkedHashSet<>(
+              Arrays.asList(
+                  GET.class.getName(),
+                  JAXRS_GET,
+                  POST.class.getName(),
+                  JAXRS_POST,
+                  PUT.class.getName(),
+                  JAXRS_PUT,
+                  DELETE.class.getName(),
+                  JAXRS_DELETE,
+                  PATCH.class.getName(),
+                  JAXRS_PATCH,
+                  HEAD.class.getName(),
+                  JAXRS_HEAD,
+                  OPTIONS.class.getName(),
+                  JAXRS_OPTIONS,
+                  CONNECT.class.getName(),
+                  TRACE.class.getName())));
 
-      POST.class.getName(), JAXRS_POST,
-
-      PUT.class.getName(), JAXRS_PUT,
-
-      DELETE.class.getName(), JAXRS_DELETE,
-
-      PATCH.class.getName(), JAXRS_PATCH,
-
-      HEAD.class.getName(), JAXRS_HEAD,
-
-      OPTIONS.class.getName(), JAXRS_OPTIONS,
-
-      CONNECT.class.getName(),
-
-      TRACE.class.getName()
-  )));
-
-  /**
-   * Path parameters.
-   */
+  /** Path parameters. */
   Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PathParam.class.getName())));
 
   /** Context params. */
-  Set<String> CONTEXT_PARAMS = unmodifiableSet(
-      new LinkedHashSet<>(asList(ContextParam.class.getName(), JAXRS_CONTEXT)));
+  Set<String> CONTEXT_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(ContextParam.class.getName(), JAXRS_CONTEXT)));
 
-  /**
-   * Query parameters.
-   */
-  Set<String> QUERY_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
-      QueryParam.class.getName(), JAXRS_QUERY
-  )));
+  /** Query parameters. */
+  Set<String> QUERY_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(QueryParam.class.getName(), JAXRS_QUERY)));
 
-  /**
-   * Session parameters.
-   */
-  Set<String> SESSION_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
-      SessionParam.class.getName()
-  )));
+  /** Session parameters. */
+  Set<String> SESSION_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(SessionParam.class.getName())));
 
-  /**
-   * Cookie parameters.
-   */
-  Set<String> COOKIE_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
-      CookieParam.class.getName(), JAXRS_COOKIE
-  )));
+  /** Cookie parameters. */
+  Set<String> COOKIE_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(CookieParam.class.getName(), JAXRS_COOKIE)));
 
-  /**
-   * Header parameters.
-   */
-  Set<String> HEADER_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
-      HeaderParam.class.getName(), JAXRS_HEADER
-  )));
+  /** Header parameters. */
+  Set<String> HEADER_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(HeaderParam.class.getName(), JAXRS_HEADER)));
 
-  /**
-   * Flash parameters.
-   */
-  Set<String> FLASH_PARAMS = unmodifiableSet(
-      new LinkedHashSet<>(asList(FlashParam.class.getName())));
+  /** Flash parameters. */
+  Set<String> FLASH_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(FlashParam.class.getName())));
 
-  /**
-   * Form parameters.
-   */
-  Set<String> FORM_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
-      FormParam.class.getName(), JAXRS_FORM
-  )));
+  /** Form parameters. */
+  Set<String> FORM_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(FormParam.class.getName(), JAXRS_FORM)));
 
-  /**
-   * Parameter lookup.
-   */
-  Set<String> PARAM_LOOKUP = unmodifiableSet(Collections.singleton(
-      Param.class.getName()
-  ));
+  /** Parameter lookup. */
+  Set<String> PARAM_LOOKUP = unmodifiableSet(Collections.singleton(Param.class.getName()));
 
-  /**
-   * Produces parameters.
-   */
-  Set<String> PRODUCES_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
-      Produces.class.getName(), JAXRS_PRODUCES
-  )));
+  /** Produces parameters. */
+  Set<String> PRODUCES_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(Produces.class.getName(), JAXRS_PRODUCES)));
 
-  /**
-   * Consumes parameters.
-   */
-  Set<String> CONSUMES_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
-      Consumes.class.getName(), JAXRS_CONSUMES
-  )));
+  /** Consumes parameters. */
+  Set<String> CONSUMES_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(Consumes.class.getName(), JAXRS_CONSUMES)));
 
-  /**
-   * Path parameters.
-   */
-  Set<String> PATH = unmodifiableSet(new LinkedHashSet<>(asList(
-      Path.class.getName(), JAXRS_PATH
-  )));
+  /** Path parameters. */
+  Set<String> PATH = unmodifiableSet(new LinkedHashSet<>(asList(Path.class.getName(), JAXRS_PATH)));
 
   /**
    * Get an annotation value.
@@ -203,19 +169,18 @@ public interface Annotations {
    * @param <T> Return type.
    * @return List of values.
    */
-  static @NonNull <T> List<T> attribute(@NonNull AnnotationMirror mirror,
-      @NonNull String name, @NonNull Function<AnnotationValue, T> mapper) {
+  static @NonNull <T> List<T> attribute(
+      @NonNull AnnotationMirror mirror,
+      @NonNull String name,
+      @NonNull Function<AnnotationValue, T> mapper) {
 
-    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror
-        .getElementValues().entrySet()) {
+    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry :
+        mirror.getElementValues().entrySet()) {
       if (entry.getKey().getSimpleName().toString().equals(name)) {
         Object value = entry.getValue().getValue();
         if (value instanceof List) {
           List<AnnotationValue> values = (List<AnnotationValue>) value;
-          return values.stream()
-              .map(mapper)
-              .filter(Objects::nonNull)
-              .collect(Collectors.toList());
+          return values.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toList());
         }
         T singleValue = mapper.apply(entry.getValue());
         return singleValue == null

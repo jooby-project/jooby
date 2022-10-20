@@ -1,28 +1,28 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.internal;
 
-import io.jooby.ByteRange;
-import io.jooby.Context;
-import io.jooby.StatusCode;
-import org.apache.commons.io.input.BoundedInputStream;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.input.BoundedInputStream;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.ByteRange;
+import io.jooby.Context;
+import io.jooby.StatusCode;
+
 /**
- * Utility class to compute single byte range requests when response content length is known.
- * Jooby support single byte range requests on file responses, like: assets, input stream, files,
- * etc.
+ * Utility class to compute single byte range requests when response content length is known. Jooby
+ * support single byte range requests on file responses, like: assets, input stream, files, etc.
  *
- * Single byte range request looks like: <code>bytes=0-100</code>, <code>bytes=100-</code>,
+ * <p>Single byte range request looks like: <code>bytes=0-100</code>, <code>bytes=100-</code>,
  * <code>bytes=-100</code>.
  *
- * Multiple byte range request are not supported.
+ * <p>Multiple byte range request are not supported.
  *
  * @since 2.0.0
  * @author edgar
@@ -38,8 +38,8 @@ public class SingleByteRange implements ByteRange {
 
   private String contentRange;
 
-  public SingleByteRange(String value, long start, long end, long contentLength,
-      String contentRange) {
+  public SingleByteRange(
+      String value, long start, long end, long contentLength, String contentRange) {
     this.value = value;
     this.start = start;
     this.end = end;
@@ -52,7 +52,8 @@ public class SingleByteRange implements ByteRange {
    *
    * @return Start range or <code>-1</code>.
    */
-  @Override public long getStart() {
+  @Override
+  public long getStart() {
     return start;
   }
 
@@ -61,7 +62,8 @@ public class SingleByteRange implements ByteRange {
    *
    * @return End range or <code>-1</code>.
    */
-  @Override public long getEnd() {
+  @Override
+  public long getEnd() {
     return end;
   }
 
@@ -70,7 +72,8 @@ public class SingleByteRange implements ByteRange {
    *
    * @return New content length.
    */
-  @Override public long getContentLength() {
+  @Override
+  public long getContentLength() {
     return contentLength;
   }
 
@@ -79,31 +82,32 @@ public class SingleByteRange implements ByteRange {
    *
    * @return Value for <code>Content-Range</code> response header.
    */
-  @Override public @NonNull String getContentRange() {
+  @Override
+  public @NonNull String getContentRange() {
     return contentRange;
   }
 
-  @NonNull @Override public StatusCode getStatusCode() {
+  @NonNull @Override
+  public StatusCode getStatusCode() {
     return StatusCode.PARTIAL_CONTENT;
   }
 
   /**
    * For partial request this method set the following byte range response headers:
    *
-   *  - Accept-Ranges
-   *  - Content-Range
-   *  - Content-Length
+   * <p>- Accept-Ranges - Content-Range - Content-Length
    *
-   * For not satisfiable requests:
+   * <p>For not satisfiable requests:
    *
-   *  - Throws a {@link StatusCode#REQUESTED_RANGE_NOT_SATISFIABLE}
+   * <p>- Throws a {@link StatusCode#REQUESTED_RANGE_NOT_SATISFIABLE}
    *
-   * Otherwise this method does nothing.
+   * <p>Otherwise this method does nothing.
    *
    * @param ctx Web context.
    * @return This byte range request.
    */
-  @Override public @NonNull ByteRange apply(@NonNull Context ctx) {
+  @Override
+  public @NonNull ByteRange apply(@NonNull Context ctx) {
     ctx.setResponseHeader("Accept-Ranges", "bytes");
     ctx.setResponseHeader("Content-Range", contentRange);
     ctx.setResponseLength(contentLength);
@@ -114,21 +118,22 @@ public class SingleByteRange implements ByteRange {
   /**
    * For partial requests this method generates a new truncated input stream.
    *
-   * For not satisfiable requests this method throws an exception.
+   * <p>For not satisfiable requests this method throws an exception.
    *
-   * If there is no range to apply this method returns the given input stream.
+   * <p>If there is no range to apply this method returns the given input stream.
    *
    * @param input Input stream.
    * @return A truncated input stream for partial request or same input stream.
    * @throws IOException When truncation fails.
    */
-  @Override public @NonNull InputStream apply(@NonNull InputStream input) throws IOException {
+  @Override
+  public @NonNull InputStream apply(@NonNull InputStream input) throws IOException {
     input.skip(start);
     return new BoundedInputStream(input, end);
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return value;
   }
-
 }

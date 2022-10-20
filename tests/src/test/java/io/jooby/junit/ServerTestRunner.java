@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.junit;
 
 import java.nio.file.Path;
@@ -36,11 +41,12 @@ public class ServerTestRunner {
   }
 
   public ServerTestRunner define(Consumer<Jooby> consumer) {
-    use(() -> {
-      Jooby app = new Jooby();
-      consumer.accept(app);
-      return app;
-    });
+    use(
+        () -> {
+          Jooby app = new Jooby();
+          consumer.accept(app);
+          return app;
+        });
     return this;
   }
 
@@ -112,7 +118,8 @@ public class ServerTestRunner {
     return path;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     StringBuilder message = new StringBuilder();
     message.append(testName).append("(");
     message.append(getServer());
@@ -126,8 +133,7 @@ public class ServerTestRunner {
   private AssertionError serverInfo(AssertionError x) {
     StringBuilder message = new StringBuilder();
     message.append(this);
-    Optional.ofNullable(x.getMessage())
-        .ifPresent(m -> message.append(": ").append(m));
+    Optional.ofNullable(x.getMessage()).ifPresent(m -> message.append(": ").append(m));
     AssertionError error = new AssertionError(message.toString().trim());
     error.setStackTrace(x.getStackTrace());
     return error;

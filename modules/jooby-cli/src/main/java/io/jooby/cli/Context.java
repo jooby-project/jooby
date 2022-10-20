@@ -1,16 +1,17 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby.cli;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Map;
 import java.util.Set;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Provides an execution context for application commands as well as utility methods for read and
@@ -54,8 +55,9 @@ public interface Context {
    * @param permissions File permissions.
    * @throws IOException If something goes wrong.
    */
-  void copyResource(@NonNull String source, @NonNull Path dest,
-      @NonNull Set<PosixFilePermission> permissions) throws IOException;
+  void copyResource(
+      @NonNull String source, @NonNull Path dest, @NonNull Set<PosixFilePermission> permissions)
+      throws IOException;
 
   /**
    * List all dependencies and their version. Like:

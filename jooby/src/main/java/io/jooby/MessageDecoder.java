@@ -1,14 +1,14 @@
-/**
+/*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
 package io.jooby;
 
-import io.jooby.exception.UnsupportedMediaType;
+import java.lang.reflect.Type;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.lang.reflect.Type;
+import io.jooby.exception.UnsupportedMediaType;
 
 /**
  * Parse HTTP body into a target type.
@@ -18,12 +18,11 @@ import java.lang.reflect.Type;
  */
 public interface MessageDecoder {
 
-  /**
-   * Resolve parsing as {@link StatusCode#UNSUPPORTED_MEDIA_TYPE}.
-   */
-  MessageDecoder UNSUPPORTED_MEDIA_TYPE = (ctx, type) -> {
-    throw new UnsupportedMediaType(ctx.header("Content-Type").valueOrNull());
-  };
+  /** Resolve parsing as {@link StatusCode#UNSUPPORTED_MEDIA_TYPE}. */
+  MessageDecoder UNSUPPORTED_MEDIA_TYPE =
+      (ctx, type) -> {
+        throw new UnsupportedMediaType(ctx.header("Content-Type").valueOrNull());
+      };
 
   /**
    * Parse HTTP body into the given type.
