@@ -15,4 +15,5 @@ module io.jooby.hibernate {
   requires java.sql;
   requires jakarta.inject;
   requires java.persistence;
+  requires java.naming;
 }

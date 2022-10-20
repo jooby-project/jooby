@@ -11,7 +11,6 @@ import io.jooby.SneakyThrows;
 import org.objectweb.asm.util.ASMifier;
 
 import jakarta.inject.Provider;
-import source.Bean;
 
 import javax.tools.JavaFileObject;
 import java.io.IOException;

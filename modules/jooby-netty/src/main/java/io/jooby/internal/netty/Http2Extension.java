@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.jooby.internal.netty.Http2Settings;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;

@@ -39,11 +39,13 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-project</artifactId>
+      <scope>provided</scope>
       <exclusions>
         <exclusion>
           <groupId>junit</groupId>
@@ -55,6 +57,7 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

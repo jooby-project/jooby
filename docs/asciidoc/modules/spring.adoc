@@ -13,7 +13,7 @@
 package myapp;                                       <1>
 
 import static io.jooby.Jooby.runApp;
-import io.jooby.guice.SpringModule;
+import io.jooby.spring.SpringModule;
 
 public class App extends Jooby {
 

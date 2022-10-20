@@ -11,7 +11,7 @@
 .Installing Weld
 [source,java,role = "primary"]
 ----
-import io.jooby.guice.WeldModule;
+import io.jooby.weld.WeldModule;
 import static io.jooby.Jooby.runApp;
 
 public class App extends Jooby {

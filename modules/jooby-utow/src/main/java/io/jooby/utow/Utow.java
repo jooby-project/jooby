@@ -6,16 +6,12 @@
 package io.jooby.utow;
 
 import static io.undertow.UndertowOptions.ENABLE_HTTP2;
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
 
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.ServiceLoader;
-import java.util.Spliterator;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.net.ssl.SSLContext;
@@ -24,13 +20,11 @@ import org.xnio.Options;
 import org.xnio.Sequence;
 import org.xnio.SslClientAuthMode;
 
-import io.jooby.Http2Configurer;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
-import io.jooby.internal.undertow.UndertowHttp2Setup;
 import io.jooby.internal.utow.UtowHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
