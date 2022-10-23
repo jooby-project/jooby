@@ -15,6 +15,8 @@ module io.jooby.jetty {
   requires org.eclipse.jetty.server;
   requires org.eclipse.jetty.servlet;
   requires org.eclipse.jetty.websocket.jetty.server;
+  requires org.eclipse.jetty.alpn.server;
+  requires org.eclipse.jetty.http2.server;
 
   provides Server with
       Jetty;

@@ -12,7 +12,6 @@ module io.jooby {
   uses io.jooby.MvcFactory;
   uses io.jooby.Server;
   uses io.jooby.SslProvider;
-  uses io.jooby.Http2Configurer;
 
   /*
    * True core deps

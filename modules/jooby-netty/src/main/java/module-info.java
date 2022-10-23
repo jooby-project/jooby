@@ -8,7 +8,6 @@ import io.jooby.netty.Netty;
 
 module io.jooby.netty {
   exports io.jooby.netty;
-  exports io.jooby.internal.netty;
 
   requires io.jooby;
   requires com.github.spotbugs.annotations;
@@ -16,6 +15,7 @@ module io.jooby.netty {
   requires org.slf4j;
   requires io.netty.transport;
   requires io.netty.codec.http;
+  requires io.netty.codec.http2;
   requires io.netty.handler;
   requires io.netty.common;
   requires io.netty.buffer;

@@ -23,8 +23,6 @@
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
     <module>jooby-utow</module>
-    <module>jooby-http2-jetty</module>
-    <module>jooby-http2-netty</module>
 
     <module>jooby-openapi</module>
     <module>jooby-swagger-ui</module>

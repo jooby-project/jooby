@@ -7,7 +7,6 @@ package io.jooby.internal.netty.http2;
 
 import static io.netty.handler.codec.http.HttpScheme.HTTP;
 
-import io.jooby.Http2Configurer;
 import io.jooby.internal.netty.Http2Extension;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.handler.codec.http.HttpScheme;
@@ -20,15 +19,8 @@ import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapter;
 import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapterBuilder;
 import io.netty.handler.logging.LogLevel;
 
-public class NettyHttp2Configurer
-    implements Http2Configurer<Http2Extension, ChannelInboundHandler> {
+public class NettyHttp2Configurer {
 
-  @Override
-  public boolean support(Class type) {
-    return type == Http2Extension.class;
-  }
-
-  @Override
   public ChannelInboundHandler configure(Http2Extension extension) {
     if (extension.isSecure()) {
       return new Http2OrHttp11Handler(

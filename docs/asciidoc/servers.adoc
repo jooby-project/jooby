@@ -436,31 +436,15 @@ primitives and Transport Layer Security (TLS) for Java applications on Android a
 
 === HTTP/2 Support
 
-HTTP2 support is provided across web server implementation. To enable it, you must add one of the
-following dependencies:
-
-HTTP/2 with Jetty:
-[dependency, artifactId="jooby-http2-jetty"]
-.
-
-HTTP/2 with Netty:
-[dependency, artifactId="jooby-http2-netty"]
-.
-
-HTTP/2 with Undertow:
-[dependency, artifactId="jooby-http2-undertow"]
-.
-
-Once the required dependencies are added, Jooby automatically configures HTTP/2.
-
-To use HTTP/2 from browsers you need TLS (the h2 protocol) please refer to
-<<server-https-support, HTTPS support>> to configure TLS.
+HTTP2 support is provided across web server implementation. You need to enabled `http2` option
+programmatically or via `application.conf` properties.
 
 .HTTP/2
 [source,java,role="primary"]
 ----
 {
   setServerOptions(new ServerOptions()
+      .setHttp2(true)
       .setSecurePort(8433)
   );
   
@@ -475,6 +459,7 @@ To use HTTP/2 from browsers you need TLS (the h2 protocol) please refer to
 ----
 {
   serverOptions {
+    http = 2
     securePort = 8433
   }
   
@@ -483,6 +468,12 @@ To use HTTP/2 from browsers you need TLS (the h2 protocol) please refer to
   } 
 }
 ----
+
+[NOTE]
+====
+To use HTTP/2 from browsers you need TLS (the h2 protocol) please refer to
+<<server-https-support, HTTPS support>> to configure TLS.
+====
 
 [NOTE]
 ====

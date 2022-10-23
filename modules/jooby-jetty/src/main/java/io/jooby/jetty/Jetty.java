@@ -5,16 +5,11 @@
  */
 package io.jooby.jetty;
 
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
-
 import java.net.BindException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.ServiceLoader;
-import java.util.Spliterator;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -40,7 +35,6 @@ import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerI
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Http2Configurer;
 import io.jooby.Jooby;
 import io.jooby.Router;
 import io.jooby.ServerOptions;
@@ -48,6 +42,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.WebSocket;
 import io.jooby.internal.jetty.JettyServlet;
+import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
 
 /**
  * Web server implementation using <a href="https://www.eclipse.org/jetty/">Jetty</a>.
@@ -102,19 +97,8 @@ public class Jetty extends io.jooby.Server.Base {
       this.server = new Server(executor);
       server.setStopAtShutdown(false);
 
-      Http2Configurer<HttpConfiguration, List<ConnectionFactory>> http2;
-      if (options.isHttp2() == null || options.isHttp2() == Boolean.TRUE) {
-        http2 =
-            stream(
-                    spliteratorUnknownSize(
-                        ServiceLoader.load(Http2Configurer.class).iterator(), Spliterator.ORDERED),
-                    false)
-                .filter(it -> it.support(HttpConfiguration.class))
-                .findFirst()
-                .orElse(null);
-      } else {
-        http2 = null;
-      }
+      JettyHttp2Configurer http2 =
+          options.isHttp2() == Boolean.TRUE ? new JettyHttp2Configurer() : null;
 
       HttpConfiguration httpConf = new HttpConfiguration();
       // TODO: we might need to remove legacy with default
@@ -128,8 +112,9 @@ public class Jetty extends io.jooby.Server.Base {
 
       List<ConnectionFactory> connectionFactories = new ArrayList<>();
       connectionFactories.add(new HttpConnectionFactory(httpConf));
-      Optional.ofNullable(http2)
-          .ifPresent(extension -> connectionFactories.addAll(extension.configure(httpConf)));
+      if (http2 != null) {
+        connectionFactories.addAll(http2.configure(httpConf));
+      }
 
       if (!options.isHttpsOnly()) {
         ServerConnector http =

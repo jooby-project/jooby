@@ -5,15 +5,10 @@
  */
 package io.jooby.netty;
 
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
-
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ServiceLoader;
-import java.util.Spliterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,17 +16,14 @@ import java.util.concurrent.Executors;
 import javax.net.ssl.SSLContext;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Http2Configurer;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
-import io.jooby.internal.netty.Http2Extension;
 import io.jooby.internal.netty.NettyPipeline;
 import io.jooby.internal.netty.NettyTransport;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
@@ -114,20 +106,7 @@ public class Netty extends Server.Base {
       /** File data factory: */
       HttpDataFactory factory = new DefaultHttpDataFactory(options.getBufferSize());
 
-      Http2Configurer<Http2Extension, ChannelInboundHandler> http2;
-      if (options.isHttp2() == null || options.isHttp2() == Boolean.TRUE) {
-        http2 =
-            stream(
-                    spliteratorUnknownSize(
-                        ServiceLoader.load(Http2Configurer.class).iterator(), Spliterator.ORDERED),
-                    false)
-                .filter(it -> it.support(Http2Extension.class))
-                .findFirst()
-                .orElse(null);
-      } else {
-        http2 = null;
-      }
-
+      boolean http2 = options.isHttp2() == Boolean.TRUE;
       /** Bootstrap: */
       if (!options.isHttpsOnly()) {
         ServerBootstrap http =
@@ -153,7 +132,7 @@ public class Netty extends Server.Base {
                 .childHandler(
                     newPipeline(
                         factory,
-                        wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2 != null),
+                        wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2),
                         http2))
                 .childOption(ChannelOption.SO_REUSEADDR, true)
                 .childOption(ChannelOption.TCP_NODELAY, true);
@@ -188,8 +167,7 @@ public class Netty extends Server.Base {
     }
   }
 
-  private NettyPipeline newPipeline(
-      HttpDataFactory factory, SslContext sslContext, Http2Configurer http2) {
+  private NettyPipeline newPipeline(HttpDataFactory factory, SslContext sslContext, boolean http2) {
     return new NettyPipeline(
         acceptorloop.next(),
         applications.get(0),

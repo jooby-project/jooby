@@ -11,8 +11,8 @@ import static io.jooby.ServerOptions._8KB;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
-import io.jooby.Http2Configurer;
 import io.jooby.Router;
+import io.jooby.internal.netty.http2.NettyHttp2Configurer;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundHandler;
@@ -35,7 +35,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final boolean defaultHeaders;
   private final ScheduledExecutorService service;
   private final SslContext sslContext;
-  private final Http2Configurer<Http2Extension, ChannelInboundHandler> http2;
+  private final boolean http2;
   private final boolean is100ContinueExpected;
 
   public NettyPipeline(
@@ -43,7 +43,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       Router router,
       HttpDataFactory factory,
       SslContext sslContext,
-      Http2Configurer<Http2Extension, ChannelInboundHandler> http2,
+      boolean http2,
       boolean defaultHeaders,
       Integer compressionLevel,
       int bufferSize,
@@ -67,15 +67,15 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     if (sslContext != null) {
       p.addLast("ssl", sslContext.newHandler(ch.alloc()));
     }
-    if (http2 == null) {
+    if (!http2) {
       http11(p);
     } else {
       Http2Settings settings = new Http2Settings(maxRequestSize, sslContext != null);
       Http2Extension extension =
           new Http2Extension(
               settings, this::http11, this::http11Upgrade, this::http2, this::http2c);
-
-      ChannelInboundHandler handshake = http2.configure(extension);
+      NettyHttp2Configurer configurer = new NettyHttp2Configurer();
+      ChannelInboundHandler handshake = configurer.configure(extension);
 
       p.addLast(H2_HANDSHAKE, handshake);
 

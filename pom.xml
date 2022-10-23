@@ -255,19 +255,7 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
-        <artifactId>jooby-http2-netty</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.jooby</groupId>
         <artifactId>jooby-jetty</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.jooby</groupId>
-        <artifactId>jooby-http2-jetty</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
