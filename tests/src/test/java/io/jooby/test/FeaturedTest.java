@@ -923,18 +923,18 @@ public class FeaturedTest {
   }
 
   @ServerTest
-  public void decorator(ServerTestRunner runner) {
+  public void use(ServerTestRunner runner) {
     runner
         .define(
             app -> {
-              app.decorator(next -> ctx -> "{" + ctx.attribute("prefix") + next.apply(ctx) + "}");
+              app.use(next -> ctx -> "{" + ctx.attribute("prefix") + next.apply(ctx) + "}");
 
               app.before(
                   ctx -> {
                     ctx.attribute("prefix", "%");
                   });
 
-              app.decorator(next -> ctx -> "<" + ctx.attribute("prefix") + next.apply(ctx) + ">");
+              app.use(next -> ctx -> "<" + ctx.attribute("prefix") + next.apply(ctx) + ">");
 
               app.get("/decorator", ctx -> ctx.attribute("prefix") + "OK" + "%");
             })
@@ -3735,7 +3735,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.decorator(new CorsHandler());
+              app.use(new CorsHandler());
 
               app.get("/greeting", ctx -> "Hello " + ctx.query("name").value("World") + "!");
             })
@@ -3879,7 +3879,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.decorator(new TraceHandler());
+              app.use(new TraceHandler());
 
               app.get("/foo", Context::getRequestPath);
             })
@@ -3908,7 +3908,7 @@ public class FeaturedTest {
         .define(
             app -> {
               app.install(new JacksonModule());
-              app.decorator(new HeadHandler());
+              app.use(new HeadHandler());
 
               app.get("/fn", ctx -> "string");
 
@@ -4148,7 +4148,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.decorator(new WebVariables());
+              app.use(new WebVariables());
 
               app.get(
                   "/webvars",
@@ -4172,7 +4172,7 @@ public class FeaturedTest {
             app -> {
               app.setContextPath("/app");
 
-              app.decorator(new WebVariables());
+              app.use(new WebVariables());
 
               app.get(
                   "/webvars",
@@ -4194,7 +4194,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.decorator(new WebVariables("scope"));
+              app.use(new WebVariables("scope"));
 
               app.get(
                   "/webvars",
@@ -4250,7 +4250,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.decorator(new AccessLogHandler().extended());
+              app.use(new AccessLogHandler().extended());
 
               app.get("/fn", Context::getRequestPath);
 

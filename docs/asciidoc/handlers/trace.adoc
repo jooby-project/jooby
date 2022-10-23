@@ -15,7 +15,7 @@ import io.jooby.TraceHandler;
 ...
 {
   
-  decorator(new TraceHandler()); <1>
+  use(new TraceHandler()); <1>
   
   get("/", ctx -> {
     ...
@@ -30,7 +30,7 @@ import io.jooby.Jooby
 import io.jooby.TraceHandler
 ...
 {
-  decorator(TraceHandler())      <1>
+  use(TraceHandler())      <1>
   
   get("/") {
     ...

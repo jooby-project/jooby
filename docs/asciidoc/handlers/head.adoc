@@ -15,7 +15,7 @@ import io.jooby.HeadHandler;
 ...
 {
   
-  decorator(new HeadHandler()); <1>
+  use(new HeadHandler()); <1>
   
   get("/", ctx -> {
     ...
@@ -30,7 +30,7 @@ import io.jooby.Jooby
 import io.jooby.HeadHandler
 ...
 {
-  decorator(HeadHandler())      <1>
+  use(HeadHandler())      <1>
   
   get("/") {
     ...

@@ -34,7 +34,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  *
  * <pre>
  * {
- *   decorator(new CorsHandler());
+ *   use(new CorsHandler());
  * }
  * </pre>
  *

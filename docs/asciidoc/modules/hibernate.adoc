@@ -135,7 +135,7 @@ import io.jooby.hibernate.TransactionalRequest;
   
   install(new HibernateModule());
   
-  decorator(new TransactionalRequest());
+  use(new TransactionalRequest());
   
   post("/create", ctx -> {
     EntityManager em = require(EntityManager.class);
@@ -161,7 +161,7 @@ import io.jooby.hibernate.TransactionalRequest
   
   install(HibernateModule())
   
-  decorator(TransactionalRequest())
+  use(TransactionalRequest())
   
   post("/create") { ctx ->
     val em = require(EntityManager::class)
@@ -227,7 +227,7 @@ import io.jooby.ebean.TransactionalRequest;
 
 {
   ...
-  decorator(new TransactionalRequest().enabledByDefault(false));
+  use(new TransactionalRequest().enabledByDefault(false));
   ...
 }
 ----
@@ -239,7 +239,7 @@ import io.jooby.ebean.TransactionalRequest
 
 {
   ...
-  decorator(TransactionalRequest().enabledByDefault(false))
+  use(TransactionalRequest().enabledByDefault(false))
   ...
 }
 ----
@@ -396,7 +396,7 @@ Neither can it be used together with `SessionRequest` or `TransactionalRequest`:
 [source, java]
 ----
 {
-  decorator(new TransactionalRequest());
+  use(new TransactionalRequest());
 
   // will lead to exception
   get("/nope", ctx -> require(UnitOfWork.class)

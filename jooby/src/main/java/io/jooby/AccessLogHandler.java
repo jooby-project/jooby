@@ -36,7 +36,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  *
  * <pre>{@code
  * {
- *   decorator(new AccessLogHandler());
+ *   use(new AccessLogHandler());
  *
  *   ...
  * }
@@ -73,7 +73,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * <pre>{@code
  * {
  *
- *   decorator("*", new AccessLogHandler(ctx -> {
+ *   use("*", new AccessLogHandler(ctx -> {
  *     // retrieve user ID from context.
  *   }));
  * }
@@ -145,7 +145,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @author edgar
  * @since 2.5.2
  */
-public class AccessLogHandler implements Route.Decorator {
+public class AccessLogHandler implements Route.Filter {
   private static final String USER_AGENT = "User-Agent";
 
   private static final String REFERER = "Referer";

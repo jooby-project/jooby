@@ -91,7 +91,7 @@ Attributes can be accessed at runtime in a request/response cycle. For example, 
 [source, java, role="primary"]
 ----
 {
-  decorator(next -> ctx -> {
+  use(next -> ctx -> {
     User user = ...;
     String role = ctx.getRoute().attribute("Role"); 
     
@@ -108,7 +108,7 @@ Attributes can be accessed at runtime in a request/response cycle. For example, 
 [source, kotlin, role="secondary"]
 ----
 {
-decorator(
+use(
   val user = ...
   val role = ctx.route.attribute("Role")
 
@@ -143,7 +143,7 @@ public class AdminResource {
 }
 
 {
-  decorator(next -> ctx -> {
+  use(next -> ctx -> {
     System.out.println(ctx.getRoute().attribute("Role"));
   });
 }
@@ -167,7 +167,7 @@ class AdminResource {
 }
 
 {
-  decorator {
+  use {
     println(ctx.route.attribute("Role"))
   }
 }
@@ -425,25 +425,25 @@ Output:
 Routes with most specific path pattern (`2` vs `1`) has more precedence. Also, is one or more routes
 result in the same path pattern, like `3` and `4`, last registered route hides/overrides previous route.
 
-==== Decorator
+==== Filter
 
 Cross cutting concerns such as response modification, verification, security, tracing, etc. is available
-via javadoc:Route.Decorator[].
+via javadoc:Route.Filter[].
 
-A `decorator` takes the `next` handler in the pipeline and produces a `new` handler:
+A `filter` takes the `next` handler in the pipeline and produces a `new` handler:
 
 [source,java]
 ----
-interface Decorator {
+interface Filter {
   Handler apply(Handler next);
 }
 ----
 
-.Timing decorator example:
+.Timing filter example:
 [source,java,role="primary"]
 ----
 {
-  decorator(next -> ctx -> {
+  use(next -> ctx -> {
     long start = System.currentTimeMillis();       // <1>
 
     Object response = next.apply(ctx);             // <2>
@@ -457,7 +457,7 @@ interface Decorator {
   });
   
   get("/", ctx -> {
-    return "decorator";
+    return "filter";
   });
 }
 ----
@@ -467,7 +467,7 @@ interface Decorator {
 ----
 {
   /** Kotlin uses implicit variables: `ctx` and `next` */
-  decorator {
+  filter {
     val start = System.currentTimeMillis()  // <1>
 
     val response = next.apply(ctx)          // <2>
@@ -481,7 +481,7 @@ interface Decorator {
   }
   
   get("/") {
-    "decorator"
+    "filter"
   }
 }
 ----
@@ -493,7 +493,7 @@ interface Decorator {
 
 [NOTE]
 ====
-One or more decorator on top of a handler produces a new handler.
+One or more filter on top of a handler produces a new handler.
 ====
 
 ==== Before
@@ -780,13 +780,13 @@ The javadoc:Route.Complete[text=complete] listener run at the completion of a re
 (i.e. when the request has been completely read, and the response has been fully written).
 
 At this point it is too late to modify the exchange further. They are attached to a running context
-(not like a decorator/before/after filters).
+(not like a filter/before/after filters).
 
 .Example
 [source, java, role="primary"]
 ----
 {
-   decorator(next -> ctx -> {
+   use(next -> ctx -> {
      long start = System.currentTimeInMillis();
      ctx.onComplete(context -> {                      <1>
        long end = System.currentTimeInMillis();       <2>
@@ -800,7 +800,7 @@ At this point it is too late to modify the exchange further. They are attached t
 [source, kotlin, role="secondary"]
 ----
 {
-   decorator {
+   use {
      val start = System.currentTimeMillis()
      ctx.onComplete {                                 <1>
        val end = System.currentTimeMillis()           <2>
@@ -817,20 +817,20 @@ Completion listeners are invoked in reverse order.
 
 === Pipeline
 
-Route pipeline (a.k.a route stack) is a composition of one or more decorator(s) tied to a single `handler`:
+Route pipeline (a.k.a route stack) is a composition of one or more use(s) tied to a single `handler`:
 
 .Java
 [source, java, role="primary"]
 ----
 {
   // Increment +1
-  decorator(next -> ctx -> {
+  use(next -> ctx -> {
     Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
 
   // Increment +1
-  decorator(next -> ctx -> {
+  use(next -> ctx -> {
     Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
@@ -846,13 +846,13 @@ Route pipeline (a.k.a route stack) is a composition of one or more decorator(s) 
 ----
 {
   // Increment +1
-  decorator {
+  use {
     val n = next.apply(ctx) as Int
     1 + n
   }
 
   // Increment +1
-  decorator {
+  use {
     val n = next.apply(ctx) as Int
     1 + n
   }
@@ -874,7 +874,7 @@ Behind the scene, Jooby builds something like:
 ----
 {
   // Increment +1
-  var increment = decorator(next -> ctx -> {
+  var increment = use(next -> ctx -> {
     Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
@@ -892,14 +892,14 @@ Behind the scene, Jooby builds something like:
 }
 ----
 
-Any `decorator` defined on top of the handler will be stacked/chained into a new handler.
+Any `filter` defined on top of the handler will be stacked/chained into a new handler.
 
 [NOTE]
-.Decorator without path pattern
+.Filter without path pattern
 ====
 
 This was a hard decision to make, but we know is the right one. Jooby 1.x uses a path pattern to
-define `filter`/`decorator`.
+define `filter`.
 
 The `pipeline` in Jooby 1.x consists of multiple filters and handlers. They are match
 sequentially one by one. The following `filter` is always executed in Jooby 1.x
@@ -934,7 +934,7 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
 ----
 {
   // Increment +1
-  decorator(next -> ctx -> {
+  use(next -> ctx -> {
     Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
@@ -942,7 +942,7 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
   get("/1", ctx -> 1);                // <1>
   
   // Increment +1
-  decorator(next -> ctx -> {
+  use(next -> ctx -> {
     Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
@@ -956,7 +956,7 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
 ----
 {
   // Increment +1
-  decorator {
+  use {
     val n = next.apply(ctx) as Int
     1 + n
   }
@@ -964,7 +964,7 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
   get("/1") { 1 }                // <1>
   
   // Increment +1
-  decorator {
+  use {
     val n = next.apply(ctx) as Int
     1 + n
   }
@@ -978,26 +978,26 @@ Output:
 <1> `/1` => `2`
 <2> `/2` => `4` 
 
-==== Scoped Decorator
+==== Scoped Filter
 
 The javadoc:Router[route, java.lang.Runnable] and javadoc:Router[path, java.lang.String, java.lang.Runnable] operators
 are used to group one or more routes.
   
-A `scoped decorator` looks like:
+A `scoped filter` looks like:
 
-.Scoped decorator:
+.Scoped filter:
 [source, java, role="primary"]
 ----
 {
   // Increment +1
-  decorator(next -> ctx -> {
+  use(next -> ctx -> {
     Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
 
   routes(() -> {                          // <1>
     // Multiply by 2
-    decorator(next -> ctx -> {
+    use(next -> ctx -> {
       Number n = (Number) next.apply(ctx);
       return 2 * n.intValue();
     });
@@ -1014,14 +1014,14 @@ A `scoped decorator` looks like:
 ----
 {
   // Increment +1
-  decorator {
+  filter {
     val n = next.apply(ctx) as Int
     return 1 + n
   }
 
   routes {                                // <1>
     // Multiply by 2
-    decorator {
+    filter {
       val n = next.apply(ctx) as Int
       2 * n
     }
@@ -1039,7 +1039,7 @@ Output:
 <2> `/4`  => `9`
 <3> `/1`  => `2`
 
-It is a normal `decorator` inside of one of the group operators.
+It is a normal `filter` inside of one of the group operators.
 
 === Grouping routes
 

@@ -10,7 +10,7 @@ import io.jooby.AccessLogHandler;
 ...
 {
   
-  decorator(new AccessLogHandler()); <1>
+  use(new AccessLogHandler()); <1>
   
   get("/", ctx -> {
     ...
@@ -25,7 +25,7 @@ import io.jooby.Jooby
 import io.jooby.AccessLogHandler
 ...
 {
-  decorator(AccessLogHandler())      <1>
+  use(AccessLogHandler())      <1>
   
   get("/") {
     ...

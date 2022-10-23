@@ -53,7 +53,7 @@ public class Issue2367 {
     runner
         .define(
             app -> {
-              app.decorator(new AccessLogHandler());
+              app.use(new AccessLogHandler());
 
               app.assets("/2367/*", "/2367");
             })

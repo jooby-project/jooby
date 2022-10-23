@@ -68,7 +68,7 @@ import io.jooby.SneakyThrows;
  *
  * <pre>{@code
  * {
- *   decorator(new TransactionalRequest());
+ *   use(new TransactionalRequest());
  *
  *   // will lead to exception
  *   get("/nope", ctx -> require(UnitOfWork.class)

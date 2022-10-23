@@ -524,7 +524,7 @@ public class Pac4jModule implements Extension {
           // POST for direct authentication
           application.post(pattern, securityFilter);
         } else {
-          application.decorator(
+          application.use(
               new SecurityFilterImpl(
                   pattern,
                   pac4j,
@@ -541,7 +541,7 @@ public class Pac4jModule implements Extension {
       if (options.getDefaultClient() == null && defaultSecurityFilter.get(0).isResolved()) {
         options.setDefaultClient(defaultSecurityFilter.get(0).getClient().getName());
       }
-      application.decorator(
+      application.use(
           new SecurityFilterImpl(
               null,
               pac4j,

@@ -23,7 +23,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @since 2.0.4
  * @see Cors
  */
-public class CorsHandler implements Route.Decorator {
+public class CorsHandler implements Route.Filter {
 
   private static final String ORIGIN = "Origin";
 

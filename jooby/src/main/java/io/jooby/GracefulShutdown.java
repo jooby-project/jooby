@@ -39,7 +39,7 @@ public class GracefulShutdown implements Extension {
   @Override
   public void install(@NonNull Jooby application) throws Exception {
     GracefulShutdownHandler handler = new GracefulShutdownHandler(await);
-    application.decorator(handler);
+    application.use(handler);
     application.onStop(handler::shutdown);
   }
 }

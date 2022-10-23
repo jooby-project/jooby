@@ -18,7 +18,7 @@ public class Issue1344 {
 
   public static class App1344 extends Jooby {
     {
-      decorator(next -> ctx -> "<" + next.apply(ctx) + ">");
+      use(next -> ctx -> "<" + next.apply(ctx) + ">");
 
       get("/1344", Context::getRequestPath);
     }
@@ -30,7 +30,7 @@ public class Issue1344 {
     runner
         .define(
             app -> {
-              app.decorator(next -> ctx -> "[" + next.apply(ctx) + "]");
+              app.use(next -> ctx -> "[" + next.apply(ctx) + "]");
 
               app.use(new App1344());
             })

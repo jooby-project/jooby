@@ -11,7 +11,7 @@ import com.codahale.metrics.Timer;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 
-public class MetricsDecorator implements Route.Decorator {
+public class MetricsFilter implements Route.Filter {
 
   @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {

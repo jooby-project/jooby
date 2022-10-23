@@ -24,7 +24,7 @@ import io.jooby.Route;
 import io.jooby.pac4j.Pac4jContext;
 import io.jooby.pac4j.Pac4jOptions;
 
-public class SecurityFilterImpl implements Route.Decorator, Route.Handler {
+public class SecurityFilterImpl implements Route.Filter, Route.Handler {
 
   private String pattern;
 

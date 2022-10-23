@@ -22,7 +22,7 @@ public class Issue1413 {
     runner
         .define(
             app -> {
-              app.decorator(
+              app.use(
                   new CorsHandler(
                       new Cors()
                           .setMethods("*")
@@ -91,7 +91,7 @@ public class Issue1413 {
     runner
         .define(
             app -> {
-              app.decorator(
+              app.use(
                   new CorsHandler(
                       new Cors()
                           .setMethods("*")
@@ -160,7 +160,7 @@ public class Issue1413 {
     runner
         .define(
             app -> {
-              app.decorator(
+              app.use(
                   new CorsHandler(
                       new Cors()
                           .setMethods("GET", "POST", "HEAD", "OPTIONS")

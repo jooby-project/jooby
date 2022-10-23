@@ -18,7 +18,7 @@ public class RouteAttributeTest {
     runner
         .define(
             app -> {
-              app.decorator(
+              app.use(
                   next ->
                       ctx -> {
                         String role = (String) ctx.getRoute().attribute("Role");
@@ -54,7 +54,7 @@ public class RouteAttributeTest {
     runner
         .define(
             app -> {
-              app.decorator(
+              app.use(
                   next ->
                       ctx -> {
                         String foo = (String) ctx.getRoute().attribute("foo");

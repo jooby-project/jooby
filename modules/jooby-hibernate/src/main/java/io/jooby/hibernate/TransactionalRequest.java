@@ -38,7 +38,7 @@ import io.jooby.annotations.Transactional;
  *
  *   install(new HibernateModule());
  *
- *   decorator(new TransactionalRequest());
+ *   use(new TransactionalRequest());
  *
  *   get("/handle", ctx -> {
  *     EntityManager handle = require(EntityManager.class);
@@ -50,7 +50,7 @@ import io.jooby.annotations.Transactional;
  * @author edgar
  * @since 2.0.0
  */
-public class TransactionalRequest implements Route.Decorator {
+public class TransactionalRequest implements Route.Filter {
 
   private static final Logger log = LoggerFactory.getLogger(SessionRequest.class);
 

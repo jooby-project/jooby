@@ -43,12 +43,11 @@ import io.jooby.exception.UnsupportedMediaType;
 public class Route {
 
   /**
-   * Decorates a route handler by running logic before and after route handler. This pattern is also
-   * known as Filter.
+   * Decorates a route handler by running logic before and after route handler.
    *
    * <pre>{@code
    * {
-   *   decorator(next -> ctx -> {
+   *   use(next -> ctx -> {
    *     long start = System.currentTimeMillis();
    *     Object result = next.apply(ctx);
    *     long end = System.currentTimeMillis();
@@ -61,9 +60,9 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Decorator extends Aware {
+  public interface Filter extends Aware {
     /**
-     * Chain the decorator within next handler.
+     * Chain the filter within next handler.
      *
      * @param next Next handler.
      * @return A new handler.
@@ -71,17 +70,17 @@ public class Route {
     @NonNull Handler apply(@NonNull Handler next);
 
     /**
-     * Chain this decorator with another and produces a new decorator.
+     * Chain this filter with another and produces a new decorator.
      *
      * @param next Next decorator.
      * @return A new decorator.
      */
-    @NonNull default Decorator then(@NonNull Decorator next) {
+    @NonNull default Filter then(@NonNull Filter next) {
       return h -> apply(next.apply(h));
     }
 
     /**
-     * Chain this decorator with a handler and produces a new handler.
+     * Chain this filter with a handler and produces a new handler.
      *
      * @param next Next handler.
      * @return A new handler.
@@ -361,7 +360,7 @@ public class Route {
 
   private Before before;
 
-  private Decorator decorator;
+  private Filter filter;
 
   private Handler handler;
 
@@ -542,18 +541,18 @@ public class Route {
    *
    * @return Decorator or <code>null</code>.
    */
-  public @Nullable Decorator getDecorator() {
-    return decorator;
+  public @Nullable Filter getFilter() {
+    return filter;
   }
 
   /**
-   * Set route decorator.
+   * Set route filter.
    *
-   * @param decorator Decorator.
+   * @param filter Filter.
    * @return This route.
    */
-  public @NonNull Route setDecorator(@Nullable Decorator decorator) {
-    this.decorator = decorator;
+  public @NonNull Route setFilter(@Nullable Filter filter) {
+    this.filter = filter;
     return this;
   }
 
@@ -1008,7 +1007,7 @@ public class Route {
   }
 
   private Route.Handler computePipeline() {
-    Route.Handler pipeline = decorator == null ? handler : decorator.then(handler);
+    Route.Handler pipeline = filter == null ? handler : filter.then(handler);
 
     if (before != null) {
       pipeline = before.then(pipeline);

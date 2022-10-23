@@ -35,7 +35,7 @@ import io.jooby.ServiceKey;
  *
  *   install(new HibernateModule());
  *
- *   decorator(new SessionRequest());
+ *   use(new SessionRequest());
  *
  *   get("/handle", ctx -> {
  *     EntityManager handle = require(EntityManager.class);
@@ -50,7 +50,7 @@ import io.jooby.ServiceKey;
  *
  * @author Benjamin Quinn
  */
-public class SessionRequest implements Route.Decorator {
+public class SessionRequest implements Route.Filter {
 
   private static final Logger log = LoggerFactory.getLogger(SessionRequest.class);
 

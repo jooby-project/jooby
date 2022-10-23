@@ -72,13 +72,13 @@ Both of this filters are going to be executed before the real `handler`.
 [source, java]
 ----
 {
-   decorator(next -> ctx -> {
+   use(next -> ctx -> {
      System.out.println("first");
      // Moves execution to next handler: second
      return next.apply(ctx);
    });
    
-   decorator(next -> ctx -> {
+   use(next -> ctx -> {
      System.out.println("second");
      // Moves execution to next handler: third
      return next.apply(ctx);

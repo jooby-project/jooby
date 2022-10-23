@@ -485,8 +485,8 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Jooby decorator(@NonNull Route.Decorator decorator) {
-    router.decorator(decorator);
+  public Router use(@NonNull Route.Filter filter) {
+    router.use(filter);
     return this;
   }
 

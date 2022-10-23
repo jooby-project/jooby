@@ -593,12 +593,12 @@ public interface Router extends Registry {
   @NonNull Router setDefaultWorker(@NonNull Executor worker);
 
   /**
-   * Add a route decorator to the route pipeline.
+   * Attach a filter to the route pipeline.
    *
-   * @param decorator Decorator.
+   * @param filter Filter.
    * @return This router.
    */
-  @NonNull Router decorator(@NonNull Route.Decorator decorator);
+  @NonNull Router use(@NonNull Route.Filter filter);
 
   /**
    * Add a before route decorator to the route pipeline.

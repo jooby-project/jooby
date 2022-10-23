@@ -91,7 +91,7 @@ class Idioms :
     /** Router DSL: */
     before { ctx.path() }
     after { ctx.getRequestPath() }
-    decorator { next.apply(ctx) }
+    use { next.apply(ctx) }
     get("/") { ctx.path() }
     post("/") { ctx.path() }
     put("/") { ctx.path() }

@@ -17,7 +17,7 @@ import io.jooby.CorsHandler;
 ...
 {
   
-  decorator(new CorsHandler()); <1>
+  use(new CorsHandler()); <1>
   
   path("/api", () -> {
     // API methods
@@ -32,7 +32,7 @@ import io.jooby.Jooby
 import io.jooby.CorsHandler
 ...
 {
-  decorator(CorsHandler())      <1>
+  use(CorsHandler())      <1>
   
   path("/api") {
     // API methods
@@ -62,7 +62,7 @@ import io.jooby.CorsHandler;
   Cors cors = new Cors()
      .setMethods("GET", "POST", "PUT");      <1>
 
-  decorator(new CorsHandler(cors));          <2>
+  use(new CorsHandler(cors));          <2>
   
   path("/api", () -> {
     // API methods
@@ -81,7 +81,7 @@ import io.jooby.cors
   val cors = cors {
     methods = listOf("GET", "POST", "PUT")   <1>
   }
-  decorator(CorsHandler(cors))               <2>
+  use(CorsHandler(cors))               <2>
   
   path("/api") {
     // API methods
@@ -116,7 +116,7 @@ import io.jooby.CorsHandler;
 {
   Cors cors = Cors.from(getConfig());  <1>
 
-  decorator(new CorsHandler(cors));
+  use(new CorsHandler(cors));
   
   path("/api", () -> {
     // API methods
@@ -132,7 +132,7 @@ import io.jooby.CorsHandler
 ...
 {
   val cors = Cors.from(config)         <1>
-  decorator(CorsHandler(cors))
+  use(CorsHandler(cors))
   
   path("/api") {
     // API methods

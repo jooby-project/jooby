@@ -13,7 +13,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * <p>Usage:
  *
  * <pre>{@code
- * decorator(new HeadHandler());
+ * use(new HeadHandler());
  *
  * get("/some", ctx -> "...");
  *
@@ -22,7 +22,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @author edgar
  * @since 2.0.4
  */
-public class HeadHandler implements Route.Decorator {
+public class HeadHandler implements Route.Filter {
   @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
     // NOOP, but we need it for marking the route as HTTP HEAD

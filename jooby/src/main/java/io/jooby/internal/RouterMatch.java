@@ -54,13 +54,13 @@ public class RouterMatch implements Router.Match {
 
   public void methodNotAllowed(Set<String> allow) {
     String allowString = allow.stream().collect(Collectors.joining(","));
-    Route.Decorator decorator =
+    Route.Filter filter =
         next ->
             ctx -> {
               ctx.setResponseHeader("Allow", allowString);
               return next.apply(ctx);
             };
-    handler = decorator.then(Route.METHOD_NOT_ALLOWED);
+    handler = filter.then(Route.METHOD_NOT_ALLOWED);
   }
 
   @Override

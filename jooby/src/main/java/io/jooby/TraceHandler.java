@@ -17,7 +17,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @author edgar
  * @since 2.0.4
  */
-public class TraceHandler implements Route.Decorator {
+public class TraceHandler implements Route.Filter {
   private static final String CRLF = "\r\n";
 
   @NonNull @Override

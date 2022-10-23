@@ -130,8 +130,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun decorator(handler: DecoratorContext.() -> Any): Kooby {
-    super.decorator { next -> Route.Handler { ctx -> DecoratorContext(ctx, next).handler() } }
+  fun use(handler: FilterContext.() -> Any): Kooby {
+    super.use { next -> Route.Handler { ctx -> FilterContext(ctx, next).handler() } }
     return this
   }
 

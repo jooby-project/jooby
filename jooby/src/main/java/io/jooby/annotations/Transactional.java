@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * }
  * }</pre>
  *
- * <p>This annotation has no effect on the behavior of {@code SessionRequest} decorator(s).
+ * <p>This annotation has no effect on the behavior of {@code SessionRequest} use(s).
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

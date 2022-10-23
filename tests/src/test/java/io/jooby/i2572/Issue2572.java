@@ -36,7 +36,7 @@ public class Issue2572 {
                     return state;
                   });
 
-              app.decorator(
+              app.use(
                   next ->
                       ctx -> {
                         state.put("caller", Thread.currentThread().getName());

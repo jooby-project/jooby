@@ -18,7 +18,7 @@ import io.jooby.annotations.Transactional;
  *
  * @author edgar.
  */
-public class TransactionalRequest implements Route.Decorator {
+public class TransactionalRequest implements Route.Filter {
 
   private ServiceKey<Database> key;
 

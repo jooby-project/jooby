@@ -11,7 +11,7 @@ import org.jdbi.v3.core.Jdbi;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.RequestScope;
 import io.jooby.Route;
-import io.jooby.Route.Decorator;
+import io.jooby.Route.Filter;
 import io.jooby.ServiceKey;
 import io.jooby.annotations.Transactional;
 
@@ -30,7 +30,7 @@ import io.jooby.annotations.Transactional;
  *
  *   install(new JdbiModule());
  *
- *   decorator(new TransactionalRequest());
+ *   use(new TransactionalRequest());
  *
  *   get("/handle", ctx -> {
  *     Handle handle = require(Handle.class);
@@ -52,7 +52,7 @@ import io.jooby.annotations.Transactional;
  *     .sqlObjects(UserDAO.class)
  *   );
  *
- *   decorator(new TransactionalRequest());
+ *   use(new TransactionalRequest());
  *
  *   get("/handle", ctx -> {
  *     UserDAO dao = require(UserDAO.class);
@@ -66,7 +66,7 @@ import io.jooby.annotations.Transactional;
  * @author edgar
  * @since 2.0.0
  */
-public class TransactionalRequest implements Decorator {
+public class TransactionalRequest implements Filter {
 
   private ServiceKey<Jdbi> key;
 

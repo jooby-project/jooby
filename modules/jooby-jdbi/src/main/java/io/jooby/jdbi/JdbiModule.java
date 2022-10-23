@@ -140,7 +140,7 @@ public class JdbiModule implements Extension {
    *   .sqlObjects(UserDAO.class)
    * );
    *
-   * decorator(new TransactionalRequest());
+   * use(new TransactionalRequest());
    *
    * get("/users", ctx -> {
    *   UserDAO dao = require(UserDAO.class);

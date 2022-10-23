@@ -14,7 +14,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * <p>Usage:
  *
  * <pre>{@code
- *  decorator(new WebVariables());
+ *  use(new WebVariables());
  *
  * get("/", ctx -> new ModelAndView("index.ftl"));
  * }</pre>
@@ -28,7 +28,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @author edgar
  * @since 2.4.0
  */
-public class WebVariables implements Route.Decorator {
+public class WebVariables implements Route.Filter {
 
   private final String scope;
 

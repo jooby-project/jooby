@@ -13,7 +13,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 
-public class GracefulShutdownHandler implements Route.Decorator {
+public class GracefulShutdownHandler implements Route.Filter {
   private static final long SHUTDOWN_MASK = 1L << 63;
   private static final long ACTIVE_COUNT_MASK = (1L << 63) - 1;
 

@@ -16,7 +16,7 @@ public class Issue2477 {
     runner
         .define(
             app -> {
-              app.decorator(
+              app.use(
                   next ->
                       ctx -> {
                         Object value = next.apply(ctx);

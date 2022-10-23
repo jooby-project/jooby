@@ -94,7 +94,7 @@ public class RouterImpl implements Router {
     private RouteTree tree;
     private String pattern;
     private Executor executor;
-    private List<Route.Decorator> decoratorList = new ArrayList<>();
+    private List<Route.Filter> decoratorList = new ArrayList<>();
     private List<Route.Before> beforeList = new ArrayList<>();
     private List<Route.After> afterList = new ArrayList<>();
 
@@ -103,7 +103,7 @@ public class RouterImpl implements Router {
       this.pattern = pattern;
     }
 
-    public void then(Route.Decorator filter) {
+    public void then(Route.Filter filter) {
       decoratorList.add(filter);
     }
 
@@ -115,7 +115,7 @@ public class RouterImpl implements Router {
       beforeList.add(before);
     }
 
-    public Stream<Route.Decorator> toDecorator() {
+    public Stream<Route.Filter> toFilter() {
       return decoratorList.stream();
     }
 
@@ -381,9 +381,9 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override
-  @NonNull public Router decorator(@NonNull Route.Decorator decorator) {
-    stack.peekLast().then(decorator);
+  @NonNull @Override
+  public Router use(@NonNull Route.Filter filter) {
+    stack.peekLast().then(filter);
     return this;
   }
 
@@ -494,10 +494,10 @@ public class RouterImpl implements Router {
             .flatMap(Stack::toBefore)
             .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
-    /** Decorator: */
-    List<Route.Decorator> decoratorList =
-        stack.stream().flatMap(Stack::toDecorator).collect(Collectors.toList());
-    Route.Decorator decorator =
+    /** Filter: */
+    List<Route.Filter> decoratorList =
+        stack.stream().flatMap(Stack::toFilter).collect(Collectors.toList());
+    Route.Filter decorator =
         decoratorList.stream().reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** After: */
@@ -512,7 +512,7 @@ public class RouterImpl implements Router {
     route.setPathKeys(Router.pathKeys(safePattern));
     route.setBefore(before);
     route.setAfter(after);
-    route.setDecorator(decorator);
+    route.setFilter(decorator);
     route.setEncoder(encoder);
     route.setDecoders(decoders);
 
@@ -854,9 +854,8 @@ public class RouterImpl implements Router {
     return buff.length() > 0 ? buff.substring(1) : "";
   }
 
-  private Router newStack(
-      RouteTree tree, String pattern, Runnable action, Route.Decorator... decorator) {
-    return newStack(push(tree, pattern), action, decorator);
+  private Router newStack(RouteTree tree, String pattern, Runnable action, Route.Filter... filter) {
+    return newStack(push(tree, pattern), action, filter);
   }
 
   private Stack push(RouteTree tree) {
@@ -872,8 +871,7 @@ public class RouterImpl implements Router {
     return stack;
   }
 
-  private Router newStack(
-      @NonNull Stack stack, @NonNull Runnable action, Route.Decorator... filter) {
+  private Router newStack(@NonNull Stack stack, @NonNull Runnable action, Route.Filter... filter) {
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     if (action != null) {
@@ -889,10 +887,10 @@ public class RouterImpl implements Router {
             .map(filter -> Optional.ofNullable(src.getBefore()).map(filter::then).orElse(filter))
             .orElseGet(src::getBefore);
 
-    Route.Decorator decorator =
-        Optional.ofNullable(it.getDecorator())
-            .map(filter -> Optional.ofNullable(src.getDecorator()).map(filter::then).orElse(filter))
-            .orElseGet(src::getDecorator);
+    Route.Filter decorator =
+        Optional.ofNullable(it.getFilter())
+            .map(filter -> Optional.ofNullable(src.getFilter()).map(filter::then).orElse(filter))
+            .orElseGet(src::getFilter);
 
     Route.After after =
         Optional.ofNullable(it.getAfter())
@@ -900,7 +898,7 @@ public class RouterImpl implements Router {
             .orElseGet(src::getAfter);
 
     it.setBefore(before);
-    it.setDecorator(decorator);
+    it.setFilter(decorator);
     it.setAfter(after);
 
     it.setConsumes(src.getConsumes());

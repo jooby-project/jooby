@@ -118,7 +118,7 @@ import io.jooby.ebean.TransactionalRequest;
   
   install(new HibernateModule());
   
-  decorator(new TransactionalRequest());
+  use(new TransactionalRequest());
   
   post("/create", ctx -> {
     Database db = require(Database.class);
@@ -144,7 +144,7 @@ import io.jooby.ebean.TransactionalRequest
   
   install(HibernateModule())
   
-  decorator(TransactionalRequest())
+  use(TransactionalRequest())
   
   post("/create") { ctx ->
     val db = require(Database::class)
@@ -197,7 +197,7 @@ import io.jooby.ebean.TransactionalRequest;
 
 {
   ...
-  decorator(new TransactionalRequest().enabledByDefault(false));
+  use(new TransactionalRequest().enabledByDefault(false));
   ...
 }
 ----
@@ -209,7 +209,7 @@ import io.jooby.ebean.TransactionalRequest
 
 {
   ...
-  decorator(TransactionalRequest().enabledByDefault(false))
+  use(TransactionalRequest().enabledByDefault(false))
   ...
 }
 ----

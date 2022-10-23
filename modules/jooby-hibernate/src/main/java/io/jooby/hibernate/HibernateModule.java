@@ -125,7 +125,7 @@ import jakarta.inject.Provider;
  * looks more simple:
  *
  * <pre>{@code
- * decorator(new TransactionalRequest());
+ * use(new TransactionalRequest());
  *
  * get("/", ctx -> {
  *   EntityManager em = require(EntityManager.class);
