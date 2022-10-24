@@ -334,12 +334,14 @@ public class Route {
   /** Handler for {@link StatusCode#UNSUPPORTED_MEDIA_TYPE} responses. */
   public static final Route.Before SUPPORT_MEDIA_TYPE =
       ctx -> {
-        MediaType contentType = ctx.getRequestType();
-        if (contentType == null) {
-          throw new UnsupportedMediaType(null);
-        }
-        if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
-          throw new UnsupportedMediaType(contentType.getValue());
+        if (!ctx.isPreflight()) {
+          MediaType contentType = ctx.getRequestType();
+          if (contentType == null) {
+            throw new UnsupportedMediaType(null);
+          }
+          if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
+            throw new UnsupportedMediaType(contentType.getValue());
+          }
         }
       };
 

@@ -426,6 +426,16 @@ public interface Context extends Registry {
   @Nullable MediaType getRequestType();
 
   /**
+   * Test whenever this is a CORS preflight request.
+   *
+   * @return Test whenever this is a CORS preflight request.
+   */
+  default boolean isPreflight() {
+    return getMethod().equals(Router.OPTIONS)
+        && !header("Access-Control-Request-Method").isMissing();
+  }
+
+  /**
    * Request <code>Content-Type</code> header or <code>null</code> when missing.
    *
    * @param defaults Default content type to use when the header is missing.

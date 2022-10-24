@@ -73,7 +73,7 @@ public class CorsHandler implements Route.Filter {
           return ctx.send(StatusCode.FORBIDDEN);
         }
         log.debug("allowed origin: {}", origin);
-        if (isPreflight(ctx)) {
+        if (ctx.isPreflight()) {
           log.debug("handling preflight for: {}", origin);
           if (preflight(ctx, options, origin)) {
             return ctx;
@@ -138,10 +138,6 @@ public class CorsHandler implements Route.Filter {
   @NonNull @Override
   public void setRoute(@NonNull Route route) {
     route.setHttpOptions(true);
-  }
-
-  private boolean isPreflight(final Context ctx) {
-    return ctx.getMethod().equals(Router.OPTIONS) && !ctx.header(AC_REQUEST_METHOD).isMissing();
   }
 
   private boolean preflight(final Context ctx, final Cors options, final String origin) {
