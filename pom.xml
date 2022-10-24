@@ -20,11 +20,11 @@
 
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.31</freemarker.version>
-    <handlebars.version>4.3.0</handlebars.version>
-    <pebble.version>3.1.5</pebble.version>
+    <handlebars.version>4.3.1</handlebars.version>
+    <pebble.version>3.1.6</pebble.version>
     <jackson.version>2.13.4</jackson.version>
     <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
-    <jackson-databind.version>${jackson.version}</jackson-databind.version>
+    <jackson-databind.version>2.13.4.2</jackson-databind.version>
     <gson.version>2.9.1</gson.version>
     <jakarta.json.bind-api.version>3.0.0</jakarta.json.bind-api.version>
     <yasson.version>3.0.2</yasson.version>
@@ -69,7 +69,7 @@
     <jboss-modules.version>1.11.0.Final</jboss-modules.version>
 
     <!-- ASM -->
-    <asm.version>9.3</asm.version>
+    <asm.version>9.4</asm.version>
 
     <!-- Server -->
     <undertow.version>2.2.19.Final</undertow.version>
@@ -97,11 +97,11 @@
     <!-- Misc -->
     <okhttp.version>4.10.0</okhttp.version>
     <jsonwebtoken.version>0.11.5</jsonwebtoken.version>
-    <pac4j.version>4.5.6</pac4j.version>
+    <pac4j.version>4.5.7</pac4j.version>
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.1.6</cron-utils.version>
     <bucket4j-core.version>6.4.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.230</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.261</aws-java-sdk.version>
     <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
     <frontend-plugin-core.version>1.12.1</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -117,8 +117,7 @@
     <!-- Test dependencies -->
     <jacoco.version>0.8.8</jacoco.version>
     <junit.version>5.9.1</junit.version>
-    <rest-assured.version>5.1.0</rest-assured.version>
-    <checkstyle.version>10.3.3</checkstyle.version>
+    <rest-assured.version>5.2.0</rest-assured.version>
     <mockito.version>4.6.0</mockito.version>
     <guava.version>31.1-jre</guava.version>
 
@@ -137,7 +136,6 @@
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
     <maven-tiles-plugin.version>2.24</maven-tiles-plugin.version>
-    <maven-checkstyle-plugin.version>3.2.0</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
     <maven-core.version>3.8.5</maven-core.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
