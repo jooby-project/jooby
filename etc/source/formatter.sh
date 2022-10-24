@@ -7,14 +7,12 @@ then
   projectDir=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")
   # Generate a comma separated file from staged files and prepend the projectDir, required by spotless
   files=""
-  gitFiles=""
   count=0
   for file in $stagedFiles; do
     absfilepath="$projectDir$file"
     if [ -f "$absfilepath" ]
     then
       files+="$absfilepath,"
-      gitFiles+="$file\n"
       let count++
     fi
   done
