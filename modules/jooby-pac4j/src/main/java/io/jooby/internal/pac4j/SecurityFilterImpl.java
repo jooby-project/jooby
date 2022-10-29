@@ -92,6 +92,7 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
     String authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);
     return securityLogic.perform(
         ctx,
+        ctx.getSessionStore(),
         config,
         grantAccessAdapter,
         config.getHttpActionAdapter(),

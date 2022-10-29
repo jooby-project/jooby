@@ -31,10 +31,12 @@ public class LogoutImpl implements Route.Handler {
       redirectTo = options.getDefaultUrl();
     }
     redirectTo = ctx.getRequestURL(redirectTo);
+    Pac4jContext pac4jContext = Pac4jContext.create(ctx);
     return config
         .getLogoutLogic()
         .perform(
-            Pac4jContext.create(ctx),
+            pac4jContext,
+            pac4jContext.getSessionStore(),
             config,
             config.getHttpActionAdapter(),
             redirectTo,

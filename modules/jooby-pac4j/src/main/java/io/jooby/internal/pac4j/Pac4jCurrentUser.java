@@ -15,7 +15,8 @@ import io.jooby.pac4j.Pac4jContext;
 public class Pac4jCurrentUser implements Function<Context, Object> {
   @Override
   public Object apply(Context ctx) {
-    ProfileManager pm = new ProfileManager(Pac4jContext.create(ctx));
-    return pm.get(ctx.sessionOrNull() != null).orElse(null);
+    Pac4jContext pac4jContext = Pac4jContext.create(ctx);
+    ProfileManager pm = new ProfileManager(pac4jContext, pac4jContext.getSessionStore());
+    return pm.getProfile().orElse(null);
   }
 }

@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.pac4j;
 
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.WithContentAction;
@@ -15,16 +16,16 @@ import io.jooby.Context;
 import io.jooby.StatusCode;
 import io.jooby.pac4j.Pac4jContext;
 
-public class ActionAdapterImpl implements HttpActionAdapter<Object, Pac4jContext> {
+public class ActionAdapterImpl implements HttpActionAdapter {
 
   @Override
-  public Object adapt(HttpAction action, Pac4jContext context) {
+  public Object adapt(HttpAction action, WebContext context) {
     if (action == null) {
       // It is unclear when we reach this state:
       throw new TechnicalException("No action provided");
     }
     StatusCode statusCode = StatusCode.valueOf(action.getCode());
-    Context rsp = context.getContext();
+    Context rsp = ((Pac4jContext) context).getContext();
     if (action instanceof WithLocationAction) {
       return rsp.sendRedirect(statusCode, ((WithLocationAction) action).getLocation());
     } else if (action instanceof WithContentAction) {

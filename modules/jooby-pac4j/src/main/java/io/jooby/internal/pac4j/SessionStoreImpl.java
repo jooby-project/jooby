@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream;
 import java.util.Base64;
 import java.util.Optional;
 
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.BadRequestAction;
 import org.pac4j.core.exception.http.ForbiddenAction;
@@ -35,32 +36,45 @@ import org.pac4j.core.exception.http.UnauthorizedAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
 
+import io.jooby.Context;
 import io.jooby.Session;
 import io.jooby.SneakyThrows;
 import io.jooby.Value;
 import io.jooby.pac4j.Pac4jContext;
 
-public class SessionStoreImpl implements org.pac4j.core.context.session.SessionStore<Pac4jContext> {
+public class SessionStoreImpl implements org.pac4j.core.context.session.SessionStore {
 
   private static final String PAC4J = "p4j~";
 
   private static final String BIN = "b64~";
 
-  private Session getSession(Pac4jContext context) {
-    return context.getContext().session();
+  private Session getSession(WebContext context) {
+    return context(context).session();
   }
 
-  private Optional<Session> getSessionOrEmpty(Pac4jContext context) {
-    return Optional.ofNullable(context.getContext().sessionOrNull());
+  private Pac4jContext pac4jContext(WebContext context) {
+    return (Pac4jContext) context;
+  }
+
+  private Context context(WebContext context) {
+    return pac4jContext(context).getContext();
+  }
+
+  private Optional<Session> getSessionOrEmpty(WebContext context) {
+    return Optional.ofNullable(context(context).sessionOrNull());
   }
 
   @Override
-  public String getOrCreateSessionId(Pac4jContext context) {
-    return getSession(context).getId();
+  public Optional<String> getSessionId(WebContext context, boolean createSession) {
+    if (createSession) {
+      return Optional.of(getSession(context).getId());
+    } else {
+      return getSessionOrEmpty(context).map(Session::getId);
+    }
   }
 
   @Override
-  public Optional<Object> get(Pac4jContext context, String key) {
+  public Optional<Object> get(WebContext context, String key) {
     Optional sessionValue =
         getSessionOrEmpty(context)
             .map(session -> session.get(key))
@@ -70,7 +84,7 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
   }
 
   @Override
-  public void set(Pac4jContext context, String key, Object value) {
+  public void set(WebContext context, String key, Object value) {
     if (value == null || value.toString().length() == 0) {
       getSessionOrEmpty(context).ifPresent(session -> session.remove(key));
     } else {
@@ -80,20 +94,20 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
   }
 
   @Override
-  public boolean destroySession(Pac4jContext context) {
+  public boolean destroySession(WebContext context) {
     Optional<Session> session = getSessionOrEmpty(context);
     session.ifPresent(Session::destroy);
     return session.isPresent();
   }
 
   @Override
-  public Optional getTrackableSession(Pac4jContext context) {
+  public Optional getTrackableSession(WebContext context) {
     return getSessionOrEmpty(context);
   }
 
   @Override
-  public Optional<SessionStore<Pac4jContext>> buildFromTrackableSession(
-      Pac4jContext context, Object trackableSession) {
+  public Optional<SessionStore> buildFromTrackableSession(
+      WebContext context, Object trackableSession) {
     if (trackableSession != null) {
       return Optional.of(new SessionStoreImpl());
     }
@@ -101,8 +115,8 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
   }
 
   @Override
-  public boolean renewSession(Pac4jContext context) {
-    // getSessionOrEmpty(context).ifPresent(session -> session.renewId());
+  public boolean renewSession(WebContext context) {
+    getSessionOrEmpty(context).ifPresent(session -> session.renewId());
     return true;
   }
 

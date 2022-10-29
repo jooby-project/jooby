@@ -33,12 +33,11 @@ public class CallbackFilterImpl implements Route.Handler {
             .getCallbackLogic()
             .perform(
                 pac4j,
+                pac4j.getSessionStore(),
                 config,
                 config.getHttpActionAdapter(),
                 options.getDefaultUrl(),
                 options.getSaveInSession(),
-                options.getMultiProfile(),
-                options.getRenewSession(),
                 options.getDefaultClient());
 
     return result == null ? ctx : result;

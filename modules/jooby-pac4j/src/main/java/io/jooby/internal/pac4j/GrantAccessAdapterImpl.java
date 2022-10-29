@@ -8,6 +8,8 @@ package io.jooby.internal.pac4j;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.SecurityGrantedAccessAdapter;
 import org.pac4j.core.profile.UserProfile;
 
@@ -15,7 +17,7 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.pac4j.Pac4jContext;
 
-public class GrantAccessAdapterImpl implements SecurityGrantedAccessAdapter<Object, Pac4jContext> {
+public class GrantAccessAdapterImpl implements SecurityGrantedAccessAdapter {
   private final Context ctx;
   private final Route.Handler next;
 
@@ -25,11 +27,15 @@ public class GrantAccessAdapterImpl implements SecurityGrantedAccessAdapter<Obje
   }
 
   @Override
-  public Object adapt(Pac4jContext context, Collection<UserProfile> profiles, Object... parameters)
+  public Object adapt(
+      WebContext webContext,
+      SessionStore sessionStore,
+      Collection<UserProfile> profiles,
+      Object... objects)
       throws Exception {
     Iterator<UserProfile> iterator = profiles.iterator();
     if (iterator.hasNext()) {
-      context.getContext().setUser(iterator.next());
+      ((Pac4jContext) webContext).getContext().setUser(iterator.next());
     }
     return next.apply(ctx);
   }

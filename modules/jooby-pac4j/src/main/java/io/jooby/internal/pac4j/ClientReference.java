@@ -25,7 +25,7 @@ public class ClientReference {
     this.clientClass = requireNonNull(clientClass);
   }
 
-  public ClientReference(Client<?> client) {
+  public ClientReference(Client client) {
     this.client = requireNonNull(client);
   }
 

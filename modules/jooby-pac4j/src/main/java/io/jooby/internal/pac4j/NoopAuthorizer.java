@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.profile.UserProfile;
 
 /**
  * We need this to turn off the default {@link
@@ -19,7 +21,8 @@ public class NoopAuthorizer implements Authorizer {
   public static final String NAME = NoopAuthorizer.class.getName();
 
   @Override
-  public boolean isAuthorized(WebContext context, List profiles) {
+  public boolean isAuthorized(
+      WebContext context, SessionStore sessionStore, List<UserProfile> profiles) {
     return true;
   }
 }
