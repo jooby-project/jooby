@@ -22,7 +22,7 @@
   <asm.version>9.4</asm.version>
   <auto-service.version>1.0.1</auto-service.version>
   <aws-java-sdk.version>1.12.261</aws-java-sdk.version>
-  <bucket4j-core.version>6.4.1</bucket4j-core.version>
+  <bucket4j-core.version>7.6.0</bucket4j-core.version>
   <caffeine.version>3.1.1</caffeine.version>
   <commons-email.version>1.5</commons-email.version>
   <commons-io.version>2.11.0</commons-io.version>
