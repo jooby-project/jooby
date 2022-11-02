@@ -467,6 +467,9 @@ public class HandlerCompilerTest {
 
           assertEquals("doPost",
               router.post("/jaxrs/post", MockContextHelper.mockContext()).value());
+
+          assertEquals("1431",
+              router.put("/jaxrs/put/1431", MockContextHelper.mockContext()).value());
         })
     ;
   }

@@ -69,6 +69,8 @@ public interface Annotations {
   String JAXRS_CONTEXT = "javax.ws.rs.core.Context";
   /** JAXRS Query Param. */
   String JAXRS_QUERY = "javax.ws.rs.QueryParam";
+  /** JAXRS Path Param. */
+  String JAXRS_PATH_PARAM = "javax.ws.rs.PathParam";
   /** JAXRS Cookie Param. */
   String JAXRS_COOKIE = "javax.ws.rs.CookieParam";
   /** JAXRS Header Param. */
@@ -108,7 +110,9 @@ public interface Annotations {
   /**
    * Path parameters.
    */
-  Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PathParam.class.getName())));
+  Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
+      PathParam.class.getName(), JAXRS_PATH_PARAM
+  )));
 
   /** Context params. */
   Set<String> CONTEXT_PARAMS = unmodifiableSet(
