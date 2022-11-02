@@ -69,6 +69,8 @@ public interface Annotations {
   String JAXRS_CONTEXT = "jakarta.ws.rs.core.Context";
   /** JAXRS Query Param. */
   String JAXRS_QUERY = "jakarta.ws.rs.QueryParam";
+  /** JAXRS Path Param. */
+  String JAXRS_PATH_PARAM = "jakarta.ws.rs.PathParam";
   /** JAXRS Cookie Param. */
   String JAXRS_COOKIE = "jakarta.ws.rs.CookieParam";
   /** JAXRS Header Param. */
@@ -105,7 +107,8 @@ public interface Annotations {
                   TRACE.class.getName())));
 
   /** Path parameters. */
-  Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PathParam.class.getName())));
+  Set<String> PATH_PARAMS =
+      unmodifiableSet(new LinkedHashSet<>(asList(PathParam.class.getName(), JAXRS_PATH_PARAM)));
 
   /** Context params. */
   Set<String> CONTEXT_PARAMS =

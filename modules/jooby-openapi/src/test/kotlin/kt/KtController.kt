@@ -7,11 +7,7 @@ package kt
 
 import examples.ABean
 import jakarta.inject.Named
-import jakarta.ws.rs.DELETE
-import jakarta.ws.rs.GET
-import jakarta.ws.rs.HeaderParam
-import jakarta.ws.rs.Path
-import jakarta.ws.rs.QueryParam
+import jakarta.ws.rs.*
 import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.delay
 
@@ -20,6 +16,12 @@ class KtController {
   @GET
   fun doSomething(): String {
     return ""
+  }
+
+  @PUT
+  @Path("/entity/{id}")
+  fun replaceEntity(@PathParam("id") id: String): String {
+    return id
   }
 
   @DELETE @Path("/unit") fun doUnit() {}
