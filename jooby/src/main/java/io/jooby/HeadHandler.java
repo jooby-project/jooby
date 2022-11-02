@@ -6,6 +6,7 @@
 package io.jooby;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.internal.HeadContext;
 
 /**
  * Add support for HTTP Head requests.
@@ -25,8 +26,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 public class HeadHandler implements Route.Filter {
   @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
-    // NOOP, but we need it for marking the route as HTTP HEAD
-    return ctx -> next.apply(ctx);
+    return ctx ->
+        ctx.getMethod().equals(Router.HEAD) ? next.apply(new HeadContext(ctx)) : next.apply(ctx);
   }
 
   @NonNull @Override

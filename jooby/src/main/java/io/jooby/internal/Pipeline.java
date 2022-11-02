@@ -142,54 +142,37 @@ public class Pipeline {
       if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
         return next(mode, executor, new DetachHandler(route.getPipeline()), false);
       }
-      return next(
-          mode, executor, decorate(route, initializer, new SendDirect(route.getPipeline())), true);
+      return next(mode, executor, decorate(initializer, new SendDirect(route.getPipeline())), true);
     }
     /** InputStream: */
     if (InputStream.class.isAssignableFrom(type)) {
-      return next(
-          mode, executor, decorate(route, initializer, new SendStream(route.getPipeline())), true);
+      return next(mode, executor, decorate(initializer, new SendStream(route.getPipeline())), true);
     }
     /** FileChannel: */
     if (FileChannel.class.isAssignableFrom(type)
         || Path.class.isAssignableFrom(type)
         || File.class.isAssignableFrom(type)) {
       return next(
-          mode,
-          executor,
-          decorate(route, initializer, new SendFileChannel(route.getPipeline())),
-          true);
+          mode, executor, decorate(initializer, new SendFileChannel(route.getPipeline())), true);
     }
     /** FileDownload: */
     if (FileDownload.class.isAssignableFrom(type)) {
       return next(
-          mode,
-          executor,
-          decorate(route, initializer, new SendAttachment(route.getPipeline())),
-          true);
+          mode, executor, decorate(initializer, new SendAttachment(route.getPipeline())), true);
     }
     /** Strings: */
     if (CharSequence.class.isAssignableFrom(type)) {
       return next(
-          mode,
-          executor,
-          decorate(route, initializer, new SendCharSequence(route.getPipeline())),
-          true);
+          mode, executor, decorate(initializer, new SendCharSequence(route.getPipeline())), true);
     }
     /** RawByte: */
     if (byte[].class == type) {
       return next(
-          mode,
-          executor,
-          decorate(route, initializer, new SendByteArray(route.getPipeline())),
-          true);
+          mode, executor, decorate(initializer, new SendByteArray(route.getPipeline())), true);
     }
     if (ByteBuffer.class.isAssignableFrom(type)) {
       return next(
-          mode,
-          executor,
-          decorate(route, initializer, new SendByteBuffer(route.getPipeline())),
-          true);
+          mode, executor, decorate(initializer, new SendByteBuffer(route.getPipeline())), true);
     }
 
     if (responseHandler != null) {
@@ -201,28 +184,22 @@ public class Pipeline {
                   next(
                       mode,
                       executor,
-                      decorate(route, initializer, factory.create(route.getPipeline())),
+                      decorate(initializer, factory.create(route.getPipeline())),
                       true))
           .orElseGet(
               () ->
                   next(
                       mode,
                       executor,
-                      decorate(route, initializer, new DefaultHandler(route.getPipeline())),
+                      decorate(initializer, new DefaultHandler(route.getPipeline())),
                       true));
     }
     return next(
-        mode,
-        executor,
-        decorate(route, initializer, new DefaultHandler(route.getPipeline())),
-        true);
+        mode, executor, decorate(initializer, new DefaultHandler(route.getPipeline())), true);
   }
 
-  private static Handler decorate(Route route, ContextInitializer initializer, Handler handler) {
+  private static Handler decorate(ContextInitializer initializer, Handler handler) {
     Handler pipeline = handler;
-    if (route.isHttpHead()) {
-      pipeline = new HeadResponseHandler(pipeline);
-    }
     if (initializer == null) {
       return pipeline;
     }
@@ -234,8 +211,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(
-            decorate(next, initializer, new CompletionStageHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new CompletionStageHandler(next.getPipeline()))),
         false);
   }
 
@@ -244,7 +220,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(decorate(next, initializer, new RxFlowableHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new RxFlowableHandler(next.getPipeline()))),
         false);
   }
 
@@ -253,8 +229,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(
-            decorate(next, initializer, new ReactivePublisherHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new ReactivePublisherHandler(next.getPipeline()))),
         false);
   }
 
@@ -263,7 +238,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(decorate(next, initializer, new SendDirect(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new SendDirect(next.getPipeline()))),
         false);
   }
 
@@ -272,7 +247,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(decorate(next, initializer, new ObservableHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new ObservableHandler(next.getPipeline()))),
         false);
   }
 
@@ -281,7 +256,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(decorate(next, initializer, new ReactorFluxHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new ReactorFluxHandler(next.getPipeline()))),
         false);
   }
 
@@ -290,7 +265,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(decorate(next, initializer, new ReactorMonoHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new ReactorMonoHandler(next.getPipeline()))),
         false);
   }
 
@@ -299,14 +274,14 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(decorate(next, initializer, new KotlinJobHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new KotlinJobHandler(next.getPipeline()))),
         false);
   }
 
   private static Handler kotlinContinuation(
       ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
     return next(
-        mode, executor, new DetachHandler(decorate(next, initializer, next.getPipeline())), false);
+        mode, executor, new DetachHandler(decorate(initializer, next.getPipeline())), false);
   }
 
   private static Handler single(
@@ -314,7 +289,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(decorate(next, initializer, new RxSingleHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new RxSingleHandler(next.getPipeline()))),
         false);
   }
 
@@ -323,7 +298,7 @@ public class Pipeline {
     return next(
         mode,
         executor,
-        new DetachHandler(decorate(next, initializer, new RxMaybeHandler(next.getPipeline()))),
+        new DetachHandler(decorate(initializer, new RxMaybeHandler(next.getPipeline()))),
         false);
   }
 

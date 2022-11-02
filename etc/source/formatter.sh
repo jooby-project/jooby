@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 mkdir -p tmp
-stagedFiles=$(git diff --staged --name-only | grep ".*\(java\|kt\)$")
+stagedFiles=$(git diff --staged --diff-filter=d --name-only | grep ".*\(java\|kt\)$")
 if [ "$stagedFiles" != "" ]
 then
   # top/parent directory:
