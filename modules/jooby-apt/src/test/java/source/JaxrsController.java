@@ -2,10 +2,7 @@ package source;
 
 import io.jooby.Context;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 
 @Path("/jaxrs")
 public class JaxrsController {
@@ -23,5 +20,10 @@ public class JaxrsController {
   @GET @Path("/query")
   public String doGet(@QueryParam("q1") String queryParam) {
     return queryParam;
+  }
+
+  @PUT @Path("/put/{id}")
+  public String doPut(@PathParam("id") String id) {
+    return id;
   }
 }

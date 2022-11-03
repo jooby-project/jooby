@@ -4,17 +4,19 @@ import examples.ABean
 import kotlinx.coroutines.delay
 import java.util.concurrent.CompletableFuture
 import javax.inject.Named
-import javax.ws.rs.DELETE
-import javax.ws.rs.GET
-import javax.ws.rs.HeaderParam
-import javax.ws.rs.Path
-import javax.ws.rs.QueryParam
+import javax.ws.rs.*
 
 object KtObjectController {
 
   @GET
   fun doSomething(): String {
     return ""
+  }
+
+  @PUT
+  @Path("/entity/{id}")
+  fun replaceEntity(@PathParam("id") id: String): String {
+    return id
   }
 
   @DELETE
