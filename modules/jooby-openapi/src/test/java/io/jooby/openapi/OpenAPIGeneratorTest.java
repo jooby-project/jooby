@@ -1461,6 +1461,17 @@ public class OpenAPIGeneratorTest {
               assertEquals("GET /", route.toString());
               assertEquals(String.class.getName(), route.getDefaultResponse().toString());
             })
+        .next((route, args)  -> {
+          assertEquals("PUT /entity/{id}", route.toString());
+          assertEquals(String.class.getName(), route.getDefaultResponse().toString());
+          args
+              .next(arg -> {
+                assertEquals("id", arg.getName());
+                assertEquals("java.lang.String", arg.getJavaType());
+                assertEquals("path", arg.getIn());
+                assertTrue(arg.getRequired());
+              });
+        })
         .next(
             route -> {
               assertEquals("DELETE /unit", route.toString());
