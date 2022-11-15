@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-mkdir -p tmp
 stagedFiles=$(git diff --staged --diff-filter=d --name-only | grep ".*\(java\|kt\)$")
 if [ "$stagedFiles" != "" ]
 then
@@ -17,7 +16,7 @@ then
     fi
   done
 
-  if [ count > 0 ]
+  if (( $count > 0 ))
   then
     echo "formatting ${count} file(s)"
     mvn spotless:apply -DspotlessFiles="$files" -q
