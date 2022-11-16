@@ -2,7 +2,7 @@
 [![Javadoc](https://javadoc.io/badge/io.jooby/jooby.svg)](https://javadoc.io/doc/io.jooby/jooby/latest)
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=2.x)](https://travis-ci.org/jooby-project/jooby)
 [![Github](https://github.com/jooby-project/jooby/workflows/Full%20Build/badge.svg)](https://github.com/jooby-project/jooby/actions)
-[![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![slack](https://img.shields.io/badge/slack-brigade-brightgreen.svg?logo=slack)](https://joobyio.slack.com)
 [![Become a Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://patreon.com/edgarespina)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?logo=paypal&style=flat-square)](https://paypal.me/edgarespina)
 
@@ -50,7 +50,7 @@ Documentation is available at [https://jooby.io](https://jooby.io)
 help
 =====
 
-[Gitter](https://gitter.im/jooby-project/jooby)
+[Slack](https://joobyio.slack.com)
 
 donate & support
 =====
