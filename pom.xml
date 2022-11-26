@@ -22,9 +22,9 @@
     <freemarker.version>2.3.31</freemarker.version>
     <handlebars.version>4.3.1</handlebars.version>
     <pebble.version>3.1.6</pebble.version>
-    <jackson.version>2.14.0</jackson.version>
+    <jackson.version>2.14.1</jackson.version>
     <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
-    <jackson-databind.version>2.13.4.2</jackson-databind.version>
+    <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <gson.version>2.9.1</gson.version>
     <jakarta.json.bind-api.version>3.0.0</jakarta.json.bind-api.version>
     <yasson.version>3.0.2</yasson.version>
@@ -74,7 +74,7 @@
     <!-- Server -->
     <undertow.version>2.2.19.Final</undertow.version>
     <jetty.version>11.0.11</jetty.version>
-    <netty.version>4.1.84.Final</netty.version>
+    <netty.version>4.1.85.Final</netty.version>
 
     <!-- Reactive -->
     <rxjava.version>2.2.21</rxjava.version>
@@ -101,8 +101,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.1.6</cron-utils.version>
     <bucket4j-core.version>7.6.0</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.261</aws-java-sdk.version>
-    <jmespath-java.version>${aws-java-sdk.version}</jmespath-java.version>
+    <aws-java-sdk.version>1.12.349</aws-java-sdk.version>
     <frontend-plugin-core.version>1.12.1</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -172,6 +171,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.outputTimestamp>10</project.build.outputTimestamp>
     <timestamp>${maven.build.timestamp}</timestamp>
 
     <pre-commit-hook>etc${file.separator}source${file.separator}formatter.sh</pre-commit-hook>
@@ -225,6 +225,21 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>${netty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-bom</artifactId>
+        <version>${aws-java-sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
       <!-- Jooby -->
       <dependency>
         <groupId>io.jooby</groupId>
@@ -987,15 +1002,6 @@
         <version>${jasypt.version}</version>
       </dependency>
 
-      <!-- AWS SDK v1 -->
-      <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-bom</artifactId>
-        <version>${aws-java-sdk.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
       <!-- Kotlin -->
       <dependency>
         <groupId>org.jetbrains.kotlin</groupId>
@@ -1589,10 +1595,12 @@
             <executions>
               <execution>
                 <id>enforce-versions</id>
+                <phase>initialize</phase>
                 <goals>
                   <goal>enforce</goal>
                 </goals>
                 <configuration>
+                  <failFast>true</failFast>
                   <rules>
                     <requireMavenVersion>
                       <version>[3.5,)</version>
@@ -1600,6 +1608,7 @@
                     <requireJavaVersion>
                       <version>[${maven.compiler.source},)</version>
                     </requireJavaVersion>
+                    <banDuplicatePomDependencyVersions />
                   </rules>
                 </configuration>
               </execution>
