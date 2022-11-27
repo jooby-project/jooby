@@ -13,7 +13,7 @@
 
   <description>The modular web framework for Java and Kotlin</description>
 
-  <url>https://github.com/jooby-project/jooby</url>
+  <url>https://jooby.io</url>
 
   <properties>
     <shaded.package>io.jooby.internal.\$shaded</shaded.package>
@@ -191,7 +191,7 @@
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
 
