@@ -9,6 +9,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
+  <groupId>io.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
   <packaging>pom</packaging>
   <version>@version</version>
@@ -37,5 +38,19 @@
     <developerConnection>scm:git:git@github.com:jooby-project/jooby.git</developerConnection>
     <url>scm:git:git@github.com:jooby-project/jooby.git</url>
   </scm>
+
+  <!-- We need this here for pre-commit-hook while applying formatter -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.27.2</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

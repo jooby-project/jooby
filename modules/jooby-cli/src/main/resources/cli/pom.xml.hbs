@@ -32,6 +32,7 @@
     <dependency>
       <groupId>{{groupId}}</groupId>
       <artifactId>{{artifactId}}</artifactId>
+      {{#if version}}<version>{{version}}</version>{{/if}}
     </dependency>
 
   {{/each}}
@@ -40,6 +41,7 @@
     <dependency>
       <groupId>{{groupId}}</groupId>
       <artifactId>{{artifactId}}</artifactId>
+      {{#if version}}<version>{{version}}</version>{{/if}}
       <scope>test</scope>
     </dependency>
 

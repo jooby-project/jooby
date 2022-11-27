@@ -170,7 +170,6 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.build.outputTimestamp>10</project.build.outputTimestamp>
     <timestamp>${maven.build.timestamp}</timestamp>
 
     <pre-commit-hook>etc${file.separator}source${file.separator}formatter.sh</pre-commit-hook>

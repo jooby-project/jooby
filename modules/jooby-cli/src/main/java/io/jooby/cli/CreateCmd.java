@@ -157,7 +157,8 @@ public class CreateCmd extends Cmd {
     }
 
     Map<String, Object> model = new HashMap<>();
-    model.putAll(ctx.getDependencyMap());
+    Map<String, String> dependencyMap = ctx.getDependencyMap();
+    model.putAll(dependencyMap);
 
     model.put("package", packageName);
     model.put("groupId", packageName);
@@ -166,8 +167,8 @@ public class CreateCmd extends Cmd {
     model.put("joobyVersion", ctx.getVersion());
     model.put("server", server);
     model.put("kotlin", kotlin);
-    model.put("dependencies", dependencies(server, kotlin));
-    model.put("testDependencies", testDependencies(kotlin));
+    model.put("dependencies", dependencies(dependencyMap, server, kotlin));
+    model.put("testDependencies", testDependencies(dependencyMap, kotlin));
     model.put("stork", stork);
     model.put("gradle", gradle);
     model.put("maven", !gradle);
@@ -299,22 +300,32 @@ public class CreateCmd extends Cmd {
         wrapperDir.resolve("gradle-wrapper.properties"));
   }
 
-  private List<Dependency> dependencies(String server, boolean kotlin) {
+  private List<Dependency> dependencies(
+      Map<String, String> dependencyMap, String server, boolean kotlin) {
     List<Dependency> dependencies = new ArrayList<>();
-    dependencies.add(new Dependency("io.jooby", "jooby-" + server));
+    dependencies.add(new Dependency("io.jooby", "jooby-" + server, null));
     if (kotlin) {
-      dependencies.add(new Dependency("org.jetbrains.kotlin", "kotlin-stdlib-jdk8"));
+      dependencies.add(
+          new Dependency(
+              "org.jetbrains.kotlin", "kotlin-stdlib-jdk8", dependencyMap.get("kotlinVersion")));
     }
-    dependencies.add(new Dependency("ch.qos.logback", "logback-classic"));
+    dependencies.add(
+        new Dependency(
+            "ch.qos.logback", "logback-classic", dependencyMap.get("logbackClassicVersion")));
     return dependencies;
   }
 
-  private List<Dependency> testDependencies(boolean kotlin) {
+  private List<Dependency> testDependencies(Map<String, String> dependencyMap, boolean kotlin) {
     List<Dependency> dependencies = new ArrayList<>();
-    dependencies.add(new Dependency("org.junit.jupiter", "junit-jupiter-api"));
-    dependencies.add(new Dependency("org.junit.jupiter", "junit-jupiter-engine"));
-    dependencies.add(new Dependency("io.jooby", "jooby-test"));
-    dependencies.add(new Dependency("com.squareup.okhttp3", "okhttp"));
+    dependencies.add(
+        new Dependency(
+            "org.junit.jupiter", "junit-jupiter-api", dependencyMap.get("junitVersion")));
+    dependencies.add(
+        new Dependency(
+            "org.junit.jupiter", "junit-jupiter-engine", dependencyMap.get("junitVersion")));
+    dependencies.add(new Dependency("io.jooby", "jooby-test", null));
+    dependencies.add(
+        new Dependency("com.squareup.okhttp3", "okhttp", dependencyMap.get("okhttpVersion")));
     return dependencies;
   }
 }

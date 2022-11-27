@@ -43,6 +43,12 @@
       <version>${slf4j.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.vdurmont</groupId>
+      <artifactId>semver4j</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/org.jline/jline -->
     <dependency>
       <groupId>org.jline</groupId>

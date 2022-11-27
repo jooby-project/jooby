@@ -10,9 +10,12 @@ public class Dependency {
 
   private String artifactId;
 
-  public Dependency(String groupId, String artifactId) {
+  private String version;
+
+  public Dependency(String groupId, String artifactId, String version) {
     this.groupId = groupId;
     this.artifactId = artifactId;
+    this.version = version;
   }
 
   public String getGroupId() {
@@ -23,8 +26,14 @@ public class Dependency {
     return artifactId;
   }
 
+  public String getVersion() {
+    return version;
+  }
+
   @Override
   public String toString() {
-    return groupId + ":" + artifactId;
+    return version == null
+        ? groupId + ":" + artifactId
+        : groupId + ":" + artifactId + ":" + version;
   }
 }

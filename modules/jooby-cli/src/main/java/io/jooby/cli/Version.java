@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.vdurmont.semver4j.Semver;
 import picocli.CommandLine;
 
 /**
@@ -33,6 +34,12 @@ public class Version implements CommandLine.IVersionProvider {
   }
 
   private static String doVersion() {
+    String currentVersion =
+        Optional.ofNullable(Version.class.getPackage())
+            .map(Package::getImplementationVersion)
+            .filter(Objects::nonNull)
+            .orElse(null);
+
     try {
       URL url =
           URI.create(
@@ -44,13 +51,21 @@ public class Version implements CommandLine.IVersionProvider {
         Map response = (Map) json.get("response");
         List docs = (List) response.get("docs");
         Map jooby = (Map) docs.get(0);
-        return (String) jooby.get("latestVersion");
+        String publicVersion = (String) jooby.get("latestVersion");
+        if (currentVersion != null) {
+          Semver semver = new Semver(currentVersion);
+          if (semver.isGreaterThan(publicVersion)) {
+            return currentVersion;
+          }
+        }
+        return publicVersion;
       }
     } catch (Exception x) {
-      return Optional.ofNullable(Version.class.getPackage())
-          .map(Package::getImplementationVersion)
-          .filter(Objects::nonNull)
-          .orElse("2.15.0");
+      if (currentVersion == null) {
+        throw new IllegalStateException("Jooby version not found", x);
+      } else {
+        return currentVersion;
+      }
     }
   }
 }

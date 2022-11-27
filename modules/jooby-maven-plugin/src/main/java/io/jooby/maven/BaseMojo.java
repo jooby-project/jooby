@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +35,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectDependenciesResolver;
 import org.eclipse.aether.graph.Dependency;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**

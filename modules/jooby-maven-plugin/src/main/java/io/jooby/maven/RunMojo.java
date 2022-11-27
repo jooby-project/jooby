@@ -11,6 +11,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -24,7 +25,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import io.jooby.run.JoobyRun;
 import io.jooby.run.JoobyRunOptions;
 
