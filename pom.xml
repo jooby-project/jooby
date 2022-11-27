@@ -35,7 +35,6 @@
     <HikariCP.version>5.0.1</HikariCP.version>
     <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <h2.version>2.1.214</h2.version>
     <hibernate.version>5.6.11.Final</hibernate.version>
     <ebean.version>13.10.0</ebean.version>
     <jdbi.version>3.32.0</jdbi.version>
@@ -843,13 +842,6 @@
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-core</artifactId>
         <version>${jdbi.version}</version>
-      </dependency>
-
-      <!-- h2 -->
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2.version}</version>
       </dependency>
 
       <!-- jakarta.inject -->
