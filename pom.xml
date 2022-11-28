@@ -109,7 +109,7 @@
 
     <!-- Kotlin -->
     <kotlin.version>1.6.21</kotlin.version>
-    <kotlinx-coroutines-core.version>1.6.2</kotlinx-coroutines-core.version>
+    <kotlinx-coroutines-core.version>1.6.4</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
