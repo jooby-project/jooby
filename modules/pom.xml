@@ -50,6 +50,7 @@
     <module>jooby-rocker</module>
     <module>jooby-thymeleaf</module>
     <module>jooby-node</module>
+    <module>jooby-camel</module>
 
     <module>jooby-pac4j</module>
 
