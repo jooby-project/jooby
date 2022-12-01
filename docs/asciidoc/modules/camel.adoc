@@ -1,0 +1,176 @@
+== Camel
+
+Event bus module using https://camel.apache.org/docs[Camel]
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-camel"]
+.
+
+2) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.camel.CamelModule;
+
+{
+  install(new CamelModule(new MyRoutes()));                       <1>
+
+  get("/{msg}", ctx -> {
+    ProducerTemplate producer = require(ProducerTemplate.class);  <2>
+
+    producer.sendBody("direct:foo", ctx.path("msg").value());     <3>
+
+    ...
+  });
+}
+
+public class MyRoutes extends RouteBuilder {
+
+  @Override public void configure() throws Exception {
+    from("direct://foo")
+        .log("${body}");
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.camel.CamelModule
+
+{
+  install(CamelModule(MyRoutes()))                                <1>
+
+  get("/{msg}") {
+    val producer = require(ProducerTemplate::class);              <2>
+
+    producer.sendBody("direct:foo", ctx.path("msg").value())      <3>
+    ...
+  }
+}
+
+class MyRoutes: RouteBuilder() {
+
+  fun configure(): Unit {
+    from("direct://foo")
+        .bean(FooService.class)
+        .log("${body}")
+  }
+}
+----
+
+<1> Install Camel
+<2> Get ProducerTemplate
+<3> Send message to `direct:foo`
+
+=== Configuration files
+
+Camel module integrates with `application.conf` properties files:
+
+.application.conf
+[source, properties]
+----
+myprop = "my prop value"
+----
+
+.Java
+[source, java, role="primary"]
+----
+public class MyRoutes extends RouteBuilder {
+
+  @Override public void configure() throws Exception {
+    from("direct://foo")
+        .log("{{myprop}}");
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+class MyRoutes: RouteBuilder() {
+
+  fun configure(): Unit {
+    from("direct://foo")
+        .bean(FooService.class)
+        .log("{{myprop}}")
+  }
+}
+----
+
+See https://camel.apache.org/manual/using-propertyplaceholder.html[Property Placeholders]
+
+=== Dependency Injection Support
+
+Camel module integrates with `GuiceModule` or `SpringModule`. Here is an example with Guice:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.guice.GuiceModule;
+import io.jooby.camel.CamelModule;
+
+{
+  install(new CamelModule(MyRoutes.class));  <1>
+
+  install(new GuiceModule());                <2>
+}
+
+public class MyRoutes extends RouteBuilder {
+
+  @Override public void configure() throws Exception {
+    from("direct://foo")
+        .bean(FooService.class)              <3>
+        .log("${body}");
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.guice.GuiceModule
+import io.jooby.camel.CamelModule
+
+{
+  install(CamelModule(MyRoutes::class.java))  <1>
+
+  install(GuiceModule())                      <2>
+}
+
+class MyRoutes: RouteBuilder() {
+
+  fun configure(): Unit {
+    from("direct://foo")
+        .bean(FooService.class)               <3>
+        .log("${body}");
+  }
+}
+----
+
+<1> Install Camel. `MyRoutes` will be provisioning by Guice.
+<2> Install Guice
+<3> Also `FooService` will be provisioning by Guice
+
+[IMPORTANT]
+====
+  Keep in mind Camel beans are singleton by default, regardless of what dependency injection
+framework you choose.
+====
+
+=== Auto Configuration
+
+Camel modules can be fully configured from `application.conf` file.
+
+.application.conf
+[source, properties]
+----
+camel.main.name = My Camel Context
+camel.threadpool.poolSize = 10
+----
+
+See https://camel.apache.org/manual/camelcontext-autoconfigure.html[Auto Configuration] and  https://camel.apache.org/components/others/main.html[Camel Main Options]

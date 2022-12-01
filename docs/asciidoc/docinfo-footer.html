@@ -49,21 +49,12 @@
   });
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="/js/clipboard.min.js"></script>
 <script>
   $(function() {
-    new ClipboardJS('.clipboard', {
-      target: function(b) {
-        var p = b.parentNode;
-        var target = p.childNodes[0];
-        return target;
-      }
-    }).on('success', function(e) {
+    new ClipboardJS('.clipboard')
+    .on('success', function(e) {
       e.clearSelection();
-      e.trigger.textContent = 'Copied';
-      setTimeout(function() {
-        e.trigger.textContent = 'Copy';
-      }, 2000);
     });
   });
 </script>

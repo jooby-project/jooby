@@ -1302,7 +1302,7 @@ The `Foo` application must be lazy initialized:
 
 === Dynamic Routing
 
-Dynamic routing looks similar to <<composition, composition>> but enables/disables routes at runtime
+Dynamic routing looks similar to <<router-composing, composition>> but enables/disables routes at runtime
 using a `predicate`. 
 
 Suppose you own two versions of an `API` and for some time you need to support both the `old` and `new` APIs:

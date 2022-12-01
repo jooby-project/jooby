@@ -15,26 +15,11 @@ import java.util.function.Consumer;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.extension.BlockProcessor;
 import org.asciidoctor.extension.Reader;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 public class DependencyProcessor extends BlockProcessor {
 
-  private final Document pom;
-
   public DependencyProcessor(String name, Map<String, Object> config) throws IOException {
     super(name, config);
-    pom =
-        Jsoup.parse(
-            DocGenerator.basedir()
-                .getParent()
-                .resolve("modules")
-                .resolve("jooby-bom")
-                .resolve("pom.xml")
-                .toFile(),
-            "UTF-8");
   }
 
   @Override
@@ -62,34 +47,11 @@ public class DependencyProcessor extends BlockProcessor {
   }
 
   private String groupId(String artifactId) {
-    if (artifactId.startsWith("jooby-")) {
-      return "io.jooby";
-    }
-    return findArtifact(artifactId).select("groupId").text().trim();
+    return Dependencies.get(artifactId).groupId;
   }
 
   private String version(String artifactId) {
-    if (artifactId.startsWith("jooby-")) {
-      return pom.selectFirst("version").text().trim();
-    }
-    String version = findArtifact(artifactId).select("version").text().trim();
-    if (version.startsWith("${") && version.endsWith("}")) {
-      String versionProp = version.substring(2, version.length() - 1);
-      version =
-          pom.select("properties > *").stream()
-              .filter(it -> versionProp.equalsIgnoreCase(it.tagName()))
-              .findFirst()
-              .map(Element::text)
-              .orElseThrow(() -> new IllegalArgumentException("Missing version: " + artifactId));
-    }
-    return version;
-  }
-
-  private Element findArtifact(String artifactId) {
-    return dependencies().stream()
-        .filter(it -> it.select("artifactId").text().equalsIgnoreCase(artifactId))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Missing artifact: " + artifactId));
+    return Dependencies.get(artifactId).version;
   }
 
   private void gradle(String groupId, String[] artifactId, String version, Consumer<String> lines) {
@@ -145,9 +107,5 @@ public class DependencyProcessor extends BlockProcessor {
       lines.accept("</dependency>");
     }
     lines.accept("----");
-  }
-
-  private Elements dependencies() {
-    return pom.select("dependencyManagement").select("dependencies").select("dependency");
   }
 }

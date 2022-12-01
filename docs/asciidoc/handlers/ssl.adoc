@@ -83,7 +83,7 @@ import io.jooby.SSHandler
 }
 ----
 
-For more information about SSL, please check the <<server-ssl, configure SSL>> section.
+For more information about SSL, please check the <<server-https-support, configure SSL>> section.
 
 [TIP]
 ====

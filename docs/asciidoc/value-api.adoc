@@ -2,11 +2,10 @@
 
 The javadoc:Value[Value] is an unified and type-safe API across all parameter types:
 
-- <<http-header, Header>>
-- <<path, Path>>
-- <<query, Query>>
-- <<formdata, Formdata>>
-- <<multipart, Multipart>> 
+- Header
+- Path
+- Query
+- Formdata/Multipart
 
 For learning purpose we are going to show all the javadoc:Value[Value] features using query
 parameters, but keep in mind these features apply to all the parameter types.

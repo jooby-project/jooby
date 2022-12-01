@@ -69,7 +69,7 @@ Source code is available at https://github.com/jooby-project/jooby[GitHub]
 === Features
 
 * Lightweight and Fast. See https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=composite&l=xan9tr-1r[Tech Empower Benchmark]
-* Increase productivity with <<hot-reload, Hot-Reload for development>>
+* Increase productivity with <<development-compilation-restart, Hot-Reload for development>>
 * Script/lambda routes using fluent API
 * <<mvc-api, MVC routes>> using Jooby or JAX-RS annotations
 * link:modules/openapi[OpenAPI 3] supports

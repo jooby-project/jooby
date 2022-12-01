@@ -32,6 +32,9 @@ Available modules are listed next.
    * link:/modules/whoops[Whoops]: Pretty page stacktrace reporter.
    * link:/modules/metrics[Metrics]: Application metrics from the excellent metrics library.
 
+=== Event Bus
+  * link:/modules/camel[Camel]: Camel module for Jooby.
+
 === JSON
    * link:/modules/gson[Gson]: Gson module for Jooby.
    * link:/modules/jackson[Jackson]: Jackson module for Jooby.

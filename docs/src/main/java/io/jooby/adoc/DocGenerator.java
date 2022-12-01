@@ -5,6 +5,9 @@
  */
 package io.jooby.adoc;
 
+import static io.jooby.SneakyThrows.throwingConsumer;
+import static io.jooby.SneakyThrows.throwingFunction;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,95 +30,136 @@ import org.apache.commons.io.FileUtils;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Attributes;
 import org.asciidoctor.Options;
+import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.Placement;
 import org.asciidoctor.SafeMode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 
-import io.jooby.SneakyThrows;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
 
 public class DocGenerator {
   public static void main(String[] args) throws Exception {
     List<String> options = Arrays.asList(args);
-    generate(basedir(), options.contains("publish"), options.contains("v1"));
+    generate(basedir(), options.contains("publish"), options.contains("v1"), true);
   }
 
-  public static void generate(Path basedir, boolean publish, boolean v1) throws Exception {
+  public static void generate(Path basedir, boolean publish, boolean v1, boolean doAscii)
+      throws Exception {
     String version = version();
 
     Path asciidoc = basedir.resolve("asciidoc");
 
-    Path outdir = asciidoc.resolve("site");
-    if (!Files.exists(outdir)) {
-      Files.createDirectories(outdir);
+    String[] extraDirs = {"modules", "packaging", "usage"};
+    int adocCount =
+        Stream.of(extraDirs)
+            .map(throwingFunction(dir -> countAdoc(asciidoc.resolve(dir))))
+            .reduce(1, (a, b) -> a + b);
+    int steps = 7 + (doAscii ? adocCount : 0);
+
+    ProgressBarBuilder pbb =
+        new ProgressBarBuilder()
+            .setStyle(ProgressBarStyle.UNICODE_BLOCK)
+            .setInitialMax(steps)
+            .setTaskName("Building Site");
+
+    try (ProgressBar pb = pbb.build()) {
+
+      Path outdir = asciidoc.resolve("site");
+      if (!Files.exists(outdir)) {
+        Files.createDirectories(outdir);
+      }
+      pb.step();
+
+      /** Wipe out directory: */
+      FileUtils.cleanDirectory(outdir.toFile());
+      pb.step();
+
+      /** Copy /images and /js: */
+      copyFile(
+          outdir,
+          // images
+          basedir.resolve("images"),
+          // js
+          basedir.resolve("js"));
+      pb.step();
+
+      if (doAscii) {
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create();
+
+        asciidoctor.convertFile(
+            asciidoc.resolve("index.adoc").toFile(),
+            createOptions(asciidoc, outdir, version, null));
+        pb.step();
+
+        AtomicInteger m = new AtomicInteger();
+        Stream.of(extraDirs)
+            .forEach(
+                throwingConsumer(
+                    name -> {
+                      Path modules = outdir.resolve(name);
+                      Files.createDirectories(modules);
+                      Files.walk(asciidoc.resolve(name))
+                          .filter(Files::isRegularFile)
+                          .forEach(
+                              module -> {
+                                processModule(asciidoctor, asciidoc, module, outdir, name, version);
+                                pb.step();
+                                m.incrementAndGet();
+                              });
+                    }));
+      }
+
+      // post process
+      Files.walk(outdir)
+          .filter(it -> it.getFileName().toString().endsWith("index.html"))
+          .forEach(
+              throwingConsumer(
+                  it -> {
+                    Files.write(it, document(it).getBytes(StandardCharsets.UTF_8));
+                  }));
+      pb.step();
+
+      // LICENSE
+      Files.copy(
+          basedir.getParent().resolve("LICENSE"),
+          outdir.resolve("LICENSE.txt"),
+          StandardCopyOption.REPLACE_EXISTING);
+      pb.step();
+
+      if (v1) {
+        v1doc(basedir, outdir);
+      }
+      pb.step();
+
+      if (publish) {
+        Path website =
+            basedir
+                .resolve("target") // Paths.get(System.getProperty("java.io.tmpdir"))
+                .resolve(Long.toHexString(UUID.randomUUID().getMostSignificantBits()));
+        Files.createDirectories(website);
+        Git git = new Git("jooby-project", "jooby.io", website);
+        git.clone();
+
+        /** Clean: */
+        FileUtils.deleteDirectory(website.resolve("images").toFile());
+        FileUtils.deleteDirectory(website.resolve("js").toFile());
+        FileUtils.deleteQuietly(website.resolve("index.html").toFile());
+
+        FileUtils.copyDirectory(outdir.toFile(), website.toFile());
+        git.commit(version);
+      }
+      pb.step();
     }
+  }
 
-    /** Wipe out directory: */
-    FileUtils.cleanDirectory(outdir.toFile());
-
-    /** Copy /images and /js: */
-    copyFile(
-        outdir,
-        // images
-        basedir.resolve("images"),
-        // js
-        basedir.resolve("js"));
-
-    Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-
-    asciidoctor.convertFile(
-        asciidoc.resolve("index.adoc").toFile(), createOptions(asciidoc, outdir, version, null));
-    Stream.of("usage", "modules", "packaging")
-        .forEach(
-            SneakyThrows.throwingConsumer(
-                name -> {
-                  Path modules = outdir.resolve(name);
-                  Files.createDirectories(modules);
-                  Files.walk(asciidoc.resolve(name))
-                      .filter(Files::isRegularFile)
-                      .forEach(
-                          module -> {
-                            processModule(asciidoctor, asciidoc, module, outdir, name, version);
-                          });
-                }));
-
-    // post process
-    Files.walk(outdir)
-        .filter(it -> it.getFileName().toString().endsWith("index.html"))
-        .forEach(
-            SneakyThrows.throwingConsumer(
-                it -> {
-                  Files.write(it, document(it).getBytes(StandardCharsets.UTF_8));
-                }));
-
-    // LICENSE
-    Files.copy(
-        basedir.getParent().resolve("LICENSE"),
-        outdir.resolve("LICENSE.txt"),
-        StandardCopyOption.REPLACE_EXISTING);
-
-    if (v1) {
-      v1doc(basedir, outdir);
-    }
-
-    if (publish) {
-      Path website =
-          basedir
-              .resolve("target") // Paths.get(System.getProperty("java.io.tmpdir"))
-              .resolve(Long.toHexString(UUID.randomUUID().getMostSignificantBits()));
-      Files.createDirectories(website);
-      Git git = new Git("jooby-project", "jooby.io", website);
-      git.clone();
-
-      /** Clean: */
-      FileUtils.deleteDirectory(website.resolve("images").toFile());
-      FileUtils.deleteDirectory(website.resolve("js").toFile());
-      FileUtils.deleteQuietly(website.resolve("index.html").toFile());
-
-      FileUtils.copyDirectory(outdir.toFile(), website.toFile());
-      git.commit(version);
+  private static int countAdoc(Path basedir) throws IOException {
+    try (Stream<Path> tree = Files.walk(basedir)) {
+      return (int)
+          tree.filter(Files::isRegularFile).filter(it -> it.toString().endsWith(".adoc")).count();
     }
   }
 
@@ -235,17 +280,17 @@ public class DocGenerator {
     attributes.setAttribute("joobyVersion", version);
     attributes.setAttribute("date", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
 
-    Options options = new Options();
-    options.setBackend("html");
+    OptionsBuilder options = Options.builder();
+    options.backend("html");
 
-    options.setAttributes(attributes);
-    options.setBaseDir(basedir.toAbsolutePath().toString());
-    options.setDocType("book");
-    options.setToDir(outdir.getFileName().toString());
-    options.setMkDirs(true);
-    options.setDestinationDir("site");
-    options.setSafe(SafeMode.UNSAFE);
-    return options;
+    options.attributes(attributes);
+    options.baseDir(basedir.toAbsolutePath().toFile());
+    options.docType("book");
+    options.toDir(outdir.toFile());
+    options.mkDirs(true);
+    options.destinationDir(outdir.resolve("site").toFile());
+    options.safe(SafeMode.UNSAFE);
+    return options.build();
   }
 
   private static String toJavaName(String tagName) {
@@ -370,16 +415,17 @@ public class DocGenerator {
   }
 
   private static void clipboard(Document doc) {
-    doc.select("code").removeAttr("data-lang");
-    for (Element pre : doc.select("pre.highlight")) {
-      Element button = pre.appendElement("button");
+    for (Element code : doc.select("code.hljs")) {
+      String id = "x" + Long.toHexString(UUID.randomUUID().getMostSignificantBits());
+      code.attr("id", id);
+      Element button = code.parent().appendElement("button");
       button.addClass("clipboard");
-      button.text("Copy");
-      if (pre.childNodeSize() == 1 && (pre.childNode(0) instanceof TextNode)) {
-        Element div = pre.appendElement("div");
-        div.html(pre.html());
-        pre.html("");
-      }
+      button.attr("data-clipboard-target", "#" + id);
+      Element img = button.appendElement("img");
+      img.attr("src", "/images/clippy.svg");
+      img.attr("class", "clippy");
+      img.attr("width", "13");
+      img.attr("alt", "Copy to clipboard");
     }
   }
 

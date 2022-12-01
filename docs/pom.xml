@@ -30,6 +30,12 @@
     </dependency>
 
     <dependency>
+      <groupId>me.tongfei</groupId>
+      <artifactId>progressbar</artifactId>
+      <version>0.9.4</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-util</artifactId>
     </dependency>
@@ -48,7 +54,7 @@
     <dependency>
       <groupId>org.asciidoctor</groupId>
       <artifactId>asciidoctorj</artifactId>
-      <version>2.5.3</version>
+      <version>2.5.7</version>
     </dependency>
 
     <dependency>
@@ -60,7 +66,7 @@
     <dependency>
       <groupId>io.methvin</groupId>
       <artifactId>directory-watcher</artifactId>
-      <version>0.15.1</version>
+      <version>0.17.1</version>
     </dependency>
 
     <!-- zt-exec -->

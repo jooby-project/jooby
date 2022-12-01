@@ -16,6 +16,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import io.jooby.Jooby;
 import io.jooby.LogConfigurer;
+import io.jooby.ServerOptions;
 import io.methvin.watcher.DirectoryWatcher;
 
 public class DocApp extends Jooby {
@@ -26,6 +27,10 @@ public class DocApp extends Jooby {
   }
 
   {
+    ServerOptions server = new ServerOptions();
+    server.setPort(4000);
+    setServerOptions(server);
+
     Path site = DocGenerator.basedir().resolve("asciidoc").resolve("site");
     assets("/*", site);
   }
@@ -38,29 +43,31 @@ public class DocApp extends Jooby {
 
     Logger log = LoggerFactory.getLogger(DocGenerator.class);
 
-    log.info("waiting for doc");
+    DocGenerator.generate(basedir, false, Arrays.asList(args).contains("v1"), true);
 
-    DocGenerator.generate(basedir, false, Arrays.asList(args).contains("v1"));
+    runApp(args, DocApp::new);
 
-    log.info("doc ready");
-
-    runApp(new String[] {"server.port=4000"}, DocApp::new);
+    Path outdir = basedir.resolve("asciidoc").resolve("site");
 
     DirectoryWatcher watcher =
         DirectoryWatcher.builder()
-            .path(basedir.resolve("asciidoc"))
+            .path(basedir)
             .logger(NOP_LOGGER)
             .listener(
                 event -> {
                   Path file = event.path();
-                  if (file.toString().endsWith(".adoc")) {
-                    try {
-                      DocGenerator.generate(basedir, false, false);
-
-                      log.info("doc ready");
-                    } catch (Exception x) {
-                      log.error("doc sync error", x);
-                    }
+                  if (!file.startsWith(outdir)) {
+                    if (file.toString().contains(""))
+                      if (file.toString().endsWith(".js")
+                          || file.toString().endsWith(".html")
+                          || file.toString().endsWith(".adoc")) {
+                        try {
+                          DocGenerator.generate(
+                              basedir, false, false, file.toString().endsWith(".adoc"));
+                        } catch (Exception x) {
+                          log.error("Site build resulted in exception", x);
+                        }
+                      }
                   }
                 })
             .build();
