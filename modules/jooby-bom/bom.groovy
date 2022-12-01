@@ -1,26 +1,23 @@
 import groovy.xml.*
 import java.nio.file.*
 
+def modules = project.collectedProjects.find {it.name == 'modules'}.modules.sort()
+modules.add(0, 'jooby');
+
+def skip = ["jooby-bom", "jooby-gradle-setup"]
 
 def depsw = new StringWriter()
 def deps = new MarkupBuilder(depsw)
-
 deps.dependencyManagement {
     deps.dependencies {
-        for (d in project.dependencyManagement.dependencies) {
-            if (d.groupId.equals("io.jooby")) {
+        for (module in modules) {
+            if (!skip.contains(module)) {
                 dependency {
-                    groupId(d.groupId)
-                    artifactId(d.artifactId)
+                    groupId('io.jooby')
+                    artifactId(module)
                     version('${project.version}')
-                    if (d.type != null && !d.type.equals("jar")) {
-                        type(d.type)
-                    }
-                    if (d.scope != null) {
-                        scope(d.scope)
-                     }
+                }
             }
-        }
         }
     }
 }
