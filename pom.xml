@@ -1561,6 +1561,7 @@
             <version>${maven-antrun-plugin.version}</version>
             <executions>
               <execution>
+                <id>formatter.sh</id>
                 <phase>initialize</phase>
                 <configuration>
                   <target>
@@ -1728,6 +1729,7 @@
             <version>${maven-antrun-plugin.version}</version>
             <executions>
               <execution>
+                <id>module-info.shade</id>
                 <phase>process-resources</phase>
                 <configuration>
                   <target>

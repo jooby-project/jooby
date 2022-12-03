@@ -63,8 +63,6 @@
 
     <module>jooby-commons-email</module>
 
-    <module>jooby-archetype</module>
-
     <module>jooby-run</module>
     <module>jooby-cli</module>
     <module>jooby-maven-plugin</module>
