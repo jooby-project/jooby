@@ -601,6 +601,18 @@ public interface Router extends Registry {
   @NonNull Router use(@NonNull Route.Filter filter);
 
   /**
+   * Attach a filter to the route pipeline.
+   *
+   * @param filter Filter.
+   * @return This router.
+   * @deprecated Use {@link #use(Route.Filter)}.
+   */
+  @Deprecated
+  default @NonNull Router decorator(@NonNull Route.Decorator filter) {
+    return use(filter);
+  }
+
+  /**
    * Add a before route decorator to the route pipeline.
    *
    * @param before Before decorator.

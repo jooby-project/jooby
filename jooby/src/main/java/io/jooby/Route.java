@@ -91,6 +91,12 @@ public class Route {
   }
 
   /**
+   * @deprecated use {@link Route.Filter}.
+   */
+  @Deprecated
+  public interface Decorator extends Filter {}
+
+  /**
    * Decorates a handler and run logic before handler is executed.
    *
    * @author edgar
