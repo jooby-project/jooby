@@ -6,7 +6,7 @@
   <groupId>io.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
   <packaging>pom</packaging>
-  <version>3.0.0.M1</version>
+  <version>3.0.0.M2-SNAPSHOT</version>
   <description>Jooby (Bill of Materials)</description>
   <url>https://jooby.io</url>
 
