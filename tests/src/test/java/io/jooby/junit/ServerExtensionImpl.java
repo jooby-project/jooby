@@ -21,8 +21,8 @@ import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 
 import io.jooby.ExecutionMode;
-import io.jooby.jetty.Jetty;
-import io.jooby.netty.Netty;
+import io.jooby.jetty.JettyServer;
+import io.jooby.netty.NettyServer;
 import io.jooby.utow.UndertowServer;
 
 public class ServerExtensionImpl implements TestTemplateInvocationContextProvider {
@@ -52,7 +52,9 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
     }
   }
 
-  private static final Class[] SERVERS = {Jetty.class, Netty.class, UndertowServer.class};
+  private static final Class[] SERVERS = {
+    JettyServer.class, NettyServer.class, UndertowServer.class
+  };
 
   @Override
   public boolean supportsTestTemplate(ExtensionContext context) {

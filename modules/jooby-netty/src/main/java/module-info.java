@@ -4,7 +4,7 @@
  * Copyright 2014 Edgar Espina
  */
 import io.jooby.Server;
-import io.jooby.netty.Netty;
+import io.jooby.netty.NettyServer;
 
 module io.jooby.netty {
   exports io.jooby.netty;
@@ -24,5 +24,5 @@ module io.jooby.netty {
   requires static io.netty.transport.classes.kqueue;
 
   provides Server with
-      Netty;
+      NettyServer;
 }

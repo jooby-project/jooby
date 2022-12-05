@@ -7,7 +7,7 @@ package i2553
 
 import io.jooby.internal.RouteAnalyzer
 import io.jooby.internal.asm.ClassSource
-import io.jooby.jetty.Jetty
+import io.jooby.jetty.JettyServer
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
 import java.util.concurrent.CompletableFuture
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 
 class Issue2553 {
 
-  @ServerTest(server = [Jetty::class])
+  @ServerTest(server = [JettyServer::class])
   fun analyzerShouldDetectCompletableFuture(runner: ServerTestRunner) {
     val analyzer = RouteAnalyzer(ClassSource(javaClass.classLoader), false)
 

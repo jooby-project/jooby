@@ -11,8 +11,8 @@ import java.util.ServiceLoader;
 import java.util.function.Supplier;
 
 import io.jooby.Server;
-import io.jooby.jetty.Jetty;
-import io.jooby.netty.Netty;
+import io.jooby.jetty.JettyServer;
+import io.jooby.netty.NettyServer;
 import io.jooby.utow.UndertowServer;
 
 public class ServerProvider implements Supplier<Server> {
@@ -23,10 +23,10 @@ public class ServerProvider implements Supplier<Server> {
   }
 
   public boolean matchesEventLoopThread(String threadName) {
-    if (serverClass == Jetty.class) {
+    if (serverClass == JettyServer.class) {
       return threadName.startsWith("worker-");
     }
-    if (serverClass == Netty.class) {
+    if (serverClass == NettyServer.class) {
       return threadName.startsWith("eventloop");
     }
     if (serverClass == UndertowServer.class) {

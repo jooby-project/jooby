@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.json.JSONObject;
 
 import io.jooby.Jooby;
-import io.jooby.jetty.Jetty;
+import io.jooby.jetty.JettyServer;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -53,7 +53,7 @@ public class Issue2858 {
     }
   }
 
-  @ServerTest(server = Jetty.class)
+  @ServerTest(server = JettyServer.class)
   public void shouldBeAbleToSendMessageOnConnect(ServerTestRunner runner) {
     App2858 app = new App2858();
     runner

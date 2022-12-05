@@ -4,7 +4,7 @@
  * Copyright 2014 Edgar Espina
  */
 import io.jooby.Server;
-import io.jooby.jetty.Jetty;
+import io.jooby.jetty.JettyServer;
 
 module io.jooby.jetty {
   exports io.jooby.jetty;
@@ -19,5 +19,5 @@ module io.jooby.jetty {
   requires org.eclipse.jetty.http2.server;
 
   provides Server with
-      Jetty;
+      JettyServer;
 }

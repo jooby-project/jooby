@@ -44,7 +44,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  * @author edgar
  * @since 2.0.0
  */
-public class Netty extends Server.Base {
+public class NettyServer extends Server.Base {
 
   static {
     System.setProperty(
@@ -67,7 +67,7 @@ public class Netty extends Server.Base {
   private ServerOptions options = new ServerOptions().setServer("netty");
 
   @Override
-  public Netty setOptions(@NonNull ServerOptions options) {
+  public NettyServer setOptions(@NonNull ServerOptions options) {
     this.options = options;
     return this;
   }

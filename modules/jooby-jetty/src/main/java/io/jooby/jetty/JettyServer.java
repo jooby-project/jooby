@@ -50,7 +50,7 @@ import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
  * @author edgar
  * @since 2.0.0
  */
-public class Jetty extends io.jooby.Server.Base {
+public class JettyServer extends io.jooby.Server.Base {
 
   private static final int THREADS = 200;
 
@@ -60,13 +60,8 @@ public class Jetty extends io.jooby.Server.Base {
 
   private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
 
-  //  static {
-  //    //System.setProperty("org.eclipse.jetty.util.log.class",
-  // "org.eclipse.jetty.util.log.Slf4jLog");
-  //  }
-
   @NonNull @Override
-  public Jetty setOptions(@NonNull ServerOptions options) {
+  public JettyServer setOptions(@NonNull ServerOptions options) {
     this.options = options.setWorkerThreads(options.getWorkerThreads(THREADS));
     return this;
   }
@@ -79,7 +74,6 @@ public class Jetty extends io.jooby.Server.Base {
   @NonNull @Override
   public io.jooby.Server start(Jooby application) {
     try {
-      // System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
       /** Set max request size attribute: */
       System.setProperty(
           "org.eclipse.jetty.server.Request.maxFormContentSize",
