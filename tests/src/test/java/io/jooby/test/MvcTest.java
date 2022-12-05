@@ -89,7 +89,7 @@ public class MvcTest {
             app -> {
               Jooby sub = new Jooby();
               sub.mvc(new InstanceRouter());
-              app.use("/sub", sub);
+              app.mount("/sub", sub);
             })
         .ready(
             client -> {

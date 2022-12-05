@@ -275,12 +275,12 @@ public class RouterImpl implements Router {
 
   @NonNull @Override
   public RouteSet domain(@NonNull String domain, @NonNull Runnable body) {
-    return use(domainPredicate(domain), body);
+    return mount(domainPredicate(domain), body);
   }
 
   @NonNull @Override
   public Router domain(@NonNull String domain, @NonNull Router subrouter) {
-    return use(domainPredicate(domain), subrouter);
+    return mount(domainPredicate(domain), subrouter);
   }
 
   @NonNull @Override
@@ -775,12 +775,6 @@ public class RouterImpl implements Router {
   @NonNull @Override
   public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     return services.require(key);
-  }
-
-  @NonNull @Override
-  public Router setFlashCookie(@NonNull String name) {
-    this.flashCookie.setName(name);
-    return this;
   }
 
   @NonNull @Override

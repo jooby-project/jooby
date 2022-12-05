@@ -1537,7 +1537,7 @@ public class FeaturedTest {
 
               app.get("/foo", Context::getRequestPath);
 
-              app.use(bar);
+              app.mount(bar);
             })
         .ready(
             client -> {
@@ -1566,8 +1566,8 @@ public class FeaturedTest {
               Jooby v2 = new Jooby();
               v2.get("/api", ctx -> "v2");
 
-              app.use(ctx -> ctx.header("version").value("").equals("v1"), v1);
-              app.use(ctx -> ctx.header("version").value("").equals("v2"), v2);
+              app.mount(ctx -> ctx.header("version").value("").equals("v1"), v1);
+              app.mount(ctx -> ctx.header("version").value("").equals("v2"), v2);
 
               app.get("/api", ctx -> "fallback");
             })
@@ -1603,7 +1603,7 @@ public class FeaturedTest {
               Jooby bar = new Jooby();
               bar.get("/bar", Context::getRequestPath);
 
-              app.use("/prefix", bar);
+              app.mount("/prefix", bar);
             })
         .ready(
             client -> {
@@ -1626,9 +1626,9 @@ public class FeaturedTest {
               app.path(
                   "/api",
                   () -> {
-                    app.use(bar);
+                    app.mount(bar);
 
-                    app.use("/bar", bar);
+                    app.mount("/bar", bar);
                   });
             })
         .ready(
@@ -3392,7 +3392,7 @@ public class FeaturedTest {
         .define(
             app -> {
               app.setContextPath("/custom");
-              app.setFlashCookie("f");
+              app.setFlashCookie(new Cookie("f").setHttpOnly(true));
 
               app.get(
                   "/flash",

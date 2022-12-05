@@ -32,7 +32,7 @@ public class Issue1344 {
             app -> {
               app.use(next -> ctx -> "[" + next.apply(ctx) + "]");
 
-              app.use(new App1344());
+              app.mount(new App1344());
             })
         .ready(
             client -> {

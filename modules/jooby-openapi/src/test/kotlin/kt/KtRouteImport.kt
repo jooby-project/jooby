@@ -11,13 +11,13 @@ import io.jooby.require
 
 class KtRouteImport :
   Kooby({
-    use(RouteA())
+    mount(RouteA())
     path("/main") {
-      use(RouteA())
-      use("/submain", RouteA())
+      mount(RouteA())
+      mount("/submain", RouteA())
     }
 
-    use(RouteA())
-    use("/require", require(RouteA::class))
-    use("/subroute", RouteA())
+    mount(RouteA())
+    mount("/require", require(RouteA::class))
+    mount("/subroute", RouteA())
   })

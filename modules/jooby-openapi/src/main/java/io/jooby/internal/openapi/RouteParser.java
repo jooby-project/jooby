@@ -314,16 +314,14 @@ public class RouteParser {
             handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
           } else if (signature.matches("<init>", KT_FUN_1)) {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
-          } else if (signature.matches("use", Router.class)
-              || signature.matches("mount", Router.class)) {
+          } else if (signature.matches("mount", Router.class)) {
             handlerList.addAll(mountRouter(ctx, prefix, node, findRouterInstruction(node)));
           } else if (signature.matches("install", String.class, SneakyThrows.Supplier.class)) {
             String pattern = routePattern(node, node);
             handlerList.addAll(installApp(ctx, path(prefix, pattern), node, node));
           } else if (signature.matches("install", SneakyThrows.Supplier.class)) {
             handlerList.addAll(installApp(ctx, prefix, node, node));
-          } else if (signature.matches("use", String.class, Router.class)
-              || signature.matches("mount", String.class, Router.class)) {
+          } else if (signature.matches("mount", String.class, Router.class)) {
             AbstractInsnNode routerInstruction = findRouterInstruction(node);
             String pattern = routePattern(node, node);
             handlerList.addAll(mountRouter(ctx, path(prefix, pattern), node, routerInstruction));

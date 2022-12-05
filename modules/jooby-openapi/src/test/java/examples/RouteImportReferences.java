@@ -12,11 +12,11 @@ public class RouteImportReferences extends Jooby {
 
   {
     Router routeA = new RouteA();
-    use(routeA);
+    mount(routeA);
 
-    use("/require", require(RouteA.class));
+    mount("/require", require(RouteA.class));
 
     Router route2 = new RouteA();
-    use("/prefix", route2);
+    mount("/prefix", route2);
   }
 }

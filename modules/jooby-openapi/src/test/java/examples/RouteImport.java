@@ -10,20 +10,20 @@ import io.jooby.Jooby;
 public class RouteImport extends Jooby {
 
   {
-    use(new RouteA());
+    mount(new RouteA());
 
     path(
         "/main",
         () -> {
-          use(new RouteA());
+          mount(new RouteA());
 
-          use("/submain", new RouteA());
+          mount("/submain", new RouteA());
         });
 
-    use(new RouteA());
+    mount(new RouteA());
 
-    use("/require", require(RouteA.class));
+    mount("/require", require(RouteA.class));
 
-    use("/subroute", new RouteA());
+    mount("/subroute", new RouteA());
   }
 }
