@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  *   }
  * </pre>
  *
- * <h1>Path Patterns</h1>
+ * <h2>Path Patterns</h2>
  *
  * <p>Jooby supports Ant-style path patterns:
  *

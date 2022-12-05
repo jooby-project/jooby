@@ -522,7 +522,6 @@ public interface Value {
    * Creates a formdata.
    *
    * @param ctx Current context.
-   * @param values Map values.
    * @return A hash/object value.
    */
   static @NonNull Formdata formdata(Context ctx) {
@@ -533,7 +532,6 @@ public interface Value {
    * Creates a multipart form.
    *
    * @param ctx Current context.
-   * @param values Map values.
    * @return A hash/object value.
    */
   static @NonNull Multipart multipart(Context ctx) {

@@ -20,9 +20,7 @@ import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- *
- *
- * <h1>Cross-origin resource sharing</h1>
+ * Cross-origin resource sharing.
  *
  * <p>Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources (e.g.
  * fonts, JavaScript, etc.) on a web page to be requested from another domain outside the domain

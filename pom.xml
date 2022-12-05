@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>3.0.0-M1</version>
+  <version>3.0.0.M1</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -169,6 +169,9 @@
 
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
+    <!--  Javadoc is too strict in 17, don't fail on error -->
+    <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <timestamp>${maven.build.timestamp}</timestamp>
@@ -1519,6 +1522,7 @@
             <inherited>false</inherited>
             <executions>
               <execution>
+                <id>jooby-bom</id>
                 <phase>initialize</phase>
                 <goals>
                   <goal>execute</goal>

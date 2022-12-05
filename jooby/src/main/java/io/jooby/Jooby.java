@@ -55,11 +55,9 @@ import io.jooby.internal.RouterImpl;
 import jakarta.inject.Provider;
 
 /**
+ * Welcome to Jooby!
  *
- *
- * <h1>Welcome to Jooby!</h1>
- *
- * <p>Hello World!
+ * <p>Hello World:
  *
  * <pre>{@code
  * public class App extends Jooby {

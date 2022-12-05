@@ -27,14 +27,12 @@ import io.jooby.internal.commons.mail.EmailFactory;
 import jakarta.inject.Provider;
 
 /**
- *
- *
- * <h1>commons email</h1>
+ * commons email.
  *
  * <p>Small but helpful module that provides access to {@link Email} instances via the service
  * registry and {@link Config}.
  *
- * <h1>usage</h1>
+ * <h2>usage</h2>
  *
  * application.conf:
  *

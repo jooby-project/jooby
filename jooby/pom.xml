@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>3.0.0-M1</version>
+    <version>3.0.0.M1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -252,20 +252,6 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-
-<!--    <dependency>-->
-<!--      <groupId>org.openjdk.jmh</groupId>-->
-<!--      <artifactId>jmh-core</artifactId>-->
-<!--      <version>1.36</version>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
-
-<!--    <dependency>-->
-<!--      <groupId>org.openjdk.jmh</groupId>-->
-<!--      <artifactId>jmh-generator-annprocess</artifactId>-->
-<!--      <version>1.36</version>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
 
     <!-- Guava -->
     <dependency>

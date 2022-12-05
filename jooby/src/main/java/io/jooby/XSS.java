@@ -18,59 +18,59 @@ public final class XSS {
   private XSS() {}
 
   /**
-   * Perform am URI path <strong>escape</strong> operation on a <tt>String</tt> input using
-   * <tt>UTF-8</tt> as encoding.
+   * Perform am URI path <strong>escape</strong> operation on a <code>String</code> input using
+   * <code>UTF-8</code> as encoding.
    *
    * <p>The following are the only allowed chars in an URI path (will not be escaped):
    *
    * <ul>
-   *   <li><tt>A-Z a-z 0-9</tt>
-   *   <li><tt>- . _ ~</tt>
-   *   <li><tt>! $ &amp; ' ( ) * + , ; =</tt>
-   *   <li><tt>: @</tt>
-   *   <li><tt>/</tt>
+   *   <li><code>A-Z a-z 0-9</code>
+   *   <li><code>- . _ ~</code>
+   *   <li><code>! $ &amp; ' ( ) * + , ; =</code>
+   *   <li><code>: @</code>
+   *   <li><code>/</code>
    * </ul>
    *
    * <p>All other chars will be escaped by converting them to the sequence of bytes that represents
-   * them in the <tt>UTF-8</tt> and then representing each byte in <tt>%HH</tt> syntax, being
-   * <tt>HH</tt> the hexadecimal representation of the byte.
+   * them in the <code>UTF-8</code> and then representing each byte in <code>%HH</code> syntax,
+   * being <code>HH</code> the hexadecimal representation of the byte.
    *
    * <p>This method is <strong>thread-safe</strong>.
    *
-   * @param value the <tt>String</tt> to be escaped.
-   * @return The escaped result <tt>String</tt>. As a memory-performance improvement, will return
-   *     the exact same object as the <tt>text</tt> input argument if no escaping modifications were
-   *     required (and no additional <tt>String</tt> objects will be created during processing).
-   *     Will return <tt>null</tt> if input is <tt>null</tt>.
+   * @param value the <code>String</code> to be escaped.
+   * @return The escaped result <code>String</code>. As a memory-performance improvement, will
+   *     return the exact same object as the <code>text</code> input argument if no escaping
+   *     modifications were required (and no additional <code>String</code> objects will be created
+   *     during processing). Will return <code>null</code> if input is <code>null</code>.
    */
   public static @Nullable String uri(@Nullable String value) {
     return UriEscape.escapeUriPath(value);
   }
 
   /**
-   * Perform an HTML5 level 2 (result is ASCII) <strong>escape</strong> operation on a
-   * <tt>String</tt> input.
+   * Perform an HTML5 level 2 (result is ASCII) <strong>escape</strong> operation on a <code>String
+   * </code> input.
    *
    * <p><em>Level 2</em> means this method will escape:
    *
    * <ul>
-   *   <li>The five markup-significant characters: <tt>&lt;</tt>, <tt>&gt;</tt>, <tt>&amp;</tt>,
-   *       <tt>&quot;</tt> and <tt>&#39;</tt>
+   *   <li>The five markup-significant characters: <code>&lt;</code>, <code>&gt;</code>, <code>&amp;
+   *       </code>, <code>&quot;</code> and <code>&#39;</code>
    *   <li>All non ASCII characters.
    * </ul>
    *
    * <p>This escape will be performed by replacing those chars by the corresponding HTML5 Named
-   * Character References (e.g. <tt>'&amp;acute;'</tt>) when such NCR exists for the replaced
-   * character, and replacing by a decimal character reference (e.g. <tt>'&amp;#8345;'</tt>) when
-   * there there is no NCR for the replaced character.
+   * Character References (e.g. <code>'&amp;acute;'</code>) when such NCR exists for the replaced
+   * character, and replacing by a decimal character reference (e.g. <code>'&amp;#8345;'</code>)
+   * when there there is no NCR for the replaced character.
    *
    * <p>This method is <strong>thread-safe</strong>.
    *
-   * @param value the <tt>String</tt> to be escaped.
-   * @return The escaped result <tt>String</tt>. As a memory-performance improvement, will return
-   *     the exact same object as the <tt>text</tt> input argument if no escaping modifications were
-   *     required (and no additional <tt>String</tt> objects will be created during processing).
-   *     Will return <tt>null</tt> if input is <tt>null</tt>.
+   * @param value the <code>String</code> to be escaped.
+   * @return The escaped result <code>String</code>. As a memory-performance improvement, will
+   *     return the exact same object as the <code>text</code> input argument if no escaping
+   *     modifications were required (and no additional <code>String</code> objects will be created
+   *     during processing). Will return <code>null</code> if input is <code>null</code>.
    */
   public static @Nullable String html(@Nullable String value) {
     return HtmlEscape.escapeHtml5(value);
@@ -78,45 +78,46 @@ public final class XSS {
 
   /**
    * Perform a JavaScript level 2 (basic set and all non-ASCII chars) <strong>escape</strong>
-   * operation on a <tt>String</tt> input.
+   * operation on a <code>String</code> input.
    *
    * <p><em>Level 2</em> means this method will escape:
    *
    * <ul>
    *   <li>The JavaScript basic escape set:
    *       <ul>
-   *         <li>The <em>Single Escape Characters</em>: <tt>&#92;0</tt> (<tt>U+0000</tt>),
-   *             <tt>&#92;b</tt> (<tt>U+0008</tt>), <tt>&#92;t</tt> (<tt>U+0009</tt>),
-   *             <tt>&#92;n</tt> (<tt>U+000A</tt>), <tt>&#92;v</tt> (<tt>U+000B</tt>),
-   *             <tt>&#92;f</tt> (<tt>U+000C</tt>), <tt>&#92;r</tt> (<tt>U+000D</tt>),
-   *             <tt>&#92;&quot;</tt> (<tt>U+0022</tt>), <tt>&#92;&#39;</tt> (<tt>U+0027</tt>),
-   *             <tt>&#92;&#92;</tt> (<tt>U+005C</tt>) and <tt>&#92;&#47;</tt> (<tt>U+002F</tt>).
-   *             Note that <tt>&#92;&#47;</tt> is optional, and will only be used when the
-   *             <tt>&#47;</tt> symbol appears after <tt>&lt;</tt>, as in <tt>&lt;&#47;</tt>. This
-   *             is to avoid accidentally closing <tt>&lt;script&gt;</tt> tags in HTML. Also, note
-   *             that <tt>&#92;v</tt> (<tt>U+000B</tt>) is actually included as a Single Escape
-   *             Character in the JavaScript (ECMAScript) specification, but will not be used as it
-   *             is not supported by Microsoft Internet Explorer versions &lt; 9.
+   *         <li>The <em>Single Escape Characters</em>: <code>&#92;0</code> (<code>U+0000</code>),
+   *             <code>&#92;b</code> (<code>U+0008</code>), <code>&#92;t</code> (<code>U+0009</code>
+   *             ), <code>&#92;n</code> (<code>U+000A</code>), <code>&#92;v</code> (<code>U+000B
+   *             </code>), <code>&#92;f</code> (<code>U+000C</code>), <code>&#92;r</code> (<code>
+   *             U+000D</code>), <code>&#92;&quot;</code> (<code>U+0022</code>), <code>&#92;&#39;
+   *             </code> (<code>U+0027</code>), <code>&#92;&#92;</code> (<code>U+005C</code>) and
+   *             <code>&#92;&#47;</code> (<code>U+002F</code>). Note that <code>&#92;&#47;</code> is
+   *             optional, and will only be used when the <code>&#47;</code> symbol appears after
+   *             <code>&lt;</code>, as in <code>&lt;&#47;</code>. This is to avoid accidentally
+   *             closing <code>&lt;script&gt;</code> tags in HTML. Also, note that <code>&#92;v
+   *             </code> (<code>U+000B</code>) is actually included as a Single Escape Character in
+   *             the JavaScript (ECMAScript) specification, but will not be used as it is not
+   *             supported by Microsoft Internet Explorer versions &lt; 9.
    *         <li>Two ranges of non-displayable, control characters (some of which are already part
-   *             of the <em>single escape characters</em> list): <tt>U+0001</tt> to <tt>U+001F</tt>
-   *             and <tt>U+007F</tt> to <tt>U+009F</tt>.
+   *             of the <em>single escape characters</em> list): <code>U+0001</code> to <code>U+001F
+   *             </code> and <code>U+007F</code> to <code>U+009F</code>.
    *       </ul>
    *   <li>All non ASCII characters.
    * </ul>
    *
    * <p>This escape will be performed by using the Single Escape Chars whenever possible. For
-   * escaped characters that do not have an associated SEC, default to using <tt>&#92;xFF</tt>
-   * Hexadecimal Escapes if possible (characters &lt;= <tt>U+00FF</tt>), then default to
-   * <tt>&#92;uFFFF</tt> Hexadecimal Escapes. This type of escape <u>produces the smallest escaped
+   * escaped characters that do not have an associated SEC, default to using <code>&#92;xFF</code>
+   * Hexadecimal Escapes if possible (characters &lt;= <code>U+00FF</code>), then default to <code>
+   * &#92;uFFFF</code> Hexadecimal Escapes. This type of escape <u>produces the smallest escaped
    * string possible</u>.
    *
    * <p>This method is <strong>thread-safe</strong>.
    *
-   * @param value the <tt>String</tt> to be escaped.
-   * @return The escaped result <tt>String</tt>. As a memory-performance improvement, will return
-   *     the exact same object as the <tt>text</tt> input argument if no escaping modifications were
-   *     required (and no additional <tt>String</tt> objects will be created during processing).
-   *     Will return <tt>null</tt> if input is <tt>null</tt>.
+   * @param value the <code>String</code> to be escaped.
+   * @return The escaped result <code>String</code>. As a memory-performance improvement, will
+   *     return the exact same object as the <code>text</code> input argument if no escaping
+   *     modifications were required (and no additional <code>String</code> objects will be created
+   *     during processing). Will return <code>null</code> if input is <code>null</code>.
    */
   public static @Nullable String javaScript(@Nullable String value) {
     return JavaScriptEscape.escapeJavaScript(value);
@@ -124,39 +125,40 @@ public final class XSS {
 
   /**
    * Perform a JSON level 2 (basic set and all non-ASCII chars) <strong>escape</strong> operation on
-   * a <tt>String</tt> input.
+   * a <code>String</code> input.
    *
    * <p><em>Level 2</em> means this method will escape:
    *
    * <ul>
    *   <li>The JSON basic escape set:
    *       <ul>
-   *         <li>The <em>Single Escape Characters</em>: <tt>&#92;b</tt> (<tt>U+0008</tt>),
-   *             <tt>&#92;t</tt> (<tt>U+0009</tt>), <tt>&#92;n</tt> (<tt>U+000A</tt>),
-   *             <tt>&#92;f</tt> (<tt>U+000C</tt>), <tt>&#92;r</tt> (<tt>U+000D</tt>),
-   *             <tt>&#92;&quot;</tt> (<tt>U+0022</tt>), <tt>&#92;&#92;</tt> (<tt>U+005C</tt>) and
-   *             <tt>&#92;&#47;</tt> (<tt>U+002F</tt>). Note that <tt>&#92;&#47;</tt> is optional,
-   *             and will only be used when the <tt>&#47;</tt> symbol appears after <tt>&lt;</tt>,
-   *             as in <tt>&lt;&#47;</tt>. This is to avoid accidentally closing
-   *             <tt>&lt;script&gt;</tt> tags in HTML.
+   *         <li>The <em>Single Escape Characters</em>: <code>&#92;b</code> (<code>U+0008</code>),
+   *             <code>&#92;t</code> (<code>U+0009</code>), <code>&#92;n</code> (<code>U+000A</code>
+   *             ), <code>&#92;f</code> (<code>U+000C</code>), <code>&#92;r</code> (<code>U+000D
+   *             </code>), <code>&#92;&quot;</code> (<code>U+0022</code>), <code>&#92;&#92;</code> (
+   *             <code>U+005C</code>) and <code>&#92;&#47;</code> (<code>U+002F</code>). Note that
+   *             <code>&#92;&#47;</code> is optional, and will only be used when the <code>&#47;
+   *             </code> symbol appears after <code>&lt;</code>, as in <code>&lt;&#47;</code>. This
+   *             is to avoid accidentally closing <code>&lt;script&gt;</code> tags in HTML.
    *         <li>Two ranges of non-displayable, control characters (some of which are already part
-   *             of the <em>single escape characters</em> list): <tt>U+0000</tt> to <tt>U+001F</tt>
-   *             (required by the JSON spec) and <tt>U+007F</tt> to <tt>U+009F</tt> (additional).
+   *             of the <em>single escape characters</em> list): <code>U+0000</code> to <code>U+001F
+   *             </code> (required by the JSON spec) and <code>U+007F</code> to <code>U+009F</code>
+   *             (additional).
    *       </ul>
    *   <li>All non ASCII characters.
    * </ul>
    *
    * <p>This escape will be performed by using the Single Escape Chars whenever possible. For
-   * escaped characters that do not have an associated SEC, default to <tt>&#92;uFFFF</tt>
+   * escaped characters that do not have an associated SEC, default to <code>&#92;uFFFF</code>
    * Hexadecimal Escapes.
    *
    * <p>This method is <strong>thread-safe</strong>.
    *
-   * @param value the <tt>String</tt> to be escaped.
-   * @return The escaped result <tt>String</tt>. As a memory-performance improvement, will return
-   *     the exact same object as the <tt>text</tt> input argument if no escaping modifications were
-   *     required (and no additional <tt>String</tt> objects will be created during processing).
-   *     Will return <tt>null</tt> if input is <tt>null</tt>.
+   * @param value the <code>String</code> to be escaped.
+   * @return The escaped result <code>String</code>. As a memory-performance improvement, will
+   *     return the exact same object as the <code>text</code> input argument if no escaping
+   *     modifications were required (and no additional <code>String</code> objects will be created
+   *     during processing). Will return <code>null</code> if input is <code>null</code>.
    */
   public static @Nullable String json(@Nullable String value) {
     return JsonEscape.escapeJson(value);
@@ -164,28 +166,28 @@ public final class XSS {
 
   /**
    * Perform an XML 1.1 level 2 (markup-significant and all non-ASCII chars) <strong>escape</strong>
-   * operation on a <tt>String</tt> input.
+   * operation on a <code>String</code> input.
    *
    * <p><em>Level 2</em> means this method will escape:
    *
    * <ul>
-   *   <li>The five markup-significant characters: <tt>&lt;</tt>, <tt>&gt;</tt>, <tt>&amp;</tt>,
-   *       <tt>&quot;</tt> and <tt>&#39;</tt>
+   *   <li>The five markup-significant characters: <code>&lt;</code>, <code>&gt;</code>, <code>&amp;
+   *       </code>, <code>&quot;</code> and <code>&#39;</code>
    *   <li>All non ASCII characters.
    * </ul>
    *
    * <p>This escape will be performed by replacing those chars by the corresponding XML Character
-   * Entity References (e.g. <tt>'&amp;lt;'</tt>) when such CER exists for the replaced character,
-   * and replacing by a hexadecimal character reference (e.g. <tt>'&amp;#x2430;'</tt>) when there
-   * there is no CER for the replaced character.
+   * Entity References (e.g. <code>'&amp;lt;'</code>) when such CER exists for the replaced
+   * character, and replacing by a hexadecimal character reference (e.g. <code>'&amp;#x2430;'</code>
+   * ) when there there is no CER for the replaced character.
    *
    * <p>This method is <strong>thread-safe</strong>.
    *
-   * @param value the <tt>String</tt> to be escaped.
-   * @return The escaped result <tt>String</tt>. As a memory-performance improvement, will return
-   *     the exact same object as the <tt>text</tt> input argument if no escaping modifications were
-   *     required (and no additional <tt>String</tt> objects will be created during processing).
-   *     Will return <tt>null</tt> if input is <tt>null</tt>.
+   * @param value the <code>String</code> to be escaped.
+   * @return The escaped result <code>String</code>. As a memory-performance improvement, will
+   *     return the exact same object as the <code>text</code> input argument if no escaping
+   *     modifications were required (and no additional <code>String</code> objects will be created
+   *     during processing). Will return <code>null</code> if input is <code>null</code>.
    */
   public static @Nullable String xml(@Nullable String value) {
     return XmlEscape.escapeXml11(value);

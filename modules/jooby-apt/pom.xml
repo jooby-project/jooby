@@ -6,11 +6,16 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.0.0-M1</version>
+    <version>3.0.0.M1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-apt</artifactId>
+
+  <properties>
+    <!-- shaded module-info.java makes javadoc plugin fails -->
+    <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+  </properties>
 
   <dependencies>
 

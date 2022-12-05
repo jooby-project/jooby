@@ -15,9 +15,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.exception.InvalidCsrfToken;
 
 /**
- *
- *
- * <h1>Cross Site Request Forgery handler</h1>
+ * Cross Site Request Forgery handler.
  *
  * <pre>
  * {

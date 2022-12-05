@@ -23,9 +23,7 @@ import org.slf4j.LoggerFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- *
- *
- * <h1>Access Log Handler</h1>
+ * Access Log Handler.
  *
  * <p>Log incoming requested using the <a
  * href="https://en.wikipedia.org/wiki/Common_Log_Format">NCSA format</a> (a.k.a common log format).

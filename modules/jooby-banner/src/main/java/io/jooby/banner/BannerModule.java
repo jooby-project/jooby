@@ -19,9 +19,7 @@ import io.jooby.Jooby;
 import jakarta.inject.Provider;
 
 /**
- *
- *
- * <h1>banner</h1>
+ * banner.
  *
  * <p>Prints out an ASCII art banner on startup using <a
  * href="https://github.com/lalyos/jfiglet">jfiglet</a>.
