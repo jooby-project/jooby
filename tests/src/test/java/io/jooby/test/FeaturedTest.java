@@ -2486,7 +2486,7 @@ public class FeaturedTest {
                   response -> {
                     assertEquals("{foo=bar, x=y}", response.body().string());
                   });
-              client.header("Cookie", "$Version=1; X=x; $Path=/set;");
+              client.header("Cookie", "X=x");
               client.get(
                   "/cookies",
                   response -> {
