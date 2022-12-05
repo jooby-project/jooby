@@ -1607,7 +1607,7 @@
       </activation>
       <build>
         <plugins>
-          <!-- Force maven-3.x and java-9 -->
+          <!-- Force maven-3.x and java-17 -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-enforcer-plugin</artifactId>
@@ -1623,7 +1623,7 @@
                   <failFast>true</failFast>
                   <rules>
                     <requireMavenVersion>
-                      <version>[3.5,)</version>
+                      <version>[3.8,)</version>
                     </requireMavenVersion>
                     <requireJavaVersion>
                       <version>[${maven.compiler.source},)</version>
