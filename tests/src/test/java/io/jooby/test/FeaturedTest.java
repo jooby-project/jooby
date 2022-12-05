@@ -91,7 +91,7 @@ import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
+import io.jooby.utow.UndertowServer;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -868,7 +868,7 @@ public class FeaturedTest {
 
   /* No Jetty bc always use a worker thread */
   @ServerTest(
-      server = {Netty.class, Utow.class},
+      server = {Netty.class, UndertowServer.class},
       executionMode = EVENT_LOOP)
   public void beforeAfter(ServerTestRunner runner) {
     runner
@@ -1922,7 +1922,7 @@ public class FeaturedTest {
   }
 
   @ServerTest(
-      server = {Utow.class, Netty.class},
+      server = {UndertowServer.class, Netty.class},
       executionMode = DEFAULT)
   public void mixedMode(ServerTestRunner runner) {
     runner

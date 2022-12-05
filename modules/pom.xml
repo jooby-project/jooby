@@ -22,7 +22,7 @@
 
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
-    <module>jooby-utow</module>
+    <module>jooby-undertow</module>
 
     <module>jooby-openapi</module>
     <module>jooby-swagger-ui</module>

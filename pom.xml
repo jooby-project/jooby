@@ -262,7 +262,7 @@
       <!-- server -->
       <dependency>
         <groupId>io.jooby</groupId>
-        <artifactId>jooby-utow</artifactId>
+        <artifactId>jooby-undertow</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

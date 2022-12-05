@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 import io.jooby.Server;
 import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
+import io.jooby.utow.UndertowServer;
 
 public class ServerProvider implements Supplier<Server> {
   private Class serverClass;
@@ -29,7 +29,7 @@ public class ServerProvider implements Supplier<Server> {
     if (serverClass == Netty.class) {
       return threadName.startsWith("eventloop");
     }
-    if (serverClass == Utow.class) {
+    if (serverClass == UndertowServer.class) {
       return threadName.startsWith("worker I/O");
     }
     return false;
