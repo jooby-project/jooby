@@ -13,7 +13,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 
 import io.jooby.Context;
@@ -23,7 +22,6 @@ import io.jooby.Reified;
 import io.jooby.ResponseHandler;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
-import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
 import io.jooby.internal.handler.DispatchHandler;
@@ -37,13 +35,6 @@ import io.jooby.internal.handler.SendDirect;
 import io.jooby.internal.handler.SendFileChannel;
 import io.jooby.internal.handler.SendStream;
 import io.jooby.internal.handler.WorkerHandler;
-import io.jooby.internal.handler.reactive.ObservableHandler;
-import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
-import io.jooby.internal.handler.reactive.ReactorFluxHandler;
-import io.jooby.internal.handler.reactive.ReactorMonoHandler;
-import io.jooby.internal.handler.reactive.RxFlowableHandler;
-import io.jooby.internal.handler.reactive.RxMaybeHandler;
-import io.jooby.internal.handler.reactive.RxSingleHandler;
 
 public class Pipeline {
 
@@ -54,62 +45,11 @@ public class Pipeline {
       Executor executor,
       ContextInitializer initializer,
       List<ResponseHandler> responseHandler) {
+    if (route.isReactive()) {
+      return reactive(mode, route, executor, initializer);
+    }
     Type returnType = route.getReturnType();
     Class<?> type = Reified.rawType(returnType);
-    if (CompletionStage.class.isAssignableFrom(type)) {
-      return completableFuture(mode, route, executor, initializer);
-    }
-    /** Rx 2: */
-    // Single:
-    Optional<Class> single = loadClass(loader, "io.reactivex.Single");
-    if (single.isPresent()) {
-      if (single.get().isAssignableFrom(type)) {
-        return single(mode, route, executor, initializer);
-      }
-    }
-    // Maybe:
-    Optional<Class> maybe = loadClass(loader, "io.reactivex.Maybe");
-    if (maybe.isPresent()) {
-      if (maybe.get().isAssignableFrom(type)) {
-        return rxMaybe(mode, route, executor, initializer);
-      }
-    }
-    // Flowable:
-    Optional<Class> flowable = loadClass(loader, "io.reactivex.Flowable");
-    if (flowable.isPresent()) {
-      if (flowable.get().isAssignableFrom(type)) {
-        return rxFlowable(mode, route, executor, initializer);
-      }
-    }
-    // Observable:
-    Optional<Class> observable = loadClass(loader, "io.reactivex.Observable");
-    if (observable.isPresent()) {
-      if (observable.get().isAssignableFrom(type)) {
-        return rxObservable(mode, route, executor, initializer);
-      }
-    }
-    // Disposable
-    Optional<Class> disposable = loadClass(loader, "io.reactivex.disposables.Disposable");
-    if (disposable.isPresent()) {
-      if (disposable.get().isAssignableFrom(type)) {
-        return rxDisposable(mode, route, executor, initializer);
-      }
-    }
-    /** Reactor: */
-    // Flux:
-    Optional<Class> flux = loadClass(loader, "reactor.core.publisher.Flux");
-    if (flux.isPresent()) {
-      if (flux.get().isAssignableFrom(type)) {
-        return reactorFlux(mode, route, executor, initializer);
-      }
-    }
-    // Mono:
-    Optional<Class> mono = loadClass(loader, "reactor.core.publisher.Mono");
-    if (mono.isPresent()) {
-      if (mono.get().isAssignableFrom(type)) {
-        return reactorMono(mode, route, executor, initializer);
-      }
-    }
     /** Kotlin: */
     Optional<Class> deferred = loadClass(loader, "kotlinx.coroutines.Deferred");
     if (deferred.isPresent()) {
@@ -130,13 +70,6 @@ public class Pipeline {
       }
     }
 
-    /** ReactiveStream: */
-    Optional<Class> publisher = loadClass(loader, "org.reactivestreams.Publisher");
-    if (publisher.isPresent()) {
-      if (publisher.get().isAssignableFrom(type)) {
-        return reactivePublisher(mode, route, executor, initializer);
-      }
-    }
     /** Context: */
     if (Context.class.isAssignableFrom(type)) {
       if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
@@ -206,67 +139,10 @@ public class Pipeline {
     return new PostDispatchInitializerHandler(initializer, pipeline);
   }
 
-  private static Handler completableFuture(
+  private static Handler reactive(
       ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
     return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new CompletionStageHandler(next.getPipeline()))),
-        false);
-  }
-
-  private static Handler rxFlowable(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new RxFlowableHandler(next.getPipeline()))),
-        false);
-  }
-
-  private static Handler reactivePublisher(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new ReactivePublisherHandler(next.getPipeline()))),
-        false);
-  }
-
-  private static Handler rxDisposable(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new SendDirect(next.getPipeline()))),
-        false);
-  }
-
-  private static Handler rxObservable(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new ObservableHandler(next.getPipeline()))),
-        false);
-  }
-
-  private static Handler reactorFlux(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new ReactorFluxHandler(next.getPipeline()))),
-        false);
-  }
-
-  private static Handler reactorMono(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new ReactorMonoHandler(next.getPipeline()))),
-        false);
+        mode, executor, new DetachHandler(decorate(initializer, next.getPipeline())), false);
   }
 
   private static Handler kotlinJob(
@@ -282,24 +158,6 @@ public class Pipeline {
       ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
     return next(
         mode, executor, new DetachHandler(decorate(initializer, next.getPipeline())), false);
-  }
-
-  private static Handler single(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new RxSingleHandler(next.getPipeline()))),
-        false);
-  }
-
-  private static Handler rxMaybe(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new RxMaybeHandler(next.getPipeline()))),
-        false);
   }
 
   private static Handler next(

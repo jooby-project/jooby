@@ -76,6 +76,7 @@ import io.jooby.Jooby;
 import io.jooby.MessageDecoder;
 import io.jooby.ModelAndView;
 import io.jooby.Multipart;
+import io.jooby.ReactiveSupport;
 import io.jooby.Router;
 import io.jooby.RouterOption;
 import io.jooby.SameSite;
@@ -90,13 +91,18 @@ import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.mutiny.Mutiny;
 import io.jooby.netty.NettyServer;
+import io.jooby.reactor.Reactor;
+import io.jooby.rxjava3.Reactivex;
 import io.jooby.utow.UndertowServer;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -1345,6 +1351,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
+              app.use(Reactivex.rx());
               app.get(
                   "/rx/flowable",
                   ctx ->
@@ -1436,6 +1443,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
+              app.use(Reactor.reactor());
               app.get(
                   "/reactor/mono",
                   ctx ->
@@ -1464,10 +1472,61 @@ public class FeaturedTest {
   }
 
   @ServerTest
+  public void mutiny(ServerTestRunner runner) {
+    runner
+        .define(
+            app -> {
+              app.use(Mutiny.mutiny());
+              app.get(
+                  "/mutiny/uni",
+                  ctx ->
+                      Uni.createFrom()
+                          .completionStage(supplyAsync(() -> "Uni"))
+                          .map(s -> "Hello " + s));
+              app.get("/mutiny/multi", ctx -> Multi.createFrom().range(1, 11).map(i -> i + ","));
+            })
+        .ready(
+            client -> {
+              client.get(
+                  "/mutiny/uni",
+                  rsp -> {
+                    assertEquals("9", rsp.header("content-length").toLowerCase());
+                    assertEquals("Hello Uni", rsp.body().string());
+                  });
+              client.get(
+                  "/mutiny/multi",
+                  rsp -> {
+                    assertEquals("chunked", rsp.header("transfer-encoding").toLowerCase());
+                    assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body().string());
+                  });
+            });
+  }
+
+  @ServerTest
+  public void flow(ServerTestRunner runner) {
+    runner
+        .define(
+            app -> {
+              app.use(ReactiveSupport.flow());
+              app.get("/mutiny/multi", ctx -> Multi.createFrom().range(1, 11).map(i -> i + ","));
+            })
+        .ready(
+            client -> {
+              client.get(
+                  "/mutiny/multi",
+                  rsp -> {
+                    assertEquals("chunked", rsp.header("transfer-encoding").toLowerCase());
+                    assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body().string());
+                  });
+            });
+  }
+
+  @ServerTest
   public void completableFuture(ServerTestRunner runner) {
     runner
         .define(
             app -> {
+              app.use(ReactiveSupport.completableFuture());
               app.get(
                   "/completable",
                   ctx -> supplyAsync(() -> "Completable Future!").thenApply(v -> "Hello " + v));
@@ -1929,6 +1988,8 @@ public class FeaturedTest {
         .define(
             app -> {
               app.get("/blocking", ctx -> !ctx.isInIoThread());
+
+              app.use(Reactivex.rx());
               app.get("/reactive", ctx -> Single.fromCallable(() -> ctx.isInIoThread()));
             })
         .ready(

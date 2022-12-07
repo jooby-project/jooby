@@ -3,13 +3,13 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler.reactive;
+package io.jooby.internal.rxjava3;
 
 import io.jooby.Context;
 import io.jooby.StatusCode;
-import io.reactivex.MaybeObserver;
-import io.reactivex.SingleObserver;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.core.MaybeObserver;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public class RxSubscriber implements MaybeObserver<Object>, SingleObserver<Object> {
 

@@ -69,6 +69,11 @@
 
     <module>jooby-jwt</module>
 
+    <!-- reactive -->
+    <module>jooby-reactor</module>
+    <module>jooby-rxjava3</module>
+    <module>jooby-mutiny</module>
+
     <!-- util -->
     <module>jooby-banner</module>
     <module>jooby-whoops</module>

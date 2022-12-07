@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.CompletableFuture;
 
+import io.jooby.ReactiveSupport;
 import io.jooby.StatusCode;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.junit.ServerTest;
@@ -21,6 +22,8 @@ public class Issue2452 {
     runner
         .define(
             app -> {
+              app.use(ReactiveSupport.completableFuture());
+
               app.get(
                   "/2452",
                   ctx ->

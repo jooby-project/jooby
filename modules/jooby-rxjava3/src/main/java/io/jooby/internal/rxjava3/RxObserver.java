@@ -3,15 +3,17 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler.reactive;
+package io.jooby.internal.rxjava3;
 
-import io.reactivex.observers.DefaultObserver;
+import java.util.concurrent.Flow;
+
+import io.reactivex.rxjava3.observers.DefaultObserver;
 
 public class RxObserver extends DefaultObserver<Object> {
 
-  private ChunkedSubscriber subscriber;
+  private Flow.Subscriber subscriber;
 
-  public RxObserver(ChunkedSubscriber subscriber) {
+  public RxObserver(Flow.Subscriber subscriber) {
     this.subscriber = subscriber;
   }
 
@@ -35,8 +37,8 @@ public class RxObserver extends DefaultObserver<Object> {
     subscriber.onSubscribe(subcribe(this));
   }
 
-  private static ChunkedSubscription subcribe(RxObserver rxObserver) {
-    return new ChunkedSubscription() {
+  private static Flow.Subscription subcribe(RxObserver rxObserver) {
+    return new Flow.Subscription() {
       @Override
       public void request(long n) {
         // NOOP

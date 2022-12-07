@@ -199,20 +199,6 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- rxjava -->
-    <dependency>
-      <groupId>io.reactivex.rxjava2</groupId>
-      <artifactId>rxjava</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- reactor -->
-    <dependency>
-      <groupId>io.projectreactor</groupId>
-      <artifactId>reactor-core</artifactId>
-      <optional>true</optional>
-    </dependency>
-
     <!-- bucket4j -->
     <dependency>
       <groupId>com.github.vladimir-bukhtoyarov</groupId>

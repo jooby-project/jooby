@@ -161,6 +161,11 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-mutiny</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-netty</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -191,6 +196,11 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-reactor</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-redis</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -207,6 +217,11 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-run</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-rxjava3</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

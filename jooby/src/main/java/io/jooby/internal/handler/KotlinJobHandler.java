@@ -8,7 +8,6 @@ package io.jooby.internal.handler;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
-import io.reactivex.Flowable;
 import kotlinx.coroutines.Deferred;
 import kotlinx.coroutines.Job;
 
@@ -41,7 +40,7 @@ public class KotlinJobHandler implements LinkedHandler {
       return ctx;
     } catch (Throwable x) {
       ctx.sendError(x);
-      return Flowable.error(x);
+      return x;
     }
   }
 

@@ -13,6 +13,7 @@ import io.jooby.SSLHandler;
 import io.jooby.ServerOptions;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.reactor.Reactor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +27,8 @@ public class Issue2372 {
               app.setServerOptions(new ServerOptions().setHttp2(true).setSecurePort(8443));
 
               app.before(new SSLHandler());
+
+              app.use(Reactor.reactor());
 
               app.get(
                   "/2372/mono",

@@ -6,10 +6,13 @@
 package i2553
 
 import io.jooby.Kooby
+import io.jooby.ReactiveSupport
 import java.util.concurrent.CompletableFuture
 
 class App2553 :
   Kooby({
+    use(ReactiveSupport.completableFuture())
+
     get("/2553/line") { CompletableFuture.supplyAsync { "line" } }
 
     get("/2553/var") {

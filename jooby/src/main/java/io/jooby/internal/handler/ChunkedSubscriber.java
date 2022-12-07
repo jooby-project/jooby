@@ -3,7 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler.reactive;
+package io.jooby.internal.handler;
+
+import java.util.concurrent.Flow;
 
 import org.slf4j.Logger;
 
@@ -14,12 +16,12 @@ import io.jooby.Route;
 import io.jooby.Sender;
 import io.jooby.Server;
 
-public class ChunkedSubscriber {
+public class ChunkedSubscriber implements Flow.Subscriber {
 
   private static final byte JSON_LBRACKET = '[';
   private static final byte JSON_SEP = ',';
   private static final byte[] JSON_RBRACKET = {']'};
-  private ChunkedSubscription subscription;
+  private Flow.Subscription subscription;
   private final Context ctx;
   private final Sender sender;
   private MediaType responseType;
@@ -29,7 +31,8 @@ public class ChunkedSubscriber {
     this.sender = ctx.responseSender();
   }
 
-  public void onSubscribe(ChunkedSubscription subscription) {
+  @Override
+  public void onSubscribe(Flow.Subscription subscription) {
     this.subscription = subscription;
     this.subscription.request(1);
   }

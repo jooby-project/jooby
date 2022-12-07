@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import io.jooby.SneakyThrows;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.reactor.Reactor;
 import reactor.core.publisher.Mono;
 
 public class Issue2293 {
@@ -29,6 +30,7 @@ public class Issue2293 {
     runner
         .define(
             app -> {
+              app.use(Reactor.reactor());
               app.get(
                   "/2293", ctx -> Mono.fromCallable(() -> resource).map(this::readJsonAsString));
             })

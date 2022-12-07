@@ -22,7 +22,7 @@ import io.jooby.Jooby;
 import io.jooby.StatusCode;
 import io.jooby.ValueNode;
 import io.jooby.WebSocketMessage;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Single;
 
 public class UnitTest {
 

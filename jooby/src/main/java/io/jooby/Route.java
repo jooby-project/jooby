@@ -398,6 +398,8 @@ public class Route {
 
   private String description;
 
+  private boolean reactive;
+
   /**
    * Creates a new route.
    *
@@ -604,6 +606,14 @@ public class Route {
   public @NonNull Route setEncoder(@NonNull MessageEncoder encoder) {
     this.encoder = encoder;
     return this;
+  }
+
+  public boolean isReactive() {
+    return reactive;
+  }
+
+  public void setReactive(boolean reactive) {
+    this.reactive = reactive;
   }
 
   /**

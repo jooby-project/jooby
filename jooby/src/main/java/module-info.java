@@ -3,7 +3,6 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-
 module io.jooby {
   exports io.jooby;
   exports io.jooby.annotations;
@@ -21,14 +20,6 @@ module io.jooby {
   requires com.github.spotbugs.annotations;
   requires typesafe.config;
   requires java.management;
-
-  /*
-   * TODO: These reactive ones should be replaced with java 9 Flow
-   * and or moved to a new module
-   */
-  requires static io.reactivex.rxjava2;
-  requires static org.reactivestreams;
-  requires static reactor.core;
 
   /*
    * Optional dependency for rate limiting
