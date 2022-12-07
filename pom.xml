@@ -72,8 +72,8 @@
     <asm.version>9.3</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.2.19.Final</undertow.version>
-    <jetty.version>9.4.48.v20220622</jetty.version>
+    <undertow.version>2.2.21.Final</undertow.version>
+    <jetty.version>9.4.49.v20220914</jetty.version>
     <netty.version>4.1.85.Final</netty.version>
 
     <!-- Reactive -->
@@ -173,7 +173,6 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.build.outputTimestamp>10</project.build.outputTimestamp>
     <timestamp>${maven.build.timestamp}</timestamp>
 
 
