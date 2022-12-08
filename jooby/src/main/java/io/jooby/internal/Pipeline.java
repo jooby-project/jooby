@@ -25,7 +25,6 @@ import io.jooby.Route.Handler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
 import io.jooby.internal.handler.DispatchHandler;
-import io.jooby.internal.handler.KotlinJobHandler;
 import io.jooby.internal.handler.PostDispatchInitializerHandler;
 import io.jooby.internal.handler.SendAttachment;
 import io.jooby.internal.handler.SendByteArray;
@@ -50,26 +49,6 @@ public class Pipeline {
     }
     Type returnType = route.getReturnType();
     Class<?> type = Reified.rawType(returnType);
-    /** Kotlin: */
-    Optional<Class> deferred = loadClass(loader, "kotlinx.coroutines.Deferred");
-    if (deferred.isPresent()) {
-      if (deferred.get().isAssignableFrom(type)) {
-        return kotlinJob(mode, route, executor, initializer);
-      }
-    }
-    Optional<Class> job = loadClass(loader, "kotlinx.coroutines.Job");
-    if (job.isPresent()) {
-      if (job.get().isAssignableFrom(type)) {
-        return kotlinJob(mode, route, executor, initializer);
-      }
-    }
-    Optional<Class> continuation = loadClass(loader, "kotlin.coroutines.Continuation");
-    if (continuation.isPresent()) {
-      if (continuation.get().isAssignableFrom(type)) {
-        return kotlinContinuation(mode, route, executor, initializer);
-      }
-    }
-
     /** Context: */
     if (Context.class.isAssignableFrom(type)) {
       if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
@@ -140,21 +119,6 @@ public class Pipeline {
   }
 
   private static Handler reactive(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode, executor, new DetachHandler(decorate(initializer, next.getPipeline())), false);
-  }
-
-  private static Handler kotlinJob(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode,
-        executor,
-        new DetachHandler(decorate(initializer, new KotlinJobHandler(next.getPipeline()))),
-        false);
-  }
-
-  private static Handler kotlinContinuation(
       ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
     return next(
         mode, executor, new DetachHandler(decorate(initializer, next.getPipeline())), false);

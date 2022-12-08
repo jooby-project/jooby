@@ -242,10 +242,15 @@ open class Kooby constructor() : Jooby() {
     coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
     block: CoroutineRouter.() -> Unit
   ): CoroutineRouter {
+    val from = routes.size
     val router =
       attributes.computeIfAbsent("coroutineRouter") { CoroutineRouter(coroutineStart, this) }
         as CoroutineRouter
     router.block()
+    routes.subList(from, routes.size).forEach {
+      it.setReactive(true)
+      it.attribute("coroutine", true)
+    }
     return router
   }
 

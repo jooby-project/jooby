@@ -612,8 +612,9 @@ public class Route {
     return reactive;
   }
 
-  public void setReactive(boolean reactive) {
+  public @NonNull Route setReactive(boolean reactive) {
     this.reactive = reactive;
+    return this;
   }
 
   /**

@@ -79,7 +79,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
         }
       }
       .setHandle(handler)
-      .attribute("coroutine", true)
 
   internal fun launch(handlerContext: HandlerContext, block: suspend CoroutineScope.() -> Unit) {
     val exceptionHandler = CoroutineExceptionHandler { _, x -> handlerContext.ctx.sendError(x) }
