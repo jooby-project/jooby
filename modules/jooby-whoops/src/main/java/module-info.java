@@ -12,6 +12,5 @@ module io.jooby.whoops {
   requires org.slf4j;
 
   // SHADED: All content after this line will be removed at build time
-  requires static unbescape;
   requires static io.pebbletemplates;
 }

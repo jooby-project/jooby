@@ -24,13 +24,6 @@
       <version>${jooby.version}</version>
     </dependency>
 
-    <!-- commons-io -->
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <optional>true</optional>
-    </dependency>
-
     <!-- JAXRS -->
     <dependency>
       <groupId>jakarta.ws.rs</groupId>
@@ -200,17 +193,12 @@
               <artifactSet>
                 <includes>
                   <include>org.ow2.asm:*</include>
-                  <include>commons-io:*</include>
                 </includes>
               </artifactSet>
               <relocations>
                 <relocation>
                   <pattern>org.objectweb.asm</pattern>
                   <shadedPattern>io.jooby.internal.openapi.asm</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.apache.commons</pattern>
-                  <shadedPattern>io.jooby.internal.openapi.commons</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

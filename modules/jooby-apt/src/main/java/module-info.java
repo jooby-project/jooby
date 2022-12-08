@@ -13,7 +13,7 @@ module io.jooby.apt {
 
   // SHADED: All content after this line will be removed at build time
   requires org.objectweb.asm;
-  requires static org.objectweb.asm.tree;
-  requires static org.objectweb.asm.tree.analysis;
+  requires org.objectweb.asm.tree;
+  requires org.objectweb.asm.tree.analysis;
   requires org.objectweb.asm.util;
 }

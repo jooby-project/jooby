@@ -86,17 +86,12 @@
               <artifactSet>
                 <includes>
                   <include>io.pebbletemplates:pebble</include>
-                  <include>org.unbescape:unbescape</include>
                 </includes>
               </artifactSet>
               <relocations>
                 <relocation>
                   <pattern>com.mitchellbosecke.pebble</pattern>
                   <shadedPattern>io.jooby.internal.pebble</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.unbescape</pattern>
-                  <shadedPattern>io.jooby.internal.pebble.unbescape</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

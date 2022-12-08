@@ -9,8 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
-
 import io.jooby.SneakyThrows;
 
 public class ClassSource {
@@ -30,7 +28,7 @@ public class ClassSource {
       if (stream == null) {
         throw new ClassNotFoundException(classname);
       }
-      return IOUtils.toByteArray(stream);
+      return stream.readAllBytes();
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
@@ -41,7 +39,7 @@ public class ClassSource {
       if (stream == null) {
         throw new FileNotFoundException(path);
       }
-      return IOUtils.toByteArray(stream);
+      return stream.readAllBytes();
     }
   }
 }
