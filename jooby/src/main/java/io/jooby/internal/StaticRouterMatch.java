@@ -31,12 +31,13 @@ public class StaticRouterMatch implements Router.Match {
   }
 
   @Override
-  public void execute(@NonNull Context context) {
+  public Object execute(@NonNull Context context, @NonNull Route.Handler pipeline) {
     context.setRoute(route);
     try {
-      route.getPipeline().apply(context);
+      return pipeline.apply(context);
     } catch (Throwable x) {
       context.sendError(x);
+      return x;
     }
   }
 

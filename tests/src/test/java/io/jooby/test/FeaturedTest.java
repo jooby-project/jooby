@@ -3614,6 +3614,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
+              app.use(ReactiveSupport.completableFuture());
               app.get(
                   "/detach",
                   ctx -> {

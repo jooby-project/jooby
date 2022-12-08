@@ -156,10 +156,14 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default @NonNull Context forward(@NonNull String path) {
-    setRequestPath(path);
-    getRouter().match(this).execute(this);
-    return this;
+  default @NonNull Object forward(@NonNull String path) {
+    try {
+      setRequestPath(path);
+      Router.Match match = getRouter().match(this);
+      return match.execute(this, match.route().getHandler());
+    } catch (Throwable cause) {
+      throw SneakyThrows.propagate(cause);
+    }
   }
 
   @Override

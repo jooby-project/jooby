@@ -106,9 +106,9 @@ public interface Context extends Registry {
    * <p>NOTE: the entire handler pipeline is executed (filter, decorator, etc.).
    *
    * @param path Path to forward the request.
-   * @return This context.
+   * @return Forward result.
    */
-  @NonNull Context forward(@NonNull String path);
+  @NonNull Object forward(@NonNull String path);
 
   /**
    * Converts a value (single or hash) into the given type.

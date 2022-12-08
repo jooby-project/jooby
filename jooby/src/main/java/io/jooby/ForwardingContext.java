@@ -55,9 +55,12 @@ public class ForwardingContext implements Context {
   }
 
   @NonNull @Override
-  public Context forward(@NonNull String path) {
-    ctx.forward(path);
-    return this;
+  public Object forward(@NonNull String path) {
+    Object result = ctx.forward(path);
+    if (result instanceof Context) {
+      return this;
+    }
+    return result;
   }
 
   @Override

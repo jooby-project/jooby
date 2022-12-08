@@ -175,10 +175,10 @@ public class MockContext implements DefaultContext {
   }
 
   @NonNull @Override
-  public Context forward(@NonNull String path) {
+  public Object forward(@NonNull String path) {
     setRequestPath(path);
     if (mockRouter != null) {
-      mockRouter.call(getMethod(), path, this, consumer);
+      return mockRouter.call(getMethod(), path, this, consumer).value();
     }
     return this;
   }

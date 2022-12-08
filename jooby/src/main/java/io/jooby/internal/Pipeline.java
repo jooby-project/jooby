@@ -48,45 +48,48 @@ public class Pipeline {
       return reactive(mode, route, executor, initializer);
     }
     Type returnType = route.getReturnType();
-    Class<?> type = Reified.rawType(returnType);
-    /** Context: */
-    if (Context.class.isAssignableFrom(type)) {
-      if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
-        return next(mode, executor, new DetachHandler(route.getPipeline()), false);
+    if (returnType != null) {
+      Class<?> type = Reified.rawType(returnType);
+      /** Context: */
+      if (Context.class.isAssignableFrom(type)) {
+        if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
+          return next(mode, executor, new DetachHandler(route.getPipeline()), false);
+        }
+        return next(
+            mode, executor, decorate(initializer, new SendDirect(route.getPipeline())), true);
       }
-      return next(mode, executor, decorate(initializer, new SendDirect(route.getPipeline())), true);
+      /** InputStream: */
+      if (InputStream.class.isAssignableFrom(type)) {
+        return next(
+            mode, executor, decorate(initializer, new SendStream(route.getPipeline())), true);
+      }
+      /** FileChannel: */
+      if (FileChannel.class.isAssignableFrom(type)
+          || Path.class.isAssignableFrom(type)
+          || File.class.isAssignableFrom(type)) {
+        return next(
+            mode, executor, decorate(initializer, new SendFileChannel(route.getPipeline())), true);
+      }
+      /** FileDownload: */
+      if (FileDownload.class.isAssignableFrom(type)) {
+        return next(
+            mode, executor, decorate(initializer, new SendAttachment(route.getPipeline())), true);
+      }
+      /** Strings: */
+      if (CharSequence.class.isAssignableFrom(type)) {
+        return next(
+            mode, executor, decorate(initializer, new SendCharSequence(route.getPipeline())), true);
+      }
+      /** RawByte: */
+      if (byte[].class == type) {
+        return next(
+            mode, executor, decorate(initializer, new SendByteArray(route.getPipeline())), true);
+      }
+      if (ByteBuffer.class.isAssignableFrom(type)) {
+        return next(
+            mode, executor, decorate(initializer, new SendByteBuffer(route.getPipeline())), true);
+      }
     }
-    /** InputStream: */
-    if (InputStream.class.isAssignableFrom(type)) {
-      return next(mode, executor, decorate(initializer, new SendStream(route.getPipeline())), true);
-    }
-    /** FileChannel: */
-    if (FileChannel.class.isAssignableFrom(type)
-        || Path.class.isAssignableFrom(type)
-        || File.class.isAssignableFrom(type)) {
-      return next(
-          mode, executor, decorate(initializer, new SendFileChannel(route.getPipeline())), true);
-    }
-    /** FileDownload: */
-    if (FileDownload.class.isAssignableFrom(type)) {
-      return next(
-          mode, executor, decorate(initializer, new SendAttachment(route.getPipeline())), true);
-    }
-    /** Strings: */
-    if (CharSequence.class.isAssignableFrom(type)) {
-      return next(
-          mode, executor, decorate(initializer, new SendCharSequence(route.getPipeline())), true);
-    }
-    /** RawByte: */
-    if (byte[].class == type) {
-      return next(
-          mode, executor, decorate(initializer, new SendByteArray(route.getPipeline())), true);
-    }
-    if (ByteBuffer.class.isAssignableFrom(type)) {
-      return next(
-          mode, executor, decorate(initializer, new SendByteBuffer(route.getPipeline())), true);
-    }
-
     if (responseHandler != null) {
       return responseHandler.stream()
           .filter(it -> it.matches(returnType))
@@ -106,6 +109,7 @@ public class Pipeline {
                       decorate(initializer, new DefaultHandler(route.getPipeline())),
                       true));
     }
+
     return next(
         mode, executor, decorate(initializer, new DefaultHandler(route.getPipeline())), true);
   }

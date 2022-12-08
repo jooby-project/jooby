@@ -562,7 +562,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public PrintWriter responseWriter(MediaType type, Charset charset) {
-    responseStarted = true;
     setResponseType(type, charset);
 
     return new PrintWriter(new NettyWriter(newOutputStream(), charset));
@@ -570,7 +569,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Sender responseSender() {
-    responseStarted = true;
     prepareChunked();
     ctx.write(new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
     return new NettySender(this, ctx);
@@ -641,7 +639,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     try {
       prepareChunked();
       DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
-      responseStarted = true;
       int bufferSize = contentLength > 0 ? (int) contentLength : this.bufferSize;
       ctx.channel()
           .eventLoop()
@@ -667,9 +664,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       return send(((FileInputStream) in).getChannel());
     }
     try {
-      prepareChunked();
       long len = responseLength();
       ByteRange range = ByteRange.parse(req.headers().get(RANGE), len).apply(this);
+      prepareChunked();
       ChunkedStream chunkedStream = new ChunkedStream(range.apply(in), bufferSize);
 
       DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
@@ -933,6 +930,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private void prepareChunked() {
+    responseStarted = true;
     // remove flusher, doesn't play well with streaming/chunked responses
     ChannelPipeline pipeline = ctx.pipeline();
     if (pipeline.get("chunker") == null) {

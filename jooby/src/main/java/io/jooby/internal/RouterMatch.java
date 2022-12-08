@@ -84,13 +84,14 @@ public class RouterMatch implements Router.Match {
     return this;
   }
 
-  public void execute(Context context) {
+  public Object execute(Context context, Route.Handler pipeline) {
     context.setPathMap(vars);
     context.setRoute(route);
     try {
-      route.getPipeline().apply(context);
+      return pipeline.apply(context);
     } catch (Throwable x) {
       context.sendError(x);
+      return x;
     } finally {
       this.handler = null;
       this.route = null;

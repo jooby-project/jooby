@@ -8,6 +8,7 @@ package io.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.FileNotFoundException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -589,9 +590,9 @@ public class RouterImpl implements Router {
         }
       }
       /** Return type: */
-      if (route.getReturnType() == null) {
-        route.setReturnType(analyzer.returnType(route.getHandle()));
-      }
+      //      if (route.getReturnType() == null) {
+      //        route.setReturnType(analyzer.returnType(route.getHandle()));
+      //      }
 
       /** Default web socket values: */
       if (route.getHandler() instanceof WebSocketHandler) {
@@ -745,7 +746,7 @@ public class RouterImpl implements Router {
     if (x instanceof IllegalArgumentException || x instanceof NoSuchElementException) {
       return StatusCode.BAD_REQUEST;
     }
-    if (x instanceof FileNotFoundException) {
+    if (x instanceof FileNotFoundException || x instanceof NoSuchFileException) {
       return StatusCode.NOT_FOUND;
     }
     return StatusCode.SERVER_ERROR;
