@@ -85,7 +85,6 @@
 
     <!-- javax -->
     <jakarta.inject.version>2.0.1</jakarta.inject.version>
-    <jsr305.version>3.0.2</jsr305.version>
     <spotbugs-annotations.version>4.7.2</spotbugs-annotations.version>
     <jakarta.ws.rs-api.version>3.0.0</jakarta.ws.rs-api.version>
 
@@ -893,12 +892,6 @@
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp-sse</artifactId>
         <version>${okhttp.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.google.code.findbugs</groupId>
-        <artifactId>jsr305</artifactId>
-        <version>${jsr305.version}</version>
       </dependency>
 
       <dependency>

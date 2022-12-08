@@ -14,12 +14,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby</artifactId>
       <version>${jooby.version}</version>
