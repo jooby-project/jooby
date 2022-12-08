@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
+import io.jooby.internal.IOUtils;
 
 /**
  * Reads a PEM file and converts it into a list of DERs so that they are imported into a {@link
@@ -47,7 +47,7 @@ final class PemReader {
 
   static List<ByteBuffer> readCertificates(final InputStream file)
       throws CertificateException, IOException {
-    String content = IOUtils.toString(file, StandardCharsets.US_ASCII);
+    String content = IOUtils.toString(file, StandardCharsets.UTF_8);
 
     List<ByteBuffer> certs = new ArrayList<ByteBuffer>();
     Matcher m = CERT_PATTERN.matcher(content);

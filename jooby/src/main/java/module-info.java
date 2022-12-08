@@ -27,8 +27,6 @@ module io.jooby {
   requires static io.github.bucket4j.core;
 
   // SHADED: All content after this line will be removed at build time
-
-  requires static org.apache.commons.io;
   requires static unbescape;
   requires kotlinx.coroutines.core.jvm;
   requires kotlin.stdlib;

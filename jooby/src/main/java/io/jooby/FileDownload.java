@@ -13,8 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import org.apache.commons.io.FilenameUtils;
+import java.nio.file.Paths;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
@@ -72,7 +71,7 @@ public class FileDownload {
   public FileDownload(
       Mode mode, @NonNull InputStream content, @NonNull String fileName, long fileSize) {
     try {
-      this.fileName = FilenameUtils.getName(fileName);
+      this.fileName = Paths.get(fileName).getFileName().toString();
       this.contentType = MediaType.byFile(this.fileName);
       String filenameStar = URLEncoder.encode(this.fileName, CHARSET).replaceAll("\\+", "%20");
       if (this.fileName.equals(filenameStar)) {

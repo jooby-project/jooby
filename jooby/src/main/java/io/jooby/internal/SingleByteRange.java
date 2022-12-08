@@ -5,10 +5,10 @@
  */
 package io.jooby.internal;
 
+import static io.jooby.internal.IOUtils.bounded;
+
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.commons.io.input.BoundedInputStream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.ByteRange;
@@ -24,8 +24,8 @@ import io.jooby.StatusCode;
  *
  * <p>Multiple byte range request are not supported.
  *
- * @since 2.0.0
  * @author edgar
+ * @since 2.0.0
  */
 public class SingleByteRange implements ByteRange {
   private String value;
@@ -128,8 +128,7 @@ public class SingleByteRange implements ByteRange {
    */
   @Override
   public @NonNull InputStream apply(@NonNull InputStream input) throws IOException {
-    input.skip(start);
-    return new BoundedInputStream(input, end);
+    return bounded(input, start, end);
   }
 
   @Override

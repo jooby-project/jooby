@@ -88,15 +88,10 @@
               <minimizeJar>true</minimizeJar>
               <artifactSet>
                 <includes>
-                  <include>commons-io:*</include>
                   <include>org.unbescape:*</include>
                 </includes>
               </artifactSet>
               <relocations>
-                <relocation>
-                  <pattern>org.apache.commons</pattern>
-                  <shadedPattern>${shaded.package}</shadedPattern>
-                </relocation>
                 <relocation>
                   <pattern>org.unbescape</pattern>
                   <shadedPattern>${shaded.package}</shadedPattern>
@@ -134,13 +129,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <!-- commons-io -->
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <!-- unbescape -->

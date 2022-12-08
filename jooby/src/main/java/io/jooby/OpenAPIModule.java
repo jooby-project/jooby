@@ -14,11 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.io.IOUtils;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SneakyThrows.Consumer2;
+import io.jooby.internal.IOUtils;
 
 /**
  * OpenAPI supports for Jooby. Basic Usage:
