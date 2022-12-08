@@ -61,7 +61,6 @@ import io.jooby.ValueConverter;
 import io.jooby.WebSocket;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
-import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
 import jakarta.inject.Provider;
@@ -567,9 +566,6 @@ public class RouterImpl implements Router {
     ValueConverter.addFallbackConverters(converters);
     BeanConverter.addFallbackConverters(beanConverters);
 
-    ClassSource source = new ClassSource(classLoader);
-    RouteAnalyzer analyzer = new RouteAnalyzer(source, false);
-
     ExecutionMode mode = app.getExecutionMode();
     for (Route route : routes) {
       String executorKey = route.getExecutorKey();
@@ -613,7 +609,7 @@ public class RouterImpl implements Router {
       /** Response handler: */
       Route.Handler pipeline =
           Pipeline.compute(
-              source.getLoader(),
+              classLoader,
               route,
               forceMode(route, mode),
               executor,
@@ -642,7 +638,6 @@ public class RouterImpl implements Router {
     this.stack = null;
     routeExecutor.clear();
     routeExecutor = null;
-    source.destroy();
     return this;
   }
 

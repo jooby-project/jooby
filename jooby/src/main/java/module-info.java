@@ -29,10 +29,6 @@ module io.jooby {
   // SHADED: All content after this line will be removed at build time
 
   requires static org.apache.commons.io;
-  requires org.objectweb.asm;
-  requires static org.objectweb.asm.tree;
-  requires static org.objectweb.asm.tree.analysis;
-  requires org.objectweb.asm.util;
   requires static unbescape;
   requires kotlinx.coroutines.core.jvm;
   requires kotlin.stdlib;
