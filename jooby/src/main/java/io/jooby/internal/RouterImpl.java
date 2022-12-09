@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -182,8 +181,6 @@ public class RouterImpl implements Router {
 
   private List<BeanConverter> beanConverters;
 
-  private ClassLoader classLoader;
-
   private ContextInitializer preDispatchInitializer;
 
   private ContextInitializer postDispatchInitializer;
@@ -194,8 +191,7 @@ public class RouterImpl implements Router {
 
   private boolean contextAsService;
 
-  public RouterImpl(ClassLoader loader) {
-    this.classLoader = loader;
+  public RouterImpl() {
     stack.addLast(new Stack(chi, null));
 
     converters = ValueConverters.defaultConverters();
@@ -495,8 +491,7 @@ public class RouterImpl implements Router {
             .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** Filter: */
-    List<Route.Filter> decoratorList =
-        stack.stream().flatMap(Stack::toFilter).collect(Collectors.toList());
+    List<Route.Filter> decoratorList = stack.stream().flatMap(Stack::toFilter).toList();
     Route.Filter decorator =
         decoratorList.stream().reduce(null, (it, next) -> it == null ? next : it.then(next));
 
@@ -608,13 +603,8 @@ public class RouterImpl implements Router {
       }
       /** Response handler: */
       Route.Handler pipeline =
-          Pipeline.compute(
-              classLoader,
-              route,
-              forceMode(route, mode),
-              executor,
-              postDispatchInitializer,
-              handlers);
+          Pipeline.build(
+              route, forceMode(route, mode), executor, postDispatchInitializer, handlers);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);

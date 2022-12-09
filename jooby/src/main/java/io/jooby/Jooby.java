@@ -125,7 +125,7 @@ public class Jooby implements Router, Registry {
     if (owner == null) {
       ClassLoader classLoader = getClass().getClassLoader();
       environmentOptions = new EnvironmentOptions().setClassLoader(classLoader);
-      router = new RouterImpl(classLoader);
+      router = new RouterImpl();
       stopCallbacks = new LinkedList<>();
       startingCallbacks = new ArrayList<>();
       readyCallbacks = new ArrayList<>();

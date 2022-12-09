@@ -258,26 +258,6 @@ public final class $Types {
     return toResolve;
   }
 
-  /**
-   * Returns the generic form of {@code supertype}. For example, if this is {@code
-   * ArrayList<String>}, this returns {@code Iterable<String>} given the input {@code
-   * Iterable.class}.
-   *
-   * @param supertype a superclass of, or interface implemented by, this.
-   */
-  static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
-    if (context instanceof WildcardType) {
-      // wildcards are useless for resolving supertypes. As the upper bound has the same raw type,
-      // use it instead
-      context = ((WildcardType) context).getUpperBounds()[0];
-    }
-    if (!supertype.isAssignableFrom(contextRawType)) {
-      throw new IllegalArgumentException(supertype + " not assignable from " + contextRawType);
-    }
-    return resolve(
-        context, contextRawType, $Types.getGenericSupertype(context, contextRawType, supertype));
-  }
-
   public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
     return resolve(context, contextRawType, toResolve, new HashSet<TypeVariable>());
   }

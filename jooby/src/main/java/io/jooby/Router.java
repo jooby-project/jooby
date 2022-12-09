@@ -142,7 +142,7 @@ public interface Router extends Registry {
   @NonNull Map<String, Object> getAttributes();
 
   /**
-   * Get an attribute by his key. This is just an utility method around {@link #getAttributes()}.
+   * Get an attribute by his key. This is just a utility method around {@link #getAttributes()}.
    *
    * @param key Attribute key.
    * @param <T> Attribute type.
@@ -232,7 +232,7 @@ public interface Router extends Registry {
    *   <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.
    * </ul>
    *
-   * @param trustProxy True to enabled.
+   * @param trustProxy True to enable.
    * @return This router.
    */
   @NonNull Router setTrustProxy(boolean trustProxy);
@@ -264,7 +264,7 @@ public interface Router extends Registry {
    * @param provider User provider/factory.
    * @return This router.
    */
-  @NonNull Router setCurrentUser(@Nullable Function<Context, Object> provider);
+  @NonNull Router setCurrentUser(@NonNull Function<Context, Object> provider);
 
   /**
    * If enabled, allows to retrieve the {@link Context} object associated with the current request
@@ -464,7 +464,7 @@ public interface Router extends Registry {
   /**
    * Register a route response encoder.
    *
-   * @param contentType Accept header should matches the content-type.
+   * @param contentType Accept header should match the content-type.
    * @param encoder MessageEncoder instance.
    * @return This router.
    */
@@ -579,7 +579,7 @@ public interface Router extends Registry {
   @NonNull RouteSet routes(@NonNull Runnable body);
 
   /**
-   * Group one or more routes under a common path prefix. Useful for applying cross cutting concerns
+   * Group one or more routes under a common path prefix. Useful for applying cross-cutting concerns
    * to the enclosed routes.
    *
    * @param pattern Path pattern.

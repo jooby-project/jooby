@@ -12,7 +12,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import io.jooby.Context;
@@ -37,15 +36,15 @@ import io.jooby.internal.handler.WorkerHandler;
 
 public class Pipeline {
 
-  public static Handler compute(
-      ClassLoader loader,
+  public static Handler build(
       Route route,
       ExecutionMode mode,
       Executor executor,
       ContextInitializer initializer,
       List<ResponseHandler> responseHandler) {
     if (route.isReactive()) {
-      return reactive(mode, route, executor, initializer);
+      return next(
+          mode, executor, new DetachHandler(decorate(initializer, route.getPipeline())), false);
     }
     Type returnType = route.getReturnType();
     if (returnType != null) {
@@ -53,7 +52,8 @@ public class Pipeline {
       /** Context: */
       if (Context.class.isAssignableFrom(type)) {
         if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
-          return next(mode, executor, new DetachHandler(route.getPipeline()), false);
+          return next(
+              mode, executor, decorate(initializer, new DetachHandler(route.getPipeline())), false);
         }
         return next(
             mode, executor, decorate(initializer, new SendDirect(route.getPipeline())), true);
@@ -122,12 +122,6 @@ public class Pipeline {
     return new PostDispatchInitializerHandler(initializer, pipeline);
   }
 
-  private static Handler reactive(
-      ExecutionMode mode, Route next, Executor executor, ContextInitializer initializer) {
-    return next(
-        mode, executor, new DetachHandler(decorate(initializer, next.getPipeline())), false);
-  }
-
   private static Handler next(
       ExecutionMode mode, Executor executor, Handler handler, boolean blocking) {
     if (executor == null) {
@@ -140,13 +134,5 @@ public class Pipeline {
       return handler;
     }
     return new DispatchHandler(handler, executor);
-  }
-
-  private static Optional<Class> loadClass(ClassLoader loader, String name) {
-    try {
-      return Optional.of(loader.loadClass(name));
-    } catch (ClassNotFoundException x) {
-      return Optional.empty();
-    }
   }
 }
