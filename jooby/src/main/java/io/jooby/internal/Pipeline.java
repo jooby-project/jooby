@@ -18,7 +18,7 @@ import io.jooby.Context;
 import io.jooby.ExecutionMode;
 import io.jooby.FileDownload;
 import io.jooby.Reified;
-import io.jooby.ResponseHandler;
+import io.jooby.ResultHandler;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
 import io.jooby.internal.handler.DefaultHandler;
@@ -41,7 +41,7 @@ public class Pipeline {
       ExecutionMode mode,
       Executor executor,
       ContextInitializer initializer,
-      List<ResponseHandler> responseHandler) {
+      List<ResultHandler> responseHandler) {
     if (route.isReactive()) {
       return next(
           mode, executor, new DetachHandler(decorate(initializer, route.getPipeline())), false);

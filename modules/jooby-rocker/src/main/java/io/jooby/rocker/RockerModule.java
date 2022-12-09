@@ -76,8 +76,8 @@ public class RockerModule implements Extension {
       factory = ByteBufferOutput.reuse(factory);
     }
     runtime.setReloading(reloading);
-    // response handler
-    application.responseHandler(new RockerResponseHandler(factory));
+    // result handler
+    application.resultHandler(new RockerResultHandler(factory));
     // renderer
     application.encoder(new RockerMessageEncoder(factory));
     // factory

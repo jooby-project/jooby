@@ -10,13 +10,13 @@ import java.lang.reflect.Type;
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerOutputFactory;
 import io.jooby.Reified;
-import io.jooby.ResponseHandler;
+import io.jooby.ResultHandler;
 import io.jooby.Route;
 
-class RockerResponseHandler implements ResponseHandler {
+class RockerResultHandler implements ResultHandler {
   private final RockerOutputFactory<ByteBufferOutput> factory;
 
-  RockerResponseHandler(final RockerOutputFactory<ByteBufferOutput> factory) {
+  RockerResultHandler(final RockerOutputFactory<ByteBufferOutput> factory) {
     this.factory = factory;
   }
 

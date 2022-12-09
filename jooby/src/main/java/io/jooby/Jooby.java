@@ -612,8 +612,8 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Jooby responseHandler(ResponseHandler handler) {
-    router.responseHandler(handler);
+  public Jooby resultHandler(ResultHandler handler) {
+    router.resultHandler(handler);
     return this;
   }
 

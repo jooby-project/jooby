@@ -40,7 +40,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @since 2.0.0
  * @author edgar
  */
-public interface ResponseHandler {
+public interface ResultHandler {
 
   /**
    * True if response route type is the one expected by the response handler.

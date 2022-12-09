@@ -45,7 +45,7 @@ import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
-import io.jooby.ResponseHandler;
+import io.jooby.ResultHandler;
 import io.jooby.Route;
 import io.jooby.RouteSet;
 import io.jooby.Router;
@@ -169,7 +169,7 @@ public class RouterImpl implements Router {
 
   private Map<String, Object> attributes = new ConcurrentHashMap<>();
 
-  private List<ResponseHandler> handlers = new ArrayList<>();
+  private List<ResultHandler> handlers = new ArrayList<>();
 
   private ServiceRegistry services = new ServiceRegistryImpl();
 
@@ -738,7 +738,7 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public Router responseHandler(ResponseHandler handler) {
+  public Router resultHandler(ResultHandler handler) {
     handlers.add(handler);
     return this;
   }
