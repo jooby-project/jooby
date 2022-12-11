@@ -16,12 +16,14 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -169,7 +171,7 @@ public class RouterImpl implements Router {
 
   private Map<String, Object> attributes = new ConcurrentHashMap<>();
 
-  private List<ResultHandler> handlers = new ArrayList<>();
+  private List<ResultHandler> resultHandlers = new ArrayList<>();
 
   private ServiceRegistry services = new ServiceRegistryImpl();
 
@@ -580,11 +582,6 @@ public class RouterImpl implements Router {
           executor = executor(executorKey);
         }
       }
-      /** Return type: */
-      //      if (route.getReturnType() == null) {
-      //        route.setReturnType(analyzer.returnType(route.getHandle()));
-      //      }
-
       /** Default web socket values: */
       if (route.getHandler() instanceof WebSocketHandler) {
         if (route.getConsumes().isEmpty()) {
@@ -601,10 +598,15 @@ public class RouterImpl implements Router {
             prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE));
         route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT));
       }
+      Set<ResultHandler> resultSet = new LinkedHashSet<>();
+      if (resultHandlers != null) {
+        resultSet.addAll(resultHandlers);
+      }
+      ServiceLoader.load(ResultHandler.class).forEach(resultSet::add);
       /** Response handler: */
       Route.Handler pipeline =
           Pipeline.build(
-              route, forceMode(route, mode), executor, postDispatchInitializer, handlers);
+              route, forceMode(route, mode), executor, postDispatchInitializer, resultSet);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);
@@ -739,7 +741,7 @@ public class RouterImpl implements Router {
 
   @NonNull @Override
   public Router resultHandler(ResultHandler handler) {
-    handlers.add(handler);
+    resultHandlers.add(handler);
     return this;
   }
 

@@ -6,23 +6,18 @@
 package io.jooby.internal.handler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
 import io.jooby.Route;
 
-public class DetachHandler implements LinkedHandler {
-  private final Route.Handler next;
+public class DetachHandler implements Route.Filter {
 
-  public DetachHandler(Route.Handler next) {
-    this.next = next;
-  }
+  public static final DetachHandler DETACH = new DetachHandler();
+
+  private DetachHandler() {}
 
   @NonNull @Override
-  public Object apply(@NonNull Context ctx) throws Exception {
-    return ctx.detach(next);
-  }
-
-  @Override
-  public Route.Handler next() {
-    return next;
+  public Route.Handler apply(@NonNull Route.Handler next) {
+    return ctx -> {
+      return ctx.detach(next);
+    };
   }
 }

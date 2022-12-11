@@ -22,7 +22,7 @@ public class Issue2452 {
     runner
         .define(
             app -> {
-              app.use(ReactiveSupport.completableFuture());
+              app.use(ReactiveSupport.concurrent());
 
               app.get(
                   "/2452",

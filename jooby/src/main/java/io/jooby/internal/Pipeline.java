@@ -5,34 +5,26 @@
  */
 package io.jooby.internal;
 
-import java.io.File;
-import java.io.InputStream;
+import static io.jooby.ReactiveSupport.concurrent;
+import static io.jooby.internal.handler.DefaultHandler.DEFAULT;
+import static io.jooby.internal.handler.DetachHandler.DETACH;
+import static io.jooby.internal.handler.WorkerHandler.WORKER;
+
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
 
 import io.jooby.Context;
 import io.jooby.ExecutionMode;
-import io.jooby.FileDownload;
 import io.jooby.Reified;
 import io.jooby.ResultHandler;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
-import io.jooby.internal.handler.DefaultHandler;
-import io.jooby.internal.handler.DetachHandler;
 import io.jooby.internal.handler.DispatchHandler;
 import io.jooby.internal.handler.PostDispatchInitializerHandler;
-import io.jooby.internal.handler.SendAttachment;
-import io.jooby.internal.handler.SendByteArray;
-import io.jooby.internal.handler.SendByteBuffer;
-import io.jooby.internal.handler.SendCharSequence;
 import io.jooby.internal.handler.SendDirect;
-import io.jooby.internal.handler.SendFileChannel;
-import io.jooby.internal.handler.SendStream;
-import io.jooby.internal.handler.WorkerHandler;
 
 public class Pipeline {
 
@@ -41,98 +33,67 @@ public class Pipeline {
       ExecutionMode mode,
       Executor executor,
       ContextInitializer initializer,
-      List<ResultHandler> responseHandler) {
-    if (route.isReactive()) {
-      return next(
-          mode, executor, new DetachHandler(decorate(initializer, route.getPipeline())), false);
-    }
+      Set<ResultHandler> responseHandler) {
+    // Set default wrapper and blocking mode
+    Route.Filter wrapper = route.isReactive() ? DETACH : DEFAULT;
+    boolean blocking = !route.isReactive();
+
+    /** Return type is set by annotation processor, or manually per lambda route: */
     Type returnType = route.getReturnType();
     if (returnType != null) {
       Class<?> type = Reified.rawType(returnType);
       /** Context: */
       if (Context.class.isAssignableFrom(type)) {
         if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
-          return next(
-              mode, executor, decorate(initializer, new DetachHandler(route.getPipeline())), false);
+          blocking = false;
+          wrapper = DETACH;
+        } else {
+          blocking = true;
+          wrapper = SendDirect.DIRECT;
         }
-        return next(
-            mode, executor, decorate(initializer, new SendDirect(route.getPipeline())), true);
-      }
-      /** InputStream: */
-      if (InputStream.class.isAssignableFrom(type)) {
-        return next(
-            mode, executor, decorate(initializer, new SendStream(route.getPipeline())), true);
-      }
-      /** FileChannel: */
-      if (FileChannel.class.isAssignableFrom(type)
-          || Path.class.isAssignableFrom(type)
-          || File.class.isAssignableFrom(type)) {
-        return next(
-            mode, executor, decorate(initializer, new SendFileChannel(route.getPipeline())), true);
-      }
-      /** FileDownload: */
-      if (FileDownload.class.isAssignableFrom(type)) {
-        return next(
-            mode, executor, decorate(initializer, new SendAttachment(route.getPipeline())), true);
-      }
-      /** Strings: */
-      if (CharSequence.class.isAssignableFrom(type)) {
-        return next(
-            mode, executor, decorate(initializer, new SendCharSequence(route.getPipeline())), true);
-      }
-      /** RawByte: */
-      if (byte[].class == type) {
-        return next(
-            mode, executor, decorate(initializer, new SendByteArray(route.getPipeline())), true);
-      }
-      if (ByteBuffer.class.isAssignableFrom(type)) {
-        return next(
-            mode, executor, decorate(initializer, new SendByteBuffer(route.getPipeline())), true);
+      } else if (CompletionStage.class.isAssignableFrom(type)
+          || Flow.Publisher.class.isAssignableFrom(type)) {
+        /** Completable future: */
+        blocking = false;
+        wrapper = DETACH.then(concurrent());
+      } else {
+        /** Custom responses: */
+        for (ResultHandler factory : responseHandler) {
+          if (factory.matches(returnType)) {
+            Route.Filter custom = factory.create();
+            if (factory.isReactive()) {
+              blocking = false;
+              wrapper = DETACH.then(custom);
+            } else {
+              blocking = true;
+              wrapper = custom;
+            }
+            break;
+          }
+        }
       }
     }
-    if (responseHandler != null) {
-      return responseHandler.stream()
-          .filter(it -> it.matches(returnType))
-          .findFirst()
-          .map(
-              factory ->
-                  next(
-                      mode,
-                      executor,
-                      decorate(initializer, factory.create(route.getPipeline())),
-                      true))
-          .orElseGet(
-              () ->
-                  next(
-                      mode,
-                      executor,
-                      decorate(initializer, new DefaultHandler(route.getPipeline())),
-                      true));
-    }
-
-    return next(
-        mode, executor, decorate(initializer, new DefaultHandler(route.getPipeline())), true);
+    return dispatchHandler(
+        mode, executor, decorate(initializer, wrapper.then(route.getPipeline())), blocking);
   }
 
   private static Handler decorate(ContextInitializer initializer, Handler handler) {
-    Handler pipeline = handler;
-    if (initializer == null) {
-      return pipeline;
-    }
-    return new PostDispatchInitializerHandler(initializer, pipeline);
+    return initializer == null
+        ? handler
+        : new PostDispatchInitializerHandler(initializer).then(handler);
   }
 
-  private static Handler next(
+  private static Handler dispatchHandler(
       ExecutionMode mode, Executor executor, Handler handler, boolean blocking) {
     if (executor == null) {
       if (mode == ExecutionMode.WORKER) {
-        return new WorkerHandler(handler);
+        return WORKER.then(handler);
       }
       if (mode == ExecutionMode.DEFAULT && blocking) {
-        return new WorkerHandler(handler);
+        return WORKER.then(handler);
       }
       return handler;
     }
-    return new DispatchHandler(handler, executor);
+    return new DispatchHandler(executor).apply(handler);
   }
 }

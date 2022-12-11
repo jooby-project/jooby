@@ -28,8 +28,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  *     return Foo.class == type;
  *   }
  *
- *   Route.Handler create(Route.Handler next) {
- *     return ctx -> {
+ *   Route.Filter create() {
+ *     return next -> ctx -> {
  *       Foo foo = (Foo) next.apply(ctx);
  *       return ctx.sendString(foo.toString());
  *     }
@@ -50,6 +50,8 @@ public interface ResultHandler {
    */
   boolean matches(@NonNull Type type);
 
+  boolean isReactive();
+
   /**
    * Creates a handler for a response type. Example:
    *
@@ -59,8 +61,8 @@ public interface ResultHandler {
    *     return Foo.class == type;
    *   }
    *
-   *   Route.Handler create(Route.Handler next) {
-   *     return ctx -> {
+   *   Route.Filter create() {
+   *     return next -> ctx -> {
    *       Foo foo = (Foo) next.apply(ctx);
    *       return ctx.sendString(foo.toString());
    *     }
@@ -68,8 +70,7 @@ public interface ResultHandler {
    * }
    * }</pre>
    *
-   * @param next Next route in pipeline (usually the route handler).
    * @return A response handler.
    */
-  @NonNull Route.Handler create(Route.Handler next);
+  @NonNull Route.Filter create();
 }

@@ -8,29 +8,27 @@ package io.jooby.rocker;
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerOutputFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
 
-class RockerHandler implements Route.Handler {
-  private final Route.Handler next;
-
+class RockerHandler implements Route.Filter {
   private final RockerOutputFactory<ByteBufferOutput> factory;
 
-  RockerHandler(Route.Handler next, RockerOutputFactory<ByteBufferOutput> factory) {
-    this.next = next;
+  RockerHandler(RockerOutputFactory<ByteBufferOutput> factory) {
     this.factory = factory;
   }
 
   @NonNull @Override
-  public Object apply(@NonNull Context ctx) {
-    try {
-      RockerModel template = (RockerModel) next.apply(ctx);
-      ctx.setResponseType(MediaType.html);
-      return ctx.send(template.render(factory).toBuffer());
-    } catch (Throwable x) {
-      ctx.sendError(x);
-      return x;
-    }
+  public Route.Handler apply(@NonNull Route.Handler next) {
+    return ctx -> {
+      try {
+        RockerModel template = (RockerModel) next.apply(ctx);
+        ctx.setResponseType(MediaType.html);
+        return ctx.send(template.render(factory).toBuffer());
+      } catch (Throwable x) {
+        ctx.sendError(x);
+        return x;
+      }
+    };
   }
 }

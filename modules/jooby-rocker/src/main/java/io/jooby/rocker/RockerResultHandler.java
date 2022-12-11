@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerOutputFactory;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Reified;
 import io.jooby.ResultHandler;
 import io.jooby.Route;
@@ -21,12 +22,17 @@ class RockerResultHandler implements ResultHandler {
   }
 
   @Override
-  public boolean matches(Type type) {
+  public boolean matches(@NonNull Type type) {
     return RockerModel.class.isAssignableFrom(Reified.rawType(type));
   }
 
   @Override
-  public Route.Handler create(Route.Handler next) {
-    return new RockerHandler(next, factory);
+  public @NonNull Route.Filter create() {
+    return new RockerHandler(factory);
+  }
+
+  @Override
+  public boolean isReactive() {
+    return false;
   }
 }

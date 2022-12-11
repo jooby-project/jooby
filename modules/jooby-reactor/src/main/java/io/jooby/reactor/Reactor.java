@@ -8,32 +8,74 @@ package io.jooby.reactor;
 import static io.jooby.ReactiveSupport.newSubscriber;
 import static org.reactivestreams.FlowAdapters.toSubscriber;
 
+import java.lang.reflect.Type;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Reified;
+import io.jooby.ResultHandler;
 import io.jooby.Route;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class Reactor {
+/**
+ * Reactor reactive filter.
+ *
+ * @author edgar
+ */
+public class Reactor implements ResultHandler {
 
+  private static final Route.Filter REACTOR =
+      new Route.Filter() {
+        @NonNull @Override
+        public Route.Handler apply(@NonNull Route.Handler next) {
+          return ctx -> {
+            Object result = next.apply(ctx);
+            if (result instanceof Flux flux) {
+              flux.subscribe(toSubscriber(newSubscriber(ctx)));
+            } else if (result instanceof Mono mono) {
+              mono.subscribe(ctx::render, x -> ctx.sendError((Throwable) x));
+            }
+            return result;
+          };
+        }
+
+        @Override
+        public void setRoute(Route route) {
+          route.setReactive(true);
+        }
+      };
+
+  /**
+   * Adapt/map a {@link Mono} and {@link Flux} results as HTTP responses.
+   *
+   * <pre>{@code
+   * import io.jooby.reactor.Reactor.reactor;
+   *
+   * use(reactor());
+   *
+   * get("/", ctx -> Mono.create("Hello"));
+   *
+   * }</pre>
+   *
+   * @return Reactor filter.
+   */
   public static Route.Filter reactor() {
-    return new Route.Filter() {
-      @NonNull @Override
-      public Route.Handler apply(@NonNull Route.Handler next) {
-        return ctx -> {
-          Object result = next.apply(ctx);
-          if (result instanceof Flux flux) {
-            flux.subscribe(toSubscriber(newSubscriber(ctx)));
-          } else if (result instanceof Mono mono) {
-            mono.subscribe(ctx::render, x -> ctx.sendError((Throwable) x));
-          }
-          return result;
-        };
-      }
+    return REACTOR;
+  }
 
-      @Override
-      public void setRoute(Route route) {
-        route.setReactive(true);
-      }
-    };
+  @Override
+  public boolean matches(@NonNull Type type) {
+    Class<?> raw = Reified.get(type).getRawType();
+    return Mono.class.isAssignableFrom(raw) || Flux.class.isAssignableFrom(raw);
+  }
+
+  @NonNull @Override
+  public Route.Filter create() {
+    return REACTOR;
+  }
+
+  @Override
+  public boolean isReactive() {
+    return true;
   }
 }

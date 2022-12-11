@@ -6,29 +6,24 @@
 package io.jooby.internal.handler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
 import io.jooby.Route;
 
-public class SendDirect implements LinkedHandler {
-  private Route.Handler next;
+public class SendDirect implements Route.Filter {
 
-  public SendDirect(Route.Handler next) {
-    this.next = next;
-  }
+  public static final SendDirect DIRECT = new SendDirect();
+
+  private SendDirect() {}
 
   @NonNull @Override
-  public Object apply(@NonNull Context ctx) throws Exception {
-    try {
-      next.apply(ctx);
-      return ctx;
-    } catch (Throwable x) {
-      ctx.sendError(x);
-      return x;
-    }
-  }
-
-  @Override
-  public Route.Handler next() {
-    return next;
+  public Route.Handler apply(@NonNull Route.Handler next) {
+    return ctx -> {
+      try {
+        next.apply(ctx);
+        return ctx;
+      } catch (Throwable x) {
+        ctx.sendError(x);
+        return x;
+      }
+    };
   }
 }

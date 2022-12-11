@@ -1507,7 +1507,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.use(ReactiveSupport.flow());
+              app.use(ReactiveSupport.concurrent());
               app.get("/mutiny/multi", ctx -> Multi.createFrom().range(1, 11).map(i -> i + ","));
             })
         .ready(
@@ -1526,7 +1526,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.use(ReactiveSupport.completableFuture());
+              app.use(ReactiveSupport.concurrent());
               app.get(
                   "/completable",
                   ctx -> supplyAsync(() -> "Completable Future!").thenApply(v -> "Hello " + v));
@@ -3614,7 +3614,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.use(ReactiveSupport.completableFuture());
+              app.use(ReactiveSupport.concurrent());
               app.get(
                   "/detach",
                   ctx -> {

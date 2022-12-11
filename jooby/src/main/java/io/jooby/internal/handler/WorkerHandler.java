@@ -6,30 +6,23 @@
 package io.jooby.internal.handler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
 import io.jooby.Route;
 
-public class WorkerHandler implements LinkedHandler {
-  private final Route.Handler next;
+public class WorkerHandler implements Route.Filter {
+  public static final Route.Filter WORKER = new WorkerHandler();
 
-  public WorkerHandler(Route.Handler next) {
-    this.next = next;
-  }
+  private WorkerHandler() {}
 
   @NonNull @Override
-  public Object apply(@NonNull Context ctx) {
-    return ctx.dispatch(
-        () -> {
-          try {
-            next.apply(ctx);
-          } catch (Throwable x) {
-            ctx.sendError(x);
-          }
-        });
-  }
-
-  @Override
-  public Route.Handler next() {
-    return next;
+  public Route.Handler apply(@NonNull Route.Handler next) {
+    return ctx ->
+        ctx.dispatch(
+            () -> {
+              try {
+                next.apply(ctx);
+              } catch (Throwable x) {
+                ctx.sendError(x);
+              }
+            });
   }
 }

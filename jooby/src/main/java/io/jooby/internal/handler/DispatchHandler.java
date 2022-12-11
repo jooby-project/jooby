@@ -8,33 +8,26 @@ package io.jooby.internal.handler;
 import java.util.concurrent.Executor;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
 import io.jooby.Route;
 
-public class DispatchHandler implements LinkedHandler {
-  private final Route.Handler next;
+public class DispatchHandler implements Route.Filter {
   private final Executor executor;
 
-  public DispatchHandler(Route.Handler next, Executor executor) {
-    this.next = next;
+  public DispatchHandler(Executor executor) {
     this.executor = executor;
   }
 
   @NonNull @Override
-  public Object apply(@NonNull Context ctx) {
-    return ctx.dispatch(
-        executor,
-        () -> {
-          try {
-            next.apply(ctx);
-          } catch (Throwable x) {
-            ctx.sendError(x);
-          }
-        });
-  }
-
-  @Override
-  public Route.Handler next() {
-    return next;
+  public Route.Handler apply(@NonNull Route.Handler next) {
+    return ctx ->
+        ctx.dispatch(
+            executor,
+            () -> {
+              try {
+                next.apply(ctx);
+              } catch (Throwable x) {
+                ctx.sendError(x);
+              }
+            });
   }
 }

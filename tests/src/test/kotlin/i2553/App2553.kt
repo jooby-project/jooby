@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture
 
 class App2553 :
   Kooby({
-    use(ReactiveSupport.completableFuture())
+    use(ReactiveSupport.concurrent())
 
     get("/2553/line") { CompletableFuture.supplyAsync { "line" } }
 
