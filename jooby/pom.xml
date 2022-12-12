@@ -220,7 +220,7 @@
     <dependency>
       <groupId>org.webjars.npm</groupId>
       <artifactId>vue</artifactId>
-      <version>3.2.33</version>
+      <version>3.2.45</version>
       <scope>test</scope>
     </dependency>
 
