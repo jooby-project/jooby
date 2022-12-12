@@ -2,9 +2,9 @@
 
 Jooby comes with three server implementations:
 
-- javadoc:Jetty[]
-- javadoc:Netty[]
-- javadoc:Utow[]
+- javadoc:JettyServer[]
+- javadoc:NettyServer[]
+- javadoc:UndertowServer[]
 
 Servers are automatically registered based on their presence on the project classpath.
 
@@ -20,7 +20,7 @@ To use Netty, add the dependency:
 
 To use Undertow, add the dependency:
 
-[dependency, artifactId="jooby-utow"]
+[dependency, artifactId="jooby-undertow"]
 .
 
 [IMPORTANT]

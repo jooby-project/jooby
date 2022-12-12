@@ -194,10 +194,10 @@ fun produceDownload(ctx: Context) = FileDownload.build(...)
 
 Non-blocking responses are a new feature of Jooby 2.x.
 
-From user point of view there is nothing special about them, you just write your route handler as 
+From user point of view there is nothing special about them, you just write your route handler as
 usually do with blocking types.
 
-In Jooby 1.x we were forced to produces directly/indirectly a `Deferred` result. All that is gone now, 
+In Jooby 1.x we were forced to produces directly/indirectly a `Deferred` result. All that is gone now,
 we don't need a custom type to do the integration.
 
 Before we jump to each of the supported types, we need to learn what occurs in the pipeline when

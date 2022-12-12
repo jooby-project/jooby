@@ -16,6 +16,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 
 public class ConcurrentHandler implements Route.Filter {
+
   @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
@@ -26,11 +27,13 @@ public class ConcurrentHandler implements Route.Filter {
         return future.whenComplete(
             (value, x) -> {
               try {
+                Route.After after = ctx.getRoute().getAfter();
+                if (after != null) {
+                  // run after:
+                  after.apply(ctx, value, unwrap((Throwable) x));
+                }
                 if (x != null) {
-                  Throwable exception = (Throwable) x;
-                  if (exception instanceof CompletionException) {
-                    exception = Optional.ofNullable(exception.getCause()).orElse(exception);
-                  }
+                  Throwable exception = unwrap((Throwable) x);
                   ctx.sendError(exception);
                 } else {
                   ctx.render(value);
@@ -42,6 +45,14 @@ public class ConcurrentHandler implements Route.Filter {
       }
       return result;
     };
+  }
+
+  private Throwable unwrap(Throwable x) {
+    if (x instanceof CompletionException) {
+      return Optional.ofNullable(x.getCause()).orElse(x);
+    } else {
+      return x;
+    }
   }
 
   @Override

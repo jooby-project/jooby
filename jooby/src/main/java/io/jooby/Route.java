@@ -376,6 +376,10 @@ public class Route {
 
   private Handler pipeline;
 
+  private Handler headPipeline;
+
+  private Handler tailPipeline;
+
   private MessageEncoder encoder;
 
   private Type returnType;
@@ -459,6 +463,18 @@ public class Route {
    */
   public @NonNull Handler getHandler() {
     return handler;
+  }
+
+  /**
+   * Route head pipeline (includes handler).
+   *
+   * @return Route pipeline.
+   */
+  public @NonNull Handler getHeadPipeline() {
+    if (headPipeline == null) {
+      headPipeline = computeHeadPipeline();
+    }
+    return headPipeline;
   }
 
   /**
@@ -1026,15 +1042,21 @@ public class Route {
   }
 
   private Route.Handler computePipeline() {
+    Route.Handler pipeline = computeHeadPipeline();
+
+    if (after != null) {
+      pipeline = pipeline.then(after);
+    }
+    return pipeline;
+  }
+
+  private Route.Handler computeHeadPipeline() {
     Route.Handler pipeline = filter == null ? handler : filter.then(handler);
 
     if (before != null) {
       pipeline = before.then(pipeline);
     }
 
-    if (after != null) {
-      pipeline = pipeline.then(after);
-    }
     return pipeline;
   }
 }

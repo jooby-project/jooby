@@ -9,7 +9,10 @@ import static io.jooby.ReactiveSupport.newSubscriber;
 
 import java.lang.reflect.Type;
 
+import org.slf4j.Logger;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
 import io.jooby.Reified;
 import io.jooby.ResultHandler;
 import io.jooby.Route;
@@ -25,12 +28,38 @@ public class Mutiny implements ResultHandler {
 
   private static final Route.Filter MUTINY =
       new Route.Filter() {
+
+        private void after(Context ctx, Object value, Throwable failure) {
+          Route.After after = ctx.getRoute().getAfter();
+          if (after != null) {
+            try {
+              after.apply(ctx, value, failure);
+            } catch (Exception unexpected) {
+              Logger log = ctx.getRouter().getLog();
+              log.debug("After invocation resulted in exception", unexpected);
+            }
+          }
+        }
+
         @NonNull @Override
         public Route.Handler apply(@NonNull Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);
             if (result instanceof Uni uni) {
-              uni.subscribe().with(ctx::render, x -> ctx.sendError((Throwable) x));
+              uni.subscribe()
+                  .with(
+                      value -> {
+                        // fire after:
+                        after(ctx, value, null);
+                        // render:
+                        ctx.render(value);
+                      },
+                      failure -> {
+                        // fire after:
+                        after(ctx, null, (Throwable) failure);
+                        // send error:
+                        ctx.sendError((Throwable) failure);
+                      });
             } else if (result instanceof Multi multi) {
               multi.subscribe(newSubscriber(ctx));
             }

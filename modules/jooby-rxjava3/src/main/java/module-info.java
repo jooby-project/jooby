@@ -8,6 +8,7 @@ module io.jooby.rxjava3 {
   requires com.github.spotbugs.annotations;
   requires io.reactivex.rxjava3;
   requires org.reactivestreams;
+  requires org.slf4j;
 
   provides ResultHandler with
       Reactivex;

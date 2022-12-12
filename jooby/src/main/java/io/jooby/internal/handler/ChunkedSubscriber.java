@@ -22,13 +22,12 @@ public class ChunkedSubscriber implements Flow.Subscriber {
   private static final byte JSON_SEP = ',';
   private static final byte[] JSON_RBRACKET = {']'};
   private Flow.Subscription subscription;
-  private final Context ctx;
-  private final Sender sender;
+  private Context ctx;
+  private Sender sender;
   private MediaType responseType;
 
   public ChunkedSubscriber(Context ctx) {
     this.ctx = ctx;
-    this.sender = ctx.responseSender();
   }
 
   @Override
@@ -40,6 +39,10 @@ public class ChunkedSubscriber implements Flow.Subscriber {
   public void onNext(Object item) {
     try {
       Route route = ctx.getRoute();
+      Route.After after = route.getAfter();
+      if (after != null) {
+        after.apply(ctx, item, null);
+      }
       MessageEncoder encoder = route.getEncoder();
       byte[] data = encoder.encode(ctx, item);
 
@@ -54,15 +57,16 @@ public class ChunkedSubscriber implements Flow.Subscriber {
         }
       }
 
-      sender.write(
-          data,
-          (context, x) -> {
-            if (x == null) {
-              subscription.request(1);
-            } else {
-              onError(x, true);
-            }
-          });
+      sender()
+          .write(
+              data,
+              (context, x) -> {
+                if (x == null) {
+                  subscription.request(1);
+                } else {
+                  onError(x, true);
+                }
+              });
     } catch (Exception x) {
       onError(x, true);
     }
@@ -76,6 +80,14 @@ public class ChunkedSubscriber implements Flow.Subscriber {
     // we use it to mark the response as errored so we don't sent a possible trailing json response.
     responseType = null;
     try {
+      Route.After after = ctx.getRoute().getAfter();
+      if (after != null) {
+        try {
+          after.apply(ctx, null, x);
+        } catch (Exception unexpected) {
+          x.addSuppressed(unexpected);
+        }
+      }
       Logger log = ctx.getRouter().getLog();
       if (Server.connectionLost(x)) {
         log.debug("connection lost: {} {}", ctx.getMethod(), ctx.getRequestPath(), x);
@@ -92,15 +104,16 @@ public class ChunkedSubscriber implements Flow.Subscriber {
   public void onComplete() {
     if (responseType != null && responseType.isJson()) {
       responseType = null;
-      sender.write(
-          JSON_RBRACKET,
-          (ctx, x) -> {
-            if (x != null) {
-              onError(x);
-            }
-          });
+      sender()
+          .write(
+              JSON_RBRACKET,
+              (ctx, x) -> {
+                if (x != null) {
+                  onError(x);
+                }
+              });
     }
-    sender.close();
+    sender().close();
   }
 
   private static byte[] prepend(byte[] data, byte c) {
@@ -108,5 +121,12 @@ public class ChunkedSubscriber implements Flow.Subscriber {
     System.arraycopy(data, 0, tmp, 1, data.length);
     tmp[0] = c;
     return tmp;
+  }
+
+  private Sender sender() {
+    if (this.sender == null) {
+      this.sender = ctx.responseSender();
+    }
+    return sender;
   }
 }

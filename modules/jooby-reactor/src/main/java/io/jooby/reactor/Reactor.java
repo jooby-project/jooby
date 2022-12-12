@@ -10,7 +10,10 @@ import static org.reactivestreams.FlowAdapters.toSubscriber;
 
 import java.lang.reflect.Type;
 
+import org.slf4j.Logger;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
 import io.jooby.Reified;
 import io.jooby.ResultHandler;
 import io.jooby.Route;
@@ -26,6 +29,19 @@ public class Reactor implements ResultHandler {
 
   private static final Route.Filter REACTOR =
       new Route.Filter() {
+
+        private void after(Context ctx, Object value, Throwable failure) {
+          Route.After after = ctx.getRoute().getAfter();
+          if (after != null) {
+            try {
+              after.apply(ctx, value, failure);
+            } catch (Exception unexpected) {
+              Logger log = ctx.getRouter().getLog();
+              log.debug("After invocation resulted in exception", unexpected);
+            }
+          }
+        }
+
         @NonNull @Override
         public Route.Handler apply(@NonNull Route.Handler next) {
           return ctx -> {
@@ -33,7 +49,19 @@ public class Reactor implements ResultHandler {
             if (result instanceof Flux flux) {
               flux.subscribe(toSubscriber(newSubscriber(ctx)));
             } else if (result instanceof Mono mono) {
-              mono.subscribe(ctx::render, x -> ctx.sendError((Throwable) x));
+              mono.subscribe(
+                  value -> {
+                    // fire after:
+                    after(ctx, value, null);
+                    // render:
+                    ctx.render(value);
+                  },
+                  failure -> {
+                    // fire after:
+                    after(ctx, null, (Throwable) failure);
+                    // send error:
+                    ctx.sendError((Throwable) failure);
+                  });
             }
             return result;
           };

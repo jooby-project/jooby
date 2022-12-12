@@ -55,13 +55,19 @@ public class Pipeline {
           || Flow.Publisher.class.isAssignableFrom(type)) {
         /** Completable future: */
         blocking = false;
-        wrapper = DETACH.then(concurrent());
+        Route.Filter concurrent = concurrent();
+        // Notify there is a route:
+        concurrent.setRoute(route);
+        wrapper = DETACH.then(concurrent);
       } else {
         /** Custom responses: */
         for (ResultHandler factory : responseHandler) {
           if (factory.matches(returnType)) {
             Route.Filter custom = factory.create();
+            // Notify there is a route:
+            custom.setRoute(route);
             if (factory.isReactive()) {
+              // Mark route as reactive
               blocking = false;
               wrapper = DETACH.then(custom);
             } else {
@@ -73,8 +79,9 @@ public class Pipeline {
         }
       }
     }
-    return dispatchHandler(
-        mode, executor, decorate(initializer, wrapper.then(route.getPipeline())), blocking);
+    // Reactive? Split pipeline Head+Handler let reactive call After pipeline
+    Handler pipeline = route.isReactive() ? route.getHeadPipeline() : route.getPipeline();
+    return dispatchHandler(mode, executor, decorate(initializer, wrapper.then(pipeline)), blocking);
   }
 
   private static Handler decorate(ContextInitializer initializer, Handler handler) {

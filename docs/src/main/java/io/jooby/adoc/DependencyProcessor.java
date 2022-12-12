@@ -24,26 +24,30 @@ public class DependencyProcessor extends BlockProcessor {
 
   @Override
   public Object process(StructuralNode parent, Reader reader, Map<String, Object> attributes) {
-    List<String> lines = new ArrayList<>();
-    String[] artifactId = ((String) attributes.get("artifactId")).split("\\s*,\\s*");
+    try {
+      List<String> lines = new ArrayList<>();
+      String[] artifactId = ((String) attributes.get("artifactId")).split("\\s*,\\s*");
 
-    maven(
-        (String) attributes.get("groupId"),
-        artifactId,
-        (String) attributes.get("version"),
-        lines::add);
+      maven(
+          (String) attributes.get("groupId"),
+          artifactId,
+          (String) attributes.get("version"),
+          lines::add);
 
-    lines.add("");
+      lines.add("");
 
-    gradle(
-        (String) attributes.get("groupId"),
-        artifactId,
-        (String) attributes.get("version"),
-        lines::add);
-    lines.add("");
+      gradle(
+          (String) attributes.get("groupId"),
+          artifactId,
+          (String) attributes.get("version"),
+          lines::add);
+      lines.add("");
 
-    parseContent(parent, lines);
-    return null;
+      parseContent(parent, lines);
+      return null;
+    } catch (Exception error) {
+      throw new IllegalStateException(">>" + parent.getId(), error);
+    }
   }
 
   private String groupId(String artifactId) {

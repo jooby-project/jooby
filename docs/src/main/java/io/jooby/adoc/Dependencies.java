@@ -8,6 +8,7 @@ package io.jooby.adoc;
 import static io.jooby.SneakyThrows.throwingFunction;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.stream.Stream;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import io.jooby.SneakyThrows;
 
@@ -44,18 +46,22 @@ public class Dependencies {
   private Dependencies() {
     try {
       for (Document pom : pomList()) {
-        for (Element dependency :
-            pom.select("dependencyManagement").select("dependencies").select("dependency")) {
-          Dependency dep = new Dependency();
-          dep.groupId = dependency.select("groupId").text();
-          dep.artifactId = dependency.select("artifactId").text();
-          dep.version = findVersion(pom, dep.artifactId, dependency.select("version").text());
-
-          dependencyMap.put(dep.artifactId, dep);
-        }
+        collectDependencies(pom, pom.select("dependencyManagement").select("dependencies"));
+        collectDependencies(pom, pom.select("dependencies"));
       }
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
+    }
+  }
+
+  private void collectDependencies(Document pom, Elements dependencies) {
+    for (Element dependency : dependencies.select("dependency")) {
+      Dependency dep = new Dependency();
+      dep.groupId = dependency.select("groupId").text();
+      dep.artifactId = dependency.select("artifactId").text();
+      dep.version = findVersion(pom, dep.artifactId, dependency.select("version").text());
+
+      dependencyMap.put(dep.artifactId, dep);
     }
   }
 
@@ -72,6 +78,12 @@ public class Dependencies {
     Document jooby =
         Jsoup.parse(DocGenerator.basedir().getParent().resolve("pom.xml").toFile(), "UTF-8");
     poms.add(jooby);
+    try (Stream<Path> tree = Files.walk(DocGenerator.basedir().getParent())) {
+      tree.filter(Files::isRegularFile)
+          .filter(it -> it.toString().endsWith("pom.xml"))
+          .map(throwingFunction(it -> Jsoup.parse(it.toFile())))
+          .forEach(poms::add);
+    }
     jooby.select("dependencyManagement").select("dependencies").select("dependency").stream()
         .filter(it -> it.select("type").text().equals("pom"))
         .map(
