@@ -36,7 +36,7 @@ public class Pipeline {
       Set<ResultHandler> responseHandler) {
     // Set default wrapper and blocking mode
     Route.Filter wrapper = route.isReactive() ? DETACH : DEFAULT;
-    boolean blocking = !route.isReactive();
+    Boolean forceReactive = null;
 
     /** Return type is set by annotation processor, or manually per lambda route: */
     Type returnType = route.getReturnType();
@@ -45,16 +45,14 @@ public class Pipeline {
       /** Context: */
       if (Context.class.isAssignableFrom(type)) {
         if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
-          blocking = false;
+          forceReactive = true;
           wrapper = DETACH;
         } else {
-          blocking = true;
           wrapper = SendDirect.DIRECT;
         }
       } else if (CompletionStage.class.isAssignableFrom(type)
           || Flow.Publisher.class.isAssignableFrom(type)) {
         /** Completable future: */
-        blocking = false;
         Route.Filter concurrent = concurrent();
         // Notify there is a route:
         concurrent.setRoute(route);
@@ -68,10 +66,8 @@ public class Pipeline {
             custom.setRoute(route);
             if (factory.isReactive()) {
               // Mark route as reactive
-              blocking = false;
               wrapper = DETACH.then(custom);
             } else {
-              blocking = true;
               wrapper = custom;
             }
             break;
@@ -80,8 +76,9 @@ public class Pipeline {
       }
     }
     // Reactive? Split pipeline Head+Handler let reactive call After pipeline
-    Handler pipeline = route.isReactive() ? route.getHeadPipeline() : route.getPipeline();
-    return dispatchHandler(mode, executor, decorate(initializer, wrapper.then(pipeline)), blocking);
+    boolean reactive = forceReactive == null ? route.isReactive() : forceReactive.booleanValue();
+    Handler pipeline = reactive ? route.getHeadPipeline() : route.getPipeline();
+    return dispatchHandler(mode, executor, decorate(initializer, wrapper.then(pipeline)), reactive);
   }
 
   private static Handler decorate(ContextInitializer initializer, Handler handler) {
@@ -91,12 +88,12 @@ public class Pipeline {
   }
 
   private static Handler dispatchHandler(
-      ExecutionMode mode, Executor executor, Handler handler, boolean blocking) {
+      ExecutionMode mode, Executor executor, Handler handler, boolean nonblocking) {
     if (executor == null) {
       if (mode == ExecutionMode.WORKER) {
         return WORKER.then(handler);
       }
-      if (mode == ExecutionMode.DEFAULT && blocking) {
+      if (mode == ExecutionMode.DEFAULT && !nonblocking) {
         return WORKER.then(handler);
       }
       return handler;
