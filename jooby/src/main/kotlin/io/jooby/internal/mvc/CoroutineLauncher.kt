@@ -22,6 +22,7 @@ class CoroutineLauncher(val next: Route.Handler) : Route.Handler {
             ctx.attribute("___continuation", it)
             next.apply(ctx)
           }
+        ctx.route.after?.apply(ctx, result, null)
         if (!ctx.isResponseStarted) {
           ctx.render(result)
         }

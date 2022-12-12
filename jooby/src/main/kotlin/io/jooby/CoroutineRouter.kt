@@ -73,6 +73,7 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
         val handlerContext = HandlerContext(ctx)
         launch(handlerContext) {
           val result = handler(handlerContext)
+          ctx.route.after?.apply(ctx, result, null)
           if (result != ctx) {
             ctx.render(result)
           }
@@ -81,7 +82,11 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
       .setHandle(handler)
 
   internal fun launch(handlerContext: HandlerContext, block: suspend CoroutineScope.() -> Unit) {
-    val exceptionHandler = CoroutineExceptionHandler { _, x -> handlerContext.ctx.sendError(x) }
+    val exceptionHandler = CoroutineExceptionHandler { _, x ->
+      val ctx = handlerContext.ctx
+      ctx.route.after?.apply(ctx, null, x)
+      ctx.sendError(x)
+    }
     val coroutineContext = exceptionHandler + handlerContext.extraCoroutineContextProvider()
     coroutineScope.launch(coroutineContext, coroutineStart, block)
   }

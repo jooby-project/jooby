@@ -18,6 +18,7 @@ import org.mockito.Mockito.RETURNS_DEEP_STUBS
 import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
 class CoroutineRouterTest {
   private val router = mock(Router::class.java, RETURNS_DEEP_STUBS)
@@ -27,6 +28,8 @@ class CoroutineRouterTest {
   fun withoutLaunchContext() {
     CoroutineRouter(CoroutineStart.UNDISPATCHED, router).apply { get("/path") { "Result" } }
 
+    val route = mock(Route::class.java)
+    `when`(ctx.route).thenReturn(route)
     val handlerCaptor = ArgumentCaptor.forClass(Route.Handler::class.java)
     verify(router).route(eq(GET), eq("/path"), handlerCaptor.capture())
     handlerCaptor.value.apply(ctx)
@@ -36,6 +39,8 @@ class CoroutineRouterTest {
 
   @Test
   fun launchContext_isRunEveryTime() {
+    val route = mock(Route::class.java)
+    `when`(ctx.route).thenReturn(route)
     var coroutineRouteCalled = false
     CoroutineRouter(CoroutineStart.UNDISPATCHED, router).apply {
       launchContext { SampleCoroutineContext(ctx) }
