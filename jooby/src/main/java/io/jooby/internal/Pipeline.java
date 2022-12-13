@@ -36,7 +36,6 @@ public class Pipeline {
       Set<ResultHandler> responseHandler) {
     // Set default wrapper and blocking mode
     Route.Filter wrapper = route.isReactive() ? DETACH : DEFAULT;
-    Boolean forceReactive = null;
 
     /** Return type is set by annotation processor, or manually per lambda route: */
     Type returnType = route.getReturnType();
@@ -45,7 +44,7 @@ public class Pipeline {
       /** Context: */
       if (Context.class.isAssignableFrom(type)) {
         if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
-          forceReactive = true;
+          route.setReactive(true);
           wrapper = DETACH;
         } else {
           wrapper = SendDirect.DIRECT;
@@ -76,9 +75,15 @@ public class Pipeline {
       }
     }
     // Reactive? Split pipeline Head+Handler let reactive call After pipeline
-    boolean reactive = forceReactive == null ? route.isReactive() : forceReactive.booleanValue();
-    Handler pipeline = reactive ? route.getHeadPipeline() : route.getPipeline();
-    return dispatchHandler(mode, executor, decorate(initializer, wrapper.then(pipeline)), reactive);
+    Handler pipeline;
+    if (route.isReactive()) {
+      Route.Filter pre = route.getFilter();
+      pipeline = pre == null ? route.getHandler() : pre.then(route.getHandler());
+    } else {
+      pipeline = route.getPipeline();
+    }
+    return dispatchHandler(
+        mode, executor, decorate(initializer, wrapper.then(pipeline)), route.isReactive());
   }
 
   private static Handler decorate(ContextInitializer initializer, Handler handler) {
