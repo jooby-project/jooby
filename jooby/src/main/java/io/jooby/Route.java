@@ -102,7 +102,15 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Before {
+  public interface Before extends Filter {
+
+    default @NonNull @Override Handler apply(@NonNull Handler next) {
+      return ctx -> {
+        apply(ctx);
+        return next.apply(ctx);
+      };
+    }
+
     /**
      * Execute application code before next handler.
      *
@@ -366,8 +374,6 @@ public class Route {
 
   private List<String> pathKeys = EMPTY_LIST;
 
-  private Before before;
-
   private Filter filter;
 
   private Handler handler;
@@ -377,8 +383,6 @@ public class Route {
   private Handler pipeline;
 
   private Handler headPipeline;
-
-  private Handler tailPipeline;
 
   private MessageEncoder encoder;
 
@@ -520,26 +524,6 @@ public class Route {
    */
   public @NonNull Object getHandle() {
     return handle;
-  }
-
-  /**
-   * Before pipeline or <code>null</code>.
-   *
-   * @return Before pipeline or <code>null</code>.
-   */
-  public @Nullable Before getBefore() {
-    return before;
-  }
-
-  /**
-   * Set before filter.
-   *
-   * @param before Before filter.
-   * @return This route.
-   */
-  public @NonNull Route setBefore(@Nullable Before before) {
-    this.before = before;
-    return this;
   }
 
   /**
@@ -1052,10 +1036,6 @@ public class Route {
 
   private Route.Handler computeHeadPipeline() {
     Route.Handler pipeline = filter == null ? handler : filter.then(handler);
-
-    if (before != null) {
-      pipeline = before.then(pipeline);
-    }
 
     return pipeline;
   }

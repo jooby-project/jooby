@@ -933,12 +933,9 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.use(next -> ctx -> "{" + ctx.attribute("prefix") + next.apply(ctx) + "}");
+              app.before(ctx -> ctx.attribute("prefix", "%"));
 
-              app.before(
-                  ctx -> {
-                    ctx.attribute("prefix", "%");
-                  });
+              app.use(next -> ctx -> "{" + ctx.attribute("prefix") + next.apply(ctx) + "}");
 
               app.use(next -> ctx -> "<" + ctx.attribute("prefix") + next.apply(ctx) + ">");
 

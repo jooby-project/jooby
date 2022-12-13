@@ -96,7 +96,7 @@ public class RouterImpl implements Router {
     private String pattern;
     private Executor executor;
     private List<Route.Filter> decoratorList = new ArrayList<>();
-    private List<Route.Before> beforeList = new ArrayList<>();
+
     private List<Route.After> afterList = new ArrayList<>();
 
     public Stack(RouteTree tree, String pattern) {
@@ -113,7 +113,7 @@ public class RouterImpl implements Router {
     }
 
     public void then(Route.Before before) {
-      beforeList.add(before);
+      decoratorList.add(before);
     }
 
     public Stream<Route.Filter> toFilter() {
@@ -124,10 +124,6 @@ public class RouterImpl implements Router {
       return afterList.stream();
     }
 
-    public Stream<Route.Before> toBefore() {
-      return beforeList.stream();
-    }
-
     public boolean hasPattern() {
       return pattern != null;
     }
@@ -135,7 +131,6 @@ public class RouterImpl implements Router {
     public void clear() {
       this.decoratorList.clear();
       this.afterList.clear();
-      this.beforeList.clear();
       executor = null;
     }
 
@@ -486,12 +481,6 @@ public class RouterImpl implements Router {
     stack.stream().filter(Stack::hasPattern).forEach(it -> pathBuilder.append(it.pattern));
     pathBuilder.append(pattern);
 
-    /** Before: */
-    Route.Before before =
-        stack.stream()
-            .flatMap(Stack::toBefore)
-            .reduce(null, (it, next) -> it == null ? next : it.then(next));
-
     /** Filter: */
     List<Route.Filter> decoratorList = stack.stream().flatMap(Stack::toFilter).toList();
     Route.Filter decorator =
@@ -507,7 +496,6 @@ public class RouterImpl implements Router {
     String safePattern = pathBuilder.toString();
     Route route = new Route(method, safePattern, handler);
     route.setPathKeys(Router.pathKeys(safePattern));
-    route.setBefore(before);
     route.setAfter(after);
     route.setFilter(decorator);
     route.setEncoder(encoder);
@@ -594,9 +582,9 @@ public class RouterImpl implements Router {
         }
       } else {
         /** Consumes && Produces (only for HTTP routes (not web socket) */
-        route.setBefore(
-            prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE));
-        route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT));
+        route.setFilter(
+            prependMediaType(route.getConsumes(), route.getFilter(), Route.SUPPORT_MEDIA_TYPE));
+        route.setFilter(prependMediaType(route.getProduces(), route.getFilter(), Route.ACCEPT));
       }
       Set<ResultHandler> resultSet = new LinkedHashSet<>();
       if (resultHandlers != null) {
@@ -641,8 +629,8 @@ public class RouterImpl implements Router {
     return mode;
   }
 
-  private Route.Before prependMediaType(
-      List<MediaType> contentTypes, Route.Before before, Route.Before prefix) {
+  private Route.Filter prependMediaType(
+      List<MediaType> contentTypes, Route.Filter before, Route.Filter prefix) {
     if (contentTypes.size() > 0) {
       return before == null ? prefix : prefix.then(before);
     }
@@ -864,11 +852,6 @@ public class RouterImpl implements Router {
   }
 
   private void copy(Route src, Route it) {
-    Route.Before before =
-        Optional.ofNullable(it.getBefore())
-            .map(filter -> Optional.ofNullable(src.getBefore()).map(filter::then).orElse(filter))
-            .orElseGet(src::getBefore);
-
     Route.Filter decorator =
         Optional.ofNullable(it.getFilter())
             .map(filter -> Optional.ofNullable(src.getFilter()).map(filter::then).orElse(filter))
@@ -879,7 +862,6 @@ public class RouterImpl implements Router {
             .map(filter -> Optional.ofNullable(src.getAfter()).map(filter::then).orElse(filter))
             .orElseGet(src::getAfter);
 
-    it.setBefore(before);
     it.setFilter(decorator);
     it.setAfter(after);
 
