@@ -84,6 +84,7 @@ public class JettyContext implements DefaultContext {
   private final long maxRequestSize;
   Request request;
   Response response;
+
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
@@ -460,14 +461,14 @@ public class JettyContext implements DefaultContext {
 
   @Override
   public long getResponseLength() {
-    long len = response.getContentLength();
-    if (len == -1) {
+    long responseLength = response.getContentLength();
+    if (responseLength == -1) {
       String lenStr = response.getHeader(HttpHeader.CONTENT_LENGTH.asString());
       if (lenStr != null) {
-        len = Long.parseLong(lenStr);
+        responseLength = Long.parseLong(lenStr);
       }
     }
-    return len;
+    return responseLength;
   }
 
   @NonNull public Context setResponseCookie(@NonNull Cookie cookie) {
@@ -677,11 +678,11 @@ public class JettyContext implements DefaultContext {
 
       clearFiles();
     } finally {
-      if (request.isAsyncStarted()) {
-        request.getAsyncContext().complete();
-      }
       if (listeners != null) {
         listeners.run(this);
+      }
+      if (request.isAsyncStarted()) {
+        request.getAsyncContext().complete();
       }
     }
   }
