@@ -616,11 +616,11 @@ public class JettyContext implements DefaultContext {
 
       clearFiles();
     } finally {
-      if (request.isAsyncStarted()) {
-        request.getAsyncContext().complete();
-      }
       if (listeners != null) {
         listeners.run(this);
+      }
+      if (request.isAsyncStarted()) {
+        request.getAsyncContext().complete();
       }
     }
   }
