@@ -110,6 +110,8 @@ public class Jooby implements Router, Registry {
 
   private ServerOptions serverOptions;
 
+  private List<StartupSummary> startupSummary;
+
   private EnvironmentOptions environmentOptions;
 
   private List<Locale> locales;
@@ -810,6 +812,26 @@ public class Jooby implements Router, Registry {
   }
 
   /**
+   * Controls the level of information logged during startup.
+   *
+   * @return Controls the level of information logged during startup.
+   */
+  public List<StartupSummary> getStartupSummary() {
+    return startupSummary;
+  }
+
+  /**
+   * Controls the level of information logged during startup.
+   *
+   * @param startupSummary Summary.
+   * @return This instance.
+   */
+  public Jooby setStartupSummary(List<StartupSummary> startupSummary) {
+    this.startupSummary = startupSummary;
+    return this;
+  }
+
+  /**
    * Start application, find a web server, deploy application, start router, extension modules,
    * etc..
    *
@@ -922,46 +944,20 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   public @NonNull Jooby ready(@NonNull Server server) {
-    Logger log = getLog();
-
     this.serverOptions = server.getOptions();
 
-    log.info("{} started with:", getName());
-
-    log.info("    PID: {}", System.getProperty("PID"));
-    log.info("    {}", server.getOptions());
-    if (log.isDebugEnabled()) {
-      log.debug("    env: {}", env);
-    } else {
-      log.info("    env: {}", env.getActiveNames());
+    if (startupSummary == null) {
+      Config config = env.getConfig();
+      if (config.hasPath("application.startupSummary")) {
+        Object value = config.getAnyRef("application.startupSummary");
+        List<String> values = value instanceof List ? (List) value : List.of(value.toString());
+        startupSummary =
+            values.stream().map(StartupSummary::create).collect(Collectors.toUnmodifiableList());
+      } else {
+        startupSummary = List.of(StartupSummary.DEFAULT, StartupSummary.ROUTES);
+      }
     }
-    log.info("    execution mode: {}", mode.name().toLowerCase());
-    log.info("    user: {}", System.getProperty("user.name"));
-    log.info("    app dir: {}", System.getProperty("user.dir"));
-    log.info("    tmp dir: {}", tmpdir);
-
-    List<Object> args = new ArrayList<>();
-    StringBuilder buff = new StringBuilder();
-    buff.append("routes: \n\n{}\n\nlistening on:\n");
-    args.add(router);
-
-    ServerOptions options = server.getOptions();
-    String host = options.getHost().replace("0.0.0.0", "localhost");
-    if (!options.isHttpsOnly()) {
-      args.add(host);
-      args.add(options.getPort());
-      args.add(router.getContextPath());
-      buff.append("  http://{}:{}{}\n");
-    }
-
-    if (options.isSSLEnabled()) {
-      args.add(host);
-      args.add(options.getSecurePort());
-      args.add(router.getContextPath());
-      buff.append("  https://{}:{}{}\n");
-    }
-
-    log.info(buff.toString(), args.toArray(new Object[0]));
+    startupSummary.forEach(summary -> summary.log(this, server));
 
     this.readyCallbacks = fire(this.readyCallbacks);
     return this;
@@ -1200,8 +1196,14 @@ public class Jooby implements Router, Registry {
     /** Dump command line as system properties. */
     parseArguments(args).forEach(System::setProperty);
 
-    /** Fin application.env: */
-    LogConfigurer.configure(new EnvironmentOptions().getActiveNames());
+    /** Find application.env: */
+    String logfile =
+        LogConfigurer.configure(
+            provider.getClass().getClassLoader(), new EnvironmentOptions().getActiveNames());
+    if (logfile != null) {
+      // Add as property, so we can query where is the log configuration
+      System.setProperty("application.logfile", logfile);
+    }
 
     Jooby app;
     try {

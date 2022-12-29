@@ -67,7 +67,7 @@ public class EnvironmentOptions {
     return this;
   }
 
-  private static @NonNull List<String> defaultEnvironmentNames() {
+  static @NonNull List<String> defaultEnvironmentNames() {
     return Arrays.asList(
         System.getProperty(ENV, System.getenv().getOrDefault(ENV, "dev")).split("\\s*,\\s*"));
   }

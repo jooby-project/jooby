@@ -5,7 +5,6 @@
  */
 package io.jooby;
 
-import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -219,7 +218,7 @@ public class Environment {
 
   @Override
   public String toString() {
-    return actives + "\n" + toString(config).trim();
+    return actives + "; " + toString(config).trim();
   }
 
   private String toString(final Config conf) {
@@ -227,22 +226,9 @@ public class Environment {
   }
 
   private String configTree(final String description) {
-    return configTree(description.split(":\\s+\\d+,|,"), 0);
-  }
-
-  private String configTree(final String[] sources, final int i) {
-    char[] pad = new char[i];
-    Arrays.fill(pad, ' ');
-    if (i < sources.length) {
-      return new StringBuilder()
-          .append(pad)
-          .append("└── ")
-          .append(sources[i].replace("merge of", "").trim())
-          .append("\n")
-          .append(configTree(sources, i + 1))
-          .toString();
-    }
-    return "";
+    return Stream.of(description.split(":\\s+\\d+,|,"))
+        .map(it -> it.replace("merge of", ""))
+        .collect(Collectors.joining(" > "));
   }
 
   private static boolean hasPath(Config config, String key) {
@@ -384,7 +370,7 @@ public class Environment {
     String pid = pid();
     if (pid != null) {
       System.setProperty("PID", pid);
-      defaultMap.put("pid", pid);
+      defaultMap.put("application.pid", pid);
     }
 
     return ConfigFactory.parseMap(defaultMap, "defaults");
@@ -398,11 +384,7 @@ public class Environment {
   public static @Nullable String pid() {
     String pid = System.getenv().getOrDefault("PID", System.getProperty("PID"));
     if (pid == null) {
-      pid = ManagementFactory.getRuntimeMXBean().getName();
-      int i = pid.indexOf("@");
-      if (i > 0) {
-        pid = pid.substring(0, i);
-      }
+      return Long.valueOf(ProcessHandle.current().pid()).toString();
     }
     return pid;
   }
