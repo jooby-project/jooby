@@ -50,50 +50,82 @@ public final class LogConfigurer {
    * @param names Actives environment names. Useful for choosing an environment specific logging
    *     configuration file.
    */
-  public static void configure(@NonNull List<String> names) {
+  public static String configure(@NonNull ClassLoader classLoader, @NonNull List<String> names) {
     String[] keys = {"logback.configurationFile", "log4j.configurationFile"};
     for (String key : keys) {
       String file = property(key);
       if (file != null) {
         // found, reset and exit
         System.setProperty(key, file);
-        return;
+        return file;
       }
     }
     Path userdir = Paths.get(System.getProperty("user.dir"));
-    Map<String, List<Path>> options = new LinkedHashMap<>();
+    Map<String, List<Object>> options = new LinkedHashMap<>();
     options.put("logback.configurationFile", logbackFiles(userdir, names));
     options.put("log4j.configurationFile", log4jFiles(userdir, names));
-    for (Map.Entry<String, List<Path>> entry : options.entrySet()) {
+    // Check file system:
+    for (Map.Entry<String, List<Object>> entry : options.entrySet()) {
       Optional<Path> logfile =
-          entry.getValue().stream().filter(Files::exists).findFirst().map(Path::toAbsolutePath);
+          entry.getValue().stream()
+              .filter(Path.class::isInstance)
+              .map(Path.class::cast)
+              .filter(Files::exists)
+              .findFirst()
+              .map(Path::toAbsolutePath);
       if (logfile.isPresent()) {
         System.setProperty(entry.getKey(), logfile.get().toString());
-        break;
+        return logfile.get().toString();
       }
     }
-  }
-
-  private static List<Path> logbackFiles(Path basedir, List<String> env) {
-    return logFile(basedir, env, "logback", ".xml");
-  }
-
-  private static List<Path> logFile(Path basedir, List<String> names, String name, String ext) {
-    Path confdir = basedir.resolve("conf");
-    List<Path> result = new ArrayList<>();
-    for (String env : names) {
-      String envlogfile = name + "." + env + ext;
-      result.add(confdir.resolve(envlogfile));
-      result.add(basedir.resolve(envlogfile));
+    // Fallback to classpath:
+    for (Map.Entry<String, List<Object>> entry : options.entrySet()) {
+      Optional<String> logfile =
+          entry.getValue().stream()
+              .filter(String.class::isInstance)
+              .map(String.class::cast)
+              .filter(it -> classLoader.getResource(it) != null)
+              .findFirst();
+      if (logfile.isPresent()) {
+        System.setProperty(entry.getKey(), logfile.get());
+        return classLoader.getResource(logfile.get()).toString();
+      }
     }
+    // nothing found
+    return null;
+  }
+
+  private static List<Object> logbackFiles(Path basedir, List<String> profiles) {
+    return logFile(basedir, profiles, "logback", ".xml");
+  }
+
+  private static List<Object> logFile(
+      Path basedir, List<String> profiles, String name, String ext) {
+    Path confdir = basedir.resolve("conf");
+    List<Object> result = new ArrayList<>();
+    for (String profile : profiles) {
+      String logenvfile = name + "." + profile + ext;
+      // conf/logback.[profile].xml | conf/log4j2.[profile].xml
+      result.add(confdir.resolve(logenvfile));
+      // ./logback.[profile].xml | ./log4j2.[profile].xml
+      result.add(basedir.resolve(logenvfile));
+      result.add(logenvfile);
+    }
+    // fallback: logback.xml | log4j2.xml
     String logfile = name + ext;
+    // conf/logback.xml | conf/log4j2.xml
     result.add(confdir.resolve(logfile));
+    // ./logback.xml | ./log4j2.xml
     result.add(basedir.resolve(logfile));
+
+    // classpath fallback:
+    result.add(logfile);
+
     return result;
   }
 
-  private static List<Path> log4jFiles(Path basedir, List<String> names) {
-    List<Path> result = new ArrayList<>();
+  private static List<Object> log4jFiles(Path basedir, List<String> names) {
+    List<Object> result = new ArrayList<>();
     String[] extensions = {".properties", ".xml", ".yaml", ".yml", ".json"};
     for (String extension : extensions) {
       result.addAll(logFile(basedir, names, "log4j", extension));
