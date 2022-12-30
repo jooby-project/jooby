@@ -36,10 +36,10 @@ public class EnvironmentTest {
           assertEnvMatches(
               env,
               "[dev]"::equals,
-              "└── system properties"::equals,
-              " └── env variables"::equals,
+              "system properties"::equals,
+              "env variables"::equals,
               pathEndsMatch("env/foo/application.conf"),
-              "   └── defaults"::equals);
+              "defaults"::equals);
           assertEquals("[dev]", env.getActiveNames().toString());
           assertEquals(System.getProperty("user.dir"), conf.getString("user.dir"));
           assertEquals("bar", conf.getString("foo"));
@@ -53,11 +53,11 @@ public class EnvironmentTest {
           assertEnvMatches(
               env,
               "[prod]"::equals,
-              "└── system properties"::equals,
-              " └── env variables"::equals,
+              "system properties"::equals,
+              "env variables"::equals,
               pathEndsMatch("env/foo/application.prod.conf"),
               pathEndsMatch("env/foo/application.conf"),
-              "    └── defaults"::equals);
+              "defaults"::equals);
           assertEquals("[prod]", env.getActiveNames().toString());
           assertEquals("bazz", conf.getString("foo"));
           assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
@@ -70,11 +70,11 @@ public class EnvironmentTest {
           assertEnvMatches(
               env,
               "[test, bar]"::equals,
-              "└── system properties"::equals,
-              " └── env variables"::equals,
+              "system properties"::equals,
+              "env variables"::equals,
               pathEndsMatch("env/foo/application.test.conf"),
               pathEndsMatch("env/foo/application.bar.conf"),
-              "    └── defaults"::equals);
+              "defaults"::equals);
           assertEquals("[test, bar]", env.getActiveNames().toString());
           assertEquals("test", conf.getString("foo"));
           assertEquals(asList("d"), conf.getStringList("letters"));
@@ -106,11 +106,11 @@ public class EnvironmentTest {
     assertEnvMatches(
         env,
         "[prod]"::equals,
-        "└── system properties"::equals,
-        " └── env variables"::equals,
+        "system properties"::equals,
+        "env variables"::equals,
         pathEndsMatch(reldir.resolve("application.prod.conf").toString()),
         pathEndsMatch(reldir.resolve("application.conf").toString()),
-        "    └── defaults"::equals);
+        "defaults"::equals);
   }
 
   @Test
@@ -188,10 +188,12 @@ public class EnvironmentTest {
 
   @SafeVarargs
   private static void assertEnvMatches(Environment environment, Predicate<String>... predicates) {
-    final String[] lines = environment.toString().split("\n");
+    final String[] lines = environment.toString().split(">|;");
     assertEquals(lines.length, predicates.length);
     for (int i = 0; i < predicates.length; ++i) {
-      assertTrue(predicates[i].test(lines[i]), "Predicate for line nr. " + i + " should succeed.");
+      assertTrue(
+          predicates[i].test(lines[i].trim()),
+          "Predicate for line nr. " + i + " should succeed." + predicates[i] + " != " + lines[i]);
     }
   }
 }
