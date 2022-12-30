@@ -140,7 +140,7 @@
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.7.0</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.8.6</maven-plugin-api.version>
-    <maven-plugin-plugin.version>3.6.4</maven-plugin-plugin.version>
+    <maven-plugin-plugin.version>3.7.0</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
     <maven-shade-plugin.version>3.4.1</maven-shade-plugin.version>
