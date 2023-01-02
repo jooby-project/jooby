@@ -37,7 +37,7 @@ public class DocApp extends Jooby {
 
   public static void main(String[] args) throws Exception {
     // watch and block
-    LogConfigurer.configure(Arrays.asList("dev"));
+    LogConfigurer.configure(DocApp.class.getClassLoader(), Arrays.asList("dev"));
 
     Path basedir = DocGenerator.basedir();
 
