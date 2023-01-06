@@ -1,6 +1,6 @@
 == Server
 
-Jooby comes with three server implementations:
+There are three server implementations:
 
 - javadoc:JettyServer[]
 - javadoc:NettyServer[]
@@ -316,9 +316,10 @@ To enable 2-way TLS (Mutual TLS), set the trust certificate and client authentic
 ----
 {
   SslOptions ssl = SslOptions.pkcs12("path/to/server.p12", "password")
-    .setTrustCert("path/to/trustCert") <1>
+    .setTrustCert(Files.newInputStream("path/to/trustCert")) <1>
     .setTrustPassword("password") <2>
     .setClientAuth(SslOptions.ClientAuth.REQUIRED); <3>
+
   setServerOptions(new ServerOptions()
       .setSsl(ssl)                                                      
   );
@@ -331,7 +332,7 @@ To enable 2-way TLS (Mutual TLS), set the trust certificate and client authentic
 {
   serverOptions {
     ssl = SslOptions.pkcs12("path/to/server.p12", "password")
-      .trustCert("path/to/trustCert") <1>
+      .trustCert(Files.newInputStream("path/to/trustCert")) <1>
       .trustPassword("password") <2>
       .clientAuth(SslOptions.ClientAuth.REQUIRED) <3>
   }

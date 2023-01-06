@@ -197,9 +197,6 @@ Non-blocking responses are a new feature of Jooby 2.x.
 From user point of view there is nothing special about them, you just write your route handler as
 usually do with blocking types.
 
-In Jooby 1.x we were forced to produces directly/indirectly a `Deferred` result. All that is gone now,
-we don't need a custom type to do the integration.
-
 Before we jump to each of the supported types, we need to learn what occurs in the pipeline when
 there is a non-blocking route handler.
 
@@ -332,23 +329,6 @@ Running your `App` in *default* mode works identically to running in the *event 
 
 The *default* mode mimics the *event loop* mode execution when route produces a *non-blocking* type.
 
-==== Limitations
-
-While writing non-blocking/reactive responses we should *avoid the use of Jooby filters*: <<router-handler-before, before>> and <<router-handler-after, after>>.
-
-In most use cases they won't work, so it is preferred to avoid them while programming
-non-blocking/reactive responses.
-
-On non-blocking/reactive responses there is always a "dispatch call". This call moves execution to
-somewhere else (usually a different thread). Because of this is almost impossible to ensure the
-execution of pipeline.
-
-[quote]
-If you have a non-blocking route handler, it is better to not have any type of filter in the pipeline
-
-The alternative option is to write cross-cutting concerns we usually put inside a filter using the
-non-blocking API.
-
 ==== CompletableFuture
 
 CompletableFuture is considered a non-blocking type which is able to produces a single result:
@@ -377,11 +357,96 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 }
 ----
 
+==== Mutiny
+
+1) Add the https://smallrye.io/smallrye-mutiny[SmallRye Mutiny] dependency:
+
+[dependency, artifactId="jooby-mutiny"]
+.
+
+2) Write code:
+
+===== Uni
+
+.Java
+[source,java, role="primary"]
+----
+import io.jooby.mutiny;
+import io.smallrye.mutiny.Uni;
+
+{
+  // Add response handler:
+  use(Mutiny.mutiny());
+
+  get("/non-blocking", ctx -> {
+    return Uni.createFrom()
+       .completionStage(supplyAsync(() -> "Uni"))
+       .map(it -> "Hello " + it);
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.mutiny
+import io.smallrye.mutiny.Uni
+
+{
+  // Add response handler:
+  use(Mutiny.mutiny())
+
+  get("/non-blocking") {
+    Uni.createFrom()
+      .completionStage{ supplyAsync { "Uni" }}
+      .map{"Hello $it"}
+  }
+}
+----
+
+===== Multi
+
+.Java
+[source,java, role="primary"]
+----
+import io.jooby.mutiny;
+import io.smallrye.mutiny.Multi;
+
+{
+  // Add response handler:
+  use(Mutiny.mutiny());
+
+  get("/non-blocking", ctx -> {
+    return Multi.createFrom().range(1, 11)
+        .map(it -> it + ", ");
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.mutiny
+import io.smallrye.mutiny.Multi
+
+{
+  get("/non-blocking") {
+    Multi.createFrom().range(1, 11)
+        .map{ "$it, " }
+  }
+}
+----
+
+For Multi, Jooby builds a `chunked` response. That:
+
+. Set the `Transfer-Encoding: chunked` header
+. Each item means new `chunk` send it to client
+
 ==== RxJava
 
 1) Add the https://github.com/ReactiveX/RxJava[RxJava] dependency:
 
-[dependency, artifactId="rxjava"]
+[dependency, artifactId="jooby-rxjava3"]
 .
 
 2) Write code:
@@ -391,7 +456,11 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 .Java
 [source,java, role="primary"]
 ----
+import io.jooby.rxjava3.Reactivex;
+
 {
+  use(Reactivex.rx());
+
   get("/non-blocking", ctx -> {
     return Single
         .fromCallable(() -> "Single")
@@ -403,7 +472,11 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+import io.jooby.rxjava3.Reactivex
+
 {
+  use(Reactivex.rx())
+
   get("/non-blocking") {
     Single
         .fromCallable { "Single" }
@@ -417,7 +490,11 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 .Java
 [source,java, role="primary"]
 ----
+import io.jooby.rxjava3.Reactivex;
+
 {
+  use(Reactivex.rx());
+
   get("/non-blocking", ctx -> {
     return Flowable.range(1, 10)
         .map(it -> it + ", ");
@@ -428,7 +505,11 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+import io.jooby.rxjava3.Reactivex
+
 {
+  use(Reactivex.rx());
+
   get("/non-blocking") {
     Flowable.range(1, 10)
         .map{ "$it, " }
@@ -439,13 +520,13 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 For Flowable, Jooby builds a `chunked` response. That:
 
 . Set the `Transfer-Encoding: chunked` header
-. Each item means new `chunk` send it to client 
+. Each item means new `chunk` send it to client
 
 ==== Reactor
 
 1) Add the https://projectreactor.io/[Reactor] dependency:
 
-[dependency, artifactId="reactor-core"]
+[dependency, artifactId="jooby-reactor"]
 .
 
 2) Write code:
@@ -455,7 +536,11 @@ For Flowable, Jooby builds a `chunked` response. That:
 .Java
 [source,java, role="primary"]
 ----
+import io.jooby.Reactor;
+
 {
+  use(Reactor.reactor());
+
   get("/non-blocking", ctx -> {
     return Mono
         .fromCallable(() -> "Mono")
@@ -467,7 +552,11 @@ For Flowable, Jooby builds a `chunked` response. That:
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+import io.jooby.Reactor
+
 {
+  use(Reactor.reactor())
+
   get("/non-blocking") {
     Mono
         .fromCallable { "Mono" }
@@ -481,7 +570,11 @@ For Flowable, Jooby builds a `chunked` response. That:
 .Java
 [source,java, role="primary"]
 ----
+import io.jooby.Reactor;
+
 {
+  use(Reactor.reactor())
+
   get("/non-blocking", ctx -> {
     return Flux.range(1, 10)
         .map(it -> it + ", ");
@@ -492,7 +585,11 @@ For Flowable, Jooby builds a `chunked` response. That:
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+import io.jooby.Reactor
+
 {
+  use(Reactor.reactor())
+
   get("/non-blocking") {
     Flux.range(1, 10)
         .map{ "$it, " }
@@ -507,52 +604,7 @@ For Flux, Jooby builds a `chunked` response. That:
 
 ==== Kotlin Coroutines
 
-Probably one of most exciting new features of Jooby 2.x is the builtin integration with https://kotlinlang.org/docs/reference/coroutines/coroutines-guide.html[Kotlin Coroutines]:
-
 .Coroutine handler:
-[source, kotlin, role="primary"]
-----
-{
-  coroutine {
-    get("/") {         // <1>
-      ctx.getRequestPath() 
-    }
-  }
-}
-----
-
-.Normal handler:
-[source, kotlin, role="secondary"]
-----
-{
-  get("/") {           // <2>
-    ctx.getRequestPath() 
-  }
-}
-----
-
-<1> Coroutine route
-<2> Normal route
-
-
-Also, if you try to call a suspending function from normal handler, Kotlin complains about:
-
-.Not allowed it:
-[source, kotlin]
-----
-{
-  get("/") {
-    delay(100)      // <1>
-    "..."
-  }
-}
-----
-
-<1> Suspend function 'delay' should be called only from a coroutine or another suspend function
-
-Now, if we wrap the route with the `coroutine` router:
-
-.Hello Coroutines
 [source, kotlin]
 ----
 {
@@ -590,8 +642,7 @@ suspend fun Context.doSomething(): String {
 <3> Send response to client
 
 A coroutine works like any of the other non-blocking types. You start Jooby using the **event loop**
-or **default mode**, Jooby detects we produce a coroutine and creates a coroutine context to execute
-it.
+or **default mode**, Jooby creates a coroutine context to execute it.
 
 Jooby uses the *worker executor* to creates a coroutine context. As described in <<worker-executor, worker executor section>>
 this is provided by the web server implementation unless you provided your own.
