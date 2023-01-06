@@ -7,6 +7,7 @@ package io.jooby
 
 import io.jooby.RouterOption.IGNORE_CASE
 import io.jooby.RouterOption.IGNORE_TRAILING_SLASH
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Duration
 import kotlinx.coroutines.delay
@@ -48,7 +49,8 @@ class Idioms :
       server = "server"
       workerThreads = 99
       securePort = 8443
-      ssl = SslOptions().apply { cert = "/path/to/certificate.crt" }
+      ssl =
+        SslOptions().apply { cert = Files.newInputStream(Paths.get("/path/to/certificate.crt")) }
     }
 
     routerOptions(IGNORE_CASE, IGNORE_TRAILING_SLASH)

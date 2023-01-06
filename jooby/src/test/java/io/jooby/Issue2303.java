@@ -9,12 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class Issue2303 {
@@ -25,15 +23,8 @@ public class Issue2303 {
     String key = file("ssl", "test.key");
     SslOptions ssl = SslOptions.x509(crt, key);
     assertNotNull(ssl);
-    withResource(ssl, ssl.getCert(), Assertions::assertNotNull);
-    withResource(ssl, ssl.getPrivateKey(), Assertions::assertNotNull);
-  }
-
-  private void withResource(
-      SslOptions ssl, String file, SneakyThrows.Consumer<InputStream> consumer) throws IOException {
-    try (InputStream crtFile = ssl.getResource(getClass().getClassLoader(), file)) {
-      consumer.accept(crtFile);
-    }
+    assertNotNull(ssl.getCert());
+    assertNotNull(ssl.getPrivateKey());
   }
 
   private String file(String... path) {

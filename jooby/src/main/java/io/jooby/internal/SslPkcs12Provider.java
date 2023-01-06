@@ -26,8 +26,8 @@ public class SslPkcs12Provider implements SslContextProvider {
 
   @Override
   public SSLContext create(ClassLoader loader, String provider, SslOptions options) {
-    try {
-      KeyStore store = keystore(options, loader, options.getCert(), options.getPassword());
+    try (options) {
+      KeyStore store = keystore(options, options.getCert(), options.getPassword());
       KeyManagerFactory kmf =
           KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
       kmf.init(store, toCharArray(options.getPassword()));
@@ -39,8 +39,7 @@ public class SslPkcs12Provider implements SslContextProvider {
 
       TrustManager[] tms;
       if (options.getTrustCert() != null) {
-        KeyStore trustStore =
-            keystore(options, loader, options.getTrustCert(), options.getTrustPassword());
+        KeyStore trustStore = keystore(options, options.getTrustCert(), options.getTrustPassword());
 
         TrustManagerFactory tmf =
             TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -57,13 +56,11 @@ public class SslPkcs12Provider implements SslContextProvider {
     }
   }
 
-  private KeyStore keystore(SslOptions options, ClassLoader loader, String file, String password)
+  private KeyStore keystore(SslOptions options, InputStream resource, String password)
       throws Exception {
-    try (InputStream crt = options.getResource(loader, file)) {
-      KeyStore store = KeyStore.getInstance(options.getType());
-      store.load(crt, toCharArray(password));
-      return store;
-    }
+    KeyStore store = KeyStore.getInstance(options.getType());
+    store.load(resource, toCharArray(password));
+    return store;
   }
 
   private char[] toCharArray(String password) {

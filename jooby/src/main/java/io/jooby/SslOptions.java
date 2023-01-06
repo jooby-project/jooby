@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.typesafe.config.Config;
@@ -34,7 +35,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @author edgar
  * @since 2.3.0
  */
-public final class SslOptions {
+public final class SslOptions implements java.io.Closeable {
   /** The desired SSL client authentication mode for SSL channels in server mode. */
   public enum ClientAuth {
     /** SSL client authentication is NOT requested. */
@@ -66,13 +67,13 @@ public final class SslOptions {
 
   private String type = PKCS12;
 
-  private String cert;
+  private InputStream cert;
 
-  private String trustCert;
+  private InputStream trustCert;
 
   private String trustPassword;
 
-  private String privateKey;
+  private InputStream privateKey;
 
   private ClientAuth clientAuth = ClientAuth.NONE;
 
@@ -105,7 +106,7 @@ public final class SslOptions {
    * @return A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a
    *     classpath resource. Required.
    */
-  public @NonNull String getCert() {
+  public @NonNull InputStream getCert() {
     return cert;
   }
 
@@ -116,7 +117,7 @@ public final class SslOptions {
    * @param cert Certificate path or location.
    * @return Ssl options.
    */
-  public @NonNull SslOptions setCert(@NonNull String cert) {
+  public @NonNull SslOptions setCert(@NonNull InputStream cert) {
     this.cert = cert;
     return this;
   }
@@ -129,7 +130,7 @@ public final class SslOptions {
    *     classpath resource. Required for {@link ClientAuth#REQUIRED} or {@link
    *     ClientAuth#REQUESTED}.
    */
-  public @Nullable String getTrustCert() {
+  public @Nullable InputStream getTrustCert() {
     return trustCert;
   }
 
@@ -140,7 +141,7 @@ public final class SslOptions {
    * @param trustCert Certificate path or location.
    * @return Ssl options.
    */
-  public @NonNull SslOptions setTrustCert(@Nullable String trustCert) {
+  public @NonNull SslOptions setTrustCert(@Nullable InputStream trustCert) {
     this.trustCert = trustCert;
     return this;
   }
@@ -172,7 +173,7 @@ public final class SslOptions {
    * @return A PKCS#8 private key file in PEM format. It can be an absolute path or a classpath
    *     resource. Required when using X.509 certificates.
    */
-  public @Nullable String getPrivateKey() {
+  public @Nullable InputStream getPrivateKey() {
     return privateKey;
   }
 
@@ -184,9 +185,28 @@ public final class SslOptions {
    *     an absolute path or a classpath resource. Required when using X.509 certificates.
    * @return Ssl options.
    */
-  public @NonNull SslOptions setPrivateKey(@Nullable String privateKey) {
+  public @NonNull SslOptions setPrivateKey(@Nullable InputStream privateKey) {
     this.privateKey = privateKey;
     return this;
+  }
+
+  @Override
+  public void close() {
+    List<InputStream> resources =
+        Stream.of(cert, trustCert, privateKey).collect(Collectors.toList());
+    for (InputStream resource : resources) {
+      if (resource != null) {
+        try {
+          resource.close();
+        } catch (IOException ignored) {
+          // just try next
+        }
+      }
+    }
+    resources.clear();
+    cert = null;
+    trustCert = null;
+    privateKey = null;
   }
 
   /**
@@ -215,39 +235,43 @@ public final class SslOptions {
    * <p>- Look at file system for path as it is (absolute path) - Look at file system for path
    * relative to current process dir - Look at class path for path
    *
-   * @param loader Class loader.
    * @param path Path (file system path or classpath).
    * @return Resource.
-   * @throws IOException If file not found or can't be read it.
    */
-  public @NonNull InputStream getResource(@NonNull ClassLoader loader, @NonNull String path)
-      throws IOException {
-    Path filepath = Paths.get(path);
-    Stream<Path> paths;
-    if (Files.exists(filepath)) {
-      // absolute file:
-      paths = Stream.of(filepath);
-    } else {
-      try {
-        // Try relative to current dir:
-        paths = Stream.of(Paths.get(System.getProperty("user.dir"), path));
-      } catch (InvalidPathException cause) {
-        // Try with classloader:
-        paths = Stream.empty();
+  public static @NonNull InputStream getResource(@NonNull String path) {
+    try {
+      Path filepath = Paths.get(path);
+      Stream<Path> paths;
+      if (Files.exists(filepath)) {
+        // absolute file:
+        paths = Stream.of(filepath);
+      } else {
+        try {
+          // Try relative to current dir:
+          paths = Stream.of(Paths.get(System.getProperty("user.dir"), path));
+        } catch (InvalidPathException cause) {
+          // Try with classloader:
+          paths = Stream.empty();
+        }
       }
+      InputStream resource =
+          paths
+              .map(it -> it.normalize().toAbsolutePath())
+              .filter(Files::exists)
+              .findFirst()
+              .map(throwingFunction(file -> Files.newInputStream(file)))
+              .orElseGet(
+                  () ->
+                      SslOptions.class
+                          .getClassLoader()
+                          .getResourceAsStream(path.startsWith("/") ? path.substring(1) : path));
+      if (resource == null) {
+        throw new FileNotFoundException(path);
+      }
+      return resource;
+    } catch (IOException cause) {
+      throw SneakyThrows.propagate(cause);
     }
-    InputStream resource =
-        paths
-            .map(it -> it.normalize().toAbsolutePath())
-            .filter(Files::exists)
-            .findFirst()
-            .map(throwingFunction(file -> Files.newInputStream(file)))
-            .orElseGet(
-                () -> loader.getResourceAsStream(path.startsWith("/") ? path.substring(1) : path));
-    if (resource == null) {
-      throw new FileNotFoundException(path);
-    }
-    return resource;
   }
 
   /**
@@ -341,8 +365,8 @@ public final class SslOptions {
       @NonNull String crt, @NonNull String key, @Nullable String password) {
     SslOptions options = new SslOptions();
     options.setType(X509);
-    options.setPrivateKey(key);
-    options.setCert(crt);
+    options.setPrivateKey(getResource(key));
+    options.setCert(getResource(crt));
     options.setPassword(password);
     return options;
   }
@@ -357,7 +381,7 @@ public final class SslOptions {
   public static SslOptions pkcs12(@NonNull String crt, @NonNull String password) {
     SslOptions options = new SslOptions();
     options.setType(PKCS12);
-    options.setCert(crt);
+    options.setCert(getResource(crt));
     options.setPassword(password);
     return options;
   }
@@ -473,13 +497,13 @@ public final class SslOptions {
                 options = new SslOptions();
                 options.setType(type);
                 if (X509.equalsIgnoreCase(type)) {
-                  options.setCert(conf.getString(path + ".cert"));
-                  options.setPrivateKey(conf.getString(path + ".key"));
+                  options.setCert(getResource(conf.getString(path + ".cert")));
+                  options.setPrivateKey(getResource(conf.getString(path + ".key")));
                   if (conf.hasPath(path + ".password")) {
                     options.setPassword(conf.getString(path + ".password"));
                   }
                 } else if (type.equalsIgnoreCase(PKCS12)) {
-                  options.setCert(conf.getString(path + ".cert"));
+                  options.setCert(getResource(conf.getString(path + ".cert")));
                   options.setPassword(conf.getString(path + ".password"));
                 } else {
                   throw new UnsupportedOperationException("SSL type: " + type);
@@ -490,7 +514,7 @@ public final class SslOptions {
                     ClientAuth.valueOf(conf.getString(path + ".clientAuth").toUpperCase()));
               }
               if (conf.hasPath(path + ".trust.cert")) {
-                options.setTrustCert(conf.getString(path + ".trust.cert"));
+                options.setTrustCert(getResource(conf.getString(path + ".trust.cert")));
               }
               if (conf.hasPath(path + ".trust.password")) {
                 options.setTrustPassword(conf.getString(path + ".trust.password"));

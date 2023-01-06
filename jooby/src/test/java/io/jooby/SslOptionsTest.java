@@ -7,6 +7,7 @@ package io.jooby;
 
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
@@ -40,7 +41,7 @@ public class SslOptionsTest {
 
     SslOptions options = SslOptions.from(config).get();
     assertEquals(SslOptions.PKCS12, options.getType());
-    assertEquals("io/jooby/ssl/localhost.p12", options.getCert());
+    assertNotNull(options.getCert());
     assertEquals("changeit", options.getPassword());
   }
 
@@ -57,9 +58,9 @@ public class SslOptionsTest {
 
     SslOptions options = SslOptions.from(config).get();
     assertEquals(SslOptions.PKCS12, options.getType());
-    assertEquals("ssl/test.p12", options.getCert());
+    assertNotNull(options.getCert());
     assertEquals("changeit", options.getPassword());
-    assertEquals("ssl/trust.p12", options.getTrustCert());
+    assertNotNull(options.getTrustCert());
     assertEquals("pass", options.getTrustPassword());
   }
 
@@ -74,8 +75,8 @@ public class SslOptionsTest {
 
     SslOptions options = SslOptions.from(config).get();
     assertEquals(SslOptions.X509, options.getType());
-    assertEquals("ssl/test.crt", options.getCert());
-    assertEquals("ssl/test.key", options.getPrivateKey());
+    assertNotNull(options.getCert());
+    assertNotNull(options.getPrivateKey());
   }
 
   @Test
@@ -90,8 +91,8 @@ public class SslOptionsTest {
 
     SslOptions options = SslOptions.from(config).get();
     assertEquals(SslOptions.X509, options.getType());
-    assertEquals("ssl/test.crt", options.getCert());
-    assertEquals("ssl/test.key", options.getPrivateKey());
+    assertNotNull(options.getCert());
+    assertNotNull(options.getPrivateKey());
     assertEquals("changeit", options.getPassword());
   }
 

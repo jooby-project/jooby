@@ -5,8 +5,6 @@
  */
 package io.jooby.internal;
 
-import java.io.InputStream;
-
 import javax.net.ssl.SSLContext;
 
 import io.jooby.SneakyThrows;
@@ -21,22 +19,18 @@ public class SslX509Provider implements SslContextProvider {
 
   @Override
   public SSLContext create(ClassLoader loader, String provider, SslOptions options) {
-    try {
-      InputStream trustCert;
-      if (options.getTrustCert() == null) {
-        trustCert = null;
-      } else {
-        trustCert = options.getResource(loader, options.getTrustCert());
-      }
-      InputStream keyStoreCert = options.getResource(loader, options.getCert());
-      InputStream keyStoreKey = options.getResource(loader, options.getPrivateKey());
-
-      SSLContext context =
+    try (options) {
+      SslContext sslContext =
           SslContext.newServerContextInternal(
-                  provider, trustCert, keyStoreCert, keyStoreKey, null, 0, 0)
-              .context();
+              provider,
+              options.getTrustCert(),
+              options.getCert(),
+              options.getPrivateKey(),
+              null,
+              0,
+              0);
 
-      return context;
+      return sslContext.context();
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
