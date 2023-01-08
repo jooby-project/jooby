@@ -19,7 +19,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  *
  * @since 2.0.6
  */
-public interface Context {
+public interface CliContext {
   /**
    * Exit application.
    *

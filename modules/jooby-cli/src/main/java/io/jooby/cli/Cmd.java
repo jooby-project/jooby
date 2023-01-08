@@ -13,7 +13,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @since 2.0.5
  */
 public abstract class Cmd implements Runnable {
-  private Context context;
+  private CliContext context;
 
   @Override
   public void run() {
@@ -30,14 +30,14 @@ public abstract class Cmd implements Runnable {
    * @param context Command context.
    * @throws Exception If something goes wrong.
    */
-  public abstract void run(@NonNull Context context) throws Exception;
+  public abstract void run(@NonNull CliContext context) throws Exception;
 
   /**
    * Set command context.
    *
    * @param context Command context.
    */
-  public void setContext(@NonNull Context context) {
+  public void setContext(@NonNull CliContext context) {
     this.context = context;
   }
 

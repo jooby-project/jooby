@@ -17,7 +17,7 @@ import picocli.CommandLine;
 public class ExitCmd extends Cmd {
 
   @Override
-  public void run(@NonNull Context ctx) {
+  public void run(@NonNull CliContext ctx) {
     ctx.exit(0);
   }
 }

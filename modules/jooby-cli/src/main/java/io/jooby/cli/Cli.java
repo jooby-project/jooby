@@ -59,7 +59,7 @@ public class Cli extends Cmd {
   private @CommandLine.Unmatched List<String> args;
 
   @Override
-  public void run(@NonNull Context ctx) {
+  public void run(@NonNull CliContext ctx) {
     List<String> args =
         this.args.stream()
             .filter(Objects::nonNull)

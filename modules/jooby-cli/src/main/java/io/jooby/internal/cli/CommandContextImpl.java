@@ -31,9 +31,9 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.cli.Cli;
-import io.jooby.cli.Context;
+import io.jooby.cli.CliContext;
 
-public class CommandContextImpl implements Context {
+public class CommandContextImpl implements CliContext {
   private final LineReader reader;
 
   private final Handlebars templates;

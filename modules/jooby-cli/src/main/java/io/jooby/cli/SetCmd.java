@@ -33,7 +33,7 @@ public class SetCmd extends Cmd {
   private boolean force;
 
   @Override
-  public void run(@NonNull Context ctx) throws Exception {
+  public void run(@NonNull CliContext ctx) throws Exception {
     if (workspace != null) {
       Path path =
           Paths.get(

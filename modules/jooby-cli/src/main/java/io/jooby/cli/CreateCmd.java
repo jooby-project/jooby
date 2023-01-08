@@ -91,7 +91,7 @@ public class CreateCmd extends Cmd {
   private boolean openapi;
 
   @Override
-  public void run(@NonNull Context ctx) throws Exception {
+  public void run(@NonNull CliContext ctx) throws Exception {
     Path projectDir = ctx.getWorkspace().resolve(name);
     if (Files.exists(projectDir)) {
       throw new IOException("Project directory already exists: " + projectDir);
@@ -234,7 +234,7 @@ public class CreateCmd extends Cmd {
     return "y".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
   }
 
-  private void docker(Context ctx, Path dir, Map<String, Object> model) throws IOException {
+  private void docker(CliContext ctx, Path dir, Map<String, Object> model) throws IOException {
     boolean gradle = (Boolean) model.get("gradle");
     String dockerfile = gradle ? "docker.gradle" : "docker.maven";
     ctx.writeTemplate(dockerfile, model, dir.resolve("Dockerfile"));
@@ -275,13 +275,13 @@ public class CreateCmd extends Cmd {
     }
   }
 
-  private void stork(Context ctx, Path projectDir) throws IOException {
+  private void stork(CliContext ctx, Path projectDir) throws IOException {
     ctx.copyResource(
         "/cli/src/etc/stork/stork.yml",
         projectDir.resolve("src").resolve("etc").resolve("stork").resolve("stork.yml"));
   }
 
-  private void gradleWrapper(Context ctx, Path projectDir, Map<String, Object> model)
+  private void gradleWrapper(CliContext ctx, Path projectDir, Map<String, Object> model)
       throws IOException {
     Path wrapperDir = projectDir.resolve("gradle").resolve("wrapper");
 
