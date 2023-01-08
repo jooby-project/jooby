@@ -90,7 +90,7 @@ public class NettyFileUpload implements FileUpload {
   }
 
   @Override
-  public void destroy() {
+  public void close() {
     try {
       if (upload.refCnt() > 0) {
         upload.release();

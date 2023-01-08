@@ -662,7 +662,7 @@ public class JettyContext implements DefaultContext {
     if (files != null) {
       for (FileUpload file : files) {
         try {
-          file.destroy();
+          file.close();
         } catch (Exception e) {
           router.getLog().debug("file upload destroy resulted in exception", e);
         }

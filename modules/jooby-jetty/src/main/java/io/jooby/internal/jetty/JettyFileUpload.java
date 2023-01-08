@@ -78,7 +78,7 @@ public class JettyFileUpload implements FileUpload {
   }
 
   @Override
-  public void destroy() {
+  public void close() {
     try {
       upload.cleanUp();
       upload.delete();

@@ -848,7 +848,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     if (files != null) {
       for (FileUpload file : files) {
         try {
-          file.destroy();
+          file.close();
         } catch (Exception x) {
           router.getLog().debug("file upload destroy resulted in exception", x);
         }

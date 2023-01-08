@@ -81,7 +81,7 @@ public class UndertowFileUpload implements FileUpload {
   }
 
   @Override
-  public void destroy() {
+  public void close() {
     try {
       upload.getFileItem().delete();
     } catch (IOException x) {

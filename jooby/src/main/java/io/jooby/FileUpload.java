@@ -30,7 +30,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @since 2.0.0
  * @author edgar
  */
-public interface FileUpload {
+public interface FileUpload extends java.io.Closeable {
 
   /**
    * File key. That's the field form name, not the file name. Example:
@@ -82,5 +82,6 @@ public interface FileUpload {
   long getFileSize();
 
   /** Free resources, delete temporary file. */
-  void destroy();
+  @Override
+  void close();
 }
