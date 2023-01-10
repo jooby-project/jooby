@@ -39,7 +39,7 @@
     <ebean.version>13.11.1</ebean.version>
     <jdbi.version>3.36.0</jdbi.version>
     <flyway.version>9.10.2</flyway.version>
-    <graphql-java.version>19.3</graphql-java.version>
+    <graphql-java.version>20.0</graphql-java.version>
     <lettuce.version>6.2.2.RELEASE</lettuce.version>
     <commons-pool2.version>2.11.1</commons-pool2.version>
     <kafka.version>3.3.1</kafka.version>
