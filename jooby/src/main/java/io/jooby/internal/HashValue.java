@@ -23,10 +23,9 @@ import java.util.function.Supplier;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.FileUpload;
-import io.jooby.Formdata;
 import io.jooby.ValueNode;
 
-public class HashValue implements ValueNode, Formdata {
+public class HashValue implements ValueNode {
   private static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
 
   private Context ctx;

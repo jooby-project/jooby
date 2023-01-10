@@ -43,7 +43,6 @@ import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
-import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Reified;
 import io.jooby.Route;
@@ -74,8 +73,6 @@ public class MockContext implements DefaultContext {
   private Map<String, Collection<String>> headers = new HashMap<>();
 
   private Formdata formdata = Formdata.create(this);
-
-  private Multipart multipart = Multipart.create(this);
 
   private Body body;
 
@@ -321,22 +318,6 @@ public class MockContext implements DefaultContext {
     return formdata;
   }
 
-  /**
-   * Set formdata.
-   *
-   * @param formdata Formdata.
-   * @return This context.
-   */
-  @NonNull public MockContext setForm(@NonNull Formdata formdata) {
-    this.formdata = formdata;
-    return this;
-  }
-
-  @NonNull @Override
-  public Multipart multipart() {
-    return multipart;
-  }
-
   @NonNull @Override
   public List<FileUpload> files() {
     return files.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
@@ -372,13 +353,13 @@ public class MockContext implements DefaultContext {
   }
 
   /**
-   * Set multipart.
+   * Set form data.
    *
-   * @param multipart Multipart.
+   * @param formdata Form.
    * @return This context.
    */
-  @NonNull public MockContext setMultipart(@NonNull Multipart multipart) {
-    this.multipart = multipart;
+  @NonNull public MockContext setForm(@NonNull Formdata formdata) {
+    this.formdata = formdata;
     return this;
   }
 

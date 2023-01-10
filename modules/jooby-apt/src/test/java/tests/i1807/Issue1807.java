@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.Multipart;
+import io.jooby.Formdata;
 import io.jooby.ValueNode;
 import io.jooby.apt.MvcModuleCompilerRunner;
 import io.jooby.test.MockContext;
@@ -27,13 +27,13 @@ public class Issue1807 {
             app -> {
               Word1807 word = new Word1807();
               MockRouter router = new MockRouter(app);
-              Multipart multipart = mock(Multipart.class);
+              Formdata formdata = mock(Formdata.class);
               ValueNode missing = mock(ValueNode.class);
               when(missing.isMissing()).thenReturn(true);
-              when(multipart.get("data")).thenReturn(missing);
-              when(multipart.to(Word1807.class)).thenReturn(word);
+              when(formdata.get("data")).thenReturn(missing);
+              when(formdata.to(Word1807.class)).thenReturn(word);
               MockContext ctx = new MockContext();
-              ctx.setMultipart(multipart);
+              ctx.setForm(formdata);
 
               assertEquals(word, router.post("/test/bug", ctx).value());
             });

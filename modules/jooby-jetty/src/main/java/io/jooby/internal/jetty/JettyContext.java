@@ -19,6 +19,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +58,6 @@ import io.jooby.DefaultContext;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
-import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -86,8 +86,7 @@ public class JettyContext implements DefaultContext {
   Response response;
 
   private QueryString query;
-  private Formdata form;
-  private Multipart multipart;
+  private Formdata formdata;
   private List<FileUpload> files;
   private ValueNode headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
@@ -210,45 +209,43 @@ public class JettyContext implements DefaultContext {
 
   @NonNull @Override
   public Formdata form() {
-    if (form == null) {
-      form = Formdata.create(this);
-      formParam(request, form);
-    }
-    return form;
-  }
+    if (formdata == null) {
+      formdata = Formdata.create(this);
 
-  @NonNull @Override
-  public Multipart multipart() {
-    if (multipart == null) {
-      multipart = Multipart.create(this);
-      form = multipart;
-
-      request.setAttribute(
-          __MULTIPART_CONFIG_ELEMENT,
-          new MultipartConfigElement(
-              router.getTmpdir().toString(), -1L, maxRequestSize, bufferSize));
-
-      formParam(request, multipart);
+      formParam(request, formdata);
 
       // Files:
       String contentType = request.getContentType();
       if (contentType != null
           && MimeTypes.Type.MULTIPART_FORM_DATA.is(HttpField.valueParameters(contentType, null))) {
-        try {
-          Collection<Part> parts = request.getParts();
-          for (Part part : parts) {
-            if (part.getSubmittedFileName() != null) {
-              String name = part.getName();
-              multipart.put(
-                  name, register(new JettyFileUpload((MultiPartFormInputStream.MultiPart) part)));
+        // Is a multipart... make sure isn't empty
+        if (contentType.indexOf("boundary=") > 0) {
+          request.setAttribute(
+              __MULTIPART_CONFIG_ELEMENT,
+              new MultipartConfigElement(
+                  router.getTmpdir().toString(), -1L, maxRequestSize, bufferSize));
+
+          try {
+            Collection<Part> parts = request.getParts();
+            for (Part part : parts) {
+              if (part.getSubmittedFileName() != null) {
+                String name = part.getName();
+                formdata.put(
+                    name, register(new JettyFileUpload((MultiPartFormInputStream.MultiPart) part)));
+              } else {
+                try (InputStream value = part.getInputStream()) {
+                  formdata.put(
+                      part.getName(), new String(value.readAllBytes(), StandardCharsets.UTF_8));
+                }
+              }
             }
+          } catch (IOException | ServletException x) {
+            throw SneakyThrows.propagate(x);
           }
-        } catch (IOException | ServletException x) {
-          throw SneakyThrows.propagate(x);
         }
       }
     }
-    return multipart;
+    return formdata;
   }
 
   @NonNull @Override

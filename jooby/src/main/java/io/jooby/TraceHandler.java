@@ -32,7 +32,7 @@ public class TraceHandler implements Route.Filter {
                 .append(" ")
                 .append(ctx.getProtocol());
 
-        for (Map.Entry<String, List<String>> entry : ctx.headerMultimap().entrySet()) {
+        for (Map.Entry<String, List<String>> entry : ctx.header().toMultimap().entrySet()) {
           buffer
               .append(CRLF)
               .append(entry.getKey())

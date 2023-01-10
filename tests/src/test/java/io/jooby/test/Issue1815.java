@@ -27,7 +27,7 @@ public class Issue1815 {
             app -> {
               app.before(new CsrfHandler());
 
-              app.post("/1815", ctx -> ctx.multipart("file"));
+              app.post("/1815", ctx -> ctx.form("file"));
             })
         .ready(
             http -> {

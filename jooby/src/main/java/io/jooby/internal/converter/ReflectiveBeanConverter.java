@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.BeanConverter;
 import io.jooby.FileUpload;
-import io.jooby.Multipart;
+import io.jooby.Formdata;
 import io.jooby.Usage;
 import io.jooby.ValueNode;
 import io.jooby.exception.BadRequestException;
@@ -141,8 +141,8 @@ public class ReflectiveBeanConverter implements BeanConverter {
     for (ValueNode item : node) {
       names.add(item.name());
     }
-    if (node instanceof Multipart) {
-      for (FileUpload file : ((Multipart) node).files()) {
+    if (node instanceof Formdata) {
+      for (FileUpload file : ((Formdata) node).files()) {
         names.add(file.getName());
       }
     }
@@ -180,16 +180,16 @@ public class ReflectiveBeanConverter implements BeanConverter {
   private static Object value(Parameter parameter, ValueNode node, ValueNode value) {
     try {
       if (isFileUpload(node, parameter)) {
-        Multipart multipart = (Multipart) node;
+        Formdata formdata = (Formdata) node;
         if (Set.class.isAssignableFrom(parameter.getType())) {
-          return new HashSet<>(multipart.files(value.name()));
+          return new HashSet<>(formdata.files(value.name()));
         } else if (Collection.class.isAssignableFrom(parameter.getType())) {
-          return multipart.files(value.name());
+          return formdata.files(value.name());
         } else if (Optional.class.isAssignableFrom(parameter.getType())) {
-          List<FileUpload> files = multipart.files(value.name());
+          List<FileUpload> files = formdata.files(value.name());
           return files.isEmpty() ? Optional.empty() : Optional.of(files.get(0));
         } else {
-          return multipart.file(value.name());
+          return formdata.file(value.name());
         }
       } else {
         if (Set.class.isAssignableFrom(parameter.getType())) {
@@ -214,7 +214,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
   }
 
   private static boolean isFileUpload(ValueNode node, Parameter parameter) {
-    return (node instanceof Multipart) && isFileUpload(parameter.getType())
+    return (node instanceof Formdata) && isFileUpload(parameter.getType())
         || isFileUpload($Types.parameterizedType0(parameter.getParameterizedType()));
   }
 

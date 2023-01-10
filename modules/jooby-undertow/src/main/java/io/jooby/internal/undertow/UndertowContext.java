@@ -49,7 +49,6 @@ import io.jooby.Cookie;
 import io.jooby.DefaultContext;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
-import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -83,8 +82,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   HttpServerExchange exchange;
   private Router router;
   private QueryString query;
-  private Formdata form;
-  private Multipart multipart;
+  private Formdata formdata;
   private ValueNode headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes;
@@ -300,17 +298,11 @@ public class UndertowContext implements DefaultContext, IoCallback {
 
   @NonNull @Override
   public Formdata form() {
-    return multipart();
-  }
-
-  @NonNull @Override
-  public Multipart multipart() {
-    if (multipart == null) {
-      multipart = Multipart.create(this);
-      form = multipart;
-      formData(multipart, exchange.getAttachment(FORM_DATA));
+    if (formdata == null) {
+      formdata = Formdata.create(this);
+      formData(formdata, exchange.getAttachment(FORM_DATA));
     }
-    return multipart;
+    return formdata;
   }
 
   @NonNull @Override
@@ -636,7 +628,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
         Deque<FormData.FormValue> values = data.get(path);
         for (FormData.FormValue value : values) {
           if (value.isFileItem()) {
-            ((Multipart) form).put(path, new UndertowFileUpload(path, value));
+            ((Formdata) form).put(path, new UndertowFileUpload(path, value));
           } else {
             form.put(path, value.getValue());
           }

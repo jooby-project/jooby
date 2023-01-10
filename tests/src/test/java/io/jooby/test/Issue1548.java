@@ -19,7 +19,7 @@ public class Issue1548 {
     runner
         .define(
             app -> {
-              app.post("/1548", ctx -> ctx.multipart().toString());
+              app.post("/1548", ctx -> ctx.form().toString());
             })
         .ready(
             client -> {

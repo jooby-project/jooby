@@ -31,7 +31,6 @@ import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.FlashMap;
 import io.jooby.Formdata;
-import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Session;
@@ -298,7 +297,7 @@ public class ParamDefinition {
     if (is(Formdata.class)) {
       return true;
     }
-    if (is(Multipart.class)) {
+    if (is(Formdata.class)) {
       return true;
     }
     if (is(FlashMap.class)) {

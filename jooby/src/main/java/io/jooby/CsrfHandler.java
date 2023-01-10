@@ -37,7 +37,7 @@ import io.jooby.exception.InvalidCsrfToken;
  *
  * <p>The {@link CsrfHandler} handler will read an existing token from {@link Session} (or created a
  * new one is necessary) and make available as a request local variable via: {@link
- * Context#attribute(String, Object)}.
+ * Context#setAttribute(String, Object)}.
  *
  * <p>If the incoming request require a token verification, it will extract the token from:
  *
@@ -110,7 +110,7 @@ public class CsrfHandler implements Route.Before {
                   return newToken;
                 });
 
-    ctx.attribute(name, token);
+    ctx.setAttribute(name, token);
 
     if (filter.test(ctx)) {
       String clientToken =

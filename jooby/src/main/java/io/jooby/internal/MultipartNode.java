@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.FileUpload;
-import io.jooby.Multipart;
+import io.jooby.Formdata;
 import io.jooby.SneakyThrows;
 
-public class MultipartNode extends FormdataNode implements Multipart {
+public class MultipartNode extends HashValue implements Formdata {
   private Map<String, List<FileUpload>> files = new HashMap<>();
 
   public MultipartNode(Context ctx) {

@@ -72,8 +72,8 @@ public class DevLoginForm implements Route.Handler {
     String error = ctx.query("error").value("");
     String username = ctx.query("username").value("");
 
-    ctx.attribute("username", username);
-    ctx.attribute("error", error);
+    ctx.setAttribute("username", username);
+    ctx.setAttribute("error", error);
 
     UrlResolver urlResolver = pac4j.getClients().getUrlResolver();
     String url = urlResolver.compute(callbackPath, Pac4jContext.create(ctx));

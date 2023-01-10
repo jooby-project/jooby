@@ -79,13 +79,13 @@ public class ForwardingContext implements Context {
   }
 
   @Nullable @Override
-  public <T> T attribute(@NonNull String key) {
-    return ctx.attribute(key);
+  public <T> T getAttribute(@NonNull String key) {
+    return ctx.getAttribute(key);
   }
 
   @NonNull @Override
-  public Context attribute(@NonNull String key, Object value) {
-    ctx.attribute(key, value);
+  public Context setAttribute(@NonNull String key, Object value) {
+    ctx.setAttribute(key, value);
     return this;
   }
 
@@ -212,11 +212,6 @@ public class ForwardingContext implements Context {
     return ctx.queryMap();
   }
 
-  @NonNull @Override
-  public Map<String, List<String>> queryMultimap() {
-    return ctx.queryMultimap();
-  }
-
   @Override
   @NonNull public ValueNode header() {
     return ctx.header();
@@ -230,11 +225,6 @@ public class ForwardingContext implements Context {
   @NonNull @Override
   public Map<String, String> headerMap() {
     return ctx.headerMap();
-  }
-
-  @NonNull @Override
-  public Map<String, List<String>> headerMultimap() {
-    return ctx.headerMultimap();
   }
 
   @Override
@@ -347,16 +337,6 @@ public class ForwardingContext implements Context {
   }
 
   @NonNull @Override
-  public Map<String, List<String>> formMultimap() {
-    return ctx.formMultimap();
-  }
-
-  @NonNull @Override
-  public Map<String, String> formMap() {
-    return ctx.formMap();
-  }
-
-  @NonNull @Override
   public ValueNode form(@NonNull String name) {
     return ctx.form(name);
   }
@@ -366,29 +346,9 @@ public class ForwardingContext implements Context {
     return ctx.form(type);
   }
 
-  @Override
-  @NonNull public Multipart multipart() {
-    return ctx.multipart();
-  }
-
   @NonNull @Override
-  public ValueNode multipart(@NonNull String name) {
-    return ctx.multipart(name);
-  }
-
-  @NonNull @Override
-  public <T> T multipart(@NonNull Class<T> type) {
-    return ctx.multipart(type);
-  }
-
-  @NonNull @Override
-  public Map<String, List<String>> multipartMultimap() {
-    return ctx.multipartMultimap();
-  }
-
-  @NonNull @Override
-  public Map<String, String> multipartMap() {
-    return ctx.multipartMap();
+  public Map<String, String> formMap() {
+    return ctx.formMap();
   }
 
   @NonNull @Override

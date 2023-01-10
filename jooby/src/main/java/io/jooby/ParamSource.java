@@ -34,10 +34,7 @@ public enum ParamSource {
   QUERY(Context::query),
 
   /** Source equivalent to {@link Context#form(String)}. */
-  FORM(Context::form),
-
-  /** Source equivalent to {@link Context#multipart(String)}. */
-  MULTIPART(Context::multipart);
+  MULTIPART(Context::form);
 
   final BiFunction<Context, String, Value> provider;
 

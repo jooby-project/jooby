@@ -28,7 +28,7 @@ import io.jooby.Context;
 public @interface ContextParam {
 
   /**
-   * Attribute's name. See {@link io.jooby.Context#attribute(String)}
+   * Attribute's name. See {@link io.jooby.Context#getAttribute(String)}
    *
    * @return Attribute's name.
    */

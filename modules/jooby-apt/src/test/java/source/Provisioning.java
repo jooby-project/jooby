@@ -25,7 +25,6 @@ import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.FlashMap;
 import io.jooby.Formdata;
-import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Session;
 import io.jooby.StatusCode;
@@ -80,8 +79,8 @@ public class Provisioning {
   }
 
   @GET("/multipart")
-  public String multipart(Multipart value) {
-    assertTrue(value instanceof Multipart);
+  public String multipart(Formdata value) {
+    assertTrue(value instanceof Formdata);
     return "multipart";
   }
 

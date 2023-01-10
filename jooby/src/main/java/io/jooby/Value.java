@@ -24,7 +24,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.ArrayValue;
-import io.jooby.internal.FormdataNode;
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.MultipartNode;
@@ -525,16 +524,6 @@ public interface Value {
    * @return A hash/object value.
    */
   static @NonNull Formdata formdata(Context ctx) {
-    return new FormdataNode(ctx);
-  }
-
-  /**
-   * Creates a multipart form.
-   *
-   * @param ctx Current context.
-   * @return A hash/object value.
-   */
-  static @NonNull Multipart multipart(Context ctx) {
     return new MultipartNode(ctx);
   }
 

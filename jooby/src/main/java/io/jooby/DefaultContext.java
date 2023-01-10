@@ -87,7 +87,7 @@ public interface DefaultContext extends Context {
    * @return Attribute value.
    */
   @Override
-  @Nullable default <T> T attribute(@NonNull String key) {
+  @Nullable default <T> T getAttribute(@NonNull String key) {
     T attribute = (T) getAttributes().get(key);
     if (attribute == null) {
       Map<String, Object> globals = getRouter().getAttributes();
@@ -97,7 +97,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  @NonNull default Context attribute(@NonNull String key, Object value) {
+  @NonNull default Context setAttribute(@NonNull String key, Object value) {
     getAttributes().put(key, value);
     return this;
   }
@@ -215,11 +215,6 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  @NonNull default Map<String, List<String>> queryMultimap() {
-    return query().toMultimap();
-  }
-
-  @Override
   @NonNull default Value header(@NonNull String name) {
     return header().get(name);
   }
@@ -227,11 +222,6 @@ public interface DefaultContext extends Context {
   @Override
   @NonNull default Map<String, String> headerMap() {
     return header().toMap();
-  }
-
-  @Override
-  @NonNull default Map<String, List<String>> headerMultimap() {
-    return header().toMultimap();
   }
 
   @Override
@@ -376,16 +366,6 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  @NonNull default Map<String, List<String>> formMultimap() {
-    return form().toMultimap();
-  }
-
-  @Override
-  @NonNull default Map<String, String> formMap() {
-    return form().toMap();
-  }
-
-  @Override
   @NonNull default ValueNode form(@NonNull String name) {
     return form().get(name);
   }
@@ -396,38 +376,23 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  @NonNull default ValueNode multipart(@NonNull String name) {
-    return multipart().get(name);
-  }
-
-  @Override
-  @NonNull default <T> T multipart(@NonNull Class<T> type) {
-    return multipart().to(type);
-  }
-
-  @Override
-  @NonNull default Map<String, List<String>> multipartMultimap() {
-    return multipart().toMultimap();
-  }
-
-  @Override
-  @NonNull default Map<String, String> multipartMap() {
-    return multipart().toMap();
+  @NonNull default Map<String, String> formMap() {
+    return form().toMap();
   }
 
   @Override
   @NonNull default List<FileUpload> files() {
-    return multipart().files();
+    return form().files();
   }
 
   @Override
   @NonNull default List<FileUpload> files(@NonNull String name) {
-    return multipart().files(name);
+    return form().files(name);
   }
 
   @Override
   @NonNull default FileUpload file(@NonNull String name) {
-    return multipart().file(name);
+    return form().file(name);
   }
 
   @Override

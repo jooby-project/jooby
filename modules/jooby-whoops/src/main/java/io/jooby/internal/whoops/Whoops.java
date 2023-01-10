@@ -150,10 +150,10 @@ public class Whoops implements ErrorHandler {
         "Request",
         mapOf(
             "path", ctx.getRequestPath(),
-            "headers", multimap(ctx.queryMultimap()),
+            "headers", multimap(ctx.header().toMultimap()),
             "path", ctx.pathMap(),
-            "query", multimap(ctx.queryMultimap()),
-            "form", multimap(ctx.multipartMultimap()),
+            "query", multimap(ctx.query().toMultimap()),
+            "form", multimap(ctx.form().toMultimap()),
             "attributes", ctx.getAttributes()));
     map.put(
         "Session",

@@ -70,7 +70,7 @@ public interface Context extends Registry {
   /**
    * Context attributes (a.k.a request attributes).
    *
-   * @return Context attributes.
+   * @return Mutable Context attributes.
    */
   @NonNull Map<String, Object> getAttributes();
 
@@ -82,7 +82,7 @@ public interface Context extends Registry {
    * @param <T> Attribute type.
    * @return Attribute value or <code>null</code>.
    */
-  @Nullable <T> T attribute(@NonNull String key);
+  @Nullable <T> T getAttribute(@NonNull String key);
 
   /**
    * Set an application attribute.
@@ -91,12 +91,12 @@ public interface Context extends Registry {
    * @param value Attribute value.
    * @return This router.
    */
-  @NonNull Context attribute(@NonNull String key, Object value);
+  @NonNull Context setAttribute(@NonNull String key, Object value);
 
   /**
-   * Get the HTTP router (usually this represent an instance of {@link Jooby}.
+   * Get the HTTP router (usually this represents an instance of {@link Jooby}.
    *
-   * @return HTTP router (usually this represent an instance of {@link Jooby}.
+   * @return HTTP router (usually this represents an instance of {@link Jooby}.
    */
   @NonNull Router getRouter();
 
@@ -353,19 +353,6 @@ public interface Context extends Registry {
    */
   @NonNull Map<String, String> queryMap();
 
-  /**
-   * Query string as multi-value map.
-   *
-   * <pre>{@code/search?q=jooby&sort=name&sort=id}</pre>
-   *
-   * Produces
-   *
-   * <pre>{q: [jooby], sort: [name, id]}</pre>
-   *
-   * @return Query string as map.
-   */
-  @NonNull Map<String, List<String>> queryMultimap();
-
   /* **********************************************************************************************
    * Header API
    * **********************************************************************************************
@@ -392,13 +379,6 @@ public interface Context extends Registry {
    * @return Header as single-value map.
    */
   @NonNull Map<String, String> headerMap();
-
-  /**
-   * Header as multi-value map.
-   *
-   * @return Header as multi-value map.
-   */
-  @NonNull Map<String, List<String>> headerMultimap();
 
   /**
    * True if the given type matches the `Accept` header. This method returns <code>true</code> if
@@ -691,67 +671,22 @@ public interface Context extends Registry {
   @NonNull Context setScheme(@NonNull String scheme);
 
   /* **********************************************************************************************
-   * Form API
+   * Form/Multipart API
    * **********************************************************************************************
    */
 
   /**
-   * Formdata as {@link ValueNode}. This method is for <code>application/form-url-encoded</code>
+   * Get form data.
+   *
+   * <p>Only for <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code>
    * request.
    *
-   * @return Formdata as {@link ValueNode}. This method is for <code>application/form-url-encoded
-   *     </code> request.
+   * @return Multipart value.
    */
   @NonNull Formdata form();
 
   /**
-   * Formdata as multi-value map. Only for <code>application/form-url-encoded</code> request.
-   *
-   * @return Formdata as multi-value map. Only for <code>application/form-url-encoded</code>
-   *     request.
-   */
-  @NonNull Map<String, List<String>> formMultimap();
-
-  /**
-   * Formdata as single-value map. Only for <code>application/form-url-encoded</code> request.
-   *
-   * @return Formdata as single-value map. Only for <code>application/form-url-encoded</code>
-   *     request.
-   */
-  @NonNull Map<String, String> formMap();
-
-  /**
-   * Form field that matches the given name. Only for <code>application/form-url-encoded</code>
-   * request.
-   *
-   * @param name Field name.
-   * @return Form value.
-   */
-  @NonNull ValueNode form(@NonNull String name);
-
-  /**
-   * Convert formdata to the given type. Only for <code>application/form-url-encoded</code> request.
-   *
-   * @param type Target type.
-   * @param <T> Target type.
-   * @return Formdata as requested type.
-   */
-  @NonNull <T> T form(@NonNull Class<T> type);
-
-  /* **********************************************************************************************
-   * Multipart API
-   * **********************************************************************************************
-   */
-
-  /**
-   * Get multipart data. Only for <code>multipart/form-data</code> request..
-   *
-   * @return Multipart value.
-   */
-  @NonNull Multipart multipart();
-
-  /**
-   * Get a multipart field that matches the given name.
+   * Get a form field that matches the given name.
    *
    * <p>File upload retrieval is available using {@link Context#file(String)}.
    *
@@ -760,36 +695,29 @@ public interface Context extends Registry {
    * @param name Field name.
    * @return Multipart value.
    */
-  @NonNull ValueNode multipart(@NonNull String name);
+  @NonNull ValueNode form(@NonNull String name);
 
   /**
-   * Convert multipart data to the given type.
+   * Convert form data to the given type.
    *
-   * <p>Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code>
+   * request.
    *
    * @param type Target type.
    * @param <T> Target type.
    * @return Target value.
    */
-  @NonNull <T> T multipart(@NonNull Class<T> type);
+  @NonNull <T> T form(@NonNull Class<T> type);
 
   /**
-   * Multipart data as multi-value map.
+   * Form data as single-value map.
    *
-   * <p>Only for <code>multipart/form-data</code> request.
-   *
-   * @return Multi-value map.
-   */
-  @NonNull Map<String, List<String>> multipartMultimap();
-
-  /**
-   * Multipart data as single-value map.
-   *
-   * <p>Only for <code>multipart/form-data</code> request.
+   * <p>Only for <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code>
+   * request.
    *
    * @return Single-value map.
    */
-  @NonNull Map<String, String> multipartMap();
+  @NonNull Map<String, String> formMap();
 
   /**
    * All file uploads. Only for <code>multipart/form-data</code> request.

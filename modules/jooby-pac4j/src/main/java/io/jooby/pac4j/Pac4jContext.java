@@ -36,10 +36,10 @@ public interface Pac4jContext extends WebContext {
    */
   static @NonNull Pac4jContext create(@NonNull Context ctx) {
     String key = Pac4jContext.class.getName();
-    WebContextImpl impl = ctx.attribute(key);
+    WebContextImpl impl = ctx.getAttribute(key);
     if (impl == null) {
       impl = new WebContextImpl(ctx);
-      ctx.attribute(key, impl);
+      ctx.setAttribute(key, impl);
     }
     return impl;
   }

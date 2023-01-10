@@ -96,13 +96,6 @@ inline fun <reified T> Context.form(): T {
   return this.form(T::class.java)
 }
 
-val Context.multipart: Multipart
-  get() = this.multipart()
-
-inline fun <reified T> Context.multipart(): T {
-  return this.multipart(T::class.java)
-}
-
 val Context.body: Body
   get() = this.body()
 

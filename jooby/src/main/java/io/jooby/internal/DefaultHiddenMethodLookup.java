@@ -21,7 +21,7 @@ public class DefaultHiddenMethodLookup implements Function<Context, Optional<Str
   @Override
   public Optional<String> apply(Context ctx) {
     if (ctx.getMethod().equals(Router.POST)) {
-      return ctx.multipart(parameterName).toOptional();
+      return ctx.form(parameterName).toOptional();
     }
     return Optional.empty();
   }

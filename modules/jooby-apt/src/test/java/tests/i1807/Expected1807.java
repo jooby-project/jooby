@@ -25,7 +25,7 @@ public class Expected1807 implements MvcFactory {
           "/test/{word}",
           ctx -> {
             C1807 controller = (C1807) provider.get();
-            Word1807 word = ctx.multipart().to(Word1807.class);
+            Word1807 word = ctx.form().to(Word1807.class);
             controller.hello(MissingValueException.requireNonNull("data", word));
             return ctx;
           });

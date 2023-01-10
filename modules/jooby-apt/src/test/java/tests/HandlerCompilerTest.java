@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.FileUpload;
-import io.jooby.Multipart;
+import io.jooby.Formdata;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.StatusCode;
@@ -153,10 +153,10 @@ public class HandlerCompilerTest {
               MockRouter router = new MockRouter(app);
 
               MockContext ctx = MockContextHelper.mockContext();
-              Multipart formdata = Multipart.create(ctx);
+              Formdata formdata = Formdata.create(ctx);
               formdata.put("name", "yo");
 
-              assertEquals("yo", router.get("/p/formParam", ctx.setMultipart(formdata)).value());
+              assertEquals("yo", router.get("/p/formParam", ctx.setForm(formdata)).value());
             });
   }
 
@@ -549,8 +549,8 @@ public class HandlerCompilerTest {
               assertEquals(
                   "doPost", router.post("/jaxrs/post", MockContextHelper.mockContext()).value());
 
-              assertEquals("1431",
-                  router.put("/jaxrs/put/1431", MockContextHelper.mockContext()).value());
+              assertEquals(
+                  "1431", router.put("/jaxrs/put/1431", MockContextHelper.mockContext()).value());
             });
   }
 

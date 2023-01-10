@@ -7,7 +7,6 @@ package source;
 
 import static io.jooby.ParamSource.COOKIE;
 import static io.jooby.ParamSource.FLASH;
-import static io.jooby.ParamSource.FORM;
 import static io.jooby.ParamSource.HEADER;
 import static io.jooby.ParamSource.PATH;
 import static io.jooby.ParamSource.QUERY;
@@ -58,7 +57,7 @@ public class RouteWithParamLookup {
 
   @GET("/lookup/source-num-6plus")
   public String lookupSourceNum6plus(
-      @Nullable @Param({PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM}) String myParam) {
+      @Nullable @Param({PATH, HEADER, COOKIE, FLASH, SESSION, QUERY}) String myParam) {
     return String.valueOf(myParam);
   }
 

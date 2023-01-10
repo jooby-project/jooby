@@ -57,7 +57,6 @@ import io.jooby.DefaultContext;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
-import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -124,8 +123,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean responseStarted;
   private QueryString query;
-  private Formdata form;
-  private Multipart multipart;
+
+  private Formdata formdata;
   private List<FileUpload> files;
   private ValueNode headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
@@ -257,17 +256,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Formdata form() {
-    return multipart();
-  }
-
-  @NonNull @Override
-  public Multipart multipart() {
-    if (multipart == null) {
-      multipart = Multipart.create(this);
-      form = multipart;
-      decodeForm(req, multipart);
+    if (formdata == null) {
+      formdata = Formdata.create(this);
+      decodeForm(req, formdata);
     }
-    return multipart;
+    return formdata;
   }
 
   @NonNull @Override
@@ -889,7 +882,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-          ((Multipart) form)
+          ((Formdata) form)
               .put(
                   next.getName(),
                   register(

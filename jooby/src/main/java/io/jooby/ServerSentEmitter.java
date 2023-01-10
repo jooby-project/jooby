@@ -111,7 +111,7 @@ public interface ServerSentEmitter {
    * @return Attribute value.
    */
   default @NonNull <T> T attribute(@NonNull String key) {
-    return getContext().attribute(key);
+    return getContext().getAttribute(key);
   }
 
   /**
@@ -122,7 +122,7 @@ public interface ServerSentEmitter {
    * @return This ServerSent.
    */
   default @NonNull ServerSentEmitter attribute(@NonNull String key, Object value) {
-    getContext().attribute(key, value);
+    getContext().setAttribute(key, value);
     return this;
   }
 

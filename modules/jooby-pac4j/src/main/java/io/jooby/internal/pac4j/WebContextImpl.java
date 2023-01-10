@@ -46,7 +46,7 @@ public class WebContextImpl implements Pac4jContext {
 
   @Override
   public Optional<String> getRequestParameter(String name) {
-    return Stream.of(context.path(), context.query(), context.multipart())
+    return Stream.of(context.path(), context.query(), context.form())
         .map(v -> v.get(name))
         .filter(v -> !v.isMissing())
         .findFirst()
@@ -58,7 +58,7 @@ public class WebContextImpl implements Pac4jContext {
     Map<String, String[]> all = new LinkedHashMap<>();
     parameters(context.path().toMultimap(), all::put);
     parameters(context.query().toMultimap(), all::put);
-    parameters(context.multipart().toMultimap(), all::put);
+    parameters(context.form().toMultimap(), all::put);
     return all;
   }
 
@@ -74,7 +74,7 @@ public class WebContextImpl implements Pac4jContext {
 
   @Override
   public void setRequestAttribute(String name, Object value) {
-    context.attribute(name, value);
+    context.setAttribute(name, value);
   }
 
   @Override

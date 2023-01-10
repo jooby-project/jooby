@@ -31,11 +31,12 @@ public class Issue2465 {
         .define(
             app -> {
               app.before(
-                  ctx -> ctx.attribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
+                  ctx ->
+                      ctx.setAttribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
 
               app.after(
                   (ctx, result, failure) -> {
-                    AtomicInteger inc = ctx.attribute("inc");
+                    AtomicInteger inc = ctx.getAttribute("inc");
                     if (inc.incrementAndGet() == 1) {
                       if (result != null) {
                         ctx.setResponseHeader("After", result);
@@ -81,11 +82,12 @@ public class Issue2465 {
         .define(
             app -> {
               app.before(
-                  ctx -> ctx.attribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
+                  ctx ->
+                      ctx.setAttribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
 
               app.after(
                   (ctx, result, failure) -> {
-                    AtomicInteger inc = ctx.attribute("inc");
+                    AtomicInteger inc = ctx.getAttribute("inc");
                     if (inc.incrementAndGet() == 1) {
                       if (result != null) {
                         ctx.setResponseHeader("After", result);
@@ -136,11 +138,12 @@ public class Issue2465 {
         .define(
             app -> {
               app.before(
-                  ctx -> ctx.attribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
+                  ctx ->
+                      ctx.setAttribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
 
               app.after(
                   (ctx, result, failure) -> {
-                    AtomicInteger inc = ctx.attribute("inc");
+                    AtomicInteger inc = ctx.getAttribute("inc");
                     if (inc.incrementAndGet() == 1) {
                       if (result != null) {
                         ctx.setResponseHeader("After", result);
@@ -191,11 +194,12 @@ public class Issue2465 {
         .define(
             app -> {
               app.before(
-                  ctx -> ctx.attribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
+                  ctx ->
+                      ctx.setAttribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
 
               app.after(
                   (ctx, result, failure) -> {
-                    AtomicInteger inc = ctx.attribute("inc");
+                    AtomicInteger inc = ctx.getAttribute("inc");
                     if (inc.incrementAndGet() == 1) {
                       if (result != null) {
                         ctx.setResponseHeader("After", result);
@@ -248,11 +252,12 @@ public class Issue2465 {
         .define(
             app -> {
               app.before(
-                  ctx -> ctx.attribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
+                  ctx ->
+                      ctx.setAttribute("inc", new AtomicInteger(0)).setResetHeadersOnError(false));
 
               app.after(
                   (ctx, result, failure) -> {
-                    AtomicInteger inc = ctx.attribute("inc");
+                    AtomicInteger inc = ctx.getAttribute("inc");
                     int i = inc.getAndIncrement();
                     if (!ctx.isResponseStarted()) {
                       // Only allowed before sending first element

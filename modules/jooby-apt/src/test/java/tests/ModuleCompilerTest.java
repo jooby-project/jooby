@@ -7,7 +7,6 @@ package tests;
 
 import static io.jooby.ParamSource.COOKIE;
 import static io.jooby.ParamSource.FLASH;
-import static io.jooby.ParamSource.FORM;
 import static io.jooby.ParamSource.HEADER;
 import static io.jooby.ParamSource.PATH;
 import static io.jooby.ParamSource.QUERY;
@@ -190,9 +189,7 @@ public class ModuleCompilerTest {
                         sources ->
                             assertArrayEquals(
                                 sources,
-                                new ParamSource[] {
-                                  PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM
-                                }));
+                                new ParamSource[] {PATH, HEADER, COOKIE, FLASH, SESSION, QUERY}));
                 router.get("/lookup/source-num-6plus", context).value();
               }
 

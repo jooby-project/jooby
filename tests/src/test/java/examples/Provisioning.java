@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 import io.jooby.Context;
 import io.jooby.FlashMap;
 import io.jooby.Formdata;
-import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.StatusCode;
 import io.jooby.annotations.CookieParam;
@@ -156,7 +155,7 @@ public class Provisioning {
 
   @POST
   @Path("/multipart")
-  public Multipart multipart(Multipart data) {
+  public Formdata multipart(Formdata data) {
     return data;
   }
 

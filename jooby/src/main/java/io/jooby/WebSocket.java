@@ -135,7 +135,7 @@ public interface WebSocket {
    * @return Attribute value.
    */
   default @NonNull <T> T attribute(@NonNull String key) {
-    return getContext().attribute(key);
+    return getContext().getAttribute(key);
   }
 
   /**
@@ -146,7 +146,7 @@ public interface WebSocket {
    * @return This router.
    */
   default @NonNull WebSocket attribute(@NonNull String key, Object value) {
-    getContext().attribute(key, value);
+    getContext().setAttribute(key, value);
     return this;
   }
 

@@ -6,14 +6,16 @@
 package io.jooby;
 
 import java.util.Collection;
+import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.internal.FormdataNode;
+import io.jooby.internal.MultipartNode;
 
 /**
- * Formdata class for direct MVC parameter provisioning.
+ * Form class for direct MVC parameter provisioning.
  *
- * <p>HTTP request must be encoded as {@link MediaType#FORM_URLENCODED}.
+ * <p>HTTP request must be encoded as {@link MediaType#FORM_URLENCODED} or {@link
+ * MediaType#MULTIPART_FORMDATA}.
  *
  * @author edgar
  * @since 2.0.0
@@ -48,12 +50,47 @@ public interface Formdata extends ValueNode {
   void put(@NonNull String path, @NonNull Collection<String> values);
 
   /**
-   * Creates a formdata object.
+   * Put/Add a file into this multipart request.
+   *
+   * @param name HTTP name.
+   * @param file File upload.
+   */
+  void put(@NonNull String name, @NonNull FileUpload file);
+
+  /**
+   * All file uploads. Only for <code>multipart/form-data</code> request.
+   *
+   * @return All file uploads.
+   */
+  @NonNull List<FileUpload> files();
+
+  /**
+   * All file uploads that matches the given field name.
+   *
+   * <p>Only for <code>multipart/form-data</code> request.
+   *
+   * @param name Field name. Please note this is the form field name, not the actual file name.
+   * @return All file uploads.
+   */
+  @NonNull List<FileUpload> files(@NonNull String name);
+
+  /**
+   * A file upload that matches the given field name.
+   *
+   * <p>Only for <code>multipart/form-data</code> request.
+   *
+   * @param name Field name. Please note this is the form field name, not the actual file name.
+   * @return A file upload.
+   */
+  @NonNull FileUpload file(@NonNull String name);
+
+  /**
+   * Creates a new multipart object.
    *
    * @param ctx Current context.
-   * @return Formdata.
+   * @return Multipart instance.
    */
   static @NonNull Formdata create(@NonNull Context ctx) {
-    return new FormdataNode(ctx);
+    return new MultipartNode(ctx);
   }
 }

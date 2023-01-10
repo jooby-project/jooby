@@ -53,11 +53,11 @@ public class WebVariables implements Route.Filter {
 
   private Context webvariables(Context ctx) {
     String contextPath = ctx.getContextPath();
-    ctx.attribute(key("contextPath"), contextPath.equals("/") ? "" : contextPath);
-    ctx.attribute(key("path"), ctx.getRequestPath());
+    ctx.setAttribute(key("contextPath"), contextPath.equals("/") ? "" : contextPath);
+    ctx.setAttribute(key("path"), ctx.getRequestPath());
     Object user = ctx.getUser();
     if (user != null) {
-      ctx.attribute(key("user"), user);
+      ctx.setAttribute(key("user"), user);
     }
     return ctx;
   }

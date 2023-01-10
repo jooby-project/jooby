@@ -70,12 +70,12 @@ import io.jooby.CsrfHandler;
 import io.jooby.FileDownload;
 import io.jooby.FileUpload;
 import io.jooby.FlashMap;
+import io.jooby.Formdata;
 import io.jooby.HeadHandler;
 import io.jooby.InlineFile;
 import io.jooby.Jooby;
 import io.jooby.MessageDecoder;
 import io.jooby.ModelAndView;
-import io.jooby.Multipart;
 import io.jooby.ReactiveSupport;
 import io.jooby.Router;
 import io.jooby.RouterOption;
@@ -756,7 +756,7 @@ public class FeaturedTest {
               app.post(
                   "/datafile",
                   ctx -> {
-                    Datafile file = ctx.multipart(Datafile.class);
+                    Datafile file = ctx.form(Datafile.class);
                     String result = file.name + "=" + Files.exists(file.filename.path());
                     return result;
                   });
@@ -764,18 +764,18 @@ public class FeaturedTest {
               app.post(
                   "/datafiles",
                   ctx -> {
-                    Datafiles file = ctx.multipart(Datafiles.class);
+                    Datafiles file = ctx.form(Datafiles.class);
                     return file.name + "=" + file.filename;
                   });
 
               app.post(
                   "/multipart",
                   ctx -> {
-                    Multipart multipart = ctx.multipart();
-                    Map<String, List<String>> multimap = multipart.toMultimap();
+                    Formdata formdata = ctx.form();
+                    Map<String, List<String>> multimap = formdata.toMultimap();
                     Map<String, Object> rsp = new LinkedHashMap<>();
                     rsp.putAll(multimap);
-                    rsp.put("f", multipart.files("f"));
+                    rsp.put("f", formdata.files("f"));
                     return rsp;
                   });
             })
@@ -884,7 +884,7 @@ public class FeaturedTest {
                   ctx -> {
                     StringBuilder buff = new StringBuilder();
                     buff.append("before1:" + ctx.isInIoThread()).append(";");
-                    ctx.attribute("buff", buff);
+                    ctx.setAttribute("buff", buff);
                   });
 
               app.after(
@@ -897,20 +897,20 @@ public class FeaturedTest {
                   () -> {
                     app.before(
                         ctx -> {
-                          StringBuilder buff = ctx.attribute("buff");
+                          StringBuilder buff = ctx.getAttribute("buff");
                           buff.append("before2:" + ctx.isInIoThread()).append(";");
                         });
 
                     app.after(
                         (ctx, value, failure) -> {
-                          StringBuilder buff = ctx.attribute("buff");
+                          StringBuilder buff = ctx.getAttribute("buff");
                           buff.append("after2:" + ctx.isInIoThread()).append(";");
                         });
 
                     app.get(
                         "/",
                         ctx -> {
-                          StringBuilder buff = ctx.attribute("buff");
+                          StringBuilder buff = ctx.getAttribute("buff");
                           buff.append("result:").append(ctx.isInIoThread()).append(";");
                           return buff;
                         });
@@ -933,13 +933,13 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.before(ctx -> ctx.attribute("prefix", "%"));
+              app.before(ctx -> ctx.setAttribute("prefix", "%"));
 
-              app.use(next -> ctx -> "{" + ctx.attribute("prefix") + next.apply(ctx) + "}");
+              app.use(next -> ctx -> "{" + ctx.getAttribute("prefix") + next.apply(ctx) + "}");
 
-              app.use(next -> ctx -> "<" + ctx.attribute("prefix") + next.apply(ctx) + ">");
+              app.use(next -> ctx -> "<" + ctx.getAttribute("prefix") + next.apply(ctx) + ">");
 
-              app.get("/decorator", ctx -> ctx.attribute("prefix") + "OK" + "%");
+              app.get("/decorator", ctx -> ctx.getAttribute("prefix") + "OK" + "%");
             })
         .ready(
             client -> {
@@ -3652,7 +3652,7 @@ public class FeaturedTest {
               app.post(
                   "/multipart",
                   ctx -> {
-                    return ctx.multipart().value();
+                    return ctx.form().value();
                   });
             })
         .ready(
@@ -4213,9 +4213,9 @@ public class FeaturedTest {
                   "/webvars",
                   ctx ->
                       Arrays.asList(
-                          ctx.attribute("contextPath"),
-                          ctx.attribute("path"),
-                          ctx.attribute("user")));
+                          ctx.getAttribute("contextPath"),
+                          ctx.getAttribute("path"),
+                          ctx.getAttribute("user")));
             })
         .ready(
             client -> {
@@ -4237,9 +4237,9 @@ public class FeaturedTest {
                   "/webvars",
                   ctx ->
                       Arrays.asList(
-                          ctx.attribute("contextPath"),
-                          ctx.attribute("path"),
-                          ctx.attribute("user")));
+                          ctx.getAttribute("contextPath"),
+                          ctx.getAttribute("path"),
+                          ctx.getAttribute("user")));
             })
         .ready(
             client -> {
@@ -4259,9 +4259,9 @@ public class FeaturedTest {
                   "/webvars",
                   ctx ->
                       Arrays.asList(
-                          ctx.attribute("scope.contextPath"),
-                          ctx.attribute("scope.path"),
-                          ctx.attribute("scope.user")));
+                          ctx.getAttribute("scope.contextPath"),
+                          ctx.getAttribute("scope.path"),
+                          ctx.getAttribute("scope.user")));
             })
         .ready(
             client -> {
@@ -4471,7 +4471,7 @@ public class FeaturedTest {
 
               app.post("/form", ctx -> ctx.form("v").value());
 
-              app.post("/multipart", ctx -> ctx.multipart("v").value());
+              app.post("/multipart", ctx -> ctx.form("v").value());
             })
         .ready(
             client -> {

@@ -13,7 +13,6 @@ import javax.lang.model.type.TypeMirror;
 
 import io.jooby.Context;
 import io.jooby.Formdata;
-import io.jooby.Multipart;
 import io.jooby.ParamSource;
 import io.jooby.apt.Annotations;
 import io.jooby.internal.apt.asm.BodyWriter;
@@ -84,7 +83,7 @@ public enum ParamKind {
 
     @Override
     public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("attribute", String.class);
+      return Context.class.getDeclaredMethod("getAttribute", String.class);
     }
 
     @Override
@@ -208,12 +207,12 @@ public enum ParamKind {
 
     @Override
     public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("multipart");
+      return Context.class.getDeclaredMethod("form");
     }
 
     @Override
     public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("multipart", String.class);
+      return Context.class.getDeclaredMethod("form", String.class);
     }
 
     @Override
@@ -292,7 +291,7 @@ public enum ParamKind {
         param.isOptional()
             ? param.getType().getArguments().get(0).getRawType()
             : param.getType().getRawType();
-    String rawType = type.toString().replace(Formdata.class.getName(), Multipart.class.getName());
+    String rawType = type.toString().replace(Formdata.class.getName(), Formdata.class.getName());
     for (ParamKind value : values()) {
       try {
         if (value.valueObject(param).getReturnType().getName().equals(rawType)) {
