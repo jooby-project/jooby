@@ -1,9 +1,9 @@
 {
   "name": "jooby-swagger-ui",
-  "version": "2.8.0",
+  "version": "3.0.0",
   "private": true,
   "license": "ASF",
   "dependencies": {
-    "swagger-ui-dist": "^4.10.3"
+    "swagger-ui-dist": "^4.15.5"
   }
 }

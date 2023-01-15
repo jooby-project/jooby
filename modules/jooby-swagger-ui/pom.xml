@@ -58,9 +58,6 @@
             <phase>generate-resources</phase>
           </execution>
         </executions>
-        <configuration>
-          <nodeVersion>${node.version}</nodeVersion>
-        </configuration>
       </plugin>
 
       <plugin>
