@@ -13,18 +13,14 @@ import java.util.Collections;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnJre;
-import org.junit.jupiter.api.condition.JRE;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.ModelAndView;
 import io.jooby.test.MockContext;
+import io.pebbletemplates.pebble.PebbleEngine;
 
-// FIXME: required until https://github.com/PebbleTemplates/pebble/issues/487
-@EnabledOnJre({JRE.JAVA_8, JRE.JAVA_9, JRE.JAVA_10, JRE.JAVA_11, JRE.JAVA_12})
 public class PebbleModuleTest {
   public static class User {
     private String firstname;

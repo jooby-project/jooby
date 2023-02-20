@@ -23,9 +23,6 @@ import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
-import com.mitchellbosecke.pebble.attributes.methodaccess.NoOpMethodAccessValidator;
-import com.mitchellbosecke.pebble.loader.ClasspathLoader;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ErrorHandler;
@@ -33,6 +30,9 @@ import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.StatusCode;
+import io.pebbletemplates.pebble.PebbleEngine;
+import io.pebbletemplates.pebble.attributes.methodaccess.NoOpMethodAccessValidator;
+import io.pebbletemplates.pebble.loader.ClasspathLoader;
 
 public class Whoops implements ErrorHandler {
 

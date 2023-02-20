@@ -7,7 +7,7 @@ package io.jooby.internal.whoops;
 
 import org.junit.jupiter.api.Test;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
+import io.pebbletemplates.pebble.PebbleEngine;
 
 public class WhoopsTest {
 

@@ -15,16 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
-import com.mitchellbosecke.pebble.attributes.methodaccess.BlacklistMethodAccessValidator;
-import com.mitchellbosecke.pebble.attributes.methodaccess.NoOpMethodAccessValidator;
-import com.mitchellbosecke.pebble.cache.CacheKey;
-import com.mitchellbosecke.pebble.cache.PebbleCache;
-import com.mitchellbosecke.pebble.loader.ClasspathLoader;
-import com.mitchellbosecke.pebble.loader.DelegatingLoader;
-import com.mitchellbosecke.pebble.loader.FileLoader;
-import com.mitchellbosecke.pebble.loader.Loader;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
@@ -32,6 +22,16 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
 import io.jooby.TemplateEngine;
+import io.pebbletemplates.pebble.PebbleEngine;
+import io.pebbletemplates.pebble.attributes.methodaccess.BlacklistMethodAccessValidator;
+import io.pebbletemplates.pebble.attributes.methodaccess.NoOpMethodAccessValidator;
+import io.pebbletemplates.pebble.cache.CacheKey;
+import io.pebbletemplates.pebble.cache.PebbleCache;
+import io.pebbletemplates.pebble.loader.ClasspathLoader;
+import io.pebbletemplates.pebble.loader.DelegatingLoader;
+import io.pebbletemplates.pebble.loader.FileLoader;
+import io.pebbletemplates.pebble.loader.Loader;
+import io.pebbletemplates.pebble.template.PebbleTemplate;
 
 /**
  * Pebble module: https://jooby.io/modules/pebble.

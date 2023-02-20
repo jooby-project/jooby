@@ -90,7 +90,7 @@
               </artifactSet>
               <relocations>
                 <relocation>
-                  <pattern>com.mitchellbosecke.pebble</pattern>
+                  <pattern>io.pebbletemplates.pebble</pattern>
                   <shadedPattern>io.jooby.internal.pebble</shadedPattern>
                 </relocation>
               </relocations>
