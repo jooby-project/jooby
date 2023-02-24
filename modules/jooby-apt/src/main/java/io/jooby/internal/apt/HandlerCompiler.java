@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.internal.apt.JoobyTypes.Provider;
+import static io.jooby.internal.apt.JoobyTypes.StatusCode;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -42,23 +44,13 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import io.jooby.Context;
-import io.jooby.Router;
-import io.jooby.StatusCode;
-import io.jooby.apt.Annotations;
 import io.jooby.internal.apt.asm.NameGenerator;
 import io.jooby.internal.apt.asm.ParamWriter;
-import jakarta.inject.Provider;
 
 public class HandlerCompiler {
 
   private static final Type OBJ = getType(Object.class);
-  private static final Type STATUS_CODE = getType(StatusCode.class);
-
-  private static final Type PROVIDER = getType(Provider.class);
   private static final String PROVIDER_DESCRIPTOR = getMethodDescriptor(OBJ);
-
-  private static final Type CTX = getType(Context.class);
 
   private TypeDefinition owner;
   private ExecutableElement executable;
@@ -76,7 +68,7 @@ public class HandlerCompiler {
       String pattern) {
     this.httpMethod = httpMethod.getSimpleName().toString().toLowerCase();
     this.annotation = httpMethod.asType();
-    this.pattern = Router.leadingSlash(pattern);
+    this.pattern = leadingSlash(pattern);
     this.environment = environment;
     this.executable = executable;
     this.typeUtils = environment.getTypeUtils();
@@ -180,7 +172,7 @@ public class HandlerCompiler {
     /** provider.get() */
     apply.visitVarInsn(ALOAD, 0);
     apply.visitMethodInsn(
-        INVOKEINTERFACE, PROVIDER.getInternalName(), "get", PROVIDER_DESCRIPTOR, true);
+        INVOKEINTERFACE, Provider.getInternalName(), "get", PROVIDER_DESCRIPTOR, true);
     apply.visitTypeInsn(CHECKCAST, owner.getInternalName());
     apply.visitVarInsn(ASTORE, 2);
     apply.visitVarInsn(ALOAD, 2);
@@ -244,16 +236,15 @@ public class HandlerCompiler {
 
   private void setDefaultResponseType(MethodVisitor visitor) throws Exception {
     TypeKind kind = executable.getReturnType().getKind();
-    if (kind == TypeKind.VOID && getHttpMethod().equalsIgnoreCase(Router.DELETE)) {
+    if (kind == TypeKind.VOID && getHttpMethod().equalsIgnoreCase("DELETE")) {
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitFieldInsn(
-          GETSTATIC, STATUS_CODE.getInternalName(), "NO_CONTENT", STATUS_CODE.getDescriptor());
-      Method setResponseCode = Context.class.getDeclaredMethod("setResponseCode", StatusCode.class);
+          GETSTATIC, StatusCode.getInternalName(), "NO_CONTENT", StatusCode.getDescriptor());
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
-          setResponseCode.getName(),
-          getMethodDescriptor(setResponseCode),
+          MethodDescriptor.Context.setResponseCode().getDeclaringType().getInternalName(),
+          MethodDescriptor.Context.setResponseCode().getName(),
+          MethodDescriptor.Context.setResponseCode().getDescriptor(),
           true);
       visitor.visitInsn(POP);
     }
@@ -262,29 +253,26 @@ public class HandlerCompiler {
   private void processReturnType(MethodVisitor visitor) throws Exception {
     TypeKind kind = executable.getReturnType().getKind();
     if (kind == TypeKind.VOID) {
-      Method getResponseCode = Context.class.getDeclaredMethod("getResponseCode");
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
-          getResponseCode.getName(),
-          getMethodDescriptor(getResponseCode),
+          MethodDescriptor.Context.getResponseCode().getDeclaringType().getInternalName(),
+          MethodDescriptor.Context.getResponseCode().getName(),
+          MethodDescriptor.Context.getResponseCode().getDescriptor(),
           true);
     } else {
       Method wrapper = Primitives.wrapper(kind);
       if (wrapper == null) {
         TypeDefinition returnType = getReturnType();
-        if (returnType.is(StatusCode.class)) {
+        if (returnType.is(StatusCode.getClassName())) {
           visitor.visitVarInsn(ASTORE, 2);
           visitor.visitVarInsn(ALOAD, 1);
           visitor.visitVarInsn(ALOAD, 2);
-          Method setResponseCode =
-              Context.class.getDeclaredMethod("setResponseCode", StatusCode.class);
           visitor.visitMethodInsn(
               INVOKEINTERFACE,
-              CTX.getInternalName(),
-              setResponseCode.getName(),
-              getMethodDescriptor(setResponseCode),
+              MethodDescriptor.Context.setResponseCode().getDeclaringType().getInternalName(),
+              MethodDescriptor.Context.setResponseCode().getName(),
+              MethodDescriptor.Context.setResponseCode().getDescriptor(),
               true);
           visitor.visitInsn(POP);
           visitor.visitVarInsn(ALOAD, 2);
@@ -344,5 +332,18 @@ public class HandlerCompiler {
               }
               return Collections.emptyList();
             });
+  }
+
+  /**
+   * Ensure path start with a <code>/</code>(leading slash).
+   *
+   * @param path Path to process.
+   * @return Path with leading slash.
+   */
+  static String leadingSlash(String path) {
+    if (path == null || path.length() == 0 || path.equals("/")) {
+      return "/";
+    }
+    return path.charAt(0) == '/' ? path : "/" + path;
   }
 }

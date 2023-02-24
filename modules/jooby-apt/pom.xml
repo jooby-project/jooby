@@ -26,6 +26,13 @@
       <optional>true</optional>
     </dependency>
 
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby</artifactId>
+      <version>${jooby.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>com.google.testing.compile</groupId>
@@ -44,12 +51,6 @@
       <groupId>com.google.truth</groupId>
       <artifactId>truth</artifactId>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby</artifactId>
-      <version>${jooby.version}</version>
     </dependency>
 
     <dependency>
@@ -196,6 +197,33 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+        <version>1.0.0.RC2</version>
+        <executions>
+          <execution>
+            <id>generate-module-info</id>
+            <phase>package</phase>
+            <goals>
+              <goal>add-module-info</goal>
+            </goals>
+            <configuration>
+              <module>
+                <moduleInfo>
+                  <name>io.jooby.apt</name>
+                  <exports>
+                    !io.jooby.internal.*;
+                    *;
+                  </exports>
+                </moduleInfo>
+              </module>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 </project>

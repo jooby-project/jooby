@@ -5,9 +5,8 @@
  */
 package tests.i2408;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.QueryParam;
 

@@ -15,9 +15,7 @@ import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Type.getMethodDescriptor;
 
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 
 import org.objectweb.asm.ClassWriter;
@@ -26,8 +24,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import io.jooby.Context;
-import io.jooby.FileUpload;
+import io.jooby.internal.apt.MethodDescriptor;
 import io.jooby.internal.apt.ParamDefinition;
 
 public class FileUploadWriter implements ParamWriter {
@@ -51,22 +48,19 @@ public class FileUploadWriter implements ParamWriter {
     } else {
       visitor.visitLdcInsn(parameter.getName());
 
-      Method fileMethod = Context.class.getDeclaredMethod("file", String.class);
-
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
-          fileMethod.getName(),
-          getMethodDescriptor(fileMethod),
+          MethodDescriptor.Context.file().getDeclaringType().getInternalName(),
+          MethodDescriptor.Context.file().getName(),
+          MethodDescriptor.Context.file().getDescriptor(),
           true);
 
       if (parameter.is(Path.class)) {
-        Method fileUpload = FileUpload.class.getDeclaredMethod("path");
         visitor.visitMethodInsn(
             INVOKEINTERFACE,
-            "io/jooby/FileUpload",
-            fileUpload.getName(),
-            getMethodDescriptor(fileUpload),
+            MethodDescriptor.FileUpload.path().getDeclaringType().getInternalName(),
+            MethodDescriptor.FileUpload.path().getName(),
+            MethodDescriptor.FileUpload.path().getDescriptor(),
             true);
       }
     }
@@ -99,12 +93,11 @@ public class FileUploadWriter implements ParamWriter {
     visitor.visitCode();
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitLdcInsn(parameter);
-    Method filesWithName = Context.class.getDeclaredMethod("files", String.class);
     visitor.visitMethodInsn(
         INVOKEINTERFACE,
-        CTX.getInternalName(),
-        filesWithName.getName(),
-        getMethodDescriptor(filesWithName),
+        MethodDescriptor.Context.filesWithName().getDeclaringType().getInternalName(),
+        MethodDescriptor.Context.filesWithName().getName(),
+        MethodDescriptor.Context.filesWithName().getDescriptor(),
         true);
     visitor.visitVarInsn(ASTORE, 1);
     visitor.visitVarInsn(ALOAD, 1);
@@ -112,12 +105,11 @@ public class FileUploadWriter implements ParamWriter {
     Label label0 = new Label();
     visitor.visitJumpInsn(IFEQ, label0);
     visitor.visitVarInsn(ALOAD, 0);
-    Method allFiles = Context.class.getDeclaredMethod("files");
     visitor.visitMethodInsn(
         INVOKEINTERFACE,
-        CTX.getInternalName(),
-        allFiles.getName(),
-        getMethodDescriptor(allFiles),
+        MethodDescriptor.Context.files().getDeclaringType().getInternalName(),
+        MethodDescriptor.Context.files().getName(),
+        MethodDescriptor.Context.files().getDescriptor(),
         true);
     Label label1 = new Label();
     visitor.visitJumpInsn(GOTO, label1);

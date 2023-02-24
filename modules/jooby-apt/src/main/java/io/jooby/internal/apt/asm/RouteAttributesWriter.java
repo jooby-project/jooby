@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.apt.asm;
 
-import static io.jooby.SneakyThrows.throwingConsumer;
 import static java.util.Collections.singletonList;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -44,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -63,9 +63,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import io.jooby.Route;
-import io.jooby.SneakyThrows;
-import io.jooby.annotations.Transactional;
+import io.jooby.apt.JoobyProcessor;
+import io.jooby.internal.apt.MethodDescriptor;
 import io.jooby.internal.apt.Primitives;
 import io.jooby.internal.apt.TypeDefinition;
 
@@ -84,7 +83,8 @@ public class RouteAttributesWriter {
 
   private static final Predicate<String> HTTP_ANNOTATION =
       it ->
-          (it.startsWith("io.jooby.annotations") && !it.equals(Transactional.class.getName()))
+          (it.startsWith("io.jooby.annotations")
+                  && !it.contains("io.jooby.annotations.Transactional"))
               || it.startsWith("jakarta.ws.rs")
               || it.startsWith("javax.ws.rs");
 
@@ -129,7 +129,6 @@ public class RouteAttributesWriter {
 
   public void process(ExecutableElement method, BiConsumer<String, Object[]> log)
       throws NoSuchMethodException {
-    Method target = Route.class.getDeclaredMethod("attribute", String.class, Object.class);
     Map<String, Object> attributes = annotationMap(method);
     for (Map.Entry<String, Object> attribute : attributes.entrySet()) {
       String name = attribute.getKey();
@@ -143,9 +142,9 @@ public class RouteAttributesWriter {
 
       visitor.visitMethodInsn(
           INVOKEVIRTUAL,
-          Type.getInternalName(target.getDeclaringClass()),
-          target.getName(),
-          Type.getMethodDescriptor(target),
+          MethodDescriptor.Route.attribute().getDeclaringType().getInternalName(),
+          MethodDescriptor.Route.attribute().getName(),
+          MethodDescriptor.Route.attribute().getDescriptor(),
           false);
       visitor.visitInsn(POP);
     }
@@ -248,46 +247,46 @@ public class RouteAttributesWriter {
     }
   }
 
-  private void annotationValue(ClassWriter writer, MethodVisitor visitor, Object value)
-      throws NoSuchMethodException {
-    if (value instanceof Map) {
-      String newMap = annotationMapValue(writer, (Map) value);
-      visitor.visitMethodInsn(INVOKESTATIC, moduleInternalName, newMap, "()Ljava/util/Map;", false);
-    } else if (value instanceof List) {
-      List values = (List) value;
-      String componentType =
-          values.get(0) instanceof EnumValue
-              ? ((EnumValue) values.get(0)).type
-              : values.get(0).getClass().getName();
-      if (values.size() > 0) {
-        ArrayWriter.write(
-            visitor,
-            componentType,
-            values,
-            throwingConsumer(v -> annotationValue(writer, visitor, v)));
-        Method asList = Arrays.class.getDeclaredMethod("asList", Object[].class);
+  private void annotationValue(ClassWriter writer, MethodVisitor visitor, Object value) {
+    try {
+      if (value instanceof Map) {
+        String newMap = annotationMapValue(writer, (Map) value);
         visitor.visitMethodInsn(
-            INVOKESTATIC,
-            Type.getInternalName(asList.getDeclaringClass()),
-            asList.getName(),
-            Type.getMethodDescriptor(asList),
-            false);
+            INVOKESTATIC, moduleInternalName, newMap, "()Ljava/util/Map;", false);
+      } else if (value instanceof List) {
+        List values = (List) value;
+        String componentType =
+            values.get(0) instanceof EnumValue
+                ? ((EnumValue) values.get(0)).type
+                : values.get(0).getClass().getName();
+        if (values.size() > 0) {
+          ArrayWriter.write(
+              visitor, componentType, values, v -> annotationValue(writer, visitor, v));
+          Method asList = Arrays.class.getDeclaredMethod("asList", Object[].class);
+          visitor.visitMethodInsn(
+              INVOKESTATIC,
+              Type.getInternalName(asList.getDeclaringClass()),
+              asList.getName(),
+              Type.getMethodDescriptor(asList),
+              false);
+        } else {
+          Method emptyList = Collections.class.getDeclaredMethod("emptyList");
+          visitor.visitMethodInsn(
+              INVOKESTATIC,
+              Type.getInternalName(emptyList.getDeclaringClass()),
+              emptyList.getName(),
+              Type.getMethodDescriptor(emptyList),
+              false);
+        }
       } else {
-        Method emptyList = Collections.class.getDeclaredMethod("emptyList");
-        visitor.visitMethodInsn(
-            INVOKESTATIC,
-            Type.getInternalName(emptyList.getDeclaringClass()),
-            emptyList.getName(),
-            Type.getMethodDescriptor(emptyList),
-            false);
+        annotationSingleValue(visitor, value);
       }
-    } else {
-      annotationSingleValue(visitor, value);
+    } catch (NoSuchMethodException cause) {
+      throw JoobyProcessor.propagate(cause);
     }
   }
 
-  private String annotationMapValue(ClassWriter writer, Map<String, Object> map)
-      throws NoSuchMethodException {
+  private String annotationMapValue(ClassWriter writer, Map<String, Object> map) {
     String methodName = "newMap" + Long.toHexString(UUID.randomUUID().getMostSignificantBits());
     MethodVisitor methodVisitor =
         writer.visitMethod(
@@ -320,78 +319,81 @@ public class RouteAttributesWriter {
     return methodName;
   }
 
-  private void annotationSingleValue(MethodVisitor visitor, Object value)
-      throws NoSuchMethodException {
-    if (value instanceof String) {
-      visitor.visitLdcInsn(value);
-    } else if (value instanceof Boolean) {
-      annotationBoolean(visitor, (Boolean) value, false, ICONST_0, ICONST_1);
-    } else if (value instanceof Character) {
-      annotationCharacter(
-          visitor,
-          (Character) value,
-          false,
-          ICONST_0,
-          ICONST_1,
-          ICONST_2,
-          ICONST_3,
-          ICONST_4,
-          ICONST_5);
-    } else if (value instanceof Short) {
-      annotationNumber(
-          visitor,
-          (Number) value,
-          true,
-          ICONST_0,
-          ICONST_1,
-          ICONST_2,
-          ICONST_3,
-          ICONST_4,
-          ICONST_5);
-    } else if (value instanceof Integer) {
-      annotationNumber(
-          visitor,
-          (Number) value,
-          true,
-          ICONST_0,
-          ICONST_1,
-          ICONST_2,
-          ICONST_3,
-          ICONST_4,
-          ICONST_5);
-    } else if (value instanceof Long) {
-      annotationNumber(visitor, (Number) value, false, LCONST_0, LCONST_1);
-    } else if (value instanceof Float) {
-      annotationNumber(visitor, (Number) value, false, FCONST_0, FCONST_1, FCONST_2);
-    } else if (value instanceof Double) {
-      annotationNumber(visitor, (Number) value, false, DCONST_0, DCONST_1);
-    } else if (value instanceof TypeMirror) {
-      TypeDefinition typeDef = new TypeDefinition(types, (TypeMirror) value);
-      if (typeDef.isPrimitive()) {
-        Method wrapper = Primitives.wrapper(typeDef);
+  private void annotationSingleValue(MethodVisitor visitor, Object value) {
+    try {
+      if (value instanceof String) {
+        visitor.visitLdcInsn(value);
+      } else if (value instanceof Boolean) {
+        annotationBoolean(visitor, (Boolean) value, false, ICONST_0, ICONST_1);
+      } else if (value instanceof Character) {
+        annotationCharacter(
+            visitor,
+            (Character) value,
+            false,
+            ICONST_0,
+            ICONST_1,
+            ICONST_2,
+            ICONST_3,
+            ICONST_4,
+            ICONST_5);
+      } else if (value instanceof Short) {
+        annotationNumber(
+            visitor,
+            (Number) value,
+            true,
+            ICONST_0,
+            ICONST_1,
+            ICONST_2,
+            ICONST_3,
+            ICONST_4,
+            ICONST_5);
+      } else if (value instanceof Integer) {
+        annotationNumber(
+            visitor,
+            (Number) value,
+            true,
+            ICONST_0,
+            ICONST_1,
+            ICONST_2,
+            ICONST_3,
+            ICONST_4,
+            ICONST_5);
+      } else if (value instanceof Long) {
+        annotationNumber(visitor, (Number) value, false, LCONST_0, LCONST_1);
+      } else if (value instanceof Float) {
+        annotationNumber(visitor, (Number) value, false, FCONST_0, FCONST_1, FCONST_2);
+      } else if (value instanceof Double) {
+        annotationNumber(visitor, (Number) value, false, DCONST_0, DCONST_1);
+      } else if (value instanceof TypeMirror) {
+        TypeDefinition typeDef = new TypeDefinition(types, (TypeMirror) value);
+        if (typeDef.isPrimitive()) {
+          Method wrapper = Primitives.wrapper(typeDef);
+          visitor.visitFieldInsn(
+              GETSTATIC,
+              Type.getInternalName(wrapper.getDeclaringClass()),
+              "TYPE",
+              "Ljava/lang/Class;");
+        } else {
+          visitor.visitLdcInsn(typeDef.toJvmType());
+        }
+      } else if (value instanceof EnumValue) {
+        EnumValue enumValue = (EnumValue) value;
+        Type type = Type.getObjectType(enumValue.type.replace(".", "/"));
         visitor.visitFieldInsn(
-            GETSTATIC,
-            Type.getInternalName(wrapper.getDeclaringClass()),
-            "TYPE",
-            "Ljava/lang/Class;");
-      } else {
-        visitor.visitLdcInsn(typeDef.toJvmType());
+            GETSTATIC, type.getInternalName(), enumValue.value, type.getDescriptor());
       }
-    } else if (value instanceof EnumValue) {
-      EnumValue enumValue = (EnumValue) value;
-      Type type = Type.getObjectType(enumValue.type.replace(".", "/"));
-      visitor.visitFieldInsn(
-          GETSTATIC, type.getInternalName(), enumValue.value, type.getDescriptor());
-    }
 
-    Method wrapper = Primitives.wrapper(value.getClass());
-    if (wrapper != null) {
-      visitor.visitMethodInsn(
-          INVOKESTATIC,
-          Type.getInternalName(wrapper.getDeclaringClass()),
-          wrapper.getName(),
-          Type.getMethodDescriptor(wrapper),
-          false);
+      Method wrapper = Primitives.wrapper(value.getClass());
+      if (wrapper != null) {
+        visitor.visitMethodInsn(
+            INVOKESTATIC,
+            Type.getInternalName(wrapper.getDeclaringClass()),
+            wrapper.getName(),
+            Type.getMethodDescriptor(wrapper),
+            false);
+      }
+    } catch (NoSuchMethodException cause) {
+      throw JoobyProcessor.propagate(cause);
     }
   }
 
@@ -414,7 +416,7 @@ public class RouteAttributesWriter {
       MethodVisitor visitor,
       T value,
       boolean checkRange,
-      SneakyThrows.Function<T, Integer> intMapper,
+      Function<T, Integer> intMapper,
       Integer... constants) {
     int v = intMapper.apply(value).intValue();
     if (v >= 0 && v <= constants.length) {

@@ -5,16 +5,13 @@
  */
 package io.jooby.internal.apt;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
 import javax.lang.model.type.TypeMirror;
 
-import io.jooby.Context;
-import io.jooby.Formdata;
-import io.jooby.ParamSource;
-import io.jooby.apt.Annotations;
+import org.objectweb.asm.Type;
+
 import io.jooby.internal.apt.asm.BodyWriter;
 import io.jooby.internal.apt.asm.ContextParamWriter;
 import io.jooby.internal.apt.asm.FileUploadWriter;
@@ -26,7 +23,7 @@ import io.jooby.internal.apt.asm.ParamWriter;
 public enum ParamKind {
   TYPE {
     @Override
-    public Method valueObject(ParamDefinition param) {
+    public MethodDescriptor valueObject(ParamDefinition param) {
       throw new UnsupportedOperationException(param.toString());
     }
 
@@ -38,7 +35,7 @@ public enum ParamKind {
 
   FILE_UPLOAD {
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
       throw new UnsupportedOperationException(param.toString());
     }
 
@@ -55,13 +52,13 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("path");
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.pathMap();
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("path", String.class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.path();
     }
 
     @Override
@@ -77,13 +74,13 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("getAttributes");
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.getAttributes();
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("getAttribute", String.class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.getAttribute();
     }
 
     @Override
@@ -98,16 +95,16 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
       if (param.isOptional()) {
-        return Context.class.getDeclaredMethod("sessionOrNull");
+        return MethodDescriptor.Context.sessionOrNull();
       }
-      return Context.class.getDeclaredMethod("session");
+      return MethodDescriptor.Context.sessionMap();
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("session", String.class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.session();
     }
 
     @Override
@@ -122,13 +119,13 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("query");
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.queryString();
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("query", String.class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.query();
     }
 
     @Override
@@ -143,13 +140,13 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("cookie", String.class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.cookie();
     }
 
     @Override
@@ -164,13 +161,13 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("header", String.class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.header();
     }
 
     @Override
@@ -185,13 +182,13 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("flash");
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.flashMap();
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("flash", String.class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.flash();
     }
 
     @Override
@@ -206,13 +203,13 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("form");
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.formBody();
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("form", String.class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.form();
     }
 
     @Override
@@ -227,8 +224,8 @@ public enum ParamKind {
     }
 
     @Override
-    public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("lookup", String.class, ParamSource[].class);
+    public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.lookup();
     }
 
     @Override
@@ -249,15 +246,15 @@ public enum ParamKind {
     }
 
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("getRoute");
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.getRoute();
     }
   },
 
   BODY_PARAM {
     @Override
-    public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
-      return Context.class.getDeclaredMethod("body");
+    public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return MethodDescriptor.Context.body();
     }
 
     @Override
@@ -274,11 +271,11 @@ public enum ParamKind {
     throw new UnsupportedOperationException();
   }
 
-  public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+  public MethodDescriptor valueObject(ParamDefinition param) throws NoSuchMethodException {
     throw new UnsupportedOperationException("No value object method for: '" + param + "'");
   }
 
-  public Method singleValue(ParamDefinition param) throws NoSuchMethodException {
+  public MethodDescriptor singleValue(ParamDefinition param) throws NoSuchMethodException {
     throw new UnsupportedOperationException("No single value method for: '" + param + "'");
   }
 
@@ -291,10 +288,14 @@ public enum ParamKind {
         param.isOptional()
             ? param.getType().getArguments().get(0).getRawType()
             : param.getType().getRawType();
-    String rawType = type.toString().replace(Formdata.class.getName(), Formdata.class.getName());
+    String rawType = type.toString();
     for (ParamKind value : values()) {
       try {
-        if (value.valueObject(param).getReturnType().getName().equals(rawType)) {
+        MethodDescriptor descriptor = value.valueObject(param);
+        Type returnType = descriptor.getReturnType();
+        // handle class names or array primitive class names
+        if (returnType.getClassName().equals(rawType)
+            || returnType.getDescriptor().equals(rawType)) {
           return value;
         }
       } catch (NoSuchMethodException | UnsupportedOperationException x) {

@@ -8,9 +8,6 @@ package io.jooby.internal.apt.asm;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Type.getMethodDescriptor;
-
-import java.lang.reflect.Method;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -18,6 +15,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.jooby.internal.apt.MethodDescriptor;
 import io.jooby.internal.apt.ParamDefinition;
 
 public class NamedParamWriter extends ValueWriter {
@@ -33,15 +31,15 @@ public class NamedParamWriter extends ValueWriter {
       throws Exception {
     String parameterName = parameter.getHttpName();
 
-    Method paramMethod;
+    MethodDescriptor paramMethod;
     if (parameter.isNamed()) {
       paramMethod = parameter.getSingleValue();
       visitor.visitLdcInsn(parameterName);
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
+          paramMethod.getDeclaringType().getInternalName(),
           paramMethod.getName(),
-          getMethodDescriptor(paramMethod),
+          paramMethod.getDescriptor(),
           true);
 
       super.accept(writer, controller, handlerInternalName, visitor, parameter, nameGenerator);
@@ -94,7 +92,7 @@ public class NamedParamWriter extends ValueWriter {
       NameGenerator registry)
       throws Exception {
     String paramName = parameter.getHttpName();
-    Method paramMethod = parameter.getSingleValue();
+    MethodDescriptor paramMethod = parameter.getSingleValue();
     MethodVisitor methodVisitor =
         writer.visitMethod(
             Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC, methodName, descriptor, null, null);
@@ -107,9 +105,9 @@ public class NamedParamWriter extends ValueWriter {
     methodVisitor.visitLdcInsn(paramName);
     methodVisitor.visitMethodInsn(
         INVOKEINTERFACE,
-        CTX.getInternalName(),
+        paramMethod.getDeclaringType().getInternalName(),
         paramMethod.getName(),
-        getMethodDescriptor(paramMethod),
+        paramMethod.getDescriptor(),
         true);
     methodVisitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/ValueNode", "isMissing", "()Z", true);
     Label label1 = new Label();
@@ -119,12 +117,12 @@ public class NamedParamWriter extends ValueWriter {
     Label label2 = new Label();
     methodVisitor.visitLabel(label2);
 
-    Method objectValue = parameter.getObjectValue();
+    MethodDescriptor objectValue = parameter.getObjectValue();
     methodVisitor.visitMethodInsn(
         INVOKEINTERFACE,
-        CTX.getInternalName(),
+        paramMethod.getDeclaringType().getInternalName(),
         objectValue.getName(),
-        getMethodDescriptor(objectValue),
+        objectValue.getDescriptor(),
         true);
 
     super.accept(writer, controller, handlerInternalName, methodVisitor, parameter, registry);
@@ -140,9 +138,9 @@ public class NamedParamWriter extends ValueWriter {
 
     methodVisitor.visitMethodInsn(
         INVOKEINTERFACE,
-        CTX.getInternalName(),
+        paramMethod.getDeclaringType().getInternalName(),
         paramMethod.getName(),
-        getMethodDescriptor(paramMethod),
+        paramMethod.getDescriptor(),
         true);
 
     super.accept(writer, controller, handlerInternalName, methodVisitor, parameter, registry);

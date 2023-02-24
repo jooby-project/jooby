@@ -6,18 +6,15 @@
 package io.jooby.internal.apt.asm;
 
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Type.getMethodDescriptor;
 
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.nio.channels.ReadableByteChannel;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-import io.jooby.Body;
-import io.jooby.Value;
+import io.jooby.internal.apt.MethodDescriptor;
 import io.jooby.internal.apt.ParamDefinition;
 
 public class BodyWriter extends ValueWriter {
@@ -30,61 +27,73 @@ public class BodyWriter extends ValueWriter {
       ParamDefinition parameter,
       NameGenerator nameGenerator)
       throws Exception {
-    Method paramMethod = parameter.getObjectValue();
+    MethodDescriptor paramMethod = parameter.getObjectValue();
     if (parameter.is(byte[].class)) {
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
+          paramMethod.getDeclaringType().getInternalName(),
           paramMethod.getName(),
-          getMethodDescriptor(paramMethod),
+          paramMethod.getDescriptor(),
           true);
-      Method bytes = Body.class.getDeclaredMethod("bytes");
       visitor.visitMethodInsn(
-          INVOKEINTERFACE, "io/jooby/Body", bytes.getName(), getMethodDescriptor(bytes), true);
+          INVOKEINTERFACE,
+          "io/jooby/Body",
+          MethodDescriptor.Body.bytes().getName(),
+          MethodDescriptor.Body.bytes().getDescriptor(),
+          true);
     } else if (parameter.is(InputStream.class)) {
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
+          paramMethod.getDeclaringType().getInternalName(),
           paramMethod.getName(),
-          getMethodDescriptor(paramMethod),
+          paramMethod.getDescriptor(),
           true);
-      Method stream = Body.class.getDeclaredMethod("stream");
       visitor.visitMethodInsn(
-          INVOKEINTERFACE, "io/jooby/Body", stream.getName(), getMethodDescriptor(stream), true);
+          INVOKEINTERFACE,
+          "io/jooby/Body",
+          MethodDescriptor.Body.stream().getName(),
+          MethodDescriptor.Body.stream().getDescriptor(),
+          true);
     } else if (parameter.is(ReadableByteChannel.class)) {
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
+          paramMethod.getDeclaringType().getInternalName(),
           paramMethod.getName(),
-          getMethodDescriptor(paramMethod),
+          paramMethod.getDescriptor(),
           true);
-      Method channel = Body.class.getDeclaredMethod("channel");
       visitor.visitMethodInsn(
-          INVOKEINTERFACE, "io/jooby/Body", channel.getName(), getMethodDescriptor(channel), true);
+          INVOKEINTERFACE,
+          "io/jooby/Body",
+          MethodDescriptor.Body.channel().getName(),
+          MethodDescriptor.Body.channel().getDescriptor(),
+          true);
     } else if (parameter.is(String.class)) {
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
+          paramMethod.getDeclaringType().getInternalName(),
           paramMethod.getName(),
-          getMethodDescriptor(paramMethod),
+          paramMethod.getDescriptor(),
           true);
-      String methodName;
+      MethodDescriptor methodDescriptor;
       if (parameter.isNullable()) {
-        methodName = "valueOrNull";
+        methodDescriptor = MethodDescriptor.Value.valueOrNull();
       } else {
-        methodName = "value";
+        methodDescriptor = MethodDescriptor.Value.value();
       }
-      Method value = Value.class.getDeclaredMethod(methodName);
       visitor.visitMethodInsn(
-          INVOKEINTERFACE, "io/jooby/Value", value.getName(), getMethodDescriptor(value), true);
+          INVOKEINTERFACE,
+          "io/jooby/Value",
+          methodDescriptor.getName(),
+          methodDescriptor.getDescriptor(),
+          true);
     } else {
-      Method convertMethod = parameter.getMethod();
+      MethodDescriptor convertMethod = parameter.getMethod();
       if (!convertMethod.getName().equals("body")) {
         visitor.visitMethodInsn(
             INVOKEINTERFACE,
-            CTX.getInternalName(),
+            paramMethod.getDeclaringType().getInternalName(),
             paramMethod.getName(),
-            getMethodDescriptor(paramMethod),
+            paramMethod.getDescriptor(),
             true);
       }
       super.accept(writer, controller, handlerInternalName, visitor, parameter, nameGenerator);

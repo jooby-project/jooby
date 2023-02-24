@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
+import io.jooby.internal.apt.Annotations;
 
 public class JaxrsTest {
 

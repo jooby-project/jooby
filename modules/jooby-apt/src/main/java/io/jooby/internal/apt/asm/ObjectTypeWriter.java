@@ -8,13 +8,12 @@ package io.jooby.internal.apt.asm;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-import java.lang.reflect.Method;
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-import io.jooby.Context;
+import io.jooby.internal.apt.JoobyTypes;
+import io.jooby.internal.apt.MethodDescriptor;
 import io.jooby.internal.apt.ParamDefinition;
 import io.jooby.internal.apt.ParamKind;
 
@@ -28,13 +27,13 @@ public class ObjectTypeWriter implements ParamWriter {
       ParamDefinition parameter,
       NameGenerator nameGenerator)
       throws Exception {
-    if (!parameter.is(Context.class)) {
-      Method method = ParamKind.forTypeInjection(parameter).valueObject(parameter);
+    if (!parameter.is(JoobyTypes.Context.getClassName())) {
+      MethodDescriptor method = ParamKind.forTypeInjection(parameter).valueObject(parameter);
       visitor.visitMethodInsn(
           INVOKEINTERFACE,
-          CTX.getInternalName(),
+          method.getDeclaringType().getInternalName(),
           method.getName(),
-          Type.getMethodDescriptor(method),
+          method.getDescriptor(),
           true);
     }
     if (parameter.isOptional()) {

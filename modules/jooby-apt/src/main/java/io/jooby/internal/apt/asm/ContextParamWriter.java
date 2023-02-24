@@ -26,6 +26,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.jooby.internal.apt.MethodDescriptor;
 import io.jooby.internal.apt.ParamDefinition;
 import io.jooby.internal.apt.Primitives;
 
@@ -82,12 +83,12 @@ public class ContextParamWriter extends ValueWriter {
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(ALOAD, 0);
     methodVisitor.visitVarInsn(ALOAD, 1);
-    Method attribute = parameter.getSingleValue();
+    MethodDescriptor attribute = parameter.getSingleValue();
     methodVisitor.visitMethodInsn(
         INVOKEINTERFACE,
-        getInternalName(attribute.getDeclaringClass()),
+        attribute.getDeclaringType().getInternalName(),
         attribute.getName(),
-        getMethodDescriptor(attribute),
+        attribute.getDescriptor(),
         true);
 
     // if (attribute == null)
@@ -102,12 +103,12 @@ public class ContextParamWriter extends ValueWriter {
       Label label3 = new Label();
       methodVisitor.visitLabel(label3);
       methodVisitor.visitVarInsn(ALOAD, 0);
-      Method attributes = parameter.getObjectValue();
+      MethodDescriptor attributes = parameter.getObjectValue();
       methodVisitor.visitMethodInsn(
           INVOKEINTERFACE,
-          getInternalName(attributes.getDeclaringClass()),
+          attributes.getDeclaringType().getInternalName(),
           attributes.getName(),
-          getMethodDescriptor(attributes),
+          attributes.getDescriptor(),
           true);
       methodVisitor.visitInsn(ARETURN);
       methodVisitor.visitLabel(label2);

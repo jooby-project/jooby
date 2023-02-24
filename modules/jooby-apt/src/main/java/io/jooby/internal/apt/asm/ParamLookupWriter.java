@@ -17,15 +17,13 @@ import static org.objectweb.asm.Opcodes.ICONST_3;
 import static org.objectweb.asm.Opcodes.ICONST_4;
 import static org.objectweb.asm.Opcodes.ICONST_5;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Type.getMethodDescriptor;
-
-import java.lang.reflect.Method;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-import io.jooby.ParamSource;
+import io.jooby.internal.apt.JoobyTypes;
+import io.jooby.internal.apt.MethodDescriptor;
 import io.jooby.internal.apt.ParamDefinition;
 
 public class ParamLookupWriter extends ValueWriter {
@@ -42,9 +40,8 @@ public class ParamLookupWriter extends ValueWriter {
 
     String parameterName = parameter.getHttpName();
     String[] sources = parameter.sources();
-    Method paramMethod = parameter.getSingleValue();
-    String internalName = Type.getType(ParamSource.class).getInternalName();
-    String descriptor = Type.getDescriptor(ParamSource.class);
+    MethodDescriptor paramMethod = parameter.getSingleValue();
+    String internalName = JoobyTypes.ParamSource.getInternalName();
 
     visitor.visitLdcInsn(parameterName);
     pushInt(sources.length, visitor);
@@ -53,15 +50,16 @@ public class ParamLookupWriter extends ValueWriter {
     for (int i = 0, n = sources.length; i < n; ++i) {
       visitor.visitInsn(DUP);
       pushInt(i, visitor);
-      visitor.visitFieldInsn(GETSTATIC, internalName, sources[i], descriptor);
+      visitor.visitFieldInsn(
+          GETSTATIC, internalName, sources[i], JoobyTypes.ParamSource.getDescriptor());
       visitor.visitInsn(AASTORE);
     }
 
     visitor.visitMethodInsn(
         INVOKEINTERFACE,
-        CTX.getInternalName(),
+        paramMethod.getDeclaringType().getInternalName(),
         paramMethod.getName(),
-        getMethodDescriptor(paramMethod),
+        paramMethod.getDescriptor(),
         true);
 
     super.accept(writer, controller, handlerInternalName, visitor, parameter, nameGenerator);

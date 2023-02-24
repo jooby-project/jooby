@@ -5,8 +5,6 @@
  */
 package io.jooby.internal.apt;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
@@ -27,16 +25,8 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
-import io.jooby.Context;
-import io.jooby.FileUpload;
-import io.jooby.FlashMap;
-import io.jooby.Formdata;
-import io.jooby.QueryString;
-import io.jooby.Route;
-import io.jooby.Session;
-import io.jooby.Value;
-import io.jooby.ValueNode;
-import io.jooby.apt.Annotations;
+import io.jooby.internal.apt.MethodDescriptor.Value;
+import io.jooby.internal.apt.MethodDescriptor.ValueNode;
 import io.jooby.internal.apt.asm.ParamWriter;
 
 public class ParamDefinition {
@@ -83,6 +73,10 @@ public class ParamDefinition {
   }
 
   public boolean is(Class type, Class... arguments) {
+    return getType().is(type, arguments);
+  }
+
+  public boolean is(String type, String... arguments) {
     return getType().is(type, arguments);
   }
 
@@ -138,20 +132,20 @@ public class ParamDefinition {
     return annotations;
   }
 
-  public Method getObjectValue() throws NoSuchMethodException {
+  public MethodDescriptor getObjectValue() throws NoSuchMethodException {
     return getKind().valueObject(this);
   }
 
-  public Method getSingleValue() throws NoSuchMethodException {
+  public MethodDescriptor getSingleValue() throws NoSuchMethodException {
     return getKind().singleValue(this);
   }
 
   public boolean isSimpleType() {
-    for (Class builtinType : builtinTypes()) {
+    for (String builtinType : builtinTypes()) {
       if (is(builtinType)
-          || is(Optional.class, builtinType)
-          || is(List.class, builtinType)
-          || is(Set.class, builtinType)) {
+          || is(Optional.class.getName(), builtinType)
+          || is(List.class.getName(), builtinType)
+          || is(Set.class.getName(), builtinType)) {
         return true;
       }
     }
@@ -168,41 +162,41 @@ public class ParamDefinition {
         .toArray(String[]::new);
   }
 
-  private Class[] builtinTypes() {
-    return new Class[] {
-      String.class,
-      Boolean.class,
-      Boolean.TYPE,
-      Byte.class,
-      Byte.TYPE,
-      Character.class,
-      Character.TYPE,
-      Short.class,
-      Short.TYPE,
-      Integer.class,
-      Integer.TYPE,
-      Long.class,
-      Long.TYPE,
-      Float.class,
-      Float.TYPE,
-      Double.class,
-      Double.TYPE,
-      Enum.class,
-      java.util.UUID.class,
-      java.time.Instant.class,
-      java.util.Date.class,
-      java.time.LocalDate.class,
-      java.time.LocalDateTime.class,
-      java.math.BigDecimal.class,
-      java.math.BigInteger.class,
-      Duration.class,
-      Period.class,
-      java.nio.charset.Charset.class,
-      io.jooby.StatusCode.class,
-      TimeZone.class,
-      ZoneId.class,
-      URI.class,
-      URL.class
+  private String[] builtinTypes() {
+    return new String[] {
+      String.class.getName(),
+      Boolean.class.getName(),
+      Boolean.TYPE.getName(),
+      Byte.class.getName(),
+      Byte.TYPE.getName(),
+      Character.class.getName(),
+      Character.TYPE.getName(),
+      Short.class.getName(),
+      Short.TYPE.getName(),
+      Integer.class.getName(),
+      Integer.TYPE.getName(),
+      Long.class.getName(),
+      Long.TYPE.getName(),
+      Float.class.getName(),
+      Float.TYPE.getName(),
+      Double.class.getName(),
+      Double.TYPE.getName(),
+      Enum.class.getName(),
+      java.util.UUID.class.getName(),
+      java.time.Instant.class.getName(),
+      java.util.Date.class.getName(),
+      java.time.LocalDate.class.getName(),
+      java.time.LocalDateTime.class.getName(),
+      java.math.BigDecimal.class.getName(),
+      java.math.BigInteger.class.getName(),
+      Duration.class.getName(),
+      Period.class.getName(),
+      java.nio.charset.Charset.class.getName(),
+      JoobyTypes.StatusCode.getClassName(),
+      TimeZone.class.getName(),
+      ZoneId.class.getName(),
+      URI.class.getName(),
+      URL.class.getName()
     };
   }
 
@@ -211,53 +205,55 @@ public class ParamDefinition {
     return parameter.getSimpleName() + ": " + parameter.asType();
   }
 
-  public Method getMethod() throws NoSuchMethodException {
+  public MethodDescriptor getMethod() throws NoSuchMethodException {
     if (!isNullable()) {
       if (is(String.class)) {
-        return Value.class.getDeclaredMethod("value");
+        return Value.value();
       }
       if (is(int.class)) {
-        return Value.class.getDeclaredMethod("intValue");
+        return Value.intValue();
       }
       if (is(byte.class)) {
-        return Value.class.getDeclaredMethod("byteValue");
+        return Value.byteValue();
       }
       if (is(long.class)) {
-        return Value.class.getDeclaredMethod("longValue");
+        return Value.longValue();
       }
       if (is(float.class)) {
-        return Value.class.getDeclaredMethod("floatValue");
+        return Value.floatValue();
       }
       if (is(double.class)) {
-        return Value.class.getDeclaredMethod("doubleValue");
+        return Value.doubleValue();
       }
       if (is(boolean.class)) {
-        return Value.class.getDeclaredMethod("booleanValue");
+        return Value.booleanValue();
       }
       if (is(Optional.class, String.class)) {
-        return Value.class.getDeclaredMethod("toOptional");
+        return Value.toOptional();
       }
       if (is(List.class, String.class)) {
-        return Value.class.getDeclaredMethod("toList");
+        return Value.toList();
       }
       if (is(Set.class, String.class)) {
-        return Value.class.getDeclaredMethod("toSet");
+        return Value.toSet();
       }
     }
     // toOptional(Class)
     if (isOptional()) {
-      return ValueNode.class.getMethod("toOptional", Class.class);
+      return ValueNode.toOptional();
     }
     if (isList()) {
-      return ValueNode.class.getMethod("toList", Class.class);
+      return ValueNode.toList();
     }
     if (is(Set.class)) {
-      return ValueNode.class.getMethod("toSet", Class.class);
+      return ValueNode.toSet();
     }
     if (kind == ParamKind.BODY_PARAM) {
-      return Context.class.getMethod("body", type.isRawType() ? Class.class : Type.class);
+      return type.isRawType()
+          ? MethodDescriptor.Context.bodyClass()
+          : MethodDescriptor.Context.bodyType();
     }
-    return ValueNode.class.getMethod("to", Class.class);
+    return ValueNode.to();
   }
 
   public static ParamDefinition create(
@@ -271,9 +267,9 @@ public class ParamDefinition {
       return ParamKind.TYPE;
     }
 
-    if (is(FileUpload.class)
-        || is(List.class, FileUpload.class)
-        || is(Optional.class, FileUpload.class)
+    if (is(JoobyTypes.FileUpload.getClassName())
+        || is(List.class.getName(), JoobyTypes.FileUpload.getClassName())
+        || is(Optional.class.getName(), JoobyTypes.FileUpload.getClassName())
         || is(Path.class)) {
       return ParamKind.FILE_UPLOAD;
     }
@@ -288,25 +284,23 @@ public class ParamDefinition {
   }
 
   private boolean isTypeInjection() {
-    if (is(Context.class)) {
+    if (is(JoobyTypes.Context.getClassName())) {
       return true;
     }
-    if (is(QueryString.class)) {
+    if (is(JoobyTypes.QueryString.getClassName())) {
       return true;
     }
-    if (is(Formdata.class)) {
+    if (is(JoobyTypes.Formdata.getClassName())) {
       return true;
     }
-    if (is(Formdata.class)) {
+    if (is(JoobyTypes.FlashMap.getClassName())) {
       return true;
     }
-    if (is(FlashMap.class)) {
+    if (is(JoobyTypes.Session.getClassName())
+        || is(Optional.class.getName(), JoobyTypes.Session.getClassName())) {
       return true;
     }
-    if (is(Session.class) || is(Optional.class, Session.class)) {
-      return true;
-    }
-    return is(Route.class);
+    return is(JoobyTypes.Route.getClassName());
   }
 
   private boolean isParam(VariableElement parameter, Set<String> annotations) {

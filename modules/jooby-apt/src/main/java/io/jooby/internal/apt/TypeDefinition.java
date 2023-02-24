@@ -83,7 +83,7 @@ public class TypeDefinition {
     return is(typeName(type), Stream.of(arguments).map(this::typeName).toArray(String[]::new));
   }
 
-  private boolean is(String type, String... arguments) {
+  public boolean is(String type, String... arguments) {
     if (!equalType(getType(), type)) {
       return false;
     }
