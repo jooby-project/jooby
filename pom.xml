@@ -22,7 +22,7 @@
     <freemarker.version>2.3.32</freemarker.version>
     <handlebars.version>4.3.1</handlebars.version>
     <pebble.version>3.2.0</pebble.version>
-    <jackson.version>2.14.1</jackson.version>
+    <jackson.version>2.14.2</jackson.version>
     <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
     <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <gson.version>2.10.1</gson.version>
@@ -71,9 +71,9 @@
     <asm.version>9.4</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.3.Final</undertow.version>
-    <jetty.version>11.0.11</jetty.version>
-    <netty.version>4.1.87.Final</netty.version>
+    <undertow.version>2.3.4.Final</undertow.version>
+    <jetty.version>11.0.13</jetty.version>
+    <netty.version>4.1.89.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.8</swagger.version>
@@ -854,13 +854,7 @@
         <version>${ebean.version}</version>
       </dependency>
 
-      <!-- mySQL -->
-      <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>${mysql-connector-java.version}</version>
-      </dependency>
-
+      <!-- jdbi -->
       <dependency>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-core</artifactId>
