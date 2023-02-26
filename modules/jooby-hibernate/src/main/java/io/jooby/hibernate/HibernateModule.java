@@ -16,8 +16,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.hibernate.Session;
@@ -44,6 +42,8 @@ import io.jooby.internal.hibernate.ScanEnvImpl;
 import io.jooby.internal.hibernate.SessionServiceProvider;
 import io.jooby.internal.hibernate.UnitOfWorkProvider;
 import jakarta.inject.Provider;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
 /**
  * Hibernate ORM module: https://jooby.io/modules/hibernate.
@@ -96,7 +96,7 @@ import jakarta.inject.Provider;
  * {@link HibernateModule#HibernateModule(Class[])} constructor.
  *
  * <p>It is important to close either an {@link EntityManager} or {@link Session} created manually
- * from {@link javax.persistence.EntityManagerFactory} and {@link SessionFactory}.
+ * from {@link EntityManagerFactory} and {@link SessionFactory}.
  *
  * <p>So code around session/entityManager looks like:
  *
@@ -251,9 +251,9 @@ public class HibernateModule implements Extension {
     ssrb.applySetting(AvailableSettings.HBM2DDL_AUTO, ddlAuto);
     ssrb.applySetting(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed");
     // apply application.conf
-    Map<String, String> base = env.getProperties("hibernate");
-    Map<String, String> custom = env.getProperties(name + ".hibernate", "hibernate");
-    Map<String, String> settings = new HashMap<>();
+    Map base = env.getProperties("hibernate");
+    Map custom = env.getProperties(name + ".hibernate", "hibernate");
+    Map<String, Object> settings = new HashMap<>();
     settings.putAll(base);
     settings.putAll(custom);
     ssrb.applySettings(settings);

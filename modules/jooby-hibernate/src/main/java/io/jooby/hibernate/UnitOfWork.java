@@ -5,9 +5,8 @@
  */
 package io.jooby.hibernate;
 
-import javax.persistence.EntityManager;
-
 import io.jooby.SneakyThrows;
+import jakarta.persistence.EntityManager;
 
 /**
  * Allows you to open a JPA session on demand by acquiring an instance of a class implementing this

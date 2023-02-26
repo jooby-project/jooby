@@ -20,8 +20,8 @@ import io.jooby.SneakyThrows;
 import io.jooby.annotations.Transactional;
 
 /**
- * Attaches a {@link Session} and {@link javax.persistence.EntityManager} to the current request via
- * {@link SessionRequest}.
+ * Attaches a {@link Session} and {@link jakarta.persistence.EntityManager} to the current request
+ * via {@link SessionRequest}.
  *
  * <p>The route pipeline runs inside a transaction which is commit on success or rollback in case of
  * exception.

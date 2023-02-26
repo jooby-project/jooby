@@ -13,6 +13,6 @@ module io.jooby.hibernate {
   requires org.hibernate.orm.core;
   requires java.sql;
   requires jakarta.inject;
-  requires java.persistence;
+  requires jakarta.persistence;
   requires java.naming;
 }
