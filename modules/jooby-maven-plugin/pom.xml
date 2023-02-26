@@ -14,7 +14,7 @@
   <packaging>maven-plugin</packaging>
 
   <properties>
-    <Automatic-Module-Name>io.jooby.maven</Automatic-Module-Name>
+    <Module-Name>io.jooby.maven</Module-Name>
   </properties>
 
   <dependencies>
@@ -106,6 +106,17 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>

@@ -13,6 +13,22 @@
   <artifactId>jooby-distribution</artifactId>
 
   <properties>
-    <Automatic-Module-Name>io.jooby.distribution</Automatic-Module-Name>
+    <Module-Name>io.jooby.distribution</Module-Name>
   </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

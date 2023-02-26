@@ -13,10 +13,6 @@
   <artifactId>jooby-gradle-setup</artifactId>
   <packaging>pom</packaging>
 
-  <properties>
-    <Automatic-Module-Name>io.jooby.gradle.setup</Automatic-Module-Name>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>

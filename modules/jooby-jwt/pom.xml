@@ -13,7 +13,7 @@
   <artifactId>jooby-jwt</artifactId>
 
   <properties>
-    <Automatic-Module-Name>io.jooby.jwt</Automatic-Module-Name>
+    <Module-Name>io.jooby.jwt</Module-Name>
   </properties>
 
   <dependencies>
@@ -53,4 +53,20 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

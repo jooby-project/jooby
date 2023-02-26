@@ -13,7 +13,7 @@
   <artifactId>jooby-quartz</artifactId>
 
   <properties>
-    <Automatic-Module-Name>io.jooby.quartz</Automatic-Module-Name>
+    <Module-Name>io.jooby.quartz</Module-Name>
     <!-- shaded module-info.java makes javadoc plugin fails -->
     <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
   </properties>
@@ -50,4 +50,20 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -10,7 +10,7 @@
   </parent>
 
   <properties>
-    <Automatic-Module-Name>io.jooby.undertow</Automatic-Module-Name>
+    <Module-Name>io.jooby.undertow</Module-Name>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
@@ -62,5 +62,21 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

@@ -13,7 +13,7 @@
   <artifactId>jooby-swagger-ui</artifactId>
 
   <properties>
-    <Automatic-Module-Name>io.jooby.swagger.ui</Automatic-Module-Name>
+    <Module-Name>io.jooby.swagger.ui</Module-Name>
   </properties>
 
   <dependencies>
@@ -76,6 +76,18 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>

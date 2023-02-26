@@ -12,7 +12,7 @@
   <packaging>tile</packaging>
 
   <properties>
-    <Automatic-Module-Name>io.jooby.stork</Automatic-Module-Name>
+    <Module-Name>io.jooby.stork</Module-Name>
   </properties>
 
   <build>
@@ -24,6 +24,18 @@
         <extensions>true</extensions>
         <configuration>
           <filtering>true</filtering>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
         </configuration>
       </plugin>
     </plugins>
