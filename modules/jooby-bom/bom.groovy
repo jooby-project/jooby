@@ -4,7 +4,7 @@ import java.nio.file.*
 def modules = project.collectedProjects.find {it.name == 'modules'}.modules.sort()
 modules.add(0, 'jooby');
 
-def skip = ["jooby-bom", "jooby-gradle-setup"]
+def skip = ["jooby-bom", "jooby-gradle-setup", "jooby-apt"]
 
 def depsw = new StringWriter()
 def deps = new MarkupBuilder(depsw)
