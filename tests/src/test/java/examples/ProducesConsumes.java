@@ -5,7 +5,7 @@
  */
 package examples;
 
-import io.jooby.annotations.GET;
+import io.jooby.annotation.GET;
 
 public class ProducesConsumes {
 

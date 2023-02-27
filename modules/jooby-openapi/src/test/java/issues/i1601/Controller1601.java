@@ -5,8 +5,8 @@
  */
 package issues.i1601;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 
 @Path("/1601")
 public class Controller1601 {

@@ -5,7 +5,7 @@
  */
 package source;
 
-import io.jooby.annotations.GET;
+import io.jooby.annotation.GET;
 
 public class MinRoute {
   @GET("/mypath")

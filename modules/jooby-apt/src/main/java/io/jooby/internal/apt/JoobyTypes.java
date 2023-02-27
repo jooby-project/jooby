@@ -13,7 +13,7 @@ public interface JoobyTypes {
   Type MvcFactory = Type.getType("Lio/jooby/MvcFactory;");
 
   Type StatusCode = Type.getType("Lio/jooby/StatusCode;");
-  Type Dispatch = Type.getType("Lio/jooby/annotations.Dispatch;");
+  Type Dispatch = Type.getType("Lio/jooby/annotation/Dispatch;");
 
   Type Context = Type.getType("Lio/jooby/Context;");
   Type MediaType = Type.getType("Lio/jooby/MediaType;");

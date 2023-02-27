@@ -10,8 +10,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 
 @Path("/hello")
 @TopAnnotation(TopEnum.FOO)

@@ -5,8 +5,8 @@
  */
 package source;
 
-import io.jooby.annotations.DELETE;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.DELETE;
+import io.jooby.annotation.Path;
 
 @Path("/void")
 public class VoidRoute {

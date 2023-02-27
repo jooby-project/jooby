@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.annotations;
+package io.jooby.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,12 +11,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * HTTP TRACE verb for mvc routes.
+ * HTTP HEAD verb for mvc routes.
  *
  * <pre>
  *   class Resources {
  *
- *     &#64;TRACE
+ *     &#64;HEAD
  *     public void method() {
  *     }
  *   }
@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface TRACE {
+public @interface HEAD {
   /**
    * Path pattern. This is a shortcut for {@link #path()}.
    *

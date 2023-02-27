@@ -5,8 +5,8 @@
  */
 package source;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 import kotlin.coroutines.Continuation;
 
 @Path("/suspend")

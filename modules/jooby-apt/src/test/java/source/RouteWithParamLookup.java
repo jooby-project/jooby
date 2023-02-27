@@ -13,8 +13,8 @@ import static io.jooby.ParamSource.QUERY;
 import static io.jooby.ParamSource.SESSION;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Param;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Param;
 
 public class RouteWithParamLookup {
 

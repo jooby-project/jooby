@@ -5,8 +5,8 @@
  */
 package io.jooby.i2457;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 
 @Path("/")
 public class ControllerV12457 {

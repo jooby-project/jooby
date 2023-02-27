@@ -5,9 +5,9 @@
  */
 package source;
 
-import io.jooby.annotations.Dispatch;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.Dispatch;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 
 @Dispatch
 public class RouteDispatch {

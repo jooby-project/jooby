@@ -5,8 +5,8 @@
  */
 package issues.i1768;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 

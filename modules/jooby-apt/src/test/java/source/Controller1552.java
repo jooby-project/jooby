@@ -6,9 +6,9 @@
 package source;
 
 import io.jooby.Context;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
 
 @Path("/inherited")
 public class Controller1552 extends Controller1552Base {

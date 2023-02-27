@@ -12,9 +12,9 @@ import java.util.List;
 
 import io.jooby.Context;
 import io.jooby.Reified;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
 
 @Path("/path")
 public class Routes {

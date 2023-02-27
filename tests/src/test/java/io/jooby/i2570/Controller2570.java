@@ -5,9 +5,9 @@
  */
 package io.jooby.i2570;
 
-import io.jooby.annotations.Consumes;
-import io.jooby.annotations.FormParam;
-import io.jooby.annotations.POST;
+import io.jooby.annotation.Consumes;
+import io.jooby.annotation.FormParam;
+import io.jooby.annotation.POST;
 
 public class Controller2570 {
   @POST("/2570")

@@ -100,9 +100,9 @@ automatically registered. No need to register it manually
 instance add the `jakarta.inject.Singleton` annotation
 
 .MVC route
-[source, java, role="primary"]
+[source,java,role="primary"]
 ----
-import io.jooby.annotations.*;
+import io.jooby.annotation.*;
 
 @Path("/")
 public class Hello {
@@ -117,7 +117,7 @@ public class Hello {
 .Kotlin
 [source, kotlin, role="secondary"]
 ----
-import io.jooby.annotations.*;
+import io.jooby.annotation.*;
 
 @Path("/")
 class Hello {

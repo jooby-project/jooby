@@ -5,7 +5,7 @@
  */
 module io.jooby {
   exports io.jooby;
-  exports io.jooby.annotations;
+  exports io.jooby.annotation;
   exports io.jooby.exception;
 
   uses io.jooby.MvcFactory;

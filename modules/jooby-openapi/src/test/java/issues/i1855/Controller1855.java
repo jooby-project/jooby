@@ -7,9 +7,9 @@ package issues.i1855;
 
 import examples.Person;
 import io.jooby.MediaType;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.PathParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.PathParam;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

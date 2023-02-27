@@ -6,7 +6,7 @@
 package issues;
 
 import io.jooby.Context;
-import io.jooby.annotations.GET;
+import io.jooby.annotation.GET;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

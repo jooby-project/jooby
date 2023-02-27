@@ -5,9 +5,9 @@
  */
 package io.jooby
 
-import io.jooby.annotations.GET
-import io.jooby.annotations.Path
-import io.jooby.annotations.PathParam
+import io.jooby.annotation.GET
+import io.jooby.annotation.Path
+import io.jooby.annotation.PathParam
 import kotlinx.coroutines.delay
 
 class SuspendMvc {

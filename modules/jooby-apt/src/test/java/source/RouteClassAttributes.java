@@ -5,7 +5,7 @@
  */
 package source;
 
-import io.jooby.annotations.GET;
+import io.jooby.annotation.GET;
 
 @RoleAnnotation("User")
 public class RouteClassAttributes {

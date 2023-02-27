@@ -10,7 +10,7 @@ import io.ebean.Database;
 import io.ebean.Transaction;
 import io.jooby.Route;
 import io.jooby.ServiceKey;
-import io.jooby.annotations.Transactional;
+import io.jooby.annotation.Transactional;
 
 /**
  * Start a new transaction on each incoming request. Its commit the transaction is no exception is

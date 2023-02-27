@@ -7,7 +7,7 @@ package issues.i1795;
 
 import java.util.List;
 
-import io.jooby.annotations.POST;
+import io.jooby.annotation.POST;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 public class Controller1795 {

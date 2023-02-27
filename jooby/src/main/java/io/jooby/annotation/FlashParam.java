@@ -3,34 +3,29 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.annotations;
+package io.jooby.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.jooby.Session;
-
 /**
- * Allow access to session attributes from MVC route.
+ * Allow access to flash parameter from MVC route method.
  *
  * <pre>{@code
- * public String method(&#64;SessionParam String userId) {
+ * public String search(&#64;FlashParam String q) {
  *   ...
  * }
  * }</pre>
- *
- * See {@link Session#toMap()}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface SessionParam {
-
+public @interface FlashParam {
   /**
-   * Session attribute's name.
+   * Parameter name.
    *
-   * @return Session attribute's name.
+   * @return Parameter name.
    */
   String value() default "";
 }

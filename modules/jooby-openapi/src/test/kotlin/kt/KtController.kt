@@ -59,7 +59,7 @@ class KtController {
   @Path("/httpNames")
   fun httpNames(
     @HeaderParam("Last-Modified-Since") lastModifiedSince: String,
-    @Named("x-search") @io.jooby.annotations.QueryParam q: String
+    @Named("x-search") @io.jooby.annotation.QueryParam q: String
   ): String {
     return lastModifiedSince
   }

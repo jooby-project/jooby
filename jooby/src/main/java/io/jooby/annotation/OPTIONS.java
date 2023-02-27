@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.annotations;
+package io.jooby.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,12 +11,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * HTTP DELETE verb for mvc routes.
+ * HTTP OPTIONS verb for mvc routes.
  *
  * <pre>
  *   class Resources {
  *
- *     &#64;DELETE
+ *     &#64;OPTIONS
  *     public void method() {
  *     }
  *   }
@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface DELETE {
+public @interface OPTIONS {
   /**
    * Path pattern. This is a shortcut for {@link #path()}.
    *

@@ -7,8 +7,8 @@ package io.jooby.i1573;
 
 import java.util.Optional;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.PathParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.PathParam;
 
 public class Controller1573 {
 

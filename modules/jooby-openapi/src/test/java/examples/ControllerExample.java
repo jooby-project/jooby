@@ -10,10 +10,10 @@ import java.util.Optional;
 
 import io.jooby.Context;
 import io.jooby.Session;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.QueryParam;
 
 @Path("/api")
 public class ControllerExample {

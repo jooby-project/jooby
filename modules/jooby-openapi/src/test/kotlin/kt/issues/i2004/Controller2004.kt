@@ -5,8 +5,8 @@
  */
 package kt.issues.i2004
 
-import io.jooby.annotations.GET
-import io.jooby.annotations.Path
+import io.jooby.annotation.GET
+import io.jooby.annotation.Path
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 

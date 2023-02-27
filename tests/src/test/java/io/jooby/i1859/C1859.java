@@ -7,8 +7,8 @@ package io.jooby.i1859;
 
 import java.util.Optional;
 
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
 
 @Path(("/c"))
 public class C1859 {

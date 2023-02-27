@@ -47,12 +47,12 @@ change e.g. `HelloController` only, then only the class responsible for register
 `HelloController` will be regenerated. This however will force Jooby to load the generated classes
 with reflection instead of the service-provider loading facility.
 
-The package `io.jooby.annotations` contains all the annotations available for MVC routes.
+The package `annotation` contains all the annotations available for MVC routes.
 
 .MVC API:
 [source,java,role="primary"]
 ----
-import io.jooby.annotations.*;
+import io.jooby.annotation.*;
 
 @Path("/mvc")                  // <1>
 public class Controller {
@@ -79,7 +79,7 @@ public class App extends Jooby {
 [source,kotlin,role="secondary"]
 ----
 
-import io.jooby.annotations.*;
+import io.jooby.annotation.*;
 
 @Path("/mvc")                  // <1>
 class Controller {
@@ -766,7 +766,7 @@ public class MyController {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.annotations.*
+import io.jooby.annotation.*
 
 class MyController {
 
@@ -804,7 +804,7 @@ public class MyController {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.annotations.*
+import io.jooby.annotation.*
 
 class MyController {
 

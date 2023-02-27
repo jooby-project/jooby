@@ -142,12 +142,12 @@ The decorator takes care of closing the `Handle` and releasing the JDBC connecti
 
 If you simply install the decorator it becomes enabled by default, this means that each route in its
 scope become transactional. You can exclude an MVC route by annotating it with the
-javadoc:annotations.Transactional[] annotation:
+javadoc:annotation.Transactional[] annotation:
 
 .@Transactional
-[source, java, role = "primary"]
+[source,java,role = "primary"]
 ----
-import io.jooby.annotations.Transactional;
+import io.jooby.annotation.Transactional;
 
 @Transactional(false)
 @GET("/")
@@ -159,7 +159,7 @@ public void get(Context ctx) {
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.annotations.Transactional
+import io.jooby.annotation.Transactional
 
 @Transactional(false)
 @GET("/")
@@ -197,9 +197,9 @@ import io.jooby.ebean.TransactionalRequest
 Then you can enable it for the selected routes using `@Transactional(true)`:
 
 .@Transactional
-[source, java, role = "primary"]
+[source,java,role = "primary"]
 ----
-import io.jooby.annotations.Transactional;
+import io.jooby.annotation.Transactional;
 
 @Inject
 private Handle handle;
@@ -214,7 +214,7 @@ public void get(Context ctx) {
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.annotations.Transactional
+import io.jooby.annotation.Transactional
 
 @Inject
 private lateinit var handle: Handle
@@ -229,9 +229,9 @@ fun get(ctx: Context) {
 This feature is not limited to MVC routes. For script routes use the constant `Transactional.ATTRIBUTE`:
 
 .Transactional for script routes
-[source, java, role = "primary"]
+[source,java,role = "primary"]
 ----
-import io.jooby.annotations.Transactional;
+
 
 {
   get("/", ctx -> {
@@ -243,7 +243,7 @@ import io.jooby.annotations.Transactional;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.annotations.Transactional
+import io.jooby.annotation.Transactional
 
 {
   get("/") {

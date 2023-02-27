@@ -5,9 +5,9 @@
  */
 package issues.i2403;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.QueryParam;
 
 public class Controller2403 {
   @GET

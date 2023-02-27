@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.jooby.Context;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.POST;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.POST;
 
 public abstract class Controller1552Base {
 

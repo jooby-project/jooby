@@ -5,9 +5,9 @@
  */
 package issues.i1580;
 
-import io.jooby.annotations.PUT;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.PathParam;
+import io.jooby.annotation.PUT;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.PathParam;
 
 @Path("/pets")
 public class Controller1580 {

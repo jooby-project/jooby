@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.annotations.DELETE;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.DELETE;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
 
 @Path("/")
 public class InstanceRouter {

@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.annotations;
+package io.jooby.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -13,16 +13,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Defines what media types a route can produces. By default a route can produces any type {@code
- * *}/{@code *}. Check the <code>Accept</code> header against this value or send a "406 Not
- * Acceptable" response.
+ * Defines what media types a route can consume. By default a route can consume any type {@code *}/
+ * {@code *}.
+ *
+ * <p>Check the <code>Content-Type</code> header against this value or send a "415 Unsupported Media
+ * Type" response.
  *
  * <pre>
  *   class Resources {
  *
- *     &#64;Produces("application/json")
- *     public Object method() {
- *      return ...;
+ *     &#64;Consumes("application/json")
+ *     public void method(&#64;Body MyBody body) {
  *     }
  *   }
  * </pre>
@@ -34,7 +35,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Produces {
+public @interface Consumes {
   /**
    * List of media types.
    *

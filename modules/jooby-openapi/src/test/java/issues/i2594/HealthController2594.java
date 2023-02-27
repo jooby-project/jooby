@@ -7,8 +7,8 @@ package issues.i2594;
 
 import com.google.common.collect.ImmutableMap;
 import io.jooby.Context;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 import jakarta.inject.Inject;
 
 @Path("/")

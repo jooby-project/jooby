@@ -7,8 +7,8 @@ package io.jooby.test;
 
 import java.util.List;
 
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
 
 @Path("/1391")
 public class Controller1391 {

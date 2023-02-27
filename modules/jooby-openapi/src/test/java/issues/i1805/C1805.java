@@ -8,9 +8,9 @@ package issues.i1805;
 import java.net.URI;
 import java.net.URL;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.QueryParam;
 
 @Path("/1805")
 public class C1805 {

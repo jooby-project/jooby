@@ -17,7 +17,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.ServiceKey;
 import io.jooby.SneakyThrows;
-import io.jooby.annotations.Transactional;
+import io.jooby.annotation.Transactional;
 
 /**
  * Attaches a {@link Session} and {@link jakarta.persistence.EntityManager} to the current request

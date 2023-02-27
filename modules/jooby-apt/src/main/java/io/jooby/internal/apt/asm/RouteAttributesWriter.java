@@ -83,8 +83,8 @@ public class RouteAttributesWriter {
 
   private static final Predicate<String> HTTP_ANNOTATION =
       it ->
-          (it.startsWith("io.jooby.annotations")
-                  && !it.contains("io.jooby.annotations.Transactional"))
+          (it.startsWith("io.jooby.annotation")
+                  && !it.contains("io.jooby.annotation.Transactional"))
               || it.startsWith("jakarta.ws.rs")
               || it.startsWith("javax.ws.rs");
 

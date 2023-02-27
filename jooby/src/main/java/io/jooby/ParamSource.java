@@ -10,7 +10,7 @@ import java.util.function.BiFunction;
 /**
  * List of possible parameter sources supported by {@link Context#lookup(String, ParamSource...)}.
  *
- * @see io.jooby.annotations.Param
+ * @see io.jooby.annotation.Param
  * @see Context#lookup(String, ParamSource...)
  */
 public enum ParamSource {

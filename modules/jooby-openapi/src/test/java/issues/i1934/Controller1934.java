@@ -6,9 +6,9 @@
 package issues.i1934;
 
 import examples.Person;
-import io.jooby.annotations.ContextParam;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.ContextParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 
 @Path("/openapi")
 public class Controller1934 {

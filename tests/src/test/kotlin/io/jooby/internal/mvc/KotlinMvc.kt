@@ -5,10 +5,10 @@
  */
 package io.jooby.internal.mvc
 
-import io.jooby.annotations.GET
-import io.jooby.annotations.Path
-import io.jooby.annotations.PathParam
-import io.jooby.annotations.QueryParam
+import io.jooby.annotation.GET
+import io.jooby.annotation.Path
+import io.jooby.annotation.PathParam
+import io.jooby.annotation.QueryParam
 
 data class QueryPoint(val x: String?, val y: Int?)
 

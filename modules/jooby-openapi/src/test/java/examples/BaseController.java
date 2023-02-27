@@ -5,9 +5,9 @@
  */
 package examples;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.QueryParam;
 
 @Path("/base")
 public abstract class BaseController {

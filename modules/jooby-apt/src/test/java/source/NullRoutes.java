@@ -5,8 +5,8 @@
  */
 package source;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.QueryParam;
 
 public class NullRoutes {
   public static class QParam {

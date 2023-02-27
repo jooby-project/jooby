@@ -11,9 +11,9 @@ import java.util.Arrays;
 
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.annotations.Consumes;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Produces;
+import io.jooby.annotation.Consumes;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Produces;
 
 @Produces("text/produces")
 @Consumes("text/consumes")

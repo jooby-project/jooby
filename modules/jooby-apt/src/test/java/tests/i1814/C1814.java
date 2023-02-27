@@ -13,8 +13,8 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Reified;
 import io.jooby.Route;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.QueryParam;
 
 public class C1814 {
   @GET("/1814")

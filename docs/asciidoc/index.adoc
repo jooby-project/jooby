@@ -166,7 +166,7 @@ them.
 [source,java,role="primary"]
 ----
 
-import io.jooby.annotations.*;
+import io.jooby.annotation.*;
 
 public class MyController {
 
@@ -191,7 +191,7 @@ public class App {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.annotations.*;
+import io.jooby.annotation.*;
 
 class MyController {
 

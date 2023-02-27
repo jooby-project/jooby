@@ -7,8 +7,8 @@ package issues.i1596;
 
 import java.util.List;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.POST;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.POST;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;

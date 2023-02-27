@@ -5,8 +5,8 @@
  */
 package examples;
 
-import io.jooby.annotations.Dispatch;
-import io.jooby.annotations.GET;
+import io.jooby.annotation.Dispatch;
+import io.jooby.annotation.GET;
 
 public class LoopDispatch {
   @GET("/")

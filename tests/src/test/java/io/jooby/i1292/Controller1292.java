@@ -5,7 +5,7 @@
  */
 package io.jooby.i1292;
 
-import io.jooby.annotations.GET;
+import io.jooby.annotation.GET;
 
 public class Controller1292 {
   @GET

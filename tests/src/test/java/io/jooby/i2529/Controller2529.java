@@ -5,9 +5,9 @@
  */
 package io.jooby.i2529;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.Produces;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.Produces;
 
 public class Controller2529 {
   @GET

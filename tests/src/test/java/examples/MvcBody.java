@@ -8,9 +8,9 @@ package examples;
 import java.util.Map;
 import java.util.Optional;
 
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.QueryParam;
 
 public class MvcBody {
   @POST

@@ -5,9 +5,9 @@
  */
 package kt.i2121
 
-import io.jooby.annotations.GET
-import io.jooby.annotations.Path
-import io.jooby.annotations.QueryParam
+import io.jooby.annotation.GET
+import io.jooby.annotation.Path
+import io.jooby.annotation.QueryParam
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.delay
@@ -31,7 +31,8 @@ class Controller2121 {
           example = "XD12345",
           description = "An ID value which belongs to a dataset",
           required = true
-        )]
+        )
+      ]
   )
   @GET
   suspend fun listDataForID(@QueryParam year: Int, @QueryParam id: String): String {

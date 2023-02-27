@@ -5,8 +5,8 @@
  */
 package examples;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 
 @Path("/attr")
 public class MvcAttributes {

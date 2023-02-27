@@ -21,7 +21,7 @@ import java.util.concurrent.Executor;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.annotations.Transactional;
+import io.jooby.annotation.Transactional;
 import io.jooby.exception.MethodNotAllowedException;
 import io.jooby.exception.NotAcceptableException;
 import io.jooby.exception.NotFoundException;

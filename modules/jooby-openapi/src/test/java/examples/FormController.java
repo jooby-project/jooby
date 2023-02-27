@@ -6,8 +6,8 @@
 package examples;
 
 import io.jooby.FileUpload;
-import io.jooby.annotations.FormParam;
-import io.jooby.annotations.POST;
+import io.jooby.annotation.FormParam;
+import io.jooby.annotation.POST;
 
 public class FormController {
 

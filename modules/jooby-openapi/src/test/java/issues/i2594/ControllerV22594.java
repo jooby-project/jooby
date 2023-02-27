@@ -5,8 +5,8 @@
  */
 package issues.i2594;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 import jakarta.inject.Inject;
 
 @Path("/")

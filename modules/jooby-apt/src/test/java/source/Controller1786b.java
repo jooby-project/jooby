@@ -8,8 +8,8 @@ package source;
 import java.util.UUID;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.QueryParam;
 
 public class Controller1786b {
 

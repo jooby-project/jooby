@@ -5,8 +5,8 @@
  */
 package tests.i2405;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.QueryParam;
 
 public class C2405 {
   @GET("/2405/blah")

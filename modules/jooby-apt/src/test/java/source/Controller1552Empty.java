@@ -6,8 +6,8 @@
 package source;
 
 import io.jooby.Context;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 
 @Path("/inherit_empty")
 public class Controller1552Empty extends Controller1552Base {

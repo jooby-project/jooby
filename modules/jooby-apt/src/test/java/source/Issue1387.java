@@ -7,10 +7,10 @@ package source;
 
 import java.util.Map;
 
-import io.jooby.annotations.ContextParam;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.SessionParam;
+import io.jooby.annotation.ContextParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.SessionParam;
 
 @Path("/1387")
 public class Issue1387 {

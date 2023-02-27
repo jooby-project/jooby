@@ -7,8 +7,8 @@ package io.jooby.i2031;
 
 import java.util.concurrent.CompletableFuture;
 
-import io.jooby.annotations.GET;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.Path;
 import io.reactivex.rxjava3.core.Single;
 import io.smallrye.mutiny.Uni;
 import reactor.core.publisher.Mono;

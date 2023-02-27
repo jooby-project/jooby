@@ -28,16 +28,16 @@ import io.jooby.Formdata;
 import io.jooby.QueryString;
 import io.jooby.Session;
 import io.jooby.StatusCode;
-import io.jooby.annotations.CookieParam;
-import io.jooby.annotations.DELETE;
-import io.jooby.annotations.FlashParam;
-import io.jooby.annotations.FormParam;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.HeaderParam;
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
-import io.jooby.annotations.PathParam;
-import io.jooby.annotations.QueryParam;
+import io.jooby.annotation.CookieParam;
+import io.jooby.annotation.DELETE;
+import io.jooby.annotation.FlashParam;
+import io.jooby.annotation.FormParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.HeaderParam;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.PathParam;
+import io.jooby.annotation.QueryParam;
 
 @Path("/p")
 public class Provisioning {

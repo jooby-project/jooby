@@ -13,7 +13,7 @@ import io.jooby.RequestScope;
 import io.jooby.Route;
 import io.jooby.Route.Filter;
 import io.jooby.ServiceKey;
-import io.jooby.annotations.Transactional;
+import io.jooby.annotation.Transactional;
 
 /**
  * Attach {@link Handle} to the current request. The route pipeline runs inside a transaction which

@@ -6,9 +6,9 @@
 package tests.i1807;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.annotations.FormParam;
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.FormParam;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
 
 public class C1807 {
   @Path("/test/{word}")

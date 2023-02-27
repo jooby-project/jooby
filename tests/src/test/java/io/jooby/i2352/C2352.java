@@ -7,8 +7,8 @@ package io.jooby.i2352;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.annotations.FormParam;
-import io.jooby.annotations.POST;
+import io.jooby.annotation.FormParam;
+import io.jooby.annotation.POST;
 
 public class C2352 {
   @POST("/2352/nonnull")

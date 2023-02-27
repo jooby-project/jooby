@@ -28,27 +28,27 @@ import javax.lang.model.element.ExecutableElement;
  */
 public interface Annotations {
 
-  String CONNECT = "io.jooby.annotations.CONNECT";
-  String Consumes = "io.jooby.annotations.Consumes";
-  String ContextParam = "io.jooby.annotations.ContextParam";
-  String DELETE = "io.jooby.annotations.DELETE";
-  String FlashParam = "io.jooby.annotations.FlashParam";
-  String FormParam = "io.jooby.annotations.FormParam";
-  String CookieParam = "io.jooby.annotations.CookieParam";
-  String GET = "io.jooby.annotations.GET";
-  String HEAD = "io.jooby.annotations.HEAD";
-  String HeaderParam = "io.jooby.annotations.HeaderParam";
-  String OPTIONS = "io.jooby.annotations.OPTIONS";
-  String PATCH = "io.jooby.annotations.PATCH";
-  String POST = "io.jooby.annotations.POST";
-  String PUT = "io.jooby.annotations.PUT";
-  String Param = "io.jooby.annotations.Param";
-  String Path = "io.jooby.annotations.Path";
-  String PathParam = "io.jooby.annotations.PathParam";
-  String Produces = "io.jooby.annotations.Produces";
-  String QueryParam = "io.jooby.annotations.QueryParam";
-  String SessionParam = "io.jooby.annotations.SessionParam";
-  String TRACE = "io.jooby.annotations.TRACE";
+  String CONNECT = "io.jooby.annotation.CONNECT";
+  String Consumes = "io.jooby.annotation.Consumes";
+  String ContextParam = "io.jooby.annotation.ContextParam";
+  String DELETE = "io.jooby.annotation.DELETE";
+  String FlashParam = "io.jooby.annotation.FlashParam";
+  String FormParam = "io.jooby.annotation.FormParam";
+  String CookieParam = "io.jooby.annotation.CookieParam";
+  String GET = "io.jooby.annotation.GET";
+  String HEAD = "io.jooby.annotation.HEAD";
+  String HeaderParam = "io.jooby.annotation.HeaderParam";
+  String OPTIONS = "io.jooby.annotation.OPTIONS";
+  String PATCH = "io.jooby.annotation.PATCH";
+  String POST = "io.jooby.annotation.POST";
+  String PUT = "io.jooby.annotation.PUT";
+  String Param = "io.jooby.annotation.Param";
+  String Path = "io.jooby.annotation.Path";
+  String PathParam = "io.jooby.annotation.PathParam";
+  String Produces = "io.jooby.annotation.Produces";
+  String QueryParam = "io.jooby.annotation.QueryParam";
+  String SessionParam = "io.jooby.annotation.SessionParam";
+  String TRACE = "io.jooby.annotation.TRACE";
 
   /** JAXRS GET. */
   String JAXRS_GET = "jakarta.ws.rs.GET";

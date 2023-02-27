@@ -6,10 +6,10 @@
 package io.jooby.test;
 
 import io.jooby.Context;
-import io.jooby.annotations.Dispatch;
-import io.jooby.annotations.GET;
-import io.jooby.annotations.POST;
-import io.jooby.annotations.Path;
+import io.jooby.annotation.Dispatch;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.POST;
+import io.jooby.annotation.Path;
 
 @Path("/mvc")
 public class MvcController {
