@@ -40,7 +40,7 @@
     <jdbi.version>3.36.0</jdbi.version>
     <flyway.version>9.15.1</flyway.version>
     <graphql-java.version>20.0</graphql-java.version>
-    <lettuce.version>6.2.2.RELEASE</lettuce.version>
+    <lettuce.version>6.2.3.RELEASE</lettuce.version>
     <commons-pool2.version>2.11.1</commons-pool2.version>
     <kafka.version>3.4.0</kafka.version>
     <caffeine.version>3.1.2</caffeine.version>
