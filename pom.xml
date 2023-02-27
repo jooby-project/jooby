@@ -38,7 +38,7 @@
     <hibernate.version>6.1.7.Final</hibernate.version>
     <ebean.version>13.11.2</ebean.version>
     <jdbi.version>3.36.0</jdbi.version>
-    <flyway.version>9.15.0</flyway.version>
+    <flyway.version>9.15.1</flyway.version>
     <graphql-java.version>20.0</graphql-java.version>
     <lettuce.version>6.2.2.RELEASE</lettuce.version>
     <commons-pool2.version>2.11.1</commons-pool2.version>
