@@ -32,6 +32,8 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.AttributeKey;
@@ -157,6 +159,12 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
           || frame instanceof BinaryWebSocketFrame
           || frame instanceof ContinuationWebSocketFrame) {
         handleMessage(frame);
+      } else if (frame instanceof PingWebSocketFrame) {
+        netty
+            .ctx
+            .channel()
+            .writeAndFlush(new PongWebSocketFrame(frame.content()))
+            .addListener(this);
       } else if (frame instanceof CloseWebSocketFrame) {
         handleClose(toWebSocketCloseStatus((CloseWebSocketFrame) frame));
       }
