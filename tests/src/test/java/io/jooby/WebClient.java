@@ -22,9 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
+import okio.ByteString;
 public class WebClient implements AutoCloseable {
 
   private class SyncWebSocketListener extends WebSocketListener {
@@ -100,6 +98,11 @@ public class WebClient implements AutoCloseable {
 
     public String send(String message) {
       ws.send(message);
+      return lastMessage();
+    }
+
+    public String sendBytes(byte[] message) {
+      ws.send(ByteString.of(message));
       return lastMessage();
     }
 

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 
 import org.xnio.IoUtils;
+import org.xnio.Pooled;
 
 import com.typesafe.config.Config;
 import io.jooby.Context;
@@ -34,6 +35,7 @@ import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 import io.undertow.websockets.core.AbstractReceiveListener;
+import io.undertow.websockets.core.BufferedBinaryMessage;
 import io.undertow.websockets.core.BufferedTextMessage;
 import io.undertow.websockets.core.CloseMessage;
 import io.undertow.websockets.core.WebSocketCallback;
@@ -184,8 +186,39 @@ public class UtowWebSocket extends AbstractReceiveListener
     }
   }
 
-  @Override protected void onFullTextMessage(WebSocketChannel channel,
-      BufferedTextMessage message) throws IOException {
+  @Override
+  protected void onFullBinaryMessage(WebSocketChannel channel, BufferedBinaryMessage message)
+      throws IOException {
+    waitForConnect();
+
+    if (onMessageCallback != null) {
+      Pooled<ByteBuffer[]> data = message.getData();
+      try {
+        ByteBuffer buffer = WebSockets.mergeBuffers(data.getResource());
+        dispatch(
+            webSocketTask(
+                () ->
+                    onMessageCallback.onMessage(
+                        this, WebSocketMessage.create(getContext(), toArray(buffer))),
+                false));
+      } finally {
+        data.free();
+      }
+    }
+  }
+
+  private byte[] toArray(ByteBuffer buffer) {
+    if (buffer.hasArray()) {
+      return buffer.array();
+    }
+    byte[] bytes = new byte[buffer.remaining()];
+    buffer.get(bytes);
+    return bytes;
+  }
+
+  @Override
+  protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message)
+      throws IOException {
     waitForConnect();
 
     if (onMessageCallback != null) {

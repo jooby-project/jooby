@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.jetty;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +56,16 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     this.key = ctx.getRoute().getPattern();
   }
 
-  @Override public void onWebSocketBinary(byte[] payload, int offset, int len) {
+  @Override
+  public void onWebSocketBinary(byte[] payload, int offset, int len) {
+    if (onMessageCallback != null) {
+      try {
+        ByteBuffer buffer = ByteBuffer.wrap(payload, offset, len);
+        onMessageCallback.onMessage(this, WebSocketMessage.create(getContext(), buffer.array()));
+      } catch (Throwable x) {
+        onWebSocketError(x);
+      }
+    }
   }
 
   @Override public void onWebSocketText(String message) {
