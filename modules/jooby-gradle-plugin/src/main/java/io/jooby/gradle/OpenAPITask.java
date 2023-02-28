@@ -46,14 +46,23 @@ public class OpenAPITask extends BaseTask {
         .orElseGet(() -> computeMainClassName(projects));
 
     Path outputDir = classes(getProject());
+    // Reduce lookup to current project: See https://github.com/jooby-project/jooby/issues/2756
+    String metaInf =
+        outputDir
+            .resolve("META-INF")
+            .resolve("services")
+            .resolve("io.jooby.MvcFactory")
+            .toAbsolutePath()
+            .toString();
 
     ClassLoader classLoader = createClassLoader(projects);
 
     getLogger().info("Generating OpenAPI: " + mainClass);
     getLogger().debug("Using classloader: " + classLoader);
     getLogger().debug("Output directory: " + outputDir);
+    getLogger().debug("META-INF: " + metaInf);
 
-    OpenAPIGenerator tool = new OpenAPIGenerator();
+    OpenAPIGenerator tool = new OpenAPIGenerator(metaInf);
     tool.setClassLoader(classLoader);
     tool.setOutputDir(outputDir);
     trim(includes).ifPresent(tool::setIncludes);

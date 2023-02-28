@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -181,13 +182,16 @@ public abstract class BaseMojo extends AbstractMojo {
       return result.getDependencies().stream()
           .filter(it -> !it.isOptional())
           .map(Dependency::getArtifact)
+          .filter(Objects::nonNull)
           .filter(it -> it.getExtension().equals("jar"))
           .map(org.eclipse.aether.artifact.Artifact::getFile)
+          .filter(Objects::nonNull)
           .map(File::toPath)
           .collect(Collectors.toCollection(LinkedHashSet::new));
     } else {
       return artifacts.stream()
           .map(org.apache.maven.artifact.Artifact::getFile)
+          .filter(Objects::nonNull)
           .filter(it -> it.toString().endsWith(".jar"))
           .map(File::toPath)
           .collect(Collectors.toCollection(LinkedHashSet::new));
