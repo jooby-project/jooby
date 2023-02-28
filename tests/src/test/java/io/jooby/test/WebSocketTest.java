@@ -7,6 +7,8 @@ package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.charset.StandardCharsets;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
@@ -40,6 +42,31 @@ public class WebSocketTest {
                   "/ws/abc",
                   ws -> {
                     assertEquals("abc/connected/ws", ws.send("ws"));
+                  });
+            });
+  }
+
+  @ServerTest
+  public void webSocketByteMessage(ServerTestRunner runner) {
+    runner
+        .define(
+            app -> {
+              app.ws(
+                  "/ws/{key}",
+                  (ctx, initializer) -> {
+                    initializer.onMessage(
+                        (ws, message) -> {
+                          ws.send(">" + message.value());
+                        });
+                  });
+            })
+        .ready(
+            client -> {
+              client.syncWebSocket(
+                  "/ws/abc",
+                  ws -> {
+                    assertEquals(
+                        ">bytes[]", ws.sendBytes("bytes[]".getBytes(StandardCharsets.UTF_8)));
                   });
             });
   }

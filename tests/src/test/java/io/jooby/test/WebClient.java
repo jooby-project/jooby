@@ -41,6 +41,7 @@ import okhttp3.WebSocketListener;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
+import okio.ByteString;
 
 public class WebClient implements AutoCloseable {
 
@@ -113,6 +114,11 @@ public class WebClient implements AutoCloseable {
 
     public String send(String message) {
       ws.send(message);
+      return lastMessage();
+    }
+
+    public String sendBytes(byte[] message) {
+      ws.send(ByteString.of(message));
       return lastMessage();
     }
 
