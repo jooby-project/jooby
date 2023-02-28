@@ -197,48 +197,5 @@ public class RunMojo extends BaseMojo {
   @Override protected String mojoName() {
     return "run";
   }
-
-  //  private boolean requiredDependency(Set<Artifact> artifacts,
-  //      org.eclipse.aether.artifact.Artifact artifact) {
-  //    return artifacts.stream().anyMatch(
-  //        it -> it.getGroupId().equals(artifact.getGroupId())
-  //            && it.getArtifactId().equals(artifact.getArtifactId())
-  //            && it.getVersion().equals(artifact.getVersion()));
-  //  }
-  //
-  //  private Collection<org.eclipse.aether.artifact.Artifact> resolveDependencies(Artifact artifact,
-  //      Predicate<org.eclipse.aether.artifact.Artifact> predicate) {
-  //    return resolveDependencies(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(),
-  //        artifact.getClassifier(), artifact.getType(), artifact.getVersion()), predicate);
-  //  }
-  //
-  //  private Set<org.eclipse.aether.artifact.Artifact> resolveDependencies(
-  //      org.eclipse.aether.artifact.Artifact artifact,
-  //      Predicate<org.eclipse.aether.artifact.Artifact> predicate) {
-  //    CollectRequest collectRequest = new CollectRequest()
-  //        .setRoot(new Dependency(artifact, null));
-  //
-  //    DependencyRequest request = new DependencyRequest(collectRequest, null);
-  //
-  //    DependencyResult result;
-  //
-  //    try {
-  //      result = repoSystem.resolveDependencies(repoSession, request);
-  //    } catch (DependencyResolutionException dre) {
-  //      result = dre.getResult();
-  //    }
-  //
-  //    if (result == null) {
-  //      return Collections.emptySet();
-  //    }
-  //
-  //    return result.getArtifactResults().stream()
-  //        // Assume all dependencies has been resolved by maven. We added for ignore optional deps
-  //        .filter(it -> !it.isMissing())
-  //        .map(ArtifactResult::getArtifact)
-  //        .filter(it -> it != null && it.getExtension().equals("jar"))
-  //        .filter(predicate)
-  //        .collect(toSet());
-  //  }
 }
 

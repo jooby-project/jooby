@@ -46,12 +46,21 @@ public class OpenAPIMojo extends BaseMojo {
       throws Exception {
     ClassLoader classLoader = createClassLoader(projects);
     Path outputDir = Paths.get(project.getBuild().getOutputDirectory());
+    // Reduce lookup to current project: See https://github.com/jooby-project/jooby/issues/2756
+    String metaInf =
+        outputDir
+            .resolve("META-INF")
+            .resolve("services")
+            .resolve("io.jooby.MvcFactory")
+            .toAbsolutePath()
+            .toString();
 
     getLog().info("Generating OpenAPI: " + mainClass);
     getLog().debug("Using classloader: " + classLoader);
     getLog().debug("Output directory: " + outputDir);
+    getLog().debug("META-INF: " + metaInf);
 
-    OpenAPIGenerator tool = new OpenAPIGenerator();
+    OpenAPIGenerator tool = new OpenAPIGenerator(metaInf);
     tool.setClassLoader(classLoader);
     tool.setOutputDir(outputDir);
     trim(includes).ifPresent(tool::setIncludes);

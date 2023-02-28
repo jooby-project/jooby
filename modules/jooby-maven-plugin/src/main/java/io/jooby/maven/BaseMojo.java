@@ -5,7 +5,21 @@
  */
 package io.jooby.maven;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.maven.Maven;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
@@ -23,18 +37,6 @@ import org.apache.maven.project.ProjectDependenciesResolver;
 import org.eclipse.aether.graph.Dependency;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Base class which provides common utility method to more specific plugins: like classpath
@@ -179,13 +181,16 @@ public abstract class BaseMojo extends AbstractMojo {
       return result.getDependencies().stream()
           .filter(it -> !it.isOptional())
           .map(Dependency::getArtifact)
+          .filter(Objects::nonNull)
           .filter(it -> it.getExtension().equals("jar"))
           .map(org.eclipse.aether.artifact.Artifact::getFile)
+          .filter(Objects::nonNull)
           .map(File::toPath)
           .collect(Collectors.toCollection(LinkedHashSet::new));
     } else {
       return artifacts.stream()
           .map(org.apache.maven.artifact.Artifact::getFile)
+          .filter(Objects::nonNull)
           .filter(it -> it.toString().endsWith(".jar"))
           .map(File::toPath)
           .collect(Collectors.toCollection(LinkedHashSet::new));
