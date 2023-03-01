@@ -34,8 +34,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  *
  * }</pre>
  *
- * NOTE: Websocket API ONLY handles text messages (not binary message).
- *
  * @author edgar
  * @since 2.2.0
  */

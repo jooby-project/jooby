@@ -129,7 +129,7 @@ import io.jooby.jackson.JacksonModule;
 <2> Parse/decode message to `MyObject`
 <3> Encode myobject as JSON and send to client
 
-Alternative you explicit tells with decoder/encoder to use using consumes/produces attributes:
+Alternative you explicit tells with decoder/encoder to use consumes/produces attributes:
 
 .Context
 [source,java,role="primary"]
@@ -172,7 +172,7 @@ example both are provided by the JacksonModule.
 === Options
 
 ==== Connection Timeouts
-By default Jooby will timeout idle connections that have no activity after 5 minutes. You can 
+Jooby timeouts idle connections that have no activity after 5 minutes. You can
 control this behaviour by setting the `websocket.idleTimeout` property:
 
 .application.conf
