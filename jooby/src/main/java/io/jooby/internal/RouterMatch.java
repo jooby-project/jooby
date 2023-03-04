@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.Route;
@@ -84,7 +85,8 @@ public class RouterMatch implements Router.Match {
     return this;
   }
 
-  public Object execute(Context context, Route.Handler pipeline) {
+  @Override
+  public Object execute(@NonNull Context context, @NonNull Route.Handler pipeline) {
     context.setPathMap(vars);
     context.setRoute(route);
     try {

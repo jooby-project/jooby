@@ -65,18 +65,13 @@ public interface Router extends Registry {
      * Executes matched route.
      *
      * @param context not null.
+     * @param pipeline Handler.
      */
+    Object execute(@NonNull Context context, @NonNull Route.Handler pipeline);
+
     default Object execute(@NonNull Context context) {
       return execute(context, route().getPipeline());
     }
-
-    /**
-     * Executes matched route.
-     *
-     * @param context not null.
-     * @param handler Handler.
-     */
-    Object execute(@NonNull Context context, @NonNull Route.Handler handler);
 
     /**
      * Path pattern variables.

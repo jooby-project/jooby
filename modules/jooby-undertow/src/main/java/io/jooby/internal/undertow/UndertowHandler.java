@@ -8,9 +8,9 @@ package io.jooby.internal.undertow;
 import java.nio.charset.StandardCharsets;
 
 import io.jooby.Context;
+import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
-import io.jooby.exception.StatusCodeException;
 import io.undertow.io.Receiver;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -55,7 +55,13 @@ public class UndertowHandler implements HttpHandler {
       String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);
       if (len > 0 || chunked != null) {
         if (len > maxRequestSize) {
-          context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+          Router.Match route = router.match(context);
+          if (route.matches()) {
+            route.execute(context, Route.REQUEST_ENTITY_TOO_LARGE);
+          } else {
+            // 404
+            route.execute(context);
+          }
           return;
         }
 
@@ -72,8 +78,8 @@ public class UndertowHandler implements HttpHandler {
                 .createParser(exchange);
         if (parser == null) {
           // Read raw body
-          Router.Match route = router.match(context);
           Receiver receiver = exchange.getRequestReceiver();
+          Router.Match route = router.match(context);
           UndertowBodyHandler reader =
               new UndertowBodyHandler(route, context, bufferSize, maxRequestSize);
           if (len > 0 && len <= bufferSize) {

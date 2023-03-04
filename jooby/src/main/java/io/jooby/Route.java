@@ -25,6 +25,7 @@ import io.jooby.annotation.Transactional;
 import io.jooby.exception.MethodNotAllowedException;
 import io.jooby.exception.NotAcceptableException;
 import io.jooby.exception.NotFoundException;
+import io.jooby.exception.StatusCodeException;
 import io.jooby.exception.UnsupportedMediaType;
 
 /**
@@ -333,6 +334,10 @@ public class Route {
           return ctx.sendError(new MethodNotAllowedException(ctx.getMethod(), allow));
         }
       };
+
+  /** Handler for {@link StatusCode#REQUEST_ENTITY_TOO_LARGE} responses. */
+  public static final Handler REQUEST_ENTITY_TOO_LARGE =
+      ctx -> ctx.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
 
   /** Handler for {@link StatusCode#NOT_ACCEPTABLE} responses. */
   public static final Route.Before ACCEPT =

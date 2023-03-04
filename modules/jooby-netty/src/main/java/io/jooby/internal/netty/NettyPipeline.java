@@ -130,13 +130,6 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   }
 
   private NettyHandler createHandler() {
-    return new NettyHandler(
-        service,
-        router,
-        maxRequestSize,
-        bufferSize,
-        factory,
-        defaultHeaders,
-        is100ContinueExpected);
+    return new NettyHandler(service, router, maxRequestSize, bufferSize, factory, defaultHeaders);
   }
 }

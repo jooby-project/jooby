@@ -17,9 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.jooby.Body;
+import io.jooby.Route;
 import io.jooby.Router;
-import io.jooby.StatusCode;
-import io.jooby.exception.StatusCodeException;
 import io.undertow.io.Receiver;
 import io.undertow.server.ExchangeCompletionListener;
 import io.undertow.server.HttpServerExchange;
@@ -71,7 +70,7 @@ public class UndertowBodyHandler
         chunkSize += chunk.length;
         if (chunkSize > maxRequestSize) {
           try {
-            context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+            route.execute(context, Route.REQUEST_ENTITY_TOO_LARGE);
           } finally {
             closeChannel();
             channel = null;
