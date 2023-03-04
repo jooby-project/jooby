@@ -1,4 +1,4 @@
-package io.jooby.i2858;
+package io.jooby.i2585;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -8,14 +8,14 @@ import io.jooby.Jooby;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
-public class Issue2858 {
+public class Issue2585 {
 
-  public static class App2858 extends Jooby {
+  public static class App2585 extends Jooby {
 
     public static volatile boolean error = false;
 
     {
-      ws("/2858", (ctx, initializer) -> {
+      ws("/2585", (ctx, initializer) -> {
         initializer.onConnect(ws -> {
           try {
             ws.send(new JSONObject().put("connected", true).toString());
@@ -42,10 +42,10 @@ public class Issue2858 {
 
   @ServerTest
   public void shouldBeAbleToSendMessageOnConnect(ServerTestRunner runner) {
-    App2858 app = new App2858();
+    App2585 app = new App2585();
     runner.use(() -> app)
         .ready(client -> {
-          client.syncWebSocket("/2858", ws -> {
+          client.syncWebSocket("/2585", ws -> {
             assertEquals("{\"connected\":true}",  ws.lastMessage());
             assertEquals("{\"error\":false}", ws.send("error"));
           });
