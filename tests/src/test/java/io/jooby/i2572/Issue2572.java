@@ -39,14 +39,11 @@ public class Issue2572 {
       app.get("/2572/init", ctx -> "Initialized");
     }).ready(http -> {
       http.get("/2572/init", rsp -> {
-        System.out.println(Thread.currentThread());
         assertEquals("Initialized", rsp.body().string());
       });
 
       http.get("/2572/state", rsp -> {
-        System.out.println(Thread.currentThread());
         JSONObject json = new JSONObject(rsp.body().string());
-        System.out.println(json.get("caller") + " = " + json.get("onComplete"));
         assertEquals(json.get("caller"), json.get("onComplete"));
       });
     });
