@@ -12,13 +12,9 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
@@ -109,17 +105,9 @@ public class HttpMessageEncoder implements MessageEncoder {
         produces = new ArrayList<>(encoders.keySet());
       }
 
-      List<MediaType> producesSubList = new ArrayList<>(produces);
-      while (!producesSubList.isEmpty()){
-        final MediaType type = ctx.accept(producesSubList);
-        MessageEncoder encoder = encoders.get(type);
-        if (encoder != null){
-          return encoder.encode(ctx, value);
-        }
-        producesSubList = producesSubList.subList(1, producesSubList.size());
-      }
-
-      return MessageEncoder.TO_STRING.encode(ctx, value);
+      MediaType type = ctx.accept(produces);
+      MessageEncoder encoder = encoders.getOrDefault(type, MessageEncoder.TO_STRING);
+      return encoder.encode(ctx, value);
     } else {
       return MessageEncoder.TO_STRING.encode(ctx, value);
     }

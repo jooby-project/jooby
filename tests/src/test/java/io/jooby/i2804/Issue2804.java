@@ -18,10 +18,18 @@ public class Issue2804 {
 
     public static class Error {
         public String message;
+
+      @Override public String toString() {
+        return message;
+      }
     }
 
     public static class Errors {
         public List<Error> errors = new ArrayList<>();
+
+      @Override public String toString() {
+        return errors.toString();
+      }
     }
 
     @ServerTest
@@ -45,7 +53,7 @@ public class Issue2804 {
                 Arrays.fill(dummyData, (byte) 0x0a);
                 return new ByteArrayInputStream(dummyData);
 
-            }).produces(MediaType.byFileExtension("pdf"), MediaType.json);
+            }).produces(MediaType.json, MediaType.byFileExtension("pdf"));
 
         }).ready(http -> {
             http.get("/pdf", rsp -> {
