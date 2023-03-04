@@ -5,8 +5,6 @@
  */
 package io.jooby.internal.netty;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
-
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -18,22 +16,18 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 
 import io.jooby.MediaType;
+import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.Server;
 import io.jooby.StatusCode;
 import io.jooby.WebSocketCloseStatus;
-import io.jooby.exception.StatusCodeException;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
@@ -58,7 +52,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Router router;
   private final int bufferSize;
   private final boolean defaultHeaders;
-  private final boolean is100ContinueExpected;
   private NettyContext context;
 
   private final HttpDataFactory factory;
@@ -69,15 +62,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long chunkSize;
 
   public NettyHandler(ScheduledExecutorService scheduler, Router router, long maxRequestSize,
-      int bufferSize, HttpDataFactory factory, boolean defaultHeaders,
-      boolean is100ContinueExpected) {
+      int bufferSize, HttpDataFactory factory, boolean defaultHeaders) {
     this.scheduler = scheduler;
     this.router = router;
     this.maxRequestSize = maxRequestSize;
     this.factory = factory;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
-    this.is100ContinueExpected = is100ContinueExpected;
   }
 
   @Override
@@ -111,7 +102,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         chunkSize += chunk.content().readableBytes();
         if (chunkSize > maxRequestSize) {
           resetDecoderState(true);
-          context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+          router.match(context).execute(context, Route.REQUEST_ENTITY_TOO_LARGE);
           return;
         }
 
@@ -124,9 +115,9 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
         if (chunk instanceof LastHttpContent) {
           context.decoder = decoder;
-          Router.Match result = router.match(context);
-          resetDecoderState(!result.matches());
-          result.execute(context);
+          Router.Match route = router.match(context);
+          resetDecoderState(!route.matches());
+          route.execute(context);
         }
       } else if (msg instanceof WebSocketFrame) {
         if (context.webSocket != null) {

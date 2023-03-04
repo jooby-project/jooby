@@ -62,7 +62,11 @@ public interface Router extends Registry {
      */
     @Nonnull Route route();
 
-    void execute(@Nonnull Context context);
+    void execute(@Nonnull Context context, @Nonnull Route.Handler pipeline);
+
+    default void execute(@Nonnull Context context) {
+      execute(context, route().getPipeline());
+    }
 
     /**
      * Path pattern variables.

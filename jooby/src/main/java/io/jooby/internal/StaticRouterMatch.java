@@ -13,6 +13,8 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jetbrains.annotations.NotNull;
+
 public class StaticRouterMatch implements Router.Match {
   private final Route route;
 
@@ -28,10 +30,10 @@ public class StaticRouterMatch implements Router.Match {
     return route;
   }
 
-  @Override public void execute(@Nonnull Context context) {
+  @Override public void execute(@NotNull Context context, @NotNull Route.Handler pipeline) {
     context.setRoute(route);
     try {
-      route.getPipeline().apply(context);
+      pipeline.apply(context);
     } catch (Throwable x) {
       context.sendError(x);
     }

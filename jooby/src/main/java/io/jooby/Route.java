@@ -9,6 +9,7 @@ import io.jooby.annotations.Transactional;
 import io.jooby.exception.MethodNotAllowedException;
 import io.jooby.exception.NotAcceptableException;
 import io.jooby.exception.NotFoundException;
+import io.jooby.exception.StatusCodeException;
 import io.jooby.exception.UnsupportedMediaType;
 
 import javax.annotation.Nonnull;
@@ -308,6 +309,12 @@ public class Route {
    */
   public static final Handler NOT_FOUND = ctx -> ctx
       .sendError(new NotFoundException(ctx.getRequestPath()));
+
+  /**
+   * Handler for {@link StatusCode#REQUEST_ENTITY_TOO_LARGE} responses.
+   */
+  public static final Handler REQUEST_ENTITY_TOO_LARGE = ctx -> ctx
+      .sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
 
   /**
    * Handler for {@link StatusCode#METHOD_NOT_ALLOWED} responses.

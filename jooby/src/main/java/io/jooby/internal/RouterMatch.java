@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jetbrains.annotations.NotNull;
+
 public class RouterMatch implements Router.Match {
 
   boolean matches;
@@ -80,11 +82,11 @@ public class RouterMatch implements Router.Match {
     return this;
   }
 
-  public void execute(Context context) {
+  @Override public void execute(@NotNull Context context, @NotNull Route.Handler pipeline) {
     context.setPathMap(vars);
     context.setRoute(route);
     try {
-      route.getPipeline().apply(context);
+      pipeline.apply(context);
     } catch (Throwable x) {
       context.sendError(x);
     } finally {
