@@ -28,7 +28,12 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.internal.SslContextProvider;
 
 /**
- * Available server options.
+ * Available server options. To load server options from configuration files, just do:
+ *
+ * <pre>{@code
+ * Optional<ServerOptions> serverOptions = ServerOptions.from(getEnvironment().getConfig());
+ *
+ * }</pre>
  *
  * @author edgar
  * @since 2.0.0
@@ -320,10 +325,10 @@ public class ServerOptions {
   }
 
   /**
-   * Number of worker threads (a.k.a application) to use. This are the threads which are allowed to
+   * Number of worker threads (a.k.a application) to use. These are the threads which are allowed to
    * block.
    *
-   * @return Number of worker threads (a.k.a application) to use. This are the threads which are
+   * @return Number of worker threads (a.k.a application) to use. These are the threads which are
    *     allowed to block.
    */
   public int getWorkerThreads() {
@@ -331,11 +336,11 @@ public class ServerOptions {
   }
 
   /**
-   * Number of worker threads (a.k.a application) to use. This are the threads which are allowed to
+   * Number of worker threads (a.k.a application) to use. These are the threads which are allowed to
    * block.
    *
    * @param defaultWorkerThreads Default worker threads is none was set.
-   * @return Number of worker threads (a.k.a application) to use. This are the threads which are
+   * @return Number of worker threads (a.k.a application) to use. These are the threads which are
    *     allowed to block.
    */
   public int getWorkerThreads(int defaultWorkerThreads) {
@@ -343,8 +348,8 @@ public class ServerOptions {
   }
 
   /**
-   * Set number of worker threads (a.k.a application) to use. This are the threads which are allowed
-   * to block.
+   * Set number of worker threads (a.k.a application) to use. These are the threads which are
+   * allowed to block.
    *
    * @param workerThreads Number of worker threads to use.
    * @return This options.

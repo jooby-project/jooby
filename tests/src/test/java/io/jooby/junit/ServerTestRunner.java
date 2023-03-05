@@ -63,7 +63,7 @@ public class ServerTestRunner {
     Server server = this.server.get();
     try {
       System.setProperty("___app_name__", testName);
-      System.setProperty("___server_name__", this.server.getName());
+      System.setProperty("___server_name__", server.getName());
       Jooby app = provider.get();
       Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       ServerOptions serverOptions = app.getServerOptions();
@@ -122,7 +122,7 @@ public class ServerTestRunner {
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append(testName).append("(");
-    message.append(getServer());
+    message.append(getServer().toLowerCase());
     if (executionMode != null) {
       message.append(", ").append(executionMode);
     }

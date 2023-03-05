@@ -36,7 +36,7 @@ public class ServerProvider implements Supplier<Server> {
   }
 
   public String getName() {
-    return serverClass.getSimpleName();
+    return serverClass.getSimpleName().replace("Server", "");
   }
 
   @Override

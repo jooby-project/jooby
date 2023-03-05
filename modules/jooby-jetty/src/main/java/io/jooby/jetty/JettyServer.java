@@ -56,9 +56,16 @@ public class JettyServer extends io.jooby.Server.Base {
 
   private Server server;
 
+  private ThreadPool threadPool;
   private List<Jooby> applications = new ArrayList<>();
 
   private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
+
+  public JettyServer(@NonNull ThreadPool threadPool) {
+    this.threadPool = threadPool;
+  }
+
+  public JettyServer() {}
 
   @NonNull @Override
   public JettyServer setOptions(@NonNull ServerOptions options) {
@@ -69,6 +76,11 @@ public class JettyServer extends io.jooby.Server.Base {
   @NonNull @Override
   public ServerOptions getOptions() {
     return options;
+  }
+
+  @NonNull @Override
+  public String getName() {
+    return "jetty";
   }
 
   @NonNull @Override
@@ -83,12 +95,14 @@ public class JettyServer extends io.jooby.Server.Base {
 
       addShutdownHook();
 
-      QueuedThreadPool executor = new QueuedThreadPool(options.getWorkerThreads());
-      executor.setName("worker");
+      if (threadPool == null) {
+        threadPool = new QueuedThreadPool(options.getWorkerThreads());
+        ((QueuedThreadPool) threadPool).setName("worker");
+      }
 
-      fireStart(applications, executor);
+      fireStart(applications, threadPool);
 
-      this.server = new Server(executor);
+      this.server = new Server(threadPool);
       server.setStopAtShutdown(false);
 
       JettyHttp2Configurer http2 =

@@ -28,6 +28,76 @@ To use Undertow, add the dependency:
 Only one server dependency must be available on classpath.
 ====
 
+=== Manual setup
+
+Servers are automatically loaded using `ServiceLoader` API. If you need to add it manually:
+
+.Server
+[source,java,role="primary"]
+----
+
+import io.jooby.netty.NettyServer;
+
+{
+  install(new NettyServer());
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.netty.NettyServer
+
+{
+  install(NettyServer())
+}
+----
+
+Server might or might not provide way to configure it (depends on Server). For example `JettyServer`
+let you customize the `ThreadPool`, here is an example to setup Jetty with Loom(Virtual Threads):
+
+.Jetty Loom
+[source,java,role="primary"]
+----
+
+import io.jooby.jetty.JettyServer;
+
+import java.util.concurrent.Executors;
+
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
+
+{
+  // Use virtual Thread in Java 19 with --enable-preview
+  QueuedThreadPool worker = new QueuedThreadPool();
+  worker.setReservedThreads(0);
+  worker.setVirtualThreadsExecutor(Executors.newVirtualThreadPerTaskExecutor());
+
+  install(new JettyServer(worker));
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+
+import io.jooby.jetty.JettyServer
+
+import java.util.concurrent.Executors
+
+import org.eclipse.jetty.util.thread.QueuedThreadPool
+
+
+{
+  // Use virtual Thread in Java 19 with --enable-preview
+  val worker = QueuedThreadPool()
+  worker.reservedThreads = 0
+  worker.virtualThreadsExecutor = Executors.newVirtualThreadPerTaskExecutor()
+
+  install(JettyServer(worker))
+}
+----
+
 === Options
 
 Server options are available via javadoc:ServerOptions[] class:

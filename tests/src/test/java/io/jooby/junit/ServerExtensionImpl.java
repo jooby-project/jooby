@@ -122,7 +122,8 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
   }
 
   private static String displayName(Class server, ExecutionMode mode, int i, int total) {
-    StringBuilder displayName = new StringBuilder(server.getSimpleName().toLowerCase());
+    StringBuilder displayName =
+        new StringBuilder(server.getSimpleName().replace("Server", "").toLowerCase());
     if (mode != null) {
       displayName.append(".").append(mode.name().toLowerCase());
     }

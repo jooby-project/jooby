@@ -123,6 +123,8 @@ public interface Server {
    */
   @NonNull Server setOptions(@NonNull ServerOptions options);
 
+  @NonNull String getName();
+
   /**
    * Get server options.
    *

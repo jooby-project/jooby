@@ -75,8 +75,8 @@ import jakarta.inject.Provider;
  *
  * More documentation at <a href="https://jooby.io">jooby.io</a>
  *
- * @since 2.0.0
  * @author edgar
+ * @since 2.0.0
  */
 public class Jooby implements Router, Registry {
 
@@ -121,6 +121,8 @@ public class Jooby implements Router, Registry {
   private String name;
 
   private String version;
+
+  private Server server;
 
   /** Creates a new Jooby instance. */
   public Jooby() {
@@ -539,6 +541,17 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  /**
+   * Set server to use.
+   *
+   * @param server Web Server.
+   * @return This application.
+   */
+  @NonNull public Jooby install(@NonNull Server server) {
+    this.server = server;
+    return this;
+  }
+
   @NonNull @Override
   public Jooby dispatch(@NonNull Runnable body) {
     router.dispatch(body);
@@ -838,6 +851,41 @@ public class Jooby implements Router, Registry {
    * @return Server.
    */
   public @NonNull Server start() {
+    if (server == null) {
+      this.server = loadServer();
+    }
+
+    try {
+      if (serverOptions == null) {
+        serverOptions = ServerOptions.from(getEnvironment().getConfig()).orElse(null);
+      }
+      if (serverOptions != null) {
+        serverOptions.setServer(server.getName());
+        server.setOptions(serverOptions);
+      }
+
+      return server.start(this);
+    } catch (Throwable startupError) {
+      Logger log = getLog();
+      log.error("Application startup resulted in exception", startupError);
+      try {
+        server.stop();
+      } catch (Throwable stopError) {
+        log.info("Server stop resulted in exception", stopError);
+      }
+      // rethrow
+      throw startupError instanceof StartupException
+          ? (StartupException) startupError
+          : new StartupException("Application startup resulted in exception", startupError);
+    }
+  }
+
+  /**
+   * Load server from classpath using {@link ServiceLoader}.
+   *
+   * @return A server.
+   */
+  private Server loadServer() {
     List<Server> servers =
         stream(
                 spliteratorUnknownSize(
@@ -845,7 +893,7 @@ public class Jooby implements Router, Registry {
                 false)
             .collect(Collectors.toList());
     if (servers.size() == 0) {
-      throw new IllegalStateException("Server not found.");
+      throw new StartupException("Server not found.");
     }
     if (servers.size() > 1) {
       List<String> names =
@@ -854,30 +902,7 @@ public class Jooby implements Router, Registry {
               .collect(Collectors.toList());
       getLog().warn("Multiple servers found {}. Using: {}", names, names.get(0));
     }
-    Server server = servers.get(0);
-    try {
-      if (serverOptions == null) {
-        serverOptions = ServerOptions.from(getEnvironment().getConfig()).orElse(null);
-      }
-      if (serverOptions != null) {
-        serverOptions.setServer(server.getClass().getSimpleName().toLowerCase());
-        server.setOptions(serverOptions);
-      }
-
-      return server.start(this);
-    } catch (Throwable x) {
-      Logger log = getLog();
-      log.error("Application startup resulted in exception", x);
-      try {
-        server.stop();
-      } catch (Throwable stopx) {
-        log.info("Server stop resulted in exception", stopx);
-      }
-      // rethrow
-      throw x instanceof StartupException
-          ? (StartupException) x
-          : new StartupException("Application startup resulted in exception", x);
-    }
+    return servers.get(0);
   }
 
   /**

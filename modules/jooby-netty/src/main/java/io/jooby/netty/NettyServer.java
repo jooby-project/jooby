@@ -66,6 +66,18 @@ public class NettyServer extends Server.Base {
 
   private ServerOptions options = new ServerOptions().setServer("netty");
 
+  /**
+   * Creates a server.
+   *
+   * @param worker Thread-pool to use.
+   */
+  public NettyServer(@NonNull ExecutorService worker) {
+    this.worker = worker;
+  }
+
+  /** Creates a server. */
+  public NettyServer() {}
+
   @Override
   public NettyServer setOptions(@NonNull ServerOptions options) {
     this.options = options;
@@ -78,6 +90,11 @@ public class NettyServer extends Server.Base {
   }
 
   @NonNull @Override
+  public String getName() {
+    return "netty";
+  }
+
+  @NonNull @Override
   public Server start(@NonNull Jooby application) {
     try {
       applications.add(application);
@@ -85,9 +102,11 @@ public class NettyServer extends Server.Base {
       addShutdownHook();
 
       /** Worker: Application blocking code */
-      worker =
-          Executors.newFixedThreadPool(
-              options.getWorkerThreads(), new DefaultThreadFactory("worker"));
+      if (worker == null) {
+        worker =
+            Executors.newFixedThreadPool(
+                options.getWorkerThreads(), new DefaultThreadFactory("worker"));
+      }
       fireStart(applications, worker);
 
       /** Disk attributes: */

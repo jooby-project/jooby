@@ -11,7 +11,7 @@ https://flywaydb.org[Flyway] database migrations module.
 
 2) Add database driver (mySQL here):
 
-[dependency, artifactId="mysql-connector-java"]
+[dependency, artifactId="mysql-connector-j"]
 .
 
 3) Set database properties

@@ -25,6 +25,7 @@ import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
+import io.jooby.exception.StartupException;
 import io.jooby.internal.undertow.UndertowHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
@@ -65,6 +66,11 @@ public class UndertowServer extends Server.Base {
   @NonNull @Override
   public ServerOptions getOptions() {
     return options;
+  }
+
+  @NonNull @Override
+  public String getName() {
+    return "undertow";
   }
 
   @Override
@@ -132,8 +138,7 @@ public class UndertowServer extends Server.Base {
             .ifPresent(
                 clientAuth -> builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, clientAuth));
       } else if (options.isHttpsOnly()) {
-        throw new IllegalArgumentException(
-            "Server configured for httpsOnly, but ssl options not set");
+        throw new StartupException("Server configured for httpsOnly, but ssl options not set");
       }
 
       server = builder.build();

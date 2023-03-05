@@ -1,16 +1,17 @@
 package {{package}}
 
 import io.jooby.Kooby
+import io.jooby.netty.NettyServer
 {{#if openapi}}
 import io.jooby.OpenAPIModule
 {{/if}}
 import io.jooby.runApp
 
 class App: Kooby({
+  install(NettyServer())
 {{#if openapi}}
   install(OpenAPIModule())
 {{/if}}
-
 {{#if mvc}}
   mvc(Controller())
 {{else}}

@@ -33,7 +33,7 @@
 
     <!-- data -->
     <HikariCP.version>5.0.1</HikariCP.version>
-    <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
+    <mysql-connector-j.version>8.0.32</mysql-connector-j.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.1.7.Final</hibernate.version>
     <ebean.version>13.11.2</ebean.version>
@@ -857,7 +857,7 @@
       <dependency>
         <groupId>com.mysql</groupId>
         <artifactId>mysql-connector-j</artifactId>
-        <version>8.0.32</version>
+        <version>${mysql-connector-j.version}</version>
       </dependency>
 
       <!-- jdbi -->
