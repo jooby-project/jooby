@@ -17,12 +17,13 @@ jobs:
           java-version: 17
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
+      - name: Build
         run: mvn clean install -DskipTests -q -pl '!docs'
-      - name: Set up Apache Maven Central
-        uses: actions/setup-java@v2
+      - name: Set up Maven Central
+        uses: actions/setup-java@v3
         with: # running setup-java again overwrites the settings.xml
           java-version: 17
+          distribution: 'temurin'
           server-id: ossrh
           server-username: OSSRH_USERNAME
           server-password: OSSRH_PASSWORD
