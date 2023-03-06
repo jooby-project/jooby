@@ -28,13 +28,6 @@ by Edgar Espina
 Jooby is a modern, performant and easy to use web framework for Java and Kotlin built on top of your
 favorite web server.
 
-[TIP]
-====
-Latest Release: https://github.com/jooby-project/jooby/releases/tag/v{joobyVersion}[{joobyVersion}].
-
-Looking for previous version? The link:v1[1.x] documentation is still available. 
-====
-
 .Welcome!!
 [source,java,role="primary"]
 ----
@@ -43,7 +36,7 @@ import io.jooby.Jooby;
 public class App extends Jooby {
 
   {
-    get("/", ctx -> "Welcome to Jooby!"); 
+    get("/", ctx -> "Welcome to Jooby!");
   }
 
   public static void main(String[] args) {
@@ -64,7 +57,15 @@ fun main(args: Array<String>) {
 }
 ----
 
-Source code is available at https://github.com/jooby-project/jooby[GitHub]
+[TIP]
+====
+Latest Release: https://github.com/jooby-project/jooby/releases/tag/v{joobyVersion}[{joobyVersion}].
+
+Looking for previous version?
+
+* Access to link:v2[2.x] documentation. See <<appendix-upgrading-from-x-to-x, migration from 2.x to 3.x>>
+* Access to link:v1[1.x] documentation.
+====
 
 === Features
 
@@ -74,7 +75,7 @@ Source code is available at https://github.com/jooby-project/jooby[GitHub]
 * <<mvc-api, MVC routes>> using Jooby or JAX-RS annotations
 * link:modules/openapi[OpenAPI 3] supports
 * <<execution-model, Event Loop and blocking execution modes>>
-* <<responses, Reactive responses>> (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
+* <<responses, Reactive responses>> (Completable Futures, RxJava, Reactor, SmallRye types and Kotlin Coroutines)
 * <<server, Multi-server>> including https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
 * Jump to full-stack framework with extension/plugin mechanism and variety of link:modules[]
 

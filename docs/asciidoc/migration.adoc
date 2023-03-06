@@ -1,11 +1,99 @@
-=== Upgrading from 1.x
-
-You will find here notes/tips about how to migrate from 1.x to 2.x.
+=== Upgrading from 2.x to 3.x
+You will find here notes/tips about how to migrate from 2.x to 3.x.
 
 [NOTE]
 =====
-This is a **work in progress** document, if something is wrong or missing please https://github.com/jooby-project/jooby/issues/new[report to Github] or better https://github.com/jooby-project/jooby/edit/2.x/docs/asciidoc/migration.adoc[edit this file and fix it] 
+This is a **work in progress** document, if something is wrong or missing please https://github.com/jooby-project/jooby/issues/new[report to Github] or better https://github.com/jooby-project/jooby/edit/3.x/docs/asciidoc/migration.adoc[edit this file and fix it]
 =====
+
+==== Requirements
+
+ - Java 17 as minimum
+
+==== module-info.java
+
+Jooby is now compatible with Java Module system.
+
+All most all Jooby components are now Java Modules, but not all. For those where wasn't
+possible the Jooby module contains the `Automatic-Module-Name` manifest entry.
+
+==== jakarta
+
+|===
+|2.x|3.x
+|javax.servlet | jakarta.servlet
+|javax.inject  | jakarta.inject
+|javax.persistence  | jakarta.persistence
+|===
+
+==== Modules
+|===
+|2.x|3.x
+|jooby-weld| Removed
+|jooby-archetype| Removed
+|jooby-utow | Renamed: jooby-undertow
+|jooby-commons-email | Renamed: jooby-commons-mail
+|jooby-http2-jetty | Merged into: jooby-netty
+|jooby-http2-netty | Merged into: jooby-netty
+|jooby-http2-undertow | Merged into: jooby-undertow
+|===
+
+==== Package renames
+|===
+|2.x|3.x|Module
+|io.jooby.annotations| io.jooby.annotation | jooby (core)
+|io.jooby.graphql| io.jooby.graphiql | jooby-graphiql
+|io.jooby.graphql| io.jooby.graphql.playground | jooby-graphql-playground
+|io.jooby.json| io.jooby.gson | jooby-gson
+|io.jooby.di| io.jooby.guice | jooby-guice
+|io.jooby.di| io.jooby.spring | jooby-spring
+|io.jooby.aws| io.jooby.awssdkv1| jooby-awssdk-v1
+|io.jooby.email| io.jooby.commons.mail| jooby-commons-mail
+|io.jooby.utow|io.jooby.undertow| jooby-undertow
+|===
+
+==== Class renames
+|===
+|2.x|3.x|Module
+|io.jooby.Route.Decorator|io.jooby.Route.Filter| jooby (core)
+|io.jooby.utow.Utow|io.jooby.undertow.Utow| jooby-undertow
+|===
+
+==== Method renames
+|===
+|2.x|3.x|Description
+|Router.decorator(Decorator)|Router.use(Filter)| `decorator` has been deprecated in favor of `use`
+|SslOptions.setCert(String)|SslOptions.setCert(InputStream)| Replaced the string argument with `InputStream`
+|SslOptions.setTrustCert(String)|SslOptions.setTrustCert(InputStream)| Replaced the string argument with `InputStream`
+|SslOptions.setPrivateKey(String)|SslOptions.setPrivateKey(InputStream)| Replaced the string argument with `InputStream`
+|FileUpload.destroy|FileUpload.close| `destroy` has been replaced by `close`
+|Context.attribute(String)|Context.getAttribute(String)|
+|Context.attribute(String, Object)|Context.setAttribute(String, Object)|
+|Context.multipart*|Context.form*| All Context.multipart related methods where merged into Context.form
+|===
+
+==== Dependencies
+|===
+|2.x|3.x|Module
+|Slf4j 1.x|Slf4j 2.x| jooby (core)
+|Jetty 9.x|Jetty 11.x| jooby-jetty
+|===
+
+==== Reactive support
+
+Reactive libraries has been removed from core to his own module.
+
+|===
+|2.x|3.x
+|rxjava|jooby-rxjava3|
+|reactor|jooby-reactor|
+|===
+
+All reactive libraries requires explicit handler while using script/lambda routes. More details on <<#responses-nonblocking, NonBlocking>> responses.
+
+=== Upgrading from 1.x to 2.x
+
+You will find here notes/tips about how to migrate from 1.x to 2.x.
 
 ==== Maven coordinates
 `org.jooby` became `io.jooby`. Hence, use `<groupId>org.jooby</groupId>` for all dependencies.
@@ -105,7 +193,3 @@ The routing matching algorithm in 2.x is more efficient and fast, because:
 - It never executes a decorator if there isn't a matching handler
 
 More detailed explanation of route pipeline is available in the <<router-pipeline, router pipeline documentation>>.
-
-==== Route Before and After
-
-// TODO

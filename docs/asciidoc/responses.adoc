@@ -204,15 +204,15 @@ there is a non-blocking route handler.
 [source,java,role="primary"]
 ----
 {
-  mode(EVENT_LOOP);                 // <1>
+  mode(EVENT_LOOP);                  // <1>
+
+  use(ReactiveSupport.concurrent()); // <2>
 
   get("/non-blocking", ctx -> {
 
-    ...                             // <2>
-
-    return CompletableFuture        // <3>
+    return CompletableFuture         // <3>
         .supplyAsync(() -> {
-          ...                       // <4>
+          ...                        // <4>
         });
   })
 }
@@ -222,22 +222,22 @@ there is a non-blocking route handler.
 [source,kotlin,role="secondary"]
 ----
 {
-  mode(EVENT_LOOP)                  // <1>
+  mode(EVENT_LOOP)                   // <1>
+
+  use(ReactiveSupport.concurrent()); // <2>
 
   get("/non-blocking") {
 
-    ...                             // <2>
-
-    CompletableFuture               // <3>
+    CompletableFuture                // <3>
         .supplyAsync {
-          ...                       // <4>
+          ...                        // <4>
         }
   }
 }
 ----
 
 <1> App run in *event loop*
-<2> Route block run in *event loop*. No blocking code is permitted
+<2> Indicates we want to go non-blocking and handle CompletableFuture responses.
 <3> Value is provided from *event loop*. No blocking code is permitted
 <4> Value is computed/produces from completable future context
 
@@ -247,15 +247,15 @@ Running your `App` in *worker* mode works identically, except for we are able to
 [source,java,role="primary"]
 ----
 {
-  mode(WORKER);                     // <1>
+  mode(WORKER);                      // <1>
+
+  use(ReactiveSupport.concurrent()); // <2>
 
   get("/blocking", ctx -> {
 
-    ...                             // <2>
-
-    return CompletableFuture        // <3>
+    return CompletableFuture         // <3>
         .supplyAsync(() -> {
-          ...                       // <4>
+          ...                        // <4>
         });
   })
 }
@@ -265,22 +265,22 @@ Running your `App` in *worker* mode works identically, except for we are able to
 [source,kotlin,role="secondary"]
 ----
 {
-  mode(WORKER)                      // <1>
+  mode(WORKER)                       // <1>
+
+  use(ReactiveSupport.concurrent())  // <2>
 
   get("/blocking") {
 
-    ...                             // <2>
-
-    CompletableFuture               // <3>
+    CompletableFuture                // <3>
         .supplyAsync {
-          ...                       // <4>
+          ...                        // <4>
         }
   }
 }
 ----
 
 <1> App run in *worker mode*
-<2> Route block run in *worker mode*. Blocking code is permitted
+<2> Indicates we want to go non-blocking and handle CompletableFuture responses.
 <3> Value is provided from *worker mode*. Blocking code is permitted
 <4> Value is computed/produces from completable future context
 
@@ -290,15 +290,15 @@ Running your `App` in *default* mode works identically to running in the *event 
 [source,java,role="primary"]
 ----
 {
-  mode(DEFAULT);                    // <1>
+  mode(DEFAULT);                     // <1>
+
+  use(ReactiveSupport.concurrent()); // <2>
 
   get("/non-blocking", ctx -> {
 
-    ...                             // <2>
-
-    return CompletableFuture        // <3>
+    return CompletableFuture         // <3>
         .supplyAsync(() -> {
-          ...                       // <4>
+          ...                        // <4>
         });
   })
 }
@@ -322,9 +322,9 @@ Running your `App` in *default* mode works identically to running in the *event 
 }
 ----
 
-<1> App run in *event loop*
-<2> Route block run in *event loop*. No blocking code is permitted
-<3> Value is provided from *event loop*. No blocking code is permitted
+<1> App run in *worker mode*
+<2> Indicates we want to go non-blocking and handle CompletableFuture responses.
+<3> Value is provided from *worker mode*. Blocking code is permitted
 <4> Value is computed/produces from completable future context
 
 The *default* mode mimics the *event loop* mode execution when route produces a *non-blocking* type.
@@ -337,6 +337,8 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 [source,java, role="primary"]
 ----
 {
+  use(ReactiveSupport.concurrent());
+
   get("/non-blocking", ctx -> {
     return CompletableFuture
         .supplyAsync(() -> "Completable Future!")
@@ -349,6 +351,8 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 [source,kotlin,role="secondary"]
 ----
 {
+  use(ReactiveSupport.concurrent())
+
   get("/non-blocking") {
     CompletableFuture
         .supplyAsync { "Completable Future!" }
@@ -356,6 +360,12 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
   }
 }
 ----
+
+[NOTE]
+=====
+Completable future responses require explicit handler setup ONLY in script/lambda routes. For MVC
+routes you don't need to setup any handler. It is done automatically based on route response type.
+=====
 
 ==== Mutiny
 
@@ -442,6 +452,12 @@ For Multi, Jooby builds a `chunked` response. That:
 . Set the `Transfer-Encoding: chunked` header
 . Each item means new `chunk` send it to client
 
+[NOTE]
+=====
+Mutiny responses require explicit handler setup ONLY in script/lambda routes. For MVC
+routes you don't need to setup any handler. It is done automatically based on route response type.
+=====
+
 ==== RxJava
 
 1) Add the https://github.com/ReactiveX/RxJava[RxJava] dependency:
@@ -522,6 +538,12 @@ For Flowable, Jooby builds a `chunked` response. That:
 . Set the `Transfer-Encoding: chunked` header
 . Each item means new `chunk` send it to client
 
+[NOTE]
+=====
+Rx responses require explicit handler setup ONLY in script/lambda routes. For MVC
+routes you don't need to setup any handler. It is done automatically based on route response type.
+=====
+
 ==== Reactor
 
 1) Add the https://projectreactor.io/[Reactor] dependency:
@@ -601,6 +623,12 @@ For Flux, Jooby builds a `chunked` response. That:
 
 . Set the `Transfer-Encoding: chunked` header
 . Each item means new `chunk` send it to client
+
+[NOTE]
+=====
+Reactor responses require explicit handler setup ONLY in script/lambda routes. For MVC
+routes you don't need to setup any handler. It is done automatically based on route response type.
+=====
 
 ==== Kotlin Coroutines
 

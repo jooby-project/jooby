@@ -14,7 +14,7 @@ favorite web server.
 Java:
 
 ```java
-import static org.jooby.Jooby.runApp;
+import static io.jooby.Jooby.runApp;
 
 public class App {
 
@@ -30,7 +30,7 @@ public class App {
 Kotlin:
 
 ```kotlin
-import org.jooby.runApp
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
@@ -54,7 +54,7 @@ help
 
 donate & support
 =====
-
+- [Sponsor](https://github.com/sponsors/jknack)
 - [Paypal](https://www.paypal.com/paypalme2/edgarespina)
 - [Patreon](https://www.patreon.com/edgarespina)
 - [support@jooby.io](mailto:support@jooby.io?Subject=Jooby%20Support)

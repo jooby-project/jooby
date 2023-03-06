@@ -1,9 +1,5 @@
 3.x
 
-- javax.servlet => jakarta.servlet
-- javax.ws => jakarta.ws
-- remove/delete jooby-weld
-
 * MVC: QueryParam annotation vs PathParam try to figure it out them and make optional (update open api)
 * MVC: introduce BodyParam
 * MVC: Add *Param annotations a statusCode attribute
