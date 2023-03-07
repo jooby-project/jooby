@@ -17,6 +17,9 @@ import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.incubator.channel.uring.IOUring;
+import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
+import io.netty.incubator.channel.uring.IOUringServerSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 public abstract class NettyTransport {
@@ -32,10 +35,11 @@ public abstract class NettyTransport {
   public abstract EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio);
 
   public static NettyTransport transport(ClassLoader loader) {
-    if (isEpoll(loader)) {
+    if (isIOUring(loader)) {
+      return ioUring();
+    } else if (isEpoll(loader)) {
       return epoll();
-    }
-    if (isKQueue(loader)) {
+    } else if (isKQueue(loader)) {
       return kqueue();
     }
     return nio();
@@ -47,6 +51,19 @@ public abstract class NettyTransport {
 
   private static NettyTransport epoll() {
     return new EpollTransport();
+  }
+
+  private static NettyTransport ioUring() {
+    return new IOUringTransport();
+  }
+
+  private static boolean isIOUring(ClassLoader loader) {
+    try {
+      loader.loadClass("io.netty.incubator.channel.uring.IOUring");
+      return IOUring.isAvailable();
+    } catch (ClassNotFoundException x) {
+      return false;
+    }
   }
 
   private static boolean isEpoll(ClassLoader loader) {
@@ -83,6 +100,23 @@ public abstract class NettyTransport {
     @Override
     public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
       return super.configure(acceptor, eventloop).channel(NioServerSocketChannel.class);
+    }
+  }
+
+  private static class IOUringTransport extends NettyTransport {
+
+    @Override
+    public EventLoopGroup createEventLoop(int threads, String threadName, int ioRatio) {
+      IOUringEventLoopGroup loopGroup =
+          new IOUringEventLoopGroup(threads, new DefaultThreadFactory(threadName + "-io-uring"));
+      return loopGroup;
+    }
+
+    @Override
+    public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
+      return super.configure(acceptor, eventloop)
+          .channel(IOUringServerSocketChannel.class)
+          .option(EpollChannelOption.SO_REUSEPORT, true);
     }
   }
 

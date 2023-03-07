@@ -39,6 +39,7 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-transport-native-epoll</artifactId>
+      <version>${netty.version}</version>
       <optional>true</optional>
     </dependency>
 
@@ -46,6 +47,13 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-transport-native-kqueue</artifactId>
       <version>${netty.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.netty.incubator</groupId>
+      <artifactId>netty-incubator-transport-native-io_uring</artifactId>
+      <version>0.0.19.Final</version>
       <optional>true</optional>
     </dependency>
 
@@ -79,6 +87,13 @@
           <groupId>io.netty</groupId>
           <artifactId>netty-transport-native-epoll</artifactId>
           <version>${netty.version}</version>
+          <classifier>linux-x86_64</classifier>
+        </dependency>
+        <!-- IOUring -->
+        <dependency>
+          <groupId>io.netty.incubator</groupId>
+          <artifactId>netty-incubator-transport-native-io_uring</artifactId>
+          <version>0.0.19.Final</version>
           <classifier>linux-x86_64</classifier>
         </dependency>
       </dependencies>

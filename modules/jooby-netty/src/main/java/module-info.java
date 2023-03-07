@@ -22,6 +22,7 @@ module io.jooby.netty {
   requires io.netty.codec;
   requires static io.netty.transport.classes.epoll;
   requires static io.netty.transport.classes.kqueue;
+  requires static io.netty.incubator.transport.classes.io_uring;
 
   provides Server with
       NettyServer;
