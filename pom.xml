@@ -1528,7 +1528,7 @@
           <plugin>
             <groupId>com.rudikershaw.gitbuildhook</groupId>
             <artifactId>git-build-hook-maven-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.4.1</version>
             <configuration>
               <installHooks>
                 <pre-commit>${pre-commit-hook}</pre-commit>
