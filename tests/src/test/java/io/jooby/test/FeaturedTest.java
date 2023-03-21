@@ -171,10 +171,10 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.get("/", ctx -> "Hello World!");
+              app.get("/", ctx -> "Non-blocking:" + ctx.getRoute().isReactive());
               app.dispatch(
                   () -> {
-                    app.get("/worker", ctx -> "Hello World!");
+                    app.get("/worker", ctx -> "Non-blocking:" + ctx.getRoute().isReactive());
                   });
             })
         .ready(
@@ -182,17 +182,15 @@ public class FeaturedTest {
               client.get(
                   "/",
                   rsp -> {
-                    assertEquals("Hello World!", rsp.body().string());
+                    assertEquals("Non-blocking:true", rsp.body().string());
                     assertEquals(200, rsp.code());
-                    assertEquals(12, rsp.body().contentLength());
                   });
 
               client.get(
                   "/worker",
                   rsp -> {
-                    assertEquals("Hello World!", rsp.body().string());
+                    assertEquals("Non-blocking:false", rsp.body().string());
                     assertEquals(200, rsp.code());
-                    assertEquals(12, rsp.body().contentLength());
                   });
 
               client.get(
@@ -242,10 +240,10 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.get("/", ctx -> "Hello World!");
+              app.get("/", ctx -> "Non-blocking:" + ctx.getRoute().isReactive());
               app.dispatch(
                   () -> {
-                    app.get("/worker", ctx -> "Hello World!");
+                    app.get("/worker", ctx -> "Non-blocking:" + ctx.getRoute().isReactive());
                   });
             })
         .ready(
@@ -253,17 +251,15 @@ public class FeaturedTest {
               client.get(
                   "/?foo=bar",
                   rsp -> {
-                    assertEquals("Hello World!", rsp.body().string());
+                    assertEquals("Non-blocking:false", rsp.body().string());
                     assertEquals(200, rsp.code());
-                    assertEquals(12, rsp.body().contentLength());
                   });
 
               client.get(
                   "/worker",
                   rsp -> {
-                    assertEquals("Hello World!", rsp.body().string());
+                    assertEquals("Non-blocking:false", rsp.body().string());
                     assertEquals(200, rsp.code());
-                    assertEquals(12, rsp.body().contentLength());
                   });
 
               client.get(
@@ -3606,18 +3602,20 @@ public class FeaturedTest {
   }
 
   @ServerTest(executionMode = EVENT_LOOP)
-  @DisplayName("Context detaches when running in event-loop and returns a Context")
+  @DisplayName("Context detaches when running in event-loop")
   public void detachOnEventLoop(ServerTestRunner runner) {
     runner
         .define(
             app -> {
-              app.use(ReactiveSupport.concurrent());
               app.get(
                   "/detach",
                   ctx -> {
                     CompletableFuture.runAsync(
                         () -> {
-                          ctx.send(ctx.getRequestPath());
+                          ctx.send(
+                              ctx.getRequestPath()
+                                  + ". Non-blocking:"
+                                  + ctx.getRoute().isReactive());
                         });
                     return ctx;
                   });
@@ -3627,7 +3625,7 @@ public class FeaturedTest {
               client.get(
                   "/detach",
                   rsp -> {
-                    assertEquals("/detach", rsp.body().string().trim());
+                    assertEquals("/detach. Non-blocking:true", rsp.body().string().trim());
                   });
             });
   }

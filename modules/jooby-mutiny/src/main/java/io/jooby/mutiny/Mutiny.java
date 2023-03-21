@@ -60,8 +60,12 @@ public class Mutiny implements ResultHandler {
                         // send error:
                         ctx.sendError((Throwable) failure);
                       });
+              // Return context to mark as handled
+              return ctx;
             } else if (result instanceof Multi multi) {
               multi.subscribe(newSubscriber(ctx));
+              // Return context to mark as handled
+              return ctx;
             }
             return result;
           };

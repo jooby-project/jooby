@@ -26,4 +26,9 @@ public class SendDirect implements Route.Filter {
       }
     };
   }
+
+  @Override
+  public String toString() {
+    return "direct";
+  }
 }

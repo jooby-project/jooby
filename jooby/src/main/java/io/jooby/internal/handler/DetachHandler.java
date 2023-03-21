@@ -16,8 +16,24 @@ public class DetachHandler implements Route.Filter {
 
   @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
-    return ctx -> {
-      return ctx.detach(next);
-    };
+    return context ->
+        context.detach(
+            (ctx -> {
+              try {
+                Object value = next.apply(ctx);
+                if (value != ctx && !ctx.isResponseStarted()) {
+                  ctx.render(value);
+                }
+                return value;
+              } catch (Throwable cause) {
+                ctx.sendError(cause);
+                return cause;
+              }
+            }));
+  }
+
+  @Override
+  public String toString() {
+    return "detach";
   }
 }

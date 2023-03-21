@@ -23,8 +23,10 @@ public class ConcurrentHandler implements Route.Filter {
       Object result = next.apply(ctx);
       if (result instanceof Flow.Publisher publisher) {
         publisher.subscribe(newSubscriber(ctx));
+        // Return context to mark as handled
+        return ctx;
       } else if (result instanceof CompletionStage future) {
-        return future.whenComplete(
+        future.whenComplete(
             (value, x) -> {
               try {
                 Route.After after = ctx.getRoute().getAfter();
@@ -42,6 +44,8 @@ public class ConcurrentHandler implements Route.Filter {
                 ctx.sendError(cause);
               }
             });
+        // Return context to mark as handled
+        return ctx;
       }
       return result;
     };
@@ -58,5 +62,10 @@ public class ConcurrentHandler implements Route.Filter {
   @Override
   public void setRoute(Route route) {
     route.setReactive(true);
+  }
+
+  @Override
+  public String toString() {
+    return "concurrent";
   }
 }

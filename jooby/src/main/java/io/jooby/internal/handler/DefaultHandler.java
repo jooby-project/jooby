@@ -30,4 +30,9 @@ public class DefaultHandler implements Route.Filter {
       }
     };
   }
+
+  @Override
+  public String toString() {
+    return "default";
+  }
 }

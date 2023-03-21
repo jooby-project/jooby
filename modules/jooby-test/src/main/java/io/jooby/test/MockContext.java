@@ -535,7 +535,6 @@ public class MockContext implements DefaultContext {
    * @return Mock response.
    */
   @NonNull public MockResponse getResponse() {
-    responseStarted = true;
     response.setHeaders(responseHeaders);
     return response;
   }

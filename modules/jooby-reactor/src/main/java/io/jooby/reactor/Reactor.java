@@ -48,6 +48,8 @@ public class Reactor implements ResultHandler {
             Object result = next.apply(ctx);
             if (result instanceof Flux flux) {
               flux.subscribe(toSubscriber(newSubscriber(ctx)));
+              // Return context to mark as handled
+              return ctx;
             } else if (result instanceof Mono mono) {
               mono.subscribe(
                   value -> {
@@ -62,6 +64,8 @@ public class Reactor implements ResultHandler {
                     // send error:
                     ctx.sendError((Throwable) failure);
                   });
+              // Return context to mark as handled
+              return ctx;
             }
             return result;
           };

@@ -74,10 +74,14 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
         launch(handlerContext) {
           val result = handler(handlerContext)
           ctx.route.after?.apply(ctx, result, null)
-          if (result != ctx) {
+          if (result != ctx && !ctx.isResponseStarted) {
             ctx.render(result)
           }
+          // Return context to mark as handled
+          ctx
         }
+        // Return context to mark as handled
+        ctx
       }
       .setHandle(handler)
 

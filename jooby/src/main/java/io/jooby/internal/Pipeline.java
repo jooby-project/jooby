@@ -8,6 +8,7 @@ package io.jooby.internal;
 import static io.jooby.ReactiveSupport.concurrent;
 import static io.jooby.internal.handler.DefaultHandler.DEFAULT;
 import static io.jooby.internal.handler.DetachHandler.DETACH;
+import static io.jooby.internal.handler.SendDirect.DIRECT;
 import static io.jooby.internal.handler.WorkerHandler.WORKER;
 
 import java.lang.reflect.Type;
@@ -24,7 +25,6 @@ import io.jooby.Route;
 import io.jooby.Route.Handler;
 import io.jooby.internal.handler.DispatchHandler;
 import io.jooby.internal.handler.PostDispatchInitializerHandler;
-import io.jooby.internal.handler.SendDirect;
 
 public class Pipeline {
 
@@ -35,6 +35,7 @@ public class Pipeline {
       ContextInitializer initializer,
       Set<ResultHandler> responseHandler) {
     // Set default wrapper and blocking mode
+    route.setReactive(route.isReactive() || isDefaultReactive(executor, mode));
     Route.Filter wrapper = route.isReactive() ? DETACH : DEFAULT;
 
     /** Return type is set by annotation processor, or manually per lambda route: */
@@ -43,11 +44,10 @@ public class Pipeline {
       Class<?> type = Reified.rawType(returnType);
       /** Context: */
       if (Context.class.isAssignableFrom(type)) {
-        if (executor == null && mode == ExecutionMode.EVENT_LOOP) {
-          route.setReactive(true);
+        if (route.isReactive()) {
           wrapper = DETACH;
         } else {
-          wrapper = SendDirect.DIRECT;
+          wrapper = DIRECT;
         }
       } else if (CompletionStage.class.isAssignableFrom(type)
           || Flow.Publisher.class.isAssignableFrom(type)) {
@@ -84,6 +84,10 @@ public class Pipeline {
     }
     return dispatchHandler(
         mode, executor, decorate(initializer, wrapper.then(pipeline)), route.isReactive());
+  }
+
+  private static boolean isDefaultReactive(Executor executor, ExecutionMode mode) {
+    return executor == null && mode == ExecutionMode.EVENT_LOOP;
   }
 
   private static Handler decorate(ContextInitializer initializer, Handler handler) {

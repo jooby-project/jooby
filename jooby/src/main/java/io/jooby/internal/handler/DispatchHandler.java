@@ -30,4 +30,9 @@ public class DispatchHandler implements Route.Filter {
               }
             });
   }
+
+  @Override
+  public String toString() {
+    return "dispatch";
+  }
 }

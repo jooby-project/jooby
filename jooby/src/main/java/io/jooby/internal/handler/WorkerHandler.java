@@ -25,4 +25,9 @@ public class WorkerHandler implements Route.Filter {
               }
             });
   }
+
+  @Override
+  public String toString() {
+    return "worker";
+  }
 }

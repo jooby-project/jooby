@@ -36,12 +36,20 @@ public class Reactivex implements ResultHandler {
             Object result = next.apply(ctx);
             if (result instanceof Flowable flow) {
               flow.subscribe(toSubscriber(newSubscriber(ctx)));
+              // Return context to mark as handled
+              return ctx;
             } else if (result instanceof Single single) {
               single.subscribe(new RxSubscriber(ctx));
+              // Return context to mark as handled
+              return ctx;
             } else if (result instanceof Observable observable) {
               observable.subscribe(new RxObserver(newSubscriber(ctx)));
+              // Return context to mark as handled
+              return ctx;
             } else if (result instanceof Maybe maybe) {
               maybe.subscribe(new RxSubscriber(ctx));
+              // Return context to mark as handled
+              return ctx;
             }
             return result;
           };
