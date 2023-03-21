@@ -57,7 +57,7 @@ public class Reactivex implements ResultHandler {
 
         @Override
         public void setRoute(Route route) {
-          route.setReactive(true);
+          route.setNonBlocking(true);
         }
       };
 

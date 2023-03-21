@@ -61,7 +61,7 @@ public class ConcurrentHandler implements Route.Filter {
 
   @Override
   public void setRoute(Route route) {
-    route.setReactive(true);
+    route.setNonBlocking(true);
   }
 
   @Override

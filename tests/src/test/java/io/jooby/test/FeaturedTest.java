@@ -171,10 +171,10 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.get("/", ctx -> "Non-blocking:" + ctx.getRoute().isReactive());
+              app.get("/", ctx -> "Non-blocking:" + ctx.getRoute().isNonBlocking());
               app.dispatch(
                   () -> {
-                    app.get("/worker", ctx -> "Non-blocking:" + ctx.getRoute().isReactive());
+                    app.get("/worker", ctx -> "Non-blocking:" + ctx.getRoute().isNonBlocking());
                   });
             })
         .ready(
@@ -240,10 +240,10 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.get("/", ctx -> "Non-blocking:" + ctx.getRoute().isReactive());
+              app.get("/", ctx -> "Non-blocking:" + ctx.getRoute().isNonBlocking());
               app.dispatch(
                   () -> {
-                    app.get("/worker", ctx -> "Non-blocking:" + ctx.getRoute().isReactive());
+                    app.get("/worker", ctx -> "Non-blocking:" + ctx.getRoute().isNonBlocking());
                   });
             })
         .ready(
@@ -3615,7 +3615,7 @@ public class FeaturedTest {
                           ctx.send(
                               ctx.getRequestPath()
                                   + ". Non-blocking:"
-                                  + ctx.getRoute().isReactive());
+                                  + ctx.getRoute().isNonBlocking());
                         });
                     return ctx;
                   });

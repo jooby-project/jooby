@@ -409,7 +409,7 @@ public class Route {
 
   private String description;
 
-  private boolean reactive;
+  private Boolean nonBlocking;
 
   /**
    * Creates a new route.
@@ -599,12 +599,39 @@ public class Route {
     return this;
   }
 
-  public boolean isReactive() {
-    return reactive;
+  /**
+   * Truth when route is non-blocking. False otherwise. Blocking code isn't allowed for non-blocking
+   * routes.
+   *
+   * <p>Default is <code>blocking</code> or <code>non-blocking=false</code>. Except when you startup
+   * your application using {@link ExecutionMode#EVENT_LOOP}.
+   *
+   * @return Truth when route is non-blocking. False otherwise or <code>null</code> otherwise.
+   */
+  @NonNull public boolean isNonBlocking() {
+    return nonBlocking == Boolean.TRUE;
   }
 
-  public @NonNull Route setReactive(boolean reactive) {
-    this.reactive = reactive;
+  /**
+   * Test if the {@link #isNonBlocking()} flag was set or not. Internal use only.
+   *
+   * @return Test if the {@link #isNonBlocking()} flag was set or not. Internal use only.
+   */
+  public boolean isNonBlockingSet() {
+    return nonBlocking != null;
+  }
+
+  /**
+   * Set when the route is blocking or non-blocking.
+   *
+   * <p>Default is <code>blocking</code> or <code>non-blocking=false</code>. Except when you startup
+   * your application using {@link ExecutionMode#EVENT_LOOP}.
+   *
+   * @param nonBlocking True for non-blocking routes.
+   * @return
+   */
+  public @NonNull Route setNonBlocking(boolean nonBlocking) {
+    this.nonBlocking = nonBlocking;
     return this;
   }
 

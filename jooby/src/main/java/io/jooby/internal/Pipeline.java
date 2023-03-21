@@ -35,8 +35,10 @@ public class Pipeline {
       ContextInitializer initializer,
       Set<ResultHandler> responseHandler) {
     // Set default wrapper and blocking mode
-    route.setReactive(route.isReactive() || isDefaultReactive(executor, mode));
-    Route.Filter wrapper = route.isReactive() ? DETACH : DEFAULT;
+    if (!route.isNonBlockingSet()) {
+      route.setNonBlocking(isDefaultNonblocking(executor, mode));
+    }
+    Route.Filter wrapper = route.isNonBlocking() ? DETACH : DEFAULT;
 
     /** Return type is set by annotation processor, or manually per lambda route: */
     Type returnType = route.getReturnType();
@@ -44,7 +46,7 @@ public class Pipeline {
       Class<?> type = Reified.rawType(returnType);
       /** Context: */
       if (Context.class.isAssignableFrom(type)) {
-        if (route.isReactive()) {
+        if (route.isNonBlocking()) {
           wrapper = DETACH;
         } else {
           wrapper = DIRECT;
@@ -74,19 +76,19 @@ public class Pipeline {
         }
       }
     }
-    // Reactive? Split pipeline Head+Handler let reactive call After pipeline
+    // Non-Blocking? Split pipeline Head+Handler let reactive call After pipeline
     Handler pipeline;
-    if (route.isReactive()) {
+    if (route.isNonBlocking()) {
       Route.Filter pre = route.getFilter();
       pipeline = pre == null ? route.getHandler() : pre.then(route.getHandler());
     } else {
       pipeline = route.getPipeline();
     }
     return dispatchHandler(
-        mode, executor, decorate(initializer, wrapper.then(pipeline)), route.isReactive());
+        mode, executor, decorate(initializer, wrapper.then(pipeline)), route.isNonBlocking());
   }
 
-  private static boolean isDefaultReactive(Executor executor, ExecutionMode mode) {
+  private static boolean isDefaultNonblocking(Executor executor, ExecutionMode mode) {
     return executor == null && mode == ExecutionMode.EVENT_LOOP;
   }
 

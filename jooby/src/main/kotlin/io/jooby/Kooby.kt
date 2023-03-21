@@ -241,7 +241,7 @@ open class Kooby constructor() : Jooby() {
         as CoroutineRouter
     router.block()
     routes.subList(from, routes.size).forEach {
-      it.setReactive(true)
+      it.setNonBlocking(true)
       it.attribute("coroutine", true)
     }
     return router
