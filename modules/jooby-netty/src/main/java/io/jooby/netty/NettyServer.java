@@ -199,19 +199,24 @@ public class NettyServer extends Server.Base {
   @NonNull @Override
   public synchronized Server stop() {
     fireStop(applications);
-    if (acceptorloop != null) {
-      acceptorloop.shutdownGracefully();
-      acceptorloop = null;
-    }
-    if (eventloop != null) {
-      eventloop.shutdownGracefully();
-      eventloop = null;
-    }
+
+    shutdown(acceptorloop);
+    shutdown(eventloop);
     if (worker != null) {
       worker.shutdown();
       worker = null;
     }
     return this;
+  }
+
+  private void shutdown(EventLoopGroup loopGroup) {
+    try {
+      if (loopGroup != null) {
+        acceptorloop.shutdownGracefully().sync();
+      }
+    } catch (InterruptedException iex) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   private SslContext wrap(

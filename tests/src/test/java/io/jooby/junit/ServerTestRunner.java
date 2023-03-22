@@ -62,7 +62,7 @@ public class ServerTestRunner {
   public void ready(SneakyThrows.Consumer2<WebClient, WebClient> onReady) {
     Server server = this.server.get();
     try {
-      System.setProperty("___app_name__", testName);
+      System.setProperty("___app_name__", testName + "(" + server.getName() + ")");
       System.setProperty("___server_name__", server.getName());
       Jooby app = provider.get();
       Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);

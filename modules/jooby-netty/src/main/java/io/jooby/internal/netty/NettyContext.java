@@ -694,7 +694,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
 
-      if (isSecure() || isGzip()) {
+      if (preferChunked()) {
         prepareChunked();
 
         HttpChunkedInput chunkedInput =
@@ -731,6 +731,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       requestComplete();
     }
     return this;
+  }
+
+  private boolean preferChunked() {
+    // IOUring doesn't like File region
+    return isSecure()
+        || isGzip()
+        || ctx.pipeline().channel().getClass().getName().startsWith("IOUring");
   }
 
   @Override
