@@ -89,13 +89,6 @@
           <version>${netty.version}</version>
           <classifier>linux-x86_64</classifier>
         </dependency>
-        <!-- IOUring -->
-        <dependency>
-          <groupId>io.netty.incubator</groupId>
-          <artifactId>netty-incubator-transport-native-io_uring</artifactId>
-          <version>0.0.19.Final</version>
-          <classifier>linux-x86_64</classifier>
-        </dependency>
       </dependencies>
     </profile>
     <profile>
