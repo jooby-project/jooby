@@ -34,7 +34,10 @@ public class Reactivex implements ResultHandler {
         public Route.Handler apply(@NonNull Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);
-            if (result instanceof Flowable flow) {
+            if (ctx.isResponseStarted()) {
+              // Return context to mark as handled
+              return ctx;
+            } else if (result instanceof Flowable flow) {
               flow.subscribe(toSubscriber(newSubscriber(ctx)));
               // Return context to mark as handled
               return ctx;

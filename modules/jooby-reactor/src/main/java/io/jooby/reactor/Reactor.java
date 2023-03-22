@@ -46,7 +46,10 @@ public class Reactor implements ResultHandler {
         public Route.Handler apply(@NonNull Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);
-            if (result instanceof Flux flux) {
+            if (ctx.isResponseStarted()) {
+              // Return context to mark as handled
+              return ctx;
+            } else if (result instanceof Flux flux) {
               flux.subscribe(toSubscriber(newSubscriber(ctx)));
               // Return context to mark as handled
               return ctx;

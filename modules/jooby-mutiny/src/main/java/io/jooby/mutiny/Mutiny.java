@@ -45,7 +45,10 @@ public class Mutiny implements ResultHandler {
         public Route.Handler apply(@NonNull Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);
-            if (result instanceof Uni uni) {
+            if (ctx.isResponseStarted()) {
+              // Return context to mark as handled
+              return ctx;
+            } else if (result instanceof Uni uni) {
               uni.subscribe()
                   .with(
                       value -> {

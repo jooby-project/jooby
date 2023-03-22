@@ -128,12 +128,7 @@ public class NettyServer extends Server.Base {
       boolean http2 = options.isHttp2() == Boolean.TRUE;
       /** Bootstrap: */
       if (!options.isHttpsOnly()) {
-        ServerBootstrap http =
-            transport
-                .configure(acceptorloop, eventloop)
-                .childHandler(newPipeline(factory, null, http2))
-                .childOption(ChannelOption.SO_REUSEADDR, true)
-                .childOption(ChannelOption.TCP_NODELAY, true);
+        ServerBootstrap http = newBootstrap(transport, newPipeline(factory, null, http2));
         http.bind(options.getHost(), options.getPort()).get();
       }
 
@@ -145,17 +140,8 @@ public class NettyServer extends Server.Base {
         String[] protocol = sslOptions.getProtocol().stream().toArray(String[]::new);
 
         SslOptions.ClientAuth clientAuth = sslOptions.getClientAuth();
-        ServerBootstrap https =
-            transport
-                .configure(acceptorloop, eventloop)
-                .childHandler(
-                    newPipeline(
-                        factory,
-                        wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2),
-                        http2))
-                .childOption(ChannelOption.SO_REUSEADDR, true)
-                .childOption(ChannelOption.TCP_NODELAY, true);
-
+        SslContext sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
+        ServerBootstrap https = newBootstrap(transport, newPipeline(factory, sslContext, http2));
         https.bind(options.getHost(), options.getSecurePort()).get();
       } else if (options.isHttpsOnly()) {
         throw new IllegalArgumentException(
@@ -173,6 +159,16 @@ public class NettyServer extends Server.Base {
       throw SneakyThrows.propagate(cause);
     }
     return this;
+  }
+
+  private ServerBootstrap newBootstrap(NettyTransport transport, NettyPipeline factory) {
+    ServerBootstrap http =
+        transport
+            .configure(acceptorloop, eventloop)
+            .childHandler(factory)
+            .childOption(ChannelOption.SO_REUSEADDR, true)
+            .childOption(ChannelOption.TCP_NODELAY, true);
+    return http;
   }
 
   private ClientAuth toClientAuth(SslOptions.ClientAuth clientAuth) {

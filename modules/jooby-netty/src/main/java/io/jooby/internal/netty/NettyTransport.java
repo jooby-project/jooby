@@ -18,6 +18,7 @@ import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.incubator.channel.uring.IOUring;
+import io.netty.incubator.channel.uring.IOUringChannelOption;
 import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
 import io.netty.incubator.channel.uring.IOUringServerSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -116,7 +117,7 @@ public abstract class NettyTransport {
     public ServerBootstrap configure(EventLoopGroup acceptor, EventLoopGroup eventloop) {
       return super.configure(acceptor, eventloop)
           .channel(IOUringServerSocketChannel.class)
-          .option(EpollChannelOption.SO_REUSEPORT, true);
+          .option(IOUringChannelOption.SO_REUSEPORT, true);
     }
   }
 

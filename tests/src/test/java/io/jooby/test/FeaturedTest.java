@@ -1340,7 +1340,7 @@ public class FeaturedTest {
   }
 
   @ServerTest
-  public void rx2(ServerTestRunner runner) {
+  public void rx3(ServerTestRunner runner) {
     runner
         .define(
             app -> {

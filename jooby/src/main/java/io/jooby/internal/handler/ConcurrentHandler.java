@@ -21,7 +21,10 @@ public class ConcurrentHandler implements Route.Filter {
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       Object result = next.apply(ctx);
-      if (result instanceof Flow.Publisher publisher) {
+      if (ctx.isResponseStarted()) {
+        // Return context to mark as handled
+        return ctx;
+      } else if (result instanceof Flow.Publisher publisher) {
         publisher.subscribe(newSubscriber(ctx));
         // Return context to mark as handled
         return ctx;

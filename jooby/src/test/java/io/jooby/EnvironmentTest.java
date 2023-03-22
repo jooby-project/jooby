@@ -102,7 +102,6 @@ public class EnvironmentTest {
         Environment.loadEnvironment(
             new EnvironmentOptions().setBasedir(basedir).setActiveNames("prod"));
     assertEquals("bazz", env.getConfig().getString("foo"));
-    System.out.println(env.toString());
     assertEnvMatches(
         env,
         "[prod]"::equals,

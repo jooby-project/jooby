@@ -79,14 +79,24 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
       p.addLast(H2_HANDSHAKE, handshake);
 
-      if (compressionLevel != null) {
-        p.addLast("compressor", new HttpChunkContentCompressor(compressionLevel));
-        p.addLast("ws-compressor", new NettyWebSocketCompressor(compressionLevel));
-      }
-      if (is100ContinueExpected) {
-        p.addLast("expect-continue", new HttpServerExpectContinueHandler());
-      }
+      setupCompression(p);
+
+      setupExpectContinue(p);
+
       p.addLast("handler", createHandler());
+    }
+  }
+
+  private void setupExpectContinue(ChannelPipeline p) {
+    if (is100ContinueExpected) {
+      p.addLast("expect-continue", new HttpServerExpectContinueHandler());
+    }
+  }
+
+  private void setupCompression(ChannelPipeline p) {
+    if (compressionLevel != null) {
+      p.addLast("compressor", new HttpChunkContentCompressor(compressionLevel));
+      p.addLast("ws-compressor", new NettyWebSocketCompressor(compressionLevel));
     }
   }
 
@@ -115,13 +125,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private void http11(ChannelPipeline p) {
     HttpServerCodec codec = createServerCodec();
     p.addLast("codec", codec);
-    if (compressionLevel != null) {
-      p.addLast("compressor", new HttpChunkContentCompressor(compressionLevel));
-      p.addLast("ws-compressor", new NettyWebSocketCompressor(compressionLevel));
-    }
-    if (is100ContinueExpected) {
-      p.addLast("expect-continue", new HttpServerExpectContinueHandler());
-    }
+    setupCompression(p);
+    setupExpectContinue(p);
     p.addLast("handler", createHandler());
   }
 
