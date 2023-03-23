@@ -20,6 +20,7 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 /**
  * Rx reactive filter.
@@ -51,6 +52,9 @@ public class Reactivex implements ResultHandler {
               return ctx;
             } else if (result instanceof Maybe maybe) {
               maybe.subscribe(new RxSubscriber(ctx));
+              // Return context to mark as handled
+              return ctx;
+            } else if (result instanceof Disposable) {
               // Return context to mark as handled
               return ctx;
             }
