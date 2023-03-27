@@ -138,7 +138,7 @@
     <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
-    <maven-plugin-annotations.version>3.7.1</maven-plugin-annotations.version>
+    <maven-plugin-annotations.version>3.8.1</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.9.1</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.7.0</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
