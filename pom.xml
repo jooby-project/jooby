@@ -156,6 +156,7 @@
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
     <node.version>v18.13.0</node.version>
+    <moditec.version>1.0.0.RC2</moditec.version>
 
     <!-- Jooby  -->
     <jooby.version>${project.version}</jooby.version>
@@ -1412,7 +1413,7 @@
         <plugin>
           <groupId>org.moditect</groupId>
           <artifactId>moditect-maven-plugin</artifactId>
-          <version>1.0.0.RC2</version>
+          <version>${moditec.version}</version>
         </plugin>
 
         <!-- assembly -->
@@ -1698,6 +1699,7 @@
           <plugin>
             <groupId>org.moditect</groupId>
             <artifactId>moditect-maven-plugin</artifactId>
+            <version>${moditec.version}</version>
             <executions>
               <execution>
                 <id>add-module-infos</id>
