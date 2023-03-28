@@ -1,7 +1,7 @@
 // First, apply the publishing plugin
 plugins {
   id "maven-publish"
-  id "com.gradle.plugin-publish" version "0.15.0"
+  id "com.gradle.plugin-publish" version "0.21.0"
   id "java-gradle-plugin"
 }
 
