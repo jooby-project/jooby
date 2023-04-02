@@ -35,7 +35,7 @@
     <HikariCP.version>5.0.1</HikariCP.version>
     <mysql-connector-j.version>8.0.32</mysql-connector-j.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.1.7.Final</hibernate.version>
+    <hibernate.version>6.2.0.Final</hibernate.version>
     <ebean.version>13.15.0-jakarta</ebean.version>
     <jdbi.version>3.37.1</jdbi.version>
     <flyway.version>9.16.0</flyway.version>
@@ -71,8 +71,8 @@
     <asm.version>9.4</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.4.Final</undertow.version>
-    <jetty.version>11.0.13</jetty.version>
+    <undertow.version>2.3.5.Final</undertow.version>
+    <jetty.version>11.0.14</jetty.version>
     <netty.version>4.1.90.Final</netty.version>
 
     <!--OpenAPI-->
