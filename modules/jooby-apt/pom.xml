@@ -201,7 +201,7 @@
       <plugin>
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
-        <version>1.0.0.RC2</version>
+        <version>${moditec.version}</version>
         <executions>
           <execution>
             <id>generate-module-info</id>
@@ -210,6 +210,8 @@
               <goal>add-module-info</goal>
             </goals>
             <configuration>
+              <overwriteExistingFiles>true</overwriteExistingFiles>
+              <failOnWarning>false</failOnWarning>
               <module>
                 <moduleInfo>
                   <name>io.jooby.apt</name>

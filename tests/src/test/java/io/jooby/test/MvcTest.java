@@ -6,13 +6,12 @@
 package io.jooby.test;
 
 import static io.jooby.MediaType.xml;
-import static okhttp3.RequestBody.create;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
+
+import org.junit.jupiter.api.Assertions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import examples.InstanceRouter;
@@ -36,6 +35,7 @@ import io.jooby.junit.ServerTestRunner;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 public class MvcTest {
 
@@ -51,33 +51,33 @@ public class MvcTest {
               client.get(
                   "/",
                   rsp -> {
-                    assertEquals("Got it!", rsp.body().string());
+                    Assertions.assertEquals("some", rsp.body().string());
                   });
 
               client.post(
                   "/",
                   rsp -> {
-                    assertEquals("Got it!", rsp.body().string());
+                    Assertions.assertEquals("some", rsp.body().string());
                   });
 
               client.get(
                   "/subpath",
                   rsp -> {
-                    assertEquals("OK", rsp.body().string());
+                    Assertions.assertEquals("OK", rsp.body().string());
                   });
 
               client.delete(
                   "/void",
                   rsp -> {
-                    assertEquals("", rsp.body().string());
-                    assertEquals(204, rsp.code());
+                    Assertions.assertEquals("", rsp.body().string());
+                    Assertions.assertEquals(204, rsp.code());
                   });
 
               client.get(
                   "/voidwriter",
                   rsp -> {
-                    assertEquals("writer", rsp.body().string().trim());
-                    assertEquals(200, rsp.code());
+                    Assertions.assertEquals("writer", rsp.body().string().trim());
+                    Assertions.assertEquals(200, rsp.code());
                   });
             });
   }
@@ -96,32 +96,32 @@ public class MvcTest {
               client.get(
                   "/sub",
                   rsp -> {
-                    assertEquals("Got it!", rsp.body().string());
+                    Assertions.assertEquals("some", rsp.body().string());
                   });
               client.post(
                   "/sub",
                   rsp -> {
-                    assertEquals("Got it!", rsp.body().string());
+                    Assertions.assertEquals("some", rsp.body().string());
                   });
 
               client.get(
                   "/sub/subpath",
                   rsp -> {
-                    assertEquals("OK", rsp.body().string());
+                    Assertions.assertEquals("OK", rsp.body().string());
                   });
 
               client.delete(
                   "/sub/void",
                   rsp -> {
-                    assertEquals("", rsp.body().string());
-                    assertEquals(204, rsp.code());
+                    Assertions.assertEquals("", rsp.body().string());
+                    Assertions.assertEquals(204, rsp.code());
                   });
 
               client.get(
                   "/sub/voidwriter",
                   rsp -> {
-                    assertEquals("writer", rsp.body().string().trim());
-                    assertEquals(200, rsp.code());
+                    Assertions.assertEquals("writer", rsp.body().string().trim());
+                    Assertions.assertEquals(200, rsp.code());
                   });
             });
   }
@@ -169,48 +169,48 @@ public class MvcTest {
               client.get(
                   "/produces",
                   rsp -> {
-                    assertEquals("{MVC}", rsp.body().string());
+                    Assertions.assertEquals("{MVC}", rsp.body().string());
                   });
 
               client.header("Accept", "application/xml");
               client.get(
                   "/produces",
                   rsp -> {
-                    assertEquals("<MVC>", rsp.body().string());
+                    Assertions.assertEquals("<MVC>", rsp.body().string());
                   });
 
               client.header("Accept", "text/html");
               client.get(
                   "/produces",
                   rsp -> {
-                    assertEquals(406, rsp.code());
+                    Assertions.assertEquals(406, rsp.code());
                   });
 
               client.header("Content-Type", "application/json");
               client.get(
                   "/consumes",
                   rsp -> {
-                    assertEquals("{}", rsp.body().string());
+                    Assertions.assertEquals("{}", rsp.body().string());
                   });
 
               client.header("Content-Type", "application/xml");
               client.get(
                   "/consumes",
                   rsp -> {
-                    assertEquals("<>", rsp.body().string());
+                    Assertions.assertEquals("<>", rsp.body().string());
                   });
 
               client.header("Content-Type", "text/plain");
               client.get(
                   "/consumes",
                   rsp -> {
-                    assertEquals(415, rsp.code());
+                    Assertions.assertEquals(415, rsp.code());
                   });
 
               client.get(
                   "/consumes",
                   rsp -> {
-                    assertEquals(415, rsp.code());
+                    Assertions.assertEquals(415, rsp.code());
                   });
             });
   }
@@ -227,7 +227,7 @@ public class MvcTest {
               client.get(
                   "/jaxrs",
                   rsp -> {
-                    assertEquals("Got it!", rsp.body().string());
+                    Assertions.assertEquals("Got it!", rsp.body().string());
                   });
             });
   }
@@ -244,13 +244,13 @@ public class MvcTest {
               client.get(
                   "/",
                   rsp -> {
-                    assertEquals("root", rsp.body().string());
+                    Assertions.assertEquals("root", rsp.body().string());
                   });
 
               client.get(
                   "/subpath",
                   rsp -> {
-                    assertEquals("subpath", rsp.body().string());
+                    Assertions.assertEquals("subpath", rsp.body().string());
                   });
             });
   }
@@ -267,7 +267,7 @@ public class MvcTest {
               client.get(
                   "/args/ctx",
                   rsp -> {
-                    assertEquals("/args/ctx", rsp.body().string());
+                    Assertions.assertEquals("/args/ctx", rsp.body().string());
                   });
 
               client
@@ -275,117 +275,117 @@ public class MvcTest {
                   .get(
                       "/args/flash",
                       rsp -> {
-                        assertEquals("{success=OK}OK", rsp.body().string());
+                        Assertions.assertEquals("{success=OK}OK", rsp.body().string());
                       });
 
               client.get(
                   "/args/sendStatusCode",
                   rsp -> {
-                    assertEquals("", rsp.body().string());
-                    assertEquals(201, rsp.code());
+                    Assertions.assertEquals("", rsp.body().string());
+                    Assertions.assertEquals(201, rsp.code());
                   });
 
               client.get(
                   "/args/file/foo.txt",
                   rsp -> {
-                    assertEquals("foo.txt", rsp.body().string());
+                    Assertions.assertEquals("foo.txt", rsp.body().string());
                   });
 
               client.get(
                   "/args/int/678",
                   rsp -> {
-                    assertEquals("678", rsp.body().string());
+                    Assertions.assertEquals("678", rsp.body().string());
                   });
 
               client.get(
                   "/args/foo/678/9/3.14/6.66/true",
                   rsp -> {
-                    assertEquals("GET/foo/678/9/3.14/6.66/true", rsp.body().string());
+                    Assertions.assertEquals("GET/foo/678/9/3.14/6.66/true", rsp.body().string());
                   });
 
               client.get(
                   "/args/long/678",
                   rsp -> {
-                    assertEquals("678", rsp.body().string());
+                    Assertions.assertEquals("678", rsp.body().string());
                   });
 
               client.get(
                   "/args/float/67.8",
                   rsp -> {
-                    assertEquals("67.8", rsp.body().string());
+                    Assertions.assertEquals("67.8", rsp.body().string());
                   });
 
               client.get(
                   "/args/double/67.8",
                   rsp -> {
-                    assertEquals("67.8", rsp.body().string());
+                    Assertions.assertEquals("67.8", rsp.body().string());
                   });
 
               client.get(
                   "/args/bool/false",
                   rsp -> {
-                    assertEquals("false", rsp.body().string());
+                    Assertions.assertEquals("false", rsp.body().string());
                   });
               client.get(
                   "/args/str/*",
                   rsp -> {
-                    assertEquals("*", rsp.body().string());
+                    Assertions.assertEquals("*", rsp.body().string());
                   });
               client.get(
                   "/args/list/*",
                   rsp -> {
-                    assertEquals("[*]", rsp.body().string());
+                    Assertions.assertEquals("[*]", rsp.body().string());
                   });
               client.get(
                   "/args/custom/3.14",
                   rsp -> {
-                    assertEquals("3.14", rsp.body().string());
+                    Assertions.assertEquals("3.14", rsp.body().string());
                   });
 
               client.get(
                   "/args/search?q=*",
                   rsp -> {
-                    assertEquals("*", rsp.body().string());
+                    Assertions.assertEquals("*", rsp.body().string());
                   });
 
               client.get(
                   "/args/querystring?q=*",
                   rsp -> {
-                    assertEquals("{q=*}", rsp.body().string());
+                    Assertions.assertEquals("{q=*}", rsp.body().string());
                   });
 
               client.get(
                   "/args/search-opt",
                   rsp -> {
-                    assertEquals("Optional.empty", rsp.body().string());
+                    Assertions.assertEquals("Optional.empty", rsp.body().string());
                   });
 
               client.header("foo", "bar");
               client.get(
                   "/args/header",
                   rsp -> {
-                    assertEquals("bar", rsp.body().string());
+                    Assertions.assertEquals("bar", rsp.body().string());
                   });
 
               client.post(
                   "/args/form",
                   new FormBody.Builder().add("foo", "ab").build(),
                   rsp -> {
-                    assertEquals("ab", rsp.body().string());
+                    Assertions.assertEquals("ab", rsp.body().string());
                   });
 
               client.post(
                   "/args/formdata",
                   new FormBody.Builder().add("foo", "ab").build(),
                   rsp -> {
-                    assertEquals("{foo=ab}", rsp.body().string());
+                    Assertions.assertEquals("{foo=ab}", rsp.body().string());
                   });
 
               client.post(
                   "/args/multipart",
                   new FormBody.Builder().add("foo", "ab").build(),
                   rsp -> {
-                    assertEquals("{foo=ab}", rsp.body().string());
+                    Assertions.assertEquals("{foo=ab}", rsp.body().string());
                   });
 
               client.post(
@@ -395,7 +395,7 @@ public class MvcTest {
                       .addFormDataPart("foo", "...")
                       .build(),
                   rsp -> {
-                    assertEquals("{foo=...}", rsp.body().string());
+                    Assertions.assertEquals("{foo=...}", rsp.body().string());
                   });
 
               client.post(
@@ -405,14 +405,14 @@ public class MvcTest {
                       .addFormDataPart("foo", "...")
                       .build(),
                   rsp -> {
-                    assertEquals("...", rsp.body().string());
+                    Assertions.assertEquals("...", rsp.body().string());
                   });
 
               client.header("Cookie", "foo=bar");
               client.get(
                   "/args/cookie",
                   rsp -> {
-                    assertEquals("bar", rsp.body().string());
+                    Assertions.assertEquals("bar", rsp.body().string());
                   });
             });
   }
@@ -435,18 +435,18 @@ public class MvcTest {
               client.get(
                   "/nonnull",
                   rsp -> {
-                    assertEquals("Missing value: 'v'", rsp.body().string());
+                    Assertions.assertEquals("Missing value: 'v'", rsp.body().string());
                   });
               client.get(
                   "/nullok",
                   rsp -> {
-                    assertEquals("null", rsp.body().string());
+                    Assertions.assertEquals("null", rsp.body().string());
                   });
 
               client.get(
                   "/nullbean",
                   rsp -> {
-                    assertEquals(
+                    Assertions.assertEquals(
                         "Unable to provision parameter: 'foo: int', require by: constructor"
                             + " examples.NullInjection.QParam(int, java.lang.Integer)",
                         rsp.body().string());
@@ -455,7 +455,7 @@ public class MvcTest {
               client.get(
                   "/nullbean?foo=foo",
                   rsp -> {
-                    assertEquals(
+                    Assertions.assertEquals(
                         "Unable to provision parameter: 'foo: int', require by: constructor"
                             + " examples.NullInjection.QParam(int, java.lang.Integer)",
                         rsp.body().string());
@@ -464,7 +464,7 @@ public class MvcTest {
               client.get(
                   "/nullbean?foo=0&baz=baz",
                   rsp -> {
-                    assertEquals(
+                    Assertions.assertEquals(
                         "Unable to provision parameter: 'baz: int', require by: method"
                             + " examples.NullInjection.QParam.setBaz(int)",
                         rsp.body().string());
@@ -498,45 +498,46 @@ public class MvcTest {
               client.header("Content-Type", "application/json");
               client.post(
                   "/body/json",
-                  create("{\"foo\": \"bar\"}", MediaType.get("application/json")),
+                  RequestBody.create("{\"foo\": \"bar\"}", MediaType.get("application/json")),
                   rsp -> {
-                    assertEquals("{foo=bar}null", rsp.body().string());
+                    Assertions.assertEquals("{foo=bar}null", rsp.body().string());
                   });
 
               client.header("Content-Type", "text/plain");
               client.post(
                   "/body/str",
-                  create("...", MediaType.get("text/plain")),
+                  RequestBody.create("...", MediaType.get("text/plain")),
                   rsp -> {
-                    assertEquals("...", rsp.body().string());
+                    Assertions.assertEquals("...", rsp.body().string());
                   });
               client.header("Content-Type", "text/plain");
               client.post(
                   "/body/int",
-                  create("8", MediaType.get("text/plain")),
+                  RequestBody.create("8", MediaType.get("text/plain")),
                   rsp -> {
-                    assertEquals("8", rsp.body().string());
+                    Assertions.assertEquals("8", rsp.body().string());
                   });
               client.post(
                   "/body/int",
-                  create("8x", MediaType.get("text/plain")),
+                  RequestBody.create("8x", MediaType.get("text/plain")),
                   rsp -> {
-                    assertEquals("Cannot convert value: 'body', to: 'int'", rsp.body().string());
+                    Assertions.assertEquals(
+                        "Cannot convert value: 'body', to: 'int'", rsp.body().string());
                   });
               client.header("Content-Type", "application/json");
               client.post(
                   "/body/json",
-                  create("{\"foo\"= \"bar\"}", MediaType.get("application/json")),
+                  RequestBody.create("{\"foo\"= \"bar\"}", MediaType.get("application/json")),
                   rsp -> {
-                    assertEquals(400, rsp.code());
+                    Assertions.assertEquals(400, rsp.code());
                   });
 
               client.header("Content-Type", "application/json");
               client.post(
                   "/body/json?type=x",
-                  create("{\"foo\": \"bar\"}", MediaType.get("application/json")),
+                  RequestBody.create("{\"foo\": \"bar\"}", MediaType.get("application/json")),
                   rsp -> {
-                    assertEquals("{foo=bar}x", rsp.body().string());
+                    Assertions.assertEquals("{foo=bar}x", rsp.body().string());
                   });
             });
   }
@@ -554,7 +555,7 @@ public class MvcTest {
               client.get(
                   "/myvalue?string=query",
                   rsp -> {
-                    assertEquals("query", rsp.body().string());
+                    Assertions.assertEquals("query", rsp.body().string());
                   });
             });
   }
@@ -575,13 +576,13 @@ public class MvcTest {
                   "/",
                   rsp -> {
                     String body = rsp.body().string();
-                    assertTrue(body.startsWith("worker"), body);
+                    Assertions.assertTrue(body.startsWith("worker"), body);
                   });
 
               client.get(
                   "/method",
                   rsp -> {
-                    assertEquals("single", rsp.body().string());
+                    Assertions.assertEquals("single", rsp.body().string());
                   });
             });
   }
@@ -602,13 +603,13 @@ public class MvcTest {
                   "/",
                   rsp -> {
                     String body = rsp.body().string();
-                    assertTrue(runner.matchesEventLoopThread(body), body);
+                    Assertions.assertTrue(runner.matchesEventLoopThread(body), body);
                   });
 
               client.get(
                   "/method",
                   rsp -> {
-                    assertEquals("single", rsp.body().string());
+                    Assertions.assertEquals("single", rsp.body().string());
                   });
             });
   }

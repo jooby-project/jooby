@@ -5,8 +5,6 @@
  */
 package examples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.slf4j.LoggerFactory;
 
 import io.jooby.Context;
@@ -23,8 +21,7 @@ public class InstanceRouter {
   @POST
   @Role("some")
   public String getIt(Route route) {
-    assertEquals("some", route.attribute("role"));
-    return "Got it!";
+    return route.attribute("role");
   }
 
   @GET
