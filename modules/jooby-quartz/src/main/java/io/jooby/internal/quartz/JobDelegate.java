@@ -34,6 +34,8 @@ public class JobDelegate implements InterruptableJob {
       JobRegistry entry = JobRegistry.get(key);
       Method method = entry.getJobMethod();
       Registry registry = entry.getRegistry();
+      // Set registry
+      context.put("registry", registry);
       Object job = newInstance(registry, method.getDeclaringClass());
       final Object result;
       final Object[] args =
@@ -41,8 +43,10 @@ public class JobDelegate implements InterruptableJob {
       Class<?>[] parameterTypes = method.getParameterTypes();
       for (int i = 0; i < args.length; i++) {
         Class parameterType = parameterTypes[i];
-        if (parameterType == JobExecutionContext.class) {
-          args[i] = context;
+        if (JobExecutionContext.class.isAssignableFrom(parameterType)) {
+          args[i] = new ExtendedJobExecutionContextImpl(context, registry);
+        } else if (parameterType == Registry.class) {
+          args[i] = registry;
         } else {
           // must be AtomicBoolean we already check at early stage
           args[i] = interrupted;

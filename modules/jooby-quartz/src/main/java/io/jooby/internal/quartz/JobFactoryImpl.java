@@ -31,4 +31,9 @@ public class JobFactoryImpl implements JobFactory {
       return registry.require(bundle.getJobDetail().getJobClass());
     }
   }
+
+  @Override
+  public String toString() {
+    return getClass().getName();
+  }
 }

@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.quartz.CalendarIntervalTrigger;
 import org.quartz.CronTrigger;
@@ -27,12 +28,13 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
-import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.Jooby;
+import io.jooby.Route;
+import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.internal.quartz.JobGenerator;
 
@@ -55,16 +57,14 @@ public class QuartzApp extends Jooby {
           for (String group : scheduler.getJobGroupNames()) {
             jobKeys.addAll(scheduler.getJobKeys(GroupMatcher.groupEquals(group)));
           }
-          return jobKeys;
+          return jobKeys.stream().map(key -> job(ctx, scheduler, key)).collect(Collectors.toList());
         });
 
     get(
         "/{group}/{name}",
         ctx -> {
           Scheduler scheduler = getScheduler();
-          JobKey jobKey = jobKey(ctx);
-          return toMap(
-              scheduler.getJobDetail(jobKey), scheduler.getTriggersOfJob(jobKey), zoneId(ctx));
+          return job(ctx, scheduler, jobKey(ctx));
         });
 
     get(
@@ -140,6 +140,17 @@ public class QuartzApp extends Jooby {
         });
   }
 
+  private Map<String, Object> job(Context ctx, Scheduler scheduler, JobKey jobKey) {
+    try {
+      Map<String, Object> job =
+          toMap(scheduler.getJobDetail(jobKey), scheduler.getTriggersOfJob(jobKey), zoneId(ctx));
+      job.put("actions", actions(ctx, jobKey));
+      return job;
+    } catch (SchedulerException x) {
+      throw SneakyThrows.propagate(x);
+    }
+  }
+
   private ZoneId zoneId(Context ctx) {
     return ctx.query("zoneId").toOptional(ZoneId.class).orElse(ZoneId.of("UTC"));
   }
@@ -148,24 +159,43 @@ public class QuartzApp extends Jooby {
     return JobKey.jobKey(ctx.path("name").value(), ctx.path("group").value());
   }
 
-  private TriggerKey triggerKey(Context ctx) {
-    return TriggerKey.triggerKey(ctx.path("name").value(), ctx.path("group").value());
-  }
-
   private Map<String, Object> toMap(
       JobDetail detail, List<? extends Trigger> triggers, ZoneId zoneId) throws SchedulerException {
+
     Map<String, Object> json = new LinkedHashMap<>();
     json.put("key", detail.getKey().toString());
     Optional.ofNullable(detail.getDescription()).ifPresent(value -> json.put("description", value));
-
+    json.put("jobDataMap", detail.getJobDataMap());
     json.put("stoppable", InterruptableJob.class.isAssignableFrom(detail.getJobClass()));
     json.put("concurrentExecutionDisallowed", detail.isConcurrentExectionDisallowed());
     json.put("durable", detail.isDurable());
     json.put("persistJobDataAfterExecution", detail.isPersistJobDataAfterExecution());
     json.put("requestsRecovery", detail.requestsRecovery());
     json.put("triggers", toJson(triggers, zoneId));
-    json.put("jobDataMap", detail.getJobDataMap());
+
     return json;
+  }
+
+  private Map<String, String> actions(Context ctx, JobKey key) {
+    Map<String, String> actions = new LinkedHashMap<>();
+    Route route = ctx.getRoute();
+    String path;
+    String base;
+    if (route.getPathKeys().isEmpty()) {
+      base = route.getPattern();
+      path = route.getPattern() + "/" + key.getGroup() + "/" + key.getName();
+    } else {
+      base = route.getPattern().substring(0, route.getPattern().indexOf('{') - 1);
+      path = route.reverse(Map.of("group", key.getGroup(), "name", key.getName()));
+    }
+    actions.put("base", base);
+    actions.put("detail", path);
+    actions.put("trigger", path + "/trigger");
+    actions.put("interrupt", path + "/interrupt");
+    actions.put("pause", path + "/pause");
+    actions.put("resume", path + "/resume");
+    actions.put("reschedule", path + "/reschedule");
+    return actions;
   }
 
   private List<Map<String, Object>> toJson(List<? extends Trigger> triggers, ZoneId zoneId)
@@ -183,17 +213,13 @@ public class QuartzApp extends Jooby {
 
     Map<String, Object> json = new LinkedHashMap<>();
     json.put("key", trigger.getKey().toString());
-
     json.put("state", state);
-
     json.put("priority", trigger.getPriority());
-
+    json.put("zoneId", zoneId);
     Optional.ofNullable(trigger.getCalendarName())
         .ifPresent(value -> json.put("calendarName", value));
     Optional.ofNullable(trigger.getDescription())
         .ifPresent(value -> json.put("description", value));
-
-    json.put("zoneId", zoneId);
 
     json.put("startTime", format(trigger.getStartTime(), zoneId));
     json.put("endTime", format(trigger.getEndTime(), zoneId));
@@ -240,7 +266,10 @@ public class QuartzApp extends Jooby {
   }
 
   private Scheduler getScheduler() {
-    return scheduler == null ? require(Scheduler.class) : scheduler;
+    if (scheduler == null) {
+      this.scheduler = require(Scheduler.class);
+    }
+    return scheduler;
   }
 
   /**

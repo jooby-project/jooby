@@ -47,13 +47,19 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import io.jooby.Jooby;
+import io.jooby.Registry;
+import io.jooby.quartz.ExtendedJobExecutionContext;
 import io.jooby.quartz.Scheduled;
 import jakarta.inject.Named;
 
 public class JobGenerator {
 
   private static List<Class> SUPPORTED_ARGS =
-      Arrays.asList(JobExecutionContext.class, AtomicBoolean.class);
+      Arrays.asList(
+          JobExecutionContext.class,
+          Registry.class,
+          ExtendedJobExecutionContext.class,
+          AtomicBoolean.class);
 
   @SuppressWarnings("unchecked")
   public static Map<JobDetail, Trigger> build(final Jooby application, final List<Class<?>> jobs)

@@ -18,6 +18,7 @@ public class ZoneIdConverter implements ValueConverter {
 
   @Override
   public Object convert(Value value, Class type) {
-    return ZoneId.of(value.value());
+    String zoneId = value.value();
+    return ZoneId.of(ZoneId.SHORT_IDS.getOrDefault(zoneId, zoneId));
   }
 }

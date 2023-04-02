@@ -8,13 +8,14 @@ package io.jooby.internal.quartz;
 import java.lang.reflect.Method;
 
 import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobBuilder;
 import org.quartz.PersistJobDataAfterExecution;
 import org.quartz.impl.JobDetailImpl;
 
 @SuppressWarnings("serial")
 public class JobMethodDetail extends JobDetailImpl {
 
-  private final Method jobMethod;
+  private Method jobMethod;
 
   public JobMethodDetail(final Method method) {
     this.jobMethod = method;
@@ -32,5 +33,11 @@ public class JobMethodDetail extends JobDetailImpl {
   @Override
   public boolean isPersistJobDataAfterExecution() {
     return jobMethod.getDeclaringClass().getAnnotation(PersistJobDataAfterExecution.class) != null;
+  }
+
+  @Override
+  public JobBuilder getJobBuilder() {
+    // See: https://github.com/jooby-project/jooby/issues/2852
+    return new JobMethodBuilder(this);
   }
 }
