@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import io.jooby.ExecutionMode;
 import io.jooby.jetty.JettyServer;
 import io.jooby.netty.NettyServer;
-import io.jooby.utow.UndertowServer;
+import io.jooby.undertow.UndertowServer;
 
 public class ServerExtensionImpl implements TestTemplateInvocationContextProvider {
 

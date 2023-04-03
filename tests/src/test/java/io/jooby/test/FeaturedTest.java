@@ -95,7 +95,7 @@ import io.jooby.mutiny.Mutiny;
 import io.jooby.netty.NettyServer;
 import io.jooby.reactor.Reactor;
 import io.jooby.rxjava3.Reactivex;
-import io.jooby.utow.UndertowServer;
+import io.jooby.undertow.UndertowServer;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;

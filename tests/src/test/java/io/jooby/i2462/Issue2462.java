@@ -14,7 +14,7 @@ import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.test.WebClient;
-import io.jooby.utow.UndertowServer;
+import io.jooby.undertow.UndertowServer;
 
 public class Issue2462 {
   @ServerTest(server = UndertowServer.class)

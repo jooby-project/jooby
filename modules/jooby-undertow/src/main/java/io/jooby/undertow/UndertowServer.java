@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.utow;
+package io.jooby.undertow;
 
 import static io.undertow.UndertowOptions.ENABLE_HTTP2;
 

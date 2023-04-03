@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 import io.jooby.Server;
 import io.jooby.jetty.JettyServer;
 import io.jooby.netty.NettyServer;
-import io.jooby.utow.UndertowServer;
+import io.jooby.undertow.UndertowServer;
 
 public class ServerProvider implements Supplier<Server> {
   private Class serverClass;
