@@ -199,6 +199,7 @@ public class NettyServer extends Server.Base {
   @NonNull @Override
   public synchronized Server stop() {
     fireStop(applications);
+    applications.clear();
 
     shutdown(acceptorloop);
     shutdown(eventloop);

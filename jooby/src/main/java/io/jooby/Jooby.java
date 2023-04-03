@@ -88,6 +88,8 @@ public class Jooby implements Router, Registry {
 
   private final transient AtomicBoolean started = new AtomicBoolean(true);
 
+  private final transient AtomicBoolean stopped = new AtomicBoolean(false);
+
   private static transient Jooby owner;
 
   private RouterImpl router;
@@ -388,6 +390,16 @@ public class Jooby implements Router, Registry {
   @Override
   public boolean isTrustProxy() {
     return router.isTrustProxy();
+  }
+
+  @Override
+  public boolean isStarted() {
+    return started.get();
+  }
+
+  @Override
+  public boolean isStopped() {
+    return stopped.get();
   }
 
   @NonNull @Override
@@ -866,6 +878,7 @@ public class Jooby implements Router, Registry {
 
       return server.start(this);
     } catch (Throwable startupError) {
+      stopped.set(true);
       Logger log = getLog();
       log.error("Application startup resulted in exception", startupError);
       try {
@@ -1009,6 +1022,7 @@ public class Jooby implements Router, Registry {
    */
   public @NonNull Jooby stop() {
     if (started.compareAndSet(true, false)) {
+      stopped.set(true);
       Logger log = getLog();
       log.debug("Stopping {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
       router.destroy();

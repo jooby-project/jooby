@@ -28,13 +28,11 @@ public class App1905 extends Jooby {
 
   private static SubApp1905 staticMethod() {
     SubApp1905 app = new SubApp1905();
-    System.out.println(app);
     return app;
   }
 
   private SubApp1905 instanceMethod() {
     SubApp1905 app = new SubApp1905();
-    System.out.println(app);
     return app;
   }
 

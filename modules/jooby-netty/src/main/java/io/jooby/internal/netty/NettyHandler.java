@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,6 +20,7 @@ import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.Server;
+import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.WebSocketCloseStatus;
 import io.netty.channel.ChannelHandlerContext;
@@ -85,7 +87,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
 
         if (defaultHeaders) {
-          context.setHeaders.set(HttpHeaderNames.DATE, date(scheduler));
+          context.setHeaders.set(HttpHeaderNames.DATE, date(router.getLog(), scheduler));
           context.setHeaders.set(HttpHeaderNames.SERVER, server);
         }
         context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
@@ -172,8 +174,12 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         if (context == null) {
           log.error("execution resulted in exception", cause);
         } else {
-          context.sendError(cause);
-          context = null;
+          if (router.isStopped()) {
+            log.debug("execution resulted in exception while application was shutting down", cause);
+          } else {
+            context.sendError(cause);
+            context = null;
+          }
         }
       }
     } finally {
@@ -230,7 +236,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  private static String date(ScheduledExecutorService scheduler) {
+  private static String date(Logger log, ScheduledExecutorService scheduler) {
     String dateString = cachedDateString.get();
     if (dateString == null) {
       // set the time and register a timer to invalidate it
@@ -242,7 +248,15 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       long toGo = DATE_INTERVAL - mod;
       dateString = DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneOffset.UTC));
       if (cachedDateString.compareAndSet(null, dateString)) {
-        scheduler.schedule(INVALIDATE_TASK, toGo, TimeUnit.MILLISECONDS);
+        try {
+          scheduler.schedule(INVALIDATE_TASK, toGo, TimeUnit.MILLISECONDS);
+        } catch (RejectedExecutionException rejected) {
+          if (scheduler.isShutdown()) {
+            log.trace("server is shutting down", rejected);
+          } else {
+            throw SneakyThrows.propagate(rejected);
+          }
+        }
       }
     }
     return dateString;

@@ -188,6 +188,10 @@ public class RouterImpl implements Router {
 
   private boolean contextAsService;
 
+  private boolean started;
+
+  private boolean stopped;
+
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
 
@@ -253,6 +257,16 @@ public class RouterImpl implements Router {
   @Override
   public boolean isTrustProxy() {
     return trustProxy;
+  }
+
+  @Override
+  public boolean isStarted() {
+    return started;
+  }
+
+  @Override
+  public boolean isStopped() {
+    return stopped;
   }
 
   @NonNull @Override
@@ -541,6 +555,7 @@ public class RouterImpl implements Router {
   }
 
   @NonNull public Router start(@NonNull Jooby app) {
+    started = true;
     if (err == null) {
       err = ErrorHandler.create();
     } else {
@@ -649,6 +664,7 @@ public class RouterImpl implements Router {
   }
 
   public void destroy() {
+    stopped = true;
     routes.clear();
     routes = null;
     chi.destroy();

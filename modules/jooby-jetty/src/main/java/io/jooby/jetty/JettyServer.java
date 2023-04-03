@@ -261,6 +261,7 @@ public class JettyServer extends io.jooby.Server.Base {
   @NonNull @Override
   public synchronized io.jooby.Server stop() {
     fireStop(applications);
+    applications.clear();
     if (server != null) {
       try {
         server.stop();

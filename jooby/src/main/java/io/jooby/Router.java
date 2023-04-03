@@ -210,6 +210,10 @@ public interface Router extends Registry {
    */
   boolean isTrustProxy();
 
+  boolean isStarted();
+
+  boolean isStopped();
+
   /**
    * When true handles X-Forwarded-* headers by updating the values on the current context to match
    * what was sent in the header(s).
