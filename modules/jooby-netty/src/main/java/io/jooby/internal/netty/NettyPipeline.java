@@ -83,7 +83,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
       setupExpectContinue(p);
 
-      p.addLast("handler", createHandler());
+      p.addLast("handler", createHandler(true));
     }
   }
 
@@ -127,14 +127,15 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     p.addLast("codec", codec);
     setupCompression(p);
     setupExpectContinue(p);
-    p.addLast("handler", createHandler());
+    p.addLast("handler", createHandler(false));
   }
 
   HttpServerCodec createServerCodec() {
     return new HttpServerCodec(_4KB, _8KB, bufferSize, false);
   }
 
-  private NettyHandler createHandler() {
-    return new NettyHandler(service, router, maxRequestSize, bufferSize, factory, defaultHeaders);
+  private NettyHandler createHandler(boolean http2) {
+    return new NettyHandler(
+        service, router, maxRequestSize, bufferSize, factory, defaultHeaders, http2);
   }
 }

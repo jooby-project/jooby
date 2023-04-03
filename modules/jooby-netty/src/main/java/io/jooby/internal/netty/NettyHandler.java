@@ -63,19 +63,23 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long contentLength;
   private long chunkSize;
 
+  private boolean http2;
+
   public NettyHandler(
       ScheduledExecutorService scheduler,
       Router router,
       long maxRequestSize,
       int bufferSize,
       HttpDataFactory factory,
-      boolean defaultHeaders) {
+      boolean defaultHeaders,
+      boolean http2) {
     this.scheduler = scheduler;
     this.router = router;
     this.maxRequestSize = maxRequestSize;
     this.factory = factory;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
+    this.http2 = http2;
   }
 
   @Override
@@ -84,7 +88,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       if (msg instanceof HttpRequest) {
         HttpRequest req = (HttpRequest) msg;
 
-        context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
+        context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize, http2);
 
         if (defaultHeaders) {
           context.setHeaders.set(HttpHeaderNames.DATE, date(router.getLog(), scheduler));

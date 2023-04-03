@@ -111,8 +111,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   private static final String STREAM_ID = "x-http2-stream-id";
+  private static final boolean DISABLE_HTTP_HEADERS_VALIDATION =
+      Boolean.parseBoolean(System.getProperty("io.netty.disableHttpHeadersValidation", "false"));
   private final String streamId;
-  DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(true);
+  DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(!DISABLE_HTTP_HEADERS_VALIDATION);
   private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -123,7 +125,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean responseStarted;
   private QueryString query;
-
   private Formdata formdata;
   private List<FileUpload> files;
   private ValueNode headers;
@@ -144,16 +145,25 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private int port;
 
   public NettyContext(
-      ChannelHandlerContext ctx, HttpRequest req, Router router, String path, int bufferSize) {
+      ChannelHandlerContext ctx,
+      HttpRequest req,
+      Router router,
+      String path,
+      int bufferSize,
+      boolean http2) {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
     this.router = router;
     this.bufferSize = bufferSize;
     this.method = req.method().name().toUpperCase();
-    // Safe streamId for HTTP/2
-    this.streamId = header(STREAM_ID).valueOrNull();
-    ifStreamId(this.streamId);
+    if (http2) {
+      // Save streamId for HTTP/2
+      this.streamId = header(STREAM_ID).valueOrNull();
+      ifStreamId(this.streamId);
+    } else {
+      this.streamId = null;
+    }
   }
 
   boolean isHttpGet() {
