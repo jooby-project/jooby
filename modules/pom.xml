@@ -58,7 +58,6 @@
     <module>jooby-awssdk-v1</module>
 
     <module>jooby-guice</module>
-    <module>jooby-spring</module>
 
     <module>jooby-commons-email</module>
 

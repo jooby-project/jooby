@@ -1,15 +1,5 @@
 == Dependency Injection
 
-In Jooby 2.x there is no dependency injection framework. This is another major difference with 1.x
-which was built with Guice.
-
-This make Jooby 2.x more lightweight than 1.x but most important give you freedom of using the
-dependency injection of your choice.
-
 include::di-dagger.adoc[]
 
 include::modules/guice.adoc[]
-
-include::modules/spring.adoc[]
-
-include::modules/weld.adoc[]

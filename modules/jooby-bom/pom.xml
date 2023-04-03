@@ -228,11 +228,6 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-spring</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jooby</groupId>
       <artifactId>jooby-stork</artifactId>
       <version>${project.version}</version>
     </dependency>
