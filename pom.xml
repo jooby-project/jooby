@@ -353,15 +353,10 @@
 
       <dependency>
         <groupId>io.jstach</groupId>
-        <artifactId>jstachio</artifactId>
-        <version>${jstachio.version}</version>
+        <artifactId>jooby-jstachio</artifactId>
+        <version>${jooby.version}</version>
       </dependency>
-      <dependency>
-        <groupId>io.jstach</groupId>
-        <artifactId>jstachio-apt</artifactId>
-        <version>${jstachio.version}</version>
-      </dependency>
-
+      
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-pebble</artifactId>
@@ -713,6 +708,18 @@
         <groupId>com.github.jknack</groupId>
         <artifactId>handlebars</artifactId>
         <version>${handlebars.version}</version>
+      </dependency>
+
+      <!-- JStachio -->
+      <dependency>
+        <groupId>io.jstach</groupId>
+        <artifactId>jstachio</artifactId>
+        <version>${jstachio.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jstach</groupId>
+        <artifactId>jstachio-apt</artifactId>
+        <version>${jstachio.version}</version>
       </dependency>
 
       <!-- Pebble -->
