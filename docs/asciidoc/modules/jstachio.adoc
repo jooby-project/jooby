@@ -2,7 +2,7 @@
 
 https://github.com/jstachio/jstachio[JStachio] A type-safe Java Mustache templating engine.
 
-https://jstach.io/doc/jstachio/current/apidocs/[JStachio Documentation] 
+https://jstach.io/doc/jstachio/{jstachioVersion}/apidocs/[JStachio Documentation] 
 
 === Usage
 
