@@ -11,4 +11,6 @@ module io.jooby.jstachio {
   requires static com.github.spotbugs.annotations;
 
   exports io.jooby.jstachio;
+
+  uses io.jstach.jstachio.spi.JStachioExtension;
 }
