@@ -1,0 +1,180 @@
+== JStachio
+
+https://github.com/jstachio/jstachio[JStachio] A type-safe Java Mustache templating engine.
+
+JStachio Documentation: https://jstach.io/doc/jstachio/current/apidocs/
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-jstachio"]
+
+
+2) Configure annotation processor
+
+.Maven
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>io.jstach</groupId>
+                        <artifactId>jstachio-apt</artifactId>
+                        <version>{jstachioVersion}</version>
+                    </path>
+                    <!-- other annotation processors like jooby -->
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+----
+
+Or if you are using the classpath to discover annotation processors:
+
+.Maven
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<dependencies>
+    <dependency>
+        <groupId>io.jstach</groupId>
+        <artifactId>jstachio-apt</artifactId>
+        <version>{jstachioVersion}</version>
+        <optional>true</optional>
+        <scope>provided</scope>
+    </dependency>
+<dependencies>
+----
+
+
+
+.Gradle
+[source,groovy,role="secondary",subs="verbatim,attributes"]
+----
+
+dependencies {
+    
+    implementation 'io.jstach:jstachio:{jstachioVersion}'
+ 
+    annotationProcessor 'io.jstach:jstachio-apt:{jstachioVersion}'
+}
+----
+
+3) Create your models and templates 
+
+Create a model and annotate with `@JStache`.
+
+.Java
+[source, java, role="primary"]
+----
+@JStache(path="index.mustache")            <1>
+public record IndexPage(String message){}
+----
+
+<1> Path is a classpath resource usually in `src/main/resources`
+
+
+Create a mustache template in `src/main/resources`
+
+.src/main/resources/index.mustache
+[source, html]
+----
+<p>Hello {{message}}!</p>
+----
+
+4) Install and use JStachio
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.jstachio.JStachioModule;
+
+{
+  install(new JStachioModule());              <1>
+
+  get("/", ctx -> {
+    return new IndexPage("JStachio");         <2>
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jstachio.JStachioModule
+
+{
+  install(JStachioModule())                   <1>
+
+  get("/") {
+    IndexPage("JStachio")                     <2>
+  }
+}
+----
+
+<1> Install JStachio 
+<2> Returns an annotated model
+
+=== Options
+
+JStachio uses a buffer to render a view. Default byte buffer size is `8k`. To change the buffer size:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.jstachio.JStachioModule;
+
+{
+  install(new JStachioModule().bufferSize(1024));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jstachio.JStachioModule
+
+{
+  install(JStachioModule().bufferSize(1024)
+}
+----
+
+
+JStachio has a hot reload mode that uses reflection via an extension.
+To add the extension the jar just needs to be in the classpath:
+
+.Maven
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<dependencies>
+    <dependency>
+        <groupId>io.jstach</groupId>
+        <artifactId>jstachio-jmustache</artifactId>
+        <version>{jstachioVersion}</version>
+        <scope>runtime</scope>
+    </dependency>
+<dependencies>
+----
+
+
+
+.Gradle
+[source,groovy,role="secondary",subs="verbatim,attributes"]
+----
+
+dependencies {
+    
+    runtimeOnly 'io.jstach:jstachio-jmustache:{jstachioVersion}'
+ 
+}
+----
+
+To disable the extension for production either remove the dependency or
+set the property `JSTACHIO_JMUSTACHE_DISABLE` to `true`.
+
