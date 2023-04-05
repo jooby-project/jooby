@@ -2,7 +2,7 @@
 
 https://github.com/jstachio/jstachio[JStachio] A type-safe Java Mustache templating engine.
 
-JStachio Documentation: https://jstach.io/doc/jstachio/current/apidocs/
+https://jstach.io/doc/jstachio/current/apidocs/[JStachio Documentation] 
 
 === Usage
 
@@ -36,23 +36,6 @@ JStachio Documentation: https://jstach.io/doc/jstachio/current/apidocs/
 </build>
 ----
 
-Or if you are using the classpath to discover annotation processors:
-
-.Maven
-[source,xml,role="primary",subs="verbatim,attributes"]
-----
-<dependencies>
-    <dependency>
-        <groupId>io.jstach</groupId>
-        <artifactId>jstachio-apt</artifactId>
-        <version>{jstachioVersion}</version>
-        <optional>true</optional>
-        <scope>provided</scope>
-    </dependency>
-<dependencies>
-----
-
-
 
 .Gradle
 [source,groovy,role="secondary",subs="verbatim,attributes"]
@@ -76,6 +59,14 @@ Create a model and annotate with `@JStache`.
 @JStache(path="index.mustache")            <1>
 public record IndexPage(String message){}
 ----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+@JStache(path="index.mustache")            <1>
+class IndexPage(String message){}
+----
+
 
 <1> Path is a classpath resource usually in `src/main/resources`
 
