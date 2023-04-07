@@ -21,6 +21,7 @@
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.32</freemarker.version>
     <handlebars.version>4.3.1</handlebars.version>
+    <jstachio.version>0.12.0</jstachio.version>
     <pebble.version>3.2.0</pebble.version>
     <jackson.version>2.14.2</jackson.version>
     <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
@@ -350,6 +351,12 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-jstachio</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+      
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-pebble</artifactId>
@@ -701,6 +708,18 @@
         <groupId>com.github.jknack</groupId>
         <artifactId>handlebars</artifactId>
         <version>${handlebars.version}</version>
+      </dependency>
+
+      <!-- JStachio -->
+      <dependency>
+        <groupId>io.jstach</groupId>
+        <artifactId>jstachio</artifactId>
+        <version>${jstachio.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jstach</groupId>
+        <artifactId>jstachio-apt</artifactId>
+        <version>${jstachio.version}</version>
       </dependency>
 
       <!-- Pebble -->

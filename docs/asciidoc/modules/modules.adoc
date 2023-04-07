@@ -45,6 +45,7 @@ Available modules are listed next.
 
 === Template Engine
    * link:/modules/handlebars[Handlebars]: Handlebars template engine.
+   * link:/modules/jstachio[JStachio]: JStachio template engine.
    * link:/modules/freemarker[Freemarker]: Freemarker template engine.
    * link:/modules/pebble[Pebble]: Pebble template engine.
    * link:/modules/rocker[Rocker]: Rocker template engine.

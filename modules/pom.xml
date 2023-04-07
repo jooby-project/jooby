@@ -46,6 +46,7 @@
     <module>jooby-graphql-playground</module>
     <module>jooby-freemarker</module>
     <module>jooby-handlebars</module>
+    <module>jooby-jstachio</module>
     <module>jooby-pebble</module>
     <module>jooby-rocker</module>
     <module>jooby-thymeleaf</module>
