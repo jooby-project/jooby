@@ -211,12 +211,8 @@ public class NettyServer extends Server.Base {
   }
 
   private void shutdown(EventLoopGroup loopGroup) {
-    try {
-      if (loopGroup != null) {
-        acceptorloop.shutdownGracefully().sync();
-      }
-    } catch (InterruptedException iex) {
-      Thread.currentThread().interrupt();
+    if (loopGroup != null) {
+      loopGroup.shutdownGracefully();
     }
   }
 
