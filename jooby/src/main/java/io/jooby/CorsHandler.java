@@ -87,14 +87,8 @@ public class CorsHandler implements Route.Filter {
           }
         } else {
           // OPTIONS?
-          if (ctx.getMethod().equalsIgnoreCase(Router.OPTIONS)) {
-            // handle normal OPTIONS
-            String allow =
-                Router.METHODS.stream()
-                    .flatMap(method -> allowMethod(ctx, method))
-                    .collect(Collectors.joining(","));
-            ctx.setResponseHeader("Allow", allow);
-            return ctx.send(StatusCode.OK);
+          if (handleNormalOptions(ctx)) {
+            return ctx;
           } else {
             log.debug("handling simple cors for: {}", origin);
             ctx.setResetHeadersOnError(false);
@@ -102,8 +96,22 @@ public class CorsHandler implements Route.Filter {
           }
         }
       }
-      return next.apply(ctx);
+      return handleNormalOptions(ctx) ? ctx : next.apply(ctx);
     };
+  }
+
+  private boolean handleNormalOptions(Context ctx) {
+    if (ctx.getMethod().equalsIgnoreCase(Router.OPTIONS)) {
+      log.debug("handling {} for: {}", ctx.getMethod(), ctx.getRequestPath());
+      String allow =
+          Router.METHODS.stream()
+              .flatMap(method -> allowMethod(ctx, method))
+              .collect(Collectors.joining(","));
+      ctx.setResponseHeader("Allow", allow);
+      ctx.send(StatusCode.OK);
+      return true;
+    }
+    return false;
   }
 
   private Stream<String> allowMethod(Context ctx, String method) {

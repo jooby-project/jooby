@@ -6,6 +6,7 @@
 package io.jooby;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
@@ -19,8 +20,8 @@ public class Issue2649 {
             app -> {
               app.use(new CorsHandler(new Cors()));
 
-              app.post("/consumes", Context::getRequestPath).consumes(MediaType.json);
-              app.post("/produces", Context::getRequestPath).produces(MediaType.json);
+              app.post("/consumes", Context::getMethod).consumes(MediaType.json);
+              app.post("/produces", Context::getMethod).produces(MediaType.json);
             })
         .ready(
             client -> {
@@ -30,7 +31,8 @@ public class Issue2649 {
                   .options(
                       "/consumes",
                       rsp -> {
-                        assertEquals("/consumes", rsp.body().string());
+                        assertEquals("", rsp.body().string());
+                        assertEquals("POST,OPTIONS", rsp.header("Allow"));
                         assertEquals(200, rsp.code());
                       });
 
@@ -39,7 +41,47 @@ public class Issue2649 {
                   .options(
                       "/produces",
                       rsp -> {
-                        assertEquals("/produces", rsp.body().string());
+                        assertEquals("", rsp.body().string());
+                        assertEquals("POST,OPTIONS", rsp.header("Allow"));
+                        assertEquals(200, rsp.code());
+                      });
+
+              // Execute handler (not preflight)
+              client
+                  .header("Origin", "https://foo.org")
+                  .post(
+                      "/consumes",
+                      rsp -> {
+                        // headers are reset on error
+                        assertNull(rsp.header("Access-Control-Allow-Origin"));
+                        assertEquals(415, rsp.code());
+                      });
+
+              client.post(
+                  "/consumes",
+                  rsp -> {
+                    assertEquals(415, rsp.code());
+                    assertNull(rsp.header("Access-Control-Allow-Origin"));
+                  });
+
+              client
+                  .header("Origin", "https://foo.org")
+                  .header("Content-Type", "application/json")
+                  .post(
+                      "/consumes",
+                      rsp -> {
+                        assertEquals("POST", rsp.body().string());
+                        assertEquals("https://foo.org", rsp.header("Access-Control-Allow-Origin"));
+                        assertEquals(200, rsp.code());
+                      });
+
+              client
+                  .header("Content-Type", "application/json")
+                  .post(
+                      "/consumes",
+                      rsp -> {
+                        assertEquals("POST", rsp.body().string());
+                        assertNull(rsp.header("Access-Control-Allow-Origin"));
                         assertEquals(200, rsp.code());
                       });
             });
