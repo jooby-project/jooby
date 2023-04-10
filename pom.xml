@@ -37,7 +37,7 @@
     <mysql-connector-j.version>8.0.32</mysql-connector-j.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.2.0.Final</hibernate.version>
-    <ebean.version>13.15.0-jakarta</ebean.version>
+    <ebean.version>13.17.0-jakarta</ebean.version>
     <jdbi.version>3.37.1</jdbi.version>
     <flyway.version>9.16.1</flyway.version>
     <graphql-java.version>20.2</graphql-java.version>
