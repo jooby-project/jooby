@@ -1,0 +1,116 @@
+== Avaje-JsonB
+
+JSON support using https://github.com/avaje/avaje-jsonb[Avaje-JsonB] library.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-avaje-jsonb"]
+.
+
+2) Install and encode/decode JSON
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.avaje.jsonb.AvajeJsonbModule;
+
+{
+  install(new AvajeJsonbModule());                  <1>
+
+  get("/", ctx -> {
+    MyObject myObject = ...;
+    return myObject;                                <2>
+  });
+
+  post("/", ctx -> {
+    MyObject myObject = ctx.body(MyObject.class);   <3>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.avaje.jsonb.AvajeJsonbModule
+
+{
+  install(AvajeJsonbModule())                       <1>
+
+  get("/") {
+    val myObject = ...;
+    myObject                                        <2>
+  }
+
+  post("/") {
+    val myObject = ctx.body<MyObject>()             <3>
+    ...
+  }
+}
+----
+
+<1> Install Avaje-JsonB
+<2> Use Avaje-JsonB to encode arbitrary object as JSON
+<3> Use Avaje-JsonB to decode JSON to Java object. Client must specify the `Content-Type: application/json` header
+
+=== Working with Jsonb
+
+Access to default Jsonb is available via require call:
+
+.Default Jsonb
+[source, java, role="primary"]
+----
+import io.jooby.avaje.jsonb.AvajeJsonbModule;
+import io.avaje.jsonb.Jsonb;
+
+{
+  install(new AvajeJsonbModule());
+
+  Jsonb jsonb = require(Jsonb.class);
+  
+  ...
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.avaje.jsonb.AvajeJsonbModule
+import io.avaje.jsonb.Jsonb
+
+{
+  install(JacksonModule())
+
+  val jsonb = require<Jsonb>()
+}
+----
+
+You can provide your own `Jsonb`:
+
+.Custom Jsonb
+[source, java, role="primary"]
+----
+import io.jooby.avaje.jsonb.AvajeJsonbModule;
+import io.avaje.jsonb.Jsonb;
+
+{
+  var jsonb = Jsonb.builder().build();
+
+  install(new AvajeJsonbModule(jsonb));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.avaje.jsonb.AvajeJsonbModule
+import io.avaje.jsonb.Jsonb
+
+{
+  var jsonb = Jsonb.builder().build()
+
+  install(AvajeJsonbModule(jsonb))
+}
+----
