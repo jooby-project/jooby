@@ -1,7 +1,7 @@
 /*
  * Jooby https://jooby.io
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
- * Copyright 2023 Edgar Espina
+ * Copyright 2014 Edgar Espina
  */
 package io.jooby.jstachio;
 
@@ -21,7 +21,8 @@ class JStachioMessageEncoder implements MessageEncoder {
   private final Charset charset;
   private final int bufferSize;
 
-  public JStachioMessageEncoder(@NonNull JStachio jstachio, @NonNull Charset charset, int bufferSize) {
+  public JStachioMessageEncoder(
+      @NonNull JStachio jstachio, @NonNull Charset charset, int bufferSize) {
     super();
     this.jstachio = jstachio;
     this.charset = charset;
@@ -35,13 +36,13 @@ class JStachioMessageEncoder implements MessageEncoder {
     }
     return null;
   }
-  
+
   protected boolean supportsType(Class<?> modelClass) {
     return jstachio.supportsType(modelClass);
   }
 
   protected byte[] render(Object value) {
-    StringBuilder b = aquireBuffer();
+    StringBuilder b = acquireBuffer();
     try {
       jstachio.execute(value, b);
       return b.toString().getBytes(charset);
@@ -53,20 +54,19 @@ class JStachioMessageEncoder implements MessageEncoder {
   /**
    * Returns a new buffer. {@link #releaseBuffer(StringBuilder)) should be
    * called when done.
-   * 
+   *
    * @return a buffer either from a pool or a new one.
    */
-  protected StringBuilder aquireBuffer() {
+  protected StringBuilder acquireBuffer() {
     return new StringBuilder(bufferSize);
   }
 
   /**
    * Releases the buffer. Override for pooling buffers.
-   * 
+   *
    * @param sb
    */
   protected void releaseBuffer(StringBuilder sb) {
     return;
   }
-
 }

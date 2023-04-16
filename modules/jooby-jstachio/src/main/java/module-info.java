@@ -1,8 +1,8 @@
 /**
- * See {@link JStachioModule}
+ * See {@link io.jooby.jstachio.JStachioModule}
  *
  * @author agentgt
- * @see JStachioModule
+ * @see io.jooby.jstachio.JStachioModule
  */
 module io.jooby.jstachio {
   requires transitive io.jstach.jstachio;

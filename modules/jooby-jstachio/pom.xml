@@ -12,10 +12,6 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-jstachio</artifactId>
 
-  <properties>
-    <Module-Name>io.jooby.jstachio</Module-Name>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
