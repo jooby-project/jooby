@@ -5,6 +5,7 @@
  */
 package io.jooby.run;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.ClosedWatchServiceException;
@@ -23,6 +24,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleClassLoader;
@@ -349,7 +352,15 @@ public class JoobyRun {
     this.watcher = newWatcher();
     try {
 
-      logger.debug("project: {}", toString());
+      logger.debug("project: {}", this);
+
+      /** Allow modules in dev to access classpath while running from maven/gradle: */
+      String classPathString =
+          Stream.concat(resources.stream(), dependencies.stream())
+              .map(Path::toAbsolutePath)
+              .map(Path::toString)
+              .collect(Collectors.joining(File.pathSeparator));
+      System.setProperty("jooby.run.classpath", classPathString);
 
       ModuleFinder[] finders = {
         new FlattenClasspath(options.getProjectName(), resources, dependencies)

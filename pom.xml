@@ -356,6 +356,12 @@
         <artifactId>jooby-jstachio</artifactId>
         <version>${jooby.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-jte</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
       
       <dependency>
         <groupId>io.jooby</groupId>
