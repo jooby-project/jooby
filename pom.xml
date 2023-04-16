@@ -45,7 +45,7 @@
     <lettuce.version>6.2.3.RELEASE</lettuce.version>
     <commons-pool2.version>2.11.1</commons-pool2.version>
     <kafka.version>3.4.0</kafka.version>
-    <caffeine.version>3.1.5</caffeine.version>
+    <caffeine.version>3.1.6</caffeine.version>
 
     <config.version>1.4.2</config.version>
 
