@@ -21,12 +21,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Install
-        run: mvn clean install -DskipTests -q -pl '!docs'
+        run: mvn clean install -DskipTests -q
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
       - name: Build
-        run: mvn clean package -pl '!docs'
+        run: mvn clean package
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0

@@ -26,7 +26,7 @@ jobs:
           echo "GRADLE_USER_HOME=${HOME}/.gradle" >> $GITHUB_ENV
           echo "${GRADLE_PROPERTIES}" > ~/.gradle/gradle.properties
       - name: Build
-        run: mvn clean install -DskipTests -q -pl '!docs'
+        run: mvn clean install -DskipTests -q
       - name: Set up Maven Central
         uses: actions/setup-java@v3
         with: # running setup-java again overwrites the settings.xml
@@ -39,7 +39,7 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Publish to Maven Central
-        run: mvn -pl '!docs,!tests' clean deploy -P bom,central,gradlePlugin
+        run: mvn -pl '!tests' clean deploy -P bom,central,gradlePlugin
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
