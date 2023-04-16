@@ -27,6 +27,7 @@
     <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
     <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <gson.version>2.10.1</gson.version>
+    <avaje-jsonb.version>1.4</avaje-jsonb.version>
     <jakarta.json.bind-api.version>3.0.0</jakarta.json.bind-api.version>
     <yasson.version>3.0.2</yasson.version>
     <rocker.version>1.3.0</rocker.version>
@@ -288,6 +289,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-gson</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-avaje-jsonb</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -693,6 +700,13 @@
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-hibernate5</artifactId>
         <version>${jackson.version}</version>
+      </dependency>
+
+      <!-- avaje-json -->
+      <dependency>
+        <groupId>io.avaje</groupId>
+        <artifactId>avaje-jsonb</artifactId>
+        <version>${avaje-jsonb.version}</version>
       </dependency>
 
       <!-- Freemarker -->
