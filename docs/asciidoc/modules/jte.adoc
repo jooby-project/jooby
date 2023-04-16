@@ -1,0 +1,160 @@
+== jte
+
+https://jte.gg[Jte] Secure and speedy templates for Java and Kotlin.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-jte"]
+.
+
+2) Configure code generator
+
+.Maven
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<plugin>
+    <groupId>gg.jte</groupId>
+    <artifactId>jte-maven-plugin</artifactId>
+    <version>${jte.version}</version>
+    <configuration>
+        <sourceDirectory>${basedir}/src/main/jte</sourceDirectory> <!-- This is the directory where your .jte files are located. -->
+        <contentType>Html</contentType>
+    </configuration>
+    <executions>
+        <execution>
+            <phase>generate-sources</phase>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+----
+
+.Gradle
+[source,groovy,role="secondary",subs="verbatim,attributes"]
+----
+plugins {
+    id 'java'
+    id 'gg.jte.gradle' version '${jte.version}'
+}
+
+dependencies {
+    implementation('gg.jte:jte:${jte.version}')
+}
+
+jte {
+    generate()
+}
+----
+
+NOTE: Complete code generator options are https://github.com/casid/jte/blob/main/DOCUMENTATION.md#precompiling-templates[available here].
+
+3) Write your templates inside the `src/main/jte` folder
+
+.src/main/jte/hello.jte
+[source, html]
+----
+@param String name
+
+<p>Hello ${name}!</p>
+----
+
+4) Install and use jte templates
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.jte.JteModule;
+
+{
+  install(new JteModule(Paths.of("src", "main", "jte")));         <1>
+
+  get("/", ctx -> {
+    return new ModelAndView("hello.jte", Map.of("name", "Jte"));  <2>
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jte.JteModule
+
+{
+  install(JteModule(Paths.of("src", "main", "jte")))              <1>
+
+  get("/") {
+    ModelAndView("hello.jte", Map.of("name", "Jte"))              <2>
+  }
+}
+----
+
+<1> Install Jte Module
+<2> Returns a model and view
+
+Jte is configured to in development mode when `application.env` is set to `dev` or `test`. Jte
+will put all the generated classes in `src/main/jte/jte-classes`.
+
+In production will read the classes from classpath.
+
+=== Options
+
+==== Custom class directory
+
+If you prefer a custom directory for compiled templates you need to do use:
+
+    install(new JteModule(Paths.of("src", "main", "jte"), Paths.of("compiled-templates")));
+
+Also, you need to configure Maven or Gradle to generate templates classes:
+
+.Maven
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<plugin>
+    <groupId>gg.jte</groupId>
+    <artifactId>jte-maven-plugin</artifactId>
+    <version>${jte.version}</version>
+    <configuration>
+        <sourceDirectory>src/main/jte</sourceDirectory> <!-- This is the directory where your .jte files are located. -->
+        <targetDirectory>compiled-templates</targetDirectory> <!-- This is the directory where compiled templates are located. -->
+        <contentType>Html</contentType>
+    </configuration>
+    <executions>
+        <execution>
+            <phase>process-classes</phase>
+            <goals>
+                <goal>precompile</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+----
+
+.Gradle
+[source,groovy,role="secondary",subs="verbatim,attributes"]
+----
+plugins {
+    id 'java'
+    id 'gg.jte.gradle' version '${jte.version}'
+}
+
+dependencies {
+    implementation('gg.jte:jte:${jte.version}')
+}
+
+jte {
+    generate()
+}
+----
+
+You need to make sure to copy the `compiled-templates` folder as part of your deployment process. See https://github.com/casid/jte/blob/main/DOCUMENTATION.md#using-a-directory-on-your-server-recommended[using a directory on your server] for more details.
+
+==== Custom Engine
+
+It is possible to provide your own/custom template engine:
+
+    var templateEngine = TemplateEngine.create(...) or TemplateEngine.createPrecompiled(..)
+    install(new JteModule(templateEngine));

@@ -187,7 +187,6 @@
     <module>jooby</module>
     <module>modules</module>
     <module>tests</module>
-    <module>docs</module>
   </modules>
 
   <licenses>
