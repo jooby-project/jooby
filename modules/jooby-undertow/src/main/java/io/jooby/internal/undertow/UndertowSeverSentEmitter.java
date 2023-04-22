@@ -51,7 +51,7 @@ public class UndertowSeverSentEmitter
     if (checkOpen()) {
       connection.send(data, null);
     } else {
-      log.warn("server-sent-event closed: {}", id);
+      log.debug("server-sent-event closed: {}", id);
     }
     return this;
   }
