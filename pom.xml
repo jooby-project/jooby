@@ -23,9 +23,9 @@
     <handlebars.version>4.3.1</handlebars.version>
     <jstachio.version>0.14.0</jstachio.version>
     <pebble.version>3.2.0</pebble.version>
-    <jackson.version>2.14.2</jackson.version>
-    <jackson-dataformat-yaml.version>2.15.0</jackson-dataformat-yaml.version>
-    <jackson-databind.version>2.15.0</jackson-databind.version>
+    <jackson.version>2.15.0</jackson.version>
+    <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
+    <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <gson.version>2.10.1</gson.version>
     <avaje-jsonb.version>1.4</avaje-jsonb.version>
     <jakarta.json.bind-api.version>3.0.0</jakarta.json.bind-api.version>
@@ -50,8 +50,6 @@
     <config.version>1.4.2</config.version>
 
     <!-- dependency injection -->
-    <weld.version>5.1.0.Final</weld.version>
-    <spring.version>6.0.8</spring.version>
     <guice.version>5.1.0</guice.version>
 
     <!-- logging -->
@@ -395,18 +393,6 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
-        <artifactId>jooby-spring</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.jooby</groupId>
-        <artifactId>jooby-weld</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.jooby</groupId>
         <artifactId>jooby-pac4j</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -586,26 +572,6 @@
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-plugin-core</artifactId>
         <version>${frontend-plugin-core.version}</version>
-      </dependency>
-
-      <!-- weld -->
-      <dependency>
-        <groupId>org.jboss.weld.se</groupId>
-        <artifactId>weld-se-core</artifactId>
-        <version>${weld.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.weld.se</groupId>
-        <artifactId>weld-se-shaded</artifactId>
-        <version>${weld.version}</version>
-      </dependency>
-
-      <!-- Spring -->
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>${spring.version}</version>
       </dependency>
 
       <!-- config -->
