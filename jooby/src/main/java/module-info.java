@@ -20,7 +20,6 @@ module io.jooby {
   requires org.slf4j;
   requires static com.github.spotbugs.annotations;
   requires typesafe.config;
-  requires java.management;
 
   /*
    * Optional dependency for rate limiting
