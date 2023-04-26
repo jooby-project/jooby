@@ -7,7 +7,7 @@ module io.jooby.guice {
   exports io.jooby.guice;
 
   requires io.jooby;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires com.google.guice;
   requires jakarta.inject;

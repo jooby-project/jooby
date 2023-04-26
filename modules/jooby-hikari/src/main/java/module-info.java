@@ -8,7 +8,7 @@ module io.jooby.hikari {
 
   requires io.jooby;
   requires org.slf4j;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires java.sql;
   requires com.zaxxer.hikari;

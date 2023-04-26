@@ -7,7 +7,7 @@ module io.jooby.ebean {
   exports io.jooby.ebean;
 
   requires io.jooby;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires io.ebean;
 }

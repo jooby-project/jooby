@@ -7,7 +7,7 @@ module io.jooby.openapi {
   exports io.jooby.openapi;
 
   requires io.jooby;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
   requires jakarta.inject;

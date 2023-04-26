@@ -7,6 +7,6 @@ module io.jooby.caffeine {
   exports io.jooby.caffeine;
 
   requires io.jooby;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires com.github.benmanes.caffeine;
 }

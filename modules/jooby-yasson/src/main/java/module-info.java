@@ -7,7 +7,7 @@ module io.jooby.yasson {
   exports io.jooby.yasson;
 
   requires io.jooby;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires jakarta.json.bind;
 }

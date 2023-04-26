@@ -8,7 +8,7 @@ import io.jooby.conscrypt.ConscryptSslProvider;
 
 module io.jooby.conscrypt {
   requires io.jooby;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires org.conscrypt;
 
   provides SslProvider with

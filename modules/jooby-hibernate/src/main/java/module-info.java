@@ -7,7 +7,7 @@ module io.jooby.hibernate {
   exports io.jooby.hibernate;
 
   requires io.jooby;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
   requires org.hibernate.orm.core;

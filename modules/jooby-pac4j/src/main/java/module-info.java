@@ -8,7 +8,7 @@ module io.jooby.pac4j {
   exports io.jooby.pac4j;
 
   requires io.jooby;
-  requires com.github.spotbugs.annotations;
+  requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;
   requires pac4j.core;
