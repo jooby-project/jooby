@@ -23,7 +23,7 @@
     <handlebars.version>4.3.1</handlebars.version>
     <jstachio.version>0.14.0</jstachio.version>
     <pebble.version>3.2.0</pebble.version>
-    <jackson.version>2.14.2</jackson.version>
+    <jackson.version>2.15.0</jackson.version>
     <jackson-dataformat-yaml.version>2.15.0</jackson-dataformat-yaml.version>
     <jackson-databind.version>2.15.0</jackson-databind.version>
     <gson.version>2.10.1</gson.version>
