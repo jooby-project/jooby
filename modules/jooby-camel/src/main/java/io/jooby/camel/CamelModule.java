@@ -61,12 +61,15 @@ public class CamelModule implements Extension {
 
   private CamelContext camel;
 
+  /** Creates module using the {@link CamelContext}. */
+  public CamelModule() {}
+
   /**
    * Creates module using the {@link CamelContext}.
    *
    * @param camel Camel context.
    */
-  public CamelModule(CamelContext camel) {
+  public CamelModule(@NonNull CamelContext camel) {
     this.camel = camel;
   }
 
@@ -76,7 +79,19 @@ public class CamelModule implements Extension {
    * @param route Route configuration.
    * @param routes Optional route configuration.
    */
-  public CamelModule(RouteBuilder route, RouteBuilder... routes) {
+  public CamelModule(@NonNull RouteBuilder route, RouteBuilder... routes) {
+    this(null, route, routes);
+  }
+
+  /**
+   * Creates a new camel module adding one or more routes.
+   *
+   * @param route Route configuration.
+   * @param routes Optional route configuration.
+   */
+  public CamelModule(
+      @NonNull CamelContext camel, @NonNull RouteBuilder route, RouteBuilder... routes) {
+    this.camel = camel;
     this.routes = registry -> concat(route, routes).collect(Collectors.toList());
   }
 
@@ -88,11 +103,29 @@ public class CamelModule implements Extension {
    * @param route Route configuration.
    * @param routes Optional route configuration.
    */
-  public CamelModule(Class<? extends RouteBuilder> route, Class<? extends RouteBuilder>... routes) {
+  public CamelModule(
+      @NonNull Class<? extends RouteBuilder> route,
+      @NonNull Class<? extends RouteBuilder>... routes) {
+    this(null, route, routes);
+  }
+
+  /**
+   * Creates a new camel module adding one or more routes. Route provisioning is delegated to
+   * Dependency Injection framework (if any), otherwise camel does basic/minimal injection using
+   * {@link org.apache.camel.impl.engine.DefaultInjector}.
+   *
+   * @param route Route configuration.
+   * @param routes Optional route configuration.
+   */
+  public CamelModule(
+      @NonNull CamelContext camel,
+      @NonNull Class<? extends RouteBuilder> route,
+      Class<? extends RouteBuilder>... routes) {
+    this.camel = camel;
     this.routes =
-        camel ->
+        context ->
             concat(route, routes)
-                .map(type -> camel.getInjector().newInstance(type))
+                .map(type -> context.getInjector().newInstance(type))
                 .collect(Collectors.toList());
   }
 
@@ -130,9 +163,11 @@ public class CamelModule implements Extension {
           main.init();
 
           // Do routes
-          List<RouteBuilder> routeList = routes.apply(camel);
-          for (RouteBuilder route : routeList) {
-            camel.addRoutes(route);
+          if (routes != null) {
+            List<RouteBuilder> routeList = routes.apply(camel);
+            for (RouteBuilder route : routeList) {
+              camel.addRoutes(route);
+            }
           }
           // Start camel:
           main.start();
