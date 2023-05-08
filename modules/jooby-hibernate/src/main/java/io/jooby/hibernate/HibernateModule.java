@@ -253,9 +253,15 @@ public class HibernateModule implements Extension {
     // apply application.conf
     Map base = env.getProperties("hibernate");
     Map custom = env.getProperties(name + ".hibernate", "hibernate");
+    Map<String, String> javax = env.getProperties("hibernate.javax", "javax");
+    Map<String, String> jakarta = env.getProperties("hibernate.jakarta", "jakarta");
+
     Map<String, Object> settings = new HashMap<>();
     settings.putAll(base);
     settings.putAll(custom);
+    settings.putAll(javax);
+    settings.putAll(jakarta);
+
     ssrb.applySettings(settings);
     ssrb.applySetting(AvailableSettings.DATASOURCE, dataSource);
     ssrb.applySetting(AvailableSettings.DELAY_CDI_ACCESS, true);
