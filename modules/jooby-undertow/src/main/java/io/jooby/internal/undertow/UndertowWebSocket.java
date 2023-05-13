@@ -45,7 +45,8 @@ public class UndertowWebSocket extends AbstractReceiveListener
     implements WebSocketConfigurer, WebSocket, WebSocketCallback<Void> {
 
   /** All connected websocket. */
-  private static final ConcurrentMap<String, List<WebSocket>> all = new ConcurrentHashMap<>();
+  private static final ConcurrentMap<String, List<UndertowWebSocket>> all =
+      new ConcurrentHashMap<>();
 
   private final UndertowContext ctx;
   private final WebSocketChannel channel;
@@ -89,7 +90,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
 
   @NonNull @Override
   public List<WebSocket> getSessions() {
-    List<WebSocket> sessions = all.get(key);
+    List<UndertowWebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();
     }
@@ -105,19 +106,37 @@ public class UndertowWebSocket extends AbstractReceiveListener
 
   @NonNull @Override
   public WebSocket send(@NonNull String message, boolean broadcast) {
-    return send(message.getBytes(StandardCharsets.UTF_8), broadcast);
+    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), false, broadcast);
   }
 
   @NonNull @Override
   public WebSocket send(@NonNull byte[] message, boolean broadcast) {
+    return sendMessage(ByteBuffer.wrap(message), false, broadcast);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull String message, boolean broadcast) {
+    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), true, broadcast);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull byte[] message, boolean broadcast) {
+    return sendMessage(ByteBuffer.wrap(message), true, broadcast);
+  }
+
+  private WebSocket sendMessage(ByteBuffer buffer, boolean binary, boolean broadcast) {
     if (broadcast) {
-      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.send(message, false);
+      for (UndertowWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+        ws.sendMessage(buffer, binary, false);
       }
     } else {
       if (isOpen()) {
         try {
-          WebSockets.sendText(ByteBuffer.wrap(message), channel, this);
+          if (binary) {
+            WebSockets.sendBinary(buffer, channel, this);
+          } else {
+            WebSockets.sendText(buffer, channel, this);
+          }
         } catch (Throwable x) {
           onError(channel, x);
         }
@@ -341,7 +360,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   private void removeSession(UndertowWebSocket ws) {
-    List<WebSocket> sockets = all.get(ws.key);
+    List<UndertowWebSocket> sockets = all.get(ws.key);
     if (sockets != null) {
       sockets.remove(ws);
     }

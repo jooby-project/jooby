@@ -7,6 +7,7 @@ package io.jooby.test;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -28,6 +29,7 @@ import javax.net.ssl.X509TrustManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Server;
 import io.jooby.ServerSentMessage;
 import io.jooby.SneakyThrows;
@@ -81,6 +83,11 @@ public class WebClient implements AutoCloseable {
     @Override
     public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
       messages.offer(text);
+    }
+
+    @Override
+    public void onMessage(@NonNull WebSocket webSocket, @NonNull ByteString bytes) {
+      messages.offer(new String(bytes.toByteArray(), StandardCharsets.UTF_8));
     }
 
     public String lastMessage() {

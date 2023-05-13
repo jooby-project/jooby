@@ -80,6 +80,16 @@ public class MockWebSocket implements WebSocket {
   }
 
   @NonNull @Override
+  public WebSocket sendBinary(@NonNull String message, boolean broadcast) {
+    return sendObject(message, broadcast);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull byte[] message, boolean broadcast) {
+    return sendObject(message, broadcast);
+  }
+
+  @NonNull @Override
   public WebSocket render(@NonNull Object value, boolean broadcast) {
     return sendObject(value, broadcast);
   }

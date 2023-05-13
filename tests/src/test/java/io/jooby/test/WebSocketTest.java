@@ -47,7 +47,7 @@ public class WebSocketTest {
   }
 
   @ServerTest
-  public void webSocketByteMessage(ServerTestRunner runner) {
+  public void webSocketRecieveByteMessage(ServerTestRunner runner) {
     runner
         .define(
             app -> {
@@ -140,6 +140,28 @@ public class WebSocketTest {
                     assertEquals(
                         "{\"message\":\"Hello JSON!\"}",
                         ws.send("{\"message\" : \"Hello JSON!\"}"));
+                  });
+            });
+  }
+
+  @ServerTest
+  public void webSocketBinary(ServerTestRunner runner) {
+    runner
+        .define(
+            app -> {
+              app.ws(
+                  "/ws/bin-text",
+                  (ctx, initializer) -> {
+                    initializer.onMessage(
+                        (ws, message) -> ws.sendBinary("bin-text://" + message.value()));
+                  });
+            })
+        .ready(
+            client -> {
+              client.syncWebSocket(
+                  "/ws/bin-text",
+                  ws -> {
+                    assertEquals("bin-text://binary", ws.send("binary"));
                   });
             });
   }

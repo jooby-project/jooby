@@ -149,16 +149,6 @@ public interface WebSocket {
   }
 
   /**
-   * Send a text message to client.
-   *
-   * @param message Text Message.
-   * @return This websocket.
-   */
-  default @NonNull WebSocket send(@NonNull String message) {
-    return send(message, false);
-  }
-
-  /**
    * Web sockets connected to the same path. This method doesn't include the current websocket.
    *
    * @return Web sockets or empty list.
@@ -171,6 +161,16 @@ public interface WebSocket {
    * @return True when open.
    */
   boolean isOpen();
+
+  /**
+   * Send a text message to client.
+   *
+   * @param message Text Message.
+   * @return This websocket.
+   */
+  default @NonNull WebSocket send(@NonNull String message) {
+    return send(message, false);
+  }
 
   /**
    * Send a text message to current client (broadcast = false) or to ALL connected clients under the
@@ -201,6 +201,46 @@ public interface WebSocket {
    * @return This websocket.
    */
   @NonNull WebSocket send(@NonNull byte[] message, boolean broadcast);
+
+  /**
+   * Send a binary message to client.
+   *
+   * @param message Binary Message.
+   * @return This websocket.
+   */
+  default @NonNull WebSocket sendBinary(@NonNull String message) {
+    return sendBinary(message, false);
+  }
+
+  /**
+   * Send a binary message to current client (broadcast = false) or to ALL connected clients under
+   * the websocket path (broadcast = true).
+   *
+   * @param message Binary Message.
+   * @param broadcast True to send to all connected clients.
+   * @return This websocket.
+   */
+  @NonNull WebSocket sendBinary(@NonNull String message, boolean broadcast);
+
+  /**
+   * Send a binary message to client.
+   *
+   * @param message Binary Message.
+   * @return This websocket.
+   */
+  default @NonNull WebSocket sendBinary(@NonNull byte[] message) {
+    return sendBinary(message, false);
+  }
+
+  /**
+   * Send a binary message to current client (broadcast = false) or to ALL connected clients under
+   * the websocket path (broadcast = true).
+   *
+   * @param message Binary Message.
+   * @param broadcast True to send to all connected clients.
+   * @return This websocket.
+   */
+  @NonNull WebSocket sendBinary(@NonNull byte[] message, boolean broadcast);
 
   /**
    * Encode a value and send a text message to client.

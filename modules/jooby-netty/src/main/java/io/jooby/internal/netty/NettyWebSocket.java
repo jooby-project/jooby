@@ -63,12 +63,24 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     this.netty.ctx.channel().attr(WS).set(this);
   }
 
-  public WebSocket send(String text, boolean broadcast) {
-    return send(Unpooled.copiedBuffer(text, StandardCharsets.UTF_8), broadcast);
+  @NonNull @Override
+  public WebSocket send(String message, boolean broadcast) {
+    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), false, broadcast);
   }
 
+  @NonNull @Override
   public WebSocket send(byte[] bytes, boolean broadcast) {
-    return send(Unpooled.wrappedBuffer(bytes), broadcast);
+    return sendMessage(Unpooled.wrappedBuffer(bytes), false, broadcast);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull String message, boolean broadcast) {
+    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), true, broadcast);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull byte[] message, boolean broadcast) {
+    return sendMessage(Unpooled.wrappedBuffer(message), true, broadcast);
   }
 
   @Override
@@ -87,14 +99,16 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     return this;
   }
 
-  private WebSocket send(ByteBuf buffer, boolean broadcast) {
+  private WebSocket sendMessage(ByteBuf buffer, boolean binary, boolean broadcast) {
     if (broadcast) {
       for (NettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.send(buffer, false);
+        ws.sendMessage(buffer, binary, false);
       }
     } else {
       if (isOpen()) {
-        netty.ctx.channel().writeAndFlush(new TextWebSocketFrame(buffer)).addListener(this);
+        WebSocketFrame frame =
+            binary ? new BinaryWebSocketFrame(buffer) : new TextWebSocketFrame(buffer);
+        netty.ctx.channel().writeAndFlush(frame).addListener(this);
       } else {
         handleError(new IllegalStateException("Attempt to send a message on closed web socket"));
       }

@@ -166,7 +166,7 @@ import io.jooby.jackson.JacksonModule;
 }
 ----
 
-Structure messages depends/requires a javadoc:MessageDecoder[] and jadoc:MessageEncoder[]. In this
+Structure messages depends/requires a javadoc:MessageDecoder[] and javadoc:MessageEncoder[]. In this
 example both are provided by the JacksonModule.
 
 === Options

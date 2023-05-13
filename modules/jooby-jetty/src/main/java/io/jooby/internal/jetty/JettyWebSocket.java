@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 
 import org.eclipse.jetty.util.StaticException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
@@ -36,7 +37,7 @@ import io.jooby.WebSocketMessage;
 public class JettyWebSocket
     implements WebSocketListener, WebSocketConfigurer, WebSocket, WriteCallback {
   /** All connected websocket. */
-  private static final ConcurrentMap<String, List<WebSocket>> all = new ConcurrentHashMap<>();
+  private static final ConcurrentMap<String, List<JettyWebSocket>> all = new ConcurrentHashMap<>();
 
   private final JettyContext ctx;
   private final String key;
@@ -170,7 +171,7 @@ public class JettyWebSocket
 
   @NonNull @Override
   public List<WebSocket> getSessions() {
-    List<WebSocket> sessions = all.get(key);
+    List<JettyWebSocket> sessions = all.get(key);
     if (sessions == null) {
       return Collections.emptyList();
     }
@@ -185,16 +186,40 @@ public class JettyWebSocket
   }
 
   @NonNull @Override
+  public WebSocket sendBinary(@NonNull String message, boolean broadcast) {
+    return sendMessage(
+        broadcast,
+        (remote, callback) ->
+            remote.sendBytes(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), callback));
+  }
+
+  @NonNull @Override
   public WebSocket send(@NonNull String message, boolean broadcast) {
+    return sendMessage(broadcast, (remote, callback) -> remote.sendString(message, callback));
+  }
+
+  @NonNull @Override
+  public WebSocket send(@NonNull byte[] message, boolean broadcast) {
+    return send(new String(message, StandardCharsets.UTF_8), broadcast);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull byte[] message, boolean broadcast) {
+    return sendMessage(
+        broadcast, (remote, callback) -> remote.sendBytes(ByteBuffer.wrap(message), callback));
+  }
+
+  private WebSocket sendMessage(
+      boolean broadcast, BiConsumer<RemoteEndpoint, WriteCallback> writer) {
     if (broadcast) {
-      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.send(message, false);
+      for (JettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+        ws.sendMessage(false, writer);
       }
     } else {
       if (isOpen()) {
         try {
           RemoteEndpoint remote = session.getRemote();
-          remote.sendString(message, this);
+          writer.accept(remote, this);
         } catch (Throwable x) {
           onWebSocketError(x);
         }
@@ -204,11 +229,6 @@ public class JettyWebSocket
       }
     }
     return this;
-  }
-
-  @NonNull @Override
-  public WebSocket send(@NonNull byte[] message, boolean broadcast) {
-    return send(new String(message, StandardCharsets.UTF_8), broadcast);
   }
 
   @NonNull @Override
@@ -282,7 +302,7 @@ public class JettyWebSocket
   }
 
   private static void removeSession(JettyWebSocket ws) {
-    List<WebSocket> sockets = all.get(ws.key);
+    List<JettyWebSocket> sockets = all.get(ws.key);
     if (sockets != null) {
       sockets.remove(ws);
     }
