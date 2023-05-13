@@ -61,6 +61,8 @@ public class JettyServer extends io.jooby.Server.Base {
 
   private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
 
+  private Consumer<HttpConfiguration> httpConfigurer;
+
   public JettyServer(@NonNull ThreadPool threadPool) {
     this.threadPool = threadPool;
   }
@@ -81,6 +83,17 @@ public class JettyServer extends io.jooby.Server.Base {
   @NonNull @Override
   public String getName() {
     return "jetty";
+  }
+
+  /**
+   * Applies custom configuration. This applies to HTTP and HTTPS (when enable).
+   *
+   * @param configurer Configurer.
+   * @return This server.
+   */
+  public JettyServer configure(Consumer<HttpConfiguration> configurer) {
+    this.httpConfigurer = configurer;
+    return this;
   }
 
   @NonNull @Override
@@ -109,7 +122,6 @@ public class JettyServer extends io.jooby.Server.Base {
           options.isHttp2() == Boolean.TRUE ? new JettyHttp2Configurer() : null;
 
       HttpConfiguration httpConf = new HttpConfiguration();
-      // TODO: we might need to remove legacy with default
       httpConf.setUriCompliance(UriCompliance.LEGACY);
       httpConf.setOutputBufferSize(options.getBufferSize());
       httpConf.setOutputAggregationSize(options.getBufferSize());
@@ -117,6 +129,10 @@ public class JettyServer extends io.jooby.Server.Base {
       httpConf.setSendDateHeader(options.getDefaultHeaders());
       httpConf.setSendServerVersion(false);
       httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
+
+      if (httpConfigurer != null) {
+        httpConfigurer.accept(httpConf);
+      }
 
       List<ConnectionFactory> connectionFactories = new ArrayList<>();
       connectionFactories.add(new HttpConnectionFactory(httpConf));
