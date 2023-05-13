@@ -175,7 +175,6 @@ public class UndertowServer extends Server.Base {
     try {
       fireStop(applications);
       applications.clear();
-      applications = null;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     } finally {
