@@ -1394,7 +1394,11 @@ public interface Context extends Registry {
    * @param binary True for sending binary message.
    * @return Read only context.
    */
-  static @NonNull Context websocket(@NonNull Context ctx, @NonNull WebSocket ws, boolean binary) {
-    return new WebSocketSender(ctx, ws, binary);
+  static @NonNull Context websocket(
+      @NonNull Context ctx,
+      @NonNull WebSocket ws,
+      boolean binary,
+      WebSocket.WriteCallback callback) {
+    return new WebSocketSender(ctx, ws, binary, callback);
   }
 }

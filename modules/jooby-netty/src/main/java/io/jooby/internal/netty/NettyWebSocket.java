@@ -38,8 +38,48 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.AttributeKey;
 
-public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFutureListener {
+public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   /** All connected websocket. */
+  private static class WriteCallbackAdaptor implements ChannelFutureListener {
+
+    private NettyWebSocket ws;
+
+    private WebSocket.WriteCallback callback;
+
+    public WriteCallbackAdaptor(NettyWebSocket ws, WriteCallback callback) {
+      this.ws = ws;
+      this.callback = callback;
+    }
+
+    @Override
+    public void operationComplete(ChannelFuture future) {
+      Throwable cause = future.cause();
+      try {
+        if (cause != null) {
+          if (Server.connectionLost(cause)) {
+            ws.netty
+                .getRouter()
+                .getLog()
+                .debug(
+                    "WebSocket {} send method resulted in exception",
+                    ws.getContext().getRequestPath(),
+                    cause);
+          } else {
+            ws.netty
+                .getRouter()
+                .getLog()
+                .error(
+                    "WebSocket {} send method resulted in exception",
+                    ws.getContext().getRequestPath(),
+                    cause);
+          }
+        }
+      } finally {
+        callback.operationComplete(ws, cause);
+      }
+    }
+  }
+
   private static final ConcurrentMap<String, List<NettyWebSocket>> all = new ConcurrentHashMap<>();
 
   static final AttributeKey<NettyWebSocket> WS =
@@ -64,49 +104,53 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   @NonNull @Override
-  public WebSocket send(String message) {
-    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), false);
+  public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), false, callback);
   }
 
   @NonNull @Override
-  public WebSocket send(byte[] bytes) {
-    return sendMessage(Unpooled.wrappedBuffer(bytes), false);
+  public WebSocket send(byte[] bytes, @NonNull WriteCallback callback) {
+    return sendMessage(Unpooled.wrappedBuffer(bytes), false, callback);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message) {
-    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), true);
+  public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), true, callback);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message) {
-    return sendMessage(Unpooled.wrappedBuffer(message), true);
+  public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return sendMessage(Unpooled.wrappedBuffer(message), true, callback);
   }
 
   @Override
-  public WebSocket render(Object value) {
-    return renderMessage(value, false);
+  public WebSocket render(Object value, @NonNull WriteCallback callback) {
+    return renderMessage(value, false, callback);
   }
 
   @Override
-  public WebSocket renderBinary(Object value) {
-    return renderMessage(value, true);
+  public WebSocket renderBinary(Object value, @NonNull WriteCallback callback) {
+    return renderMessage(value, true, callback);
   }
 
-  private WebSocket renderMessage(Object value, boolean binary) {
+  private WebSocket renderMessage(Object value, boolean binary, WriteCallback callback) {
     try {
-      Context.websocket(netty, this, binary).render(value);
+      Context.websocket(netty, this, binary, callback).render(value);
     } catch (Throwable x) {
       handleError(x);
     }
     return this;
   }
 
-  private WebSocket sendMessage(ByteBuf buffer, boolean binary) {
+  private WebSocket sendMessage(ByteBuf buffer, boolean binary, WriteCallback callback) {
     if (isOpen()) {
       WebSocketFrame frame =
           binary ? new BinaryWebSocketFrame(buffer) : new TextWebSocketFrame(buffer);
-      netty.ctx.channel().writeAndFlush(frame).addListener(this);
+      netty
+          .ctx
+          .channel()
+          .writeAndFlush(frame)
+          .addListener(new WriteCallbackAdaptor(this, callback));
     } else {
       handleError(new IllegalStateException("Attempt to send a message on closed web socket"));
     }
@@ -189,7 +233,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
             .ctx
             .channel()
             .writeAndFlush(new PongWebSocketFrame(frame.content()))
-            .addListener(this);
+            .addListener(new WriteCallbackAdaptor(this, WriteCallback.NOOP));
       } else if (frame instanceof CloseWebSocketFrame) {
         handleClose(toWebSocketCloseStatus((CloseWebSocketFrame) frame));
       }
@@ -313,14 +357,6 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
     List<NettyWebSocket> sockets = all.get(ws.key);
     if (sockets != null) {
       sockets.remove(ws);
-    }
-  }
-
-  @Override
-  public void operationComplete(ChannelFuture future) throws Exception {
-    Throwable cause = future.cause();
-    if (cause != null) {
-      netty.getRouter().getLog().error("WebSocket.send resulted in exception", cause);
     }
   }
 

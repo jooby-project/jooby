@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Websocket. Usage:
@@ -102,6 +103,20 @@ public interface WebSocket {
     void onError(@NonNull WebSocket ws, @NonNull Throwable cause);
   }
 
+  /** Callback for sending messages. */
+  interface WriteCallback {
+
+    WriteCallback NOOP = (ws, cause) -> {};
+
+    /**
+     * Notify about message sent to client.
+     *
+     * @param ws Websocket.
+     * @param cause Error or <code>null</code> for success messages.
+     */
+    void operationComplete(@NonNull WebSocket ws, @Nullable Throwable cause);
+  }
+
   /** Max message size for websocket (128K). */
   int MAX_BUFFER_SIZE = 131072;
 
@@ -184,7 +199,18 @@ public interface WebSocket {
    * @param message Text Message.
    * @return This websocket.
    */
-  @NonNull WebSocket send(@NonNull String message);
+  default @NonNull WebSocket send(@NonNull String message) {
+    return send(message, WriteCallback.NOOP);
+  }
+
+  /**
+   * Send a text message to client.
+   *
+   * @param message Text Message.
+   * @param callback Write callback.
+   * @return This websocket.
+   */
+  @NonNull WebSocket send(@NonNull String message, @NonNull WriteCallback callback);
 
   /**
    * Send a text message to client.
@@ -192,7 +218,18 @@ public interface WebSocket {
    * @param message Text Message.
    * @return This websocket.
    */
-  @NonNull WebSocket send(@NonNull byte[] message);
+  default @NonNull WebSocket send(@NonNull byte[] message) {
+    return send(message, WriteCallback.NOOP);
+  }
+
+  /**
+   * Send a text message to client.
+   *
+   * @param message Text Message.
+   * @param callback Write callback.
+   * @return This websocket.
+   */
+  @NonNull WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback);
 
   /**
    * Send a binary message to client.
@@ -200,7 +237,18 @@ public interface WebSocket {
    * @param message Binary Message.
    * @return This websocket.
    */
-  @NonNull WebSocket sendBinary(@NonNull String message);
+  default @NonNull WebSocket sendBinary(@NonNull String message) {
+    return sendBinary(message, WriteCallback.NOOP);
+  }
+
+  /**
+   * Send a binary message to client.
+   *
+   * @param message Binary Message.
+   * @param callback Write callback.
+   * @return This websocket.
+   */
+  @NonNull WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback);
 
   /**
    * Send a binary message to client.
@@ -208,7 +256,18 @@ public interface WebSocket {
    * @param message Binary Message.
    * @return This websocket.
    */
-  @NonNull WebSocket sendBinary(@NonNull byte[] message);
+  default @NonNull WebSocket sendBinary(@NonNull byte[] message) {
+    return sendBinary(message, WriteCallback.NOOP);
+  }
+
+  /**
+   * Send a binary message to client.
+   *
+   * @param message Binary Message.
+   * @param callback Write callback.
+   * @return This websocket.
+   */
+  @NonNull WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback);
 
   /**
    * Encode a value and send a text message to client.
@@ -216,7 +275,18 @@ public interface WebSocket {
    * @param value Value to send.
    * @return This websocket.
    */
-  @NonNull WebSocket render(@NonNull Object value);
+  default @NonNull WebSocket render(@NonNull Object value) {
+    return render(value, WriteCallback.NOOP);
+  }
+
+  /**
+   * Encode a value and send a text message to client.
+   *
+   * @param value Value to send.
+   * @param callback Write callback.
+   * @return This websocket.
+   */
+  @NonNull WebSocket render(@NonNull Object value, @NonNull WriteCallback callback);
 
   /**
    * Encode a value and send a binary message to client.
@@ -224,7 +294,18 @@ public interface WebSocket {
    * @param value Value to send.
    * @return This websocket.
    */
-  @NonNull WebSocket renderBinary(@NonNull Object value);
+  default @NonNull WebSocket renderBinary(@NonNull Object value) {
+    return renderBinary(value, WriteCallback.NOOP);
+  }
+
+  /**
+   * Encode a value and send a binary message to client.
+   *
+   * @param value Value to send.
+   * @param callback Write callback.
+   * @return This websocket.
+   */
+  @NonNull WebSocket renderBinary(@NonNull Object value, @NonNull WriteCallback callback);
 
   /**
    * Close the web socket and send a {@link WebSocketCloseStatus#NORMAL} code to client.

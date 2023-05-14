@@ -23,19 +23,25 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
 
   private final WebSocket ws;
   private final boolean binary;
+  private final WebSocket.WriteCallback callback;
 
-  public WebSocketSender(@NonNull Context context, @NonNull WebSocket ws, boolean binary) {
+  public WebSocketSender(
+      @NonNull Context context,
+      @NonNull WebSocket ws,
+      boolean binary,
+      WebSocket.WriteCallback callback) {
     super(context);
     this.ws = ws;
     this.binary = binary;
+    this.callback = callback;
   }
 
   @NonNull @Override
   public Context send(@NonNull String data, @NonNull Charset charset) {
     if (binary) {
-      ws.sendBinary(data.getBytes(charset));
+      ws.sendBinary(data.getBytes(charset), callback);
     } else {
-      ws.send(data.getBytes(charset));
+      ws.send(data.getBytes(charset), callback);
     }
     return this;
   }
@@ -43,9 +49,9 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
   @NonNull @Override
   public Context send(@NonNull byte[] data) {
     if (binary) {
-      ws.sendBinary(data);
+      ws.sendBinary(data, callback);
     } else {
-      ws.send(data);
+      ws.send(data, callback);
     }
     return this;
   }

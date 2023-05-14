@@ -22,7 +22,6 @@ import org.eclipse.jetty.util.StaticException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.eclipse.jetty.websocket.api.exceptions.CloseException;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -34,8 +33,50 @@ import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 
-public class JettyWebSocket
-    implements WebSocketListener, WebSocketConfigurer, WebSocket, WriteCallback {
+public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, WebSocket {
+
+  private static class WriteCallbackAdaptor
+      implements org.eclipse.jetty.websocket.api.WriteCallback {
+
+    private JettyWebSocket ws;
+    private WebSocket.WriteCallback callback;
+
+    public WriteCallbackAdaptor(JettyWebSocket ws, WebSocket.WriteCallback callback) {
+      this.ws = ws;
+      this.callback = callback;
+    }
+
+    @Override
+    public void writeFailed(Throwable cause) {
+      try {
+        if (Server.connectionLost(cause)) {
+          ws.ctx
+              .getRouter()
+              .getLog()
+              .debug(
+                  "WebSocket {} send method resulted in exception",
+                  ws.getContext().getRequestPath(),
+                  cause);
+        } else {
+          ws.ctx
+              .getRouter()
+              .getLog()
+              .error(
+                  "WebSocket {} send method resulted in exception",
+                  ws.getContext().getRequestPath(),
+                  cause);
+        }
+      } finally {
+        callback.operationComplete(ws, cause);
+      }
+    }
+
+    @Override
+    public void writeSuccess() {
+      callback.operationComplete(ws, null);
+    }
+  }
+
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<JettyWebSocket>> all = new ConcurrentHashMap<>();
 
@@ -197,32 +238,40 @@ public class JettyWebSocket
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message) {
+  public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
     return sendMessage(
-        (remote, callback) ->
-            remote.sendBytes(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), callback));
+        (remote, writeCallback) ->
+            remote.sendBytes(
+                ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), writeCallback),
+        new WriteCallbackAdaptor(this, callback));
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull String message) {
-    return sendMessage((remote, callback) -> remote.sendString(message, callback));
+  public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendMessage(
+        (remote, writeCallback) -> remote.sendString(message, writeCallback),
+        new WriteCallbackAdaptor(this, callback));
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull byte[] message) {
-    return send(new String(message, StandardCharsets.UTF_8));
+  public WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return send(new String(message, StandardCharsets.UTF_8), callback);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message) {
-    return sendMessage((remote, callback) -> remote.sendBytes(ByteBuffer.wrap(message), callback));
+  public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return sendMessage(
+        (remote, writeCallback) -> remote.sendBytes(ByteBuffer.wrap(message), writeCallback),
+        new WriteCallbackAdaptor(this, callback));
   }
 
-  private WebSocket sendMessage(BiConsumer<RemoteEndpoint, WriteCallback> writer) {
+  private WebSocket sendMessage(
+      BiConsumer<RemoteEndpoint, org.eclipse.jetty.websocket.api.WriteCallback> writer,
+      org.eclipse.jetty.websocket.api.WriteCallback callback) {
     if (isOpen()) {
       try {
         RemoteEndpoint remote = session.getRemote();
-        writer.accept(remote, this);
+        writer.accept(remote, callback);
       } catch (Throwable x) {
         onWebSocketError(x);
       }
@@ -233,18 +282,18 @@ public class JettyWebSocket
   }
 
   @NonNull @Override
-  public WebSocket render(@NonNull Object value) {
-    return renderMessage(value, false);
+  public WebSocket render(@NonNull Object value, @NonNull WriteCallback callback) {
+    return renderMessage(value, false, callback);
   }
 
   @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value) {
-    return renderMessage(value, true);
+  public WebSocket renderBinary(@NonNull Object value, @NonNull WriteCallback callback) {
+    return renderMessage(value, true, callback);
   }
 
-  private WebSocket renderMessage(Object value, boolean binary) {
+  private WebSocket renderMessage(Object value, boolean binary, WriteCallback callback) {
     try {
-      Context.websocket(ctx, this, binary).render(value);
+      Context.websocket(ctx, this, binary, callback).render(value);
     } catch (Throwable x) {
       onWebSocketError(x);
     }
@@ -256,18 +305,6 @@ public class JettyWebSocket
     handleClose(closeStatus);
     return this;
   }
-
-  @Override
-  public void writeFailed(Throwable x) {
-    if (Server.connectionLost(x)) {
-      ctx.getRouter().getLog().debug("Websocket resulted in exception: {}", path, x);
-    } else {
-      ctx.getRouter().getLog().error("Websocket resulted in exception: {}", path, x);
-    }
-  }
-
-  @Override
-  public void writeSuccess() {}
 
   private void handleClose(WebSocketCloseStatus closeStatus) {
     WebSocket.OnClose callback = this.onCloseCallback.getAndSet(null);

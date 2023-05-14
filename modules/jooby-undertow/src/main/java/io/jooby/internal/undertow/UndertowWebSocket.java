@@ -42,7 +42,49 @@ import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 
 public class UndertowWebSocket extends AbstractReceiveListener
-    implements WebSocketConfigurer, WebSocket, WebSocketCallback<Void> {
+    implements WebSocketConfigurer, WebSocket {
+
+  private static class WriteCallbackAdaptor implements WebSocketCallback<Void> {
+
+    private UndertowWebSocket ws;
+
+    private WebSocket.WriteCallback callback;
+
+    public WriteCallbackAdaptor(UndertowWebSocket ws, WriteCallback callback) {
+      this.ws = ws;
+      this.callback = callback;
+    }
+
+    @Override
+    public void complete(WebSocketChannel channel, Void context) {
+      callback.operationComplete(ws, null);
+    }
+
+    @Override
+    public void onError(WebSocketChannel channel, Void context, Throwable cause) {
+      try {
+        if (Server.connectionLost(cause)) {
+          ws.ctx
+              .getRouter()
+              .getLog()
+              .debug(
+                  "WebSocket {} send method resulted in exception",
+                  ws.getContext().getRequestPath(),
+                  cause);
+        } else {
+          ws.ctx
+              .getRouter()
+              .getLog()
+              .error(
+                  "WebSocket {} send method resulted in exception",
+                  ws.getContext().getRequestPath(),
+                  cause);
+        }
+      } finally {
+        callback.operationComplete(ws, cause);
+      }
+    }
+  }
 
   /** All connected websocket. */
   private static final ConcurrentMap<String, List<UndertowWebSocket>> all =
@@ -118,32 +160,32 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull String message) {
-    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), false);
+  public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), false, callback);
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull byte[] message) {
-    return sendMessage(ByteBuffer.wrap(message), false);
+  public WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return sendMessage(ByteBuffer.wrap(message), false, callback);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message) {
-    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), true);
+  public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), true, callback);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message) {
-    return sendMessage(ByteBuffer.wrap(message), true);
+  public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return sendMessage(ByteBuffer.wrap(message), true, callback);
   }
 
-  private WebSocket sendMessage(ByteBuffer buffer, boolean binary) {
+  private WebSocket sendMessage(ByteBuffer buffer, boolean binary, WriteCallback callback) {
     if (isOpen()) {
       try {
         if (binary) {
-          WebSockets.sendBinary(buffer, channel, this);
+          WebSockets.sendBinary(buffer, channel, new WriteCallbackAdaptor(this, callback));
         } else {
-          WebSockets.sendText(buffer, channel, this);
+          WebSockets.sendText(buffer, channel, new WriteCallbackAdaptor(this, callback));
         }
       } catch (Throwable x) {
         onError(channel, x);
@@ -155,18 +197,18 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   @NonNull @Override
-  public WebSocket render(@NonNull Object value) {
-    return renderMessage(value, false);
+  public WebSocket render(@NonNull Object value, @NonNull WriteCallback callback) {
+    return renderMessage(value, false, callback);
   }
 
   @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value) {
-    return renderMessage(value, true);
+  public WebSocket renderBinary(@NonNull Object value, @NonNull WriteCallback callback) {
+    return renderMessage(value, true, callback);
   }
 
-  private WebSocket renderMessage(Object value, boolean binary) {
+  private WebSocket renderMessage(Object value, boolean binary, WriteCallback callback) {
     try {
-      Context.websocket(ctx, this, binary).render(value);
+      Context.websocket(ctx, this, binary, callback).render(value);
     } catch (Throwable x) {
       onError(channel, x);
     }
@@ -373,16 +415,6 @@ public class UndertowWebSocket extends AbstractReceiveListener
     if (sockets != null) {
       sockets.remove(ws);
     }
-  }
-
-  @Override
-  public void complete(WebSocketChannel channel, Void context) {
-    // NOOP
-  }
-
-  @Override
-  public void onError(WebSocketChannel channel, Void context, Throwable throwable) {
-    ctx.getRouter().getLog().error("WebSocket.send resulted in exception", throwable);
   }
 
   private Runnable webSocketTask(Runnable runnable, boolean isInit) {

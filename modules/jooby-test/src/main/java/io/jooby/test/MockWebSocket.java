@@ -75,33 +75,33 @@ public class MockWebSocket implements WebSocket {
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull String message) {
-    return sendObject(message);
+  public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendObject(message, callback);
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull byte[] message) {
-    return sendObject(message);
+  public WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return sendObject(message, callback);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message) {
-    return sendObject(message);
+  public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendObject(message, callback);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message) {
-    return sendObject(message);
+  public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return sendObject(message, callback);
   }
 
   @NonNull @Override
-  public WebSocket render(@NonNull Object value) {
-    return sendObject(value);
+  public WebSocket render(@NonNull Object value, @NonNull WriteCallback callback) {
+    return sendObject(value, callback);
   }
 
   @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value) {
-    return sendObject(value);
+  public WebSocket renderBinary(@NonNull Object value, @NonNull WriteCallback callback) {
+    return sendObject(value, callback);
   }
 
   @NonNull @Override
@@ -115,15 +115,21 @@ public class MockWebSocket implements WebSocket {
     return this;
   }
 
-  private WebSocket sendObject(Object message) {
+  private WebSocket sendObject(Object message, WriteCallback callback) {
     try {
       if (open) {
         configurer.fireClientMessage(message);
+        if (callback != null) {
+          callback.operationComplete(this, null);
+        }
       } else {
         throw new IllegalStateException("Attempt to send a message on closed web socket");
       }
     } catch (Throwable x) {
       handleError(x);
+      if (callback != null) {
+        callback.operationComplete(this, x);
+      }
     }
     return this;
   }
