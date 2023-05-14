@@ -46,7 +46,8 @@ public class Issue2818 {
                   "/ws/bin-text",
                   (ctx, initializer) -> {
                     initializer.onMessage(
-                        (ws, message) -> ws.sendBinary("bin-text://" + message.value(), true));
+                        (ws, message) ->
+                            ws.forEach(it -> it.sendBinary("bin-text://" + message.value())));
                   });
             })
         .ready(
@@ -94,9 +95,11 @@ public class Issue2818 {
                   (ctx, initializer) -> {
                     initializer.onMessage(
                         (ws, message) ->
-                            ws.sendBinary(
-                                ("bin-bytes://" + message.value()).getBytes(StandardCharsets.UTF_8),
-                                true));
+                            ws.forEach(
+                                it ->
+                                    it.sendBinary(
+                                        ("bin-bytes://" + message.value())
+                                            .getBytes(StandardCharsets.UTF_8))));
                   });
             })
         .ready(
@@ -141,7 +144,7 @@ public class Issue2818 {
                   "/ws/render-bin",
                   (ctx, initializer) -> {
                     initializer.onMessage(
-                        (ws, message) -> ws.renderBinary(Map.of("foo", "bar"), true));
+                        (ws, message) -> ws.forEach(it -> it.renderBinary(Map.of("foo", "bar"))));
                   });
             })
         .ready(

@@ -64,63 +64,51 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
   }
 
   @NonNull @Override
-  public WebSocket send(String message, boolean broadcast) {
-    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), false, broadcast);
+  public WebSocket send(String message) {
+    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), false);
   }
 
   @NonNull @Override
-  public WebSocket send(byte[] bytes, boolean broadcast) {
-    return sendMessage(Unpooled.wrappedBuffer(bytes), false, broadcast);
+  public WebSocket send(byte[] bytes) {
+    return sendMessage(Unpooled.wrappedBuffer(bytes), false);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message, boolean broadcast) {
-    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), true, broadcast);
+  public WebSocket sendBinary(@NonNull String message) {
+    return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), true);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message, boolean broadcast) {
-    return sendMessage(Unpooled.wrappedBuffer(message), true, broadcast);
+  public WebSocket sendBinary(@NonNull byte[] message) {
+    return sendMessage(Unpooled.wrappedBuffer(message), true);
   }
 
   @Override
-  public WebSocket render(Object value, boolean broadcast) {
-    return renderMessage(value, broadcast, false);
+  public WebSocket render(Object value) {
+    return renderMessage(value, false);
   }
 
   @Override
-  public WebSocket renderBinary(Object value, boolean broadcast) {
-    return renderMessage(value, broadcast, true);
+  public WebSocket renderBinary(Object value) {
+    return renderMessage(value, true);
   }
 
-  private WebSocket renderMessage(Object value, boolean broadcast, boolean binary) {
-    if (broadcast) {
-      for (NettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.renderMessage(value, false, binary);
-      }
-    } else {
-      try {
-        Context.websocket(netty, this, binary).render(value);
-      } catch (Throwable x) {
-        handleError(x);
-      }
+  private WebSocket renderMessage(Object value, boolean binary) {
+    try {
+      Context.websocket(netty, this, binary).render(value);
+    } catch (Throwable x) {
+      handleError(x);
     }
     return this;
   }
 
-  private WebSocket sendMessage(ByteBuf buffer, boolean binary, boolean broadcast) {
-    if (broadcast) {
-      for (NettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.sendMessage(buffer, binary, false);
-      }
+  private WebSocket sendMessage(ByteBuf buffer, boolean binary) {
+    if (isOpen()) {
+      WebSocketFrame frame =
+          binary ? new BinaryWebSocketFrame(buffer) : new TextWebSocketFrame(buffer);
+      netty.ctx.channel().writeAndFlush(frame).addListener(this);
     } else {
-      if (isOpen()) {
-        WebSocketFrame frame =
-            binary ? new BinaryWebSocketFrame(buffer) : new TextWebSocketFrame(buffer);
-        netty.ctx.channel().writeAndFlush(frame).addListener(this);
-      } else {
-        handleError(new IllegalStateException("Attempt to send a message on closed web socket"));
-      }
+      handleError(new IllegalStateException("Attempt to send a message on closed web socket"));
     }
     return this;
   }
@@ -143,6 +131,20 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
 
   public boolean isOpen() {
     return open.get() && netty.ctx.channel().isOpen();
+  }
+
+  @Override
+  public void forEach(SneakyThrows.Consumer<WebSocket> callback) {
+    for (NettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+      try {
+        callback.accept(ws);
+      } catch (Exception cause) {
+        netty
+            .getRouter()
+            .getLog()
+            .debug("Broadcast of: {} resulted in exception", netty.getRequestPath(), cause);
+      }
+    }
   }
 
   @Override

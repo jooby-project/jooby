@@ -185,73 +185,68 @@ public class JettyWebSocket
     return open.get() && session.isOpen();
   }
 
+  @Override
+  public void forEach(SneakyThrows.Consumer<WebSocket> callback) {
+    for (JettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+      try {
+        callback.accept(ws);
+      } catch (Exception cause) {
+        ctx.getRouter().getLog().debug("Broadcast of: {} resulted in exception", ws.path, cause);
+      }
+    }
+  }
+
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message, boolean broadcast) {
+  public WebSocket sendBinary(@NonNull String message) {
     return sendMessage(
-        broadcast,
         (remote, callback) ->
             remote.sendBytes(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), callback));
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull String message, boolean broadcast) {
-    return sendMessage(broadcast, (remote, callback) -> remote.sendString(message, callback));
+  public WebSocket send(@NonNull String message) {
+    return sendMessage((remote, callback) -> remote.sendString(message, callback));
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull byte[] message, boolean broadcast) {
-    return send(new String(message, StandardCharsets.UTF_8), broadcast);
+  public WebSocket send(@NonNull byte[] message) {
+    return send(new String(message, StandardCharsets.UTF_8));
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message, boolean broadcast) {
-    return sendMessage(
-        broadcast, (remote, callback) -> remote.sendBytes(ByteBuffer.wrap(message), callback));
+  public WebSocket sendBinary(@NonNull byte[] message) {
+    return sendMessage((remote, callback) -> remote.sendBytes(ByteBuffer.wrap(message), callback));
   }
 
-  private WebSocket sendMessage(
-      boolean broadcast, BiConsumer<RemoteEndpoint, WriteCallback> writer) {
-    if (broadcast) {
-      for (JettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.sendMessage(false, writer);
+  private WebSocket sendMessage(BiConsumer<RemoteEndpoint, WriteCallback> writer) {
+    if (isOpen()) {
+      try {
+        RemoteEndpoint remote = session.getRemote();
+        writer.accept(remote, this);
+      } catch (Throwable x) {
+        onWebSocketError(x);
       }
     } else {
-      if (isOpen()) {
-        try {
-          RemoteEndpoint remote = session.getRemote();
-          writer.accept(remote, this);
-        } catch (Throwable x) {
-          onWebSocketError(x);
-        }
-      } else {
-        onWebSocketError(
-            new IllegalStateException("Attempt to send a message on closed web socket"));
-      }
+      onWebSocketError(new IllegalStateException("Attempt to send a message on closed web socket"));
     }
     return this;
   }
 
   @NonNull @Override
-  public WebSocket render(@NonNull Object value, boolean broadcast) {
-    return renderMessage(value, broadcast, false);
+  public WebSocket render(@NonNull Object value) {
+    return renderMessage(value, false);
   }
 
   @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value, boolean broadcast) {
-    return renderMessage(value, broadcast, true);
+  public WebSocket renderBinary(@NonNull Object value) {
+    return renderMessage(value, true);
   }
 
-  private WebSocket renderMessage(Object value, boolean broadcast, boolean binary) {
-    if (broadcast) {
-      for (JettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.renderMessage(value, false, binary);
-      }
-    } else {
-      try {
-        Context.websocket(ctx, this, binary).render(value);
-      } catch (Throwable x) {
-        onWebSocketError(x);
-      }
+  private WebSocket renderMessage(Object value, boolean binary) {
+    try {
+      Context.websocket(ctx, this, binary).render(value);
+    } catch (Throwable x) {
+      onWebSocketError(x);
     }
     return this;
   }

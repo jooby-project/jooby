@@ -104,71 +104,71 @@ public class UndertowWebSocket extends AbstractReceiveListener
     return open.get() && channel.isOpen();
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull String message, boolean broadcast) {
-    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), false, broadcast);
+  @Override
+  public void forEach(SneakyThrows.Consumer<WebSocket> callback) {
+    for (UndertowWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+      try {
+        callback.accept(ws);
+      } catch (Exception cause) {
+        ctx.getRouter()
+            .getLog()
+            .debug("Broadcast of: {} resulted in exception", ws.ctx.getRequestPath(), cause);
+      }
+    }
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull byte[] message, boolean broadcast) {
-    return sendMessage(ByteBuffer.wrap(message), false, broadcast);
+  public WebSocket send(@NonNull String message) {
+    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), false);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message, boolean broadcast) {
-    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), true, broadcast);
+  public WebSocket send(@NonNull byte[] message) {
+    return sendMessage(ByteBuffer.wrap(message), false);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message, boolean broadcast) {
-    return sendMessage(ByteBuffer.wrap(message), true, broadcast);
+  public WebSocket sendBinary(@NonNull String message) {
+    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), true);
   }
 
-  private WebSocket sendMessage(ByteBuffer buffer, boolean binary, boolean broadcast) {
-    if (broadcast) {
-      for (UndertowWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.sendMessage(buffer, binary, false);
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull byte[] message) {
+    return sendMessage(ByteBuffer.wrap(message), true);
+  }
+
+  private WebSocket sendMessage(ByteBuffer buffer, boolean binary) {
+    if (isOpen()) {
+      try {
+        if (binary) {
+          WebSockets.sendBinary(buffer, channel, this);
+        } else {
+          WebSockets.sendText(buffer, channel, this);
+        }
+      } catch (Throwable x) {
+        onError(channel, x);
       }
     } else {
-      if (isOpen()) {
-        try {
-          if (binary) {
-            WebSockets.sendBinary(buffer, channel, this);
-          } else {
-            WebSockets.sendText(buffer, channel, this);
-          }
-        } catch (Throwable x) {
-          onError(channel, x);
-        }
-      } else {
-        onError(
-            channel, new IllegalStateException("Attempt to send a message on closed web socket"));
-      }
+      onError(channel, new IllegalStateException("Attempt to send a message on closed web socket"));
     }
     return this;
   }
 
   @NonNull @Override
-  public WebSocket render(@NonNull Object value, boolean broadcast) {
-    return renderMessage(value, broadcast, false);
+  public WebSocket render(@NonNull Object value) {
+    return renderMessage(value, false);
   }
 
   @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value, boolean broadcast) {
-    return renderMessage(value, broadcast, true);
+  public WebSocket renderBinary(@NonNull Object value) {
+    return renderMessage(value, true);
   }
 
-  private WebSocket renderMessage(Object value, boolean broadcast, boolean binary) {
-    if (broadcast) {
-      for (UndertowWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.renderMessage(value, false, binary);
-      }
-    } else {
-      try {
-        Context.websocket(ctx, this, binary).render(value);
-      } catch (Throwable x) {
-        onError(channel, x);
-      }
+  private WebSocket renderMessage(Object value, boolean binary) {
+    try {
+      Context.websocket(ctx, this, binary).render(value);
+    } catch (Throwable x) {
+      onError(channel, x);
     }
     return this;
   }

@@ -69,34 +69,39 @@ public class MockWebSocket implements WebSocket {
     return open;
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull String message, boolean broadcast) {
-    return sendObject(message, broadcast);
+  @Override
+  public void forEach(SneakyThrows.Consumer<WebSocket> callback) {
+    callback.accept(this);
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull byte[] message, boolean broadcast) {
-    return sendObject(message, broadcast);
+  public WebSocket send(@NonNull String message) {
+    return sendObject(message);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message, boolean broadcast) {
-    return sendObject(message, broadcast);
+  public WebSocket send(@NonNull byte[] message) {
+    return sendObject(message);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message, boolean broadcast) {
-    return sendObject(message, broadcast);
+  public WebSocket sendBinary(@NonNull String message) {
+    return sendObject(message);
   }
 
   @NonNull @Override
-  public WebSocket render(@NonNull Object value, boolean broadcast) {
-    return sendObject(value, broadcast);
+  public WebSocket sendBinary(@NonNull byte[] message) {
+    return sendObject(message);
   }
 
   @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value, boolean broadcast) {
-    return sendObject(value, broadcast);
+  public WebSocket render(@NonNull Object value) {
+    return sendObject(value);
+  }
+
+  @NonNull @Override
+  public WebSocket renderBinary(@NonNull Object value) {
+    return sendObject(value);
   }
 
   @NonNull @Override
@@ -110,7 +115,7 @@ public class MockWebSocket implements WebSocket {
     return this;
   }
 
-  private WebSocket sendObject(Object message, boolean broadcast) {
+  private WebSocket sendObject(Object message) {
     try {
       if (open) {
         configurer.fireClientMessage(message);
