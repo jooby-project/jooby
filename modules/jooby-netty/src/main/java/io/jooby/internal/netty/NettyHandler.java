@@ -171,7 +171,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
           if (context == null) {
             log.debug("execution resulted in connection lost", cause);
           } else {
-            log.debug("%s %s", context.getMethod(), context.getRequestPath(), cause);
+            log.debug("{} {}", context.getMethod(), context.getRequestPath(), cause);
           }
         }
       } else {
