@@ -22,21 +22,31 @@ import io.jooby.WebSocket;
 public class WebSocketSender extends ForwardingContext implements DefaultContext {
 
   private final WebSocket ws;
+  private final boolean binary;
 
-  public WebSocketSender(@NonNull Context context, @NonNull WebSocket ws) {
+  public WebSocketSender(@NonNull Context context, @NonNull WebSocket ws, boolean binary) {
     super(context);
     this.ws = ws;
+    this.binary = binary;
   }
 
   @NonNull @Override
   public Context send(@NonNull String data, @NonNull Charset charset) {
-    ws.send(data);
+    if (binary) {
+      ws.sendBinary(data.getBytes(charset));
+    } else {
+      ws.send(data.getBytes(charset));
+    }
     return this;
   }
 
   @NonNull @Override
   public Context send(@NonNull byte[] data) {
-    ws.send(data);
+    if (binary) {
+      ws.sendBinary(data);
+    } else {
+      ws.send(data);
+    }
     return this;
   }
 

@@ -85,13 +85,22 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket, ChannelFu
 
   @Override
   public WebSocket render(Object value, boolean broadcast) {
+    return renderMessage(value, broadcast, false);
+  }
+
+  @Override
+  public WebSocket renderBinary(Object value, boolean broadcast) {
+    return renderMessage(value, broadcast, true);
+  }
+
+  private WebSocket renderMessage(Object value, boolean broadcast, boolean binary) {
     if (broadcast) {
-      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.render(value, false);
+      for (NettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+        ws.renderMessage(value, false, binary);
       }
     } else {
       try {
-        Context.websocket(netty, this).render(value);
+        Context.websocket(netty, this, binary).render(value);
       } catch (Throwable x) {
         handleError(x);
       }

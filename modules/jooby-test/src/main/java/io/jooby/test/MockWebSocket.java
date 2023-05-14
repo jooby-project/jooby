@@ -95,6 +95,11 @@ public class MockWebSocket implements WebSocket {
   }
 
   @NonNull @Override
+  public WebSocket renderBinary(@NonNull Object value, boolean broadcast) {
+    return sendObject(value, broadcast);
+  }
+
+  @NonNull @Override
   public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
     try {
       open = false;

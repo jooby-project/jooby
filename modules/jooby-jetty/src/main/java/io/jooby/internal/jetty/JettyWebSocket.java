@@ -233,13 +233,22 @@ public class JettyWebSocket
 
   @NonNull @Override
   public WebSocket render(@NonNull Object value, boolean broadcast) {
+    return renderMessage(value, broadcast, false);
+  }
+
+  @NonNull @Override
+  public WebSocket renderBinary(@NonNull Object value, boolean broadcast) {
+    return renderMessage(value, broadcast, true);
+  }
+
+  private WebSocket renderMessage(Object value, boolean broadcast, boolean binary) {
     if (broadcast) {
-      for (WebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
-        ws.render(value, false);
+      for (JettyWebSocket ws : all.getOrDefault(key, Collections.emptyList())) {
+        ws.renderMessage(value, false, binary);
       }
     } else {
       try {
-        Context.websocket(ctx, this).render(value);
+        Context.websocket(ctx, this, binary).render(value);
       } catch (Throwable x) {
         onWebSocketError(x);
       }

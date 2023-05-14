@@ -263,6 +263,26 @@ public interface WebSocket {
   @NonNull WebSocket render(@NonNull Object value, boolean broadcast);
 
   /**
+   * Encode a value and send a binary message to client.
+   *
+   * @param value Value to send.
+   * @return This websocket.
+   */
+  default @NonNull WebSocket renderBinary(@NonNull Object value) {
+    return renderBinary(value, false);
+  }
+
+  /**
+   * Encode a value and send a binary message to current client (broadcast = false) or to ALL
+   * connected clients under the websocket path (broadcast = true).
+   *
+   * @param value Value to send.
+   * @param broadcast True to send to all connected clients.
+   * @return This websocket.
+   */
+  @NonNull WebSocket renderBinary(@NonNull Object value, boolean broadcast);
+
+  /**
    * Close the web socket and send a {@link WebSocketCloseStatus#NORMAL} code to client.
    *
    * <p>This method fires a {@link OnClose#onClose(WebSocket, WebSocketCloseStatus)} callback.

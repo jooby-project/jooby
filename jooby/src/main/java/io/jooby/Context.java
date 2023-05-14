@@ -1387,13 +1387,14 @@ public interface Context extends Registry {
    * <p>This context is necessary for creating a bridge between {@link MessageEncoder} and {@link
    * WebSocket}.
    *
-   * <p>This method is part of Public API, but direct usage is discourage.
+   * <p>This method is part of Public API, but direct usage is discouraged.
    *
    * @param ctx Originating context.
    * @param ws WebSocket.
+   * @param binary True for sending binary message.
    * @return Read only context.
    */
-  static @NonNull Context websocket(@NonNull Context ctx, @NonNull WebSocket ws) {
-    return new WebSocketSender(ctx, ws);
+  static @NonNull Context websocket(@NonNull Context ctx, @NonNull WebSocket ws, boolean binary) {
+    return new WebSocketSender(ctx, ws, binary);
   }
 }
