@@ -10,18 +10,22 @@ import java.lang.reflect.Type;
 import io.jooby.Reified;
 import io.jooby.ResultHandler;
 import io.jooby.Route.Filter;
+import io.jstach.jstachio.JStachio;
 
 class JStachioResultHandler implements ResultHandler {
 
-  private final JStachioMessageEncoder encoder;
+  private final JStachio jstachio;
+  private final JStachioBuffer buffer;
 
-  public JStachioResultHandler(JStachioMessageEncoder encoder) {
-    this.encoder = encoder;
+  public JStachioResultHandler(JStachio jstachio, JStachioBuffer buffer) {
+    super();
+    this.jstachio = jstachio;
+    this.buffer = buffer;
   }
 
   @Override
   public boolean matches(Type type) {
-    return encoder.supportsType(Reified.rawType(type));
+    return jstachio.supportsType(Reified.rawType(type));
   }
 
   @Override
@@ -31,6 +35,6 @@ class JStachioResultHandler implements ResultHandler {
 
   @Override
   public Filter create() {
-    return new JStachioHandler(encoder);
+    return new JStachioHandler(jstachio, buffer);
   }
 }
