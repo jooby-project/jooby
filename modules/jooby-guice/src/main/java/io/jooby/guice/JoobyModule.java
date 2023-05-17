@@ -18,6 +18,7 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
@@ -62,21 +63,21 @@ public class JoobyModule extends AbstractModule {
       } else {
         binding = bind(key.getType());
       }
-      // Guice does not support jakarta inject yet
-      // https://github.com/google/guice/issues/1383
-      javax.inject.Provider legacyProvider = () -> provider.get();
-      binding.toProvider(legacyProvider);
+      binding.toProvider(provider);
     }
   }
 
   /*package*/ void configureEnv(Environment env) {
     Config config = env.getConfig();
+    // root nodes
+    traverse("", config.root());
 
     // configuration properties
     for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
       String name = entry.getKey();
       Named named = Names.named(name);
       Object value = entry.getValue().unwrapped();
+
       if (value instanceof List) {
         List values = (List) value;
         componentType(values)
@@ -90,6 +91,18 @@ public class JoobyModule extends AbstractModule {
       }
       bindConstant().annotatedWith(named).to(value.toString());
     }
+  }
+
+  /*package*/ void traverse(String p, ConfigObject root) {
+    root.forEach(
+        (n, v) -> {
+          if (v instanceof ConfigObject child) {
+            var path = p + n;
+            var named = Names.named(path);
+            bind(Config.class).annotatedWith(named).toProvider(child::toConfig);
+            traverse(path + ".", child);
+          }
+        });
   }
 
   private Stream<Class> componentType(List values) {

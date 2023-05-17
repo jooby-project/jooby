@@ -11,8 +11,7 @@ import io.jooby.annotation.Path;
 @Path("/")
 public class ControllerV22457 {
 
-  @javax.inject.Inject // Guice does not support jakarta inject yet.
-  private WelcomeService2457 welcomeService;
+  @jakarta.inject.Inject private WelcomeService2457 welcomeService;
 
   @GET("/welcome")
   public String sayHi() {

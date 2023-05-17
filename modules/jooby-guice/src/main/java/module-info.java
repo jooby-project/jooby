@@ -11,5 +11,4 @@ module io.jooby.guice {
   requires typesafe.config;
   requires com.google.guice;
   requires jakarta.inject;
-  requires javax.inject;
 }

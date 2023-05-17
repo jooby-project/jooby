@@ -15,7 +15,7 @@ public class HealthController2457 {
 
   private WelcomeService2457 welcomeService;
 
-  @javax.inject.Inject // Guice does not support jakarta annotations
+  @jakarta.inject.Inject
   public HealthController2457(WelcomeService2457 welcomeService) {
     super();
     this.welcomeService = welcomeService;
