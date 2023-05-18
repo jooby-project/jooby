@@ -262,6 +262,15 @@ public class JettyServer extends io.jooby.Server.Base {
     return this;
   }
 
+  @NonNull @Override
+  public List<String> getLoggerOff() {
+    return List.of(
+        "org.eclipse.jetty.server.Server",
+        "org.eclipse.jetty.server.handler.ContextHandler",
+        "org.eclipse.jetty.server.AbstractConnector",
+        "org.eclipse.jetty.server.Server");
+  }
+
   private DeflaterPool newDeflater(int compressionLevel) {
     ThreadPool.SizedThreadPool threads = server.getBean(ThreadPool.SizedThreadPool.class);
     int capacity = threads == null ? CompressionPool.DEFAULT_CAPACITY : threads.getMaxThreads();

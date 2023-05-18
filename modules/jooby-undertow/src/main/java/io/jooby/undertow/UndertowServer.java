@@ -159,6 +159,11 @@ public class UndertowServer extends Server.Base {
     }
   }
 
+  @NonNull @Override
+  public List<String> getLoggerOff() {
+    return List.of("org.xnio", "io.undertow", "org.jboss.threads");
+  }
+
   private SslClientAuthMode toSslClientAuthMode(SslOptions.ClientAuth clientAuth) {
     switch (clientAuth) {
       case REQUESTED:

@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 import java.io.EOFException;
@@ -20,6 +21,7 @@ import java.util.function.Predicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.internal.MutedServer;
 
 /**
  * Web server contract. Defines operations to start, join and stop a web server. Jooby comes with
@@ -110,7 +112,7 @@ public interface Server {
 
     protected void addShutdownHook() {
       if (useShutdownHook) {
-        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+        Runtime.getRuntime().addShutdownHook(new Thread(MutedServer.mute(this)::stop));
       }
     }
   }
@@ -139,6 +141,18 @@ public interface Server {
    * @return This server.
    */
   @NonNull Server start(@NonNull Jooby application);
+
+  /**
+   * Utility method to turn off odd logger. This help to ensure same startup log lines across server
+   * implementations.
+   *
+   * <p>These logs are silent at application startup time.
+   *
+   * @return Name of the logs we want to temporarily silent.
+   */
+  default @NonNull List<String> getLoggerOff() {
+    return emptyList();
+  }
 
   /**
    * Block current thread.

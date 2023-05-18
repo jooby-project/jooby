@@ -50,6 +50,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.LocaleUtils;
+import io.jooby.internal.MutedServer;
 import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
 import jakarta.inject.Provider;
@@ -866,7 +867,9 @@ public class Jooby implements Router, Registry {
     if (server == null) {
       this.server = loadServer();
     }
-
+    if (!server.getLoggerOff().isEmpty()) {
+      this.server = MutedServer.mute(this.server);
+    }
     try {
       if (serverOptions == null) {
         serverOptions = ServerOptions.from(getEnvironment().getConfig()).orElse(null);
@@ -884,7 +887,7 @@ public class Jooby implements Router, Registry {
       try {
         server.stop();
       } catch (Throwable stopError) {
-        log.info("Server stop resulted in exception", stopError);
+        log.debug("Server stop resulted in exception", stopError);
       }
       // rethrow
       throw startupError instanceof StartupException
@@ -1385,7 +1388,7 @@ public class Jooby implements Router, Registry {
           Class serverRefClass = loader.loadClass(hookClassname);
           Constructor constructor = serverRefClass.getDeclaredConstructor();
           Consumer<Server> consumer = (Consumer<Server>) constructor.newInstance();
-          consumer.accept(server);
+          consumer.accept(MutedServer.mute(server));
         } catch (Exception x) {
           throw SneakyThrows.propagate(x);
         }

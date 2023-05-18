@@ -31,8 +31,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * <p>NOTE: This class must be call it before instantiating a logger instance. Otherwise, this setup
  * is completely ignored.
  *
- * @since 2.0.0
  * @author edgar
+ * @since 2.0.0
  */
 public final class LogConfigurer {
   private LogConfigurer() {}

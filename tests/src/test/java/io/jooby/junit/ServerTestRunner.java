@@ -16,6 +16,7 @@ import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
+import io.jooby.internal.MutedServer;
 import io.jooby.test.WebClient;
 
 public class ServerTestRunner {
@@ -82,7 +83,7 @@ public class ServerTestRunner {
       } else {
         https = null;
       }
-      server.start(app);
+      MutedServer.mute(server).start(app);
       try (WebClient http = new WebClient("http", options.getPort(), followRedirects)) {
         onReady.accept(http, https);
       } finally {
@@ -93,7 +94,7 @@ public class ServerTestRunner {
     } catch (AssertionError x) {
       throw SneakyThrows.propagate(serverInfo(x));
     } finally {
-      server.stop();
+      MutedServer.mute(server).stop();
     }
   }
 

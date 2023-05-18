@@ -30,4 +30,7 @@ module io.jooby {
   requires static unbescape;
   requires kotlinx.coroutines.core.jvm;
   requires kotlin.stdlib;
+  requires static ch.qos.logback.classic;
+  requires static org.apache.logging.log4j;
+  requires static org.apache.logging.log4j.core;
 }
