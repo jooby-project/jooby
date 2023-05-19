@@ -24,7 +24,6 @@ public class ServerOptionsTest {
                     .withValue("server.ioThreads", fromAnyRef(4))
                     .withValue("server.name", fromAnyRef("Test"))
                     .withValue("server.bufferSize", fromAnyRef(1024))
-                    .withValue("server.gzip", fromAnyRef(true))
                     .withValue("server.defaultHeaders", fromAnyRef(false))
                     .withValue("server.compressionLevel", fromAnyRef(8))
                     .withValue("server.maxRequestSize", fromAnyRef(2048))
@@ -38,7 +37,6 @@ public class ServerOptionsTest {
     assertEquals(4, options.getIoThreads());
     assertEquals("Test", options.getServer());
     assertEquals(1024, options.getBufferSize());
-    assertEquals(true, options.getGzip());
     assertEquals(8, options.getCompressionLevel());
     assertEquals(2048, options.getMaxRequestSize());
     assertEquals(32, options.getWorkerThreads());

@@ -63,11 +63,6 @@ public class MutedServer implements Server {
     return delegate.getLoggerOff();
   }
 
-  @NonNull @Deprecated
-  public void join() {
-    delegate.join();
-  }
-
   @NonNull public Server stop() {
     return logOff(
         delegate.getLoggerOff(),

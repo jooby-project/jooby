@@ -155,20 +155,6 @@ public interface Server {
   }
 
   /**
-   * Block current thread.
-   *
-   * @deprecated This method is planned to be removed in next major release (3.x)
-   */
-  @Deprecated
-  @NonNull default void join() {
-    try {
-      Thread.currentThread().join();
-    } catch (InterruptedException x) {
-      Thread.currentThread().interrupt();
-    }
-  }
-
-  /**
    * Stop the server.
    *
    * @return Stop the server.

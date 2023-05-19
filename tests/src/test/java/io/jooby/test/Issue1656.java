@@ -26,7 +26,8 @@ public class Issue1656 {
     runner
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setGzip(true));
+              app.setServerOptions(
+                  new ServerOptions().setCompressionLevel(ServerOptions.DEFAULT_COMPRESSION_LEVEL));
               app.assets("/static/*", "/files");
             })
         .ready(

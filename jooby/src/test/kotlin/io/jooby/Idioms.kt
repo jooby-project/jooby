@@ -42,7 +42,7 @@ class Idioms :
     serverOptions {
       bufferSize = 8194
       ioThreads = 8
-      gzip = true
+      compressionLevel = 6
       defaultHeaders = false
       maxRequestSize = 8000
       port = 8080

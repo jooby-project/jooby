@@ -150,7 +150,8 @@ public class ServerOptions {
         options.setDefaultHeaders(conf.getBoolean("server.defaultHeaders"));
       }
       if (conf.hasPath("server.gzip")) {
-        options.setGzip(conf.getBoolean("server.gzip"));
+        throw new UnsupportedOperationException(
+            "server.gzip was removed, use server.compressionLevel instead.");
       }
       if (conf.hasPath("server.compressionLevel")) {
         options.setCompressionLevel(conf.getInt("server.compressionLevel"));
@@ -356,34 +357,6 @@ public class ServerOptions {
    */
   public @NonNull ServerOptions setWorkerThreads(int workerThreads) {
     this.workerThreads = workerThreads;
-    return this;
-  }
-
-  /**
-   * True if gzip is enabled.
-   *
-   * @return True if gzip is enabled.
-   * @deprecated In favor of {@link #getCompressionLevel()}.
-   */
-  @Deprecated
-  public boolean getGzip() {
-    return compressionLevel != null;
-  }
-
-  /**
-   * Enabled/disabled gzip.
-   *
-   * @param gzip True to enabled it. Default is disabled(false).
-   * @return This options.
-   * @deprecated In favor of {@link #setCompressionLevel(Integer)}.
-   */
-  @Deprecated
-  public @NonNull ServerOptions setGzip(boolean gzip) {
-    if (gzip) {
-      this.compressionLevel = DEFAULT_COMPRESSION_LEVEL;
-    } else {
-      this.compressionLevel = null;
-    }
     return this;
   }
 

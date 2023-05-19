@@ -1211,13 +1211,7 @@ public class Jooby implements Router, Registry {
       @NonNull String[] args,
       @NonNull ExecutionMode executionMode,
       @NonNull Supplier<Jooby> provider) {
-    Jooby app = createApp(args, executionMode, provider);
-    Server server = app.start();
-    Config conf = app.getConfig();
-    boolean join = conf.hasPath("server.join") && conf.getBoolean("server.join");
-    if (join) {
-      server.join();
-    }
+    createApp(args, executionMode, provider).start();
   }
 
   /**

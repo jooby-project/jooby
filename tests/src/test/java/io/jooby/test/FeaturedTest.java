@@ -413,7 +413,8 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setGzip(true));
+              app.setServerOptions(
+                  new ServerOptions().setCompressionLevel(ServerOptions.DEFAULT_COMPRESSION_LEVEL));
               app.get("/gzip", ctx -> text);
             })
         .ready(
