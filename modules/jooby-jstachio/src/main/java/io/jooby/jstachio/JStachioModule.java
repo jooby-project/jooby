@@ -5,16 +5,12 @@
  */
 package io.jooby.jstachio;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import java.util.ServiceLoader;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.MediaType;
 import io.jooby.ServiceRegistry;
 import io.jstach.jstachio.JStachio;
 import io.jstach.jstachio.spi.JStachioExtension;
@@ -36,8 +32,8 @@ import io.jstach.jstachio.spi.JStachioFactory;
 public class JStachioModule implements Extension {
 
   private @Nullable JStachio jstachio;
-  private Charset charset = StandardCharsets.UTF_8;
   private int bufferSize = 8 * 1024;
+  private boolean reuseBuffer;
 
   /**
    * Sets the jstachio to use instead of the default.
@@ -47,17 +43,6 @@ public class JStachioModule implements Extension {
    */
   public @NonNull JStachioModule jstachio(@Nullable JStachio jstachio) {
     this.jstachio = jstachio;
-    return this;
-  }
-
-  /**
-   * Sets the character set for rendering. Default is <code>UTF8</code>.
-   *
-   * @param charset never null.
-   * @return this
-   */
-  public @NonNull JStachioModule charset(@NonNull Charset charset) {
-    this.charset = Objects.requireNonNull(charset);
     return this;
   }
 
@@ -73,6 +58,18 @@ public class JStachioModule implements Extension {
       throw new IllegalArgumentException("bufferSize should be greater than 0");
     }
     this.bufferSize = bufferSize;
+    return this;
+  }
+
+  /**
+   * Allow simple reuse of raw byte buffers. It is usually used through <code>ThreadLocal</code>
+   * variables.
+   *
+   * @param reuseBuffer True for reuse the buffer. Default is: <code>false</code>
+   * @return This module.
+   */
+  public JStachioModule reuseBuffer(boolean reuseBuffer) {
+    this.reuseBuffer = reuseBuffer;
     return this;
   }
 
@@ -99,9 +96,11 @@ public class JStachioModule implements Extension {
     } else {
       services.put(JStachio.class, this.jstachio);
     }
-    JStachioMessageEncoder encoder = new JStachioMessageEncoder(j, this.charset, this.bufferSize);
-    JStachioResultHandler handler = new JStachioResultHandler(encoder);
-    application.encoder(MediaType.html, encoder);
+    JStachioBuffer buffer = JStachioBuffer.of(bufferSize, reuseBuffer);
+
+    JStachioMessageEncoder encoder = new JStachioMessageEncoder(j, buffer);
+    JStachioResultHandler handler = new JStachioResultHandler(j, buffer);
+    application.encoder(encoder);
     application.resultHandler(handler);
   }
 
