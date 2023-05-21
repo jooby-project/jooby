@@ -233,7 +233,7 @@ done using `parameters` compiler option.
             <args>
               <arg>-java-parameters</arg>
             </args>
-            <jvmTarget>1.8</jvmTarget>
+            <jvmTarget>17</jvmTarget>
             ...
           </configuration>
         </plugin>

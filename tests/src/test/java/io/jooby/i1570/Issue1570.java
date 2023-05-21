@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package issues;
+package io.jooby.i1570;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -17,7 +17,6 @@ import io.jooby.Value;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 import io.jooby.test.MockSession;
-import issues.i1570.App1570;
 
 public class Issue1570 {
 

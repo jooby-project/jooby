@@ -85,6 +85,11 @@
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-test</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
     </dependency>
@@ -131,6 +136,12 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
 

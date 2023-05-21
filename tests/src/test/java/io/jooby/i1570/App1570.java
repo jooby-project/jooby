@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package issues.i1570;
+package io.jooby.i1570;
 
 import io.jooby.Jooby;
 import io.jooby.MediaType;
