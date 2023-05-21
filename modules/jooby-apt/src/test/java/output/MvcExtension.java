@@ -10,7 +10,6 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MvcFactory;
 import jakarta.inject.Provider;
-import source.Controller1527;
 
 public class MvcExtension implements MvcFactory {
 
@@ -20,10 +19,11 @@ public class MvcExtension implements MvcFactory {
             "/mypath",
             ctx -> {
               MyController myController = provider.get();
-              myController.controllerMethod();
+              myController.controllerMethod("xx", 1);
               return ctx;
             })
-        .attribute("RequireRole", Controller1527.Role.USER);
+        .mvcMethod(
+            MyController.class.getDeclaredMethod("controllerMethod", String.class, int.class));
   }
 
   @Override

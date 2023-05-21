@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Spliterator;
@@ -460,21 +461,28 @@ public class Jooby implements Router, Registry {
   @NonNull @Override
   public <T> Jooby mvc(@NonNull Class<T> router, @NonNull Provider<T> provider) {
     try {
-      ServiceLoader<MvcFactory> modules = ServiceLoader.load(MvcFactory.class);
-      MvcFactory module =
-          stream(modules.spliterator(), false)
-              .filter(it -> it.supports(router))
-              .findFirst()
-              .orElseGet(
-                  () ->
-                      /** Make happy IDE incremental build: */
-                      mvcReflectionFallback(router, getClassLoader())
-                          .orElseThrow(() -> Usage.mvcRouterNotFound(router)));
+      MvcFactory module = loadModule(router);
       Extension extension = module.create(provider);
       extension.install(this);
       return this;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
+    }
+  }
+
+  private MvcFactory loadModule(Class router) {
+    try {
+      ServiceLoader<MvcFactory> modules = ServiceLoader.load(MvcFactory.class);
+      return stream(modules.spliterator(), false)
+          .filter(it -> it.supports(router))
+          .findFirst()
+          .orElseGet(
+              () ->
+                  /** Make happy IDE incremental build: */
+                  mvcReflectionFallback(router, getClassLoader()));
+    } catch (ServiceConfigurationError notfound) {
+      /** Make happy IDE incremental build: */
+      return mvcReflectionFallback(router, getClassLoader());
     }
   }
 
@@ -1398,15 +1406,15 @@ public class Jooby implements Router, Registry {
    * @param classLoader Class loader.
    * @return Mvc factory.
    */
-  private Optional<MvcFactory> mvcReflectionFallback(Class source, ClassLoader classLoader) {
+  private MvcFactory mvcReflectionFallback(Class source, ClassLoader classLoader) {
     try {
       String moduleName = source.getName() + "$Module";
       Class<?> moduleType = classLoader.loadClass(moduleName);
       Constructor<?> constructor = moduleType.getDeclaredConstructor();
       getLog().debug("Loading mvc using reflection: " + source);
-      return Optional.of((MvcFactory) constructor.newInstance());
+      return (MvcFactory) constructor.newInstance();
     } catch (Exception x) {
-      return Optional.empty();
+      throw Usage.mvcRouterNotFound(source);
     }
   }
 

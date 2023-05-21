@@ -21,7 +21,7 @@ public class MyControllerHandler implements Route.Handler {
 
   @NonNull @Override
   public Object apply(@NonNull Context ctx) throws Exception {
-    StatusCode statusCode = provider.get().controllerMethod();
+    StatusCode statusCode = provider.get().controllerMethod("ss", 1);
     ctx.setResponseCode(statusCode);
     return statusCode;
   }

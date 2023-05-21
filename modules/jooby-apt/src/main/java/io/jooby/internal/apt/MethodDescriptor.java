@@ -114,6 +114,14 @@ public class MethodDescriptor {
           "io.jooby.Route");
     }
 
+    public static MethodDescriptor setMvcMethod() {
+      return new MethodDescriptor(
+          JoobyTypes.Route,
+          "setMvcMethod",
+          java.lang.reflect.Method.class.getName(),
+          "io.jooby.Route");
+    }
+
     public static MethodDescriptor setExecutorKey() {
       return new MethodDescriptor(
           JoobyTypes.Route, "setExecutorKey", String.class.getName(), "io.jooby.Route");

@@ -92,7 +92,7 @@ public class JoobyProcessor extends AbstractProcessor {
   @Override
   public Set<String> getSupportedAnnotationTypes() {
     return Stream.concat(Annotations.PATH.stream(), Annotations.HTTP_METHODS.stream())
-        .collect(Collectors.toCollection(LinkedHashSet::new));
+        .collect(Collectors.toSet());
   }
 
   @Override

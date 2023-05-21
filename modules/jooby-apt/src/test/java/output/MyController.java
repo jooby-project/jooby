@@ -11,7 +11,7 @@ import io.jooby.annotation.GET;
 public class MyController {
 
   @GET("/default")
-  public StatusCode controllerMethod() {
+  public StatusCode controllerMethod(String p, int c) {
     return StatusCode.CREATED;
   }
 }

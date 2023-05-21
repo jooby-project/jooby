@@ -6,6 +6,7 @@
 package io.jooby;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -410,6 +411,8 @@ public class Route {
   private String description;
 
   private Boolean nonBlocking;
+
+  private Method mvcMethod;
 
   /**
    * Creates a new route.
@@ -1021,6 +1024,36 @@ public class Route {
 
     throw new RuntimeException(
         "Invalid value for route attribute " + Transactional.ATTRIBUTE + ": " + attribute);
+  }
+
+  /**
+   * Method for MVC/Controller. Not available for lambda routes.
+   *
+   * @return Method for MVC/Controller. Not available for lambda routes.
+   */
+  public @Nullable Method getMvcMethod() {
+    return mvcMethod;
+  }
+
+  /**
+   * Set mvc/controller method.
+   *
+   * @param mvcMethod Mvc/controller method.
+   * @return This route
+   */
+  public @NonNull Route setMvcMethod(@Nullable Method mvcMethod) {
+    this.mvcMethod = mvcMethod;
+    return this;
+  }
+
+  /**
+   * Set mvc/controller method.
+   *
+   * @param mvcMethod Mvc/controller method.
+   * @return This route
+   */
+  public @NonNull Route mvcMethod(@Nullable Method mvcMethod) {
+    return setMvcMethod(mvcMethod);
   }
 
   @Override

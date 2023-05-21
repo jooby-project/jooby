@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.apt.JoobyProcessor.propagate;
 import static io.jooby.internal.apt.JoobyTypes.MvcFactory;
 import static io.jooby.internal.apt.JoobyTypes.StatusCode;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
@@ -31,6 +32,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -227,6 +229,13 @@ public class ModuleCompiler {
 
       /**
        * ******************************************************************************************
+       * Mvc Method:
+       * ******************************************************************************************
+       */
+      setMvcMethod(visitor, handler);
+
+      /**
+       * ******************************************************************************************
        * Consumes and Produces
        * ******************************************************************************************
        */
@@ -253,6 +262,53 @@ public class ModuleCompiler {
     visitor.visitInsn(RETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
+  }
+
+  private void setMvcMethod(MethodVisitor visitor, HandlerCompiler handler) {
+    visitor.visitVarInsn(ALOAD, 2);
+    visitor.visitLdcInsn(handler.getController().toJvmType());
+    ExecutableElement executable = handler.getExecutable();
+    visitor.visitLdcInsn(executable.getSimpleName().toString());
+    var args =
+        executable.getParameters().stream()
+            .map(it -> ParamDefinition.create(processingEnv, it))
+            .map(ParamDefinition::getType)
+            .collect(Collectors.toUnmodifiableList());
+
+    ArrayWriter.write(
+        visitor,
+        java.lang.Class.class.getName(),
+        args,
+        type -> {
+          if (type.isPrimitive()) {
+            try {
+              Method wrapper = Primitives.wrapper(type);
+              visitor.visitFieldInsn(
+                  GETSTATIC,
+                  Type.getInternalName(wrapper.getDeclaringClass()),
+                  "TYPE",
+                  "Ljava/lang/Class;");
+            } catch (NoSuchMethodException x) {
+              propagate(x);
+            }
+          } else {
+            visitor.visitLdcInsn(type.toJvmType());
+          }
+        });
+
+    visitor.visitMethodInsn(
+        INVOKEVIRTUAL,
+        "java/lang/Class",
+        "getMethod",
+        "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;",
+        false);
+    visitor.visitMethodInsn(
+        INVOKEVIRTUAL,
+        "io/jooby/Route",
+        MethodDescriptor.Route.setMvcMethod().getName(),
+        MethodDescriptor.Route.setMvcMethod().getDescriptor(),
+        false);
+    visitor.visitInsn(POP);
   }
 
   private void setDispatch(MethodVisitor visitor, ExecutableElement executable)
