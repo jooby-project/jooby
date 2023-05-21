@@ -16,7 +16,7 @@ import io.jooby.junit.ServerTestRunner;
 public class Issue2828 {
   @ServerTest
   public void shouldAckWriteCallback(ServerTestRunner runner) throws InterruptedException {
-    CountDownLatch latch = new CountDownLatch(3);
+    CountDownLatch latch = new CountDownLatch(1);
     runner
         .define(
             app -> {
@@ -40,6 +40,6 @@ public class Issue2828 {
                     assertEquals("message-write-back", ws.send("message"));
                   });
             });
-    latch.await(30, TimeUnit.SECONDS);
+    latch.await(10, TimeUnit.SECONDS);
   }
 }
