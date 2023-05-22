@@ -112,7 +112,7 @@
     <jacoco.version>0.8.9</jacoco.version>
     <junit.version>5.9.3</junit.version>
     <rest-assured.version>5.3.0</rest-assured.version>
-    <mockito.version>5.3.0</mockito.version>
+    <mockito.version>5.3.1</mockito.version>
     <guava.version>31.1-jre</guava.version>
 
     <auto-service.version>1.0.1</auto-service.version>
