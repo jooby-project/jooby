@@ -6,7 +6,7 @@
 package kt
 
 import io.jooby.Context
-import io.jooby.runApp
+import io.jooby.kt.runApp
 import io.swagger.v3.oas.annotations.Operation
 
 @Operation(summary = "function reference")

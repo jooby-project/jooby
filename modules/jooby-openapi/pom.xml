@@ -24,6 +24,12 @@
       <version>${jooby.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-kotlin</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+
     <!-- JAXRS -->
     <dependency>
       <groupId>jakarta.ws.rs</groupId>

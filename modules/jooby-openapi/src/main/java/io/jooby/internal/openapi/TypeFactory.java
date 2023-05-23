@@ -19,8 +19,6 @@ public class TypeFactory {
 
   public static final Type VOID = Type.getType(void.class);
 
-  public static final Type VOID_OBJ = Type.getType(Void.class);
-
   public static final Type STRING = Type.getType(String.class);
 
   public static final Type STRING_ARRAY = Type.getType(String[].class);
@@ -33,13 +31,13 @@ public class TypeFactory {
 
   public static final Type CONTEXT = Type.getType(Context.class);
 
-  public static final Type KOOBY = Type.getType("Lio/jooby/Kooby;");
+  public static final Type KOOBY = Type.getType("Lio/jooby/kt/Kooby;");
 
-  public static final Type KOOBYKT = Type.getType("Lio/jooby/KoobyKt;");
+  public static final Type KOOBYKT = Type.getType("Lio/jooby/kt/KoobyKt;");
 
-  public static final Type HANDLER_CONTEXT = Type.getType("Lio/jooby/HandlerContext;");
+  public static final Type HANDLER_CONTEXT = Type.getType("Lio/jooby/kt/HandlerContext;");
 
-  public static final Type COROUTINE_ROUTER = Type.getType("Lio/jooby/CoroutineRouter;");
+  public static final Type COROUTINE_ROUTER = Type.getType("Lio/jooby/kt/CoroutineRouter;");
 
   public static final Type KT_KLASS = Type.getType("Lkotlin/reflect/KClass;");
 

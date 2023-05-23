@@ -8,9 +8,9 @@ package kt
 import examples.Pet
 import examples.PetRepo
 import io.jooby.Context
-import io.jooby.Kooby
-import io.jooby.body
-import io.jooby.require
+import io.jooby.kt.Kooby
+import io.jooby.kt.body
+import io.jooby.kt.require
 import io.swagger.v3.oas.annotations.Operation
 
 class KtRouteRef : Kooby({ post("/", ::createPetRef) })

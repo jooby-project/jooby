@@ -5,9 +5,9 @@
  */
 package i2465
 
-import io.jooby.Kooby
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
+import io.jooby.kt.Kooby
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Assertions
 

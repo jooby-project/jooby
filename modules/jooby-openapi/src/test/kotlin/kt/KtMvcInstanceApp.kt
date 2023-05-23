@@ -5,6 +5,6 @@
  */
 package kt
 
-import io.jooby.Kooby
+import io.jooby.kt.Kooby
 
 class KtMvcInstanceApp : Kooby({ mvc(KtController()) })

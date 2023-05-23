@@ -5,9 +5,9 @@
  */
 package io.jooby.test
 
-import io.jooby.Kooby
 import io.jooby.MediaType
 import io.jooby.StatusCode
+import io.jooby.kt.Kooby
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

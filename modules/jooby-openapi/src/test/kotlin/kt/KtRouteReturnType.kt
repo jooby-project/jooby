@@ -8,9 +8,9 @@ package kt
 import examples.ABean
 import examples.BBean
 import examples.Bean
-import io.jooby.Kooby
 import io.jooby.StatusCode
 import io.jooby.exception.StatusCodeException
+import io.jooby.kt.Kooby
 import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.CompletableFuture

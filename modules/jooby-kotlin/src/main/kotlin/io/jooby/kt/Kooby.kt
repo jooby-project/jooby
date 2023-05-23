@@ -5,8 +5,26 @@
  */
 @file:Suppress("JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE")
 
-package io.jooby
+package io.jooby.kt
 
+import io.jooby.Body
+import io.jooby.Context
+import io.jooby.Cors
+import io.jooby.Environment
+import io.jooby.EnvironmentOptions
+import io.jooby.ExecutionMode
+import io.jooby.Formdata
+import io.jooby.Jooby
+import io.jooby.QueryString
+import io.jooby.Registry
+import io.jooby.Route
+import io.jooby.RouteSet
+import io.jooby.Router
+import io.jooby.RouterOption
+import io.jooby.ServerOptions
+import io.jooby.ServiceRegistry
+import io.jooby.Value
+import io.jooby.ValueNode
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineStart
@@ -317,7 +335,7 @@ fun <T : Jooby> runApp(args: Array<String>, application: KClass<T>) {
 }
 
 fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, application: KClass<T>) {
-  System.setProperty(Jooby.APP_NAME, application.java.simpleName)
+  System.setProperty("___app_name__", application.java.simpleName)
   Jooby.runApp(args, mode, application.java)
 }
 
@@ -326,6 +344,6 @@ internal fun configurePackage(value: Any) {
   val start = appname.indexOf(".").let { if (it == -1) 0 else it + 1 }
 
   val end = appname.indexOf("Kt$")
-  System.setProperty(Jooby.APP_NAME, appname.substring(start, end))
-  value::class.java.`package`?.let { System.setProperty(Jooby.BASE_PACKAGE, it.name) }
+  System.setProperty("___app_name__", appname.substring(start, end))
+  value::class.java.`package`?.let { System.setProperty("application.package", it.name) }
 }

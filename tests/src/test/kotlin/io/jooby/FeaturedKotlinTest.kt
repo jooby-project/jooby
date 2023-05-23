@@ -8,6 +8,7 @@ package io.jooby
 import io.jooby.internal.mvc.KotlinMvc
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
+import io.jooby.kt.Kooby
 import io.jooby.rxjava3.Reactivex
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.schedulers.Schedulers

@@ -303,7 +303,8 @@ public class ReturnTypeParser {
                         internalName ->
                             !internalName.equals("kotlin/jvm/internal/Lambda")
                                 && !internalName.equals("kotlin/jvm/functions/Function1")
-                                && !internalName.equals("io/jooby/HandlerContext"));
+                                && !internalName.equals(
+                                    TypeFactory.HANDLER_CONTEXT.getInternalName()));
                 if (!type.equals(Object.class.getName()) && !type.equals(void.class.getName())) {
                   return type;
                 }

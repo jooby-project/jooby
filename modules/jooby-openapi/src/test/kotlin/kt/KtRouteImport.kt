@@ -6,8 +6,8 @@
 package kt
 
 import examples.RouteA
-import io.jooby.Kooby
-import io.jooby.require
+import io.jooby.kt.Kooby
+import io.jooby.kt.require
 
 class KtRouteImport :
   Kooby({

@@ -28,8 +28,6 @@ module io.jooby {
 
   // SHADED: All content after this line will be removed at build time
   requires static unbescape;
-  requires kotlinx.coroutines.core.jvm;
-  requires kotlin.stdlib;
   requires static ch.qos.logback.classic;
   requires static org.apache.logging.log4j;
   requires static org.apache.logging.log4j.core;

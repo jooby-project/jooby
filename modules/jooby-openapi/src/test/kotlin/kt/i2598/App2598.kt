@@ -5,7 +5,7 @@
  */
 package kt.i2598
 
-import io.jooby.Kooby
+import io.jooby.kt.Kooby
 
 class App2598 :
   Kooby({

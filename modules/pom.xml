@@ -14,6 +14,7 @@
 
   <modules>
     <module>jooby-bom</module>
+    <module>jooby-kotlin</module>
     <module>jooby-test</module>
 
     <module>jooby-apt</module>

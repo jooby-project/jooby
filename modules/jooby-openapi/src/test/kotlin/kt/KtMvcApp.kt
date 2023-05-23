@@ -5,7 +5,7 @@
  */
 package kt
 
-import io.jooby.Kooby
+import io.jooby.kt.Kooby
 
 class KtMvcApp :
   Kooby({

@@ -5,7 +5,7 @@
  */
 package kt.i1905
 
-import io.jooby.Kooby
+import io.jooby.kt.Kooby
 
 fun staticCreateApp(): SubApp1905 {
   return SubApp1905()

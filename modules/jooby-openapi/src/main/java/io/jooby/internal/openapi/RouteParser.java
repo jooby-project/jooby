@@ -585,7 +585,7 @@ public class RouteParser {
                 .map(TypeFactory::fromJavaName)
                 .orElseThrow(() -> new UnsupportedOperationException(InsnSupport.toString(node)));
       }
-    } else if (node.owner.equals("io/jooby/Kooby")) {
+    } else if (node.owner.equals("io/jooby/kt/Kooby")) {
       router = kotlinSupplier(ctx, node, previous);
     } else {
       throw new UnsupportedOperationException(InsnSupport.toString(node));

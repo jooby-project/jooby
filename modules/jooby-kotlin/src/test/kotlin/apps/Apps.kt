@@ -6,8 +6,8 @@
 package apps
 
 import io.jooby.ExecutionMode
-import io.jooby.Kooby
-import io.jooby.runApp
+import io.jooby.kt.Kooby
+import io.jooby.kt.runApp
 import kotlinx.coroutines.delay
 
 /** Class version: */

@@ -5,8 +5,8 @@
  */
 package i2553
 
-import io.jooby.Kooby
 import io.jooby.ReactiveSupport
+import io.jooby.kt.Kooby
 import java.util.concurrent.CompletableFuture
 
 class App2553 :

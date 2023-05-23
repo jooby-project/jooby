@@ -5,9 +5,9 @@
  */
 package kt
 
-import io.jooby.Kooby
 import io.jooby.OpenAPIModule
-import io.jooby.runApp
+import io.jooby.kt.Kooby
+import io.jooby.kt.runApp
 
 class App :
   Kooby({

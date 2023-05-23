@@ -6,9 +6,9 @@
 package i2710
 
 import io.jooby.AccessLogHandler
-import io.jooby.Kooby
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
+import io.jooby.kt.Kooby
 import java.util.concurrent.CountDownLatch
 import org.junit.jupiter.api.Assertions
 

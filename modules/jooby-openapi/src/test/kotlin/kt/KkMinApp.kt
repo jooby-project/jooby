@@ -9,11 +9,11 @@ import examples.Pet
 import examples.PetQuery
 import examples.PetRepo
 import io.jooby.Context
-import io.jooby.Kooby
-import io.jooby.body
-import io.jooby.form
-import io.jooby.query
-import io.jooby.require
+import io.jooby.kt.Kooby
+import io.jooby.kt.body
+import io.jooby.kt.form
+import io.jooby.kt.query
+import io.jooby.kt.require
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn

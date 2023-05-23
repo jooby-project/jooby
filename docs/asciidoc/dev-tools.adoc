@@ -78,7 +78,7 @@ mvn jooby:run
 
 === Compilation & Restart
 
-Changing a `java` or `kotlin` file triggers a compilation request. Compilation is executed by 
+Changing a `java` or `kt` file triggers a compilation request. Compilation is executed by
 Maven/Gradle using an incremental build process.
 
 If compilation succeed, application is restarted.

@@ -4,7 +4,7 @@
  * Copyright 2014 Edgar Espina
  */
 import io.jooby.ExecutionMode
-import io.jooby.runApp
+import io.jooby.kt.runApp
 
 data class SearchQuery(val q: String)
 

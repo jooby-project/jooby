@@ -5,7 +5,7 @@
  */
 package kt
 
-import io.jooby.Kooby
+import io.jooby.kt.Kooby
 import io.swagger.v3.oas.annotations.tags.Tag
 
 @Tag(name = "super")
