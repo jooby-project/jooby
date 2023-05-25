@@ -161,7 +161,7 @@
     <!-- Jooby  -->
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
-    <javadoc.excludes>io.jooby.internal.*</javadoc.excludes>
+    <javadoc.excludes>*.internal</javadoc.excludes>
 
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
@@ -1275,6 +1275,7 @@
 
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
@@ -1283,6 +1284,7 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${maven-jar-plugin.version}</version>
         <configuration>
@@ -1351,6 +1353,7 @@
           <artifactId>kotlin-maven-plugin</artifactId>
           <groupId>org.jetbrains.kotlin</groupId>
           <version>${kotlin.version}</version>
+          <extensions>true</extensions>
           <configuration>
             <args>
               <arg>-java-parameters</arg>
@@ -1401,25 +1404,6 @@
               </filter>
             </filters>
           </configuration>
-          <executions>
-            <execution>
-              <id>fat-jar</id>
-              <phase>package</phase>
-              <goals>
-                <goal>shade</goal>
-              </goals>
-              <configuration>
-                <transformers>
-                  <transformer
-                      implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                  <transformer
-                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                    <mainClass>${application.class}</mainClass>
-                  </transformer>
-                </transformers>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>org.moditect</groupId>
@@ -1519,6 +1503,7 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <version>${maven-antrun-plugin.version}</version>
             <executions>
@@ -1598,6 +1583,7 @@
           </plugin>
 
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <version>${maven-compiler-plugin.version}</version>
             <configuration>
@@ -1687,6 +1673,7 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <version>${maven-antrun-plugin.version}</version>
             <executions>
@@ -1782,7 +1769,6 @@
             <version>${maven-javadoc-plugin.version}</version>
             <configuration>
               <excludePackageNames>${javadoc.excludes}</excludePackageNames>
-              <aggregate>true</aggregate>
               <show>public</show>
             </configuration>
             <executions>
@@ -1825,7 +1811,6 @@
             <version>${maven-javadoc-plugin.version}</version>
             <configuration>
               <excludePackageNames>${javadoc.excludes}</excludePackageNames>
-              <aggregate>true</aggregate>
               <show>public</show>
             </configuration>
             <executions>

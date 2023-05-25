@@ -121,27 +121,20 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>kotlin-maven-plugin</artifactId>
         <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
         <executions>
           <execution>
             <id>compile</id>
-            <goals>
-              <goal>compile</goal>
-            </goals>
             <configuration>
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
                 <sourceDir>${project.basedir}/src/main/java</sourceDir>
               </sourceDirs>
-              <jvmTarget>17</jvmTarget>
             </configuration>
           </execution>
           <execution>
             <id>test-compile</id>
-            <goals>
-              <goal>test-compile</goal>
-            </goals>
             <configuration>
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>

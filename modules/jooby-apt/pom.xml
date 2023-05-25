@@ -113,9 +113,6 @@
         <executions>
           <execution>
             <id>compile</id>
-            <goals>
-              <goal>compile</goal>
-            </goals>
             <configuration>
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
@@ -125,9 +122,6 @@
           </execution>
           <execution>
             <id>test-compile</id>
-            <goals>
-              <goal>test-compile</goal>
-            </goals>
             <configuration>
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
