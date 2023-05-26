@@ -39,6 +39,7 @@ class KtController {
     @QueryParam("q") q: String,
     @QueryParam("nullq") nullq: String?
   ): ABean {
+    println("i:$i oi: $oi q: $q nullq: $nullq")
     return ABean()
   }
 
@@ -61,6 +62,7 @@ class KtController {
     @HeaderParam("Last-Modified-Since") lastModifiedSince: String,
     @Named("x-search") @io.jooby.annotation.QueryParam q: String
   ): String {
+    println("lastModifiedSince:$lastModifiedSince q: $q")
     return lastModifiedSince
   }
 }

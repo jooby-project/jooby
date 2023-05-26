@@ -19,4 +19,5 @@ class KtRouteRef : Kooby({ post("/", ::createPetRef) })
 fun createPetRef(ctx: Context) {
   val repo = ctx.require(PetRepo::class)
   val pet = ctx.body<Pet>()
+  repo.update(pet)
 }

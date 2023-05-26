@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation
 
 @Operation(summary = "function reference")
 fun fnRef(ctx: Context): Int {
+  println(ctx)
   return 0
 }
 

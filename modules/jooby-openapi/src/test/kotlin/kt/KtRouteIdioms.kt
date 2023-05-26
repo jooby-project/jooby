@@ -11,11 +11,11 @@ class KtRouteIdioms :
   Kooby({
     get("/implicitContext") { "implicit" }
 
-    get("/explicitContext") { ctx -> "explicit" }
+    get("/explicitContext") { ctx -> ctx.requestPath }
 
     path("/api") {
       path("/people") { get("/") { ctx.requestPath } }
 
-      get("/version") { ctx -> "2.6.0" }
+      get("/version") { ctx -> ctx.requestPath }
     }
   })

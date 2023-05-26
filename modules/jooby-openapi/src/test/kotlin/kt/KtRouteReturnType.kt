@@ -51,7 +51,7 @@ class KtRouteReturnType :
       get("/1") {
         CompletableFuture.supplyAsync { ctx.query("n").intValue(1) }
           .thenApply { x -> x * 2 }
-          .whenComplete { v, x -> ctx.render(v) }
+          .whenComplete { v, _ -> ctx.render(v) }
       }
       get("/2") {
         val future =
@@ -138,7 +138,7 @@ class KtRouteReturnType :
 
   internal class Instance {
     fun newInstance(x: Int, v: String?): String {
-      return "static"
+      return v + x
     }
   }
 }
