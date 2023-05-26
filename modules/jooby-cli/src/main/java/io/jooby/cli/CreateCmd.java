@@ -305,6 +305,7 @@ public class CreateCmd extends Cmd {
     List<Dependency> dependencies = new ArrayList<>();
     dependencies.add(new Dependency("io.jooby", "jooby-" + server, null));
     if (kotlin) {
+      dependencies.add(new Dependency("io.jooby", "jooby-kotlin", null));
       dependencies.add(
           new Dependency(
               "org.jetbrains.kotlin", "kotlin-stdlib-jdk8", dependencyMap.get("kotlinVersion")));
