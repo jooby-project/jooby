@@ -117,7 +117,7 @@ class FeaturedKotlinTest {
           coroutine { mvc(SuspendMvc()) }
 
           error { ctx, cause, statusCode ->
-            log.error("{} {}", ctx.method, ctx.getRequestPath(), cause)
+            log.info("{} {}", ctx.method, ctx.getRequestPath())
             ctx.setResponseCode(statusCode).send(cause.message!!)
           }
         }

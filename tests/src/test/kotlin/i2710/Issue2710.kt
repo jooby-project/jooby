@@ -22,7 +22,7 @@ class Issue2710 {
           use(
             AccessLogHandler().log { line ->
               Assertions.assertTrue(line.contains("\"GET /2710 HTTP/1.1\" 200 2"))
-              log.info(line)
+              log.debug(line)
               latch.countDown()
             }
           )

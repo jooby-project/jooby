@@ -1317,6 +1317,9 @@
             <include>**/*Issue*.java</include>
           </includes>
           <useModulePath>false</useModulePath>
+          <systemPropertyVariables>
+            <jooby.maven.build>true</jooby.maven.build>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
 

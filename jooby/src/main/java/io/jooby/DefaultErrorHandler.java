@@ -54,15 +54,17 @@ public class DefaultErrorHandler implements ErrorHandler {
     return this;
   }
 
-  @NonNull @Override
-  public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
+  protected void log(Context ctx, Throwable cause, StatusCode code) {
     Logger log = ctx.getRouter().getLog();
     if (isMuted(cause, code)) {
       log.debug(ErrorHandler.errorMessage(ctx, code), cause);
     } else {
       log.error(ErrorHandler.errorMessage(ctx, code), cause);
     }
+  }
 
+  @NonNull @Override
+  public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
     MediaType type = ctx.accept(Arrays.asList(html, json, text));
     if (json.equals(type)) {
       String message = Optional.ofNullable(cause.getMessage()).orElse(code.reason());

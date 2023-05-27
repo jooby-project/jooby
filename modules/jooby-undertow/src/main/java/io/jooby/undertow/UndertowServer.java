@@ -27,6 +27,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.undertow.UndertowHandler;
+import io.jooby.internal.undertow.UndertowWebSocket;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
@@ -183,6 +184,8 @@ public class UndertowServer extends Server.Base {
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     } finally {
+      // only for jooby build where close events may take longer.
+      UndertowWebSocket.all.clear();
       shutdownServer();
     }
     return this;

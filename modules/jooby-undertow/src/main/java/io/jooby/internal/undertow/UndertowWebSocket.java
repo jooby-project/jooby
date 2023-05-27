@@ -87,7 +87,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   /** All connected websocket. */
-  private static final ConcurrentMap<String, List<UndertowWebSocket>> all =
+  public static final ConcurrentMap<String, List<UndertowWebSocket>> all =
       new ConcurrentHashMap<>();
 
   private final UndertowContext ctx;

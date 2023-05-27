@@ -4308,7 +4308,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.use(new AccessLogHandler().extended());
+              app.use(new AccessLogHandler().extended().log(app.getLog()::debug));
 
               app.get("/fn", Context::getRequestPath);
 

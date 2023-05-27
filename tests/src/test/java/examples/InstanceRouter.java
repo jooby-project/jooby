@@ -5,8 +5,6 @@
  */
 package examples;
 
-import org.slf4j.LoggerFactory;
-
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.annotation.DELETE;
@@ -37,7 +35,6 @@ public class InstanceRouter {
   @GET
   @Path("/voidwriter")
   public void writer(Context ctx) throws Exception {
-    LoggerFactory.getLogger(getClass()).info("blocking");
     ctx.responseWriter(
         writer -> {
           writer.println("writer");

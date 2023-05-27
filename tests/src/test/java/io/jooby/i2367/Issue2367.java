@@ -53,7 +53,7 @@ public class Issue2367 {
     runner
         .define(
             app -> {
-              app.use(new AccessLogHandler());
+              app.use(new AccessLogHandler().log(app.getLog()::debug));
 
               app.assets("/2367/*", "/2367");
             })

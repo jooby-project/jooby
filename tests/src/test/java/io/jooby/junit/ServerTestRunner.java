@@ -7,15 +7,22 @@ package io.jooby.junit;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.jooby.Context;
+import io.jooby.DefaultErrorHandler;
+import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
+import io.jooby.LogConfigurer;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
+import io.jooby.StartupSummary;
+import io.jooby.StatusCode;
 import io.jooby.internal.MutedServer;
 import io.jooby.test.WebClient;
 
@@ -23,6 +30,7 @@ public class ServerTestRunner {
 
   static {
     System.setProperty("jooby.useShutdownHook", "false");
+    LogConfigurer.configure(ServerTestRunner.class.getClassLoader(), List.of("test", "dev"));
   }
 
   private final String testName;
@@ -62,10 +70,28 @@ public class ServerTestRunner {
 
   public void ready(SneakyThrows.Consumer2<WebClient, WebClient> onReady) {
     Server server = this.server.get();
+    var mavenBuild = System.getProperty("jooby.maven.build", "").length() > 0;
+    // Reduce log from maven build:
+    String applogger = null;
     try {
-      System.setProperty("___app_name__", testName + "(" + server.getName() + ")");
+      System.setProperty("___app_name__", testName);
       System.setProperty("___server_name__", server.getName());
       Jooby app = provider.get();
+      if (mavenBuild) {
+        applogger = app.getClass().getName();
+        app.setStartupSummary(List.of(StartupSummary.NONE));
+        if (app.getErrorHandler() == null) {
+          app.error(
+              new DefaultErrorHandler() {
+                @Override
+                protected void log(Context ctx, Throwable cause, StatusCode code) {
+                  app.getLog()
+                      .info(ErrorHandler.errorMessage(ctx, code) + ": " + cause.getMessage());
+                }
+              });
+        }
+      }
+
       Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       ServerOptions serverOptions = app.getServerOptions();
       if (serverOptions != null) {
@@ -83,9 +109,15 @@ public class ServerTestRunner {
       } else {
         https = null;
       }
-      MutedServer.mute(server).start(app);
-      try (WebClient http = new WebClient("http", options.getPort(), followRedirects)) {
-        onReady.accept(http, https);
+      try {
+        MutedServer.mute(server).start(app);
+        if (options.isHttpsOnly()) {
+          onReady.accept(null, https);
+        } else {
+          try (WebClient http = new WebClient("http", options.getPort(), followRedirects)) {
+            onReady.accept(http, https);
+          }
+        }
       } finally {
         if (https != null) {
           https.close();
@@ -94,7 +126,11 @@ public class ServerTestRunner {
     } catch (AssertionError x) {
       throw SneakyThrows.propagate(serverInfo(x));
     } finally {
-      MutedServer.mute(server).stop();
+      if (applogger != null) {
+        MutedServer.mute(server, applogger).stop();
+      } else {
+        MutedServer.mute(server).stop();
+      }
     }
   }
 

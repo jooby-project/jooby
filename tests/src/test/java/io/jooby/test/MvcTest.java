@@ -426,7 +426,7 @@ public class MvcTest {
 
               app.error(
                   (ctx, cause, statusCode) -> {
-                    app.getLog().error("{} {}", ctx.getMethod(), ctx.getRequestPath(), cause);
+                    app.getLog().info("{} {}", ctx.getMethod(), ctx.getRequestPath());
                     ctx.setResponseCode(statusCode).send(cause.getMessage());
                   });
             })
@@ -484,12 +484,8 @@ public class MvcTest {
               app.error(
                   (ctx, cause, statusCode) -> {
                     app.getLog()
-                        .error(
-                            "{} {} {}",
-                            ctx.getMethod(),
-                            ctx.getRequestPath(),
-                            statusCode.value(),
-                            cause);
+                        .info(
+                            "{} {} {}", ctx.getMethod(), ctx.getRequestPath(), statusCode.value());
                     ctx.setResponseCode(statusCode).send(cause.getMessage());
                   });
             })

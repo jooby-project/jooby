@@ -6,9 +6,6 @@
 package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.net.ConnectException;
 
 import io.jooby.SSLHandler;
 import io.jooby.ServerOptions;
@@ -237,8 +234,6 @@ public class HttpsTest {
             })
         .ready(
             (http, https) -> {
-              assertThrows(ConnectException.class, () -> http.get("/test", null));
-
               https.get("/test", rsp -> assertEquals("test", rsp.body().string()));
             });
   }

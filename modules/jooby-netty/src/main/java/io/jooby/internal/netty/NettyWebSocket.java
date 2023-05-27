@@ -80,7 +80,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
     }
   }
 
-  private static final ConcurrentMap<String, List<NettyWebSocket>> all = new ConcurrentHashMap<>();
+  public static final ConcurrentMap<String, List<NettyWebSocket>> all = new ConcurrentHashMap<>();
 
   static final AttributeKey<NettyWebSocket> WS =
       AttributeKey.newInstance(NettyWebSocket.class.getName());

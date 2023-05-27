@@ -23,6 +23,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.internal.netty.NettyPipeline;
 import io.jooby.internal.netty.NettyTransport;
+import io.jooby.internal.netty.NettyWebSocket;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -200,6 +201,8 @@ public class NettyServer extends Server.Base {
   public synchronized Server stop() {
     fireStop(applications);
     applications.clear();
+    // only for jooby build where close events may take longer.
+    NettyWebSocket.all.clear();
 
     shutdown(acceptorloop);
     shutdown(eventloop);

@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +23,11 @@ import io.jooby.SneakyThrows;
 public class MutedServer implements Server {
   private Server delegate;
 
-  private MutedServer(Server server) {
+  private List<String> mute;
+
+  private MutedServer(Server server, List<String> mute) {
     this.delegate = server;
+    this.mute = mute;
   }
 
   /**
@@ -31,11 +36,15 @@ public class MutedServer implements Server {
    * @param server Server to mute.
    * @return Muted server or same server.
    */
-  public static Server mute(Server server) {
+  public static Server mute(Server server, String... logger) {
     if (server instanceof MutedServer) {
       return server;
     }
-    return server.getLoggerOff().isEmpty() ? server : new MutedServer(server);
+    List<String> mute =
+        Stream.concat(server.getLoggerOff().stream(), Stream.of(logger))
+            .collect(Collectors.toList());
+
+    return mute.isEmpty() ? server : new MutedServer(server, mute);
   }
 
   @NonNull public Server setOptions(@NonNull ServerOptions options) {
@@ -52,7 +61,7 @@ public class MutedServer implements Server {
 
   @NonNull public Server start(@NonNull Jooby application) {
     return logOff(
-        delegate.getLoggerOff(),
+        mute,
         () -> {
           delegate.start(application);
           return delegate;
@@ -65,7 +74,7 @@ public class MutedServer implements Server {
 
   @NonNull public Server stop() {
     return logOff(
-        delegate.getLoggerOff(),
+        mute,
         () -> {
           delegate.stop();
           return delegate;
