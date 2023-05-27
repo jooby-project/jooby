@@ -30,12 +30,16 @@ public class JettyServlet extends GenericServlet {
   @Override
   public void service(ServletRequest req, ServletResponse rsp) {
     Request request = (Request) req;
-    HttpServletResponse response = (HttpServletResponse) rsp;
-    response.setContentType("text/plain");
-    if (defaultHeaders) {
-      response.setHeader(HttpHeader.SERVER.asString(), "J");
+    try {
+      HttpServletResponse response = (HttpServletResponse) rsp;
+      response.setContentType("text/plain");
+      if (defaultHeaders) {
+        response.setHeader(HttpHeader.SERVER.asString(), "J");
+      }
+      JettyContext context = new JettyContext(request, router, bufferSize, maxRequestSize);
+      router.match(context).execute(context);
+    } finally {
+      request.setHandled(true);
     }
-    JettyContext context = new JettyContext(request, router, bufferSize, maxRequestSize);
-    router.match(context).execute(context);
   }
 }
