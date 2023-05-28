@@ -375,7 +375,9 @@ public class JettyContext implements DefaultContext {
     try {
       responseStarted = true;
       AsyncContext async =
-          request.isAsyncStarted() ? request.getAsyncContext() : request.startAsync();
+          request.isAsyncStarted()
+              ? request.getAsyncContext()
+              : request.startAsync(request, response);
       /** Infinite timeout because the continuation is never resumed but only completed on close. */
       async.setTimeout(0L);
 
@@ -694,7 +696,7 @@ public class JettyContext implements DefaultContext {
 
   private void ifStartAsync() {
     if (!request.isAsyncStarted()) {
-      request.startAsync();
+      request.startAsync(request, response);
     }
   }
 
