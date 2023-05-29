@@ -21,7 +21,6 @@ import io.jooby.AccessLogHandler;
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.Jooby
 import io.jooby.AccessLogHandler
 ...
 {

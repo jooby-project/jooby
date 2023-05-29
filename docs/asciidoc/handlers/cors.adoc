@@ -28,7 +28,6 @@ import io.jooby.CorsHandler;
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.Jooby
 import io.jooby.CorsHandler
 ...
 {

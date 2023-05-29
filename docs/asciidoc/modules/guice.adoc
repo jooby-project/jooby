@@ -12,7 +12,7 @@
 ----
 
 import io.jooby.guice.GuiceModule;
-import io.jooby.runApp;
+import io.jooby.kt.runApp;
 
 public class App extends Jooby {
 
@@ -35,7 +35,7 @@ public class App extends Jooby {
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.di.GuiceModule
-import io.jooby.runApp
+import io.jooby.kt.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
@@ -95,7 +95,7 @@ Guice will also provisioning MVC routes
 [source,java,role = "primary"]
 ----
 import io.jooby.guice.GuiceModule;
-import io.jooby.runApp
+import io.jooby.kt.runApp
 
 public class App extends Jooby {
 
@@ -115,7 +115,7 @@ public class App extends Jooby {
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.di.GuiceModule
-import io.jooby.runApp
+import io.jooby.kt.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {

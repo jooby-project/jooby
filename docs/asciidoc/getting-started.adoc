@@ -77,6 +77,16 @@ jooby> create myapp
 jooby> create myapp --kotlin
 ----
 
+[NOTE]
+.Since 3.x
+====
+Kotlin was removed from core, you need to the `jooby-kotlin` dependency:
+
+[dependency, artifactId="jooby-kotlin"]
+.
+
+====
+
 .Creates a Gradle Java project:
 [source, bash]
 ----
