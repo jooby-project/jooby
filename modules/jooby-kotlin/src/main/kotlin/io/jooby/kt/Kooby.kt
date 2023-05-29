@@ -85,14 +85,6 @@ inline operator fun <reified T> ValueNode.getValue(thisRef: Any?, property: KPro
   return this.get(property.name).to(T::class.java)
 }
 
-operator fun ValueNode.get(name: String): ValueNode {
-  return this.get(name)
-}
-
-operator fun ValueNode.get(index: Int): ValueNode {
-  return this.get(index)
-}
-
 inline fun <reified T> Value.to(): T {
   return this.to(T::class.java)
 }
@@ -105,24 +97,23 @@ infix fun <T : Any> Value.to(type: KClass<T>): T {
 val Context.query: QueryString
   get() = this.query()
 
-inline fun <reified T> Context.query(): T {
-  return this.query(T::class.java)
-}
-
 val Context.form: Formdata
   get() = this.form()
-
-inline fun <reified T> Context.form(): T {
-  return this.form(T::class.java)
-}
 
 val Context.body: Body
   get() = this.body()
 
-inline fun <reified T> Context.body(): T {
-  return this.body(T::class.java)
+inline fun <T : Any> Context.body(klass: KClass<T>): T {
+  return this.body(klass.java)
 }
 
+inline fun <T : Any> Context.form(klass: KClass<T>): T {
+  return this.form(klass.java)
+}
+
+inline fun <T : Any> Context.query(klass: KClass<T>): T {
+  return this.query(klass.java)
+}
 /** Kooby: */
 open class Kooby constructor() : Jooby() {
 

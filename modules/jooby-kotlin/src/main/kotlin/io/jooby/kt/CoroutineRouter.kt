@@ -79,8 +79,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
           if (result != ctx && !ctx.isResponseStarted) {
             ctx.render(result)
           }
-          // Return context to mark as handled
-          ctx
         }
         // Return context to mark as handled
         ctx

@@ -23,13 +23,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 @Operation(requestBody = RequestBody(description = "Pet to create"))
 fun createPet(ctx: Context): Pet {
   val repo = ctx.require(PetRepo::class)
-  val pet = ctx.body<Pet>()
+  val pet = ctx.body(Pet::class)
   return repo.save(pet)
 }
 
 fun updatePet(ctx: Context): Pet {
   val repo = ctx.require(PetRepo::class)
-  val pet = ctx.body<Pet>()
+  val pet = ctx.body(Pet::class)
   return repo.update(pet)
 }
 
@@ -55,7 +55,7 @@ fun findPetById(ctx: Context): Pet {
 
 fun formPet(ctx: Context): Pet {
   val repo: PetRepo = ctx.require(PetRepo::class)
-  val pet = ctx.form<Pet>()
+  val pet = ctx.form(Pet::class)
   return repo.save(pet)
 }
 
@@ -64,7 +64,7 @@ class KtMinApp :
     path("/api/pets") {
       get("/") {
         val repo = ctx.require(PetRepo::class)
-        val query = ctx.query<PetQuery>()
+        val query = ctx.query(PetQuery::class)
         repo.pets(query)
       }
 

@@ -84,7 +84,7 @@ class Idioms :
       val n3 = query.to<Int>()
       val n4 = ctx.query["name"] to Int::class
       val n5 = ctx.form("name") to String::class
-      val n6 = query.to(Int::class)
+      val n6 = query to Int::class
 
       println(n1 + n2 + n3 + n4 + n5 + name + n6)
       ctx
