@@ -21,7 +21,7 @@
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.32</freemarker.version>
     <handlebars.version>4.3.1</handlebars.version>
-    <jstachio.version>0.17.0</jstachio.version>
+    <jstachio.version>1.0.1</jstachio.version>
     <pebble.version>3.2.1</pebble.version>
     <jackson.version>2.15.0</jackson.version>
     <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
