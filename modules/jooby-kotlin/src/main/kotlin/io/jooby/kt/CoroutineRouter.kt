@@ -5,6 +5,7 @@
  */
 package io.jooby.kt
 
+import io.jooby.RequestScope
 import io.jooby.Route
 import io.jooby.Router
 import io.jooby.Router.DELETE
@@ -20,6 +21,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 
@@ -91,7 +93,9 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
       ctx.route.after?.apply(ctx, null, x)
       ctx.sendError(x)
     }
-    val coroutineContext = exceptionHandler + handlerContext.extraCoroutineContextProvider()
+    val requestScope = RequestScope.threadLocal().asContextElement()
+    val coroutineContext =
+      exceptionHandler + requestScope + handlerContext.extraCoroutineContextProvider()
     coroutineScope.launch(coroutineContext, coroutineStart, block)
   }
 }

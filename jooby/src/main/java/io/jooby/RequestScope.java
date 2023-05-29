@@ -55,10 +55,10 @@ public final class RequestScope {
    * @return The bound session if one, else null.
    */
   public static @Nullable <T> T unbind(@NonNull Object key) {
-    final Map<Object, Object> sessionMap = threadMap();
+    var contextMap = threadMap();
     T existing = null;
-    if (sessionMap != null) {
-      existing = (T) sessionMap.remove(key);
+    if (contextMap != null) {
+      existing = (T) contextMap.remove(key);
       doCleanup();
     }
     return existing;
@@ -72,12 +72,21 @@ public final class RequestScope {
    * @return Binded value or <code>null</code>.
    */
   public static @Nullable <T> T get(@NonNull Object key) {
-    final Map<Object, Object> sessionMap = threadMap();
-    if (sessionMap == null) {
+    var contextMap = threadMap();
+    if (contextMap == null) {
       return null;
     } else {
-      return (T) sessionMap.get(key);
+      return (T) contextMap.get(key);
     }
+  }
+
+  /**
+   * Exposes thread local state. Internal usage only (don't use it).
+   *
+   * @return Exposes thread local state. Internal usage only (don't use it).
+   */
+  public static ThreadLocal<Map<Object, Object>> threadLocal() {
+    return CONTEXT_TL;
   }
 
   private static Map<Object, Object> threadMap() {
@@ -85,16 +94,16 @@ public final class RequestScope {
   }
 
   private static Map<Object, Object> threadMap(boolean createMap) {
-    Map<Object, Object> sessionMap = CONTEXT_TL.get();
-    if (sessionMap == null && createMap) {
-      sessionMap = new HashMap<>();
-      CONTEXT_TL.set(sessionMap);
+    var contextMap = CONTEXT_TL.get();
+    if (contextMap == null && createMap) {
+      contextMap = new HashMap<>();
+      CONTEXT_TL.set(contextMap);
     }
-    return sessionMap;
+    return contextMap;
   }
 
   private static void doCleanup() {
-    final Map<Object, Object> ctx = threadMap(false);
+    var ctx = threadMap(false);
     if (ctx != null) {
       if (ctx.isEmpty()) {
         CONTEXT_TL.remove();

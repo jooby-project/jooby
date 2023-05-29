@@ -6,14 +6,18 @@
 package io.jooby
 
 import io.jooby.internal.mvc.KotlinMvc
+import io.jooby.jackson.JacksonModule
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
 import io.jooby.kt.Kooby
 import io.jooby.rxjava3.Reactivex
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.UUID
 import kotlinx.coroutines.delay
+import org.json.JSONObject
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 
 class FeaturedKotlinTest {
 
@@ -133,5 +137,42 @@ class FeaturedKotlinTest {
           assertEquals("Cannot convert value: 'id', to: 'int'", rsp.body!!.string())
         }
       })
+  }
+
+  @ServerTest
+  fun shouldExpandRequestScopeToCoroutineContext(runner: ServerTestRunner) {
+    runner
+      .use { ->
+        Kooby {
+          install(JacksonModule())
+
+          use {
+            RequestScope.bind("key", UUID.randomUUID().toString())
+            RequestScope.bind("thread", Thread.currentThread().name)
+            next.apply(ctx)
+          }
+          coroutine {
+            get("/") {
+              delay(100)
+              val thread = RequestScope.get<String>("thread") ?: "<<none>>"
+              delay(100)
+              val value = RequestScope.get<String>("key") ?: "<<none>>"
+              mapOf(
+                "key" to value,
+                "thread" to thread,
+                "currentThread" to Thread.currentThread().name
+              )
+            }
+          }
+        }
+      }
+      .ready { client ->
+        client.get("/") { rsp ->
+          val json = JSONObject(rsp.body!!.string())
+          assertNotEquals("<<none>>", json.get("key"))
+          assertNotEquals("<<none>>", json.get("thread"))
+          assertNotEquals(json.get("thread"), json.get("currentThread"))
+        }
+      }
   }
 }
