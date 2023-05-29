@@ -25,7 +25,7 @@
     <pebble.version>3.2.1</pebble.version>
     <jackson.version>2.15.0</jackson.version>
     <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
-    <jackson-databind.version>2.15.1</jackson-databind.version>
+    <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <gson.version>2.10.1</gson.version>
     <avaje-jsonb.version>1.5</avaje-jsonb.version>
     <jakarta.json.bind-api.version>3.0.0</jakarta.json.bind-api.version>
