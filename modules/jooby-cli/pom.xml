@@ -109,7 +109,7 @@
             <path>
               <groupId>info.picocli</groupId>
               <artifactId>picocli-codegen</artifactId>
-              <version>4.7.2</version>
+              <version>4.7.3</version>
             </path>
           </annotationProcessorPaths>
           <compilerArgs>
