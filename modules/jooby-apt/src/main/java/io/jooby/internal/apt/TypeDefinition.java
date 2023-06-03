@@ -140,6 +140,38 @@ public class TypeDefinition {
     return asmType(getName(typeUtils.erasure(type)));
   }
 
+  public Class<?> toClass() {
+    Type type = toJvmType();
+    String className = type.getClassName();
+    try {
+      if (!className.contains("[")) return Class.forName(className);
+      else return Class.forName(type.getDescriptor());
+    } catch (ClassNotFoundException e) {
+      switch (className) {
+        case "byte":
+          return byte.class;
+        case "short":
+          return short.class;
+        case "int":
+          return int.class;
+        case "long":
+          return long.class;
+        case "char":
+          return char.class;
+        case "float":
+          return float.class;
+        case "double":
+          return double.class;
+        case "boolean":
+          return boolean.class;
+        case "void":
+          return void.class;
+        default:
+          throw new IllegalArgumentException("The type didn't represent a class: " + className);
+      }
+    }
+  }
+
   public boolean isRawType() {
     return type.toString().equals(getRawType().toString());
   }
