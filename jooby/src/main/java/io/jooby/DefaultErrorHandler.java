@@ -65,6 +65,7 @@ public class DefaultErrorHandler implements ErrorHandler {
 
   @NonNull @Override
   public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
+    log(ctx, cause, code);
     MediaType type = ctx.accept(Arrays.asList(html, json, text));
     if (json.equals(type)) {
       String message = Optional.ofNullable(cause.getMessage()).orElse(code.reason());
