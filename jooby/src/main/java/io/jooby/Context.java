@@ -30,6 +30,7 @@ import java.util.function.BiFunction;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.ParamLookupImpl;
 import io.jooby.internal.ReadOnlyContext;
@@ -118,7 +119,23 @@ public interface Context extends Registry {
    * @param <T> Generic type.
    * @return Converted value.
    */
-  @NonNull <T> T convert(@NonNull ValueNode value, @NonNull Class<T> type);
+  default @NonNull <T> T convert(@NonNull ValueNode value, @NonNull Class<T> type) {
+    T result = convertOrNull(value, type);
+    if (result == null) {
+      throw new TypeMismatchException(value.name(), type);
+    }
+    return result;
+  }
+
+  /**
+   * Converts a value (single or hash) into the given type.
+   *
+   * @param value Value to convert.
+   * @param type Expected type.
+   * @param <T> Generic type.
+   * @return Converted value or <code>null</code>.
+   */
+  @Nullable <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type);
 
   /*
    * **********************************************************************************************

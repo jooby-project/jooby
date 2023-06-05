@@ -406,6 +406,16 @@ public interface Value {
   @NonNull <T> T to(@NonNull Class<T> type);
 
   /**
+   * Convert this value to the given type. Support values are single-value, array-value and
+   * object-value. Object-value can be converted to a JavaBean type.
+   *
+   * @param type Type to convert.
+   * @param <T> Element type.
+   * @return Instance of the type or <code>null</code>.
+   */
+  @Nullable <T> T toNullable(@NonNull Class<T> type);
+
+  /**
    * Value as multi-value map.
    *
    * @return Value as multi-value map.

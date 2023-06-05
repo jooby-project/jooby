@@ -386,6 +386,11 @@ public class ForwardingContext implements Context {
     return ctx.convert(value, type);
   }
 
+  @Nullable @Override
+  public <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type) {
+    return ctx.convertOrNull(value, type);
+  }
+
   @NonNull @Override
   public <T> T decode(@NonNull Type type, @NonNull MediaType contentType) {
     return ctx.decode(type, contentType);

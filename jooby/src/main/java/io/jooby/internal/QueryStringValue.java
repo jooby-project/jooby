@@ -17,6 +17,19 @@ public class QueryStringValue extends HashValue implements QueryString {
     this.queryString = queryString;
   }
 
+  protected boolean allowEmptyBean() {
+    return true;
+  }
+
+  @Override
+  protected <T> T toNullable(@NonNull Context ctx, @NonNull Class<T> type, boolean allowEmpty) {
+    // NOTE: 2.x backward compatible. Make sure Query object are almost always created
+    // GET /search?
+    // with class Search (q="*")
+    // so q is defaulted to "*"
+    return ValueConverters.convert(this, type, ctx.getRouter(), allowEmpty);
+  }
+
   @NonNull @Override
   public String queryString() {
     return queryString;

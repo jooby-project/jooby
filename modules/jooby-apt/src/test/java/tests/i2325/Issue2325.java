@@ -29,7 +29,7 @@ public class Issue2325 {
   }
 
   @Test
-  public void shouldFavorObjectConverterWhenNamedArgIsMissing() throws Exception {
+  public void shouldNotFavorObjectConverterWhenNamedArgIsMissing() throws Exception {
     new MvcModuleCompilerRunner(new C2325())
         .example(Expected2325.class)
         .module(

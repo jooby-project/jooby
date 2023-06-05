@@ -253,7 +253,7 @@ public class ParamDefinition {
           ? MethodDescriptor.Context.bodyClass()
           : MethodDescriptor.Context.bodyType();
     }
-    return ValueNode.to();
+    return isNullable() ? ValueNode.toNullable() : ValueNode.to();
   }
 
   public static ParamDefinition create(

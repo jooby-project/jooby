@@ -5,6 +5,8 @@
  */
 package io.jooby.internal;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,18 +23,17 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.ValueNode;
 
 public class HashValue implements ValueNode {
   private static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
-
   private Context ctx;
-
   private Map<String, ValueNode> hash = EMPTY;
-
   private final String name;
+  private boolean arrayLike;
 
   public HashValue(Context ctx, String name, Supplier<Map<String, ValueNode>> mapSupplier) {
     this.ctx = ctx;
@@ -147,6 +148,7 @@ public class HashValue implements ValueNode {
     if (hash instanceof TreeMap) {
       return;
     }
+    this.arrayLike = true;
     TreeMap<String, ValueNode> ordered = new TreeMap<>();
     ordered.putAll(hash);
     hash.clear();
@@ -240,12 +242,21 @@ public class HashValue implements ValueNode {
     if (hash.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.ofNullable(to(type));
+    return ofNullable(to(type));
   }
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
     return ctx.convert(this, type);
+  }
+
+  @Nullable @Override
+  public final <T> T toNullable(@NonNull Class<T> type) {
+    return toNullable(ctx, type, allowEmptyBean());
+  }
+
+  protected <T> T toNullable(@NonNull Context ctx, @NonNull Class<T> type, boolean allowEmpty) {
+    return ValueConverters.convert(this, type, ctx.getRouter(), allowEmpty);
   }
 
   @Override
@@ -277,15 +288,35 @@ public class HashValue implements ValueNode {
   }
 
   private <T, C extends Collection<T>> C toCollection(@NonNull Class<T> type, C collection) {
-    if (hash instanceof TreeMap) {
-      // indexes access, treat like a list
-      Collection<ValueNode> values = hash.values();
-      for (ValueNode value : values) {
-        collection.add(value.to(type));
+    if (!hash.isEmpty()) {
+      if (arrayLike) {
+        // indexes access, treat like a list
+        for (Map.Entry<String, ValueNode> e : hash.entrySet()) {
+          if (e.getKey().chars().allMatch(Character::isDigit)) {
+            // put only [index] where index is a number
+            if (e.getValue() instanceof HashValue node) {
+              addItem(ctx, node, type, collection);
+            } else {
+              ofNullable(e.getValue().toNullable(type)).ifPresent(collection::add);
+            }
+          }
+        }
+      } else {
+        addItem(ctx, this, type, collection);
       }
-    } else {
-      collection.add(to(type));
     }
     return collection;
+  }
+
+  private static <T> void addItem(
+      Context ctx, HashValue node, Class<T> type, Collection<T> container) {
+    var item = node.toNullable(ctx, type, false);
+    if (item != null) {
+      container.add(item);
+    }
+  }
+
+  protected boolean allowEmptyBean() {
+    return false;
   }
 }

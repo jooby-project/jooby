@@ -41,7 +41,7 @@ public class Issue2325 {
   }
 
   @ServerTest
-  public void shouldFailToConvertWithoutCustomConverter(ServerTestRunner runner) {
+  public void shouldWorkWithDefaultCustomConverter(ServerTestRunner runner) {
     runner
         .define(
             app -> {
@@ -58,9 +58,7 @@ public class Issue2325 {
               http.get(
                   "/2325?id=" + uuid,
                   rsp -> {
-                    assertEquals(
-                        "Cannot convert value: 'id', to: '" + MyID2325.class.getName() + "'",
-                        rsp.body().string());
+                    assertEquals("MyID:" + uuid, rsp.body().string());
                   });
             });
   }

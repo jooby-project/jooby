@@ -26,6 +26,7 @@ import io.jooby.internal.converter.InstantConverter;
 import io.jooby.internal.converter.LocalDateConverter;
 import io.jooby.internal.converter.LocalDateTimeConverter;
 import io.jooby.internal.converter.PeriodConverter;
+import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StatusCodeConverter;
 import io.jooby.internal.converter.TimeZoneConverter;
 import io.jooby.internal.converter.URIConverter;
@@ -73,10 +74,10 @@ public class ValueConverters {
     if (Optional.class.isAssignableFrom(rawType)) {
       return (T) Optional.ofNullable(convert(value, $Types.parameterizedType0(type), router));
     }
-    return convert(value, rawType, router);
+    return convert(value, rawType, router, false);
   }
 
-  public static <T> T convert(ValueNode value, Class type, Router router) {
+  public static <T> T convert(ValueNode value, Class type, Router router, boolean allowEmptyBean) {
     if (type == String.class) {
       return (T) value.valueOrNull();
     }
@@ -131,7 +132,9 @@ public class ValueConverters {
         }
       }
     }
-    return null;
+    // Fallback:
+    ReflectiveBeanConverter reflective = new ReflectiveBeanConverter();
+    return (T) reflective.convert(value, type, allowEmptyBean);
   }
 
   private static Object enumValue(ValueNode value, Class type) {

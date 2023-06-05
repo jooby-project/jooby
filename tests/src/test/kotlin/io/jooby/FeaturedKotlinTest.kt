@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import org.json.JSONObject
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 
 class FeaturedKotlinTest {
 
@@ -100,7 +101,13 @@ class FeaturedKotlinTest {
         }
 
         client.get("/kotlin/point") { rsp ->
-          assertEquals("QueryPoint(x=null, y=null) : null", rsp.body!!.string())
+          assertTrue(
+            rsp.body!!
+              .string()
+              .contains(
+                "Cannot convert value: &apos;null&apos;, to: &apos;io.jooby.internal.mvc.QueryPoint&apos;"
+              )
+          )
         }
 
         client.get("/kotlin/point?x=9") { rsp ->

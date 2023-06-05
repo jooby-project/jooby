@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.MissingValueException;
 import io.jooby.internal.ByteArrayBody;
 import io.jooby.internal.FileBody;
@@ -99,6 +100,10 @@ public interface Body extends ValueNode {
     return to((Type) type);
   }
 
+  default @Nullable @Override <T> T toNullable(@NonNull Class<T> type) {
+    return toNullable((Type) type);
+  }
+
   /**
    * Convert this body into the given type.
    *
@@ -107,6 +112,15 @@ public interface Body extends ValueNode {
    * @return Converted value.
    */
   @NonNull <T> T to(@NonNull Type type);
+
+  /**
+   * Convert this body into the given type.
+   *
+   * @param type Type to use.
+   * @param <T> Generic type.
+   * @return Converted value or <code>null</code>.
+   */
+  @Nullable <T> T toNullable(@NonNull Type type);
 
   /* **********************************************************************************************
    * Factory methods:

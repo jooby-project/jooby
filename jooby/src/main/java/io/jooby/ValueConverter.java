@@ -9,6 +9,7 @@ import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.ValueConverters;
+import io.jooby.internal.converter.StringConstructorConverter;
 import io.jooby.internal.converter.ValueOfConverter;
 
 /**
@@ -41,5 +42,6 @@ public interface ValueConverter {
 
   static void addFallbackConverters(List<ValueConverter> input) {
     input.add(new ValueOfConverter());
+    input.add(new StringConstructorConverter());
   }
 }

@@ -517,7 +517,7 @@ public class ValueToBeanTest {
   }
 
   @Test
-  public void construnctorAndMixed() {
+  public void constructorAndMixed() {
     queryString(
         "level=L1&children[0]level=L2",
         queryString -> {

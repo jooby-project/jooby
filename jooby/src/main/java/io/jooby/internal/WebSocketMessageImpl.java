@@ -8,6 +8,7 @@ package io.jooby.internal;
 import java.lang.reflect.Type;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.DefaultContext;
@@ -55,5 +56,10 @@ public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMess
   public <T> T to(@NonNull Type type) {
     MediaType contentType = ctx.getRoute().getConsumes().get(0);
     return new WebSocketMessageBody(ctx, this).decode(type, contentType);
+  }
+
+  @Nullable @Override
+  public <T> T toNullable(@NonNull Type type) {
+    return this.to(type);
   }
 }

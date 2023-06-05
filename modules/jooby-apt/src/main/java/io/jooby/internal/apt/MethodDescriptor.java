@@ -194,6 +194,11 @@ public class MethodDescriptor {
       return new MethodDescriptor(
           JoobyTypes.ValueNode, "to", Class.class.getName(), Object.class.getName());
     }
+
+    public static MethodDescriptor toNullable() {
+      return new MethodDescriptor(
+          JoobyTypes.ValueNode, "toNullable", Class.class.getName(), Object.class.getName());
+    }
   }
 
   public static class FileUpload {

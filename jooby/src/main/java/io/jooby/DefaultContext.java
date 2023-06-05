@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.RegistryException;
-import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
@@ -406,12 +405,8 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default @NonNull <T> T convert(@NonNull ValueNode value, @NonNull Class<T> type) {
-    T result = ValueConverters.convert(value, type, getRouter());
-    if (result == null) {
-      throw new TypeMismatchException(value.name(), type);
-    }
-    return result;
+  default @NonNull <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type) {
+    return ValueConverters.convert(value, type, getRouter());
   }
 
   @Override

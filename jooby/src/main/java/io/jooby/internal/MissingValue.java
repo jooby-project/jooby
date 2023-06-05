@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.ValueNode;
 import io.jooby.exception.MissingValueException;
 
@@ -40,6 +41,11 @@ public class MissingValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
+    return null;
+  }
+
+  @Nullable @Override
+  public <T> T toNullable(@NonNull Class<T> type) {
     return null;
   }
 

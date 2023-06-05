@@ -14,20 +14,21 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.BeanConverter;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Usage;
+import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.exception.BadRequestException;
 import io.jooby.exception.MissingValueException;
@@ -36,22 +37,24 @@ import io.jooby.internal.reflect.$Types;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-public class ReflectiveBeanConverter implements BeanConverter {
+public class ReflectiveBeanConverter {
+
+  private record Setter(Method method, Object arg) {
+    public void invoke(Object instance) throws InvocationTargetException, IllegalAccessException {
+      method.invoke(instance, arg);
+    }
+  }
+  ;
+
   private static final String AMBIGUOUS_CONSTRUCTOR =
       "Ambiguous constructor found. Expecting a single constructor or only one annotated with "
           + Inject.class.getName();
 
   private static final Object[] NO_ARGS = new Object[0];
 
-  @Override
-  public boolean supports(@NonNull Class type) {
-    return true;
-  }
-
-  @Override
-  public Object convert(@NonNull ValueNode node, @NonNull Class type) {
+  public Object convert(@NonNull ValueNode node, @NonNull Class type, boolean allowEmptyBean) {
     try {
-      return newInstance(type, node);
+      return newInstance(type, node, allowEmptyBean);
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
       throw propagate(x);
     } catch (InvocationTargetException x) {
@@ -59,18 +62,30 @@ public class ReflectiveBeanConverter implements BeanConverter {
     }
   }
 
-  private static <T> T newInstance(Class<T> type, ValueNode node)
-      throws IllegalAccessException, InstantiationException, InvocationTargetException,
+  private static Object newInstance(Class type, ValueNode node, boolean allowEmptyBean)
+      throws IllegalAccessException,
+          InstantiationException,
+          InvocationTargetException,
           NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
+    Set<ValueNode> state = new HashSet<>();
+    Constructor constructor;
     if (constructors.length == 0) {
-      return setters(type.getDeclaredConstructor().newInstance(), node, Collections.emptySet());
+      constructor = type.getDeclaredConstructor();
+    } else {
+      constructor = selectConstructor(constructors);
     }
-    Constructor constructor = selectConstructor(constructors);
-    Set<Object> state = new HashSet<>();
     Object[] args =
         constructor.getParameterCount() == 0 ? NO_ARGS : inject(node, constructor, state::add);
-    return (T) setters(constructor.newInstance(args), node, state);
+    List<Setter> setters = setters(type, node, state);
+    if (!allowEmptyBean && state.stream().allMatch(Value::isMissing)) {
+      return null;
+    }
+    var instance = constructor.newInstance(args);
+    for (Setter setter : setters) {
+      setter.invoke(instance);
+    }
+    return instance;
   }
 
   private static Constructor selectConstructor(Constructor[] constructors) {
@@ -149,32 +164,29 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return names;
   }
 
-  private static <T> T setters(T newInstance, ValueNode node, Set<Object> skip) {
-    Method[] methods = newInstance.getClass().getMethods();
+  private static List<Setter> setters(Class type, ValueNode node, Set<ValueNode> nodes) {
+    var methods = type.getMethods();
+    var result = new ArrayList<Setter>();
     for (String name : names(node)) {
       ValueNode value = node.get(name);
-      if (!skip.contains(value)) {
-        String methodName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-        Method method = findSetter(methods, methodName);
-        if (method == null) {
-          method = findSetter(methods, name);
-        }
+      if (nodes.add(value)) {
+        Method method = findSetter(methods, name);
         if (method != null) {
           Parameter parameter = method.getParameters()[0];
           try {
             Object arg = value(parameter, node, value);
-            method.invoke(newInstance, arg);
+            result.add(new Setter(method, arg));
           } catch (ProvisioningException x) {
             throw x;
-          } catch (InvocationTargetException x) {
-            throw new ProvisioningException(parameter, x.getCause());
           } catch (Exception x) {
             throw new ProvisioningException(parameter, x);
           }
+        } else {
+          nodes.remove(value);
         }
       }
     }
-    return newInstance;
+    return result;
   }
 
   private static Object value(Parameter parameter, ValueNode node, ValueNode value) {
@@ -223,11 +235,18 @@ public class ReflectiveBeanConverter implements BeanConverter {
   }
 
   private static Method findSetter(Method[] methods, String name) {
+    var setter = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    var candidates = new LinkedList<Method>();
     for (Method method : methods) {
-      if (method.getName().equals(name) && method.getParameterCount() == 1) {
-        return method;
+      if ((method.getName().equals(name) || method.getName().equals(setter))
+          && method.getParameterCount() == 1) {
+        if (method.getName().startsWith("set")) {
+          candidates.addFirst(method);
+        } else {
+          candidates.addLast(method);
+        }
       }
     }
-    return null;
+    return candidates.isEmpty() ? null : candidates.getFirst();
   }
 }

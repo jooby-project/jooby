@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.ValueNode;
 
@@ -87,6 +88,11 @@ public class SingleValue implements ValueNode {
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
     return ctx.convert(this, type);
+  }
+
+  @Nullable @Override
+  public <T> T toNullable(@NonNull Class<T> type) {
+    return ctx.convertOrNull(this, type);
   }
 
   @Override

@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.ValueNode;
 import io.jooby.exception.MissingValueException;
@@ -92,6 +93,11 @@ public class ArrayValue implements ValueNode {
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
     return ctx.convert(list.get(0), type);
+  }
+
+  @Nullable @Override
+  public <T> T toNullable(@NonNull Class<T> type) {
+    return list.isEmpty() ? null : ctx.convertOrNull(list.get(0), type);
   }
 
   @NonNull @Override

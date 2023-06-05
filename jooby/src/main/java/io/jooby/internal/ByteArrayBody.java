@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
@@ -86,6 +87,11 @@ public class ByteArrayBody implements Body {
   @NonNull @Override
   public <T> T to(@NonNull Type type) {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
+  }
+
+  @Nullable @Override
+  public <T> T toNullable(@NonNull Type type) {
+    return bytes.length == 0 ? null : ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Override

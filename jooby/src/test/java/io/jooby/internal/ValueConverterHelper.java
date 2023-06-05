@@ -20,6 +20,7 @@ import io.jooby.Context;
 import io.jooby.Router;
 import io.jooby.ValueConverter;
 import io.jooby.ValueNode;
+import io.jooby.exception.TypeMismatchException;
 
 public class ValueConverterHelper {
 
@@ -31,13 +32,25 @@ public class ValueConverterHelper {
         .filter(it -> (it instanceof BeanConverter))
         .forEach(it -> beans.add((BeanConverter) it));
     ValueConverter.addFallbackConverters(simple);
-    BeanConverter.addFallbackConverters(beans);
 
     Context ctx = mock(Context.class);
     Router router = mock(Router.class);
     when(router.getConverters()).thenReturn(simple);
     when(router.getBeanConverters()).thenReturn(beans);
+    when(ctx.getRouter()).thenReturn(router);
     when(ctx.convert(any(), any()))
+        .then(
+            (Answer)
+                invocation -> {
+                  ValueNode value = invocation.getArgument(0);
+                  Class type = invocation.getArgument(1);
+                  var result = ValueConverters.convert(value, type, router);
+                  if (result == null) {
+                    throw new TypeMismatchException(value.name(), type);
+                  }
+                  return result;
+                });
+    when(ctx.convertOrNull(any(), any()))
         .then(
             (Answer)
                 invocation -> {

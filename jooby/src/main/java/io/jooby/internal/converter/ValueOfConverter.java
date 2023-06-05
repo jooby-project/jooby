@@ -8,48 +8,25 @@ package io.jooby.internal.converter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiFunction;
 
-import io.jooby.SneakyThrows;
-import io.jooby.Value;
-import io.jooby.ValueConverter;
-
-public class ValueOfConverter implements ValueConverter, BiFunction<Class, Method, Method> {
-
-  private Map<Class, Method> cache = new ConcurrentHashMap<>();
+public class ValueOfConverter extends FromStringConverter<Method> {
 
   @Override
-  public boolean supports(Class type) {
-    return cache.compute(type, this) != null;
+  protected Object invoke(Method executable, String value)
+      throws InvocationTargetException, IllegalAccessException {
+    return executable.invoke(null, value);
   }
 
   @Override
-  public Object convert(Value value, Class type) {
+  protected Method mappingMethod(Class type) {
     try {
-      return cache.compute(type, this).invoke(null, value.value());
-    } catch (InvocationTargetException x) {
-      throw SneakyThrows.propagate(x.getTargetException());
-    } catch (IllegalAccessException x) {
-      throw SneakyThrows.propagate(x);
-    }
-  }
-
-  @Override
-  public Method apply(Class type, Method method) {
-    if (method == null) {
-      try {
-        Method valueOf = type.getDeclaredMethod("valueOf", String.class);
-        if (Modifier.isStatic(valueOf.getModifiers())
-            && Modifier.isPublic(valueOf.getModifiers())) {
-          return valueOf;
-        }
-        return null;
-      } catch (NoSuchMethodException x) {
-        return null;
+      Method valueOf = type.getDeclaredMethod("valueOf", String.class);
+      if (Modifier.isStatic(valueOf.getModifiers()) && Modifier.isPublic(valueOf.getModifiers())) {
+        return valueOf;
       }
+      return null;
+    } catch (NoSuchMethodException x) {
+      return null;
     }
-    return method;
   }
 }

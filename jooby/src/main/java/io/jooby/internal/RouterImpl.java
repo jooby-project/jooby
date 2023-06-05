@@ -564,7 +564,6 @@ public class RouterImpl implements Router {
 
     // Must be last, as fallback
     ValueConverter.addFallbackConverters(converters);
-    BeanConverter.addFallbackConverters(beanConverters);
 
     ExecutionMode mode = app.getExecutionMode();
     for (Route route : routes) {

@@ -27,7 +27,6 @@ public class MockContextHelper {
         .filter(it -> (it instanceof BeanConverter))
         .forEach(it -> beans.add((BeanConverter) it));
     ValueConverter.addFallbackConverters(simple);
-    BeanConverter.addFallbackConverters(beans);
 
     Router router = mock(Router.class);
     when(router.getConverters()).thenReturn(simple);
