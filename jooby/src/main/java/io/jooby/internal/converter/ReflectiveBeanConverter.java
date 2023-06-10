@@ -8,6 +8,7 @@ package io.jooby.internal.converter;
 import static io.jooby.SneakyThrows.propagate;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
@@ -30,6 +31,7 @@ import io.jooby.Formdata;
 import io.jooby.Usage;
 import io.jooby.Value;
 import io.jooby.ValueNode;
+import io.jooby.annotation.EmptyBean;
 import io.jooby.exception.BadRequestException;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.ProvisioningException;
@@ -78,7 +80,7 @@ public class ReflectiveBeanConverter {
     Object[] args =
         constructor.getParameterCount() == 0 ? NO_ARGS : inject(node, constructor, state::add);
     List<Setter> setters = setters(type, node, state);
-    if (!allowEmptyBean && state.stream().allMatch(Value::isMissing)) {
+    if (!allowEmptyBean(type, allowEmptyBean) && state.stream().allMatch(Value::isMissing)) {
       return null;
     }
     var instance = constructor.newInstance(args);
@@ -86,6 +88,10 @@ public class ReflectiveBeanConverter {
       setter.invoke(instance);
     }
     return instance;
+  }
+
+  private static boolean allowEmptyBean(Class type, boolean defaults) {
+    return type.getAnnotation(EmptyBean.class) == null ? defaults : true;
   }
 
   private static Constructor selectConstructor(Constructor[] constructors) {
@@ -128,8 +134,13 @@ public class ReflectiveBeanConverter {
       Parameter parameter = parameters[i];
       String name = paramName(parameter);
       ValueNode param = scope.get(name);
-      state.accept(param);
-      args[i] = value(parameter, scope, param);
+      var arg = value(parameter, scope, param);
+      if (arg == null) {
+        state.accept(Value.missing(name));
+      } else {
+        state.accept(param);
+      }
+      args[i] = arg;
     }
     return args;
   }
@@ -211,11 +222,18 @@ public class ReflectiveBeanConverter {
         } else if (Optional.class.isAssignableFrom(parameter.getType())) {
           return value.toOptional($Types.parameterizedType0(parameter.getParameterizedType()));
         } else {
-          if (value.isMissing() && parameter.getType().isPrimitive()) {
-            // fail
-            value.value();
+          if (isNullable(parameter)) {
+            if (value.isSingle()) {
+              var str = value.valueOrNull();
+              if (str == null || str.length() == 0) {
+                // treat empty values as null
+                return null;
+              }
+            }
+            return value.toNullable(parameter.getType());
+          } else {
+            return value.to(parameter.getType());
           }
-          return value.to(parameter.getType());
         }
       }
     } catch (MissingValueException x) {
@@ -223,6 +241,25 @@ public class ReflectiveBeanConverter {
     } catch (BadRequestException x) {
       throw new ProvisioningException(parameter, x);
     }
+  }
+
+  private static boolean isNullable(Parameter parameter) {
+    var type = parameter.getType();
+    if (type.isPrimitive()) {
+      return false;
+    }
+    return !hasAnnotation(parameter, "NotNull", "NonNull");
+  }
+
+  private static boolean hasAnnotation(AnnotatedElement element, String... names) {
+    var nameList = List.of(names);
+    for (Annotation annotation : element.getAnnotations()) {
+      if (nameList.stream()
+          .anyMatch(name -> annotation.annotationType().getSimpleName().endsWith(name))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static boolean isFileUpload(ValueNode node, Parameter parameter) {

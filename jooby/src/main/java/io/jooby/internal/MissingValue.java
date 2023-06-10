@@ -41,7 +41,7 @@ public class MissingValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return null;
+    throw new MissingValueException(name);
   }
 
   @Nullable @Override

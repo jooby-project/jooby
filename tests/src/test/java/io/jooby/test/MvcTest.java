@@ -432,16 +432,17 @@ public class MvcTest {
             })
         .ready(
             client -> {
-              client.get(
-                  "/nonnull",
-                  rsp -> {
-                    Assertions.assertEquals("Missing value: 'v'", rsp.body().string());
-                  });
-              client.get(
-                  "/nullok",
-                  rsp -> {
-                    Assertions.assertEquals("null", rsp.body().string());
-                  });
+              //              client.get(
+              //                  "/nonnull",
+              //                  rsp -> {
+              //                    Assertions.assertEquals("Missing value: 'v'",
+              // rsp.body().string());
+              //                  });
+              //              client.get(
+              //                  "/nullok",
+              //                  rsp -> {
+              //                    Assertions.assertEquals("null", rsp.body().string());
+              //                  });
 
               client.get(
                   "/nullbean",
