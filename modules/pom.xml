@@ -77,7 +77,6 @@
     <module>jooby-mutiny</module>
 
     <!-- util -->
-    <module>jooby-banner</module>
     <module>jooby-whoops</module>
     <module>jooby-metrics</module>
     <module>jooby-jasypt</module>

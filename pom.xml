@@ -435,12 +435,6 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
-        <artifactId>jooby-banner</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.jooby</groupId>
         <artifactId>jooby-commons-email</artifactId>
         <version>${jooby.version}</version>
       </dependency>
