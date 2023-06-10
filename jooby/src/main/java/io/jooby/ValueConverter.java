@@ -9,8 +9,6 @@ import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.ValueConverters;
-import io.jooby.internal.converter.StringConstructorConverter;
-import io.jooby.internal.converter.ValueOfConverter;
 
 /**
  * Value converter for simple values that come from query, path, form, etc... parameters into more
@@ -18,7 +16,7 @@ import io.jooby.internal.converter.ValueOfConverter;
  *
  * <p>It is an extension point for {@link Value#to(Class)} calls.
  */
-public interface ValueConverter {
+public interface ValueConverter<V extends Value> {
   /**
    * True if the converter applies for the given type.
    *
@@ -34,14 +32,14 @@ public interface ValueConverter {
    * @param type Requested type.
    * @return Converted value.
    */
-  Object convert(@NonNull Value value, @NonNull Class type);
+  Object convert(@NonNull V value, @NonNull Class type);
 
+  /**
+   * Immutable list of defaults/built-in {@link ValueConverter}.
+   *
+   * @return Immutable list of defaults/built-in {@link ValueConverter}.
+   */
   static List<ValueConverter> defaults() {
     return ValueConverters.defaultConverters();
-  }
-
-  static void addFallbackConverters(List<ValueConverter> input) {
-    input.add(new ValueOfConverter());
-    input.add(new StringConstructorConverter());
   }
 }

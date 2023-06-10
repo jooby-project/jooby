@@ -931,14 +931,6 @@ public interface Router extends Registry {
   @NonNull Router converter(@NonNull ValueConverter converter);
 
   /**
-   * Add a custom bean value converter.
-   *
-   * @param converter Custom value converter.
-   * @return This router.
-   */
-  @NonNull Router converter(@NonNull BeanConverter converter);
-
-  /**
    * Get all simple/string value converters.
    *
    * @return All simple/string value converters.

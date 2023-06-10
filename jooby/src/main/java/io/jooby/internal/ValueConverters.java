@@ -6,7 +6,6 @@
 package io.jooby.internal;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -28,39 +27,34 @@ import io.jooby.internal.converter.LocalDateTimeConverter;
 import io.jooby.internal.converter.PeriodConverter;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StatusCodeConverter;
+import io.jooby.internal.converter.StringConstructorConverter;
 import io.jooby.internal.converter.TimeZoneConverter;
 import io.jooby.internal.converter.URIConverter;
 import io.jooby.internal.converter.UUIDConverter;
+import io.jooby.internal.converter.ValueOfConverter;
 import io.jooby.internal.converter.ZoneIdConverter;
 import io.jooby.internal.reflect.$Types;
 
 public class ValueConverters {
 
   public static List<ValueConverter> defaultConverters() {
-    List<ValueConverter> result = new ArrayList<>();
-    result.add(new UUIDConverter());
-
-    result.add(new InstantConverter());
-    result.add(new DateConverter());
-    result.add(new LocalDateConverter());
-    result.add(new LocalDateTimeConverter());
-
-    result.add(new BigDecimalConverter());
-    result.add(new BigIntegerConverter());
-
-    result.add(new DurationConverter());
-    result.add(new PeriodConverter());
-
-    result.add(new CharsetConverter());
-
-    result.add(new StatusCodeConverter());
-
-    result.add(new TimeZoneConverter());
-    result.add(new ZoneIdConverter());
-
-    result.add(new URIConverter());
-
-    return result;
+    return List.of(
+        new UUIDConverter(),
+        new InstantConverter(),
+        new DateConverter(),
+        new LocalDateConverter(),
+        new LocalDateTimeConverter(),
+        new BigDecimalConverter(),
+        new BigIntegerConverter(),
+        new DurationConverter(),
+        new PeriodConverter(),
+        new CharsetConverter(),
+        new StatusCodeConverter(),
+        new TimeZoneConverter(),
+        new ZoneIdConverter(),
+        new URIConverter(),
+        new ValueOfConverter(),
+        new StringConstructorConverter());
   }
 
   public static <T> T convert(ValueNode value, Type type, Router router) {

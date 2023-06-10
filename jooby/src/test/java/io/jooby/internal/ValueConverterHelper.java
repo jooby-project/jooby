@@ -26,12 +26,11 @@ public class ValueConverterHelper {
 
   public static Context testContext(ValueConverter... converters) {
     List<BeanConverter> beans = new ArrayList<>();
-    List<ValueConverter> simple = ValueConverters.defaultConverters();
+    List<ValueConverter> simple = new ArrayList<>(ValueConverters.defaultConverters());
     Stream.of(converters).filter(it -> (!(it instanceof BeanConverter))).forEach(simple::add);
     Stream.of(converters)
         .filter(it -> (it instanceof BeanConverter))
         .forEach(it -> beans.add((BeanConverter) it));
-    ValueConverter.addFallbackConverters(simple);
 
     Context ctx = mock(Context.class);
     Router router = mock(Router.class);

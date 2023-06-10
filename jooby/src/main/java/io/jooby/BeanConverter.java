@@ -13,7 +13,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  *
  * <p>It is an extension point for {@link ValueNode#to(Class)} calls.
  */
-public interface BeanConverter {
+public interface BeanConverter extends ValueConverter<ValueNode> {
 
   /**
    * True if the converter applies for the given type.

@@ -174,7 +174,7 @@ public class RouterImpl implements Router {
 
   private Cookie flashCookie = new Cookie("jooby.flash").setHttpOnly(true);
 
-  private List<ValueConverter> converters;
+  private LinkedList<ValueConverter> converters;
 
   private List<BeanConverter> beanConverters;
 
@@ -195,7 +195,7 @@ public class RouterImpl implements Router {
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
 
-    converters = ValueConverters.defaultConverters();
+    converters = new LinkedList<>(ValueConverters.defaultConverters());
     beanConverters = new ArrayList<>(3);
   }
 
@@ -449,13 +449,11 @@ public class RouterImpl implements Router {
 
   @NonNull @Override
   public Router converter(ValueConverter converter) {
-    converters.add(converter);
-    return this;
-  }
-
-  @NonNull @Override
-  public Router converter(@NonNull BeanConverter converter) {
-    beanConverters.add(converter);
+    if (converter instanceof BeanConverter) {
+      beanConverters.add((BeanConverter) converter);
+    } else {
+      converters.addFirst(converter);
+    }
     return this;
   }
 
@@ -561,9 +559,6 @@ public class RouterImpl implements Router {
     } else {
       err = err.then(ErrorHandler.create());
     }
-
-    // Must be last, as fallback
-    ValueConverter.addFallbackConverters(converters);
 
     ExecutionMode mode = app.getExecutionMode();
     for (Route route : routes) {

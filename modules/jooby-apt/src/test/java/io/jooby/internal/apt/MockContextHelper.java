@@ -21,12 +21,11 @@ public class MockContextHelper {
 
   public static MockContext mockContext(ValueConverter... converters) {
     List<BeanConverter> beans = new ArrayList<>();
-    List<ValueConverter> simple = ValueConverter.defaults();
+    List<ValueConverter> simple = new ArrayList<>(ValueConverter.defaults());
     Stream.of(converters).filter(it -> (!(it instanceof BeanConverter))).forEach(simple::add);
     Stream.of(converters)
         .filter(it -> (it instanceof BeanConverter))
         .forEach(it -> beans.add((BeanConverter) it));
-    ValueConverter.addFallbackConverters(simple);
 
     Router router = mock(Router.class);
     when(router.getConverters()).thenReturn(simple);

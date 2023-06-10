@@ -806,12 +806,6 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Jooby converter(@NonNull BeanConverter converter) {
-    router.converter(converter);
-    return this;
-  }
-
-  @NonNull @Override
   public List<ValueConverter> getConverters() {
     return router.getConverters();
   }
