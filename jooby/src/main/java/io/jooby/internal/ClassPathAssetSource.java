@@ -84,6 +84,8 @@ public class ClassPathAssetSource implements AssetSource {
         return true;
       }
       URLConnection connection = url.openConnection();
+      // See https://github.com/jooby-project/jooby/issues/2660
+      connection.setDefaultUseCaches(false);
       if (connection instanceof JarURLConnection) {
         JarURLConnection jarConnection = (JarURLConnection) connection;
         try (JarFile jar = jarConnection.getJarFile()) {
