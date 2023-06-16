@@ -452,6 +452,30 @@ public class MockRouter {
     return this;
   }
 
+  /**
+   * Invoke an error handler that matches the given exception.
+   *
+   * @param cause Exception type.
+   * @param consumer Callback.
+   */
+  public void tryError(Throwable cause, Consumer<MockResponse> consumer) {
+    MockContext ctx = newContext();
+    tryError(cause, ctx);
+    consumer.accept(ctx.getResponse());
+  }
+
+  /**
+   * Invoke an error handler that matches the given exception.
+   *
+   * @param cause Exception type.
+   * @param ctx Context.
+   */
+  public void tryError(Throwable cause, Context ctx) {
+    var app = supplier.get();
+    var handler = app.getErrorHandler();
+    handler.apply(ctx, cause, app.errorCode(cause));
+  }
+
   private MockValue call(
       Jooby router, String method, String path, Context ctx, Consumer<MockResponse> consumer) {
     MockContext findContext = ctx instanceof MockContext ? (MockContext) ctx : newContext();
