@@ -63,7 +63,7 @@ Latest Release: https://github.com/jooby-project/jooby/releases/tag/v{joobyVersi
 
 Looking for previous version?
 
-* Access to link:v2[2.x] documentation. See <<appendix-upgrading-from-x-to-x, migration from 2.x to 3.x>>
+* Access to link:v2[2.x] documentation. See link:/migration/3.x[migrating from 2.x to 3.x]
 * Access to link:v1[1.x] documentation.
 ====
 

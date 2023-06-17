@@ -53,9 +53,14 @@ public class DocGenerator {
 
     Path asciidoc = basedir.resolve("asciidoc");
 
-    String[] extraDirs = {"modules", "packaging", "usage"};
+    /**
+     * Tree dir. The .adoc file became a directory
+     * modules/hikari.adoc => modules/hikari/index.html
+     */
+    String[] treeDirs = {"modules", "packaging", "usage", "migration"};
+
     int adocCount =
-        Stream.of(extraDirs)
+        Stream.of(treeDirs)
             .map(throwingFunction(dir -> countAdoc(asciidoc.resolve(dir))))
             .reduce(1, (a, b) -> a + b);
     int steps = 7 + (doAscii ? adocCount : 0);
@@ -96,7 +101,7 @@ public class DocGenerator {
         pb.step();
 
         AtomicInteger m = new AtomicInteger();
-        Stream.of(extraDirs)
+        Stream.of(treeDirs)
             .forEach(
                 throwingConsumer(
                     name -> {
@@ -226,7 +231,7 @@ public class DocGenerator {
 
       Path output = outdir.resolve(moduleName + ".html").toAbsolutePath();
       Path indexlike = output.getParent().resolve(name);
-      if (name.equals("modules")
+      if ((name.equals("modules") || name.equals("migration"))
           && !moduleName.equals("modules")
           && !moduleName.equals("packaging")) {
         indexlike = indexlike.resolve(moduleName);
@@ -398,7 +403,7 @@ public class DocGenerator {
                     name.add(parentId);
                   }
                 }
-                name.add(id.replaceAll("([a-zA-Z-]+)-\\d+", "$1"));
+                name.add(id.replaceAll("([a-zA-Z0-9-]+)-\\d+$", "$1"));
                 String newId = name.stream().collect(Collectors.joining("-"));
                 if (!id.equals(newId)) {
                   h.attr("id", newId);
