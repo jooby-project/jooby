@@ -161,7 +161,7 @@
     <!-- Jooby  -->
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
-    <javadoc.excludes>*.internal</javadoc.excludes>
+    <javadoc.excludes>io.jooby.internal.*</javadoc.excludes>
 
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
@@ -828,9 +828,8 @@
         <version>${graphql-java.version}</version>
       </dependency>
 
-      <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>${hibernate.version}</version>
       </dependency>
@@ -1767,6 +1766,8 @@
             <configuration>
               <excludePackageNames>${javadoc.excludes}</excludePackageNames>
               <show>public</show>
+              <detectJavaApiLink>false</detectJavaApiLink>
+              <release>${maven.compiler.release}</release>
             </configuration>
             <executions>
               <execution>
@@ -1809,6 +1810,8 @@
             <configuration>
               <excludePackageNames>${javadoc.excludes}</excludePackageNames>
               <show>public</show>
+              <detectJavaApiLink>false</detectJavaApiLink>
+              <release>${maven.compiler.release}</release>
             </configuration>
             <executions>
               <execution>

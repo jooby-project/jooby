@@ -18,7 +18,7 @@ import io.jooby.Route;
 import io.jooby.ServiceKey;
 
 /**
- * Attach {@link Session} and {@link javax.persistence.EntityManager} to the current request.
+ * Attach {@link Session} and {@link jakarta.persistence.EntityManager} to the current request.
  *
  * <p>The active {@link Session} is accessible via {@link SessionFactory#getCurrentSession()} for
  * the duration of the route pipeline.

@@ -22,6 +22,28 @@
         <artifactId>kotlin-maven-plugin</artifactId>
         <extensions>true</extensions>
       </plugin>
+      <plugin>
+        <groupId>org.jetbrains.dokka</groupId>
+        <artifactId>dokka-maven-plugin</artifactId>
+        <version>1.8.20</version>
+        <configuration>
+          <documentedVisibilities>
+            <visibility>PUBLIC</visibility>
+          </documentedVisibilities>
+          <suppressedFiles>
+            <file>${project.build.sourceDirectory}/io/jooby/internal</file>
+          </suppressedFiles>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <id>attach-javadocs-dokka</id>
+            <goals>
+              <goal>javadocJar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

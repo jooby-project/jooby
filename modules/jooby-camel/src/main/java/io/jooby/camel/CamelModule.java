@@ -86,6 +86,7 @@ public class CamelModule implements Extension {
   /**
    * Creates a new camel module adding one or more routes.
    *
+   * @param camel Camel context.
    * @param route Route configuration.
    * @param routes Optional route configuration.
    */
@@ -114,6 +115,7 @@ public class CamelModule implements Extension {
    * Dependency Injection framework (if any), otherwise camel does basic/minimal injection using
    * {@link org.apache.camel.impl.engine.DefaultInjector}.
    *
+   * @param camel Camel context.
    * @param route Route configuration.
    * @param routes Optional route configuration.
    */

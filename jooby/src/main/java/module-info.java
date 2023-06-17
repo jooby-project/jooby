@@ -3,6 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
+/**
+ * Jooby module.
+ */
 module io.jooby {
   exports io.jooby;
   exports io.jooby.annotation;

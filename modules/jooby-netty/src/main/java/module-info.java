@@ -6,6 +6,9 @@
 import io.jooby.Server;
 import io.jooby.netty.NettyServer;
 
+/**
+ * Netty module.
+ */
 module io.jooby.netty {
   exports io.jooby.netty;
 

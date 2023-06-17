@@ -114,7 +114,29 @@ inline fun <T : Any> Context.form(klass: KClass<T>): T {
 inline fun <T : Any> Context.query(klass: KClass<T>): T {
   return this.query(klass.java)
 }
-/** Kooby: */
+
+/**
+ * Welcome to Jooby for Kotlin
+ *
+ * <p>Hello World:
+ *
+ * <pre>{@code
+ *
+ * import io.jooby.kt.runApp
+ *
+ * fun main(args: Array<String>) {
+ *    runApp(args) {
+ *      get ("/") { "Welcome to Jooby!" }
+ *    }
+ * }
+ *
+ * }</pre>
+ *
+ * More documentation at <a href="https://jooby.io">jooby.io</a>
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 open class Kooby constructor() : Jooby() {
 
   constructor(init: Kooby.() -> Unit) : this() {

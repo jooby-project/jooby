@@ -3,6 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
+/**
+ * Guice module.
+ */
 module io.jooby.guice {
   exports io.jooby.guice;
 
