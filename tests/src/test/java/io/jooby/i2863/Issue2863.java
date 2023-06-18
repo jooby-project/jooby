@@ -8,8 +8,8 @@ package io.jooby.i2863;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jooby.Context;
-import io.jooby.Cors;
-import io.jooby.CorsHandler;
+import io.jooby.handler.Cors;
+import io.jooby.handler.CorsHandler;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 

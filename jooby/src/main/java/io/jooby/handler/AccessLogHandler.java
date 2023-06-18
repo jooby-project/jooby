@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.handler;
 
 import static java.util.Objects.requireNonNull;
 
@@ -21,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.Route;
+import io.jooby.Router;
 
 /**
  * Access Log Handler.
@@ -159,6 +162,7 @@ public class AccessLogHandler implements Route.Filter {
 
   private static final Function<Context, String> USER_OR_DASH =
       ctx -> Optional.ofNullable(ctx.getUser()).map(Object::toString).orElse(DASH);
+
   /** Default buffer size. */
   private static final int MESSAGE_SIZE = 256;
 

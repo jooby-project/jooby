@@ -17,10 +17,10 @@ import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.Asset;
-import io.jooby.AssetSource;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
+import io.jooby.handler.Asset;
+import io.jooby.handler.AssetSource;
 
 public class ClassPathAssetSourceTest {
 

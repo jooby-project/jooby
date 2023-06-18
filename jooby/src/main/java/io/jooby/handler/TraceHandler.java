@@ -3,13 +3,15 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.handler;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Route;
+import io.jooby.Router;
 
 /**
  * The TRACE method performs a message loop-back test along the path to the target resource.

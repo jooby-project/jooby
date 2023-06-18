@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import io.jooby.CsrfHandler;
 import io.jooby.StatusCode;
+import io.jooby.handler.CsrfHandler;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import okhttp3.MediaType;

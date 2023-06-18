@@ -11,9 +11,9 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Asset;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
+import io.jooby.handler.Asset;
 
 /**
  * URL asset. Mostly represent a classpath file resource.

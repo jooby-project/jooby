@@ -17,6 +17,8 @@ import java.util.Optional;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SneakyThrows.Consumer2;
+import io.jooby.handler.Asset;
+import io.jooby.handler.AssetSource;
 import io.jooby.internal.IOUtils;
 
 /**

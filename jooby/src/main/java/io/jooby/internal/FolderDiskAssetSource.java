@@ -10,8 +10,8 @@ import java.nio.file.Path;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Asset;
-import io.jooby.AssetSource;
+import io.jooby.handler.Asset;
+import io.jooby.handler.AssetSource;
 
 public class FolderDiskAssetSource implements AssetSource {
   private Path location;

@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.handler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.Base64;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.MediaType;
+import io.jooby.SneakyThrows;
 import io.jooby.internal.FileAsset;
 import io.jooby.internal.JarAsset;
 import io.jooby.internal.URLAsset;

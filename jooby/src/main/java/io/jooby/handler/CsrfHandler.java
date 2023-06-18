@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.handler;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -12,6 +12,10 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.Route;
+import io.jooby.Router;
+import io.jooby.Session;
 import io.jooby.exception.InvalidCsrfToken;
 
 /**

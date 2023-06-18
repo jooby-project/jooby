@@ -12,9 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Asset;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
+import io.jooby.handler.Asset;
 
 /**
  * File system asset.

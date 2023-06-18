@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.handler;
 
 import static java.util.Objects.requireNonNull;
 
@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.function.Function;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.Route;
+import io.jooby.StatusCode;
 
 /**
  * Handler for static resources represented by the {@link Asset} contract.

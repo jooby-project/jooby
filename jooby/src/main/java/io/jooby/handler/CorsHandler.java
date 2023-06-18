@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.handler;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.Route;
+import io.jooby.Router;
+import io.jooby.StatusCode;
 
 /**
  * Handle preflight and simple CORS requests. CORS options are set via: {@link Cors}.

@@ -3,9 +3,11 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.handler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Route;
+import io.jooby.Router;
 import io.jooby.internal.HeadContext;
 
 /**

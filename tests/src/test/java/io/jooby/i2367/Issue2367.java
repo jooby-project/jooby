@@ -7,8 +7,8 @@ package io.jooby.i2367;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.jooby.AccessLogHandler;
 import io.jooby.exception.BadRequestException;
+import io.jooby.handler.AccessLogHandler;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 

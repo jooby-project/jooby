@@ -5,7 +5,7 @@
  */
 package i2710
 
-import io.jooby.AccessLogHandler
+import io.jooby.handler.AccessLogHandler
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
 import io.jooby.kt.Kooby

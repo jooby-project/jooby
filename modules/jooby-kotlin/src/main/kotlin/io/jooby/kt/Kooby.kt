@@ -9,7 +9,6 @@ package io.jooby.kt
 
 import io.jooby.Body
 import io.jooby.Context
-import io.jooby.Cors
 import io.jooby.Environment
 import io.jooby.EnvironmentOptions
 import io.jooby.ExecutionMode
@@ -25,6 +24,7 @@ import io.jooby.ServerOptions
 import io.jooby.ServiceRegistry
 import io.jooby.Value
 import io.jooby.ValueNode
+import io.jooby.handler.Cors
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineStart

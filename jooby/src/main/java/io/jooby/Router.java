@@ -35,6 +35,8 @@ import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.MissingValueException;
+import io.jooby.handler.AssetHandler;
+import io.jooby.handler.AssetSource;
 import jakarta.inject.Provider;
 
 /**
@@ -83,18 +85,25 @@ public interface Router extends Registry {
 
   /** HTTP GET. */
   String GET = "GET";
+
   /** HTTP POST. */
   String POST = "POST";
+
   /** HTTP PUT. */
   String PUT = "PUT";
+
   /** HTTP DELETE. */
   String DELETE = "DELETE";
+
   /** HTTP PATCH. */
   String PATCH = "PATCH";
+
   /** HTTP HEAD. */
   String HEAD = "HEAD";
+
   /** HTTP OPTIONS. */
   String OPTIONS = "OPTIONS";
+
   /** HTTP TRACE. */
   String TRACE = "TRACE";
 

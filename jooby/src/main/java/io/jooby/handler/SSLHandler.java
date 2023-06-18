@@ -3,9 +3,12 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.handler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
+import io.jooby.Route;
+import io.jooby.Router;
 
 /**
  * Force SSL handler. Check for non-HTTPs request and force client to use HTTPs by redirecting the

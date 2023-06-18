@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.Duration;
 
-import io.jooby.Cors;
-import io.jooby.CorsHandler;
+import io.jooby.handler.Cors;
+import io.jooby.handler.CorsHandler;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 

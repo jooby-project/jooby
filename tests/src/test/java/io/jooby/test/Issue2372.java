@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 
-import io.jooby.SSLHandler;
 import io.jooby.ServerOptions;
+import io.jooby.handler.SSLHandler;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.reactor.Reactor;

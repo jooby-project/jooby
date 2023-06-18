@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.jooby.handler.Cors;
 
 public class CorsTest {
 

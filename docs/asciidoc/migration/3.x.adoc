@@ -67,8 +67,21 @@ Kotlin was removed from core, you need to the `jooby-kotlin` dependency:
 |io.jooby.Route.Decorator|io.jooby.Route.Filter| jooby (core)
 |io.jooby.Kooby|io.jooby.kt.Kooby| jooby-kotlin (new module)
 |io.jooby.jetty.Jetty|io.jooby.jetty.JettyServer| jooby-jetty
-|io.jooby.netty.netty|io.jooby.netty.NettyServer| jooby-netty
+|io.jooby.netty.Netty|io.jooby.netty.NettyServer| jooby-netty
 |io.jooby.utow.Utow|io.jooby.undertow.UndertowServer| jooby-undertow
+|io.jooby.AccessLogHandler|io.jooby.handler.AccessLogHandler| jooby (core)
+|io.jooby.Cors|io.jooby.handler.Cors| jooby (core)
+|io.jooby.CorsHandler|io.jooby.handler.CorsHandler| jooby (core)
+|io.jooby.CsrfHandler|io.jooby.handler.CsrfHandler| jooby (core)
+|io.jooby.HeadHandler|io.jooby.handler.HeadHandler| jooby (core)
+|io.jooby.RateLimitHandler|io.jooby.handler.RateLimitHandler| jooby (core)
+|io.jooby.SSLHandler|io.jooby.handler.SSLHandler| jooby (core)
+|io.jooby.TraceHandler|io.jooby.handler.TraceHandler| jooby (core)
+|io.jooby.WebVariables|io.jooby.handler.WebVariables| jooby (core)
+|io.jooby.Asset|io.jooby.handler.Asset| jooby (core)
+|io.jooby.AssetHandler|io.jooby.handler.AssetHandler| jooby (core)
+|io.jooby.AssetSource|io.jooby.handler.AssetSource| jooby (core)
+|io.jooby.CacheControl|io.jooby.handler.CacheControl| jooby (core)
 |===
 
 ==== Method renames
