@@ -40,7 +40,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1128,48 +1127,6 @@ public class Jooby implements Router, Registry {
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
-   * @param applicationType Application type.
-   */
-  public static void runApp(
-      @NonNull String[] args, @NonNull Class<? extends Jooby> applicationType) {
-    runApp(args, ExecutionMode.DEFAULT, applicationType);
-  }
-
-  /**
-   * Setup default environment, logging (logback or log4j2) and run application.
-   *
-   * @param args Application arguments.
-   * @param executionMode Application execution mode.
-   * @param applicationType Application type.
-   */
-  public static void runApp(
-      @NonNull String[] args,
-      @NonNull ExecutionMode executionMode,
-      @NonNull Class<? extends Jooby> applicationType) {
-    configurePackage(applicationType.getPackage());
-    runApp(args, executionMode, reflectionProvider(applicationType));
-  }
-
-  /**
-   * Setup default environment, logging (logback or log4j2) and run application.
-   *
-   * @param args Application arguments.
-   * @param executionMode Application execution mode.
-   * @param applicationType Application type.
-   * @return Application.
-   */
-  public static Jooby createApp(
-      @NonNull String[] args,
-      @NonNull ExecutionMode executionMode,
-      @NonNull Class<? extends Jooby> applicationType) {
-    configurePackage(applicationType.getPackage());
-    return createApp(args, executionMode, reflectionProvider(applicationType));
-  }
-
-  /**
-   * Setup default environment, logging (logback or log4j2) and run application.
-   *
-   * @param args Application arguments.
    * @param provider Application provider.
    */
   public static void runApp(@NonNull String[] args, @NonNull Supplier<Jooby> provider) {
@@ -1352,20 +1309,6 @@ public class Jooby implements Router, Registry {
       consumer.accept(app);
       return app;
     };
-  }
-
-  private static Supplier<Jooby> reflectionProvider(
-      @NonNull Class<? extends Jooby> applicationType) {
-    return () ->
-        (Jooby)
-            Stream.of(applicationType.getDeclaredConstructors())
-                .filter(it -> it.getParameterCount() == 0)
-                .findFirst()
-                .map(SneakyThrows.throwingFunction(c -> c.newInstance()))
-                .orElseThrow(
-                    () ->
-                        new IllegalArgumentException(
-                            "Default constructor for: " + applicationType.getName()));
   }
 
   /**

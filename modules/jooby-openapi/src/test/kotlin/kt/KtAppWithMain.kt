@@ -17,5 +17,5 @@ class App :
   })
 
 fun main(args: Array<String>) {
-  runApp(args, App::class)
+  runApp(args, ::App)
 }

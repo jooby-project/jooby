@@ -29,12 +29,12 @@ class App :
 
 /** run class: */
 fun runClass(args: Array<String>) {
-  runApp(args, App::class)
+  runApp(args, ::App)
 }
 
 /** run class with mode: */
 fun runWithMode(args: Array<String>) {
-  runApp(args, ExecutionMode.DEFAULT, App::class)
+  runApp(args, ExecutionMode.DEFAULT, ::App)
 }
 
 /** run inline: */

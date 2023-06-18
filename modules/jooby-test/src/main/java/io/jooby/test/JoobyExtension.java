@@ -14,6 +14,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.Server;
@@ -73,7 +75,9 @@ public class JoobyExtension
     if (factoryMethod.isEmpty()) {
       app =
           Jooby.createApp(
-              new String[] {metadata.environment()}, metadata.executionMode(), metadata.value());
+              new String[] {metadata.environment()},
+              metadata.executionMode(),
+              reflectionProvider(metadata.value()));
     } else {
       app = fromFactoryMethod(context, metadata, factoryMethod);
     }
@@ -88,6 +92,20 @@ public class JoobyExtension
     store.put("server", server);
     store.put("application", app);
     return app;
+  }
+
+  private static Supplier<Jooby> reflectionProvider(
+      @NonNull Class<? extends Jooby> applicationType) {
+    return () ->
+        (Jooby)
+            Stream.of(applicationType.getDeclaredConstructors())
+                .filter(it -> it.getParameterCount() == 0)
+                .findFirst()
+                .map(SneakyThrows.throwingFunction(c -> c.newInstance()))
+                .orElseThrow(
+                    () ->
+                        new IllegalArgumentException(
+                            "Default constructor for: " + applicationType.getName()));
   }
 
   @Override

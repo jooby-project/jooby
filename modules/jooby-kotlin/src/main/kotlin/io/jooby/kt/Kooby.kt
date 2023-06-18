@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-@file:Suppress("JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE")
+@file:Suppress("JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE", "NOTHING_TO_INLINE")
 
 package io.jooby.kt
 
@@ -119,7 +119,6 @@ inline fun <T : Any> Context.query(klass: KClass<T>): T {
  * Welcome to Jooby for Kotlin
  *
  * <p>Hello World:
- *
  * <pre>{@code
  *
  * import io.jooby.kt.runApp
@@ -343,13 +342,13 @@ fun runApp(args: Array<String>, init: Kooby.() -> Unit) {
   Jooby.runApp(args, ExecutionMode.DEFAULT, fun() = Kooby(init))
 }
 
-fun <T : Jooby> runApp(args: Array<String>, application: KClass<T>) {
-  runApp(args, ExecutionMode.DEFAULT, application)
+fun <T : Jooby> runApp(args: Array<String>, provider: () -> T) {
+  runApp(args, ExecutionMode.DEFAULT, provider)
 }
 
-fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, application: KClass<T>) {
-  System.setProperty("___app_name__", application.java.simpleName)
-  Jooby.runApp(args, mode, application.java)
+fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, provider: () -> T) {
+  //  System.setProperty("___app_name__", application.java.simpleName)
+  Jooby.runApp(args, mode, provider)
 }
 
 internal fun configurePackage(value: Any) {

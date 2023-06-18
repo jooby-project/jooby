@@ -20,6 +20,8 @@ public class TypeFactory {
   public static final Type VOID = Type.getType(void.class);
 
   public static final Type STRING = Type.getType(String.class);
+
+  public static final Type STRING_ARRAY = Type.getType(String[].class);
   public static final Type HANDLER = Type.getType(Route.Handler.class);
 
   public static final Type ROUTER = Type.getType(Router.class);

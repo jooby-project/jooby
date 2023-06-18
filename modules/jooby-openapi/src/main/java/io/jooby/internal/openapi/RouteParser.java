@@ -13,6 +13,7 @@ import static io.jooby.internal.openapi.TypeFactory.KOOBYKT;
 import static io.jooby.internal.openapi.TypeFactory.KT_FUN_1;
 import static io.jooby.internal.openapi.TypeFactory.OBJECT;
 import static io.jooby.internal.openapi.TypeFactory.STRING;
+import static io.jooby.internal.openapi.TypeFactory.STRING_ARRAY;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 
 import java.io.IOException;
@@ -423,7 +424,12 @@ public class RouteParser {
             handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
           }
         } else if (signature.matches(KOOBYKT, "runApp")) {
-          handlerList.addAll(kotlinRunApp(ctx, prefix, node));
+          handlerList.addAll(
+              kotlinRunApp(
+                  ctx,
+                  prefix,
+                  node,
+                  signature.matches("runApp", STRING_ARRAY, TypeFactory.KT_FUN_0)));
         } else if (signature.matches(Route.class, "produces", MediaType[].class)) {
           if (instructionTo != null) {
             OperationExt route = handlerList.get(handlerList.size() - 1);
@@ -489,7 +495,8 @@ public class RouteParser {
     return start;
   }
 
-  private List<OperationExt> kotlinRunApp(ParserContext ctx, String prefix, MethodInsnNode node) {
+  private List<OperationExt> kotlinRunApp(
+      ParserContext ctx, String prefix, MethodInsnNode node, boolean supplier) {
     List<OperationExt> handlerList = new ArrayList<>();
     Type type = null;
     for (AbstractInsnNode it : InsnSupport.prev(node).collect(Collectors.toList())) {
@@ -499,19 +506,20 @@ public class RouteParser {
           type = Type.getObjectType(getstatic.owner);
           break;
         }
-      } else if (it instanceof LdcInsnNode) {
-        LdcInsnNode e = (LdcInsnNode) it;
-        if (e.cst instanceof Type) {
-          type = (Type) e.cst;
-          ctx.setMainClass(type.getClassName());
-          break;
-        }
       }
     }
     if (type == null) {
       throw new IllegalStateException("io.jooby.runApp(String[]) parsing failure");
     }
     ClassNode classNode = ctx.classNode(type);
+    if (supplier) {
+      /** runApp(args, ::App); */
+      var signature = classNode.signature;
+      var mainClass =
+          Type.getType(signature.substring(signature.lastIndexOf('<') + 1, signature.length() - 2));
+      ctx.setMainClass(mainClass.getClassName());
+      classNode = ctx.classNode(mainClass);
+    }
     handlerList.addAll(parse(ctx, prefix, classNode));
     return handlerList;
   }
