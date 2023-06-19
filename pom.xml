@@ -37,7 +37,7 @@
     <HikariCP.version>5.0.1</HikariCP.version>
     <mysql-connector-j.version>8.0.33</mysql-connector-j.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.2.0.Final</hibernate.version>
+    <hibernate.version>6.2.5.Final</hibernate.version>
     <ebean.version>13.19.0-jakarta</ebean.version>
     <jdbi.version>3.38.3</jdbi.version>
     <flyway.version>9.19.1</flyway.version>
