@@ -5,6 +5,11 @@
  */
 package io.jooby.internal.netty;
 
+import static io.jooby.internal.netty.SlowPathChecks.isHttpContent;
+import static io.jooby.internal.netty.SlowPathChecks.isHttpRequest;
+import static io.jooby.internal.netty.SlowPathChecks.isLastHttpContent;
+import static io.netty.handler.codec.http.HttpUtil.isTransferEncodingChunked;
+
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -23,14 +28,13 @@ import io.jooby.Server;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.WebSocketCloseStatus;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -39,30 +43,26 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
-import io.netty.util.ReferenceCounted;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 
+@ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private static final AtomicReference<String> cachedDateString = new AtomicReference<>();
 
   private static final Runnable INVALIDATE_TASK = () -> cachedDateString.set(null);
 
   private static final AsciiString server = AsciiString.cached("N");
+  private static final AttributeKey<NettyContext> CONTEXT = AttributeKey.newInstance("context");
   private final ScheduledExecutorService scheduler;
-
   private static final int DATE_INTERVAL = 1000;
-
   private final Router router;
   private final int bufferSize;
   private final boolean defaultHeaders;
-  private NettyContext context;
-
   private final HttpDataFactory factory;
-  private InterfaceHttpPostRequestDecoder decoder;
-
   private final long maxRequestSize;
   private long contentLength;
   private long chunkSize;
-
   private boolean http2;
 
   public NettyHandler(
@@ -82,78 +82,97 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     this.http2 = http2;
   }
 
+  public boolean isHttp2() {
+    return http2;
+  }
+
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
-    try {
-      if (msg instanceof HttpRequest) {
-        HttpRequest req = (HttpRequest) msg;
+    if (isHttpRequest(msg)) {
+      var req = (HttpRequest) msg;
+      var context = getOrCreateContext(ctx);
+      context.init(ctx, req, router, pathOnly(req.uri()), bufferSize, http2);
 
-        context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize, http2);
+      if (defaultHeaders) {
+        context.setHeaders.set(HttpHeaderNames.DATE, date(router.getLog(), scheduler));
+        context.setHeaders.set(HttpHeaderNames.SERVER, server);
+      }
+      context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
 
-        if (defaultHeaders) {
-          context.setHeaders.set(HttpHeaderNames.DATE, date(router.getLog(), scheduler));
-          context.setHeaders.set(HttpHeaderNames.SERVER, server);
-        }
-        context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
-
-        if (context.isHttpGet()) {
-          router.match(context).execute(context);
+      if (context.isHttpGet()) {
+        router.match(context).execute(context);
+      } else {
+        // possibly body:
+        contentLength = contentLength(req);
+        if (contentLength > 0 || isTransferEncodingChunked(req)) {
+          context.decoder = newDecoder(req, factory);
         } else {
-          // possibly body:
-          contentLength = contentLength(req);
-          if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
-            decoder = newDecoder(req, factory);
-          } else {
-            // no body, move on
-            router.match(context).execute(context);
-          }
-        }
-      } else if (decoder != null && msg instanceof HttpContent) {
-        HttpContent chunk = (HttpContent) msg;
-        chunkSize += chunk.content().readableBytes();
-        if (chunkSize > maxRequestSize) {
-          resetDecoderState(true);
-          router.match(context).execute(context, Route.REQUEST_ENTITY_TOO_LARGE);
-          return;
-        }
-
-        offer(chunk);
-
-        if (contentLength == chunkSize && !(chunk instanceof LastHttpContent)) {
-          chunk = LastHttpContent.EMPTY_LAST_CONTENT;
-          offer(chunk);
-        }
-
-        if (chunk instanceof LastHttpContent) {
-          context.decoder = decoder;
-          Router.Match route = router.match(context);
-          resetDecoderState(!route.matches());
-          route.execute(context);
-        }
-      } else if (msg instanceof WebSocketFrame) {
-        if (context.webSocket != null) {
-          context.webSocket.handleFrame((WebSocketFrame) msg);
+          // no body, move on
+          router.match(context).execute(context);
         }
       }
-    } finally {
-      if (msg instanceof ReferenceCounted) {
-        ReferenceCounted ref = (ReferenceCounted) msg;
-        if (ref.refCnt() > 0) {
-          ref.release();
+    } else if (isHttpContent(msg)) {
+      var chunk = (HttpContent) msg;
+      try {
+        var context = getContextOrNull(ctx);
+        // when decoder == null, chunk is always a LastHttpContent.EMPTY, ignore it
+        if (context.decoder != null) {
+          chunkSize += chunk.content().readableBytes();
+          if (chunkSize > maxRequestSize) {
+            resetDecoderState(context, true);
+            router.match(context).execute(context, Route.REQUEST_ENTITY_TOO_LARGE);
+            return;
+          }
+
+          offer(context, chunk);
+
+          if (isLastHttpContent(msg)) {
+            Router.Match route = router.match(context);
+            resetDecoderState(context, !route.matches());
+            route.execute(context);
+          }
         }
+      } finally {
+        release(chunk);
+      }
+    } else if (msg instanceof WebSocketFrame) {
+      var context = getContextOrNull(ctx);
+      if (context.webSocket != null) {
+        context.webSocket.handleFrame((WebSocketFrame) msg);
       }
     }
   }
 
+  private void release(HttpContent ref) {
+    if (ref.refCnt() > 0) {
+      ref.release();
+    }
+  }
+
+  private NettyContext getOrCreateContext(ChannelHandlerContext ctx) {
+    Attribute<NettyContext> attr = ctx.channel().attr(CONTEXT);
+    var context = attr.get();
+    if (context == null) {
+      context = new NettyContext();
+      attr.set(context);
+    }
+    return context;
+  }
+
+  private NettyContext getContextOrNull(ChannelHandlerContext ctx) {
+    return ctx.channel().attr(CONTEXT).get();
+  }
+
   @Override
-  public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+  public void channelReadComplete(ChannelHandlerContext ctx) {
+    var context = getContextOrNull(ctx);
     if (context != null) {
       context.flush();
     }
   }
 
   @Override
-  public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+  public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
     if (evt instanceof IdleStateEvent) {
       NettyWebSocket ws = ctx.channel().attr(NettyWebSocket.WS).getAndSet(null);
       if (ws != null) {
@@ -165,6 +184,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     try {
+      var context = getContextOrNull(ctx);
       Logger log = router.getLog();
       if (Server.connectionLost(cause)) {
         if (log.isDebugEnabled()) {
@@ -182,7 +202,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
             log.debug("execution resulted in exception while application was shutting down", cause);
           } else {
             context.sendError(cause);
-            context = null;
           }
         }
       }
@@ -191,22 +210,25 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  private void offer(HttpContent chunk) {
-    try {
-      decoder.offer(chunk);
-    } catch (HttpPostRequestDecoder.ErrorDataDecoderException x) {
-      resetDecoderState(true);
-      context.sendError(x, StatusCode.BAD_REQUEST);
+  private void offer(NettyContext context, HttpContent chunk) {
+    if (context.decoder != null) {
+      try {
+        context.decoder.offer(chunk);
+      } catch (HttpPostRequestDecoder.ErrorDataDecoderException x) {
+        resetDecoderState(context, true);
+        context.sendError(x, StatusCode.BAD_REQUEST);
+      }
     }
   }
 
-  private void resetDecoderState(boolean destroy) {
+  private void resetDecoderState(NettyContext context, boolean destroy) {
     chunkSize = 0;
     contentLength = -1;
-    if (destroy && decoder != null) {
+    if (destroy && context.decoder != null) {
+      var decoder = context.decoder;
+      context.decoder = null;
       decoder.destroy();
     }
-    decoder = null;
   }
 
   private static InterfaceHttpPostRequestDecoder newDecoder(
@@ -241,7 +263,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   }
 
   private static String date(Logger log, ScheduledExecutorService scheduler) {
-    String dateString = cachedDateString.get();
+    var dateString = cachedDateString.get();
     if (dateString == null) {
       // set the time and register a timer to invalidate it
       // note that this is racey, it does not matter if multiple threads do this

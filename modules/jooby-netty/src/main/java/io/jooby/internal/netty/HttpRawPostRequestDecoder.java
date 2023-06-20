@@ -5,13 +5,14 @@
  */
 package io.jooby.internal.netty;
 
+import static io.jooby.internal.netty.SlowPathChecks.isLastHttpContent;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -62,7 +63,7 @@ public class HttpRawPostRequestDecoder implements InterfaceHttpPostRequestDecode
   @Override
   public InterfaceHttpPostRequestDecoder offer(HttpContent content) {
     try {
-      data.addContent(content.content().copy(), content instanceof LastHttpContent);
+      data.addContent(content.content().copy(), isLastHttpContent(content));
       return this;
     } catch (IOException x) {
       throw new HttpPostRequestDecoder.ErrorDataDecoderException(x);

@@ -12,15 +12,18 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.net.ssl.SSLContext;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Jooby;
+import io.jooby.Router;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
+import io.jooby.internal.netty.NettyHandler;
 import io.jooby.internal.netty.NettyPipeline;
 import io.jooby.internal.netty.NettyTransport;
 import io.jooby.internal.netty.NettyWebSocket;
@@ -53,6 +56,8 @@ public class NettyServer extends Server.Base {
         System.getProperty("io.netty.leakDetection.level", "disabled"));
   }
 
+  public static final boolean VALIDATE_HEADERS =
+      !Boolean.parseBoolean(System.getProperty("io.netty.disableHttpHeadersValidation", "false"));
   private static final int _50 = 50;
 
   private static final int _100 = 100;
@@ -184,17 +189,32 @@ public class NettyServer extends Server.Base {
   }
 
   private NettyPipeline newPipeline(HttpDataFactory factory, SslContext sslContext, boolean http2) {
+    var executor = acceptorloop.next();
+    var router = applications.get(0);
+    var handler = createHandler(executor, router, options, factory, http2);
     return new NettyPipeline(
-        acceptorloop.next(),
-        applications.get(0),
-        factory,
+        handler,
         sslContext,
-        http2,
-        options.getDefaultHeaders(),
         options.getCompressionLevel(),
         options.getBufferSize(),
         options.getMaxRequestSize(),
         options.isExpectContinue() == Boolean.TRUE);
+  }
+
+  @NonNull private NettyHandler createHandler(
+      ScheduledExecutorService service,
+      Router router,
+      ServerOptions options,
+      HttpDataFactory factory,
+      boolean http2) {
+    return new NettyHandler(
+        service,
+        router,
+        options.getMaxRequestSize(),
+        options.getBufferSize(),
+        factory,
+        options.getDefaultHeaders(),
+        http2);
   }
 
   @NonNull @Override

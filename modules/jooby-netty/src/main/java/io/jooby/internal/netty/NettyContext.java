@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.netty;
 
+import static io.jooby.netty.NettyServer.VALIDATE_HEADERS;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
@@ -111,11 +112,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   private static final String STREAM_ID = "x-http2-stream-id";
-  private static final boolean DISABLE_HTTP_HEADERS_VALIDATION =
-      Boolean.parseBoolean(System.getProperty("io.netty.disableHttpHeadersValidation", "false"));
-  private final String streamId;
-  DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(!DISABLE_HTTP_HEADERS_VALIDATION);
-  private final int bufferSize;
+
+  private String streamId;
+  DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(VALIDATE_HEADERS);
+  private int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
   private Route route;
@@ -144,7 +144,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private String scheme;
   private int port;
 
-  public NettyContext(
+  public void init(
       ChannelHandlerContext ctx,
       HttpRequest req,
       Router router,
@@ -157,9 +157,32 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.router = router;
     this.bufferSize = bufferSize;
     this.method = req.method().name().toUpperCase();
+    /** Clear everything else. */
+    this.attributes.clear();
+    this.setHeaders.clear();
+    this.route = null;
+    this.decoder = null;
+    this.webSocket = null;
+    this.listeners = null;
+    this.cookies = null;
+    this.responseCookies = null;
+    this.needsFlush = false;
+    this.host = null;
+    this.port = 0;
+    this.contentLength = -1;
+    this.scheme = null;
+    this.responseType = null;
+    this.responseStarted = false;
+    this.headers = null;
+    this.status = HttpResponseStatus.OK;
+    this.query = null;
+    this.formdata = null;
+    this.files = null;
+    this.pathMap = Collections.EMPTY_MAP;
+    this.resetHeadersOnError = null;
     if (http2) {
       // Save streamId for HTTP/2
-      this.streamId = header(STREAM_ID).valueOrNull();
+      this.streamId = req.headers().get(STREAM_ID);
       ifStreamId(this.streamId);
     } else {
       this.streamId = null;
@@ -584,6 +607,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Context send(@NonNull String data) {
+    System.out.println(data);
     return send(copiedBuffer(data, UTF_8));
   }
 
@@ -634,6 +658,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     if (needsFlush) {
       needsFlush = false;
       ctx.flush();
+      destroy(null);
     }
   }
 
