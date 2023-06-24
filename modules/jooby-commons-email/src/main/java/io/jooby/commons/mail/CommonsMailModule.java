@@ -19,6 +19,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException.Missing;
 import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.AvailableSettings;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
@@ -107,7 +108,7 @@ public class CommonsMailModule implements Extension {
 
     mail =
         mail.withFallback(
-            ConfigFactory.empty().withValue("charset", config.getValue("application.charset")));
+            ConfigFactory.empty().withValue("charset", config.getValue(AvailableSettings.CHARSET)));
     return mail;
   }
 

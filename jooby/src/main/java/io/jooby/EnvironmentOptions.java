@@ -19,7 +19,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @since 2.0.0
  */
 public class EnvironmentOptions {
-  private static final String ENV = "application.env";
   private String basedir;
 
   private String filename;
@@ -69,7 +68,9 @@ public class EnvironmentOptions {
 
   static @NonNull List<String> defaultEnvironmentNames() {
     return Arrays.asList(
-        System.getProperty(ENV, System.getenv().getOrDefault(ENV, "dev")).split("\\s*,\\s*"));
+        System.getProperty(
+                AvailableSettings.ENV, System.getenv().getOrDefault(AvailableSettings.ENV, "dev"))
+            .split("\\s*,\\s*"));
   }
 
   /**

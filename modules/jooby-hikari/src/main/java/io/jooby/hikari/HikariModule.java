@@ -28,6 +28,7 @@ import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.AvailableSettings;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -316,7 +317,7 @@ public class HikariModule implements Extension {
                 klass -> {
                   defaults.put("dataSourceClassName", klass.getName());
                   defaults.put(
-                      "dataSource.encoding", env.getConfig().getString("application.charset"));
+                      "dataSource.encoding", env.getConfig().getString(AvailableSettings.CHARSET));
                   defaults.put("dataSource.cachePrepStmts", true);
                   defaults.put("dataSource.prepStmtCacheSize", MYSQL5_STT_CACHE_SIZE);
                   defaults.put("dataSource.prepStmtCacheSqlLimit", MYSQL5_STT_CACHE_SQL_LIMIT);
@@ -492,7 +493,7 @@ public class HikariModule implements Extension {
         name = basedir.getFileName().toString();
       } else {
         name = "tmp" + rnd();
-        basedir = Paths.get(conf.getString("application.tmpdir"));
+        basedir = Paths.get(conf.getString(AvailableSettings.TMP_DIR));
       }
       Path path = basedir.resolve(name);
       hikari.setProperty("dataSource.url", "jdbc:h2:" + path.toAbsolutePath());

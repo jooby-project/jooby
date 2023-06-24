@@ -81,8 +81,6 @@ import jakarta.inject.Provider;
  */
 public class Jooby implements Router, Registry {
 
-  static final String BASE_PACKAGE = "application.package";
-
   static final String APP_NAME = "___app_name__";
 
   private static final String JOOBY_RUN_HOOK = "___jooby_run_hook__";
@@ -661,7 +659,8 @@ public class Jooby implements Router, Registry {
   public Path getTmpdir() {
     if (tmpdir == null) {
       tmpdir =
-          Paths.get(getEnvironment().getConfig().getString("application.tmpdir")).toAbsolutePath();
+          Paths.get(getEnvironment().getConfig().getString(AvailableSettings.TMP_DIR))
+              .toAbsolutePath();
     }
     return tmpdir;
   }
@@ -763,7 +762,7 @@ public class Jooby implements Router, Registry {
    */
   public @Nullable String getBasePackage() {
     return System.getProperty(
-        BASE_PACKAGE,
+        AvailableSettings.PACKAGE,
         Optional.ofNullable(getClass().getPackage()).map(Package::getName).orElse(null));
   }
 
@@ -937,7 +936,7 @@ public class Jooby implements Router, Registry {
     }
 
     if (locales == null) {
-      String path = "application.lang";
+      String path = AvailableSettings.LANG;
       locales =
           Optional.of(getConfig())
               .filter(c -> c.hasPath(path))
@@ -990,8 +989,8 @@ public class Jooby implements Router, Registry {
 
     if (startupSummary == null) {
       Config config = env.getConfig();
-      if (config.hasPath("application.startupSummary")) {
-        Object value = config.getAnyRef("application.startupSummary");
+      if (config.hasPath(AvailableSettings.STARTUP_SUMMARY)) {
+        Object value = config.getAnyRef(AvailableSettings.STARTUP_SUMMARY);
         List<String> values = value instanceof List ? (List) value : List.of(value.toString());
         startupSummary =
             values.stream().map(StartupSummary::create).collect(Collectors.toUnmodifiableList());
@@ -1197,7 +1196,7 @@ public class Jooby implements Router, Registry {
             provider.getClass().getClassLoader(), new EnvironmentOptions().getActiveNames());
     if (logfile != null) {
       // Add as property, so we can query where is the log configuration
-      System.setProperty("application.logfile", logfile);
+      System.setProperty(AvailableSettings.LOG_FILE, logfile);
     }
 
     Jooby app;
@@ -1233,7 +1232,7 @@ public class Jooby implements Router, Registry {
   private static void configurePackage(String packageName) {
     if (!packageName.equals("io.jooby")) {
       ifSystemProp(
-          BASE_PACKAGE,
+          AvailableSettings.PACKAGE,
           (sys, key) -> {
             sys.setProperty(key, packageName);
           });
@@ -1257,7 +1256,7 @@ public class Jooby implements Router, Registry {
         conf.put(arg.substring(0, eq).trim(), arg.substring(eq + 1).trim());
       } else {
         // must be the environment actives
-        conf.putIfAbsent("application.env", arg);
+        conf.putIfAbsent(AvailableSettings.ENV, arg);
       }
     }
     return conf;

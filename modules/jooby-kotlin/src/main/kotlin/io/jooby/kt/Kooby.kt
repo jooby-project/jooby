@@ -7,6 +7,7 @@
 
 package io.jooby.kt
 
+import io.jooby.AvailableSettings
 import io.jooby.Body
 import io.jooby.Context
 import io.jooby.Environment
@@ -347,7 +348,6 @@ fun <T : Jooby> runApp(args: Array<String>, provider: () -> T) {
 }
 
 fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, provider: () -> T) {
-  //  System.setProperty("___app_name__", application.java.simpleName)
   Jooby.runApp(args, mode, provider)
 }
 
@@ -357,5 +357,5 @@ internal fun configurePackage(value: Any) {
 
   val end = appname.indexOf("Kt$")
   System.setProperty("___app_name__", appname.substring(start, end))
-  value::class.java.`package`?.let { System.setProperty("application.package", it.name) }
+  value::class.java.`package`?.let { System.setProperty(AvailableSettings.PACKAGE, it.name) }
 }

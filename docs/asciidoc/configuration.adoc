@@ -379,12 +379,14 @@ These are the application properties that Jooby uses:
 [options="header"]
 |===
 |Property name | Description | Default value
-|application.charset | Charset used by your application. | `UTF-8`
-|application.env | The active <<configuration-environment, environment>> names. | `dev`
-|application.lang | The languages your application supports. | A single locale provided by `Locale.getDefault()`.
+|application.charset | Charset used by your application. Used by template engine, HTTP encoding/decoding, database driver, etc. | `UTF-8`
+|application.env | The active <<configuration-environment, environment>> names. Use to identify `dev` vs `non-dev` application deployment. Jooby applies some optimizations for `non-dev`environments | `dev`
+|application.lang | The languages your application supports. Used by `Context.locale()` | A single locale provided by `Locale.getDefault()`.
 |application.logfile | The logging configuration file your application uses. You don't need to set this property, see <<configuration-logging, logging configuration>>. |
 |application.package | The base package of your application. |
 |application.pid | JVM process ID. | The native process ID assigned by the operating system.
 |application.startupSummary | The level of information logged during startup. |
 |application.tmpdir | Temporary directory used by your application. | `tmp`
 |===
+
+See javadoc:AvailableSettings[] for more details.

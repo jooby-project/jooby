@@ -30,14 +30,14 @@ public interface StartupSummary {
         Environment env = application.getEnvironment();
         Config config = application.getConfig();
         logger.info("{} started with:", application.getName());
-        logger.info("    PID: {}", config.getString("application.pid"));
+        logger.info("    PID: {}", config.getString(AvailableSettings.PID));
         logger.info("    {}", server.getOptions());
         logger.info("    execution mode: {}", application.getExecutionMode().name().toLowerCase());
         logger.info("    environment: {}", env);
         logger.info("    app dir: {}", config.getString("user.dir"));
         logger.info("    tmp dir: {}", application.getTmpdir());
-        if (config.hasPath("application.logfile")) {
-          logger.info("    log file: {}", config.getString("application.logfile"));
+        if (config.hasPath(AvailableSettings.LOG_FILE)) {
+          logger.info("    log file: {}", config.getString(AvailableSettings.LOG_FILE));
         }
       };
 

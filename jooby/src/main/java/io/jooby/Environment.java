@@ -309,8 +309,8 @@ public class Environment {
     Config application = resolveConfig(options, userdir, names);
 
     // check if there is a local env set
-    if (application.hasPath("application.env")) {
-      String env = application.getString("application.env");
+    if (application.hasPath(AvailableSettings.ENV)) {
+      String env = application.getString(AvailableSettings.ENV);
       // Override environment only if the active environment is set to `dev`
       if (!actives.contains(env) && (actives.contains("dev") && actives.size() == 1)) {
         Config envConfig =
@@ -365,12 +365,12 @@ public class Environment {
   public static @NonNull Config defaults() {
     Path tmpdir = Paths.get(System.getProperty("user.dir"), "tmp");
     Map<String, String> defaultMap = new HashMap<>();
-    defaultMap.put("application.tmpdir", tmpdir.toString());
-    defaultMap.put("application.charset", "UTF-8");
+    defaultMap.put(AvailableSettings.TMP_DIR, tmpdir.toString());
+    defaultMap.put(AvailableSettings.CHARSET, "UTF-8");
     String pid = pid();
     if (pid != null) {
       System.setProperty("PID", pid);
-      defaultMap.put("application.pid", pid);
+      defaultMap.put(AvailableSettings.PID, pid);
     }
 
     return ConfigFactory.parseMap(defaultMap, "defaults");
