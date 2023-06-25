@@ -607,7 +607,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Context send(@NonNull String data) {
-    System.out.println(data);
     return send(copiedBuffer(data, UTF_8));
   }
 
