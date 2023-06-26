@@ -154,7 +154,7 @@
     <versions-maven-plugin.version>2.16.0</versions-maven-plugin.version>
     <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
-    <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+    <frontend-maven-plugin.version>1.13.3</frontend-maven-plugin.version>
     <node.version>v18.13.0</node.version>
     <moditec.version>1.0.0.RC3</moditec.version>
 
