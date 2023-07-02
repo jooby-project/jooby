@@ -2,8 +2,8 @@
 
 # Usage:
 # - docker build -t jooby .
-# - docker run -it jooby -v "$HOME/.m2":/root/.m2
-# - /build # mvn clean package
+# - docker run -v "$HOME/.m2":/root/.m2 -it jooby
+# - /build # mvn clean package -P '!git-hooks'
 
 FROM maven:3-eclipse-temurin-17 as build
 

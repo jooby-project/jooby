@@ -191,13 +191,13 @@ public class NettyServer extends Server.Base {
   private NettyPipeline newPipeline(HttpDataFactory factory, SslContext sslContext, boolean http2) {
     var executor = acceptorloop.next();
     var router = applications.get(0);
-    var handler = createHandler(executor, router, options, factory, http2);
     return new NettyPipeline(
-        handler,
+        () -> createHandler(executor, router, options, factory, http2),
         sslContext,
         options.getCompressionLevel(),
         options.getBufferSize(),
         options.getMaxRequestSize(),
+        http2,
         options.isExpectContinue() == Boolean.TRUE);
   }
 

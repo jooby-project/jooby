@@ -23,7 +23,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -242,7 +241,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
         throw SneakyThrows.propagate(x);
       }
     }
-    return new ArrayList<Certificate>();
+    return Collections.emptyList();
   }
 
   @NonNull @Override

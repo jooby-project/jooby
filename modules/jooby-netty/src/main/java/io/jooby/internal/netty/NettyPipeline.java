@@ -24,27 +24,29 @@ import io.netty.handler.ssl.SslContext;
 
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private static final String H2_HANDSHAKE = "h2-handshake";
-
   private Integer compressionLevel;
   private int bufferSize;
   private long maxRequestSize;
   private SslContext sslContext;
   private boolean is100ContinueExpected;
-  private NettyHandler handler;
+  private boolean http2;
+  private Supplier<NettyHandler> handlerFactory;
 
   public NettyPipeline(
-      NettyHandler handler,
+      Supplier<NettyHandler> handlerFactory,
       SslContext sslContext,
       Integer compressionLevel,
       int bufferSize,
       long maxRequestSize,
+      boolean http2,
       boolean is100ContinueExpected) {
     this.sslContext = sslContext;
     this.compressionLevel = compressionLevel;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
     this.is100ContinueExpected = is100ContinueExpected;
-    this.handler = handler;
+    this.http2 = http2;
+    this.handlerFactory = handlerFactory;
   }
 
   @Override
@@ -53,7 +55,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     if (sslContext != null) {
       p.addLast("ssl", sslContext.newHandler(ch.alloc()));
     }
-    if (handler.isHttp2()) {
+    if (http2) {
       Http2Settings settings = new Http2Settings(maxRequestSize, sslContext != null);
       Http2Extension extension =
           new Http2Extension(
@@ -67,7 +69,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
       setupCompression(p);
 
-      p.addLast("handler", handler);
+      p.addLast("handler", handlerFactory.get());
     } else {
       http11(p);
     }
@@ -113,7 +115,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     p.addLast("codec", codec);
     setupExpectContinue(p);
     setupCompression(p);
-    p.addLast("handler", handler);
+    p.addLast("handler", handlerFactory.get());
   }
 
   HttpServerCodec createServerCodec() {

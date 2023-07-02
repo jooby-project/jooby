@@ -144,7 +144,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private String scheme;
   private int port;
 
-  public void init(
+  public NettyContext(
       ChannelHandlerContext ctx,
       HttpRequest req,
       Router router,
@@ -157,32 +157,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.router = router;
     this.bufferSize = bufferSize;
     this.method = req.method().name().toUpperCase();
-    /** Clear everything else. */
-    this.attributes.clear();
-    this.setHeaders.clear();
-    this.route = null;
-    this.decoder = null;
-    this.webSocket = null;
-    this.listeners = null;
-    this.cookies = null;
-    this.responseCookies = null;
-    this.needsFlush = false;
-    this.host = null;
-    this.port = 0;
-    this.contentLength = -1;
-    this.scheme = null;
-    this.responseType = null;
-    this.responseStarted = false;
-    this.headers = null;
-    this.status = HttpResponseStatus.OK;
-    this.query = null;
-    this.formdata = null;
-    this.files = null;
-    this.pathMap = Collections.EMPTY_MAP;
-    this.resetHeadersOnError = null;
     if (http2) {
       // Save streamId for HTTP/2
-      this.streamId = req.headers().get(STREAM_ID);
+      this.streamId = header(STREAM_ID).valueOrNull();
       ifStreamId(this.streamId);
     } else {
       this.streamId = null;
@@ -352,7 +329,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
         throw SneakyThrows.propagate(x);
       }
     }
-    return new ArrayList<Certificate>();
+    return Collections.emptyList();
   }
 
   @NonNull @Override
@@ -451,7 +428,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       handler.init(Context.readOnly(this), webSocket);
       FullHttpRequest webSocketRequest =
           new DefaultFullHttpRequest(
-              req.protocolVersion(),
+              HTTP_1_1,
               req.method(),
               req.uri(),
               Unpooled.EMPTY_BUFFER,
@@ -596,7 +573,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @NonNull @Override
   public Sender responseSender() {
     prepareChunked();
-    ctx.write(new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
+    ctx.write(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
     return new NettySender(this, ctx);
   }
 
@@ -638,7 +615,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Context send(@NonNull ByteBuf data) {
     try {
       responseStarted = true;
-      setHeaders.set(CONTENT_LENGTH, Long.toString(data.readableBytes()));
+      setHeaders.set(CONTENT_LENGTH, Integer.toString(data.readableBytes()));
       DefaultFullHttpResponse response =
           new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING);
       if (ctx.channel().eventLoop().inEventLoop()) {
@@ -903,7 +880,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private NettyOutputStream newOutputStream() {
     prepareChunked();
     return new NettyOutputStream(
-        this, ctx, bufferSize, new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
+        this, ctx, bufferSize, new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
   }
 
   private FileUpload register(FileUpload upload) {

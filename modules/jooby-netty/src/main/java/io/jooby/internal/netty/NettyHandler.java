@@ -28,7 +28,6 @@ import io.jooby.Server;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.WebSocketCloseStatus;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
@@ -43,10 +42,8 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
-import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 
-@ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private static final AtomicReference<String> cachedDateString = new AtomicReference<>();
 
@@ -65,6 +62,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long chunkSize;
   private boolean http2;
 
+  private NettyContext context;
+
   public NettyHandler(
       ScheduledExecutorService scheduler,
       Router router,
@@ -82,16 +81,12 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     this.http2 = http2;
   }
 
-  public boolean isHttp2() {
-    return http2;
-  }
-
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
     if (isHttpRequest(msg)) {
       var req = (HttpRequest) msg;
-      var context = getOrCreateContext(ctx);
-      context.init(ctx, req, router, pathOnly(req.uri()), bufferSize, http2);
+
+      context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize, http2);
 
       if (defaultHeaders) {
         context.setHeaders.set(HttpHeaderNames.DATE, date(router.getLog(), scheduler));
@@ -114,7 +109,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     } else if (isHttpContent(msg)) {
       var chunk = (HttpContent) msg;
       try {
-        var context = getContextOrNull(ctx);
         // when decoder == null, chunk is always a LastHttpContent.EMPTY, ignore it
         if (context.decoder != null) {
           chunkSize += chunk.content().readableBytes();
@@ -136,7 +130,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         release(chunk);
       }
     } else if (msg instanceof WebSocketFrame) {
-      var context = getContextOrNull(ctx);
       if (context.webSocket != null) {
         context.webSocket.handleFrame((WebSocketFrame) msg);
       }
@@ -149,23 +142,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  private NettyContext getOrCreateContext(ChannelHandlerContext ctx) {
-    Attribute<NettyContext> attr = ctx.channel().attr(CONTEXT);
-    var context = attr.get();
-    if (context == null) {
-      context = new NettyContext();
-      attr.set(context);
-    }
-    return context;
-  }
-
-  private NettyContext getContextOrNull(ChannelHandlerContext ctx) {
-    return ctx.channel().attr(CONTEXT).get();
-  }
-
   @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
-    var context = getContextOrNull(ctx);
     if (context != null) {
       context.flush();
     }
@@ -184,7 +162,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     try {
-      var context = getContextOrNull(ctx);
       Logger log = router.getLog();
       if (Server.connectionLost(cause)) {
         if (log.isDebugEnabled()) {
