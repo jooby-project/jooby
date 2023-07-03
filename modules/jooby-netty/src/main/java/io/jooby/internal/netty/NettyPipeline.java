@@ -20,6 +20,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
+import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.ssl.SslContext;
 
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
@@ -52,6 +53,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   @Override
   public void initChannel(SocketChannel ch) {
     ChannelPipeline p = ch.pipeline();
+    p.addLast(new FlushConsolidationHandler());
     if (sslContext != null) {
       p.addLast("ssl", sslContext.newHandler(ch.alloc()));
     }
