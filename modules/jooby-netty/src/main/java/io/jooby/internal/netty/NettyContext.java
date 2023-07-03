@@ -106,7 +106,6 @@ import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.ReferenceCounted;
 
 public class NettyContext implements DefaultContext, ChannelFutureListener {
 
@@ -268,7 +267,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   public Formdata form() {
     if (formdata == null) {
       formdata = Formdata.create(this);
-      decodeForm(req, formdata);
+      decodeForm(formdata);
     }
     return formdata;
   }
@@ -832,8 +831,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return (getSession() != null)
         || (listeners != null)
         || (files != null && files.size() > 0)
-        || (decoder != null)
-        || shouldRelease(req);
+        || (decoder != null);
   }
 
   void destroy(Throwable cause) {
@@ -874,7 +872,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       }
       decoder = null;
     }
-    release(req);
   }
 
   private NettyOutputStream newOutputStream() {
@@ -891,7 +888,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return upload;
   }
 
-  private void decodeForm(HttpRequest req, Formdata form) {
+  private void decodeForm(Formdata form) {
     if (decoder == null || decoder instanceof HttpRawPostRequestDecoder) {
       // empty/bad form
       return;
@@ -900,13 +897,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-          ((Formdata) form)
-              .put(
-                  next.getName(),
-                  register(
-                      new NettyFileUpload(
-                          router.getTmpdir(),
-                          (io.netty.handler.codec.http.multipart.FileUpload) next)));
+          form.put(
+              next.getName(),
+              register(
+                  new NettyFileUpload(
+                      router.getTmpdir(),
+                      (io.netty.handler.codec.http.multipart.FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));
         }
@@ -915,24 +911,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       // ignore, silly netty
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
-    } finally {
-      release(req);
     }
-  }
-
-  private static void release(HttpRequest req) {
-    if (shouldRelease(req)) {
-      ReferenceCounted ref = (ReferenceCounted) req;
-      ref.release();
-    }
-  }
-
-  private static boolean shouldRelease(HttpRequest req) {
-    if (req instanceof ReferenceCounted) {
-      ReferenceCounted ref = (ReferenceCounted) req;
-      return ref.refCnt() > 0;
-    }
-    return false;
   }
 
   private long responseLength() {
