@@ -188,13 +188,11 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   }
 
   private void offer(NettyContext context, HttpContent chunk) {
-    if (context.decoder != null) {
-      try {
-        context.decoder.offer(chunk);
-      } catch (HttpPostRequestDecoder.ErrorDataDecoderException x) {
-        resetDecoderState(context, true);
-        context.sendError(x, StatusCode.BAD_REQUEST);
-      }
+    try {
+      context.decoder.offer(chunk);
+    } catch (HttpPostRequestDecoder.ErrorDataDecoderException x) {
+      resetDecoderState(context, true);
+      context.sendError(x, StatusCode.BAD_REQUEST);
     }
   }
 
