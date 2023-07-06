@@ -1,6 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.jooby/jooby)
 [![Javadoc](https://javadoc.io/badge/io.jooby/jooby.svg)](https://javadoc.io/doc/io.jooby/jooby/latest)
-[![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=2.x)](https://travis-ci.org/jooby-project/jooby)
 [![Github](https://github.com/jooby-project/jooby/workflows/Full%20Build/badge.svg)](https://github.com/jooby-project/jooby/actions)
 [![slack](https://img.shields.io/badge/slack-chat-brightgreen.svg?logo=slack)](https://joobyio.slack.com)
 [![Become a Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://patreon.com/edgarespina)
