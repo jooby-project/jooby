@@ -100,7 +100,7 @@
     <frontend-plugin-core.version>1.12.1</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
 
-    <commons-io.version>2.12.0</commons-io.version>
+    <commons-io.version>2.13.0</commons-io.version>
     <unbescape.version>1.1.6.RELEASE</unbescape.version>
 
     <!-- Kotlin -->
