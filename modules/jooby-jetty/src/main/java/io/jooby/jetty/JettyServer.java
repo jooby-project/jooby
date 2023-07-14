@@ -220,11 +220,7 @@ public class JettyServer extends io.jooby.Server.Base {
 
       /* ********************************* Gzip *************************************/
       if (gzip) {
-        DeflaterPool deflater = server.getBean(DeflaterPool.class);
-
         GzipHandler gzipHandler = new GzipHandler();
-        gzipHandler.setDeflaterPool(deflater);
-
         context.insertHandler(gzipHandler);
       }
       /* ********************************* WebSocket *************************************/
