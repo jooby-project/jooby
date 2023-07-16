@@ -29,8 +29,6 @@ import java.util.stream.Stream;
 
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleClassLoader;
-import org.jboss.modules.ModuleFinder;
-import org.jboss.modules.ModuleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,28 +47,11 @@ import io.methvin.watcher.DirectoryWatcher;
  */
 public class JoobyRun {
 
-  private static class Event {
-    private final long time;
-
-    Event(long time) {
-      this.time = time;
-    }
-  }
-
-  private static class ExtModuleLoader extends ModuleLoader {
-
-    ExtModuleLoader(ModuleFinder... finders) {
-      super(finders);
-    }
-
-    public void unload(String name, final Module module) {
-      super.unloadModuleLocal(name, module);
-    }
-  }
+  private record Event(long time) {}
 
   private static class AppModule {
     private final Logger logger;
-    private final ExtModuleLoader loader;
+    private final JoobyModuleLoader loader;
     private final JoobyRunOptions conf;
     private Module module;
     private ClassLoader contextClassLoader;
@@ -85,7 +66,7 @@ public class JoobyRun {
 
     AppModule(
         Logger logger,
-        ExtModuleLoader loader,
+        JoobyModuleLoader loader,
         ClassLoader contextClassLoader,
         JoobyRunOptions conf) {
       this.logger = logger;
@@ -118,7 +99,6 @@ public class JoobyRun {
         if (port != null) {
           args.add("server.port=" + port);
         }
-        args.add("server.join=false");
         module.run(conf.getMainClass(), args.toArray(new String[0]));
       } catch (ClassNotFoundException x) {
         String message = x.getMessage();
@@ -361,14 +341,14 @@ public class JoobyRun {
               .map(Path::toString)
               .collect(Collectors.joining(File.pathSeparator));
       System.setProperty("jooby.run.classpath", classPathString);
+      var finder = new JoobyModuleFinder(options.getProjectName(), resources, dependencies);
 
-      ModuleFinder[] finders = {
-        new FlattenClasspath(options.getProjectName(), resources, dependencies)
-      };
-
-      ExtModuleLoader loader = new ExtModuleLoader(finders);
       module =
-          new AppModule(logger, loader, Thread.currentThread().getContextClassLoader(), options);
+          new AppModule(
+              logger,
+              new JoobyModuleLoader(finder),
+              Thread.currentThread().getContextClassLoader(),
+              options);
       ScheduledExecutorService se;
       Exception error = module.start();
       if (error == null) {
@@ -474,7 +454,7 @@ public class JoobyRun {
   }
 
   @SuppressWarnings("unchecked")
-  private static <E extends Throwable> void sneakyThrow0(final Throwable x) throws E {
+  public static <E extends Throwable> E sneakyThrow0(final Throwable x) throws E {
     throw (E) x;
   }
 }

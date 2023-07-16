@@ -5,33 +5,36 @@
  */
 package io.jooby.run;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.jboss.modules.ModuleFinder;
-import org.jboss.modules.ModuleLoadException;
 import org.jboss.modules.ModuleLoader;
 import org.jboss.modules.ModuleSpec;
 
-class FlattenClasspath implements ModuleFinder {
-
+class JoobyModuleFinder implements ModuleFinder {
+  private static final String JARS = "jars";
   private final Set<Path> resources;
+  private final Set<Path> jars;
   private final String name;
 
-  FlattenClasspath(String name, Set<Path> resources, Set<Path> dependencies) {
+  JoobyModuleFinder(String name, Set<Path> resources, Set<Path> jars) {
     this.name = name;
-    this.resources = new LinkedHashSet<>(resources.size() + dependencies.size());
+    this.resources = new LinkedHashSet<>(resources.size() + 1);
     this.resources.addAll(resources);
-
     this.resources.add(joobyRunHook(getClass()));
-    this.resources.addAll(dependencies);
+
+    this.jars = jars;
   }
 
   /**
@@ -51,12 +54,30 @@ class FlattenClasspath implements ModuleFinder {
   }
 
   @Override
-  public ModuleSpec findModule(String name, ModuleLoader delegateLoader)
-      throws ModuleLoadException {
+  public ModuleSpec findModule(String name, ModuleLoader delegateLoader) {
     if (this.name.equals(name)) {
-      return Specs.spec(name, resources, Collections.emptySet());
+      return ModuleSpecHelper.create(name, resources, singleton(JARS));
+    } else if (JARS.equals(name)) {
+      return ModuleSpecHelper.create(name, jars, emptySet());
     }
 
     return null;
+  }
+
+  @Override
+  public String toString() {
+    var buffer = new StringBuilder();
+    resources.stream()
+        .forEach(
+            it -> {
+              if (!buffer.isEmpty()) {
+                buffer.append(File.pathSeparator);
+              }
+              buffer.append(it);
+            });
+    if (!jars.isEmpty()) {
+      buffer.append("; jars: ").append(jars);
+    }
+    return buffer.toString();
   }
 }

@@ -17,29 +17,41 @@ import java.util.jar.JarFile;
 
 import org.jboss.modules.DependencySpec;
 import org.jboss.modules.ModuleDependencySpecBuilder;
-import org.jboss.modules.ModuleLoadException;
 import org.jboss.modules.ModuleSpec;
 import org.jboss.modules.PathUtils;
 import org.jboss.modules.ResourceLoaderSpec;
 import org.jboss.modules.filter.PathFilters;
 
-final class Specs {
+final class ModuleSpecHelper {
 
-  private Specs() {}
+  private ModuleSpecHelper() {}
 
-  static DependencySpec metaInf(String moduleName) {
-    return new ModuleDependencySpecBuilder()
-        .setImportFilter(PathFilters.acceptAll())
-        .setExportFilter(PathFilters.getMetaInfServicesFilter())
-        .setName(moduleName)
-        .setOptional(false)
-        .build();
+  public static ModuleSpec create(String name, Set<Path> resources, Set<String> dependencies) {
+    ModuleSpec.Builder builder = newModule(name, resources);
+
+    // dependencies
+    for (String dependency : dependencies) {
+      builder.addDependency(
+          new ModuleDependencySpecBuilder()
+              .setImportFilter(PathFilters.acceptAll())
+              .setExportFilter(PathFilters.getMetaInfServicesFilter())
+              .setName(dependency)
+              .setOptional(false)
+              .build());
+    }
+    return builder.create();
   }
 
-  public static ModuleSpec spec(String name, Set<Path> resources, Set<String> dependencies)
-      throws ModuleLoadException {
+  private static ModuleSpec.Builder newModule(String name, Set<Path> resources) {
     try {
       ModuleSpec.Builder builder = ModuleSpec.build(name);
+      // Add all JDK classes
+      builder.addDependency(DependencySpec.createSystemDependencySpec(PathUtils.getPathSet(null)));
+      // needed, so that the module can load classes from the resource root
+      builder.addDependency(DependencySpec.createLocalDependencySpec());
+      // Add the module's own content
+      builder.addDependency(DependencySpec.OWN_DEPENDENCY);
+
       for (Path path : resources) {
         if (Files.isDirectory(path)) {
           builder.addResourceRoot(
@@ -49,18 +61,9 @@ final class Specs {
               createResourceLoaderSpec(createJarResourceLoader(new JarFile(path.toFile()))));
         }
       }
-
-      // needed, so that the module can load classes from the resource root
-      builder.addDependency(DependencySpec.createLocalDependencySpec());
-      // add dependency on the JDK paths
-      builder.addDependency(DependencySpec.createSystemDependencySpec(PathUtils.getPathSet(null)));
-      // dependencies
-      for (String dependency : dependencies) {
-        builder.addDependency(Specs.metaInf(dependency));
-      }
-      return builder.create();
+      return builder;
     } catch (IOException x) {
-      throw new ModuleLoadException(name, x);
+      throw JoobyRun.sneakyThrow0(x);
     }
   }
 }
