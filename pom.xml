@@ -117,7 +117,7 @@
 
     <auto-service.version>1.1.1</auto-service.version>
     <compile-testing.version>0.21.0</compile-testing.version>
-    <truth.version>1.1.4</truth.version>
+    <truth.version>1.1.5</truth.version>
 
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
