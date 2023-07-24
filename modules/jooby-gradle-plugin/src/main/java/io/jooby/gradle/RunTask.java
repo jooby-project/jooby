@@ -109,7 +109,7 @@ public class RunTask extends BaseTask {
           compiler.run(new ResultHandler<Void>() {
             @Override public void onComplete(Void result) {
               getLogger().debug("Restarting application on file change: " + path);
-              joobyRun.restart();
+              joobyRun.restart(path);
             }
 
             @Override public void onFailure(GradleConnectionException failure) {
@@ -118,7 +118,7 @@ public class RunTask extends BaseTask {
           });
         } else if (config.isRestartExtension(path)) {
           getLogger().debug("Restarting application on file change: " + path);
-          joobyRun.restart();
+          joobyRun.restart(path);
         } else {
           getLogger().debug("Ignoring file change: " + path);
         }
