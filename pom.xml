@@ -73,7 +73,7 @@
     <!-- Server -->
     <undertow.version>2.3.7.Final</undertow.version>
     <jetty.version>11.0.15</jetty.version>
-    <netty.version>4.1.94.Final</netty.version>
+    <netty.version>4.1.95.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.15</swagger.version>
