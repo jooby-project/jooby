@@ -32,6 +32,8 @@ import org.jboss.modules.ModuleClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.jooby.internal.run.JoobyModuleFinder;
+import io.jooby.internal.run.JoobyModuleLoader;
 import io.methvin.watcher.DirectoryChangeEvent;
 import io.methvin.watcher.DirectoryWatcher;
 
@@ -47,7 +49,7 @@ import io.methvin.watcher.DirectoryWatcher;
  */
 public class JoobyRun {
 
-  private record Event(long time) {}
+  private record Event(Path path, long time) {}
 
   private static class AppModule {
     private final Logger logger;
@@ -161,11 +163,18 @@ public class JoobyRun {
       return s > CLOSED && s < RUNNING;
     }
 
-    public void restart() {
+    public void restart(boolean unload) {
       if (state.compareAndSet(RUNNING, RESTART)) {
+        // Shutdown
         closeServer();
-        unloadModule();
+        if (unload) {
+          // unload only when a class has changed
+          unloadModule();
+        }
+        // Start
         start();
+        // Run gc
+        System.gc();
       } else {
         debugState("Already restarting.");
       }
@@ -239,12 +248,12 @@ public class JoobyRun {
           default:
             throw new IllegalStateException("BUG");
         }
-        logger.debug(message + " state: {}", name);
+        logger.debug("{} state: {}", message, name);
       }
     }
   }
 
-  static final String SERVER_REF = "io.jooby.run.ServerRef";
+  public static final String SERVER_REF = "io.jooby.run.ServerRef";
 
   static final String SERVER_REF_STOP = "stop";
 
@@ -374,8 +383,8 @@ public class JoobyRun {
   }
 
   /** Restart the application. */
-  public void restart() {
-    queue.offer(new Event(clock.millis()));
+  public void restart(Path path) {
+    queue.offer(new Event(path, clock.millis()));
   }
 
   private synchronized void actualRestart() {
@@ -387,12 +396,14 @@ public class JoobyRun {
     if (e == null) {
       return; // queue was empty
     }
+    var unload = false;
     for (; e != null && (t - e.time) > waitTimeBeforeRestartMillis; e = queue.peek()) {
+      unload = unload || options.isCompileExtension(e.path);
       queue.poll();
     }
     // e will be null if the queue is empty which means all events were old enough
     if (e == null) {
-      module.restart();
+      module.restart(unload);
     }
   }
 

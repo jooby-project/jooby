@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.run;
+package io.jooby.internal.run;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -22,13 +22,15 @@ import org.jboss.modules.ModuleFinder;
 import org.jboss.modules.ModuleLoader;
 import org.jboss.modules.ModuleSpec;
 
-class JoobyModuleFinder implements ModuleFinder {
+import io.jooby.run.JoobyRun;
+
+public class JoobyModuleFinder implements ModuleFinder {
   private static final String JARS = "jars";
   private final Set<Path> resources;
   private final Set<Path> jars;
   private final String name;
 
-  JoobyModuleFinder(String name, Set<Path> resources, Set<Path> jars) {
+  public JoobyModuleFinder(String name, Set<Path> resources, Set<Path> jars) {
     this.name = name;
     this.resources = new LinkedHashSet<>(resources.size() + 1);
     this.resources.addAll(resources);

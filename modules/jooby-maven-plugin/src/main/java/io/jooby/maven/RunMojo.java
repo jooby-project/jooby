@@ -90,11 +90,11 @@ public class RunMojo extends BaseMojo {
               getLog().debug("Compilation error found: " + path);
             } else {
               getLog().debug("Restarting application on file change: " + path);
-              joobyRun.restart();
+              joobyRun.restart(path);
             }
           } else if (options.isRestartExtension(path)) {
             getLog().debug("Restarting application on file change: " + path);
-            joobyRun.restart();
+            joobyRun.restart(path);
           } else {
             getLog().debug("Ignoring file change: " + path);
           }

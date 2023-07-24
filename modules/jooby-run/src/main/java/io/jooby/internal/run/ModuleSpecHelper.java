@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.run;
+package io.jooby.internal.run;
 
 import static org.jboss.modules.ResourceLoaderSpec.createResourceLoaderSpec;
 import static org.jboss.modules.ResourceLoaders.createJarResourceLoader;
@@ -21,6 +21,8 @@ import org.jboss.modules.ModuleSpec;
 import org.jboss.modules.PathUtils;
 import org.jboss.modules.ResourceLoaderSpec;
 import org.jboss.modules.filter.PathFilters;
+
+import io.jooby.run.JoobyRun;
 
 final class ModuleSpecHelper {
 
