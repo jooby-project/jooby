@@ -1,7 +1,7 @@
 package {{package}};
 
 import io.jooby.Jooby;
-import io.jooby.netty.NettyServer;
+import io.jooby.{{serverPackageName}}.{{serverClassName}};
 {{#if openapi}}
 import io.jooby.OpenAPIModule;
 {{/if}}
@@ -9,7 +9,7 @@ import io.jooby.OpenAPIModule;
 public class App extends Jooby {
 
   {
-    install(new NettyServer());
+    install(new {{serverClassName}}());
   {{#if openapi}}
     install(new OpenAPIModule());
   {{/if}}
