@@ -156,6 +156,9 @@ public class CreateCmd extends Cmd {
       finalArtifactId = name + "-" + version + (stork ? ".zip" : ".jar");
     }
 
+    String serverPackageName = serverPackageName(server);
+    String serverClassName = serverClassName(server);
+
     Map<String, Object> model = new HashMap<>();
     Map<String, String> dependencyMap = ctx.getDependencyMap();
     model.putAll(dependencyMap);
@@ -166,6 +169,8 @@ public class CreateCmd extends Cmd {
     model.put("version", version);
     model.put("joobyVersion", ctx.getVersion());
     model.put("server", server);
+    model.put("serverClassName", serverClassName);
+    model.put("serverPackageName", serverPackageName);
     model.put("kotlin", kotlin);
     model.put("dependencies", dependencies(dependencyMap, server, kotlin));
     model.put("testDependencies", testDependencies(dependencyMap, kotlin));
@@ -273,6 +278,32 @@ public class CreateCmd extends Cmd {
       default:
         throw new IllegalArgumentException("Unknown server option: " + value);
     }
+  }
+
+  private String serverPackageName(String server) {
+	  switch(server) {
+	  case "jetty":
+		  return "jetty";
+	  case "Netty":
+		  return "netty";
+	  case "utow":
+		  return "undertow";
+      default:
+        throw new IllegalArgumentException("Unknown server value: " + server);
+	  }
+  }
+  
+  private String serverClassName(String server) {
+	  switch(server) {
+	  case "jetty":
+		  return "JettyServer";
+	  case "Netty":
+		  return "NettyServer";
+	  case "utow":
+		  return "UndertowServer";
+      default:
+        throw new IllegalArgumentException("Unknown server value: " + server);
+	  }
   }
 
   private void stork(CliContext ctx, Path projectDir) throws IOException {
