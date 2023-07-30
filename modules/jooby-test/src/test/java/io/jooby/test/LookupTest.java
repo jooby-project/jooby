@@ -7,8 +7,8 @@ package io.jooby.test;
 
 import static io.jooby.ParamSource.COOKIE;
 import static io.jooby.ParamSource.FLASH;
+import static io.jooby.ParamSource.FORM;
 import static io.jooby.ParamSource.HEADER;
-import static io.jooby.ParamSource.MULTIPART;
 import static io.jooby.ParamSource.PATH;
 import static io.jooby.ParamSource.QUERY;
 import static io.jooby.ParamSource.SESSION;
@@ -56,7 +56,7 @@ public class LookupTest {
     context.setQueryString("?foo=query-bar");
 
     Formdata formdata = Value.formdata(context);
-    formdata.put("foo", "multipart-bar");
+    formdata.put("foo", "form-bar");
     context.setForm(formdata);
   }
 
@@ -68,32 +68,22 @@ public class LookupTest {
 
   @Test
   public void testPriority() {
-    test(PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, MULTIPART);
-    test(HEADER, COOKIE, FLASH, SESSION, QUERY, MULTIPART, PATH);
-    test(COOKIE, FLASH, SESSION, QUERY, MULTIPART, PATH, HEADER);
-    test(FLASH, SESSION, QUERY, MULTIPART, PATH, HEADER, COOKIE);
-    test(SESSION, QUERY, MULTIPART, PATH, HEADER, COOKIE, FLASH);
-    test(QUERY, MULTIPART, PATH, HEADER, COOKIE, FLASH, SESSION);
-    test(MULTIPART, PATH, HEADER, COOKIE, FLASH, SESSION, QUERY);
-    test(MULTIPART, PATH, HEADER, COOKIE, FLASH, SESSION, QUERY);
+    test(PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM);
+    test(HEADER, COOKIE, FLASH, SESSION, QUERY, FORM, PATH);
+    test(COOKIE, FLASH, SESSION, QUERY, FORM, PATH, HEADER);
+    test(FLASH, SESSION, QUERY, FORM, PATH, HEADER, COOKIE);
+    test(SESSION, QUERY, FORM, PATH, HEADER, COOKIE, FLASH);
+    test(QUERY, FORM, PATH, HEADER, COOKIE, FLASH, SESSION);
+    test(FORM, PATH, HEADER, COOKIE, FLASH, SESSION, QUERY);
+    test(FORM, PATH, HEADER, COOKIE, FLASH, SESSION, QUERY);
 
-    test(PATH, l -> l.inPath().inHeader().inCookie().inFlash().inSession().inQuery().inMultipart());
-    test(
-        HEADER,
-        l -> l.inHeader().inCookie().inFlash().inSession().inQuery().inMultipart().inPath());
-    test(
-        COOKIE,
-        l -> l.inCookie().inFlash().inSession().inQuery().inMultipart().inPath().inHeader());
-    test(
-        FLASH, l -> l.inFlash().inSession().inQuery().inMultipart().inPath().inHeader().inCookie());
-    test(
-        SESSION,
-        l -> l.inSession().inQuery().inMultipart().inPath().inHeader().inCookie().inFlash());
-    test(
-        QUERY, l -> l.inQuery().inMultipart().inPath().inHeader().inCookie().inFlash().inSession());
-    test(
-        MULTIPART,
-        l -> l.inMultipart().inPath().inHeader().inCookie().inFlash().inSession().inQuery());
+    test(PATH, l -> l.inPath().inHeader().inCookie().inFlash().inSession().inQuery().inForm());
+    test(HEADER, l -> l.inHeader().inCookie().inFlash().inSession().inQuery().inForm().inPath());
+    test(COOKIE, l -> l.inCookie().inFlash().inSession().inQuery().inForm().inPath().inHeader());
+    test(FLASH, l -> l.inFlash().inSession().inQuery().inForm().inPath().inHeader().inCookie());
+    test(SESSION, l -> l.inSession().inQuery().inForm().inPath().inHeader().inCookie().inFlash());
+    test(QUERY, l -> l.inQuery().inForm().inPath().inHeader().inCookie().inFlash().inSession());
+    test(FORM, l -> l.inForm().inPath().inHeader().inCookie().inFlash().inSession().inQuery());
   }
 
   @Test
@@ -102,7 +92,7 @@ public class LookupTest {
         MissingValueException.class,
         () ->
             new MockContext()
-                .lookup("foo", PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, MULTIPART)
+                .lookup("foo", PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM)
                 .value());
 
     assertThrows(
@@ -116,7 +106,7 @@ public class LookupTest {
                 .inFlash()
                 .inSession()
                 .inQuery()
-                .inMultipart()
+                .inForm()
                 .get("foo")
                 .value());
   }

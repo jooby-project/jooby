@@ -769,6 +769,19 @@ public interface Context extends Registry {
    */
 
   /**
+   * Searches for a parameter in the following order: {@link ParamSource#PATH}, {@link
+   * ParamSource#QUERY}, {@link ParamSource#FORM} returning the first non-missing {@link Value}, or
+   * a 'missing' {@link Value} if none found.
+   *
+   * @param name The name of the parameter.
+   * @return The first non-missing {@link Value} or a {@link Value} representing a missing value if
+   *     none found.
+   */
+  default Value lookup(String name) {
+    return lookup(name, ParamSource.PATH, ParamSource.QUERY, ParamSource.FORM);
+  }
+
+  /**
    * Searches for a parameter in the specified sources, in the specified order, returning the first
    * non-missing {@link Value}, or a 'missing' {@link Value} if none found.
    *
@@ -780,7 +793,7 @@ public interface Context extends Registry {
    *     none found.
    * @throws IllegalArgumentException If no {@link ParamSource}s are specified.
    */
-  default Value lookup(String name, ParamSource... sources) {
+  default Value lookup(@NonNull String name, ParamSource... sources) {
     if (sources.length == 0) {
       throw new IllegalArgumentException("No parameter sources were specified.");
     }

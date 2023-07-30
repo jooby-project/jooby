@@ -85,12 +85,12 @@ public interface ParamLookup {
   }
 
   /**
-   * Adds the multipart parameters to the search locations.
+   * Adds the form parameters to the search locations.
    *
    * @return This instance.
    */
-  default Stage inMultipart() {
-    return in(ParamSource.MULTIPART);
+  default Stage inForm() {
+    return in(ParamSource.FORM);
   }
 
   /**
