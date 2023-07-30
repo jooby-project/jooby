@@ -101,7 +101,6 @@
     <jasypt.version>1.9.3</jasypt.version>
 
     <commons-io.version>2.13.0</commons-io.version>
-    <unbescape.version>1.1.6.RELEASE</unbescape.version>
 
     <!-- Kotlin -->
     <kotlin.version>1.9.0</kotlin.version>
@@ -824,13 +823,6 @@
         <groupId>io.swagger.parser.v3</groupId>
         <artifactId>swagger-parser</artifactId>
         <version>${swagger-parser.version}</version>
-      </dependency>
-
-      <!-- https://mvnrepository.com/artifact/org.unbescape/unbescape -->
-      <dependency>
-        <groupId>org.unbescape</groupId>
-        <artifactId>unbescape</artifactId>
-        <version>${unbescape.version}</version>
       </dependency>
 
       <!-- graphql -->

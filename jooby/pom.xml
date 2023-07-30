@@ -43,12 +43,6 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
-    <!-- unbescape -->
-    <dependency>
-      <groupId>org.unbescape</groupId>
-      <artifactId>unbescape</artifactId>
-    </dependency>
-
     <!-- jakarta.inject -->
     <dependency>
       <groupId>jakarta.inject</groupId>
