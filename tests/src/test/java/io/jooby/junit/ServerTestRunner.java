@@ -17,7 +17,7 @@ import io.jooby.DefaultErrorHandler;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
-import io.jooby.LogConfigurer;
+import io.jooby.LoggingService;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
@@ -30,7 +30,7 @@ public class ServerTestRunner {
 
   static {
     System.setProperty("jooby.useShutdownHook", "false");
-    LogConfigurer.configure(ServerTestRunner.class.getClassLoader(), List.of("test", "dev"));
+    LoggingService.configure(ServerTestRunner.class.getClassLoader(), List.of("test", "dev"));
   }
 
   private final String testName;

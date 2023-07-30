@@ -14,33 +14,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>fat-jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <minimizeJar>true</minimizeJar>
-              <artifactSet>
-                <includes>
-                  <include>org.unbescape:*</include>
-                </includes>
-              </artifactSet>
-              <relocations>
-                <relocation>
-                  <pattern>org.unbescape</pattern>
-                  <shadedPattern>${shaded.package}</shadedPattern>
-                </relocation>
-              </relocations>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
       <!-- sure-fire -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -74,7 +47,6 @@
     <dependency>
       <groupId>org.unbescape</groupId>
       <artifactId>unbescape</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <!-- jakarta.inject -->
@@ -93,18 +65,6 @@
     <dependency>
       <groupId>com.github.vladimir-bukhtoyarov</groupId>
       <artifactId>bucket4j-core</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
       <optional>true</optional>
     </dependency>
 

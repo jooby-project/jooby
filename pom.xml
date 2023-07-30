@@ -285,6 +285,18 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-log4j</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-logback</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-jackson</artifactId>
         <version>${jooby.version}</version>
       </dependency>

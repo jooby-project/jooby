@@ -19,6 +19,9 @@
 
     <module>jooby-apt</module>
 
+    <module>jooby-logback</module>
+    <module>jooby-log4j</module>
+
     <module>jooby-conscrypt</module>
 
     <module>jooby-jetty</module>

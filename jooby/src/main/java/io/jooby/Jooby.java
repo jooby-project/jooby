@@ -1192,7 +1192,7 @@ public class Jooby implements Router, Registry {
 
     /** Find application.env: */
     String logfile =
-        LogConfigurer.configure(
+        LoggingService.configure(
             provider.getClass().getClassLoader(), new EnvironmentOptions().getActiveNames());
     if (logfile != null) {
       // Add as property, so we can query where is the log configuration

@@ -3,6 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
+
+import io.jooby.LoggingService;
+
 /** Jooby module. */
 module io.jooby {
   exports io.jooby;
@@ -14,6 +17,7 @@ module io.jooby {
   uses io.jooby.Server;
   uses io.jooby.SslProvider;
   uses io.jooby.ResultHandler;
+  uses LoggingService;
 
   /*
    * True core deps
@@ -22,15 +26,10 @@ module io.jooby {
   requires org.slf4j;
   requires static com.github.spotbugs.annotations;
   requires typesafe.config;
+  requires unbescape;
 
   /*
    * Optional dependency for rate limiting
    */
   requires static io.github.bucket4j.core;
-
-  // SHADED: All content after this line will be removed at build time
-  requires static unbescape;
-  requires static ch.qos.logback.classic;
-  requires static org.apache.logging.log4j;
-  requires static org.apache.logging.log4j.core;
 }
