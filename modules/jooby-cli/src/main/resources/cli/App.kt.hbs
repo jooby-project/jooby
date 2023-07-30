@@ -2,13 +2,13 @@ package {{package}}
 
 import io.jooby.kt.Kooby
 import io.jooby.kt.runApp
-import io.jooby.netty.NettyServer
+import io.jooby.{{serverPackageName}}.{{serverClassName}}
 {{#if openapi}}
 import io.jooby.OpenAPIModule
 {{/if}}
 
 class App: Kooby({
-  install(NettyServer())
+  install({{serverClassName}}())
 {{#if openapi}}
   install(OpenAPIModule())
 {{/if}}

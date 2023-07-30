@@ -156,7 +156,6 @@ public class CreateCmd extends Cmd {
       finalArtifactId = name + "-" + version + (stork ? ".zip" : ".jar");
     }
 
-    String serverPackageName = serverPackageName(server);
     String serverClassName = serverClassName(server);
 
     Map<String, Object> model = new HashMap<>();
@@ -170,7 +169,7 @@ public class CreateCmd extends Cmd {
     model.put("joobyVersion", ctx.getVersion());
     model.put("server", server);
     model.put("serverClassName", serverClassName);
-    model.put("serverPackageName", serverPackageName);
+    model.put("serverPackageName", server);
     model.put("kotlin", kotlin);
     model.put("dependencies", dependencies(dependencyMap, server, kotlin));
     model.put("testDependencies", testDependencies(dependencyMap, kotlin));
@@ -274,36 +273,27 @@ public class CreateCmd extends Cmd {
       case "u":
       case "utow":
       case "undertow":
-        return "utow";
+        return "undertow";
       default:
         throw new IllegalArgumentException("Unknown server option: " + value);
     }
   }
 
   private String serverPackageName(String server) {
-	  switch(server) {
-	  case "jetty":
-		  return "jetty";
-	  case "Netty":
-		  return "netty";
-	  case "utow":
-		  return "undertow";
-      default:
-        throw new IllegalArgumentException("Unknown server value: " + server);
-	  }
+    return server.toLowerCase();
   }
-  
+
   private String serverClassName(String server) {
-	  switch(server) {
-	  case "jetty":
-		  return "JettyServer";
-	  case "Netty":
-		  return "NettyServer";
-	  case "utow":
-		  return "UndertowServer";
+    switch (server.toLowerCase()) {
+      case "jetty":
+        return "JettyServer";
+      case "netty":
+        return "NettyServer";
+      case "undertow":
+        return "UndertowServer";
       default:
         throw new IllegalArgumentException("Unknown server value: " + server);
-	  }
+    }
   }
 
   private void stork(CliContext ctx, Path projectDir) throws IOException {
@@ -341,9 +331,7 @@ public class CreateCmd extends Cmd {
           new Dependency(
               "org.jetbrains.kotlin", "kotlin-stdlib-jdk8", dependencyMap.get("kotlinVersion")));
     }
-    dependencies.add(
-        new Dependency(
-            "ch.qos.logback", "logback-classic", dependencyMap.get("logbackClassicVersion")));
+    dependencies.add(new Dependency("io.jooby", "jooby-logback", null));
     return dependencies;
   }
 
