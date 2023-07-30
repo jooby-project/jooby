@@ -98,8 +98,8 @@ public interface LoggingService {
             .findFirst()
             .map(Path::toAbsolutePath);
     if (logPath.isPresent()) {
-      System.setProperty(loggingService.getPropertyName(), logPath.toString());
-      return logPath.toString();
+      System.setProperty(loggingService.getPropertyName(), logPath.get().toString());
+      return logPath.get().toString();
     }
     // Fallback to classpath:
     var logResource =
