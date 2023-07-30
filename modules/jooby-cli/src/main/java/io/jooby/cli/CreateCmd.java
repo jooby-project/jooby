@@ -279,10 +279,6 @@ public class CreateCmd extends Cmd {
     }
   }
 
-  private String serverPackageName(String server) {
-    return server.toLowerCase();
-  }
-
   private String serverClassName(String server) {
     switch (server.toLowerCase()) {
       case "jetty":
