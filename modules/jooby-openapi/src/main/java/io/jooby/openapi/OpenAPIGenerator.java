@@ -53,6 +53,13 @@ import io.swagger.v3.oas.models.tags.Tag;
  */
 public class OpenAPIGenerator {
 
+  /**
+   * Manually register mvc class for openapi generation
+   *
+   * @param clazz Class name of mvc controller
+   */
+  public static void registerMvc(Class<?> clazz) {}
+
   /** Supported formats. */
   public enum Format {
     /** JSON. */

@@ -58,6 +58,7 @@ import io.jooby.Route;
 import io.jooby.RouteSet;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
+import io.jooby.openapi.OpenAPIGenerator;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
@@ -464,6 +465,8 @@ public class RouteParser {
             }
             routeIndex = -1;
           }
+        } else if (signature.matches(OpenAPIGenerator.class, "registerMvc", Class.class)) {
+          handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
         }
       }
     }
