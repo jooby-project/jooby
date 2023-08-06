@@ -6,16 +6,14 @@
 package issues.i3059;
 
 import io.jooby.Jooby;
-import io.jooby.openapi.OpenAPIGenerator;
+import io.jooby.openapi.OpenApiManualRegister;
 
+@OpenApiManualRegister({ControllerA3059.class, ControllerC3059.class})
 public class App3059B extends Jooby {
   {
     IndirectRunner.create()
         .bindResource(new ControllerA3059())
         .bindResource(new ControllerC3059())
         .run();
-
-    OpenAPIGenerator.registerMvc(ControllerA3059.class);
-    OpenAPIGenerator.registerMvc(ControllerC3059.class);
   }
 }

@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.openapi;
 
+import static io.jooby.internal.openapi.AsmUtils.findAnnotationByType;
 import static io.jooby.internal.openapi.RoutePath.path;
 import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
 import static io.jooby.internal.openapi.TypeFactory.JOOBY;
@@ -58,7 +59,7 @@ import io.jooby.Route;
 import io.jooby.RouteSet;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
-import io.jooby.openapi.OpenAPIGenerator;
+import io.jooby.openapi.OpenApiManualRegister;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
@@ -84,6 +85,8 @@ public class RouteParser {
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
     operations.addAll(metaInf(ctx, null, name -> !controllers.contains(name)));
+
+    operations.addAll(parseManuallyRegisteredControllers(ctx));
 
     String applicationName =
         Optional.ofNullable(ctx.getMainClass()).orElse(ctx.getRouter().getClassName());
@@ -302,6 +305,21 @@ public class RouteParser {
     }
   }
 
+  private List<OperationExt> parseManuallyRegisteredControllers(ParserContext ctx) {
+    List<OperationExt> handlerList = new ArrayList<>();
+    ClassNode classNode = ctx.classNode(ctx.getRouter());
+    findAnnotationByType(classNode.visibleAnnotations, OpenApiManualRegister.class).stream()
+        .map(AsmUtils::toMap)
+        .forEach(
+            annotationMap -> {
+              for (Type registeredClass : ((List<Type>) annotationMap.get("value"))) {
+                handlerList.addAll(AnnotationParser.parse(ctx, null, registeredClass));
+              }
+            });
+
+    return handlerList;
+  }
+
   private List<OperationExt> routeHandler(ParserContext ctx, String prefix, MethodNode method) {
     List<OperationExt> handlerList = new ArrayList<>();
     /** Track the last router instruction and override with produces/consumes. */
@@ -465,8 +483,6 @@ public class RouteParser {
             }
             routeIndex = -1;
           }
-        } else if (signature.matches(OpenAPIGenerator.class, "registerMvc", Class.class)) {
-          handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
         }
       }
     }
