@@ -6,9 +6,9 @@
 package issues.i3059;
 
 import io.jooby.Jooby;
-import io.jooby.openapi.OpenApiManualRegister;
+import io.jooby.annotation.OpenApiRegister;
 
-@OpenApiManualRegister({ControllerA3059.class, ControllerB3059.class})
+@OpenApiRegister({ControllerA3059.class, ControllerB3059.class})
 public class App3059A extends Jooby {
   {
     IndirectRunner.create()

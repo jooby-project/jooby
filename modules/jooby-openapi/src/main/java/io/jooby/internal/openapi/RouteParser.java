@@ -59,7 +59,7 @@ import io.jooby.Route;
 import io.jooby.RouteSet;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
-import io.jooby.openapi.OpenApiManualRegister;
+import io.jooby.annotation.OpenApiRegister;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
@@ -308,7 +308,7 @@ public class RouteParser {
   private List<OperationExt> parseManuallyRegisteredControllers(ParserContext ctx) {
     List<OperationExt> handlerList = new ArrayList<>();
     ClassNode classNode = ctx.classNode(ctx.getRouter());
-    findAnnotationByType(classNode.visibleAnnotations, OpenApiManualRegister.class).stream()
+    findAnnotationByType(classNode.visibleAnnotations, OpenApiRegister.class).stream()
         .map(AsmUtils::toMap)
         .forEach(
             annotationMap -> {
