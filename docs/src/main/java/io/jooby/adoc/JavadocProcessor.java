@@ -25,7 +25,7 @@ public class JavadocProcessor extends InlineMacroProcessor {
   public Object process(ContentNode parent, String clazz, Map<String, Object> attributes) {
 
     StringBuilder link =
-        new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby/latest/io/jooby/");
+        new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby/latest/io.jooby/io/jooby/");
     StringBuilder text = new StringBuilder();
     String[] names = clazz.split("\\.");
     List<String> pkg = new ArrayList<>();
