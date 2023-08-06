@@ -1,0 +1,15 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
+package issues.i3059;
+
+import io.jooby.annotation.PUT;
+import io.jooby.annotation.Path;
+
+@Path("/mvc/c")
+public class ControllerC3059 {
+  @PUT
+  public void pathC() {}
+}
