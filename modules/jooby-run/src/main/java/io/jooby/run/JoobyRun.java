@@ -261,8 +261,8 @@ public class JoobyRun {
 
   private final JoobyRunOptions options;
 
+  private final Set<Path> classes = new LinkedHashSet<>();
   private final Set<Path> resources = new LinkedHashSet<>();
-
   private final Set<Path> dependencies = new LinkedHashSet<>();
 
   private DirectoryWatcher watcher;
@@ -296,15 +296,15 @@ public class JoobyRun {
   }
 
   /**
-   * Add the given path to the project classpath. Path must be a jar or file system directory. File
-   * system directory are listen for changes on file changes this method invokes the given callback.
+   * Path must be a jar or file system directory. File system directory are listen for changes on
+   * file changes this method invokes the given callback.
    *
    * @param path Path.
    * @param callback Callback to listen for file changes.
    * @return True if the path was added it to the classpath.
    */
-  public boolean addResource(Path path, BiConsumer<String, Path> callback) {
-    if (addResource(path)) {
+  public boolean addWatchDir(Path path, BiConsumer<String, Path> callback) {
+    if (Files.exists(path)) {
       if (Files.isDirectory(path)) {
         watchDirs.put(path, callback);
       }
@@ -321,12 +321,33 @@ public class JoobyRun {
    */
   public boolean addResource(Path path) {
     if (Files.exists(path)) {
-      if (path.toString().endsWith(".jar")) {
-        dependencies.add(path);
-      } else {
-        resources.add(path);
-      }
-      return true;
+      resources.add(path);
+    }
+    return false;
+  }
+
+  /**
+   * Add the given path to the project classpath. Path must be a jar or file system directory.
+   *
+   * @param path Path.
+   * @return True if the path was added it to the classpath.
+   */
+  public boolean addClasses(Path path) {
+    if (Files.exists(path)) {
+      classes.add(path);
+    }
+    return false;
+  }
+
+  /**
+   * Add the given path to the project classpath. Path must be a jar or file system directory.
+   *
+   * @param path Path.
+   * @return True if the path was added it to the classpath.
+   */
+  public boolean addJar(Path path) {
+    if (Files.exists(path)) {
+      dependencies.add(path);
     }
     return false;
   }
@@ -345,12 +366,14 @@ public class JoobyRun {
 
       /** Allow modules in dev to access classpath while running from maven/gradle: */
       String classPathString =
-          Stream.concat(resources.stream(), dependencies.stream())
+          Stream.of(classes, resources, dependencies)
+              .flatMap(Set::stream)
               .map(Path::toAbsolutePath)
               .map(Path::toString)
               .collect(Collectors.joining(File.pathSeparator));
       System.setProperty("jooby.run.classpath", classPathString);
-      var finder = new JoobyModuleFinder(options.getProjectName(), resources, dependencies);
+      var finder =
+          new JoobyModuleFinder(options.getProjectName(), classes, resources, dependencies);
 
       module =
           new AppModule(
@@ -442,6 +465,7 @@ public class JoobyRun {
     watchDirs.forEach(
         (path, callback) -> buff.append("    ").append(path.toAbsolutePath()).append("\n"));
     buff.append("  build: ").append("\n");
+    classes.forEach(it -> buff.append("    ").append(it.toAbsolutePath()).append("\n"));
     resources.forEach(it -> buff.append("    ").append(it.toAbsolutePath()).append("\n"));
     buff.append("  dependencies: ").append("\n");
     dependencies.forEach(it -> buff.append("    ").append(it.toAbsolutePath()).append("\n"));

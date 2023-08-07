@@ -131,24 +131,28 @@ public class RunTask extends BaseTask {
         // main/resources
         sourceSet.getResources().getSrcDirs().stream()
             .map(File::toPath)
-            .forEach(file -> joobyRun.addResource(file, onFileChanged));
+            .forEach(file -> {
+              joobyRun.addResource(file);
+              joobyRun.addWatchDir(file, onFileChanged);
+            });
         // conf directory
         Path conf = project.getProjectDir().toPath().resolve("conf");
-        joobyRun.addResource(conf, onFileChanged);
+        joobyRun.addResource(conf);
+        joobyRun.addWatchDir(conf, onFileChanged);
 
         // build classes
-        binDirectories(project, sourceSet).forEach(joobyRun::addResource);
+        binDirectories(project, sourceSet).forEach(joobyRun::addClasses);
 
         Set<Path> src = sourceDirectories(project, sourceSet);
         if (src.isEmpty()) {
           getLogger().debug("Compiler is off in favor of Eclipse compiler.");
           binDirectories(project, sourceSet)
-              .forEach(path -> joobyRun.addResource(path, onFileChanged));
+              .forEach(path -> joobyRun.addWatchDir(path, onFileChanged));
         } else {
-          src.forEach(path -> joobyRun.addResource(path, onFileChanged));
+          src.forEach(path -> joobyRun.addWatchDir(path, onFileChanged));
         }
 
-        dependencies(project, sourceSet).forEach(joobyRun::addResource);
+        jars(project, sourceSet).forEach(joobyRun::addJar);
       }
 
       safeShutdown(joobyRun::shutdown);

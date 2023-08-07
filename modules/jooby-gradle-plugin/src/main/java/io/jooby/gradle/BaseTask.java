@@ -98,7 +98,7 @@ public class BaseTask extends DefaultTask {
    * @param sourceSet Source set.
    * @return Jar files.
    */
-  protected @NonNull Set<Path> dependencies(@NonNull Project project,
+  protected @NonNull Set<Path> jars(@NonNull Project project,
       @NonNull SourceSet sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && it.toString().endsWith(".jar"));
   }

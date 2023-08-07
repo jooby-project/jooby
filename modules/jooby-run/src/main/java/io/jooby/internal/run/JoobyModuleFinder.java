@@ -6,7 +6,6 @@
 package io.jooby.internal.run;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jboss.modules.ModuleFinder;
 import org.jboss.modules.ModuleLoader;
@@ -26,17 +26,19 @@ import io.jooby.run.JoobyRun;
 
 public class JoobyModuleFinder implements ModuleFinder {
   private static final String JARS = "jars";
+  private static final String RESOURCES = "resources";
+  private final Set<Path> classes;
   private final Set<Path> resources;
   private final Set<Path> jars;
   private final String name;
 
-  public JoobyModuleFinder(String name, Set<Path> resources, Set<Path> jars) {
+  public JoobyModuleFinder(String name, Set<Path> classes, Set<Path> resources, Set<Path> jars) {
     this.name = name;
-    this.resources = new LinkedHashSet<>(resources.size() + 1);
-    this.resources.addAll(resources);
-    this.resources.add(joobyRunHook(getClass()));
-
-    this.jars = jars;
+    this.classes = classes;
+    this.resources = resources;
+    this.jars = new LinkedHashSet<>(resources.size() + 1);
+    this.jars.add(joobyRunHook(getClass()));
+    this.jars.addAll(jars);
   }
 
   /**
@@ -58,9 +60,14 @@ public class JoobyModuleFinder implements ModuleFinder {
   @Override
   public ModuleSpec findModule(String name, ModuleLoader delegateLoader) {
     if (this.name.equals(name)) {
-      return ModuleSpecHelper.create(name, resources, singleton(JARS));
+      // class only; depends on resources + jars
+      return ModuleSpecHelper.create(name, classes, Set.of(RESOURCES, JARS));
+    } else if (RESOURCES.equals(name)) {
+      // resources only;
+      return ModuleSpecHelper.create(name, resources, emptySet());
     } else if (JARS.equals(name)) {
-      return ModuleSpecHelper.create(name, jars, emptySet());
+      // jars only; depends on resources
+      return ModuleSpecHelper.create(name, jars, Set.of(RESOURCES));
     }
 
     return null;
@@ -68,18 +75,11 @@ public class JoobyModuleFinder implements ModuleFinder {
 
   @Override
   public String toString() {
-    var buffer = new StringBuilder();
-    resources.stream()
-        .forEach(
-            it -> {
-              if (!buffer.isEmpty()) {
-                buffer.append(File.pathSeparator);
-              }
-              buffer.append(it);
-            });
-    if (!jars.isEmpty()) {
-      buffer.append("; jars: ").append(jars);
-    }
-    return buffer.toString();
+    return "classes: "
+        + classes.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator))
+        + "\nresources: "
+        + resources.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator))
+        + "\njars: "
+        + jars.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator));
   }
 }

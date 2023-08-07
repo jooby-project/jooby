@@ -104,20 +104,25 @@ public class RunMojo extends BaseMojo {
       getLog().debug("Adding project: " + project.getArtifactId());
 
       // main resources + conf, etc..
-      resources(project).forEach(file -> joobyRun.addResource(file, onFileChanged));
+      resources(project)
+          .forEach(
+              file -> {
+                joobyRun.addResource(file);
+                joobyRun.addWatchDir(file, onFileChanged);
+              });
 
       // target/classes
-      bin(project).forEach(joobyRun::addResource);
+      bin(project).forEach(joobyRun::addClasses);
 
       Set<Path> src = sourceDirectories(project);
       if (src.isEmpty()) {
         getLog().debug("Compiler is off in favor of Eclipse compiler.");
-        bin(project).forEach(path -> joobyRun.addResource(path, onFileChanged));
+        bin(project).forEach(path -> joobyRun.addWatchDir(path, onFileChanged));
       } else {
-        src.forEach(path -> joobyRun.addResource(path, onFileChanged));
+        src.forEach(path -> joobyRun.addWatchDir(path, onFileChanged));
       }
 
-      jars(project).forEach(joobyRun::addResource);
+      jars(project).forEach(joobyRun::addJar);
     }
 
     // Block current thread.
