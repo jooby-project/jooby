@@ -39,7 +39,7 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.2.7.Final</hibernate.version>
     <ebean.version>13.20.1-jakarta</ebean.version>
-    <jdbi.version>3.39.1</jdbi.version>
+    <jdbi.version>3.40.0</jdbi.version>
     <flyway.version>9.21.1</flyway.version>
     <graphql-java.version>21.0</graphql-java.version>
     <lettuce.version>6.2.5.RELEASE</lettuce.version>
