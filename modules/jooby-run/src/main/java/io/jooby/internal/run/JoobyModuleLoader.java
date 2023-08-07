@@ -18,4 +18,8 @@ public class JoobyModuleLoader extends ModuleLoader {
   public void unload(String name, final Module module) {
     super.unloadModuleLocal(name, module);
   }
+
+  public String toString() {
+    return "joobyRun {\n" + getFinders()[0] + "\n}";
+  }
 }

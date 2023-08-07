@@ -6,6 +6,7 @@
 package io.jooby.internal.run;
 
 import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.joining;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.jboss.modules.ModuleFinder;
 import org.jboss.modules.ModuleLoader;
@@ -76,10 +76,10 @@ public class JoobyModuleFinder implements ModuleFinder {
   @Override
   public String toString() {
     return "classes: "
-        + classes.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator))
+        + classes.stream().map(Path::toString).collect(joining(File.pathSeparator))
         + "\nresources: "
-        + resources.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator))
+        + resources.stream().map(Path::toString).collect(joining(File.pathSeparator))
         + "\njars: "
-        + jars.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator));
+        + jars.stream().map(Path::getFileName).map(Path::toString).collect(joining(", "));
   }
 }
