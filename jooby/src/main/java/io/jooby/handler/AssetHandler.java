@@ -70,7 +70,7 @@ public class AssetHandler implements Route.Handler {
   @NonNull @Override
   public Object apply(@NonNull Context ctx) throws Exception {
     final String resolvedPath;
-    String filepath = ctx.pathMap().getOrDefault(filekey, "index.html");
+    String filepath = ctx.path(filekey).value("index.html");
     Asset asset = resolve(filepath);
     if (asset == null) {
       if (fallback != null) {
