@@ -6,17 +6,27 @@
 package io.jooby.internal.run;
 
 import org.jboss.modules.Module;
-import org.jboss.modules.ModuleFinder;
 import org.jboss.modules.ModuleLoader;
+
+import io.jooby.SneakyThrows;
 
 public class JoobyModuleLoader extends ModuleLoader {
 
-  public JoobyModuleLoader(ModuleFinder finder) {
+  public JoobyModuleLoader(JoobyModuleFinder finder) {
     super(finder);
   }
 
-  public void unload(String name, final Module module) {
+  protected JoobyModuleFinder joobyModuleFinder() {
+    return (JoobyModuleFinder) getFinders()[0];
+  }
+
+  public void unload(String name, Module module) {
     super.unloadModuleLocal(name, module);
+    var finder = joobyModuleFinder();
+    // relink any dependency
+    finder.dependencies(name).stream()
+        .map(super::findLoadedModuleLocal)
+        .forEach(SneakyThrows.throwingConsumer(super::relink));
   }
 
   public String toString() {

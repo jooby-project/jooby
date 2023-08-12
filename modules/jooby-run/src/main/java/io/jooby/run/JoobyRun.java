@@ -373,7 +373,8 @@ public class JoobyRun {
               .collect(Collectors.joining(File.pathSeparator));
       System.setProperty("jooby.run.classpath", classPathString);
       var finder =
-          new JoobyModuleFinder(options.getProjectName(), classes, resources, dependencies);
+          new JoobyModuleFinder(
+              options.getProjectName(), classes, resources, dependencies, watchDirs.keySet());
 
       module =
           new AppModule(

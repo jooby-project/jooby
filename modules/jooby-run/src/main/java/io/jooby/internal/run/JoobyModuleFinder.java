@@ -30,15 +30,18 @@ public class JoobyModuleFinder implements ModuleFinder {
   private final Set<Path> classes;
   private final Set<Path> resources;
   private final Set<Path> jars;
-  private final String name;
+  private final String main;
+  private final Set<Path> watchDirs;
 
-  public JoobyModuleFinder(String name, Set<Path> classes, Set<Path> resources, Set<Path> jars) {
-    this.name = name;
+  public JoobyModuleFinder(
+      String name, Set<Path> classes, Set<Path> resources, Set<Path> jars, Set<Path> watchDirs) {
+    this.main = name;
     this.classes = classes;
     this.resources = resources;
     this.jars = new LinkedHashSet<>(resources.size() + 1);
     this.jars.add(joobyRunHook(getClass()));
     this.jars.addAll(jars);
+    this.watchDirs = watchDirs;
   }
 
   /**
@@ -59,17 +62,36 @@ public class JoobyModuleFinder implements ModuleFinder {
 
   @Override
   public ModuleSpec findModule(String name, ModuleLoader delegateLoader) {
-    if (this.name.equals(name)) {
-      // class only; depends on resources + jars
-      return ModuleSpecHelper.create(name, classes, Set.of(RESOURCES, JARS));
-    } else if (RESOURCES.equals(name)) {
-      // resources only;
-      return ModuleSpecHelper.create(name, resources, emptySet());
-    } else if (JARS.equals(name)) {
-      // jars only; depends on resources
-      return ModuleSpecHelper.create(name, jars, Set.of(RESOURCES));
+    var resources = resources(name);
+    if (resources == null) {
+      return null;
     }
+    return ModuleSpecHelper.create(name, resources, dependencies(name, true));
+  }
 
+  public Set<String> dependencies(String name) {
+    return dependencies(name, false);
+  }
+
+  private Set<String> dependencies(String name, boolean addResources) {
+    if (this.main.equals(name)) {
+      // class only; depends on resources + jars
+      return addResources ? Set.of(RESOURCES, JARS) : Set.of(JARS);
+    } else if (JARS.equals(name)) {
+      // jars depends on main when reflection is required (hibernate, jackson, quartz);
+      return addResources ? Set.of(RESOURCES, main) : Set.of(main);
+    }
+    return emptySet();
+  }
+
+  private Set<Path> resources(String name) {
+    if (this.main.equals(name)) {
+      return classes;
+    } else if (RESOURCES.equals(name)) {
+      return resources;
+    } else if (JARS.equals(name)) {
+      return jars;
+    }
     return null;
   }
 
@@ -79,6 +101,8 @@ public class JoobyModuleFinder implements ModuleFinder {
         + classes.stream().map(Path::toString).collect(joining(File.pathSeparator))
         + "\nresources: "
         + resources.stream().map(Path::toString).collect(joining(File.pathSeparator))
+        + "\nwatchDirs: "
+        + watchDirs.stream().map(Path::toString).collect(joining(File.pathSeparator))
         + "\njars: "
         + jars.stream().map(Path::getFileName).map(Path::toString).collect(joining(", "));
   }
