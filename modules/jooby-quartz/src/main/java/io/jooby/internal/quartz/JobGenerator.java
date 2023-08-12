@@ -9,6 +9,7 @@ import static java.lang.String.format;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,10 +25,12 @@ import java.util.stream.Stream;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
+import org.quartz.PersistJobDataAfterExecution;
 import org.quartz.ScheduleBuilder;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.SimpleTrigger;
@@ -54,12 +57,30 @@ import jakarta.inject.Named;
 
 public class JobGenerator {
 
-  private static List<Class> SUPPORTED_ARGS =
+  private static final List<Class<?>> SUPPORTED_ARGS =
       Arrays.asList(
           JobExecutionContext.class,
           Registry.class,
           ExtendedJobExecutionContext.class,
           AtomicBoolean.class);
+
+  public static List<Method> jobMethod(Class<?> jobClass) {
+    List<Method> result = new ArrayList<>();
+    for (Method method : jobClass.getDeclaredMethods()) {
+      Scheduled scheduled = method.getAnnotation(Scheduled.class);
+      if (scheduled != null) {
+        int mods = method.getModifiers();
+        if (!Modifier.isPublic(mods)) {
+          throw new IllegalArgumentException("Job method must be public: " + method);
+        }
+        if (Modifier.isStatic(mods)) {
+          throw new IllegalArgumentException("Job method should NOT be public: " + method);
+        }
+        result.add(method);
+      }
+    }
+    return result;
+  }
 
   @SuppressWarnings("unchecked")
   public static Map<JobDetail, Trigger> build(final Jooby application, final List<Class<?>> jobs)
@@ -70,31 +91,20 @@ public class JobGenerator {
       if (Job.class.isAssignableFrom(job)) {
         triggers.put(job((Class<? extends Job>) job), trigger(config, (Class<? extends Job>) job));
       } else {
-        Method[] methods = job.getDeclaredMethods();
         int size = triggers.size();
-        for (Method method : methods) {
+        for (Method method : jobMethod(job)) {
           Scheduled scheduled = method.getAnnotation(Scheduled.class);
-          if (scheduled != null) {
-            int mods = method.getModifiers();
-            if (!Modifier.isPublic(mods)) {
-              throw new IllegalArgumentException("Job method must be public: " + method);
-            }
-            if (Modifier.isStatic(mods)) {
-              throw new IllegalArgumentException("Job method should NOT be public: " + method);
-            }
-            List<Class<?>> types =
-                Stream.of(method.getParameterTypes()).collect(Collectors.toList());
-            types.removeAll(SUPPORTED_ARGS);
+          List<Class<?>> types = Stream.of(method.getParameterTypes()).collect(Collectors.toList());
+          types.removeAll(SUPPORTED_ARGS);
 
-            if (types.size() > 0) {
-              throw new UnsupportedOperationException(
-                  "Argument(s) not supported on job method: "
-                      + types
-                      + " supported parameters are: "
-                      + SUPPORTED_ARGS);
-            }
-            triggers.put(provisioningJob(method), newTrigger(config, scheduled, jobKey(method)));
+          if (!types.isEmpty()) {
+            throw new UnsupportedOperationException(
+                "Argument(s) not supported on job method: "
+                    + types
+                    + " supported parameters are: "
+                    + SUPPORTED_ARGS);
           }
+          triggers.put(provisioningJob(method), newTrigger(config, scheduled, jobKey(method)));
         }
         if (size >= triggers.size()) {
           throw new IllegalArgumentException(format("Scheduled is missing on %s", job.getName()));
@@ -109,7 +119,26 @@ public class JobGenerator {
   }
 
   private static JobDetail provisioningJob(final Method method) {
-    return jobDetail(new JobMethodDetail(method), jobKey(method), JobDelegate.class);
+    var detail =
+        jobDetail(new JobDetailImpl(), jobKey(method), findJobClass(method.getDeclaringClass()));
+    detail.getJobDataMap().put("jobMethod", method);
+    return detail;
+  }
+
+  private static Class<? extends Job> findJobClass(Class<?> declaringClass) {
+    var persistent = declaringClass.getAnnotation(PersistJobDataAfterExecution.class);
+    var nonConcurrent = declaringClass.getAnnotation(DisallowConcurrentExecution.class);
+    if (persistent != null && nonConcurrent != null) {
+      return StatefulJobDelegate.class;
+    } else {
+      if (persistent != null) {
+        return PersistJobDataAfterJobDelegate.class;
+      }
+      if (nonConcurrent != null) {
+        return DisallowConcurrentJobDelegate.class;
+      }
+      return JobDelegate.class;
+    }
   }
 
   private static JobDetail jobDetail(

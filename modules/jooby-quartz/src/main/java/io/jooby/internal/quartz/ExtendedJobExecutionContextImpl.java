@@ -143,4 +143,9 @@ public class ExtendedJobExecutionContextImpl implements ExtendedJobExecutionCont
   public Object get(Object key) {
     return jobExecutionContext.get(key);
   }
+
+  @Override
+  public String toString() {
+    return jobExecutionContext.toString();
+  }
 }

@@ -5,8 +5,11 @@
  */
 package io.jooby.quartz;
 
+import static io.jooby.SneakyThrows.throwingFunction;
 import static org.quartz.impl.StdSchedulerFactory.PROP_SCHED_INSTANCE_ID;
+import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
 
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -15,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
@@ -28,6 +32,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.jdbcjobstore.JobStoreTX;
 import org.quartz.simpl.PropertySettingJobFactory;
 import org.quartz.utils.DBConnectionManager;
+import org.slf4j.Logger;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -37,10 +42,9 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.quartz.ConnectionProviderImpl;
+import io.jooby.internal.quartz.JobDelegate;
 import io.jooby.internal.quartz.JobFactoryImpl;
 import io.jooby.internal.quartz.JobGenerator;
-import io.jooby.internal.quartz.JobMethodDetail;
-import io.jooby.internal.quartz.JobRegistry;
 
 /**
  * Scheduler module using Quartz: http://www.quartz-scheduler.org.
@@ -152,15 +156,8 @@ public class QuartzModule implements Extension {
     Properties properties = properties(config);
 
     Scheduler scheduler = this.scheduler == null ? newScheduler(application) : this.scheduler;
-
-    jobMap.keySet().stream()
-        .filter(JobMethodDetail.class::isInstance)
-        .map(JobMethodDetail.class::cast)
-        .forEach(
-            detail -> {
-              /** We need a registry in case of non-ram store: */
-              JobRegistry.put(detail.getKey(), application, detail.getJobMethod());
-            });
+    var context = scheduler.getContext();
+    context.put("registry", application);
 
     ServiceRegistry services = application.getServices();
     services.putIfAbsent(Scheduler.class, scheduler);
@@ -170,9 +167,16 @@ public class QuartzModule implements Extension {
     }
     application.onStarted(
         () -> {
+          cleanStaleJobs(application.getLog(), scheduler, jobs);
+
           for (Map.Entry<JobDetail, Trigger> e : jobMap.entrySet()) {
             JobDetail jobDetail = e.getKey();
             Trigger trigger = e.getValue();
+            var jobClass = jobDetail.getJobClass();
+            if (JobDelegate.class.isAssignableFrom(jobClass)) {
+              var jobMethod = (Method) jobDetail.getJobDataMap().remove("jobMethod");
+              context.put(jobDetail.getKey().toString(), jobMethod);
+            }
             boolean jobEnabled = isJobPaused(properties, jobDetail.getKey());
             if (scheduler.checkExists(jobDetail.getKey())) {
               // make sure trigger is updated
@@ -196,6 +200,39 @@ public class QuartzModule implements Extension {
     boolean waitForJobsToComplete =
         Boolean.parseBoolean(properties.getProperty("org.quartz.scheduler.waitForJobsToComplete"));
     application.onStop(() -> scheduler.shutdown(waitForJobsToComplete));
+  }
+
+  /**
+   * Cleanup any job that was persisted in previous execution and was removed from job list.
+   *
+   * @param log
+   * @param scheduler
+   * @param jobs
+   * @throws SchedulerException
+   */
+  private static void cleanStaleJobs(Logger log, Scheduler scheduler, List<Class<?>> jobs)
+      throws SchedulerException {
+    var savedKeys =
+        scheduler.getJobGroupNames().stream()
+            .flatMap(throwingFunction(group -> scheduler.getJobKeys(groupEquals(group)).stream()))
+            .collect(Collectors.toSet());
+    var activeKeys =
+        jobs.stream()
+            .flatMap(job -> JobGenerator.jobMethod(job).stream())
+            .map(it -> new JobKey(it.getName(), it.getDeclaringClass().getSimpleName()))
+            .collect(Collectors.toSet());
+    savedKeys.removeAll(activeKeys);
+    if (!savedKeys.isEmpty()) {
+      log.debug("removing stale job(s): {}", savedKeys);
+      for (JobKey key : savedKeys) {
+        try {
+          var deleted = scheduler.deleteJob(key);
+          log.debug("job {} deleted: {}", key, deleted);
+        } catch (Exception cause) {
+          log.debug("unable to delete job: {}", key, cause);
+        }
+      }
+    }
   }
 
   /**
@@ -236,7 +273,7 @@ public class QuartzModule implements Extension {
     return Stream.of(
             "org.quartz.jobs." + key.toString() + ".enabled",
             "org.quartz.jobs." + key.getGroup() + ".enabled")
-        .map(k -> properties.getProperty(k))
+        .map(properties::getProperty)
         .filter(Objects::nonNull)
         .findFirst()
         .map(v -> v.equals("true"))
@@ -246,7 +283,7 @@ public class QuartzModule implements Extension {
   private static Properties properties(final Config config) {
     Properties props = new Properties();
 
-    props.setProperty("org.quartz.scheduler.waitForJobsToComplete", "false");
+    props.setProperty("org.quartz.scheduler.waitForJobsToComplete", "true");
 
     hostName().ifPresent(hostname -> props.setProperty(PROP_SCHED_INSTANCE_ID, hostname));
 

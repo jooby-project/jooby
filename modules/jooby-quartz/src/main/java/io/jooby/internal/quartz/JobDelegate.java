@@ -31,9 +31,11 @@ public class JobDelegate implements InterruptableJob {
     context.put("interrupted", interrupted);
     JobKey key = detail.getKey();
     try {
-      JobRegistry entry = JobRegistry.get(key);
-      Method method = entry.getJobMethod();
-      Registry registry = entry.getRegistry();
+      var scheduler = context.getScheduler();
+      var schedulerContext = scheduler.getContext();
+      var method = (Method) schedulerContext.get(key.toString());
+
+      Registry registry = (Registry) context.getScheduler().getContext().get("registry");
       // Set registry
       context.put("registry", registry);
       Object job = newInstance(registry, method.getDeclaringClass());
