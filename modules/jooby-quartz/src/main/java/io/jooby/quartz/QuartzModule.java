@@ -283,7 +283,7 @@ public class QuartzModule implements Extension {
   private static Properties properties(final Config config) {
     Properties props = new Properties();
 
-    props.setProperty("org.quartz.scheduler.waitForJobsToComplete", "true");
+    props.setProperty("org.quartz.scheduler.waitForJobsToComplete", "false");
 
     hostName().ifPresent(hostname -> props.setProperty(PROP_SCHED_INSTANCE_ID, hostname));
 

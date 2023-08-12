@@ -138,14 +138,6 @@ public class QuartzApp extends Jooby {
           scheduler.deleteJob(jobKey);
           return ctx.send(StatusCode.NO_CONTENT);
         });
-
-    delete(
-        "/clear",
-        ctx -> {
-          Scheduler scheduler = getScheduler();
-          scheduler.clear();
-          return ctx.send(StatusCode.NO_CONTENT);
-        });
   }
 
   private Map<String, Object> job(Context ctx, Scheduler scheduler, JobKey jobKey) {
