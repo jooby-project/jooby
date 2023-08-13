@@ -8,6 +8,7 @@ package io.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,8 +28,10 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -60,6 +63,7 @@ import io.jooby.SessionStore;
 import io.jooby.StatusCode;
 import io.jooby.ValueConverter;
 import io.jooby.WebSocket;
+import io.jooby.XSS;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.handler.ServerSentEventHandler;
@@ -528,28 +532,40 @@ public class RouterImpl implements Router {
       finalPattern = finalPattern.toLowerCase();
     }
 
-    for (String routePattern : Router.expandOptionalVariables(finalPattern)) {
-      if (route.getMethod().equals(WS)) {
-        tree.insert(GET, routePattern, route);
-        route.setReturnType(Context.class);
-      } else if (route.getMethod().equals(SSE)) {
-        tree.insert(GET, routePattern, route);
-        route.setReturnType(Context.class);
-      } else {
-        tree.insert(route.getMethod(), routePattern, route);
+    pureAscii(
+        finalPattern,
+        asciiPattern -> {
+          for (String routePattern : Router.expandOptionalVariables(asciiPattern)) {
+            if (route.getMethod().equals(WS)) {
+              tree.insert(GET, routePattern, route);
+              route.setReturnType(Context.class);
+            } else if (route.getMethod().equals(SSE)) {
+              tree.insert(GET, routePattern, route);
+              route.setReturnType(Context.class);
+            } else {
+              tree.insert(route.getMethod(), routePattern, route);
 
-        if (route.isHttpOptions()) {
-          tree.insert(Router.OPTIONS, routePattern, route);
-        } else if (route.isHttpTrace()) {
-          tree.insert(Router.TRACE, routePattern, route);
-        } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
-          tree.insert(Router.HEAD, routePattern, route);
-        }
-      }
-    }
+              if (route.isHttpOptions()) {
+                tree.insert(Router.OPTIONS, routePattern, route);
+              } else if (route.isHttpTrace()) {
+                tree.insert(Router.TRACE, routePattern, route);
+              } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
+                tree.insert(Router.HEAD, routePattern, route);
+              }
+            }
+          }
+        });
     routes.add(route);
 
     return route;
+  }
+
+  private void pureAscii(String pattern, Consumer<String> consumer) {
+    consumer.accept(pattern);
+    if (!StandardCharsets.US_ASCII.newEncoder().canEncode(pattern)) {
+      var pureAscii = Stream.of(pattern.split("/")).map(XSS::uri).collect(Collectors.joining("/"));
+      consumer.accept(pureAscii);
+    }
   }
 
   @NonNull public Router start(@NonNull Jooby app) {
