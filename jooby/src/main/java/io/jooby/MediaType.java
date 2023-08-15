@@ -331,7 +331,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @return Media type.
    */
   public static @NonNull MediaType valueOf(@NonNull String value) {
-    if (value == null || value.length() == 0 || value.equals("*")) {
+    if (value == null || value.isEmpty() || value.equals("*") || value.equals("*/*")) {
       return all;
     }
     if (HTML.equalsIgnoreCase(value) || "html".equals(value)) {
@@ -364,6 +364,9 @@ public final class MediaType implements Comparable<MediaType> {
     if (YAML.equalsIgnoreCase(value) || "yaml".equals(value)) {
       return yaml;
     }
+    if (value.startsWith("*;")) {
+      return new MediaType("*/" + value, null);
+    }
     return new MediaType(value, null);
   }
 
@@ -374,7 +377,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @return One or more mediatypes.
    */
   public static @NonNull List<MediaType> parse(@Nullable String value) {
-    if (value == null || value.length() == 0) {
+    if (value == null || value.isEmpty()) {
       return Collections.emptyList();
     }
     List<MediaType> result = new ArrayList<>(3);

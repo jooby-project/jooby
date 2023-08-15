@@ -94,6 +94,15 @@ public class MediaTypeTest {
   }
 
   @Test
+  public void allBadFormats() {
+    assertEquals(MediaType.all, MediaType.valueOf("*"));
+    assertEquals(MediaType.all, MediaType.valueOf("*;"));
+    assertEquals(1f, MediaType.valueOf("*;").getQuality());
+    assertEquals(MediaType.all, MediaType.valueOf("*; q=.2"));
+    assertEquals(.2f, MediaType.valueOf("*; q=.2").getQuality());
+  }
+
+  @Test
   public void matches() {
     assertTrue(
         MediaType.matches(
@@ -160,7 +169,12 @@ public class MediaTypeTest {
         "text/html, application/xhtml+xml, application/xml;q=0.9, image/webp, */*;q=0.8,"
             + " application/json",
         types -> {
-          System.out.println(types);
+          assertEquals("text/html", types.get(0).toString());
+          assertEquals("application/xhtml+xml", types.get(1).toString());
+          assertEquals("image/webp", types.get(2).toString());
+          assertEquals("application/json", types.get(3).toString());
+          assertEquals("application/xml;q=0.9", types.get(4).toString());
+          assertEquals("*/*;q=0.8", types.get(5).toString());
         });
   }
 
