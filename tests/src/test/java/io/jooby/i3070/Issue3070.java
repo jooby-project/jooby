@@ -8,7 +8,6 @@ package io.jooby.i3070;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jooby.Context;
-import io.jooby.handler.AccessLogHandler;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -19,7 +18,6 @@ public class Issue3070 {
     runner
         .define(
             app -> {
-              app.use(new AccessLogHandler());
               app.assets("/3070/static/*", "/io/jooby/i3070");
 
               app.get("/3070/tést", Context::getRequestPath);

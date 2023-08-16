@@ -563,7 +563,17 @@ public class RouterImpl implements Router {
   private void pureAscii(String pattern, Consumer<String> consumer) {
     consumer.accept(pattern);
     if (!StandardCharsets.US_ASCII.newEncoder().canEncode(pattern)) {
-      var pureAscii = Stream.of(pattern.split("/")).map(XSS::uri).collect(Collectors.joining("/"));
+      var pureAscii =
+          Stream.of(pattern.split("/"))
+              .map(
+                  segment -> {
+                    if (segment.matches(".*\\{([^}]*.?)}.*")) {
+                      // Ignore path parameter
+                      return segment;
+                    }
+                    return XSS.uri(segment);
+                  })
+              .collect(Collectors.joining("/"));
       consumer.accept(pureAscii);
     }
   }
