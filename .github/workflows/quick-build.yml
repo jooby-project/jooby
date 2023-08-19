@@ -34,3 +34,9 @@ jobs:
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
+      - name: Test Result
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          check_name: JUnit ${{ matrix.kind }} ${{ matrix.java_version }} ${{ matrix.os }}
+          report_paths: '*/target/*/TEST-*.xml'
