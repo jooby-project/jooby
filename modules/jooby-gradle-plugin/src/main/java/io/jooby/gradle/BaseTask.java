@@ -30,6 +30,7 @@ import org.gradle.api.plugins.JavaApplication;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 
 /**
  * Base class which provides common utility method to more specific plugins: like classpath
@@ -87,7 +88,7 @@ public class BaseTask extends DefaultTask {
    * @return Directories.
    */
   protected @NonNull Set<Path> binDirectories(@NonNull Project project,
-      @NonNull SourceSet sourceSet) {
+      @NonNull List<SourceSet> sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && Files.isDirectory(it));
   }
 
@@ -99,7 +100,7 @@ public class BaseTask extends DefaultTask {
    * @return Jar files.
    */
   protected @NonNull Set<Path> jars(@NonNull Project project,
-      @NonNull SourceSet sourceSet) {
+      @NonNull List<SourceSet> sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && it.toString().endsWith(".jar"));
   }
 
@@ -109,9 +110,10 @@ public class BaseTask extends DefaultTask {
    * @param project Project.
    * @return Classes directory.
    */
-  protected @NonNull Path classes(@NonNull Project project) {
-    SourceSet sourceSet = sourceSet(project);
-    return sourceSet.getRuntimeClasspath().getFiles().stream()
+  protected @NonNull Path classes(@NonNull Project project, boolean useTestScope) {
+    List<SourceSet> sourceSet = sourceSet(project, useTestScope);
+    return sourceSet.stream()
+        .flatMap(it -> it.getRuntimeClasspath().getFiles().stream())
         .filter(f -> f.exists() && f.isDirectory() && f.toString().contains("classes"))
         .findFirst()
         .get()
@@ -126,11 +128,12 @@ public class BaseTask extends DefaultTask {
    * @param predicate Path filter.
    * @return Classpath.
    */
-  protected @NonNull Set<Path> classpath(@NonNull Project project, @NonNull SourceSet sourceSet,
+  protected @NonNull Set<Path> classpath(@NonNull Project project, @NonNull List<SourceSet> sourceSet,
       @NonNull Predicate<Path> predicate) {
     Set<Path> result = new LinkedHashSet<>();
     // classes/main, resources/main + jars
-    sourceSet.getRuntimeClasspath().getFiles().stream()
+    sourceSet.stream()
+        .flatMap(it -> it.getRuntimeClasspath().getFiles().stream())
         .map(File::toPath)
         .filter(predicate)
         .forEach(result::add);
@@ -152,14 +155,15 @@ public class BaseTask extends DefaultTask {
    * @return Source directories.
    */
   protected @NonNull Set<Path> sourceDirectories(@NonNull Project project,
-      @NonNull SourceSet sourceSet) {
+      @NonNull List<SourceSet> sourceSet) {
     Path eclipse = project.getProjectDir().toPath().resolve(".classpath");
     if (Files.exists(eclipse)) {
       // let eclipse to do the incremental compilation
       return Collections.emptySet();
     }
     // main/java
-    return sourceSet.getAllSource().getSrcDirs().stream()
+    return sourceSet.stream()
+        .flatMap(it -> it.getAllSource().getSrcDirs().stream())
         .map(File::toPath)
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
@@ -170,9 +174,14 @@ public class BaseTask extends DefaultTask {
    * @param project Project.
    * @return SourceSet.
    */
-  protected @NonNull SourceSet sourceSet(final @NonNull Project project) {
-    return getJavaConvention(project).getSourceSets()
-        .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+  protected @NonNull List<SourceSet> sourceSet(@NonNull Project project, boolean useTestScope) {
+    SourceSetContainer sourceSets = getJavaConvention(project).getSourceSets();
+    List<SourceSet> result = new ArrayList<>();
+    if (useTestScope) {
+      result.add(sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME));
+    }
+    result.add(sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME));
+    return result;
   }
 
   /**
@@ -196,7 +205,7 @@ public class BaseTask extends DefaultTask {
       throws MalformedURLException {
     List<URL> cp = new ArrayList<>();
     for (Project project : projects) {
-      for (Path path : classpath(project, sourceSet(project), it -> true)) {
+      for (Path path : classpath(project, sourceSet(project, false), it -> true)) {
         cp.add(path.toUri().toURL());
       }
 

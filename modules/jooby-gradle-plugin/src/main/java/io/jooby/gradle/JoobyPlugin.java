@@ -24,6 +24,7 @@ public class JoobyPlugin implements Plugin<Project> {
     openAPI(project);
 
     joobyRun(project);
+    joobyTestRun(project);
   }
 
   private void joobyRun(Project project) {
@@ -32,6 +33,16 @@ public class JoobyPlugin implements Plugin<Project> {
     options.put(Task.TASK_DEPENDS_ON, "classes");
     options.put(Task.TASK_NAME, "joobyRun");
     options.put(Task.TASK_DESCRIPTION, "Run, debug and reload applications");
+    options.put(Task.TASK_GROUP, "jooby");
+    project.getTasks().create(options);
+  }
+
+  private void joobyTestRun(Project project) {
+    Map<String, Object> options = new HashMap<>();
+    options.put(Task.TASK_TYPE, RunTask.class);
+    options.put(Task.TASK_DEPENDS_ON, "testClasses");
+    options.put(Task.TASK_NAME, "joobyTestRun");
+    options.put(Task.TASK_DESCRIPTION, "Run, debug and reload applications using test classpath");
     options.put(Task.TASK_GROUP, "jooby");
     project.getTasks().create(options);
   }

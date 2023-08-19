@@ -15,6 +15,7 @@ repositories {
 }
 
 def pom = new XmlSlurper().parse(projectDir.toPath().getParent().resolve("pom.xml").toFile())
+//noinspection GroovyAccessibility
 def joobyVersion = project.properties['joobyVersion'] ?: pom.parent.version
 
 // Unless overridden in the pluginBundle config DSL, the project version will

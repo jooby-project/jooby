@@ -45,7 +45,7 @@ public class OpenAPITask extends BaseTask {
     String mainClass = Optional.ofNullable(this.mainClass)
         .orElseGet(() -> computeMainClassName(projects));
 
-    Path outputDir = classes(getProject());
+    Path outputDir = classes(getProject(), false);
     // Reduce lookup to current project: See https://github.com/jooby-project/jooby/issues/2756
     String metaInf =
         outputDir

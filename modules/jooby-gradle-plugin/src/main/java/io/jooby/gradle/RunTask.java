@@ -58,6 +58,8 @@ public class RunTask extends BaseTask {
    */
   private Long waitTimeBeforeRestart;
 
+  private boolean useTestScope;
+
   /**
    * Run task.
    *
@@ -127,9 +129,10 @@ public class RunTask extends BaseTask {
       for (Project project : projects) {
         getLogger().debug("Adding project: " + project.getName());
 
-        SourceSet sourceSet = sourceSet(project);
+        List<SourceSet> sourceSet = sourceSet(project, useTestScope);
         // main/resources
-        sourceSet.getResources().getSrcDirs().stream()
+        sourceSet.stream()
+            .flatMap(it-> it.getResources().getSrcDirs().stream())
             .map(File::toPath)
             .forEach(file -> {
               joobyRun.addResource(file);
@@ -286,6 +289,10 @@ public class RunTask extends BaseTask {
    */
   public void setWaitTimeBeforeRestart(Long waitTimeBeforeRestart) {
     this.waitTimeBeforeRestart = waitTimeBeforeRestart;
+  }
+
+  protected void setUseTestScope(boolean useTestScope) {
+    this.useTestScope = useTestScope;
   }
 
   /**

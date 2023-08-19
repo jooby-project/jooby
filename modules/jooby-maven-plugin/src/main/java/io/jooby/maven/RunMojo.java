@@ -71,6 +71,8 @@ public class RunMojo extends BaseMojo {
   @Parameter(property = "jooby.waitTimeBeforeRestart")
   private Long waitTimeBeforeRestart;
 
+  private boolean useTestScope;
+
   @Override
   protected void doExecute(List<MavenProject> projects, String mainClass) throws Throwable {
     Maven maven = getMaven();
@@ -104,7 +106,7 @@ public class RunMojo extends BaseMojo {
       getLog().debug("Adding project: " + project.getArtifactId());
 
       // main resources + conf, etc..
-      resources(project)
+      resources(project, useTestScope)
           .forEach(
               file -> {
                 joobyRun.addResource(file);
@@ -112,17 +114,17 @@ public class RunMojo extends BaseMojo {
               });
 
       // target/classes
-      bin(project).forEach(joobyRun::addClasses);
+      bin(project, useTestScope).forEach(joobyRun::addClasses);
 
-      Set<Path> src = sourceDirectories(project);
+      Set<Path> src = sourceDirectories(project, useTestScope);
       if (src.isEmpty()) {
         getLog().debug("Compiler is off in favor of Eclipse compiler.");
-        bin(project).forEach(path -> joobyRun.addWatchDir(path, onFileChanged));
+        bin(project, useTestScope).forEach(path -> joobyRun.addWatchDir(path, onFileChanged));
       } else {
         src.forEach(path -> joobyRun.addWatchDir(path, onFileChanged));
       }
 
-      jars(project).forEach(joobyRun::addJar);
+      jars(project, useTestScope).forEach(joobyRun::addJar);
     }
 
     // Block current thread.
@@ -182,6 +184,10 @@ public class RunMojo extends BaseMojo {
     this.restartExtensions = restartExtensions;
   }
 
+  protected void setUseTestScope(boolean useTestScope) {
+    this.useTestScope = useTestScope;
+  }
+
   /**
    * Execute maven goal.
    *
@@ -193,13 +199,17 @@ public class RunMojo extends BaseMojo {
         .setGoals(Collections.singletonList(goal));
   }
 
-  private Set<Path> sourceDirectories(final MavenProject project) {
+  private Set<Path> sourceDirectories(MavenProject project, boolean useTestScope) {
     Path eclipse = project.getBasedir().toPath().resolve(".classpath");
     if (Files.exists(eclipse)) {
       // let eclipse to do the incremental compilation
       return Collections.emptySet();
     }
-    return Collections.singleton(Paths.get(project.getBuild().getSourceDirectory()));
+    var sourceDir = Paths.get(project.getBuild().getSourceDirectory());
+    if (useTestScope) {
+      return Set.of(Paths.get(project.getBuild().getTestSourceDirectory()), sourceDir);
+    }
+    return Collections.singleton(sourceDir);
   }
 
   @Override

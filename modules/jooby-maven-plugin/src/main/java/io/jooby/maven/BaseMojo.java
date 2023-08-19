@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -47,6 +48,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @author edgar
  */
 public abstract class BaseMojo extends AbstractMojo {
+  private static final Set<String> SCOPES =
+      Set.of("compile", "system", "provided", "runtime", "test");
+
   protected static final String APP_CLASS = "application.class";
 
   /** Startup class (the one with the main method. */
@@ -172,8 +176,13 @@ public abstract class BaseMojo extends AbstractMojo {
     this.dependenciesResolver = dependenciesResolver;
   }
 
-  protected Set<Path> jars(MavenProject project) throws DependencyResolutionException {
+  protected Set<Path> jars(MavenProject project, boolean useTestScope)
+      throws DependencyResolutionException {
     Set<org.apache.maven.artifact.Artifact> artifacts = project.getArtifacts();
+    Set<String> scopes = new HashSet<>(SCOPES);
+    if (!useTestScope) {
+      scopes.remove("test");
+    }
     if (artifacts.isEmpty()) {
       DependencyResolutionRequest request = new DefaultDependencyResolutionRequest();
       request.setMavenProject(project);
@@ -181,6 +190,7 @@ public abstract class BaseMojo extends AbstractMojo {
       DependencyResolutionResult result = dependenciesResolver.resolve(request);
       return result.getDependencies().stream()
           .filter(it -> !it.isOptional())
+          .filter(it -> scopes.contains(it.getScope()))
           .map(Dependency::getArtifact)
           .filter(Objects::nonNull)
           .filter(it -> it.getExtension().equals("jar"))
@@ -190,6 +200,7 @@ public abstract class BaseMojo extends AbstractMojo {
           .collect(Collectors.toCollection(LinkedHashSet::new));
     } else {
       return artifacts.stream()
+          .filter(it -> scopes.contains(it.getScope()))
           .map(org.apache.maven.artifact.Artifact::getFile)
           .filter(Objects::nonNull)
           .filter(it -> it.toString().endsWith(".jar"))
@@ -198,9 +209,14 @@ public abstract class BaseMojo extends AbstractMojo {
     }
   }
 
-  protected Set<Path> resources(MavenProject project) {
+  @SuppressWarnings("unchecked")
+  protected Set<Path> resources(MavenProject project, boolean useTestScope) {
     // main/resources, etc..
-    List<Resource> resourceList = project.getResources();
+    List<Resource> resourceList = new ArrayList<>();
+    if (useTestScope) {
+      resourceList.addAll(project.getTestResources());
+    }
+    resourceList.addAll(project.getResources());
     List<Path> paths =
         resourceList.stream()
             .map(Resource::getDirectory)
@@ -214,8 +230,12 @@ public abstract class BaseMojo extends AbstractMojo {
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  protected Set<Path> bin(final MavenProject project) {
-    return Collections.singleton(Paths.get(project.getBuild().getOutputDirectory()));
+  protected Set<Path> bin(MavenProject project, boolean useTestScope) {
+    var outputDir = Paths.get(project.getBuild().getOutputDirectory());
+    if (useTestScope) {
+      return Set.of(Paths.get(project.getBuild().getTestOutputDirectory()), outputDir);
+    }
+    return Collections.singleton(outputDir);
   }
 
   protected ClassLoader createClassLoader(List<MavenProject> projects)
@@ -237,10 +257,9 @@ public abstract class BaseMojo extends AbstractMojo {
 
   @SuppressWarnings("unchecked")
   private Set<Path> classpath(MavenProject project) throws DependencyResolutionException {
-    Set<Path> paths = new LinkedHashSet<>();
-    resources(project).forEach(paths::add);
-    bin(project).forEach(paths::add);
-    jars(project).forEach(paths::add);
+    Set<Path> paths = new LinkedHashSet<>(resources(project, false));
+    paths.addAll(bin(project, false));
+    paths.addAll(jars(project, false));
     return paths;
   }
 
