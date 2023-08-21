@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
@@ -28,6 +29,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaApplication;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -190,8 +192,8 @@ public class BaseTask extends DefaultTask {
    * @param project Project.
    * @return Java plugin convention.
    */
-  protected @NonNull JavaPluginConvention getJavaConvention(final @NonNull Project project) {
-    return project.getConvention().getPlugin(JavaPluginConvention.class);
+  protected @NonNull JavaPluginExtension getJavaConvention(final @NonNull Project project) {
+    return project.getExtensions().getByType(JavaPluginExtension.class);
   }
 
   /**

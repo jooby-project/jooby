@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -43,6 +44,9 @@ public class RunTask extends BaseTask {
     System.setProperty("jooby.useShutdownHook", "false");
   }
 
+  public static final String RUN = "joobyRun";
+  public static final String TEST_RUN = "joobyTestRun";
+
   private ProjectConnection connection;
 
   private String mainClass;
@@ -58,8 +62,6 @@ public class RunTask extends BaseTask {
    */
   private Long waitTimeBeforeRestart;
 
-  private boolean useTestScope;
-
   /**
    * Run task.
    *
@@ -69,10 +71,13 @@ public class RunTask extends BaseTask {
   public void run() throws Throwable {
     try {
       Project current = getProject();
-      String[] tasks = current.getGradle().getTaskGraph().getAllTasks().stream()
+
+      var taskList = current.getGradle().getTaskGraph().getAllTasks().stream()
           .map(Task::getName)
-          .filter(name -> !name.equals("joobyRun"))
-          .toArray(String[]::new);
+          .collect(Collectors.toList());
+      boolean useTestScope = taskList.contains(TEST_RUN);
+      taskList.remove(RUN);
+      taskList.remove(TEST_RUN);
 
       List<Project> projects = getProjects();
 
@@ -106,7 +111,7 @@ public class RunTask extends BaseTask {
           BuildLauncher compiler = connection.newBuild()
               .setStandardError(System.err)
               .setStandardOutput(System.out)
-              .forTasks(tasks);
+              .forTasks(taskList.toArray(new String[0]));
 
           compiler.run(new ResultHandler<Void>() {
             @Override public void onComplete(Void result) {
@@ -130,6 +135,7 @@ public class RunTask extends BaseTask {
         getLogger().debug("Adding project: " + project.getName());
 
         List<SourceSet> sourceSet = sourceSet(project, useTestScope);
+
         // main/resources
         sourceSet.stream()
             .flatMap(it-> it.getResources().getSrcDirs().stream())
@@ -289,10 +295,6 @@ public class RunTask extends BaseTask {
    */
   public void setWaitTimeBeforeRestart(Long waitTimeBeforeRestart) {
     this.waitTimeBeforeRestart = waitTimeBeforeRestart;
-  }
-
-  protected void setUseTestScope(boolean useTestScope) {
-    this.useTestScope = useTestScope;
   }
 
   /**
