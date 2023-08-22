@@ -17,7 +17,7 @@ public class JoobyModuleLoader extends ModuleLoader {
   }
 
   protected JoobyModuleFinder joobyModuleFinder() {
-    return (JoobyModuleFinder) getFinders()[0];
+    return (JoobyMultiModuleFinder) getFinders()[0];
   }
 
   public void unload(String name, Module module) {

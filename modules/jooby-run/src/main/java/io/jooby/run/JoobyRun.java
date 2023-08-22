@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import io.jooby.internal.run.JoobyModuleFinder;
 import io.jooby.internal.run.JoobyModuleLoader;
+import io.jooby.internal.run.JoobyMultiModuleFinder;
+import io.jooby.internal.run.JoobySingleModuleLoader;
 import io.methvin.watcher.DirectoryChangeEvent;
 import io.methvin.watcher.DirectoryWatcher;
 
@@ -372,9 +374,17 @@ public class JoobyRun {
               .map(Path::toString)
               .collect(Collectors.joining(File.pathSeparator));
       System.setProperty("jooby.run.classpath", classPathString);
-      var finder =
-          new JoobyModuleFinder(
-              options.getProjectName(), classes, resources, dependencies, watchDirs.keySet());
+      var classloaderType = System.getProperty("jooby.run.classloader", "");
+      JoobyModuleFinder finder;
+      if ("single".equals(classloaderType)) {
+        finder =
+            new JoobySingleModuleLoader(
+                options.getProjectName(), classes, resources, dependencies, watchDirs.keySet());
+      } else {
+        finder =
+            new JoobyMultiModuleFinder(
+                options.getProjectName(), classes, resources, dependencies, watchDirs.keySet());
+      }
 
       module =
           new AppModule(
