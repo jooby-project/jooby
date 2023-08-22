@@ -148,3 +148,5 @@ joobyRun {
 <4> Application port
 <5> How long to wait after last file change to restart. Default is: `500` milliseconds.
 
+For Maven and Gradle there are two variant `mvn jooby:testRun` and `./gradlew joobyTestRun` they work
+by expanding the classpath to uses the `test` scope or source set.
