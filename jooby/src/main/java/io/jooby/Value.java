@@ -420,7 +420,7 @@ public interface Value {
    *
    * @return Value as multi-value map.
    */
-  @Nullable Map<String, List<String>> toMultimap();
+  @NonNull Map<String, List<String>> toMultimap();
 
   /**
    * Value as single-value map.
