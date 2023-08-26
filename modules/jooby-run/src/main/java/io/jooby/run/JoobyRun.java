@@ -374,9 +374,8 @@ public class JoobyRun {
               .map(Path::toString)
               .collect(Collectors.joining(File.pathSeparator));
       System.setProperty("jooby.run.classpath", classPathString);
-      var classloaderType = System.getProperty("jooby.run.classloader", "");
       JoobyModuleFinder finder;
-      if ("single".equals(classloaderType)) {
+      if (options.isUseSingleClassLoader()) {
         finder =
             new JoobySingleModuleLoader(
                 options.getProjectName(), classes, resources, dependencies, watchDirs.keySet());

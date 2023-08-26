@@ -62,6 +62,8 @@ public class RunTask extends BaseTask {
    */
   private Long waitTimeBeforeRestart;
 
+  private Boolean useSingleClassLoader;
+
   /**
    * Run task.
    *
@@ -85,6 +87,7 @@ public class RunTask extends BaseTask {
           .orElseGet(() -> computeMainClassName(projects));
 
       JoobyRunOptions config = new JoobyRunOptions();
+      config.setUseSingleClassLoader(useSingleClassLoader = Boolean.TRUE);
       config.setMainClass(mainClass);
       config.setPort(port);
       if (compileExtensions != null) {
@@ -233,6 +236,16 @@ public class RunTask extends BaseTask {
    */
   public void setRestartExtensions(List<String> restartExtensions) {
     this.restartExtensions = restartExtensions;
+  }
+
+  @Input
+  @org.gradle.api.tasks.Optional
+  public Boolean isUseSingleClassLoader() {
+    return useSingleClassLoader;
+  }
+
+  public void setUseSingleClassLoader(Boolean useSingleClassLoader) {
+    this.useSingleClassLoader = useSingleClassLoader;
   }
 
   /**

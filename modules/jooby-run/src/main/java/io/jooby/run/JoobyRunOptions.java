@@ -30,6 +30,8 @@ public class JoobyRunOptions {
 
   private Long waitTimeBeforeRestart = DEFAULT_WAIT_TIME_BEFORE_RESTART;
 
+  private boolean useSingleClassLoader;
+
   private static final long DEFAULT_WAIT_TIME_BEFORE_RESTART = 500L;
 
   static final long INITIAL_DELAY_BEFORE_FIRST_RESTART = 5000L;
@@ -86,6 +88,14 @@ public class JoobyRunOptions {
    */
   public void setPort(Integer port) {
     this.port = port;
+  }
+
+  public boolean isUseSingleClassLoader() {
+    return useSingleClassLoader;
+  }
+
+  public void setUseSingleClassLoader(boolean useSingleClassLoader) {
+    this.useSingleClassLoader = useSingleClassLoader;
   }
 
   /**

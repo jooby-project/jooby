@@ -73,6 +73,9 @@ public class RunMojo extends BaseMojo {
 
   private boolean useTestScope;
 
+  @Parameter(property = "jooby.useSingleClassLoader")
+  private boolean useSingleClassLoader;
+
   @Override
   protected void doExecute(List<MavenProject> projects, String mainClass) throws Throwable {
     Maven maven = getMaven();
@@ -143,6 +146,7 @@ public class RunMojo extends BaseMojo {
     if (restartExtensions != null) {
       options.setRestartExtensions(restartExtensions);
     }
+    options.setUseSingleClassLoader(useSingleClassLoader);
     return options;
   }
 
@@ -182,6 +186,14 @@ public class RunMojo extends BaseMojo {
    */
   public void setRestartExtensions(List<String> restartExtensions) {
     this.restartExtensions = restartExtensions;
+  }
+
+  public boolean isUseSingleClassLoader() {
+    return useSingleClassLoader;
+  }
+
+  public void setUseSingleClassLoader(boolean useSingleClassLoader) {
+    this.useSingleClassLoader = useSingleClassLoader;
   }
 
   protected void setUseTestScope(boolean useTestScope) {
