@@ -175,7 +175,7 @@ public class JobGenerator {
   private static Trigger newTrigger(
       final Config config, final Scheduled scheduled, final JobKey key) {
     ScheduledValue value = eval(key, config, scheduled.value());
-    if (scheduled.calendar().length() > 0) {
+    if (!scheduled.calendar().isEmpty()) {
       value.calendar = scheduled.calendar().trim();
     }
     value.priority = scheduled.priority();
@@ -189,14 +189,14 @@ public class JobGenerator {
 
   private static Trigger newTrigger(final JobKey key, final ScheduledValue value) {
     // almost there
-    TriggerBuilder builder;
+    TriggerBuilder<? extends Trigger> builder;
     if (value.cron != null) {
       // cron
       builder =
           TriggerBuilder.newTrigger()
               .withSchedule(misfire(value.misfire, CronScheduleBuilder.cronSchedule(value.cron)))
               .withDescription(cron(value.cron))
-              .withIdentity(TriggerKey.triggerKey(key.getName() + "Trigger", key.getGroup()));
+              .withIdentity(toTriggerKey(key));
     } else {
       SimpleScheduleBuilder sb =
           SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(value.interval);
@@ -209,7 +209,7 @@ public class JobGenerator {
       builder =
           TriggerBuilder.newTrigger()
               .withSchedule(misfire(value.misfire, sb))
-              .withIdentity(TriggerKey.triggerKey(key.getName() + "Trigger", key.getGroup()))
+              .withIdentity(toTriggerKey(key))
               .forJob(key)
               .withDescription(interval(value.interval, (int) value.repeat));
       if (value.delay > 0) {
@@ -222,6 +222,10 @@ public class JobGenerator {
     return builder.withPriority(value.priority).build();
   }
 
+  private static TriggerKey toTriggerKey(JobKey key) {
+    return TriggerKey.triggerKey(key.getName() + "Trigger", key.getGroup());
+  }
+
   private static ScheduledValue eval(final JobKey key, final Config config, final String expr) {
     // full expression with possible delay and repeat values
     return (ScheduledValue)
@@ -231,27 +235,24 @@ public class JobGenerator {
             (values, resolved) -> {
               ScheduledValue value = new ScheduledValue();
               if (resolved instanceof Long) {
-                value.interval = ((Long) resolved).longValue();
+                value.interval = (Long) resolved;
               } else {
                 value.cron = (String) resolved;
               }
               // attributes
               for (int i = 1; i < values.length; i++) {
                 String[] attr = values[i].split("=");
-                if ("delay".equals(attr[0].trim())) {
-                  value.delay = (Long) eval(config, attr[1], (v, r) -> r);
-                } else if ("repeat".equals(attr[0].trim())) {
-                  if (!"*".equals(attr[1].trim())) {
-                    value.repeat = (Long) eval(config, attr[1], (v, r) -> r);
+                switch (attr[0].trim()) {
+                  case "delay" -> value.delay = (Long) eval(config, attr[1], (v, r) -> r);
+                  case "repeat" -> {
+                    if (!"*".equals(attr[1].trim())) {
+                      value.repeat = (Long) eval(config, attr[1], (v, r) -> r);
+                    }
                   }
-                } else if ("priority".equals(attr[0].trim())) {
-                  value.priority = Integer.parseInt(attr[1].trim());
-                } else if ("calendar".equals(attr[0].trim())) {
-                  value.calendar = attr[1].trim();
-                } else if ("misfire".equals(attr[0].trim())) {
-                  value.misfire = Integer.parseInt(attr[1].trim());
-                } else {
-                  throw new IllegalArgumentException(
+                  case "priority" -> value.priority = Integer.parseInt(attr[1].trim());
+                  case "calendar" -> value.calendar = attr[1].trim();
+                  case "misfire" -> value.misfire = Integer.parseInt(attr[1].trim());
+                  default -> throw new IllegalArgumentException(
                       "Unknown attribute: " + attr[0] + " at " + key);
                 }
               }
@@ -321,7 +322,7 @@ public class JobGenerator {
       buff.append(value).append(" ").append(unit);
     } else {
       if (unit.length() > 2) {
-        buff.append(unit.substring(0, unit.length() - 1));
+        buff.append(unit, 0, unit.length() - 1);
       } else {
         buff.append(value).append(" ").append(unit);
       }
