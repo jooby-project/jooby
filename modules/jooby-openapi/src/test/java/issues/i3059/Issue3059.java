@@ -14,7 +14,6 @@ public class Issue3059 {
 
   @OpenAPITest(value = App3059A.class)
   public void itFindsDirectlyRegisteredMvcRoutes(OpenAPIResult result) {
-    System.out.println(result.toYaml());
     assertEquals(
         result.toYaml(),
         """
