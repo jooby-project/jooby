@@ -16,7 +16,7 @@ import io.jooby.Registry;
 public class JobFactoryImpl implements JobFactory {
   private final JobFactory next;
 
-  private Registry registry;
+  private final Registry registry;
 
   public JobFactoryImpl(Registry registry, JobFactory next) {
     this.registry = registry;
@@ -34,6 +34,6 @@ public class JobFactoryImpl implements JobFactory {
 
   @Override
   public String toString() {
-    return getClass().getName();
+    return "JobFactory for " + registry.toString();
   }
 }

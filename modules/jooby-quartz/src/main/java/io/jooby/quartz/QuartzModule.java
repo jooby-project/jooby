@@ -105,6 +105,8 @@ public class QuartzModule implements Extension {
 
   private List<Class<?>> jobs;
   private Scheduler scheduler;
+  private Boolean cleanStaleJobs;
+  private boolean cleanJobs;
 
   /**
    * Creates Quartz module and register the given jobs.
@@ -148,6 +150,29 @@ public class QuartzModule implements Extension {
     this.jobs = jobs;
   }
 
+  /**
+   * Lookup for existing (persisted) jobs and compare with the job list from {@link
+   * #QuartzModule(Class[])}. Delete any persisted job that is not in the list.
+   *
+   * @param cleanStaleJobs True to clear/delete stale job and triggers.
+   * @return This module.
+   */
+  public QuartzModule cleanStaleJobs(boolean cleanStaleJobs) {
+    this.cleanStaleJobs = cleanStaleJobs;
+    return this;
+  }
+
+  /**
+   * Safely clear/delete all jobs before schedule startup. Use with caution.
+   *
+   * @param cleanJobs True to clear/delete all jobs and triggers.
+   * @return This module.
+   */
+  public QuartzModule cleanJobs(boolean cleanJobs) {
+    this.cleanJobs = cleanJobs;
+    return this;
+  }
+
   @Override
   public void install(@NonNull Jooby application) throws Exception {
     Config config = application.getConfig();
@@ -155,6 +180,7 @@ public class QuartzModule implements Extension {
 
     Properties properties = properties(config);
 
+    this.cleanStaleJobs = computeCleanStaleJobs(this.scheduler == null);
     Scheduler scheduler = this.scheduler == null ? newScheduler(application) : this.scheduler;
     var context = scheduler.getContext();
     context.put("registry", application);
@@ -167,7 +193,18 @@ public class QuartzModule implements Extension {
     }
     application.onStarted(
         () -> {
-          cleanStaleJobs(application.getLog(), scheduler, jobs);
+          if (scheduler.isStarted()) {
+            scheduler.standby();
+          }
+
+          if (this.cleanJobs) {
+            // clear all jobs
+            scheduler.clear();
+          } else {
+            if (this.cleanStaleJobs) {
+              cleanStaleJobs(application.getLog(), scheduler, jobs);
+            }
+          }
 
           for (Map.Entry<JobDetail, Trigger> e : jobMap.entrySet()) {
             JobDetail jobDetail = e.getKey();
@@ -200,6 +237,10 @@ public class QuartzModule implements Extension {
     boolean waitForJobsToComplete =
         Boolean.parseBoolean(properties.getProperty("org.quartz.scheduler.waitForJobsToComplete"));
     application.onStop(() -> scheduler.shutdown(waitForJobsToComplete));
+  }
+
+  private boolean computeCleanStaleJobs(boolean defaults) {
+    return this.cleanStaleJobs == null ? defaults : this.cleanStaleJobs.booleanValue();
   }
 
   /**

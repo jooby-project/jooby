@@ -35,7 +35,6 @@ import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
 import io.jooby.internal.quartz.JobGenerator;
 
 /**
@@ -133,10 +132,10 @@ public class QuartzApp extends Jooby {
     delete(
         "/{group}/{name}",
         ctx -> {
-          Scheduler scheduler = getScheduler();
-          JobKey jobKey = jobKey(ctx);
-          scheduler.deleteJob(jobKey);
-          return ctx.send(StatusCode.NO_CONTENT);
+          var scheduler = getScheduler();
+          var jobKey = jobKey(ctx);
+          var deleted = scheduler.deleteJob(jobKey);
+          return Map.of("key", jobKey.toString(), "deleted", deleted);
         });
   }
 
