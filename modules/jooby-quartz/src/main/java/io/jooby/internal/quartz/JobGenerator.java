@@ -196,7 +196,7 @@ public class JobGenerator {
           TriggerBuilder.newTrigger()
               .withSchedule(misfire(value.misfire, CronScheduleBuilder.cronSchedule(value.cron)))
               .withDescription(cron(value.cron))
-              .withIdentity(TriggerKey.triggerKey(key.getName(), key.getGroup()));
+              .withIdentity(TriggerKey.triggerKey(key.getName() + "Trigger", key.getGroup()));
     } else {
       SimpleScheduleBuilder sb =
           SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(value.interval);
