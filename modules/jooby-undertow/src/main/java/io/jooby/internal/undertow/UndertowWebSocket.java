@@ -359,11 +359,9 @@ public class UndertowWebSocket extends AbstractReceiveListener
 
   @Override
   protected void onCloseMessage(CloseMessage cm, WebSocketChannel channel) {
-    if (isOpen()) {
-      handleClose(
-          WebSocketCloseStatus.valueOf(cm.getCode())
-              .orElseGet(() -> new WebSocketCloseStatus(cm.getCode(), cm.getReason())));
-    }
+    handleClose(
+        WebSocketCloseStatus.valueOf(cm.getCode())
+            .orElseGet(() -> new WebSocketCloseStatus(cm.getCode(), cm.getReason())));
   }
 
   private void handleClose(WebSocketCloseStatus status) {

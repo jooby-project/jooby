@@ -121,11 +121,9 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
 
   @Override
   public void onWebSocketClose(int statusCode, String reason) {
-    if (onCloseCallback != null) {
-      handleClose(
-          WebSocketCloseStatus.valueOf(statusCode)
-              .orElseGet(() -> new WebSocketCloseStatus(statusCode, reason)));
-    }
+    handleClose(
+        WebSocketCloseStatus.valueOf(statusCode)
+            .orElseGet(() -> new WebSocketCloseStatus(statusCode, reason)));
   }
 
   @Override
