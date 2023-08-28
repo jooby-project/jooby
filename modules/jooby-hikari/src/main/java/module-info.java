@@ -3,9 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-/**
- * Hikari module.
- */
+/** Hikari module. */
 module io.jooby.hikari {
   exports io.jooby.hikari;
 

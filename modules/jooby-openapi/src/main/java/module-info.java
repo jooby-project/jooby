@@ -3,9 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-/**
- * OpenAPI module
- */
+/** OpenAPI module */
 module io.jooby.openapi {
   exports io.jooby.openapi;
 

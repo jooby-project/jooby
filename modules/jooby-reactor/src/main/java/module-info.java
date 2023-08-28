@@ -6,9 +6,7 @@
 import io.jooby.ResultHandler;
 import io.jooby.reactor.Reactor;
 
-/**
- * Reactor module
- */
+/** Reactor module */
 module io.jooby.reactor {
   exports io.jooby.reactor;
 

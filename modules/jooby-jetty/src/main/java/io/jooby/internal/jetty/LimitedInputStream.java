@@ -15,6 +15,7 @@ import io.jooby.exception.StatusCodeException;
 public class LimitedInputStream extends FilterInputStream {
   /** The maximum size of an item, in bytes. */
   private long maxSize;
+
   /** The current number of bytes. */
   private long count;
 

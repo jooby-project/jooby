@@ -3,9 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-/**
- * Caffeine module.
- */
+/** Caffeine module. */
 module io.jooby.caffeine {
   exports io.jooby.caffeine;
 

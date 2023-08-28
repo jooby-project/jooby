@@ -3,9 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-/**
- * Ebean module.
- */
+/** Ebean module. */
 module io.jooby.ebean {
   exports io.jooby.ebean;
 

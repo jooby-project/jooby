@@ -6,9 +6,7 @@
 import io.jooby.ResultHandler;
 import io.jooby.rxjava3.Reactivex;
 
-/**
- * Rx module.
- */
+/** Rx module. */
 module io.jooby.rxjava3 {
   exports io.jooby.rxjava3;
 

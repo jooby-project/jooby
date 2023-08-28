@@ -6,7 +6,6 @@
 package source;
 
 import io.jooby.Context;
-
 import jakarta.ws.rs.*;
 
 @Path("/jaxrs")

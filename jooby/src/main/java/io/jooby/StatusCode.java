@@ -33,6 +33,7 @@ public final class StatusCode {
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.1.1">HTTP/1.1</a>
    */
   public static final StatusCode CONTINUE = new StatusCode(CONTINUE_CODE, "Continue");
+
   /**
    * {@code 101 Switching Protocols}.
    *
@@ -47,6 +48,7 @@ public final class StatusCode {
    */
   public static final StatusCode SWITCHING_PROTOCOLS =
       new StatusCode(SWITCHING_PROTOCOLS_CODE, "Switching Protocols");
+
   /**
    * {@code 102 Processing}.
    *
@@ -60,6 +62,7 @@ public final class StatusCode {
    * @see <a href="http://tools.ietf.org/html/rfc2518#section-10.1">WebDAV</a>
    */
   public static final StatusCode PROCESSING = new StatusCode(PROCESSING_CODE, "Processing");
+
   /**
    * {@code 103 Checkpoint}.
    *
@@ -105,24 +108,28 @@ public final class StatusCode {
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.2">HTTP/1.1</a>
    */
   public static final StatusCode CREATED = new StatusCode(CREATED_CODE, "Created");
+
   /**
    * {@code 202 Accepted}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.3">HTTP/1.1</a>
    */
   public static final int ACCEPTED_CODE = 202;
+
   /**
    * {@code 202 Accepted}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.3">HTTP/1.1</a>
    */
   public static final StatusCode ACCEPTED = new StatusCode(ACCEPTED_CODE, "Accepted");
+
   /**
    * {@code 203 Non-Authoritative Information}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.4">HTTP/1.1</a>
    */
   public static final int NON_AUTHORITATIVE_INFORMATION_CODE = 203;
+
   /**
    * {@code 203 Non-Authoritative Information}.
    *
@@ -130,18 +137,21 @@ public final class StatusCode {
    */
   public static final StatusCode NON_AUTHORITATIVE_INFORMATION =
       new StatusCode(NON_AUTHORITATIVE_INFORMATION_CODE, "Non-Authoritative Information");
+
   /**
    * {@code 204 No Content}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.5">HTTP/1.1</a>
    */
   public static final int NO_CONTENT_CODE = 204;
+
   /**
    * {@code 204 No Content}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.5">HTTP/1.1</a>
    */
   public static final StatusCode NO_CONTENT = new StatusCode(NO_CONTENT_CODE, "No Content");
+
   /**
    * {@code 205 Reset Content}.
    *
@@ -156,6 +166,7 @@ public final class StatusCode {
    */
   public static final StatusCode RESET_CONTENT =
       new StatusCode(RESET_CONTENT_CODE, "Reset Content");
+
   /**
    * {@code 206 Partial Content}.
    *
@@ -170,12 +181,14 @@ public final class StatusCode {
    */
   public static final StatusCode PARTIAL_CONTENT =
       new StatusCode(PARTIAL_CONTENT_CODE, "Partial Content");
+
   /**
    * {@code 207 Multi-StatusCode}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-13">WebDAV</a>
    */
   public static final int MULTI_STATUS_CODE = 207;
+
   /**
    * {@code 207 Multi-StatusCode}.
    *
@@ -183,12 +196,14 @@ public final class StatusCode {
    */
   public static final StatusCode MULTI_STATUS =
       new StatusCode(MULTI_STATUS_CODE, "Multi-StatusCode");
+
   /**
    * {@code 208 Already Reported}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc5842#section-7.1">WebDAV Binding Extensions</a>
    */
   public static final int ALREADY_REPORTED_CODE = 208;
+
   /**
    * {@code 208 Already Reported}.
    *
@@ -196,12 +211,14 @@ public final class StatusCode {
    */
   public static final StatusCode ALREADY_REPORTED =
       new StatusCode(ALREADY_REPORTED_CODE, "Already Reported");
+
   /**
    * {@code 226 IM Used}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc3229#section-10.4.1">Delta encoding in HTTP</a>
    */
   public static final int IM_USED_CODE = 226;
+
   /**
    * {@code 226 IM Used}.
    *
@@ -217,6 +234,7 @@ public final class StatusCode {
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.1">HTTP/1.1</a>
    */
   public static final int MULTIPLE_CHOICES_CODE = 300;
+
   /**
    * {@code 300 Multiple Choices}.
    *
@@ -224,12 +242,14 @@ public final class StatusCode {
    */
   public static final StatusCode MULTIPLE_CHOICES =
       new StatusCode(MULTIPLE_CHOICES_CODE, "Multiple Choices");
+
   /**
    * {@code 301 Moved Permanently}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.2">HTTP/1.1</a>
    */
   public static final int MOVED_PERMANENTLY_CODE = 301;
+
   /**
    * {@code 301 Moved Permanently}.
    *
@@ -237,6 +257,7 @@ public final class StatusCode {
    */
   public static final StatusCode MOVED_PERMANENTLY =
       new StatusCode(MOVED_PERMANENTLY_CODE, "Moved Permanently");
+
   /**
    * {@code 302 Found}.
    *
@@ -250,48 +271,56 @@ public final class StatusCode {
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.3">HTTP/1.1</a>
    */
   public static final StatusCode FOUND = new StatusCode(FOUND_CODE, "Found");
+
   /**
    * {@code 303 See Other}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.4">HTTP/1.1</a>
    */
   public static final int SEE_OTHER_CODE = 303;
+
   /**
    * {@code 303 See Other}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.4">HTTP/1.1</a>
    */
   public static final StatusCode SEE_OTHER = new StatusCode(SEE_OTHER_CODE, "See Other");
+
   /**
    * {@code 304 Not Modified}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.5">HTTP/1.1</a>
    */
   public static final int NOT_MODIFIED_CODE = 304;
+
   /**
    * {@code 304 Not Modified}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.5">HTTP/1.1</a>
    */
   public static final StatusCode NOT_MODIFIED = new StatusCode(NOT_MODIFIED_CODE, "Not Modified");
+
   /**
    * {@code 305 Use Proxy}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.6">HTTP/1.1</a>
    */
   public static final int USE_PROXY_CODE = 305;
+
   /**
    * {@code 305 Use Proxy}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.6">HTTP/1.1</a>
    */
   public static final StatusCode USE_PROXY = new StatusCode(USE_PROXY_CODE, "Use Proxy");
+
   /**
    * {@code 307 Temporary Redirect}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.8">HTTP/1.1</a>
    */
   public static final int TEMPORARY_REDIRECT_CODE = 307;
+
   /**
    * {@code 307 Temporary Redirect}.
    *
@@ -299,6 +328,7 @@ public final class StatusCode {
    */
   public static final StatusCode TEMPORARY_REDIRECT =
       new StatusCode(TEMPORARY_REDIRECT_CODE, "Temporary Redirect");
+
   /**
    * {@code 308 Resume Incomplete}.
    *
@@ -306,6 +336,7 @@ public final class StatusCode {
    *     supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
    */
   public static final int RESUME_INCOMPLETE_CODE = 308;
+
   /**
    * {@code 308 Resume Incomplete}.
    *
@@ -323,6 +354,7 @@ public final class StatusCode {
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.1">HTTP/1.1</a>
    */
   public static final int BAD_REQUEST_CODE = 400;
+
   /**
    * {@code 400 Bad Request}.
    *
@@ -336,18 +368,21 @@ public final class StatusCode {
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.2">HTTP/1.1</a>
    */
   public static final int UNAUTHORIZED_CODE = 401;
+
   /**
    * {@code 401 Unauthorized}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.2">HTTP/1.1</a>
    */
   public static final StatusCode UNAUTHORIZED = new StatusCode(UNAUTHORIZED_CODE, "Unauthorized");
+
   /**
    * {@code 402 Payment Required}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.3">HTTP/1.1</a>
    */
   public static final int PAYMENT_REQUIRED_CODE = 402;
+
   /**
    * {@code 402 Payment Required}.
    *
@@ -355,36 +390,42 @@ public final class StatusCode {
    */
   public static final StatusCode PAYMENT_REQUIRED =
       new StatusCode(PAYMENT_REQUIRED_CODE, "Payment Required");
+
   /**
    * {@code 403 Forbidden}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.4">HTTP/1.1</a>
    */
   public static final int FORBIDDEN_CODE = 403;
+
   /**
    * {@code 403 Forbidden}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.4">HTTP/1.1</a>
    */
   public static final StatusCode FORBIDDEN = new StatusCode(FORBIDDEN_CODE, "Forbidden");
+
   /**
    * {@code 404 Not Found}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.5">HTTP/1.1</a>
    */
   public static final int NOT_FOUND_CODE = 404;
+
   /**
    * {@code 404 Not Found}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.5">HTTP/1.1</a>
    */
   public static final StatusCode NOT_FOUND = new StatusCode(NOT_FOUND_CODE, "Not Found");
+
   /**
    * {@code 405 Method Not Allowed}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.6">HTTP/1.1</a>
    */
   public static final int METHOD_NOT_ALLOWED_CODE = 405;
+
   /**
    * {@code 405 Method Not Allowed}.
    *
@@ -392,12 +433,14 @@ public final class StatusCode {
    */
   public static final StatusCode METHOD_NOT_ALLOWED =
       new StatusCode(METHOD_NOT_ALLOWED_CODE, "Method Not Allowed");
+
   /**
    * {@code 406 Not Acceptable}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.7">HTTP/1.1</a>
    */
   public static final int NOT_ACCEPTABLE_CODE = 406;
+
   /**
    * {@code 406 Not Acceptable}.
    *
@@ -405,12 +448,14 @@ public final class StatusCode {
    */
   public static final StatusCode NOT_ACCEPTABLE =
       new StatusCode(NOT_ACCEPTABLE_CODE, "Not Acceptable");
+
   /**
    * {@code 407 Proxy Authentication Required}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.8">HTTP/1.1</a>
    */
   public static final int PROXY_AUTHENTICATION_REQUIRED_CODE = 407;
+
   /**
    * {@code 407 Proxy Authentication Required}.
    *
@@ -418,12 +463,14 @@ public final class StatusCode {
    */
   public static final StatusCode PROXY_AUTHENTICATION_REQUIRED =
       new StatusCode(PROXY_AUTHENTICATION_REQUIRED_CODE, "Proxy Authentication Required");
+
   /**
    * {@code 408 Request Timeout}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.9">HTTP/1.1</a>
    */
   public static final int REQUEST_TIMEOUT_CODE = 408;
+
   /**
    * {@code 408 Request Timeout}.
    *
@@ -431,36 +478,42 @@ public final class StatusCode {
    */
   public static final StatusCode REQUEST_TIMEOUT =
       new StatusCode(REQUEST_TIMEOUT_CODE, "Request Timeout");
+
   /**
    * {@code 409 Conflict}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.10">HTTP/1.1</a>
    */
   public static final int CONFLICT_CODE = 409;
+
   /**
    * {@code 409 Conflict}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.10">HTTP/1.1</a>
    */
   public static final StatusCode CONFLICT = new StatusCode(CONFLICT_CODE, "Conflict");
+
   /**
    * {@code 410 Gone}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.11">HTTP/1.1</a>
    */
   public static final int GONE_CODE = 410;
+
   /**
    * {@code 410 Gone}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.11">HTTP/1.1</a>
    */
   public static final StatusCode GONE = new StatusCode(GONE_CODE, "Gone");
+
   /**
    * {@code 411 Length Required}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.12">HTTP/1.1</a>
    */
   public static final int LENGTH_REQUIRED_CODE = 411;
+
   /**
    * {@code 411 Length Required}.
    *
@@ -468,12 +521,14 @@ public final class StatusCode {
    */
   public static final StatusCode LENGTH_REQUIRED =
       new StatusCode(LENGTH_REQUIRED_CODE, "Length Required");
+
   /**
    * {@code 412 Precondition failed}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.13">HTTP/1.1</a>
    */
   public static final int PRECONDITION_FAILED_CODE = 412;
+
   /**
    * {@code 412 Precondition failed}.
    *
@@ -481,12 +536,14 @@ public final class StatusCode {
    */
   public static final StatusCode PRECONDITION_FAILED =
       new StatusCode(PRECONDITION_FAILED_CODE, "Precondition Failed");
+
   /**
    * {@code 413 Request Entity Too Large}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.14">HTTP/1.1</a>
    */
   public static final int REQUEST_ENTITY_TOO_LARGE_CODE = 413;
+
   /**
    * {@code 413 Request Entity Too Large}.
    *
@@ -494,12 +551,14 @@ public final class StatusCode {
    */
   public static final StatusCode REQUEST_ENTITY_TOO_LARGE =
       new StatusCode(REQUEST_ENTITY_TOO_LARGE_CODE, "Request Entity Too Large");
+
   /**
    * {@code 414 Request-URI Too Long}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.15">HTTP/1.1</a>
    */
   public static final int REQUEST_URI_TOO_LONG_CODE = 414;
+
   /**
    * {@code 414 Request-URI Too Long}.
    *
@@ -507,12 +566,14 @@ public final class StatusCode {
    */
   public static final StatusCode REQUEST_URI_TOO_LONG =
       new StatusCode(REQUEST_URI_TOO_LONG_CODE, "Request-URI Too Long");
+
   /**
    * {@code 415 Unsupported Media Type}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.16">HTTP/1.1</a>
    */
   public static final int UNSUPPORTED_MEDIA_TYPE_CODE = 415;
+
   /**
    * {@code 415 Unsupported Media Type}.
    *
@@ -520,12 +581,14 @@ public final class StatusCode {
    */
   public static final StatusCode UNSUPPORTED_MEDIA_TYPE =
       new StatusCode(UNSUPPORTED_MEDIA_TYPE_CODE, "Unsupported Media Type");
+
   /**
    * {@code 416 Requested Range Not Satisfiable}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.17">HTTP/1.1</a>
    */
   public static final int REQUESTED_RANGE_NOT_SATISFIABLE_CODE = 416;
+
   /**
    * {@code 416 Requested Range Not Satisfiable}.
    *
@@ -533,12 +596,14 @@ public final class StatusCode {
    */
   public static final StatusCode REQUESTED_RANGE_NOT_SATISFIABLE =
       new StatusCode(REQUESTED_RANGE_NOT_SATISFIABLE_CODE, "Requested range not satisfiable");
+
   /**
    * {@code 417 Expectation Failed}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.18">HTTP/1.1</a>
    */
   public static final int EXPECTATION_FAILED_CODE = 417;
+
   /**
    * {@code 417 Expectation Failed}.
    *
@@ -546,24 +611,28 @@ public final class StatusCode {
    */
   public static final StatusCode EXPECTATION_FAILED =
       new StatusCode(EXPECTATION_FAILED_CODE, "Expectation Failed");
+
   /**
    * {@code 418 I'm a teapot}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2324#section-2.3.2">HTCPCP/1.0</a>
    */
   public static final int I_AM_A_TEAPOT_CODE = 418;
+
   /**
    * {@code 418 I'm a teapot}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2324#section-2.3.2">HTCPCP/1.0</a>
    */
   public static final StatusCode I_AM_A_TEAPOT = new StatusCode(I_AM_A_TEAPOT_CODE, "I'm a teapot");
+
   /**
    * {@code 422 Unprocessable Entity}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.2">WebDAV</a>
    */
   public static final int UNPROCESSABLE_ENTITY_CODE = 422;
+
   /**
    * {@code 422 Unprocessable Entity}.
    *
@@ -571,24 +640,28 @@ public final class StatusCode {
    */
   public static final StatusCode UNPROCESSABLE_ENTITY =
       new StatusCode(UNPROCESSABLE_ENTITY_CODE, "Unprocessable Entity");
+
   /**
    * {@code 423 Locked}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.3">WebDAV</a>
    */
   public static final int LOCKED_CODE = 423;
+
   /**
    * {@code 423 Locked}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.3">WebDAV</a>
    */
   public static final StatusCode LOCKED = new StatusCode(LOCKED_CODE, "Locked");
+
   /**
    * {@code 424 Failed Dependency}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.4">WebDAV</a>
    */
   public static final int FAILED_DEPENDENCY_CODE = 424;
+
   /**
    * {@code 424 Failed Dependency}.
    *
@@ -596,6 +669,7 @@ public final class StatusCode {
    */
   public static final StatusCode FAILED_DEPENDENCY =
       new StatusCode(FAILED_DEPENDENCY_CODE, "Failed Dependency");
+
   /**
    * {@code 426 Upgrade Required}.
    *
@@ -603,6 +677,7 @@ public final class StatusCode {
    *     HTTP/1.1</a>
    */
   public static final int UPGRADE_REQUIRED_CODE = 426;
+
   /**
    * {@code 426 Upgrade Required}.
    *
@@ -611,6 +686,7 @@ public final class StatusCode {
    */
   public static final StatusCode UPGRADE_REQUIRED =
       new StatusCode(UPGRADE_REQUIRED_CODE, "Upgrade Required");
+
   /**
    * {@code 428 Precondition Required}.
    *
@@ -618,6 +694,7 @@ public final class StatusCode {
    *     Codes</a>
    */
   public static final int PRECONDITION_REQUIRED_CODE = 428;
+
   /**
    * {@code 428 Precondition Required}.
    *
@@ -626,6 +703,7 @@ public final class StatusCode {
    */
   public static final StatusCode PRECONDITION_REQUIRED =
       new StatusCode(PRECONDITION_REQUIRED_CODE, "Precondition Required");
+
   /**
    * {@code 429 Too Many Requests}.
    *
@@ -633,6 +711,7 @@ public final class StatusCode {
    *     Codes</a>
    */
   public static final int TOO_MANY_REQUESTS_CODE = 429;
+
   /**
    * {@code 429 Too Many Requests}.
    *
@@ -641,6 +720,7 @@ public final class StatusCode {
    */
   public static final StatusCode TOO_MANY_REQUESTS =
       new StatusCode(TOO_MANY_REQUESTS_CODE, "Too Many Requests");
+
   /**
    * {@code 431 Request Header Fields Too Large}.
    *
@@ -648,6 +728,7 @@ public final class StatusCode {
    *     Codes</a>
    */
   public static final int REQUEST_HEADER_FIELDS_TOO_LARGE_CODE = 431;
+
   /**
    * {@code 431 Request Header Fields Too Large}.
    *
@@ -665,18 +746,21 @@ public final class StatusCode {
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.1">HTTP/1.1</a>
    */
   public static final int SERVER_ERROR_CODE = 500;
+
   /**
    * {@code 500 Server Error}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.1">HTTP/1.1</a>
    */
   public static final StatusCode SERVER_ERROR = new StatusCode(SERVER_ERROR_CODE, "Server Error");
+
   /**
    * {@code 501 Not Implemented}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.2">HTTP/1.1</a>
    */
   public static final int NOT_IMPLEMENTED_CODE = 501;
+
   /**
    * {@code 501 Not Implemented}.
    *
@@ -684,24 +768,28 @@ public final class StatusCode {
    */
   public static final StatusCode NOT_IMPLEMENTED =
       new StatusCode(NOT_IMPLEMENTED_CODE, "Not Implemented");
+
   /**
    * {@code 502 Bad Gateway}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.3">HTTP/1.1</a>
    */
   public static final int BAD_GATEWAY_CODE = 502;
+
   /**
    * {@code 502 Bad Gateway}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.3">HTTP/1.1</a>
    */
   public static final StatusCode BAD_GATEWAY = new StatusCode(BAD_GATEWAY_CODE, "Bad Gateway");
+
   /**
    * {@code 503 Service Unavailable}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.4">HTTP/1.1</a>
    */
   public static final int SERVICE_UNAVAILABLE_CODE = 503;
+
   /**
    * {@code 503 Service Unavailable}.
    *
@@ -709,12 +797,14 @@ public final class StatusCode {
    */
   public static final StatusCode SERVICE_UNAVAILABLE =
       new StatusCode(SERVICE_UNAVAILABLE_CODE, "Service Unavailable");
+
   /**
    * {@code 504 Gateway Timeout}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.5">HTTP/1.1</a>
    */
   public static final int GATEWAY_TIMEOUT_CODE = 504;
+
   /**
    * {@code 504 Gateway Timeout}.
    *
@@ -722,12 +812,14 @@ public final class StatusCode {
    */
   public static final StatusCode GATEWAY_TIMEOUT =
       new StatusCode(GATEWAY_TIMEOUT_CODE, "Gateway Timeout");
+
   /**
    * {@code 505 HTTP Version Not Supported}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.6">HTTP/1.1</a>
    */
   public static final int HTTP_VERSION_NOT_SUPPORTED_CODE = 505;
+
   /**
    * {@code 505 HTTP Version Not Supported}.
    *
@@ -735,6 +827,7 @@ public final class StatusCode {
    */
   public static final StatusCode HTTP_VERSION_NOT_SUPPORTED =
       new StatusCode(HTTP_VERSION_NOT_SUPPORTED_CODE, "HTTP Version not supported");
+
   /**
    * {@code 506 Variant Also Negotiates}.
    *
@@ -742,6 +835,7 @@ public final class StatusCode {
    *     Negotiation</a>
    */
   public static final int VARIANT_ALSO_NEGOTIATES_CODE = 506;
+
   /**
    * {@code 506 Variant Also Negotiates}.
    *
@@ -750,12 +844,14 @@ public final class StatusCode {
    */
   public static final StatusCode VARIANT_ALSO_NEGOTIATES =
       new StatusCode(VARIANT_ALSO_NEGOTIATES_CODE, "Variant Also Negotiates");
+
   /**
    * {@code 507 Insufficient Storage}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.5">WebDAV</a>
    */
   public static final int INSUFFICIENT_STORAGE_CODE = 507;
+
   /**
    * {@code 507 Insufficient Storage}.
    *
@@ -763,12 +859,14 @@ public final class StatusCode {
    */
   public static final StatusCode INSUFFICIENT_STORAGE =
       new StatusCode(INSUFFICIENT_STORAGE_CODE, "Insufficient Storage");
+
   /**
    * {@code 508 Loop Detected}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc5842#section-7.2">WebDAV Binding Extensions</a>
    */
   public static final int LOOP_DETECTED_CODE = 508;
+
   /**
    * {@code 508 Loop Detected}.
    *
@@ -776,23 +874,28 @@ public final class StatusCode {
    */
   public static final StatusCode LOOP_DETECTED =
       new StatusCode(LOOP_DETECTED_CODE, "Loop Detected");
+
   /** {@code 509 Bandwidth Limit Exceeded}. */
   public static final int BANDWIDTH_LIMIT_EXCEEDED_CODE = 509;
+
   /** {@code 509 Bandwidth Limit Exceeded}. */
   public static final StatusCode BANDWIDTH_LIMIT_EXCEEDED =
       new StatusCode(BANDWIDTH_LIMIT_EXCEEDED_CODE, "Bandwidth Limit Exceeded");
+
   /**
    * {@code 510 Not Extended}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2774#section-7">HTTP Extension Framework</a>
    */
   public static final int NOT_EXTENDED_CODE = 510;
+
   /**
    * {@code 510 Not Extended}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2774#section-7">HTTP Extension Framework</a>
    */
   public static final StatusCode NOT_EXTENDED = new StatusCode(NOT_EXTENDED_CODE, "Not Extended");
+
   /**
    * {@code 511 Network Authentication Required}.
    *
@@ -800,6 +903,7 @@ public final class StatusCode {
    *     Codes</a>
    */
   public static final int NETWORK_AUTHENTICATION_REQUIRED_CODE = 511;
+
   /**
    * {@code 511 Network Authentication Required}.
    *

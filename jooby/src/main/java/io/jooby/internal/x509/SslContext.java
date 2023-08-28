@@ -125,8 +125,12 @@ public abstract class SslContext {
    *     faulty
    */
   protected static PKCS8EncodedKeySpec generateKeySpec(final char[] password, final byte[] key)
-      throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException,
-          InvalidKeyException, InvalidAlgorithmParameterException {
+      throws IOException,
+          NoSuchAlgorithmException,
+          NoSuchPaddingException,
+          InvalidKeySpecException,
+          InvalidKeyException,
+          InvalidAlgorithmParameterException {
 
     if (password == null || password.length == 0) {
       return new PKCS8EncodedKeySpec(key);
@@ -155,9 +159,14 @@ public abstract class SslContext {
    */
   static KeyStore buildKeyStore(
       final InputStream certChainFile, final InputStream keyFile, final char[] keyPasswordChars)
-      throws KeyStoreException, NoSuchAlgorithmException, NoSuchPaddingException,
-          InvalidKeySpecException, InvalidAlgorithmParameterException, CertificateException,
-          KeyException, IOException {
+      throws KeyStoreException,
+          NoSuchAlgorithmException,
+          NoSuchPaddingException,
+          InvalidKeySpecException,
+          InvalidAlgorithmParameterException,
+          CertificateException,
+          KeyException,
+          IOException {
     ByteBuffer encodedKeyBuf = PemReader.readPrivateKey(keyFile);
     byte[] encodedKey = encodedKeyBuf.array();
 

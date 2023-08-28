@@ -55,6 +55,7 @@ public class UndertowServerSentConnection implements Channel {
   private final Deque<UndertowServerSentConnection.SSEData> queue = new ConcurrentLinkedDeque<>();
   private final Queue<UndertowServerSentConnection.SSEData> buffered =
       new ConcurrentLinkedDeque<>();
+
   /** Messages that have been written to the channel but flush() has failed */
   private final Queue<UndertowServerSentConnection.SSEData> flushingMessages = new ArrayDeque<>();
 

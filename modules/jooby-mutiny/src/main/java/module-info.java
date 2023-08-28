@@ -6,9 +6,7 @@
 import io.jooby.ResultHandler;
 import io.jooby.mutiny.Mutiny;
 
-/**
- * Mutiny module.
- */
+/** Mutiny module. */
 module io.jooby.mutiny {
   exports io.jooby.mutiny;
 

@@ -4,9 +4,7 @@
  * Copyright 2014 Edgar Espina
  */
 
-/**
- * Yasson module.
- */
+/** Yasson module. */
 module io.jooby.yasson {
   exports io.jooby.yasson;
 

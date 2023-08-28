@@ -4,9 +4,7 @@
  * Copyright 2014 Edgar Espina
  */
 
-/**
- * Thymeleaf module.
- */
+/** Thymeleaf module. */
 module io.jooby.thymeleaf {
   exports io.jooby.thymeleaf;
 

@@ -4,9 +4,7 @@
  * Copyright 2014 Edgar Espina
  */
 
-/**
- * Redis module.
- */
+/** Redis module. */
 module io.jooby.redis {
   exports io.jooby.redis;
 

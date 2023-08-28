@@ -197,6 +197,7 @@ public class HandlebarsModule implements Extension {
   private String templatesPathString;
 
   private Path templatesPath;
+
   /**
    * Creates a new handlebars module.
    *

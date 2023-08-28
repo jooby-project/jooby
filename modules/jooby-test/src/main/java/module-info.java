@@ -4,9 +4,7 @@
  * Copyright 2014 Edgar Espina
  */
 
-/**
- * Jooby Unit Test module.
- */
+/** Jooby Unit Test module. */
 module io.jooby.test {
   exports io.jooby.test;
 

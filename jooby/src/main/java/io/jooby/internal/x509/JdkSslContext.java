@@ -155,9 +155,15 @@ public abstract class JdkSslContext extends SslContext {
    */
   protected static KeyManagerFactory buildKeyManagerFactory(
       final InputStream certChainFile, final InputStream keyFile, final String keyPassword)
-      throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException,
-          NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException,
-          CertificateException, KeyException, IOException {
+      throws UnrecoverableKeyException,
+          KeyStoreException,
+          NoSuchAlgorithmException,
+          NoSuchPaddingException,
+          InvalidKeySpecException,
+          InvalidAlgorithmParameterException,
+          CertificateException,
+          KeyException,
+          IOException {
     String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
     if (algorithm == null) {
       algorithm = "SunX509";
@@ -183,9 +189,15 @@ public abstract class JdkSslContext extends SslContext {
       final String keyAlgorithm,
       final InputStream keyFile,
       final String keyPassword)
-      throws KeyStoreException, NoSuchAlgorithmException, NoSuchPaddingException,
-          InvalidKeySpecException, InvalidAlgorithmParameterException, IOException,
-          CertificateException, KeyException, UnrecoverableKeyException {
+      throws KeyStoreException,
+          NoSuchAlgorithmException,
+          NoSuchPaddingException,
+          InvalidKeySpecException,
+          InvalidAlgorithmParameterException,
+          IOException,
+          CertificateException,
+          KeyException,
+          UnrecoverableKeyException {
     char[] keyPasswordChars = keyPassword == null ? EMPTY_CHARS : keyPassword.toCharArray();
     KeyStore ks = buildKeyStore(certChainFile, keyFile, keyPasswordChars);
     KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyAlgorithm);
