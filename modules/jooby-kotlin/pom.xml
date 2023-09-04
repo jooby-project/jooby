@@ -25,7 +25,7 @@
       <plugin>
         <groupId>org.jetbrains.dokka</groupId>
         <artifactId>dokka-maven-plugin</artifactId>
-        <version>1.8.20</version>
+        <version>1.9.0</version>
         <configuration>
           <documentedVisibilities>
             <visibility>PUBLIC</visibility>
