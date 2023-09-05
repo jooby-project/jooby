@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.i3084.i3070;
+package io.jooby.i3084;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
