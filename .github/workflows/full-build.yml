@@ -8,19 +8,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [17]
+        jre: [17]
         os: [ubuntu-latest, windows-latest, macOS-latest]
         include:
-          - java-version: 20
+          - jre: 20
             os: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Set up JDK ${{ matrix.java_version }}
+      - name: Set up JDK ${{ matrix.jre }}
         uses: actions/setup-java@v3
         with:
-          java-version: ${{ matrix.java_version }}
+          java-version: ${{ matrix.jre }}
           distribution: 'temurin'
           cache: maven
       - name: Install
@@ -34,5 +34,5 @@ jobs:
         uses: mikepenz/action-junit-report@v3
         if: always()
         with:
-          check_name: JUnit ${{ matrix.kind }} ${{ matrix.java_version }} ${{ matrix.os }}
+          check_name: JUnit ${{ matrix.kind }} ${{ matrix.jre }} ${{ matrix.os }}
           report_paths: '*/target/*/TEST-*.xml'
