@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
@@ -28,7 +27,6 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaApplication;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.SourceSet;
@@ -66,15 +64,14 @@ public class BaseTask extends DefaultTask {
     return projects.stream()
         .map(it -> {
           // Old way:
-          String mainClassName = Optional.ofNullable(it.getProperties().get(APP_CLASS_NAME))
+          return Optional.ofNullable(it.getProperties().get(APP_CLASS_NAME))
               .map(Objects::toString)
               .orElseGet(() ->
                 // New way:
-                Optional.ofNullable(it.getConvention().findByType(JavaApplication.class))
+                Optional.ofNullable(it.getExtensions().findByType(JavaApplication.class))
                     .map(plugin -> plugin.getMainClass().getOrNull())
                     .orElse(null)
               );
-          return mainClassName;
         })
         .filter(Objects::nonNull)
         .findFirst()
@@ -177,7 +174,7 @@ public class BaseTask extends DefaultTask {
    * @return SourceSet.
    */
   protected @NonNull List<SourceSet> sourceSet(@NonNull Project project, boolean useTestScope) {
-    SourceSetContainer sourceSets = getJavaConvention(project).getSourceSets();
+    SourceSetContainer sourceSets = getJavaExtension(project).getSourceSets();
     List<SourceSet> result = new ArrayList<>();
     if (useTestScope) {
       result.add(sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME));
@@ -192,7 +189,7 @@ public class BaseTask extends DefaultTask {
    * @param project Project.
    * @return Java plugin convention.
    */
-  protected @NonNull JavaPluginExtension getJavaConvention(final @NonNull Project project) {
+  protected @NonNull JavaPluginExtension getJavaExtension(final @NonNull Project project) {
     return project.getExtensions().getByType(JavaPluginExtension.class);
   }
 
