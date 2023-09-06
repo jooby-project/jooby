@@ -8,8 +8,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: [17, 18]
+        java-version: [17]
         os: [ubuntu-latest, windows-latest, macOS-latest]
+        include:
+          - java-version: 20
+            os: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -21,12 +24,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Install
-        run: mvn clean install -DskipTests -q
-        env:
-          BUILD_PORT: 0
-          BUILD_SECURE_PORT: 0
+        run: mvn clean install -DskipTests -q -P gradlePlugin
       - name: Build
-        run: mvn clean package
+        run: mvn clean package -P gradlePlugin
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
