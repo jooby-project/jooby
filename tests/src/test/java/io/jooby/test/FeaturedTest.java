@@ -57,6 +57,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
 
+import com.google.common.base.Splitter;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.AttachedFile;
 import io.jooby.Context;
@@ -4619,18 +4620,35 @@ public class FeaturedTest {
         .dontFollowRedirects()
         .ready(
             client -> {
+              var toSet =
+                  new Function<String, Set<String>>() {
+
+                    @Override
+                    public Set<String> apply(String value) {
+                      return Splitter.on(',')
+                          .omitEmptyStrings()
+                          .trimResults()
+                          .splitToStream(value.substring(1, value.length() - 1))
+                          .collect(Collectors.toSet());
+                    }
+                  };
               client
                   .header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5")
                   .get(
                       "/locales",
                       rsp ->
-                          assertEquals("[en, en_GB, de_AT, de_CH, fr, hu]", rsp.body().string()));
+                          assertEquals(
+                              Set.of("en", "en_GB", "de_AT", "de_CH", "fr", "hu"),
+                              toSet.apply(rsp.body().string())));
 
               client
                   .header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7")
                   .get(
                       "/locales",
-                      rsp -> assertEquals("[fr, en, en_GB, de_AT, de_CH]", rsp.body().string()));
+                      rsp ->
+                          assertEquals(
+                              Set.of("fr", "en", "en_GB", "de_AT", "de_CH"),
+                              toSet.apply(rsp.body().string())));
 
               client
                   .header("Accept-Language", "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5")

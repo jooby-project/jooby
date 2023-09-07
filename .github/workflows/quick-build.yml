@@ -25,12 +25,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Install
-        run: mvn clean install -DskipTests -q
+        run: mvn clean install -DskipTests -q -B
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
       - name: Build
-        run: mvn clean package -s ./etc/central-settings.xml
+        run: mvn clean package
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
