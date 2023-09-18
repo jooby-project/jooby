@@ -32,7 +32,7 @@ jobs:
           BUILD_SECURE_PORT: 0
       - name: Test Result
         uses: mikepenz/action-junit-report@v3
-        if: always()
+        if: failure()
         with:
           check_name: JUnit ${{ matrix.kind }} ${{ matrix.jre }} ${{ matrix.os }}
           report_paths: '*/target/*/TEST-*.xml'
