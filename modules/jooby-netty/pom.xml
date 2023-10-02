@@ -53,7 +53,7 @@
     <dependency>
       <groupId>io.netty.incubator</groupId>
       <artifactId>netty-incubator-transport-native-io_uring</artifactId>
-      <version>0.0.22.Final</version>
+      <version>0.0.23.Final</version>
       <optional>true</optional>
     </dependency>
 
