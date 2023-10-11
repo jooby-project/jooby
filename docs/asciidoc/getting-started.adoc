@@ -15,13 +15,13 @@ Jooby projects very quickly.
 To install the console:
 
 - Download https://repo1.maven.org/maven2/io/jooby/jooby-cli/{joobyVersion}/jooby-cli-{joobyVersion}.zip[jooby-cli.zip]
-- Unzip `jooby-cli.zip` in your user home directory (or any other directory you prefer to)
+- Unzip `jooby-cli.zip` in your user home directory (or any other directory you prefer)
 - Find the native launchers in the `bin` directory
 
 [TIP]
 ====
-You might want to add the native launcher `bin/jooby` or `bin/jooby.bat` to system path variable.
-So its globally accessible from any location.
+You might want to add the native launcher `bin/jooby` or `bin/jooby.bat` to your system path variable,
+to make it globally accessible from any location.
 ====
 
 [NOTE]
@@ -39,9 +39,9 @@ All code will be saved inside the `~/Source` directory.
 
 Workspace directory is ready!
 
-Now type `jooby` hit ENTER.
+Now type `jooby` and hit ENTER.
 
-After prompt type `help create`:
+After prompt, type `help create`:
 
 .jooby
 [source, bash]
@@ -99,10 +99,10 @@ jooby> create myapp --gradle
 jooby> create myapp --gradle --kotlin
 ----
 
-Maven and Java are the default options but you can easily override those with `-g -k` or `-gk` (order doesn't matter).
-Along with the build and language the `create` command adds two test classes: `UnitTest` and `IntegrationTest`.
+Maven and Java are the default options but you can easily override these with `-g -k` or `-gk` (order doesn't matter).
+Along with the build and language, the `create` command adds two test classes: `UnitTest` and `IntegrationTest`.
 
-Passing the `-m` or `--mvc` generates a MVC application:
+Passing the `-m` or `--mvc` generates an MVC application:
 
 .Creates a Maven Java Mvc project:
 [source, bash]
@@ -135,7 +135,7 @@ There is a `-d` or `--docker` option which generates a `Dockerfile`
 jooby> create myapp --docker
 ----
 
-The default package in all these examples is set to `app`, to get fully control of groupId, package, version, etc... Use the interactive mode:
+The default package in all these examples is set to `app`. To get full control of groupId, package, version, etc., use the interactive mode:
 
 .Interactive mode:
 [source, bash]
@@ -146,7 +146,7 @@ jooby> create myapp -i
 === Code Snippets
 
 For simplicity and brevity we are going to skip the `runApp` function and extending `Jooby`.
-A code example will looks like:
+Code example will look like:
 
 .Snippet
 [source, java, role = "primary"]
@@ -164,4 +164,4 @@ A code example will looks like:
 }
 ----
 
-The use of `application class` or `runApp function` will be included when is strictly necessary.
+The use of `application class` or `runApp function` will be included when strictly necessary.
