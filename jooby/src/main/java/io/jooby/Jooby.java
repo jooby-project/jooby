@@ -121,6 +121,8 @@ public class Jooby implements Router, Registry {
 
   private String name;
 
+  private String basePackage;
+
   private String version;
 
   private Server server;
@@ -761,9 +763,18 @@ public class Jooby implements Router, Registry {
    * @return Base application package.
    */
   public @Nullable String getBasePackage() {
-    return System.getProperty(
-        AvailableSettings.PACKAGE,
-        Optional.ofNullable(getClass().getPackage()).map(Package::getName).orElse(null));
+    if (basePackage == null) {
+      basePackage =
+          System.getProperty(
+              AvailableSettings.PACKAGE,
+              Optional.ofNullable(getClass().getPackage()).map(Package::getName).orElse(null));
+    }
+    return basePackage;
+  }
+
+  public @NonNull Jooby setBasePackage(@Nullable String basePackage) {
+    this.basePackage = basePackage;
+    return this;
   }
 
   @NonNull @Override
@@ -1224,13 +1235,14 @@ public class Jooby implements Router, Registry {
   }
 
   private static void configurePackage(Class owner) {
-    if (!owner.getName().equals("io.jooby.Jooby") && !owner.getName().equals("io.jooby.Kooby")) {
+    if (!owner.getName().equals("io.jooby.Jooby") && !owner.getName().equals("io.jooby.kt.Kooby")) {
       configurePackage(owner.getPackage());
     }
   }
 
   private static void configurePackage(String packageName) {
-    if (!packageName.equals("io.jooby")) {
+    var defaultPackages = Set.of("io.jooby", "io.jooby.kt");
+    if (!defaultPackages.contains(packageName)) {
       ifSystemProp(
           AvailableSettings.PACKAGE,
           (sys, key) -> {
