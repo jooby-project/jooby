@@ -5,8 +5,6 @@
  */
 package io.jooby.jte;
 
-import static java.util.Collections.singletonList;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +21,7 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
 
   public JteTemplateEngine(TemplateEngine jte) {
     this.jte = jte;
-    this.extensions = singletonList(".jte");
+    this.extensions = List.of(".jte", ".kte");
   }
 
   @NonNull @Override
