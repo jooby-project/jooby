@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.crypto.SecretKey;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
@@ -76,7 +78,7 @@ public class JwtSessionStore implements SessionStore {
    * @param key Secret key.
    * @param token Session token.
    */
-  public JwtSessionStore(@NonNull Key key, @NonNull SessionToken token) {
+  public JwtSessionStore(@NonNull SecretKey key, @NonNull SessionToken token) {
     this.store = SessionStore.signed(token, decoder(key), encoder(key));
   }
 
@@ -110,12 +112,12 @@ public class JwtSessionStore implements SessionStore {
     store.renewSessionId(ctx, session);
   }
 
-  static SneakyThrows.Function<String, Map<String, String>> decoder(Key key) {
+  static SneakyThrows.Function<String, Map<String, String>> decoder(SecretKey key) {
     return value -> {
       try {
-        Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(value);
+        Jws<Claims> claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(value);
         Map<String, String> attributes = new HashMap<>();
-        for (Map.Entry<String, Object> entry : claims.getBody().entrySet()) {
+        for (Map.Entry<String, Object> entry : claims.getPayload().entrySet()) {
           attributes.put(entry.getKey(), entry.getValue().toString());
         }
         return attributes;
