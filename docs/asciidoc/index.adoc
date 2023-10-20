@@ -77,7 +77,7 @@ Looking for a previous version?
 * <<execution-model, Event Loop and blocking execution modes>>
 * <<responses, Reactive responses>> (Completable Futures, RxJava, Reactor, SmallRye types and Kotlin Coroutines)
 * <<server, Multi-server>> including https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
-* Jump to full-stack framework with the extension/plugin mechanism and a variety of link:modules[]
+* Make the jump to full-stack framework with the extension/plugin mechanism and a variety of link:modules[]
 
 === Script API
 
