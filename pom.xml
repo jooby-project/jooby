@@ -47,7 +47,7 @@
     <kafka.version>3.6.0</kafka.version>
     <caffeine.version>3.1.8</caffeine.version>
 
-    <config.version>1.4.2</config.version>
+    <config.version>1.4.3</config.version>
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
