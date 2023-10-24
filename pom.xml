@@ -69,7 +69,7 @@
     <jboss-modules.version>1.11.0.Final</jboss-modules.version>
 
     <!-- ASM -->
-    <asm.version>9.3</asm.version>
+    <asm.version>9.6</asm.version>
 
     <!-- Server -->
     <undertow.version>2.2.23.Final</undertow.version>
