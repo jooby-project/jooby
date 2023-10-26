@@ -89,7 +89,7 @@ fun main(args: Array<String>) {
 ----
 
 <1> Bootstrap avaje inject bean container
-<2> Use avaje provided objects
+<2> Use Avaje provided objects
 
 ==== MVC routes
 
@@ -132,5 +132,5 @@ fun main(args: Array<String>) {
 }
 ----
 
-<1> Bootstrap Avaje BeanScope
+<1> Bootstrap Avaje bean container
 <2> Register MVC route provided by Avaje
