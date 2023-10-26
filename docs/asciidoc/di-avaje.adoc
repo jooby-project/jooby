@@ -95,7 +95,7 @@ fun main(args: Array<String>) {
 
 Integration of MVC routes with Avaje is as simple as:
 
-.MVC and Dagger
+.MVC and Avaje
 [source, java, role = "primary"]
 ----
 
