@@ -26,7 +26,7 @@ to make it globally accessible from any location.
 
 [NOTE]
 ====
-To simplify documentation we use `jooby` as command. Windows users must use `jooby.bat`
+To simplify documentation we use `jooby` as command, it requires Java 17 as minimum. Windows users must use `jooby.bat`
 ====
 
 .Setting workspace:
