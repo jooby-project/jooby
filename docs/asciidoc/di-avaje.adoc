@@ -34,11 +34,11 @@
 [source, kotlin, role = "secondary"]
 ----
 plugins {
-  id "net.ltgt.apt" version "0.21"
+  id "org.jetbrains.kotlin.kapt" version "1.9.10"
 }
 
 dependencies {
-  apt 'io.avaje:avaje-inject-generator:9.8'
+  kapt 'io.avaje:avaje-inject-generator:9.8'
 }
 ----
 
