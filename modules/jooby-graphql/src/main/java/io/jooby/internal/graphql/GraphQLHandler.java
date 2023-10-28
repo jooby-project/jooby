@@ -44,7 +44,7 @@ public class GraphQLHandler implements Route.Handler {
           ctx.query("variables")
               .toOptional()
               .filter(string -> !string.equals("{}"))
-              .map(str -> json.fromJson(str, Map.class))
+              .map(str -> json.<Map<String, Object>>fromJson(str, Map.class))
               .orElseGet(Collections::emptyMap);
       request.setOperationName(operationName);
       request.setQuery(query);
@@ -52,7 +52,7 @@ public class GraphQLHandler implements Route.Handler {
     }
     return ExecutionInput.newExecutionInput(request.getQuery())
         .operationName(request.getOperationName())
-        .context(ctx)
+        .graphQLContext(Map.of(Context.class, ctx))
         .variables(request.getVariables())
         .build();
   }
