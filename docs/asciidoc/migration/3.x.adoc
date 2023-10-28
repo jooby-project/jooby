@@ -54,6 +54,7 @@ Kotlin was removed from core, you need to the `jooby-kotlin` dependency:
 |io.jooby.graphql| io.jooby.graphiql | jooby-graphiql
 |io.jooby.graphql| io.jooby.graphql.playground | jooby-graphql-playground
 |io.jooby.json| io.jooby.gson | jooby-gson
+|io.jooby.json| io.jooby.jackson | jooby-jackson
 |io.jooby.di| io.jooby.guice | jooby-guice
 |io.jooby.di| io.jooby.spring | jooby-spring
 |io.jooby.aws| io.jooby.awssdkv1| jooby-awssdk-v1
