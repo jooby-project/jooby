@@ -1,0 +1,136 @@
+=== Avaje Inject
+
+1) Add Avaje Inject to your project
+
+[dependency, groupId="io.avaje", artifactId="avaje-inject", version="9.8"]
+.
+
+2) Configure annotation processor
+
+.Maven
+[source, xml, role = "primary"]
+----
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>...</version>
+      <configuration>
+        <annotationProcessorPaths>
+          <path>
+            <groupId>io.avaje</groupId>
+            <artifactId>avaje-inject-generator</artifactId>
+            <version>9.8</version>
+          </path>
+        </annotationProcessorPaths>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+----
+
+.Gradle
+[source, kotlin, role = "secondary"]
+----
+plugins {
+  id "org.jetbrains.kotlin.kapt" version "1.9.10"
+}
+
+dependencies {
+  kapt 'io.avaje:avaje-inject-generator:9.8'
+}
+----
+
+3) Bootstrap Avaje from application:
+
+.Java
+[source, java, role = "primary"]
+----
+import static io.jooby.Jooby.runApp;
+
+public class App extends Jooby {
+
+  {
+     /** Avaje: */
+     BeanScope beanScope = BeanScope.builder()      <1>
+         .build();
+      
+     MyService service = beanScope.get(MyService.class);            <2>
+       
+     get("/", ctx -> {
+       return service.doSomething();
+     });
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.kt.runApp
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    val beanScope = BeanScope.builder() <1>
+        .build()
+    
+    val service = beanScope.getMyService()     <2>
+      
+    get("/") {
+      service.doSomething()
+    }
+  }
+}
+----
+
+<1> Bootstrap avaje inject bean container
+<2> Use Avaje provided objects
+
+==== MVC routes
+
+Integration of MVC routes with Avaje is as simple as:
+
+.MVC and Avaje
+[source, java, role = "primary"]
+----
+
+import static io.jooby.Jooby.runApp;
+
+public class App extends Jooby {
+
+  {
+    /** Avaje: */
+    BeanScope beanScope = BeanScope.builder()  <1>
+        .build();
+    
+    mvc(beanScope.get(MyController.class));                         <2>
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.kt.runApp
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    val beanScope = BeanScope.builder() <1>
+        .build()
+    
+    mvc(beanScope.get(MyController.class))                <2>
+  }
+}
+----
+
+<1> Bootstrap Avaje bean container
+<2> Register MVC route provided by Avaje

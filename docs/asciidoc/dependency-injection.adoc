@@ -1,5 +1,7 @@
 == Dependency Injection
 
+include::di-avaje.adoc[]
+
 include::di-dagger.adoc[]
 
 include::modules/guice.adoc[]
