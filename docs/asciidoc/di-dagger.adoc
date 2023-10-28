@@ -34,11 +34,11 @@
 [source, kotlin, role = "secondary"]
 ----
 plugins {
-  id "net.ltgt.apt" version "0.21"
+  id "org.jetbrains.kotlin.kapt" version "1.9.10"
 }
 
 dependencies {
-  apt 'com.google.dagger:dagger-compiler:2.20'
+  kapt 'com.google.dagger:dagger-compiler:2.20'
 }
 ----
 
@@ -88,6 +88,12 @@ fun main(args: Array<String>) {
 
 <1> Bootstrap dagger component
 <2> Use dagger provided objects
+
+[NOTE]
+====
+`DaggerAppComponent` in the example above is a generated source.
+Check out the https://dagger.dev/tutorial[Dagger tutorial] to learn more.
+====
 
 ==== MVC routes
 
