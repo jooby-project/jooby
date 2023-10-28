@@ -22,7 +22,7 @@
     <freemarker.version>2.3.31</freemarker.version>
     <handlebars.version>4.3.1</handlebars.version>
     <pebble.version>3.1.6</pebble.version>
-    <jackson.version>2.14.2</jackson.version>
+    <jackson.version>2.15.3</jackson.version>
     <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
     <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <gson.version>2.9.1</gson.version>
@@ -54,7 +54,7 @@
     <guice.version>5.1.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.2.11</logback-classic.version>
+    <logback-classic.version>1.2.12</logback-classic.version>
     <log4j.version>2.17.2</log4j.version>
     <slf4j.version>1.7.36</slf4j.version>
 
@@ -72,17 +72,17 @@
     <asm.version>9.6</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.2.23.Final</undertow.version>
-    <jetty.version>9.4.51.v20230217</jetty.version>
-    <netty.version>4.1.89.Final</netty.version>
+    <undertow.version>2.2.28.Final</undertow.version>
+    <jetty.version>9.4.53.v20231009</jetty.version>
+    <netty.version>4.1.100.Final</netty.version>
 
     <!-- Reactive -->
     <rxjava.version>2.2.21</rxjava.version>
     <reactor.version>3.4.18</reactor.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.0</swagger.version>
-    <swagger-parser.version>2.0.33</swagger-parser.version>
+    <swagger.version>2.2.17</swagger.version>
+    <swagger-parser.version>2.1.18</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
