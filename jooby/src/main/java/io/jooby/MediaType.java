@@ -840,6 +840,12 @@ public final class MediaType implements Comparable<MediaType> {
         return new MediaType("application/x-cabinet", null);
       case "gif":
         return new MediaType("image/gif", null);
+      case "docx":
+        return new MediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document", null);
+      case "xlsx":
+        return new MediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", null);
+      case "pptx":
+        return new MediaType("application/vnd.openxmlformats-officedocument.presentationml.presentation", null);
       default:
         return octetStream;
     }
