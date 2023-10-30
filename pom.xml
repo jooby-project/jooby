@@ -35,7 +35,7 @@
 
     <!-- data -->
     <HikariCP.version>5.0.1</HikariCP.version>
-    <mysql-connector-j.version>8.1.0</mysql-connector-j.version>
+    <mysql-connector-j.version>8.2.0</mysql-connector-j.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.3.1.Final</hibernate.version>
     <ebean.version>13.23.1-jakarta</ebean.version>
