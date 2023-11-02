@@ -39,12 +39,5 @@
       <classifier>runtime</classifier>
       <scope>test</scope>
     </dependency>
-
-    <!-- mySQL -->
-    <dependency>
-      <groupId>com.mysql</groupId>
-      <artifactId>mysql-connector-j</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 </project>
