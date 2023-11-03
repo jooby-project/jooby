@@ -41,7 +41,7 @@
     <ebean.version>13.23.1-jakarta</ebean.version>
     <jdbi.version>3.41.3</jdbi.version>
     <flyway.version>9.22.2</flyway.version>
-    <graphql-java.version>21.1</graphql-java.version>
+    <graphql-java.version>21.3</graphql-java.version>
     <lettuce.version>6.2.6.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.0</commons-pool2.version>
     <kafka.version>3.6.0</kafka.version>
