@@ -804,15 +804,14 @@ public class RouteParser {
   }
 
   private MethodNode ktFunRef160(ParserContext ctx, MethodNode method) {
-    AbstractInsnNode ref =
+    MethodInsnNode call =
         InsnSupport.prev(method.instructions.getLast())
             .filter(MethodInsnNode.class::isInstance)
             .map(MethodInsnNode.class::cast)
             .filter(it -> Signature.create(it).matches(Context.class))
             .findFirst()
             .orElse(null);
-    if (ref != null) {
-      MethodInsnNode call = (MethodInsnNode) ref;
+    if (call != null) {
       ClassNode owner = ctx.classNodeOrNull(Type.getObjectType(call.owner));
       if (owner != null) {
         MethodNode methodRef =

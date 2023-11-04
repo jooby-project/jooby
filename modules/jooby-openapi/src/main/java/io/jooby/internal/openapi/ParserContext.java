@@ -403,7 +403,7 @@ public class ParserContext {
   }
 
   public <T extends ClassVisitor> T createClassVisitor(Function<Integer, T> factory) {
-    return factory.apply(Opcodes.ASM7);
+    return factory.apply(Opcodes.ASM9);
   }
 
   public boolean isRouter(Type type) {

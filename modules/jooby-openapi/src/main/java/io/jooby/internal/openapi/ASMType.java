@@ -53,7 +53,7 @@ public class ASMType {
     SignatureReader reader = new SignatureReader(signature);
     LinkedList<TypeName> stack = new LinkedList<>();
     SignatureVisitor visitor =
-        new SignatureVisitor(Opcodes.ASM7) {
+        new SignatureVisitor(Opcodes.ASM9) {
           @Override
           public void visitClassType(String name) {
             if (filter.test(name)) {

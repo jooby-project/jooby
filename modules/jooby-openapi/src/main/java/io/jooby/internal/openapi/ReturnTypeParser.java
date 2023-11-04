@@ -5,10 +5,15 @@
  */
 package io.jooby.internal.openapi;
 
+import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -43,32 +48,30 @@ public class ReturnTypeParser {
         && !TypeFactory.VOID.equals(returnType)
         && !TypeFactory.JOOBY.equals(returnType)) {
       if (node.signature == null) {
-        return Collections.singletonList(ASMType.parse(returnType.getDescriptor()));
+        return singletonList(ASMType.parse(returnType.getDescriptor()));
       } else {
         String desc = node.signature;
         int rparen = desc.indexOf(')');
         if (rparen > 0) {
           desc = desc.substring(rparen + 1);
         }
-        return Collections.singletonList(ASMType.parse(desc));
+        return singletonList(ASMType.parse(desc));
       }
     }
     return parseIgnoreSignature(ctx, node);
   }
 
   public static List<String> parseIgnoreSignature(ParserContext ctx, MethodNode node) {
-    List<String> result =
-        InsnSupport.next(node.instructions.getFirst())
-            .filter(
-                it ->
-                    it.getOpcode() == Opcodes.ARETURN
-                        || it.getOpcode() == Opcodes.IRETURN
-                        || it.getOpcode() == Opcodes.RETURN)
-            .map(it -> handleReturnType(ctx, node, it))
-            .map(Object::toString)
-            .distinct()
-            .collect(Collectors.toList());
-    return result;
+    return InsnSupport.next(node.instructions.getFirst())
+        .filter(
+            it ->
+                it.getOpcode() == Opcodes.ARETURN
+                    || it.getOpcode() == Opcodes.IRETURN
+                    || it.getOpcode() == Opcodes.RETURN)
+        .map(it -> handleReturnType(ctx, node, it))
+        .map(Object::toString)
+        .distinct()
+        .collect(Collectors.toList());
   }
 
   private static String handleReturnType(ParserContext ctx, MethodNode node, AbstractInsnNode it) {
@@ -114,8 +117,7 @@ public class ReturnTypeParser {
         continue;
       }
       /** return 1; return true; return new Foo(); */
-      if (i instanceof MethodInsnNode) {
-        MethodInsnNode minnsn = (MethodInsnNode) i;
+      if (i instanceof MethodInsnNode minnsn) {
         if (minnsn.name.equals("<init>")) {
           return Type.getObjectType(minnsn.owner).getClassName();
         } else {
@@ -123,8 +125,8 @@ public class ReturnTypeParser {
         }
       }
       /** return "String" | int | double */
-      if (i instanceof LdcInsnNode) {
-        Object cst = ((LdcInsnNode) i).cst;
+      if (i instanceof LdcInsnNode lin) {
+        Object cst = lin.cst;
         if (cst instanceof Type) {
           return ((Type) cst).getClassName();
         }
@@ -132,8 +134,7 @@ public class ReturnTypeParser {
       }
 
       /** return variable */
-      if (i instanceof VarInsnNode) {
-        VarInsnNode varInsn = (VarInsnNode) i;
+      if (i instanceof VarInsnNode varInsn) {
         String varType = localVariable(ctx, node, varInsn);
         // Is there local variable?
         if (varType != null) {
@@ -141,8 +142,7 @@ public class ReturnTypeParser {
         }
       }
       /** Invoke dynamic: */
-      if (i instanceof InvokeDynamicInsnNode) {
-        InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) i;
+      if (i instanceof InvokeDynamicInsnNode invokeDynamic) {
         String handleDescriptor =
             Stream.of(invokeDynamic.bsmArgs)
                 .filter(Handle.class::isInstance)
@@ -168,56 +168,72 @@ public class ReturnTypeParser {
         // empty primitive array
         if (i instanceof IntInsnNode) {
           switch (((IntInsnNode) i).operand) {
-            case Opcodes.T_BOOLEAN:
+            case Opcodes.T_BOOLEAN -> {
               return boolean[].class.getName();
-            case Opcodes.T_CHAR:
+            }
+            case Opcodes.T_CHAR -> {
               return char[].class.getName();
-            case Opcodes.T_BYTE:
+            }
+            case Opcodes.T_BYTE -> {
               return byte[].class.getName();
-            case Opcodes.T_SHORT:
+            }
+            case Opcodes.T_SHORT -> {
               return short[].class.getName();
-            case Opcodes.T_INT:
+            }
+            case Opcodes.T_INT -> {
               return int[].class.getName();
-            case Opcodes.T_LONG:
+            }
+            case Opcodes.T_LONG -> {
               return long[].class.getName();
-            case Opcodes.T_FLOAT:
+            }
+            case Opcodes.T_FLOAT -> {
               return float[].class.getName();
-            case Opcodes.T_DOUBLE:
+            }
+            case Opcodes.T_DOUBLE -> {
               return double[].class.getName();
+            }
           }
         }
       }
       // empty array of objects
-      if (i.getOpcode() == Opcodes.ANEWARRAY) {
-        TypeInsnNode typeInsn = (TypeInsnNode) i;
+      if (i.getOpcode() == Opcodes.ANEWARRAY && i instanceof TypeInsnNode typeInsn) {
         return ASMType.parse("[L" + typeInsn.desc + ";");
       }
       // non empty array
       switch (i.getOpcode()) {
-        case Opcodes.BASTORE:
+        case Opcodes.BASTORE -> {
           return boolean[].class.getName();
-        case Opcodes.CASTORE:
+        }
+        case Opcodes.CASTORE -> {
           return char[].class.getName();
-        case Opcodes.SASTORE:
+        }
+        case Opcodes.SASTORE -> {
           return short[].class.getName();
-        case Opcodes.IASTORE:
+        }
+        case Opcodes.IASTORE -> {
           return int[].class.getName();
-        case Opcodes.LASTORE:
+        }
+        case Opcodes.LASTORE -> {
           return long[].class.getName();
-        case Opcodes.FASTORE:
+        }
+        case Opcodes.FASTORE -> {
           return float[].class.getName();
-        case Opcodes.DASTORE:
+        }
+        case Opcodes.DASTORE -> {
           return double[].class.getName();
-        case Opcodes.AASTORE:
+        }
+        case Opcodes.AASTORE -> {
           return InsnSupport.prev(i)
               .filter(e -> e.getOpcode() == Opcodes.ANEWARRAY)
               .findFirst()
+              .filter(e -> e instanceof TypeInsnNode)
               .map(
                   e -> {
                     TypeInsnNode typeInsn = (TypeInsnNode) e;
                     return ASMType.parse("[L" + typeInsn.desc + ";");
                   })
               .orElse(Object.class.getName());
+        }
       }
     }
 
@@ -241,6 +257,18 @@ public class ReturnTypeParser {
       return Object.class.getName();
     }
     Type returnType = Type.getReturnType(node.desc);
+    if (node.owner.equals("kotlin/collections/CollectionsKt")) {
+      // find previous typeInsns
+      return InsnSupport.prev(node)
+          .filter(TypeInsnNode.class::isInstance)
+          .map(TypeInsnNode.class::cast)
+          .findFirst()
+          .map(
+              it -> {
+                return returnType.getClassName() + "<" + it.desc.replace('/', '.') + ">";
+              })
+          .orElse(returnType.getClassName());
+    }
     // Since Kotlin 1.6+
     String methodName =
         node.name.startsWith("access$invoke$")
@@ -252,7 +280,7 @@ public class ReturnTypeParser {
         .findFirst()
         .map(
             m ->
-                Optional.ofNullable(m.signature)
+                ofNullable(m.signature)
                     .map(
                         s -> {
                           int pos = s.indexOf(')');
@@ -268,13 +296,12 @@ public class ReturnTypeParser {
     if (classNode == null) {
       return Collections.emptyList();
     }
-    List<MethodNode> result = new ArrayList<>();
-    result.addAll(classNode.methods);
-    if (classNode.interfaces != null) {
-      for (String anInterface : classNode.interfaces) {
-        result.addAll(classMethods(ctx, anInterface));
-      }
-    }
+    List<MethodNode> result = new ArrayList<>(classNode.methods);
+    Stream.concat(
+            ofNullable(classNode.interfaces).stream().flatMap(Collection::stream),
+            ofNullable(classNode.superName).stream())
+        .filter(Objects::nonNull)
+        .forEach(parent -> result.addAll(classMethods(ctx, parent)));
     return result;
   }
 

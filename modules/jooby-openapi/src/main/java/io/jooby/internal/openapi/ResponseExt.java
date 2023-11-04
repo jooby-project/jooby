@@ -5,10 +5,7 @@
  */
 package io.jooby.internal.openapi;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -20,17 +17,15 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 
 public class ResponseExt extends ApiResponse {
   private static final Set<String> ASYNC_TYPES =
-      Arrays.asList(
-              CompletionStage.class.getName(),
-              CompletableFuture.class.getName(),
-              "io.reactivex.Single",
-              "io.reactivex.Maybe",
-              "io.reactivex.Flowable",
-              "io.reactivex.Observable",
-              "reactor.core.publisher.Flux",
-              "reactor.core.publisher.Mono")
-          .stream()
-          .collect(toSet());
+      Set.of(
+          CompletionStage.class.getName(),
+          CompletableFuture.class.getName(),
+          "io.reactivex.Single",
+          "io.reactivex.Maybe",
+          "io.reactivex.Flowable",
+          "io.reactivex.Observable",
+          "reactor.core.publisher.Flux",
+          "reactor.core.publisher.Mono");
 
   @JsonIgnore private List<String> javaTypes = new ArrayList<>();
 
@@ -94,7 +89,7 @@ public class ResponseExt extends ApiResponse {
 
   private String unwrapType(String javaType) {
     return ASYNC_TYPES.stream()
-        .filter(type -> javaType.startsWith(type))
+        .filter(javaType::startsWith)
         .findFirst()
         .map(
             type ->
