@@ -99,7 +99,7 @@
     <frontend-plugin-core.version>1.14.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
 
-    <commons-io.version>2.14.0</commons-io.version>
+    <commons-io.version>2.15.0</commons-io.version>
 
     <!-- Kotlin -->
     <kotlin.version>1.9.20</kotlin.version>
