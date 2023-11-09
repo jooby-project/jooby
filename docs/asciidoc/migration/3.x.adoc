@@ -50,6 +50,7 @@ Kotlin was removed from core, you need to the `jooby-kotlin` dependency:
 |===
 |2.x|3.x|Module
 |io.jooby.annotations| io.jooby.annotation | jooby (core)
+|io.jooby | io.jooby.test | jooby-test
 |io.jooby (Kotlin)| io.jooby.kt | removed from jooby, now in jooby-kotlin
 |io.jooby.graphql| io.jooby.graphiql | jooby-graphiql
 |io.jooby.graphql| io.jooby.graphql.playground | jooby-graphql-playground
