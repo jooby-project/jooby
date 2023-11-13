@@ -37,7 +37,7 @@
     <HikariCP.version>5.0.1</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.3.1.Final</hibernate.version>
-    <ebean.version>13.24.0-jakarta</ebean.version>
+    <ebean.version>13.25.0-jakarta</ebean.version>
     <jdbi.version>3.41.3</jdbi.version>
     <flyway.version>9.22.2</flyway.version>
     <graphql-java.version>21.3</graphql-java.version>
