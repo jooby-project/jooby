@@ -75,7 +75,7 @@
     <netty.version>4.1.101.Final</netty.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.18</swagger.version>
+    <swagger.version>2.2.19</swagger.version>
     <swagger-parser.version>2.1.18</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
