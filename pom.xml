@@ -95,7 +95,7 @@
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>7.6.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.587</aws-java-sdk.version>
-    <camel.version>3.21.1</camel.version>
+    <camel.version>3.21.2</camel.version>
     <frontend-plugin-core.version>1.14.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
 
