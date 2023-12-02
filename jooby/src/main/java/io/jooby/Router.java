@@ -725,11 +725,17 @@ public interface Router extends Registry {
    * @param sources additional Asset sources.
    * @return A route.
    */
-  default @NonNull Route assets(@NonNull String pattern, @NonNull AssetSource source, @NonNull AssetSource... sources) {
-    AssetSource[] array = new AssetSource[1 + sources.length];
-    array[0] = source;
-    System.arraycopy(sources, 0, array, 1, sources.length);
-    return assets(pattern, new AssetHandler(array));
+  default @NonNull Route assets(
+      @NonNull String pattern, @NonNull AssetSource source, @NonNull AssetSource... sources) {
+    AssetSource[] allSources;
+    if (sources.length == 0) {
+      allSources = new AssetSource[] {source};
+    } else {
+      allSources = new AssetSource[1 + sources.length];
+      allSources[0] = source;
+      System.arraycopy(sources, 0, allSources, 1, sources.length);
+    }
+    return assets(pattern, new AssetHandler(allSources));
   }
 
   /**

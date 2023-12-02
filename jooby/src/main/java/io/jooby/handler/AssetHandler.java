@@ -10,10 +10,12 @@ import static java.util.Objects.requireNonNull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 
@@ -37,6 +39,8 @@ public class AssetHandler implements Route.Handler {
   private String fallback;
 
   private Function<String, CacheControl> cacheControl = path -> defaults;
+
+  private Function<Asset, MediaType> mediaTypeResolver = Asset::getContentType;
 
   /**
    * Creates a new asset handler that fallback to the given fallback asset when the asset is not
@@ -91,7 +95,7 @@ public class AssetHandler implements Route.Handler {
 
     // handle If-None-Match
     if (cacheParams.isEtag()) {
-      String ifnm = ctx.header("If-None-Match").value((String) null);
+      String ifnm = ctx.header("If-None-Match").valueOrNull();
       if (ifnm != null && ifnm.equals(asset.getEtag())) {
         ctx.send(StatusCode.NOT_MODIFIED);
         asset.close();
@@ -126,7 +130,7 @@ public class AssetHandler implements Route.Handler {
     if (length != -1) {
       ctx.setResponseLength(length);
     }
-    ctx.setResponseType(asset.getContentType());
+    ctx.setResponseType(mediaTypeResolver.apply(asset));
     return ctx.send(asset.stream());
   }
 
@@ -138,6 +142,34 @@ public class AssetHandler implements Route.Handler {
    */
   public AssetHandler setETag(boolean etag) {
     defaults.setETag(etag);
+    return this;
+  }
+
+  /**
+   * Allow to customize the default media type and/or the charset of it.
+   *
+   * <pre>{@code
+   * // GBK
+   * var gbk = MediaType.valueOf("text/html;charset=GBK");
+   *
+   * Function<Asset, MediaType> overrideCharset = asset -> {
+   *     var defaultType = asset.getContentType();
+   *     // Choose what is best for you
+   *     if (defaultType.matches(gbk)) {
+   *         return gbk;
+   *     }
+   *     return defaultType;
+   * };
+   * app.assets("/3267/gbk/?*", new AssetHandler(source).setMediaTypeResolver(overrideCharset));
+   *
+   * }</pre>
+   *
+   * @param mediaTypeResolver Type resolver.
+   * @return This handler.
+   */
+  public AssetHandler setMediaTypeResolver(Function<Asset, MediaType> mediaTypeResolver) {
+    this.mediaTypeResolver =
+        Objects.requireNonNull(mediaTypeResolver, "Media type resolver is required.");
     return this;
   }
 
