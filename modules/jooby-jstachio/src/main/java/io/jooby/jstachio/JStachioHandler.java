@@ -6,18 +6,21 @@
 package io.jooby.jstachio;
 
 import java.io.IOException;
+import java.util.function.BiFunction;
 
 import io.jooby.Context;
-import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
 import io.jstach.jstachio.JStachio;
-import io.jstach.jstachio.Template;
+import io.jstach.jstachio.output.ByteBufferEncodedOutput;
 
 class JStachioHandler extends JStachioRenderer<Context> implements Route.Filter {
 
-  public JStachioHandler(JStachio jstachio, JStachioBuffer buffer) {
-    super(jstachio, buffer);
+  public JStachioHandler(
+      JStachio jstachio,
+      JStachioBuffer buffer,
+      BiFunction<Context, String, String> contextFunction) {
+    super(jstachio, buffer, contextFunction);
   }
 
   @Override
@@ -33,24 +36,9 @@ class JStachioHandler extends JStachioRenderer<Context> implements Route.Filter 
     };
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  Context render(
-      Context ctx,
-      @SuppressWarnings("rawtypes") Template template,
-      Object model,
-      ByteBufferedOutputStream stream)
-      throws IOException {
-    ctx.setResponseType(MediaType.html);
-    template.write(model, stream);
-    /*
-     * Rocker used a byte buffer here BUT it just wraps the internal buffer in the stream
-     * instead of copying.
-     *
-     * Which is good for performance but bad if the ctx.send call is not blocking aka
-     * hand the buffer off to another thread.
-     */
-    ctx.send(stream.toBuffer());
+  Context extractOutput(Context ctx, ByteBufferEncodedOutput stream) throws IOException {
+    ctx.send(stream.asByteBuffer());
     return ctx;
   }
 }
