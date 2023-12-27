@@ -16,7 +16,7 @@ import io.jooby.Context;
 import io.jooby.ModelAndView;
 
 class JteTemplateEngine implements io.jooby.TemplateEngine {
-  private TemplateEngine jte;
+  private final TemplateEngine jte;
   private final List<String> extensions;
 
   public JteTemplateEngine(TemplateEngine jte) {
@@ -39,7 +39,7 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
     } else {
       model = new HashMap<>();
       model.putAll(attributes);
-      model.putAll(model);
+      model.putAll(modelAndView.getModel());
     }
     jte.render(modelAndView.getView(), model, output);
     return output.toString();
