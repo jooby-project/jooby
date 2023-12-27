@@ -6,19 +6,20 @@
 package io.jooby.jstachio;
 
 import java.io.IOException;
+import java.util.function.BiFunction;
 
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jstach.jstachio.JStachio;
-import io.jstach.jstachio.Template;
+import io.jstach.jstachio.output.ByteBufferEncodedOutput;
 
-/*
- * Should this be public?
- */
 class JStachioMessageEncoder extends JStachioRenderer<byte[]> implements MessageEncoder {
 
-  public JStachioMessageEncoder(JStachio jstachio, JStachioBuffer buffer) {
-    super(jstachio, buffer);
+  public JStachioMessageEncoder(
+      JStachio jstachio,
+      JStachioBuffer buffer,
+      BiFunction<Context, String, String> contextFunction) {
+    super(jstachio, buffer, contextFunction);
   }
 
   @Override
@@ -29,15 +30,8 @@ class JStachioMessageEncoder extends JStachioRenderer<byte[]> implements Message
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  byte[] render(
-      Context ctx,
-      @SuppressWarnings("rawtypes") Template template,
-      Object model,
-      ByteBufferedOutputStream stream)
-      throws IOException {
-    template.write(model, stream);
+  byte[] extractOutput(Context ctx, ByteBufferEncodedOutput stream) throws IOException {
     return stream.toByteArray();
   }
 }

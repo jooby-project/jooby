@@ -5,6 +5,10 @@
  */
 package io.jooby.jstachio;
 
+import java.nio.charset.StandardCharsets;
+
+import io.jstach.jstachio.output.ByteBufferEncodedOutput;
+
 /**
  * To provide Rocker like buffer support
  *
@@ -12,9 +16,9 @@ package io.jooby.jstachio;
  */
 interface JStachioBuffer {
 
-  public ByteBufferedOutputStream acquire();
+  public ByteBufferEncodedOutput acquire();
 
-  public void release(ByteBufferedOutputStream buffer);
+  public void release(ByteBufferEncodedOutput buffer);
 
   static JStachioBuffer of(int bufferSize, boolean reuseBuffer) {
     if (reuseBuffer) {
@@ -27,29 +31,31 @@ interface JStachioBuffer {
 
 record NoReuseBuffer(int bufferSize) implements JStachioBuffer {
   @Override
-  public ByteBufferedOutputStream acquire() {
-    return new ByteBufferedOutputStream(bufferSize);
+  public ByteBufferEncodedOutput acquire() {
+    return ByteBufferEncodedOutput.ofByteArray(StandardCharsets.UTF_8, bufferSize);
   }
 
   @Override
-  public void release(ByteBufferedOutputStream buffer) {}
+  public void release(ByteBufferEncodedOutput buffer) {}
 }
 
 class ReuseBuffer implements JStachioBuffer {
-  private final ThreadLocal<ByteBufferedOutputStream> localBuffer;
+  private final ThreadLocal<ByteBufferEncodedOutput> localBuffer;
 
   public ReuseBuffer(int bufferSize) {
     super();
-    this.localBuffer = ThreadLocal.withInitial(() -> new ByteBufferedOutputStream(bufferSize));
+    this.localBuffer =
+        ThreadLocal.withInitial(
+            () -> ByteBufferEncodedOutput.ofByteArray(StandardCharsets.UTF_8, bufferSize));
   }
 
   @Override
-  public ByteBufferedOutputStream acquire() {
+  public ByteBufferEncodedOutput acquire() {
     return localBuffer.get();
   }
 
   @Override
-  public void release(ByteBufferedOutputStream buffer) {
-    buffer.reset();
+  public void release(ByteBufferEncodedOutput buffer) {
+    buffer.close();
   }
 }

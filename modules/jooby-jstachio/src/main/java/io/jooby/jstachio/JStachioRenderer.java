@@ -6,11 +6,14 @@
 package io.jooby.jstachio;
 
 import java.io.IOException;
+import java.util.function.BiFunction;
 
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jstach.jstachio.JStachio;
-import io.jstach.jstachio.Template;
+import io.jstach.jstachio.context.ContextJStachio;
+import io.jstach.jstachio.context.ContextNode;
+import io.jstach.jstachio.output.ByteBufferEncodedOutput;
 
 /**
  * Shared logic between encoder and result handler
@@ -20,20 +23,23 @@ import io.jstach.jstachio.Template;
  */
 abstract class JStachioRenderer<T> {
 
-  private final JStachio jstachio;
+  private final ContextJStachio jstachio;
   private final JStachioBuffer buffer;
+  private final BiFunction<Context, String, String> contextFunction;
 
-  public JStachioRenderer(JStachio jstachio, JStachioBuffer buffer) {
+  public JStachioRenderer(
+      JStachio jstachio,
+      JStachioBuffer buffer,
+      BiFunction<Context, String, String> contextFunction) {
     super();
-    this.jstachio = jstachio;
+    this.jstachio = ContextJStachio.of(jstachio);
     this.buffer = buffer;
+    this.contextFunction = contextFunction;
   }
 
   public T render(Context ctx, Object model) throws Exception {
     var stream = buffer.acquire();
     try {
-      @SuppressWarnings("rawtypes")
-      Template template = jstachio.findTemplate(model);
       /*
        * TODO we probably should resolve the correct media type here and more importantly charset
        * Or at least validate that it is text/html UTF-8.
@@ -43,18 +49,15 @@ abstract class JStachioRenderer<T> {
        * So for now we will as well.
        */
       ctx.setResponseType(MediaType.html);
-      return render(ctx, template, model, stream);
+      ContextNode contextNode = ContextNode.of(s -> contextFunction.apply(ctx, s));
+      jstachio.write(model, contextNode, stream);
+      return extractOutput(ctx, stream);
     } finally {
       buffer.release(stream);
     }
   }
 
-  abstract T render(
-      Context ctx,
-      @SuppressWarnings("rawtypes") Template template,
-      Object model,
-      ByteBufferedOutputStream stream)
-      throws IOException;
+  abstract T extractOutput(Context ctx, ByteBufferEncodedOutput stream) throws IOException;
 
   protected boolean supportsType(Class<?> modelClass) {
     return jstachio.supportsType(modelClass);

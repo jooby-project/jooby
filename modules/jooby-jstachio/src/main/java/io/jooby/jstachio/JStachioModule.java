@@ -6,9 +6,11 @@
 package io.jooby.jstachio;
 
 import java.util.ServiceLoader;
+import java.util.function.BiFunction;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
@@ -34,6 +36,7 @@ public class JStachioModule implements Extension {
   private @Nullable JStachio jstachio;
   private int bufferSize = 8 * 1024;
   private boolean reuseBuffer;
+  private BiFunction<Context, String, String> contextFunction = (ctx, key) -> ctx.getAttribute(key);
 
   /**
    * Sets the jstachio to use instead of the default.
@@ -74,6 +77,21 @@ public class JStachioModule implements Extension {
   }
 
   /**
+   * JStachio will by default bind {@linkplain Context#getAttributes() Context attributes} to <code>
+   * &#64;context</code>. This configuration option allows fetching context keys from something
+   * else. <a
+   * href="https://jstach.io/jstachio/io.jstach.jstachio/io/jstach/jstachio/context/package-summary.html">
+   * See JStachio doc on context. </a>
+   *
+   * @param contextFunction
+   * @return This module.
+   */
+  public JStachioModule contextFunction(BiFunction<Context, String, String> contextFunction) {
+    this.contextFunction = contextFunction;
+    return this;
+  }
+
+  /**
    * Installs JStachio into Jooby and provides the JStachio service to the {@link ServiceRegistry}.
    * {@inheritDoc}
    */
@@ -98,8 +116,8 @@ public class JStachioModule implements Extension {
     }
     JStachioBuffer buffer = JStachioBuffer.of(bufferSize, reuseBuffer);
 
-    JStachioMessageEncoder encoder = new JStachioMessageEncoder(j, buffer);
-    JStachioResultHandler handler = new JStachioResultHandler(j, buffer);
+    JStachioMessageEncoder encoder = new JStachioMessageEncoder(j, buffer, contextFunction);
+    JStachioResultHandler handler = new JStachioResultHandler(j, buffer, contextFunction);
     application.encoder(encoder);
     application.resultHandler(handler);
   }
