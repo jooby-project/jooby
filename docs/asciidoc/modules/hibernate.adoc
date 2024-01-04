@@ -11,7 +11,7 @@ https://hibernate.org/orm/[Hibernate ORM] module.
 
 2) Add database driver (mySQL here):
 
-[dependency, artifactId="mysql-connector-j"]
+[dependency, groupId="mysql", artifactId="mysql-connector-java", version="${mysql-connector-java.version}"]
 .
 
 3) Set database properties
