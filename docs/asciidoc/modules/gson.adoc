@@ -14,7 +14,7 @@ JSON support using https://github.com/google/gson[Gson] library.
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.json.GsonModule;
+import io.jooby.gson.GsonModule;
 
 {
   install(new GsonModule());                        <1>
@@ -34,7 +34,7 @@ import io.jooby.json.GsonModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.GsonModule
+import io.jooby.gson.GsonModule
 
 {
   install(GsonModule())                             <1>
@@ -62,7 +62,7 @@ Access to default object mapper is available via require call:
 .Default object mapper
 [source, java, role="primary"]
 ----
-import io.jooby.json.GsonModule;
+import io.jooby.gson.GsonModule;
 
 {
   install(new GsonModule());
@@ -76,7 +76,7 @@ import io.jooby.json.GsonModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.GsonModule
+import io.jooby.gson.GsonModule
 
 {
   install(GsonModule())
@@ -90,7 +90,7 @@ You can provide your own `Gson`:
 .Custom ObjectMapper
 [source, java, role="primary"]
 ----
-import io.jooby.json.GsonModule;
+import io.jooby.gson.GsonModule;
 
 {
   Gson gson = new GsonBuilder().create();
@@ -102,7 +102,7 @@ import io.jooby.json.GsonModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.GsonModule
+import io.jooby.gson.GsonModule
 
 {
   val gson = GsonBuilder().create()
