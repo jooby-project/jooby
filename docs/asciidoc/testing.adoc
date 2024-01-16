@@ -39,7 +39,7 @@ class App: Kooby({
 [source,java,role="primary"]
 ----
 
-import io.jooby.MockRouter;
+import io.jooby.test.MockRouter;
 
 public class TestApp {
   
@@ -54,7 +54,7 @@ public class TestApp {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.MockRouter
+import io.jooby.test.MockRouter
 
 class TestApp {
   
