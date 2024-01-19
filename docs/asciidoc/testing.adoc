@@ -317,13 +317,13 @@ public class TestApp {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.JoobyTest
+import io.jooby.test.JoobyTest
 
-@JoobyTest(App.class)
+@JoobyTest(App::class)
 class TestApp {
   
   companion object {
-    const client = OkHttpClient()
+    val client = OkHttpClient()
   }
   
   @Test
@@ -333,7 +333,7 @@ class TestApp {
         .build()
 
     client.newCall(request).execute().use { response ->
-      assertEquals("Easy testing!", response.body().string())
+      assertEquals("Easy testing!", response.body?.string())
     }
   }
 }
