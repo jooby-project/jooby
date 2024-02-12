@@ -60,7 +60,7 @@
     <commons-email.version>1.5</commons-email.version>
 
     <!-- util -->
-    <metrics.version>4.2.23</metrics.version>
+    <metrics.version>4.2.25</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>2.1.2.Final</jboss-modules.version>
