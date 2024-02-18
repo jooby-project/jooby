@@ -26,8 +26,6 @@ import org.eclipse.jetty.util.FuturePromise;
 import org.eclipse.jetty.util.Promise;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 import com.google.common.collect.ImmutableMap;
 import io.jooby.ServerOptions;
@@ -41,10 +39,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-@DisabledOnOs(
-    value = OS.MAC,
-    architectures = "aarch64",
-    disabledReason = "Conscrypt doesn't work for aarch64")
 public class Http2Test {
 
   @ServerTest

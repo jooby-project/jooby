@@ -7,19 +7,12 @@ package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
-
 import io.jooby.ServerOptions;
 import io.jooby.SslOptions;
 import io.jooby.handler.SSLHandler;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
-@DisabledOnOs(
-    value = OS.MAC,
-    architectures = "aarch64",
-    disabledReason = "Conscrypt doesn't work for aarch64")
 public class HttpsTest {
 
   @ServerTest
