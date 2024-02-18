@@ -8,10 +8,10 @@ buildscript {
 plugins {
   id "application"
 {{#if kotlin}}
-  id "org.jetbrains.kotlin.jvm" version "{{kotlinVersion}}"
+  id "org.jetbrains.kotlin.jvm" version "${kotlinVersion}"
 {{/if}}
 {{#if kapt}}
-  id "org.jetbrains.kotlin.kapt" version "{{kotlinVersion}}"
+  id "org.jetbrains.kotlin.kapt" version "${kotlinVersion}"
 {{/if}}
 {{#if openapi}}
   id "io.jooby.openAPI" version "${joobyVersion}"

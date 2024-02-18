@@ -14,7 +14,7 @@ repositories {
   mavenCentral()
 }
 
-def pom = new XmlSlurper().parse(projectDir.toPath().getParent().resolve("pom.xml").toFile())
+def pom = new groovy.xml.XmlSlurper().parse(projectDir.toPath().getParent().resolve("pom.xml").toFile())
 //noinspection GroovyAccessibility
 def joobyVersion = project.properties['joobyVersion'] ?: pom.parent.version
 
@@ -39,6 +39,10 @@ gradlePlugin {
     openAPI {
       id = 'io.jooby.openAPI'
       implementationClass = 'io.jooby.gradle.JoobyPlugin'
+
+      dependencies {
+
+      }
     }
   }
 }

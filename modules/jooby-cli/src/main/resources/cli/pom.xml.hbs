@@ -161,6 +161,15 @@
           </execution>
         </executions>
         {{/if}}
+        {{#if kotlin}}
+        <dependencies>
+          <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
+          </dependency>
+        </dependencies>
+        {{/if}}
       </plugin>
       {{#if stork}}
       <plugin>
