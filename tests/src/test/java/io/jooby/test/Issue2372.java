@@ -9,6 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+
 import io.jooby.ServerOptions;
 import io.jooby.handler.SSLHandler;
 import io.jooby.junit.ServerTest;
@@ -17,6 +20,10 @@ import io.jooby.reactor.Reactor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@DisabledOnOs(
+    value = OS.MAC,
+    architectures = "aarch64",
+    disabledReason = "Conscrypt doesn't work for aarch64")
 public class Issue2372 {
 
   @ServerTest

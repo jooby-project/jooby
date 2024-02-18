@@ -38,6 +38,9 @@ public class ServerParameterResolver implements ParameterResolver {
       throws ParameterResolutionException {
     Method test = extensionContext.getRequiredTestMethod();
     return new ServerTestRunner(
-        test.getDeclaringClass().getSimpleName() + "." + test.getName(), server, executionMode);
+        test,
+        test.getDeclaringClass().getSimpleName() + "." + test.getName(),
+        server,
+        executionMode);
   }
 }

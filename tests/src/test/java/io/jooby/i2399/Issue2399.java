@@ -7,10 +7,17 @@ package io.jooby.i2399;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+
 import io.jooby.ServerOptions;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
+@DisabledOnOs(
+    value = OS.MAC,
+    architectures = "aarch64",
+    disabledReason = "Conscrypt doesn't work for aarch64")
 public class Issue2399 {
 
   @ServerTest

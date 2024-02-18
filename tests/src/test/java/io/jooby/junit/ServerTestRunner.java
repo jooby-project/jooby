@@ -5,12 +5,17 @@
  */
 package io.jooby.junit;
 
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import io.jooby.Context;
 import io.jooby.DefaultErrorHandler;
@@ -38,12 +43,15 @@ public class ServerTestRunner {
   private final ServerProvider server;
 
   private final ExecutionMode executionMode;
+  private final Method testMethod;
 
   private Supplier<Jooby> provider;
 
   private boolean followRedirects = true;
 
-  public ServerTestRunner(String testName, ServerProvider server, ExecutionMode executionMode) {
+  public ServerTestRunner(
+      Method testMethod, String testName, ServerProvider server, ExecutionMode executionMode) {
+    this.testMethod = testMethod;
     this.testName = testName;
     this.server = server;
     this.executionMode = executionMode;
@@ -69,6 +77,9 @@ public class ServerTestRunner {
   }
 
   public void ready(SneakyThrows.Consumer2<WebClient, WebClient> onReady) {
+    if (disabled()) {
+      return;
+    }
     Server server = this.server.get();
     String applogger = null;
     try {
@@ -132,6 +143,20 @@ public class ServerTestRunner {
         MutedServer.mute(server).stop();
       }
     }
+  }
+
+  private boolean disabled() {
+    var osname = System.getProperty("os.name").toLowerCase();
+    var osarch = System.getProperty("os.arch").toLowerCase();
+    return Stream.of(
+            testMethod.getAnnotation(DisabledOnOs.class),
+            testMethod.getDeclaringClass().getAnnotation(DisabledOnOs.class))
+        .filter(Objects::nonNull)
+        .anyMatch(
+            it ->
+                Stream.of(it.value()).anyMatch(os -> osname.contains(os.name().toLowerCase()))
+                    && (it.architectures().length == 0
+                        || Stream.of(it.architectures()).anyMatch(osarch::equalsIgnoreCase)));
   }
 
   public String getServer() {
