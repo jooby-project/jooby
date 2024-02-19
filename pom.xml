@@ -57,7 +57,7 @@
     <slf4j.version>2.0.12</slf4j.version>
 
     <!-- communication -->
-    <commons-email.version>1.5</commons-email.version>
+    <commons-email.version>1.6.0</commons-email.version>
 
     <!-- util -->
     <metrics.version>4.2.25</metrics.version>
