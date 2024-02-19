@@ -107,7 +107,7 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.11</jacoco.version>
-    <junit.version>5.10.1</junit.version>
+    <junit.version>5.10.2</junit.version>
     <rest-assured.version>5.4.0</rest-assured.version>
     <mockito.version>5.10.0</mockito.version>
     <guava.version>33.0.0-jre</guava.version>
