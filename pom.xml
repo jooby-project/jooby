@@ -69,7 +69,7 @@
     <asm.version>9.6</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.10.Final</undertow.version>
+    <undertow.version>2.3.11.Final</undertow.version>
     <jetty.version>11.0.19</jetty.version>
     <netty.version>4.1.106.Final</netty.version>
 
