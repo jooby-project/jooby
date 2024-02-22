@@ -60,7 +60,7 @@ public class DependencyProcessor extends BlockProcessor {
 
   private void gradle(String groupId, String[] artifactId, String version, Consumer<String> lines) {
     lines.accept(".Gradle");
-    lines.accept("[source,javascript,role=\"secondary\"]");
+    lines.accept("[source,gradle,role=\"secondary\"]");
     lines.accept("----");
     for (int i = 0; i < artifactId.length; i++) {
       if (i > 0) {
@@ -91,13 +91,13 @@ public class DependencyProcessor extends BlockProcessor {
 
   private void maven(String groupId, String[] artifactId, String version, Consumer<String> lines) {
     lines.accept(".Maven");
-    lines.accept("[source, xml,role=\"primary\"]");
+    lines.accept("[source,xml,role=\"primary\"]");
     lines.accept("----");
     for (int i = 0; i < artifactId.length; i++) {
       if (i > 0) {
         lines.accept("");
       }
-      comment(artifactId[i], "<!--", "-->").ifPresent(lines::accept);
+      comment(artifactId[i], "<!--", "-->").ifPresent(lines);
       lines.accept("<dependency>");
       lines.accept(
           "  <groupId>"

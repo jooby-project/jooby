@@ -9,13 +9,14 @@ import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
+import io.jooby.LoggingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import io.jooby.Jooby;
-import io.jooby.LogConfigurer;
 import io.jooby.ServerOptions;
 import io.methvin.watcher.DirectoryWatcher;
 
@@ -37,7 +38,7 @@ public class DocApp extends Jooby {
 
   public static void main(String[] args) throws Exception {
     // watch and block
-    LogConfigurer.configure(DocApp.class.getClassLoader(), Arrays.asList("dev"));
+    LoggingService.configure(DocApp.class.getClassLoader(), List.of("dev"));
 
     Path basedir = DocGenerator.basedir();
 
@@ -57,7 +58,6 @@ public class DocApp extends Jooby {
                 event -> {
                   Path file = event.path();
                   if (!file.startsWith(outdir)) {
-                    if (file.toString().contains(""))
                       if (file.toString().endsWith(".js")
                           || file.toString().endsWith(".html")
                           || file.toString().endsWith(".adoc")) {
