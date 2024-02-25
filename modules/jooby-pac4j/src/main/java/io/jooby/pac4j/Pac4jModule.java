@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
+import org.pac4j.core.client.DirectClient;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.engine.DefaultCallbackLogic;
@@ -429,7 +430,8 @@ public class Pac4jModule implements Extension {
     clients.setCallbackUrl(
         ofNullable(clients.getCallbackUrl()).orElse(contextPath + options.getCallbackPath()));
     /** Default URL resolver if none was set at client level: */
-    clients.setUrlResolver(ofNullable(clients.getUrlResolver()).orElseGet(() -> newUrlResolver()));
+    clients.setUrlResolver(
+        ofNullable(clients.getUrlResolver()).orElseGet(Pac4jModule::newUrlResolver));
 
     /** Set resolved clients: */
     clients.setClients(
@@ -442,10 +444,7 @@ public class Pac4jModule implements Extension {
 
     /** Delay setting unresolved clients: */
     List<ClientReference> unresolved =
-        allClients.values().stream()
-            .flatMap(List::stream)
-            .filter(r -> !r.isResolved())
-            .collect(Collectors.toList());
+        allClients.values().stream().flatMap(List::stream).filter(r -> !r.isResolved()).toList();
 
     if (!unresolved.isEmpty()) {
       application.onStarted(
@@ -497,10 +496,12 @@ public class Pac4jModule implements Extension {
     if (callbackLogic == null) {
       pac4j.setCallbackLogic(newCallbackLogic(excludes));
     }
-
-    CallbackFilterImpl callbackFilter = new CallbackFilterImpl(pac4j, options);
-    application.get(options.getCallbackPath(), callbackFilter);
-    application.post(options.getCallbackPath(), callbackFilter);
+    var direct = clients.getClients().stream().allMatch(it -> it instanceof DirectClient);
+    if (!direct || options.isForceCallbackRoutes()) {
+      CallbackFilterImpl callbackFilter = new CallbackFilterImpl(pac4j, options);
+      application.get(options.getCallbackPath(), callbackFilter);
+      application.post(options.getCallbackPath(), callbackFilter);
+    }
 
     SecurityLogic securityLogic = pac4j.getSecurityLogic();
     if (securityLogic == null) {
@@ -535,7 +536,7 @@ public class Pac4jModule implements Extension {
       }
     }
 
-    /** Is there is a global client, use it as decorator/filter (default client): */
+    /* Is there is a global client, use it as decorator/filter (default client): */
     List<ClientReference> defaultSecurityFilter = allClients.get("*");
     if (defaultSecurityFilter != null) {
       if (options.getDefaultClient() == null && defaultSecurityFilter.get(0).isResolved()) {
@@ -555,7 +556,9 @@ public class Pac4jModule implements Extension {
     if (logoutLogic == null) {
       pac4j.setLogoutLogic(newLogoutLogic());
     }
-    application.get(options.getLogoutPath(), new LogoutImpl(pac4j, options));
+    if (!direct || options.isForceLogoutRoutes()) {
+      application.get(options.getLogoutPath(), new LogoutImpl(pac4j, options));
+    }
 
     /** Better response code for some errors. */
     application.errorCode(UnauthorizedAction.class, StatusCode.UNAUTHORIZED);

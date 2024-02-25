@@ -42,6 +42,10 @@ public class Pac4jOptions {
 
   private SameSite cookieSameSite;
 
+  private boolean forceCallbackRoutes = false;
+
+  private boolean forceLogoutRoutes = false;
+
   /**
    * Default url to redirect to after successful login. Used by {@link
    * org.pac4j.core.engine.CallbackLogic}.
@@ -266,6 +270,38 @@ public class Pac4jOptions {
    */
   public @NonNull Pac4jOptions setCookieSameSite(@Nullable SameSite sameSite) {
     cookieSameSite = sameSite;
+    return this;
+  }
+
+  /**
+   * The <code>/callback</code> routes are off when pac4j is configured with {@link
+   * org.pac4j.core.client.DirectClient} clients only. These routes are not required for direct
+   * clients. Setting this to <code>true</code> will still add the <code>/callback</code> routes.
+   *
+   * @return When the callback route is available.
+   */
+  public boolean isForceCallbackRoutes() {
+    return forceCallbackRoutes;
+  }
+
+  /**
+   * The <code>/logout</code> routes are off when pac4j is configured with {@link
+   * org.pac4j.core.client.DirectClient} clients only. These routes are not required for direct
+   * clients. Setting this to <code>true</code> will still add the <code>/logout</code> routes.
+   *
+   * @return When the logout route is available.
+   */
+  public boolean isForceLogoutRoutes() {
+    return forceLogoutRoutes;
+  }
+
+  public @NonNull Pac4jOptions setForceCallbackRoutes(boolean forceCallbackRoutes) {
+    this.forceCallbackRoutes = forceCallbackRoutes;
+    return this;
+  }
+
+  public @NonNull Pac4jOptions setForceLogoutRoutes(boolean forceLogoutRoutes) {
+    this.forceLogoutRoutes = forceLogoutRoutes;
     return this;
   }
 }
