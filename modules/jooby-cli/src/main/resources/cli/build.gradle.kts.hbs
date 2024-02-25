@@ -1,0 +1,95 @@
+plugins {
+    val kotlinVersion: String by System.getProperties()
+    val joobyVersion: String by System.getProperties()
+    kotlin("jvm") version kotlinVersion
+{{#if kapt}}
+    kotlin("kapt") version kotlinVersion
+{{/if}}
+{{#if openapi}}
+    id("io.jooby.openAPI") version joobyVersion
+{{/if}}
+    id("io.jooby.run") version joobyVersion
+    id("io.spring.dependency-management") version "1.1.0"
+    id("com.google.osdetector") version "1.7.3"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+group "{{groupId}}"
+version "{{version}}"
+
+val kotlinVersion: String by System.getProperties()
+val joobyVersion: String by System.getProperties()
+
+val mainAppClassName = "{{package}}.AppKt"
+
+dependencyManagement {
+    imports {
+        mavenBom("io.jooby:jooby-bom:$joobyVersion")
+    }
+}
+
+dependencies {
+{{#if kapt}}
+    kapt("io.jooby:jooby-apt")
+{{/if}}
+    implementation("io.jooby:jooby-netty")
+    implementation("io.jooby:jooby-kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
+    implementation("io.jooby:jooby-logback")
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("io.jooby:jooby-test")
+    testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
+}
+
+
+kotlin {
+    jvmToolchain(17)
+
+    compilerOptions {
+        javaParameters = true
+    }
+}
+
+tasks {
+{{#if kapt}}
+    kapt {
+      arguments {
+        arg("jooby.incremental", true)
+        arg("jooby.services", true)
+        arg("jooby.debug", false)
+      }
+    }
+{{/if}}
+    test {
+        useJUnitPlatform()
+    }
+    shadowJar {
+        mergeServiceFiles()
+    }
+
+    joobyRun {
+        mainClass = mainAppClassName
+        restartExtensions = listOf("conf", "properties", "class")
+        compileExtensions = listOf("java", "kt")
+        port = 8080
+{{#if openapi}}
+        dependsOn("openAPI")
+{{/if}}
+    }
+{{#if openapi}}
+    openAPI {
+      mainClass = mainAppClassName
+    }
+
+    jar {
+      dependsOn("openAPI")
+    }
+{{/if}}
+}
+

@@ -1,18 +1,11 @@
 buildscript {
   ext {
-    {{#if kotlin}}kotlinVersion = "{{kotlinVersion}}"{{/if}}
-    joobyVersion = "{{joobyVersion}}"
+    joobyVersion = System.getProperty("joobyVersion")
   }
 }
 
 plugins {
   id "application"
-{{#if kotlin}}
-  id "org.jetbrains.kotlin.jvm" version "${kotlinVersion}"
-{{/if}}
-{{#if kapt}}
-  id "org.jetbrains.kotlin.kapt" version "${kotlinVersion}"
-{{/if}}
 {{#if openapi}}
   id "io.jooby.openAPI" version "${joobyVersion}"
 {{/if}}
@@ -24,7 +17,7 @@ plugins {
 
 group "{{groupId}}"
 version "{{version}}"
-mainClassName = "{{package}}.App{{#if kotlin}}Kt{{/if}}"
+mainClassName = "{{package}}.App"
 sourceCompatibility = 17
 
 repositories {
@@ -39,9 +32,7 @@ dependencyManagement {
 }
 
 dependencies {
-{{#if kapt}}
-  kapt "io.jooby:jooby-apt"
-{{else if apt}}
+{{#if apt}}
   annotationProcessor "io.jooby:jooby-apt"
 {{/if}}
 {{#each dependencies}}
@@ -57,12 +48,6 @@ test {
   useJUnitPlatform()
 }
 
-{{#if kotlin}}
-/** Kotlin debug information: */
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-  kotlinOptions.javaParameters = true
-}
-{{else}}
 /** Java debug information: */
 tasks.withType(JavaCompile) {
   options.compilerArgs += [
@@ -75,22 +60,17 @@ tasks.withType(JavaCompile) {
   ]
   options.debug = true
 }
-{{/if}}
-
-{{#if kapt}}
-kapt {
-  arguments {
-    arg('jooby.incremental', true)
-    arg('jooby.services', true)
-    arg('jooby.debug', false)
-  }
-}
-{{/if}}
 
 shadowJar {
   mergeServiceFiles()
 }
 
+joobyRun {
+  mainClass = mainClassName
+  restartExtensions = ["conf", "properties", "class"]
+  compileExtensions = ["java"]
+  port = 8080
+}
 {{#openapi}}
 joobyRun.dependsOn openAPI
 

@@ -64,9 +64,9 @@ public class Cli extends Cmd {
         this.args.stream()
             .filter(Objects::nonNull)
             .map(String::trim)
-            .filter(it -> it.length() > 0)
-            .collect(Collectors.toList());
-    if (args.size() > 0) {
+            .filter(it -> !it.isEmpty())
+            .toList();
+    if (!args.isEmpty()) {
       String arg = args.get(0);
       if ("-h".equals(arg) || "--help".equals(arg)) {
         ctx.println(spec.commandLine().getUsageMessage());

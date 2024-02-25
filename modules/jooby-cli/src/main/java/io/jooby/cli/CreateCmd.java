@@ -109,7 +109,7 @@ public class CreateCmd extends Cmd {
       packageName = ctx.readLine("Enter a groupId/package: ");
 
       version = ctx.readLine("Enter a version (1.0.0): ");
-      if (version == null || version.trim().length() == 0) {
+      if (version.trim().isEmpty()) {
         version = "1.0.0";
       }
 
@@ -144,8 +144,7 @@ public class CreateCmd extends Cmd {
       }
       server = server(this.server);
     }
-    String templateName = gradle ? "build.gradle" : "pom.xml";
-    String buildFileName = templateName;
+    String buildfile = gradle ? (kotlin ? "build.gradle.kts" : "build.gradle") : "pom.xml";
     String language = kotlin ? "kotlin" : "java";
     String extension = language.equalsIgnoreCase("kotlin") ? "kt" : "java";
 
@@ -183,7 +182,10 @@ public class CreateCmd extends Cmd {
     model.put("apt", mvc && !kotlin);
     model.put("finalArtifactId", finalArtifactId);
 
-    ctx.writeTemplate(templateName, model, projectDir.resolve(buildFileName));
+    ctx.writeTemplate(buildfile, model, projectDir.resolve(buildfile));
+    if (gradle) {
+      ctx.writeTemplate("gradle.properties", model, projectDir.resolve("gradle.properties"));
+    }
 
     // Copy conf
     Path confDir = projectDir.resolve("conf");
