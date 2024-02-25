@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
@@ -39,7 +36,7 @@ public class Dependencies {
     }
   }
 
-  private Map<String, Dependency> dependencyMap = new HashMap<>();
+  private Map<String, Dependency> dependencyMap = new TreeMap<>();
 
   private static final Dependencies instance = new Dependencies();
 
@@ -61,7 +58,7 @@ public class Dependencies {
       dep.artifactId = dependency.select("artifactId").text();
       dep.version = findVersion(pom, dep.artifactId, dependency.select("version").text());
 
-      dependencyMap.put(dep.artifactId, dep);
+      dependencyMap.putIfAbsent(dep.artifactId, dep);
     }
   }
 

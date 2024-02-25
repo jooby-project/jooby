@@ -29,21 +29,18 @@ For now `jooby run` is available as Maven and Gradle plugins.
 ----
 
 .build.gradle
-[source, groovy, role = "secondary", subs="verbatim,attributes"]
+[source, gradle, role = "secondary", subs="verbatim,attributes"]
 ----
 buildscript {
-
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath "io.jooby:jooby-gradle-plugin:{joobyVersion}"
+  ext {
+    joobyVersion = "{joobyVersion}"
   }
 }
 
-apply plugin: "application"
-apply plugin: "jooby"
+plugins {
+  id "application"
+  id "io.jooby.run" version "{joobyVersion}"
+}
 ----
 
 2) Set main class
@@ -57,7 +54,7 @@ apply plugin: "jooby"
 ----
 
 .build.gradle
-[source, groovy, role = "secondary"]
+[source, gradle, role = "secondary"]
 ----
 mainClassName = "myapp.App"
 ----
@@ -118,21 +115,18 @@ The next example shows all the available options with their default values:
 ----
 
 .build.gradle
-[source, groovy, role = "secondary", subs="verbatim,attributes"]
+[source, gradle, role = "secondary", subs="verbatim,attributes"]
 ----
 buildscript {
-  
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath "io.jooby:jooby-gradle-plugin:{joobyVersion}"
+  ext {
+    joobyVersion = "{joobyVersion}"
   }
 }
 
-apply plugin: "application"
-apply plugin: "jooby"
+plugins {
+  id "application"
+  id "io.jooby.run" version "{joobyVersion}"
+}
 
 joobyRun {
   mainClassName = "${mainClassName}"                               <1>

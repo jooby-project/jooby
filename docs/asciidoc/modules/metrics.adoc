@@ -108,7 +108,7 @@ or min/mean/max execution time) and a breakdown of the response codes being retu
 [source, java, role="primary"]
 ----
 {
-  use(new Metricsuse());
+  use(new MetricsModule());
 
   // inspected route
   get("/", context -> "Hello metrics!");
@@ -119,7 +119,7 @@ or min/mean/max execution time) and a breakdown of the response codes being retu
 [source, kt, role="secondary"]
 ----
 {
-  use(Metricsuse())
+  use(MetricsModule())
 
   // inspected route
   get("/") { context: Context? -> "Hello metrics!" }
