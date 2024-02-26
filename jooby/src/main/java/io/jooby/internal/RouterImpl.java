@@ -28,6 +28,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -308,8 +309,7 @@ public class RouterImpl implements Router {
   @NonNull @Override
   public Router mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
     /** Override services: */
-    overrideServices(subrouter);
-
+    overrideAll(this, subrouter);
     /** Routes: */
     mount(
         predicate,
@@ -325,7 +325,7 @@ public class RouterImpl implements Router {
   @NonNull @Override
   public Router mount(@NonNull String path, @NonNull Router router) {
     /** Override services: */
-    overrideServices(router);
+    overrideAll(this, router);
     /** Merge error handler: */
     mergeErrorHandler(router);
     /** Routes: */
@@ -857,7 +857,7 @@ public class RouterImpl implements Router {
               buff.append(String.format("\n  %-" + size + "s", r.getMethod()))
                   .append(r.getPattern()));
     }
-    return buff.length() > 0 ? buff.substring(1) : "";
+    return !buff.isEmpty() ? buff.substring(1) : "";
   }
 
   private Router newStack(RouteTree tree, String pattern, Runnable action, Route.Filter... filter) {
@@ -870,7 +870,7 @@ public class RouterImpl implements Router {
 
   private Stack push(RouteTree tree, String pattern) {
     Stack stack = new Stack(tree, Router.leadingSlash(pattern));
-    if (this.stack.size() > 0) {
+    if (!this.stack.isEmpty()) {
       Stack parent = this.stack.getLast();
       stack.executor = parent.executor;
     }
@@ -880,34 +880,38 @@ public class RouterImpl implements Router {
   private Router newStack(@NonNull Stack stack, @NonNull Runnable action, Route.Filter... filter) {
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
-    if (action != null) {
-      action.run();
-    }
+    action.run();
     this.stack.removeLast().clear();
     return this;
   }
 
   private void copy(Route src, Route it) {
-    Route.Filter decorator =
+    var filter =
         Optional.ofNullable(it.getFilter())
-            .map(filter -> Optional.ofNullable(src.getFilter()).map(filter::then).orElse(filter))
+            .map(e -> Optional.ofNullable(src.getFilter()).map(e::then).orElse(e))
             .orElseGet(src::getFilter);
 
-    Route.After after =
+    var after =
         Optional.ofNullable(it.getAfter())
-            .map(filter -> Optional.ofNullable(src.getAfter()).map(filter::then).orElse(filter))
+            .map(e -> Optional.ofNullable(src.getAfter()).map(e::then).orElse(e))
             .orElseGet(src::getAfter);
 
-    it.setFilter(decorator);
+    it.setPathKeys(src.getPathKeys());
+    it.setFilter(filter);
     it.setAfter(after);
-
-    it.setConsumes(src.getConsumes());
-    it.setProduces(src.getProduces());
-    it.setHandle(src.getHandle());
+    it.setEncoder(src.getEncoder());
     it.setReturnType(src.getReturnType());
+    it.setHandle(src.getHandle());
+    it.setProduces(src.getProduces());
+    it.setConsumes(src.getConsumes());
     it.setAttributes(src.getAttributes());
     it.setExecutorKey(src.getExecutorKey());
-    it.setHandle(src.getHandle());
+    it.setTags(src.getTags());
+    it.setDescription(src.getDescription());
+    it.setDecoders(src.getDecoders());
+    it.setMvcMethod(it.getMvcMethod());
+    it.setNonBlocking(src.isNonBlocking());
+    it.setSummary(src.getSummary());
   }
 
   private void putPredicate(@NonNull Predicate<Context> predicate, Chi tree) {
@@ -968,15 +972,20 @@ public class RouterImpl implements Router {
     }
   }
 
-  private void overrideServices(Router router) {
+  private static void override(
+      RouterImpl src, Router router, BiConsumer<RouterImpl, RouterImpl> consumer) {
     if (router instanceof Jooby) {
       Jooby app = (Jooby) router;
-      overrideServices(app.getRouter());
-    } else if (router instanceof RouterImpl) {
-      RouterImpl that = (RouterImpl) router;
-      // Inherited the services from router owner
-      that.services = this.services;
+      override(src, app.getRouter(), consumer);
+    } else if (router instanceof RouterImpl that) {
+      consumer.accept((RouterImpl) src, that);
     }
+  }
+
+  private void overrideAll(RouterImpl src, Router router) {
+    override(src, router, (self, that) -> that.services = self.services);
+    override(src, router, (self, that) -> that.worker = self.worker);
+    override(src, router, (self, that) -> that.attributes.putAll(self.attributes));
   }
 
   private void mergeErrorHandler(Router router) {
