@@ -6,11 +6,10 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>3.0.8</version>
+    <version>3.0.9-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.jooby</groupId>
   <artifactId>tests</artifactId>
 
   <dependencies>
