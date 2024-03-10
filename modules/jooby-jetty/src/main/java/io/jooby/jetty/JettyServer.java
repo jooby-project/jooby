@@ -17,21 +17,19 @@ import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.MultiPartFormDataCompliance;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
 import org.eclipse.jetty.util.compression.CompressionPool;
 import org.eclipse.jetty.util.compression.DeflaterPool;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
-import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -41,7 +39,7 @@ import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.WebSocket;
-import io.jooby.internal.jetty.JettyServlet;
+import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
 
 /**
@@ -128,7 +126,7 @@ public class JettyServer extends io.jooby.Server.Base {
       httpConf.setSendXPoweredBy(false);
       httpConf.setSendDateHeader(options.getDefaultHeaders());
       httpConf.setSendServerVersion(false);
-      httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
+      // httpConf.setMultiPartCompliance(MultiPartCompliance.RFC7578);
 
       if (httpConfigurer != null) {
         httpConfigurer.accept(httpConf);
@@ -193,7 +191,7 @@ public class JettyServer extends io.jooby.Server.Base {
             "Server configured for httpsOnly, but ssl options not set");
       }
 
-      ServletContextHandler context = new ServletContextHandler();
+      ContextHandler context = new ContextHandler();
 
       boolean webSockets =
           application.getRoutes().stream().anyMatch(it -> it.getMethod().equals(Router.WS));
@@ -210,13 +208,13 @@ public class JettyServer extends io.jooby.Server.Base {
       }
 
       /* ********************************* Servlet *************************************/
-      JettyServlet servlet =
-          new JettyServlet(
+      JettyHandler servlet =
+          new JettyHandler(
               applications.get(0),
               options.getBufferSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
-      context.addServlet(new ServletHolder(servlet), "/*");
+      context.setHandler(servlet);
 
       /* ********************************* Gzip *************************************/
       if (gzip) {
@@ -236,9 +234,10 @@ public class JettyServer extends io.jooby.Server.Base {
                 ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
                 : TimeUnit.MINUTES.toMillis(5);
 
-        JettyWebSocketServletContainerInitializer.configure(
+        WebSocketUpgradeHandler.from(
+            server,
             context,
-            (servletContext, container) -> {
+            container -> {
               container.setMaxTextMessageSize(maxSize);
               container.setIdleTimeout(Duration.ofMillis(timeout));
             });

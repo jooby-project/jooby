@@ -6,6 +6,7 @@
 package io.jooby.internal.jetty;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadPendingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,10 +19,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
+import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.StaticException;
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
+import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.exceptions.CloseException;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -33,10 +34,9 @@ import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 
-public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, WebSocket {
+public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, WebSocket {
 
-  private static class WriteCallbackAdaptor
-      implements org.eclipse.jetty.websocket.api.WriteCallback {
+  private static class WriteCallbackAdaptor implements org.eclipse.jetty.websocket.api.Callback {
 
     private JettyWebSocket ws;
     private WebSocket.WriteCallback callback;
@@ -47,7 +47,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     }
 
     @Override
-    public void writeFailed(Throwable cause) {
+    public void fail(Throwable cause) {
       try {
         if (Server.connectionLost(cause)) {
           ws.ctx
@@ -72,8 +72,12 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     }
 
     @Override
-    public void writeSuccess() {
-      callback.operationComplete(ws, null);
+    public void succeed() {
+      try {
+        callback.operationComplete(ws, null);
+      } finally {
+        ws.demand();
+      }
     }
   }
 
@@ -97,11 +101,11 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   @Override
-  public void onWebSocketBinary(byte[] payload, int offset, int len) {
+  public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
     if (onMessageCallback != null) {
       try {
-        ByteBuffer buffer = ByteBuffer.wrap(payload, offset, len);
-        onMessageCallback.onMessage(this, WebSocketMessage.create(getContext(), buffer.array()));
+        onMessageCallback.onMessage(
+            this, WebSocketMessage.create(getContext(), BufferUtil.toArray(payload)));
       } catch (Throwable x) {
         onWebSocketError(x);
       }
@@ -127,16 +131,19 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   }
 
   @Override
-  public void onWebSocketConnect(Session session) {
+  public void onWebSocketOpen(Session session) {
     try {
       open.set(true);
       this.session = session;
       addSession(this);
+      demand();
       if (onConnectCallback != null) {
         onConnectCallback.onConnect(this);
       }
     } catch (Throwable x) {
       onWebSocketError(x);
+    } finally {
+      demand();
     }
   }
 
@@ -208,6 +215,14 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     return Context.readOnly(ctx);
   }
 
+  private void demand() {
+    try {
+      session.demand();
+    } catch (ReadPendingException cause) {
+      ctx.getRouter().getLog().debug("Websocket resulted in exception: {}", path, cause);
+    }
+  }
+
   @NonNull @Override
   public List<WebSocket> getSessions() {
     List<JettyWebSocket> sessions = all.get(key);
@@ -239,7 +254,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->
-            remote.sendBytes(
+            remote.sendBinary(
                 ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
@@ -247,7 +262,7 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   @NonNull @Override
   public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
     return sendMessage(
-        (remote, writeCallback) -> remote.sendString(message, writeCallback),
+        (remote, writeCallback) -> remote.sendText(message, writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
@@ -259,17 +274,14 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
   @NonNull @Override
   public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
     return sendMessage(
-        (remote, writeCallback) -> remote.sendBytes(ByteBuffer.wrap(message), writeCallback),
+        (remote, writeCallback) -> remote.sendBinary(ByteBuffer.wrap(message), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
-  private WebSocket sendMessage(
-      BiConsumer<RemoteEndpoint, org.eclipse.jetty.websocket.api.WriteCallback> writer,
-      org.eclipse.jetty.websocket.api.WriteCallback callback) {
+  private WebSocket sendMessage(BiConsumer<Session, Callback> writer, Callback callback) {
     if (isOpen()) {
       try {
-        RemoteEndpoint remote = session.getRemote();
-        writer.accept(remote, callback);
+        writer.accept(session, callback);
       } catch (Throwable x) {
         onWebSocketError(x);
       }
@@ -311,7 +323,8 @@ public class JettyWebSocket implements WebSocketListener, WebSocketConfigurer, W
     try {
       if (isOpen()) {
         open.set(false);
-        session.close(closeStatus.getCode(), closeStatus.getReason());
+        // TODO: jetty callback
+        session.close(closeStatus.getCode(), closeStatus.getReason(), Callback.NOOP);
       }
     } catch (Throwable x) {
       cause = x;

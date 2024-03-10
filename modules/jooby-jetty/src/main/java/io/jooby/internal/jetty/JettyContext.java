@@ -7,8 +7,8 @@ package io.jooby.internal.jetty;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
-import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
-import static org.eclipse.jetty.server.SecureRequestCustomizer.JAKARTA_SERVLET_REQUEST_X_509_CERTIFICATE;
+import static org.eclipse.jetty.http.HttpHeader.*;
+import static org.eclipse.jetty.io.Content.Sink.asOutputStream;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,13 +20,10 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,11 +35,15 @@ import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.http.*;
+import org.eclipse.jetty.io.Content;
+import org.eclipse.jetty.io.content.InputStreamContentSource;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
-import org.eclipse.jetty.util.MultiMap;
-import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
-import org.eclipse.jetty.websocket.server.JettyWebSocketServerContainer;
+import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.Fields;
+import org.eclipse.jetty.websocket.server.ServerWebSocketContainer;
 import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -70,13 +71,8 @@ import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.MultipartConfigElement;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.WriteListener;
-import jakarta.servlet.http.Part;
 
-public class JettyContext implements DefaultContext {
+public class JettyContext implements DefaultContext, Callback {
   private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.wrap(new byte[0]);
   private final int bufferSize;
   private final long maxRequestSize;
@@ -104,14 +100,23 @@ public class JettyContext implements DefaultContext {
   private String scheme;
   private int port;
 
-  public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
+  private Callback callback;
+
+  public JettyContext(
+      Request request,
+      Response response,
+      Callback callback,
+      Router router,
+      int bufferSize,
+      long maxRequestSize) {
     this.request = request;
-    this.response = request.getResponse();
+    this.response = response;
     this.router = router;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
     this.method = request.getMethod().toUpperCase();
-    this.requestPath = request.getRequestURI();
+    this.requestPath = request.getHttpURI().getPath();
+    this.callback = callback;
   }
 
   @NonNull @Override
@@ -123,10 +128,10 @@ public class JettyContext implements DefaultContext {
   public @NonNull Map<String, String> cookieMap() {
     if (this.cookies == null) {
       this.cookies = Collections.emptyMap();
-      jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+      var cookies = Request.getCookies(request);
       if (cookies != null) {
-        this.cookies = new LinkedHashMap<>(cookies.length);
-        for (jakarta.servlet.http.Cookie it : cookies) {
+        this.cookies = new LinkedHashMap<>(cookies.size());
+        for (var it : cookies) {
           this.cookies.put(it.getName(), it.getValue());
         }
       }
@@ -136,16 +141,12 @@ public class JettyContext implements DefaultContext {
 
   @NonNull @Override
   public Body body() {
-    try {
-      InputStream in = request.getInputStream();
-      long len = request.getContentLengthLong();
-      if (maxRequestSize > 0) {
-        in = new LimitedInputStream(in, maxRequestSize);
-      }
-      return Body.of(this, in, len);
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
+    InputStream in = Content.Source.asInputStream(request);
+    long len = request.getLength();
+    if (maxRequestSize > 0) {
+      in = new LimitedInputStream(in, maxRequestSize);
     }
+    return Body.of(this, in, len);
   }
 
   @NonNull @Override
@@ -200,7 +201,7 @@ public class JettyContext implements DefaultContext {
   @NonNull @Override
   public QueryString query() {
     if (query == null) {
-      query = QueryString.create(this, request.getQueryString());
+      query = QueryString.create(this, request.getHttpURI().getQuery());
     }
     return query;
   }
@@ -213,31 +214,31 @@ public class JettyContext implements DefaultContext {
       formParam(request, formdata);
 
       // Files:
-      String contentType = request.getContentType();
+      String contentType = request.getHeaders().get(HttpHeader.CONTENT_TYPE);
       if (contentType != null
-          && MimeTypes.Type.MULTIPART_FORM_DATA.is(HttpField.valueParameters(contentType, null))) {
+          && MimeTypes.Type.MULTIPART_FORM_DATA.is(
+              HttpField.getValueParameters(contentType, null))) {
         // Is a multipart... make sure isn't empty
-        if (contentType.indexOf("boundary=") > 0) {
-          request.setAttribute(
-              __MULTIPART_CONFIG_ELEMENT,
-              new MultipartConfigElement(
-                  router.getTmpdir().toString(), -1L, maxRequestSize, bufferSize));
-
+        String boundary = MultiPart.extractBoundary(contentType);
+        if (boundary != null) {
           try {
-            Collection<Part> parts = request.getParts();
-            for (Part part : parts) {
-              if (part.getSubmittedFileName() != null) {
+            // Create and configure the multipart parser.
+            var parser = new MultiPartFormData.Parser(boundary);
+            // By default, uploaded files are stored in this directory, to
+            // avoid to read the file content (which can be large) in memory.
+            parser.setFilesDirectory(getRouter().getTmpdir());
+            // Convert the request content into parts.
+            // TODO: use non-blocking
+            var parts = parser.parse(request).get();
+            for (var part : parts) {
+              if (part.getFileName() != null) {
                 String name = part.getName();
-                formdata.put(
-                    name, register(new JettyFileUpload((MultiPartFormInputStream.MultiPart) part)));
+                formdata.put(name, register(new JettyFileUpload(router.getTmpdir(), part)));
               } else {
-                try (InputStream value = part.getInputStream()) {
-                  formdata.put(
-                      part.getName(), new String(value.readAllBytes(), StandardCharsets.UTF_8));
-                }
+                formdata.put(part.getName(), Content.Source.asString(part.getContentSource()));
               }
             }
-          } catch (IOException | ServletException x) {
+          } catch (Exception x) {
             throw SneakyThrows.propagate(x);
           }
         }
@@ -247,13 +248,16 @@ public class JettyContext implements DefaultContext {
   }
 
   @NonNull @Override
+  public Value header(@NonNull String name) {
+    return Value.create(this, name, request.getHeaders().getValuesList(name));
+  }
+
+  @NonNull @Override
   public ValueNode header() {
     if (headers == null) {
-      Enumeration<String> names = request.getHeaderNames();
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
-      while (names.hasMoreElements()) {
-        String name = names.nextElement();
-        headerMap.put(name, Collections.list(request.getHeaders(name)));
+      for (HttpField header : request.getHeaders()) {
+        headerMap.put(header.getName(), header.getValueList());
       }
       headers = Value.headers(this, headerMap);
     }
@@ -285,8 +289,7 @@ public class JettyContext implements DefaultContext {
   @NonNull @Override
   public String getRemoteAddress() {
     if (remoteAddress == null) {
-      String remoteAddr = Optional.ofNullable(request.getRemoteAddr()).orElse("").trim();
-      return remoteAddr;
+      remoteAddress = Optional.ofNullable(Request.getRemoteAddr(request)).orElse("").trim();
     }
     return remoteAddress;
   }
@@ -299,13 +302,13 @@ public class JettyContext implements DefaultContext {
 
   @NonNull @Override
   public String getProtocol() {
-    return request.getProtocol();
+    return request.getConnectionMetaData().getProtocol();
   }
 
   @NonNull @Override
   public List<Certificate> getClientCertificates() {
-    return Arrays.asList(
-        (Certificate[]) request.getAttribute(JAKARTA_SERVLET_REQUEST_X_509_CERTIFICATE));
+    var clientCertificates = request.getAttribute("org.eclipse.jetty.server.peerCertificates");
+    return clientCertificates == null ? List.of() : List.of((Certificate[]) clientCertificates);
   }
 
   @NonNull @Override
@@ -337,7 +340,6 @@ public class JettyContext implements DefaultContext {
     if (router.getWorker() == executor) {
       action.run();
     } else {
-      ifStartAsync();
       executor.execute(action);
     }
     return this;
@@ -345,7 +347,6 @@ public class JettyContext implements DefaultContext {
 
   @NonNull @Override
   public Context detach(@NonNull Route.Handler next) throws Exception {
-    ifStartAsync();
     next.apply(this);
     return this;
   }
@@ -355,13 +356,11 @@ public class JettyContext implements DefaultContext {
     try {
       responseStarted = true;
       request.setAttribute(JettyContext.class.getName(), this);
-      JettyWebSocketServerContainer container =
-          JettyWebSocketServerContainer.getContainer(request.getServletContext());
+      var container = ServerWebSocketContainer.get(request.getContext());
 
-      JettyWebSocket ws = new JettyWebSocket(this);
-      JettyWebSocketCreator creator = (upgradeRequest, upgradeResponse) -> ws;
+      var ws = new JettyWebSocket(this);
       handler.init(Context.readOnly(this), ws);
-      container.upgrade(creator, request, response);
+      container.upgrade((rq, rs, cb) -> ws, request, response, callback);
       return this;
     } catch (Throwable x) {
       throw SneakyThrows.propagate(x);
@@ -372,17 +371,7 @@ public class JettyContext implements DefaultContext {
   public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
     try {
       responseStarted = true;
-      AsyncContext async =
-          request.isAsyncStarted()
-              ? request.getAsyncContext()
-              : request.startAsync(request, response);
-      /** Infinite timeout because the continuation is never resumed but only completed on close. */
-      async.setTimeout(0L);
-
-      response.flushBuffer();
-
-      handler.handle(new JettyServerSentEmitter(this));
-
+      handler.handle(new JettyServerSentEmitter(this, response));
       return this;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
@@ -416,26 +405,26 @@ public class JettyContext implements DefaultContext {
   @NonNull @Override
   public Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;
-    response.setHeader(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
+    response.getHeaders().put(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
   @NonNull @Override
   public Context setResponseType(@NonNull String contentType) {
     this.responseType = MediaType.valueOf(contentType);
-    response.setHeader(CONTENT_TYPE, contentType);
+    response.getHeaders().put(CONTENT_TYPE, contentType);
     return this;
   }
 
   @NonNull @Override
   public Context setResponseHeader(@NonNull String name, @NonNull String value) {
-    response.setHeader(name, value);
+    response.getHeaders().put(name, value);
     return this;
   }
 
   @NonNull @Override
   public Context removeResponseHeader(@NonNull String name) {
-    response.setHeader(name, null);
+    response.getHeaders().remove(name);
     return this;
   }
 
@@ -447,25 +436,18 @@ public class JettyContext implements DefaultContext {
 
   @Nullable @Override
   public String getResponseHeader(@NonNull String name) {
-    return response.getHeader(name);
+    return response.getHeaders().get(name);
   }
 
   @NonNull @Override
   public Context setResponseLength(long length) {
-    response.setContentLengthLong(length);
+    response.getHeaders().put(CONTENT_LENGTH, length);
     return this;
   }
 
   @Override
   public long getResponseLength() {
-    long responseLength = response.getContentLength();
-    if (responseLength == -1) {
-      String lenStr = response.getHeader(HttpHeader.CONTENT_LENGTH.asString());
-      if (lenStr != null) {
-        responseLength = Long.parseLong(lenStr);
-      }
-    }
-    return responseLength;
+    return response.getHeaders().getLongField(CONTENT_LENGTH);
   }
 
   @NonNull public Context setResponseCookie(@NonNull Cookie cookie) {
@@ -474,9 +456,9 @@ public class JettyContext implements DefaultContext {
     }
     cookie.setPath(cookie.getPath(getContextPath()));
     responseCookies.put(cookie.getName(), cookie.toCookieString());
-    response.setHeader(SET_COOKIE, null);
+    response.getHeaders().remove(SET_COOKIE);
     for (String cookieString : responseCookies.values()) {
-      response.addHeader(SET_COOKIE.asString(), cookieString);
+      response.getHeaders().add(SET_COOKIE.asString(), cookieString);
     }
     return this;
   }
@@ -485,19 +467,14 @@ public class JettyContext implements DefaultContext {
   public Sender responseSender() {
     responseStarted = true;
     ifSetChunked();
-    ifStartAsync();
-    return new JettySender(this, response.getHttpOutput());
+    return new JettySender(this, response);
   }
 
   @NonNull @Override
   public OutputStream responseStream() {
     responseStarted = true;
-    try {
-      ifSetChunked();
-      return new JettyOutputStream(response.getOutputStream(), this);
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
-    }
+    ifSetChunked();
+    return new JettyOutputStream(asOutputStream(response), this);
   }
 
   @NonNull @Override
@@ -515,12 +492,12 @@ public class JettyContext implements DefaultContext {
 
   @NonNull @Override
   public Context send(@NonNull ByteBuffer[] data) {
-    if (response.getContentLength() <= 0) {
+    var length = response.getHeaders().getLongField(CONTENT_LENGTH);
+    if (length <= 0) {
       setResponseLength(BufferUtil.remaining(data));
     }
-    ifStartAsync();
-    HttpOutput out = response.getHttpOutput();
-    out.setWriteListener(writeListener(request.getAsyncContext(), out, data));
+    var completable = JettyCallbacks.fromByteBufferArray(response, this, data);
+    response.write(false, null, completable);
     responseStarted = true;
     return this;
   }
@@ -537,19 +514,13 @@ public class JettyContext implements DefaultContext {
 
   @NonNull @Override
   public Context send(@NonNull ByteBuffer data) {
-    try {
-      if (response.getContentLength() == -1) {
-        response.setContentLengthLong(data.remaining());
-      }
-      responseStarted = true;
-      HttpOutput sender = response.getHttpOutput();
-      sender.sendContent(data);
-      return this;
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
-    } finally {
-      responseDone();
+    var length = response.getHeaders().getLongField(CONTENT_LENGTH);
+    if (length <= 0) {
+      setResponseLength(BufferUtil.remaining(data));
     }
+    responseStarted = true;
+    response.write(true, data, this);
+    return this;
   }
 
   @NonNull @Override
@@ -563,7 +534,7 @@ public class JettyContext implements DefaultContext {
   public Context send(@NonNull InputStream in) {
     try {
       if (in instanceof FileInputStream) {
-        response.setLongContentLength(((FileInputStream) in).getChannel().size());
+        setResponseLength(((FileInputStream) in).getChannel().size());
       }
       return sendStreamInternal(in);
     } catch (IOException x) {
@@ -573,36 +544,30 @@ public class JettyContext implements DefaultContext {
 
   private Context sendStreamInternal(@NonNull InputStream in) {
     try {
-      long len = response.getContentLength();
+      var len = response.getHeaders().getLongField(CONTENT_LENGTH);
       InputStream stream;
       if (len > 0) {
         stream =
-            ByteRange.parse(request.getHeader(HttpHeader.RANGE.asString()), len)
-                .apply(this)
-                .apply(in);
+            ByteRange.parse(request.getHeaders().get(HttpHeader.RANGE), len).apply(this).apply(in);
       } else {
-        response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
+        response.getHeaders().put(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
         stream = in;
       }
       responseStarted = true;
-      response.getHttpOutput().sendContent(stream);
+      Content.copy(new InputStreamContentSource(stream), response, this);
       return this;
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
-    } finally {
-      responseDone();
     }
   }
 
   @NonNull @Override
   public Context send(@NonNull FileChannel file) {
     try (FileChannel channel = file) {
-      response.setLongContentLength(channel.size());
+      response.getHeaders().put(CONTENT_LENGTH, channel.size());
       return sendStreamInternal(Channels.newInputStream(file));
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
-    } finally {
-      responseDone();
     }
   }
 
@@ -615,11 +580,11 @@ public class JettyContext implements DefaultContext {
   public boolean getResetHeadersOnError() {
     return resetHeadersOnError == null
         ? getRouter().getRouterOptions().contains(RouterOption.RESET_HEADERS_ON_ERROR)
-        : resetHeadersOnError.booleanValue();
+        : resetHeadersOnError;
   }
 
   @Override
-  public Context setResetHeadersOnError(boolean resetHeadersOnError) {
+  public @NonNull Context setResetHeadersOnError(boolean resetHeadersOnError) {
     this.resetHeadersOnError = resetHeadersOnError;
     return this;
   }
@@ -638,23 +603,6 @@ public class JettyContext implements DefaultContext {
     return getMethod() + " " + getRequestPath();
   }
 
-  void complete(Throwable x) {
-    try {
-      Logger log = router.getLog();
-      if (x != null) {
-        if (Server.connectionLost(x)) {
-          log.debug(
-              "exception found while sending response {} {}", getMethod(), getRequestPath(), x);
-        } else {
-          log.error(
-              "exception found while sending response {} {}", getMethod(), getRequestPath(), x);
-        }
-      }
-    } finally {
-      responseDone();
-    }
-  }
-
   private void clearFiles() {
     if (files != null) {
       for (FileUpload file : files) {
@@ -669,6 +617,35 @@ public class JettyContext implements DefaultContext {
     }
   }
 
+  @Override
+  public void failed(Throwable x) {
+    try {
+      responseDone();
+    } catch (Throwable ignored) {
+      Logger log = router.getLog();
+      if (x != null) {
+        if (Server.connectionLost(x)) {
+          log.debug(
+              "exception found while sending response {} {}", getMethod(), getRequestPath(), x);
+        } else {
+          log.error(
+              "exception found while sending response {} {}", getMethod(), getRequestPath(), x);
+        }
+      }
+    } finally {
+      callback.failed(x);
+    }
+  }
+
+  @Override
+  public void succeeded() {
+    try {
+      responseDone();
+    } finally {
+      callback.succeeded();
+    }
+  }
+
   void responseDone() {
     try {
       ifSaveSession();
@@ -677,9 +654,6 @@ public class JettyContext implements DefaultContext {
     } finally {
       if (listeners != null) {
         listeners.run(this);
-      }
-      if (request.isAsyncStarted()) {
-        request.getAsyncContext().complete();
       }
     }
   }
@@ -692,15 +666,10 @@ public class JettyContext implements DefaultContext {
     }
   }
 
-  private void ifStartAsync() {
-    if (!request.isAsyncStarted()) {
-      request.startAsync(request, response);
-    }
-  }
-
   private void ifSetChunked() {
-    if (response.getContentLength() <= 0) {
-      response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
+    var len = response.getHeaders().getLongField(CONTENT_LENGTH);
+    if (len <= 0) {
+      response.getHeaders().put(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED);
     }
   }
 
@@ -713,42 +682,19 @@ public class JettyContext implements DefaultContext {
   }
 
   private static void formParam(Request request, Formdata form) {
-    Enumeration<String> names = request.getParameterNames();
-    MultiMap<String> query = request.getQueryParameters();
-    while (names.hasMoreElements()) {
-      String name = names.nextElement();
-      if (query == null || !query.containsKey(name)) {
-        String[] values = request.getParameterValues(name);
+    try {
+      var params = Request.getParameters(request);
+      for (Fields.Field param : params) {
+        String name = param.getName();
+        var values = param.getValues();
         if (values != null) {
           for (String value : values) {
             form.put(name, value);
           }
         }
       }
+    } catch (Exception ex) {
+      throw SneakyThrows.propagate(ex);
     }
-  }
-
-  private static WriteListener writeListener(
-      AsyncContext async, HttpOutput out, ByteBuffer[] data) {
-    return new WriteListener() {
-      int i = 0;
-
-      @Override
-      public void onWritePossible() throws IOException {
-        while (out.isReady()) {
-          if (i < data.length) {
-            out.write(data[i++]);
-          } else {
-            async.complete();
-            return;
-          }
-        }
-      }
-
-      @Override
-      public void onError(Throwable x) {
-        async.complete();
-      }
-    };
   }
 }

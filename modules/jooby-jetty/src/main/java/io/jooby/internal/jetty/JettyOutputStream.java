@@ -5,8 +5,9 @@
  */
 package io.jooby.internal.jetty;
 
-import java.io.IOException;
 import java.io.OutputStream;
+
+import io.jooby.SneakyThrows;
 
 public class JettyOutputStream extends OutputStream {
 
@@ -19,31 +20,38 @@ public class JettyOutputStream extends OutputStream {
   }
 
   @Override
-  public void write(byte[] b, int off, int len) throws IOException {
-    out.write(b, off, len);
+  public void write(byte[] b, int off, int len) {
+    block(() -> out.write(b, off, len), false);
   }
 
   @Override
-  public void write(byte[] b) throws IOException {
-    out.write(b);
+  public void write(byte[] b) {
+    block(() -> out.write(b), false);
   }
 
   @Override
-  public void write(int b) throws IOException {
-    out.write(b);
+  public void write(int b) {
+    block(() -> out.write(b), false);
   }
 
   @Override
-  public void flush() throws IOException {
-    out.flush();
+  public void flush() {
+    block(out::flush, false);
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
+    block(out::close, true);
+  }
+
+  private void block(SneakyThrows.Runnable task, boolean complete) {
     try {
-      out.close();
-    } finally {
-      jetty.responseDone();
+      task.run();
+      if (complete) {
+        jetty.succeeded();
+      }
+    } catch (Throwable cause) {
+      jetty.failed(cause);
     }
   }
 }

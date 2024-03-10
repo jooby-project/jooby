@@ -14,10 +14,9 @@ module io.jooby.jetty {
   requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.eclipse.jetty.server;
-  requires org.eclipse.jetty.servlet;
-  requires org.eclipse.jetty.websocket.jetty.server;
   requires org.eclipse.jetty.alpn.server;
   requires org.eclipse.jetty.http2.server;
+  requires org.eclipse.jetty.websocket.server;
 
   provides Server with
       JettyServer;
