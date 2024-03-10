@@ -8,6 +8,7 @@ package io.jooby.internal.jetty;
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
+import static org.eclipse.jetty.server.SecureRequestCustomizer.JAKARTA_SERVLET_REQUEST_X_509_CERTIFICATE;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,10 +38,7 @@ import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.server.HttpOutput;
-import org.eclipse.jetty.server.MultiPartFormInputStream;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
@@ -307,7 +305,7 @@ public class JettyContext implements DefaultContext {
   @NonNull @Override
   public List<Certificate> getClientCertificates() {
     return Arrays.asList(
-        (Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate"));
+        (Certificate[]) request.getAttribute(JAKARTA_SERVLET_REQUEST_X_509_CERTIFICATE));
   }
 
   @NonNull @Override
