@@ -5,9 +5,9 @@
  */
 package io.jooby.internal.jetty;
 
+import static org.eclipse.jetty.http.HttpHeader.*;
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
-import static org.eclipse.jetty.http.HttpHeader.*;
 import static org.eclipse.jetty.io.Content.Sink.asOutputStream;
 
 import java.io.FileInputStream;
@@ -31,11 +31,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
+import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.io.content.InputStreamContentSource;
 import org.eclipse.jetty.server.Request;
@@ -227,6 +227,8 @@ public class JettyContext implements DefaultContext, Callback {
             // By default, uploaded files are stored in this directory, to
             // avoid to read the file content (which can be large) in memory.
             parser.setFilesDirectory(getRouter().getTmpdir());
+            parser.setMaxMemoryFileSize(bufferSize);
+            parser.setMaxLength(maxRequestSize);
             // Convert the request content into parts.
             // TODO: use non-blocking
             var parts = parser.parse(request).get();
