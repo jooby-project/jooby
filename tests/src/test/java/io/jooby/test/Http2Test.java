@@ -94,13 +94,12 @@ public class Http2Test {
             })
         .ready(
             http -> {
-              //              http.get(
-              //                  "/",
-              //                  rsp -> {
-              //                    assertEquals(
-              //                        "{secure=false, protocol=HTTP/1.1, scheme=http}",
-              // rsp.body().string());
-              //                  });
+              http.get(
+                  "/",
+                  rsp -> {
+                    assertEquals(
+                        "{secure=false, protocol=HTTP/1.1, scheme=http}", rsp.body().string());
+                  });
 
               hc2(
                   http,

@@ -90,7 +90,6 @@ import io.jooby.handler.HeadHandler;
 import io.jooby.handler.TraceHandler;
 import io.jooby.handler.WebVariables;
 import io.jooby.jackson.JacksonModule;
-import io.jooby.jetty.JettyServer;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.mutiny.Mutiny;
@@ -4079,7 +4078,7 @@ public class FeaturedTest {
             });
   }
 
-  @ServerTest(server = JettyServer.class)
+  @ServerTest
   public void byteArrayResponse(ServerTestRunner runner) {
     runner
         .define(
