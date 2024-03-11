@@ -5,36 +5,46 @@
  */
 package io.jooby.internal.jetty;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import org.eclipse.jetty.server.HttpOutput;
+import org.eclipse.jetty.server.Response;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
 
 public class JettySender implements Sender {
   private final JettyContext ctx;
-  private final HttpOutput sender;
+  private final Response response;
 
-  public JettySender(JettyContext ctx, HttpOutput sender) {
+  public JettySender(JettyContext ctx, Response response) {
     this.ctx = ctx;
-    this.sender = sender;
+    this.response = response;
   }
 
   @Override
   public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
-    try {
-      sender.write(data);
-      sender.flush();
-      callback.onComplete(ctx, null);
-    } catch (IOException e) {
-      callback.onComplete(ctx, e);
-    }
+    response.write(false, ByteBuffer.wrap(data), toJettyCallback(ctx, callback));
     return this;
+  }
+
+  private static org.eclipse.jetty.util.Callback toJettyCallback(
+      JettyContext ctx, Callback callback) {
+    return new org.eclipse.jetty.util.Callback() {
+
+      @Override
+      public void succeeded() {
+        callback.onComplete(ctx, null);
+      }
+
+      @Override
+      public void failed(Throwable x) {
+        callback.onComplete(ctx, x);
+      }
+    };
   }
 
   @Override
   public void close() {
-    ctx.complete(null);
+    response.write(false, null, ctx);
   }
 }

@@ -70,7 +70,7 @@
 
     <!-- Server -->
     <undertow.version>2.3.12.Final</undertow.version>
-    <jetty.version>11.0.20</jetty.version>
+    <jetty.version>12.0.7</jetty.version>
     <netty.version>4.1.107.Final</netty.version>
 
     <!--OpenAPI-->
@@ -924,7 +924,7 @@
 
       <dependency>
         <groupId>org.eclipse.jetty.websocket</groupId>
-        <artifactId>websocket-server</artifactId>
+        <artifactId>jetty-websocket-core-server</artifactId>
         <version>${jetty.version}</version>
       </dependency>
 

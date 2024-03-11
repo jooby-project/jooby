@@ -19,9 +19,7 @@ import org.eclipse.jetty.http2.api.Session;
 import org.eclipse.jetty.http2.api.Stream;
 import org.eclipse.jetty.http2.api.server.ServerSessionListener;
 import org.eclipse.jetty.http2.client.HTTP2Client;
-import org.eclipse.jetty.http2.frames.DataFrame;
 import org.eclipse.jetty.http2.frames.HeadersFrame;
-import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.FuturePromise;
 import org.eclipse.jetty.util.Promise;
 import org.junit.jupiter.api.AfterAll;
@@ -124,14 +122,17 @@ public class Http2Test {
     h2c.connect(
         null,
         new InetSocketAddress("localhost", http.getPort()),
-        new ServerSessionListener.Adapter(),
+        new ServerSessionListener() {
+          @Override
+          public void onAccept(Session session) {}
+        },
         sessionPromise);
     Session session = sessionPromise.get();
     Response.Builder builder = new Response.Builder();
     session.newStream(
         frame,
         new Promise.Adapter<>(),
-        new Stream.Listener.Adapter() {
+        new Stream.Listener() {
           @Override
           public void onHeaders(final Stream stream, final HeadersFrame frame) {
             MetaData.Response md = (MetaData.Response) frame.getMetaData();
@@ -141,18 +142,29 @@ public class Http2Test {
                 f -> builder.addHeader(f.getName().toLowerCase(), f.getValue().toLowerCase()));
             if (frame.isEndStream()) {
               phaser.arrive();
+            } else {
+              stream.demand();
             }
           }
 
           @Override
-          public void onData(final Stream stream, final DataFrame frame, final Callback callback) {
-            byte[] bytes = new byte[frame.getData().remaining()];
-            frame.getData().get(bytes);
-            ResponseBody responseBody = ResponseBody.create(bytes, MediaType.parse("text/plain"));
-            builder.body(responseBody);
-            callback.succeeded();
-            if (frame.isEndStream()) {
-              phaser.arrive();
+          public void onDataAvailable(Stream stream) {
+            while (true) {
+              Stream.Data data = stream.readData();
+              if (data == null) {
+                stream.demand();
+                return;
+              }
+              var buf = data.frame().getByteBuffer();
+              byte[] bytes = new byte[buf.remaining()];
+              buf.get(bytes);
+              ResponseBody responseBody = ResponseBody.create(bytes, MediaType.parse("text/plain"));
+              builder.body(responseBody);
+              if (frame.isEndStream()) {
+                phaser.arrive();
+              }
+              data.release();
+              if (data.frame().isEndStream()) return;
             }
           }
         });
