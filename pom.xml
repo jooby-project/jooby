@@ -52,7 +52,7 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.4.14</logback-classic.version>
+    <logback-classic.version>1.5.3</logback-classic.version>
     <log4j.version>2.23.0</log4j.version>
     <slf4j.version>2.0.12</slf4j.version>
 
