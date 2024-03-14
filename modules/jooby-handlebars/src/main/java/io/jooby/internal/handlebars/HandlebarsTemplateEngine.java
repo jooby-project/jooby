@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.handlebars;
+package io.jooby.internal.handlebars;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,12 +17,12 @@ import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 
-class HbsTemplateEngine implements TemplateEngine {
+public class HandlebarsTemplateEngine implements TemplateEngine {
 
   private final List<String> extensions;
   private final Handlebars handlebars;
 
-  HbsTemplateEngine(Handlebars handlebars, List<String> extensions) {
+  public HandlebarsTemplateEngine(Handlebars handlebars, List<String> extensions) {
     this.handlebars = handlebars;
     this.extensions = Collections.unmodifiableList(extensions);
   }

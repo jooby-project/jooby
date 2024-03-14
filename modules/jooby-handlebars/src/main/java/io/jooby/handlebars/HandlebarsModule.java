@@ -30,6 +30,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
 import io.jooby.TemplateEngine;
+import io.jooby.internal.handlebars.HandlebarsTemplateEngine;
 
 /**
  * Handlebars module: https://jooby.io/modules/handlebars.
@@ -241,7 +242,7 @@ public class HandlebarsModule implements Extension {
               .setTemplatesPath(templatesPath)
               .build(application.getEnvironment());
     }
-    application.encoder(new HbsTemplateEngine(handlebars, EXT));
+    application.encoder(new HandlebarsTemplateEngine(handlebars, EXT));
 
     ServiceRegistry services = application.getServices();
     services.put(Handlebars.class, handlebars);

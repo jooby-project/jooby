@@ -16,6 +16,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Environment;
 import io.jooby.ModelAndView;
+import io.jooby.internal.handlebars.HandlebarsTemplateEngine;
 import io.jooby.test.MockContext;
 
 public class HandlebarsModuleTest {
@@ -43,7 +44,8 @@ public class HandlebarsModuleTest {
     Handlebars handlebars =
         HandlebarsModule.create()
             .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
-    HbsTemplateEngine engine = new HbsTemplateEngine(handlebars, Arrays.asList(".hbs"));
+    HandlebarsTemplateEngine engine =
+        new HandlebarsTemplateEngine(handlebars, Arrays.asList(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output =
@@ -59,7 +61,8 @@ public class HandlebarsModuleTest {
         HandlebarsModule.create()
             .setTemplatesPath(Paths.get("src", "test", "resources", "views").toString())
             .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
-    HbsTemplateEngine engine = new HbsTemplateEngine(handlebars, Arrays.asList(".hbs"));
+    HandlebarsTemplateEngine engine =
+        new HandlebarsTemplateEngine(handlebars, Arrays.asList(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output =
