@@ -125,15 +125,9 @@ public class UndertowContext implements DefaultContext, IoCallback {
   @Override
   public @NonNull Map<String, String> cookieMap() {
     if (this.cookies == null) {
-      Collection<io.undertow.server.handlers.Cookie> cookies =
-          exchange.getRequestCookies().values();
-      if (cookies.size() > 0) {
-        this.cookies = new LinkedHashMap<>(cookies.size());
-        for (io.undertow.server.handlers.Cookie it : cookies) {
-          this.cookies.put(it.getName(), it.getValue());
-        }
-      } else {
-        this.cookies = Collections.emptyMap();
+      this.cookies = new LinkedHashMap<>();
+      for (var it : exchange.requestCookies()) {
+        this.cookies.put(it.getName(), it.getValue());
       }
     }
     return cookies;

@@ -7,7 +7,6 @@ package io.jooby.internal.netty;
 
 import static io.jooby.ServerOptions._4KB;
 import static io.jooby.ServerOptions._8KB;
-import static io.jooby.netty.NettyServer.VALIDATE_HEADERS;
 
 import java.util.function.Supplier;
 
@@ -121,6 +120,6 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   }
 
   HttpServerCodec createServerCodec() {
-    return new HttpServerCodec(_4KB, _8KB, bufferSize, VALIDATE_HEADERS);
+    return new HttpServerCodec(_4KB, _8KB, bufferSize);
   }
 }

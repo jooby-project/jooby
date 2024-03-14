@@ -10,7 +10,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -70,12 +69,8 @@ public class EmailFactory {
     ifset("replyTo", p -> email.setReplyTo(address(mail.getStringList(p))));
     ifset("sendPartial", p -> email.setSendPartial(mail.getBoolean(p)));
     ifset("smtpPort", p -> email.setSmtpPort(mail.getInt(p)));
-    ifset(
-        "socketConnectionTimeout",
-        p -> email.setSocketConnectionTimeout((int) mail.getDuration(p, TimeUnit.MILLISECONDS)));
-    ifset(
-        "socketTimeout",
-        p -> email.setSocketTimeout((int) mail.getDuration(p, TimeUnit.MILLISECONDS)));
+    ifset("socketConnectionTimeout", p -> email.setSocketConnectionTimeout(mail.getDuration(p)));
+    ifset("socketTimeout", p -> email.setSocketTimeout(mail.getDuration(p)));
     ifset("ssl.checkServerIdentity", p -> email.setSSLCheckServerIdentity(mail.getBoolean(p)));
     ifset("ssl.onConnect", p -> email.setSSLOnConnect(mail.getBoolean(p)));
     ifset("ssl.smtpPort", p -> email.setSslSmtpPort(mail.getString(p)));

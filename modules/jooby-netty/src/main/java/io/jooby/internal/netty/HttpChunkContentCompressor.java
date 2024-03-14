@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.netty;
 
+import static io.netty.handler.codec.compression.StandardCompressionOptions.gzip;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -13,7 +15,7 @@ import io.netty.handler.codec.http.HttpContentCompressor;
 
 class HttpChunkContentCompressor extends HttpContentCompressor {
   public HttpChunkContentCompressor(int compressionLevel) {
-    super(compressionLevel < 0 ? 0 : compressionLevel);
+    super(gzip(compressionLevel, gzip().windowBits(), gzip().memLevel()));
   }
 
   @Override

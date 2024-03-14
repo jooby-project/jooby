@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -126,13 +127,16 @@ public class ParserContext {
     /** Kotlin module? */
     List<Module> modules = new ArrayList<>(2);
     try {
-      Module module =
-          (Module)
-              classLoader
-                  .loadClass("com.fasterxml.jackson.module.kotlin.KotlinModule")
-                  .newInstance();
+      var kotlinModuleClass =
+          classLoader.loadClass("com.fasterxml.jackson.module.kotlin.KotlinModule");
+      var constructor = kotlinModuleClass.getDeclaredConstructor();
+      Module module = (Module) constructor.newInstance();
       modules.add(module);
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException x) {
+    } catch (ClassNotFoundException
+        | InstantiationException
+        | IllegalAccessException
+        | NoSuchMethodException
+        | InvocationTargetException x) {
       // Sshhhhh
     }
     /** Ignore some conflictive setter in Jooby API: */

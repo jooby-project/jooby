@@ -251,8 +251,8 @@ public class HibernateModule implements Extension {
     ssrb.applySetting(AvailableSettings.HBM2DDL_AUTO, ddlAuto);
     ssrb.applySetting(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed");
     // apply application.conf
-    Map base = env.getProperties("hibernate");
-    Map custom = env.getProperties(name + ".hibernate", "hibernate");
+    var base = env.getProperties("hibernate");
+    var custom = env.getProperties(name + ".hibernate", "hibernate");
     Map<String, String> javax = env.getProperties("hibernate.javax", "javax");
     Map<String, String> jakarta = env.getProperties("hibernate.jakarta", "jakarta");
 
@@ -263,7 +263,7 @@ public class HibernateModule implements Extension {
     settings.putAll(jakarta);
 
     ssrb.applySettings(settings);
-    ssrb.applySetting(AvailableSettings.DATASOURCE, dataSource);
+    ssrb.applySetting(AvailableSettings.JAKARTA_JTA_DATASOURCE, dataSource);
     ssrb.applySetting(AvailableSettings.DELAY_CDI_ACCESS, true);
 
     configurer.configure(ssrb, config);
@@ -290,7 +290,7 @@ public class HibernateModule implements Extension {
             .collect(Collectors.toList());
 
     MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
-    if (packages.size() > 0) {
+    if (!packages.isEmpty()) {
       metadataBuilder.applyScanEnvironment(new ScanEnvImpl(packages));
     }
 
@@ -330,7 +330,7 @@ public class HibernateModule implements Extension {
     registry.putIfAbsent(UnitOfWork.class, unitOfWorkProvider);
     registry.put(ServiceKey.key(UnitOfWork.class, name), unitOfWorkProvider);
 
-    application.onStop(sf::close);
+    application.onStop(sf);
   }
 
   private static boolean isFlywayPresent(

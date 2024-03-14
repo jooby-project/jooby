@@ -56,8 +56,6 @@ public class NettyServer extends Server.Base {
         System.getProperty("io.netty.leakDetection.level", "disabled"));
   }
 
-  public static final boolean VALIDATE_HEADERS =
-      !Boolean.parseBoolean(System.getProperty("io.netty.disableHttpHeadersValidation", "false"));
   private static final int _50 = 50;
 
   private static final int _100 = 100;

@@ -177,24 +177,15 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
       code = Integer.parseInt(value);
       tail = null;
     }
-    switch (code) {
-      case BAD_REQUEST_CODE:
-        return BadRequestAction.INSTANCE;
-      case FORBIDDEN_CODE:
-        return ForbiddenAction.INSTANCE;
-      case TEMPORARY_REDIRECT_CODE:
-      case FOUND_CODE:
-        return new FoundAction(tail);
-      case NO_CONTENT_CODE:
-        return NoContentAction.INSTANCE;
-      case OK_CODE:
-        return new OkAction(tail);
-      case SEE_OTHER_CODE:
-        return new SeeOtherAction(tail);
-      case UNAUTHORIZED_CODE:
-        return UnauthorizedAction.INSTANCE;
-      default:
-        return new StatusAction(code);
-    }
+    return switch (code) {
+      case BAD_REQUEST_CODE -> new BadRequestAction();
+      case FORBIDDEN_CODE -> new ForbiddenAction();
+      case TEMPORARY_REDIRECT_CODE, FOUND_CODE -> new FoundAction(tail);
+      case NO_CONTENT_CODE -> NoContentAction.INSTANCE;
+      case OK_CODE -> new OkAction(tail);
+      case SEE_OTHER_CODE -> new SeeOtherAction(tail);
+      case UNAUTHORIZED_CODE -> new UnauthorizedAction();
+      default -> new StatusAction(code);
+    };
   }
 }

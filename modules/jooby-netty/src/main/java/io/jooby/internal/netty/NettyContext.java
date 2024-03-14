@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.netty;
 
-import static io.jooby.netty.NettyServer.VALIDATE_HEADERS;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
@@ -113,7 +112,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private static final String STREAM_ID = "x-http2-stream-id";
 
   private String streamId;
-  DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(VALIDATE_HEADERS);
+  DefaultHttpHeaders setHeaders = new DefaultHttpHeaders();
   private int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
