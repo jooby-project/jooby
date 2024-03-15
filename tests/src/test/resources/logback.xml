@@ -6,6 +6,8 @@
     </encoder>
   </appender>
 
+  <logger name="okhttp3.Request" level="TRACE" />
+
   <root level="INFO">
     <appender-ref ref="STDOUT"/>
   </root>

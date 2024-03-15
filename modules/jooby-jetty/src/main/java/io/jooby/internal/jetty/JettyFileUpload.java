@@ -47,7 +47,11 @@ public class JettyFileUpload implements FileUpload {
 
   @Override
   public @NonNull InputStream stream() {
-    return Content.Source.asInputStream(upload.getContentSource());
+    try {
+      return Content.Source.asInputStream(upload.getContentSource());
+    } catch (Exception c) {
+      return null;
+    }
   }
 
   @Override

@@ -230,7 +230,6 @@ public class JettyContext implements DefaultContext, Callback {
             parser.setMaxMemoryFileSize(bufferSize);
             parser.setMaxLength(maxRequestSize);
             // Convert the request content into parts.
-            // TODO: use non-blocking
             var parts = parser.parse(request).get();
             for (var part : parts) {
               if (part.getFileName() != null) {

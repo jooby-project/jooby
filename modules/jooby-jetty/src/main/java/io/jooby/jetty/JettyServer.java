@@ -14,13 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.eclipse.jetty.http.UriCompliance;
-import org.eclipse.jetty.server.ConnectionFactory;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
@@ -40,6 +34,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.WebSocket;
 import io.jooby.internal.jetty.JettyHandler;
+import io.jooby.internal.jetty.JettyHttpExpectAndContinueHandler;
 import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
 
 /**
@@ -208,13 +203,16 @@ public class JettyServer extends io.jooby.Server.Base {
       }
 
       /* ********************************* Servlet *************************************/
-      JettyHandler servlet =
+      Handler handler =
           new JettyHandler(
               applications.get(0),
               options.getBufferSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
-      context.setHandler(servlet);
+      if (options.isExpectContinue() == Boolean.TRUE) {
+        handler = new JettyHttpExpectAndContinueHandler(handler);
+      }
+      context.setHandler(handler);
 
       /* ********************************* Gzip *************************************/
       if (gzip) {

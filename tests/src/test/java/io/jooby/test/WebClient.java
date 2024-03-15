@@ -195,7 +195,7 @@ public class WebClient implements AutoCloseable {
     if (headers == null) {
       headers = new Headers.Builder();
     }
-    if (value != null && value.trim().length() > 0) {
+    if (value != null && !value.trim().isEmpty()) {
       headers.add(name, value);
     }
     return this;
