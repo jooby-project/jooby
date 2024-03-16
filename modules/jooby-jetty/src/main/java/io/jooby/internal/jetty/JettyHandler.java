@@ -13,7 +13,7 @@ import org.eclipse.jetty.util.Callback;
 
 import io.jooby.Router;
 
-public class JettyHandler extends Handler.Abstract.NonBlocking {
+public class JettyHandler extends Handler.Abstract {
   private Router router;
   private boolean defaultHeaders;
   private int bufferSize;

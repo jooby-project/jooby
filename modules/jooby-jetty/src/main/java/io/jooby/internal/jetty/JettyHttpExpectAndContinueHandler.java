@@ -15,11 +15,9 @@ import org.eclipse.jetty.util.Callback;
 
 import io.jooby.StatusCode;
 
-public class JettyHttpExpectAndContinueHandler extends Handler.Abstract.NonBlocking {
-  private final Handler next;
-
+public class JettyHttpExpectAndContinueHandler extends Handler.Abstract.Wrapper {
   public JettyHttpExpectAndContinueHandler(Handler next) {
-    this.next = next;
+    super(next);
   }
 
   @Override
@@ -27,6 +25,6 @@ public class JettyHttpExpectAndContinueHandler extends Handler.Abstract.NonBlock
     if (request.getHeaders().contains(HttpHeader.EXPECT, HttpHeaderValue.CONTINUE.asString())) {
       response.writeInterim(StatusCode.CONTINUE_CODE, HttpFields.EMPTY);
     }
-    return next.handle(request, response, callback);
+    return super.handle(request, response, callback);
   }
 }

@@ -270,7 +270,7 @@ public class ServerOptions {
     if (securePort == null) {
       this.securePort = null;
     } else {
-      this.securePort = securePort.intValue() == 0 ? randomPort() : securePort.intValue();
+      this.securePort = securePort == 0 ? randomPort() : securePort;
     }
     return this;
   }

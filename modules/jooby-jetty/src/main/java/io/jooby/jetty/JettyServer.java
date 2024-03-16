@@ -121,7 +121,6 @@ public class JettyServer extends io.jooby.Server.Base {
       httpConf.setSendXPoweredBy(false);
       httpConf.setSendDateHeader(options.getDefaultHeaders());
       httpConf.setSendServerVersion(false);
-      // httpConf.setMultiPartCompliance(MultiPartCompliance.RFC7578);
 
       if (httpConfigurer != null) {
         httpConfigurer.accept(httpConf);
@@ -170,7 +169,7 @@ public class JettyServer extends io.jooby.Server.Base {
           secureConnectionFactories.add(new SslConnectionFactory(sslContextFactory, "http/1.1"));
         } else {
           secureConnectionFactories.add(new SslConnectionFactory(sslContextFactory, "alpn"));
-          http2.configure(httpsConf).forEach(secureConnectionFactories::add);
+          secureConnectionFactories.addAll(http2.configure(httpsConf));
         }
         secureConnectionFactories.add(new HttpConnectionFactory(httpsConf));
 
