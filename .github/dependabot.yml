@@ -5,38 +5,29 @@ updates:
   schedule:
     interval: weekly
   open-pull-requests-limit: 10
+  groups:
+    dependencies:
+      patterns:
+      - "*"
+      exclude-patterns:
+      - "*vue*"
 - package-ecosystem: npm
   directory: "/modules/jooby-graphiql"
   schedule:
     interval: weekly
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 1
 - package-ecosystem: npm
   directory: "/modules/jooby-graphql-playground"
   schedule:
     interval: weekly
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: graphql-playground-react
-    versions:
-    - "> 1.7.26, < 1.8"
+  open-pull-requests-limit: 1
 - package-ecosystem: npm
   directory: "/modules/jooby-redoc"
   schedule:
     interval: weekly
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: redoc
-    versions:
-    - 2.0.0-rc.51
+  open-pull-requests-limit: 1
 - package-ecosystem: npm
   directory: "/modules/jooby-swagger-ui"
   schedule:
     interval: weekly
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: swagger-ui-dist
-    versions:
-    - 3.42.0
-    - 3.43.0
-    - 3.45.0
-    - 3.45.1
+  open-pull-requests-limit: 1
