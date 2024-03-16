@@ -574,7 +574,7 @@ public class JettyContext implements DefaultContext, Callback {
 
   @Override
   public boolean isResponseStarted() {
-    return responseStarted;
+    return responseStarted || response.isCommitted();
   }
 
   @Override
@@ -621,20 +621,26 @@ public class JettyContext implements DefaultContext, Callback {
   @Override
   public void failed(Throwable x) {
     try {
-      responseDone();
-    } catch (Throwable ignored) {
-      Logger log = router.getLog();
-      if (x != null) {
-        if (Server.connectionLost(x)) {
-          log.debug(
-              "exception found while sending response {} {}", getMethod(), getRequestPath(), x);
-        } else {
-          log.error(
-              "exception found while sending response {} {}", getMethod(), getRequestPath(), x);
-        }
+      if (!isResponseStarted()) {
+        sendError(x);
       }
     } finally {
-      callback.failed(x);
+      try {
+        responseDone();
+      } catch (Throwable ignored) {
+        Logger log = router.getLog();
+        if (x != null) {
+          if (Server.connectionLost(x)) {
+            log.debug(
+                "exception found while sending response {} {}", getMethod(), getRequestPath(), x);
+          } else {
+            log.error(
+                "exception found while sending response {} {}", getMethod(), getRequestPath(), x);
+          }
+        }
+      } finally {
+        callback.failed(x);
+      }
     }
   }
 

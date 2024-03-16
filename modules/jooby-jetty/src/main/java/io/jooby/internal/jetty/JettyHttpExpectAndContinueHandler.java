@@ -8,12 +8,11 @@ package io.jooby.internal.jetty;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
-
-import io.jooby.StatusCode;
 
 public class JettyHttpExpectAndContinueHandler extends Handler.Abstract.Wrapper {
   public JettyHttpExpectAndContinueHandler(Handler next) {
@@ -23,7 +22,7 @@ public class JettyHttpExpectAndContinueHandler extends Handler.Abstract.Wrapper 
   @Override
   public boolean handle(Request request, Response response, Callback callback) throws Exception {
     if (request.getHeaders().contains(HttpHeader.EXPECT, HttpHeaderValue.CONTINUE.asString())) {
-      response.writeInterim(StatusCode.CONTINUE_CODE, HttpFields.EMPTY);
+      response.writeInterim(HttpStatus.CONTINUE_100, HttpFields.EMPTY);
     }
     return super.handle(request, response, callback);
   }

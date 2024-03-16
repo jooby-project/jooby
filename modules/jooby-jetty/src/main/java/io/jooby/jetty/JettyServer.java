@@ -114,7 +114,7 @@ public class JettyServer extends io.jooby.Server.Base {
       JettyHttp2Configurer http2 =
           options.isHttp2() == Boolean.TRUE ? new JettyHttp2Configurer() : null;
 
-      HttpConfiguration httpConf = new HttpConfiguration();
+      var httpConf = new HttpConfiguration();
       httpConf.setUriCompliance(UriCompliance.LEGACY);
       httpConf.setOutputBufferSize(options.getBufferSize());
       httpConf.setOutputAggregationSize(options.getBufferSize());
@@ -126,14 +126,14 @@ public class JettyServer extends io.jooby.Server.Base {
         httpConfigurer.accept(httpConf);
       }
 
-      List<ConnectionFactory> connectionFactories = new ArrayList<>();
+      var connectionFactories = new ArrayList<ConnectionFactory>();
       connectionFactories.add(new HttpConnectionFactory(httpConf));
       if (http2 != null) {
         connectionFactories.addAll(http2.configure(httpConf));
       }
 
       if (!options.isHttpsOnly()) {
-        ServerConnector http =
+        var http =
             new ServerConnector(server, connectionFactories.toArray(new ConnectionFactory[0]));
         http.setPort(options.getPort());
         http.setHost(options.getHost());
@@ -142,16 +142,16 @@ public class JettyServer extends io.jooby.Server.Base {
       }
 
       if (options.isSSLEnabled()) {
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        var sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setSslContext(
             options.getSSLContext(application.getEnvironment().getClassLoader()));
-        List<String> protocol = options.getSsl().getProtocol();
+        var protocol = options.getSsl().getProtocol();
         sslContextFactory.setIncludeProtocols(protocol.toArray(new String[0]));
         // exclude
         isNotInUse(protocol, "TLSv1", sslContextFactory::addExcludeProtocols);
         isNotInUse(protocol, "TLSv1.1", sslContextFactory::addExcludeProtocols);
 
-        SslOptions.ClientAuth clientAuth =
+        var clientAuth =
             Optional.ofNullable(options.getSsl())
                 .map(SslOptions::getClientAuth)
                 .orElse(SslOptions.ClientAuth.NONE);
@@ -161,10 +161,10 @@ public class JettyServer extends io.jooby.Server.Base {
           sslContextFactory.setNeedClientAuth(true);
         }
 
-        HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
+        var httpsConf = new HttpConfiguration(httpConf);
         httpsConf.addCustomizer(new SecureRequestCustomizer());
 
-        List<ConnectionFactory> secureConnectionFactories = new ArrayList<>();
+        var secureConnectionFactories = new ArrayList<ConnectionFactory>();
         if (http2 == null) {
           secureConnectionFactories.add(new SslConnectionFactory(sslContextFactory, "http/1.1"));
         } else {
@@ -173,7 +173,7 @@ public class JettyServer extends io.jooby.Server.Base {
         }
         secureConnectionFactories.add(new HttpConnectionFactory(httpsConf));
 
-        ServerConnector secureConnector =
+        var secureConnector =
             new ServerConnector(
                 server, secureConnectionFactories.toArray(new ConnectionFactory[0]));
         secureConnector.setPort(options.getSecurePort());
@@ -185,14 +185,14 @@ public class JettyServer extends io.jooby.Server.Base {
             "Server configured for httpsOnly, but ssl options not set");
       }
 
-      ContextHandler context = new ContextHandler();
+      var context = new ContextHandler();
 
       boolean webSockets =
           application.getRoutes().stream().anyMatch(it -> it.getMethod().equals(Router.WS));
 
       /* ********************************* Compression *************************************/
-      boolean gzip = options.getCompressionLevel() != null;
-      boolean compress = gzip || webSockets;
+      var gzip = options.getCompressionLevel() != null;
+      var compress = gzip || webSockets;
       if (compress) {
         int compressionLevel =
             Optional.ofNullable(options.getCompressionLevel())
@@ -215,7 +215,7 @@ public class JettyServer extends io.jooby.Server.Base {
 
       /* ********************************* Gzip *************************************/
       if (gzip) {
-        GzipHandler gzipHandler = new GzipHandler();
+        var gzipHandler = new GzipHandler();
         context.insertHandler(gzipHandler);
       }
       /* ********************************* WebSocket *************************************/
@@ -239,7 +239,6 @@ public class JettyServer extends io.jooby.Server.Base {
               container.setIdleTimeout(Duration.ofMillis(timeout));
             });
       }
-
       server.setHandler(context);
       server.start();
 
