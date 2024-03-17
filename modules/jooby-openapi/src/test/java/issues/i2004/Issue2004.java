@@ -30,7 +30,7 @@ public class Issue2004 {
             + "        content:\n"
             + "          application/json:\n"
             + "            schema:\n"
-            + "              $ref: '#/components/schemas/CompanyRequest'\n"
+            + "              $ref: \"#/components/schemas/CompanyRequest\"\n"
             + "        required: true\n"
             + "      responses:\n"
             + "        \"200\":\n"

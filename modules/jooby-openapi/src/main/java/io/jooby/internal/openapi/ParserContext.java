@@ -95,6 +95,8 @@ public class ParserContext {
 
   public static class TypeLiteral {
     public JavaType type;
+
+    public TypeLiteral() {}
   }
 
   private String mainClass;
