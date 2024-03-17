@@ -24,8 +24,6 @@
     <jstachio.version>1.3.5</jstachio.version>
     <pebble.version>3.2.2</pebble.version>
     <jackson.version>2.17.0</jackson.version>
-    <jackson-dataformat-yaml.version>${jackson.version}</jackson-dataformat-yaml.version>
-    <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <gson.version>2.10.1</gson.version>
     <avaje-jsonb.version>1.10</avaje-jsonb.version>
     <jakarta.json.bind-api.version>3.0.0</jakarta.json.bind-api.version>
@@ -619,7 +617,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson-databind.version}</version>
+        <version>${jackson.version}</version>
       </dependency>
 
       <dependency>
@@ -649,7 +647,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-yaml</artifactId>
-        <version>${jackson-dataformat-yaml.version}</version>
+        <version>${jackson.version}</version>
       </dependency>
 
       <dependency>
