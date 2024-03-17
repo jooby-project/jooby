@@ -44,7 +44,7 @@ class Issue3217 {
         "              schema:\n" +
         "                type: array\n" +
         "                items:\n" +
-        "                  \$ref: '#/components/schemas/SomeBean3217'\n" +
+        "                  \$ref: \"#/components/schemas/SomeBean3217\"\n" +
         "  /api-mvc/beans:\n" +
         "    get:\n" +
         "      operationId: getBeans\n" +
@@ -56,7 +56,7 @@ class Issue3217 {
         "              schema:\n" +
         "                type: array\n" +
         "                items:\n" +
-        "                  \$ref: '#/components/schemas/SomeBean3217'\n" +
+        "                  \$ref: \"#/components/schemas/SomeBean3217\"\n" +
         "components:\n" +
         "  schemas:\n" +
         "    SomeBean3217:\n" +
