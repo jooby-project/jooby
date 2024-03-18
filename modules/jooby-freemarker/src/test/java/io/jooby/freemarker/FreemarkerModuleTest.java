@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
@@ -71,7 +72,7 @@ public class FreemarkerModuleTest {
     String output =
         engine.render(
             ctx,
-            new ModelAndView("index.ftl").put("user", new User("foo", "bar")).put("sign", "!"));
+            ModelAndView.map("index.ftl").put("user", new User("foo", "bar")).put("sign", "!"));
     assertEquals("Hello foo bar var!", output.trim());
   }
 
@@ -96,7 +97,7 @@ public class FreemarkerModuleTest {
     assertEquals(
         "friday",
         engine
-            .render(ctx, new ModelAndView("locales.ftl").put("someDate", nextFriday))
+            .render(ctx, ModelAndView.map("locales.ftl").put("someDate", nextFriday))
             .trim()
             .toLowerCase());
 
@@ -105,7 +106,7 @@ public class FreemarkerModuleTest {
         engine
             .render(
                 ctx,
-                new ModelAndView("locales.ftl")
+                ModelAndView.map("locales.ftl")
                     .put("someDate", nextFriday)
                     .setLocale(new Locale("en", "GB")))
             .trim()
@@ -116,7 +117,7 @@ public class FreemarkerModuleTest {
         engine
             .render(
                 ctx,
-                new ModelAndView("locales.ftl")
+                ModelAndView.map("locales.ftl")
                     .put("someDate", nextFriday)
                     .setLocale(Locale.GERMAN))
             .trim()
@@ -136,7 +137,7 @@ public class FreemarkerModuleTest {
     String output =
         engine.render(
             ctx,
-            new ModelAndView("index.ftl").put("user", new MyModel("foo", "bar")).put("sign", "!"));
+            ModelAndView.map("index.ftl").put("user", new MyModel("foo", "bar")).put("sign", "!"));
     assertEquals("Hello foo bar var!", output.trim());
   }
 
@@ -149,12 +150,11 @@ public class FreemarkerModuleTest {
                     getClass().getClassLoader(),
                     ConfigFactory.empty()
                         .withValue("templates.path", ConfigValueFactory.fromAnyRef("foo"))));
-    FreemarkerTemplateEngine engine =
-        new FreemarkerTemplateEngine(freemarker, Arrays.asList(".ftl"));
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker, List.of(".ftl"));
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
-    String output = engine.render(ctx, new ModelAndView("index.ftl"));
+    String output = engine.render(ctx, ModelAndView.map("index.ftl"));
     assertEquals("var", output.trim());
   }
 }

@@ -3589,7 +3589,7 @@ public class FeaturedTest {
         .define(
             app -> {
               app.install(new HandlebarsModule());
-              app.get("/home", ctx -> new ModelAndView("flash.hbs"));
+              app.get("/home", ctx -> ModelAndView.map("flash.hbs"));
             })
         .dontFollowRedirects()
         .ready(
@@ -4444,7 +4444,7 @@ public class FeaturedTest {
 
               app.error(
                   (ctx, cause, code) -> {
-                    ctx.render(new ModelAndView("error.hbs").put("statusCode", code));
+                    ctx.render(ModelAndView.map("error.hbs").put("statusCode", code));
                   });
             })
         .ready(

@@ -7,17 +7,14 @@ package io.jooby.freemarker;
 
 import java.io.StringWriter;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import freemarker.core.Environment;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
+import freemarker.template.*;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
+import io.jooby.SneakyThrows;
 import io.jooby.TemplateEngine;
 
 class FreemarkerTemplateEngine implements TemplateEngine {
@@ -37,16 +34,21 @@ class FreemarkerTemplateEngine implements TemplateEngine {
 
   @Override
   public String render(Context ctx, ModelAndView modelAndView) throws Exception {
-    Template template = freemarker.getTemplate(modelAndView.getView());
-    StringWriter writer = new StringWriter();
-    Map<String, Object> model = new HashMap<>(ctx.getAttributes());
-    model.putAll(modelAndView.getModel());
-    Locale locale = modelAndView.getLocale();
+    var template = freemarker.getTemplate(modelAndView.getView());
+    var writer = new StringWriter();
+    var wrapper = freemarker.getObjectWrapper();
+    var model = modelAndView.getModel();
+    var engineModel = wrapper.wrap(model);
+    var locale = modelAndView.getLocale();
     if (locale == null) {
       locale = ctx.locale();
     }
-    Environment env = template.createProcessingEnvironment(model, writer);
+    Environment env = template.createProcessingEnvironment(engineModel, writer);
     env.setLocale(locale);
+    ctx.getAttributes()
+        .forEach(
+            SneakyThrows.throwingConsumer(
+                (name, value) -> env.setVariable(name, wrapper.wrap(value))));
     env.process();
     return writer.toString();
   }

@@ -5,7 +5,6 @@
  */
 package io.jooby;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -18,13 +17,13 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @since 2.0.0
  * @author edgar
  */
-public class ModelAndView {
+public class ModelAndView<T> {
 
   /** View name. */
   private final String view;
 
   /** View data. */
-  private final Map<String, Object> model;
+  protected final T model;
 
   /** Locale used when rendering the view. */
   private Locale locale;
@@ -35,41 +34,30 @@ public class ModelAndView {
    * @param view View name must include file extension.
    * @param model View model.
    */
-  public ModelAndView(@NonNull String view, @NonNull Map<String, Object> model) {
+  public ModelAndView(@NonNull String view, @NonNull T model) {
     this.view = view;
     this.model = model;
   }
 
   /**
-   * Creates a new model and view.
+   * Creates a model and view backed by a map.
    *
-   * @param view View name must include file extension.
+   * @param view View name.
+   * @return A map model and view.
    */
-  public ModelAndView(@NonNull String view) {
-    this(view, new HashMap<>());
+  public static MapModelAndView map(@NonNull String view) {
+    return new MapModelAndView(view);
   }
 
   /**
-   * Put a model attribute.
+   * Creates a model and view backed by a map.
    *
-   * @param name Name.
-   * @param value Value.
-   * @return This model and view.
+   * @param view View name.
+   * @param model Map instance.
+   * @return A map model and view.
    */
-  public ModelAndView put(@NonNull String name, Object value) {
-    model.put(name, value);
-    return this;
-  }
-
-  /**
-   * Copy all the attributes into the model.
-   *
-   * @param attributes Attributes.
-   * @return This model and view.
-   */
-  public ModelAndView put(@NonNull Map<String, Object> attributes) {
-    model.putAll(attributes);
-    return this;
+  public static MapModelAndView map(@NonNull String view, @NonNull Map<String, Object> model) {
+    return new MapModelAndView(view, model);
   }
 
   /**
@@ -79,7 +67,7 @@ public class ModelAndView {
    * @param locale The locale used when rendering the view.
    * @return This instance.
    */
-  public ModelAndView setLocale(@Nullable Locale locale) {
+  public ModelAndView<T> setLocale(@Nullable Locale locale) {
     this.locale = locale;
     return this;
   }
@@ -89,7 +77,7 @@ public class ModelAndView {
    *
    * @return View data (a.k.a as model).
    */
-  public Map<String, Object> getModel() {
+  public T getModel() {
     return model;
   }
 

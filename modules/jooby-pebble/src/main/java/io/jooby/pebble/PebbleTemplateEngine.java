@@ -15,6 +15,7 @@ import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
+import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 import io.pebbletemplates.pebble.PebbleEngine;
@@ -36,16 +37,26 @@ class PebbleTemplateEngine implements TemplateEngine {
   }
 
   @Override
+  public boolean supports(@NonNull ModelAndView modelAndView) {
+    return TemplateEngine.super.supports(modelAndView) && modelAndView instanceof MapModelAndView;
+  }
+
+  @Override
   public String render(Context ctx, ModelAndView modelAndView) throws Exception {
-    PebbleTemplate template = engine.getTemplate(modelAndView.getView());
-    Writer writer = new StringWriter();
-    Map<String, Object> model = new HashMap<>(ctx.getAttributes());
-    model.putAll(modelAndView.getModel());
-    Locale locale = modelAndView.getLocale();
-    if (locale == null) {
-      locale = ctx.locale();
+    if (modelAndView instanceof MapModelAndView mapModelAndView) {
+      PebbleTemplate template = engine.getTemplate(modelAndView.getView());
+      Writer writer = new StringWriter();
+      Map<String, Object> model = new HashMap<>(ctx.getAttributes());
+      model.putAll(mapModelAndView.getModel());
+      Locale locale = modelAndView.getLocale();
+      if (locale == null) {
+        locale = ctx.locale();
+      }
+      template.evaluate(writer, model, locale);
+      return writer.toString();
+    } else {
+      throw new IllegalArgumentException(
+          "Only " + MapModelAndView.class.getName() + " are supported");
     }
-    template.evaluate(writer, model, locale);
-    return writer.toString();
   }
 }

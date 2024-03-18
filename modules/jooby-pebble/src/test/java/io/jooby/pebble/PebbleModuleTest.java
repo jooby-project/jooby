@@ -54,7 +54,7 @@ public class PebbleModuleTest {
     String output =
         engine.render(
             ctx,
-            new ModelAndView("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
+            ModelAndView.map("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
     assertEquals("Hello foo bar var!", output);
   }
 
@@ -72,7 +72,7 @@ public class PebbleModuleTest {
     String output =
         engine.render(
             ctx,
-            new ModelAndView("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
+            ModelAndView.map("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
     assertEquals("Hello foo bar var!", output);
   }
 
@@ -86,21 +86,21 @@ public class PebbleModuleTest {
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
 
-    assertEquals("Greetings!", engine.render(ctx, new ModelAndView("locales.peb")));
+    assertEquals("Greetings!", engine.render(ctx, ModelAndView.map("locales.peb")));
 
     assertEquals(
         "Hi!",
-        engine.render(ctx, new ModelAndView("locales.peb").setLocale(new Locale("en", "GB"))));
+        engine.render(ctx, ModelAndView.map("locales.peb").setLocale(new Locale("en", "GB"))));
 
     assertEquals(
-        "Grüß Gott!", engine.render(ctx, new ModelAndView("locales.peb").setLocale(Locale.GERMAN)));
+        "Grüß Gott!", engine.render(ctx, ModelAndView.map("locales.peb").setLocale(Locale.GERMAN)));
 
     assertEquals(
         "Grüß Gott!",
-        engine.render(ctx, new ModelAndView("locales.peb").setLocale(Locale.GERMANY)));
+        engine.render(ctx, ModelAndView.map("locales.peb").setLocale(Locale.GERMANY)));
 
     assertEquals(
         "Servus!",
-        engine.render(ctx, new ModelAndView("locales.peb").setLocale(new Locale("de", "AT"))));
+        engine.render(ctx, ModelAndView.map("locales.peb").setLocale(new Locale("de", "AT"))));
   }
 }

@@ -5,10 +5,10 @@
  */
 package io.jooby.internal.handlebars;
 
+import static com.github.jknack.handlebars.Context.newContext;
+
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
@@ -35,8 +35,7 @@ public class HandlebarsTemplateEngine implements TemplateEngine {
   @Override
   public String render(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = handlebars.compile(modelAndView.getView());
-    Map<String, Object> model = new HashMap<>(ctx.getAttributes());
-    model.putAll(modelAndView.getModel());
-    return template.apply(model);
+    var engineModel = newContext(modelAndView.getModel()).data(ctx.getAttributes());
+    return template.apply(engineModel);
   }
 }
