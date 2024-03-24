@@ -463,7 +463,7 @@ public interface DefaultContext extends Context {
     try {
       Route route = getRoute();
       MessageEncoder encoder = route.getEncoder();
-      byte[] bytes = encoder.encode(this, value);
+      var bytes = encoder.encode(this, value);
       if (bytes == null) {
         if (!isResponseStarted()) {
           throw new IllegalStateException("The response was not encoded");

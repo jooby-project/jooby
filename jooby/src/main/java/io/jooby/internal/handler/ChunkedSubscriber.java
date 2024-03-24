@@ -44,7 +44,8 @@ public class ChunkedSubscriber implements Flow.Subscriber {
         after.apply(ctx, item, null);
       }
       MessageEncoder encoder = route.getEncoder();
-      byte[] data = encoder.encode(ctx, item);
+      // TODO: ByteBuffer fix me this need to be better once we add buffer API
+      var data = encoder.encode(ctx, item).array();
 
       if (responseType == null) {
         responseType = ctx.getResponseType();

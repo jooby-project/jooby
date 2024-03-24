@@ -8,6 +8,7 @@ package io.jooby.test;
 import static io.jooby.MediaType.xml;
 
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 
@@ -134,12 +135,13 @@ public class MvcTest {
               app.encoder(
                   io.jooby.MediaType.json,
                   (@NonNull Context ctx, @NonNull Object value) ->
-                      ("{" + value.toString() + "}").getBytes(StandardCharsets.UTF_8));
+                      ByteBuffer.wrap(("{" + value + "}").getBytes(StandardCharsets.UTF_8)));
 
               app.encoder(
                   io.jooby.MediaType.xml,
                   (@NonNull Context ctx, @NonNull Object value) ->
-                      ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8));
+                      ByteBuffer.wrap(
+                          ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8)));
 
               app.decoder(
                   io.jooby.MediaType.json,

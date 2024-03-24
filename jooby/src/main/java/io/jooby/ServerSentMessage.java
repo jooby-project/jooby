@@ -133,7 +133,8 @@ public class ServerSentMessage {
     try {
       Route route = ctx.getRoute();
       MessageEncoder encoder = route.getEncoder();
-      byte[] bytes = encoder.encode(ctx, data);
+      // TODO: ByteBuffer fix me this need to be better once we add buffer API
+      var bytes = encoder.encode(ctx, data).array();
 
       ByteArrayOutputStream buffer = new ByteArrayOutputStream(bytes.length);
       if (id != null) {

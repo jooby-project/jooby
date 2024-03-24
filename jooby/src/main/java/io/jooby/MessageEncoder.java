@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -23,7 +24,7 @@ public interface MessageEncoder {
   MessageEncoder TO_STRING =
       (ctx, value) -> {
         if (ctx.accept(ctx.getResponseType())) {
-          return value.toString().getBytes(StandardCharsets.UTF_8);
+          return ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
         }
         throw new NotAcceptableException(ctx.header("Accept").valueOrNull());
       };
@@ -37,5 +38,5 @@ public interface MessageEncoder {
    * @return Value as byte array or <code>null</code> if given object isn't supported it.
    * @throws Exception If something goes wrong.
    */
-  @Nullable byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
+  @Nullable ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
 }

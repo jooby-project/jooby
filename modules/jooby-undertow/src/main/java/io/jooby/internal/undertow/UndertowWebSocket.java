@@ -165,8 +165,8 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
-    return sendMessage(ByteBuffer.wrap(message), false, callback);
+  public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(message, false, callback);
   }
 
   @NonNull @Override
@@ -175,8 +175,8 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
-    return sendMessage(ByteBuffer.wrap(message), true, callback);
+  public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(message, true, callback);
   }
 
   private WebSocket sendMessage(ByteBuffer buffer, boolean binary, WriteCallback callback) {

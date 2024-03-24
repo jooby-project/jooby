@@ -5,6 +5,8 @@
  */
 package io.jooby.rocker;
 
+import java.nio.ByteBuffer;
+
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerOutputFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -20,13 +22,13 @@ class RockerMessageEncoder implements MessageEncoder {
   }
 
   @Override
-  public byte[] encode(@NonNull Context ctx, @NonNull Object value) {
+  public ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) {
     if (value instanceof RockerModel) {
       RockerModel template = (RockerModel) value;
       ByteBufferOutput output = template.render(factory);
       ctx.setResponseLength(output.getByteLength());
       ctx.setDefaultResponseType(MediaType.html);
-      return output.toByteArray();
+      return output.toBuffer();
     }
     return null;
   }

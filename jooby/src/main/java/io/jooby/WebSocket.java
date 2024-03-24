@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -229,7 +230,15 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  @NonNull WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback);
+  default @NonNull WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return send(ByteBuffer.wrap(message), callback);
+  }
+
+  default @NonNull WebSocket send(@NonNull ByteBuffer message) {
+    return send(message, WriteCallback.NOOP);
+  }
+
+  @NonNull WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
 
   /**
    * Send a binary message to client.
@@ -267,7 +276,15 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  @NonNull WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback);
+  default @NonNull WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return sendBinary(ByteBuffer.wrap(message), callback);
+  }
+
+  default @NonNull WebSocket sendBinary(@NonNull ByteBuffer message) {
+    return sendBinary(message, WriteCallback.NOOP);
+  }
+
+  @NonNull WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
 
   /**
    * Encode a value and send a text message to client.

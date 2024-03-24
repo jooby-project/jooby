@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.netty;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,6 +112,16 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   @NonNull @Override
   public WebSocket send(byte[] bytes, @NonNull WriteCallback callback) {
     return sendMessage(Unpooled.wrappedBuffer(bytes), false, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(Unpooled.wrappedBuffer(message), false, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(Unpooled.wrappedBuffer(message), true, callback);
   }
 
   @NonNull @Override

@@ -45,7 +45,7 @@ public class HttpMessageEncoder implements MessageEncoder {
   }
 
   @Override
-  public byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     if (value instanceof ModelAndView) {
       ModelAndView modelAndView = (ModelAndView) value;
       for (TemplateEngine engine : templateEngineList) {
@@ -85,14 +85,14 @@ public class HttpMessageEncoder implements MessageEncoder {
     }
     /** Strings: */
     if (value instanceof CharSequence) {
-      return value.toString().getBytes(StandardCharsets.UTF_8);
+      return ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
     }
     if (value instanceof Number) {
-      return value.toString().getBytes(StandardCharsets.UTF_8);
+      return ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
     }
     /** RawByte: */
     if (value instanceof byte[]) {
-      return (byte[]) value;
+      return ByteBuffer.wrap((byte[]) value);
     }
     if (value instanceof ByteBuffer) {
       ctx.send((ByteBuffer) value);
