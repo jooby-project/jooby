@@ -51,7 +51,7 @@ public class HandlebarsModuleTest {
     String output =
         engine.render(
             ctx,
-            new ModelAndView("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
+            ModelAndView.map("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
     assertEquals("Hello foo bar var!", output.trim());
   }
 
@@ -68,7 +68,7 @@ public class HandlebarsModuleTest {
     String output =
         engine.render(
             ctx,
-            new ModelAndView("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
+            ModelAndView.map("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
     assertEquals("Hello foo bar var!", output.trim());
   }
 }

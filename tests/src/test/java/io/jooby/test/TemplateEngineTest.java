@@ -24,9 +24,9 @@ public class TemplateEngineTest {
               app.install(new HandlebarsModule());
               app.install(new FreemarkerModule());
 
-              app.get("/1", ctx -> new ModelAndView("index.hbs").put("name", "Handlebars"));
-              app.get("/2", ctx -> new ModelAndView("index.ftl").put("name", "Freemarker"));
-              app.get("/3", ctx -> new ModelAndView("index.html").put("name", "Thymeleaf"));
+              app.get("/1", ctx -> ModelAndView.map("index.hbs").put("name", "Handlebars"));
+              app.get("/2", ctx -> ModelAndView.map("index.ftl").put("name", "Freemarker"));
+              app.get("/3", ctx -> ModelAndView.map("index.html").put("name", "Thymeleaf"));
             })
         .ready(
             client -> {
@@ -65,7 +65,7 @@ public class TemplateEngineTest {
               app.install(
                   new ThymeleafModule(runner.resolvePath("src", "test", "resources", "views")));
 
-              app.get("/", ctx -> new ModelAndView("index.html").put("name", "Thymeleaf"));
+              app.get("/", ctx -> ModelAndView.map("index.html").put("name", "Thymeleaf"));
             })
         .ready(
             client -> {
@@ -94,7 +94,7 @@ public class TemplateEngineTest {
               app.install(
                   new HandlebarsModule(runner.resolvePath("src", "test", "resources", "views")));
 
-              app.get("/", ctx -> new ModelAndView("index.hbs").put("name", "Handlebars"));
+              app.get("/", ctx -> ModelAndView.map("index.hbs").put("name", "Handlebars"));
             })
         .ready(
             client -> {
@@ -114,7 +114,7 @@ public class TemplateEngineTest {
               app.install(
                   new FreemarkerModule(runner.resolvePath("src", "test", "resources", "views")));
 
-              app.get("/", ctx -> new ModelAndView("index.ftl").put("name", "Freemarker"));
+              app.get("/", ctx -> ModelAndView.map("index.ftl").put("name", "Freemarker"));
             })
         .ready(
             client -> {

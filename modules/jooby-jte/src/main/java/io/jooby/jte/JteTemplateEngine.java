@@ -7,12 +7,12 @@ package io.jooby.jte;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import gg.jte.TemplateEngine;
 import gg.jte.output.StringOutput;
 import io.jooby.Context;
+import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
 
 class JteTemplateEngine implements io.jooby.TemplateEngine {
@@ -33,15 +33,15 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
   public String render(Context ctx, ModelAndView modelAndView) {
     var output = new StringOutput();
     var attributes = ctx.getAttributes();
-    Map<String, Object> model;
-    if (attributes.isEmpty()) {
-      model = modelAndView.getModel();
+    if (modelAndView instanceof MapModelAndView mapModelAndView) {
+      var mapModel = new HashMap<>();
+      mapModel.putAll(attributes);
+      mapModel.putAll(mapModelAndView.getModel());
+      jte.render(modelAndView.getView(), mapModel, output);
     } else {
-      model = new HashMap<>();
-      model.putAll(attributes);
-      model.putAll(modelAndView.getModel());
+      jte.render(modelAndView.getView(), modelAndView.getModel(), output);
     }
-    jte.render(modelAndView.getView(), model, output);
+
     return output.toString();
   }
 }
