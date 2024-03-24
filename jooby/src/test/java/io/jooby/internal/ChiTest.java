@@ -20,7 +20,6 @@ import io.jooby.Router;
 import io.jooby.SneakyThrows;
 
 public class ChiTest {
-
   @Test
   public void routeOverride() {
     Chi router = new Chi();
@@ -116,8 +115,6 @@ public class ChiTest {
   public void searchString() throws Exception {
     Chi router = new Chi();
 
-    // app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.getRoute().getPathKeys());
-
     router.insert(route("GET", "/regex/{nid:[0-9]+}", stringHandler("nid")));
     router.insert(route("GET", "/regex/{zid:[0-9]+}/edit", stringHandler("zid")));
     router.insert(route("GET", "/articles/{id}", stringHandler("id")));
@@ -152,8 +149,18 @@ public class ChiTest {
   public void searchParam() throws Exception {
     Chi router = new Chi();
 
+    router.insert(route("GET", "/catchallWithVarPrefix/{id}/*path", stringHandler("path")));
+
     router.insert(route("GET", "/articles/{id}", stringHandler("id")));
     router.insert(route("GET", "/articles/*", stringHandler("catchall")));
+
+    find(
+        router,
+        "/catchallWithVarPrefix/55/js/index.js",
+        (ctx, result) -> {
+          assertTrue(result.matches());
+          assertEquals("path", result.route().getPipeline().apply(ctx));
+        });
 
     find(
         router,

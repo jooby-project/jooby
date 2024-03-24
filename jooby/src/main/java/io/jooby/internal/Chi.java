@@ -20,6 +20,7 @@ import io.jooby.Router;
 /** Sync: May 22, 2020 Commit: 5704d7ee98edd3fe55169b506531bdd061667c70 */
 class Chi implements RouteTree {
   private static final String EMPTY_STRING = "";
+  private static final Slice EMPTY_SLICE = new Slice(EMPTY_STRING);
   private static final byte ntStatic = 0; // /home
   private static final byte ntRegexp = 1; // /{id:[0-9]+}
   private static final byte ntParam = 2; // /{user}
@@ -27,8 +28,80 @@ class Chi implements RouteTree {
 
   private static final int NODE_SIZE = ntCatchAll + 1;
 
-  static final char ZERO_CHAR = (char) 0;
+  static final char ZERO_CHAR = Character.MIN_VALUE;
   private MessageEncoder encoder;
+
+  /** Avoid string allocation */
+  private static class Slice implements CharSequence {
+    private final String base;
+    private final int startIndex;
+
+    private final int endIndex;
+
+    public Slice(String base, int startIndex, int endIndex) {
+      this.base = base;
+      this.startIndex = startIndex;
+      this.endIndex = endIndex;
+    }
+
+    public Slice(String base, int startIndex) {
+      this(base, startIndex, base.length());
+    }
+
+    public Slice(String base) {
+      this(base, 0);
+    }
+
+    @Override
+    public int length() {
+      return endIndex - startIndex;
+    }
+
+    @Override
+    public char charAt(int index) {
+      return base.charAt(startIndex + index);
+    }
+
+    @Override
+    public Slice subSequence(int start, int end) {
+      return new Slice(base, startIndex + start, startIndex + end);
+    }
+
+    @Override
+    public String toString() {
+      return base.substring(startIndex, endIndex);
+    }
+
+    public Slice substring(int start) {
+      return substring(start, length());
+    }
+
+    public Slice substring(int start, int end) {
+      return subSequence(start, end);
+    }
+
+    public int indexOf(int ch) {
+      for (int i = startIndex; i < endIndex; i++) {
+        if (base.charAt(i) == ch) {
+          return i - startIndex;
+        }
+      }
+      return -1;
+    }
+
+    public boolean startsWith(String prefix) {
+      int len = prefix.length();
+      if (len <= length()) {
+        for (int i = 0; i < len; i++) {
+          if (base.charAt(i + startIndex) != prefix.charAt(i)) {
+            return false;
+          }
+        }
+        return true;
+      }
+      return false;
+    }
+  }
 
   private interface MethodMatcher {
     StaticRouterMatch get(String method);
@@ -434,15 +507,15 @@ class Chi implements RouteTree {
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Route findRoute(RouterMatch rctx, String method, String path) {
+    Route findRoute(RouterMatch rctx, String method, Slice path) {
 
       for (int ntyp = 0; ntyp < NODE_SIZE; ntyp++) {
         Node[] nds = this.children[ntyp];
         if (nds != null) {
           Node xn = null;
-          String xsearch = path;
+          Slice xsearch = path;
 
-          char label = path.length() > 0 ? path.charAt(0) : ZERO_CHAR;
+          char label = xsearch.isEmpty() ? ZERO_CHAR : xsearch.charAt(0);
 
           switch (ntyp) {
             case ntStatic:
@@ -475,17 +548,18 @@ class Chi implements RouteTree {
                 }
 
                 if (ntyp == ntRegexp && xn.rex != null) {
+                  // 12, ar, page, arx
                   if (!xn.rex.matcher(xsearch.substring(0, p)).matches()) {
                     continue;
                   }
-                } else if (xsearch.substring(0, p).indexOf('/') != -1) {
+                } else if (xsearch.substring(0, p).indexOf('/') > 0) {
                   // avoid a newRuntimeRoute across path segments
                   continue;
                 }
 
                 // rctx.routeParams.Values = append(rctx.routeParams.Values, xsearch[:p])
                 int prevlen = rctx.vars.size();
-                rctx.value(xsearch.substring(0, p));
+                rctx.value(xsearch.substring(0, p).toString());
                 xsearch = xsearch.substring(p);
 
                 if (xsearch.length() == 0) {
@@ -514,10 +588,10 @@ class Chi implements RouteTree {
               // catch-all nodes
               // rctx.routeParams.Values = append(rctx.routeParams.Values, search)
               if (xsearch.length() > 0) {
-                rctx.value(xsearch);
+                rctx.value(xsearch.toString());
               }
               xn = nds[0];
-              xsearch = EMPTY_STRING;
+              xsearch = EMPTY_SLICE;
           }
 
           if (xn == null) {
@@ -632,7 +706,7 @@ class Chi implements RouteTree {
       }
 
       // Sanity check
-      if (ps >= 0 && ws >= 0 && ws < ps) {
+      if (ws >= 0 && ws < ps) {
         throw new IllegalArgumentException(
             "chi: wildcard '*' must be the last pattern in a route, otherwise use a '{param}'");
       }
@@ -778,7 +852,7 @@ class Chi implements RouteTree {
   private Router.Match findInternal(String method, String path) {
     // use radix tree
     RouterMatch result = new RouterMatch();
-    Route route = root.findRoute(result, method, path);
+    Route route = root.findRoute(result, method, new Slice(path));
     if (route == null) {
       return result.missing(method, path, encoder);
     }

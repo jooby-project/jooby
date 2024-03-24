@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
@@ -54,7 +53,7 @@ public class RouterMatch implements Router.Match {
   }
 
   public void methodNotAllowed(Set<String> allow) {
-    String allowString = allow.stream().collect(Collectors.joining(","));
+    String allowString = String.join(",", allow);
     Route.Filter filter =
         next ->
             ctx -> {
