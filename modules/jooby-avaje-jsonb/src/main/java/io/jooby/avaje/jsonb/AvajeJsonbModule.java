@@ -7,6 +7,7 @@ package io.jooby.avaje.jsonb;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.jsonb.Jsonb;
@@ -103,8 +104,8 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   }
 
   @NonNull @Override
-  public byte[] encode(@NonNull Context ctx, @NonNull Object value) {
+  public ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) {
     ctx.setDefaultResponseType(MediaType.json);
-    return jsonb.toJsonBytes(value);
+    return ByteBuffer.wrap(jsonb.toJsonBytes(value));
   }
 }

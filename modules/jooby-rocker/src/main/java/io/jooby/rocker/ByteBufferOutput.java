@@ -19,7 +19,7 @@ import com.fizzed.rocker.RockerOutputFactory;
  *
  * @author edgar
  */
-public class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
+class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
 
   /** Default buffer size: <code>4k</code>. */
   public static final int BUFFER_SIZE = 4096;
@@ -83,17 +83,6 @@ public class ByteBufferOutput implements RockerOutput<ByteBufferOutput> {
    */
   public ByteBuffer toBuffer() {
     return ByteBuffer.wrap(buf, 0, count);
-  }
-
-  /**
-   * Copy internal byte array into a new array.
-   *
-   * @return Byte array.
-   */
-  public byte[] toByteArray() {
-    byte[] array = new byte[count];
-    System.arraycopy(buf, 0, array, 0, count);
-    return array;
   }
 
   private void ensureCapacity(int minCapacity) {

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,8 @@ public class ServerSentMessageTest {
     Context ctx = mock(Context.class);
 
     MessageEncoder encoder = mock(MessageEncoder.class);
-    when(encoder.encode(ctx, data)).thenReturn(data.getBytes(StandardCharsets.UTF_8));
+    when(encoder.encode(ctx, data))
+        .thenReturn(ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8)));
 
     Route route = mock(Route.class);
     when(route.getEncoder()).thenReturn(encoder);

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +31,8 @@ public class JacksonJsonModuleTest {
 
     JacksonModule jackson = new JacksonModule(new ObjectMapper());
 
-    byte[] bytes = jackson.encode(ctx, mapOf("k", "v"));
-    assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
+    ByteBuffer bytes = jackson.encode(ctx, mapOf("k", "v"));
+    assertEquals("{\"k\":\"v\"}", new String(bytes.array(), StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.json);
   }
@@ -58,8 +59,8 @@ public class JacksonJsonModuleTest {
 
     JacksonModule jackson = new JacksonModule(new XmlMapper());
 
-    byte[] bytes = jackson.encode(ctx, mapOf("k", "v"));
-    assertEquals("<HashMap><k>v</k></HashMap>", new String(bytes, StandardCharsets.UTF_8));
+    var bytes = jackson.encode(ctx, mapOf("k", "v"));
+    assertEquals("<HashMap><k>v</k></HashMap>", new String(bytes.array(), StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.xml);
   }

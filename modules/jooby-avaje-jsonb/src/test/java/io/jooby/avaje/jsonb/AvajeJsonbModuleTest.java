@@ -9,6 +9,7 @@ import static io.avaje.jsonb.Types.listOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,6 @@ class AvajeJsonbModuleTest {
     var ctx = new MockContext();
     var o = List.of(1, 2, 3);
     var json = decoder.encode(ctx, o);
-    assertEquals("[1,2,3]", new String(json));
+    assertEquals("[1,2,3]", new String(json.array(), StandardCharsets.UTF_8));
   }
 }

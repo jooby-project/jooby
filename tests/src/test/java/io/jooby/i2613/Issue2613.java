@@ -7,6 +7,7 @@ package io.jooby.i2613;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import com.google.common.collect.ImmutableMap;
@@ -28,10 +29,10 @@ public class Issue2613 {
   public static class ThemeResultEncoder implements MessageEncoder {
 
     @Override
-    public byte[] encode(Context ctx, Object value) throws Exception {
+    public ByteBuffer encode(Context ctx, Object value) throws Exception {
       if (value instanceof ThemeResult) {
         ctx.setDefaultResponseType(MediaType.html);
-        return ((ThemeResult) value).html().getBytes(StandardCharsets.UTF_8);
+        return ByteBuffer.wrap(((ThemeResult) value).html().getBytes(StandardCharsets.UTF_8));
       }
       return null;
     }

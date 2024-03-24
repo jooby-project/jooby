@@ -18,15 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
-import io.jooby.FileDownload;
-import io.jooby.ForwardingContext;
-import io.jooby.MediaType;
-import io.jooby.MessageEncoder;
-import io.jooby.Route;
-import io.jooby.Sender;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
+import io.jooby.*;
 
 public class HeadContext extends ForwardingContext {
   /**
@@ -126,7 +118,7 @@ public class HeadContext extends ForwardingContext {
     try {
       Route route = getRoute();
       MessageEncoder encoder = route.getEncoder();
-      byte[] bytes = encoder.encode(this, value);
+      var bytes = encoder.encode(this, value);
       if (bytes == null) {
         if (!isResponseStarted()) {
           throw new IllegalStateException("The response was not encoded");

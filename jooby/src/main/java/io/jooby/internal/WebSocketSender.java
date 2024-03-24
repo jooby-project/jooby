@@ -5,6 +5,7 @@
  */
 package io.jooby.internal;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.Date;
@@ -48,6 +49,16 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
 
   @NonNull @Override
   public Context send(@NonNull byte[] data) {
+    if (binary) {
+      ws.sendBinary(data, callback);
+    } else {
+      ws.send(data, callback);
+    }
+    return this;
+  }
+
+  @NonNull @Override
+  public Context send(@NonNull ByteBuffer data) {
     if (binary) {
       ws.sendBinary(data, callback);
     } else {

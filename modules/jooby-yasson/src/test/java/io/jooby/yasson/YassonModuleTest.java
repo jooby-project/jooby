@@ -38,10 +38,10 @@ public class YassonModuleTest {
     user.age = Integer.MAX_VALUE;
 
     Context ctx = mock(Context.class);
-    byte[] bytes = YassonModule.encode(ctx, user);
+    var bytes = YassonModule.encode(ctx, user);
     assertEquals(
         "{\"age\":2147483647,\"id\":-1,\"name\":\"Lorem €@!?\"}",
-        new String(bytes, StandardCharsets.UTF_8));
+        new String(bytes.array(), StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.json);
   }

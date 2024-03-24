@@ -5,6 +5,7 @@
  */
 package io.jooby.test;
 
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,12 +86,22 @@ public class MockWebSocket implements WebSocket {
   }
 
   @NonNull @Override
+  public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendObject(message, callback);
+  }
+
+  @NonNull @Override
   public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
     return sendObject(message, callback);
   }
 
   @NonNull @Override
   public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return sendObject(message, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
     return sendObject(message, callback);
   }
 

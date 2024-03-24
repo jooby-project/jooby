@@ -5,9 +5,10 @@
  */
 package io.jooby.internal.jetty;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadPendingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -254,8 +255,7 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
   public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->
-            remote.sendBinary(
-                ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), writeCallback),
+            remote.sendBinary(ByteBuffer.wrap(message.getBytes(UTF_8)), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
@@ -267,14 +267,21 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
-    return send(new String(message, StandardCharsets.UTF_8), callback);
+  public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(
+        (remote, writeCallback) -> remote.sendText(UTF_8.decode(message).toString(), writeCallback),
+        new WriteCallbackAdaptor(this, callback));
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+  public WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
+    return send(new String(message, UTF_8), callback);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
     return sendMessage(
-        (remote, writeCallback) -> remote.sendBinary(ByteBuffer.wrap(message), writeCallback),
+        (remote, writeCallback) -> remote.sendBinary(message, writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
