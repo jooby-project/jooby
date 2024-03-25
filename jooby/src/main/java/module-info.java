@@ -10,6 +10,7 @@ import io.jooby.LoggingService;
 module io.jooby {
   exports io.jooby;
   exports io.jooby.annotation;
+  exports io.jooby.buffer;
   exports io.jooby.exception;
   exports io.jooby.handler;
 
