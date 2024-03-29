@@ -75,7 +75,7 @@ public class UndertowServer extends Server.Base {
   }
 
   @Override
-  public Server start(@NonNull Jooby application) {
+  public @NonNull Server start(@NonNull Jooby application) {
     try {
       applications.add(application);
 

@@ -9,6 +9,7 @@ import io.jooby.netty.NettyServer;
 /** Netty module. */
 module io.jooby.netty {
   exports io.jooby.netty;
+  exports io.jooby.netty.buffer;
 
   requires io.jooby;
   requires static com.github.spotbugs.annotations;

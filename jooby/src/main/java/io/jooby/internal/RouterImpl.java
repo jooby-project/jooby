@@ -65,6 +65,8 @@ import io.jooby.StatusCode;
 import io.jooby.ValueConverter;
 import io.jooby.WebSocket;
 import io.jooby.XSS;
+import io.jooby.buffer.DataBufferFactory;
+import io.jooby.buffer.DefaultDataBufferFactory;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.handler.ServerSentEventHandler;
@@ -188,7 +190,7 @@ public class RouterImpl implements Router {
   private ContextInitializer postDispatchInitializer;
 
   private Set<RouterOption> routerOptions = EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR);
-
+  private DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
   private boolean trustProxy;
 
   private boolean contextAsService;
@@ -374,6 +376,17 @@ public class RouterImpl implements Router {
   @NonNull @Override
   public Executor getWorker() {
     return worker;
+  }
+
+  @NonNull @Override
+  public DataBufferFactory getBufferFactory() {
+    return bufferFactory;
+  }
+
+  @NonNull @Override
+  public Router setBufferFactory(@NonNull DataBufferFactory bufferFactory) {
+    this.bufferFactory = bufferFactory;
+    return this;
   }
 
   @NonNull @Override

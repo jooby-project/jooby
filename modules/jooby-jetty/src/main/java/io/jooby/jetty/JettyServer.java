@@ -90,7 +90,7 @@ public class JettyServer extends io.jooby.Server.Base {
   }
 
   @NonNull @Override
-  public io.jooby.Server start(Jooby application) {
+  public io.jooby.Server start(@NonNull Jooby application) {
     try {
       /** Set max request size attribute: */
       System.setProperty(

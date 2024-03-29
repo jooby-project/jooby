@@ -11,7 +11,6 @@ import static io.jooby.ServerOptions._8KB;
 import java.util.function.Supplier;
 
 import io.jooby.internal.netty.http2.NettyHttp2Configurer;
-import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPipeline;
@@ -57,12 +56,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       p.addLast("ssl", sslContext.newHandler(ch.alloc()));
     }
     if (http2) {
-      Http2Settings settings = new Http2Settings(maxRequestSize, sslContext != null);
-      Http2Extension extension =
+      var settings = new Http2Settings(maxRequestSize, sslContext != null);
+      var extension =
           new Http2Extension(
               settings, this::http11, this::http11Upgrade, this::http2, this::http2c);
-      NettyHttp2Configurer configurer = new NettyHttp2Configurer();
-      ChannelInboundHandler handshake = configurer.configure(extension);
+      var configurer = new NettyHttp2Configurer();
+      var handshake = configurer.configure(extension);
 
       p.addLast(H2_HANDSHAKE, handshake);
 
