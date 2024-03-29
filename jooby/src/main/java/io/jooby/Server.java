@@ -33,7 +33,7 @@ import io.jooby.internal.MutedServer;
  * <p>When service loader is not an option or do you want to manually bootstrap a server:
  *
  * <pre>{@code
- * Server server = new Netty(); // or Jetty or Utow
+ * Server server = new NettyServer(); // or JettyServer or UndertowServer
  *
  * App app = new App();
  *
@@ -86,7 +86,7 @@ public interface Server {
     private static final boolean useShutdownHook =
         Boolean.parseBoolean(System.getProperty("jooby.useShutdownHook", "true"));
 
-    private AtomicBoolean stopping = new AtomicBoolean();
+    private final AtomicBoolean stopping = new AtomicBoolean();
 
     protected void fireStart(@NonNull List<Jooby> applications, @NonNull Executor defaultWorker) {
       for (Jooby app : applications) {
@@ -125,6 +125,11 @@ public interface Server {
    */
   @NonNull Server setOptions(@NonNull ServerOptions options);
 
+  /**
+   * Get server name.
+   *
+   * @return Server name.
+   */
   @NonNull String getName();
 
   /**
@@ -204,7 +209,7 @@ public interface Server {
    * English locale systems.
    *
    * @param cause Exception to check.
-   * @return True address alaredy in use.
+   * @return True address already in use.
    */
   static boolean isAddressInUse(@Nullable Throwable cause) {
     for (Predicate<Throwable> addressInUse : Base.addressInUseListeners) {

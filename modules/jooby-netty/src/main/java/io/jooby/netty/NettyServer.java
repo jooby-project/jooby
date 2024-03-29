@@ -5,13 +5,14 @@
  */
 package io.jooby.netty;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
+
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.net.ssl.SSLContext;
@@ -27,7 +28,9 @@ import io.jooby.internal.netty.NettyHandler;
 import io.jooby.internal.netty.NettyPipeline;
 import io.jooby.internal.netty.NettyTransport;
 import io.jooby.internal.netty.NettyWebSocket;
+import io.jooby.netty.buffer.NettyDataBufferFactory;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
@@ -49,11 +52,10 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  * @since 2.0.0
  */
 public class NettyServer extends Server.Base {
+  private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
 
   static {
-    System.setProperty(
-        "io.netty.leakDetection.level",
-        System.getProperty("io.netty.leakDetection.level", "disabled"));
+    System.setProperty(LEAK_DETECTION, System.getProperty(LEAK_DETECTION, "disabled"));
   }
 
   private static final int _50 = 50;
@@ -83,7 +85,7 @@ public class NettyServer extends Server.Base {
   public NettyServer() {}
 
   @Override
-  public NettyServer setOptions(@NonNull ServerOptions options) {
+  public @NonNull NettyServer setOptions(@NonNull ServerOptions options) {
     this.options = options;
     return this;
   }
@@ -101,51 +103,51 @@ public class NettyServer extends Server.Base {
   @NonNull @Override
   public Server start(@NonNull Jooby application) {
     try {
+      // TODO: Not sure how to set the buff allocator at netty level, seems to be managed by system
+      // properties.
+      application.setBufferFactory(new NettyDataBufferFactory(ByteBufAllocator.DEFAULT));
       applications.add(application);
 
       addShutdownHook();
 
-      /** Worker: Application blocking code */
+      /* Worker: Application blocking code */
       if (worker == null) {
-        worker =
-            Executors.newFixedThreadPool(
-                options.getWorkerThreads(), new DefaultThreadFactory("worker"));
+        worker = newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
       }
       fireStart(applications, worker);
 
-      /** Disk attributes: */
+      /* Disk attributes: */
       String tmpdir = applications.get(0).getTmpdir().toString();
       DiskFileUpload.baseDirectory = tmpdir;
       DiskAttribute.baseDirectory = tmpdir;
 
-      NettyTransport transport = NettyTransport.transport(application.getClassLoader());
+      var transport = NettyTransport.transport(application.getClassLoader());
 
-      /** Acceptor event-loop */
+      /* Acceptor event-loop */
       this.acceptorloop = transport.createEventLoop(1, "acceptor", _50);
 
-      /** Event loop: processing connections, parsing messages and doing engine's internal work */
+      /* Event loop: processing connections, parsing messages and doing engine's internal work */
       this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", _100);
 
-      /** File data factory: */
-      HttpDataFactory factory = new DefaultHttpDataFactory(options.getBufferSize());
+      /* File data factory: */
+      var factory = new DefaultHttpDataFactory(options.getBufferSize());
 
-      boolean http2 = options.isHttp2() == Boolean.TRUE;
-      /** Bootstrap: */
+      var http2 = options.isHttp2() == Boolean.TRUE;
+      /* Bootstrap: */
       if (!options.isHttpsOnly()) {
-        ServerBootstrap http = newBootstrap(transport, newPipeline(factory, null, http2));
+        var http = newBootstrap(transport, newPipeline(factory, null, http2));
         http.bind(options.getHost(), options.getPort()).get();
       }
 
       if (options.isSSLEnabled()) {
-        SSLContext javaSslContext =
-            options.getSSLContext(application.getEnvironment().getClassLoader());
+        var javaSslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
 
-        SslOptions sslOptions = options.getSsl();
-        String[] protocol = sslOptions.getProtocol().stream().toArray(String[]::new);
+        var sslOptions = options.getSsl();
+        var protocol = sslOptions.getProtocol().toArray(String[]::new);
 
-        SslOptions.ClientAuth clientAuth = sslOptions.getClientAuth();
-        SslContext sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
-        ServerBootstrap https = newBootstrap(transport, newPipeline(factory, sslContext, http2));
+        var clientAuth = sslOptions.getClientAuth();
+        var sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
+        var https = newBootstrap(transport, newPipeline(factory, sslContext, http2));
         https.bind(options.getHost(), options.getSecurePort()).get();
       } else if (options.isHttpsOnly()) {
         throw new IllegalArgumentException(
@@ -156,7 +158,7 @@ public class NettyServer extends Server.Base {
     } catch (InterruptedException x) {
       throw SneakyThrows.propagate(x);
     } catch (ExecutionException x) {
-      Throwable cause = x.getCause();
+      var cause = x.getCause();
       if (Server.isAddressInUse(cause)) {
         cause = new BindException("Address already in use: " + options.getPort());
       }
@@ -166,24 +168,19 @@ public class NettyServer extends Server.Base {
   }
 
   private ServerBootstrap newBootstrap(NettyTransport transport, NettyPipeline factory) {
-    ServerBootstrap http =
-        transport
-            .configure(acceptorloop, eventloop)
-            .childHandler(factory)
-            .childOption(ChannelOption.SO_REUSEADDR, true)
-            .childOption(ChannelOption.TCP_NODELAY, true);
-    return http;
+    return transport
+        .configure(acceptorloop, eventloop)
+        .childHandler(factory)
+        .childOption(ChannelOption.SO_REUSEADDR, true)
+        .childOption(ChannelOption.TCP_NODELAY, true);
   }
 
   private ClientAuth toClientAuth(SslOptions.ClientAuth clientAuth) {
-    switch (clientAuth) {
-      case REQUIRED:
-        return ClientAuth.REQUIRE;
-      case REQUESTED:
-        return ClientAuth.OPTIONAL;
-      default:
-        return ClientAuth.NONE;
-    }
+    return switch (clientAuth) {
+      case REQUIRED -> ClientAuth.REQUIRE;
+      case REQUESTED -> ClientAuth.OPTIONAL;
+      default -> ClientAuth.NONE;
+    };
   }
 
   private NettyPipeline newPipeline(HttpDataFactory factory, SslContext sslContext, boolean http2) {
@@ -250,17 +247,14 @@ public class NettyServer extends Server.Base {
     } else {
       protocolConfig = ApplicationProtocolConfig.DISABLED;
     }
-    JdkSslContext jdk =
-        new JdkSslContext(
-            sslContext,
-            false,
-            null,
-            IdentityCipherSuiteFilter.INSTANCE,
-            protocolConfig,
-            clientAuth,
-            protocol,
-            false);
-
-    return jdk;
+    return new JdkSslContext(
+        sslContext,
+        false,
+        null,
+        IdentityCipherSuiteFilter.INSTANCE,
+        protocolConfig,
+        clientAuth,
+        protocol,
+        false);
   }
 }
