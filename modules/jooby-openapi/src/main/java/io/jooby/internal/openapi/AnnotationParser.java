@@ -206,6 +206,10 @@ public class AnnotationParser {
           // mvc(new Controller(...));
           Type type = Type.getObjectType(methodInsnNode.owner);
           return parse(ctx, prefix, type);
+        } else if (methodInsnNode.getOpcode() == Opcodes.INVOKEINTERFACE) {
+          // mvc(beanScope.get(...));
+          Type type = (Type) ((LdcInsnNode) methodInsnNode.getPrevious()).cst;
+          return parse(ctx, prefix, type);
         } else {
           // mvc(some.myController());
           Type type = Type.getReturnType(methodInsnNode.desc);
