@@ -5,56 +5,73 @@
  */
 package io.jooby.internal.netty;
 
-import static io.jooby.ServerOptions._4KB;
-import static io.jooby.ServerOptions._8KB;
+import static io.netty.handler.flush.FlushConsolidationHandler.DEFAULT_EXPLICIT_FLUSH_AFTER_FLUSHES;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
+import io.jooby.Router;
 import io.jooby.internal.netty.http2.NettyHttp2Configurer;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
-import io.netty.handler.codec.http.HttpServerUpgradeHandler;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.ssl.SslContext;
 
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private static final String H2_HANDSHAKE = "h2-handshake";
-  private Integer compressionLevel;
-  private int bufferSize;
-  private long maxRequestSize;
-  private SslContext sslContext;
-  private boolean is100ContinueExpected;
-  private boolean http2;
-  private Supplier<NettyHandler> handlerFactory;
+  private final SslContext sslContext;
+  private final ScheduledExecutorService scheduler;
+  private final HttpDataFactory httpDataFactory;
+  private final HttpDecoderConfig decoderConfig;
+  private final Router router;
+  private final long maxRequestSize;
+  private final int bufferSize;
+  private final boolean defaultHeaders;
+  private final boolean http2;
+  private final boolean expectContinue;
+  private final Integer compressionLevel;
 
   public NettyPipeline(
-      Supplier<NettyHandler> handlerFactory,
       SslContext sslContext,
-      Integer compressionLevel,
-      int bufferSize,
+      ScheduledExecutorService scheduler,
+      HttpDataFactory httpDataFactory,
+      HttpDecoderConfig decoderConfig,
+      Router router,
       long maxRequestSize,
+      int bufferSize,
+      boolean defaultHeaders,
       boolean http2,
-      boolean is100ContinueExpected) {
+      boolean expectContinue,
+      Integer compressionLevel) {
     this.sslContext = sslContext;
-    this.compressionLevel = compressionLevel;
-    this.bufferSize = bufferSize;
+    this.scheduler = scheduler;
+    this.httpDataFactory = httpDataFactory;
+    this.decoderConfig = decoderConfig;
+    this.router = router;
     this.maxRequestSize = maxRequestSize;
-    this.is100ContinueExpected = is100ContinueExpected;
+    this.bufferSize = bufferSize;
+    this.defaultHeaders = defaultHeaders;
     this.http2 = http2;
-    this.handlerFactory = handlerFactory;
+    this.expectContinue = expectContinue;
+    this.compressionLevel = compressionLevel;
+  }
+
+  private NettyHandler createHandler() {
+    return new NettyHandler(
+        scheduler, router, maxRequestSize, bufferSize, httpDataFactory, defaultHeaders, http2);
   }
 
   @Override
   public void initChannel(SocketChannel ch) {
     ChannelPipeline p = ch.pipeline();
-    p.addLast(new FlushConsolidationHandler());
     if (sslContext != null) {
       p.addLast("ssl", sslContext.newHandler(ch.alloc()));
     }
+    p.addLast(new FlushConsolidationHandler(DEFAULT_EXPLICIT_FLUSH_AFTER_FLUSHES, true));
     if (http2) {
       var settings = new Http2Settings(maxRequestSize, sslContext != null);
       var extension =
@@ -64,24 +81,17 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       var handshake = configurer.configure(extension);
 
       p.addLast(H2_HANDSHAKE, handshake);
-
-      setupExpectContinue(p);
-
-      setupCompression(p);
-
-      p.addLast("handler", handlerFactory.get());
+      additionalHandlers(p);
+      p.addLast("handler", createHandler());
     } else {
       http11(p);
     }
   }
 
-  private void setupExpectContinue(ChannelPipeline p) {
-    if (is100ContinueExpected) {
+  private void additionalHandlers(ChannelPipeline p) {
+    if (expectContinue) {
       p.addLast("expect-continue", new HttpServerExpectContinueHandler());
     }
-  }
-
-  private void setupCompression(ChannelPipeline p) {
     if (compressionLevel != null) {
       p.addLast("compressor", new HttpChunkContentCompressor(compressionLevel));
       p.addLast("ws-compressor", new NettyWebSocketCompressor(compressionLevel));
@@ -99,7 +109,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private void http11Upgrade(
       ChannelPipeline pipeline, Supplier<HttpServerUpgradeHandler.UpgradeCodec> factory) {
     // direct http1 to h2c
-    HttpServerCodec serverCodec = createServerCodec();
+    HttpServerCodec serverCodec = new HttpServerCodec(decoderConfig);
     pipeline.addAfter(H2_HANDSHAKE, "codec", serverCodec);
     pipeline.addAfter(
         "codec",
@@ -111,14 +121,9 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   }
 
   private void http11(ChannelPipeline p) {
-    HttpServerCodec codec = createServerCodec();
-    p.addLast("codec", codec);
-    setupExpectContinue(p);
-    setupCompression(p);
-    p.addLast("handler", handlerFactory.get());
-  }
-
-  HttpServerCodec createServerCodec() {
-    return new HttpServerCodec(_4KB, _8KB, bufferSize);
+    p.addLast("decoder", new HttpRequestDecoder(decoderConfig));
+    p.addLast("encoder", new HttpResponseEncoder());
+    additionalHandlers(p);
+    p.addLast("handler", createHandler());
   }
 }

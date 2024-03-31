@@ -10,7 +10,7 @@ import io.netty.handler.codec.http.websocketx.extensions.WebSocketServerExtensio
 import io.netty.handler.codec.http.websocketx.extensions.compression.DeflateFrameServerExtensionHandshaker;
 import io.netty.handler.codec.http.websocketx.extensions.compression.PerMessageDeflateServerExtensionHandshaker;
 
-class NettyWebSocketCompressor extends WebSocketServerExtensionHandler {
+public class NettyWebSocketCompressor extends WebSocketServerExtensionHandler {
   public NettyWebSocketCompressor(int compressionLevel) {
     super(
         new PerMessageDeflateServerExtensionHandshaker(

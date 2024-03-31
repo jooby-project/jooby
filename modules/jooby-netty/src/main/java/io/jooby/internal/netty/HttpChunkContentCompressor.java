@@ -13,7 +13,7 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContentCompressor;
 
-class HttpChunkContentCompressor extends HttpContentCompressor {
+public class HttpChunkContentCompressor extends HttpContentCompressor {
   public HttpChunkContentCompressor(int compressionLevel) {
     super(gzip(compressionLevel, gzip().windowBits(), gzip().memLevel()));
   }
