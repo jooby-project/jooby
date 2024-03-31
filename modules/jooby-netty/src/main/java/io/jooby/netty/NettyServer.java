@@ -5,6 +5,8 @@
  */
 package io.jooby.netty;
 
+import static io.jooby.ServerOptions._4KB;
+import static io.jooby.ServerOptions._8KB;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 import java.net.BindException;
@@ -13,26 +15,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.net.ssl.SSLContext;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Jooby;
-import io.jooby.Router;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
-import io.jooby.internal.netty.NettyHandler;
-import io.jooby.internal.netty.NettyPipeline;
-import io.jooby.internal.netty.NettyTransport;
-import io.jooby.internal.netty.NettyWebSocket;
+import io.jooby.internal.netty.*;
 import io.jooby.netty.buffer.NettyDataBufferFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
@@ -43,6 +41,7 @@ import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -55,7 +54,9 @@ public class NettyServer extends Server.Base {
   private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
 
   static {
-    System.setProperty(LEAK_DETECTION, System.getProperty(LEAK_DETECTION, "disabled"));
+    System.setProperty(
+        LEAK_DETECTION,
+        System.getProperty(LEAK_DETECTION, ResourceLeakDetector.Level.DISABLED.name()));
   }
 
   private static final int _50 = 50;
@@ -135,7 +136,7 @@ public class NettyServer extends Server.Base {
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {
-        var http = newBootstrap(transport, newPipeline(factory, null, http2));
+        var http = newBootstrap(transport, newPipeline(null, factory, http2));
         http.bind(options.getHost(), options.getPort()).get();
       }
 
@@ -147,7 +148,7 @@ public class NettyServer extends Server.Base {
 
         var clientAuth = sslOptions.getClientAuth();
         var sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
-        var https = newBootstrap(transport, newPipeline(factory, sslContext, http2));
+        var https = newBootstrap(transport, newPipeline(sslContext, factory, http2));
         https.bind(options.getHost(), options.getSecurePort()).get();
       } else if (options.isHttpsOnly()) {
         throw new IllegalArgumentException(
@@ -183,33 +184,28 @@ public class NettyServer extends Server.Base {
     };
   }
 
-  private NettyPipeline newPipeline(HttpDataFactory factory, SslContext sslContext, boolean http2) {
+  private NettyPipeline newPipeline(SslContext sslContext, HttpDataFactory factory, boolean http2) {
     var executor = acceptorloop.next();
     var router = applications.get(0);
+    var bufferSize = options.getBufferSize();
+    var decoderConfig =
+        new HttpDecoderConfig()
+            .setMaxInitialLineLength(_4KB)
+            .setMaxHeaderSize(_8KB)
+            .setMaxChunkSize(bufferSize)
+            .setValidateHeaders(false);
     return new NettyPipeline(
-        () -> createHandler(executor, router, options, factory, http2),
         sslContext,
-        options.getCompressionLevel(),
-        options.getBufferSize(),
-        options.getMaxRequestSize(),
-        http2,
-        options.isExpectContinue() == Boolean.TRUE);
-  }
-
-  @NonNull private NettyHandler createHandler(
-      ScheduledExecutorService service,
-      Router router,
-      ServerOptions options,
-      HttpDataFactory factory,
-      boolean http2) {
-    return new NettyHandler(
-        service,
+        executor,
+        factory,
+        decoderConfig,
         router,
         options.getMaxRequestSize(),
-        options.getBufferSize(),
-        factory,
+        bufferSize,
         options.getDefaultHeaders(),
-        http2);
+        http2,
+        options.isExpectContinue() == Boolean.TRUE,
+        options.getCompressionLevel());
   }
 
   @NonNull @Override

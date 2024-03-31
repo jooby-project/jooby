@@ -112,7 +112,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private static final String STREAM_ID = "x-http2-stream-id";
 
   private String streamId;
-  DefaultHttpHeaders setHeaders = new DefaultHttpHeaders();
+  DefaultHttpHeaders setHeaders = new NettyHeaders();
   private int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -128,7 +128,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private ValueNode headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
-  private Map<String, Object> attributes = new HashMap<>();
+  private Map<String, Object> attributes;
   private long contentLength = -1;
   private boolean needsFlush;
   private Map<String, String> cookies;
@@ -157,18 +157,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.method = req.method().name().toUpperCase();
     if (http2) {
       // Save streamId for HTTP/2
-      this.streamId = header(STREAM_ID).valueOrNull();
+      this.streamId = req.headers().get(STREAM_ID);
       ifStreamId(this.streamId);
-    } else {
-      this.streamId = null;
     }
-  }
-
-  boolean isHttpGet() {
-    return this.method.length() == 3
-        && this.method.charAt(0) == 'G'
-        && this.method.charAt(1) == 'E'
-        && this.method.charAt(2) == 'T';
   }
 
   @NonNull @Override
@@ -183,6 +174,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Map<String, Object> getAttributes() {
+    if (attributes == null) {
+      attributes = new HashMap<>();
+    }
     return attributes;
   }
 
@@ -816,7 +810,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private Session getSession() {
-    return (Session) getAttributes().get(Session.NAME);
+    if (attributes == null) {
+      return null;
+    }
+    return (Session) attributes.get(Session.NAME);
   }
 
   private ChannelPromise promise(ChannelFutureListener listener) {
@@ -829,7 +826,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private boolean pendingTasks() {
     return (getSession() != null)
         || (listeners != null)
-        || (files != null && files.size() > 0)
+        || (files != null && !files.isEmpty())
         || (decoder != null);
   }
 
@@ -924,7 +921,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     ChannelPipeline pipeline = ctx.pipeline();
     if (pipeline.get("chunker") == null) {
       String base =
-          Stream.of("compressor", "codec", "http2")
+          Stream.of("compressor", "encoder", "codec", "http2")
               .filter(name -> pipeline.get(name) != null)
               .findFirst()
               .orElseThrow(
