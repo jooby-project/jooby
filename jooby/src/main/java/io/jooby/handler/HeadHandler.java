@@ -9,6 +9,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.internal.HeadContext;
+import io.jooby.internal.handler.DefaultHandler;
 
 /**
  * Add support for HTTP Head requests.
@@ -28,11 +29,16 @@ import io.jooby.internal.HeadContext;
 public class HeadHandler implements Route.Filter {
   @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
-    return ctx ->
-        ctx.getMethod().equals(Router.HEAD) ? next.apply(new HeadContext(ctx)) : next.apply(ctx);
+    return ctx -> {
+      if (ctx.getMethod().equals(Router.HEAD)) {
+        return DefaultHandler.DEFAULT.apply(next).apply(new HeadContext(ctx));
+      } else {
+        return next.apply(ctx);
+      }
+    };
   }
 
-  @NonNull @Override
+  @Override
   public void setRoute(@NonNull Route route) {
     route.setHttpHead(true);
   }
