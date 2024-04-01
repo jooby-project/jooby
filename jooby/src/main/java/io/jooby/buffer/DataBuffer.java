@@ -96,33 +96,6 @@ public interface DataBuffer {
   int capacity();
 
   /**
-   * Set the number of bytes that this buffer can contain.
-   *
-   * <p>If the new capacity is lower than the current capacity, the contents of this buffer will be
-   * truncated. If the new capacity is higher than the current capacity, it will be expanded.
-   *
-   * @param capacity the new capacity
-   * @return this buffer
-   * @deprecated as of 6.0, in favor of {@link #ensureWritable(int)}, which has different semantics
-   */
-  @Deprecated(since = "6.0")
-  DataBuffer capacity(int capacity);
-
-  /**
-   * Ensure that the current buffer has enough {@link #writableByteCount()} to write the amount of
-   * data given as an argument. If not, the missing capacity will be added to the buffer.
-   *
-   * @param capacity the writable capacity to check for
-   * @return this buffer
-   * @since 5.1.4
-   * @deprecated since 6.0, in favor of {@link #ensureWritable(int)}
-   */
-  @Deprecated(since = "6.0")
-  default DataBuffer ensureCapacity(int capacity) {
-    return ensureWritable(capacity);
-  }
-
-  /**
    * Ensure that the current buffer has enough {@link #writableByteCount()} to write the amount of
    * data given as an argument. If not, the missing capacity will be added to the buffer.
    *
@@ -301,50 +274,10 @@ public interface DataBuffer {
   }
 
   /**
-   * Create a new {@code DataBuffer} whose contents is a shared subsequence of this data buffer's
-   * content. Data between this data buffer and the returned buffer is shared; though changes in the
-   * returned buffer's position will not be reflected in the reading nor writing position of this
-   * data buffer.
-   *
-   * <p><strong>Note</strong> that this method will <strong>not</strong> call {@link
-   * DataBufferUtils#retain(DataBuffer)} on the resulting slice: the reference count will not be
-   * increased.
-   *
-   * @param index the index at which to start the slice
-   * @param length the length of the slice
-   * @return the specified slice of this data buffer
-   * @deprecated as of 6.0, in favor of {@link #split(int)}, which has different semantics
-   */
-  @Deprecated(since = "6.0")
-  DataBuffer slice(int index, int length);
-
-  /**
-   * Create a new {@code DataBuffer} whose contents is a shared, retained subsequence of this data
-   * buffer's content. Data between this data buffer and the returned buffer is shared; though
-   * changes in the returned buffer's position will not be reflected in the reading nor writing
-   * position of this data buffer.
-   *
-   * <p><strong>Note</strong> that unlike {@link #slice(int, int)}, this method
-   * <strong>will</strong> call {@link DataBufferUtils#retain(DataBuffer)} (or equivalent) on the
-   * resulting slice.
-   *
-   * @param index the index at which to start the slice
-   * @param length the length of the slice
-   * @return the specified, retained slice of this data buffer
-   * @since 5.2
-   * @deprecated as of 6.0, in favor of {@link #split(int)}, which has different semantics
-   */
-  @Deprecated(since = "6.0")
-  default DataBuffer retainedSlice(int index, int length) {
-    return DataBufferUtils.retain(slice(index, length));
-  }
-
-  /**
    * Splits this data buffer into two at the given index.
    *
    * <p>Data that precedes the {@code index} will be returned in a new buffer, while this buffer
-   * will contain data that follows after {@code index}. Memory between the two buffers is shared,
-   * but independent and cannot overlap (unlike {@link #slice(int, int) slice}).
+   * will contain data that follows after {@code index}. Memory between the two buffers is shared.
    *
    * <p>The {@linkplain #readPosition() read} and {@linkplain #writePosition() write} position of
    * the returned buffer are truncated to fit within the buffers {@linkplain #capacity() capacity}
@@ -356,64 +289,6 @@ public interface DataBuffer {
    * @since 6.0
    */
   DataBuffer split(int index);
-
-  /**
-   * Expose this buffer's bytes as a {@link ByteBuffer}. Data between this {@code DataBuffer} and
-   * the returned {@code ByteBuffer} is shared; though changes in the returned buffer's {@linkplain
-   * ByteBuffer#position() position} will not be reflected in the reading nor writing position of
-   * this data buffer.
-   *
-   * @return this data buffer as a byte buffer
-   * @deprecated as of 6.0, in favor of {@link #toByteBuffer(ByteBuffer)}, {@link
-   *     #readableByteBuffers()}, or {@link #writableByteBuffers()}.
-   */
-  @Deprecated(since = "6.0")
-  ByteBuffer asByteBuffer();
-
-  /**
-   * Expose a subsequence of this buffer's bytes as a {@link ByteBuffer}. Data between this {@code
-   * DataBuffer} and the returned {@code ByteBuffer} is shared; though changes in the returned
-   * buffer's {@linkplain ByteBuffer#position() position} will not be reflected in the reading nor
-   * writing position of this data buffer.
-   *
-   * @param index the index at which to start the byte buffer
-   * @param length the length of the returned byte buffer
-   * @return this data buffer as a byte buffer
-   * @since 5.0.1
-   * @deprecated as of 6.0, in favor of {@link #toByteBuffer(int, ByteBuffer, int, int)}, {@link
-   *     #readableByteBuffers()}, or {@link #writableByteBuffers()}.
-   */
-  @Deprecated(since = "6.0")
-  ByteBuffer asByteBuffer(int index, int length);
-
-  /**
-   * Returns a {@link ByteBuffer} representation of this data buffer. Data between this {@code
-   * DataBuffer} and the returned {@code ByteBuffer} is <strong>not</strong> shared.
-   *
-   * @return this data buffer as a byte buffer
-   * @since 6.0
-   * @see #readableByteBuffers()
-   * @see #writableByteBuffers()
-   * @deprecated as of 6.0.5, in favor of {@link #toByteBuffer(ByteBuffer)}
-   */
-  @Deprecated(since = "6.0.5")
-  default ByteBuffer toByteBuffer() {
-    return toByteBuffer(readPosition(), readableByteCount());
-  }
-
-  /**
-   * Returns a {@link ByteBuffer} representation of a subsequence of this buffer's bytes. Data
-   * between this {@code DataBuffer} and the returned {@code ByteBuffer} is <strong>not</strong>
-   * shared.
-   *
-   * @return this data buffer as a byte buffer
-   * @since 6.0
-   * @see #readableByteBuffers()
-   * @see #writableByteBuffers()
-   * @deprecated as of 6.0.5, in favor of {@link #toByteBuffer(int, ByteBuffer, int, int)}
-   */
-  @Deprecated(since = "6.0.5")
-  ByteBuffer toByteBuffer(int index, int length);
 
   /**
    * Copies this entire data buffer into the given destination {@code ByteBuffer}, beginning at the
@@ -442,7 +317,6 @@ public interface DataBuffer {
 
   /**
    * Returns a closeable iterator over each {@link ByteBuffer} in this data buffer that can be read.
-   * Calling this method is more efficient than {@link #toByteBuffer()}, as no data is copied.
    * However, the byte buffers provided can only be used during the iteration.
    *
    * <p><b>Note</b> that the returned iterator must be used in a try-with-resources clause or

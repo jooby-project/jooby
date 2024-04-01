@@ -6,6 +6,7 @@
 package io.jooby.jackson;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -155,6 +156,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   @Override
   public ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     ctx.setDefaultResponseType(mediaType);
+    mapper.writer().writeValue(OutputStream.nullOutputStream(), value);
     return ByteBuffer.wrap(mapper.writer().writeValueAsBytes(value));
   }
 

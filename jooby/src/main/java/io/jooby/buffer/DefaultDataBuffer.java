@@ -167,13 +167,6 @@ public class DefaultDataBuffer implements DataBuffer {
     return this.capacity;
   }
 
-  @Override
-  @Deprecated
-  public DataBuffer capacity(int capacity) {
-    setCapacity(capacity);
-    return this;
-  }
-
   private void setCapacity(int newCapacity) {
     if (newCapacity < 0) {
       throw new IllegalArgumentException(
@@ -334,21 +327,6 @@ public class DefaultDataBuffer implements DataBuffer {
   }
 
   @Override
-  @Deprecated
-  public DefaultDataBuffer slice(int index, int length) {
-    checkIndex(index, length);
-    int oldPosition = this.byteBuffer.position();
-    try {
-      this.byteBuffer.position(index);
-      ByteBuffer slice = this.byteBuffer.slice();
-      slice.limit(length);
-      return new SlicedDefaultDataBuffer(slice, this.dataBufferFactory, length);
-    } finally {
-      this.byteBuffer.position(oldPosition);
-    }
-  }
-
-  @Override
   public DataBuffer split(int index) {
     checkIndex(index);
 
@@ -370,35 +348,6 @@ public class DefaultDataBuffer implements DataBuffer {
     this.capacity = this.byteBuffer.capacity();
 
     return result;
-  }
-
-  @Override
-  @Deprecated
-  public ByteBuffer asByteBuffer() {
-    return asByteBuffer(this.readPosition, readableByteCount());
-  }
-
-  @Override
-  @Deprecated
-  public ByteBuffer asByteBuffer(int index, int length) {
-    checkIndex(index, length);
-
-    ByteBuffer duplicate = this.byteBuffer.duplicate();
-    duplicate.position(index);
-    duplicate.limit(index + length);
-    return duplicate.slice();
-  }
-
-  @Override
-  @Deprecated
-  public ByteBuffer toByteBuffer(int index, int length) {
-    checkIndex(index, length);
-
-    ByteBuffer copy = allocate(length, this.byteBuffer.isDirect());
-    ByteBuffer readOnly = this.byteBuffer.asReadOnlyBuffer();
-    readOnly.clear().position(index).limit(index + length);
-    copy.put(readOnly);
-    return copy.flip();
   }
 
   @Override
@@ -520,13 +469,6 @@ public class DefaultDataBuffer implements DataBuffer {
         ByteBuffer byteBuffer, DefaultDataBufferFactory dataBufferFactory, int length) {
       super(dataBufferFactory, byteBuffer);
       writePosition(length);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public DefaultDataBuffer capacity(int newCapacity) {
-      throw new UnsupportedOperationException(
-          "Changing the capacity of a sliced buffer is not supported");
     }
   }
 
