@@ -23,9 +23,7 @@ public interface DataBufferFactory {
    * implementation and its configuration, this will be heap-based or direct buffer.
    *
    * @return the allocated buffer
-   * @deprecated as of 6.0, in favor of {@link #allocateBuffer(int)}
    */
-  @Deprecated(since = "6.0")
   DataBuffer allocateBuffer();
 
   /**

@@ -122,13 +122,6 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
-  @Deprecated
-  public NettyDataBuffer capacity(int capacity) {
-    this.byteBuf.capacity(capacity);
-    return this;
-  }
-
-  @Override
   public DataBuffer ensureWritable(int capacity) {
     this.byteBuf.ensureWritable(capacity);
     return this;
@@ -234,20 +227,6 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
-  @Deprecated
-  public NettyDataBuffer slice(int index, int length) {
-    ByteBuf slice = this.byteBuf.slice(index, length);
-    return new NettyDataBuffer(slice, this.dataBufferFactory);
-  }
-
-  @Override
-  @Deprecated
-  public NettyDataBuffer retainedSlice(int index, int length) {
-    ByteBuf slice = this.byteBuf.retainedSlice(index, length);
-    return new NettyDataBuffer(slice, this.dataBufferFactory);
-  }
-
-  @Override
   public NettyDataBuffer split(int index) {
     ByteBuf split = this.byteBuf.retainedSlice(0, index);
     int writerIndex = this.byteBuf.writerIndex();
@@ -261,29 +240,6 @@ public class NettyDataBuffer implements PooledDataBuffer {
     this.byteBuf.readerIndex(Math.max(readerIndex, index) - index);
 
     return new NettyDataBuffer(split, this.dataBufferFactory);
-  }
-
-  @Override
-  @Deprecated
-  public ByteBuffer asByteBuffer() {
-    return this.byteBuf.nioBuffer();
-  }
-
-  @Override
-  @Deprecated
-  public ByteBuffer asByteBuffer(int index, int length) {
-    return this.byteBuf.nioBuffer(index, length);
-  }
-
-  @Override
-  @Deprecated
-  public ByteBuffer toByteBuffer(int index, int length) {
-    ByteBuffer result =
-        this.byteBuf.isDirect() ? ByteBuffer.allocateDirect(length) : ByteBuffer.allocate(length);
-
-    this.byteBuf.getBytes(index, result);
-
-    return result.flip();
   }
 
   @Override
