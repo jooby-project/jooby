@@ -38,7 +38,7 @@
     <ebean.version>15.0.2</ebean.version>
     <jdbi.version>3.45.1</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
-    <graphql-java.version>21.4</graphql-java.version>
+    <graphql-java.version>21.5</graphql-java.version>
     <lettuce.version>6.3.2.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.0</commons-pool2.version>
     <kafka.version>3.7.0</kafka.version>
@@ -91,12 +91,12 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>7.6.0</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.686</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.691</aws-java-sdk.version>
     <camel.version>3.22.1</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
 
-    <commons-io.version>2.15.1</commons-io.version>
+    <commons-io.version>2.16.0</commons-io.version>
 
     <!-- Kotlin -->
     <kotlin.version>1.9.23</kotlin.version>
@@ -129,7 +129,7 @@
     <maven-core.version>3.9.6</maven-core.version>
     <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
     <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-    <maven-gpg-plugin.version>3.2.1</maven-gpg-plugin.version>
+    <maven-gpg-plugin.version>3.2.2</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
@@ -151,7 +151,7 @@
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
     <node.version>v18.13.0</node.version>
-    <moditec.version>1.2.0.Final</moditec.version>
+    <moditec.version>1.2.1.Final</moditec.version>
 
     <!-- Jooby  -->
     <jooby.version>${project.version}</jooby.version>
