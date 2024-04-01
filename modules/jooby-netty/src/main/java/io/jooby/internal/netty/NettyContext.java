@@ -65,7 +65,6 @@ import io.jooby.Sender;
 import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
 import io.jooby.Session;
-import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
@@ -81,7 +80,6 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -112,7 +110,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private static final String STREAM_ID = "x-http2-stream-id";
 
   private String streamId;
-  DefaultHttpHeaders setHeaders = new NettyHeaders();
+  HeadersMultiMap setHeaders = HeadersMultiMap.httpHeaders();
   private int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -141,6 +139,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private String host;
   private String scheme;
   private int port;
+  private boolean sessionCreated;
+  private boolean filesCreated;
 
   public NettyContext(
       ChannelHandlerContext ctx,
@@ -369,6 +369,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       return new NettyBody(this, (HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
     }
     return Body.empty(this);
+  }
+
+  @NonNull @Override
+  public Session session() {
+    sessionCreated = true;
+    return DefaultContext.super.session();
   }
 
   @Override
@@ -802,18 +808,15 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private void ifSaveSession() {
-    Session session = getSession();
-    if (session != null) {
-      SessionStore store = router.getSessionStore();
+    if (sessionCreated) {
+      var session = getSession();
+      var store = router.getSessionStore();
       store.saveSession(this, session);
     }
   }
 
   private Session getSession() {
-    if (attributes == null) {
-      return null;
-    }
-    return (Session) attributes.get(Session.NAME);
+    return sessionCreated ? (Session) attributes.get(Session.NAME) : null;
   }
 
   private ChannelPromise promise(ChannelFutureListener listener) {
@@ -824,10 +827,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private boolean pendingTasks() {
-    return (getSession() != null)
-        || (listeners != null)
-        || (files != null && !files.isEmpty())
-        || (decoder != null);
+    return sessionCreated || filesCreated || decoder != null || listeners != null;
   }
 
   void destroy(Throwable cause) {
@@ -877,6 +877,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private FileUpload register(FileUpload upload) {
+    filesCreated = true;
     if (this.files == null) {
       this.files = new ArrayList<>();
     }
