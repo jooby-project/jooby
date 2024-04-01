@@ -188,12 +188,14 @@ public class NettyServer extends Server.Base {
     var executor = acceptorloop.next();
     var router = applications.get(0);
     var bufferSize = options.getBufferSize();
+    var headersFactory = HeadersMultiMap.httpHeadersFactory();
     var decoderConfig =
         new HttpDecoderConfig()
             .setMaxInitialLineLength(_4KB)
             .setMaxHeaderSize(_8KB)
             .setMaxChunkSize(bufferSize)
-            .setValidateHeaders(false);
+            .setHeadersFactory(headersFactory)
+            .setTrailersFactory(headersFactory);
     return new NettyPipeline(
         sslContext,
         executor,
