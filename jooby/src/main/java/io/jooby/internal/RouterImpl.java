@@ -908,8 +908,7 @@ public class RouterImpl implements Router {
     it.setExecutorKey(src.getExecutorKey());
     it.setTags(src.getTags());
     it.setDescription(src.getDescription());
-    it.setDecoders(src.getDecoders());
-    it.setMvcMethod(it.getMvcMethod());
+    it.setMvcMethod(src.getMvcMethod());
     it.setNonBlocking(src.isNonBlocking());
     it.setSummary(src.getSummary());
   }
