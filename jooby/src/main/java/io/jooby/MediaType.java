@@ -848,6 +848,8 @@ public final class MediaType implements Comparable<MediaType> {
         return new MediaType("application/x-cabinet", null);
       case "gif":
         return new MediaType("image/gif", null);
+      case "wasm":
+        return new MediaType("application/wasm", null);
       default:
         return octetStream;
     }
