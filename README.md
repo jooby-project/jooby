@@ -1,7 +1,8 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.jooby/jooby)
 [![Javadoc](https://javadoc.io/badge/io.jooby/jooby.svg)](https://javadoc.io/doc/io.jooby/jooby/latest)
 [![Github](https://github.com/jooby-project/jooby/workflows/Full%20Build/badge.svg)](https://github.com/jooby-project/jooby/actions)
-[![slack](https://img.shields.io/badge/slack-chat-brightgreen.svg?logo=slack)](https://joobyio.slack.com)
+[![Slack](https://img.shields.io/badge/slack-chat-brightgreen.svg?logo=slack)](https://joobyio.slack.com)
+[![Discord](https://img.shields.io/discord/1225457509909922015?label=discord)](https://discord.com/channels/1225457509909922015)
 [![Become a Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://patreon.com/edgarespina)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?logo=paypal&style=flat-square)](https://paypal.me/edgarespina)
 
