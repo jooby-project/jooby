@@ -62,7 +62,7 @@ public class JettyServerSentEmitter implements ServerSentEmitter, Callback {
   public ServerSentEmitter send(ServerSentMessage data) {
     if (isOpen()) {
       // TODO: FIX usage of new DataBuffer
-      response.write(false, data.toByteArray(jetty).readableByteBuffers().next(), this);
+      response.write(false, data.encode(jetty).readableByteBuffers().next(), this);
     }
     return this;
   }

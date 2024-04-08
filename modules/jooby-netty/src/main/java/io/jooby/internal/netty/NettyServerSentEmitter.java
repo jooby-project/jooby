@@ -65,7 +65,7 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
   public ServerSentEmitter send(ServerSentMessage data) {
     if (checkOpen()) {
       // TODO: FIX usage of new DataBuffer
-      var nettyDataBuffer = (NettyDataBuffer) data.toByteArray(netty);
+      var nettyDataBuffer = (NettyDataBuffer) data.encode(netty);
       netty.ctx.writeAndFlush(nettyDataBuffer.getNativeBuffer()).addListener(this);
     } else {
       log.warn("server-sent-event closed: {}", id);
