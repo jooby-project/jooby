@@ -11,11 +11,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channel;
 import java.nio.channels.ClosedChannelException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -28,6 +24,7 @@ import org.xnio.channels.StreamSinkChannel;
 
 import io.jooby.Context;
 import io.jooby.ServerSentMessage;
+import io.jooby.buffer.DataBuffer;
 import io.undertow.connector.PooledByteBuffer;
 import io.undertow.server.HttpServerExchange;
 
@@ -131,26 +128,32 @@ public class UndertowServerSentConnection implements Channel {
       UndertowServerSentConnection.SSEData data = queue.poll();
       buffered.add(data);
       if (data.leftOverData == null) {
-        byte[] messageBytes = data.message.toByteArray(context);
-        if (messageBytes.length < buffer.remaining()) {
-          buffer.put(messageBytes);
+        var message = data.message.toByteArray(context);
+        if (message.readableByteCount() < buffer.remaining()) {
+          message.toByteBuffer(buffer);
+          buffer.position(buffer.position() + message.readableByteCount());
           data.endBufferPosition = buffer.position();
         } else {
           queue.addFirst(data);
           int rem = buffer.remaining();
-          buffer.put(messageBytes, 0, rem);
-          data.leftOverData = messageBytes;
+          message.toByteBuffer(0, buffer, buffer.position(), rem);
+          buffer.position(buffer.position() + rem);
+          data.leftOverData = message;
           data.leftOverDataOffset = rem;
         }
       } else {
-        int remainingData = data.leftOverData.length - data.leftOverDataOffset;
+        int remainingData = data.leftOverData.readableByteCount() - data.leftOverDataOffset;
         if (remainingData > buffer.remaining()) {
           queue.addFirst(data);
           int toWrite = buffer.remaining();
-          buffer.put(data.leftOverData, data.leftOverDataOffset, toWrite);
+          data.leftOverData.toByteBuffer(
+              data.leftOverDataOffset, buffer, buffer.position(), toWrite);
+          buffer.position(buffer.position() + toWrite);
           data.leftOverDataOffset += toWrite;
         } else {
-          buffer.put(data.leftOverData, data.leftOverDataOffset, remainingData);
+          data.leftOverData.toByteBuffer(
+              data.leftOverDataOffset, buffer, buffer.position(), remainingData);
+          buffer.position(buffer.position() + remainingData);
           data.endBufferPosition = buffer.position();
           data.leftOverData = null;
         }
@@ -244,13 +247,27 @@ public class UndertowServerSentConnection implements Channel {
     final ServerSentMessage message;
     final UndertowServerSentConnection.EventCallback callback;
     private int endBufferPosition = -1;
-    private byte[] leftOverData;
+    private DataBuffer leftOverData;
     private int leftOverDataOffset;
 
     private SSEData(
         ServerSentMessage message, UndertowServerSentConnection.EventCallback callback) {
       this.message = message;
       this.callback = callback;
+    }
+
+    @Override
+    public String toString() {
+      return "{"
+          + "message="
+          + message
+          + ", callback="
+          + callback
+          + ", endBufferPosition="
+          + endBufferPosition
+          + ", leftOverDataOffset="
+          + leftOverDataOffset
+          + '}';
     }
   }
 

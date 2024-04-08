@@ -30,6 +30,8 @@ import java.util.function.BiFunction;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.DataBuffer;
+import io.jooby.buffer.DataBufferFactory;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.ParamLookupImpl;
@@ -100,6 +102,8 @@ public interface Context extends Registry {
    * @return HTTP router (usually this represents an instance of {@link Jooby}.
    */
   @NonNull Router getRouter();
+
+  @NonNull DataBufferFactory getBufferFactory();
 
   /**
    * Forward executing to another route. We use the given path to find a matching route.
@@ -1279,6 +1283,14 @@ public interface Context extends Registry {
    * @return This context.
    */
   @NonNull Context send(@NonNull ByteBuffer data);
+
+  /**
+   * Send response data.
+   *
+   * @param data Response.
+   * @return This context.
+   */
+  @NonNull Context send(@NonNull DataBuffer data);
 
   /**
    * Send response data.

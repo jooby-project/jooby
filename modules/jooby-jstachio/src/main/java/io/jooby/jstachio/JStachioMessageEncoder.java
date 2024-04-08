@@ -6,15 +6,15 @@
 package io.jooby.jstachio;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.function.BiFunction;
 
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
+import io.jooby.buffer.DataBuffer;
 import io.jstach.jstachio.JStachio;
 import io.jstach.jstachio.output.ByteBufferEncodedOutput;
 
-class JStachioMessageEncoder extends JStachioRenderer<ByteBuffer> implements MessageEncoder {
+class JStachioMessageEncoder extends JStachioRenderer<DataBuffer> implements MessageEncoder {
 
   public JStachioMessageEncoder(
       JStachio jstachio,
@@ -24,7 +24,7 @@ class JStachioMessageEncoder extends JStachioRenderer<ByteBuffer> implements Mes
   }
 
   @Override
-  public ByteBuffer encode(Context ctx, Object value) throws Exception {
+  public DataBuffer encode(Context ctx, Object value) throws Exception {
     if (supportsType(value.getClass())) {
       return render(ctx, value);
     }
@@ -32,7 +32,7 @@ class JStachioMessageEncoder extends JStachioRenderer<ByteBuffer> implements Mes
   }
 
   @Override
-  ByteBuffer extractOutput(Context ctx, ByteBufferEncodedOutput stream) throws IOException {
-    return stream.asByteBuffer();
+  DataBuffer extractOutput(Context ctx, ByteBufferEncodedOutput stream) throws IOException {
+    return ctx.getBufferFactory().wrap(stream.asByteBuffer());
   }
 }

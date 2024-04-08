@@ -24,6 +24,7 @@ import io.jooby.MessageEncoder;
 import io.jooby.ModelAndView;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
+import io.jooby.buffer.DataBuffer;
 
 public class HttpMessageEncoder implements MessageEncoder {
 
@@ -45,7 +46,7 @@ public class HttpMessageEncoder implements MessageEncoder {
   }
 
   @Override
-  public ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     if (value instanceof ModelAndView) {
       ModelAndView modelAndView = (ModelAndView) value;
       for (TemplateEngine engine : templateEngineList) {
@@ -83,16 +84,17 @@ public class HttpMessageEncoder implements MessageEncoder {
       ctx.send((FileDownload) value);
       return null;
     }
+    var bufferFactory = ctx.getBufferFactory();
     /** Strings: */
     if (value instanceof CharSequence) {
-      return ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
+      return bufferFactory.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
     }
     if (value instanceof Number) {
-      return ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
+      return bufferFactory.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
     }
     /** RawByte: */
     if (value instanceof byte[]) {
-      return ByteBuffer.wrap((byte[]) value);
+      return bufferFactory.wrap((byte[]) value);
     }
     if (value instanceof ByteBuffer) {
       ctx.send((ByteBuffer) value);

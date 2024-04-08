@@ -15,6 +15,7 @@ import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Sender;
 import io.jooby.Server;
+import io.jooby.buffer.DataBuffer;
 
 public class ChunkedSubscriber implements Flow.Subscriber {
 
@@ -44,17 +45,16 @@ public class ChunkedSubscriber implements Flow.Subscriber {
         after.apply(ctx, item, null);
       }
       MessageEncoder encoder = route.getEncoder();
-      // TODO: ByteBuffer fix me this need to be better once we add buffer API
-      var data = encoder.encode(ctx, item).array();
+      var data = encoder.encode(ctx, item);
 
       if (responseType == null) {
         responseType = ctx.getResponseType();
         if (responseType.isJson()) {
-          data = prepend(data, JSON_LBRACKET);
+          data = prepend(ctx, data, JSON_LBRACKET);
         }
       } else {
         if (responseType.isJson()) {
-          data = prepend(data, JSON_SEP);
+          data = prepend(ctx, data, JSON_SEP);
         }
       }
 
@@ -117,11 +117,11 @@ public class ChunkedSubscriber implements Flow.Subscriber {
     sender().close();
   }
 
-  private static byte[] prepend(byte[] data, byte c) {
-    byte[] tmp = new byte[data.length + 1];
-    System.arraycopy(data, 0, tmp, 1, data.length);
-    tmp[0] = c;
-    return tmp;
+  private static DataBuffer prepend(Context ctx, DataBuffer data, byte c) {
+    var buffer = ctx.getBufferFactory().allocateBuffer();
+    buffer.write(c);
+    buffer.write(data);
+    return buffer;
   }
 
   private Sender sender() {

@@ -25,7 +25,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -1085,12 +1084,14 @@ public class FeaturedTest {
               app.encoder(
                   io.jooby.MediaType.json,
                   (@NonNull Context ctx, @NonNull Object value) ->
-                      ByteBuffer.wrap(("{" + value + "}").getBytes(StandardCharsets.UTF_8)));
+                      ctx.getBufferFactory()
+                          .wrap(("{" + value + "}").getBytes(StandardCharsets.UTF_8)));
 
               app.encoder(
                   io.jooby.MediaType.xml,
                   (@NonNull Context ctx, @NonNull Object value) ->
-                      ByteBuffer.wrap(("<" + value + ">").getBytes(StandardCharsets.UTF_8)));
+                      ctx.getBufferFactory()
+                          .wrap(("<" + value + ">").getBytes(StandardCharsets.UTF_8)));
 
               app.get(
                   "/defaults",

@@ -71,6 +71,7 @@ import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
+import io.jooby.buffer.DataBuffer;
 
 public class JettyContext implements DefaultContext, Callback {
   private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.wrap(new byte[0]);
@@ -487,7 +488,7 @@ public class JettyContext implements DefaultContext, Callback {
   @NonNull @Override
   public Context send(StatusCode statusCode) {
     response.setStatus(statusCode.value());
-    send(EMPTY_BUFFER);
+    response.write(true, null, this);
     return this;
   }
 
@@ -511,6 +512,13 @@ public class JettyContext implements DefaultContext, Callback {
   @NonNull @Override
   public Context send(@NonNull String data, @NonNull Charset charset) {
     return send(ByteBuffer.wrap(data.getBytes(charset)));
+  }
+
+  @NonNull @Override
+  public Context send(@NonNull DataBuffer data) {
+    try (var it = data.readableByteBuffers()) {
+      return send(it.next());
+    }
   }
 
   @NonNull @Override

@@ -7,11 +7,11 @@ package io.jooby;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
+import java.util.function.IntPredicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.DataBuffer;
 
 /**
  * Server-Sent message.
@@ -129,14 +129,14 @@ public class ServerSentMessage {
    * @param ctx Web context. To encode complex objects.
    * @return Encoded data.
    */
-  public @NonNull byte[] toByteArray(@NonNull Context ctx) {
+  public @NonNull DataBuffer toByteArray(@NonNull Context ctx) {
     try {
       Route route = ctx.getRoute();
       MessageEncoder encoder = route.getEncoder();
-      // TODO: ByteBuffer fix me this need to be better once we add buffer API
-      var bytes = encoder.encode(ctx, data).array();
+      var bufferFactory = ctx.getBufferFactory();
+      var buffer = bufferFactory.allocateBuffer();
+      var message = encoder.encode(ctx, data);
 
-      ByteArrayOutputStream buffer = new ByteArrayOutputStream(bytes.length);
       if (id != null) {
         buffer.write(ID);
         buffer.write(id.toString().getBytes(UTF_8));
@@ -152,29 +152,22 @@ public class ServerSentMessage {
         buffer.write(retry.toString().getBytes(UTF_8));
         buffer.write(SEPARATOR);
       }
-      /** do multi-line processing: */
+      /* do multi-line processing: */
       buffer.write(DATA);
-      int offset = 0;
-      for (int i = 0; i < bytes.length; i++) {
-        byte ch = bytes[i];
-        if (ch == '\n') {
-          buffer.write(Arrays.copyOfRange(bytes, offset, offset + i));
-          buffer.write(SEPARATOR);
-          if (i + 1 < bytes.length) {
-            buffer.write(DATA);
-          }
-          offset = i + 1;
+      IntPredicate nl = ch -> ch == '\n';
+      var i = message.indexOf(nl, 0);
+      while (i > 0) {
+        buffer.write(message.split(i + 1));
+        if (message.readableByteCount() > 0) {
+          buffer.write(DATA);
         }
+        i = message.indexOf(nl, 1);
       }
-      if (offset == 0) {
-        buffer.write(bytes);
-      } else if (offset < bytes.length) {
-        buffer.write(Arrays.copyOfRange(bytes, offset, bytes.length));
-      }
+      // write any pending bytes
+      buffer.write(message);
       buffer.write(SEPARATOR);
       buffer.write(SEPARATOR);
-
-      return buffer.toByteArray();
+      return buffer;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

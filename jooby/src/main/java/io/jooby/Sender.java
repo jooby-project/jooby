@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.DataBuffer;
 
 /**
  * Non-blocking sender. Reactive responses uses this class to send partial data in non-blocking
@@ -92,6 +93,8 @@ public interface Sender {
    * @return This sender.
    */
   @NonNull Sender write(@NonNull byte[] data, @NonNull Callback callback);
+
+  @NonNull Sender write(@NonNull DataBuffer data, @NonNull Callback callback);
 
   /** Close the sender. */
   void close();

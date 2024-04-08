@@ -18,7 +18,7 @@ import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
 import io.jooby.ServerSentMessage;
 import io.jooby.SneakyThrows;
-import io.netty.buffer.Unpooled;
+import io.jooby.netty.buffer.NettyDataBuffer;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -64,7 +64,9 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
   @NonNull @Override
   public ServerSentEmitter send(ServerSentMessage data) {
     if (checkOpen()) {
-      netty.ctx.writeAndFlush(Unpooled.wrappedBuffer(data.toByteArray(netty))).addListener(this);
+      // TODO: FIX usage of new DataBuffer
+      var nettyDataBuffer = (NettyDataBuffer) data.toByteArray(netty);
+      netty.ctx.writeAndFlush(nettyDataBuffer.getNativeBuffer()).addListener(this);
     } else {
       log.warn("server-sent-event closed: {}", id);
     }

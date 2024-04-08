@@ -5,11 +5,11 @@
  */
 package io.jooby;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.DataBuffer;
 import io.jooby.exception.NotAcceptableException;
 
 /**
@@ -24,7 +24,7 @@ public interface MessageEncoder {
   MessageEncoder TO_STRING =
       (ctx, value) -> {
         if (ctx.accept(ctx.getResponseType())) {
-          return ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
+          return ctx.getBufferFactory().wrap(value.toString().getBytes(StandardCharsets.UTF_8));
         }
         throw new NotAcceptableException(ctx.header("Accept").valueOrNull());
       };
@@ -38,5 +38,5 @@ public interface MessageEncoder {
    * @return Value as byte array or <code>null</code> if given object isn't supported it.
    * @throws Exception If something goes wrong.
    */
-  @Nullable ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
+  @Nullable DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
 }
