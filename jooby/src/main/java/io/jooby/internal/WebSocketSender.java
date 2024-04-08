@@ -19,6 +19,7 @@ import io.jooby.ForwardingContext;
 import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
+import io.jooby.buffer.DataBuffer;
 
 public class WebSocketSender extends ForwardingContext implements DefaultContext {
 
@@ -63,6 +64,15 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
       ws.sendBinary(data, callback);
     } else {
       ws.send(data, callback);
+    }
+    return this;
+  }
+
+  @NonNull @Override
+  public Context send(@NonNull DataBuffer data) {
+    // TODO; FIX  Add ws.
+    try (var it = data.readableByteBuffers()) {
+      this.send(it.next());
     }
     return this;
   }

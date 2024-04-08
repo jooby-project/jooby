@@ -4,7 +4,9 @@
  * Copyright 2014 Edgar Espina
  */
 import io.jooby.Server;
+import io.jooby.buffer.DataBufferFactory;
 import io.jooby.netty.NettyServer;
+import io.jooby.netty.buffer.NettyDataBufferFactory;
 
 /** Netty module. */
 module io.jooby.netty {
@@ -28,4 +30,6 @@ module io.jooby.netty {
 
   provides Server with
       NettyServer;
+  provides DataBufferFactory with
+      NettyDataBufferFactory;
 }

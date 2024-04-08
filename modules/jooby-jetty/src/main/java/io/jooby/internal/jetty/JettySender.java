@@ -11,6 +11,7 @@ import org.eclipse.jetty.server.Response;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
+import io.jooby.buffer.DataBuffer;
 
 public class JettySender implements Sender {
   private final JettyContext ctx;
@@ -24,6 +25,13 @@ public class JettySender implements Sender {
   @Override
   public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
     response.write(false, ByteBuffer.wrap(data), toJettyCallback(ctx, callback));
+    return this;
+  }
+
+  @NonNull @Override
+  public Sender write(@NonNull DataBuffer data, @NonNull Callback callback) {
+    // TODO: Fix usage of DataBuffer
+    response.write(false, data.readableByteBuffers().next(), toJettyCallback(ctx, callback));
     return this;
   }
 

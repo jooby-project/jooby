@@ -11,7 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,6 +23,7 @@ import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
+import io.jooby.buffer.DataBuffer;
 
 /**
  * JSON module using Gson: https://github.com/google/gson.
@@ -109,8 +109,8 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
   }
 
   @NonNull @Override
-  public ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) {
+  public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) {
     ctx.setDefaultResponseType(MediaType.json);
-    return ByteBuffer.wrap(gson.toJson(value).getBytes(UTF_8));
+    return ctx.getBufferFactory().wrap(gson.toJson(value).getBytes(UTF_8));
   }
 }

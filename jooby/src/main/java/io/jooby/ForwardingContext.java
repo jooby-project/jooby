@@ -23,6 +23,8 @@ import java.util.concurrent.Executor;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.DataBuffer;
+import io.jooby.buffer.DataBufferFactory;
 import io.jooby.exception.RegistryException;
 
 /**
@@ -92,6 +94,11 @@ public class ForwardingContext implements Context {
   @Override
   @NonNull public Router getRouter() {
     return ctx.getRouter();
+  }
+
+  @NonNull @Override
+  public DataBufferFactory getBufferFactory() {
+    return ctx.getBufferFactory();
   }
 
   @NonNull @Override
@@ -643,6 +650,12 @@ public class ForwardingContext implements Context {
 
   @Override
   @NonNull public Context send(@NonNull ByteBuffer data) {
+    ctx.send(data);
+    return this;
+  }
+
+  @NonNull @Override
+  public Context send(@NonNull DataBuffer data) {
     ctx.send(data);
     return this;
   }

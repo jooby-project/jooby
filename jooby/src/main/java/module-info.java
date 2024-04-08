@@ -4,8 +4,6 @@
  * Copyright 2014 Edgar Espina
  */
 
-import io.jooby.LoggingService;
-
 /** Jooby module. */
 module io.jooby {
   exports io.jooby;
@@ -18,7 +16,8 @@ module io.jooby {
   uses io.jooby.Server;
   uses io.jooby.SslProvider;
   uses io.jooby.ResultHandler;
-  uses LoggingService;
+  uses io.jooby.LoggingService;
+  uses io.jooby.buffer.DataBufferFactory;
 
   /*
    * True core deps

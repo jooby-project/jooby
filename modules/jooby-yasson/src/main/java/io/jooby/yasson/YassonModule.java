@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -23,6 +22,7 @@ import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
+import io.jooby.buffer.DataBuffer;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
@@ -103,8 +103,8 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
   }
 
   @Nullable @Override
-  public ByteBuffer encode(@NonNull final Context ctx, @NonNull final Object value) {
+  public DataBuffer encode(@NonNull final Context ctx, @NonNull final Object value) {
     ctx.setDefaultResponseType(MediaType.json);
-    return ByteBuffer.wrap(jsonb.toJson(value).getBytes(UTF_8));
+    return ctx.getBufferFactory().wrap(jsonb.toJson(value).getBytes(UTF_8));
   }
 }

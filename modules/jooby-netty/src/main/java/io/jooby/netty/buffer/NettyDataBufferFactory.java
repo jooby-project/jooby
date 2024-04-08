@@ -43,6 +43,10 @@ public class NettyDataBufferFactory implements DataBufferFactory {
     this.byteBufAllocator = byteBufAllocator;
   }
 
+  public NettyDataBufferFactory() {
+    this(ByteBufAllocator.DEFAULT);
+  }
+
   /** Return the {@code ByteBufAllocator} used by this factory. */
   public ByteBufAllocator getByteBufAllocator() {
     return this.byteBufAllocator;

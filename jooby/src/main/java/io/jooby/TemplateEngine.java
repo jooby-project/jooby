@@ -5,12 +5,12 @@
  */
 package io.jooby;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.buffer.DataBuffer;
 
 /**
  * Template engine renderer. This class renderer instances of {@link ModelAndView} objects. Template
@@ -38,14 +38,14 @@ public interface TemplateEngine extends MessageEncoder {
   String render(Context ctx, ModelAndView modelAndView) throws Exception;
 
   @Override
-  default ByteBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  default DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     // initialize flash and session attributes (if any)
     ctx.flash();
     ctx.sessionOrNull();
 
     ctx.setDefaultResponseType(MediaType.html);
     String output = render(ctx, (ModelAndView) value);
-    return ByteBuffer.wrap(output.getBytes(StandardCharsets.UTF_8));
+    return ctx.getBufferFactory().wrap(output.getBytes(StandardCharsets.UTF_8));
   }
 
   /**

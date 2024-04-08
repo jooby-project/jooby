@@ -55,6 +55,9 @@ import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
+import io.jooby.buffer.DataBuffer;
+import io.jooby.buffer.DataBufferFactory;
+import io.jooby.buffer.DefaultDataBufferFactory;
 import io.jooby.exception.TypeMismatchException;
 
 /** Unit test friendly context implementation. Allows to set context properties. */
@@ -114,6 +117,8 @@ public class MockContext implements DefaultContext {
 
   private int port = -1;
 
+  private DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
+
   @NonNull @Override
   public String getMethod() {
     return method;
@@ -128,6 +133,11 @@ public class MockContext implements DefaultContext {
   @Override
   public int getPort() {
     return port;
+  }
+
+  @NonNull @Override
+  public DataBufferFactory getBufferFactory() {
+    return bufferFactory;
   }
 
   /**
@@ -558,6 +568,13 @@ public class MockContext implements DefaultContext {
         return this;
       }
 
+      @NonNull @Override
+      public Sender write(@NonNull DataBuffer data, @NonNull Callback callback) {
+        response.setResult(data);
+        callback.onComplete(MockContext.this, null);
+        return this;
+      }
+
       @Override
       public void close() {
         listeners.run(MockContext.this);
@@ -646,6 +663,14 @@ public class MockContext implements DefaultContext {
   public MockContext send(@NonNull ByteBuffer data) {
     responseStarted = true;
     this.response.setResult(data).setContentLength(data.remaining());
+    listeners.run(this);
+    return this;
+  }
+
+  @NonNull @Override
+  public Context send(@NonNull DataBuffer data) {
+    responseStarted = true;
+    this.response.setResult(data).setContentLength(data.readableByteCount());
     listeners.run(this);
     return this;
   }

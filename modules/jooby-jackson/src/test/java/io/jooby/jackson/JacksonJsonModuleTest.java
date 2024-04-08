@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,17 +21,19 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
+import io.jooby.buffer.DefaultDataBufferFactory;
 
 public class JacksonJsonModuleTest {
 
   @Test
   public void renderJson() throws Exception {
     Context ctx = mock(Context.class);
+    when(ctx.getBufferFactory()).thenReturn(new DefaultDataBufferFactory());
 
     JacksonModule jackson = new JacksonModule(new ObjectMapper());
 
-    ByteBuffer bytes = jackson.encode(ctx, mapOf("k", "v"));
-    assertEquals("{\"k\":\"v\"}", new String(bytes.array(), StandardCharsets.UTF_8));
+    var buffer = jackson.encode(ctx, mapOf("k", "v"));
+    assertEquals("{\"k\":\"v\"}", buffer.toString(StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.json);
   }
@@ -56,11 +57,12 @@ public class JacksonJsonModuleTest {
   @Test
   public void renderXml() throws Exception {
     Context ctx = mock(Context.class);
+    when(ctx.getBufferFactory()).thenReturn(new DefaultDataBufferFactory());
 
     JacksonModule jackson = new JacksonModule(new XmlMapper());
 
-    var bytes = jackson.encode(ctx, mapOf("k", "v"));
-    assertEquals("<HashMap><k>v</k></HashMap>", new String(bytes.array(), StandardCharsets.UTF_8));
+    var buffer = jackson.encode(ctx, mapOf("k", "v"));
+    assertEquals("<HashMap><k>v</k></HashMap>", buffer.toString(StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.xml);
   }

@@ -930,8 +930,8 @@ public class Jooby implements Router, Registry {
                 spliteratorUnknownSize(
                     ServiceLoader.load(Server.class).iterator(), Spliterator.ORDERED),
                 false)
-            .collect(Collectors.toList());
-    if (servers.size() == 0) {
+            .toList();
+    if (servers.isEmpty()) {
       throw new StartupException("Server not found.");
     }
     if (servers.size() > 1) {

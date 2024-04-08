@@ -70,6 +70,8 @@ import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
+import io.jooby.buffer.DataBuffer;
+import io.jooby.netty.buffer.NettyDataBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -139,7 +141,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private String host;
   private String scheme;
   private int port;
-  private boolean sessionCreated;
   private boolean filesCreated;
 
   public NettyContext(
@@ -369,12 +370,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       return new NettyBody(this, (HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
     }
     return Body.empty(this);
-  }
-
-  @NonNull @Override
-  public Session session() {
-    sessionCreated = true;
-    return DefaultContext.super.session();
   }
 
   @Override
@@ -610,6 +605,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return send(wrappedBuffer(data));
   }
 
+  @NonNull @Override
+  public Context send(@NonNull DataBuffer data) {
+    return send(((NettyDataBuffer) data).getNativeBuffer());
+  }
+
   private Context send(@NonNull ByteBuf data) {
     try {
       responseStarted = true;
@@ -808,15 +808,15 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private void ifSaveSession() {
-    if (sessionCreated) {
-      var session = getSession();
+    var session = getSession();
+    if (session != null) {
       var store = router.getSessionStore();
       store.saveSession(this, session);
     }
   }
 
   private Session getSession() {
-    return sessionCreated ? (Session) attributes.get(Session.NAME) : null;
+    return attributes == null ? null : (Session) attributes.get(Session.NAME);
   }
 
   private ChannelPromise promise(ChannelFutureListener listener) {
@@ -827,7 +827,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private boolean pendingTasks() {
-    return sessionCreated || filesCreated || decoder != null || listeners != null;
+    return getSession() != null || filesCreated || decoder != null || listeners != null;
   }
 
   void destroy(Throwable cause) {

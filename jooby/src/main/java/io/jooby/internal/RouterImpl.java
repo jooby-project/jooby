@@ -380,6 +380,12 @@ public class RouterImpl implements Router {
 
   @NonNull @Override
   public DataBufferFactory getBufferFactory() {
+    if (bufferFactory == null) {
+      bufferFactory =
+          ServiceLoader.load(DataBufferFactory.class)
+              .findFirst()
+              .orElseGet(DefaultDataBufferFactory::new);
+    }
     return bufferFactory;
   }
 
