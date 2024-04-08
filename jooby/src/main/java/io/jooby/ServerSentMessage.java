@@ -129,7 +129,7 @@ public class ServerSentMessage {
    * @param ctx Web context. To encode complex objects.
    * @return Encoded data.
    */
-  public @NonNull DataBuffer toByteArray(@NonNull Context ctx) {
+  public @NonNull DataBuffer encode(@NonNull Context ctx) {
     try {
       Route route = ctx.getRoute();
       MessageEncoder encoder = route.getEncoder();

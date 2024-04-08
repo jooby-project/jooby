@@ -128,7 +128,7 @@ public class UndertowServerSentConnection implements Channel {
       UndertowServerSentConnection.SSEData data = queue.poll();
       buffered.add(data);
       if (data.leftOverData == null) {
-        var message = data.message.toByteArray(context);
+        var message = data.message.encode(context);
         if (message.readableByteCount() < buffer.remaining()) {
           message.toByteBuffer(buffer);
           buffer.position(buffer.position() + message.readableByteCount());
