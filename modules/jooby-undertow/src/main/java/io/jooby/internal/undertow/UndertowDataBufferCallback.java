@@ -7,6 +7,7 @@ package io.jooby.internal.undertow;
 
 import java.io.IOException;
 
+import io.jooby.SneakyThrows;
 import io.jooby.buffer.DataBuffer;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
@@ -26,7 +27,11 @@ public class UndertowDataBufferCallback implements IoCallback {
     try {
       exchange.getResponseSender().send(iterator.next(), this);
     } catch (Throwable cause) {
-      iterator.close();
+      try {
+        iterator.close();
+      } finally {
+        throw SneakyThrows.propagate(cause);
+      }
     }
   }
 

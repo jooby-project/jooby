@@ -1300,6 +1300,7 @@
           <skip>false</skip>
           <includes>
             <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
             <include>**/*Feature.java</include>
             <include>**/*Issue*.java</include>
           </includes>
