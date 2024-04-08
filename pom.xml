@@ -26,7 +26,7 @@
     <jackson.version>2.17.0</jackson.version>
     <gson.version>2.10.1</gson.version>
     <avaje-jsonb.version>1.10</avaje-jsonb.version>
-    <jakarta.json.bind-api.version>3.0.0</jakarta.json.bind-api.version>
+    <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.3</yasson.version>
     <rocker.version>1.4.0</rocker.version>
     <thymeleaf.version>3.1.2.RELEASE</thymeleaf.version>
@@ -35,7 +35,7 @@
     <HikariCP.version>5.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.4.4.Final</hibernate.version>
-    <ebean.version>15.0.2</ebean.version>
+    <ebean.version>15.1.0</ebean.version>
     <jdbi.version>3.45.1</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
     <graphql-java.version>21.5</graphql-java.version>
@@ -68,12 +68,12 @@
 
     <!-- Server -->
     <undertow.version>2.3.12.Final</undertow.version>
-    <jetty.version>12.0.7</jetty.version>
+    <jetty.version>12.0.8</jetty.version>
     <netty.version>4.1.108.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.21</swagger.version>
-    <swagger-parser.version>2.1.21</swagger-parser.version>
+    <swagger-parser.version>2.1.22</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -81,7 +81,7 @@
 
     <!-- javax -->
     <jakarta.inject.version>2.0.1</jakarta.inject.version>
-    <spotbugs-annotations.version>4.8.3</spotbugs-annotations.version>
+    <spotbugs-annotations.version>4.8.4</spotbugs-annotations.version>
     <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
 
     <!-- Misc -->
@@ -91,7 +91,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>7.6.0</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.691</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.696</aws-java-sdk.version>
     <camel.version>3.22.1</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -104,7 +104,7 @@
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
-    <jacoco.version>0.8.11</jacoco.version>
+    <jacoco.version>0.8.12</jacoco.version>
     <junit.version>5.10.2</junit.version>
     <rest-assured.version>5.4.0</rest-assured.version>
     <mockito.version>5.11.0</mockito.version>
@@ -133,14 +133,14 @@
     <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
-    <maven-plugin-annotations.version>3.11.0</maven-plugin-annotations.version>
+    <maven-plugin-annotations.version>3.12.0</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.9.6</maven-plugin-api.version>
-    <maven-plugin-plugin.version>3.11.0</maven-plugin-plugin.version>
+    <maven-plugin-plugin.version>3.12.0</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-shade-plugin.version>3.5.2</maven-shade-plugin.version>
     <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
-    <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
