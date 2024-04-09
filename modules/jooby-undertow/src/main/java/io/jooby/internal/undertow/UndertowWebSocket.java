@@ -33,6 +33,7 @@ import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
+import io.jooby.buffer.DataBuffer;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedBinaryMessage;
 import io.undertow.websockets.core.BufferedTextMessage;
@@ -172,6 +173,16 @@ public class UndertowWebSocket extends AbstractReceiveListener
   @NonNull @Override
   public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
     return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), true, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(message.readableByteBuffers().next(), true, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket send(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(message.readableByteBuffers().next(), false, callback);
   }
 
   @NonNull @Override
