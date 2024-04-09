@@ -70,9 +70,10 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
 
   @NonNull @Override
   public Context send(@NonNull DataBuffer data) {
-    // TODO; FIX  Add ws.
-    try (var it = data.readableByteBuffers()) {
-      this.send(it.next());
+    if (binary) {
+      ws.sendBinary(data, callback);
+    } else {
+      ws.send(data, callback);
     }
     return this;
   }
