@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.xnio.IoUtils;
-import org.xnio.Pooled;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -47,9 +46,9 @@ public class UndertowWebSocket extends AbstractReceiveListener
 
   private static class WriteCallbackAdaptor implements WebSocketCallback<Void> {
 
-    private UndertowWebSocket ws;
+    protected final UndertowWebSocket ws;
 
-    private WebSocket.WriteCallback callback;
+    private final WebSocket.WriteCallback callback;
 
     public WriteCallbackAdaptor(UndertowWebSocket ws, WriteCallback callback) {
       this.ws = ws;
@@ -84,6 +83,53 @@ public class UndertowWebSocket extends AbstractReceiveListener
       } finally {
         callback.operationComplete(ws, cause);
       }
+    }
+  }
+
+  private static class WebSocketDataBufferCallback implements WebSocketCallback<Void> {
+    private final DataBuffer.ByteBufferIterator it;
+    private final boolean binary;
+    private final WebSocketChannel channel;
+    private final UndertowWebSocket ws;
+    private final WriteCallback cb;
+
+    public WebSocketDataBufferCallback(
+        UndertowWebSocket ws,
+        WebSocketChannel channel,
+        WriteCallback callback,
+        boolean binary,
+        DataBuffer buffer) {
+      this.ws = ws;
+      this.channel = channel;
+      this.binary = binary;
+      this.cb = callback;
+      this.it = buffer.readableByteBuffers();
+    }
+
+    public void send() {
+      if (it.hasNext()) {
+        try {
+          var buffer = it.next();
+          WebSocketCallback<Void> callback = it.hasNext() ? this : new WriteCallbackAdaptor(ws, cb);
+          if (binary) {
+            WebSockets.sendBinary(buffer, channel, callback);
+          } else {
+            WebSockets.sendText(buffer, channel, callback);
+          }
+        } catch (Throwable x) {
+          ws.onError(channel, x);
+        }
+      }
+    }
+
+    @Override
+    public void complete(WebSocketChannel channel, Void context) {
+      send();
+    }
+
+    @Override
+    public void onError(WebSocketChannel channel, Void context, Throwable cause) {
+      ws.onError(channel, cause);
     }
   }
 
@@ -177,17 +223,30 @@ public class UndertowWebSocket extends AbstractReceiveListener
 
   @NonNull @Override
   public WebSocket sendBinary(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
-    return sendMessage(message.readableByteBuffers().next(), true, callback);
+    return sendMessage(message, true, callback);
   }
 
   @NonNull @Override
   public WebSocket send(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
-    return sendMessage(message.readableByteBuffers().next(), false, callback);
+    return sendMessage(message, false, callback);
   }
 
   @NonNull @Override
   public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
     return sendMessage(message, true, callback);
+  }
+
+  private WebSocket sendMessage(DataBuffer buffer, boolean binary, WriteCallback callback) {
+    if (isOpen()) {
+      try {
+        new WebSocketDataBufferCallback(this, channel, callback, binary, buffer).send();
+      } catch (Throwable x) {
+        onError(channel, x);
+      }
+    } else {
+      onError(channel, new IllegalStateException("Attempt to send a message on closed web socket"));
+    }
+    return this;
   }
 
   private WebSocket sendMessage(ByteBuffer buffer, boolean binary, WriteCallback callback) {
@@ -282,12 +341,11 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   @Override
-  protected void onFullBinaryMessage(WebSocketChannel channel, BufferedBinaryMessage message)
-      throws IOException {
+  protected void onFullBinaryMessage(WebSocketChannel channel, BufferedBinaryMessage message) {
     waitForConnect();
 
     if (onMessageCallback != null) {
-      Pooled<ByteBuffer[]> data = message.getData();
+      var data = message.getData();
       try {
         ByteBuffer buffer = WebSockets.mergeBuffers(data.getResource());
         dispatch(
@@ -384,7 +442,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
           status.getCode(),
           status.getReason(),
           channel,
-          new WebSocketCallback<UndertowWebSocket>() {
+          new WebSocketCallback<>() {
             @Override
             public void onError(
                 final WebSocketChannel channel,

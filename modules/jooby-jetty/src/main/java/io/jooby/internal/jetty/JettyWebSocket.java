@@ -297,7 +297,7 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
   public WebSocket sendBinary(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->
-            remote.sendBinary(message.readableByteBuffers().next(), writeCallback),
+            new WebSocketDataBufferCallback(writeCallback, message, remote::sendBinary).send(),
         new WriteCallbackAdaptor(this, callback));
   }
 

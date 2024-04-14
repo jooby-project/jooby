@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.jetty;
 
+import static io.jooby.internal.jetty.JettyCallbacks.fromDataBuffer;
+
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,10 +61,9 @@ public class JettyServerSentEmitter implements ServerSentEmitter, Callback {
   }
 
   @NonNull @Override
-  public ServerSentEmitter send(ServerSentMessage data) {
+  public ServerSentEmitter send(@NonNull ServerSentMessage data) {
     if (isOpen()) {
-      // TODO: FIX usage of new DataBuffer
-      response.write(false, data.encode(jetty).readableByteBuffers().next(), this);
+      fromDataBuffer(response, this, data.encode(jetty)).send(false);
     }
     return this;
   }

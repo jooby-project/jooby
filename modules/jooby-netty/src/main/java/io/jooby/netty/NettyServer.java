@@ -71,7 +71,21 @@ public class NettyServer extends Server.Base {
 
   private ExecutorService worker;
 
+  private NettyDataBufferFactory bufferFactory;
+
   private ServerOptions options = new ServerOptions().setServer("netty");
+
+  /**
+   * Creates a server.
+   *
+   * @param bufferFactory Byte buffer allocator.
+   * @param worker Thread-pool to use.
+   */
+  public NettyServer(
+      @NonNull NettyDataBufferFactory bufferFactory, @NonNull ExecutorService worker) {
+    this.worker = worker;
+    this.bufferFactory = bufferFactory;
+  }
 
   /**
    * Creates a server.
@@ -80,6 +94,16 @@ public class NettyServer extends Server.Base {
    */
   public NettyServer(@NonNull ExecutorService worker) {
     this.worker = worker;
+  }
+
+  /**
+   * Creates a server.
+   *
+   * @param bufferFactory Byte buffer allocator.
+   */
+  public NettyServer(@NonNull NettyDataBufferFactory bufferFactory) {
+    this.worker = null;
+    this.bufferFactory = bufferFactory;
   }
 
   /** Creates a server. */
@@ -104,17 +128,19 @@ public class NettyServer extends Server.Base {
   @NonNull @Override
   public Server start(@NonNull Jooby application) {
     try {
-      // TODO: Not sure how to set the buff allocator at netty level, seems to be managed by system
-      // properties.
-      application.setBufferFactory(new NettyDataBufferFactory(ByteBufAllocator.DEFAULT));
-      applications.add(application);
-
-      addShutdownHook();
-
       /* Worker: Application blocking code */
       if (worker == null) {
         worker = newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
       }
+      if (bufferFactory == null) {
+        bufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
+      }
+      // Make sure context use same buffer factory
+      application.setBufferFactory(bufferFactory);
+      applications.add(application);
+
+      addShutdownHook();
+
       fireStart(applications, worker);
 
       /* Disk attributes: */
@@ -132,11 +158,11 @@ public class NettyServer extends Server.Base {
 
       /* File data factory: */
       var factory = new DefaultHttpDataFactory(options.getBufferSize());
-
+      var allocator = bufferFactory.getByteBufAllocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {
-        var http = newBootstrap(transport, newPipeline(null, factory, http2));
+        var http = newBootstrap(allocator, transport, newPipeline(null, factory, http2));
         http.bind(options.getHost(), options.getPort()).get();
       }
 
@@ -148,7 +174,7 @@ public class NettyServer extends Server.Base {
 
         var clientAuth = sslOptions.getClientAuth();
         var sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
-        var https = newBootstrap(transport, newPipeline(sslContext, factory, http2));
+        var https = newBootstrap(allocator, transport, newPipeline(sslContext, factory, http2));
         https.bind(options.getHost(), options.getSecurePort()).get();
       } else if (options.isHttpsOnly()) {
         throw new IllegalArgumentException(
@@ -168,10 +194,12 @@ public class NettyServer extends Server.Base {
     return this;
   }
 
-  private ServerBootstrap newBootstrap(NettyTransport transport, NettyPipeline factory) {
+  private ServerBootstrap newBootstrap(
+      ByteBufAllocator allocator, NettyTransport transport, NettyPipeline factory) {
     return transport
         .configure(acceptorloop, eventloop)
         .childHandler(factory)
+        .childOption(ChannelOption.ALLOCATOR, allocator)
         .childOption(ChannelOption.SO_REUSEADDR, true)
         .childOption(ChannelOption.TCP_NODELAY, true);
   }

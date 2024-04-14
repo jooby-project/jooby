@@ -33,6 +33,7 @@ import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.WebSocket;
+import io.jooby.buffer.DataBufferFactory;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyHttpExpectAndContinueHandler;
 import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
@@ -53,10 +54,11 @@ public class JettyServer extends io.jooby.Server.Base {
   private List<Jooby> applications = new ArrayList<>();
 
   private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
-
   private Consumer<HttpConfiguration> httpConfigurer;
+  private DataBufferFactory bufferFactory;
 
-  public JettyServer(@NonNull ThreadPool threadPool) {
+  public JettyServer(@NonNull DataBufferFactory bufferFactory, @NonNull ThreadPool threadPool) {
+    this.bufferFactory = bufferFactory;
     this.threadPool = threadPool;
   }
 

@@ -384,7 +384,7 @@ public class RouterImpl implements Router {
       bufferFactory =
           ServiceLoader.load(DataBufferFactory.class)
               .findFirst()
-              .orElseGet(DefaultDataBufferFactory::new);
+              .orElse(DefaultDataBufferFactory.sharedInstance);
     }
     return bufferFactory;
   }
