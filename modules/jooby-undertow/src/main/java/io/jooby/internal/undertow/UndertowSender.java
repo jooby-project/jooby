@@ -31,10 +31,7 @@ public class UndertowSender implements Sender {
 
   @NonNull @Override
   public Sender write(@NonNull DataBuffer data, @NonNull Callback callback) {
-    // TODO: Fix usage of databuffer
-    exchange
-        .getResponseSender()
-        .send(data.readableByteBuffers().next(), newIoCallback(ctx, callback));
+    new UndertowDataBufferCallback(data, newIoCallback(ctx, callback)).send(exchange);
     return this;
   }
 

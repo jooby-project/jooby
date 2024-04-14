@@ -5,9 +5,12 @@
  */
 package io.jooby.internal.jetty;
 
+import static io.jooby.internal.jetty.JettyCallbacks.fromDataBuffer;
+
 import java.nio.ByteBuffer;
 
 import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
@@ -30,8 +33,7 @@ public class JettySender implements Sender {
 
   @NonNull @Override
   public Sender write(@NonNull DataBuffer data, @NonNull Callback callback) {
-    // TODO: Fix usage of DataBuffer
-    response.write(false, data.readableByteBuffers().next(), toJettyCallback(ctx, callback));
+    fromDataBuffer(response, toJettyCallback(ctx, callback), data).send(false);
     return this;
   }
 

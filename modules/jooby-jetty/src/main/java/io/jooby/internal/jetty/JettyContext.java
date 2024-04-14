@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.jetty;
 
+import static io.jooby.internal.jetty.JettyCallbacks.fromByteBufferArray;
+import static io.jooby.internal.jetty.JettyCallbacks.fromDataBuffer;
 import static org.eclipse.jetty.http.HttpHeader.*;
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
@@ -74,7 +76,6 @@ import io.jooby.WebSocket;
 import io.jooby.buffer.DataBuffer;
 
 public class JettyContext implements DefaultContext, Callback {
-  private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.wrap(new byte[0]);
   private final int bufferSize;
   private final long maxRequestSize;
   Request request;
@@ -498,9 +499,8 @@ public class JettyContext implements DefaultContext, Callback {
     if (length <= 0) {
       setResponseLength(BufferUtil.remaining(data));
     }
-    var completable = JettyCallbacks.fromByteBufferArray(response, this, data);
-    response.write(false, null, completable);
     responseStarted = true;
+    fromByteBufferArray(response, this, data).send();
     return this;
   }
 
@@ -516,9 +516,13 @@ public class JettyContext implements DefaultContext, Callback {
 
   @NonNull @Override
   public Context send(@NonNull DataBuffer data) {
-    try (var it = data.readableByteBuffers()) {
-      return send(it.next());
+    var length = response.getHeaders().getLongField(CONTENT_LENGTH);
+    if (length <= 0) {
+      setResponseLength(data.readableByteCount());
     }
+    responseStarted = true;
+    fromDataBuffer(response, this, data).send(true);
+    return this;
   }
 
   @NonNull @Override
