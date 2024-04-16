@@ -190,7 +190,7 @@ public class RouterImpl implements Router {
   private ContextInitializer postDispatchInitializer;
 
   private Set<RouterOption> routerOptions = EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR);
-  private DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
+  private DataBufferFactory bufferFactory;
   private boolean trustProxy;
 
   private boolean contextAsService;
