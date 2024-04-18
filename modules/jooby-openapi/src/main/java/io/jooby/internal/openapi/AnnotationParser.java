@@ -5,42 +5,11 @@
  */
 package io.jooby.internal.openapi;
 
-import static io.jooby.internal.openapi.AsmUtils.*;
-import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
-import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.ParameterNode;
-
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Session;
-import io.jooby.annotation.ContextParam;
-import io.jooby.annotation.CookieParam;
-import io.jooby.annotation.FormParam;
-import io.jooby.annotation.GET;
-import io.jooby.annotation.HeaderParam;
-import io.jooby.annotation.Path;
-import io.jooby.annotation.PathParam;
-import io.jooby.annotation.QueryParam;
+import io.jooby.annotation.*;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.models.media.Content;
@@ -49,6 +18,21 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static io.jooby.internal.openapi.AsmUtils.*;
+import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
+import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 public class AnnotationParser {
   enum ParamType {
@@ -446,8 +430,10 @@ public class AnnotationParser {
   private static boolean isNullable(MethodNode method, int paramIndex) {
     if (paramIndex < method.invisibleAnnotableParameterCount) {
       List<AnnotationNode> annotations = method.invisibleParameterAnnotations[paramIndex];
-      return annotations.stream()
-          .anyMatch(a -> a.desc.equals("Lorg/jetbrains/annotations/Nullable;"));
+      if (annotations != null) {
+        return annotations.stream()
+                .anyMatch(a -> a.desc.equals("Lorg/jetbrains/annotations/Nullable;"));
+      }
     }
     return true;
   }
