@@ -204,15 +204,21 @@ public class AnnotationParser {
             // mvc(daggerApp.myController());
             Type type = Type.getReturnType(methodInsnNode.desc);
             return parse(ctx, prefix, type);
-          } else if(methodPrev instanceof LdcInsnNode ldcInsnNode) {
+          } else if (methodPrev instanceof LdcInsnNode ldcInsnNode) {
             // mvc(beanScope.get(...));
             Type type = (Type) (ldcInsnNode).cst;
             return parse(ctx, prefix, type);
           }
         } else {
-          // mvc(some.myController());
-          Type type = Type.getReturnType(methodInsnNode.desc);
-          return parse(ctx, prefix, type);
+          if (methodInsnNode.getPrevious() instanceof LdcInsnNode ldcInsnNode) {
+            // mvc(require(Controller.class))
+            Type type = (Type) (ldcInsnNode).cst;
+            return parse(ctx, prefix, type);
+          } else {
+            // mvc(some.myController());
+            Type type = Type.getReturnType(methodInsnNode.desc);
+            return parse(ctx, prefix, type);
+          }
         }
       } else if (previous instanceof FieldInsnNode) {
         FieldInsnNode fieldInsnNode = (FieldInsnNode) previous;
