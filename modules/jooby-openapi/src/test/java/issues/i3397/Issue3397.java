@@ -9,7 +9,6 @@ public class Issue3397 {
 
   @OpenAPITest(value = App3397.class)
   public void shouldParseAvajeBeanScopeControllers(OpenAPIResult result) {
-   var s = result.toYaml();
     assertEquals(
         "openapi: 3.0.1\n"
             + "info:\n"
