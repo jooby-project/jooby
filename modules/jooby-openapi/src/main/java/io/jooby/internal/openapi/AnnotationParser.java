@@ -19,15 +19,7 @@ import java.util.stream.Stream;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.ParameterNode;
+import org.objectweb.asm.tree.*;
 
 import io.jooby.Context;
 import io.jooby.MediaType;
@@ -207,9 +199,16 @@ public class AnnotationParser {
           Type type = Type.getObjectType(methodInsnNode.owner);
           return parse(ctx, prefix, type);
         } else if (methodInsnNode.getOpcode() == Opcodes.INVOKEINTERFACE) {
-          // mvc(beanScope.get(...));
-          Type type = (Type) ((LdcInsnNode) methodInsnNode.getPrevious()).cst;
-          return parse(ctx, prefix, type);
+          AbstractInsnNode methodPrev = methodInsnNode.getPrevious();
+          if (methodPrev instanceof VarInsnNode) {
+            // mvc(daggerApp.myController());
+            Type type = Type.getReturnType(methodInsnNode.desc);
+            return parse(ctx, prefix, type);
+          } else if(methodPrev instanceof LdcInsnNode ldcInsnNode) {
+            // mvc(beanScope.get(...));
+            Type type = (Type) (ldcInsnNode).cst;
+            return parse(ctx, prefix, type);
+          }
         } else {
           // mvc(some.myController());
           Type type = Type.getReturnType(methodInsnNode.desc);
