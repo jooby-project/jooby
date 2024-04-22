@@ -38,7 +38,7 @@
     <ebean.version>15.1.0</ebean.version>
     <jdbi.version>3.45.1</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
-    <graphql-java.version>21.5</graphql-java.version>
+    <graphql-java.version>22.0</graphql-java.version>
     <lettuce.version>6.3.2.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.0</commons-pool2.version>
     <kafka.version>3.7.0</kafka.version>
@@ -50,7 +50,7 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.5</logback-classic.version>
+    <logback-classic.version>1.5.6</logback-classic.version>
     <log4j.version>2.23.1</log4j.version>
     <slf4j.version>2.0.13</slf4j.version>
 
@@ -67,9 +67,9 @@
     <asm.version>9.7</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.12.Final</undertow.version>
+    <undertow.version>2.3.13.Final</undertow.version>
     <jetty.version>12.0.8</jetty.version>
-    <netty.version>4.1.108.Final</netty.version>
+    <netty.version>4.1.109.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.21</swagger.version>
@@ -90,8 +90,8 @@
     <pac4j.version>5.7.0</pac4j.version>
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <bucket4j-core.version>7.6.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.701</aws-java-sdk.version>
+    <bucket4j-core.version>8.0.1</bucket4j-core.version>
+    <aws-java-sdk.version>1.12.705</aws-java-sdk.version>
     <camel.version>3.22.1</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -129,8 +129,8 @@
     <maven-core.version>3.9.6</maven-core.version>
     <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
     <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-    <maven-gpg-plugin.version>3.2.3</maven-gpg-plugin.version>
-    <maven-jar-plugin.version>3.4.0</maven-jar-plugin.version>
+    <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
+    <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.12.0</maven-plugin-annotations.version>
