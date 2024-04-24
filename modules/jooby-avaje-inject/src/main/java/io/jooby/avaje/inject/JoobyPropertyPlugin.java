@@ -1,5 +1,6 @@
 package io.jooby.avaje.inject;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import com.typesafe.config.Config;
@@ -26,6 +27,6 @@ public class JoobyPropertyPlugin implements PropertyRequiresPlugin {
 
   @Override
   public boolean equalTo(String property, String value) {
-    return config.getString(property).equals(value);
+    return Objects.equals(config.getString(property), value);
   }
 }
