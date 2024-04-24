@@ -5,6 +5,8 @@
  */
 package io.jooby.avaje.inject;
 
+import com.typesafe.config.Config;
+
 import io.avaje.inject.BeanScope;
 import io.avaje.inject.BeanScopeBuilder;
 import io.jooby.Extension;
@@ -62,6 +64,7 @@ public class AvajeInjectModule implements Extension {
     final var environment = application.getEnvironment();
     beanScope.profiles(environment.getActiveNames().toArray(String[]::new));
     beanScope.propertyPlugin(new JoobyPropertyPlugin(environment.getConfig()));
+    beanScope.bean(Config.class, environment.getConfig());
 
     application.registry(new AvajeInjectRegistry(beanScope.build()));
   }
