@@ -64,6 +64,7 @@
     <module>jooby-quartz</module>
     <module>jooby-awssdk-v1</module>
 
+    <module>jooby-avaje-inject</module>
     <module>jooby-guice</module>
 
     <module>jooby-commons-email</module>
