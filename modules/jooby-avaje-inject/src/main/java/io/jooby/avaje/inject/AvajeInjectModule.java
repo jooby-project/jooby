@@ -5,6 +5,9 @@
  */
 package io.jooby.avaje.inject;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.typesafe.config.Config;
 
 import io.avaje.inject.BeanScope;
@@ -65,10 +68,24 @@ public class AvajeInjectModule implements Extension {
                 beanScope.bean(key.getName(), key.getType(), e.getValue());
               }
             });
+
     final var environment = application.getEnvironment();
     beanScope.profiles(environment.getActiveNames().toArray(String[]::new));
-    beanScope.propertyPlugin(new JoobyPropertyPlugin(environment.getConfig()));
-    beanScope.bean(Config.class, environment.getConfig());
+
+    // configuration properties
+    final var config = environment.getConfig();
+    beanScope.propertyPlugin(new JoobyPropertyPlugin(config));
+    beanScope.bean(Config.class, config);
+
+    for (var entry : config.entrySet()) {
+      String name = entry.getKey();
+      Object value = entry.getValue().unwrapped();
+
+      if (value instanceof List<?> values) {
+        value = values.stream().map(Object::toString).collect(Collectors.joining(","));
+      }
+      beanScope.bean(name, String.class, value.toString());
+    }
 
     application.registry(new AvajeInjectRegistry(beanScope.build()));
   }
