@@ -27,6 +27,6 @@ public class JoobyPropertyPlugin implements PropertyRequiresPlugin {
 
   @Override
   public boolean equalTo(String property, String value) {
-    return Objects.equals(config.getString(property), value);
+    return config.hasPath(property) && Objects.equals(config.getString(property), value);
   }
 }
