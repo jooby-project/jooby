@@ -26,7 +26,7 @@ import io.jooby.Jooby;
  * {
  *
  *
- *   install(new AvajeInjectModule());
+ *   install(AvajeInjectModule.of());
  *
  * }
  *
