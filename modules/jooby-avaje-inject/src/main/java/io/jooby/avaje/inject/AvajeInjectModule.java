@@ -59,7 +59,7 @@ public class AvajeInjectModule implements Extension {
         .forEach(
             e -> {
               final var key = e.getKey();
-              beanScope.provideDefault(key.getName(), key.getType(), e::getValue);
+              beanScope.provideDefault(key.getName(), key.getType(), e.getValue()::get);
             });
     final var environment = application.getEnvironment();
     beanScope.profiles(environment.getActiveNames().toArray(String[]::new));
