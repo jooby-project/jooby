@@ -54,6 +54,11 @@ public class AvajeInjectModule implements Extension {
   }
 
   @Override
+  public boolean lateinit() {
+    return true;
+  }
+
+  @Override
   public void install(Jooby application) throws Exception {
 
     application
