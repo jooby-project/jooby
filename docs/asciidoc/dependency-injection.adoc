@@ -1,6 +1,6 @@
 == Dependency Injection
 
-include::di-avaje.adoc[]
+include::modules/avaje-inject.adoc[]
 
 include::di-dagger.adoc[]
 
