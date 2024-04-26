@@ -86,9 +86,6 @@ Avaje Inject will also provisioning MVC routes
 .MVC and Avaje Inject
 [source,java,role = "primary"]
 ----
-import io.jooby.Avaje Inject.AvajeInjectModule;
-import io.jooby.kt.runApp
-
 public class App extends Jooby {
 
   {
@@ -106,9 +103,6 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.di.AvajeInjectModule
-import io.jooby.kt.runApp
-
 fun main(args: Array<String>) {
   runApp(args) {
     install(AvajeInjectModule.of())       <1>
