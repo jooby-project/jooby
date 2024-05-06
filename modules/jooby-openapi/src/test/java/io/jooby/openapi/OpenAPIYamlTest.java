@@ -595,4 +595,26 @@ public class OpenAPIYamlTest {
                     + "                type: string\n",
             result.toYaml());
   }
+
+  @OpenAPITest(value = MvcRequireApp.class)
+  public void shouldParseMvcRequireController(OpenAPIResult result) {
+    assertEquals(
+            "openapi: 3.0.1\n"
+                    + "info:\n"
+                    + "  title: MvcRequire API\n"
+                    + "  description: MvcRequire API description\n"
+                    + "  version: \"1.0\"\n"
+                    + "paths:\n"
+                    + "  /welcome:\n"
+                    + "    get:\n"
+                    + "      operationId: sayHi\n"
+                    + "      responses:\n"
+                    + "        \"200\":\n"
+                    + "          description: Success\n"
+                    + "          content:\n"
+                    + "            application/json:\n"
+                    + "              schema:\n"
+                    + "                type: string\n",
+            result.toYaml());
+  }
 }

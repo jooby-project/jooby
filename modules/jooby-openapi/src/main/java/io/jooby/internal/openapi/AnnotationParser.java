@@ -5,11 +5,34 @@
  */
 package io.jooby.internal.openapi;
 
+import static io.jooby.internal.openapi.AsmUtils.*;
+import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
+import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
+
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Session;
-import io.jooby.annotation.*;
+import io.jooby.annotation.ContextParam;
+import io.jooby.annotation.CookieParam;
+import io.jooby.annotation.FormParam;
+import io.jooby.annotation.GET;
+import io.jooby.annotation.HeaderParam;
+import io.jooby.annotation.Path;
+import io.jooby.annotation.PathParam;
+import io.jooby.annotation.QueryParam;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.models.media.Content;
@@ -18,21 +41,6 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.jooby.internal.openapi.AsmUtils.*;
-import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
-import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 public class AnnotationParser {
   enum ParamType {
@@ -191,13 +199,26 @@ public class AnnotationParser {
           Type type = Type.getObjectType(methodInsnNode.owner);
           return parse(ctx, prefix, type);
         } else if (methodInsnNode.getOpcode() == Opcodes.INVOKEINTERFACE) {
-          // mvc(beanScope.get(...));
-          Type type = (Type) ((LdcInsnNode) methodInsnNode.getPrevious()).cst;
-          return parse(ctx, prefix, type);
+          AbstractInsnNode methodPrev = methodInsnNode.getPrevious();
+          if (methodPrev instanceof VarInsnNode) {
+            // mvc(daggerApp.myController());
+            Type type = Type.getReturnType(methodInsnNode.desc);
+            return parse(ctx, prefix, type);
+          } else if (methodPrev instanceof LdcInsnNode ldcInsnNode) {
+            // mvc(beanScope.get(...));
+            Type type = (Type) (ldcInsnNode).cst;
+            return parse(ctx, prefix, type);
+          }
         } else {
-          // mvc(some.myController());
-          Type type = Type.getReturnType(methodInsnNode.desc);
-          return parse(ctx, prefix, type);
+          if (methodInsnNode.getPrevious() instanceof LdcInsnNode ldcInsnNode) {
+            // mvc(require(Controller.class))
+            Type type = (Type) (ldcInsnNode).cst;
+            return parse(ctx, prefix, type);
+          } else {
+            // mvc(some.myController());
+            Type type = Type.getReturnType(methodInsnNode.desc);
+            return parse(ctx, prefix, type);
+          }
         }
       } else if (previous instanceof FieldInsnNode) {
         FieldInsnNode fieldInsnNode = (FieldInsnNode) previous;
