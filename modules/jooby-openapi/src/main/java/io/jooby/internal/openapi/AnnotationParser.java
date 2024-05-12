@@ -451,8 +451,10 @@ public class AnnotationParser {
   private static boolean isNullable(MethodNode method, int paramIndex) {
     if (paramIndex < method.invisibleAnnotableParameterCount) {
       List<AnnotationNode> annotations = method.invisibleParameterAnnotations[paramIndex];
-      return annotations.stream()
-          .anyMatch(a -> a.desc.equals("Lorg/jetbrains/annotations/Nullable;"));
+      if (annotations != null) {
+        return annotations.stream()
+                .anyMatch(a -> a.desc.equals("Lorg/jetbrains/annotations/Nullable;"));
+      }
     }
     return true;
   }
