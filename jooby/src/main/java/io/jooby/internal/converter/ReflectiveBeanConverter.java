@@ -33,7 +33,6 @@ import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.annotation.EmptyBean;
 import io.jooby.exception.BadRequestException;
-import io.jooby.exception.MissingValueException;
 import io.jooby.exception.ProvisioningException;
 import io.jooby.internal.reflect.$Types;
 import jakarta.inject.Inject;
@@ -236,8 +235,6 @@ public class ReflectiveBeanConverter {
           }
         }
       }
-    } catch (MissingValueException x) {
-      throw new ProvisioningException(parameter, x);
     } catch (BadRequestException x) {
       throw new ProvisioningException(parameter, x);
     }
@@ -245,10 +242,14 @@ public class ReflectiveBeanConverter {
 
   private static boolean isNullable(Parameter parameter) {
     var type = parameter.getType();
-    if (type.isPrimitive()) {
+    if (hasAnnotation(parameter, ".Nullable")) {
+      return true;
+    }
+    boolean nonnull = hasAnnotation(parameter, ".NonNull");
+    if (nonnull) {
       return false;
     }
-    return !hasAnnotation(parameter, "NotNull", "NonNull");
+    return !type.isPrimitive();
   }
 
   private static boolean hasAnnotation(AnnotatedElement element, String... names) {
