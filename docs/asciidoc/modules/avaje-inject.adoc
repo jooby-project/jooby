@@ -1,0 +1,121 @@
+=== Avaje Inject
+
+1) Add Avaje Inject to your project
+
+[dependency, groupId="io.jooby", artifactId="jooby-avaje-inject", version="1.1.0"]
+.
+
+
+2) Install Avaje Inject:
+
+.Installing Avaje Inject
+[source,java,role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    install(AvajeInjectModule.of());                     <1>
+        
+    get("/", ctx -> {
+      MyService service = require(MyService.class); <2>
+      return service.doSomething();
+    });
+}
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+fun main(args: Array<String>) {
+  runApp(args) {
+    install(AvajeInjectModule.of())                    <1>
+    
+    get ("/") {
+      val service = require(MyService::class) <2>
+      service.doSomething()
+    }
+  }
+}
+----
+
+<1> Install Avaje Inject module
+<2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Avaje Inject
+
+==== Property Injection
+
+Configuration properties can be injected using the `@Named` annotation. As Avaje checks beans at compile time, `@InjectModule(requires={String.class})`:
+
+.application.conf
+[source, bash]
+----
+currency = USD
+----
+
+.Java
+[source,java,role="primary"]
+----
+@Singleton
+public class BillingService {
+
+  @Inject
+  public BillingService(@Named("currency") String currency) {
+    ...
+  }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Singleton
+class BillingService @Inject constructor(@Named("currency") currency: String) {
+  ...
+}
+----
+
+==== MVC routes
+
+Avaje Inject will also provisioning MVC routes
+
+.MVC and Avaje Inject
+[source,java,role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    install(AvajeInjectModule.of());  <1>
+          
+    mvc(MyController.class);     <2>
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+fun main(args: Array<String>) {
+  runApp(args) {
+    install(AvajeInjectModule.of())       <1>
+
+    mvc(MyController::class)     <2>
+  }
+}
+----
+
+<1> Install Avaje Inject module
+<2> Register a MVC route
+
+The lifecycle of `MyController` is now managed by Avaje Inject.
+
+In Avaje Inject, the dependency graph is typically validated when the application compiles. As beans provided by Jooby Modules are registered at runtime, you must add `@InjectModules(requires={String.class, <other Jooby Module Provided Bean ClassNames>...})` to inform the avaje processor that these beans are provided at runtime.
+

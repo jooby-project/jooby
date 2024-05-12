@@ -31,6 +31,11 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-avaje-inject</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-avaje-jsonb</artifactId>
       <version>${project.version}</version>
     </dependency>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>io.jooby</groupId>
@@ -10,7 +10,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-avaje-jsonb</artifactId>
+  <artifactId>jooby-avaje-inject</artifactId>
 
   <dependencies>
     <dependency>
@@ -19,25 +19,19 @@
       <version>${jooby.version}</version>
     </dependency>
 
+    <!-- Avaje Inject -->
     <dependency>
       <groupId>io.avaje</groupId>
-      <artifactId>avaje-jsonb</artifactId>
+      <artifactId>avaje-inject</artifactId>
     </dependency>
 
     <dependency>
       <groupId>io.avaje</groupId>
-      <artifactId>avaje-jsonb-generator</artifactId>
+      <artifactId>avaje-inject-generator</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <!-- Test dependencies -->
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-test</artifactId>
-      <version>${jooby.version}</version>
-      <scope>test</scope>
-    </dependency>
-
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -45,15 +39,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jacoco</groupId>
-      <artifactId>org.jacoco.agent</artifactId>
-      <classifier>runtime</classifier>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
+      <groupId>org.jacoco</groupId>
+      <artifactId>org.jacoco.agent</artifactId>
+      <classifier>runtime</classifier>
       <scope>test</scope>
     </dependency>
   </dependencies>
