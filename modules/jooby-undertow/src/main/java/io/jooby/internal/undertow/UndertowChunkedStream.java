@@ -6,7 +6,7 @@
 package io.jooby.internal.undertow;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 
 import org.xnio.IoUtils;
@@ -53,26 +53,30 @@ public class UndertowChunkedStream implements IoCallback, Runnable {
 
   @Override
   public void run() {
-    ByteBuffer buffer = pooled.getBuffer();
-    try {
-      buffer.clear();
-      int count = source.read(buffer);
-      if (count == -1 || (len != -1 && total >= len)) {
-        done();
-        callback.onComplete(exchange, sender);
-      } else {
-        total += count;
-        buffer.flip();
-        if (len > 0) {
-          if (total > len) {
-            long limit = count - (total - len);
-            buffer.limit((int) limit);
+    if (pooled != null && pooled.isOpen()) {
+      var buffer = pooled.getBuffer();
+      try {
+        buffer.clear();
+        int count = source.read(buffer);
+        if (count == -1 || (len != -1 && total >= len)) {
+          done();
+          callback.onComplete(exchange, sender);
+        } else {
+          total += count;
+          buffer.flip();
+          if (len > 0) {
+            if (total > len) {
+              long limit = count - (total - len);
+              buffer.limit((int) limit);
+            }
           }
+          sender.send(buffer, this);
         }
-        sender.send(buffer, this);
+      } catch (IOException ex) {
+        onException(exchange, sender, ex);
       }
-    } catch (IOException ex) {
-      onException(exchange, sender, ex);
+    } else {
+      onException(exchange, sender, new ClosedChannelException());
     }
   }
 
@@ -88,13 +92,21 @@ public class UndertowChunkedStream implements IoCallback, Runnable {
   @Override
   public void onException(
       final HttpServerExchange exchange, final Sender sender, final IOException ex) {
-    done();
-    callback.onException(exchange, sender, ex);
+    try {
+      callback.onException(exchange, sender, ex);
+    } finally {
+      done();
+    }
   }
 
   private void done() {
-    pooled.close();
-    pooled = null;
-    IoUtils.safeClose(source);
+    if (pooled != null) {
+      try {
+        pooled.close();
+        IoUtils.safeClose(source);
+      } finally {
+        pooled = null;
+      }
+    }
   }
 }
