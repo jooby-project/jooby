@@ -414,6 +414,8 @@ public class Route {
 
   private Method mvcMethod;
 
+  private boolean httpHead;
+
   /**
    * Creates a new route.
    *
@@ -833,7 +835,7 @@ public class Route {
    * @return True if route support HTTP HEAD.
    */
   public boolean isHttpHead() {
-    return getMethod().equals(Router.GET) && isHttpMethod(Router.HEAD);
+    return httpHead;
   }
 
   /**
@@ -866,6 +868,7 @@ public class Route {
    */
   public @NonNull Route setHttpHead(boolean enabled) {
     addHttpMethod(enabled, Router.HEAD);
+    this.httpHead = enabled;
     return this;
   }
 
