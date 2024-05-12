@@ -41,30 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.BeanConverter;
-import io.jooby.Context;
-import io.jooby.Cookie;
-import io.jooby.Environment;
-import io.jooby.ErrorHandler;
-import io.jooby.ExecutionMode;
-import io.jooby.Jooby;
-import io.jooby.MediaType;
-import io.jooby.MessageDecoder;
-import io.jooby.MessageEncoder;
-import io.jooby.ResultHandler;
-import io.jooby.Route;
-import io.jooby.RouteSet;
-import io.jooby.Router;
-import io.jooby.RouterOption;
-import io.jooby.ServerOptions;
-import io.jooby.ServerSentEmitter;
-import io.jooby.ServiceKey;
-import io.jooby.ServiceRegistry;
-import io.jooby.SessionStore;
-import io.jooby.StatusCode;
-import io.jooby.ValueConverter;
-import io.jooby.WebSocket;
-import io.jooby.XSS;
+import io.jooby.*;
 import io.jooby.buffer.DataBufferFactory;
 import io.jooby.buffer.DefaultDataBufferFactory;
 import io.jooby.exception.RegistryException;
@@ -299,13 +276,29 @@ public class RouterImpl implements Router {
 
   @NonNull @Override
   public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
-    RouteSet routeSet = new RouteSet();
-    Chi tree = new Chi();
+    var routeSet = new RouteSet();
+    var tree = new Chi();
     putPredicate(predicate, tree);
     int start = this.routes.size();
     newStack(tree, "/", body);
     routeSet.setRoutes(this.routes.subList(start, this.routes.size()));
     return routeSet;
+  }
+
+  public Router install(
+      @NonNull String path,
+      @NonNull Predicate<Context> predicate,
+      @NonNull SneakyThrows.Supplier<Jooby> factory) {
+    var existingRouter = this.chi;
+    try {
+      var tree = new Chi();
+      this.chi = tree;
+      putPredicate(predicate, tree);
+      path(path, factory::get);
+      return this;
+    } finally {
+      this.chi = existingRouter;
+    }
   }
 
   @NonNull @Override

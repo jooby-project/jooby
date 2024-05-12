@@ -90,7 +90,7 @@ public class Jooby implements Router, Registry {
 
   private final transient AtomicBoolean stopped = new AtomicBoolean(false);
 
-  private static transient Jooby owner;
+  private static Jooby owner;
 
   private RouterImpl router;
 
@@ -378,6 +378,85 @@ public class Jooby implements Router, Registry {
     } finally {
       owner = null;
     }
+  }
+
+  /**
+   * Installs/imports a full application into this one. Applications share services, registry,
+   * callbacks, etc.
+   *
+   * <p>Application must be instantiated/created lazily via a supplier/factory. This is required due
+   * to the way an application is usually initialized (constructor initializer).
+   *
+   * <p>Working example:
+   *
+   * <pre>{@code
+   * install("/subapp", ctx -> ctx.header("v").value("").equals("1.0"), SubApp::new);
+   *
+   * }</pre>
+   *
+   * Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
+   * won't work:
+   *
+   * <pre>{@code
+   * SubApp app = new SubApp();
+   * install("/subapp", ctx -> ctx.header("v").value("").equals("1.0"), app); // WONT WORK
+   *
+   * }</pre>
+   *
+   * Note: you must take care of application services across the applications. For example make sure
+   * you don't configure the same service twice or more in the main and imported applications too.
+   *
+   * @param path Sub path.
+   * @param predicate HTTP predicate.
+   * @param factory Application factory.
+   * @return This application.
+   */
+  @NonNull public Jooby install(
+      @NonNull String path,
+      @NonNull Predicate<Context> predicate,
+      @NonNull SneakyThrows.Supplier<Jooby> factory) {
+    try {
+      owner = this;
+      router.install(path, predicate, factory);
+      return this;
+    } finally {
+      owner = null;
+    }
+  }
+
+  /**
+   * Installs/imports a full application into this one. Applications share services, registry,
+   * callbacks, etc.
+   *
+   * <p>Application must be instantiated/created lazily via a supplier/factory. This is required due
+   * to the way an application is usually initialized (constructor initializer).
+   *
+   * <p>Working example:
+   *
+   * <pre>{@code
+   * install(ctx -> ctx.header("v").value("").equals("1.0"), SubApp::new);
+   *
+   * }</pre>
+   *
+   * Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
+   * won't work:
+   *
+   * <pre>{@code
+   * SubApp app = new SubApp();
+   * install(ctx -> ctx.header("v").value("").equals("1.0"), app); // WONT WORK
+   *
+   * }</pre>
+   *
+   * Note: you must take care of application services across the applications. For example make sure
+   * you don't configure the same service twice or more in the main and imported applications too.
+   *
+   * @param predicate HTTP predicate.
+   * @param factory Application factory.
+   * @return This application.
+   */
+  @NonNull public Jooby install(
+      @NonNull Predicate<Context> predicate, @NonNull SneakyThrows.Supplier<Jooby> factory) {
+    return install("/", predicate, factory);
   }
 
   /**
