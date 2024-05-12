@@ -24,7 +24,7 @@ public class RockerModule implements Extension {
 
   private Boolean reloading;
 
-  private int bufferSize = ByteBufferOutput.BUFFER_SIZE;
+  private int bufferSize = DataBufferOutput.BUFFER_SIZE;
 
   private boolean reuseBuffer;
 
@@ -53,7 +53,7 @@ public class RockerModule implements Extension {
 
   /**
    * Allow simple reuse of raw byte buffers. It is usually used through <code>ThreadLocal</code>
-   * variable pointing to instance of {@link ByteBufferOutput}.
+   * variable pointing to instance of {@link DataBufferOutput}.
    *
    * @param reuseBuffer True for reuse the buffer. Default is: <code>false</code>
    * @return This module.
@@ -70,10 +70,11 @@ public class RockerModule implements Extension {
     boolean reloading =
         this.reloading == null
             ? (env.isActive("dev") && runtime.isReloadingPossible())
-            : this.reloading.booleanValue();
-    RockerOutputFactory<ByteBufferOutput> factory = ByteBufferOutput.factory(bufferSize);
+            : this.reloading;
+    RockerOutputFactory<DataBufferOutput> factory =
+        DataBufferOutput.factory(application.getBufferFactory(), bufferSize);
     if (reuseBuffer) {
-      factory = ByteBufferOutput.reuse(factory);
+      factory = DataBufferOutput.reuse(factory);
     }
     runtime.setReloading(reloading);
     // result handler

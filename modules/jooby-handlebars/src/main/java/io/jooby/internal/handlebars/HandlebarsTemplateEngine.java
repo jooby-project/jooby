@@ -11,11 +11,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
+import io.jooby.buffer.DataBuffer;
 
 public class HandlebarsTemplateEngine implements TemplateEngine {
 
@@ -33,9 +33,11 @@ public class HandlebarsTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public String render(Context ctx, ModelAndView modelAndView) throws Exception {
-    Template template = handlebars.compile(modelAndView.getView());
+  public DataBuffer render(Context ctx, ModelAndView modelAndView) throws Exception {
+    var template = handlebars.compile(modelAndView.getView());
     var engineModel = newContext(modelAndView.getModel()).data(ctx.getAttributes());
-    return template.apply(engineModel);
+    var buffer = ctx.getBufferFactory().allocateBuffer();
+    template.apply(engineModel, buffer.asWriter());
+    return buffer;
   }
 }

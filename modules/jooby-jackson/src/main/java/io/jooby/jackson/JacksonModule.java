@@ -154,8 +154,10 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
 
   @Override
   public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+    var buffer = ctx.getBufferFactory().allocateBuffer();
     ctx.setDefaultResponseType(mediaType);
-    return ctx.getBufferFactory().wrap(mapper.writer().writeValueAsBytes(value));
+    mapper.writer().writeValue(buffer.asOutputStream(), value);
+    return buffer;
   }
 
   @Override
