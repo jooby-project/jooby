@@ -71,7 +71,8 @@ public class DataBufferWrapper implements DataBuffer {
 
   @Override
   public DataBuffer ensureWritable(int capacity) {
-    return this.delegate.ensureWritable(capacity);
+    this.delegate.ensureWritable(capacity);
+    return this;
   }
 
   @Override
@@ -81,7 +82,8 @@ public class DataBufferWrapper implements DataBuffer {
 
   @Override
   public DataBuffer readPosition(int readPosition) {
-    return this.delegate.readPosition(readPosition);
+    this.delegate.readPosition(readPosition);
+    return this;
   }
 
   @Override
@@ -91,7 +93,8 @@ public class DataBufferWrapper implements DataBuffer {
 
   @Override
   public DataBuffer writePosition(int writePosition) {
-    return this.delegate.writePosition(writePosition);
+    this.delegate.writePosition(writePosition);
+    return this;
   }
 
   @Override
@@ -106,47 +109,56 @@ public class DataBufferWrapper implements DataBuffer {
 
   @Override
   public DataBuffer read(byte[] destination) {
-    return this.delegate.read(destination);
+    this.delegate.read(destination);
+    return this;
   }
 
   @Override
   public DataBuffer read(byte[] destination, int offset, int length) {
-    return this.delegate.read(destination, offset, length);
+    this.delegate.read(destination, offset, length);
+    return this;
   }
 
   @Override
   public DataBuffer write(byte b) {
-    return this.delegate.write(b);
+    this.delegate.write(b);
+    return this;
   }
 
   @Override
   public DataBuffer write(byte[] source) {
-    return this.delegate.write(source);
+    this.delegate.write(source);
+    return this;
   }
 
   @Override
   public DataBuffer write(byte[] source, int offset, int length) {
-    return this.delegate.write(source, offset, length);
+    this.delegate.write(source, offset, length);
+    return this;
   }
 
   @Override
   public DataBuffer write(DataBuffer... buffers) {
-    return this.delegate.write(buffers);
+    this.delegate.write(buffers);
+    return this;
   }
 
   @Override
   public DataBuffer write(ByteBuffer... buffers) {
-    return this.delegate.write(buffers);
+    this.delegate.write(buffers);
+    return this;
   }
 
   @Override
   public DataBuffer write(CharSequence charSequence, Charset charset) {
-    return this.delegate.write(charSequence, charset);
+    this.delegate.write(charSequence, charset);
+    return this;
   }
 
   @Override
   public DataBuffer split(int index) {
-    return this.delegate.split(index);
+    this.delegate.split(index);
+    return this;
   }
 
   @Override
@@ -187,6 +199,12 @@ public class DataBufferWrapper implements DataBuffer {
   @Override
   public String toString(Charset charset) {
     return this.delegate.toString(charset);
+  }
+
+  @Override
+  public DataBuffer clear() {
+    this.clear();
+    return this;
   }
 
   @Override

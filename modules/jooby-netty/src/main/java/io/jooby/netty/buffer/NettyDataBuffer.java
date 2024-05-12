@@ -277,6 +277,12 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
+  public DataBuffer clear() {
+    this.byteBuf.clear();
+    return this;
+  }
+
+  @Override
   public boolean isAllocated() {
     return this.byteBuf.refCnt() > 0;
   }

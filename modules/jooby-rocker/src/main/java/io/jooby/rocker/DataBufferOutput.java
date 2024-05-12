@@ -34,7 +34,9 @@ class DataBufferOutput implements RockerOutput<DataBufferOutput> {
     this.buffer = buffer;
   }
 
-  void reset() {}
+  void reset() {
+    buffer.clear();
+  }
 
   @Override
   public ContentType getContentType() {

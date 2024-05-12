@@ -463,13 +463,10 @@ public class DefaultDataBuffer implements DataBuffer {
     }
   }
 
-  private static class SlicedDefaultDataBuffer extends DefaultDataBuffer {
-
-    SlicedDefaultDataBuffer(
-        ByteBuffer byteBuffer, DefaultDataBufferFactory dataBufferFactory, int length) {
-      super(dataBufferFactory, byteBuffer);
-      writePosition(length);
-    }
+  @Override
+  public DataBuffer clear() {
+    this.byteBuffer.clear();
+    return this;
   }
 
   private static final class ByteBufferIterator implements DataBuffer.ByteBufferIterator {

@@ -422,6 +422,17 @@ public interface DataBuffer {
   String toString(int index, int length, Charset charset);
 
   /**
+   * Clears this buffer. The position is set to zero, the limit is set to the capacity, and the mark
+   * is discarded.
+   *
+   * <p>This method does not actually erase the data in the buffer, but it is named as if it did
+   * because it will most often be used in situations in which that might as well be the case.
+   *
+   * @return This buffer
+   */
+  DataBuffer clear();
+
+  /**
    * A dedicated iterator type that ensures the lifecycle of iterated {@link ByteBuffer} elements.
    * This iterator must be used in a try-with-resources clause or explicitly {@linkplain #close()
    * closed}.

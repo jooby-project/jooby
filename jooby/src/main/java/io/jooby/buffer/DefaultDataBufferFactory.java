@@ -24,7 +24,7 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
    * @see #DefaultDataBufferFactory()
    * @see #DefaultDataBufferFactory(boolean)
    */
-  public static final int DEFAULT_INITIAL_CAPACITY = 256;
+  public static final int DEFAULT_INITIAL_CAPACITY = 4096;
 
   /**
    * Shared instance based on the default constructor.
