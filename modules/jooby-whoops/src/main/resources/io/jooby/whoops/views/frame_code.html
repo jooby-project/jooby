@@ -12,7 +12,11 @@
           {% endif %}
         </div>
           {% if frame.source != null %}
-            <pre id="frame-code-linenums-{{loop.index}}" class="code-block linenums:{{frame.lineStart}}">{{frame.source}}</pre>
+            <pre class="code-block line-numbers"
+              data-line=" echo $line "
+              data-line-offset="{{frame.lineStart}}"
+              data-start="{{frame.lineStart}}"
+            ><code class="language-php">{{frame.source}}</code></pre>
           {% endif %}
         {% if frame.args != null %}
           <div class="frame-file">
