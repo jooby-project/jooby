@@ -8,6 +8,7 @@ package io.jooby.freemarker;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -69,11 +70,11 @@ public class FreemarkerModuleTest {
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
-    String output =
+    var output =
         engine.render(
             ctx,
             ModelAndView.map("index.ftl").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.trim());
+    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8).trim());
   }
 
   @Test
@@ -98,6 +99,7 @@ public class FreemarkerModuleTest {
         "friday",
         engine
             .render(ctx, ModelAndView.map("locales.ftl").put("someDate", nextFriday))
+            .toString(StandardCharsets.UTF_8)
             .trim()
             .toLowerCase());
 
@@ -109,6 +111,7 @@ public class FreemarkerModuleTest {
                 ModelAndView.map("locales.ftl")
                     .put("someDate", nextFriday)
                     .setLocale(new Locale("en", "GB")))
+            .toString(StandardCharsets.UTF_8)
             .trim()
             .toLowerCase());
 
@@ -120,6 +123,7 @@ public class FreemarkerModuleTest {
                 ModelAndView.map("locales.ftl")
                     .put("someDate", nextFriday)
                     .setLocale(Locale.GERMAN))
+            .toString(StandardCharsets.UTF_8)
             .trim()
             .toLowerCase());
   }
@@ -134,11 +138,11 @@ public class FreemarkerModuleTest {
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
-    String output =
+    var output =
         engine.render(
             ctx,
             ModelAndView.map("index.ftl").put("user", new MyModel("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.trim());
+    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8).trim());
   }
 
   @Test
@@ -154,7 +158,7 @@ public class FreemarkerModuleTest {
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
-    String output = engine.render(ctx, ModelAndView.map("index.ftl"));
-    assertEquals("var", output.trim());
+    var output = engine.render(ctx, ModelAndView.map("index.ftl"));
+    assertEquals("var", output.toString(StandardCharsets.UTF_8).trim());
   }
 }

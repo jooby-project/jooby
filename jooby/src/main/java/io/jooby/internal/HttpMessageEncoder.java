@@ -11,10 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
@@ -30,12 +27,12 @@ public class HttpMessageEncoder implements MessageEncoder {
 
   private Map<MediaType, MessageEncoder> encoders;
 
-  private List<TemplateEngine> templateEngineList = new ArrayList<>(2);
+  private final LinkedList<TemplateEngine> templateEngineList = new LinkedList<>();
 
   public HttpMessageEncoder add(MediaType type, MessageEncoder encoder) {
-    if (encoder instanceof TemplateEngine) {
+    if (encoder instanceof TemplateEngine engine) {
       // media type is ignored for template engines. They  have a custom object type
-      templateEngineList.add((TemplateEngine) encoder);
+      templateEngineList.add(engine);
     } else {
       if (encoders == null) {
         encoders = new LinkedHashMap<>();
@@ -47,8 +44,7 @@ public class HttpMessageEncoder implements MessageEncoder {
 
   @Override
   public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
-    if (value instanceof ModelAndView) {
-      ModelAndView modelAndView = (ModelAndView) value;
+    if (value instanceof ModelAndView modelAndView) {
       for (TemplateEngine engine : templateEngineList) {
         if (engine.supports(modelAndView)) {
           return engine.encode(ctx, modelAndView);

@@ -7,6 +7,7 @@ package io.jooby.handlebars;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -48,11 +49,11 @@ public class HandlebarsModuleTest {
         new HandlebarsTemplateEngine(handlebars, Arrays.asList(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
-    String output =
+    var output =
         engine.render(
             ctx,
             ModelAndView.map("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.trim());
+    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8).trim());
   }
 
   @Test
@@ -65,10 +66,10 @@ public class HandlebarsModuleTest {
         new HandlebarsTemplateEngine(handlebars, Arrays.asList(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
-    String output =
+    var output =
         engine.render(
             ctx,
             ModelAndView.map("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.trim());
+    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8).trim());
   }
 }

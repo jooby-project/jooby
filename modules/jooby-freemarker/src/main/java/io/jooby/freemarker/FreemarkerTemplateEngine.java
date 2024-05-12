@@ -5,17 +5,17 @@
  */
 package io.jooby.freemarker;
 
-import java.io.StringWriter;
+import static io.jooby.SneakyThrows.throwingConsumer;
+
 import java.util.Collections;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import freemarker.core.Environment;
 import freemarker.template.*;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
-import io.jooby.SneakyThrows;
 import io.jooby.TemplateEngine;
+import io.jooby.buffer.DataBuffer;
 
 class FreemarkerTemplateEngine implements TemplateEngine {
 
@@ -33,9 +33,10 @@ class FreemarkerTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public String render(Context ctx, ModelAndView modelAndView) throws Exception {
+  public DataBuffer render(Context ctx, ModelAndView modelAndView) throws Exception {
+    var buffer = ctx.getBufferFactory().allocateBuffer();
     var template = freemarker.getTemplate(modelAndView.getView());
-    var writer = new StringWriter();
+    var writer = buffer.asWriter();
     var wrapper = freemarker.getObjectWrapper();
     var model = modelAndView.getModel();
     var engineModel = wrapper.wrap(model);
@@ -43,13 +44,11 @@ class FreemarkerTemplateEngine implements TemplateEngine {
     if (locale == null) {
       locale = ctx.locale();
     }
-    Environment env = template.createProcessingEnvironment(engineModel, writer);
+    var env = template.createProcessingEnvironment(engineModel, writer);
     env.setLocale(locale);
     ctx.getAttributes()
-        .forEach(
-            SneakyThrows.throwingConsumer(
-                (name, value) -> env.setVariable(name, wrapper.wrap(value))));
+        .forEach(throwingConsumer((name, value) -> env.setVariable(name, wrapper.wrap(value))));
     env.process();
-    return writer.toString();
+    return buffer;
   }
 }

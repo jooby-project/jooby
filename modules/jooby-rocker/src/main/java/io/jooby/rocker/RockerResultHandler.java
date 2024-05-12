@@ -15,9 +15,9 @@ import io.jooby.ResultHandler;
 import io.jooby.Route;
 
 class RockerResultHandler implements ResultHandler {
-  private final RockerOutputFactory<ByteBufferOutput> factory;
+  private final RockerOutputFactory<DataBufferOutput> factory;
 
-  RockerResultHandler(final RockerOutputFactory<ByteBufferOutput> factory) {
+  RockerResultHandler(final RockerOutputFactory<DataBufferOutput> factory) {
     this.factory = factory;
   }
 

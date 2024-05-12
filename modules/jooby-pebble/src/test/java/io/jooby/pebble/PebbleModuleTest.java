@@ -8,6 +8,7 @@ package io.jooby.pebble;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Locale;
@@ -51,11 +52,11 @@ public class PebbleModuleTest {
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
-    String output =
+    var output =
         engine.render(
             ctx,
             ModelAndView.map("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output);
+    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -69,11 +70,11 @@ public class PebbleModuleTest {
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
-    String output =
+    var output =
         engine.render(
             ctx,
             ModelAndView.map("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output);
+    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -86,21 +87,32 @@ public class PebbleModuleTest {
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
 
-    assertEquals("Greetings!", engine.render(ctx, ModelAndView.map("locales.peb")));
+    assertEquals(
+        "Greetings!",
+        engine.render(ctx, ModelAndView.map("locales.peb")).toString(StandardCharsets.UTF_8));
 
     assertEquals(
         "Hi!",
-        engine.render(ctx, ModelAndView.map("locales.peb").setLocale(new Locale("en", "GB"))));
-
-    assertEquals(
-        "Grüß Gott!", engine.render(ctx, ModelAndView.map("locales.peb").setLocale(Locale.GERMAN)));
+        engine
+            .render(ctx, ModelAndView.map("locales.peb").setLocale(new Locale("en", "GB")))
+            .toString(StandardCharsets.UTF_8));
 
     assertEquals(
         "Grüß Gott!",
-        engine.render(ctx, ModelAndView.map("locales.peb").setLocale(Locale.GERMANY)));
+        engine
+            .render(ctx, ModelAndView.map("locales.peb").setLocale(Locale.GERMAN))
+            .toString(StandardCharsets.UTF_8));
+
+    assertEquals(
+        "Grüß Gott!",
+        engine
+            .render(ctx, ModelAndView.map("locales.peb").setLocale(Locale.GERMANY))
+            .toString(StandardCharsets.UTF_8));
 
     assertEquals(
         "Servus!",
-        engine.render(ctx, ModelAndView.map("locales.peb").setLocale(new Locale("de", "AT"))));
+        engine
+            .render(ctx, ModelAndView.map("locales.peb").setLocale(new Locale("de", "AT")))
+            .toString(StandardCharsets.UTF_8));
   }
 }

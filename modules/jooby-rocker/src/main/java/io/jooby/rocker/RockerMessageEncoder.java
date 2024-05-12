@@ -14,21 +14,19 @@ import io.jooby.MessageEncoder;
 import io.jooby.buffer.DataBuffer;
 
 class RockerMessageEncoder implements MessageEncoder {
-  private final RockerOutputFactory<ByteBufferOutput> factory;
+  private final RockerOutputFactory<DataBufferOutput> factory;
 
-  RockerMessageEncoder(RockerOutputFactory<ByteBufferOutput> factory) {
+  RockerMessageEncoder(RockerOutputFactory<DataBufferOutput> factory) {
     this.factory = factory;
   }
 
   @Override
   public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) {
-    if (value instanceof RockerModel) {
-      RockerModel template = (RockerModel) value;
-      ByteBufferOutput output = template.render(factory);
+    if (value instanceof RockerModel template) {
+      var output = template.render(factory);
       ctx.setResponseLength(output.getByteLength());
       ctx.setDefaultResponseType(MediaType.html);
-      // TODO: Fix add a bytebuffer output using Databuffer
-      return ctx.getBufferFactory().wrap(output.toBuffer());
+      return output.toBuffer();
     }
     return null;
   }

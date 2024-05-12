@@ -5,7 +5,6 @@
  */
 package io.jooby;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @return Rendered template.
    * @throws Exception If something goes wrong.
    */
-  String render(Context ctx, ModelAndView modelAndView) throws Exception;
+  DataBuffer render(Context ctx, ModelAndView modelAndView) throws Exception;
 
   @Override
   default DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
@@ -44,8 +43,7 @@ public interface TemplateEngine extends MessageEncoder {
     ctx.sessionOrNull();
 
     ctx.setDefaultResponseType(MediaType.html);
-    String output = render(ctx, (ModelAndView) value);
-    return ctx.getBufferFactory().wrap(output.getBytes(StandardCharsets.UTF_8));
+    return render(ctx, (ModelAndView) value);
   }
 
   /**

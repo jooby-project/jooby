@@ -70,7 +70,7 @@ import io.jooby.buffer.DataBuffer;
  */
 public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
 
-  private Gson gson;
+  private final Gson gson;
 
   /**
    * Creates a new module and use a Gson instance.
@@ -110,7 +110,9 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
 
   @NonNull @Override
   public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) {
+    var buffer = ctx.getBufferFactory().allocateBuffer();
     ctx.setDefaultResponseType(MediaType.json);
-    return ctx.getBufferFactory().wrap(gson.toJson(value).getBytes(UTF_8));
+    gson.toJson(value, buffer.asWriter());
+    return buffer;
   }
 }

@@ -5,15 +5,17 @@
  */
 package io.jooby.jte;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import gg.jte.TemplateEngine;
-import gg.jte.output.StringOutput;
 import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
+import io.jooby.buffer.DataBuffer;
+import io.jooby.internal.jte.DataBufferOutput;
 
 class JteTemplateEngine implements io.jooby.TemplateEngine {
   private final TemplateEngine jte;
@@ -30,8 +32,9 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
   }
 
   @Override
-  public String render(Context ctx, ModelAndView modelAndView) {
-    var output = new StringOutput();
+  public DataBuffer render(Context ctx, ModelAndView modelAndView) {
+    var buffer = ctx.getBufferFactory().allocateBuffer();
+    var output = new DataBufferOutput(buffer, StandardCharsets.UTF_8);
     var attributes = ctx.getAttributes();
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
       var mapModel = new HashMap<>();
@@ -42,6 +45,6 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
       jte.render(modelAndView.getView(), modelAndView.getModel(), output);
     }
 
-    return output.toString();
+    return buffer;
   }
 }
