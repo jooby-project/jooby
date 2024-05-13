@@ -69,7 +69,7 @@
 
     <!-- Server -->
     <undertow.version>2.3.13.Final</undertow.version>
-    <jetty.version>12.0.8</jetty.version>
+    <jetty.version>12.0.9</jetty.version>
     <netty.version>4.1.109.Final</netty.version>
 
     <!--OpenAPI-->
@@ -92,7 +92,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.715</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.720</aws-java-sdk.version>
     <camel.version>3.22.2</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -100,15 +100,15 @@
     <commons-io.version>2.16.1</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>1.9.23</kotlin.version>
-    <kotlinx-coroutines-core.version>1.8.0</kotlinx-coroutines-core.version>
+    <kotlin.version>1.9.24</kotlin.version>
+    <kotlinx-coroutines-core.version>1.8.1</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.12</jacoco.version>
     <junit.version>5.10.2</junit.version>
     <rest-assured.version>5.4.0</rest-assured.version>
-    <mockito.version>5.11.0</mockito.version>
+    <mockito.version>5.12.0</mockito.version>
     <guava.version>33.2.0-jre</guava.version>
 
     <auto-service.version>1.1.1</auto-service.version>
