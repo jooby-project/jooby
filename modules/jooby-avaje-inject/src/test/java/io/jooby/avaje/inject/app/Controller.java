@@ -6,20 +6,23 @@ import io.avaje.inject.InjectModule;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
 @Singleton
 @Path("")
-@InjectModule(requires = {JsonMapper.class, Config.class})
+@InjectModule(requires = {JsonMapper.class, Config.class, String.class})
 public class Controller {
 
     private final JsonMapper jsonMapper;
     private final Config config;
+    private final String env;
 
     @Inject
-    public Controller(JsonMapper jsonMapper, Config config) {
+    public Controller(JsonMapper jsonMapper, Config config, @Named("application.env") String env) {
         this.jsonMapper = jsonMapper;
         this.config = config;
+        this.env = env;
     }
 
     @GET
@@ -28,6 +31,6 @@ public class Controller {
         jsonMapper.version();
         config.isEmpty();
 
-        return "pong";
+        return this.env;
     }
 }

@@ -19,7 +19,7 @@ public class AvajeInjectModuleTest {
         Request request = new Request.Builder().url(serverPath + "ping").build();
 
         try (Response response = client.newCall(request).execute()) {
-            assertEquals("pong", response.body().string());
+            assertEquals("test", response.body().string());
         }
     }
 }
