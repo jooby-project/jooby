@@ -8,8 +8,6 @@ package io.jooby.avaje.inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.typesafe.config.Config;
-
 import io.avaje.inject.BeanScope;
 import io.avaje.inject.BeanScopeBuilder;
 import io.jooby.Extension;
@@ -68,7 +66,7 @@ public class AvajeInjectModule implements Extension {
             e -> {
               final var key = e.getKey();
               if (key.getName() == null) {
-                beanScope.provideDefault(key.getType(), () -> e.getValue().get());
+                beanScope.provideDefault(key.getType(), e.getValue()::get);
               } else {
                 beanScope.bean(key.getName(), key.getType(), e.getValue());
               }
