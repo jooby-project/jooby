@@ -80,7 +80,6 @@ public class AvajeInjectModule implements Extension {
     // configuration properties
     final var config = environment.getConfig();
     beanScope.propertyPlugin(new JoobyPropertyPlugin(config));
-    beanScope.bean(Config.class, config);
 
     for (var entry : config.entrySet()) {
       String name = entry.getKey();
