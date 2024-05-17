@@ -16,7 +16,7 @@ public class AvajeInjectModuleTest {
 
     @JoobyTest(TestApp.class)
     public void shouldPropagateJoobyServicesToAvajeBeanScope(String serverPath) throws IOException {
-        Request request = new Request.Builder().url(serverPath + "/ping").build();
+        Request request = new Request.Builder().url(serverPath + "ping").build();
 
         try (Response response = client.newCall(request).execute()) {
             assertEquals("pong", response.body().string());

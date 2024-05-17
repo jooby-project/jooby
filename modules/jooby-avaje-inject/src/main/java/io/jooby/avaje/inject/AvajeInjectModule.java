@@ -68,7 +68,7 @@ public class AvajeInjectModule implements Extension {
             e -> {
               final var key = e.getKey();
               if (key.getName() == null) {
-                beanScope.provideDefault(key.getType(), e::getValue);
+                beanScope.provideDefault(key.getType(), () -> e.getValue().get());
               } else {
                 beanScope.bean(key.getName(), key.getType(), e.getValue());
               }
