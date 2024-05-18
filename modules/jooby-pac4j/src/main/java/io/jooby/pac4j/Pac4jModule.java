@@ -581,7 +581,7 @@ public class Pac4jModule implements Extension {
           });
     }
     /** Set current user provider */
-    application.setCurrentUser(new Pac4jCurrentUser());
+    application.setCurrentUser(new Pac4jCurrentUser(pac4j));
     // cleanup
     clientMap.clear();
   }
