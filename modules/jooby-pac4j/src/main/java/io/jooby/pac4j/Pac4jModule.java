@@ -580,6 +580,9 @@ public class Pac4jModule implements Extension {
             options.setDefaultUrl(defaultUrl);
           });
     }
+
+    application.getServices().put(Config.class, pac4j);
+
     /** Set current user provider */
     application.setCurrentUser(new Pac4jCurrentUser());
     // cleanup
