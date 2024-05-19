@@ -15,17 +15,11 @@ import io.jooby.pac4j.Pac4jContext;
 
 public class Pac4jCurrentUser implements Function<Context, Object> {
 
-  private final Config config;
-
-  public Pac4jCurrentUser(Config config) {
-    this.config = config;
-  }
-
   @Override
   public Object apply(Context ctx) {
     Pac4jContext pac4jContext = Pac4jContext.create(ctx);
     ProfileManager pm = new ProfileManager(pac4jContext, pac4jContext.getSessionStore());
-    pm.setConfig(config);
+    pm.setConfig(ctx.require(Config.class));
     return pm.getProfile().orElse(null);
   }
 }
