@@ -16,16 +16,12 @@ import io.jstach.jstachio.output.ByteBufferEncodedOutput;
  */
 interface JStachioBuffer {
 
-  public ByteBufferEncodedOutput acquire();
+  ByteBufferEncodedOutput acquire();
 
-  public void release(ByteBufferEncodedOutput buffer);
+  void release(ByteBufferEncodedOutput buffer);
 
-  static JStachioBuffer of(int bufferSize, boolean reuseBuffer) {
-    if (reuseBuffer) {
-      return new ReuseBuffer(bufferSize);
-    } else {
-      return new NoReuseBuffer(bufferSize);
-    }
+  static JStachioBuffer of(int bufferSize) {
+    return new NoReuseBuffer(bufferSize);
   }
 }
 
@@ -37,25 +33,4 @@ record NoReuseBuffer(int bufferSize) implements JStachioBuffer {
 
   @Override
   public void release(ByteBufferEncodedOutput buffer) {}
-}
-
-class ReuseBuffer implements JStachioBuffer {
-  private final ThreadLocal<ByteBufferEncodedOutput> localBuffer;
-
-  public ReuseBuffer(int bufferSize) {
-    super();
-    this.localBuffer =
-        ThreadLocal.withInitial(
-            () -> ByteBufferEncodedOutput.ofByteArray(StandardCharsets.UTF_8, bufferSize));
-  }
-
-  @Override
-  public ByteBufferEncodedOutput acquire() {
-    return localBuffer.get();
-  }
-
-  @Override
-  public void release(ByteBufferEncodedOutput buffer) {
-    buffer.close();
-  }
 }

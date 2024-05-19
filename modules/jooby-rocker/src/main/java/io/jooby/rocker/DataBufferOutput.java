@@ -6,7 +6,6 @@
 package io.jooby.rocker;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import com.fizzed.rocker.ContentType;
 import com.fizzed.rocker.RockerOutput;
@@ -19,23 +18,21 @@ import io.jooby.buffer.DataBufferFactory;
  *
  * @author edgar
  */
-class DataBufferOutput implements RockerOutput<DataBufferOutput> {
+public class DataBufferOutput implements RockerOutput<DataBufferOutput> {
 
   /** Default buffer size: <code>4k</code>. */
   public static final int BUFFER_SIZE = 4096;
 
+  private final Charset charset;
   private final ContentType contentType;
 
   /** The buffer where data is stored. */
   protected DataBuffer buffer;
 
-  DataBufferOutput(ContentType contentType, DataBuffer buffer) {
+  DataBufferOutput(Charset charset, ContentType contentType, DataBuffer buffer) {
+    this.charset = charset;
     this.contentType = contentType;
     this.buffer = buffer;
-  }
-
-  void reset() {
-    buffer.clear();
   }
 
   @Override
@@ -45,12 +42,13 @@ class DataBufferOutput implements RockerOutput<DataBufferOutput> {
 
   @Override
   public Charset getCharset() {
-    return StandardCharsets.UTF_8;
+    return charset;
   }
 
   @Override
   public DataBufferOutput w(String string) {
-    return w(string.getBytes(StandardCharsets.UTF_8));
+    buffer.write(string, getCharset());
+    return this;
   }
 
   @Override
@@ -73,26 +71,9 @@ class DataBufferOutput implements RockerOutput<DataBufferOutput> {
     return buffer;
   }
 
-  static RockerOutputFactory<DataBufferOutput> factory(DataBufferFactory factory, int bufferSize) {
+  static RockerOutputFactory<DataBufferOutput> factory(
+      Charset charset, DataBufferFactory factory, int bufferSize) {
     return (contentType, charsetName) ->
-        new DataBufferOutput(contentType, factory.allocateBuffer(bufferSize));
-  }
-
-  static RockerOutputFactory<DataBufferOutput> reuse(
-      RockerOutputFactory<DataBufferOutput> factory) {
-    return new RockerOutputFactory<DataBufferOutput>() {
-      private final ThreadLocal<DataBufferOutput> thread = new ThreadLocal<>();
-
-      @Override
-      public DataBufferOutput create(ContentType contentType, String charsetName) {
-        DataBufferOutput output = thread.get();
-        if (output == null) {
-          output = factory.create(contentType, charsetName);
-          thread.set(output);
-        }
-        output.reset();
-        return output;
-      }
-    };
+        new DataBufferOutput(charset, contentType, factory.allocateBuffer(bufferSize));
   }
 }

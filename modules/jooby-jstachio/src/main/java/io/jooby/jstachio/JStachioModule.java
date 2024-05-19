@@ -35,8 +35,7 @@ public class JStachioModule implements Extension {
 
   private @Nullable JStachio jstachio;
   private int bufferSize = 8 * 1024;
-  private boolean reuseBuffer;
-  private BiFunction<Context, String, String> contextFunction = (ctx, key) -> ctx.getAttribute(key);
+  private BiFunction<Context, String, String> contextFunction = Context::getAttribute;
 
   /**
    * Sets the jstachio to use instead of the default.
@@ -70,9 +69,10 @@ public class JStachioModule implements Extension {
    *
    * @param reuseBuffer True for reuse the buffer. Default is: <code>false</code>
    * @return This module.
+   * @deprecated
    */
+  @Deprecated
   public JStachioModule reuseBuffer(boolean reuseBuffer) {
-    this.reuseBuffer = reuseBuffer;
     return this;
   }
 
@@ -114,7 +114,7 @@ public class JStachioModule implements Extension {
     } else {
       services.put(JStachio.class, this.jstachio);
     }
-    JStachioBuffer buffer = JStachioBuffer.of(bufferSize, reuseBuffer);
+    JStachioBuffer buffer = JStachioBuffer.of(bufferSize);
 
     JStachioMessageEncoder encoder = new JStachioMessageEncoder(j, buffer, contextFunction);
     JStachioResultHandler handler = new JStachioResultHandler(j, buffer, contextFunction);

@@ -5,10 +5,12 @@
  */
 package io.jooby.rocker;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import com.fizzed.rocker.RockerOutputFactory;
 import com.fizzed.rocker.runtime.RockerRuntime;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
@@ -21,12 +23,22 @@ import io.jooby.ServiceRegistry;
  * @since 2.0.0
  */
 public class RockerModule implements Extension {
-
   private Boolean reloading;
+  private int bufferSize;
+  private final Charset charset;
 
-  private int bufferSize = DataBufferOutput.BUFFER_SIZE;
+  public RockerModule(@NonNull Charset charset, int bufferSize) {
+    this.charset = charset;
+    this.bufferSize = bufferSize;
+  }
 
-  private boolean reuseBuffer;
+  public RockerModule(@NonNull Charset charset) {
+    this(charset, DataBufferOutput.BUFFER_SIZE);
+  }
+
+  public RockerModule() {
+    this(StandardCharsets.UTF_8);
+  }
 
   /**
    * Turn on/off autoreloading of template for development.
@@ -45,8 +57,21 @@ public class RockerModule implements Extension {
    *
    * @param bufferSize Buffer size.
    * @return This module.
+   * @deprecated Use {@link #bufferSize}
    */
+  @Deprecated(forRemoval = true)
   public @NonNull RockerModule useBuffer(int bufferSize) {
+    return bufferSize(bufferSize);
+  }
+
+  /**
+   * Configure buffer size to use while rendering. The buffer can grow ups when need it, so this
+   * option works as a hint to allocate initial memory.
+   *
+   * @param bufferSize Buffer size.
+   * @return This module.
+   */
+  public @NonNull RockerModule bufferSize(int bufferSize) {
     this.bufferSize = bufferSize;
     return this;
   }
@@ -57,25 +82,22 @@ public class RockerModule implements Extension {
    *
    * @param reuseBuffer True for reuse the buffer. Default is: <code>false</code>
    * @return This module.
+   * @deprecated
    */
+  @Deprecated(forRemoval = true)
   public RockerModule reuseBuffer(boolean reuseBuffer) {
-    this.reuseBuffer = reuseBuffer;
     return this;
   }
 
   @Override
   public void install(@NonNull Jooby application) {
-    Environment env = application.getEnvironment();
-    RockerRuntime runtime = RockerRuntime.getInstance();
+    var env = application.getEnvironment();
+    var runtime = RockerRuntime.getInstance();
     boolean reloading =
         this.reloading == null
             ? (env.isActive("dev") && runtime.isReloadingPossible())
             : this.reloading;
-    RockerOutputFactory<DataBufferOutput> factory =
-        DataBufferOutput.factory(application.getBufferFactory(), bufferSize);
-    if (reuseBuffer) {
-      factory = DataBufferOutput.reuse(factory);
-    }
+    var factory = DataBufferOutput.factory(charset, application.getBufferFactory(), bufferSize);
     runtime.setReloading(reloading);
     // result handler
     application.resultHandler(new RockerResultHandler(factory));

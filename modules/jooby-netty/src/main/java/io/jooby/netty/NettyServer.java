@@ -41,7 +41,6 @@ import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
-import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -51,14 +50,6 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  * @since 2.0.0
  */
 public class NettyServer extends Server.Base {
-  private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
-
-  static {
-    System.setProperty(
-        LEAK_DETECTION,
-        System.getProperty(LEAK_DETECTION, ResourceLeakDetector.Level.DISABLED.name()));
-  }
-
   private static final int _50 = 50;
 
   private static final int _100 = 100;

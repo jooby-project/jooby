@@ -16,6 +16,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.util.ResourceLeakDetector;
 
 /**
  * Implementation of the {@code DataBufferFactory} interface based on a Netty 4 {@link
@@ -28,6 +29,16 @@ import io.netty.buffer.Unpooled;
  * @see io.netty.buffer.UnpooledByteBufAllocator
  */
 public class NettyDataBufferFactory implements DataBufferFactory {
+
+  private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
+
+  static {
+    System.setProperty(
+        LEAK_DETECTION,
+        System.getProperty(LEAK_DETECTION, ResourceLeakDetector.Level.DISABLED.name()));
+    ResourceLeakDetector.setLevel(
+        ResourceLeakDetector.Level.valueOf(System.getProperty(LEAK_DETECTION)));
+  }
 
   private final ByteBufAllocator byteBufAllocator;
 
