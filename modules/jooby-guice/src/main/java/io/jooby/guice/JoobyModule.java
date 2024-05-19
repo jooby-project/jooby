@@ -14,12 +14,10 @@ import java.util.stream.Stream;
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Jooby;
@@ -73,13 +71,12 @@ public class JoobyModule extends AbstractModule {
     traverse("", config.root());
 
     // configuration properties
-    for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
-      String name = entry.getKey();
-      Named named = Names.named(name);
-      Object value = entry.getValue().unwrapped();
+    for (var entry : config.entrySet()) {
+      var name = entry.getKey();
+      var named = Names.named(name);
+      var value = entry.getValue().unwrapped();
 
-      if (value instanceof List) {
-        List values = (List) value;
+      if (value instanceof List values) {
         componentType(values)
             .forEach(
                 componentType -> {

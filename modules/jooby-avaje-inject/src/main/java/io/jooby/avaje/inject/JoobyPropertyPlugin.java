@@ -1,13 +1,17 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.avaje.inject;
 
 import java.util.Objects;
 import java.util.Optional;
 
 import com.typesafe.config.Config;
-
 import io.avaje.inject.spi.PropertyRequiresPlugin;
 
-public class JoobyPropertyPlugin implements PropertyRequiresPlugin {
+class JoobyPropertyPlugin implements PropertyRequiresPlugin {
 
   private final Config config;
 
@@ -17,7 +21,9 @@ public class JoobyPropertyPlugin implements PropertyRequiresPlugin {
 
   @Override
   public Optional<String> get(String property) {
-    return Optional.ofNullable(config.getString(property));
+    return config.hasPath(property)
+        ? Optional.empty()
+        : Optional.ofNullable(config.getString(property));
   }
 
   @Override

@@ -8,6 +8,7 @@ module io.jooby.avaje.inject {
   exports io.jooby.avaje.inject;
 
   requires transitive io.jooby;
-  requires transitive typesafe.config;
+  requires com.github.spotbugs.annotations;
+  requires typesafe.config;
   requires transitive io.avaje.inject;
 }

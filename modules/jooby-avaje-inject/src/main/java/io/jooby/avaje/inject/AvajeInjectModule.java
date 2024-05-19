@@ -8,6 +8,7 @@ package io.jooby.avaje.inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.inject.BeanScope;
 import io.avaje.inject.BeanScopeBuilder;
 import io.jooby.Extension;
@@ -47,7 +48,7 @@ public class AvajeInjectModule implements Extension {
     return new AvajeInjectModule(beanScope);
   }
 
-  AvajeInjectModule(BeanScopeBuilder beanScope) {
+  public AvajeInjectModule(@NonNull BeanScopeBuilder beanScope) {
     this.beanScope = beanScope;
   }
 
@@ -57,18 +58,19 @@ public class AvajeInjectModule implements Extension {
   }
 
   @Override
-  public void install(Jooby application) throws Exception {
+  public void install(Jooby application) {
 
     application
         .getServices()
         .entrySet()
         .forEach(
             e -> {
-              final var key = e.getKey();
+              var key = e.getKey();
+              var provider = e.getValue();
               if (key.getName() == null) {
-                beanScope.provideDefault(key.getType(), e.getValue()::get);
+                beanScope.provideDefault(key.getType(), provider::get);
               } else {
-                beanScope.bean(key.getName(), key.getType(), e.getValue());
+                beanScope.bean(key.getName(), key.getType(), provider);
               }
             });
 
