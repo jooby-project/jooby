@@ -16,7 +16,7 @@ import io.jooby.ServiceKey;
 import io.jooby.exception.RegistryException;
 
 class GuiceRegistry implements Registry {
-  private Injector injector;
+  private final Injector injector;
 
   GuiceRegistry(Injector injector) {
     this.injector = injector;

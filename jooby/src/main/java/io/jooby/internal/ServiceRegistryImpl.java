@@ -17,7 +17,7 @@ import jakarta.inject.Provider;
 
 public class ServiceRegistryImpl implements ServiceRegistry {
 
-  private Map<ServiceKey<?>, Provider<?>> registry = new ConcurrentHashMap<>();
+  private final Map<ServiceKey<?>, Provider<?>> registry = new ConcurrentHashMap<>();
 
   @NonNull @Override
   public Set<ServiceKey<?>> keySet() {
@@ -31,7 +31,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
   @Nullable @Override
   public <T> T getOrNull(@NonNull ServiceKey<T> key) {
-    Provider provider = registry.get(key);
+    var provider = registry.get(key);
     if (provider == null) {
       return null;
     }

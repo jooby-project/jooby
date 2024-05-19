@@ -373,7 +373,7 @@ public class Jooby implements Router, Registry {
   @NonNull public Jooby install(@NonNull String path, @NonNull SneakyThrows.Supplier<Jooby> factory) {
     try {
       owner = this;
-      path(path, () -> factory.get());
+      path(path, factory::get);
       return this;
     } finally {
       owner = null;

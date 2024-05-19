@@ -1,7 +1,13 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.avaje.inject;
 
 import java.util.NoSuchElementException;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.inject.BeanScope;
 import io.jooby.Registry;
 import io.jooby.ServiceKey;
@@ -16,7 +22,7 @@ class AvajeInjectRegistry implements Registry {
   }
 
   @Override
-  public <T> T require(Class<T> type) throws RegistryException {
+  public @NonNull <T> T require(@NonNull Class<T> type) throws RegistryException {
     try {
       return beanScope.get(type);
     } catch (NoSuchElementException e) {
@@ -26,7 +32,8 @@ class AvajeInjectRegistry implements Registry {
   }
 
   @Override
-  public <T> T require(Class<T> type, String name) throws RegistryException {
+  public @NonNull <T> T require(@NonNull Class<T> type, @NonNull String name)
+      throws RegistryException {
     try {
       return beanScope.get(type, name);
     } catch (NoSuchElementException e) {
@@ -36,7 +43,11 @@ class AvajeInjectRegistry implements Registry {
   }
 
   @Override
-  public <T> T require(ServiceKey<T> key) throws RegistryException {
-    return require(key.getType(), key.getName());
+  public @NonNull <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
+    if (key.getName() == null) {
+      return require(key.getType());
+    } else {
+      return require(key.getType(), key.getName());
+    }
   }
 }
