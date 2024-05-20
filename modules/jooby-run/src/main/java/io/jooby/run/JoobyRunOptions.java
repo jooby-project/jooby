@@ -27,6 +27,7 @@ public class JoobyRunOptions {
   private List<String> compileExtensions = Arrays.asList("java", "kt");
 
   private Integer port = null;
+  private Path basedir;
 
   private Long waitTimeBeforeRestart = DEFAULT_WAIT_TIME_BEFORE_RESTART;
 
@@ -178,6 +179,14 @@ public class JoobyRunOptions {
    */
   public boolean isRestartExtension(Path path) {
     return containsExtension(restartExtensions, path);
+  }
+
+  public Path getBasedir() {
+    return basedir;
+  }
+
+  public void setBasedir(Path basedir) {
+    this.basedir = basedir;
   }
 
   private boolean containsExtension(List<String> extensions, Path path) {

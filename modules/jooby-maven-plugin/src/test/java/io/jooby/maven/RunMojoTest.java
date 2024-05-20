@@ -23,7 +23,9 @@ public class RunMojoTest {
     Stream.of(JoobyRunOptions.class.getDeclaredFields())
         .filter(
             field ->
-                !field.getName().equals("projectName") && !Modifier.isStatic(field.getModifiers()))
+                !field.getName().equals("projectName")
+                    && !field.getName().equals("basedir")
+                    && !Modifier.isStatic(field.getModifiers()))
         .forEach(
             field -> {
               try {

@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,9 +90,11 @@ public class JoobyRun {
         ModuleClassLoader classLoader = module.getClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
-        if (counter == 0) {
-          // main class must exists
-          module.getClassLoader().loadClass(conf.getMainClass());
+        // main class must exists
+        var mainClass = module.getClassLoader().loadClass(conf.getMainClass());
+        var projectdir = baseDir(conf.getBasedir(), mainClass);
+        if (projectdir != null) {
+          System.setProperty("jooby.dir", projectdir.toString());
         }
 
         System.setProperty("___jooby_run_hook__", SERVER_REF);
@@ -456,6 +459,30 @@ public class JoobyRun {
         watcher = null;
       }
     }
+  }
+
+  static Path baseDir(Path root, Class clazz) {
+    var resource = clazz.getResource(".");
+    if (resource != null) {
+      if ("file".equals(resource.getProtocol())) {
+        var buildFiles = new String[] {"pom.xml", "build.gradle", "build.gradle.kts"};
+        var path = Paths.get(resource.getFile());
+        while (path.startsWith(root)) {
+
+          var buildFile =
+              Stream.of(buildFiles)
+                  .map(path::resolve)
+                  .filter(Files::exists)
+                  .findFirst()
+                  .orElse(null);
+          if (buildFile != null) {
+            return buildFile.getParent().toAbsolutePath();
+          }
+          path = path.getParent();
+        }
+      }
+    }
+    return null;
   }
 
   private DirectoryWatcher newWatcher() throws IOException {

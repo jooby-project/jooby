@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
@@ -80,7 +82,13 @@ public interface LoggingService {
       // We could throw an exception here but nope, let user choose any other way of setup logging.
       return null;
     }
-    Path userdir = Paths.get(System.getProperty("user.dir"));
+    // Helps logging lookup on multi-module project, prefer logback from main module
+    Path userdir =
+        Stream.of(System.getProperty("jooby.dir"), System.getProperty("user.dir"))
+            .filter(Objects::nonNull)
+            .map(Paths::get)
+            .findFirst()
+            .orElseThrow((() -> new IllegalStateException("No base directory found")));
 
     var loggingService = lookup.get();
     var resources = logFiles(userdir, names, loggingService.getLogFileName());
@@ -95,8 +103,10 @@ public interface LoggingService {
             .filter(Path.class::isInstance)
             .map(Path.class::cast)
             .filter(Files::exists)
-            .findFirst()
-            .map(Path::toAbsolutePath);
+            .map(Path::toAbsolutePath)
+            // Skip build directories from maven/gradle
+            .filter(it -> !isBinary(it, "target") && !isBinary(it, "build"))
+            .findFirst();
     if (logPath.isPresent()) {
       System.setProperty(loggingService.getPropertyName(), logPath.get().toString());
       return logPath.get().toString();
@@ -124,6 +134,11 @@ public interface LoggingService {
     }
     // nothing found
     return null;
+  }
+
+  static boolean isBinary(Path path, String segment) {
+    return StreamSupport.stream(path.spliterator(), false)
+        .anyMatch(it -> it.toString().equals(segment));
   }
 
   private static List<Object> logFiles(

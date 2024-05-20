@@ -88,6 +88,7 @@ public class RunTask extends BaseTask {
 
       JoobyRunOptions config = new JoobyRunOptions();
       config.setUseSingleClassLoader(useSingleClassLoader = Boolean.TRUE);
+      config.setBasedir(current.getProjectDir().toPath());
       config.setMainClass(mainClass);
       config.setPort(port);
       if (compileExtensions != null) {

@@ -136,6 +136,7 @@ public class RunMojo extends BaseMojo {
 
   private JoobyRunOptions createOptions(String mainClass) {
     JoobyRunOptions options = new JoobyRunOptions();
+    options.setBasedir(project.getBasedir().toPath());
     options.setMainClass(mainClass);
     if (compileExtensions != null) {
       options.setCompileExtensions(compileExtensions);
