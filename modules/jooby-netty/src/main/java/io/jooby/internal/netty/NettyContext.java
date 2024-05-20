@@ -597,7 +597,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Context send(@NonNull DataBuffer data) {
-    return send(((NettyDataBuffer) data).getNativeBuffer().duplicate());
+    return send(((NettyDataBuffer) data).getNativeBuffer());
   }
 
   private Context send(@NonNull ByteBuf data) {
