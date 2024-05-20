@@ -8,10 +8,10 @@ package io.jooby.run;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -462,25 +462,28 @@ public class JoobyRun {
   }
 
   static Path baseDir(Path root, Class clazz) {
-    var resource = clazz.getResource(".");
-    if (resource != null) {
-      if ("file".equals(resource.getProtocol())) {
-        var buildFiles = new String[] {"pom.xml", "build.gradle", "build.gradle.kts"};
-        var path = Paths.get(resource.getFile());
-        while (path.startsWith(root)) {
+    try {
+      var resource = clazz.getResource(".");
+      if (resource != null) {
+        if ("file".equals(resource.getProtocol())) {
+          var buildFiles = new String[] {"pom.xml", "build.gradle", "build.gradle.kts"};
+          var path = new File(resource.toURI()).toPath();
+          while (path.startsWith(root)) {
 
-          var buildFile =
-              Stream.of(buildFiles)
-                  .map(path::resolve)
-                  .filter(Files::exists)
-                  .findFirst()
-                  .orElse(null);
-          if (buildFile != null) {
-            return buildFile.getParent().toAbsolutePath();
+            var buildFile =
+                Stream.of(buildFiles)
+                    .map(path::resolve)
+                    .filter(Files::exists)
+                    .findFirst()
+                    .orElse(null);
+            if (buildFile != null) {
+              return buildFile.getParent().toAbsolutePath();
+            }
+            path = path.getParent();
           }
-          path = path.getParent();
         }
       }
+    } catch (URISyntaxException ignored) {
     }
     return null;
   }
