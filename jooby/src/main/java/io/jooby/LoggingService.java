@@ -11,11 +11,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -105,7 +101,7 @@ public interface LoggingService {
             .filter(Files::exists)
             .map(Path::toAbsolutePath)
             // Skip build directories from maven/gradle
-            .filter(it -> !isBinary(it, "target") && !isBinary(it, "build"))
+            .filter(it -> !isBinary(it))
             .findFirst();
     if (logPath.isPresent()) {
       System.setProperty(loggingService.getPropertyName(), logPath.get().toString());
@@ -136,9 +132,10 @@ public interface LoggingService {
     return null;
   }
 
-  static boolean isBinary(Path path, String segment) {
+  static boolean isBinary(Path path) {
+    var bin = Set.of("target", "build", "bin");
     return StreamSupport.stream(path.spliterator(), false)
-        .anyMatch(it -> it.toString().equals(segment));
+        .anyMatch(it -> bin.contains(it.toString()));
   }
 
   private static List<Object> logFiles(
