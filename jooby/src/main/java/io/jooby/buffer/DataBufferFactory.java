@@ -54,6 +54,15 @@ public interface DataBufferFactory {
   DataBuffer wrap(byte[] bytes);
 
   /**
+   * Wrap the given {@code byte} array in a {@code DataBuffer}. Unlike {@linkplain
+   * #allocateBuffer(int) allocating}, wrapping does not use new memory.
+   *
+   * @param bytes the byte array to wrap
+   * @return the wrapped buffer
+   */
+  DataBuffer wrap(byte[] bytes, int offset, int length);
+
+  /**
    * Return a new {@code DataBuffer} composed of the {@code dataBuffers} elements joined together.
    * Depending on the implementation, the returned buffer may be a single buffer containing all data
    * of the provided buffers, or it may be a true composite that contains references to the buffers.

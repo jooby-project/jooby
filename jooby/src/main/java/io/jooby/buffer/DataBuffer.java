@@ -95,6 +95,8 @@ public interface DataBuffer {
    */
   int capacity();
 
+  DataBuffer duplicate();
+
   /**
    * Ensure that the current buffer has enough {@link #writableByteCount()} to write the amount of
    * data given as an argument. If not, the missing capacity will be added to the buffer.

@@ -70,6 +70,12 @@ public class DataBufferWrapper implements DataBuffer {
   }
 
   @Override
+  public DataBuffer duplicate() {
+    this.delegate.duplicate();
+    return this;
+  }
+
+  @Override
   public DataBuffer ensureWritable(int capacity) {
     this.delegate.ensureWritable(capacity);
     return this;

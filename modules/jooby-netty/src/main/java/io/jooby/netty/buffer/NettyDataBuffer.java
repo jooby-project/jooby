@@ -122,7 +122,12 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
-  public DataBuffer ensureWritable(int capacity) {
+  public NettyDataBuffer duplicate() {
+    return new NettyDataBuffer(byteBuf.duplicate(), dataBufferFactory);
+  }
+
+  @Override
+  public NettyDataBuffer ensureWritable(int capacity) {
     this.byteBuf.ensureWritable(capacity);
     return this;
   }

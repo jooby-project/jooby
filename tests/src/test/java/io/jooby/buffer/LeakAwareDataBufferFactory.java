@@ -125,6 +125,11 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
   }
 
   @Override
+  public DataBuffer wrap(byte[] bytes, int offset, int length) {
+    return this.delegate.wrap(bytes, offset, length);
+  }
+
+  @Override
   public DataBuffer join(List<? extends DataBuffer> dataBuffers) {
     // Remove LeakAwareDataBuffer wrapper so delegate can find native buffers
     dataBuffers =

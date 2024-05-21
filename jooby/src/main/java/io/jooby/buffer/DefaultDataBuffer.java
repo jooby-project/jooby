@@ -167,6 +167,11 @@ public class DefaultDataBuffer implements DataBuffer {
     return this.capacity;
   }
 
+  @Override
+  public DataBuffer duplicate() {
+    return new DefaultDataBuffer(this.dataBufferFactory, byteBuffer.duplicate());
+  }
+
   private void setCapacity(int newCapacity) {
     if (newCapacity < 0) {
       throw new IllegalArgumentException(
