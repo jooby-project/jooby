@@ -5,8 +5,6 @@
  */
 package io.jooby.internal.netty;
 
-import static io.netty.handler.flush.FlushConsolidationHandler.DEFAULT_EXPLICIT_FLUSH_AFTER_FLUSHES;
-
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
@@ -18,7 +16,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.ssl.SslContext;
 
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
@@ -71,7 +68,11 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     if (sslContext != null) {
       p.addLast("ssl", sslContext.newHandler(ch.alloc()));
     }
-    p.addLast(new FlushConsolidationHandler(DEFAULT_EXPLICIT_FLUSH_AFTER_FLUSHES, true));
+    // https://github.com/jooby-project/jooby/issues/3433:
+    // using new FlushConsolidationHandler(DEFAULT_EXPLICIT_FLUSH_AFTER_FLUSHES, true)
+    // cause the bug, for now I'm going to remove flush consolidating handler... doesn't seem to
+    // help much
+    // p.addLast(new FlushConsolidationHandler(DEFAULT_EXPLICIT_FLUSH_AFTER_FLUSHES, false));
     if (http2) {
       var settings = new Http2Settings(maxRequestSize, sslContext != null);
       var extension =
