@@ -24,7 +24,7 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
    * @see #DefaultDataBufferFactory()
    * @see #DefaultDataBufferFactory(boolean)
    */
-  public static final int DEFAULT_INITIAL_CAPACITY = 4096;
+  public static final int DEFAULT_INITIAL_CAPACITY = 1024;
 
   /**
    * Shared instance based on the default constructor.
@@ -35,7 +35,7 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
 
   private final boolean preferDirect;
 
-  private final int defaultInitialCapacity;
+  private int defaultInitialCapacity;
 
   /**
    * Creates a new {@code DefaultDataBufferFactory} with default settings.
@@ -67,6 +67,17 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
     Assert.isTrue(defaultInitialCapacity > 0, "'defaultInitialCapacity' should be larger than 0");
     this.preferDirect = preferDirect;
     this.defaultInitialCapacity = defaultInitialCapacity;
+  }
+
+  @Override
+  public int getDefaultInitialCapacity() {
+    return defaultInitialCapacity;
+  }
+
+  @Override
+  public DataBufferFactory setDefaultInitialCapacity(int defaultInitialCapacity) {
+    this.defaultInitialCapacity = defaultInitialCapacity;
+    return this;
   }
 
   @Override

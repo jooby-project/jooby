@@ -56,6 +56,17 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
     this.delegate = delegate;
   }
 
+  @Override
+  public int getDefaultInitialCapacity() {
+    return delegate.getDefaultInitialCapacity();
+  }
+
+  @Override
+  public DataBufferFactory setDefaultInitialCapacity(int defaultInitialCapacity) {
+    delegate.setDefaultInitialCapacity(defaultInitialCapacity);
+    return this;
+  }
+
   /**
    * Checks whether all the data buffers allocated by this factory have also been released. If not,
    * then an {@link AssertionError} is thrown. Typically used from a JUnit <em>after</em> method.

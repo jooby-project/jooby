@@ -17,6 +17,20 @@ import java.util.List;
  * @see DataBuffer
  */
 public interface DataBufferFactory {
+  /**
+   * Buffer of a default initial capacity. Default capacity is <code>1024</code> bytes.
+   *
+   * @return buffer of a default initial capacity.
+   */
+  int getDefaultInitialCapacity();
+
+  /**
+   * Set default buffer initial capacity.
+   *
+   * @param defaultInitialCapacity Default initial buffer capacity.
+   * @return This buffer factory.
+   */
+  DataBufferFactory setDefaultInitialCapacity(int defaultInitialCapacity);
 
   /**
    * Allocate a data buffer of a default initial capacity. Depending on the underlying

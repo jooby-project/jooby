@@ -41,6 +41,7 @@ public class NettyDataBufferFactory implements DataBufferFactory {
   }
 
   private final ByteBufAllocator byteBufAllocator;
+  private int defaultInitialCapacity = 1024;
 
   /**
    * Create a new {@code NettyDataBufferFactory} based on the given factory.
@@ -64,9 +65,19 @@ public class NettyDataBufferFactory implements DataBufferFactory {
   }
 
   @Override
+  public int getDefaultInitialCapacity() {
+    return defaultInitialCapacity;
+  }
+
+  @Override
+  public NettyDataBufferFactory setDefaultInitialCapacity(int defaultInitialCapacity) {
+    this.defaultInitialCapacity = defaultInitialCapacity;
+    return this;
+  }
+
+  @Override
   public NettyDataBuffer allocateBuffer() {
-    ByteBuf byteBuf = this.byteBufAllocator.buffer();
-    return new NettyDataBuffer(byteBuf, this);
+    return allocateBuffer(defaultInitialCapacity);
   }
 
   @Override
