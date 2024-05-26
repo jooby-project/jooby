@@ -10,21 +10,16 @@ import java.io.Writer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 class DataBufferWriter extends Writer {
   private final DataBuffer dataBuffer;
   private final Charset charset;
-
   private boolean closed;
 
   public DataBufferWriter(DataBuffer dataBuffer, Charset charset) {
     this.dataBuffer = dataBuffer;
     this.charset = charset;
-  }
-
-  @Override
-  public void write(char[] buffer, int off, int len) throws IOException {
-    checkClosed();
-    dataBuffer.write(CharBuffer.wrap(buffer, off, len), charset);
   }
 
   @Override
@@ -34,21 +29,26 @@ class DataBufferWriter extends Writer {
   }
 
   @Override
-  public void write(String str) throws IOException {
-    checkClosed();
-    dataBuffer.write(str, charset);
+  public void write(@NonNull char[] source) throws IOException {
+    write(source, 0, source.length);
   }
 
   @Override
-  public void write(char[] cbuf) throws IOException {
+  public void write(@NonNull char[] source, int off, int len) throws IOException {
     checkClosed();
-    dataBuffer.write(CharBuffer.wrap(cbuf), charset);
+    dataBuffer.write(CharBuffer.wrap(source, off, len), charset);
   }
 
   @Override
-  public void write(String str, int off, int len) throws IOException {
+  public void write(@NonNull String source) throws IOException {
     checkClosed();
-    dataBuffer.write(CharBuffer.wrap(str, off, off + len), charset);
+    dataBuffer.write(CharBuffer.wrap(source), charset);
+  }
+
+  @Override
+  public void write(@NonNull String source, int off, int len) throws IOException {
+    checkClosed();
+    dataBuffer.write(CharBuffer.wrap(source, off, off + len), charset);
   }
 
   @Override
@@ -64,7 +64,7 @@ class DataBufferWriter extends Writer {
 
   private void checkClosed() throws IOException {
     if (this.closed) {
-      throw new IOException("DataBufferOutputStream is closed");
+      throw new IOException("DataBufferWriter is closed");
     }
   }
 }

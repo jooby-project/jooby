@@ -241,35 +241,48 @@ public interface DataBuffer {
     Assert.notNull(charSequence, "CharSequence must not be null");
     Assert.notNull(charset, "Charset must not be null");
     if (!charSequence.isEmpty()) {
-      CharsetEncoder encoder =
-          charset
-              .newEncoder()
-              .onMalformedInput(CodingErrorAction.REPLACE)
-              .onUnmappableCharacter(CodingErrorAction.REPLACE);
-      CharBuffer src = CharBuffer.wrap(charSequence);
-      int averageSize = (int) Math.ceil(src.remaining() * encoder.averageBytesPerChar());
-      ensureWritable(averageSize);
-      while (true) {
-        CoderResult cr;
-        if (src.hasRemaining()) {
-          try (ByteBufferIterator iterator = writableByteBuffers()) {
-            Assert.state(iterator.hasNext(), "No ByteBuffer available");
-            ByteBuffer dest = iterator.next();
-            cr = encoder.encode(src, dest, true);
-            if (cr.isUnderflow()) {
-              cr = encoder.flush(dest);
-            }
-            writePosition(writePosition() + dest.position());
+      write(CharBuffer.wrap(charSequence), charset);
+    }
+    return this;
+  }
+
+  /**
+   * Write the given {@code CharBuffer} using the given {@code Charset}, starting at the current
+   * writing position.
+   *
+   * @param src the char sequence to write into this buffer
+   * @param charset the charset to encode the char sequence with
+   * @return this buffer
+   * @since 5.1.4
+   */
+  default DataBuffer write(CharBuffer src, Charset charset) {
+    CharsetEncoder encoder =
+        charset
+            .newEncoder()
+            .onMalformedInput(CodingErrorAction.REPLACE)
+            .onUnmappableCharacter(CodingErrorAction.REPLACE);
+    int averageSize = (int) Math.ceil(src.remaining() * encoder.averageBytesPerChar());
+    ensureWritable(averageSize);
+    while (true) {
+      CoderResult cr;
+      if (src.hasRemaining()) {
+        try (ByteBufferIterator iterator = writableByteBuffers()) {
+          Assert.state(iterator.hasNext(), "No ByteBuffer available");
+          ByteBuffer dest = iterator.next();
+          cr = encoder.encode(src, dest, true);
+          if (cr.isUnderflow()) {
+            cr = encoder.flush(dest);
           }
-        } else {
-          cr = CoderResult.UNDERFLOW;
+          writePosition(writePosition() + dest.position());
         }
-        if (cr.isUnderflow()) {
-          break;
-        } else if (cr.isOverflow()) {
-          int maxSize = (int) Math.ceil(src.remaining() * encoder.maxBytesPerChar());
-          ensureWritable(maxSize);
-        }
+      } else {
+        cr = CoderResult.UNDERFLOW;
+      }
+      if (cr.isUnderflow()) {
+        break;
+      } else if (cr.isOverflow()) {
+        int maxSize = (int) Math.ceil(src.remaining() * encoder.maxBytesPerChar());
+        ensureWritable(maxSize);
       }
     }
     return this;
