@@ -87,7 +87,7 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(@NonNull Jooby application) {
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 

@@ -48,7 +48,7 @@ class DataBufferWriter extends Writer {
   @Override
   public void write(String str, int off, int len) throws IOException {
     checkClosed();
-    dataBuffer.write(CharBuffer.wrap(str, off, len), charset);
+    dataBuffer.write(CharBuffer.wrap(str, off, off + len), charset);
   }
 
   @Override
