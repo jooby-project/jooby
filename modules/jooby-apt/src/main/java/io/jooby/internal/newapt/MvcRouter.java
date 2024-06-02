@@ -16,6 +16,7 @@ import javax.lang.model.element.TypeElement;
 
 import com.squareup.javapoet.*;
 import io.jooby.apt.MvcContext;
+import io.jooby.internal.apt.TypeDefinition;
 
 public class MvcRouter {
   private final MvcContext context;
@@ -36,7 +37,7 @@ public class MvcRouter {
   }
 
   public String getGeneratedType() {
-    return getTargetType().getQualifiedName().toString();
+    return getTargetType().getQualifiedName().toString() + "_";
   }
 
   public MvcRouter put(TypeElement httpMethod, ExecutableElement route) {
@@ -83,12 +84,13 @@ public class MvcRouter {
             routerType);
     var supplierType =
         ParameterizedTypeName.get(
-            ClassName.get(elements.getTypeElement("java.util.function.Supplier")), routerType);
+            ClassName.get(elements.getTypeElement("jakarta.inject.Provider")), routerType);
     var classType =
         ParameterizedTypeName.get(
             ClassName.get(elements.getTypeElement("java.lang.Class")), routerType);
 
-    var source = TypeSpec.classBuilder(getTargetType().getSimpleName() + "_");
+    var generateTypeName = getTargetType().getSimpleName() + "_";
+    var source = TypeSpec.classBuilder(generateTypeName);
     source.addModifiers(Modifier.PUBLIC);
     source.addSuperinterface(
         environment.getElementUtils().getTypeElement("io.jooby.MvcExtension").asType());
@@ -127,6 +129,28 @@ public class MvcRouter {
     source.addMethod(install.build());
 
     routes.stream().map(MvcRoute::generateHandlerCall).forEach(source::addMethod);
+
+    // TODO: remove at some point
+    source.addSuperinterface(
+        environment.getElementUtils().getTypeElement("io.jooby.MvcFactory").asType());
+    var supports = MethodSpec.methodBuilder("supports");
+    supports.addModifiers(Modifier.PUBLIC);
+    supports.addParameter(ParameterSpec.builder(Class.class, "type").build());
+    supports.addStatement(CodeBlock.of("return type == $L.class", getTargetType().getSimpleName()));
+    supports.returns(boolean.class);
+    source.addMethod(supports.build());
+
+    var create = MethodSpec.methodBuilder("create");
+    create.addModifiers(Modifier.PUBLIC);
+    var rawProvider =
+        new TypeDefinition(
+            context.getProcessingEnvironment().getTypeUtils(),
+            elements.getTypeElement("jakarta.inject.Provider").asType());
+    create.addParameter(
+        ParameterSpec.builder(TypeName.get(rawProvider.getRawType()), "provider").build());
+    create.addStatement("return new $L(provider)", generateTypeName);
+    create.returns(TypeName.get(elements.getTypeElement("io.jooby.Extension").asType()));
+    source.addMethod(create.build());
 
     return JavaFile.builder(getPackageName(), source.build()).build();
   }

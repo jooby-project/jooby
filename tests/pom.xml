@@ -263,8 +263,8 @@
             <id>compile</id>
             <configuration>
               <sourceDirs>
-                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
                 <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
               </sourceDirs>
               <jvmTarget>17</jvmTarget>
             </configuration>

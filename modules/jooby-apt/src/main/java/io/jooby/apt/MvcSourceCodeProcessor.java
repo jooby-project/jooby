@@ -8,6 +8,7 @@ package io.jooby.apt;
 import static java.util.Optional.ofNullable;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,6 +17,7 @@ import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
+import javax.tools.StandardLocation;
 
 import io.jooby.internal.apt.Annotations;
 import io.jooby.internal.apt.Opts;
@@ -55,7 +57,7 @@ public class MvcSourceCodeProcessor extends AbstractProcessor {
 
     if (roundEnv.processingOver()) {
       if (context.generateServices()) {
-        // TODO: doServices(processingEnv.getFiler(), modules);
+        doServices(context.getProcessingEnvironment().getFiler(), context.getRouters());
       }
       return false;
     } else {
@@ -66,11 +68,32 @@ public class MvcSourceCodeProcessor extends AbstractProcessor {
           var javaFile = router.toSourceCode();
           context.debug("%s", javaFile);
           javaFile.writeTo(filer);
+          context.add(router);
         } catch (IOException cause) {
           throw new RuntimeException("Unable to generate: " + router.getTargetType(), cause);
         }
       }
       return true;
+    }
+  }
+
+  private void doServices(Filer filer, List<MvcRouter> routers) {
+    try {
+      var location = "META-INF/services/io.jooby.MvcFactory";
+      context.debug("%s", location);
+
+      var resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
+      var content = new StringBuilder();
+      for (var router : routers) {
+        String classname = router.getGeneratedType();
+        context.debug("  %s", classname);
+        content.append(classname).append(System.lineSeparator());
+      }
+      try (PrintWriter writer = new PrintWriter(resource.openOutputStream())) {
+        writer.println(content);
+      }
+    } catch (IOException cause) {
+      throw propagate(cause);
     }
   }
 
@@ -192,5 +215,49 @@ public class MvcSourceCodeProcessor extends AbstractProcessor {
     }
 
     return options;
+  }
+
+  /**
+   * Throws any throwable 'sneakily' - you don't need to catch it, nor declare that you throw it
+   * onwards. The exception is still thrown - javac will just stop whining about it.
+   *
+   * <p>Example usage:
+   *
+   * <pre>public void run() {
+   *     throw sneakyThrow(new IOException("You don't need to catch me!"));
+   * }</pre>
+   *
+   * <p>NB: The exception is not wrapped, ignored, swallowed, or redefined. The JVM actually does
+   * not know or care about the concept of a 'checked exception'. All this method does is hide the
+   * act of throwing a checked exception from the java compiler.
+   *
+   * <p>Note that this method has a return type of {@code RuntimeException}; it is advised you
+   * always call this method as argument to the {@code throw} statement to avoid compiler errors
+   * regarding no return statement and similar problems. This method won't of course return an
+   * actual {@code RuntimeException} - it never returns, it always throws the provided exception.
+   *
+   * @param x The throwable to throw without requiring you to catch its type.
+   * @return A dummy RuntimeException; this method never returns normally, it <em>always</em> throws
+   *     an exception!
+   */
+  public static RuntimeException propagate(final Throwable x) {
+    if (x == null) {
+      throw new NullPointerException("x");
+    }
+
+    sneakyThrow0(x);
+    return null;
+  }
+
+  /**
+   * Make a checked exception un-checked and rethrow it.
+   *
+   * @param x Exception to throw.
+   * @param <E> Exception type.
+   * @throws E Exception to throw.
+   */
+  @SuppressWarnings("unchecked")
+  private static <E extends Throwable> void sneakyThrow0(final Throwable x) throws E {
+    throw (E) x;
   }
 }

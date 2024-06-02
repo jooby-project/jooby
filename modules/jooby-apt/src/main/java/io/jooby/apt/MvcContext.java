@@ -15,6 +15,7 @@ import javax.tools.Diagnostic;
 
 import io.jooby.internal.apt.Annotations;
 import io.jooby.internal.apt.Opts;
+import io.jooby.internal.newapt.MvcRouter;
 
 public class MvcContext {
   private final ProcessingEnvironment processingEnvironment;
@@ -23,7 +24,7 @@ public class MvcContext {
   private final boolean services;
   private int round;
   private final Messager messager;
-  private final Map<Object, Object> attributes = new HashMap<>();
+  private final List<MvcRouter> routers = new ArrayList<>();
 
   public MvcContext(ProcessingEnvironment processingEnvironment, Messager messager) {
     this.processingEnvironment = processingEnvironment;
@@ -36,12 +37,16 @@ public class MvcContext {
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
   }
 
-  public ProcessingEnvironment getProcessingEnvironment() {
-    return processingEnvironment;
+  public void add(MvcRouter router) {
+    routers.add(router);
   }
 
-  public Map<Object, Object> getAttributes() {
-    return attributes;
+  public List<MvcRouter> getRouters() {
+    return routers;
+  }
+
+  public ProcessingEnvironment getProcessingEnvironment() {
+    return processingEnvironment;
   }
 
   public boolean isHttpMethod(TypeElement annotated) {
