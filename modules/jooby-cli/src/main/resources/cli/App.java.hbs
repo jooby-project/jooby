@@ -14,7 +14,7 @@ public class App extends Jooby {
     install(new OpenAPIModule());
   {{/if}}
   {{#if mvc}}
-    mvc(new Controller());
+    mvc(new Controller_());
   {{else}}
     get("/", ctx -> "Welcome to Jooby!");
   {{/if}}
