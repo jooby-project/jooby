@@ -527,6 +527,16 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
+  public Jooby mvc(@NonNull MvcExtension router) {
+    try {
+      router.install(this);
+      return this;
+    } catch (Exception cause) {
+      throw SneakyThrows.propagate(cause);
+    }
+  }
+
+  @NonNull @Override
   public Jooby mvc(@NonNull Object router) {
     Provider provider = () -> router;
     return mvc(router.getClass(), provider);

@@ -127,8 +127,7 @@ public class RouteAttributesWriter {
     this.userAttrFilter = userAttrFilter;
   }
 
-  public void process(ExecutableElement method, BiConsumer<String, Object[]> log)
-      throws NoSuchMethodException {
+  public void process(ExecutableElement method, BiConsumer<String, Object[]> log) {
     Map<String, Object> attributes = annotationMap(method);
     for (Map.Entry<String, Object> attribute : attributes.entrySet()) {
       String name = attribute.getKey();

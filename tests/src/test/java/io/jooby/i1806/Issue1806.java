@@ -16,7 +16,7 @@ public class Issue1806 {
     runner
         .define(
             app -> {
-              app.mvc(new C1806());
+              app.mvc(new C1806_());
               app.get("/1806/s", ctx -> ctx.query("names").toList(String.class));
             })
         .ready(

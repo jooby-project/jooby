@@ -197,7 +197,7 @@ public class ModuleCompiler {
       visitor.visitLdcInsn(handler.getPattern());
 
       if (handler.isSuspendFunction()) {
-        visitor.visitTypeInsn(NEW, "io/jooby/internal/kt/CoroutineLauncher");
+        visitor.visitTypeInsn(NEW, "io/jooby/kt/CoroutineHandler");
         visitor.visitInsn(DUP);
       }
 
@@ -206,7 +206,7 @@ public class ModuleCompiler {
       if (handler.isSuspendFunction()) {
         visitor.visitMethodInsn(
             INVOKESPECIAL,
-            "io/jooby/internal/kt/CoroutineLauncher",
+            "io/jooby/kt/CoroutineHandler",
             "<init>",
             "(Lio/jooby/Route$Handler;)V",
             false);

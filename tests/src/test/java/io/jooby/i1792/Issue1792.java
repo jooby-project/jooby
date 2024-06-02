@@ -17,7 +17,7 @@ public class Issue1792 {
     runner
         .define(
             app -> {
-              app.mvc(new Controller1792());
+              app.mvc(new Controller1792_());
               app.post("/s/1792", ctx -> StatusCode.CREATED);
             })
         .ready(

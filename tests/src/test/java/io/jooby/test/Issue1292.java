@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 
 import io.jooby.Context;
 import io.jooby.Jooby;
-import io.jooby.i1292.Controller1292;
+import io.jooby.i1292.Controller1292_;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -43,7 +43,7 @@ public class Issue1292 {
               app.domain(
                   "mvc.devd.io",
                   () -> {
-                    app.mvc(new Controller1292());
+                    app.mvc(new Controller1292_());
                   });
 
               app.domain("subapp.devd.io", new SubApp());

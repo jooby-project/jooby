@@ -16,7 +16,7 @@ public class Issue1805 {
     runner
         .define(
             app -> {
-              app.mvc(new C1805());
+              app.mvc(new C1805_());
             })
         .ready(
             client -> {

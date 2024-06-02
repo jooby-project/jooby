@@ -25,7 +25,7 @@ public class Issue2477 {
                         }
                         return value;
                       });
-              app.mvc(new Controller2477());
+              app.mvc(new Controller2477_());
             })
         .ready(
             http -> {

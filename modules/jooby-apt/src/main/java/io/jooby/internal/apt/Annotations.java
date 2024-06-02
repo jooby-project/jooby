@@ -5,21 +5,15 @@
  */
 package io.jooby.internal.apt;
 
-import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.toUnmodifiableSet;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.ExecutableElement;
 
 /**
  * Annotation constants used by the APT.
@@ -100,60 +94,59 @@ public interface Annotations {
 
   /** HTTP method supported. */
   Set<String> HTTP_METHODS =
-      Stream.of(
-              GET,
-              JAXRS_GET,
-              POST,
-              JAXRS_POST,
-              PUT,
-              JAXRS_PUT,
-              DELETE,
-              JAXRS_DELETE,
-              PATCH,
-              JAXRS_PATCH,
-              HEAD,
-              JAXRS_HEAD,
-              OPTIONS,
-              JAXRS_OPTIONS,
-              CONNECT,
-              TRACE)
-          .collect(toUnmodifiableSet());
+      Set.of(
+          GET,
+          JAXRS_GET,
+          POST,
+          JAXRS_POST,
+          PUT,
+          JAXRS_PUT,
+          DELETE,
+          JAXRS_DELETE,
+          PATCH,
+          JAXRS_PATCH,
+          HEAD,
+          JAXRS_HEAD,
+          OPTIONS,
+          JAXRS_OPTIONS,
+          CONNECT,
+          TRACE);
 
   /** Path parameters. */
-  Set<String> PATH_PARAMS = Stream.of(PathParam, JAXRS_PATH_PARAM).collect(toUnmodifiableSet());
+  Set<String> PATH_PARAMS = Set.of(PathParam, JAXRS_PATH_PARAM);
 
   /** Context params. */
-  Set<String> CONTEXT_PARAMS = Stream.of(ContextParam, JAXRS_CONTEXT).collect(toUnmodifiableSet());
+  Set<String> CONTEXT_PARAMS = Set.of(ContextParam, JAXRS_CONTEXT);
 
   /** Query parameters. */
-  Set<String> QUERY_PARAMS = Stream.of(QueryParam, JAXRS_QUERY).collect(toUnmodifiableSet());
+  Set<String> QUERY_PARAMS = Set.of(QueryParam, JAXRS_QUERY);
 
   /** Session parameters. */
-  Set<String> SESSION_PARAMS = singleton(SessionParam);
+  Set<String> SESSION_PARAMS = Set.of(SessionParam);
 
   /** Cookie parameters. */
-  Set<String> COOKIE_PARAMS = Stream.of(CookieParam, JAXRS_COOKIE).collect(toUnmodifiableSet());
+  Set<String> COOKIE_PARAMS = Set.of(CookieParam, JAXRS_COOKIE);
 
   /** Header parameters. */
-  Set<String> HEADER_PARAMS = Stream.of(HeaderParam, JAXRS_HEADER).collect(toUnmodifiableSet());
+  Set<String> HEADER_PARAMS = Set.of(HeaderParam, JAXRS_HEADER);
 
   /** Flash parameters. */
-  Set<String> FLASH_PARAMS = Stream.of(FlashParam).collect(toUnmodifiableSet());
+  Set<String> FLASH_PARAMS = Set.of(FlashParam);
 
   /** Form parameters. */
-  Set<String> FORM_PARAMS = Stream.of(FormParam, JAXRS_FORM).collect(toUnmodifiableSet());
+  Set<String> FORM_PARAMS = Set.of(FormParam, JAXRS_FORM);
 
   /** Parameter lookup. */
-  Set<String> PARAM_LOOKUP = Stream.of(Param).collect(toUnmodifiableSet());
+  Set<String> PARAM_LOOKUP = Set.of(Param);
 
   /** Produces parameters. */
-  Set<String> PRODUCES_PARAMS = Stream.of(Produces, JAXRS_PRODUCES).collect(toUnmodifiableSet());
+  Set<String> PRODUCES_PARAMS = Set.of(Produces, JAXRS_PRODUCES);
 
   /** Consumes parameters. */
-  Set<String> CONSUMES_PARAMS = Stream.of(Consumes, JAXRS_CONSUMES).collect(toUnmodifiableSet());
+  Set<String> CONSUMES_PARAMS = Set.of(Consumes, JAXRS_CONSUMES);
 
   /** Path parameters. */
-  Set<String> PATH = Stream.of(Path, JAXRS_PATH).collect(toUnmodifiableSet());
+  Set<String> PATH = Set.of(Path, JAXRS_PATH);
 
   /**
    * Get an annotation value.
@@ -177,19 +170,22 @@ public interface Annotations {
    */
   static <T> List<T> attribute(
       AnnotationMirror mirror, String name, Function<AnnotationValue, T> mapper) {
-
-    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry :
-        mirror.getElementValues().entrySet()) {
-      if (entry.getKey().getSimpleName().toString().equals(name)) {
-        Object value = entry.getValue().getValue();
-        if (value instanceof List) {
-          List<AnnotationValue> values = (List<AnnotationValue>) value;
-          return values.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toList());
+    if (mirror != null) {
+      for (var entry : mirror.getElementValues().entrySet()) {
+        if (entry.getKey().getSimpleName().toString().equals(name)) {
+          Object value = entry.getValue().getValue();
+          if (value instanceof List) {
+            List<AnnotationValue> values = (List<AnnotationValue>) value;
+            return values.stream()
+                .map(mapper)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+          }
+          T singleValue = mapper.apply(entry.getValue());
+          return singleValue == null
+              ? Collections.emptyList()
+              : Collections.singletonList(singleValue);
         }
-        T singleValue = mapper.apply(entry.getValue());
-        return singleValue == null
-            ? Collections.emptyList()
-            : Collections.singletonList(singleValue);
       }
     }
     return Collections.emptyList();

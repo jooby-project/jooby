@@ -69,6 +69,7 @@ public class JoobyProcessor extends AbstractProcessor {
   private int round;
   private Map<TypeElement, String> modules = new LinkedHashMap<>();
   private Set<String> alreadyProcessed = new HashSet<>();
+  private MvcSourceCodeProcessor sourceCodeProcessor = new MvcSourceCodeProcessor();
 
   @Override
   public Set<String> getSupportedOptions() {
@@ -102,6 +103,7 @@ public class JoobyProcessor extends AbstractProcessor {
 
   @Override
   public synchronized void init(ProcessingEnvironment processingEnvironment) {
+    sourceCodeProcessor.init(processingEnvironment);
     this.processingEnv = processingEnvironment;
 
     debug = Opts.boolOpt(processingEnv, Opts.OPT_DEBUG, false);
@@ -118,6 +120,7 @@ public class JoobyProcessor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     try {
+      sourceCodeProcessor.process(annotations, roundEnv);
       debug("Round #%s", round++);
       if (roundEnv.processingOver()) {
         if (services) {

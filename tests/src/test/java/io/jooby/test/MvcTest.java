@@ -14,17 +14,7 @@ import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Assertions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import examples.InstanceRouter;
-import examples.JAXRS;
-import examples.LoopDispatch;
-import examples.Message;
-import examples.MvcBody;
-import examples.MyValueRouter;
-import examples.NoTopLevelPath;
-import examples.NullInjection;
-import examples.ProducesConsumes;
-import examples.Provisioning;
-import examples.TopDispatch;
+import examples.*;
 import io.jooby.Context;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
@@ -44,7 +34,7 @@ public class MvcTest {
     runner
         .define(
             app -> {
-              app.mvc(new InstanceRouter());
+              app.install(new InstanceRouter_());
             })
         .ready(
             client -> {
@@ -88,7 +78,7 @@ public class MvcTest {
         .define(
             app -> {
               Jooby sub = new Jooby();
-              sub.mvc(new InstanceRouter());
+              sub.mvc(new InstanceRouter_());
               app.mount("/sub", sub);
             })
         .ready(
@@ -163,7 +153,7 @@ public class MvcTest {
                     }
                   });
 
-              app.mvc(new ProducesConsumes());
+              app.mvc(new ProducesConsumes_());
             })
         .ready(
             client -> {
@@ -222,7 +212,7 @@ public class MvcTest {
     runner
         .define(
             app -> {
-              app.mvc(new JAXRS());
+              app.mvc(new JAXRS_());
             })
         .ready(
             client -> {
@@ -239,7 +229,7 @@ public class MvcTest {
     runner
         .define(
             app -> {
-              app.mvc(new NoTopLevelPath());
+              app.mvc(new NoTopLevelPath_());
             })
         .ready(
             client -> {
@@ -262,7 +252,7 @@ public class MvcTest {
     runner
         .define(
             app -> {
-              app.mvc(new Provisioning());
+              app.mvc(new Provisioning_());
             })
         .ready(
             client -> {
@@ -424,7 +414,7 @@ public class MvcTest {
     runner
         .define(
             app -> {
-              app.mvc(new NullInjection());
+              app.mvc(new NullInjection_());
 
               app.error(
                   (ctx, cause, statusCode) -> {
@@ -482,7 +472,7 @@ public class MvcTest {
             app -> {
               app.install(new JacksonModule());
 
-              app.mvc(new MvcBody());
+              app.mvc(new MvcBody_());
 
               app.error(
                   (ctx, cause, statusCode) -> {
@@ -547,7 +537,7 @@ public class MvcTest {
         .define(
             app -> {
               app.converter(new MyValueBeanConverter());
-              app.mvc(new MyValueRouter());
+              app.mvc(new MyValueRouter_());
             })
         .ready(
             client -> {
@@ -567,7 +557,7 @@ public class MvcTest {
               app.executor(
                   "single", Executors.newSingleThreadExecutor(r -> new Thread(r, "single")));
 
-              app.mvc(new TopDispatch());
+              app.mvc(new TopDispatch_());
             })
         .ready(
             client -> {
@@ -594,7 +584,7 @@ public class MvcTest {
               app.executor(
                   "single", Executors.newSingleThreadExecutor(r -> new Thread(r, "single")));
 
-              app.mvc(new LoopDispatch());
+              app.mvc(new LoopDispatch_());
             })
         .ready(
             client -> {

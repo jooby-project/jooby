@@ -21,7 +21,7 @@ public class Issue1391 {
         .define(
             app -> {
               app.install(new JacksonModule());
-              app.mvc(new Controller1391());
+              app.mvc(new Controller1391_());
             })
         .ready(
             client -> {

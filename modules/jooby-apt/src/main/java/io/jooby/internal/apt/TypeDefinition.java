@@ -40,6 +40,38 @@ public class TypeDefinition {
     this.type = type;
   }
 
+  public String toSourceCode() {
+    return toSourceCode(this);
+  }
+
+  private static String toSourceCode(TypeDefinition type) {
+    if (type.isParameterizedType()) {
+      var buffer = new StringBuilder();
+      var methodName =
+          switch (type.getRawType().toString()) {
+            case "java.util.Optional" -> "optional";
+            case "java.util.List" -> "list";
+            case "java.util.Set" -> "set";
+            case "java.util.Map" -> "map";
+            default -> "getParameterized";
+          };
+      buffer.append("io.jooby.Reified.").append(methodName).append("(");
+      var separator = ", ";
+      if (methodName.equals("getParameterized")) {
+        // Add raw type
+        buffer.append(type.getRawType().toString()).append(".class, ");
+      }
+      for (TypeDefinition arg : type.getArguments()) {
+        buffer.append(toSourceCode(arg)).append(separator);
+      }
+      buffer.setLength(buffer.length() - separator.length());
+      buffer.append(").getType()");
+      return buffer.toString();
+    } else {
+      return type.getRawType().toString() + ".class";
+    }
+  }
+
   /**
    * Check for declared type and get the underlying type. This is required for annotated type.
    * Example:
@@ -108,7 +140,8 @@ public class TypeDefinition {
     if (!erasure.toString().equals(typeName)) {
       // check for enum subclasses:
       if (Enum.class.getName().equals(typeName)) {
-        return typeUtils.asElement(realType).getKind() == ElementKind.ENUM;
+        var element = typeUtils.asElement(realType);
+        return element != null && element.getKind() == ElementKind.ENUM;
       } else {
         return false;
       }
