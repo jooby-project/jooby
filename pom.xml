@@ -19,7 +19,7 @@
     <shaded.package>io.jooby.internal.\$shaded</shaded.package>
 
     <!-- Parser and Renderer -->
-    <freemarker.version>2.3.32</freemarker.version>
+    <freemarker.version>2.3.33</freemarker.version>
     <handlebars.version>4.4.0</handlebars.version>
     <jstachio.version>1.3.5</jstachio.version>
     <pebble.version>3.2.2</pebble.version>
@@ -92,7 +92,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.730</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.734</aws-java-sdk.version>
     <camel.version>3.22.2</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -100,7 +100,7 @@
     <commons-io.version>2.16.1</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>1.9.24</kotlin.version>
+    <kotlin.version>2.0.0</kotlin.version>
     <kotlinx-coroutines-core.version>1.8.1</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
@@ -109,7 +109,7 @@
     <junit.version>5.10.2</junit.version>
     <rest-assured.version>5.4.0</rest-assured.version>
     <mockito.version>5.12.0</mockito.version>
-    <guava.version>33.2.0-jre</guava.version>
+    <guava.version>33.2.1-jre</guava.version>
 
     <auto-service.version>1.1.1</auto-service.version>
     <compile-testing.version>0.21.0</compile-testing.version>
@@ -129,22 +129,22 @@
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-core.version>3.9.7</maven-core.version>
     <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
-    <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
+    <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
-    <maven-plugin-annotations.version>3.13.0</maven-plugin-annotations.version>
+    <maven-plugin-annotations.version>3.13.1</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.9.7</maven-plugin-api.version>
-    <maven-plugin-plugin.version>3.13.0</maven-plugin-plugin.version>
+    <maven-plugin-plugin.version>3.13.1</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
+    <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
     <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
-    <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+    <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
     <plexus-utils.version>4.0.1</plexus-utils.version>
     <stork-maven-plugin.version>3.1.3</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
