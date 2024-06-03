@@ -20,7 +20,6 @@ import javax.lang.model.element.VariableElement;
 
 import com.squareup.javapoet.CodeBlock;
 import io.jooby.internal.apt.Annotations;
-import io.jooby.internal.apt.TypeDefinition;
 
 public enum ParameterGenerator {
   ContextParam("getAttribute", "io.jooby.annotation.ContextParam") {

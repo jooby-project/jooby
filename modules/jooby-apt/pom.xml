@@ -26,13 +26,6 @@
       <version>1.13.0</version>
     </dependency>
 
-    <!-- ASM -->
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-util</artifactId>
-      <optional>true</optional>
-    </dependency>
-
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby</artifactId>

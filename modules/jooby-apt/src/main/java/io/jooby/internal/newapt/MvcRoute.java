@@ -20,7 +20,6 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import io.jooby.apt.MvcContext;
 import io.jooby.internal.apt.Annotations;
-import io.jooby.internal.apt.TypeDefinition;
 
 public class MvcRoute {
   private final MvcContext context;

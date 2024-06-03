@@ -16,7 +16,6 @@ import javax.lang.model.element.TypeElement;
 
 import com.squareup.javapoet.*;
 import io.jooby.apt.MvcContext;
-import io.jooby.internal.apt.TypeDefinition;
 
 public class MvcRouter {
   private final MvcContext context;

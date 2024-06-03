@@ -17,7 +17,6 @@ import javax.lang.model.element.VariableElement;
 import com.squareup.javapoet.CodeBlock;
 import io.jooby.apt.MvcContext;
 import io.jooby.internal.apt.Annotations;
-import io.jooby.internal.apt.TypeDefinition;
 
 public class MvcParameter {
   private static final Predicate<String> NULLABLE =
