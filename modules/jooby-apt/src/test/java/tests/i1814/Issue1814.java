@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.NewProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
@@ -17,9 +17,8 @@ public class Issue1814 {
 
   @Test
   public void shouldIgnoreWildcardResponseType() throws Exception {
-    new MvcModuleCompilerRunner(new C1814())
-        .example(Expected1814.class)
-        .module(
+    new NewProcessorRunner(new C1814())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               MockContext ctx = new MockContext();

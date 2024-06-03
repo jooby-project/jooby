@@ -9,15 +9,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.NewProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
 public class Issue2417 {
   @Test
   public void shouldNotIgnoreAnnotationOnParam() throws Exception {
-    new MvcModuleCompilerRunner(new C2417())
-        .module(
+    new NewProcessorRunner(new C2417())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals(

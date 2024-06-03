@@ -7,7 +7,7 @@ package io.jooby.apt;
 
 import static org.junit.Assert.assertTrue;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,20 +20,40 @@ import javax.tools.JavaFileObject;
 import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
-import io.jooby.internal.newapt.ConsoleMessager;
+import com.squareup.javapoet.JavaFile;
+import io.jooby.*;
 
 public class NewProcessorRunner {
-  public NewProcessorRunner(Object instance) throws Exception {
+  private final TestMvcSourceCodeProcessor processor = new TestMvcSourceCodeProcessor();
+
+  public NewProcessorRunner(Object instance) throws IOException {
     this(instance, false);
   }
 
-  public NewProcessorRunner(Object instance, boolean debug) throws Exception {
+  public NewProcessorRunner(Object instance, boolean debug) throws IOException {
     Truth.assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
         .that(sources(sourceNames(instance.getClass())))
         .withCompilerOptions("-Ajooby.debug=" + debug)
-        .processedWith(new MvcSourceCodeProcessor(new ConsoleMessager()))
+        .processedWith(processor)
         .compilesWithoutError();
+  }
+
+  public NewProcessorRunner withRouter(SneakyThrows.Consumer<Jooby> consumer) throws Exception {
+    return withRouter((app, source) -> consumer.accept(app));
+  }
+
+  public NewProcessorRunner withRouter(SneakyThrows.Consumer2<Jooby, JavaFile> consumer)
+      throws Exception {
+    var classLoader = processor.createClassLoader();
+    var factoryName = classLoader.getClassName();
+    var factoryClass = (Class<? extends MvcExtension>) classLoader.loadClass(factoryName);
+    var constructor = factoryClass.getDeclaredConstructor();
+    var extension = constructor.newInstance();
+    var application = new Jooby();
+    application.install(extension);
+    consumer.accept(application, processor.getSource());
+    return this;
   }
 
   private String[] sourceNames(Class input) {
@@ -45,7 +65,7 @@ public class NewProcessorRunner {
     return result.toArray(new String[0]);
   }
 
-  private static List<JavaFileObject> sources(String... names) throws MalformedURLException {
+  private static List<JavaFileObject> sources(String... names) throws IOException {
     Path basedir = basedir().resolve("src").resolve("test").resolve("java");
     List<JavaFileObject> sources = new ArrayList<>();
     for (String name : names) {
@@ -56,7 +76,7 @@ public class NewProcessorRunner {
               .reduce(basedir, Path::resolve, Path::resolve);
       path = path.resolve(segments[segments.length - 1] + ".java");
       assertTrue(path.toString(), Files.exists(path));
-      sources.add(JavaFileObjects.forResource(path.toUri().toURL()));
+      sources.add(JavaFileObjects.forSourceString(name, Files.readString(path)));
     }
     return sources;
   }

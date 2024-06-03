@@ -9,16 +9,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.NewProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
 public class Issue2325 {
   @Test
   public void shouldFavorNamedParamWithCustomConverter() throws Exception {
-    new MvcModuleCompilerRunner(new C2325())
-        .example(Expected2325.class)
-        .module(
+    new NewProcessorRunner(new C2325())
+        .withRouter(
             app -> {
               app.converter(new VC2325());
               MockRouter router = new MockRouter(app);
@@ -30,9 +29,8 @@ public class Issue2325 {
 
   @Test
   public void shouldNotFavorObjectConverterWhenNamedArgIsMissing() throws Exception {
-    new MvcModuleCompilerRunner(new C2325())
-        .example(Expected2325.class)
-        .module(
+    new NewProcessorRunner(new C2325())
+        .withRouter(
             app -> {
               app.converter(new VC2325());
               MockRouter router = new MockRouter(app);

@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.newapt;
 
-import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 
 import java.util.*;
@@ -37,23 +36,30 @@ public class MvcRoute {
     this.router = router;
     this.method = method;
     this.parameters =
-        ofNullable(method.getParameters()).orElse(emptyList()).stream()
-            .map(it -> new MvcParameter(context, it))
-            .toList();
+        method.getParameters().stream().map(it -> new MvcParameter(context, it)).toList();
     this.returnType =
         new TypeDefinition(
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
   }
 
+  public MvcRoute(MvcContext context, MvcRouter router, MvcRoute route) {
+    this.context = context;
+    this.router = router;
+    this.method = route.method;
+    this.parameters =
+        method.getParameters().stream().map(it -> new MvcParameter(context, it)).toList();
+    this.returnType =
+        new TypeDefinition(
+            context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
+    route.annotationMap.keySet().forEach(this::addHttpMethod);
+  }
+
   public TypeDefinition getReturnType() {
     if (returnType.isVoid()) {
+      var processingEnv = context.getProcessingEnvironment();
       return new TypeDefinition(
-          context.getProcessingEnvironment().getTypeUtils(),
-          context
-              .getProcessingEnvironment()
-              .getElementUtils()
-              .getTypeElement("io.jooby.StatusCode")
-              .asType());
+          processingEnv.getTypeUtils(),
+          processingEnv.getElementUtils().getTypeElement("io.jooby.StatusCode").asType());
     }
     return returnType;
   }
@@ -151,6 +157,11 @@ public class MvcRoute {
       methodSpec.addStatement(
           "this.provider.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
       methodSpec.addStatement("return ctx.getResponseCode()");
+    } else if (returnType.is("io.jooby.StatusCode")) {
+      methodSpec.addStatement(
+          "var statusCode = this.provider.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
+      methodSpec.addStatement("ctx.setResponseCode(statusCode)");
+      methodSpec.addStatement("return statusCode");
     } else {
       methodSpec.addStatement(
           "return this.provider.apply(ctx).$L$L", this.method.getSimpleName(), paramList);

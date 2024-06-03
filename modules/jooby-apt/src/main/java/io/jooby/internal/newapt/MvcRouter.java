@@ -32,6 +32,14 @@ public class MvcRouter {
     this.clazz = clazz;
   }
 
+  public MvcRouter(TypeElement clazz, MvcRouter parent) {
+    this.context = parent.context;
+    this.clazz = clazz;
+    for (var e : parent.routes.entrySet()) {
+      this.routes.put(e.getKey(), new MvcRoute(context, this, e.getValue()));
+    }
+  }
+
   public TypeElement getTargetType() {
     return clazz;
   }

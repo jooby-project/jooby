@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.StatusCode;
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.NewProcessorRunner;
 import io.jooby.exception.MissingValueException;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
@@ -22,8 +22,8 @@ public class Issue1786 {
 
   @Test
   public void shouldThrowMissingValueExceptionIfRequiredStringParamNotSpecified() throws Exception {
-    new MvcModuleCompilerRunner(new Controller1786())
-        .module(
+    new NewProcessorRunner(new Controller1786())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertThrows(MissingValueException.class, () -> router.get("/required-string-param"));
@@ -32,9 +32,8 @@ public class Issue1786 {
 
   @Test
   public void shouldThrowMissingValueExceptionIfRequiredParamNotSpecified() throws Exception {
-    new MvcModuleCompilerRunner(new Controller1786b())
-        .example(Expected1786b.class)
-        .module(
+    new NewProcessorRunner(new Controller1786b())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertThrows(MissingValueException.class, () -> router.get("/required-param"));
@@ -43,8 +42,8 @@ public class Issue1786 {
 
   @Test
   public void shouldReturnValueIfRequiredStringParamSpecified() throws Exception {
-    new MvcModuleCompilerRunner(new Controller1786())
-        .module(
+    new NewProcessorRunner(new Controller1786())
+        .withRouter(
             app -> {
               final String expectedValue = "non-null string";
 

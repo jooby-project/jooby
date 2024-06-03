@@ -100,6 +100,16 @@ public class RouteAttributesGenerator {
       return enumValue.type + "." + enumValue.value;
     } else if (value instanceof TypeMirror) {
       return value + ".class";
+    } else if (value instanceof Float) {
+      return value + "f";
+    } else if (value instanceof Double) {
+      return value + "d";
+    } else if (value instanceof Long) {
+      return value + "L";
+    } else if (value instanceof Short) {
+      return "(short)" + value;
+    } else if (value instanceof Byte) {
+      return "(byte)" + value;
     } else {
       return value;
     }

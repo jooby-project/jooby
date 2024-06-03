@@ -19,6 +19,7 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.tools.StandardLocation;
 
+import com.squareup.javapoet.JavaFile;
 import io.jooby.internal.apt.Annotations;
 import io.jooby.internal.apt.Opts;
 import io.jooby.internal.newapt.MvcRouter;
@@ -66,6 +67,7 @@ public class MvcSourceCodeProcessor extends AbstractProcessor {
       for (var router : routeMap.values()) {
         try {
           var javaFile = router.toSourceCode();
+          onGeneratedSource(javaFile);
           context.debug("%s", javaFile);
           javaFile.writeTo(filer);
           context.add(router);
@@ -76,6 +78,8 @@ public class MvcSourceCodeProcessor extends AbstractProcessor {
       return true;
     }
   }
+
+  protected void onGeneratedSource(JavaFile source) {}
 
   private void doServices(Filer filer, List<MvcRouter> routers) {
     try {
@@ -181,7 +185,11 @@ public class MvcSourceCodeProcessor extends AbstractProcessor {
                   }
                 });
       } else {
-        context.debug("already processed", superType);
+        if (!currentType.equals(superType)) {
+          var router =
+              registry.computeIfAbsent(
+                  currentType, key -> new MvcRouter(key, registry.get(superType)));
+        }
       }
     }
   }

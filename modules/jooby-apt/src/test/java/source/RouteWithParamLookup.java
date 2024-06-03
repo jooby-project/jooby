@@ -13,13 +13,14 @@ import static io.jooby.ParamSource.QUERY;
 import static io.jooby.ParamSource.SESSION;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.Context;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Param;
 
 public class RouteWithParamLookup {
 
   @GET("/lookup/no-sources")
-  public String lookupNoSources(@Param({}) int myParam) {
+  public String lookupNoSources(Context ctx, @Param({}) int myParam) {
     return String.valueOf(myParam);
   }
 

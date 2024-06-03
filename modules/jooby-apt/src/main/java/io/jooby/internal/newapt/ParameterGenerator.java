@@ -27,14 +27,21 @@ public enum ParameterGenerator {
     @Override
     public CodeBlock toSourceCode(
         AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
-      return CodeBlock.of("($L) ctx.$L($S)", type.getRawType().toString(), method, name);
+      if (type.is(Map.class)) {
+        return CodeBlock.of(
+            "java.util.Optional.ofNullable((java.util.Map) ctx.getAttribute($S)).orElseGet(() ->"
+                + " ctx.getAttributes())",
+            name);
+      } else {
+        return CodeBlock.of("($L) ctx.$L($S)", type.getRawType().toString(), method, name);
+      }
     }
   },
   CookieParam("cookie", "io.jooby.annotation.CookieParam", "jakarta.ws.rs.CookieParam"),
   FlashParam("flash", "io.jooby.annotation.FlashParam"),
   FormParam("form", "io.jooby.annotation.FormParam", "jakarta.ws.rs.FormParam"),
   HeaderParam("header", "io.jooby.annotation.HeaderParam", "jakarta.ws.rs.HeaderParam"),
-  Param("lookup", "io.jooby.annotation.Param"),
+  Lookup("lookup", "io.jooby.annotation.Param"),
   PathParam("path", "io.jooby.annotation.PathParam", "jakarta.ws.rs.PathParam"),
   QueryParam("query", "io.jooby.annotation.QueryParam", "jakarta.ws.rs.QueryParam"),
   SessionParam("session", "io.jooby.annotation.SessionParam"),
@@ -54,6 +61,10 @@ public enum ParameterGenerator {
             yield nullable
                 ? CodeBlock.of("ctx.$L().valueOrNull()", method)
                 : CodeBlock.of("ctx.$L().value()", method);
+          } else if (type.is(Optional.class)) {
+            yield CodeBlock.of(
+                "ctx.$L().toOptional($L)", method, type.getArguments().get(0).toSourceCode());
+
           } else {
             yield CodeBlock.of("ctx.$L($L)", method, type.toSourceCode());
           }
@@ -138,7 +149,7 @@ public enum ParameterGenerator {
   }
 
   protected String source(AnnotationMirror annotation) {
-    if (ParameterGenerator.Param.annotations.contains(annotation.getAnnotationType().toString())) {
+    if (ParameterGenerator.Lookup.annotations.contains(annotation.getAnnotationType().toString())) {
       var sources =
           Annotations.attribute(
               annotation,
