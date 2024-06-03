@@ -55,11 +55,11 @@ public class MvcRoute {
   }
 
   public TypeDefinition getReturnType() {
+    var processingEnv = context.getProcessingEnvironment();
+    var types = processingEnv.getTypeUtils();
+    var elements = processingEnv.getElementUtils();
     if (returnType.isVoid()) {
-      var processingEnv = context.getProcessingEnvironment();
-      return new TypeDefinition(
-          processingEnv.getTypeUtils(),
-          processingEnv.getElementUtils().getTypeElement("io.jooby.StatusCode").asType());
+      return new TypeDefinition(types, elements.getTypeElement("io.jooby.StatusCode").asType());
     }
     return returnType;
   }
@@ -77,8 +77,8 @@ public class MvcRoute {
   public List<CodeBlock> generateMapping() {
     List<CodeBlock> block = new ArrayList<>();
     var methodName = getGeneratedName();
-    var returnType = getReturnType();
     var isSuspend = isSuspendFun();
+    var returnType = getReturnType();
     var paramTypes = getRawParameterTypes();
     var paramString =
         paramTypes.stream().map(it -> it + ".class").collect(Collectors.joining(", "));

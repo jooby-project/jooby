@@ -535,10 +535,8 @@ public class HandlerCompilerTest {
   public void jarxs() throws Exception {
     new NewProcessorRunner(new JaxrsController())
         .withRouter(
-            (app, source) -> {
-              System.out.println(source);
+            app -> {
               MockRouter router = new MockRouter(app);
-
               assertEquals(
                   "v1",
                   router

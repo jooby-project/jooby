@@ -26,12 +26,10 @@ public class MvcParameter {
       name -> name.toLowerCase().endsWith(".nonnull") || name.toLowerCase().endsWith(".notnull");
   private final VariableElement parameter;
   private final Map<String, AnnotationMirror> annotations;
-  private final MvcContext context;
   private final TypeDefinition type;
 
   public MvcParameter(MvcContext context, VariableElement parameter) {
     this.parameter = parameter;
-    this.context = context;
     this.annotations = annotationMap(parameter);
     this.type =
         new TypeDefinition(context.getProcessingEnvironment().getTypeUtils(), parameter.asType());
@@ -92,7 +90,11 @@ public class MvcParameter {
     var rawType = type.getRawType();
     var elementType =
         type.getArguments().isEmpty() ? rawType : type.getArguments().get(0).getRawType();
-    var parameterType = elementType.toString();
+    // keep kotlin.coroutines.Continuation as main type
+    var parameterType =
+        rawType.toString().equals("kotlin.coroutines.Continuation")
+            ? rawType.toString()
+            : elementType.toString();
     return switch (parameterType) {
         /* Type Injection: */
       case "io.jooby.Context" -> CodeBlock.of("ctx");
