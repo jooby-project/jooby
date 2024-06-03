@@ -21,7 +21,7 @@ import javax.lang.model.element.VariableElement;
 import com.squareup.javapoet.CodeBlock;
 
 public enum ParameterGenerator {
-  ContextParam("getAttribute", "io.jooby.annotation.ContextParam") {
+  ContextParam("getAttribute", "io.jooby.annotation.ContextParam", "jakarta.ws.rs.core.Context") {
     @Override
     public CodeBlock toSourceCode(
         AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
@@ -17,7 +17,7 @@ public class Issue1859 {
 
   @Test
   public void shouldGetNullOnMissingBody() throws Exception {
-    new NewProcessorRunner(new C1859())
+    new ProcessorRunner(new C1859())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

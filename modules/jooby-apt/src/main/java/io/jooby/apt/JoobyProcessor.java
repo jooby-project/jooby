@@ -32,16 +32,16 @@ import io.jooby.internal.apt.Opts;
   Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
-public class MvcSourceCodeProcessor extends AbstractProcessor {
+public class JoobyProcessor extends AbstractProcessor {
   private MvcContext context;
   private Messager messager;
   private final Set<Object> processed = new HashSet<>();
 
-  public MvcSourceCodeProcessor(Messager messager) {
+  public JoobyProcessor(Messager messager) {
     this.messager = messager;
   }
 
-  public MvcSourceCodeProcessor() {}
+  public JoobyProcessor() {}
 
   @Override
   public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -186,9 +186,8 @@ public class MvcSourceCodeProcessor extends AbstractProcessor {
                 });
       } else {
         if (!currentType.equals(superType)) {
-          var router =
-              registry.computeIfAbsent(
-                  currentType, key -> new MvcRouter(key, registry.get(superType)));
+          // edge case when controller has no method and extends another class which has.
+          registry.computeIfAbsent(currentType, key -> new MvcRouter(key, registry.get(superType)));
         }
       }
     }

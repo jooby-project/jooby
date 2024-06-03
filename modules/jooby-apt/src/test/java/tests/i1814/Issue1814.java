@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
@@ -17,7 +17,7 @@ public class Issue1814 {
 
   @Test
   public void shouldIgnoreWildcardResponseType() throws Exception {
-    new NewProcessorRunner(new C1814())
+    new ProcessorRunner(new C1814())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

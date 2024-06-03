@@ -11,14 +11,14 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockRouter;
 
 public class Issue1806 {
 
   @Test
   public void shouldNotGetListWithNullValue() throws Exception {
-    new NewProcessorRunner(new C1806())
+    new ProcessorRunner(new C1806())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

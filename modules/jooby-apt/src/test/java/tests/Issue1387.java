@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import io.jooby.Session;
 import io.jooby.apt.MockContextHelper;
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
@@ -22,7 +22,7 @@ public class Issue1387 {
 
   @Test
   public void shouldInjectContextParam() throws Exception {
-    new NewProcessorRunner(new source.Issue1387())
+    new ProcessorRunner(new source.Issue1387())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -60,7 +60,7 @@ public class Issue1387 {
 
   @Test
   public void shouldInjectSessionParam() throws Exception {
-    new NewProcessorRunner(new source.Issue1387())
+    new ProcessorRunner(new source.Issue1387())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

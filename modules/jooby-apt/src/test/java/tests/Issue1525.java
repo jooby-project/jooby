@@ -10,13 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Route;
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import source.RouteClassAttributes;
 
 public class Issue1525 {
   @Test
   public void routeClassAttributes() throws Exception {
-    new NewProcessorRunner(new RouteClassAttributes())
+    new ProcessorRunner(new RouteClassAttributes())
         .withRouter(
             app -> {
               Route route0 = app.getRoutes().get(0);

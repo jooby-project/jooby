@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockRouter;
 import source.EmptySubClassController;
 import source.OverrideMethodSubClassController;
@@ -19,7 +19,7 @@ public class InheritanceTest {
 
   @Test
   public void shouldWorkWithSubClass() throws Exception {
-    new NewProcessorRunner(new SubController())
+    new ProcessorRunner(new SubController())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -43,7 +43,7 @@ public class InheritanceTest {
 
   @Test
   public void shouldProcessEmptySubclasses() throws Exception {
-    new NewProcessorRunner(new EmptySubClassController())
+    new ProcessorRunner(new EmptySubClassController())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -62,7 +62,7 @@ public class InheritanceTest {
 
   @Test
   public void shouldProcessWithOverrideMethodSubclasses() throws Exception {
-    new NewProcessorRunner(new OverrideMethodSubClassController())
+    new ProcessorRunner(new OverrideMethodSubClassController())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

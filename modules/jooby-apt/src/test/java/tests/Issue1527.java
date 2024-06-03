@@ -12,14 +12,14 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Route;
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import source.Controller1527;
 import source.TopEnum;
 
 public class Issue1527 {
   @Test
   public void annotation() throws Exception {
-    new NewProcessorRunner(new Controller1527())
+    new ProcessorRunner(new Controller1527())
         .withRouter(
             app -> {
               Route route0 = app.getRoutes().get(0);

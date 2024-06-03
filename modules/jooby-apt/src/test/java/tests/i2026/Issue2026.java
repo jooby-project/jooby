@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
@@ -17,7 +17,7 @@ public class Issue2026 {
 
   @Test
   public void shouldGenerateWriteMethodSignature() throws Exception {
-    new NewProcessorRunner(new C2026())
+    new ProcessorRunner(new C2026())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

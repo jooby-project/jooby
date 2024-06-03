@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.StatusCode;
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.exception.MissingValueException;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
@@ -22,7 +22,7 @@ public class Issue1786 {
 
   @Test
   public void shouldThrowMissingValueExceptionIfRequiredStringParamNotSpecified() throws Exception {
-    new NewProcessorRunner(new Controller1786())
+    new ProcessorRunner(new Controller1786())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -32,7 +32,7 @@ public class Issue1786 {
 
   @Test
   public void shouldThrowMissingValueExceptionIfRequiredParamNotSpecified() throws Exception {
-    new NewProcessorRunner(new Controller1786b())
+    new ProcessorRunner(new Controller1786b())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -42,7 +42,7 @@ public class Issue1786 {
 
   @Test
   public void shouldReturnValueIfRequiredStringParamSpecified() throws Exception {
-    new NewProcessorRunner(new Controller1786())
+    new ProcessorRunner(new Controller1786())
         .withRouter(
             app -> {
               final String expectedValue = "non-null string";

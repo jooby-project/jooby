@@ -1,1 +1,1 @@
-io.jooby.apt.MvcSourceCodeProcessor,dynamic
+io.jooby.apt.JoobyProcessor,dynamic

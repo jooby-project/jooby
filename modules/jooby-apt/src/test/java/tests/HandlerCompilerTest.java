@@ -36,7 +36,7 @@ import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 import io.jooby.apt.MockContextHelper;
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.ProvisioningException;
 import io.jooby.test.MockContext;
@@ -54,7 +54,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void typeInjection() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -81,7 +81,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void queryParam() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -97,7 +97,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void cookieParam() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -114,7 +114,7 @@ public class HandlerCompilerTest {
   @Test
   public void headerParam() throws Exception {
     long epoc = System.currentTimeMillis();
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -131,7 +131,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void flashParam() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -147,7 +147,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void formParam() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -162,7 +162,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void pathParam() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -250,7 +250,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void multipleParameters() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -268,7 +268,7 @@ public class HandlerCompilerTest {
   @Test
   public void fileParam() throws Exception {
     var file = mock(FileUpload.class);
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -294,7 +294,7 @@ public class HandlerCompilerTest {
     BigInteger bigInteger = new BigInteger("888888");
     Charset charset = StandardCharsets.UTF_8;
 
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -349,7 +349,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void returnTypes() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -405,7 +405,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void body() throws Exception {
-    new NewProcessorRunner(new Provisioning())
+    new ProcessorRunner(new Provisioning())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -533,7 +533,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void jarxs() throws Exception {
-    new NewProcessorRunner(new JaxrsController())
+    new ProcessorRunner(new JaxrsController())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -555,7 +555,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void noTopLevel() throws Exception {
-    new NewProcessorRunner(new NoPathRoute())
+    new ProcessorRunner(new NoPathRoute())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -569,7 +569,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void nullRoutes() throws Exception {
-    new NewProcessorRunner(new NullRoutes())
+    new ProcessorRunner(new NullRoutes())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -588,7 +588,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void routeParam() throws Exception {
-    new NewProcessorRunner(new RouteInjection())
+    new ProcessorRunner(new RouteInjection())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -600,7 +600,7 @@ public class HandlerCompilerTest {
 
   @Test
   public void contextPath() throws Exception {
-    new NewProcessorRunner(new RouteContextPath())
+    new ProcessorRunner(new RouteContextPath())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

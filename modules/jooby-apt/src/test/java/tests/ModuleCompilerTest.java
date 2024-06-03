@@ -28,7 +28,7 @@ import io.jooby.Context;
 import io.jooby.ParamSource;
 import io.jooby.Route;
 import io.jooby.StatusCode;
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.exception.MissingValueException;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
@@ -50,7 +50,7 @@ import source.VoidRoute;
 public class ModuleCompilerTest {
   @Test
   public void minRoute() throws Exception {
-    new NewProcessorRunner(new MinRoute())
+    new ProcessorRunner(new MinRoute())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -60,7 +60,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void arrayRoute() throws Exception {
-    new NewProcessorRunner(new ArrayRoute())
+    new ProcessorRunner(new ArrayRoute())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -81,7 +81,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void routes() throws Exception {
-    new NewProcessorRunner(new Routes())
+    new ProcessorRunner(new Routes())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -105,7 +105,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void routesWithMimeTypes() throws Exception {
-    new NewProcessorRunner(new RouteWithMimeTypes())
+    new ProcessorRunner(new RouteWithMimeTypes())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -122,7 +122,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void routesWithParamLookup() throws Exception {
-    new NewProcessorRunner(new RouteWithParamLookup())
+    new ProcessorRunner(new RouteWithParamLookup())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -211,7 +211,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void voidRoutes() throws Exception {
-    new NewProcessorRunner(new VoidRoute())
+    new ProcessorRunner(new VoidRoute())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -225,7 +225,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void getPostRoutes() throws Exception {
-    new NewProcessorRunner(new GetPostRoute())
+    new ProcessorRunner(new GetPostRoute())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -244,7 +244,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void noTopLevel() throws Exception {
-    new NewProcessorRunner(new NoPathRoute())
+    new ProcessorRunner(new NoPathRoute())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -263,7 +263,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void setPrimitiveReturnType() throws Exception {
-    new NewProcessorRunner(new PrimitiveReturnType())
+    new ProcessorRunner(new PrimitiveReturnType())
         .withRouter(
             app -> {
               Route route = app.getRoutes().get(0);
@@ -273,7 +273,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void routeAttributes() throws Exception {
-    new NewProcessorRunner(new RouteAttributes())
+    new ProcessorRunner(new RouteAttributes())
         .withRouter(
             app -> {
               Route route = app.getRoutes().get(0);
@@ -303,7 +303,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void routeDispatch() throws Exception {
-    new NewProcessorRunner(new RouteDispatch())
+    new ProcessorRunner(new RouteDispatch())
         .withRouter(
             app -> {
               assertEquals("worker", app.getRoutes().get(0).getExecutorKey());

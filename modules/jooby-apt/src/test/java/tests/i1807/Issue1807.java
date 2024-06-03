@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import io.jooby.Formdata;
 import io.jooby.ValueNode;
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
@@ -21,7 +21,7 @@ public class Issue1807 {
 
   @Test
   public void shouldGenerateValidByteCode() throws Exception {
-    new NewProcessorRunner(new C1807())
+    new ProcessorRunner(new C1807())
         .withRouter(
             app -> {
               Word1807 word = new Word1807();

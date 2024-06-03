@@ -9,14 +9,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
 public class Issue2325 {
   @Test
   public void shouldFavorNamedParamWithCustomConverter() throws Exception {
-    new NewProcessorRunner(new C2325())
+    new ProcessorRunner(new C2325())
         .withRouter(
             app -> {
               app.converter(new VC2325());
@@ -29,7 +29,7 @@ public class Issue2325 {
 
   @Test
   public void shouldNotFavorObjectConverterWhenNamedArgIsMissing() throws Exception {
-    new NewProcessorRunner(new C2325())
+    new ProcessorRunner(new C2325())
         .withRouter(
             app -> {
               app.converter(new VC2325());

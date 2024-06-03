@@ -21,27 +21,18 @@ import javax.lang.model.element.AnnotationValue;
  * @since 2.1.0
  */
 public interface Annotations {
-
   String CONNECT = "io.jooby.annotation.CONNECT";
   String Consumes = "io.jooby.annotation.Consumes";
-  String ContextParam = "io.jooby.annotation.ContextParam";
   String DELETE = "io.jooby.annotation.DELETE";
-  String FlashParam = "io.jooby.annotation.FlashParam";
-  String FormParam = "io.jooby.annotation.FormParam";
-  String CookieParam = "io.jooby.annotation.CookieParam";
+
   String GET = "io.jooby.annotation.GET";
   String HEAD = "io.jooby.annotation.HEAD";
-  String HeaderParam = "io.jooby.annotation.HeaderParam";
   String OPTIONS = "io.jooby.annotation.OPTIONS";
   String PATCH = "io.jooby.annotation.PATCH";
   String POST = "io.jooby.annotation.POST";
   String PUT = "io.jooby.annotation.PUT";
-  String Param = "io.jooby.annotation.Param";
   String Path = "io.jooby.annotation.Path";
-  String PathParam = "io.jooby.annotation.PathParam";
   String Produces = "io.jooby.annotation.Produces";
-  String QueryParam = "io.jooby.annotation.QueryParam";
-  String SessionParam = "io.jooby.annotation.SessionParam";
   String TRACE = "io.jooby.annotation.TRACE";
 
   /** JAXRS GET. */
@@ -64,24 +55,6 @@ public interface Annotations {
 
   /** JAXRS OPTIONS. */
   String JAXRS_OPTIONS = "jakarta.ws.rs.OPTIONS";
-
-  /** JAXRS Context. */
-  String JAXRS_CONTEXT = "jakarta.ws.rs.core.Context";
-
-  /** JAXRS Query Param. */
-  String JAXRS_QUERY = "jakarta.ws.rs.QueryParam";
-
-  /** JAXRS Path Param. */
-  String JAXRS_PATH_PARAM = "jakarta.ws.rs.PathParam";
-
-  /** JAXRS Cookie Param. */
-  String JAXRS_COOKIE = "jakarta.ws.rs.CookieParam";
-
-  /** JAXRS Header Param. */
-  String JAXRS_HEADER = "jakarta.ws.rs.HeaderParam";
-
-  /** JAXRS Form Param. */
-  String JAXRS_FORM = "jakarta.ws.rs.FormParam";
 
   /** JAXRS PRODUCES. */
   String JAXRS_PRODUCES = "jakarta.ws.rs.Produces";
@@ -111,33 +84,6 @@ public interface Annotations {
           JAXRS_OPTIONS,
           CONNECT,
           TRACE);
-
-  /** Path parameters. */
-  Set<String> PATH_PARAMS = Set.of(PathParam, JAXRS_PATH_PARAM);
-
-  /** Context params. */
-  Set<String> CONTEXT_PARAMS = Set.of(ContextParam, JAXRS_CONTEXT);
-
-  /** Query parameters. */
-  Set<String> QUERY_PARAMS = Set.of(QueryParam, JAXRS_QUERY);
-
-  /** Session parameters. */
-  Set<String> SESSION_PARAMS = Set.of(SessionParam);
-
-  /** Cookie parameters. */
-  Set<String> COOKIE_PARAMS = Set.of(CookieParam, JAXRS_COOKIE);
-
-  /** Header parameters. */
-  Set<String> HEADER_PARAMS = Set.of(HeaderParam, JAXRS_HEADER);
-
-  /** Flash parameters. */
-  Set<String> FLASH_PARAMS = Set.of(FlashParam);
-
-  /** Form parameters. */
-  Set<String> FORM_PARAMS = Set.of(FormParam, JAXRS_FORM);
-
-  /** Parameter lookup. */
-  Set<String> PARAM_LOOKUP = Set.of(Param);
 
   /** Produces parameters. */
   Set<String> PRODUCES_PARAMS = Set.of(Produces, JAXRS_PRODUCES);

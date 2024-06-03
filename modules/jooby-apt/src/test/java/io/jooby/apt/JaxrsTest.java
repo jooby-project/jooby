@@ -27,7 +27,7 @@ public class JaxrsTest {
             .map(SneakyThrows.throwingFunction(it -> it.get(null).toString()))
             .collect(Collectors.toList());
 
-    assertEquals(16, annotations.size());
+    assertEquals(10, annotations.size());
     annotations.forEach(SneakyThrows.throwingConsumer(annotation -> loader.loadClass(annotation)));
   }
 }

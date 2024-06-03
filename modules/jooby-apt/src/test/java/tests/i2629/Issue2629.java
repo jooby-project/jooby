@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.NewProcessorRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
@@ -20,7 +20,7 @@ public class Issue2629 {
 
   @Test
   public void shouldSetMvcMethod() throws Exception {
-    new NewProcessorRunner(new C2629())
+    new ProcessorRunner(new C2629())
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
