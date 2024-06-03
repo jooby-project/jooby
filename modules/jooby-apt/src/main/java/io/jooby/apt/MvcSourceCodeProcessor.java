@@ -21,8 +21,8 @@ import javax.tools.StandardLocation;
 
 import com.squareup.javapoet.JavaFile;
 import io.jooby.internal.apt.Annotations;
+import io.jooby.internal.apt.MvcRouter;
 import io.jooby.internal.apt.Opts;
-import io.jooby.internal.newapt.MvcRouter;
 
 @SupportedOptions({
   Opts.OPT_DEBUG,

@@ -14,8 +14,8 @@ import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
 
 import io.jooby.internal.apt.Annotations;
+import io.jooby.internal.apt.MvcRouter;
 import io.jooby.internal.apt.Opts;
-import io.jooby.internal.newapt.MvcRouter;
 
 public class MvcContext {
   private final ProcessingEnvironment processingEnvironment;

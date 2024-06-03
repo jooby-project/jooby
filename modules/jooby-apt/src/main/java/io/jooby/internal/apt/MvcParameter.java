@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.newapt;
+package io.jooby.internal.apt;
 
 import java.util.*;
 import java.util.function.Function;
@@ -16,7 +16,6 @@ import javax.lang.model.element.VariableElement;
 
 import com.squareup.javapoet.CodeBlock;
 import io.jooby.apt.MvcContext;
-import io.jooby.internal.apt.Annotations;
 
 public class MvcParameter {
   private static final Predicate<String> NULLABLE =

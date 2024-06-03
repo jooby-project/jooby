@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.newapt;
+package io.jooby.internal.apt;
 
 import static java.util.stream.Collectors.joining;
 
@@ -19,7 +19,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.VariableElement;
 
 import com.squareup.javapoet.CodeBlock;
-import io.jooby.internal.apt.Annotations;
 
 public enum ParameterGenerator {
   ContextParam("getAttribute", "io.jooby.annotation.ContextParam") {

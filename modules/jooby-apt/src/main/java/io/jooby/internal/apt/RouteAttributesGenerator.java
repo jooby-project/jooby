@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.newapt;
+package io.jooby.internal.apt;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -17,7 +17,6 @@ import javax.lang.model.util.SimpleAnnotationValueVisitor14;
 import javax.lang.model.util.Types;
 
 import io.jooby.apt.MvcContext;
-import io.jooby.internal.apt.Opts;
 
 public class RouteAttributesGenerator {
   private record EnumValue(String type, String value) {}

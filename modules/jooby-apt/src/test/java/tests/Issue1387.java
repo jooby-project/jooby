@@ -13,8 +13,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Session;
+import io.jooby.apt.MockContextHelper;
 import io.jooby.apt.NewProcessorRunner;
-import io.jooby.internal.apt.MockContextHelper;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
