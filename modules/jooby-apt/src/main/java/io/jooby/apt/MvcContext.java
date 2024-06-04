@@ -6,17 +6,16 @@
 package io.jooby.apt;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
 
-import io.jooby.internal.apt.Annotations;
+import io.jooby.apt.JoobyProcessor.Options;
+import io.jooby.internal.apt.HttpMethod;
 import io.jooby.internal.apt.HttpPath;
 import io.jooby.internal.apt.MvcRouter;
-import io.jooby.internal.apt.Opts;
 
 public class MvcContext {
   private final ProcessingEnvironment processingEnvironment;
@@ -30,9 +29,9 @@ public class MvcContext {
   public MvcContext(ProcessingEnvironment processingEnvironment, Messager messager) {
     this.processingEnvironment = processingEnvironment;
     this.messager = messager;
-    this.debug = Opts.boolOpt(processingEnvironment, Opts.OPT_DEBUG, false);
-    this.incremental = Opts.boolOpt(processingEnvironment, Opts.OPT_INCREMENTAL, true);
-    this.services = Opts.boolOpt(processingEnvironment, Opts.OPT_SERVICES, true);
+    this.debug = Options.boolOpt(processingEnvironment, Options.OPT_DEBUG, false);
+    this.incremental = Options.boolOpt(processingEnvironment, Options.OPT_INCREMENTAL, true);
+    this.services = Options.boolOpt(processingEnvironment, Options.OPT_SERVICES, true);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
@@ -51,49 +50,22 @@ public class MvcContext {
   }
 
   public List<String> path(TypeElement owner, ExecutableElement exec, TypeElement annotation) {
-    var prefix = Collections.<String>emptyList();
-    // Look at parent @path annotation
-    var superTypes = superTypes(owner);
-    var i = 0;
-    while (prefix.isEmpty() && i < superTypes.size()) {
-      prefix = path(superTypes.get(i++));
-    }
-
+    var prefix = HttpPath.PATH.path(superTypes(owner));
     // Favor GET("/path") over Path("/path") at method level
-    var path = path(annotation.getQualifiedName().toString(), annotation.getAnnotationMirrors());
+    var httpMethod = HttpMethod.findByAnnotationName(annotation.getQualifiedName().toString());
+    var path = httpMethod.path(annotation);
     if (path.isEmpty()) {
-      path = path(annotation.getQualifiedName().toString(), exec.getAnnotationMirrors());
+      path = httpMethod.path(exec);
     }
-    var methodPath = path;
     if (prefix.isEmpty()) {
       return path.isEmpty() ? Collections.singletonList("/") : path;
     }
     if (path.isEmpty()) {
       return prefix;
     }
+    var methodPath = path;
     return prefix.stream()
         .flatMap(root -> methodPath.stream().map(p -> root.equals("/") ? p : root + p))
-        .distinct()
-        .toList();
-  }
-
-  private List<String> path(Element element) {
-    return path(null, element.getAnnotationMirrors());
-  }
-
-  private List<String> path(String method, List<? extends AnnotationMirror> annotations) {
-    return annotations.stream()
-        .map(AnnotationMirror.class::cast)
-        .flatMap(
-            mirror -> {
-              var type = mirror.getAnnotationType().toString();
-              if (HttpPath.hasAnnotation(type) || type.equals(method)) {
-                return Stream.concat(
-                    Annotations.attribute(mirror, "path").stream(),
-                    Annotations.attribute(mirror, "value").stream());
-              }
-              return Stream.empty();
-            })
         .distinct()
         .toList();
   }

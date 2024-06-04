@@ -23,14 +23,33 @@ import com.squareup.javapoet.JavaFile;
 import io.jooby.internal.apt.*;
 
 @SupportedOptions({
-  Opts.OPT_DEBUG,
-  Opts.OPT_INCREMENTAL,
-  Opts.OPT_SERVICES,
-  Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS,
-  Opts.OPT_EXTENDED_LOOKUP_OF_SUPERTYPES
+  JoobyProcessor.Options.OPT_DEBUG,
+  JoobyProcessor.Options.OPT_INCREMENTAL,
+  JoobyProcessor.Options.OPT_SERVICES,
+  JoobyProcessor.Options.OPT_SKIP_ATTRIBUTE_ANNOTATIONS
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class JoobyProcessor extends AbstractProcessor {
+  public interface Options {
+
+    String OPT_DEBUG = "jooby.debug";
+    String OPT_INCREMENTAL = "jooby.incremental";
+    String OPT_SERVICES = "jooby.services";
+    String OPT_SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
+
+    static boolean boolOpt(
+        ProcessingEnvironment processingEnvironment, String option, boolean defaultValue) {
+      return Boolean.parseBoolean(
+          processingEnvironment.getOptions().getOrDefault(option, String.valueOf(defaultValue)));
+    }
+
+    static String[] stringListOpt(
+        ProcessingEnvironment processingEnvironment, String option, String defaultValue) {
+      String value = processingEnvironment.getOptions().getOrDefault(option, defaultValue);
+      return value == null || value.isEmpty() ? new String[0] : value.split(",");
+    }
+  }
+
   private MvcContext context;
   private Messager messager;
   private final Set<Object> processed = new HashSet<>();
@@ -66,7 +85,7 @@ public class JoobyProcessor extends AbstractProcessor {
         try {
           var javaFile = router.toSourceCode();
           onGeneratedSource(javaFile);
-          context.debug("%s", javaFile);
+          context.debug("%s", router.getTargetType());
           javaFile.writeTo(filer);
           context.add(router);
         } catch (IOException cause) {

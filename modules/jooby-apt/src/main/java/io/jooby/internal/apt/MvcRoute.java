@@ -5,11 +5,11 @@
  */
 package io.jooby.internal.apt;
 
-import static java.util.Optional.ofNullable;
+import static io.jooby.internal.apt.AnnotationSupport.*;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
@@ -86,30 +86,31 @@ public class MvcRoute {
     var suspendSuffix = isSuspend ? ")" : "";
     for (var e : annotationMap.entrySet()) {
       var annotation = e.getKey();
-      var httpMethod = annotation.getSimpleName().toString().toLowerCase();
+      var httpMethod = HttpMethod.findByAnnotationName(annotation.getQualifiedName().toString());
       var paths = context.path(router.getTargetType(), method, annotation);
       for (var path : paths) {
         block.add(javadocLink);
         block.add(
             CodeBlock.of(
                 "app.$L($S, $L$L::$L$L)\n",
-                httpMethod,
+                annotation.getSimpleName().toString().toLowerCase(),
                 path,
                 suspendPrefix,
                 "this",
                 methodName,
                 suspendSuffix));
         /* consumes */
-        ofNullable(consumes(Annotations.attribute(e.getValue(), "consumes")))
+        mediaType(httpMethod::consumes)
             .ifPresent(consumes -> block.add(CodeBlock.of("   .setConsumes($L)\n", consumes)));
         /* produces */
-        ofNullable(produces(Annotations.attribute(e.getValue(), "produces")))
+        mediaType(httpMethod::produces)
             .ifPresent(produces -> block.add(CodeBlock.of("   .setProduces($L)\n", produces)));
         /* dispatch */
-        ofNullable(dispatch())
+        dispatch()
             .ifPresent(dispatch -> block.add(CodeBlock.of("   .setExecutorKey($S)\n", dispatch)));
         /* attributes */
-        ofNullable(attributeGenerator.toSourceCode(this, "   "))
+        attributeGenerator
+            .toSourceCode(this, "   ")
             .ifPresent(
                 attributes -> block.add(CodeBlock.of("   .setAttributes($L)\n", attributes)));
         /* returnType */
@@ -241,50 +242,31 @@ public class MvcRoute {
     return buffer.toString();
   }
 
-  private String dispatch() {
+  private Optional<String> dispatch() {
     var dispatch = dispatch(method);
-    return dispatch == null ? dispatch(router.getTargetType()) : dispatch;
+    return dispatch.isEmpty() ? dispatch(router.getTargetType()) : dispatch;
   }
 
-  private String dispatch(Element element) {
-    return element.getAnnotationMirrors().stream()
-        .filter(it -> it.getAnnotationType().toString().equals("io.jooby.annotation.Dispatch"))
-        .flatMap(
-            it -> Stream.concat(Annotations.attribute(it, "value").stream(), Stream.of("worker")))
-        .filter(Objects::nonNull)
-        .findFirst()
-        .orElse(null);
+  private Optional<String> dispatch(Element element) {
+    return Optional.ofNullable(findAnnotationByName(element, "io.jooby.annotation.Dispatch"))
+        .map(it -> findAnnotationValue(it, VALUE).stream().findFirst().orElse("worker"));
   }
 
-  private String consumes(List<String> consumes) {
-    return computeMediaTypes(consumes, HttpMediaType.Consumes.getAnnotations());
-  }
-
-  private String produces(List<String> produces) {
-    return computeMediaTypes(produces, HttpMediaType.Produces.getAnnotations());
-  }
-
-  private String computeMediaTypes(List<String> types, List<String> annotations) {
+  private Optional<String> mediaType(Function<Element, List<String>> lookup) {
     var scopes = List.of(method, router.getTargetType());
     var i = 0;
+    var types = Collections.<String>emptyList();
     while (types.isEmpty() && i < scopes.size()) {
-      types = findMediaType(scopes.get(i++), annotations);
+      types = lookup.apply(scopes.get(i++));
     }
     return types.isEmpty()
-        ? null
-        : types.stream()
-            .collect(
-                Collectors.joining(
-                    "\"), io.jooby.MediaType.valueOf(\"",
-                    "java.util.List.of(io.jooby.MediaType.valueOf(\"",
-                    "\"))"));
-  }
-
-  private List<String> findMediaType(Element element, List<String> annotations) {
-    return element.getAnnotationMirrors().stream()
-        .filter(it -> annotations.contains(it.getAnnotationType().toString()))
-        .flatMap(it -> Annotations.attribute(it, "value").stream())
-        .distinct()
-        .toList();
+        ? Optional.empty()
+        : Optional.of(
+            types.stream()
+                .collect(
+                    Collectors.joining(
+                        "\"), io.jooby.MediaType.valueOf(\"",
+                        "java.util.List.of(io.jooby.MediaType.valueOf(\"",
+                        "\"))")));
   }
 }

@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.internal.apt.AnnotationSupport.findAnnotationValue;
 import static java.util.stream.Collectors.joining;
 
 import java.net.URI;
@@ -16,7 +17,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.VariableElement;
 
 import com.squareup.javapoet.CodeBlock;
 
@@ -148,18 +148,7 @@ public enum ParameterGenerator {
 
   protected String source(AnnotationMirror annotation) {
     if (ParameterGenerator.Lookup.annotations.contains(annotation.getAnnotationType().toString())) {
-      var sources =
-          Annotations.attribute(
-              annotation,
-              "value",
-              it -> {
-                var value = it.getValue();
-                if (value instanceof VariableElement variable) {
-                  return variable.getSimpleName().toString();
-                } else {
-                  return value.toString();
-                }
-              });
+      var sources = findAnnotationValue(annotation, AnnotationSupport.VALUE);
       return sources.isEmpty()
           ? ""
           : sources.stream()

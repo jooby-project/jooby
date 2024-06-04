@@ -16,6 +16,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleAnnotationValueVisitor14;
 import javax.lang.model.util.Types;
 
+import io.jooby.apt.JoobyProcessor.Options;
 import io.jooby.apt.MvcContext;
 
 public class RouteAttributesGenerator {
@@ -48,15 +49,16 @@ public class RouteAttributesGenerator {
     var environment = context.getProcessingEnvironment();
     this.elements = environment.getElementUtils();
     this.types = environment.getTypeUtils();
-    this.skip = List.of(Opts.stringListOpt(environment, Opts.OPT_SKIP_ATTRIBUTE_ANNOTATIONS, ""));
+    this.skip =
+        List.of(Options.stringListOpt(environment, Options.OPT_SKIP_ATTRIBUTE_ANNOTATIONS, ""));
   }
 
-  public String toSourceCode(MvcRoute route, String indent) {
+  public Optional<String> toSourceCode(MvcRoute route, String indent) {
     var attributes = annotationMap(route.getMethod());
     if (attributes.isEmpty()) {
-      return null;
+      return Optional.empty();
     } else {
-      return toSourceCode(annotationMap(route.getMethod()), indent);
+      return Optional.of(toSourceCode(annotationMap(route.getMethod()), indent));
     }
   }
 

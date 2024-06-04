@@ -5,10 +5,15 @@
  */
 package io.jooby.internal.apt;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
-public enum HttpPath {
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+
+public enum HttpPath implements AnnotationSupport {
   PATH;
   private final List<String> annotations;
 
@@ -18,6 +23,25 @@ public enum HttpPath {
 
   public List<String> getAnnotations() {
     return annotations;
+  }
+
+  public List<String> path(List<TypeElement> hierarchy) {
+    var prefix = Collections.<String>emptyList();
+    // Look at parent @path annotation
+    var i = 0;
+    while (prefix.isEmpty() && i < hierarchy.size()) {
+      prefix = path(hierarchy.get(i++));
+    }
+    return prefix;
+  }
+
+  public List<String> path(Element element) {
+    return getAnnotations().stream()
+        .map(it -> AnnotationSupport.findAnnotationByName(element, it))
+        .filter(Objects::nonNull)
+        .findFirst()
+        .map(it -> AnnotationSupport.findAnnotationValue(it, VALUE))
+        .orElseGet(List::of);
   }
 
   public static boolean hasAnnotation(String name) {

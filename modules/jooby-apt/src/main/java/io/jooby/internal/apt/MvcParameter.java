@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.internal.apt.AnnotationSupport.findAnnotationValue;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -82,7 +84,7 @@ public class MvcParameter {
     var parameterName =
         nameProvider == null
             ? defaultParameterName
-            : Annotations.attribute(nameProvider, "value").stream()
+            : findAnnotationValue(nameProvider, AnnotationSupport.VALUE).stream()
                 .findFirst()
                 .orElse(defaultParameterName);
     var rawType = type.getRawType();
