@@ -5,7 +5,7 @@
  */
 package io.jooby
 
-import io.jooby.internal.mvc.KotlinMvc
+import io.jooby.internal.mvc.KotlinMvc_
 import io.jooby.jackson.JacksonModule
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
@@ -90,7 +90,7 @@ class FeaturedKotlinTest {
   @ServerTest
   fun mvc(runner: ServerTestRunner) {
     runner
-      .define { app -> app.mvc(KotlinMvc()) }
+      .define { app -> app.mvc(KotlinMvc_()) }
       .ready { client ->
         client.get("/kotlin") { rsp -> assertEquals("Got it!", rsp.body!!.string()) }
 
@@ -125,7 +125,7 @@ class FeaturedKotlinTest {
     runner
       .use { ->
         Kooby {
-          coroutine { mvc(SuspendMvc()) }
+          coroutine { mvc(SuspendMvc_()) }
 
           error { ctx, cause, statusCode ->
             log.info("{} {}", ctx.method, ctx.getRequestPath())

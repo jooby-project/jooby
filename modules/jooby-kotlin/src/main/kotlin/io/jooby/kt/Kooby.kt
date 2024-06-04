@@ -144,12 +144,14 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
+  @Deprecated(message = "Use mvc(io.jooby.MvcExtension)")
   fun <T : Any> mvc(router: KClass<T>): Kooby {
     super.mvc(router.java)
     return this
   }
 
   @RouterDsl
+  @Deprecated(message = "Use mvc(io.jooby.MvcExtension)")
   fun <T : Any> mvc(router: KClass<T>, provider: () -> T): Kooby {
     super.mvc(router.java, provider)
     return this
