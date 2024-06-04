@@ -576,8 +576,8 @@ public class JettyContext implements DefaultContext, Callback {
 
   @NonNull @Override
   public Context send(@NonNull FileChannel file) {
-    try (FileChannel channel = file) {
-      response.getHeaders().put(CONTENT_LENGTH, channel.size());
+    try {
+      response.getHeaders().put(CONTENT_LENGTH, file.size());
       return sendStreamInternal(Channels.newInputStream(file));
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
