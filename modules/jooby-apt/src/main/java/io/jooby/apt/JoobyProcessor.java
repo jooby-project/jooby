@@ -20,9 +20,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.tools.StandardLocation;
 
 import com.squareup.javapoet.JavaFile;
-import io.jooby.internal.apt.Annotations;
-import io.jooby.internal.apt.MvcRouter;
-import io.jooby.internal.apt.Opts;
+import io.jooby.internal.apt.*;
 
 @SupportedOptions({
   Opts.OPT_DEBUG,
@@ -170,7 +168,7 @@ public class JoobyProcessor extends AbstractProcessor {
                         .map(DeclaredType::asElement)
                         .filter(TypeElement.class::isInstance)
                         .map(TypeElement.class::cast)
-                        .filter(annotation -> context.isHttpMethod(annotation))
+                        .filter(HttpMethod::hasAnnotation)
                         .forEach(
                             annotation -> {
                               Stream.of(currentType, superType)
@@ -195,7 +193,7 @@ public class JoobyProcessor extends AbstractProcessor {
 
   @Override
   public Set<String> getSupportedAnnotationTypes() {
-    return Stream.concat(Annotations.PATH.stream(), Annotations.HTTP_METHODS.stream())
+    return Stream.concat(HttpPath.PATH.getAnnotations().stream(), HttpMethod.annotations().stream())
         .collect(Collectors.toSet());
   }
 

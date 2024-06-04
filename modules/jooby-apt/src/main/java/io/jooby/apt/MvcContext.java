@@ -14,6 +14,7 @@ import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
 
 import io.jooby.internal.apt.Annotations;
+import io.jooby.internal.apt.HttpPath;
 import io.jooby.internal.apt.MvcRouter;
 import io.jooby.internal.apt.Opts;
 
@@ -47,14 +48,6 @@ public class MvcContext {
 
   public ProcessingEnvironment getProcessingEnvironment() {
     return processingEnvironment;
-  }
-
-  public boolean isHttpMethod(TypeElement annotated) {
-    if (annotated == null) {
-      return false;
-    }
-    return Annotations.HTTP_METHODS.contains(annotated.toString())
-        || Annotations.HTTP_METHODS.contains(annotated.asType().toString());
   }
 
   public List<String> path(TypeElement owner, ExecutableElement exec, TypeElement annotation) {
@@ -93,8 +86,8 @@ public class MvcContext {
         .map(AnnotationMirror.class::cast)
         .flatMap(
             mirror -> {
-              String type = mirror.getAnnotationType().toString();
-              if (Annotations.PATH.contains(type) || type.equals(method)) {
+              var type = mirror.getAnnotationType().toString();
+              if (HttpPath.hasAnnotation(type) || type.equals(method)) {
                 return Stream.concat(
                     Annotations.attribute(mirror, "path").stream(),
                     Annotations.attribute(mirror, "value").stream());

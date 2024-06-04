@@ -257,14 +257,14 @@ public class MvcRoute {
   }
 
   private String consumes(List<String> consumes) {
-    return computeMediaTypes(consumes, Annotations.CONSUMES_PARAMS);
+    return computeMediaTypes(consumes, HttpMediaType.Consumes.getAnnotations());
   }
 
   private String produces(List<String> produces) {
-    return computeMediaTypes(produces, Annotations.PRODUCES_PARAMS);
+    return computeMediaTypes(produces, HttpMediaType.Produces.getAnnotations());
   }
 
-  private String computeMediaTypes(List<String> types, Set<String> annotations) {
+  private String computeMediaTypes(List<String> types, List<String> annotations) {
     var scopes = List.of(method, router.getTargetType());
     var i = 0;
     while (types.isEmpty() && i < scopes.size()) {
@@ -280,7 +280,7 @@ public class MvcRoute {
                     "\"))"));
   }
 
-  private List<String> findMediaType(Element element, Set<String> annotations) {
+  private List<String> findMediaType(Element element, List<String> annotations) {
     return element.getAnnotationMirrors().stream()
         .filter(it -> annotations.contains(it.getAnnotationType().toString()))
         .flatMap(it -> Annotations.attribute(it, "value").stream())

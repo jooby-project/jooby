@@ -17,13 +17,16 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 public class TypeDefinition {
-
   private final Types typeUtils;
   private final TypeMirror type;
+  private final TypeMirror unwrapType;
+  private final TypeMirror rawType;
 
   public TypeDefinition(Types types, TypeMirror type) {
     this.typeUtils = types;
     this.type = type;
+    this.unwrapType = unwrapType(type);
+    this.rawType = typeUtils.erasure(unwrapType);
   }
 
   public String toSourceCode() {
@@ -66,15 +69,11 @@ public class TypeDefinition {
    * @Nullable @QueryParam String name
    * }</pre>
    *
-   * @param type
-   * @return
+   * @param type Type top check
+   * @return TypeMirror
    */
-  private TypeMirror unwrapType(TypeMirror type) {
-    if (type instanceof DeclaredType) {
-      return ((DeclaredType) type).asElement().asType();
-    } else {
-      return type;
-    }
+  private static TypeMirror unwrapType(TypeMirror type) {
+    return (type instanceof DeclaredType) ? ((DeclaredType) type).asElement().asType() : type;
   }
 
   public String getName() {
@@ -86,15 +85,15 @@ public class TypeDefinition {
   }
 
   public boolean isPrimitive() {
-    return unwrapType(getType()).getKind().isPrimitive();
+    return unwrapType.getKind().isPrimitive();
   }
 
   public boolean isVoid() {
-    return unwrapType(getType()).getKind() == TypeKind.VOID;
+    return unwrapType.getKind() == TypeKind.VOID;
   }
 
   public TypeMirror getRawType() {
-    return typeUtils.erasure(unwrapType(getType()));
+    return rawType;
   }
 
   public boolean is(Class type, Class... arguments) {
@@ -102,17 +101,16 @@ public class TypeDefinition {
   }
 
   public boolean is(String type, String... arguments) {
-    if (!equalType(getType(), type)) {
+    if (equals(getType(), type)) {
       return false;
     }
-    if (arguments.length > 0 && this.type instanceof DeclaredType) {
-      DeclaredType declaredType = (DeclaredType) this.type;
+    if (arguments.length > 0 && this.type instanceof DeclaredType declaredType) {
       List<? extends TypeMirror> args = declaredType.getTypeArguments();
       if (args.size() != arguments.length) {
         return false;
       }
       for (int i = 0; i < arguments.length; i++) {
-        if (!equalType(args.get(i), arguments[i])) {
+        if (equals(args.get(i), arguments[i])) {
           return false;
         }
       }
@@ -120,32 +118,30 @@ public class TypeDefinition {
     return true;
   }
 
-  private boolean equalType(TypeMirror type, String typeName) {
-    TypeMirror realType = unwrapType(type);
-    TypeMirror erasure = typeUtils.erasure(realType);
+  private boolean equals(TypeMirror type, String typeName) {
+    var realType = unwrapType(type);
+    var erasure = typeUtils.erasure(realType);
     if (!erasure.toString().equals(typeName)) {
       // check for enum subclasses:
       if (Enum.class.getName().equals(typeName)) {
         var element = typeUtils.asElement(realType);
-        return element != null && element.getKind() == ElementKind.ENUM;
+        return element == null || element.getKind() != ElementKind.ENUM;
       } else {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   public boolean isParameterizedType() {
-    if (type instanceof DeclaredType) {
-      DeclaredType declaredType = (DeclaredType) type;
-      return declaredType.getTypeArguments().size() > 0;
+    if (type instanceof DeclaredType declaredType) {
+      return !declaredType.getTypeArguments().isEmpty();
     }
     return false;
   }
 
   public List<TypeDefinition> getArguments() {
-    if (type instanceof DeclaredType) {
-      DeclaredType declaredType = (DeclaredType) type;
+    if (type instanceof DeclaredType declaredType) {
       List<TypeDefinition> result = new ArrayList<>();
       for (TypeMirror typeArgument : declaredType.getTypeArguments()) {
         result.add(new TypeDefinition(typeUtils, typeArgument));
