@@ -22,6 +22,8 @@ public class MvcContext {
   private final boolean debug;
   private final boolean incremental;
   private final boolean services;
+  private final String routerPrefix;
+  private final String routerSuffix;
   private int round;
   private final Messager messager;
   private final List<MvcRouter> routers = new ArrayList<>();
@@ -32,6 +34,10 @@ public class MvcContext {
     this.debug = Options.boolOpt(processingEnvironment, Options.OPT_DEBUG, false);
     this.incremental = Options.boolOpt(processingEnvironment, Options.OPT_INCREMENTAL, true);
     this.services = Options.boolOpt(processingEnvironment, Options.OPT_SERVICES, true);
+    this.routerPrefix =
+        processingEnvironment.getOptions().getOrDefault(Options.OPT_ROUTER_PREFIX, "");
+    this.routerSuffix =
+        processingEnvironment.getOptions().getOrDefault(Options.OPT_ROUTER_SUFFIX, "_");
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
@@ -43,6 +49,14 @@ public class MvcContext {
 
   public List<MvcRouter> getRouters() {
     return routers;
+  }
+
+  public String generateRouterName(String name) {
+    var i = name.lastIndexOf('.');
+    if (i > 0) {
+      return name.substring(0, i + 1) + routerPrefix + name.substring(i + 1) + routerSuffix;
+    }
+    return routerPrefix + name + routerSuffix;
   }
 
   public ProcessingEnvironment getProcessingEnvironment() {

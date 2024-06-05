@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -122,16 +123,22 @@ public class ProcessorRunner {
   private final HookJoobyProcessor processor = new HookJoobyProcessor();
 
   public ProcessorRunner(Object instance) throws IOException {
-    this(instance, false);
+    this(instance, Map.of());
   }
 
-  public ProcessorRunner(Object instance, boolean debug) throws IOException {
+  public ProcessorRunner(Object instance, Map<String, Object> options) throws IOException {
+    var optionsArray =
+        options.entrySet().stream().map(e -> "-A" + e.getKey() + "=" + e.getValue()).toList();
     Truth.assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
         .that(sources(sourceNames(instance.getClass())))
-        .withCompilerOptions("-Ajooby.debug=" + debug)
+        .withCompilerOptions(optionsArray.toArray(new String[0]))
         .processedWith(processor)
         .compilesWithoutError();
+  }
+
+  public ProcessorRunner(Object instance, boolean debug) throws IOException {
+    this(instance, Map.of("jooby.debug", debug));
   }
 
   public ProcessorRunner withRouter(SneakyThrows.Consumer<Jooby> consumer) throws Exception {

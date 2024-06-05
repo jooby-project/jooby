@@ -31,7 +31,8 @@ import io.jooby.internal.apt.*;
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class JoobyProcessor extends AbstractProcessor {
   public interface Options {
-
+    String OPT_ROUTER_PREFIX = "jooby.routerPrefix";
+    String OPT_ROUTER_SUFFIX = "jooby.routerSuffix";
     String OPT_DEBUG = "jooby.debug";
     String OPT_INCREMENTAL = "jooby.incremental";
     String OPT_SERVICES = "jooby.services";

@@ -44,7 +44,7 @@ public class MvcRouter {
   }
 
   public String getGeneratedType() {
-    return getTargetType().getQualifiedName().toString() + "_";
+    return context.generateRouterName(getTargetType().getQualifiedName().toString());
   }
 
   public MvcRouter put(TypeElement httpMethod, ExecutableElement route) {
@@ -86,18 +86,17 @@ public class MvcRouter {
     var routerType = TypeName.get(getTargetType().asType());
     var providerType =
         ParameterizedTypeName.get(
-            ClassName.get(elements.getTypeElement("java.util.function.Function")),
-            contextType,
-            routerType);
+            ClassName.get("java.util.function", "Function"), contextType, routerType);
     var supplierType =
-        ParameterizedTypeName.get(
-            ClassName.get(elements.getTypeElement("jakarta.inject.Provider")), routerType);
-    var classType =
-        ParameterizedTypeName.get(
-            ClassName.get(elements.getTypeElement("java.lang.Class")), routerType);
+        ParameterizedTypeName.get(ClassName.get("jakarta.inject", "Provider"), routerType);
+    var classType = ParameterizedTypeName.get(ClassName.get("java.lang", "Class"), routerType);
 
-    var generateTypeName = getTargetType().getSimpleName() + "_";
+    var generateTypeName = context.generateRouterName(getTargetType().getSimpleName().toString());
     var source = TypeSpec.classBuilder(generateTypeName);
+    source.addAnnotation(
+        AnnotationSpec.builder(ClassName.get("io.jooby.annotation", "Generated"))
+            .addMember("value", "$S", routerType.toString())
+            .build());
     source.addModifiers(Modifier.PUBLIC);
     source.addSuperinterface(
         environment.getElementUtils().getTypeElement("io.jooby.MvcExtension").asType());
