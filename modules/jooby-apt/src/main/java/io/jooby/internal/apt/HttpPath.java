@@ -5,10 +5,10 @@
  */
 package io.jooby.internal.apt;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -17,7 +17,7 @@ public enum HttpPath implements AnnotationSupport {
   PATH;
   private final List<String> annotations;
 
-  private HttpPath() {
+  HttpPath() {
     this.annotations = List.of("io.jooby.annotation.Path", "jakarta.ws.rs.Path");
   }
 
@@ -25,16 +25,27 @@ public enum HttpPath implements AnnotationSupport {
     return annotations;
   }
 
-  public List<String> path(List<TypeElement> hierarchy) {
+  /**
+   * Find path on type hierarchy. It goes back at hierarchy until it finds a Path annotation.
+   *
+   * @param hierarchy Type hierarchy.
+   * @return Path or empty list.
+   */
+  public List<String> path(Collection<TypeElement> hierarchy) {
     var prefix = Collections.<String>emptyList();
-    // Look at parent @path annotation
-    var i = 0;
-    while (prefix.isEmpty() && i < hierarchy.size()) {
-      prefix = path(hierarchy.get(i++));
+    var it = hierarchy.iterator();
+    while (prefix.isEmpty() && it.hasNext()) {
+      prefix = path(it.next());
     }
     return prefix;
   }
 
+  /**
+   * Find Path from method or class.
+   *
+   * @param element Method or Class.
+   * @return Path or empty list.
+   */
   public List<String> path(Element element) {
     return getAnnotations().stream()
         .map(it -> AnnotationSupport.findAnnotationByName(element, it))
@@ -42,12 +53,5 @@ public enum HttpPath implements AnnotationSupport {
         .findFirst()
         .map(it -> AnnotationSupport.findAnnotationValue(it, VALUE))
         .orElseGet(List::of);
-  }
-
-  public static boolean hasAnnotation(String name) {
-    if (name == null) {
-      return false;
-    }
-    return Stream.of(values()).anyMatch(it -> it.annotations.contains(name));
   }
 }

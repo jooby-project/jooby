@@ -62,16 +62,6 @@ public class MvcRoute {
     return returnType;
   }
 
-  private boolean isSuspendFun() {
-    var parameters = method.getParameters();
-    return !parameters.isEmpty()
-        && parameters
-            .get(parameters.size() - 1)
-            .asType()
-            .toString()
-            .startsWith("kotlin.coroutines.Continuation");
-  }
-
   public List<CodeBlock> generateMapping() {
     List<CodeBlock> block = new ArrayList<>();
     var methodName = getGeneratedName();
@@ -125,14 +115,6 @@ public class MvcRoute {
       }
     }
     return block;
-  }
-
-  private CodeBlock javadocComment(List<String> parameters) {
-    return CodeBlock.of(
-        "/** See {@link $L#$L($L) */\n",
-        router.getTargetType().getSimpleName(),
-        getMethodName(),
-        String.join(", ", parameters));
   }
 
   public MethodSpec generateHandlerCall() {
@@ -259,14 +241,33 @@ public class MvcRoute {
     while (types.isEmpty() && i < scopes.size()) {
       types = lookup.apply(scopes.get(i++));
     }
-    return types.isEmpty()
-        ? Optional.empty()
-        : Optional.of(
-            types.stream()
-                .collect(
-                    Collectors.joining(
-                        "\"), io.jooby.MediaType.valueOf(\"",
-                        "java.util.List.of(io.jooby.MediaType.valueOf(\"",
-                        "\"))")));
+    if (types.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(
+        types.stream()
+            .map(type -> CodeBlock.of("io.jooby.MediaType.valueOf($S)", type).toString())
+            .collect(Collectors.joining(", ", "java.util.List.of(", ")")));
+  }
+
+  /**
+   * Kotlin suspend function has a <code>kotlin.coroutines.Continuation</code> as last parameter.
+   *
+   * @return True for Kotlin suspend function.
+   */
+  private boolean isSuspendFun() {
+    var parameters = getRawParameterTypes();
+    return !parameters.isEmpty()
+        && getRawParameterTypes()
+            .get(parameters.size() - 1)
+            .equals("kotlin.coroutines.Continuation");
+  }
+
+  private CodeBlock javadocComment(List<String> parameters) {
+    return CodeBlock.of(
+        "/** See {@link $L#$L($L) */\n",
+        router.getTargetType().getSimpleName(),
+        getMethodName(),
+        String.join(", ", parameters));
   }
 }

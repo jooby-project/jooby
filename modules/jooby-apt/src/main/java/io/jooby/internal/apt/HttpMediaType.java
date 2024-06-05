@@ -13,31 +13,33 @@ import java.util.stream.Stream;
 
 import javax.lang.model.element.Element;
 
+/**
+ * Consumes/Produces annotation support.
+ *
+ * @author edgar
+ */
 public enum HttpMediaType {
   Consumes,
   Produces;
   private final List<String> annotations;
 
-  HttpMediaType(String... packages) {
-    var packageList =
-        packages.length == 0 ? List.of("io.jooby.annotation", "jakarta.ws.rs") : List.of(packages);
-    this.annotations = packageList.stream().map(it -> it + "." + name()).toList();
+  HttpMediaType() {
+    this.annotations =
+        Stream.of("io.jooby.annotation", "jakarta.ws.rs").map(it -> it + "." + name()).toList();
   }
 
+  /**
+   * Get value from Consumes/Produces annotation.
+   *
+   * @param element Method or Class.
+   * @return Media type values or empty list.
+   */
   public List<String> mediaType(Element element) {
-    return getAnnotations().stream()
+    return annotations.stream()
         .map(it -> findAnnotationByName(element, it))
         .filter(Objects::nonNull)
         .findFirst()
         .map(it -> findAnnotationValue(it, VALUE))
         .orElseGet(List::of);
-  }
-
-  public List<String> getAnnotations() {
-    return annotations;
-  }
-
-  public static List<String> annotations() {
-    return Stream.of(values()).flatMap(it -> it.annotations.stream()).toList();
   }
 }

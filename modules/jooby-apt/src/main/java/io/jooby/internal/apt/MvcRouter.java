@@ -77,6 +77,22 @@ public class MvcRouter {
     return pkgEnd > 0 ? classname.substring(0, pkgEnd) : "";
   }
 
+  public List<String> getReservedMethodNames() {
+    return List.of("supports", "create");
+  }
+
+  /**
+   * Generate the controller extension for MVC controller:
+   *
+   * <pre>{@code
+   * public class Controller_ extends MvcExtension {
+   *     ....
+   * }
+   *
+   * }</pre>
+   *
+   * @return
+   */
   public JavaFile toSourceCode() {
     var environment = context.getProcessingEnvironment();
     var elements = environment.getElementUtils();

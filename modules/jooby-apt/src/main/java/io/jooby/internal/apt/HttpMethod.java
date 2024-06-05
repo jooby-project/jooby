@@ -13,6 +13,11 @@ import java.util.stream.Stream;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
+/**
+ * Parser for HTTP method comming from HTTP method annotations.
+ *
+ * @author edgar
+ */
 public enum HttpMethod implements AnnotationSupport {
   CONNECT("io.jooby.annotation"),
   TRACE("io.jooby.annotation"),
@@ -25,19 +30,22 @@ public enum HttpMethod implements AnnotationSupport {
   PUT;
   private final List<String> annotations;
 
-  private HttpMethod(String... packages) {
+  HttpMethod(String... packages) {
     var packageList =
         packages.length == 0 ? List.of("io.jooby.annotation", "jakarta.ws.rs") : List.of(packages);
     this.annotations = packageList.stream().map(it -> it + "." + name()).toList();
   }
 
-  public List<String> getAnnotations() {
-    return annotations;
-  }
-
+  /**
+   * Look at path attribute over HTTP method annotation (like io.jooby.annotation.GET) or fallback
+   * to Path annotation.
+   *
+   * @param element Type or Method.
+   * @return Path.
+   */
   public List<String> path(Element element) {
     var path =
-        getAnnotations().stream()
+        annotations.stream()
             .map(it -> AnnotationSupport.findAnnotationByName(element, it))
             .filter(Objects::nonNull)
             .findFirst()
@@ -46,10 +54,24 @@ public enum HttpMethod implements AnnotationSupport {
     return path.isEmpty() ? HttpPath.PATH.path(element) : path;
   }
 
+  /**
+   * Look at consumes attribute over HTTP method annotation (like io.jooby.annotation.GET) or
+   * fallback to Consumes annotation.
+   *
+   * @param element Type or Method.
+   * @return Consumes media type.
+   */
   public List<String> consumes(Element element) {
     return mediaType(element, HttpMediaType.Consumes, "consumes"::equals);
   }
 
+  /**
+   * Look at produces attribute over HTTP method annotation (like io.jooby.annotation.GET) or
+   * fallback to Produces annotation.
+   *
+   * @param element Type or Method.
+   * @return Produces media type.
+   */
   public List<String> produces(Element element) {
     return mediaType(element, HttpMediaType.Produces, "produces"::equals);
   }
@@ -57,7 +79,7 @@ public enum HttpMethod implements AnnotationSupport {
   private List<String> mediaType(
       Element element, HttpMediaType mediaType, Predicate<String> filter) {
     var path =
-        getAnnotations().stream()
+        annotations.stream()
             .map(it -> AnnotationSupport.findAnnotationByName(element, it))
             .filter(Objects::nonNull)
             .findFirst()

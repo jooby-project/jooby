@@ -17,6 +17,10 @@ import io.jooby.internal.apt.HttpMethod;
 import io.jooby.internal.apt.HttpPath;
 import io.jooby.internal.apt.MvcRouter;
 
+/**
+ * Utility class which give access to {@link ProcessingEnvironment} mainly, few utility methods and
+ * processor options.
+ */
 public class MvcContext {
   private final ProcessingEnvironment processingEnvironment;
   private final boolean debug;
@@ -63,6 +67,15 @@ public class MvcContext {
     return processingEnvironment;
   }
 
+  /**
+   * Find path from route method and router type. This method scan and expand path base on the
+   * annotation present at method or class level.
+   *
+   * @param owner Router type.
+   * @param exec Method.
+   * @param annotation HTTP annotation. One of {@link HttpMethod}.
+   * @return List of possible paths.
+   */
   public List<String> path(TypeElement owner, ExecutableElement exec, TypeElement annotation) {
     var prefix = HttpPath.PATH.path(superTypes(owner));
     // Favor GET("/path") over Path("/path") at method level
@@ -84,10 +97,17 @@ public class MvcContext {
         .toList();
   }
 
-  public List<TypeElement> superTypes(Element owner) {
+  /**
+   * Find all super types for given type. Produces a set of super types in keeping the type
+   * hierarchy. This method includes the input type as first element.
+   *
+   * @param owner Input type.
+   * @return Type hierarchy.
+   */
+  public Set<TypeElement> superTypes(Element owner) {
     var typeUtils = processingEnvironment.getTypeUtils();
     var supertypes = typeUtils.directSupertypes(owner.asType());
-    List<TypeElement> result = new ArrayList<>();
+    Set<TypeElement> result = new LinkedHashSet<>();
     result.add((TypeElement) owner);
     if (supertypes == null || supertypes.isEmpty()) {
       return result;
@@ -124,24 +144,15 @@ public class MvcContext {
     }
   }
 
-  public void error(String message, Object... args) {
-    print(Diagnostic.Kind.ERROR, message, args);
-  }
-
-  public void warning(String message, Object... args) {
-    print(Diagnostic.Kind.WARNING, message, args);
-  }
-
-  public void info(String message, Object... args) {
-    print(Diagnostic.Kind.NOTE, message, args);
-  }
-
   private void print(Diagnostic.Kind kind, String message, Object... args) {
-    var msg = message.formatted(args);
-    Element element =
-        args.length > 0
-            ? (args[args.length - 1] instanceof Element) ? (Element) args[args.length - 1] : null
-            : null;
-    messager.printMessage(kind, msg, element);
+    Element originatingElement = null;
+    Object[] arguments = args;
+    if (args.length > 0 && args[args.length - 1] instanceof Element element) {
+      originatingElement = element;
+      arguments = new Object[args.length - 1];
+      System.arraycopy(arguments, 0, arguments, 0, arguments.length);
+    }
+    var msg = message.formatted(arguments);
+    messager.printMessage(kind, msg, originatingElement);
   }
 }

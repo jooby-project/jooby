@@ -39,28 +39,6 @@ public class MvcParameter {
     return type;
   }
 
-  private boolean isNullable() {
-    // Any that ends with `Nullable`
-    if (hasAnnotation(NULLABLE)) {
-      return true;
-    }
-    if (hasAnnotation(NON_NULL)) {
-      return false;
-    }
-    return !parameter.asType().getKind().isPrimitive();
-  }
-
-  private boolean hasAnnotation(Predicate<String> predicate) {
-    return annotations.keySet().stream().anyMatch(predicate);
-  }
-
-  private Map<String, AnnotationMirror> annotationMap(VariableElement parameter) {
-    return Stream.of(parameter.getAnnotationMirrors(), parameter.asType().getAnnotationMirrors())
-        .filter(Objects::nonNull)
-        .flatMap(List::stream)
-        .collect(Collectors.toMap(it -> it.getAnnotationType().toString(), Function.identity()));
-  }
-
   public CodeBlock generateMapping() {
     var strategy =
         annotations.entrySet().stream()
@@ -143,5 +121,27 @@ public class MvcParameter {
         }
       }
     };
+  }
+
+  private boolean isNullable() {
+    // Any that ends with `Nullable`
+    if (hasAnnotation(NULLABLE)) {
+      return true;
+    }
+    if (hasAnnotation(NON_NULL)) {
+      return false;
+    }
+    return !parameter.asType().getKind().isPrimitive();
+  }
+
+  private boolean hasAnnotation(Predicate<String> predicate) {
+    return annotations.keySet().stream().anyMatch(predicate);
+  }
+
+  private Map<String, AnnotationMirror> annotationMap(VariableElement parameter) {
+    return Stream.of(parameter.getAnnotationMirrors(), parameter.asType().getAnnotationMirrors())
+        .filter(Objects::nonNull)
+        .flatMap(List::stream)
+        .collect(Collectors.toMap(it -> it.getAnnotationType().toString(), Function.identity()));
   }
 }
