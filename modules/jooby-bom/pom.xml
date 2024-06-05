@@ -16,10 +16,10 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.16.3</jooby.version>
+  <jooby.version>2.16.4</jooby.version>
   <HikariCP.version>4.0.3</HikariCP.version>
   <archetype-packaging.version>3.2.0</archetype-packaging.version>
-  <asm.version>9.6</asm.version>
+  <asm.version>9.7</asm.version>
   <auto-service.version>1.0.1</auto-service.version>
   <aws-java-sdk.version>1.12.349</aws-java-sdk.version>
   <bucket4j-core.version>6.4.1</bucket4j-core.version>
@@ -44,7 +44,7 @@
   <graphql-java.version>16.2</graphql-java.version>
   <gson.version>2.9.1</gson.version>
   <guava.version>31.1-jre</guava.version>
-  <guice.version>5.1.0</guice.version>
+  <guice.version>6.0.0</guice.version>
   <h2.version>2.1.214</h2.version>
   <handlebars.version>4.3.1</handlebars.version>
   <hibernate.version>5.6.15.Final</hibernate.version>
@@ -59,10 +59,10 @@
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.11.0.Final</jboss-modules.version>
   <jdbi.version>3.32.0</jdbi.version>
-  <jetty.version>9.4.53.v20231009</jetty.version>
+  <jetty.version>9.4.54.v20240208</jetty.version>
   <jfiglet.version>0.0.9</jfiglet.version>
-  <jooby-maven-plugin.version>2.16.3</jooby-maven-plugin.version>
-  <jooby.version>2.16.3</jooby.version>
+  <jooby-maven-plugin.version>2.16.4</jooby-maven-plugin.version>
+  <jooby.version>2.16.4</jooby.version>
   <jsonwebtoken.version>0.11.5</jsonwebtoken.version>
   <jsr305.version>3.0.2</jsr305.version>
   <junit.version>5.9.1</junit.version>
@@ -100,7 +100,7 @@
   <mockito.version>4.6.0</mockito.version>
   <mojo-executor.version>2.3.1</mojo-executor.version>
   <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
-  <netty.version>4.1.100.Final</netty.version>
+  <netty.version>4.1.110.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   <node.version>v12.19.0</node.version>
   <okhttp.version>4.9.3</okhttp.version>
@@ -121,7 +121,7 @@
   <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
   <truth.version>1.1.3</truth.version>
   <unbescape.version>1.1.6.RELEASE</unbescape.version>
-  <undertow.version>2.2.28.Final</undertow.version>
+  <undertow.version>2.2.32.Final</undertow.version>
   <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
   <weld.version>3.1.5.Final</weld.version>
   <yasson.version>1.0.9</yasson.version>
@@ -1283,7 +1283,19 @@
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-unix-common</artifactId>
+      <version>${netty.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
       <artifactId>netty-transport-classes-epoll</artifactId>
+      <version>${netty.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-epoll</artifactId>
       <version>${netty.version}</version>
       <type>jar</type>
     </dependency>
