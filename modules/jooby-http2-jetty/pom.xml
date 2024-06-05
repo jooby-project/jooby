@@ -25,13 +25,6 @@
       <version>${jooby.version}</version>
     </dependency>
 
-    <!-- SSL -->
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-conscrypt</artifactId>
-      <version>${jooby.version}</version>
-    </dependency>
-
     <dependency>
       <groupId>org.eclipse.jetty.http2</groupId>
       <artifactId>http2-server</artifactId>
@@ -40,7 +33,7 @@
 
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-alpn-conscrypt-server</artifactId>
+      <artifactId>jetty-alpn-java-server</artifactId>
       <version>${jetty.version}</version>
     </dependency>
 
