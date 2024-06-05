@@ -37,6 +37,14 @@
       <version>${jetty.version}</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-alpn-openjdk8-server -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-alpn-openjdk8-server</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
