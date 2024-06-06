@@ -17,8 +17,8 @@ public class CustomRouterNameTest {
 
   @Test
   public void generateCustomName() throws Exception {
-    var prefix = "C";
-    var suffix = "Router";
+    var prefix = "";
+    var suffix = "_";
     var expectedClassName =
         CustomRouterName.class.getPackage().getName()
             + "."

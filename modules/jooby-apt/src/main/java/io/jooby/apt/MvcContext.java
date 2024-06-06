@@ -38,10 +38,8 @@ public class MvcContext {
     this.debug = Options.boolOpt(processingEnvironment, Options.OPT_DEBUG, false);
     this.incremental = Options.boolOpt(processingEnvironment, Options.OPT_INCREMENTAL, true);
     this.services = Options.boolOpt(processingEnvironment, Options.OPT_SERVICES, true);
-    this.routerPrefix =
-        processingEnvironment.getOptions().getOrDefault(Options.OPT_ROUTER_PREFIX, "");
-    this.routerSuffix =
-        processingEnvironment.getOptions().getOrDefault(Options.OPT_ROUTER_SUFFIX, "_");
+    this.routerPrefix = Options.string(processingEnvironment, Options.OPT_ROUTER_PREFIX, "");
+    this.routerSuffix = Options.string(processingEnvironment, Options.OPT_ROUTER_SUFFIX, "_");
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");

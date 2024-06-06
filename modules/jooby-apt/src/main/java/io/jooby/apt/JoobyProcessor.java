@@ -49,6 +49,12 @@ public class JoobyProcessor extends AbstractProcessor {
       String value = processingEnvironment.getOptions().getOrDefault(option, defaultValue);
       return value == null || value.isEmpty() ? new String[0] : value.split(",");
     }
+
+    static String string(
+        ProcessingEnvironment processingEnvironment, String option, String defaultValue) {
+      String value = processingEnvironment.getOptions().getOrDefault(option, defaultValue);
+      return value == null || value.isEmpty() ? defaultValue : value;
+    }
   }
 
   private MvcContext context;
