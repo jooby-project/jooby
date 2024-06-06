@@ -10,17 +10,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.SOURCE)
-@Target({
-  ElementType.PACKAGE,
-  ElementType.TYPE,
-  ElementType.ANNOTATION_TYPE,
-  ElementType.METHOD,
-  ElementType.CONSTRUCTOR,
-  ElementType.FIELD,
-  ElementType.LOCAL_VARIABLE,
-  ElementType.PARAMETER
-})
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface Generated {
-  String value();
+  Class<?> value();
 }

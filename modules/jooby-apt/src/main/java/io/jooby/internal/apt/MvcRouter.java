@@ -111,7 +111,7 @@ public class MvcRouter {
     var source = TypeSpec.classBuilder(generateTypeName);
     source.addAnnotation(
         AnnotationSpec.builder(ClassName.get("io.jooby.annotation", "Generated"))
-            .addMember("value", "$S", routerType.toString())
+            .addMember("value", "$L.class", routerType.toString())
             .build());
     source.addModifiers(Modifier.PUBLIC);
     source.addSuperinterface(
