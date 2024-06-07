@@ -260,25 +260,6 @@
         <groupId>org.jetbrains.kotlin</groupId>
         <executions>
           <execution>
-            <id>compile</id>
-            <configuration>
-              <sourceDirs>
-                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                <sourceDir>${project.basedir}/src/main/java</sourceDir>
-              </sourceDirs>
-              <jvmTarget>17</jvmTarget>
-            </configuration>
-          </execution>
-          <execution>
-            <id>test-compile</id>
-            <configuration>
-              <sourceDirs>
-                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
-                <sourceDir>${project.basedir}/src/test/java</sourceDir>
-              </sourceDirs>
-            </configuration>
-          </execution>
-          <execution>
             <id>test-kapt</id>
             <goals>
               <goal>test-kapt</goal>
@@ -295,6 +276,26 @@
                   <version>${jooby.version}</version>
                 </annotationProcessorPath>
               </annotationProcessorPaths>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compile</id>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+              </sourceDirs>
+              <jvmTarget>17</jvmTarget>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-compile</id>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                <sourceDir>${project.basedir}/src/test/java</sourceDir>
+                <sourceDir>target/generated-sources/kapt/test</sourceDir>
+              </sourceDirs>
             </configuration>
           </execution>
         </executions>

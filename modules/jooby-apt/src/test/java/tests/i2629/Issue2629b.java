@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 
@@ -18,9 +18,8 @@ public class Issue2629b {
 
   @Test
   public void shouldSetMvcMethod() throws Exception {
-    new MvcModuleCompilerRunner(new C2629b())
-        .example(Expected2629b.class)
-        .module(
+    new ProcessorRunner(new C2629b())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               MockContext ctx = new MockContext();

@@ -17,7 +17,7 @@ public class Issue1859 {
     runner
         .define(
             app -> {
-              app.mvc(new C1859());
+              app.mvc(new C1859_());
               app.post("/i1859", ctx -> ctx.body().value("empty"));
             })
         .ready(

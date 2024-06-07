@@ -20,7 +20,7 @@ public class Issue2325 {
             app -> {
               app.converter(new VC2325());
 
-              app.mvc(new C2325());
+              app.mvc(new C2325_());
             })
         .ready(
             http -> {
@@ -45,7 +45,7 @@ public class Issue2325 {
     runner
         .define(
             app -> {
-              app.mvc(new C2325());
+              app.mvc(new C2325_());
               app.error(
                   (ctx, cause, code) -> {
                     ctx.send(cause.getMessage());
@@ -68,7 +68,7 @@ public class Issue2325 {
     runner
         .define(
             app -> {
-              app.mvc(new C2325());
+              app.mvc(new C2325_());
             })
         .ready(
             http -> {

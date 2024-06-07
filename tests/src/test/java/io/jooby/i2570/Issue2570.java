@@ -20,7 +20,7 @@ public class Issue2570 {
     runner
         .define(
             app -> {
-              app.mvc(new Controller2570());
+              app.mvc(new Controller2570_());
             })
         .ready(
             http -> {

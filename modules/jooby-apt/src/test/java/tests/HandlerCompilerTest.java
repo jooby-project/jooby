@@ -35,10 +35,10 @@ import io.jooby.Formdata;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.StatusCode;
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.MockContextHelper;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.ProvisioningException;
-import io.jooby.internal.apt.MockContextHelper;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 import source.CustomGenericType;
@@ -54,8 +54,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void typeInjection() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -81,8 +81,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void queryParam() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals(
@@ -97,8 +97,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void cookieParam() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals(
@@ -114,8 +114,8 @@ public class HandlerCompilerTest {
   @Test
   public void headerParam() throws Exception {
     long epoc = System.currentTimeMillis();
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals(
@@ -131,8 +131,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void flashParam() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals(
@@ -147,8 +147,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void formParam() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -162,8 +162,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void pathParam() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals(
@@ -250,8 +250,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void multipleParameters() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -267,9 +267,9 @@ public class HandlerCompilerTest {
 
   @Test
   public void fileParam() throws Exception {
-    FileUpload file = mock(FileUpload.class);
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    var file = mock(FileUpload.class);
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -294,8 +294,8 @@ public class HandlerCompilerTest {
     BigInteger bigInteger = new BigInteger("888888");
     Charset charset = StandardCharsets.UTF_8;
 
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -349,8 +349,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void returnTypes() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -405,8 +405,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void body() throws Exception {
-    new MvcModuleCompilerRunner(new Provisioning())
-        .module(
+    new ProcessorRunner(new Provisioning())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -417,7 +417,7 @@ public class HandlerCompilerTest {
 
               assertEquals(map, router.post("/p/bodyMapParam", ctx).value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -429,7 +429,7 @@ public class HandlerCompilerTest {
 
               assertEquals("...", router.post("/p/bodyStringParamNullable", ctx).value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -441,7 +441,7 @@ public class HandlerCompilerTest {
 
               assertEquals("...", router.post("/p/bodyStringParam", ctx).value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -454,7 +454,7 @@ public class HandlerCompilerTest {
                               .setBody("...".getBytes(StandardCharsets.UTF_8)))
                       .value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -469,7 +469,7 @@ public class HandlerCompilerTest {
                           "/p/bodyInputStreamParam", MockContextHelper.mockContext().setBody(body))
                       .value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               ReadableByteChannel channel = mock(ReadableByteChannel.class);
@@ -482,7 +482,7 @@ public class HandlerCompilerTest {
                       .post("/p/bodyChannelParam", MockContextHelper.mockContext().setBody(body))
                       .value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -493,7 +493,7 @@ public class HandlerCompilerTest {
 
               assertEquals(bean.toString(), router.post("/p/bodyBeanParam", ctx).value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -505,7 +505,7 @@ public class HandlerCompilerTest {
 
               assertEquals(9, router.post("/p/bodyIntParam", ctx).value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -517,7 +517,7 @@ public class HandlerCompilerTest {
 
               assertEquals(Optional.of(9), router.post("/p/bodyOptionalIntParam", ctx).value());
             })
-        .module(
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -533,11 +533,10 @@ public class HandlerCompilerTest {
 
   @Test
   public void jarxs() throws Exception {
-    new MvcModuleCompilerRunner(new JaxrsController())
-        .module(
+    new ProcessorRunner(new JaxrsController())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
-
               assertEquals(
                   "v1",
                   router
@@ -556,8 +555,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void noTopLevel() throws Exception {
-    new MvcModuleCompilerRunner(new NoPathRoute())
-        .module(
+    new ProcessorRunner(new NoPathRoute())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -570,8 +569,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void nullRoutes() throws Exception {
-    new MvcModuleCompilerRunner(new NullRoutes())
-        .module(
+    new ProcessorRunner(new NullRoutes())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -589,8 +588,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void routeParam() throws Exception {
-    new MvcModuleCompilerRunner(new RouteInjection())
-        .module(
+    new ProcessorRunner(new RouteInjection())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -601,8 +600,8 @@ public class HandlerCompilerTest {
 
   @Test
   public void contextPath() throws Exception {
-    new MvcModuleCompilerRunner(new RouteContextPath())
-        .module(
+    new ProcessorRunner(new RouteContextPath())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 

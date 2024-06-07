@@ -13,7 +13,7 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Context;
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockRouter;
 import source.Controller1552;
 import source.Controller1552Empty;
@@ -22,8 +22,8 @@ import source.JavaBeanParam;
 public class Issue1552 {
   @Test
   public void inherited() throws Exception {
-    new MvcModuleCompilerRunner(new Controller1552())
-        .module(
+    new ProcessorRunner(new Controller1552())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -55,8 +55,8 @@ public class Issue1552 {
 
   @Test
   public void inherited_empty() throws Exception {
-    new MvcModuleCompilerRunner(new Controller1552Empty())
-        .module(
+    new ProcessorRunner(new Controller1552Empty())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 

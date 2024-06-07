@@ -10,14 +10,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Route;
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.ProcessorRunner;
 import source.RouteClassAttributes;
 
 public class Issue1525 {
   @Test
   public void routeClassAttributes() throws Exception {
-    new MvcModuleCompilerRunner(new RouteClassAttributes())
-        .module(
+    new ProcessorRunner(new RouteClassAttributes())
+        .withRouter(
             app -> {
               Route route0 = app.getRoutes().get(0);
               assertEquals(2, route0.getAttributes().size(), route0.getAttributes().toString());

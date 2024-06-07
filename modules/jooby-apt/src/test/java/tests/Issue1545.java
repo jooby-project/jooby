@@ -10,15 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.StatusCode;
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockRouter;
 import source.Controller1545;
 
 public class Issue1545 {
   @Test
   public void shouldSetNoContentCodeForVoidRoute() throws Exception {
-    new MvcModuleCompilerRunner(new Controller1545())
-        .module(
+    new ProcessorRunner(new Controller1545())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 

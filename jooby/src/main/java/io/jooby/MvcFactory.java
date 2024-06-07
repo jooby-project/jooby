@@ -13,14 +13,14 @@ import jakarta.inject.Provider;
  *
  * @since 2.1.0
  */
-public interface MvcFactory {
+public interface MvcFactory<T> {
   /**
    * Check if the factory applies for the given MVC route.
    *
    * @param type MVC route.
    * @return True for matching factory.
    */
-  boolean supports(@NonNull Class type);
+  boolean supports(@NonNull Class<T> type);
 
   /**
    * Creates an extension module. The extension module are created at compilation time by Jooby APT.
@@ -28,5 +28,5 @@ public interface MvcFactory {
    * @param provider MVC route instance provider.
    * @return All mvc route as extension module.
    */
-  @NonNull Extension create(@NonNull Provider provider);
+  @NonNull Extension create(@NonNull Provider<T> provider);
 }

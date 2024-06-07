@@ -687,11 +687,11 @@ public class Route {
    * @return This route.
    */
   public @NonNull Route setProduces(@NonNull Collection<MediaType> produces) {
-    if (produces.size() > 0) {
+    if (!produces.isEmpty()) {
       if (this.produces == EMPTY_LIST) {
         this.produces = new ArrayList<>();
       }
-      produces.forEach(this.produces::add);
+      this.produces.addAll(produces);
     }
     return this;
   }
@@ -724,11 +724,11 @@ public class Route {
    * @return This route.
    */
   public @NonNull Route setConsumes(@NonNull Collection<MediaType> consumes) {
-    if (consumes.size() > 0) {
+    if (!consumes.isEmpty()) {
       if (this.consumes == EMPTY_LIST) {
         this.consumes = new ArrayList<>();
       }
-      consumes.forEach(this.consumes::add);
+      this.consumes.addAll(consumes);
     }
     return this;
   }

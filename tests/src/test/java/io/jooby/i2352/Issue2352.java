@@ -17,7 +17,7 @@ public class Issue2352 {
     runner
         .define(
             app -> {
-              app.mvc(new C2352());
+              app.mvc(new C2352_());
               app.error(
                   (ctx, cause, code) -> {
                     ctx.send(cause.getMessage());

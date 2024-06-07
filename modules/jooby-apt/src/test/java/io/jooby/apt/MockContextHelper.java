@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.apt;
+package io.jooby.apt;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

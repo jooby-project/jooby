@@ -28,7 +28,8 @@ import io.jooby.Context;
 import io.jooby.ParamSource;
 import io.jooby.Route;
 import io.jooby.StatusCode;
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.ProcessorRunner;
+import io.jooby.exception.MissingValueException;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
 import source.ArrayRoute;
@@ -49,8 +50,8 @@ import source.VoidRoute;
 public class ModuleCompilerTest {
   @Test
   public void minRoute() throws Exception {
-    new MvcModuleCompilerRunner(new MinRoute())
-        .module(
+    new ProcessorRunner(new MinRoute())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals("/mypath", router.get("/mypath").value());
@@ -59,8 +60,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void arrayRoute() throws Exception {
-    new MvcModuleCompilerRunner(new ArrayRoute())
-        .module(
+    new ProcessorRunner(new ArrayRoute())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
@@ -80,8 +81,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void routes() throws Exception {
-    new MvcModuleCompilerRunner(new Routes())
-        .module(
+    new ProcessorRunner(new Routes())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals("/path", router.get("/path").value());
@@ -104,8 +105,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void routesWithMimeTypes() throws Exception {
-    new MvcModuleCompilerRunner(new RouteWithMimeTypes())
-        .module(
+    new ProcessorRunner(new RouteWithMimeTypes())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               assertEquals("/consumes", router.get("/consumes").value());
@@ -121,17 +122,16 @@ public class ModuleCompilerTest {
 
   @Test
   public void routesWithParamLookup() throws Exception {
-    new MvcModuleCompilerRunner(new RouteWithParamLookup())
-        .module(
+    new ProcessorRunner(new RouteWithParamLookup())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
 
               Throwable t =
                   assertThrows(
-                      IllegalArgumentException.class,
-                      () -> router.get("/lookup/no-sources").value());
+                      MissingValueException.class, () -> router.get("/lookup/no-sources").value());
 
-              assertEquals(t.getMessage(), "No parameter sources were specified.");
+              assertEquals(t.getMessage(), "Missing value: 'myParam'");
 
               {
                 MockContext context =
@@ -211,8 +211,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void voidRoutes() throws Exception {
-    new MvcModuleCompilerRunner(new VoidRoute())
-        .module(
+    new ProcessorRunner(new VoidRoute())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               router.delete(
@@ -225,8 +225,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void getPostRoutes() throws Exception {
-    new MvcModuleCompilerRunner(new GetPostRoute())
-        .module(
+    new ProcessorRunner(new GetPostRoute())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               router.get(
@@ -244,8 +244,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void noTopLevel() throws Exception {
-    new MvcModuleCompilerRunner(new NoPathRoute())
-        .module(
+    new ProcessorRunner(new NoPathRoute())
+        .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
               router.get(
@@ -263,8 +263,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void setPrimitiveReturnType() throws Exception {
-    new MvcModuleCompilerRunner(new PrimitiveReturnType())
-        .module(
+    new ProcessorRunner(new PrimitiveReturnType())
+        .withRouter(
             app -> {
               Route route = app.getRoutes().get(0);
               assertEquals(int.class, route.getReturnType());
@@ -273,8 +273,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void routeAttributes() throws Exception {
-    new MvcModuleCompilerRunner(new RouteAttributes())
-        .module(
+    new ProcessorRunner(new RouteAttributes())
+        .withRouter(
             app -> {
               Route route = app.getRoutes().get(0);
               assertEquals(13, route.getAttributes().size(), route.getAttributes().toString());
@@ -303,8 +303,8 @@ public class ModuleCompilerTest {
 
   @Test
   public void routeDispatch() throws Exception {
-    new MvcModuleCompilerRunner(new RouteDispatch())
-        .module(
+    new ProcessorRunner(new RouteDispatch())
+        .withRouter(
             app -> {
               assertEquals("worker", app.getRoutes().get(0).getExecutorKey());
               assertEquals("single", app.getRoutes().get(1).getExecutorKey());

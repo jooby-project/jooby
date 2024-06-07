@@ -17,7 +17,7 @@ public class Issue1786 {
     runner
         .define(
             app -> {
-              app.mvc(new Controller1786());
+              app.mvc(new Controller1786_());
             })
         .ready(
             client -> {

@@ -30,6 +30,9 @@ public class TypeFactory {
 
   public static final Type CONTEXT = Type.getType(Context.class);
 
+  public static final Type MVC_EXTENSION = Type.getType("Lio/jooby/MvcExtension;");
+  public static final Type GENERATED = Type.getType("Lio/jooby/annotation/Generated;");
+
   public static final Type KOOBY = Type.getType("Lio/jooby/kt/Kooby;");
 
   public static final Type KOOBYKT = Type.getType("Lio/jooby/kt/KoobyKt;");

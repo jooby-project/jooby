@@ -13,7 +13,7 @@ class App: Kooby({
   install(OpenAPIModule())
 {{/if}}
 {{#if mvc}}
-  mvc(Controller())
+  mvc(Controller_())
 {{else}}
   get("/") {
     "Welcome to Jooby!"

@@ -12,15 +12,15 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Route;
-import io.jooby.apt.MvcModuleCompilerRunner;
+import io.jooby.apt.ProcessorRunner;
 import source.Controller1527;
 import source.TopEnum;
 
 public class Issue1527 {
   @Test
   public void annotation() throws Exception {
-    new MvcModuleCompilerRunner(new Controller1527())
-        .module(
+    new ProcessorRunner(new Controller1527())
+        .withRouter(
             app -> {
               Route route0 = app.getRoutes().get(0);
               assertEquals(2, route0.getAttributes().size(), route0.getAttributes().toString());

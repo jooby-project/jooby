@@ -19,11 +19,11 @@
 
   <dependencies>
 
-    <!-- ASM -->
+    <!-- https://mvnrepository.com/artifact/com.squareup/javapoet -->
     <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-util</artifactId>
-      <optional>true</optional>
+      <groupId>com.squareup</groupId>
+      <artifactId>javapoet</artifactId>
+      <version>1.13.0</version>
     </dependency>
 
     <dependency>

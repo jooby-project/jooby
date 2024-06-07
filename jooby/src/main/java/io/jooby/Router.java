@@ -5,7 +5,6 @@
  */
 package io.jooby;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
@@ -109,8 +108,7 @@ public interface Router extends Registry {
   String TRACE = "TRACE";
 
   /** HTTP Methods. */
-  List<String> METHODS =
-      unmodifiableList(asList(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE));
+  List<String> METHODS = List.of(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE);
 
   /** Web socket. */
   String WS = "WS";
@@ -411,12 +409,22 @@ public interface Router extends Registry {
    */
 
   /**
+   * Import all route method from the given controller class.
+   *
+   * @param router Router extension.
+   * @return This router.
+   */
+  @NonNull Router mvc(@NonNull MvcExtension router);
+
+  /**
    * Import all route method from the given controller class. At runtime the controller instance is
    * resolved by calling {@link Jooby#require(Class)}.
    *
    * @param router Controller class.
    * @return This router.
+   * @deprecated See {{@link #mvc(MvcExtension)}}
    */
+  @Deprecated
   @NonNull Router mvc(@NonNull Class router);
 
   /**
@@ -426,7 +434,9 @@ public interface Router extends Registry {
    * @param provider Controller provider.
    * @param <T> Controller type.
    * @return This router.
+   * @deprecated See {{@link #mvc(MvcExtension)}}
    */
+  @Deprecated
   @NonNull <T> Router mvc(@NonNull Class<T> router, @NonNull Provider<T> provider);
 
   /**
@@ -434,7 +444,9 @@ public interface Router extends Registry {
    *
    * @param router Controller instance.
    * @return This routes.
+   * @deprecated See {{@link #mvc(MvcExtension)}}
    */
+  @Deprecated
   @NonNull Router mvc(@NonNull Object router);
 
   /**
@@ -1105,14 +1117,11 @@ public interface Router extends Registry {
         i = len;
       }
     }
-    switch (result.size()) {
-      case 0:
-        return Collections.emptyList();
-      case 1:
-        return Collections.singletonList(result.get(0));
-      default:
-        return unmodifiableList(result);
-    }
+    return switch (result.size()) {
+      case 0 -> Collections.emptyList();
+      case 1 -> Collections.singletonList(result.get(0));
+      default -> unmodifiableList(result);
+    };
   }
 
   /**
@@ -1207,7 +1216,7 @@ public interface Router extends Registry {
     if (paths.isEmpty()) {
       return Collections.singletonList(pattern);
     }
-    if (segment.length() > 0) {
+    if (!segment.isEmpty()) {
       pathAppender.accept(key.get(), segment);
       if (isLastOptional) {
         paths.put(key.incrementAndGet(), segment);
@@ -1273,7 +1282,7 @@ public interface Router extends Registry {
         i = len;
       }
     }
-    if (path.length() == 0) {
+    if (path.isEmpty()) {
       return pattern;
     }
     if (start > 0) {

@@ -6,8 +6,7 @@
 package io.jooby.internal.openapi;
 
 import static io.jooby.internal.openapi.AsmUtils.*;
-import static io.jooby.internal.openapi.TypeFactory.KT_FUN_0;
-import static io.jooby.internal.openapi.TypeFactory.KT_KLASS;
+import static io.jooby.internal.openapi.TypeFactory.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
@@ -164,15 +163,13 @@ public class AnnotationParser {
   static final String PACKAGE = GET.class.getPackage().getName();
 
   static final Set<String> IGNORED_PARAM_TYPE =
-      new HashSet<>(
-          asList(
-              Context.class.getName(),
-              Session.class.getName(),
-              "java.util.Optional<" + Session.class.getName() + ">",
-              "kotlin.coroutines.Continuation"));
+      Set.of(
+          Context.class.getName(),
+          Session.class.getName(),
+          "java.util.Optional<" + Session.class.getName() + ">",
+          "kotlin.coroutines.Continuation");
 
-  static final Set<String> IGNORED_ANNOTATIONS =
-      new HashSet<>(asList(ContextParam.class.getName()));
+  static final Set<String> IGNORED_ANNOTATIONS = Set.of(ContextParam.class.getName());
 
   public static List<OperationExt> parse(
       ParserContext ctx, String prefix, Signature signature, MethodInsnNode node) {
@@ -190,14 +187,24 @@ public class AnnotationParser {
                       new IllegalStateException(
                           "Mvc class not found: " + InsnSupport.toString(node)));
       return parse(ctx, prefix, type);
-    } else if (signature.matches(Object.class)) {
+    } else if (signature.matches(MVC_EXTENSION) || signature.matches(Object.class)) {
       AbstractInsnNode previous = node.getPrevious();
       if (previous instanceof MethodInsnNode) {
         MethodInsnNode methodInsnNode = (MethodInsnNode) previous;
         if (methodInsnNode.getOpcode() == Opcodes.INVOKESPECIAL) {
           // mvc(new Controller(...));
-          Type type = Type.getObjectType(methodInsnNode.owner);
-          return parse(ctx, prefix, type);
+          var type = Type.getObjectType(methodInsnNode.owner);
+          var classNode = ctx.classNode(type);
+          var controllerType =
+              Optional.ofNullable(classNode.visibleAnnotations)
+                  .orElse(Collections.emptyList())
+                  .stream()
+                  .filter(it -> GENERATED.getDescriptor().equals(it.desc))
+                  // value=0, type=1
+                  .map(it -> (Type) it.values.get(1))
+                  .findFirst()
+                  .orElse(type);
+          return parse(ctx, prefix, controllerType);
         } else if (methodInsnNode.getOpcode() == Opcodes.INVOKEINTERFACE) {
           AbstractInsnNode methodPrev = methodInsnNode.getPrevious();
           if (methodPrev instanceof VarInsnNode) {
@@ -453,7 +460,7 @@ public class AnnotationParser {
       List<AnnotationNode> annotations = method.invisibleParameterAnnotations[paramIndex];
       if (annotations != null) {
         return annotations.stream()
-                .anyMatch(a -> a.desc.equals("Lorg/jetbrains/annotations/Nullable;"));
+            .anyMatch(a -> a.desc.equals("Lorg/jetbrains/annotations/Nullable;"));
       }
     }
     return true;

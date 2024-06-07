@@ -7,7 +7,7 @@ package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import examples.MvcAttributes;
+import examples.MvcAttributes_;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -37,7 +37,7 @@ public class RouteAttributeTest {
                         return next.apply(ctx);
                       });
 
-              app.mvc(new MvcAttributes());
+              app.mvc(new MvcAttributes_());
             })
         .ready(
             client -> {
