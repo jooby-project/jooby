@@ -8,6 +8,7 @@ package io.jooby.jstachio;
 import java.lang.reflect.Type;
 import java.util.function.BiFunction;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Reified;
 import io.jooby.ResultHandler;
@@ -41,7 +42,7 @@ class JStachioResultHandler implements ResultHandler {
   }
 
   @Override
-  public Filter create() {
+  public @NonNull Filter create() {
     return new JStachioHandler(jstachio, buffer, contextFunction);
   }
 }

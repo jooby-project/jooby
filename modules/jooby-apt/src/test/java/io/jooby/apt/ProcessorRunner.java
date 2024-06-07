@@ -16,14 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import javax.annotation.processing.Messager;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import com.google.common.truth.Truth;
@@ -64,8 +59,8 @@ public class ProcessorRunner {
   private static class HookJoobyProcessor extends JoobyProcessor {
     private JavaFile source;
 
-    public HookJoobyProcessor() {
-      super(new ConsoleMessager());
+    public HookJoobyProcessor(Consumer<String> console) {
+      super(console);
     }
 
     public GeneratedSourceClassLoader createClassLoader() {
@@ -83,50 +78,14 @@ public class ProcessorRunner {
     }
   }
 
-  private static class ConsoleMessager implements Messager {
-    @Override
-    public void printMessage(Diagnostic.Kind kind, CharSequence msg) {
-      println(kind, msg);
-    }
-
-    @Override
-    public void printMessage(Diagnostic.Kind kind, CharSequence msg, Element e) {
-      println(kind, msg, e);
-    }
-
-    @Override
-    public void printMessage(
-        Diagnostic.Kind kind, CharSequence msg, Element e, AnnotationMirror a) {
-      println(kind, msg, e, " @", a);
-    }
-
-    @Override
-    public void printMessage(
-        Diagnostic.Kind kind, CharSequence msg, Element e, AnnotationMirror a, AnnotationValue v) {
-      println(kind, msg, e, " @", a, "=", v);
-    }
-
-    private void println(Diagnostic.Kind kind, CharSequence message, Object... args) {
-      var out = kind == Diagnostic.Kind.ERROR ? System.err : System.out;
-      out.println(
-          kind
-              + ": "
-              + message
-              + " "
-              + Stream.of(args)
-                  .filter(Objects::nonNull)
-                  .map(Objects::toString)
-                  .collect(Collectors.joining(" ")));
-    }
-  }
-
-  private final HookJoobyProcessor processor = new HookJoobyProcessor();
+  private final HookJoobyProcessor processor;
 
   public ProcessorRunner(Object instance) throws IOException {
     this(instance, Map.of());
   }
 
   public ProcessorRunner(Object instance, Map<String, Object> options) throws IOException {
+    this.processor = new HookJoobyProcessor(System.out::println);
     var optionsArray =
         options.entrySet().stream().map(e -> "-A" + e.getKey() + "=" + e.getValue()).toList();
     Truth.assert_()
@@ -135,10 +94,6 @@ public class ProcessorRunner {
         .withCompilerOptions(optionsArray.toArray(new String[0]))
         .processedWith(processor)
         .compilesWithoutError();
-  }
-
-  public ProcessorRunner(Object instance, boolean debug) throws IOException {
-    this(instance, Map.of("jooby.debug", debug));
   }
 
   public ProcessorRunner withRouter(SneakyThrows.Consumer<Jooby> consumer) throws Exception {

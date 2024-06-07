@@ -6,11 +6,10 @@
 package io.jooby.apt;
 
 import java.util.*;
+import java.util.function.Consumer;
 
-import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
-import javax.tools.Diagnostic;
 
 import io.jooby.apt.JoobyProcessor.Options;
 import io.jooby.internal.apt.HttpMethod;
@@ -28,18 +27,17 @@ public class MvcContext {
   private final boolean services;
   private final String routerPrefix;
   private final String routerSuffix;
-  private int round;
-  private final Messager messager;
+  private final Consumer<String> output;
   private final List<MvcRouter> routers = new ArrayList<>();
 
-  public MvcContext(ProcessingEnvironment processingEnvironment, Messager messager) {
+  public MvcContext(ProcessingEnvironment processingEnvironment, Consumer<String> output) {
     this.processingEnvironment = processingEnvironment;
-    this.messager = messager;
-    this.debug = Options.boolOpt(processingEnvironment, Options.OPT_DEBUG, false);
-    this.incremental = Options.boolOpt(processingEnvironment, Options.OPT_INCREMENTAL, true);
-    this.services = Options.boolOpt(processingEnvironment, Options.OPT_SERVICES, true);
-    this.routerPrefix = Options.string(processingEnvironment, Options.OPT_ROUTER_PREFIX, "");
-    this.routerSuffix = Options.string(processingEnvironment, Options.OPT_ROUTER_SUFFIX, "_");
+    this.output = output;
+    this.debug = Options.boolOpt(processingEnvironment, Options.DEBUG, false);
+    this.incremental = Options.boolOpt(processingEnvironment, Options.INCREMENTAL, true);
+    this.services = Options.boolOpt(processingEnvironment, Options.SERVICES, true);
+    this.routerPrefix = Options.string(processingEnvironment, Options.ROUTER_PREFIX, "");
+    this.routerSuffix = Options.string(processingEnvironment, Options.ROUTER_SUFFIX, "_");
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
     debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
@@ -132,25 +130,14 @@ public class MvcContext {
     return services;
   }
 
-  public int nextRound() {
-    return ++round;
-  }
-
   public void debug(String message, Object... args) {
     if (debug) {
-      print(Diagnostic.Kind.NOTE, message, args);
+      info(message, args);
     }
   }
 
-  private void print(Diagnostic.Kind kind, String message, Object... args) {
-    Element originatingElement = null;
-    Object[] arguments = args;
-    if (args.length > 0 && args[args.length - 1] instanceof Element element) {
-      originatingElement = element;
-      arguments = new Object[args.length - 1];
-      System.arraycopy(arguments, 0, arguments, 0, arguments.length);
-    }
-    var msg = message.formatted(arguments);
-    messager.printMessage(kind, msg, originatingElement);
+  public void info(String message, Object... args) {
+    var msg = args.length == 0 ? message : message.formatted(args);
+    output.accept(msg);
   }
 }

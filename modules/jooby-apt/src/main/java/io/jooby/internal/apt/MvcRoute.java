@@ -228,7 +228,12 @@ public class MvcRoute {
       }
       buffer.append(") ");
     }
-    buffer.append(method.getSimpleName()).append("()").append(" {}");
+    buffer
+        .append(method.getSimpleName())
+        .append("(")
+        .append(String.join(", ", getRawParameterTypes()))
+        .append("): ")
+        .append(getReturnType());
     return buffer.toString();
   }
 

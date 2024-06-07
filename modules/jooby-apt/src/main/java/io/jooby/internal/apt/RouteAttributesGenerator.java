@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.apt.JoobyProcessor.Options.SKIP_ATTRIBUTE_ANNOTATIONS;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.*;
@@ -49,8 +51,7 @@ public class RouteAttributesGenerator {
     var environment = context.getProcessingEnvironment();
     this.elements = environment.getElementUtils();
     this.types = environment.getTypeUtils();
-    this.skip =
-        List.of(Options.stringListOpt(environment, Options.OPT_SKIP_ATTRIBUTE_ANNOTATIONS, ""));
+    this.skip = Options.stringListOpt(environment, SKIP_ATTRIBUTE_ANNOTATIONS);
   }
 
   public Optional<String> toSourceCode(MvcRoute route, String indent) {

@@ -5,11 +5,13 @@
  */
 package io.jooby.apt;
 
+import static io.jooby.apt.JoobyProcessor.Options.*;
 import static java.util.Optional.ofNullable;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,52 +19,45 @@ import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
+import javax.tools.Diagnostic;
 import javax.tools.StandardLocation;
 
 import com.squareup.javapoet.JavaFile;
 import io.jooby.internal.apt.*;
 
-@SupportedOptions({
-  JoobyProcessor.Options.OPT_DEBUG,
-  JoobyProcessor.Options.OPT_INCREMENTAL,
-  JoobyProcessor.Options.OPT_SERVICES,
-  JoobyProcessor.Options.OPT_SKIP_ATTRIBUTE_ANNOTATIONS
-})
+@SupportedOptions({DEBUG, INCREMENTAL, SERVICES, SKIP_ATTRIBUTE_ANNOTATIONS})
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class JoobyProcessor extends AbstractProcessor {
   public interface Options {
-    String OPT_ROUTER_PREFIX = "jooby.routerPrefix";
-    String OPT_ROUTER_SUFFIX = "jooby.routerSuffix";
-    String OPT_DEBUG = "jooby.debug";
-    String OPT_INCREMENTAL = "jooby.incremental";
-    String OPT_SERVICES = "jooby.services";
-    String OPT_SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
+    String DEBUG = "jooby.debug";
+    String ROUTER_PREFIX = "jooby.routerPrefix";
+    String ROUTER_SUFFIX = "jooby.routerSuffix";
+    String INCREMENTAL = "jooby.incremental";
+    String SERVICES = "jooby.services";
+    String SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
 
-    static boolean boolOpt(
-        ProcessingEnvironment processingEnvironment, String option, boolean defaultValue) {
+    static boolean boolOpt(ProcessingEnvironment environment, String option, boolean defaultValue) {
       return Boolean.parseBoolean(
-          processingEnvironment.getOptions().getOrDefault(option, String.valueOf(defaultValue)));
+          environment.getOptions().getOrDefault(option, String.valueOf(defaultValue)));
     }
 
-    static String[] stringListOpt(
-        ProcessingEnvironment processingEnvironment, String option, String defaultValue) {
-      String value = processingEnvironment.getOptions().getOrDefault(option, defaultValue);
-      return value == null || value.isEmpty() ? new String[0] : value.split(",");
+    static List<String> stringListOpt(ProcessingEnvironment environment, String option) {
+      String value = string(environment, option, null);
+      return value == null || value.isEmpty() ? List.of() : List.of(value.split(","));
     }
 
-    static String string(
-        ProcessingEnvironment processingEnvironment, String option, String defaultValue) {
-      String value = processingEnvironment.getOptions().getOrDefault(option, defaultValue);
+    static String string(ProcessingEnvironment environment, String option, String defaultValue) {
+      String value = environment.getOptions().getOrDefault(option, defaultValue);
       return value == null || value.isEmpty() ? defaultValue : value;
     }
   }
 
   private MvcContext context;
-  private Messager messager;
+  private Consumer<String> output;
   private final Set<Object> processed = new HashSet<>();
 
-  public JoobyProcessor(Messager messager) {
-    this.messager = messager;
+  public JoobyProcessor(Consumer<String> output) {
+    this.output = output;
   }
 
   public JoobyProcessor() {}
@@ -72,15 +67,21 @@ public class JoobyProcessor extends AbstractProcessor {
     this.context =
         new MvcContext(
             processingEnvironment,
-            ofNullable(messager).orElse(processingEnvironment.getMessager()));
+            ofNullable(output)
+                .orElseGet(
+                    () ->
+                        message ->
+                            processingEnvironment
+                                .getMessager()
+                                .printMessage(Diagnostic.Kind.OTHER, message)));
     super.init(processingEnvironment);
   }
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    context.debug("round #%s", context.nextRound());
-
     if (roundEnv.processingOver()) {
+      context.debug("Output:");
+      context.getRouters().forEach(it -> context.debug("  %s.java", it.getGeneratedType()));
       if (context.generateServices()) {
         doServices(context.getProcessingEnvironment().getFiler(), context.getRouters());
       }
@@ -92,7 +93,8 @@ public class JoobyProcessor extends AbstractProcessor {
         try {
           var javaFile = router.toSourceCode();
           onGeneratedSource(javaFile);
-          context.debug("%s", router.getTargetType());
+          context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
+          router.getRoutes().forEach(it -> context.debug("   %s", it));
           javaFile.writeTo(filer);
           context.add(router);
         } catch (IOException cause) {
@@ -108,12 +110,12 @@ public class JoobyProcessor extends AbstractProcessor {
   private void doServices(Filer filer, List<MvcRouter> routers) {
     try {
       var location = "META-INF/services/io.jooby.MvcFactory";
-      context.debug("%s", location);
+      context.debug(location);
 
       var resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
       var content = new StringBuilder();
       for (var router : routers) {
-        String classname = router.getGeneratedType();
+        var classname = router.getGeneratedType();
         context.debug("  %s", classname);
         content.append(classname).append(System.lineSeparator());
       }
@@ -130,10 +132,12 @@ public class JoobyProcessor extends AbstractProcessor {
     Map<TypeElement, MvcRouter> registry = new LinkedHashMap<>();
 
     for (var annotation : annotations) {
+      context.debug("found annotation: %s", annotation);
       var elements = roundEnv.getElementsAnnotatedWith(annotation);
       // Element could be Class or Method, bc @Path can be applied to both of them
       // Also we need to expand lookup to external jars see #2486
       for (var element : elements) {
+        context.debug("  %s", element);
         if (element instanceof TypeElement typeElement) {
           buildRouteRegistry(registry, typeElement);
         } else if (element instanceof ExecutableElement method) {
@@ -188,7 +192,7 @@ public class JoobyProcessor extends AbstractProcessor {
             .forEach(
                 method -> {
                   if (method.getModifiers().contains(Modifier.ABSTRACT)) {
-                    context.debug("ignoring abstract method %s", superType, method);
+                    context.debug("ignoring abstract method: %s %s", superType, method);
                   } else {
                     method.getAnnotationMirrors().stream()
                         .map(AnnotationMirror::getAnnotationType)
@@ -220,8 +224,10 @@ public class JoobyProcessor extends AbstractProcessor {
 
   @Override
   public Set<String> getSupportedAnnotationTypes() {
-    return Stream.concat(HttpPath.PATH.getAnnotations().stream(), HttpMethod.annotations().stream())
-        .collect(Collectors.toSet());
+    var supportedTypes = new HashSet<String>();
+    supportedTypes.addAll(HttpPath.PATH.getAnnotations());
+    supportedTypes.addAll(HttpMethod.annotations());
+    return supportedTypes;
   }
 
   @Override
