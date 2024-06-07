@@ -6,6 +6,7 @@
 package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.AnnotationSupport.*;
+import static java.util.Optional.ofNullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -74,11 +75,16 @@ public class MvcRoute {
     var attributeGenerator = new RouteAttributesGenerator(context);
     var suspendPrefix = isSuspend ? "new io.jooby.kt.CoroutineHandler(" : "";
     var suspendSuffix = isSuspend ? ")" : "";
-    for (var e : annotationMap.entrySet()) {
+    var routes = router.getRoutes();
+    var lastRoute = routes.get(routes.size() - 1).equals(this);
+    var entries = annotationMap.entrySet().stream().toList();
+    for (var e : entries) {
+      var lastHttpMethod = lastRoute && entries.get(entries.size() - 1).equals(e);
       var annotation = e.getKey();
       var httpMethod = HttpMethod.findByAnnotationName(annotation.getQualifiedName().toString());
       var paths = context.path(router.getTargetType(), method, annotation);
       for (var path : paths) {
+        var lastLine = lastHttpMethod && paths.get(paths.size() - 1).equals(path);
         block.add(javadocLink);
         block.add(
             CodeBlock.of(
@@ -106,12 +112,14 @@ public class MvcRoute {
         /* returnType */
         block.add(CodeBlock.of("   .setReturnType($L)\n", returnType.toSourceCode()));
         /* mvcMethod */
+        var lineSep = lastLine ? "\n" : "\n\n";
         block.add(
             CodeBlock.of(
-                "   .setMvcMethod($L.class.getMethod($S$L));\n\n",
+                "   .setMvcMethod($L.class.getMethod($S$L));$L",
                 router.getTargetType().getSimpleName(),
                 getMethodName(),
-                paramString.isEmpty() ? "" : ", " + paramString));
+                paramString.isEmpty() ? "" : ", " + paramString,
+                lineSep));
       }
     }
     return block;
@@ -124,7 +132,9 @@ public class MvcRoute {
     var methodSpec = MethodSpec.methodBuilder(getGeneratedName());
     methodSpec.addModifiers(Modifier.PUBLIC);
     methodSpec.addParameter(ParameterSpec.builder(contextType, "ctx").build());
-    methodSpec.addException(Exception.class);
+    if (!method.getThrownTypes().isEmpty()) {
+      methodSpec.addException(Exception.class);
+    }
     /* Parameters */
     var paramList = new StringJoiner(", ", "(", ")");
     for (var parameter : getParameters()) {
@@ -136,16 +146,16 @@ public class MvcRoute {
               + " io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
           "DELETE");
       methodSpec.addStatement(
-          "this.provider.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
+          "this.factory.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
       methodSpec.addStatement("return ctx.getResponseCode()");
     } else if (returnType.is("io.jooby.StatusCode")) {
       methodSpec.addStatement(
-          "var statusCode = this.provider.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
+          "var statusCode = this.factory.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
       methodSpec.addStatement("ctx.setResponseCode(statusCode)");
       methodSpec.addStatement("return statusCode");
     } else {
       methodSpec.addStatement(
-          "return this.provider.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
+          "return this.factory.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
     }
 
     methodSpec.returns(TypeName.get(getReturnType().getType()));
@@ -162,9 +172,7 @@ public class MvcRoute {
 
   public MvcRoute addHttpMethod(TypeElement annotation) {
     var annotationMirror =
-        this.method.getAnnotationMirrors().stream()
-            .filter(it -> it.getAnnotationType().asElement().equals(annotation))
-            .findFirst()
+        ofNullable(findAnnotationByName(this.method, annotation.getQualifiedName().toString()))
             .orElseThrow(() -> new IllegalArgumentException("Annotation not found: " + annotation));
     annotationMap.put(annotation, annotationMirror);
     return this;
@@ -230,7 +238,7 @@ public class MvcRoute {
   }
 
   private Optional<String> dispatch(Element element) {
-    return Optional.ofNullable(findAnnotationByName(element, "io.jooby.annotation.Dispatch"))
+    return ofNullable(findAnnotationByName(element, "io.jooby.annotation.Dispatch"))
         .map(it -> findAnnotationValue(it, VALUE).stream().findFirst().orElse("worker"));
   }
 
@@ -265,7 +273,7 @@ public class MvcRoute {
 
   private CodeBlock javadocComment(List<String> parameters) {
     return CodeBlock.of(
-        "/** See {@link $L#$L($L) */\n",
+        "/* See {@link $L#$L($L) */\n",
         router.getTargetType().getSimpleName(),
         getMethodName(),
         String.join(", ", parameters));

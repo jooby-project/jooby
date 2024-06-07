@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.internal.apt.AnnotationSupport.findAnnotationByName;
 import static java.util.Collections.emptyList;
 
 import java.util.*;
@@ -77,15 +78,11 @@ public class MvcRouter {
     return pkgEnd > 0 ? classname.substring(0, pkgEnd) : "";
   }
 
-  public List<String> getReservedMethodNames() {
-    return List.of("supports", "create");
-  }
-
   /**
    * Generate the controller extension for MVC controller:
    *
    * <pre>{@code
-   * public class Controller_ extends MvcExtension {
+   * public class Controller_ implements MvcExtension, MvcFactory {
    *     ....
    * }
    *
@@ -99,11 +96,12 @@ public class MvcRouter {
 
     var joobyType = TypeName.get(elements.getTypeElement("io.jooby.Jooby").asType());
     var contextType = TypeName.get(elements.getTypeElement("io.jooby.Context").asType());
+    var mvcExtension = TypeName.get(elements.getTypeElement("io.jooby.MvcExtension").asType());
     var routerType = TypeName.get(getTargetType().asType());
-    var providerType =
+    var functionProvider =
         ParameterizedTypeName.get(
             ClassName.get("java.util.function", "Function"), contextType, routerType);
-    var supplierType =
+    var jakartaProvider =
         ParameterizedTypeName.get(ClassName.get("jakarta.inject", "Provider"), routerType);
     var classType = ParameterizedTypeName.get(ClassName.get("java.lang", "Class"), routerType);
 
@@ -114,31 +112,41 @@ public class MvcRouter {
             .addMember("value", "$L.class", routerType.toString())
             .build());
     source.addModifiers(Modifier.PUBLIC);
-    source.addSuperinterface(
-        environment.getElementUtils().getTypeElement("io.jooby.MvcExtension").asType());
+    source.addSuperinterface(mvcExtension);
 
+    // new Controller_() {}
+    source.addMethod(defaultConstructor().build());
+
+    // new Controller_(Controller instance) {}
     var instanceConstructor = MethodSpec.constructorBuilder();
     instanceConstructor.addModifiers(Modifier.PUBLIC);
     instanceConstructor.addParameter(ParameterSpec.builder(routerType, "instance").build());
-    instanceConstructor.addStatement("this.$N = ctx -> $N", "provider", "instance");
+    instanceConstructor.addStatement("this(ctx -> $N)", "instance");
     source.addMethod(instanceConstructor.build());
 
-    var supplierConstructor = MethodSpec.constructorBuilder();
-    supplierConstructor.addModifiers(Modifier.PUBLIC);
-    supplierConstructor.addParameter(ParameterSpec.builder(supplierType, "supplier").build());
-    supplierConstructor.addStatement("this.$N = ctx -> supplier.get()", "provider");
-    source.addMethod(supplierConstructor.build());
-
+    // new Controller_(Class<Controller> type) {}
     var classConstructor = MethodSpec.constructorBuilder();
     classConstructor.addModifiers(Modifier.PUBLIC);
     classConstructor.addParameter(ParameterSpec.builder(classType, "type").build());
-    classConstructor.addStatement(
-        "this.$N = ctx -> ctx.require($L.class)", "provider", getTargetType().getSimpleName());
+    classConstructor.addStatement("this(ctx -> ctx.require($L))", "type");
     source.addMethod(classConstructor.build());
 
-    source.addMethod(defaultConstructor().build());
+    // new Controller_(Provider<Controller> provider) {}
+    var jakartaProviderConstructor = MethodSpec.constructorBuilder();
+    jakartaProviderConstructor.addModifiers(Modifier.PUBLIC);
+    jakartaProviderConstructor.addParameter(
+        ParameterSpec.builder(jakartaProvider, "provider").build());
+    jakartaProviderConstructor.addStatement("this(ctx -> provider.get())");
+    source.addMethod(jakartaProviderConstructor.build());
 
-    var field = FieldSpec.builder(providerType, "provider", Modifier.FINAL, Modifier.PROTECTED);
+    // new Controller_(Function<Context, Controller> factory) {}
+    var factoryConstructor = MethodSpec.constructorBuilder();
+    factoryConstructor.addModifiers(Modifier.PUBLIC);
+    factoryConstructor.addParameter(ParameterSpec.builder(functionProvider, "factory").build());
+    factoryConstructor.addStatement("this.$1N = $1N", "factory");
+    source.addMethod(factoryConstructor.build());
+
+    var field = FieldSpec.builder(functionProvider, "factory", Modifier.FINAL, Modifier.PROTECTED);
     source.addField(field.build());
 
     var install = MethodSpec.methodBuilder("install");
@@ -153,23 +161,18 @@ public class MvcRouter {
     routes.stream().map(MvcRoute::generateHandlerCall).forEach(source::addMethod);
 
     // TODO: remove at some point
-    source.addSuperinterface(
-        environment.getElementUtils().getTypeElement("io.jooby.MvcFactory").asType());
+    var mvcFactory = ParameterizedTypeName.get(ClassName.get("io.jooby", "MvcFactory"), routerType);
+    source.addSuperinterface(mvcFactory);
     var supports = MethodSpec.methodBuilder("supports");
     supports.addModifiers(Modifier.PUBLIC);
-    supports.addParameter(ParameterSpec.builder(Class.class, "type").build());
+    supports.addParameter(ParameterSpec.builder(classType, "type").build());
     supports.addStatement(CodeBlock.of("return type == $L.class", getTargetType().getSimpleName()));
     supports.returns(boolean.class);
     source.addMethod(supports.build());
 
     var create = MethodSpec.methodBuilder("create");
     create.addModifiers(Modifier.PUBLIC);
-    var rawProvider =
-        new TypeDefinition(
-            context.getProcessingEnvironment().getTypeUtils(),
-            elements.getTypeElement("jakarta.inject.Provider").asType());
-    create.addParameter(
-        ParameterSpec.builder(TypeName.get(rawProvider.getRawType()), "provider").build());
+    create.addParameter(ParameterSpec.builder(jakartaProvider, "provider").build());
     create.addStatement("return new $L(provider)", generateTypeName);
     create.returns(TypeName.get(elements.getTypeElement("io.jooby.Extension").asType()));
     source.addMethod(create.build());
@@ -194,11 +197,8 @@ public class MvcRouter {
         constructors.stream()
             .anyMatch(
                 it ->
-                    it.getAnnotationMirrors().stream()
-                        .anyMatch(
-                            annotation ->
-                                injectAnnotations.contains(
-                                    annotation.getAnnotationType().toString())));
+                    injectAnnotations.stream()
+                        .anyMatch(annotation -> findAnnotationByName(it, annotation) != null));
     if (inject || !hasDefaultConstructor) {
       defaultConstructor.addStatement("this($L.class)", getTargetType().getSimpleName());
     } else {

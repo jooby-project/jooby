@@ -152,7 +152,7 @@ public class JoobyProcessor extends AbstractProcessor {
     // Generate unique method name by router
     for (var router : registry.values()) {
       // Initialize with supports/create method from MvcFactory (avoid name collision)
-      var names = new HashSet<>(router.getReservedMethodNames());
+      var names = new HashSet<>();
       for (var route : router.getRoutes()) {
         if (!names.add(route.getMethodName())) {
           var paramsString =
