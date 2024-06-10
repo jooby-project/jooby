@@ -24,6 +24,8 @@ import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
+import javax.net.ssl.SSLContext;
+
 /**
  * SSL options for enabling HTTPs in Jooby. Jooby supports two certificate formats:
  *
@@ -78,6 +80,8 @@ public final class SslOptions implements java.io.Closeable {
   private ClientAuth clientAuth = ClientAuth.NONE;
 
   private List<String> protocol = Arrays.asList(TLS_V1_3, TLS_V1_2);
+
+  private SSLContext customSslContext;
 
   /**
    * Certificate type. Default is {@link #PKCS12}.
@@ -335,6 +339,28 @@ public final class SslOptions implements java.io.Closeable {
   public @NonNull SslOptions setProtocol(@NonNull List<String> protocol) {
     this.protocol = protocol;
     return this;
+  }
+
+  /**
+   * Returns the custom SSL Context if set (default <code>null</code>).
+   * <p>
+   * If a custom SSL Context is set, all options except for {@link #getClientAuth()} and {@link #getProtocol()} are ignored.
+   *
+   * @return the custom SSL Context or null
+   */
+  public @Nullable SSLContext getCustomSslContext() {
+    return customSslContext;
+  }
+
+  /**
+   * Sets a custom SSL context.
+   * <p>
+   * If a custom SSL Context is set, all options except for {@link #getClientAuth()} and {@link #getProtocol()} are ignored.
+   *
+   * @param customSslContext the new context or null to unset it
+   */
+  public void setCustomSslContext(@Nullable SSLContext customSslContext) {
+    this.customSslContext = customSslContext;
   }
 
   @Override
