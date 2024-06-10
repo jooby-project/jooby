@@ -8,15 +8,12 @@ package io.jooby.reactor;
 import static io.jooby.ReactiveSupport.newSubscriber;
 import static org.reactivestreams.FlowAdapters.toSubscriber;
 
-import java.lang.reflect.Type;
-
 import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
-import io.jooby.Reified;
-import io.jooby.ResultHandler;
 import io.jooby.Route;
+import io.jooby.annotation.ResultType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +22,10 @@ import reactor.core.publisher.Mono;
  *
  * @author edgar
  */
-public class Reactor implements ResultHandler {
+@ResultType(
+    types = {Flux.class, Mono.class},
+    handler = "reactor")
+public class Reactor {
 
   private static final Route.Filter REACTOR =
       new Route.Filter() {
@@ -98,19 +98,7 @@ public class Reactor implements ResultHandler {
     return REACTOR;
   }
 
-  @Override
-  public boolean matches(@NonNull Type type) {
-    Class<?> raw = Reified.get(type).getRawType();
-    return Mono.class.isAssignableFrom(raw) || Flux.class.isAssignableFrom(raw);
-  }
-
-  @NonNull @Override
-  public Route.Filter create() {
-    return REACTOR;
-  }
-
-  @Override
-  public boolean isReactive() {
-    return true;
+  public static Route.Handler reactor(Route.Handler next) {
+    return REACTOR.then(next);
   }
 }

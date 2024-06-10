@@ -7,15 +7,12 @@ package io.jooby.mutiny;
 
 import static io.jooby.ReactiveSupport.newSubscriber;
 
-import java.lang.reflect.Type;
-
 import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
-import io.jooby.Reified;
-import io.jooby.ResultHandler;
 import io.jooby.Route;
+import io.jooby.annotation.ResultType;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
@@ -24,7 +21,10 @@ import io.smallrye.mutiny.Uni;
  *
  * @author edgar
  */
-public class Mutiny implements ResultHandler {
+@ResultType(
+    types = {Uni.class, Mutiny.class},
+    handler = "mutiny")
+public class Mutiny {
 
   private static final Route.Filter MUTINY =
       new Route.Filter() {
@@ -98,19 +98,7 @@ public class Mutiny implements ResultHandler {
     return MUTINY;
   }
 
-  @Override
-  public boolean matches(@NonNull Type type) {
-    Class<?> raw = Reified.get(type).getRawType();
-    return Uni.class.isAssignableFrom(raw) || Multi.class.isAssignableFrom(raw);
-  }
-
-  @NonNull @Override
-  public Route.Filter create() {
-    return MUTINY;
-  }
-
-  @Override
-  public boolean isReactive() {
-    return true;
+  public static Route.Handler mutiny(Route.Handler next) {
+    return MUTINY.then(next);
   }
 }

@@ -88,7 +88,18 @@ public class Route {
      * @return A new handler.
      */
     @NonNull default Handler then(@NonNull Handler next) {
-      return ctx -> apply(next).apply(ctx);
+      return new Handler() {
+        @NonNull @Override
+        public Object apply(@NonNull Context ctx) throws Exception {
+          return Filter.this.apply(next).apply(ctx);
+        }
+
+        @Override
+        public void setRoute(Route route) {
+          Filter.this.setRoute(route);
+          next.setRoute(route);
+        }
+      };
     }
   }
 

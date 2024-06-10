@@ -15,7 +15,6 @@ module io.jooby {
   uses io.jooby.MvcFactory;
   uses io.jooby.Server;
   uses io.jooby.SslProvider;
-  uses io.jooby.ResultHandler;
   uses io.jooby.LoggingService;
   uses io.jooby.buffer.DataBufferFactory;
 

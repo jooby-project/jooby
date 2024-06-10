@@ -63,6 +63,16 @@ public class MvcRoute {
     return returnType;
   }
 
+  public TypeMirror getReturnTypeHandler() {
+    return isSuspendFun()
+        ? context
+            .getProcessingEnvironment()
+            .getElementUtils()
+            .getTypeElement("kotlin.coroutines.Continuation")
+            .asType()
+        : getReturnType().getRawType();
+  }
+
   public List<CodeBlock> generateMapping() {
     List<CodeBlock> block = new ArrayList<>();
     var methodName = getGeneratedName();
@@ -73,8 +83,6 @@ public class MvcRoute {
         paramTypes.stream().map(it -> it + ".class").collect(Collectors.joining(", "));
     var javadocLink = javadocComment(paramTypes);
     var attributeGenerator = new RouteAttributesGenerator(context);
-    var suspendPrefix = isSuspend ? "new io.jooby.kt.CoroutineHandler(" : "";
-    var suspendSuffix = isSuspend ? ")" : "";
     var routes = router.getRoutes();
     var lastRoute = routes.get(routes.size() - 1).equals(this);
     var entries = annotationMap.entrySet().stream().toList();
@@ -88,13 +96,10 @@ public class MvcRoute {
         block.add(javadocLink);
         block.add(
             CodeBlock.of(
-                "app.$L($S, $L$L::$L$L)\n",
+                "app.$L($S, $L)\n",
                 annotation.getSimpleName().toString().toLowerCase(),
                 path,
-                suspendPrefix,
-                "this",
-                methodName,
-                suspendSuffix));
+                context.pipeline(getReturnTypeHandler(), "this::" + methodName)));
         /* consumes */
         mediaType(httpMethod::consumes)
             .ifPresent(consumes -> block.add(CodeBlock.of("   .setConsumes($L)\n", consumes)));

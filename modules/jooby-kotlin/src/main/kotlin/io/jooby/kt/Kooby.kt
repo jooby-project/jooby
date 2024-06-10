@@ -137,7 +137,7 @@ inline fun <T : Any> Context.query(klass: KClass<T>): T {
  * @author edgar
  * @since 2.0.0
  */
-open class Kooby constructor() : Jooby() {
+open class Kooby() : Jooby() {
 
   constructor(init: Kooby.() -> Unit) : this() {
     this.init()
@@ -323,6 +323,10 @@ open class Kooby constructor() : Jooby() {
     val env = Environment.loadEnvironment(options)
     this.environment = env
     return env
+  }
+
+  companion object {
+    @JvmStatic fun coroutine(next: Route.Handler) = CoroutineHandler(next)
   }
 }
 

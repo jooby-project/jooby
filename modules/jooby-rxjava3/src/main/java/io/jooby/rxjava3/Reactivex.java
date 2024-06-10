@@ -8,12 +8,9 @@ package io.jooby.rxjava3;
 import static io.jooby.ReactiveSupport.newSubscriber;
 import static org.reactivestreams.FlowAdapters.toSubscriber;
 
-import java.lang.reflect.Type;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Reified;
-import io.jooby.ResultHandler;
 import io.jooby.Route;
+import io.jooby.annotation.ResultType;
 import io.jooby.internal.rxjava3.RxObserver;
 import io.jooby.internal.rxjava3.RxSubscriber;
 import io.reactivex.rxjava3.core.Flowable;
@@ -27,7 +24,10 @@ import io.reactivex.rxjava3.disposables.Disposable;
  *
  * @author edgar
  */
-public class Reactivex implements ResultHandler {
+@ResultType(
+    types = {Flowable.class, Single.class, Observable.class, Maybe.class, Disposable.class},
+    handler = "rx")
+public class Reactivex {
 
   private static final Route.Filter RX =
       new Route.Filter() {
@@ -87,22 +87,7 @@ public class Reactivex implements ResultHandler {
     return RX;
   }
 
-  @Override
-  public boolean matches(@NonNull Type type) {
-    Class raw = Reified.get(type).getRawType();
-    return Single.class.isAssignableFrom(raw)
-        || Flowable.class.isAssignableFrom(raw)
-        || Maybe.class.isAssignableFrom(raw)
-        || Observable.class.isAssignableFrom(raw);
-  }
-
-  @NonNull @Override
-  public Route.Filter create() {
-    return RX;
-  }
-
-  @Override
-  public boolean isReactive() {
-    return true;
+  public static Route.Handler rx(Route.Handler next) {
+    return RX.then(next);
   }
 }

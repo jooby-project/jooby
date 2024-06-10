@@ -884,14 +884,6 @@ public interface Router extends Registry {
   @NonNull Logger getLog();
 
   /**
-   * Add a response handler factory.
-   *
-   * @param factory Response handler factory.
-   * @return This router.
-   */
-  @NonNull Router resultHandler(@NonNull ResultHandler factory);
-
-  /**
    * Router options.
    *
    * @return Router options.

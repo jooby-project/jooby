@@ -7,6 +7,7 @@ package io.jooby.internal.apt;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -30,6 +31,26 @@ public interface AnnotationSupport {
                         .filter(Objects::nonNull)
                         .flatMap(value -> annotationValue(value).stream())
                         .map(Objects::toString))
+            .toList();
+  }
+
+  static <T> List<T> findAnnotationValue(
+      AnnotationMirror annotation,
+      Predicate<String> predicate,
+      Function<AnnotationValue, T> mapper) {
+    return annotation == null
+        ? List.of()
+        : annotation.getElementValues().entrySet().stream()
+            .filter(it -> predicate.test(it.getKey().getSimpleName().toString()))
+            .flatMap(
+                it ->
+                    Stream.of(it.getValue().getValue())
+                        .filter(Objects::nonNull)
+                        .flatMap(
+                            e -> {
+                              var list = e instanceof List ? (List) e : List.of(e);
+                              return list.stream().map(mapper);
+                            }))
             .toList();
   }
 

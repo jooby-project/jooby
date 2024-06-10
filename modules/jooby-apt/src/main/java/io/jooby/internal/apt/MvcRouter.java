@@ -177,7 +177,13 @@ public class MvcRouter {
     create.returns(TypeName.get(elements.getTypeElement("io.jooby.Extension").asType()));
     source.addMethod(create.build());
 
-    return JavaFile.builder(getPackageName(), source.build()).build();
+    var javaFile = JavaFile.builder(getPackageName(), source.build());
+    context.generateStaticImports(
+        this,
+        (classname, fn) ->
+            javaFile.addStaticImport(
+                ClassName.get(environment.getElementUtils().getTypeElement(classname)), fn));
+    return javaFile.build();
   }
 
   private MethodSpec.Builder defaultConstructor() {

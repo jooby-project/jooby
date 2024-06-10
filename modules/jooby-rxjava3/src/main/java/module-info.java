@@ -3,8 +3,6 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-import io.jooby.ResultHandler;
-import io.jooby.rxjava3.Reactivex;
 
 /** Rx module. */
 module io.jooby.rxjava3 {
@@ -15,7 +13,4 @@ module io.jooby.rxjava3 {
   requires io.reactivex.rxjava3;
   requires org.reactivestreams;
   requires org.slf4j;
-
-  provides ResultHandler with
-      Reactivex;
 }

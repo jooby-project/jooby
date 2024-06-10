@@ -117,9 +117,7 @@ public class JStachioModule implements Extension {
     JStachioBuffer buffer = JStachioBuffer.of(bufferSize);
 
     JStachioMessageEncoder encoder = new JStachioMessageEncoder(j, buffer, contextFunction);
-    JStachioResultHandler handler = new JStachioResultHandler(j, buffer, contextFunction);
     application.encoder(encoder);
-    application.resultHandler(handler);
   }
 
   /**

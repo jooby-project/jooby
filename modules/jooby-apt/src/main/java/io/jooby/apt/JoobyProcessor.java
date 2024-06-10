@@ -25,10 +25,11 @@ import javax.tools.StandardLocation;
 import com.squareup.javapoet.JavaFile;
 import io.jooby.internal.apt.*;
 
-@SupportedOptions({DEBUG, INCREMENTAL, SERVICES, SKIP_ATTRIBUTE_ANNOTATIONS})
+@SupportedOptions({HANDLER, DEBUG, INCREMENTAL, SERVICES, SKIP_ATTRIBUTE_ANNOTATIONS})
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class JoobyProcessor extends AbstractProcessor {
   public interface Options {
+    String HANDLER = "jooby.handler";
     String DEBUG = "jooby.debug";
     String ROUTER_PREFIX = "jooby.routerPrefix";
     String ROUTER_SUFFIX = "jooby.routerSuffix";
@@ -283,8 +284,7 @@ public class JoobyProcessor extends AbstractProcessor {
       throw new NullPointerException("x");
     }
 
-    sneakyThrow0(x);
-    return null;
+    return sneakyThrow0(x);
   }
 
   /**
@@ -295,7 +295,7 @@ public class JoobyProcessor extends AbstractProcessor {
    * @throws E Exception to throw.
    */
   @SuppressWarnings("unchecked")
-  private static <E extends Throwable> void sneakyThrow0(final Throwable x) throws E {
+  private static <E extends Throwable> E sneakyThrow0(final Throwable x) throws E {
     throw (E) x;
   }
 }

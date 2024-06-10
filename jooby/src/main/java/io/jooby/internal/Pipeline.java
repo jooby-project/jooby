@@ -5,22 +5,13 @@
  */
 package io.jooby.internal;
 
-import static io.jooby.ReactiveSupport.concurrent;
 import static io.jooby.internal.handler.DefaultHandler.DEFAULT;
 import static io.jooby.internal.handler.DetachHandler.DETACH;
-import static io.jooby.internal.handler.SendDirect.DIRECT;
 import static io.jooby.internal.handler.WorkerHandler.WORKER;
 
-import java.lang.reflect.Type;
-import java.util.Set;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow;
 
-import io.jooby.Context;
 import io.jooby.ExecutionMode;
-import io.jooby.Reified;
-import io.jooby.ResultHandler;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
 import io.jooby.internal.handler.DispatchHandler;
@@ -29,53 +20,13 @@ import io.jooby.internal.handler.PostDispatchInitializerHandler;
 public class Pipeline {
 
   public static Handler build(
-      Route route,
-      ExecutionMode mode,
-      Executor executor,
-      ContextInitializer initializer,
-      Set<ResultHandler> responseHandler) {
+      Route route, ExecutionMode mode, Executor executor, ContextInitializer initializer) {
     // Set default wrapper and blocking mode
     if (!route.isNonBlockingSet()) {
       route.setNonBlocking(isDefaultNonblocking(executor, mode));
     }
     Route.Filter wrapper = route.isNonBlocking() ? DETACH : DEFAULT;
 
-    /** Return type is set by annotation processor, or manually per lambda route: */
-    Type returnType = route.getReturnType();
-    if (returnType != null) {
-      Class<?> type = Reified.rawType(returnType);
-      /** Context: */
-      if (Context.class.isAssignableFrom(type)) {
-        if (route.isNonBlocking()) {
-          wrapper = DETACH;
-        } else {
-          wrapper = DIRECT;
-        }
-      } else if (CompletionStage.class.isAssignableFrom(type)
-          || Flow.Publisher.class.isAssignableFrom(type)) {
-        /** Completable future: */
-        Route.Filter concurrent = concurrent();
-        // Notify there is a route:
-        concurrent.setRoute(route);
-        wrapper = DETACH.then(concurrent);
-      } else {
-        /** Custom responses: */
-        for (ResultHandler factory : responseHandler) {
-          if (factory.matches(returnType)) {
-            Route.Filter custom = factory.create();
-            // Notify there is a route:
-            custom.setRoute(route);
-            if (factory.isReactive()) {
-              // Mark route as reactive
-              wrapper = DETACH.then(custom);
-            } else {
-              wrapper = custom;
-            }
-            break;
-          }
-        }
-      }
-    }
     // Non-Blocking? Split pipeline Head+Handler let reactive call After pipeline
     Handler pipeline;
     if (route.isNonBlocking()) {

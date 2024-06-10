@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -149,8 +148,6 @@ public class RouterImpl implements Router {
   private Map<String, MessageDecoder> decoders = new HashMap<>();
 
   private Map<String, Object> attributes = new ConcurrentHashMap<>();
-
-  private List<ResultHandler> resultHandlers = new ArrayList<>();
 
   private ServiceRegistry services = new ServiceRegistryImpl();
 
@@ -638,15 +635,9 @@ public class RouterImpl implements Router {
             prependMediaType(route.getConsumes(), route.getFilter(), Route.SUPPORT_MEDIA_TYPE));
         route.setFilter(prependMediaType(route.getProduces(), route.getFilter(), Route.ACCEPT));
       }
-      Set<ResultHandler> resultSet = new LinkedHashSet<>();
-      if (resultHandlers != null) {
-        resultSet.addAll(resultHandlers);
-      }
-      ServiceLoader.load(ResultHandler.class).forEach(resultSet::add);
       /** Response handler: */
       Route.Handler pipeline =
-          Pipeline.build(
-              route, forceMode(route, mode), executor, postDispatchInitializer, resultSet);
+          Pipeline.build(route, forceMode(route, mode), executor, postDispatchInitializer);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);
@@ -778,12 +769,6 @@ public class RouterImpl implements Router {
       return StatusCode.NOT_FOUND;
     }
     return StatusCode.SERVER_ERROR;
-  }
-
-  @NonNull @Override
-  public Router resultHandler(ResultHandler handler) {
-    resultHandlers.add(handler);
-    return this;
   }
 
   @NonNull @Override

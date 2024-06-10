@@ -748,12 +748,6 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Jooby resultHandler(ResultHandler handler) {
-    router.resultHandler(handler);
-    return this;
-  }
-
-  @NonNull @Override
   public ErrorHandler getErrorHandler() {
     return router.getErrorHandler();
   }

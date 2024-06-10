@@ -99,8 +99,6 @@ public class RockerModule implements Extension {
             : this.reloading;
     var factory = DataBufferOutput.factory(charset, application.getBufferFactory(), bufferSize);
     runtime.setReloading(reloading);
-    // result handler
-    application.resultHandler(new RockerResultHandler(factory));
     // renderer
     application.encoder(new RockerMessageEncoder(factory));
     // factory
