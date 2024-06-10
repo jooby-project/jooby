@@ -539,15 +539,14 @@ public class ServerOptions {
    * SSLContext when one of the following is true:
    *
    * <ul>
-   * <li>{@link #getSecurePort()} has been set</li>
-   * <li>{@link #getSsl()} has been set.</li>
+   *   <li>{@link #getSecurePort()} has been set
+   *   <li>{@link #getSsl()} has been set.
    * </ul>
    *
-   * <p>
-   * If secure port is set and there is no SSL options, this method configure a SSL context using
+   * <p>If secure port is set and there is no SSL options, this method configure a SSL context using
    * the a self-signed certificate for <code>localhost</code>.
-   * <p>
-   * If {@link SslOptions#getCustomSslContext()} is set, it is returned without modification.
+   *
+   * <p>If {@link SslOptions#getSslContext()} is set, it is returned without modification.
    *
    * @param loader Resource loader.
    * @return SSLContext or <code>null</code> when SSL is disabled.
@@ -559,33 +558,33 @@ public class ServerOptions {
       setSsl(options);
 
       SSLContext sslContext;
-      if (options.getCustomSslContext() == null) {
+      if (options.getSslContext() == null) {
         SslContextProvider sslContextProvider =
-                Stream.of(SslContextProvider.providers())
-                        .filter(it -> it.supports(options.getType()))
-                        .findFirst()
-                        .orElseThrow(
-                                () -> new UnsupportedOperationException("SSL Type: " + options.getType()));
+            Stream.of(SslContextProvider.providers())
+                .filter(it -> it.supports(options.getType()))
+                .findFirst()
+                .orElseThrow(
+                    () -> new UnsupportedOperationException("SSL Type: " + options.getType()));
 
         String providerName =
-                stream(
-                        spliteratorUnknownSize(
-                                ServiceLoader.load(SslProvider.class).iterator(), Spliterator.ORDERED),
-                        false)
-                        .findFirst()
-                        .map(
-                                provider -> {
-                                  String name = provider.getName();
-                                  if (Security.getProvider(name) == null) {
-                                    Security.addProvider(provider.create());
-                                  }
-                                  return name;
-                                })
-                        .orElse(null);
+            stream(
+                    spliteratorUnknownSize(
+                        ServiceLoader.load(SslProvider.class).iterator(), Spliterator.ORDERED),
+                    false)
+                .findFirst()
+                .map(
+                    provider -> {
+                      String name = provider.getName();
+                      if (Security.getProvider(name) == null) {
+                        Security.addProvider(provider.create());
+                      }
+                      return name;
+                    })
+                .orElse(null);
 
         sslContext = sslContextProvider.create(loader, providerName, options);
       } else {
-        sslContext = options.getCustomSslContext();
+        sslContext = options.getSslContext();
       }
       // validate TLS protocol, at least one protocol must be supported
       Set<String> supportedProtocols =

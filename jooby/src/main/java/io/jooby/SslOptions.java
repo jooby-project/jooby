@@ -20,11 +20,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.net.ssl.SSLContext;
+
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-
-import javax.net.ssl.SSLContext;
 
 /**
  * SSL options for enabling HTTPs in Jooby. Jooby supports two certificate formats:
@@ -81,7 +81,7 @@ public final class SslOptions implements java.io.Closeable {
 
   private List<String> protocol = Arrays.asList(TLS_V1_3, TLS_V1_2);
 
-  private SSLContext customSslContext;
+  private SSLContext sslContext;
 
   /**
    * Certificate type. Default is {@link #PKCS12}.
@@ -343,24 +343,26 @@ public final class SslOptions implements java.io.Closeable {
 
   /**
    * Returns the custom SSL Context if set (default <code>null</code>).
-   * <p>
-   * If a custom SSL Context is set, all options except for {@link #getClientAuth()} and {@link #getProtocol()} are ignored.
+   *
+   * <p>If a custom SSL Context is set, all options except for {@link #getClientAuth()} and {@link
+   * #getProtocol()} are ignored.
    *
    * @return the custom SSL Context or null
    */
-  public @Nullable SSLContext getCustomSslContext() {
-    return customSslContext;
+  public @Nullable SSLContext getSslContext() {
+    return sslContext;
   }
 
   /**
    * Sets a custom SSL context.
-   * <p>
-   * If a custom SSL Context is set, all options except for {@link #getClientAuth()} and {@link #getProtocol()} are ignored.
    *
-   * @param customSslContext the new context or null to unset it
+   * <p>If a custom SSL Context is set, all options except for {@link #getClientAuth()} and {@link
+   * #getProtocol()} are ignored.
+   *
+   * @param sslContext the new context or null to unset it
    */
-  public void setCustomSslContext(@Nullable SSLContext customSslContext) {
-    this.customSslContext = customSslContext;
+  public void setSslContext(@Nullable SSLContext sslContext) {
+    this.sslContext = sslContext;
   }
 
   @Override

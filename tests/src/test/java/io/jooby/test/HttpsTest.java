@@ -5,13 +5,13 @@
  */
 package io.jooby.test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.jooby.ServerOptions;
 import io.jooby.SslOptions;
 import io.jooby.handler.SSLHandler;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class HttpsTest {
 
@@ -243,19 +243,19 @@ public class HttpsTest {
     runner
         .define(
             app -> {
-                var options = new ServerOptions().setSecurePort(8443).setHttpsOnly(true);
-                options.setSsl(SslOptions.selfSigned());
-                // a fresh context is created every time based on config
-                var ctx1 = options.getSSLContext(this.getClass().getClassLoader());
-                var ctx2 = options.getSSLContext(this.getClass().getClassLoader());
-                assertNotSame(ctx1, ctx2);
+              var options = new ServerOptions().setSecurePort(8443).setHttpsOnly(true);
+              options.setSsl(SslOptions.selfSigned());
+              // a fresh context is created every time based on config
+              var ctx1 = options.getSSLContext(this.getClass().getClassLoader());
+              var ctx2 = options.getSSLContext(this.getClass().getClassLoader());
+              assertNotSame(ctx1, ctx2);
 
-                // now always the configured context is returned
-                options.getSsl().setCustomSslContext(ctx1);
-                assertSame(ctx1, options.getSSLContext(this.getClass().getClassLoader()));
-                assertSame(ctx1, options.getSSLContext(this.getClass().getClassLoader()));
+              // now always the configured context is returned
+              options.getSsl().setSslContext(ctx1);
+              assertSame(ctx1, options.getSSLContext(this.getClass().getClassLoader()));
+              assertSame(ctx1, options.getSSLContext(this.getClass().getClassLoader()));
 
-                app.setServerOptions(options);
+              app.setServerOptions(options);
               app.get("/test", ctx -> "test");
             })
         .ready(
