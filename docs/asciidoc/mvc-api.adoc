@@ -1,7 +1,6 @@
 == MVC API
 
-MVC API is an alternative way to define routes in Jooby. It uses annotations and byte code generation
-to define and execute routes.
+MVC API is an alternative way to define routes in Jooby. It generates source code to define and execute routes.
 
 If you use Gradle 6.0 or a later version, you can leverage incremental annotation processing support,
 which means that Gradle only compiles classes that changed since the last compilation, and only runs
@@ -66,7 +65,7 @@ public class Controller {
 public class App extends Jooby {
 
   {
-    mvc(new Controller());   // <3>
+    mvc(new Controller_());   // <3>
   }
 
   public static void main(String[] args) {
@@ -92,14 +91,14 @@ class Controller {
 
 fun main(args: Array<String>) {
   runApp(args) {
-    mvc(MyController())        // <3>
+    mvc(Controller_())        // <3>
   }
 }
 ----
 
 <1> Set a path pattern. The `@Path` annotation is enable at class or method level
 <2> Add a HTTP method
-<3> Register/install the controller in the main application
+<3> Register/install the generated controller in the main application
 
 === Getting Started
 
@@ -120,7 +119,7 @@ class:
 ----
 public class App extends Jooby {
   {
-    mvc(new MyController());
+    mvc(new MyController_());
   }
 
   public static void main(String[] args) {
@@ -137,95 +136,24 @@ import io.jooby.*
 
 fun main(args: Array<String>) {
   runApp(args) {
-    mvc(MyController())
+    mvc(MyController_())
   }
 }
 ----
 
-The javadoc:Jooby[mvc, java.lang.Object] install the mvc route. As showed in the example there is
-no dependency injection involved, you just instantiate a MVC route and register.
-
-.Class MVC route registration
-[source, java, role = "primary"]
-----
-public class App extends Jooby {
-  {
-    mvc(MyController.class);
-  }
-
-  public static void main(String[] args) {
-    runApp(args, App::new);
-  }
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-
-import io.jooby.*
-
-fun main(args: Array<String>) {
-  runApp(args) {
-    mvc(MyController::class)
-  }
-}
-----
-
-The javadoc:Jooby[mvc, java.lang.Class] does the same job, but delegates route instantiation to a
-dependency injection framework of your choice.
-
-NOTE: Jooby 1.x was built around Guice, this is not the case for 2.x. The entire project was built
-without dependency injection. This make DI optional and at same time give you freedom to choose the
-one you like most.
-
-.Provider MVC route registration
-[source, java, role = "primary"]
-----
-
-import jakarta.inject.Provider;
-
-public class App extends Jooby {
-  {
-    Provider<MyController> provider = ...;
-  
-    mvc(MyController.class, provider);
-  }
-
-  public static void main(String[] args) {
-    runApp(args, App::new);
-  }
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-import jakarta.inject.Provider
-import io.jooby.*
-
-fun main(args: Array<String>) {
-  runApp(args) {
-    val provider = ...
-    mvc(MyController::class, provider)
-  }
-}
-----
-
-The javadoc:Jooby[mvc, jakarta.inject.Provider] does the same job, might or might not delegate
-instantiation to a dependency injection framework but most important let you control lifecycle of
-MVC routes (Singleton vs Non-Singleton routes).
+The javadoc:Jooby[mvc, io.jooby.MvcExtension] install the mvc route. The generated controller instantiate the controller
+or `requires` it when an `jakarta.inject.Inject` annotated controller is present.
 
 === Parameters
 
 HTTP parameter provision is available via `*Param` annotations.
 
-There is also a javadoc:annotations.Param[] annotation which allows to retrieve parameters from
+There is also a javadoc:annotation.Param[] annotation which allows to retrieve parameters from
 <<mvc-api-parameters-multiple-sources,multiple sources>>.
 
 ==== Header
 
-Provisioning of headers is available via javadoc:annotations.HeaderParam[] annotation:
+Provisioning of headers is available via javadoc:annotation.HeaderParam[] annotation:
 
 .Headers
 [source, java, role = "primary"]
@@ -283,7 +211,7 @@ class MyController {
 
 ==== Cookie
 
-Provisioning of cookies is available via javadoc:annotations.CookieParam[] annotation:
+Provisioning of cookies is available via javadoc:annotation.CookieParam[] annotation:
 
 .Cookies
 [source, java, role = "primary"]
@@ -341,7 +269,7 @@ class MyController {
 
 ==== Path
 
-For path parameters the javadoc:annotations.PathParam[] annotation is required:
+For path parameters the javadoc:annotation.PathParam[] annotation is required:
 
 .PathParam
 [source, java, role = "primary"]
@@ -369,7 +297,7 @@ class MyController {
 
 ==== Query
 
-For query parameters the javadoc:annotations.QueryParam[] annotation is required:
+For query parameters the javadoc:annotation.QueryParam[] annotation is required:
 
 .QueryParam
 [source, java, role = "primary"]
@@ -397,7 +325,7 @@ class MyController {
 
 ==== Formdata/Multipart
 
-For formdata/multipart parameters the javadoc:annotations.FormParam[] annotation is required:
+For formdata/multipart parameters the javadoc:annotation.FormParam[] annotation is required:
 
 .QueryParam
 [source, java, role = "primary"]
@@ -457,7 +385,7 @@ class MyController {
 
 ==== Flash
 
-Provisioning of flash attribute is available via javadoc:annotations.FlashParam[] annotation:
+Provisioning of flash attribute is available via javadoc:annotation.FlashParam[] annotation:
 
 .Flash
 [source, java, role = "primary"]
@@ -487,7 +415,7 @@ class MyController {
 
 ==== Session
 
-Provisioning of session attribute is available via javadoc:annotations.SessionParam[] annotation:
+Provisioning of session attribute is available via javadoc:annotation.SessionParam[] annotation:
 
 .Session Attribute
 [source, java, role = "primary"]
@@ -547,7 +475,7 @@ To avoid this, just use `java.util.Optional<Session>` as type.
 
 ==== Context
 
-Provisioning of context attributes is available via javadoc:annotations.ContextParam[] annotation:
+Provisioning of context attributes is available via javadoc:annotation.ContextParam[] annotation:
 
 .Context Attribute
 [source, java, role = "primary"]
@@ -605,7 +533,7 @@ class MyController {
 
 ==== Multiple Sources
 
-You can use the javadoc:annotations.Param[] annotation to search for a parameter in multiple sources.
+You can use the javadoc:annotation.Param[] annotation to search for a parameter in multiple sources.
 The sources and their precedence can be specified as follows:
 
 .Multiple Sources
@@ -743,7 +671,7 @@ fun main(args: Array<String>) {
 <1> Wrap the controller using the dispatch operator
 
 One drawback with this approach is that the entire controller is now going to be executed in the worker or custom executor.
-For more fine grain control use the javadoc:annotations.Dispatch[] annotation:
+For more fine grain control use the javadoc:annotation.Dispatch[] annotation:
 
 .Dispatch annotation
 [source, java, role = "primary"]
@@ -786,7 +714,7 @@ class MyController {
 <1> MVC route run in EVENT_LOOP mode. Blocking is NOT allowed it.
 <2> MVC route run in WORKER mode. Blocking is allowed it.
 
-The javadoc:annotations.Dispatch[] annotation supports custom executor using an executor name.
+The javadoc:annotation.Dispatch[] annotation supports custom executor using an executor name.
 
 .Dispatch to custom executor
 [source, java, role = "primary"]
@@ -911,11 +839,10 @@ on them (mostly annotations processors).
 |[]
 |Skip annotation during byte code generation (i.e. don't generate them as route attributes)
 
-|jooby.extendedLookupOfSuperTypes
-|boolean
-|false
-|Extended lookup of super/base types. Useful when base route/controller isn't part of current project (no sources code)
-
+|jooby.handler
+|string
+|[]
+|Add custom handler mapping.
 |=== 
 
 ==== Setting options
@@ -947,7 +874,7 @@ on them (mostly annotations processors).
           -Ajooby.skipAttributeAnnotations=FooAnnotation,BarAnnotation
         </compilerArg>
         <compilerArg>
-          -Ajooby.extendedLookupOfSuperTypes=false
+          -Ajooby.handler=myhandler
         </compilerArg>
       </compilerArgs>
     </configuration>
@@ -964,7 +891,7 @@ tasks.withType(JavaCompile) {
         '-Ajooby.incremental=true',
         '-Ajooby.services=true',
         '-Ajooby.skipAttributeAnnotations=FooAnnotation,BarAnnotation',
-        '-Ajooby.extendedLookupOfSuperTypes=false'
+        '-Ajooby.handler=myhandler'
     ]
 }
 ----
