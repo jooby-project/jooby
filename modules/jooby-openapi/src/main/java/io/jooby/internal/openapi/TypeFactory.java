@@ -35,6 +35,8 @@ public class TypeFactory {
 
   public static final Type KOOBY = Type.getType("Lio/jooby/kt/Kooby;");
 
+  public static final Type KT_UNIT = Type.getType("Lkotlin/Unit;");
+
   public static final Type KOOBYKT = Type.getType("Lio/jooby/kt/KoobyKt;");
 
   public static final Type HANDLER_CONTEXT = Type.getType("Lio/jooby/kt/HandlerContext;");

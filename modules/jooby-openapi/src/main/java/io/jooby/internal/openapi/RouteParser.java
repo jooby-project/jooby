@@ -518,13 +518,17 @@ public class RouteParser {
       ParserContext ctx, String prefix, MethodInsnNode node, boolean supplier) {
     List<OperationExt> handlerList = new ArrayList<>();
     Type type = null;
-    for (AbstractInsnNode it : InsnSupport.prev(node).collect(Collectors.toList())) {
+    for (AbstractInsnNode it : InsnSupport.prev(node).toList()) {
       if (it instanceof FieldInsnNode) {
         FieldInsnNode getstatic = (FieldInsnNode) it;
         if (getstatic.getOpcode() == GETSTATIC) {
           type = Type.getObjectType(getstatic.owner);
           break;
         }
+      } else if (it instanceof InvokeDynamicInsnNode invokeDynamic) {
+        var handle = (Handle) invokeDynamic.bsmArgs[1];
+        type = Type.getObjectType(handle.getOwner());
+        break;
       }
     }
     if (type == null) {
@@ -748,7 +752,7 @@ public class RouteParser {
                           "Kotlin lambda not found: " + InsnSupport.toString(node)));
       ctx.debugHandlerLink(method);
       boolean synthetic = (method.access & Opcodes.ACC_PRIVATE) != 0;
-      if (synthetic && method.name.startsWith("invoke$")) {
+      if (synthetic && (method.name.startsWith("invoke$") || method.name.contains("$lambda"))) {
         method = ktFunRef160(ctx, method);
       }
       if (httpMethod == null) {
@@ -871,7 +875,10 @@ public class RouteParser {
 
     boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
     boolean lambda =
-        node.name.equals("apply") || node.name.equals("invoke") || node.name.startsWith("invoke$");
+        node.name.equals("apply")
+            || node.name.equals("invoke")
+            || node.name.startsWith("invoke$")
+            || node.name.contains("$lambda");
     if (notSynthetic && !lambda) {
       operation.setOperationId(node.name);
     }

@@ -1572,7 +1572,7 @@ public class OpenAPIGeneratorTest {
     assertKtController(iterator);
   }
 
-  @OpenAPITest(value = KtRouteRef.class)
+  @OpenAPITest(value = KtRouteRef.class, debug = DebugOption.ALL)
   public void ktRouteRef(RouteIterator iterator) {
     iterator.next(
         route -> {

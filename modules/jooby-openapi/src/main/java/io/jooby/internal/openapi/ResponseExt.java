@@ -25,7 +25,9 @@ public class ResponseExt extends ApiResponse {
           "io.reactivex.Flowable",
           "io.reactivex.Observable",
           "reactor.core.publisher.Flux",
-          "reactor.core.publisher.Mono");
+          "reactor.core.publisher.Mono",
+          "io.smallrye.mutiny.Uni",
+          "io.smallrye.mutiny.Multi");
 
   @JsonIgnore private List<String> javaTypes = new ArrayList<>();
 

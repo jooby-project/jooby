@@ -42,6 +42,9 @@ public class ReturnTypeParser {
 
   public static List<String> parse(ParserContext ctx, MethodNode node) {
     Type returnType = Type.getReturnType(node.desc);
+    if (TypeFactory.KT_UNIT.equals(returnType)) {
+      return List.of("void");
+    }
     boolean notSynthetic = (node.access & Opcodes.ACC_SYNTHETIC) == 0;
     if (notSynthetic
         && !TypeFactory.OBJECT.equals(returnType)
