@@ -6,19 +6,20 @@
 package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.AnnotationSupport.*;
+import static io.jooby.internal.apt.StringCodeBlock.*;
+import static java.lang.System.lineSeparator;
 import static java.util.Optional.ofNullable;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
 
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeName;
 import io.jooby.apt.MvcContext;
 
 public class MvcRoute {
@@ -29,6 +30,7 @@ public class MvcRoute {
   private final List<MvcParameter> parameters;
   private final TypeDefinition returnType;
   private String generatedName;
+  private final boolean suspendFun;
 
   public MvcRoute(MvcContext context, MvcRouter router, ExecutableElement method) {
     this.context = context;
@@ -36,6 +38,9 @@ public class MvcRoute {
     this.method = method;
     this.parameters =
         method.getParameters().stream().map(it -> new MvcParameter(context, it)).toList();
+    this.suspendFun =
+        !parameters.isEmpty()
+            && parameters.get(parameters.size() - 1).getType().is("kotlin.coroutines.Continuation");
     this.returnType =
         new TypeDefinition(
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
@@ -50,6 +55,7 @@ public class MvcRoute {
     this.returnType =
         new TypeDefinition(
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
+    this.suspendFun = route.suspendFun;
     route.annotationMap.keySet().forEach(this::addHttpMethod);
   }
 
@@ -59,33 +65,45 @@ public class MvcRoute {
     var elements = processingEnv.getElementUtils();
     if (returnType.isVoid()) {
       return new TypeDefinition(types, elements.getTypeElement("io.jooby.StatusCode").asType());
+    } else if (isSuspendFun()) {
+      var continuation = parameters.get(parameters.size() - 1).getType();
+      if (!continuation.getArguments().isEmpty()) {
+        var continuationReturnType = continuation.getArguments().get(0).getType();
+        if (continuationReturnType instanceof WildcardType wildcardType) {
+          return Stream.of(wildcardType.getSuperBound(), wildcardType.getExtendsBound())
+              .filter(Objects::nonNull)
+              .findFirst()
+              .map(e -> new TypeDefinition(types, e))
+              .orElseGet(() -> new TypeDefinition(types, continuationReturnType));
+        } else {
+          return new TypeDefinition(types, continuationReturnType);
+        }
+      }
     }
     return returnType;
   }
 
   public TypeMirror getReturnTypeHandler() {
-    return isSuspendFun()
-        ? context
-            .getProcessingEnvironment()
-            .getElementUtils()
-            .getTypeElement("kotlin.coroutines.Continuation")
-            .asType()
-        : getReturnType().getRawType();
+    return getReturnType().getRawType();
   }
 
-  public List<CodeBlock> generateMapping() {
-    List<CodeBlock> block = new ArrayList<>();
+  public List<String> generateMapping(boolean kt) {
+    List<String> block = new ArrayList<>();
     var methodName = getGeneratedName();
-    var isSuspend = isSuspendFun();
     var returnType = getReturnType();
-    var paramTypes = getRawParameterTypes();
-    var paramString =
-        paramTypes.stream().map(it -> it + ".class").collect(Collectors.joining(", "));
-    var javadocLink = javadocComment(paramTypes);
+    var paramString = String.join(", ", getJavaMethodSignature(kt));
+    var javadocLink = javadocComment();
     var attributeGenerator = new RouteAttributesGenerator(context);
     var routes = router.getRoutes();
     var lastRoute = routes.get(routes.size() - 1).equals(this);
     var entries = annotationMap.entrySet().stream().toList();
+    var javaChainPrefix = kt ? "" : ".";
+    var thisRef =
+        isSuspendFun()
+            ? "this@"
+                + context.generateRouterName(router.getTargetType().getSimpleName().toString())
+                + "::"
+            : "this::";
     for (var e : entries) {
       var lastHttpMethod = lastRoute && entries.get(entries.size() - 1).equals(e);
       var annotation = e.getKey();
@@ -95,76 +113,149 @@ public class MvcRoute {
         var lastLine = lastHttpMethod && paths.get(paths.size() - 1).equals(path);
         block.add(javadocLink);
         block.add(
-            CodeBlock.of(
-                "app.$L($S, $L)\n",
+            statement(
+                isSuspendFun() ? "" : "app.",
                 annotation.getSimpleName().toString().toLowerCase(),
-                path,
-                context.pipeline(getReturnTypeHandler(), "this::" + methodName)));
+                "(",
+                string(path),
+                ", ",
+                context.pipeline(getReturnTypeHandler(), thisRef + methodName),
+                ")",
+                kt ? ".apply {" : ""));
         /* consumes */
         mediaType(httpMethod::consumes)
-            .ifPresent(consumes -> block.add(CodeBlock.of("   .setConsumes($L)\n", consumes)));
+            .ifPresent(
+                consumes ->
+                    block.add(
+                        statement(indent(2), javaChainPrefix, "setConsumes(", consumes, ")")));
         /* produces */
         mediaType(httpMethod::produces)
-            .ifPresent(produces -> block.add(CodeBlock.of("   .setProduces($L)\n", produces)));
+            .ifPresent(
+                produces ->
+                    block.add(
+                        statement(indent(2), javaChainPrefix, "setProduces(", produces, ")")));
         /* dispatch */
         dispatch()
-            .ifPresent(dispatch -> block.add(CodeBlock.of("   .setExecutorKey($S)\n", dispatch)));
+            .ifPresent(
+                dispatch ->
+                    block.add(
+                        statement(
+                            indent(2), javaChainPrefix, "setExecutorKey(", string(dispatch), ")")));
         /* attributes */
         attributeGenerator
-            .toSourceCode(this, "   ")
+            .toSourceCode(this, indent(2))
             .ifPresent(
-                attributes -> block.add(CodeBlock.of("   .setAttributes($L)\n", attributes)));
+                attributes ->
+                    block.add(
+                        statement(indent(2), javaChainPrefix, "setAttributes(", attributes, ")")));
         /* returnType */
-        block.add(CodeBlock.of("   .setReturnType($L)\n", returnType.toSourceCode()));
-        /* mvcMethod */
-        var lineSep = lastLine ? "\n" : "\n\n";
         block.add(
-            CodeBlock.of(
-                "   .setMvcMethod($L.class.getMethod($S$L));$L",
+            statement(
+                indent(2), javaChainPrefix, "setReturnType(", returnType.toSourceCode(kt), ")"));
+        /* mvcMethod */
+        var lineSep = lastLine ? lineSeparator() : lineSeparator() + lineSeparator();
+        block.add(
+            StringCodeBlock.of(
+                indent(2),
+                javaChainPrefix,
+                "setMvcMethod(",
                 router.getTargetType().getSimpleName(),
-                getMethodName(),
+                clazz(kt),
+                ".getMethod(",
+                string(getMethodName()),
                 paramString.isEmpty() ? "" : ", " + paramString,
+                "))",
+                semicolon(kt),
                 lineSep));
+        if (kt) {
+          block.add("}");
+        }
       }
     }
     return block;
   }
 
-  public MethodSpec generateHandlerCall() {
-    var environment = context.getProcessingEnvironment();
-    var elements = environment.getElementUtils();
-    var contextType = TypeName.get(elements.getTypeElement("io.jooby.Context").asType());
-    var methodSpec = MethodSpec.methodBuilder(getGeneratedName());
-    methodSpec.addModifiers(Modifier.PUBLIC);
-    methodSpec.addParameter(ParameterSpec.builder(contextType, "ctx").build());
-    if (!method.getThrownTypes().isEmpty()) {
-      methodSpec.addException(Exception.class);
-    }
+  public List<String> generateHandlerCall(boolean kt) {
+    var buffer = new ArrayList<String>();
     /* Parameters */
     var paramList = new StringJoiner(", ", "(", ")");
-    for (var parameter : getParameters()) {
-      paramList.add(parameter.generateMapping().toString());
+    for (var parameter : getParameters(true)) {
+      paramList.add(parameter.generateMapping(kt).toString());
+    }
+    var returnTypeString = type(kt, getReturnType().toString());
+    var ctx = "ctx";
+    if (kt) {
+      buffer.add(statement("@Throws(Exception::class)"));
+      if (isSuspendFun()) {
+        buffer.add(
+            statement(
+                "suspend ",
+                "fun ",
+                getGeneratedName(),
+                "(handler: io.jooby.kt.HandlerContext): ",
+                returnTypeString,
+                " {"));
+        buffer.add(statement(indent(2), "val ctx = handler.ctx"));
+      } else {
+        buffer.add(
+            statement(
+                "fun ", getGeneratedName(), "(ctx: io.jooby.Context): ", returnTypeString, " {"));
+      }
+    } else {
+      buffer.add(
+          statement(
+              "public ",
+              returnTypeString,
+              " ",
+              getGeneratedName(),
+              "(io.jooby.Context ctx) throws Exception {"));
     }
     if (returnType.isVoid()) {
-      methodSpec.addStatement(
-          "ctx.setResponseCode(ctx.getRoute().getMethod().equals($S) ?"
-              + " io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
-          "DELETE");
-      methodSpec.addStatement(
-          "this.factory.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
-      methodSpec.addStatement("return ctx.getResponseCode()");
+      buffer.add(
+          statement(
+              indent(2),
+              "ctx.setResponseCode(",
+              ctx,
+              ".getRoute().getMethod().equals(",
+              string("DELETE"),
+              ") ?" + " io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
+              semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(2),
+              "this.factory.apply(",
+              ctx,
+              ").",
+              this.method.getSimpleName(),
+              paramList.toString(),
+              semicolon(kt)));
+      buffer.add(statement("return ", ctx, ".getResponseCode()", semicolon(kt)));
     } else if (returnType.is("io.jooby.StatusCode")) {
-      methodSpec.addStatement(
-          "var statusCode = this.factory.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
-      methodSpec.addStatement("ctx.setResponseCode(statusCode)");
-      methodSpec.addStatement("return statusCode");
+      buffer.add(
+          statement(
+              indent(2),
+              isSuspendFun() ? "val" : "var",
+              " statusCode = this.factory.apply(",
+              ctx,
+              ").",
+              this.method.getSimpleName(),
+              paramList.toString(),
+              semicolon(kt)));
+      buffer.add(statement(indent(2), ctx, ".setResponseCode(statusCode)", semicolon(kt)));
+      buffer.add(statement(indent(2), "return statusCode", semicolon(kt)));
     } else {
-      methodSpec.addStatement(
-          "return this.factory.apply(ctx).$L$L", this.method.getSimpleName(), paramList);
+      buffer.add(
+          statement(
+              indent(2),
+              "return this.factory.apply(",
+              ctx,
+              ").",
+              this.method.getSimpleName(),
+              paramList.toString(),
+              semicolon(kt)));
     }
-
-    methodSpec.returns(TypeName.get(getReturnType().getType()));
-    return methodSpec.build();
+    buffer.add(statement("}", System.lineSeparator()));
+    return buffer;
   }
 
   public String getGeneratedName() {
@@ -187,19 +278,37 @@ public class MvcRoute {
     return router;
   }
 
-  public List<MvcParameter> getParameters() {
-    return parameters;
+  public List<MvcParameter> getParameters(boolean skipCoroutine) {
+    return parameters.stream()
+        .filter(type -> !skipCoroutine || !type.getType().is("kotlin.coroutines.Continuation"))
+        .toList();
   }
 
   public ExecutableElement getMethod() {
     return method;
   }
 
-  public List<String> getRawParameterTypes() {
-    return parameters.stream()
+  public List<String> getRawParameterTypes(boolean skipCoroutine) {
+    return getParameters(skipCoroutine).stream()
         .map(MvcParameter::getType)
         .map(TypeDefinition::getRawType)
         .map(TypeMirror::toString)
+        .map(it -> type(router.isKt(), it))
+        .toList();
+  }
+
+  public List<String> getJavaMethodSignature(boolean kt) {
+    return getParameters(false).stream()
+        .map(
+            it -> {
+              var type = it.getType();
+              // Kotlin requires his own types for primitives
+              if (kt && type.isPrimitive()) {
+                return type(kt, type.getRawType().toString());
+              }
+              return type.getRawType().toString();
+            })
+        .map(it -> it + clazz(kt))
         .toList();
   }
 
@@ -236,7 +345,7 @@ public class MvcRoute {
     buffer
         .append(method.getSimpleName())
         .append("(")
-        .append(String.join(", ", getRawParameterTypes()))
+        .append(String.join(", ", getRawParameterTypes(true)))
         .append("): ")
         .append(getReturnType());
     return buffer.toString();
@@ -273,19 +382,16 @@ public class MvcRoute {
    *
    * @return True for Kotlin suspend function.
    */
-  private boolean isSuspendFun() {
-    var parameters = getRawParameterTypes();
-    return !parameters.isEmpty()
-        && getRawParameterTypes()
-            .get(parameters.size() - 1)
-            .equals("kotlin.coroutines.Continuation");
+  public boolean isSuspendFun() {
+    return suspendFun;
   }
 
-  private CodeBlock javadocComment(List<String> parameters) {
+  private String javadocComment() {
     return CodeBlock.of(
-        "/* See {@link $L#$L($L) */\n",
-        router.getTargetType().getSimpleName(),
-        getMethodName(),
-        String.join(", ", parameters));
+            "/* See {@link $L#$L($L) */\n",
+            router.getTargetType().getSimpleName(),
+            getMethodName(),
+            String.join(", ", getRawParameterTypes(true)))
+        .toString();
   }
 }

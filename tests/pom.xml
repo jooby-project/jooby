@@ -295,6 +295,7 @@
                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
                 <sourceDir>${project.basedir}/src/test/java</sourceDir>
                 <sourceDir>target/generated-sources/kapt/test</sourceDir>
+                <sourceDir>target/generated-sources/kaptKotlin/test</sourceDir>
               </sourceDirs>
             </configuration>
           </execution>

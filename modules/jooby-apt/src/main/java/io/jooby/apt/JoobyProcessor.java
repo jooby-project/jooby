@@ -6,10 +6,14 @@
 package io.jooby.apt;
 
 import static io.jooby.apt.JoobyProcessor.Options.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.ofNullable;
+import static javax.tools.StandardLocation.SOURCE_OUTPUT;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -20,9 +24,10 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
+import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
 
-import com.squareup.javapoet.JavaFile;
 import io.jooby.internal.apt.*;
 
 @SupportedOptions({HANDLER, DEBUG, INCREMENTAL, SERVICES, SKIP_ATTRIBUTE_ANNOTATIONS})
@@ -89,14 +94,14 @@ public class JoobyProcessor extends AbstractProcessor {
       return false;
     } else {
       var routeMap = buildRouteRegistry(annotations, roundEnv);
-      var filer = context.getProcessingEnvironment().getFiler();
       for (var router : routeMap.values()) {
         try {
-          var javaFile = router.toSourceCode();
-          onGeneratedSource(javaFile);
+          var sourceCode = router.toSourceCode();
+          var sourceLocation = router.getGeneratedFilename();
+          onGeneratedSource(toJavaFileObject(sourceLocation, sourceCode));
           context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
           router.getRoutes().forEach(it -> context.debug("   %s", it));
-          javaFile.writeTo(filer);
+          writeSource(router, sourceLocation, sourceCode);
           context.add(router);
         } catch (IOException cause) {
           throw new RuntimeException("Unable to generate: " + router.getTargetType(), cause);
@@ -106,7 +111,54 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  protected void onGeneratedSource(JavaFile source) {}
+  private void writeSource(MvcRouter router, String sourceLocation, String sourceCode)
+      throws IOException {
+    var environment = context.getProcessingEnvironment();
+    var filer = environment.getFiler();
+    if (router.isKt()) {
+      var kapt = environment.getOptions().get("kapt.kotlin.generated");
+      if (kapt != null) {
+        var output = Paths.get(kapt, sourceLocation);
+        Files.createDirectories(output.getParent());
+        Files.writeString(output, sourceCode);
+      } else {
+        var ktFile =
+            filer.createResource(SOURCE_OUTPUT, "", sourceLocation, router.getTargetType());
+        try (var writer = ktFile.openWriter()) {
+          writer.write(sourceCode);
+        }
+      }
+    } else {
+      var javaFIle = filer.createSourceFile(router.getGeneratedType(), router.getTargetType());
+      try (var writer = javaFIle.openWriter()) {
+        writer.write(sourceCode);
+      }
+    }
+  }
+
+  private static JavaFileObject toJavaFileObject(String filename, String source) {
+    var uri = URI.create(filename);
+    return new SimpleJavaFileObject(uri, JavaFileObject.Kind.SOURCE) {
+      private final long lastModified = System.currentTimeMillis();
+
+      @Override
+      public String getCharContent(boolean ignoreEncodingErrors) {
+        return source;
+      }
+
+      @Override
+      public InputStream openInputStream() throws IOException {
+        return new ByteArrayInputStream(getCharContent(true).getBytes(UTF_8));
+      }
+
+      @Override
+      public long getLastModified() {
+        return lastModified;
+      }
+    };
+  }
+
+  protected void onGeneratedSource(JavaFileObject source) {}
 
   private void doServices(Filer filer, List<MvcRouter> routers) {
     try {
@@ -161,7 +213,7 @@ public class JoobyProcessor extends AbstractProcessor {
       for (var route : router.getRoutes()) {
         if (!names.add(route.getMethodName())) {
           var paramsString =
-              route.getRawParameterTypes().stream()
+              route.getRawParameterTypes(true).stream()
                   .map(it -> it.substring(Math.max(0, it.lastIndexOf(".") + 1)))
                   .map(it -> Character.toUpperCase(it.charAt(0)) + it.substring(1))
                   .collect(Collectors.joining());

@@ -18,20 +18,37 @@ import java.util.stream.Stream;
 
 import javax.lang.model.element.AnnotationMirror;
 
-import com.squareup.javapoet.CodeBlock;
-
 public enum ParameterGenerator {
   ContextParam("getAttribute", "io.jooby.annotation.ContextParam", "jakarta.ws.rs.core.Context") {
     @Override
-    public CodeBlock toSourceCode(
-        AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
+    public String toSourceCode(
+        boolean kt,
+        AnnotationMirror annotation,
+        TypeDefinition type,
+        String name,
+        boolean nullable) {
       if (type.is(Map.class)) {
-        return CodeBlock.of(
-            "java.util.Optional.ofNullable((java.util.Map) ctx.getAttribute($S)).orElseGet(() ->"
-                + " ctx.getAttributes())",
-            name);
+        return StringCodeBlock.of(
+            "java.util.Optional.ofNullable((java.util.Map) ctx.getAttribute(",
+            StringCodeBlock.string(name),
+            ")).orElseGet(() ->" + " ctx.getAttributes())");
       } else {
-        return CodeBlock.of("($L) ctx.$L($S)", type.getRawType().toString(), method, name);
+        return kt
+            ? StringCodeBlock.of(
+                "ctx.",
+                method,
+                "(",
+                StringCodeBlock.string(name),
+                ") as ",
+                type.getRawType().toString())
+            : StringCodeBlock.of(
+                "(",
+                type.getRawType().toString(),
+                ") ctx.",
+                method,
+                "(",
+                StringCodeBlock.string(name),
+                ")");
       }
     }
   },
@@ -45,36 +62,40 @@ public enum ParameterGenerator {
   SessionParam("session", "io.jooby.annotation.SessionParam"),
   BodyParam("body") {
     @Override
-    public CodeBlock toSourceCode(
-        AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
+    public String toSourceCode(
+        boolean kt,
+        AnnotationMirror annotation,
+        TypeDefinition type,
+        String name,
+        boolean nullable) {
       var rawType = type.getRawType().toString();
       return switch (rawType) {
-        case "byte[]" -> CodeBlock.of("ctx.body().bytes()");
-        case "java.io.InputStream" -> CodeBlock.of("ctx.body().stream()");
-        case "java.nio.channels.ReadableByteChannel" -> CodeBlock.of("ctx.body().channel()");
+        case "byte[]" -> StringCodeBlock.of("ctx.body().bytes()");
+        case "java.io.InputStream" -> StringCodeBlock.of("ctx.body().stream()");
+        case "java.nio.channels.ReadableByteChannel" -> StringCodeBlock.of("ctx.body().channel()");
         default -> {
           if (type.isPrimitive()) {
-            yield CodeBlock.of("ctx.$L().$LValue()", method, type.getName());
+            yield StringCodeBlock.of("ctx.", method, "().", type.getName(), "Value()");
           } else if (type.is(String.class)) {
             yield nullable
-                ? CodeBlock.of("ctx.$L().valueOrNull()", method)
-                : CodeBlock.of("ctx.$L().value()", method);
+                ? StringCodeBlock.of("ctx.", method, "().valueOrNull()")
+                : StringCodeBlock.of("ctx.", method, "().value()");
           } else if (type.is(Optional.class)) {
-            yield CodeBlock.of(
-                "ctx.$L().toOptional($L)", method, type.getArguments().get(0).toSourceCode());
+            yield StringCodeBlock.of(
+                "ctx.", method, "().toOptional(", type.getArguments().get(0).toSourceCode(kt), ")");
 
           } else {
-            yield CodeBlock.of("ctx.$L($L)", method, type.toSourceCode());
+            yield StringCodeBlock.of("ctx.", method, "(", type.toSourceCode(kt), ")");
           }
         }
       };
     }
   };
 
-  public CodeBlock toSourceCode(
-      AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
+  public String toSourceCode(
+      boolean kt, AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
     var paramSource = source(annotation);
-    var builtin = builtinType(annotation, type, name, nullable);
+    var builtin = builtinType(kt, annotation, type, name, nullable);
     if (builtin == null) {
       var toValue =
           CONTAINER.stream()
@@ -87,24 +108,71 @@ public enum ParameterGenerator {
       if (paramSource.isEmpty() && BUILT_IN.stream().noneMatch(elementType::is)) {
         // for unsupported types, we check if node with matching name is present, if not we fallback
         // to entire scope converter
-        return CodeBlock.of(
-            "ctx.$1L($2S).isMissing() ? ctx.$1L().$3L($4L.class) : ctx.$1L($2S).$3L($4L.class)",
-            method,
-            name,
-            toValue,
-            elementType.getName());
+        if (kt) {
+          return StringCodeBlock.of(
+              "if(ctx.",
+              method,
+              "(",
+              StringCodeBlock.string(name),
+              ").isMissing()) ctx.",
+              method,
+              "().",
+              toValue,
+              "(",
+              StringCodeBlock.type(kt, elementType.getName()),
+              StringCodeBlock.clazz(kt),
+              ") else ctx.",
+              method,
+              "(",
+              StringCodeBlock.string(name),
+              ").",
+              toValue,
+              "(",
+              StringCodeBlock.type(kt, elementType.getName()),
+              StringCodeBlock.clazz(kt),
+              ")");
+        } else {
+          return StringCodeBlock.of(
+              "ctx.",
+              method,
+              "(",
+              StringCodeBlock.string(name),
+              ").isMissing() ? ctx.",
+              method,
+              "().",
+              toValue,
+              "(",
+              StringCodeBlock.type(kt, elementType.getName()),
+              StringCodeBlock.clazz(kt),
+              ") : ctx.",
+              method,
+              "(",
+              StringCodeBlock.string(name),
+              ").",
+              toValue,
+              "(",
+              StringCodeBlock.type(kt, elementType.getName()),
+              StringCodeBlock.clazz(kt),
+              ")");
+        }
       } else {
         // container of supported types: List<Integer>, Optional<UUID>
         if (elementType.is(String.class)) {
-          return CodeBlock.of("ctx.$L($S$L).$L()", method, name, paramSource, toValue);
+          return StringCodeBlock.of(
+              "ctx.", method, "(", StringCodeBlock.string(name), paramSource, ").", toValue, "()");
         } else {
-          return CodeBlock.of(
-              "ctx.$L($S$L).$L($L.class)",
+          return StringCodeBlock.of(
+              "ctx.",
               method,
-              name,
+              "(",
+              StringCodeBlock.string(name),
               paramSource,
+              ").",
               toValue,
-              elementType.getName());
+              "(",
+              StringCodeBlock.type(kt, elementType.getName()),
+              StringCodeBlock.clazz(kt),
+              ")");
         }
       }
     } else {
@@ -112,23 +180,49 @@ public enum ParameterGenerator {
     }
   }
 
-  protected CodeBlock builtinType(
-      AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
+  protected String builtinType(
+      boolean kt, AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
     if (BUILT_IN.stream().anyMatch(type::is)) {
       var paramSource = source(annotation);
       // look at named parameter
       if (type.isPrimitive()) {
         // like: .intValue
-        return CodeBlock.of("ctx.$L($S$L).$LValue()", method, name, paramSource, type.getName());
+        return StringCodeBlock.of(
+            "ctx.",
+            method,
+            "(",
+            StringCodeBlock.string(name),
+            paramSource,
+            ").",
+            StringCodeBlock.type(kt, type.getName()).toLowerCase(),
+            "Value()");
       } else if (type.is(String.class)) {
         var stringValue = nullable ? "valueOrNull" : "value";
         // StringL: .value
-        return CodeBlock.of("ctx.$L($S$L).$L()", method, name, paramSource, stringValue);
+        return StringCodeBlock.of(
+            "ctx.",
+            method,
+            "(",
+            StringCodeBlock.string(name),
+            paramSource,
+            ").",
+            stringValue,
+            "()");
       } else {
         var toValue = nullable ? "toNullable" : "to";
         // Any other type: .to(UUID.class)
-        return CodeBlock.of(
-            "ctx.$L($S$L).$L($L.class)", method, name, paramSource, toValue, type.getName());
+        return StringCodeBlock.of(
+            "ctx.",
+            method,
+            "(",
+            StringCodeBlock.string(name),
+            paramSource,
+            ").",
+            toValue,
+            "(",
+            StringCodeBlock.type(kt, type.getName()),
+            StringCodeBlock.clazz(kt),
+            ")");
       }
     }
     return null;

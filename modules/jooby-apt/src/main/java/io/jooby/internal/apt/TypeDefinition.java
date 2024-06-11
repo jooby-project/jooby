@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.internal.apt.StringCodeBlock.clazz;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,11 +31,11 @@ public class TypeDefinition {
     this.rawType = typeUtils.erasure(unwrapType);
   }
 
-  public String toSourceCode() {
-    return toSourceCode(this);
+  public String toSourceCode(boolean kt) {
+    return toSourceCode(this, kt);
   }
 
-  private static String toSourceCode(TypeDefinition type) {
+  private static String toSourceCode(TypeDefinition type, boolean kt) {
     if (type.isParameterizedType()) {
       var buffer = new StringBuilder();
       var methodName =
@@ -48,16 +50,19 @@ public class TypeDefinition {
       var separator = ", ";
       if (methodName.equals("getParameterized")) {
         // Add raw type
-        buffer.append(type.getRawType().toString()).append(".class, ");
+        buffer
+            .append(StringCodeBlock.type(kt, type.getRawType().toString()))
+            .append(clazz(kt))
+            .append(", ");
       }
       for (TypeDefinition arg : type.getArguments()) {
-        buffer.append(toSourceCode(arg)).append(separator);
+        buffer.append(toSourceCode(arg, kt)).append(separator);
       }
       buffer.setLength(buffer.length() - separator.length());
       buffer.append(").getType()");
       return buffer.toString();
     } else {
-      return type.getRawType().toString() + ".class";
+      return StringCodeBlock.type(kt, type.getRawType().toString()) + clazz(kt);
     }
   }
 
@@ -82,6 +87,10 @@ public class TypeDefinition {
 
   public TypeMirror getType() {
     return type;
+  }
+
+  public TypeMirror getUnwrapType() {
+    return unwrapType;
   }
 
   public boolean isPrimitive() {

@@ -22,7 +22,7 @@ class KotlinMvc {
 
   @GET
   @Path("/{x}")
-  fun pathParam(@PathParam x: Int): Int? {
+  fun pathParam(@PathParam x: Int): Int {
     return x
   }
 

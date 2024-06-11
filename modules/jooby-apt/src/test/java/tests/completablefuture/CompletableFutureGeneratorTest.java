@@ -18,7 +18,8 @@ public class CompletableFutureGeneratorTest {
     new ProcessorRunner(new CCompletableFuture())
         .withRouter(
             (app, source) -> {
-              assertTrue(source.toString().contains(", concurrent(this::future)"));
+              assertTrue(
+                  source.getCharContent(false).toString().contains(", concurrent(this::future)"));
             });
   }
 }

@@ -24,7 +24,6 @@ import javax.tools.JavaFileObject;
 import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
-import com.squareup.javapoet.JavaFile;
 import io.jooby.*;
 
 public class ProcessorRunner {
@@ -33,10 +32,10 @@ public class ProcessorRunner {
     private final JavaFileObject classFile;
     private final String className;
 
-    public GeneratedSourceClassLoader(ClassLoader parent, JavaFile source) {
+    public GeneratedSourceClassLoader(ClassLoader parent, JavaFileObject source) {
       super(parent);
-      this.classFile = javac().compile(List.of(source.toJavaFileObject())).generatedFiles().get(0);
-      this.className = source.packageName + "." + source.typeSpec.name;
+      this.classFile = javac().compile(List.of(source)).generatedFiles().get(0);
+      this.className = source.getName().replace('/', '.').replace(".java", "");
     }
 
     public String getClassName() {
@@ -57,7 +56,7 @@ public class ProcessorRunner {
   }
 
   private static class HookJoobyProcessor extends JoobyProcessor {
-    private JavaFile source;
+    private JavaFileObject source;
 
     public HookJoobyProcessor(Consumer<String> console) {
       super(console);
@@ -68,12 +67,12 @@ public class ProcessorRunner {
       return new GeneratedSourceClassLoader(getClass().getClassLoader(), source);
     }
 
-    public JavaFile getSource() {
+    public JavaFileObject getSource() {
       return source;
     }
 
     @Override
-    protected void onGeneratedSource(JavaFile source) {
+    protected void onGeneratedSource(JavaFileObject source) {
       this.source = source;
     }
   }
@@ -100,7 +99,7 @@ public class ProcessorRunner {
     return withRouter((app, source) -> consumer.accept(app));
   }
 
-  public ProcessorRunner withRouter(SneakyThrows.Consumer2<Jooby, JavaFile> consumer)
+  public ProcessorRunner withRouter(SneakyThrows.Consumer2<Jooby, JavaFileObject> consumer)
       throws Exception {
     var classLoader = processor.createClassLoader();
     var factoryName = classLoader.getClassName();

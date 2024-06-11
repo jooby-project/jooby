@@ -132,11 +132,6 @@ public class MvcContext {
                 }
               }
             });
-    var continuation =
-        processingEnvironment.getElementUtils().getTypeElement("kotlin.coroutines.Continuation");
-    if (continuation != null) {
-      consumer.accept(continuation, Map.entry("io.jooby.kt.Kooby", "coroutine"));
-    }
   }
 
   public void add(MvcRouter router) {
