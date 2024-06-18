@@ -19,8 +19,6 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 
-import io.jooby.apt.MvcContext;
-
 public class MvcRoute {
   private final MvcContext context;
   private final MvcRouter router;
@@ -91,12 +89,11 @@ public class MvcRoute {
     var methodName = getGeneratedName();
     var returnType = getReturnType();
     var paramString = String.join(", ", getJavaMethodSignature(kt));
-    var javadocLink = javadocComment();
+    var javadocLink = javadocComment(kt);
     var attributeGenerator = new RouteAttributesGenerator(context);
     var routes = router.getRoutes();
     var lastRoute = routes.get(routes.size() - 1).equals(this);
     var entries = annotationMap.entrySet().stream().toList();
-    var javaChainPrefix = kt ? "" : ".";
     var thisRef =
         isSuspendFun()
             ? "this@"
@@ -119,45 +116,31 @@ public class MvcRoute {
                 string(path),
                 ", ",
                 context.pipeline(getReturnTypeHandler(), thisRef + methodName),
-                ")",
-                kt ? ".apply {" : ""));
+                ")"));
         /* consumes */
         mediaType(httpMethod::consumes)
-            .ifPresent(
-                consumes ->
-                    block.add(
-                        statement(indent(2), javaChainPrefix, "setConsumes(", consumes, ")")));
+            .ifPresent(consumes -> block.add(statement(indent(2), ".setConsumes(", consumes, ")")));
         /* produces */
         mediaType(httpMethod::produces)
-            .ifPresent(
-                produces ->
-                    block.add(
-                        statement(indent(2), javaChainPrefix, "setProduces(", produces, ")")));
+            .ifPresent(produces -> block.add(statement(indent(2), ".setProduces(", produces, ")")));
         /* dispatch */
         dispatch()
             .ifPresent(
                 dispatch ->
-                    block.add(
-                        statement(
-                            indent(2), javaChainPrefix, "setExecutorKey(", string(dispatch), ")")));
+                    block.add(statement(indent(2), ".setExecutorKey(", string(dispatch), ")")));
         /* attributes */
         attributeGenerator
             .toSourceCode(this, indent(2))
             .ifPresent(
-                attributes ->
-                    block.add(
-                        statement(indent(2), javaChainPrefix, "setAttributes(", attributes, ")")));
+                attributes -> block.add(statement(indent(2), ".setAttributes(", attributes, ")")));
         /* returnType */
-        block.add(
-            statement(
-                indent(2), javaChainPrefix, "setReturnType(", returnType.toSourceCode(kt), ")"));
+        block.add(statement(indent(2), ".setReturnType(", returnType.toSourceCode(kt), ")"));
         /* mvcMethod */
         var lineSep = lastLine ? lineSeparator() : lineSeparator() + lineSeparator();
         block.add(
             CodeBlock.of(
                 indent(2),
-                javaChainPrefix,
-                "setMvcMethod(",
+                ".setMvcMethod(",
                 router.getTargetType().getSimpleName(),
                 clazz(kt),
                 ".getMethod(",
@@ -166,9 +149,6 @@ public class MvcRoute {
                 "))",
                 semicolon(kt),
                 lineSep));
-        if (kt) {
-          block.add("}");
-        }
       }
     }
     return block;
@@ -179,12 +159,15 @@ public class MvcRoute {
     /* Parameters */
     var paramList = new StringJoiner(", ", "(", ")");
     for (var parameter : getParameters(true)) {
-      paramList.add(parameter.generateMapping(kt).toString());
+      paramList.add(parameter.generateMapping(kt));
     }
+    var throwsException = !method.getThrownTypes().isEmpty();
     var returnTypeString = type(kt, getReturnType().toString());
     var ctx = "ctx";
     if (kt) {
-      buffer.add(statement("@Throws(Exception::class)"));
+      if (throwsException) {
+        buffer.add(statement("@Throws(Exception::class)"));
+      }
       if (isSuspendFun()) {
         buffer.add(
             statement(
@@ -207,7 +190,9 @@ public class MvcRoute {
               returnTypeString,
               " ",
               getGeneratedName(),
-              "(io.jooby.Context ctx) throws Exception {"));
+              "(io.jooby.Context ctx) ",
+              throwsException ? "throws Exception " : "",
+              "{"));
     }
     if (returnType.isVoid()) {
       buffer.add(
@@ -385,14 +370,18 @@ public class MvcRoute {
     return suspendFun;
   }
 
-  private String javadocComment() {
-    return CodeBlock.of(
-        "/* See {@link ",
+  private String javadocComment(boolean kt) {
+    if (kt) {
+      return CodeBlock.statement(
+          "/** See [", router.getTargetType().getSimpleName(), ".", getMethodName(), "]", " */");
+    }
+    return CodeBlock.statement(
+        "/** See {@link ",
         router.getTargetType().getSimpleName(),
         "#",
         getMethodName(),
         "(",
         String.join(", ", getRawParameterTypes(true)),
-        ") */\n");
+        ") */");
   }
 }

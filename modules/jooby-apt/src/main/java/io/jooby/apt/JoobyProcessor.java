@@ -147,7 +147,7 @@ public class JoobyProcessor extends AbstractProcessor {
       }
 
       @Override
-      public InputStream openInputStream() throws IOException {
+      public InputStream openInputStream() {
         return new ByteArrayInputStream(getCharContent(true).getBytes(UTF_8));
       }
 
@@ -177,7 +177,7 @@ public class JoobyProcessor extends AbstractProcessor {
         context.debug("  %s", classname);
         content.append(classname).append(System.lineSeparator());
       }
-      try (PrintWriter writer = new PrintWriter(resource.openOutputStream())) {
+      try (var writer = new PrintWriter(resource.openOutputStream())) {
         writer.println(content);
       }
     } catch (IOException cause) {

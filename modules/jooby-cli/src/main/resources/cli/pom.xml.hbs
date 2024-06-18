@@ -34,7 +34,6 @@
       <artifactId>{{artifactId}}</artifactId>
       {{#if version}}<version>{{version}}</version>{{/if}}
     </dependency>
-
   {{/each}}
     <!-- Tests -->
   {{#each testDependencies}}
@@ -44,7 +43,6 @@
       {{#if version}}<version>{{version}}</version>{{/if}}
       <scope>test</scope>
     </dependency>
-
   {{/each}}
   </dependencies>
 
@@ -104,7 +102,6 @@
         {{/if}}
           <execution>
             <id>compile</id>
-{{#if kapt}}<phase>process-sources</phase>{{/if}}
             <goals>
               <goal>compile</goal>
             </goals>

@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.apt;
+package io.jooby.internal.apt;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -16,7 +16,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
 import io.jooby.apt.JoobyProcessor.Options;
-import io.jooby.internal.apt.*;
 
 /**
  * Utility class which give access to {@link ProcessingEnvironment} mainly, few utility methods and

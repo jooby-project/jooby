@@ -16,8 +16,6 @@ import java.util.stream.Stream;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.VariableElement;
 
-import io.jooby.apt.MvcContext;
-
 public class MvcParameter {
   private static final Predicate<String> NULLABLE =
       name -> name.toLowerCase().endsWith(".nullable");

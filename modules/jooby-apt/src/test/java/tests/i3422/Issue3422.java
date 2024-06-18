@@ -20,11 +20,7 @@ public class Issue3422 {
     new ProcessorRunner(new C3422(), Map.of("jooby.handler", ReactiveTypeGenerator.class.getName()))
         .withRouter(
             (app, source) -> {
-              assertTrue(
-                  source
-                      .getCharContent(false)
-                      .toString()
-                      .contains(", toReactive(this::reactiveType)"));
+              assertTrue(source.toString().contains(", toReactive(this::reactiveType)"));
             });
   }
 }

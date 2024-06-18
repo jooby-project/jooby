@@ -8,11 +8,13 @@ package tests;
 import java.util.List;
 
 import io.jooby.annotation.GET;
+import io.jooby.annotation.POST;
 import io.jooby.annotation.QueryParam;
 
 public class CustomRouterName {
 
   @GET("/hello")
+  @POST("/hello")
   public List<? super String> hello(@QueryParam String name) {
     return null;
   }

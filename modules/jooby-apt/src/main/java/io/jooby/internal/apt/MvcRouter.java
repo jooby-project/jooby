@@ -20,8 +20,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
-import io.jooby.apt.MvcContext;
-
 public class MvcRouter {
   private final MvcContext context;
 
@@ -110,7 +108,6 @@ public class MvcRouter {
    */
   public String toSourceCode() throws IOException {
     var kt = isKt();
-
     var generateTypeName = context.generateRouterName(getTargetType().getSimpleName().toString());
     try (var in = getClass().getResourceAsStream("Source" + (kt ? ".kt" : ".java"))) {
       Objects.requireNonNull(in);
@@ -121,7 +118,9 @@ public class MvcRouter {
       context.generateStaticImports(
           this,
           (owner, fn) ->
-              buffer.append(CodeBlock.statement("import static ", owner, ".", fn, semicolon(kt))));
+              buffer.append(
+                  CodeBlock.statement(
+                      "import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));
       var imports = buffer.toString();
       buffer.setLength(0);
       if (!suspended.isEmpty()) {
@@ -131,12 +130,13 @@ public class MvcRouter {
         suspended.stream()
             .flatMap(it -> it.generateMapping(kt).stream())
             .forEach(line -> buffer.append(CodeBlock.indent(8)).append(line));
-        buffer.append(CodeBlock.statement(System.lineSeparator(), indent(6), "}"));
+        trimr(buffer);
+        buffer.append(System.lineSeparator()).append(CodeBlock.statement(indent(6), "}"));
       }
       noSuspended.stream()
           .flatMap(it -> it.generateMapping(kt).stream())
           .forEach(line -> buffer.append(CodeBlock.indent(6)).append(line));
-      var bindings = buffer.toString();
+      var bindings = trimr(buffer).toString();
       buffer.setLength(0);
       routes.stream()
           .flatMap(it -> it.generateHandlerCall(kt).stream())
@@ -148,8 +148,17 @@ public class MvcRouter {
           .replace("${generatedClassName}", generateTypeName)
           .replace("${defaultInstance}", defaultInstance(kt))
           .replace("${bindings}", bindings)
-          .replace("${routes}", buffer);
+          .replace("${routes}", trimr(buffer));
     }
+  }
+
+  private StringBuilder trimr(StringBuilder buffer) {
+    var i = buffer.length() - 1;
+    while (i > 0 && Character.isWhitespace(buffer.charAt(i))) {
+      buffer.deleteCharAt(i);
+      i = buffer.length() - 1;
+    }
+    return buffer;
   }
 
   private String defaultInstance(boolean kt) {

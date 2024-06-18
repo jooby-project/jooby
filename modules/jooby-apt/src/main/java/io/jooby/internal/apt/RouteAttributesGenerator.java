@@ -19,7 +19,6 @@ import javax.lang.model.util.SimpleAnnotationValueVisitor14;
 import javax.lang.model.util.Types;
 
 import io.jooby.apt.JoobyProcessor.Options;
-import io.jooby.apt.MvcContext;
 
 public class RouteAttributesGenerator {
   private record EnumValue(String type, String value) {}
