@@ -8,7 +8,7 @@ package io.jooby.internal.apt;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class StringCodeBlock {
+public class CodeBlock {
   public static String of(List<CharSequence> sequence) {
     return String.join("", sequence);
   }

@@ -6,7 +6,7 @@
 package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.AnnotationSupport.*;
-import static io.jooby.internal.apt.StringCodeBlock.*;
+import static io.jooby.internal.apt.CodeBlock.*;
 import static java.lang.System.lineSeparator;
 import static java.util.Optional.ofNullable;
 
@@ -19,7 +19,6 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 
-import com.squareup.javapoet.CodeBlock;
 import io.jooby.apt.MvcContext;
 
 public class MvcRoute {
@@ -155,7 +154,7 @@ public class MvcRoute {
         /* mvcMethod */
         var lineSep = lastLine ? lineSeparator() : lineSeparator() + lineSeparator();
         block.add(
-            StringCodeBlock.of(
+            CodeBlock.of(
                 indent(2),
                 javaChainPrefix,
                 "setMvcMethod(",
@@ -373,7 +372,7 @@ public class MvcRoute {
     }
     return Optional.of(
         types.stream()
-            .map(type -> CodeBlock.of("io.jooby.MediaType.valueOf($S)", type).toString())
+            .map(type -> CodeBlock.of("io.jooby.MediaType.valueOf(", string(type), ")"))
             .collect(Collectors.joining(", ", "java.util.List.of(", ")")));
   }
 
@@ -388,10 +387,12 @@ public class MvcRoute {
 
   private String javadocComment() {
     return CodeBlock.of(
-            "/* See {@link $L#$L($L) */\n",
-            router.getTargetType().getSimpleName(),
-            getMethodName(),
-            String.join(", ", getRawParameterTypes(true)))
-        .toString();
+        "/* See {@link ",
+        router.getTargetType().getSimpleName(),
+        "#",
+        getMethodName(),
+        "(",
+        String.join(", ", getRawParameterTypes(true)),
+        ") */\n");
   }
 }

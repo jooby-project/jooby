@@ -71,39 +71,39 @@ public class MvcParameter {
     var parameterType = elementType.toString();
     return switch (parameterType) {
         /* Type Injection: */
-      case "io.jooby.Context" -> StringCodeBlock.of("ctx");
+      case "io.jooby.Context" -> CodeBlock.of("ctx");
       case "io.jooby.QueryString" -> {
         if (type.is(Optional.class)) {
-          yield StringCodeBlock.of("java.util.Optional.ofNullable(ctx.query())");
+          yield CodeBlock.of("java.util.Optional.ofNullable(ctx.query())");
         } else {
-          yield StringCodeBlock.of("ctx.query()");
+          yield CodeBlock.of("ctx.query()");
         }
       }
-      case "io.jooby.Formdata" -> StringCodeBlock.of("ctx.form()");
-      case "io.jooby.FlashMap" -> StringCodeBlock.of("ctx.flash()");
-      case "io.jooby.Body" -> StringCodeBlock.of("ctx.body()");
+      case "io.jooby.Formdata" -> CodeBlock.of("ctx.form()");
+      case "io.jooby.FlashMap" -> CodeBlock.of("ctx.flash()");
+      case "io.jooby.Body" -> CodeBlock.of("ctx.body()");
       case "io.jooby.Session" -> {
         if (type.is(Optional.class)) {
-          yield StringCodeBlock.of("java.util.Optional.ofNullable(ctx.sessionOrNull())");
+          yield CodeBlock.of("java.util.Optional.ofNullable(ctx.sessionOrNull())");
         } else {
           yield hasAnnotation(NULLABLE)
-              ? StringCodeBlock.of("ctx.sessionOrNull()")
-              : StringCodeBlock.of("ctx.session()");
+              ? CodeBlock.of("ctx.sessionOrNull()")
+              : CodeBlock.of("ctx.session()");
         }
       }
-      case "io.jooby.Route" -> StringCodeBlock.of("ctx.getRoute()");
+      case "io.jooby.Route" -> CodeBlock.of("ctx.getRoute()");
         // FileUpload
       case "io.jooby.FileUpload" ->
           switch (rawType.toString()) {
             case "java.util.List" ->
-                StringCodeBlock.of("ctx.files(", StringCodeBlock.string(parameterName), ")");
+                CodeBlock.of("ctx.files(", CodeBlock.string(parameterName), ")");
             case "java.util.Optional" ->
-                StringCodeBlock.of(
-                    "ctx.files(", StringCodeBlock.string(parameterName), ").stream().findFirst()");
-            default -> StringCodeBlock.of("ctx.file(", StringCodeBlock.string(parameterName), ")");
+                CodeBlock.of(
+                    "ctx.files(", CodeBlock.string(parameterName), ").stream().findFirst()");
+            default -> CodeBlock.of("ctx.file(", CodeBlock.string(parameterName), ")");
           };
       case "java.nio.file.Path" ->
-          StringCodeBlock.of("ctx.file(", StringCodeBlock.string(parameterName), ").path()");
+          CodeBlock.of("ctx.file(", CodeBlock.string(parameterName), ").path()");
       default -> {
         // By annotation type;
         if (strategy.isEmpty()) {

@@ -1364,7 +1364,6 @@
           <artifactId>kotlin-maven-plugin</artifactId>
           <groupId>org.jetbrains.kotlin</groupId>
           <version>${kotlin.version}</version>
-<!--          <extensions>true</extensions>-->
           <configuration>
             <args>
               <arg>-java-parameters</arg>

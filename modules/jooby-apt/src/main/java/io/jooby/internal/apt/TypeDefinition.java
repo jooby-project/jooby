@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.apt;
 
-import static io.jooby.internal.apt.StringCodeBlock.clazz;
+import static io.jooby.internal.apt.CodeBlock.clazz;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +51,7 @@ public class TypeDefinition {
       if (methodName.equals("getParameterized")) {
         // Add raw type
         buffer
-            .append(StringCodeBlock.type(kt, type.getRawType().toString()))
+            .append(CodeBlock.type(kt, type.getRawType().toString()))
             .append(clazz(kt))
             .append(", ");
       }
@@ -62,7 +62,7 @@ public class TypeDefinition {
       buffer.append(").getType()");
       return buffer.toString();
     } else {
-      return StringCodeBlock.type(kt, type.getRawType().toString()) + clazz(kt);
+      return CodeBlock.type(kt, type.getRawType().toString()) + clazz(kt);
     }
   }
 

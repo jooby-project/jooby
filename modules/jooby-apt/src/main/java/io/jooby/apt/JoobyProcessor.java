@@ -155,6 +155,11 @@ public class JoobyProcessor extends AbstractProcessor {
       public long getLastModified() {
         return lastModified;
       }
+
+      @Override
+      public String toString() {
+        return getCharContent(false);
+      }
     };
   }
 

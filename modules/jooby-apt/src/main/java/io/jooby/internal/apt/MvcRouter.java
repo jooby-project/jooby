@@ -6,8 +6,8 @@
 package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.AnnotationSupport.findAnnotationByName;
-import static io.jooby.internal.apt.StringCodeBlock.indent;
-import static io.jooby.internal.apt.StringCodeBlock.semicolon;
+import static io.jooby.internal.apt.CodeBlock.indent;
+import static io.jooby.internal.apt.CodeBlock.semicolon;
 import static java.util.Collections.emptyList;
 
 import java.io.IOException;
@@ -20,7 +20,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
-import com.squareup.javapoet.*;
 import io.jooby.apt.MvcContext;
 
 public class MvcRouter {
@@ -46,14 +45,12 @@ public class MvcRouter {
   }
 
   public boolean isKt() {
-    return context.getProcessingEnvironment().getOptions().containsKey("jooby.kt")
-        || context
-            .getProcessingEnvironment()
-            .getElementUtils()
-            .getAllAnnotationMirrors(getTargetType())
-            .stream()
-            .anyMatch(
-                it -> it.getAnnotationType().asElement().toString().equals("kotlin.Metadata"));
+    return context
+        .getProcessingEnvironment()
+        .getElementUtils()
+        .getAllAnnotationMirrors(getTargetType())
+        .stream()
+        .anyMatch(it -> it.getAnnotationType().asElement().toString().equals("kotlin.Metadata"));
   }
 
   public TypeElement getTargetType() {
@@ -124,27 +121,26 @@ public class MvcRouter {
       context.generateStaticImports(
           this,
           (owner, fn) ->
-              buffer.append(
-                  StringCodeBlock.statement("import static ", owner, ".", fn, semicolon(kt))));
+              buffer.append(CodeBlock.statement("import static ", owner, ".", fn, semicolon(kt))));
       var imports = buffer.toString();
       buffer.setLength(0);
       if (!suspended.isEmpty()) {
         buffer.append(
-            StringCodeBlock.statement(indent(6), "val coroutineRouter = app as io.jooby.kt.Kooby"));
-        buffer.append(StringCodeBlock.statement(indent(6), "coroutineRouter.coroutine {"));
+            CodeBlock.statement(indent(6), "val coroutineRouter = app as io.jooby.kt.Kooby"));
+        buffer.append(CodeBlock.statement(indent(6), "coroutineRouter.coroutine {"));
         suspended.stream()
             .flatMap(it -> it.generateMapping(kt).stream())
-            .forEach(line -> buffer.append(StringCodeBlock.indent(8)).append(line));
-        buffer.append(StringCodeBlock.statement(System.lineSeparator(), indent(6), "}"));
+            .forEach(line -> buffer.append(CodeBlock.indent(8)).append(line));
+        buffer.append(CodeBlock.statement(System.lineSeparator(), indent(6), "}"));
       }
       noSuspended.stream()
           .flatMap(it -> it.generateMapping(kt).stream())
-          .forEach(line -> buffer.append(StringCodeBlock.indent(6)).append(line));
+          .forEach(line -> buffer.append(CodeBlock.indent(6)).append(line));
       var bindings = buffer.toString();
       buffer.setLength(0);
       routes.stream()
           .flatMap(it -> it.generateHandlerCall(kt).stream())
-          .forEach(line -> buffer.append(StringCodeBlock.indent(4)).append(line));
+          .forEach(line -> buffer.append(CodeBlock.indent(4)).append(line));
       return new String(in.readAllBytes(), StandardCharsets.UTF_8)
           .replace("${packageName}", getPackageName())
           .replace("${imports}", imports)
