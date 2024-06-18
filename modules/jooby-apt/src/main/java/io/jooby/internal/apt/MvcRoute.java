@@ -166,7 +166,6 @@ public class MvcRoute {
     }
     var throwsException = !method.getThrownTypes().isEmpty();
     var returnTypeString = type(kt, getReturnType().toString());
-    var ctx = "ctx";
     if (kt) {
       if (throwsException) {
         buffer.add(statement("@Throws(Exception::class)"));
@@ -197,45 +196,46 @@ public class MvcRoute {
               throwsException ? "throws Exception {" : "{"));
     }
     if (returnType.isVoid()) {
+      if (kt) {
+        buffer.add(
+            statement(
+                indent(2),
+                "ctx.setResponseCode(if (ctx.getRoute().getMethod().equals(",
+                string("DELETE"),
+                ")) io.jooby.StatusCode.NO_CONTENT else io.jooby.StatusCode.OK)"));
+      } else {
+        buffer.add(
+            statement(
+                indent(2),
+                "ctx.setResponseCode(ctx.getRoute().getMethod().equals(",
+                string("DELETE"),
+                ") ? io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
+                semicolon(false)));
+      }
       buffer.add(
           statement(
               indent(2),
-              "ctx.setResponseCode(",
-              ctx,
-              ".getRoute().getMethod().equals(",
-              string("DELETE"),
-              ") ?" + " io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
-              semicolon(kt)));
-      buffer.add(
-          statement(
-              indent(2),
-              "this.factory.apply(",
-              ctx,
-              ").",
+              "this.factory.apply(ctx).",
               this.method.getSimpleName(),
               paramList.toString(),
               semicolon(kt)));
-      buffer.add(statement("return ", ctx, ".getResponseCode()", semicolon(kt)));
+      buffer.add(statement(indent(2), "return ctx.getResponseCode()", semicolon(kt)));
     } else if (returnType.is("io.jooby.StatusCode")) {
       buffer.add(
           statement(
               indent(2),
               isSuspendFun() ? "val" : "var",
-              " statusCode = this.factory.apply(",
-              ctx,
-              ").",
+              " statusCode = this.factory.apply(ctx).",
               this.method.getSimpleName(),
               paramList.toString(),
               semicolon(kt)));
-      buffer.add(statement(indent(2), ctx, ".setResponseCode(statusCode)", semicolon(kt)));
+      buffer.add(statement(indent(2), "ctx.setResponseCode(statusCode)", semicolon(kt)));
       buffer.add(statement(indent(2), "return statusCode", semicolon(kt)));
     } else {
       buffer.add(
           statement(
               indent(2),
-              "return this.factory.apply(",
-              ctx,
-              ").",
+              "return this.factory.apply(ctx).",
               this.method.getSimpleName(),
               paramList.toString(),
               semicolon(kt)));

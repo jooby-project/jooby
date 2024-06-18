@@ -5,15 +5,11 @@
  */
 package tests;
 
-import java.util.concurrent.CompletableFuture;
-
 import io.jooby.annotation.GET;
 import io.jooby.annotation.QueryParam;
 
 public class CustomRouterName {
 
   @GET("/hello")
-  public CompletableFuture<String> hello(@QueryParam String name) {
-    return null;
-  }
+  public void hello(@QueryParam String name) {}
 }
