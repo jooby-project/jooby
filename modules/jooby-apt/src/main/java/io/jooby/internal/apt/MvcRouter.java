@@ -124,9 +124,8 @@ public class MvcRouter {
       var imports = buffer.toString();
       buffer.setLength(0);
       if (!suspended.isEmpty()) {
-        buffer.append(
-            CodeBlock.statement(indent(6), "val coroutineRouter = app as io.jooby.kt.Kooby"));
-        buffer.append(CodeBlock.statement(indent(6), "coroutineRouter.coroutine {"));
+        buffer.append(CodeBlock.statement(indent(6), "val kooby = app as io.jooby.kt.Kooby"));
+        buffer.append(CodeBlock.statement(indent(6), "kooby.coroutine {"));
         suspended.stream()
             .flatMap(it -> it.generateMapping(kt).stream())
             .forEach(line -> buffer.append(CodeBlock.indent(8)).append(line));
@@ -148,7 +147,7 @@ public class MvcRouter {
           .replace("${generatedClassName}", generateTypeName)
           .replace("${defaultInstance}", defaultInstance(kt))
           .replace("${bindings}", bindings)
-          .replace("${routes}", trimr(buffer));
+          .replace("${methods}", trimr(buffer));
     }
   }
 

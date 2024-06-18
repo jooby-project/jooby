@@ -23,7 +23,8 @@ import io.smallrye.mutiny.Uni;
  */
 @ResultType(
     types = {Uni.class, Mutiny.class},
-    handler = "mutiny")
+    handler = "mutiny",
+    nonBlocking = true)
 public class Mutiny {
 
   private static final Route.Filter MUTINY =

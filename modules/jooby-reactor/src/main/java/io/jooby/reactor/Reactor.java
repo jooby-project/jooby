@@ -24,7 +24,8 @@ import reactor.core.publisher.Mono;
  */
 @ResultType(
     types = {Flux.class, Mono.class},
-    handler = "reactor")
+    handler = "reactor",
+    nonBlocking = true)
 public class Reactor {
 
   private static final Route.Filter REACTOR =

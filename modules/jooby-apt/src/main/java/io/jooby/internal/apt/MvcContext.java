@@ -22,6 +22,8 @@ import io.jooby.apt.JoobyProcessor.Options;
  * processor options.
  */
 public class MvcContext {
+  private record ResultType(String type, String handler, boolean nonBlocking) {}
+
   private final ProcessingEnvironment processingEnvironment;
   private final boolean debug;
   private final boolean incremental;
@@ -30,7 +32,7 @@ public class MvcContext {
   private final String routerSuffix;
   private final Consumer<String> output;
   private final List<MvcRouter> routers = new ArrayList<>();
-  private final Map<TypeElement, Map.Entry<String, String>> handler = new HashMap<>();
+  private final Map<TypeElement, ResultType> handler = new HashMap<>();
 
   public MvcContext(ProcessingEnvironment processingEnvironment, Consumer<String> output) {
     this.processingEnvironment = processingEnvironment;
@@ -47,8 +49,7 @@ public class MvcContext {
   }
 
   private void computeResultTypes(
-      ProcessingEnvironment processingEnvironment,
-      BiConsumer<TypeElement, Map.Entry<String, String>> consumer) {
+      ProcessingEnvironment processingEnvironment, BiConsumer<TypeElement, ResultType> consumer) {
     var handler =
         new HashSet<>(
             Set.of(
@@ -67,24 +68,30 @@ public class MvcContext {
               if (annotation != null) {
                 var handlerFunction =
                     AnnotationSupport.findAnnotationValue(annotation, "handler"::equals).get(0);
-                Map.Entry<String, String> entry;
+                boolean nonBlocking =
+                    AnnotationSupport.findAnnotationValue(annotation, "nonBlocking"::equals)
+                        .stream()
+                        .findFirst()
+                        .map(Boolean::valueOf)
+                        .orElse(Boolean.FALSE);
+                ResultType entry;
                 var i = handlerFunction.lastIndexOf('.');
                 if (i > 0) {
                   var container = handlerFunction.substring(0, i);
                   var fn = handlerFunction.substring(i + 1);
-                  entry = Map.entry(container, fn);
+                  entry = new ResultType(container, fn, nonBlocking);
                 } else {
-                  entry = Map.entry(it.asType().toString(), handlerFunction);
+                  entry = new ResultType(it.asType().toString(), handlerFunction, nonBlocking);
                 }
                 var functions =
                     it.getEnclosedElements().stream()
                         .filter(ExecutableElement.class::isInstance)
                         .map(ExecutableElement.class::cast)
-                        .filter(m -> entry.getValue().equals(m.getSimpleName().toString()))
+                        .filter(m -> entry.handler.equals(m.getSimpleName().toString()))
                         .toList();
                 if (functions.isEmpty()) {
                   throw new IllegalArgumentException(
-                      "Method not found: " + entry.getKey() + "." + entry.getValue());
+                      "Method not found: " + entry.type + "." + entry.handler);
                 } else {
                   var args =
                       functions.stream()
@@ -185,13 +192,19 @@ public class MvcContext {
 
   public String pipeline(TypeMirror returnType, String handlerReference) {
     var entry = findMappingHandler(returnType);
-    return entry == null ? handlerReference : entry.getValue() + "(" + handlerReference + ")";
+    return entry == null ? handlerReference : entry.handler() + "(" + handlerReference + ")";
   }
 
-  private Map.Entry<String, String> findMappingHandler(TypeMirror type) {
+  public boolean nonBlocking(TypeMirror returnType) {
+    var entry = findMappingHandler(returnType);
+    return entry != null && entry.nonBlocking;
+  }
+
+  private ResultType findMappingHandler(TypeMirror type) {
     for (var e : handler.entrySet()) {
-      if (type.toString().equals(e.getKey().toString())
-          || processingEnvironment.getTypeUtils().isAssignable(type, e.getKey().asType())) {
+      var that = e.getKey();
+      if (type.toString().equals(that.toString())
+          || processingEnvironment.getTypeUtils().isAssignable(type, that.asType())) {
         return e.getValue();
       }
     }
@@ -254,7 +267,7 @@ public class MvcContext {
       if (process.add(returnType.toString())) {
         var fnq = findMappingHandler(returnType);
         if (fnq != null) {
-          consumer.accept(fnq.getKey(), fnq.getValue());
+          consumer.accept(fnq.type, fnq.handler);
         }
       }
     }

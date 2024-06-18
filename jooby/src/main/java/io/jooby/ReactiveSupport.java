@@ -20,7 +20,8 @@ import io.jooby.internal.handler.ConcurrentHandler;
  */
 @ResultType(
     types = {Flow.Publisher.class, CompletionStage.class},
-    handler = "concurrent")
+    handler = "concurrent",
+    nonBlocking = true)
 public class ReactiveSupport {
 
   private static final Route.Filter CONCURRENT = new ConcurrentHandler();

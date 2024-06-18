@@ -324,10 +324,6 @@ open class Kooby() : Jooby() {
     this.environment = env
     return env
   }
-
-  companion object {
-    @JvmStatic fun coroutine(next: Route.Handler) = CoroutineHandler(next)
-  }
 }
 
 /** cors: */

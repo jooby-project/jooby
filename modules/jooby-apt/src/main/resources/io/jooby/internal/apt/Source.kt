@@ -7,7 +7,7 @@ open class ${generatedClassName}(protected val factory: java.util.function.Funct
 
     constructor(instance: ${className}) : this(java.util.function.Function<io.jooby.Context, ${className}> { instance })
 
-    constructor(type: Class<${className}?>) : this(java.util.function.Function<io.jooby.Context, ${className}> { ctx: io.jooby.Context -> ctx.require<${className}>(type) })
+    constructor(type: kotlin.reflect.KClass<${className}>) : this(java.util.function.Function<io.jooby.Context, ${className}> { ctx: io.jooby.Context -> ctx.require<${className}>(type.java) })
 
     constructor(provider: jakarta.inject.Provider<${className}?>) : this(java.util.function.Function<io.jooby.Context, ${className}> { provider.get()!! })
 
@@ -16,7 +16,7 @@ open class ${generatedClassName}(protected val factory: java.util.function.Funct
 ${bindings}
     }
 
-${routes}
+${methods}
 
     override fun supports(type: Class<${className}?>): Boolean {
         return type == ${className}::class.java

@@ -28,7 +28,7 @@ public class ${generatedClassName} implements io.jooby.MvcExtension, io.jooby.Mv
 ${bindings}
     }
 
-${routes}
+${methods}
 
     public boolean supports(Class<${className}> type) {
         return type == ${className}.class;

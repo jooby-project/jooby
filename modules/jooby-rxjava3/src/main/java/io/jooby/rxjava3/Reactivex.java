@@ -26,7 +26,8 @@ import io.reactivex.rxjava3.disposables.Disposable;
  */
 @ResultType(
     types = {Flowable.class, Single.class, Observable.class, Maybe.class, Disposable.class},
-    handler = "rx")
+    handler = "rx",
+    nonBlocking = true)
 public class Reactivex {
 
   private static final Route.Filter RX =

@@ -117,6 +117,9 @@ public class MvcRoute {
                 ", ",
                 context.pipeline(getReturnTypeHandler(), thisRef + methodName),
                 ")"));
+        if (context.nonBlocking(getReturnTypeHandler()) || isSuspendFun()) {
+          block.add(statement(indent(2), ".setNonBlocking(true)"));
+        }
         /* consumes */
         mediaType(httpMethod::consumes)
             .ifPresent(consumes -> block.add(statement(indent(2), ".setConsumes(", consumes, ")")));
@@ -191,8 +194,7 @@ public class MvcRoute {
               " ",
               getGeneratedName(),
               "(io.jooby.Context ctx) ",
-              throwsException ? "throws Exception " : "",
-              "{"));
+              throwsException ? "throws Exception {" : "{"));
     }
     if (returnType.isVoid()) {
       buffer.add(

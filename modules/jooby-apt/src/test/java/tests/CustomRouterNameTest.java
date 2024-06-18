@@ -31,7 +31,6 @@ public class CustomRouterNameTest {
             Map.of("jooby.routerPrefix", prefix, "jooby.routerSuffix", suffix))
         .withRouter(
             (app, source) -> {
-              System.out.println(source);
               assertEquals(expectedClassName, source.getName());
             });
   }

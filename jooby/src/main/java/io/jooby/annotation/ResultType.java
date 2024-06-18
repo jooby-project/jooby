@@ -56,10 +56,21 @@ public @interface ResultType {
   Class<?>[] types();
 
   /**
-   * Mapping function must be: - Single argument function of type {@link io.jooby.Route.Handler}. -
-   * Returns type {@link io.jooby.Route.Handler}. - Must be static.
+   * Mapping function must be:
+   *
+   * <ul>
+   *   <li>Single argument function of type {@link io.jooby.Route.Handler}.
+   *   <li>Returns type {@link io.jooby.Route.Handler}. - Must be static.
+   * </ul>
    *
    * @return Name of mapping function.
    */
   String handler();
+
+  /**
+   * When true, the handler run on the event loop (when application starts in event loop mode).
+   *
+   * @return True, the handler run on the event loop (when application starts in event loop mode).
+   */
+  boolean nonBlocking() default false;
 }
