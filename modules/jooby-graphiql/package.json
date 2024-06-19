@@ -4,7 +4,7 @@
   "private": true,
   "license": "ASF",
   "dependencies": {
-    "graphql": "^16.3.0",
-    "graphiql": "^3.0.0"
+    "graphql": "^16.8.2",
+    "graphiql": "^3.2.3"
   }
 }
