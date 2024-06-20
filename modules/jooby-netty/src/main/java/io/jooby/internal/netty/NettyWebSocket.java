@@ -103,7 +103,9 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
     this.netty = ctx;
     this.key = ctx.getRoute().getPattern();
     this.dispatch = !ctx.isInIoThread();
-    this.netty.ctx.channel().attr(WS).set(this);
+    var channel = this.netty.ctx.channel();
+    channel.attr(WS).set(this);
+    channel.closeFuture().addListener(future -> handleClose(WebSocketCloseStatus.GOING_AWAY));
   }
 
   @NonNull @Override
