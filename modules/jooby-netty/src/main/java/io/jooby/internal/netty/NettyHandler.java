@@ -99,12 +99,17 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         }
       }
     } else if (isLastHttpContent(msg)) {
-      // when decoder == null, chunk is always a LastHttpContent.EMPTY, ignore it
-      if (context.decoder != null) {
-        offer(context, (HttpContent) msg);
-        Router.Match route = router.match(context);
-        resetDecoderState(context, !route.matches());
-        route.execute(context);
+      var chunk = (HttpContent) msg;
+      try {
+        // when decoder == null, chunk is always a LastHttpContent.EMPTY, ignore it
+        if (context.decoder != null) {
+          offer(context, chunk);
+          Router.Match route = router.match(context);
+          resetDecoderState(context, !route.matches());
+          route.execute(context);
+        }
+      } finally {
+        release(chunk);
       }
     } else if (isHttpContent(msg)) {
       var chunk = (HttpContent) msg;
