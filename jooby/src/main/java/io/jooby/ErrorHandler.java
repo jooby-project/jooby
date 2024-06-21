@@ -22,7 +22,6 @@ public interface ErrorHandler {
    * @param cause Application error.
    * @param code Status code.
    */
-  @NonNull
   void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code);
 
   /**
@@ -50,15 +49,13 @@ public interface ErrorHandler {
    * @return Single line message.
    */
   static @NonNull String errorMessage(@NonNull Context ctx, @NonNull StatusCode statusCode) {
-    return new StringBuilder()
-        .append(ctx.getMethod())
-        .append(" ")
-        .append(ctx.getRequestPath())
-        .append(" ")
-        .append(statusCode.value())
-        .append(" ")
-        .append(statusCode.reason())
-        .toString();
+    return ctx.getMethod()
+        + " "
+        + ctx.getRequestPath()
+        + " "
+        + statusCode.value()
+        + " "
+        + statusCode.reason();
   }
 
   /**

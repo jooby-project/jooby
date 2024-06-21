@@ -5,25 +5,13 @@
  */
 package io.jooby.kt
 
-import io.jooby.RequestScope
-import io.jooby.Route
-import io.jooby.Router
-import io.jooby.Router.DELETE
-import io.jooby.Router.GET
-import io.jooby.Router.HEAD
-import io.jooby.Router.OPTIONS
-import io.jooby.Router.PATCH
-import io.jooby.Router.POST
-import io.jooby.Router.PUT
-import io.jooby.Router.TRACE
+import io.jooby.*
+import io.jooby.Router.*
+import java.util.function.Predicate
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.asContextElement
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
+import kotlin.reflect.KClass
+import kotlinx.coroutines.*
 
 internal class RouterCoroutineScope(override val coroutineContext: CoroutineContext) :
   CoroutineScope
@@ -34,12 +22,92 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     RouterCoroutineScope(router.worker.asCoroutineDispatcher())
   }
 
+  private var errorHandler: suspend ErrorHandlerContext.() -> Unit = FALLBACK_ERROR_HANDLER
+
   private var extraCoroutineContextProvider: HandlerContext.() -> CoroutineContext = {
     EmptyCoroutineContext
   }
 
   fun launchContext(provider: HandlerContext.() -> CoroutineContext) {
     extraCoroutineContextProvider = provider
+  }
+
+  /**
+   * Add a custom error handler that matches the given status code.
+   *
+   * @param statusCode Status code.
+   * @param handler Error handler.
+   * @return This router.
+   */
+  @RouterDsl
+  fun error(
+    statusCode: StatusCode,
+    handler: suspend ErrorHandlerContext.() -> Unit
+  ): CoroutineRouter {
+    return error({ it: StatusCode -> statusCode == it }, handler)
+  }
+
+  /**
+   * Add a custom error handler that matches the given exception type.
+   *
+   * @param type Exception type.
+   * @param handler Error handler.
+   * @return This router.
+   */
+  @RouterDsl
+  fun error(
+    type: KClass<Throwable>,
+    handler: suspend ErrorHandlerContext.() -> Unit
+  ): CoroutineRouter {
+    return error {
+      if (type.java.isInstance(cause) || type.java.isInstance(cause.cause)) {
+        handler.invoke(this)
+      }
+    }
+  }
+
+  /**
+   * Add a custom error handler that matches the given predicate.
+   *
+   * @param predicate Status code filter.
+   * @param handler Error handler.
+   * @return This router.
+   */
+  @RouterDsl
+  fun error(
+    predicate: Predicate<StatusCode>,
+    handler: suspend ErrorHandlerContext.() -> Unit
+  ): CoroutineRouter {
+    return error {
+      if (predicate.test(statusCode)) {
+        handler.invoke(this)
+      }
+    }
+  }
+
+  /**
+   * Add a custom error handler.
+   *
+   * @param handler Error handler.
+   * @return This router.
+   */
+  @RouterDsl
+  fun error(handler: suspend ErrorHandlerContext.() -> Unit): CoroutineRouter {
+    val chain =
+      fun(
+        current: suspend ErrorHandlerContext.() -> Unit,
+        next: suspend ErrorHandlerContext.() -> Unit
+      ): suspend ErrorHandlerContext.() -> Unit {
+        return {
+          current(this)
+          if (!ctx.isResponseStarted) {
+            next(this)
+          }
+        }
+      }
+    errorHandler =
+      if (errorHandler == FALLBACK_ERROR_HANDLER) handler else chain(errorHandler, handler)
+    return this
   }
 
   @RouterDsl
@@ -77,10 +145,18 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
       .route(method, pattern) { ctx ->
         val handlerContext = HandlerContext(ctx)
         launch(handlerContext) {
-          val result = handler(handlerContext)
-          ctx.route.after?.apply(ctx, result, null)
-          if (result != ctx && !ctx.isResponseStarted) {
-            ctx.render(result)
+          try {
+            val result = handler(handlerContext)
+            ctx.route.after?.apply(ctx, result, null)
+            if (result != ctx && !ctx.isResponseStarted) {
+              ctx.render(result)
+            }
+          } catch (cause: Throwable) {
+            try {
+              ctx.route.after?.apply(ctx, null, cause)
+            } finally {
+              errorHandler.invoke(ErrorHandlerContext(ctx, cause, router.errorCode(cause)))
+            }
           }
         }
         // Return context to mark as handled
@@ -89,6 +165,7 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
       .setHandle(handler)
 
   internal fun launch(handlerContext: HandlerContext, block: suspend CoroutineScope.() -> Unit) {
+    // Global catch-all exception handler
     val exceptionHandler = CoroutineExceptionHandler { _, x ->
       val ctx = handlerContext.ctx
       ctx.route.after?.apply(ctx, null, x)
@@ -98,5 +175,11 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     val coroutineContext =
       exceptionHandler + requestScope + handlerContext.extraCoroutineContextProvider()
     coroutineScope.launch(coroutineContext, coroutineStart, block)
+  }
+
+  private companion object {
+    private val FALLBACK_ERROR_HANDLER: suspend ErrorHandlerContext.() -> Unit = {
+      ctx.sendError(cause, statusCode)
+    }
   }
 }

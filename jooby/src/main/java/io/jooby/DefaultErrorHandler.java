@@ -9,11 +9,7 @@ import static io.jooby.MediaType.html;
 import static io.jooby.MediaType.json;
 import static io.jooby.MediaType.text;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
+import java.util.*;
 
 import org.slf4j.Logger;
 
@@ -28,9 +24,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  */
 public class DefaultErrorHandler implements ErrorHandler {
 
-  private Set<StatusCode> muteCodes = new HashSet<>();
+  private final Set<StatusCode> muteCodes = new HashSet<>();
 
-  private Set<Class> muteTypes = new HashSet<>();
+  private final Set<Class> muteTypes = new HashSet<>();
 
   /**
    * Generate a log.debug call if any of the status code error occurs as exception.
@@ -39,7 +35,7 @@ public class DefaultErrorHandler implements ErrorHandler {
    * @return This error handler.
    */
   public @NonNull DefaultErrorHandler mute(@NonNull StatusCode... statusCodes) {
-    Stream.of(statusCodes).forEach(muteCodes::add);
+    muteCodes.addAll(List.of(statusCodes));
     return this;
   }
 
@@ -50,7 +46,7 @@ public class DefaultErrorHandler implements ErrorHandler {
    * @return This error handler.
    */
   public @NonNull DefaultErrorHandler mute(@NonNull Class<? extends Exception>... exceptionTypes) {
-    Stream.of(exceptionTypes).forEach(muteTypes::add);
+    muteTypes.addAll(List.of(exceptionTypes));
     return this;
   }
 
@@ -63,7 +59,7 @@ public class DefaultErrorHandler implements ErrorHandler {
     }
   }
 
-  @NonNull @Override
+  @Override
   public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
     log(ctx, cause, code);
     MediaType type = ctx.accept(Arrays.asList(html, json, text));
