@@ -6,6 +6,7 @@
 package io.jooby.internal.apt;
 
 import static io.jooby.apt.JoobyProcessor.Options.SKIP_ATTRIBUTE_ANNOTATIONS;
+import static io.jooby.internal.apt.CodeBlock.indent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -53,16 +54,16 @@ public class RouteAttributesGenerator {
     this.skip = Options.stringListOpt(environment, SKIP_ATTRIBUTE_ANNOTATIONS);
   }
 
-  public Optional<String> toSourceCode(MvcRoute route, String indent) {
+  public Optional<String> toSourceCode(MvcRoute route, int indent) {
     var attributes = annotationMap(route.getMethod());
     if (attributes.isEmpty()) {
       return Optional.empty();
     } else {
-      return Optional.of(toSourceCode(annotationMap(route.getMethod()), indent));
+      return Optional.of(toSourceCode(annotationMap(route.getMethod()), indent + 6));
     }
   }
 
-  private String toSourceCode(Map<String, Object> attributes, String indent) {
+  private String toSourceCode(Map<String, Object> attributes, int indent) {
     var buffer = new StringBuilder();
     var separator = ",\n";
     var pairPrefix = "";
@@ -75,12 +76,11 @@ public class RouteAttributesGenerator {
       factoryMethod = "ofEntries";
     }
     buffer.append("java.util.Map.").append(factoryMethod).append("(\n");
-    var lineIndent = indent + "   ";
     for (var e : attributes.entrySet()) {
-      buffer.append(lineIndent);
+      buffer.append(indent(indent + 4));
       buffer.append(pairPrefix);
-      buffer.append("\"").append(e.getKey()).append("\"").append(", ");
-      buffer.append(valueToSourceCode(e.getValue(), lineIndent));
+      buffer.append(CodeBlock.string(e.getKey())).append(", ");
+      buffer.append(valueToSourceCode(e.getValue(), indent + 4));
       buffer.append(pairSuffix).append(separator);
     }
     buffer.setLength(buffer.length() - separator.length());
@@ -88,13 +88,13 @@ public class RouteAttributesGenerator {
     return buffer.toString();
   }
 
-  private Object valueToSourceCode(Object value, String indent) {
+  private Object valueToSourceCode(Object value, int indent) {
     if (value instanceof String) {
-      return "\"" + value + "\"";
+      return CodeBlock.string((String) value);
     } else if (value instanceof Character) {
       return "'" + value + "'";
     } else if (value instanceof Map attributeMap) {
-      return "\n  " + indent + toSourceCode(attributeMap, indent + " ");
+      return "\n  " + indent(indent) + toSourceCode(attributeMap, indent + 1);
     } else if (value instanceof List list) {
       return valueToSourceCode(list, indent);
     } else if (value instanceof EnumValue enumValue) {
@@ -116,7 +116,7 @@ public class RouteAttributesGenerator {
     }
   }
 
-  private String valueToSourceCode(List values, String indent) {
+  private String valueToSourceCode(List values, int indent) {
     var buffer = new StringBuilder();
     buffer.append("java.util.List.of(");
     var separator = ", ";

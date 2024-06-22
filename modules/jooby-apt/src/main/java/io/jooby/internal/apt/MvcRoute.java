@@ -133,7 +133,7 @@ public class MvcRoute {
                     block.add(statement(indent(2), ".setExecutorKey(", string(dispatch), ")")));
         /* attributes */
         attributeGenerator
-            .toSourceCode(this, indent(2))
+            .toSourceCode(this, 2)
             .ifPresent(
                 attributes -> block.add(statement(indent(2), ".setAttributes(", attributes, ")")));
         /* returnType */

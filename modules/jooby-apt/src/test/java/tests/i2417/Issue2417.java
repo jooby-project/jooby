@@ -18,7 +18,8 @@ public class Issue2417 {
   public void shouldNotIgnoreAnnotationOnParam() throws Exception {
     new ProcessorRunner(new C2417())
         .withRouter(
-            app -> {
+            (app, source) -> {
+              System.out.println(source);
               MockRouter router = new MockRouter(app);
               assertEquals(
                   "2417",
