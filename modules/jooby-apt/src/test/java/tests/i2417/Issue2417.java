@@ -19,7 +19,6 @@ public class Issue2417 {
     new ProcessorRunner(new C2417())
         .withRouter(
             (app, source) -> {
-              System.out.println(source);
               MockRouter router = new MockRouter(app);
               assertEquals(
                   "2417",
