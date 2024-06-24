@@ -82,17 +82,17 @@
 
     <!-- javax -->
     <jakarta.inject.version>2.0.1</jakarta.inject.version>
-    <spotbugs-annotations.version>4.8.5</spotbugs-annotations.version>
+    <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
     <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
 
     <!-- Misc -->
     <okhttp.version>4.12.0</okhttp.version>
-    <jsonwebtoken.version>0.12.5</jsonwebtoken.version>
+    <jsonwebtoken.version>0.12.6</jsonwebtoken.version>
     <pac4j.version>5.7.0</pac4j.version>
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.744</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.748</aws-java-sdk.version>
     <camel.version>3.22.2</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -127,15 +127,15 @@
     <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
     <maven-tiles-plugin.version>2.40</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-    <maven-core.version>3.9.7</maven-core.version>
+    <maven-core.version>3.9.8</maven-core.version>
     <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
-    <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
+    <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.13.1</maven-plugin-annotations.version>
-    <maven-plugin-api.version>3.9.7</maven-plugin-api.version>
+    <maven-plugin-api.version>3.9.8</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.13.1</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
