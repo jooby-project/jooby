@@ -61,6 +61,7 @@ public class ServerTestRunner {
     use(
         () -> {
           Jooby app = new Jooby();
+          app.setExecutionMode(executionMode);
           consumer.accept(app);
           return app;
         });
@@ -86,6 +87,7 @@ public class ServerTestRunner {
       System.setProperty("___app_name__", testName);
       System.setProperty("___server_name__", server.getName());
       Jooby app = provider.get();
+      Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       // Reduce log from maven build:
       var mavenBuild = System.getProperty("surefire.real.class.path", "").length() > 0;
       if (mavenBuild) {
@@ -103,7 +105,6 @@ public class ServerTestRunner {
         }
       }
 
-      Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       ServerOptions serverOptions = app.getServerOptions();
       if (serverOptions != null) {
         server.setOptions(serverOptions);

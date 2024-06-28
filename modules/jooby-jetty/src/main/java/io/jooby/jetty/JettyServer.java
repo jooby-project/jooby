@@ -15,24 +15,21 @@ import java.util.function.Consumer;
 
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
 import org.eclipse.jetty.util.compression.CompressionPool;
 import org.eclipse.jetty.util.compression.DeflaterPool;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.Invocable;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Jooby;
-import io.jooby.Router;
-import io.jooby.ServerOptions;
-import io.jooby.SneakyThrows;
-import io.jooby.SslOptions;
-import io.jooby.WebSocket;
+import io.jooby.*;
 import io.jooby.buffer.DataBufferFactory;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyHttpExpectAndContinueHandler;
@@ -110,6 +107,8 @@ public class JettyServer extends io.jooby.Server.Base {
 
       fireStart(applications, threadPool);
 
+      var acceptors = 1;
+      var selectors = options.getIoThreads();
       this.server = new Server(threadPool);
       server.setStopAtShutdown(false);
 
@@ -136,7 +135,11 @@ public class JettyServer extends io.jooby.Server.Base {
 
       if (!options.isHttpsOnly()) {
         var http =
-            new ServerConnector(server, connectionFactories.toArray(new ConnectionFactory[0]));
+            new ServerConnector(
+                server,
+                acceptors,
+                selectors,
+                connectionFactories.toArray(new ConnectionFactory[0]));
         http.setPort(options.getPort());
         http.setHost(options.getHost());
 
@@ -177,7 +180,10 @@ public class JettyServer extends io.jooby.Server.Base {
 
         var secureConnector =
             new ServerConnector(
-                server, secureConnectionFactories.toArray(new ConnectionFactory[0]));
+                server,
+                acceptors,
+                selectors,
+                secureConnectionFactories.toArray(new ConnectionFactory[0]));
         secureConnector.setPort(options.getSecurePort());
         secureConnector.setHost(options.getHost());
 
@@ -204,8 +210,13 @@ public class JettyServer extends io.jooby.Server.Base {
       }
 
       /* ********************************* Servlet *************************************/
+      var invocationType =
+          application.getExecutionMode() == ExecutionMode.EVENT_LOOP
+              ? Invocable.InvocationType.NON_BLOCKING
+              : Invocable.InvocationType.BLOCKING;
       Handler handler =
           new JettyHandler(
+              invocationType,
               applications.get(0),
               options.getBufferSize(),
               options.getMaxRequestSize(),

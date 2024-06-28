@@ -14,12 +14,18 @@ import org.eclipse.jetty.util.Callback;
 import io.jooby.Router;
 
 public class JettyHandler extends Handler.Abstract {
-  private Router router;
-  private boolean defaultHeaders;
-  private int bufferSize;
-  private long maxRequestSize;
+  private final Router router;
+  private final boolean defaultHeaders;
+  private final int bufferSize;
+  private final long maxRequestSize;
 
-  public JettyHandler(Router router, int bufferSize, long maxRequestSize, boolean defaultHeaders) {
+  public JettyHandler(
+      InvocationType invocationType,
+      Router router,
+      int bufferSize,
+      long maxRequestSize,
+      boolean defaultHeaders) {
+    super(invocationType);
     this.router = router;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
@@ -33,7 +39,9 @@ public class JettyHandler extends Handler.Abstract {
     if (defaultHeaders) {
       responseHeaders.put(HttpHeader.SERVER.asString(), "J");
     }
-    var context = new JettyContext(request, response, callback, router, bufferSize, maxRequestSize);
+    var context =
+        new JettyContext(
+            getInvocationType(), request, response, callback, router, bufferSize, maxRequestSize);
     router.match(context).execute(context);
     return true;
   }

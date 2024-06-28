@@ -101,10 +101,11 @@ public class JettyContext implements DefaultContext, Callback {
   private String host;
   private String scheme;
   private int port;
-
   private Callback callback;
+  private boolean inEventLoop;
 
   public JettyContext(
+      InvocationType invocationType,
       Request request,
       Response response,
       Callback callback,
@@ -119,6 +120,7 @@ public class JettyContext implements DefaultContext, Callback {
     this.method = request.getMethod().toUpperCase();
     this.requestPath = request.getHttpURI().getPath();
     this.callback = callback;
+    this.inEventLoop = invocationType == InvocationType.NON_BLOCKING;
   }
 
   @NonNull @Override
@@ -330,7 +332,7 @@ public class JettyContext implements DefaultContext, Callback {
 
   @Override
   public boolean isInIoThread() {
-    return false;
+    return inEventLoop;
   }
 
   @NonNull @Override
@@ -340,10 +342,11 @@ public class JettyContext implements DefaultContext, Callback {
 
   @NonNull @Override
   public Context dispatch(@NonNull Executor executor, @NonNull Runnable action) {
-    if (router.getWorker() == executor) {
-      action.run();
-    } else {
+    if (inEventLoop) {
+      inEventLoop = false;
       executor.execute(action);
+    } else {
+      action.run();
     }
     return this;
   }
@@ -488,6 +491,7 @@ public class JettyContext implements DefaultContext, Callback {
 
   @NonNull @Override
   public Context send(StatusCode statusCode) {
+    responseStarted = true;
     response.setStatus(statusCode.value());
     response.write(true, null, this);
     return this;
@@ -538,7 +542,6 @@ public class JettyContext implements DefaultContext, Callback {
 
   @NonNull @Override
   public Context send(@NonNull ReadableByteChannel channel) {
-    responseStarted = true;
     ifSetChunked();
     return sendStreamInternal(Channels.newInputStream(channel));
   }

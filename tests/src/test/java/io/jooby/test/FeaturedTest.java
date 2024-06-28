@@ -870,10 +870,7 @@ public class FeaturedTest {
             });
   }
 
-  /* No Jetty bc always use a worker thread */
-  @ServerTest(
-      server = {NettyServer.class, UndertowServer.class},
-      executionMode = EVENT_LOOP)
+  @ServerTest(executionMode = EVENT_LOOP)
   public void beforeAfter(ServerTestRunner runner) {
     runner
         .define(

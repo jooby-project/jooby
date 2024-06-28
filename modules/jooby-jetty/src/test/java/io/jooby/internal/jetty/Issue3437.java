@@ -16,11 +16,12 @@ import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.thread.Invocable;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Router;
 
-public class Issue34737 {
+public class Issue3437 {
 
   @Test
   public void shouldNotCloseFileChannel() throws IOException {
@@ -39,7 +40,9 @@ public class Issue34737 {
     var channel = mock(FileChannel.class);
     when(channel.size()).thenReturn(fileSize);
 
-    var context = new JettyContext(request, response, callback, router, 4000, 4000);
+    var context =
+        new JettyContext(
+            Invocable.InvocationType.BLOCKING, request, response, callback, router, 4000, 4000);
 
     context.send(channel);
     verify(headers).put(CONTENT_LENGTH, fileSize);

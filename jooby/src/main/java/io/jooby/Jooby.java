@@ -91,10 +91,11 @@ public class Jooby implements Router, Registry {
   private final transient AtomicBoolean stopped = new AtomicBoolean(false);
 
   private static Jooby owner;
+  private static ExecutionMode BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
 
   private RouterImpl router;
 
-  private ExecutionMode mode;
+  private ExecutionMode mode = BOOT_EXECUTION_MODE;
 
   private Path tmpdir;
 
@@ -779,7 +780,7 @@ public class Jooby implements Router, Registry {
    * @return Application execution mode.
    */
   public @NonNull ExecutionMode getExecutionMode() {
-    return mode == null ? ExecutionMode.DEFAULT : mode;
+    return mode;
   }
 
   /**
@@ -1307,6 +1308,7 @@ public class Jooby implements Router, Registry {
 
     Jooby app;
     try {
+      BOOT_EXECUTION_MODE = executionMode;
       app = provider.get();
     } catch (Throwable t) {
       LoggerFactory.getLogger(Jooby.class)
@@ -1315,11 +1317,10 @@ public class Jooby implements Router, Registry {
       throw t instanceof StartupException
           ? (StartupException) t
           : new StartupException("Application initialization resulted in exception", t);
+    } finally {
+      BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
     }
 
-    if (app.mode == null) {
-      app.mode = executionMode;
-    }
     return app;
   }
 
