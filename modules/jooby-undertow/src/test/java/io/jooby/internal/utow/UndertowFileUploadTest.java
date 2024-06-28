@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import io.jooby.internal.undertow.UndertowFileUpload;
 import io.undertow.server.handlers.form.FormData;
 
-public class UtowFileUploadTest {
+public class UndertowFileUploadTest {
 
   @Test
   public void shouldGetFileSize() throws IOException {

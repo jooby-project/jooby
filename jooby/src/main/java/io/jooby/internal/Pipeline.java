@@ -25,7 +25,7 @@ public class Pipeline {
     if (!route.isNonBlockingSet()) {
       route.setNonBlocking(isDefaultNonblocking(executor, mode));
     }
-    Route.Filter wrapper = route.isNonBlocking() ? DETACH : DEFAULT;
+    Route.Filter wrapper = route.isNonBlocking() ? DETACH.then(DEFAULT) : DEFAULT;
 
     // Non-Blocking? Split pipeline Head+Handler let reactive call After pipeline
     Handler pipeline;

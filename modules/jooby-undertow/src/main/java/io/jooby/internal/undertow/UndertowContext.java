@@ -69,14 +69,9 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.RenegotiationRequiredException;
 import io.undertow.server.SSLSessionInfo;
 import io.undertow.server.handlers.form.FormData;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.Headers;
-import io.undertow.util.HttpString;
-import io.undertow.util.SameThreadExecutor;
+import io.undertow.util.*;
 
 public class UndertowContext implements DefaultContext, IoCallback {
-
   private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
   private Route route;
   HttpServerExchange exchange;
@@ -312,16 +307,18 @@ public class UndertowContext implements DefaultContext, IoCallback {
 
   @NonNull @Override
   public Context detach(@NonNull Route.Handler next) throws Exception {
-    exchange.dispatch(
-        SameThreadExecutor.INSTANCE,
-        () -> {
-          try {
-            next.apply(this);
-          } catch (Throwable cause) {
-            sendError(cause);
-          }
-        });
+    exchange.dispatch(SameThreadExecutor.INSTANCE, detach(this, next));
     return this;
+  }
+
+  private static Runnable detach(Context ctx, Route.Handler next) {
+    return () -> {
+      try {
+        next.apply(ctx);
+      } catch (Exception cause) {
+        ctx.sendError(cause);
+      }
+    };
   }
 
   @NonNull @Override
@@ -574,7 +571,6 @@ public class UndertowContext implements DefaultContext, IoCallback {
   public void onComplete(HttpServerExchange exchange, Sender sender) {
     ifSaveSession();
     sender.close(IoCallback.END_EXCHANGE);
-    //    this.exchange.endExchange();
   }
 
   @NonNull @Override

@@ -18,12 +18,11 @@ public class DefaultHandler implements Route.Filter {
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       try {
-        Object result = next.apply(ctx);
-        if (ctx.isResponseStarted()) {
-          return result;
+        Object value = next.apply(ctx);
+        if (value != ctx && !ctx.isResponseStarted()) {
+          ctx.render(value);
         }
-        ctx.render(result);
-        return result;
+        return value;
       } catch (Throwable x) {
         ctx.sendError(x);
         return x;
