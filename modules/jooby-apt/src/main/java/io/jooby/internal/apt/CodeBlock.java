@@ -5,10 +5,10 @@
  */
 package io.jooby.internal.apt;
 
-import static org.apache.commons.text.StringEscapeUtils.ESCAPE_JAVA;
-
 import java.util.List;
 import java.util.stream.Stream;
+
+import io.jooby.internal.apt.escape.EscapeUtils;
 
 public class CodeBlock {
   public static String of(List<CharSequence> sequence) {
@@ -24,7 +24,7 @@ public class CodeBlock {
   }
 
   public static CharSequence string(CharSequence value) {
-    return "\"" + ESCAPE_JAVA.translate(value) + "\"";
+    return "\"" + EscapeUtils.escapeJava(value) + "\"";
   }
 
   public static CharSequence clazz(boolean kt) {
