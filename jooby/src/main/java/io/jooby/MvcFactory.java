@@ -6,7 +6,6 @@
 package io.jooby;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import jakarta.inject.Provider;
 
 /**
  * Created by a Jooby annotation processor tool using the {@link java.util.ServiceLoader} API.
@@ -28,5 +27,5 @@ public interface MvcFactory<T> {
    * @param provider MVC route instance provider.
    * @return All mvc route as extension module.
    */
-  @NonNull Extension create(@NonNull Provider<T> provider);
+  @NonNull Extension create(@NonNull java.util.function.Supplier<T> provider);
 }

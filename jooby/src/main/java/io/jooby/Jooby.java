@@ -552,7 +552,7 @@ public class Jooby implements Router, Registry {
   public <T> Jooby mvc(@NonNull Class<T> router, @NonNull Provider<T> provider) {
     try {
       MvcFactory module = loadModule(router);
-      Extension extension = module.create(provider);
+      Extension extension = module.create(provider::get);
       extension.install(this);
       return this;
     } catch (Exception x) {
@@ -560,7 +560,7 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  private MvcFactory loadModule(Class router) {
+  private <T> MvcFactory<T> loadModule(Class<T> router) {
     try {
       ServiceLoader<MvcFactory> modules = ServiceLoader.load(MvcFactory.class);
       return stream(modules.spliterator(), false)

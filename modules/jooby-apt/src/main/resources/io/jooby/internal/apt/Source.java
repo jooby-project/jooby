@@ -16,7 +16,7 @@ public class ${generatedClassName} implements io.jooby.MvcExtension, io.jooby.Mv
         this(ctx -> ctx.require(type));
     }
 
-    public ${generatedClassName}(jakarta.inject.Provider<${className}> provider) {
+    public ${generatedClassName}(java.util.function.Supplier<${className}> provider) {
         this(ctx -> provider.get());
     }
 
@@ -34,7 +34,7 @@ ${methods}
         return type == ${className}.class;
     }
 
-    public io.jooby.Extension create(jakarta.inject.Provider<${className}> provider) {
+    public io.jooby.Extension create(java.util.function.Supplier<${className}> provider) {
         return new ${generatedClassName}(provider);
     }
 }

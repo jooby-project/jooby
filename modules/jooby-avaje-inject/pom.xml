@@ -92,11 +92,6 @@
           </compilerArgs>
           <annotationProcessorPaths>
             <path>
-              <groupId>io.jooby</groupId>
-              <artifactId>jooby-apt</artifactId>
-              <version>${jooby.version}</version>
-            </path>
-            <path>
               <groupId>io.avaje</groupId>
               <artifactId>avaje-inject-generator</artifactId>
             </path>
