@@ -212,11 +212,17 @@ public class OpenAPIParser {
     findAnnotationByType(method.visibleAnnotations, Parameter.class).stream()
         .findFirst()
         .ifPresent(a -> parameters(ctx, operation, singletonList(toMap(a))));
-    /**
-     * @RequestBody:
-     */
     if (method.visibleParameterAnnotations != null) {
       for (List<AnnotationNode> paramAnnotations : method.visibleParameterAnnotations) {
+        /**
+         * @Parameter:
+         */
+        findAnnotationByType(paramAnnotations, Parameter.class).stream()
+            .findFirst()
+            .ifPresent(a -> parameters(ctx, operation, singletonList(toMap(a))));
+        /**
+         * @RequestBody:
+         */
         findAnnotationByType(paramAnnotations, RequestBody.class).stream()
             .findFirst()
             .ifPresent(a -> requestBody(ctx, operation, toMap(a)));
