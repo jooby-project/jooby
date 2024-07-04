@@ -5,8 +5,6 @@
  */
 package io.jooby.internal.apt;
 
-import static io.jooby.internal.apt.AnnotationSupport.findAnnotationValue;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -47,21 +45,11 @@ public class MvcParameter {
                       : Stream.of(Map.entry(found, it.getValue()));
                 })
             .findFirst();
-    var nameProvider =
-        strategy
-            .filter(
-                it ->
-                    !EnumSet.of(ParameterGenerator.BodyParam, ParameterGenerator.Lookup)
-                        .contains(it.getKey()))
-            .map(Map.Entry::getValue)
-            .orElse(null);
     var defaultParameterName = parameter.getSimpleName().toString();
     var parameterName =
-        nameProvider == null
-            ? defaultParameterName
-            : findAnnotationValue(nameProvider, AnnotationSupport.VALUE).stream()
-                .findFirst()
-                .orElse(defaultParameterName);
+        strategy
+            .map(it -> it.getKey().parameterName(it.getValue(), defaultParameterName))
+            .orElse(defaultParameterName);
     var rawType = type.getRawType();
     var elementType =
         type.getArguments().isEmpty() ? rawType : type.getArguments().get(0).getRawType();

@@ -18,6 +18,7 @@ import javax.lang.model.element.VariableElement;
 
 public interface AnnotationSupport {
   Predicate<String> VALUE = "value"::equals;
+  Predicate<String> NAME = "name"::equals;
 
   static List<String> findAnnotationValue(
       AnnotationMirror annotation, Predicate<String> predicate) {

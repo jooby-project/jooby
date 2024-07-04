@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -51,11 +52,22 @@ public enum ParameterGenerator {
   FlashParam("flash", "io.jooby.annotation.FlashParam"),
   FormParam("form", "io.jooby.annotation.FormParam", "jakarta.ws.rs.FormParam"),
   HeaderParam("header", "io.jooby.annotation.HeaderParam", "jakarta.ws.rs.HeaderParam"),
-  Lookup("lookup", "io.jooby.annotation.Param"),
+  Lookup("lookup", "io.jooby.annotation.Param") {
+    @Override
+    protected Predicate<String> namePredicate() {
+      return AnnotationSupport.NAME;
+    }
+  },
   PathParam("path", "io.jooby.annotation.PathParam", "jakarta.ws.rs.PathParam"),
   QueryParam("query", "io.jooby.annotation.QueryParam", "jakarta.ws.rs.QueryParam"),
   SessionParam("session", "io.jooby.annotation.SessionParam"),
   BodyParam("body") {
+    @Override
+    public String parameterName(AnnotationMirror annotation, String defaultParameterName) {
+      // Body are unnamed
+      return defaultParameterName;
+    }
+
     @Override
     public String toSourceCode(
         boolean kt,
@@ -86,6 +98,16 @@ public enum ParameterGenerator {
       };
     }
   };
+
+  public String parameterName(AnnotationMirror annotation, String defaultParameterName) {
+    return findAnnotationValue(annotation, namePredicate()).stream()
+        .findFirst()
+        .orElse(defaultParameterName);
+  }
+
+  protected Predicate<String> namePredicate() {
+    return AnnotationSupport.VALUE;
+  }
 
   public String toSourceCode(
       boolean kt, AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {

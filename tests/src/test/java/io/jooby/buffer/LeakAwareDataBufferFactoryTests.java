@@ -6,8 +6,8 @@
 package io.jooby.buffer;
 
 import static io.jooby.buffer.DataBufferUtils.release;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -17,12 +17,12 @@ class LeakAwareDataBufferFactoryTests {
 
   private final LeakAwareDataBufferFactory bufferFactory = new LeakAwareDataBufferFactory();
 
-  @Test
+  @Test()
   @SuppressWarnings("deprecation")
   void leak() {
     DataBuffer dataBuffer = this.bufferFactory.allocateBuffer();
     try {
-      assertThatExceptionOfType(AssertionError.class).isThrownBy(this.bufferFactory::checkForLeaks);
+      Assertions.assertThrows(AssertionError.class, this.bufferFactory::checkForLeaks);
     } finally {
       release(dataBuffer);
     }
