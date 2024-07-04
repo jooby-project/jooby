@@ -1,7 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.jooby/jooby)
 [![Javadoc](https://javadoc.io/badge/io.jooby/jooby.svg)](https://javadoc.io/doc/io.jooby/jooby/latest)
 [![Github](https://github.com/jooby-project/jooby/workflows/Full%20Build/badge.svg)](https://github.com/jooby-project/jooby/actions)
-[![Slack](https://img.shields.io/badge/slack-chat-brightgreen.svg?logo=slack)](https://joobyio.slack.com)
 [![Discord](https://img.shields.io/discord/1225457509909922015?label=discord)](https://discord.gg/nmfJmmrq)
 [![Become a Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://patreon.com/edgarespina)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?logo=paypal&style=flat-square)](https://paypal.me/edgarespina)
@@ -50,7 +49,7 @@ Documentation is available at [https://jooby.io](https://jooby.io)
 help
 =====
 
-[Slack](https://joobyio.slack.com)
+[Discord](https://discord.gg/nmfJmmrq)
 
 donate & support
 =====
@@ -60,12 +59,11 @@ donate & support
 - [support@jooby.io](mailto:support@jooby.io?Subject=Jooby%20Support)
 
 
-1.x version
+Previous version
 =====
 
-Documentation for 1.x is available at [https://jooby.io/v1](https://jooby.io/v1)
-
-Source code for 1.x is available at the [1.x branch](https://github.com/jooby-project/jooby/tree/1.x)
+- v2: [Documentation](https://jooby.io/v2) and [source code](https://github.com/jooby-project/jooby/tree/2.x)
+- v1: [Documentation](https://jooby.io/v1) and [source code](https://github.com/jooby-project/jooby/tree/1.x)
 
 author
 =====
