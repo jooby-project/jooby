@@ -102,7 +102,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private static final String STREAM_ID = "x-http2-stream-id";
 
   private String streamId;
-  HeadersMultiMap setHeaders = HeadersMultiMap.httpHeaders();
+  HeadersMultiMap setHeaders = new HeadersMultiMap();
   private int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -145,7 +145,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     this.req = req;
     this.router = router;
     this.bufferSize = bufferSize;
-    this.method = req.method().name().toUpperCase();
+    this.method = req.method().name();
     if (http2) {
       // Save streamId for HTTP/2
       this.streamId = req.headers().get(STREAM_ID);

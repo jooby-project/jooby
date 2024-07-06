@@ -9,23 +9,10 @@ import static io.jooby.internal.netty.SlowPathChecks.*;
 import static io.netty.handler.codec.http.HttpUtil.isTransferEncodingChunked;
 
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 
-import io.jooby.MediaType;
-import io.jooby.Route;
-import io.jooby.Router;
-import io.jooby.Server;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
-import io.jooby.WebSocketCloseStatus;
+import io.jooby.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
@@ -39,13 +26,9 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
-  private static final AtomicReference<String> cachedDateString = new AtomicReference<>();
-
-  private static final Runnable INVALIDATE_TASK = () -> cachedDateString.set(null);
-
   private static final AsciiString server = AsciiString.cached("N");
-  private final ScheduledExecutorService scheduler;
-  private static final int DATE_INTERVAL = 1000;
+  private final NettyDateService serverDate;
+  private final Jooby app;
   private final Router router;
   private final int bufferSize;
   private final boolean defaultHeaders;
@@ -57,15 +40,16 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private NettyContext context;
 
   public NettyHandler(
-      ScheduledExecutorService scheduler,
-      Router router,
+      NettyDateService dateService,
+      Jooby app,
       long maxRequestSize,
       int bufferSize,
       HttpDataFactory factory,
       boolean defaultHeaders,
       boolean http2) {
-    this.scheduler = scheduler;
-    this.router = router;
+    this.serverDate = dateService;
+    this.app = app;
+    this.router = app.getRouter();
     this.maxRequestSize = maxRequestSize;
     this.factory = factory;
     this.bufferSize = bufferSize;
@@ -78,10 +62,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (isHttpRequest(msg)) {
       var req = (HttpRequest) msg;
 
-      context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize, http2);
+      context = new NettyContext(ctx, req, app, pathOnly(req.uri()), bufferSize, http2);
 
       if (defaultHeaders) {
-        context.setHeaders.set(HttpHeaderNames.DATE, date(router.getLog(), scheduler));
+        context.setHeaders.set(HttpHeaderNames.DATE, serverDate.date());
         context.setHeaders.set(HttpHeaderNames.SERVER, server);
       }
       context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
@@ -161,7 +145,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     try {
-      Logger log = router.getLog();
+      Logger log = app.getLog();
       if (Server.connectionLost(cause)) {
         if (log.isDebugEnabled()) {
           if (context == null) {
@@ -174,7 +158,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         if (context == null) {
           log.error("execution resulted in exception", cause);
         } else {
-          if (router.isStopped()) {
+          if (app.isStopped()) {
             log.debug("execution resulted in exception while application was shutting down", cause);
           } else {
             context.sendError(cause);
@@ -234,31 +218,5 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     } catch (NumberFormatException x) {
       return -1;
     }
-  }
-
-  private static String date(Logger log, ScheduledExecutorService scheduler) {
-    var dateString = cachedDateString.get();
-    if (dateString == null) {
-      // set the time and register a timer to invalidate it
-      // note that this is racey, it does not matter if multiple threads do this
-      // the perf cost of synchronizing would be more than the perf cost of multiple threads running
-      // it
-      long realTime = System.currentTimeMillis();
-      long mod = realTime % DATE_INTERVAL;
-      long toGo = DATE_INTERVAL - mod;
-      dateString = DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneOffset.UTC));
-      if (cachedDateString.compareAndSet(null, dateString)) {
-        try {
-          scheduler.schedule(INVALIDATE_TASK, toGo, TimeUnit.MILLISECONDS);
-        } catch (RejectedExecutionException rejected) {
-          if (scheduler.isShutdown()) {
-            log.trace("server is shutting down", rejected);
-          } else {
-            throw SneakyThrows.propagate(rejected);
-          }
-        }
-      }
-    }
-    return dateString;
   }
 }

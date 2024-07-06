@@ -1079,7 +1079,7 @@ public class Jooby implements Router, Registry {
 
     this.startingCallbacks = fire(this.startingCallbacks);
 
-    router.start(this);
+    router.start(this, server);
 
     return this;
   }

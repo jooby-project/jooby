@@ -20,12 +20,19 @@ import io.jooby.internal.handler.PostDispatchInitializerHandler;
 public class Pipeline {
 
   public static Handler build(
-      Route route, ExecutionMode mode, Executor executor, ContextInitializer initializer) {
+      boolean requiresDetach,
+      Route route,
+      ExecutionMode mode,
+      Executor executor,
+      ContextInitializer initializer) {
     // Set default wrapper and blocking mode
     if (!route.isNonBlockingSet()) {
       route.setNonBlocking(isDefaultNonblocking(executor, mode));
     }
-    Route.Filter wrapper = route.isNonBlocking() ? DETACH.then(DEFAULT) : DEFAULT;
+    Route.Filter wrapper = DEFAULT;
+    if (requiresDetach && route.isNonBlocking()) {
+      wrapper = DETACH.then(wrapper);
+    }
 
     // Non-Blocking? Split pipeline Head+Handler let reactive call After pipeline
     Handler pipeline;

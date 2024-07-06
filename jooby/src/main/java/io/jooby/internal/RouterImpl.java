@@ -592,7 +592,7 @@ public class RouterImpl implements Router {
     }
   }
 
-  @NonNull public Router start(@NonNull Jooby app) {
+  @NonNull public Router start(@NonNull Jooby app, @NonNull Server server) {
     started = true;
     if (err == null) {
       err = ErrorHandler.create();
@@ -635,9 +635,10 @@ public class RouterImpl implements Router {
             prependMediaType(route.getConsumes(), route.getFilter(), Route.SUPPORT_MEDIA_TYPE));
         route.setFilter(prependMediaType(route.getProduces(), route.getFilter(), Route.ACCEPT));
       }
-      /** Response handler: */
+      boolean requiresDetach = server.getName().equals("undertow");
       Route.Handler pipeline =
-          Pipeline.build(route, forceMode(route, mode), executor, postDispatchInitializer);
+          Pipeline.build(
+              requiresDetach, route, forceMode(route, mode), executor, postDispatchInitializer);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);

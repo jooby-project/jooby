@@ -103,6 +103,414 @@ class Chi implements RouteTree {
     }
   }
 
+  private interface StaticMap {
+    StaticMap INIT =
+        new StaticMap() {
+          @Override
+          public StaticRoute get(String path) {
+            return null;
+          }
+
+          @Override
+          public StaticMap put(String path, StaticRoute staticRoute) {
+            return new StaticMap1(path, staticRoute);
+          }
+        };
+
+    StaticRoute get(String path);
+
+    StaticMap put(String path, StaticRoute staticRoute);
+  }
+
+  private static class StaticMap1 implements StaticMap {
+    private String pattern;
+    private StaticRoute route;
+
+    public StaticMap1(String pattern, StaticRoute route) {
+      this.pattern = pattern;
+      this.route = route;
+    }
+
+    @Override
+    public StaticMap put(String path, StaticRoute route) {
+      if (pattern.equals(path)) {
+        // Override
+        this.route = route;
+        return this;
+      }
+      return new StaticMap2(this, path, route);
+    }
+
+    public void release() {
+      this.pattern = null;
+      this.route = null;
+    }
+
+    public StaticRoute get(String path) {
+      if (pattern.equals(path)) {
+        return route;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  private static class StaticMap2 implements StaticMap {
+    private String pattern1;
+    private StaticRoute route1;
+    private String pattern2;
+    private StaticRoute route2;
+
+    public StaticMap2(StaticMap1 staticMap, String path, StaticRoute route) {
+      this.pattern1 = staticMap.pattern;
+      this.route1 = staticMap.route;
+      this.pattern2 = path;
+      this.route2 = route;
+      staticMap.release();
+    }
+
+    public void release() {
+      this.pattern1 = null;
+      this.route1 = null;
+      this.pattern2 = null;
+      this.route2 = null;
+    }
+
+    @Override
+    public StaticMap put(String path, StaticRoute route) {
+      if (pattern1.equals(path)) {
+        route1 = route;
+        return this;
+      } else if (pattern2.equals(path)) {
+        route2 = route;
+        return this;
+      }
+      return new StaticMap3(this, path, route);
+    }
+
+    public StaticRoute get(String path) {
+      if (pattern1.equals(path)) {
+        return route1;
+      } else if (pattern2.equals(path)) {
+        return route2;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  private static class StaticMap3 implements StaticMap {
+    private String pattern1;
+    private StaticRoute route1;
+    private String pattern2;
+    private StaticRoute route2;
+    private String pattern3;
+    private StaticRoute route3;
+
+    public StaticMap3(StaticMap2 staticMap, String path, StaticRoute route) {
+      this.pattern1 = staticMap.pattern1;
+      this.route1 = staticMap.route1;
+      this.pattern2 = staticMap.pattern2;
+      this.route2 = staticMap.route2;
+      this.pattern3 = path;
+      this.route3 = route;
+      staticMap.release();
+    }
+
+    public void release() {
+      this.pattern1 = null;
+      this.route1 = null;
+      this.pattern2 = null;
+      this.route2 = null;
+      this.pattern3 = null;
+      this.route3 = null;
+    }
+
+    @Override
+    public StaticMap put(String path, StaticRoute route) {
+      if (pattern1.equals(path)) {
+        route1 = route;
+        return this;
+      } else if (pattern2.equals(path)) {
+        route2 = route;
+        return this;
+      } else if (pattern3.equals(path)) {
+        route3 = route;
+        return this;
+      }
+      return new StaticMap4(this, path, route);
+    }
+
+    public StaticRoute get(String path) {
+      if (pattern1.equals(path)) {
+        return route1;
+      } else if (pattern2.equals(path)) {
+        return route2;
+      } else if (pattern3.equals(path)) {
+        return route3;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  private static class StaticMap4 implements StaticMap {
+    private String pattern1;
+    private StaticRoute route1;
+    private String pattern2;
+    private StaticRoute route2;
+    private String pattern3;
+    private StaticRoute route3;
+    private String pattern4;
+    private StaticRoute route4;
+
+    public StaticMap4(StaticMap3 staticMap, String path, StaticRoute route) {
+      this.pattern1 = staticMap.pattern1;
+      this.route1 = staticMap.route1;
+      this.pattern2 = staticMap.pattern2;
+      this.route2 = staticMap.route2;
+      this.pattern3 = staticMap.pattern3;
+      this.route3 = staticMap.route3;
+      this.pattern4 = path;
+      this.route4 = route;
+      staticMap.release();
+    }
+
+    public void release() {
+      this.pattern1 = null;
+      this.route1 = null;
+      this.pattern2 = null;
+      this.route2 = null;
+      this.pattern3 = null;
+      this.route3 = null;
+      this.pattern4 = null;
+      this.route4 = null;
+    }
+
+    @Override
+    public StaticMap put(String path, StaticRoute route) {
+      if (pattern1.equals(path)) {
+        route1 = route;
+        return this;
+      } else if (pattern2.equals(path)) {
+        route2 = route;
+        return this;
+      } else if (pattern3.equals(path)) {
+        route3 = route;
+        return this;
+      } else if (pattern4.equals(path)) {
+        route4 = route;
+        return this;
+      }
+      return new StaticMap5(this, path, route);
+    }
+
+    public StaticRoute get(String path) {
+      if (pattern1.equals(path)) {
+        return route1;
+      } else if (pattern2.equals(path)) {
+        return route2;
+      } else if (pattern3.equals(path)) {
+        return route3;
+      } else if (pattern4.equals(path)) {
+        return route4;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  private static class StaticMap5 implements StaticMap {
+    private String pattern1;
+    private StaticRoute route1;
+    private String pattern2;
+    private StaticRoute route2;
+    private String pattern3;
+    private StaticRoute route3;
+    private String pattern4;
+    private StaticRoute route4;
+    private String pattern5;
+    private StaticRoute route5;
+
+    public StaticMap5(StaticMap4 staticMap, String path, StaticRoute route) {
+      this.pattern1 = staticMap.pattern1;
+      this.route1 = staticMap.route1;
+      this.pattern2 = staticMap.pattern2;
+      this.route2 = staticMap.route2;
+      this.pattern3 = staticMap.pattern3;
+      this.route3 = staticMap.route3;
+      this.pattern4 = staticMap.pattern4;
+      this.route4 = staticMap.route4;
+      this.pattern5 = path;
+      this.route5 = route;
+      staticMap.release();
+    }
+
+    public void release() {
+      this.pattern1 = null;
+      this.route1 = null;
+      this.pattern2 = null;
+      this.route2 = null;
+      this.pattern3 = null;
+      this.route3 = null;
+      this.pattern4 = null;
+      this.route4 = null;
+      this.pattern5 = null;
+      this.route5 = null;
+    }
+
+    @Override
+    public StaticMap put(String path, StaticRoute route) {
+      if (pattern1.equals(path)) {
+        route1 = route;
+        return this;
+      } else if (pattern2.equals(path)) {
+        route2 = route;
+        return this;
+      } else if (pattern3.equals(path)) {
+        route3 = route;
+        return this;
+      } else if (pattern4.equals(path)) {
+        route4 = route;
+        return this;
+      } else if (pattern5.equals(path)) {
+        route5 = route;
+        return this;
+      }
+      return new StaticMap6(this, path, route);
+    }
+
+    public StaticRoute get(String path) {
+      if (pattern1.equals(path)) {
+        return route1;
+      } else if (pattern2.equals(path)) {
+        return route2;
+      } else if (pattern3.equals(path)) {
+        return route3;
+      } else if (pattern4.equals(path)) {
+        return route4;
+      } else if (pattern5.equals(path)) {
+        return route5;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  private static class StaticMap6 implements StaticMap {
+    private String pattern1;
+    private StaticRoute route1;
+    private String pattern2;
+    private StaticRoute route2;
+    private String pattern3;
+    private StaticRoute route3;
+    private String pattern4;
+    private StaticRoute route4;
+    private String pattern5;
+    private StaticRoute route5;
+    private String pattern6;
+    private StaticRoute route6;
+
+    public StaticMap6(StaticMap5 staticMap, String path, StaticRoute route) {
+      this.pattern1 = staticMap.pattern1;
+      this.route1 = staticMap.route1;
+      this.pattern2 = staticMap.pattern2;
+      this.route2 = staticMap.route2;
+      this.pattern3 = staticMap.pattern3;
+      this.route3 = staticMap.route3;
+      this.pattern4 = staticMap.pattern4;
+      this.route4 = staticMap.route4;
+      this.pattern5 = staticMap.pattern5;
+      this.route5 = staticMap.route5;
+      this.pattern6 = path;
+      this.route6 = route;
+      staticMap.release();
+    }
+
+    public void release() {
+      this.pattern1 = null;
+      this.route1 = null;
+      this.pattern2 = null;
+      this.route2 = null;
+      this.pattern3 = null;
+      this.route3 = null;
+      this.pattern4 = null;
+      this.route4 = null;
+      this.pattern5 = null;
+      this.route5 = null;
+      this.pattern6 = null;
+      this.route6 = null;
+    }
+
+    @Override
+    public StaticMap put(String path, StaticRoute route) {
+      if (pattern1.equals(path)) {
+        route1 = route;
+        return this;
+      } else if (pattern2.equals(path)) {
+        route2 = route;
+        return this;
+      } else if (pattern3.equals(path)) {
+        route3 = route;
+        return this;
+      } else if (pattern4.equals(path)) {
+        route4 = route;
+        return this;
+      } else if (pattern5.equals(path)) {
+        route5 = route;
+        return this;
+      } else if (pattern6.equals(path)) {
+        route6 = route;
+      }
+      return new StaticMapN(this, path, route);
+    }
+
+    public StaticRoute get(String path) {
+      if (pattern1.equals(path)) {
+        return route1;
+      } else if (pattern2.equals(path)) {
+        return route2;
+      } else if (pattern3.equals(path)) {
+        return route3;
+      } else if (pattern4.equals(path)) {
+        return route4;
+      } else if (pattern5.equals(path)) {
+        return route5;
+      } else if (pattern6.equals(path)) {
+        return route6;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  private static class StaticMapN implements StaticMap {
+    private final Map<String, StaticRoute> paths = new ConcurrentHashMap<>(10);
+
+    public StaticMapN(StaticMap6 staticMap, String path, StaticRoute staticRoute) {
+      put(staticMap.pattern1, staticMap.route1);
+      put(staticMap.pattern2, staticMap.route2);
+      put(staticMap.pattern3, staticMap.route3);
+      put(staticMap.pattern4, staticMap.route4);
+      put(staticMap.pattern5, staticMap.route5);
+      put(staticMap.pattern6, staticMap.route6);
+      put(path, staticRoute);
+
+      staticMap.release();
+    }
+
+    @Override
+    public StaticRoute get(String path) {
+      return paths.get(path);
+    }
+
+    @Override
+    public StaticMap put(String path, StaticRoute staticRoute) {
+      paths.computeIfAbsent(path, k -> staticRoute);
+      return this;
+    }
+  }
+
   private interface MethodMatcher {
     StaticRouterMatch get(String method);
 
@@ -123,6 +531,9 @@ class Chi implements RouteTree {
 
     @Override
     public StaticRouterMatch get(String method) {
+      if (this.method == method) {
+        return route;
+      }
       return this.method.equals(method) ? route : null;
     }
 
@@ -795,10 +1206,7 @@ class Chi implements RouteTree {
 
   private final Node root = new Node();
 
-  /**
-   * Not need to use a concurrent map, due we don't allow to add routes after application started.
-   */
-  private final Map<Object, StaticRoute> staticPaths = new ConcurrentHashMap<>();
+  private StaticMap staticPaths = StaticMap.INIT;
 
   public void insert(String method, String pattern, Route route) {
     String baseCatchAll = baseCatchAll(pattern);
@@ -812,7 +1220,8 @@ class Chi implements RouteTree {
       pattern = "/*";
     }
     if (Router.pathKeys(pattern).isEmpty()) {
-      StaticRoute staticRoute = staticPaths.computeIfAbsent(pattern, k -> new StaticRoute());
+      StaticRoute staticRoute = new StaticRoute();
+      staticPaths = staticPaths.put(pattern, staticRoute);
       staticRoute.put(method, route);
     }
     root.insertRoute(method, pattern, route);

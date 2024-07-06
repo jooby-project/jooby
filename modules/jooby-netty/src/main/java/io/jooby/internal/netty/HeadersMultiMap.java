@@ -61,32 +61,18 @@ public final class HeadersMultiMap extends HttpHeaders {
     }
   }
 
-  /**
-   * @return a case insensitive multi-map suited for HTTP header validation
-   */
-  public static HeadersMultiMap httpHeaders() {
-    return new HeadersMultiMap(HTTP_VALIDATOR);
-  }
-
   public static HttpHeadersFactory httpHeadersFactory() {
     return new HttpHeadersFactory() {
       @Override
       public HttpHeaders newHeaders() {
-        return HeadersMultiMap.httpHeaders();
+        return new HeadersMultiMap();
       }
 
       @Override
       public HttpHeaders newEmptyHeaders() {
-        return HeadersMultiMap.httpHeaders();
+        return new HeadersMultiMap();
       }
     };
-  }
-
-  /**
-   * @return a all-purpose case insensitive multi-map that does not perform validation
-   */
-  public static HeadersMultiMap headers() {
-    return new HeadersMultiMap();
   }
 
   @Override
@@ -99,7 +85,7 @@ public final class HeadersMultiMap extends HttpHeaders {
   private final HeadersMultiMap.MapEntry head = new HeadersMultiMap.MapEntry();
 
   public HeadersMultiMap() {
-    this(null);
+    this(HTTP_VALIDATOR);
   }
 
   public HeadersMultiMap(BiConsumer<CharSequence, CharSequence> validator) {

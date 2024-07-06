@@ -55,11 +55,9 @@ public class NettyServer extends Server.Base {
   private static final int _100 = 100;
 
   private List<Jooby> applications = new ArrayList<>();
-
   private EventLoopGroup acceptorloop;
-
   private EventLoopGroup eventloop;
-
+  private EventLoopGroup dateLoop;
   private ExecutorService worker;
 
   private NettyDataBufferFactory bufferFactory;
@@ -93,7 +91,6 @@ public class NettyServer extends Server.Base {
    * @param bufferFactory Byte buffer allocator.
    */
   public NettyServer(@NonNull NettyDataBufferFactory bufferFactory) {
-    this.worker = null;
     this.bufferFactory = bufferFactory;
   }
 
@@ -142,10 +139,12 @@ public class NettyServer extends Server.Base {
       var transport = NettyTransport.transport(application.getClassLoader());
 
       /* Acceptor event-loop */
-      this.acceptorloop = transport.createEventLoop(1, "acceptor", _50);
+      this.acceptorloop = transport.createEventLoop(1, "acceptor", _100);
 
       /* Event loop: processing connections, parsing messages and doing engine's internal work */
       this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", _100);
+      this.dateLoop = transport.createEventLoop(1, "date-service", _100);
+      var dateService = new NettyDateService(dateLoop);
 
       /* File data factory: */
       var factory = new DefaultHttpDataFactory(options.getBufferSize());
@@ -153,7 +152,8 @@ public class NettyServer extends Server.Base {
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {
-        var http = newBootstrap(allocator, transport, newPipeline(null, factory, http2));
+        var http =
+            newBootstrap(allocator, transport, newPipeline(null, factory, dateService, http2));
         http.bind(options.getHost(), options.getPort()).get();
       }
 
@@ -165,7 +165,9 @@ public class NettyServer extends Server.Base {
 
         var clientAuth = sslOptions.getClientAuth();
         var sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
-        var https = newBootstrap(allocator, transport, newPipeline(sslContext, factory, http2));
+        var https =
+            newBootstrap(
+                allocator, transport, newPipeline(sslContext, factory, dateService, http2));
         https.bind(options.getHost(), options.getSecurePort()).get();
       } else if (options.isHttpsOnly()) {
         throw new IllegalArgumentException(
@@ -203,8 +205,8 @@ public class NettyServer extends Server.Base {
     };
   }
 
-  private NettyPipeline newPipeline(SslContext sslContext, HttpDataFactory factory, boolean http2) {
-    var executor = acceptorloop.next();
+  private NettyPipeline newPipeline(
+      SslContext sslContext, HttpDataFactory factory, NettyDateService dateService, boolean http2) {
     var router = applications.get(0);
     var bufferSize = options.getBufferSize();
     var headersFactory = HeadersMultiMap.httpHeadersFactory();
@@ -217,7 +219,7 @@ public class NettyServer extends Server.Base {
             .setTrailersFactory(headersFactory);
     return new NettyPipeline(
         sslContext,
-        executor,
+        dateService,
         factory,
         decoderConfig,
         router,
@@ -238,6 +240,7 @@ public class NettyServer extends Server.Base {
 
     shutdown(acceptorloop);
     shutdown(eventloop);
+    shutdown(dateLoop);
     if (worker != null) {
       worker.shutdown();
       worker = null;
@@ -245,9 +248,9 @@ public class NettyServer extends Server.Base {
     return this;
   }
 
-  private void shutdown(EventLoopGroup loopGroup) {
-    if (loopGroup != null) {
-      loopGroup.shutdownGracefully();
+  private void shutdown(EventLoopGroup eventLoopGroup) {
+    if (eventLoopGroup != null) {
+      eventLoopGroup.shutdownGracefully();
     }
   }
 
