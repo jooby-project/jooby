@@ -139,7 +139,7 @@ public class NettyServer extends Server.Base {
       var transport = NettyTransport.transport(application.getClassLoader());
 
       /* Acceptor event-loop */
-      this.acceptorloop = transport.createEventLoop(1, "acceptor", _100);
+      this.acceptorloop = transport.createEventLoop(1, "acceptor", _50);
 
       /* Event loop: processing connections, parsing messages and doing engine's internal work */
       this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", _100);
