@@ -113,7 +113,7 @@ public class MvcRoute {
                 isSuspendFun() ? "" : "app.",
                 annotation.getSimpleName().toString().toLowerCase(),
                 "(",
-                string(path),
+                string(leadingSlash(path)),
                 ", ",
                 context.pipeline(getReturnTypeHandler(), thisRef + methodName),
                 ")"));
@@ -155,6 +155,19 @@ public class MvcRoute {
       }
     }
     return block;
+  }
+
+  /**
+   * Ensure path start with a <code>/</code>(leading slash).
+   *
+   * @param path Path to process.
+   * @return Path with leading slash.
+   */
+  static String leadingSlash(String path) {
+    if (path == null || path.isEmpty() || path.equals("/")) {
+      return "/";
+    }
+    return path.charAt(0) == '/' ? path : "/" + path;
   }
 
   public List<String> generateHandlerCall(boolean kt) {
