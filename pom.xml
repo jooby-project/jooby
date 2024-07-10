@@ -47,7 +47,7 @@
     <config.version>1.4.3</config.version>
 
     <!-- dependency injection -->
-    <avaje-inject.version>9.12</avaje-inject.version>
+    <avaje-inject.version>10.0</avaje-inject.version>
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->

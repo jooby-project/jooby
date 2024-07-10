@@ -9,9 +9,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.typesafe.config.Config;
-import io.avaje.inject.spi.PropertyRequiresPlugin;
 
-class JoobyPropertyPlugin implements PropertyRequiresPlugin {
+import io.avaje.inject.spi.ConfigPropertyPlugin;
+
+class JoobyPropertyPlugin implements ConfigPropertyPlugin {
 
   private final Config config;
 
