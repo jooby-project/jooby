@@ -26,9 +26,7 @@ import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -622,13 +620,16 @@ public class UndertowContext implements DefaultContext, IoCallback {
 
   private void formData(Formdata form, FormData data) {
     if (data != null) {
-      Iterator<String> it = data.iterator();
-      while (it.hasNext()) {
-        String path = it.next();
-        Deque<FormData.FormValue> values = data.get(path);
-        for (FormData.FormValue value : values) {
-          if (value.isFileItem()) {
-            ((Formdata) form).put(path, new UndertowFileUpload(path, value));
+      for (var path : data) {
+        var values = data.get(path);
+        for (var value : values) {
+          /*
+           * BigField: true if size of the FormValue comes from a multipart request exceeds the fieldSizeThreshold of
+           * {@link MultiPartParserDefinition} without filename specified.
+           * See https://github.com/jooby-project/jooby/discussions/3464
+           */
+          if (value.isFileItem() && !value.isBigField()) {
+            form.put(path, new UndertowFileUpload(path, value));
           } else {
             form.put(path, value.getValue());
           }

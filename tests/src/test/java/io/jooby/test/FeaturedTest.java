@@ -10,6 +10,7 @@ import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.ExecutionMode.WORKER;
 import static io.jooby.MediaType.text;
 import static io.jooby.MediaType.xml;
+import static io.jooby.test.TestUtil.*;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -100,12 +101,6 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
 public class FeaturedTest {
-
-  private static String _19kb = readText(userdir("src", "test", "resources", "files", "19kb.txt"));
-
-  private static String _16kb = _19kb.substring(0, ServerOptions._16KB);
-
-  private static String _8kb = _16kb.substring(0, _16kb.length() / 2);
 
   private static MediaType json = MediaType.parse("application/json");
 
@@ -4462,14 +4457,6 @@ public class FeaturedTest {
       offset += size;
     }
     return result.toArray(new byte[0][0]);
-  }
-
-  private static String readText(Path file) {
-    try {
-      return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
-    }
   }
 
   private static Path userdir(String... segments) {
