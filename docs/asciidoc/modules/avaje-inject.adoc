@@ -5,8 +5,44 @@
 [dependency, groupId="io.jooby", artifactId="jooby-avaje-inject", version="1.1.0"]
 .
 
+2) Configure annotation processor
 
-2) Install Avaje Inject:
+.Maven
+[source, xml, role = "primary"]
+----
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>...</version>
+      <configuration>
+        <annotationProcessorPaths>
+          <path>
+            <groupId>io.avaje</groupId>
+            <artifactId>avaje-inject-generator</artifactId>
+            <version>10.0</version>
+          </path>
+        </annotationProcessorPaths>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+----
+
+.Gradle
+[source, kotlin, role = "secondary"]
+----
+plugins {
+  id "org.jetbrains.kotlin.kapt" version "1.9.10"
+}
+
+dependencies {
+  kapt 'io.avaje:avaje-inject-generator:10.0'
+}
+----
+
+3) Install Avaje Inject:
 
 .Installing Avaje Inject
 [source,java,role = "primary"]
@@ -48,7 +84,7 @@ fun main(args: Array<String>) {
 
 ==== Property Injection
 
-Configuration properties can be injected using the `@Named` annotation. As Avaje checks beans at compile time, `@InjectModule(requires={String.class})`:
+Configuration properties can be injected using the `@Named` annotation. As Avaje checks beans at compile time, `@External` is required to prevent false-positive compilation errors:
 
 .application.conf
 [source, bash]
@@ -63,7 +99,7 @@ currency = USD
 public class BillingService {
 
   @Inject
-  public BillingService(@Named("currency") String currency) {
+  public BillingService(@External @Named("currency") String currency) {
     ...
   }
 
@@ -74,7 +110,7 @@ public class BillingService {
 [source,kotlin,role="secondary"]
 ----
 @Singleton
-class BillingService @Inject constructor(@Named("currency") currency: String) {
+class BillingService @Inject constructor(@External @Named("currency") currency: String) {
   ...
 }
 ----
@@ -117,5 +153,5 @@ fun main(args: Array<String>) {
 
 The lifecycle of `MyController` is now managed by Avaje Inject.
 
-In Avaje Inject, the dependency graph is typically validated when the application compiles. As beans provided by Jooby Modules are registered at runtime, you must add `@InjectModules(requires={String.class, <other Jooby Module Provided Bean ClassNames>...})` to inform the avaje processor that these beans are provided at runtime.
+In Avaje Inject, the dependency graph is typically validated when the application compiles. As beans provided by Jooby Modules are registered at runtime, you must add `@External` when injecting these runtime beans into `@Singleton` classes to inform the avaje processor that these beans are provided at runtime.
 
