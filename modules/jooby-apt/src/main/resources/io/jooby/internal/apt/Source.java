@@ -1,6 +1,6 @@
 package ${packageName};
 ${imports}
-@io.jooby.annotation.Generated(${packageName}.${className}.class)
+@io.jooby.annotation.Generated(${className}.class)
 public class ${generatedClassName} implements io.jooby.MvcExtension, io.jooby.MvcFactory<${className}> {
     protected final java.util.function.Function<io.jooby.Context, ${className}> factory;
 ${constructors}
@@ -14,10 +14,6 @@ ${constructors}
 
     public ${generatedClassName}(java.util.function.Function<io.jooby.Context, ${className}> factory) {
         this.factory = factory;
-    }
-
-    public void install(io.jooby.Jooby app) throws Exception {
-${bindings}
     }
 
 ${methods}

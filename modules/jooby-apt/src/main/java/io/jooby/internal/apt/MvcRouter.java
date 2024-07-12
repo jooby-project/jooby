@@ -123,6 +123,20 @@ public class MvcRouter {
                       "import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));
       var imports = buffer.toString();
       buffer.setLength(0);
+
+      // begin install
+      if (kt) {
+        buffer.append(indent(4)).append("@Throws(Exception::class)").append(System.lineSeparator());
+        buffer
+            .append(indent(4))
+            .append("override fun install(app: io.jooby.Jooby) {")
+            .append(System.lineSeparator());
+      } else {
+        buffer
+            .append(indent(4))
+            .append("public void install(io.jooby.Jooby app) throws Exception {")
+            .append(System.lineSeparator());
+      }
       if (!suspended.isEmpty()) {
         buffer.append(CodeBlock.statement(indent(6), "val kooby = app as io.jooby.kt.Kooby"));
         buffer.append(CodeBlock.statement(indent(6), "kooby.coroutine {"));
@@ -135,8 +149,15 @@ public class MvcRouter {
       noSuspended.stream()
           .flatMap(it -> it.generateMapping(kt).stream())
           .forEach(line -> buffer.append(CodeBlock.indent(6)).append(line));
-      var bindings = trimr(buffer).toString();
-      buffer.setLength(0);
+      trimr(buffer);
+      buffer
+          .append(System.lineSeparator())
+          .append(indent(4))
+          .append("}")
+          .append(System.lineSeparator())
+          .append(System.lineSeparator());
+      // end install
+
       routes.stream()
           .flatMap(it -> it.generateHandlerCall(kt).stream())
           .forEach(line -> buffer.append(CodeBlock.indent(4)).append(line));
@@ -146,7 +167,6 @@ public class MvcRouter {
           .replace("${className}", getTargetType().getSimpleName())
           .replace("${generatedClassName}", generateTypeName)
           .replace("${constructors}", constructors(generateTypeName, kt))
-          .replace("${bindings}", bindings)
           .replace("${methods}", trimr(buffer));
     }
   }
@@ -160,7 +180,7 @@ public class MvcRouter {
     return buffer;
   }
 
-  private String constructors(String generatedName, boolean kt) {
+  private StringBuilder constructors(String generatedName, boolean kt) {
     var injectAnnotations = Set.of("javax.inject.Inject", "jakarta.inject.Inject");
     var constructors =
         getTargetType().getEnclosedElements().stream()
@@ -172,6 +192,7 @@ public class MvcRouter {
             .toList();
     var targetType = getTargetType().getSimpleName();
     var buffer = new StringBuilder();
+    buffer.append(System.lineSeparator());
     var injectConstructor =
         constructors.stream()
             .filter(
@@ -275,7 +296,7 @@ public class MvcRouter {
       }
     }
 
-    return System.lineSeparator() + indent(4) + buffer.toString().trim() + System.lineSeparator();
+    return trimr(buffer).append(System.lineSeparator());
   }
 
   private void constructor(
