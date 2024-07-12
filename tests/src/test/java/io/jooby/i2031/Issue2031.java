@@ -31,7 +31,7 @@ public class Issue2031 {
     runner
         .define(
             app -> {
-              app.mvc(new C2031());
+              app.mvc(new C2031_());
             })
         .ready(
             http -> {

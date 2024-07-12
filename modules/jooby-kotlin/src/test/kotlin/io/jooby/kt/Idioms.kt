@@ -8,8 +8,8 @@ package io.jooby.kt
 import io.jooby.Jooby
 import io.jooby.RouterOption.IGNORE_CASE
 import io.jooby.RouterOption.IGNORE_TRAILING_SLASH
+import io.jooby.ServiceKey
 import io.jooby.SslOptions
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Duration
 import kotlinx.coroutines.delay
@@ -20,25 +20,20 @@ import kotlinx.coroutines.delay
  */
 class Idioms :
   Kooby({
-
+    services.put(Jooby::class, this)
+    services.put(ServiceKey.key(Jooby::class.java, "name"), this)
     /** Services: */
-    val s = require<Jooby>()
-    println(s)
+    require<Jooby>()
 
-    val named = require<Jooby>("name")
-    println(named)
+    require<Jooby>("name")
 
-    val sklass = require(Jooby::class)
-    println(sklass)
+    require(Jooby::class)
 
-    val sklassname = require(Jooby::class, "name")
-    println(sklassname)
+    require(Jooby::class, "name")
 
-    val j1 = services.get(Jooby::class)
-    println(j1)
+    services.get(Jooby::class)
 
-    val j2 = services.getOrNull(Jooby::class)
-    println(j2)
+    services.getOrNull(Jooby::class)
 
     /** Options: */
     serverOptions {
@@ -51,8 +46,7 @@ class Idioms :
       server = "server"
       workerThreads = 99
       securePort = 8443
-      ssl =
-        SslOptions().apply { cert = Files.newInputStream(Paths.get("/path/to/certificate.crt")) }
+      ssl = SslOptions().apply { type = "PKCS12" }
     }
 
     routerOptions(IGNORE_CASE, IGNORE_TRAILING_SLASH)
@@ -65,7 +59,7 @@ class Idioms :
       this.filename = "myfile"
     }
 
-    val cors = cors {
+    cors {
       this.exposedHeaders = listOf("f")
       this.headers = listOf("d")
       this.maxAge = Duration.ZERO
@@ -73,7 +67,6 @@ class Idioms :
       this.origin = listOf("*")
       this.useCredentials = true
     }
-    println(cors)
 
     /** Value DSL: */
     get("/") {
@@ -103,11 +96,6 @@ class Idioms :
     delete("/") { ctx.path() }
     options("/") { ctx.path() }
     trace("/") { ctx.path() }
-    // mvc
-    mvc(IdiomsController::class)
-
-    mvc(IdiomsController::class, ::IdiomsController)
-
     /** Coroutine: */
     coroutine {
       get("/") { "Hi Kotlin!" }

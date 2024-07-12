@@ -123,7 +123,7 @@ class FeaturedKotlinTest {
   @ServerTest
   fun suspendMvc(runner: ServerTestRunner) {
     runner
-      .use { ->
+      .use {
         Kooby {
           coroutine { mvc(SuspendMvc_()) }
 
@@ -133,7 +133,7 @@ class FeaturedKotlinTest {
           }
         }
       }
-      .ready({ client ->
+      .ready { client ->
         client.get("/") { rsp -> assertEquals("Got it!", rsp.body!!.string()) }
 
         client.get("/delay") { rsp -> assertEquals("/delay", rsp.body!!.string()) }
@@ -143,7 +143,7 @@ class FeaturedKotlinTest {
         client.get("/456x") { rsp ->
           assertEquals("Cannot convert value: 'id', to: 'int'", rsp.body!!.string())
         }
-      })
+      }
   }
 
   @ServerTest

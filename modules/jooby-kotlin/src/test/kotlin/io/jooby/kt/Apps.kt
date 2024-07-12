@@ -3,11 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package apps
+package io.jooby.kt
 
 import io.jooby.ExecutionMode
-import io.jooby.kt.Kooby
-import io.jooby.kt.runApp
 import kotlinx.coroutines.delay
 
 /** Class version: */
