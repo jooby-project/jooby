@@ -20,7 +20,7 @@ public class Issue2457 {
             app -> {
               app.install(new GuiceModule());
 
-              app.mvc(HealthController2457.class);
+              app.mvc(new HealthController2457_());
 
               app.mount("/api/v1", new ControllersAppV12457());
               app.mount("/api/v2", new ControllersAppV22457());

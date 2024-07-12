@@ -2,12 +2,8 @@ package ${packageName}
 ${imports}
 @io.jooby.annotation.Generated(${packageName}.${className}::class)
 open class ${generatedClassName}(protected val factory: java.util.function.Function<io.jooby.Context, ${className}>) : io.jooby.MvcExtension, io.jooby.MvcFactory<${className}?> {
-
-    constructor() : this(${defaultInstance})
-
+    ${constructors}
     constructor(instance: ${className}) : this(java.util.function.Function<io.jooby.Context, ${className}> { instance })
-
-    constructor(type: kotlin.reflect.KClass<${className}>) : this(java.util.function.Function<io.jooby.Context, ${className}> { ctx: io.jooby.Context -> ctx.require<${className}>(type.java) })
 
     constructor(provider: java.util.function.Supplier<${className}?>) : this(java.util.function.Function<io.jooby.Context, ${className}> { provider.get()!! })
 

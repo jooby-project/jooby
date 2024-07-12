@@ -13,11 +13,11 @@ import static java.util.Collections.emptyList;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.tools.JavaFileObject;
 
 public class MvcRouter {
@@ -145,7 +145,7 @@ public class MvcRouter {
           .replace("${imports}", imports)
           .replace("${className}", getTargetType().getSimpleName())
           .replace("${generatedClassName}", generateTypeName)
-          .replace("${defaultInstance}", defaultInstance(kt))
+          .replace("${constructors}", constructors(generateTypeName, kt))
           .replace("${bindings}", bindings)
           .replace("${methods}", trimr(buffer));
     }
@@ -160,29 +160,160 @@ public class MvcRouter {
     return buffer;
   }
 
-  private String defaultInstance(boolean kt) {
+  private String constructors(String generatedName, boolean kt) {
     var injectAnnotations = Set.of("javax.inject.Inject", "jakarta.inject.Inject");
     var constructors =
         getTargetType().getEnclosedElements().stream()
-            .filter(it -> it.getKind() == ElementKind.CONSTRUCTOR)
-            .toList();
-    var hasDefaultConstructor =
-        constructors.stream()
+            .filter(
+                it ->
+                    it.getKind() == ElementKind.CONSTRUCTOR
+                        && it.getModifiers().contains(Modifier.PUBLIC))
             .map(ExecutableElement.class::cast)
-            .anyMatch(
-                it -> it.getParameters().isEmpty() && it.getModifiers().contains(Modifier.PUBLIC));
-    var inject =
+            .toList();
+    var targetType = getTargetType().getSimpleName();
+    var buffer = new StringBuilder();
+    var injectConstructor =
         constructors.stream()
-            .anyMatch(
+            .filter(
                 it ->
                     injectAnnotations.stream()
-                        .anyMatch(annotation -> findAnnotationByName(it, annotation) != null));
-    if (inject || !hasDefaultConstructor) {
-      return getTargetType().getSimpleName() + (kt ? "::class" : ".class");
+                        .anyMatch(annotation -> findAnnotationByName(it, annotation) != null))
+            .findFirst()
+            .orElse(null);
+    final var defaultConstructor =
+        constructors.stream().filter(it -> it.getParameters().isEmpty()).findFirst().orElse(null);
+    if (injectConstructor != null) {
+      constructor(
+          generatedName,
+          kt,
+          buffer,
+          List.of(),
+          (output, params) -> {
+            output
+                .append("this(")
+                .append(targetType)
+                .append(kt ? "::class" : ".class")
+                .append(")")
+                .append(semicolon(kt))
+                .append(System.lineSeparator());
+          });
     } else {
-      var newInstance = getTargetType().getSimpleName() + "()";
-      return kt ? newInstance : "new " + newInstance;
+      if (defaultConstructor != null) {
+        constructor(
+            generatedName,
+            kt,
+            buffer,
+            List.of(),
+            (output, params) -> {
+              output
+                  .append("this(")
+                  .append(kt ? "" : "new ")
+                  .append(targetType)
+                  .append("())")
+                  .append(semicolon(kt))
+                  .append(System.lineSeparator());
+            });
+      }
     }
+    var skip =
+        Stream.of(injectConstructor, defaultConstructor)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+    for (ExecutableElement constructor : constructors) {
+      if (!skip.contains(constructor)) {
+        constructor(
+            generatedName,
+            kt,
+            buffer,
+            constructor.getParameters().stream()
+                .map(it -> Map.<Object, String>entry(it.asType(), it.getSimpleName().toString()))
+                .toList(),
+            (output, params) -> {
+              var separator = ", ";
+              output.append("this(").append(kt ? "" : "new ").append(targetType).append("(");
+              params.forEach(e -> output.append(e.getValue()).append(separator));
+              output.setLength(output.length() - separator.length());
+              output.append("))").append(semicolon(kt)).append(System.lineSeparator());
+            });
+      }
+    }
+
+    if (injectConstructor != null) {
+      if (kt) {
+        constructor(
+            generatedName,
+            true,
+            buffer,
+            List.of(Map.entry("kotlin.reflect.KClass<" + targetType + ">", "type")),
+            (output, params) -> {
+              // this(java.util.function.Function<io.jooby.Context, ${className}> { ctx:
+              // io.jooby.Context -> ctx.require<${className}>(type.java) })
+              output
+                  .append("this(java.util.function.Function<io.jooby.Context, ")
+                  .append(targetType)
+                  .append("> { ctx: io.jooby.Context -> ")
+                  .append("ctx.require<")
+                  .append(targetType)
+                  .append(">(type.java)")
+                  .append(" })")
+                  .append(System.lineSeparator());
+            });
+      } else {
+        constructor(
+            generatedName,
+            false,
+            buffer,
+            List.of(Map.entry("Class<" + targetType + ">", "type")),
+            (output, params) -> {
+              output
+                  .append("this(")
+                  .append("ctx -> ctx.require(type)")
+                  .append(")")
+                  .append(";")
+                  .append(System.lineSeparator());
+            });
+      }
+    }
+
+    return System.lineSeparator() + indent(4) + buffer.toString().trim() + System.lineSeparator();
+  }
+
+  private void constructor(
+      String generatedName,
+      boolean kt,
+      StringBuilder buffer,
+      List<Map.Entry<Object, String>> parameters,
+      BiConsumer<StringBuilder, List<Map.Entry<Object, String>>> body) {
+    buffer.append(indent(4));
+    if (kt) {
+      buffer.append("constructor").append("(");
+    } else {
+      buffer.append("public ").append(generatedName).append("(");
+    }
+    var separator = ", ";
+    parameters.forEach(
+        e -> {
+          if (kt) {
+            buffer.append(e.getValue()).append(": ").append(e.getKey()).append(separator);
+          } else {
+            buffer.append(e.getKey()).append(" ").append(e.getValue()).append(separator);
+          }
+        });
+    if (!parameters.isEmpty()) {
+      buffer.setLength(buffer.length() - separator.length());
+    }
+    buffer.append(")");
+    if (!kt) {
+      buffer.append(" {").append(System.lineSeparator());
+      buffer.append(indent(6));
+    } else {
+      buffer.append(" : ");
+    }
+    body.accept(buffer, parameters);
+    if (!kt) {
+      buffer.append(indent(4)).append("}");
+    }
+    buffer.append(System.lineSeparator()).append(System.lineSeparator());
   }
 
   @Override

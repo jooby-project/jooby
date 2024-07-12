@@ -17,7 +17,6 @@ public class HealthController2457 {
 
   @jakarta.inject.Inject
   public HealthController2457(WelcomeService2457 welcomeService) {
-    super();
     this.welcomeService = welcomeService;
   }
 

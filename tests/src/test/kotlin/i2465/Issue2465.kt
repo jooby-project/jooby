@@ -22,7 +22,7 @@ class Issue2465 {
             ctx.setResponseHeader("Response-Started", ctx.isResponseStarted)
           }
           coroutine {
-            mvc(C2465())
+            mvc(C2465_())
 
             get("/2465") {
               delay(100)

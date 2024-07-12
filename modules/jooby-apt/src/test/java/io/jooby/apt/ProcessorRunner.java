@@ -112,6 +112,11 @@ public class ProcessorRunner {
     return this;
   }
 
+  public ProcessorRunner withSource(SneakyThrows.Consumer<JavaFileObject> consumer) {
+    consumer.accept(processor.getSource());
+    return this;
+  }
+
   private String[] sourceNames(Class input) {
     List<String> result = new ArrayList<>();
     while (input != Object.class) {

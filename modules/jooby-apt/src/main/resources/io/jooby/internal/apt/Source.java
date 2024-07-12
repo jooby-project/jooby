@@ -3,17 +3,9 @@ ${imports}
 @io.jooby.annotation.Generated(${packageName}.${className}.class)
 public class ${generatedClassName} implements io.jooby.MvcExtension, io.jooby.MvcFactory<${className}> {
     protected final java.util.function.Function<io.jooby.Context, ${className}> factory;
-
-    public ${generatedClassName}() {
-        this(${defaultInstance});
-    }
-
+${constructors}
     public ${generatedClassName}(${className} instance) {
         this(ctx -> instance);
-    }
-
-    public ${generatedClassName}(Class<${className}> type) {
-        this(ctx -> ctx.require(type));
     }
 
     public ${generatedClassName}(java.util.function.Supplier<${className}> provider) {
