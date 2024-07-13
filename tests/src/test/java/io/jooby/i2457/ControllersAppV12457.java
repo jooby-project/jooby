@@ -10,6 +10,6 @@ import io.jooby.Jooby;
 public class ControllersAppV12457 extends Jooby {
 
   public ControllersAppV12457() {
-    mvc(ControllerV12457.class);
+    mvc(new ControllerV12457_());
   }
 }

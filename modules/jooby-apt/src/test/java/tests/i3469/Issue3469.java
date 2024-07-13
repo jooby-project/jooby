@@ -31,4 +31,13 @@ public class Issue3469 {
               assertFalse(source.toString().contains("public C3469_()"));
             });
   }
+
+  @Test
+  public void shouldGenerateFieldInjectWithDefaultConstructor() throws Exception {
+    new ProcessorRunner(new C3469FieldInject())
+        .withSource(
+            source -> {
+              assertTrue(source.toString().contains("this(C3469FieldInject.class);"));
+            });
+  }
 }

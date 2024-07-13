@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -181,7 +182,6 @@ public class MvcRouter {
   }
 
   private StringBuilder constructors(String generatedName, boolean kt) {
-    var injectAnnotations = Set.of("javax.inject.Inject", "jakarta.inject.Inject");
     var constructors =
         getTargetType().getEnclosedElements().stream()
             .filter(
@@ -193,17 +193,15 @@ public class MvcRouter {
     var targetType = getTargetType().getSimpleName();
     var buffer = new StringBuilder();
     buffer.append(System.lineSeparator());
+    // Inject could be at constructor or field level.
     var injectConstructor =
-        constructors.stream()
-            .filter(
-                it ->
-                    injectAnnotations.stream()
-                        .anyMatch(annotation -> findAnnotationByName(it, annotation) != null))
-            .findFirst()
-            .orElse(null);
+        constructors.stream().filter(hasInjectAnnotation()).findFirst().orElse(null);
+    var inject =
+        injectConstructor != null
+            || getTargetType().getEnclosedElements().stream().anyMatch(hasInjectAnnotation());
     final var defaultConstructor =
         constructors.stream().filter(it -> it.getParameters().isEmpty()).findFirst().orElse(null);
-    if (injectConstructor != null) {
+    if (inject) {
       constructor(
           generatedName,
           kt,
@@ -259,7 +257,7 @@ public class MvcRouter {
       }
     }
 
-    if (injectConstructor != null) {
+    if (inject) {
       if (kt) {
         constructor(
             generatedName,
@@ -297,6 +295,13 @@ public class MvcRouter {
     }
 
     return trimr(buffer).append(System.lineSeparator());
+  }
+
+  private static Predicate<Element> hasInjectAnnotation() {
+    var injectAnnotations = Set.of("javax.inject.Inject", "jakarta.inject.Inject");
+    return it ->
+        injectAnnotations.stream()
+            .anyMatch(annotation -> findAnnotationByName(it, annotation) != null);
   }
 
   private void constructor(
