@@ -19,11 +19,13 @@ public class MvcParameter {
       name -> name.toLowerCase().endsWith(".nullable");
   private static final Predicate<String> NON_NULL =
       name -> name.toLowerCase().endsWith(".nonnull") || name.toLowerCase().endsWith(".notnull");
+  private final MvcRoute route;
   private final VariableElement parameter;
   private final Map<String, AnnotationMirror> annotations;
   private final TypeDefinition type;
 
-  public MvcParameter(MvcContext context, VariableElement parameter) {
+  public MvcParameter(MvcContext context, MvcRoute route, VariableElement parameter) {
+    this.route = route;
     this.parameter = parameter;
     this.annotations = annotationMap(parameter);
     this.type =
@@ -95,12 +97,13 @@ public class MvcParameter {
         if (strategy.isEmpty()) {
           // must be body
           yield ParameterGenerator.BodyParam.toSourceCode(
-              kt, null, type, parameterName, isNullable(kt));
+              kt, route, null, type, parameterName, isNullable(kt));
         } else {
           yield strategy
               .get()
               .getKey()
-              .toSourceCode(kt, strategy.get().getValue(), type, parameterName, isNullable(kt));
+              .toSourceCode(
+                  kt, route, strategy.get().getValue(), type, parameterName, isNullable(kt));
         }
       }
     };

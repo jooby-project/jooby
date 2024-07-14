@@ -18,12 +18,15 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 
 public enum ParameterGenerator {
   ContextParam("getAttribute", "io.jooby.annotation.ContextParam", "jakarta.ws.rs.core.Context") {
     @Override
     public String toSourceCode(
         boolean kt,
+        MvcRoute route,
         AnnotationMirror annotation,
         TypeDefinition type,
         String name,
@@ -71,6 +74,7 @@ public enum ParameterGenerator {
     @Override
     public String toSourceCode(
         boolean kt,
+        MvcRoute route,
         AnnotationMirror annotation,
         TypeDefinition type,
         String name,
@@ -97,6 +101,84 @@ public enum ParameterGenerator {
         }
       };
     }
+  },
+  Bind("", "io.jooby.annotation.BindParam") {
+    @Override
+    public String parameterName(AnnotationMirror annotation, String defaultParameterName) {
+      return defaultParameterName;
+    }
+
+    @Override
+    public String toSourceCode(
+        boolean kt,
+        MvcRoute route,
+        AnnotationMirror annotation,
+        TypeDefinition type,
+        String name,
+        boolean nullable) {
+      var typeNames = findAnnotationValue(annotation, AnnotationSupport.VALUE);
+      var typeName = typeNames.isEmpty() ? null : typeNames.get(0);
+      var router = route.getRouter();
+      var targetType = router.getTargetType();
+      var converter =
+          typeName == null
+              ? targetType
+              : route
+                  .getContext()
+                  .getProcessingEnvironment()
+                  .getElementUtils()
+                  .getTypeElement(typeName);
+      var fns = findAnnotationValue(annotation, "fn"::equals);
+      var fn = fns.isEmpty() ? null : fns.get(0);
+      Predicate<ExecutableElement> contextAsParameter =
+          it ->
+              it.getParameters().size() == 1
+                  && it.getParameters().get(0).asType().toString().equals("io.jooby.Context");
+      Predicate<ExecutableElement> matchesReturnType =
+          it ->
+              new TypeDefinition(
+                      route.getContext().getProcessingEnvironment().getTypeUtils(),
+                      it.getReturnType())
+                  .getRawType()
+                  .equals(type.getRawType());
+      var filter = contextAsParameter.and(matchesReturnType);
+      String methodErrorName;
+      if (fn != null) {
+        Predicate<ExecutableElement> matchesName = it -> it.getSimpleName().toString().equals(fn);
+        filter = filter.and(matchesName);
+        methodErrorName = fn + "(io.jooby.Context): " + type;
+      } else {
+        methodErrorName = "(io.jooby.Context): " + type;
+      }
+      // find function by type
+      ExecutableElement mapping =
+          converter.getEnclosedElements().stream()
+              .filter(ExecutableElement.class::isInstance)
+              .map(ExecutableElement.class::cast)
+              // filter by Context
+              .filter(filter)
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new IllegalArgumentException(
+                          "Method not found: " + converter + "." + methodErrorName));
+      if (!mapping.getModifiers().contains(Modifier.PUBLIC)) {
+        throw new IllegalArgumentException("Method is not public: " + converter + "." + mapping);
+      }
+      if (mapping.getModifiers().contains(Modifier.STATIC)) {
+        return CodeBlock.of(
+            converter.equals(targetType)
+                ? mapping.getSimpleName()
+                : converter.getQualifiedName() + "." + mapping.getSimpleName(),
+            "(ctx)");
+      } else {
+        if (converter.equals(targetType)) {
+          return CodeBlock.of("c." + mapping.getSimpleName(), "(ctx)");
+        } else {
+          throw new IllegalArgumentException("Not a static method: " + converter + "." + mapping);
+        }
+      }
+    }
   };
 
   public String parameterName(AnnotationMirror annotation, String defaultParameterName) {
@@ -110,7 +192,12 @@ public enum ParameterGenerator {
   }
 
   public String toSourceCode(
-      boolean kt, AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
+      boolean kt,
+      MvcRoute route,
+      AnnotationMirror annotation,
+      TypeDefinition type,
+      String name,
+      boolean nullable) {
     var paramSource = source(annotation);
     var builtin = builtinType(kt, annotation, type, name, nullable);
     if (builtin == null) {

@@ -34,7 +34,7 @@ public class MvcRoute {
     this.router = router;
     this.method = method;
     this.parameters =
-        method.getParameters().stream().map(it -> new MvcParameter(context, it)).toList();
+        method.getParameters().stream().map(it -> new MvcParameter(context, this, it)).toList();
     this.suspendFun =
         !parameters.isEmpty()
             && parameters.get(parameters.size() - 1).getType().is("kotlin.coroutines.Continuation");
@@ -48,12 +48,16 @@ public class MvcRoute {
     this.router = router;
     this.method = route.method;
     this.parameters =
-        method.getParameters().stream().map(it -> new MvcParameter(context, it)).toList();
+        method.getParameters().stream().map(it -> new MvcParameter(context, this, it)).toList();
     this.returnType =
         new TypeDefinition(
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
     this.suspendFun = route.suspendFun;
     route.annotationMap.keySet().forEach(this::addHttpMethod);
+  }
+
+  public MvcContext getContext() {
+    return context;
   }
 
   public TypeDefinition getReturnType() {
@@ -244,36 +248,40 @@ public class MvcRoute {
                   semicolon(false)));
         }
       }
+      controllerVar(kt, buffer);
       buffer.add(
           statement(
-              indent(2),
-              "this.factory.apply(ctx).",
-              this.method.getSimpleName(),
-              paramList.toString(),
-              semicolon(kt)));
+              indent(2), "c.", this.method.getSimpleName(), paramList.toString(), semicolon(kt)));
       buffer.add(statement(indent(2), "return ctx.getResponseCode()", semicolon(kt)));
     } else if (returnType.is("io.jooby.StatusCode")) {
+      controllerVar(kt, buffer);
       buffer.add(
           statement(
               indent(2),
-              isSuspendFun() ? "val" : "var",
-              " statusCode = this.factory.apply(ctx).",
+              kt ? "val" : "var",
+              " statusCode = c.",
               this.method.getSimpleName(),
               paramList.toString(),
               semicolon(kt)));
       buffer.add(statement(indent(2), "ctx.setResponseCode(statusCode)", semicolon(kt)));
       buffer.add(statement(indent(2), "return statusCode", semicolon(kt)));
     } else {
+      controllerVar(kt, buffer);
       buffer.add(
           statement(
               indent(2),
-              "return this.factory.apply(ctx).",
+              "return c.",
               this.method.getSimpleName(),
               paramList.toString(),
               semicolon(kt)));
     }
     buffer.add(statement("}", System.lineSeparator()));
     return buffer;
+  }
+
+  private void controllerVar(boolean kt, List<String> buffer) {
+    buffer.add(
+        statement(indent(2), kt ? "val" : "var", " c = this.factory.apply(ctx)", semicolon(kt)));
   }
 
   public String getGeneratedName() {
