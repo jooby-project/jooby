@@ -209,21 +209,40 @@ public class MvcRoute {
               throwsException ? "throws Exception {" : "{"));
     }
     if (returnType.isVoid()) {
-      if (kt) {
-        buffer.add(
-            statement(
-                indent(2),
-                "ctx.setResponseCode(if (ctx.getRoute().getMethod().equals(",
-                string("DELETE"),
-                ")) io.jooby.StatusCode.NO_CONTENT else io.jooby.StatusCode.OK)"));
+      String statusCode;
+      if (annotationMap.size() == 1) {
+        statusCode =
+            annotationMap.keySet().iterator().next().getSimpleName().toString().equals("DELETE")
+                ? "NO_CONTENT"
+                : "OK";
       } else {
+        statusCode = null;
+      }
+      if (statusCode != null) {
         buffer.add(
             statement(
                 indent(2),
-                "ctx.setResponseCode(ctx.getRoute().getMethod().equals(",
-                string("DELETE"),
-                ") ? io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
-                semicolon(false)));
+                "ctx.setResponseCode(io.jooby.StatusCode.",
+                statusCode,
+                ")",
+                semicolon(kt)));
+      } else {
+        if (kt) {
+          buffer.add(
+              statement(
+                  indent(2),
+                  "ctx.setResponseCode(if (ctx.getRoute().getMethod().equals(",
+                  string("DELETE"),
+                  ")) io.jooby.StatusCode.NO_CONTENT else io.jooby.StatusCode.OK)"));
+        } else {
+          buffer.add(
+              statement(
+                  indent(2),
+                  "ctx.setResponseCode(ctx.getRoute().getMethod().equals(",
+                  string("DELETE"),
+                  ") ? io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
+                  semicolon(false)));
+        }
       }
       buffer.add(
           statement(
