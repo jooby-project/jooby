@@ -25,7 +25,7 @@
     <pebble.version>3.2.2</pebble.version>
     <jackson.version>2.17.2</jackson.version>
     <gson.version>2.11.0</gson.version>
-    <avaje-jsonb.version>1.12</avaje-jsonb.version>
+    <avaje-jsonb.version>2.0</avaje-jsonb.version>
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.3</yasson.version>
     <rocker.version>1.4.0</rocker.version>
@@ -92,7 +92,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.757</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.761</aws-java-sdk.version>
     <camel.version>3.22.2</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -113,7 +113,7 @@
 
     <auto-service.version>1.1.1</auto-service.version>
     <compile-testing.version>0.21.0</compile-testing.version>
-    <truth.version>1.4.3</truth.version>
+    <truth.version>1.4.4</truth.version>
 
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
@@ -142,7 +142,7 @@
     <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
     <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-    <maven-surefire-plugin.version>3.3.0</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
     <plexus-utils.version>4.0.1</plexus-utils.version>
