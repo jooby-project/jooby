@@ -383,6 +383,75 @@ class MyController {
 }
 ----
 
+==== Bind
+
+You can use the javadoc:annotation.BindParam[] annotation which allow custom mapping from HTTP request.
+
+.Use the annotation
+[source, java, role = "primary"]
+----
+public class Controller {
+
+  @GET("/{foo}")
+  public String bind(@BindParam MyBean bean) {
+    return "with custom mapping: " + bean;
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class Controller {
+
+  @GET("/{foo}")
+  fun bind(@BindParam bean: MyBean) = "with custom mapping: $bean"
+}
+----
+
+.Write the mapping function
+[source, java, role = "primary"]
+----
+public record MyBean(String value) {
+
+  public static MyBean of(Context ctx) {
+    // build MyBean from HTTP request
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyBean constructor(value: String) {
+
+  companion object {
+       @JvmStatic
+       fun of(ctx: Context) : Person {
+          // build MyBean from HTTP request
+       }
+  }
+}
+----
+
+It works as:
+
+- The javadoc:annotation.BindParam[] allow you to convert HTTP request to an Java Object in the way you wish
+- The annotation looks for public method/function that takes a javadoc:Context[] as parameter and returns the same type required as parameter.
+- It looks in the parameter type or fallback into the controller class
+
+Alternative you can specify the factory class:
+
+----
+   @BindParam(MyFactoryClass.class)
+----
+
+And/or function name:
+
+----
+   @BindParam(value = MyFactoryClass.class, fn = "fromContext")
+----
+
 ==== Flash
 
 Provisioning of flash attribute is available via javadoc:annotation.FlashParam[] annotation:

@@ -9,6 +9,10 @@ import io.jooby.Context;
 
 public class BeanMapping {
   public static BindBean map(Context ctx) {
-    return new BindBean("extends:" + ctx.query("value").value());
+    return new BindBean("mapping:" + ctx.query("value").value());
+  }
+
+  public static BindBean withName(Context ctx) {
+    return new BindBean("withName:" + ctx.query("value").value());
   }
 }

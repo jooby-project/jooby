@@ -8,4 +8,4 @@ package tests.i3472;
 import io.jooby.annotation.BindParam;
 
 @BindParam(BeanMapping.class)
-public @interface SubAnnotation {}
+public @interface CustomBind {}

@@ -20,9 +20,11 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 public @interface BindParam {
   /**
-   * Class containing the mapping function.
+   * Class containing the mapping function. If no class is specified it looks at:
    *
-   * @return Default to controller class.
+   * <p>- Parameter type for {@link #fn()} method. - Or fallback to controller class.
+   *
+   * @return Source of mapping function.
    */
   Class<?> value() default void.class;
 

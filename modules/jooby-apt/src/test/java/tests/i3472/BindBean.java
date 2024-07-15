@@ -10,6 +10,6 @@ import io.jooby.Context;
 public record BindBean(String value) {
 
   public static BindBean of(Context ctx) {
-    return new BindBean("static:" + ctx.query("value").value());
+    return new BindBean("bean-factory-method:" + ctx.query("value").value());
   }
 }

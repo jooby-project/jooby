@@ -17,9 +17,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
+import javax.lang.model.element.*;
 
 public enum ParameterGenerator {
   ContextParam("getAttribute", "io.jooby.annotation.ContextParam", "jakarta.ws.rs.core.Context") {
@@ -116,32 +114,37 @@ public enum ParameterGenerator {
         TypeDefinition type,
         String name,
         boolean nullable) {
+      List<Element> converters = new ArrayList<>();
       var typeNames = findAnnotationValue(annotation, AnnotationSupport.VALUE);
       var typeName = typeNames.isEmpty() ? null : typeNames.get(0);
       var router = route.getRouter();
       var targetType = router.getTargetType();
-      var converter =
-          typeName == null
-              ? targetType
-              : route
-                  .getContext()
-                  .getProcessingEnvironment()
-                  .getElementUtils()
-                  .getTypeElement(typeName);
+      var env = route.getContext().getProcessingEnvironment();
+      if (typeName != null) {
+        converters.add(env.getElementUtils().getTypeElement(typeName));
+      } else {
+        // Fallback bean class first
+        converters.add(env.getTypeUtils().asElement(type.getRawType()));
+        // Fallback controller class later
+        converters.add(targetType);
+      }
       var fns = findAnnotationValue(annotation, "fn"::equals);
       var fn = fns.isEmpty() ? null : fns.get(0);
       Predicate<ExecutableElement> contextAsParameter =
           it ->
               it.getParameters().size() == 1
                   && it.getParameters().get(0).asType().toString().equals("io.jooby.Context");
-      Predicate<ExecutableElement> matchesReturnType =
-          it ->
-              new TypeDefinition(
-                      route.getContext().getProcessingEnvironment().getTypeUtils(),
-                      it.getReturnType())
-                  .getRawType()
-                  .equals(type.getRawType());
-      var filter = contextAsParameter.and(matchesReturnType);
+      Predicate<ExecutableElement> matchesType =
+          it -> {
+            var returnType =
+                new TypeDefinition(
+                        route.getContext().getProcessingEnvironment().getTypeUtils(),
+                        it.getReturnType())
+                    .getRawType();
+            return returnType.equals(type.getRawType())
+                || (it.getSimpleName().toString().equals("<init>"));
+          };
+      var filter = contextAsParameter.and(matchesType);
       String methodErrorName;
       if (fn != null) {
         Predicate<ExecutableElement> matchesName = it -> it.getSimpleName().toString().equals(fn);
@@ -152,7 +155,8 @@ public enum ParameterGenerator {
       }
       // find function by type
       ExecutableElement mapping =
-          converter.getEnclosedElements().stream()
+          converters.stream()
+              .flatMap(it -> it.getEnclosedElements().stream())
               .filter(ExecutableElement.class::isInstance)
               .map(ExecutableElement.class::cast)
               // filter by Context
@@ -161,21 +165,23 @@ public enum ParameterGenerator {
               .orElseThrow(
                   () ->
                       new IllegalArgumentException(
-                          "Method not found: " + converter + ".[unnamed]" + methodErrorName));
+                          "Method not found: " + methodErrorName + " on " + converters));
       if (!mapping.getModifiers().contains(Modifier.PUBLIC)) {
-        throw new IllegalArgumentException("Method is not public: " + converter + "." + mapping);
+        throw new IllegalArgumentException(
+            "Method is not public: " + mapping.getEnclosingElement() + "." + mapping);
       }
       if (mapping.getModifiers().contains(Modifier.STATIC)) {
         return CodeBlock.of(
-            converter.equals(targetType)
-                ? mapping.getSimpleName()
-                : converter.getQualifiedName() + "." + mapping.getSimpleName(),
-            "(ctx)");
+            mapping.getEnclosingElement().asType() + "." + mapping.getSimpleName(), "(ctx)");
       } else {
-        if (converter.equals(targetType)) {
+        if (mapping.getEnclosingElement().equals(targetType)) {
           return CodeBlock.of("c." + mapping.getSimpleName(), "(ctx)");
         } else {
-          throw new IllegalArgumentException("Not a static method: " + converter + "." + mapping);
+          if (mapping.getKind() == ElementKind.CONSTRUCTOR) {
+            return CodeBlock.of(kt ? "" : "new ", type.getName(), "(ctx)");
+          }
+          throw new IllegalArgumentException(
+              "Not a static method: " + mapping.getEnclosingElement() + "." + mapping);
         }
       }
     }
