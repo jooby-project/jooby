@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * @since 3.2.5
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
+@Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 public @interface BindParam {
   /**
    * Class containing the mapping function.

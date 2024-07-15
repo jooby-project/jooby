@@ -161,7 +161,7 @@ public enum ParameterGenerator {
               .orElseThrow(
                   () ->
                       new IllegalArgumentException(
-                          "Method not found: " + converter + "." + methodErrorName));
+                          "Method not found: " + converter + ".[unnamed]" + methodErrorName));
       if (!mapping.getModifiers().contains(Modifier.PUBLIC)) {
         throw new IllegalArgumentException("Method is not public: " + converter + "." + mapping);
       }

@@ -26,6 +26,11 @@ public class C3472 {
     return bean;
   }
 
+  @GET("/3472/extends")
+  public BindBean bindExtends(@SubAnnotation BindBean bean) {
+    return bean;
+  }
+
   public BindBean convert(Context ctx) {
     return new BindBean(ctx.query("value").value());
   }

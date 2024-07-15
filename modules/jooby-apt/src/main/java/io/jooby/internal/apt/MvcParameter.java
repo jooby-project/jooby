@@ -6,12 +6,12 @@
 package io.jooby.internal.apt;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
 
 public class MvcParameter {
@@ -132,6 +132,17 @@ public class MvcParameter {
     return Stream.of(parameter.getAnnotationMirrors(), parameter.asType().getAnnotationMirrors())
         .filter(Objects::nonNull)
         .flatMap(List::stream)
-        .collect(Collectors.toMap(it -> it.getAnnotationType().toString(), Function.identity()));
+        .flatMap(
+            it ->
+                Stream.concat(
+                    Stream.of(it),
+                    annotationFromAnnotationType(it.getAnnotationType().asElement()).stream()))
+        .filter(Objects::nonNull)
+        .map(it -> Map.entry(it.getAnnotationType().toString(), it))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1));
+  }
+
+  private List<? extends AnnotationMirror> annotationFromAnnotationType(Element element) {
+    return Optional.ofNullable(element.getAnnotationMirrors()).orElse(Collections.emptyList());
   }
 }

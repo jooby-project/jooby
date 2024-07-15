@@ -30,6 +30,9 @@ public class Issue3472 {
 
               assertEquals(
                   new BindBean("static:" + value), router.get("/3472/static", ctx).value());
+
+              assertEquals(
+                  new BindBean("extends:" + value), router.get("/3472/extends", ctx).value());
             });
   }
 }
