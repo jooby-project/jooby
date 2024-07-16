@@ -972,6 +972,8 @@ public class RouterImpl implements Router {
       String routePattern = new PathBuilder(prefix, route.getPattern()).toString();
       Route newRoute = newRoute(route.getMethod(), routePattern, route.getHandler());
       copy(route, newRoute);
+      // Re compute path variables.
+      newRoute.setPathKeys(Router.pathKeys(routePattern));
     }
   }
 
