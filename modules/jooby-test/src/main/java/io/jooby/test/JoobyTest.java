@@ -113,11 +113,9 @@ public @interface JoobyTest {
   String environment() default "test";
 
   /**
-   * Server port. At class level default port is <code>8911</code>. At method level default port is
-   * random.
+   * Server port. The default port is <code>8911</code>. Use <code>0</code> for random port.
    *
-   * @return Server port. At class level default port is <code>8911</code>. At method level default
-   *     port is random.
+   * @return Server port. The default port is <code>8911</code>.
    */
   int port() default -1;
 
