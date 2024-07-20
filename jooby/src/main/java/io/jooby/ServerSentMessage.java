@@ -28,7 +28,7 @@ public class ServerSentMessage {
 
   private static final byte[] RETRY = "retry:".getBytes(UTF_8);
 
-  private static final byte[] DATA = "data:".getBytes(UTF_8);
+  private static final byte[] DATA = "data: ".getBytes(UTF_8);
 
   private Object id;
 

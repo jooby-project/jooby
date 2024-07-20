@@ -34,7 +34,7 @@ public class ServerSentMessageTest {
     when(ctx.getRoute()).thenReturn(route);
 
     ServerSentMessage message = new ServerSentMessage(data);
-    assertEquals("data:" + data + "\n\n", message.encode(ctx).toString(StandardCharsets.UTF_8));
+    assertEquals("data: " + data + "\n\n", message.encode(ctx).toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -55,7 +55,7 @@ public class ServerSentMessageTest {
 
     ServerSentMessage message = new ServerSentMessage(data);
     assertEquals(
-        "data:line 1\ndata: line ,a .. 2\ndata:line ...abc  3\n\n",
+        "data: line 1\ndata:  line ,a .. 2\ndata: line ...abc  3\n\n",
         message.encode(ctx).toString(StandardCharsets.UTF_8));
   }
 
@@ -76,6 +76,6 @@ public class ServerSentMessageTest {
     when(ctx.getRoute()).thenReturn(route);
 
     ServerSentMessage message = new ServerSentMessage(data);
-    assertEquals("data:" + data + "\n\n", message.encode(ctx).toString(StandardCharsets.UTF_8));
+    assertEquals("data: " + data + "\n\n", message.encode(ctx).toString(StandardCharsets.UTF_8));
   }
 }
