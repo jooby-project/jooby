@@ -7,9 +7,8 @@ package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.CodeBlock.clazz;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.ElementKind;
@@ -35,15 +34,38 @@ public class TypeDefinition {
     return toSourceCode(this, kt);
   }
 
+  public String getArgumentsString(boolean kt, boolean convertTypeVar, Set<TypeKind> kinds) {
+    List<TypeDefinition> arguments = getArguments();
+    var filtered =
+        arguments.stream()
+            .filter(it -> kinds.isEmpty() || kinds.contains(it.getType().getKind()))
+            .toList();
+    if (filtered.isEmpty()) {
+      return "";
+    }
+    return filtered.stream()
+        .map(
+            it ->
+                kt
+                    ? convertTypeVar && it.getType().getKind() == TypeKind.TYPEVAR
+                        ? "Any"
+                        : CodeBlock.type(kt, it.toString())
+                    : CodeBlock.type(kt, it.toString()))
+        .collect(Collectors.joining(", ", "<", "> "));
+  }
+
   private static String toSourceCode(TypeDefinition type, boolean kt) {
     if (type.isParameterizedType()) {
       var buffer = new StringBuilder();
       var methodName =
           switch (type.getRawType().toString()) {
             case "java.util.Optional" -> "optional";
-            case "java.util.List" -> "list";
-            case "java.util.Set" -> "set";
-            case "java.util.Map" -> "map";
+            case "java.util.List" ->
+                "list" + (kt ? type.getArgumentsString(kt, true, Set.of()).trim() : "");
+            case "java.util.Set" ->
+                "set" + (kt ? type.getArgumentsString(kt, true, Set.of()).trim() : "");
+            case "java.util.Map" ->
+                "map" + (kt ? type.getArgumentsString(kt, true, Set.of()).trim() : "");
             default -> "getParameterized";
           };
       buffer.append("io.jooby.Reified.").append(methodName).append("(");

@@ -52,9 +52,42 @@ public class CodeBlock {
         case "double" -> "Double";
         case "float" -> "Float";
         case "Object" -> "Any";
-        default -> result;
+        default -> {
+          var arg = result.indexOf('<');
+          var from = 0;
+          var end = arg == -1 ? result.length() : arg;
+          if (result.startsWith("java.util.")
+              && Character.isUpperCase(result.charAt("java.util.".length()))) {
+            // java.util.List => List
+            from = "java.util.".length();
+          }
+          yield result.substring(from, end) + generics(true, result, arg);
+        }
       };
     }
     return result;
+  }
+
+  private static String generics(boolean kt, String type, int i) {
+    if (i == -1) {
+      return "";
+    }
+    var buffer = new StringBuilder();
+    buffer.append(type.charAt(i));
+    var arg = new StringBuilder();
+    for (int j = i + 1; j < type.length(); j++) {
+      char ch = type.charAt(j);
+      if (ch == '>' || ch == ',') {
+        buffer.append(type(kt, arg));
+        buffer.append(ch);
+        if (ch == ',') {
+          buffer.append(' ');
+        }
+        arg.setLength(0);
+      } else if (!Character.isWhitespace(ch)) {
+        arg.append(ch);
+      }
+    }
+    return buffer.toString();
   }
 }

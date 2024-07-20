@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 
@@ -119,8 +120,8 @@ public class MvcRoute {
                 "(",
                 string(leadingSlash(path)),
                 ", ",
-                context.pipeline(getReturnTypeHandler(), thisRef + methodName),
-                ")"));
+                context.pipeline(
+                    getReturnTypeHandler(), methodReference(kt, thisRef, methodName))));
         if (context.nonBlocking(getReturnTypeHandler()) || isSuspendFun()) {
           block.add(statement(indent(2), ".setNonBlocking(true)"));
         }
@@ -137,7 +138,7 @@ public class MvcRoute {
                     block.add(statement(indent(2), ".setExecutorKey(", string(dispatch), ")")));
         /* attributes */
         attributeGenerator
-            .toSourceCode(this, 2)
+            .toSourceCode(kt, this, 2)
             .ifPresent(
                 attributes -> block.add(statement(indent(2), ".setAttributes(", attributes, ")")));
         /* returnType */
@@ -161,6 +162,17 @@ public class MvcRoute {
     return block;
   }
 
+  private String methodReference(boolean kt, String thisRef, String methodName) {
+    if (kt) {
+      var returnType = getReturnType();
+      var generics = returnType.getArgumentsString(kt, true, Set.of(TypeKind.TYPEVAR));
+      if (!generics.isEmpty()) {
+        return CodeBlock.of(") { ", methodName, generics, "(ctx) }");
+      }
+    }
+    return thisRef + methodName + ")";
+  }
+
   /**
    * Ensure path start with a <code>/</code>(leading slash).
    *
@@ -182,6 +194,8 @@ public class MvcRoute {
       paramList.add(parameter.generateMapping(kt));
     }
     var throwsException = !method.getThrownTypes().isEmpty();
+    var returnTypeGenerics =
+        getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
     var returnTypeString = type(kt, getReturnType().toString());
     if (kt) {
       if (throwsException) {
@@ -192,6 +206,7 @@ public class MvcRoute {
             statement(
                 "suspend ",
                 "fun ",
+                returnTypeGenerics,
                 getGeneratedName(),
                 "(handler: io.jooby.kt.HandlerContext): ",
                 returnTypeString,
@@ -200,12 +215,18 @@ public class MvcRoute {
       } else {
         buffer.add(
             statement(
-                "fun ", getGeneratedName(), "(ctx: io.jooby.Context): ", returnTypeString, " {"));
+                "fun ",
+                returnTypeGenerics,
+                getGeneratedName(),
+                "(ctx: io.jooby.Context): ",
+                returnTypeString,
+                " {"));
       }
     } else {
       buffer.add(
           statement(
               "public ",
+              returnTypeGenerics,
               returnTypeString,
               " ",
               getGeneratedName(),
@@ -267,13 +288,18 @@ public class MvcRoute {
       buffer.add(statement(indent(2), "return statusCode", semicolon(kt)));
     } else {
       controllerVar(kt, buffer);
-      buffer.add(
-          statement(
-              indent(2),
-              "return c.",
+      var cast = getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
+      var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
+      var call =
+          of(
+              "c.",
               this.method.getSimpleName(),
-              paramList.toString(),
-              semicolon(kt)));
+              kotlinNotEnoughTypeInformation,
+              paramList.toString());
+      if (!cast.isEmpty()) {
+        call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
+      }
+      buffer.add(statement(indent(2), "return ", call, semicolon(kt)));
     }
     buffer.add(statement("}", System.lineSeparator()));
     return buffer;

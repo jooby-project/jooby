@@ -7,6 +7,7 @@ package io.jooby.internal.apt;
 
 import static io.jooby.apt.JoobyProcessor.Options.SKIP_ATTRIBUTE_ANNOTATIONS;
 import static io.jooby.internal.apt.CodeBlock.indent;
+import static io.jooby.internal.apt.CodeBlock.type;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -54,33 +55,34 @@ public class RouteAttributesGenerator {
     this.skip = Options.stringListOpt(environment, SKIP_ATTRIBUTE_ANNOTATIONS);
   }
 
-  public Optional<String> toSourceCode(MvcRoute route, int indent) {
+  public Optional<String> toSourceCode(boolean kt, MvcRoute route, int indent) {
     var attributes = annotationMap(route.getMethod());
     if (attributes.isEmpty()) {
       return Optional.empty();
     } else {
-      return Optional.of(toSourceCode(annotationMap(route.getMethod()), indent + 6));
+      return Optional.of(toSourceCode(kt, annotationMap(route.getMethod()), indent + 6));
     }
   }
 
-  private String toSourceCode(Map<String, Object> attributes, int indent) {
+  private String toSourceCode(boolean kt, Map<String, Object> attributes, int indent) {
     var buffer = new StringBuilder();
     var separator = ",\n";
     var pairPrefix = "";
     var pairSuffix = "";
-    var factoryMethod = "of";
+    var typeInfo = kt ? "<String, Any>" : "";
+    var factoryMethod = "of" + typeInfo;
     if (attributes.size() > 10) {
       // Map.of Max size is 10
       pairPrefix = "java.util.Map.entry(";
       pairSuffix = ")";
-      factoryMethod = "ofEntries";
+      factoryMethod = "ofEntries" + typeInfo;
     }
     buffer.append("java.util.Map.").append(factoryMethod).append("(\n");
     for (var e : attributes.entrySet()) {
       buffer.append(indent(indent + 4));
       buffer.append(pairPrefix);
       buffer.append(CodeBlock.string(e.getKey())).append(", ");
-      buffer.append(valueToSourceCode(e.getValue(), indent + 4));
+      buffer.append(valueToSourceCode(kt, e.getValue(), indent + 4));
       buffer.append(pairSuffix).append(separator);
     }
     buffer.setLength(buffer.length() - separator.length());
@@ -88,15 +90,15 @@ public class RouteAttributesGenerator {
     return buffer.toString();
   }
 
-  private Object valueToSourceCode(Object value, int indent) {
+  private Object valueToSourceCode(boolean kt, Object value, int indent) {
     if (value instanceof String) {
       return CodeBlock.string((String) value);
     } else if (value instanceof Character) {
       return "'" + value + "'";
     } else if (value instanceof Map attributeMap) {
-      return "\n  " + indent(indent) + toSourceCode(attributeMap, indent + 1);
+      return "\n  " + indent(indent) + toSourceCode(kt, attributeMap, indent + 1);
     } else if (value instanceof List list) {
-      return valueToSourceCode(list, indent);
+      return valueToSourceCode(kt, list, indent);
     } else if (value instanceof EnumValue enumValue) {
       return enumValue.type + "." + enumValue.value;
     } else if (value instanceof TypeMirror) {
@@ -116,12 +118,12 @@ public class RouteAttributesGenerator {
     }
   }
 
-  private String valueToSourceCode(List values, int indent) {
+  private String valueToSourceCode(boolean kt, List values, int indent) {
     var buffer = new StringBuilder();
     buffer.append("java.util.List.of(");
     var separator = ", ";
     for (Object value : values) {
-      buffer.append(valueToSourceCode(value, indent)).append(separator);
+      buffer.append(valueToSourceCode(kt, value, indent)).append(separator);
     }
     buffer.setLength(buffer.length() - separator.length());
     buffer.append(")");

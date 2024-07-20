@@ -5,7 +5,9 @@
  */
 package io.jooby.kt
 
+import io.jooby.Context
 import io.jooby.Jooby
+import io.jooby.Reified
 import io.jooby.RouterOption.IGNORE_CASE
 import io.jooby.RouterOption.IGNORE_TRAILING_SLASH
 import io.jooby.ServiceKey
@@ -108,6 +110,8 @@ class Idioms :
       get("/ctx-access") { ctx.getRequestPath() }
     }
 
+    get("/") { foo<Any>(ctx) }.setReturnType(Reified.list<Any>(Any::class.java).type)
+
     install(::SubApp)
 
     install("/with-path", ::SubApp)
@@ -125,3 +129,7 @@ class Idioms :
 class IdiomsController {}
 
 class IdiomsPojo {}
+
+fun <E> foo(ctx: Context): List<E> {
+  return listOf()
+}

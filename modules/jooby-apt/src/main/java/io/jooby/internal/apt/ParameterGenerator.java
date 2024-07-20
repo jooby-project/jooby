@@ -30,10 +30,17 @@ public enum ParameterGenerator {
         String name,
         boolean nullable) {
       if (type.is(Map.class)) {
-        return CodeBlock.of(
-            "java.util.Optional.ofNullable((java.util.Map) ctx.getAttribute(",
-            CodeBlock.string(name),
-            ")).orElseGet(() ->" + " ctx.getAttributes())");
+        if (kt) {
+          return CodeBlock.of(
+              "(ctx.attributes[",
+              CodeBlock.string(name),
+              "]?: ctx.attributes) as Map<String, Any>");
+        } else {
+          return CodeBlock.of(
+              "java.util.Optional.ofNullable((java.util.Map) ctx.getAttribute(",
+              CodeBlock.string(name),
+              ")).orElseGet(() ->" + " ctx.getAttributes())");
+        }
       } else {
         return kt
             ? CodeBlock.of(
@@ -207,19 +214,31 @@ public enum ParameterGenerator {
     var paramSource = source(annotation);
     var builtin = builtinType(kt, annotation, type, name, nullable);
     if (builtin == null) {
+      // List, Set,
       var toValue =
           CONTAINER.stream()
               .filter(type::is)
               .findFirst()
               .map(Class::getSimpleName)
               .map(it -> "to" + it)
-              .orElse(nullable ? "toNullable" : "to");
-      var elementType = type.getArguments().isEmpty() ? type : type.getArguments().get(0);
-      if (paramSource.isEmpty() && BUILT_IN.stream().noneMatch(elementType::is)) {
+              .map(it -> Map.entry(it, type.getArguments().get(0)))
+              .orElseGet(
+                  () -> {
+                    var convertMethod = nullable ? "toNullable" : "to";
+                    return Map.entry(convertMethod, type);
+                  });
+      if (paramSource.isEmpty() && BUILT_IN.stream().noneMatch(it -> toValue.getValue().is(it))) {
         // for unsupported types, we check if node with matching name is present, if not we fallback
         // to entire scope converter
         if (kt) {
+          var prefix = "";
+          var suffix = "";
+          if (toValue.getValue().isParameterizedType()) {
+            prefix = "(";
+            suffix = ") as " + CodeBlock.type(true, toValue.getValue().toString());
+          }
           return CodeBlock.of(
+              prefix,
               "if(ctx.",
               method,
               "(",
@@ -227,20 +246,21 @@ public enum ParameterGenerator {
               ").isMissing()) ctx.",
               method,
               "().",
-              toValue,
+              toValue.getKey(),
               "(",
-              CodeBlock.type(kt, elementType.getName()),
+              CodeBlock.type(kt, toValue.getValue().getName()),
               CodeBlock.clazz(kt),
               ") else ctx.",
               method,
               "(",
               CodeBlock.string(name),
               ").",
-              toValue,
+              toValue.getKey(),
               "(",
-              CodeBlock.type(kt, elementType.getName()),
+              CodeBlock.type(kt, toValue.getValue().getName()),
               CodeBlock.clazz(kt),
-              ")");
+              ")",
+              suffix);
         } else {
           return CodeBlock.of(
               "ctx.",
@@ -250,26 +270,33 @@ public enum ParameterGenerator {
               ").isMissing() ? ctx.",
               method,
               "().",
-              toValue,
+              toValue.getKey(),
               "(",
-              CodeBlock.type(kt, elementType.getName()),
+              CodeBlock.type(kt, toValue.getValue().getName()),
               CodeBlock.clazz(kt),
               ") : ctx.",
               method,
               "(",
               CodeBlock.string(name),
               ").",
-              toValue,
+              toValue.getKey(),
               "(",
-              CodeBlock.type(kt, elementType.getName()),
+              CodeBlock.type(kt, toValue.getValue().getName()),
               CodeBlock.clazz(kt),
               ")");
         }
       } else {
         // container of supported types: List<Integer>, Optional<UUID>
-        if (elementType.is(String.class)) {
+        if (toValue.getValue().is(String.class)) {
           return CodeBlock.of(
-              "ctx.", method, "(", CodeBlock.string(name), paramSource, ").", toValue, "()");
+              "ctx.",
+              method,
+              "(",
+              CodeBlock.string(name),
+              paramSource,
+              ").",
+              toValue.getKey(),
+              "()");
         } else {
           return CodeBlock.of(
               "ctx.",
@@ -278,9 +305,9 @@ public enum ParameterGenerator {
               CodeBlock.string(name),
               paramSource,
               ").",
-              toValue,
+              toValue.getKey(),
               "(",
-              CodeBlock.type(kt, elementType.getName()),
+              CodeBlock.type(kt, toValue.getValue().getName()),
               CodeBlock.clazz(kt),
               ")");
         }
