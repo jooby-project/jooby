@@ -345,13 +345,7 @@ Simple and easy {love}!
 
 The javadoc:JoobyTest[] takes care of start and stop the application.
 
-Adding the annotation at class-level starts a single application before running tests and stop it 
-after all them. The default port at class level is: `8911`.
-
-Adding the annotation at method-level starts an application before running the test and stop it
-once it finish. The default port at method level is `random`.
-
-Default application port can be configured directly using the javadoc:JoobyTest[port] method:
+The default port is: `8911`. Application port can be configured directly using the javadoc:JoobyTest[port] method:
 
 `@JoobyTest(value = App.class, port = 9999)`
 
