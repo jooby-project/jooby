@@ -167,7 +167,7 @@ public class MvcRoute {
       var returnType = getReturnType();
       var generics = returnType.getArgumentsString(kt, true, Set.of(TypeKind.TYPEVAR));
       if (!generics.isEmpty()) {
-        return CodeBlock.of(") { ", methodName, generics, "(ctx) }");
+        return CodeBlock.of(") { ctx -> ", methodName, generics, "(ctx) }");
       }
     }
     return thisRef + methodName + ")";
