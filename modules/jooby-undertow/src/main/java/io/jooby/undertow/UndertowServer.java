@@ -15,9 +15,7 @@ import java.util.Optional;
 
 import javax.net.ssl.SSLContext;
 
-import org.xnio.Options;
-import org.xnio.Sequence;
-import org.xnio.SslClientAuthMode;
+import org.xnio.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Jooby;
@@ -57,6 +55,7 @@ public class UndertowServer extends Server.Base {
 
   private ServerOptions options =
       new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer("utow");
+  private XnioWorker worker;
 
   @NonNull @Override
   public UndertowServer setOptions(@NonNull ServerOptions options) {
@@ -102,6 +101,19 @@ public class UndertowServer extends Server.Base {
       if (options.isExpectContinue() == Boolean.TRUE) {
         handler = new HttpContinueReadHandler(handler);
       }
+      var xnio = Xnio.getInstance(Undertow.class.getClassLoader());
+      this.worker =
+          xnio.createWorker(
+              OptionMap.builder()
+                  .set(Options.WORKER_IO_THREADS, options.getIoThreads())
+                  .set(Options.CONNECTION_HIGH_WATER, 1000000)
+                  .set(Options.CONNECTION_LOW_WATER, 1000000)
+                  .set(Options.WORKER_TASK_CORE_THREADS, options.getWorkerThreads())
+                  .set(Options.WORKER_TASK_MAX_THREADS, options.getWorkerThreads())
+                  .set(Options.TCP_NODELAY, true)
+                  .set(Options.CORK, true)
+                  .addAll(OptionMap.create(Options.WORKER_NAME, "worker"))
+                  .getMap());
 
       Undertow.Builder builder =
           Undertow.builder()
@@ -116,9 +128,7 @@ public class UndertowServer extends Server.Base {
               .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
               .setServerOption(UndertowOptions.DECODE_URL, false)
               /** Worker: */
-              .setIoThreads(options.getIoThreads())
-              .setWorkerOption(Options.WORKER_NAME, "worker")
-              .setWorkerThreads(options.getWorkerThreads())
+              .setWorker(worker)
               .setHandler(handler);
 
       if (!options.isHttpsOnly()) {
@@ -141,16 +151,14 @@ public class UndertowServer extends Server.Base {
       } else if (options.isHttpsOnly()) {
         throw new StartupException("Server configured for httpsOnly, but ssl options not set");
       }
-
+      fireStart(applications, worker);
       server = builder.build();
       server.start();
-      // NOT IDEAL, but we need to fire onStart after server.start to get access to Worker
-      fireStart(applications, server.getWorker());
 
       fireReady(Collections.singletonList(application));
 
       return this;
-    } catch (RuntimeException x) {
+    } catch (Exception x) {
       Throwable sourceException = x;
       Throwable cause = Optional.ofNullable(x.getCause()).orElse(x);
       if (Server.isAddressInUse(cause)) {
@@ -166,14 +174,11 @@ public class UndertowServer extends Server.Base {
   }
 
   private SslClientAuthMode toSslClientAuthMode(SslOptions.ClientAuth clientAuth) {
-    switch (clientAuth) {
-      case REQUESTED:
-        return SslClientAuthMode.REQUESTED;
-      case REQUIRED:
-        return SslClientAuthMode.REQUIRED;
-      default:
-        return SslClientAuthMode.NOT_REQUESTED;
-    }
+    return switch (clientAuth) {
+      case REQUESTED -> SslClientAuthMode.REQUESTED;
+      case REQUIRED -> SslClientAuthMode.REQUIRED;
+      default -> SslClientAuthMode.NOT_REQUESTED;
+    };
   }
 
   @NonNull @Override
@@ -196,7 +201,26 @@ public class UndertowServer extends Server.Base {
       try {
         server.stop();
       } finally {
+        shutdownWorker();
         server = null;
+      }
+    }
+  }
+
+  private void shutdownWorker() {
+    /*
+     * Only shutdown the worker if it was created during start()
+     */
+    if (worker != null) {
+      worker.shutdown();
+      try {
+        worker.awaitTermination();
+      } catch (InterruptedException e) {
+        worker.shutdownNow();
+        Thread.currentThread().interrupt();
+        throw new RuntimeException(e);
+      } finally {
+        worker = null;
       }
     }
   }

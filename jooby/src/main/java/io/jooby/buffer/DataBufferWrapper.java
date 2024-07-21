@@ -71,8 +71,7 @@ public class DataBufferWrapper implements DataBuffer {
 
   @Override
   public DataBuffer duplicate() {
-    this.delegate.duplicate();
-    return this;
+    return new DataBufferWrapper(this.delegate.duplicate());
   }
 
   @Override

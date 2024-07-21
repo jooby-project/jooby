@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.utow;
+package io.jooby.internal.undertow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doThrow;
@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.internal.undertow.UndertowFileUpload;
 import io.undertow.server.handlers.form.FormData;
 
 public class UndertowFileUploadTest {
