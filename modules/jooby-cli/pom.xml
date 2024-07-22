@@ -14,7 +14,7 @@
 
   <properties>
     <Module-Name>io.jooby.cli</Module-Name>
-    <jline.version>3.26.2</jline.version>
+    <jline.version>3.26.3</jline.version>
     <picocli.version>4.7.6</picocli.version>
   </properties>
 
