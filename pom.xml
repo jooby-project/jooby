@@ -47,7 +47,7 @@
     <config.version>1.4.3</config.version>
 
     <!-- dependency injection -->
-    <avaje-inject.version>10.0</avaje-inject.version>
+    <avaje-inject.version>10.1</avaje-inject.version>
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
@@ -68,9 +68,9 @@
     <asm.version>9.7</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.14.Final</undertow.version>
+    <undertow.version>2.3.15.Final</undertow.version>
     <jetty.version>12.0.11</jetty.version>
-    <netty.version>4.1.111.Final</netty.version>
+    <netty.version>4.1.112.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.22</swagger.version>
@@ -92,7 +92,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.761</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.762</aws-java-sdk.version>
     <camel.version>3.22.2</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -132,7 +132,7 @@
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.8.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.13.1</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.9.8</maven-plugin-api.version>
@@ -147,7 +147,7 @@
     <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
     <plexus-utils.version>4.0.1</plexus-utils.version>
     <stork-maven-plugin.version>3.1.3</stork-maven-plugin.version>
-    <versions-maven-plugin.version>2.17.0</versions-maven-plugin.version>
+    <versions-maven-plugin.version>2.17.1</versions-maven-plugin.version>
     <exec-maven-plugin.version>3.3.0</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
@@ -1755,7 +1755,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>versions-maven-plugin</artifactId>
-            <version>2.17.0</version>
+            <version>2.17.1</version>
             <executions>
               <execution>
                 <goals>
