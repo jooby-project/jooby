@@ -89,16 +89,21 @@ public class RunMojo extends BaseMojo {
     BiConsumer<String, Path> onFileChanged =
         (event, path) -> {
           if (options.isCompileExtension(path)) {
-            MavenExecutionResult result = maven.execute(mavenRequest("process-classes"));
-            // Success?
-            if (result.hasExceptions()) {
-              getLog().debug("Compilation error found: " + path);
-            } else {
-              getLog().debug("Restarting application on file change: " + path);
-              joobyRun.restart(path);
-            }
+            getLog().debug("Restarting application on file change: " + path);
+            joobyRun.restart(
+                path,
+                () -> {
+                  MavenExecutionResult result = maven.execute(mavenRequest("process-classes"));
+                  var error = result.hasExceptions();
+                  // Success?
+                  if (error) {
+                    getLog().debug("Compilation error found: " + path);
+                  }
+                  return !error;
+                });
           } else if (options.isRestartExtension(path)) {
             getLog().debug("Restarting application on file change: " + path);
+            // No compilation required, returns true to proceed with restart
             joobyRun.restart(path);
           } else {
             getLog().debug("Ignoring file change: " + path);

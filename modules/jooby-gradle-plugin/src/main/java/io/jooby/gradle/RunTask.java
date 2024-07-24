@@ -13,6 +13,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -112,20 +114,32 @@ public class RunTask extends BaseTask {
 
       BiConsumer<String, Path> onFileChanged = (event, path) -> {
         if (config.isCompileExtension(path)) {
-          BuildLauncher compiler = connection.newBuild()
-              .setStandardError(System.err)
-              .setStandardOutput(System.out)
-              .forTasks(taskList.toArray(new String[0]));
+          joobyRun.restart(path, () -> {
+            CountDownLatch latch = new CountDownLatch(1);
+            AtomicBoolean success = new AtomicBoolean(false);
+            BuildLauncher compiler = connection.newBuild()
+                    .setStandardError(System.err)
+                    .setStandardOutput(System.out)
+                    .forTasks(taskList.toArray(new String[0]));
 
-          compiler.run(new ResultHandler<Void>() {
-            @Override public void onComplete(Void result) {
-              getLogger().debug("Restarting application on file change: " + path);
-              joobyRun.restart(path);
-            }
+            compiler.run(new ResultHandler<Void>() {
+              @Override public void onComplete(Void result) {
+                getLogger().debug("Restarting application on file change: " + path);
+                success.set(true);
+                latch.countDown();
+              }
 
-            @Override public void onFailure(GradleConnectionException failure) {
-              getLogger().debug("Compilation error found: " + path);
-            }
+              @Override public void onFailure(GradleConnectionException failure) {
+                getLogger().debug("Compilation error found: " + path);
+                latch.countDown();
+              }
+            });
+              try {
+                  latch.await();
+              } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+              }
+              return success.get();
           });
         } else if (config.isRestartExtension(path)) {
           getLogger().debug("Restarting application on file change: " + path);

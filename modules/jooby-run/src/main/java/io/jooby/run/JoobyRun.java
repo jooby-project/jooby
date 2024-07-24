@@ -13,18 +13,14 @@ import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,7 +48,7 @@ import io.methvin.watcher.DirectoryWatcher;
  */
 public class JoobyRun {
 
-  private record Event(Path path, long time) {}
+  private record Event(Path path, long time, Supplier<Boolean> compileTask) {}
 
   private static class AppModule {
     private final Logger logger;
@@ -420,7 +416,11 @@ public class JoobyRun {
 
   /** Restart the application. */
   public void restart(Path path) {
-    queue.offer(new Event(path, clock.millis()));
+    restart(path, null);
+  }
+
+  public void restart(Path path, Supplier<Boolean> compileTask) {
+    queue.offer(new Event(path, clock.millis(), compileTask));
   }
 
   private synchronized void actualRestart() {
@@ -433,13 +433,21 @@ public class JoobyRun {
       return; // queue was empty
     }
     var unload = false;
+    Supplier<Boolean> compileTask = null;
     for (; e != null && (t - e.time) > waitTimeBeforeRestartMillis; e = queue.peek()) {
       unload = unload || options.isCompileExtension(e.path);
+      compileTask = Optional.ofNullable(compileTask).orElse(e.compileTask);
       queue.poll();
     }
     // e will be null if the queue is empty which means all events were old enough
     if (e == null) {
-      module.restart(unload);
+      var restart = true;
+      if (compileTask != null) {
+        restart = compileTask.get();
+      }
+      if (restart) {
+        module.restart(unload);
+      }
     }
   }
 
