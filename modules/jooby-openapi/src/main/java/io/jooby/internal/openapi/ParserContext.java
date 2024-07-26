@@ -352,6 +352,13 @@ public class ParserContext {
     return nodes.computeIfAbsent(type, this::newClassNode);
   }
 
+  public MethodNode findMethodNode(Type type, String name) {
+    return nodes.computeIfAbsent(type, this::newClassNode).methods.stream()
+        .filter(it -> it.name.equals(name))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Method not found: " + type + "." + name));
+  }
+
   public ClassNode classNodeOrNull(Type type) {
     try {
       return nodes.computeIfAbsent(type, this::newClassNode);
@@ -413,7 +420,8 @@ public class ParserContext {
   }
 
   public boolean isRouter(Type type) {
-    return asList(router, JOOBY, KOOBY, ROUTER, COROUTINE_ROUTER).contains(type);
+    return asList(router, JOOBY, KOOBY, ROUTER, COROUTINE_ROUTER).contains(type)
+        || (router.getClassName() + "Kt").equals(type.getClassName());
   }
 
   public boolean process(AbstractInsnNode instruction) {

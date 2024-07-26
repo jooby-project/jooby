@@ -333,18 +333,21 @@ public class RouteParser {
           if (signature.matches("mvc")) {
             handlerList.addAll(AnnotationParser.parse(ctx, prefix, signature, (MethodInsnNode) it));
           } else if (signature.matches("<init>", KT_FUN_1)) {
-            handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
+            handlerList.addAll(kotlinHandler(ctx, null, prefix, node, false));
+          } else if (signature.matches(KOOBY)
+              && signature.getDescriptor() != null
+              && Type.getReturnType(signature.getDescriptor()) == Type.VOID_TYPE) {
+            handlerList.addAll(kotlinHandler(ctx, null, prefix, node, true));
           } else if (signature.matches("mount", Router.class)) {
-            handlerList.addAll(mountRouter(ctx, prefix, node, findRouterInstruction(node)));
+            handlerList.addAll(mountHandler(ctx, prefix, null, node));
           } else if (signature.matches("install", String.class, SneakyThrows.Supplier.class)) {
             String pattern = routePattern(node, node);
             handlerList.addAll(installApp(ctx, path(prefix, pattern), node, node));
           } else if (signature.matches("install", SneakyThrows.Supplier.class)) {
             handlerList.addAll(installApp(ctx, prefix, node, node));
           } else if (signature.matches("mount", String.class, Router.class)) {
-            AbstractInsnNode routerInstruction = findRouterInstruction(node);
-            String pattern = routePattern(node, node);
-            handlerList.addAll(mountRouter(ctx, path(prefix, pattern), node, routerInstruction));
+            handlerList.addAll(
+                mountHandler(ctx, prefix, routePatternNode(node, node).cst.toString(), node));
           } else if (signature.matches("path", String.class, Runnable.class)
               || signature.matches("routes", Runnable.class)) {
             boolean routes = signature.matches("routes", Runnable.class);
@@ -360,7 +363,7 @@ public class RouteParser {
                       .orElseThrow(
                           () -> new IllegalStateException("Subroute definition not found"));
               String path = routes ? "/" : routePattern(node, subrouteInsn);
-              handlerList.addAll(kotlinHandler(ctx, null, path(prefix, path), subrouteInsn));
+              handlerList.addAll(kotlinHandler(ctx, null, path(prefix, path), subrouteInsn, false));
             } else {
               InvokeDynamicInsnNode subrouteInsn =
                   InsnSupport.prev(node)
@@ -382,7 +385,7 @@ public class RouteParser {
             String path = routePattern(node, previous);
             String httpMethod = signature.getMethod().toUpperCase();
             if (node.owner.equals(TypeFactory.KOOBY.getInternalName())) {
-              handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
+              handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node, false));
             } else {
               if (previous instanceof InvokeDynamicInsnNode) {
                 MethodNode handler = findLambda(ctx, (InvokeDynamicInsnNode) previous);
@@ -432,15 +435,15 @@ public class RouteParser {
             instructionTo = node;
             String path = routePattern(node, node.getPrevious());
             String httpMethod = signature.getMethod().toUpperCase();
-            handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
+            handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node, false));
           } else if (Router.METHODS.contains(signature.getMethod().toUpperCase())
               && signature.matches(STRING, TypeFactory.KT_FUN_2)) {
             instructionTo = node;
             String path = routePattern(node, node.getPrevious());
             String httpMethod = signature.getMethod().toUpperCase();
-            handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node));
+            handlerList.addAll(kotlinHandler(ctx, httpMethod, path(prefix, path), node, false));
           } else if (signature.getMethod().startsWith("coroutine")) {
-            handlerList.addAll(kotlinHandler(ctx, null, prefix, node));
+            handlerList.addAll(kotlinHandler(ctx, null, prefix, node, false));
           }
         } else if (signature.matches(KOOBYKT, "runApp")) {
           handlerList.addAll(
@@ -487,6 +490,32 @@ public class RouteParser {
       }
     }
     return handlerList;
+  }
+
+  private List<OperationExt> mountHandler(
+      ParserContext ctx, String prefix, String pattern, MethodInsnNode node) {
+    var ktAnonymousRouter = kotlinAnonymousRouter(node);
+    var path = pattern == null ? prefix : path(prefix, pattern);
+    if (ktAnonymousRouter != null) {
+      return routeHandler(
+          ctx,
+          path,
+          ctx.findMethodNode(
+              Type.getObjectType(ktAnonymousRouter.getOwner()), ktAnonymousRouter.getName()));
+    } else {
+      var routerInstruction = findRouterInstruction(node);
+      return mountRouter(ctx, path, node, routerInstruction);
+    }
+  }
+
+  private Handle kotlinAnonymousRouter(AbstractInsnNode node) {
+    return InsnSupport.prev(node)
+        .filter(InvokeDynamicInsnNode.class::isInstance)
+        .map(InvokeDynamicInsnNode.class::cast)
+        .filter(it -> it.name.equals("invoke") && Type.getReturnType(it.desc).equals(KT_FUN_1))
+        .map(it -> (Handle) it.bsmArgs[1])
+        .findFirst()
+        .orElse(null);
   }
 
   private AbstractInsnNode parseText(
@@ -560,15 +589,14 @@ public class RouteParser {
               .filter(LdcInsnNode.class::isInstance)
               .findFirst()
               .map(i -> ((LdcInsnNode) i).cst.toString())
-              .map(Stream::of)
-              .orElse(Stream.of());
+              .stream();
         }
       }
       return Stream.of();
     };
   }
 
-  private AbstractInsnNode findRouterInstruction(MethodInsnNode node) {
+  private AbstractInsnNode findRouterInstruction(AbstractInsnNode node) {
     return InsnSupport.prev(node)
         .filter(
             e -> {
@@ -580,10 +608,7 @@ public class RouteParser {
               return false;
             })
         .findFirst()
-        .orElseThrow(
-            () ->
-                new IllegalStateException(
-                    "Unsupported router type: " + InsnSupport.toString(node)));
+        .orElseThrow(() -> new IllegalStateException("Unsupported router type: " + node));
   }
 
   private List<OperationExt> mountRouter(
@@ -704,40 +729,48 @@ public class RouteParser {
   }
 
   private List<OperationExt> kotlinHandler(
-      ParserContext ctx, String httpMethod, String prefix, MethodInsnNode node) {
+      ParserContext ctx,
+      String httpMethod,
+      String prefix,
+      MethodInsnNode node,
+      boolean extensionMethod) {
     List<OperationExt> handlerList = new ArrayList<>();
-    // [0] - Owner
-    // [1] - Method name. Optional
-    // [2] - Method descriptor. Optional
-    List<String> lookup =
-        InsnSupport.prev(node.getPrevious())
-            .map(
-                it -> {
-                  if (it instanceof InvokeDynamicInsnNode) {
-                    InvokeDynamicInsnNode invokeDynamic = (InvokeDynamicInsnNode) it;
-                    Object[] args = invokeDynamic.bsmArgs;
-                    if (args.length > 1 && args[1] instanceof Handle) {
-                      Handle handle = (Handle) args[1];
-                      return Arrays.asList(handle.getOwner(), handle.getName(), handle.getDesc());
+    List<String> lookup;
+    // Extension method must be defined in router but not in Kooby
+    if (extensionMethod) {
+      lookup = List.of(node.owner, node.name, node.desc);
+    } else {
+      // [0] - Owner
+      // [1] - Method name. Optional
+      // [2] - Method descriptor. Optional
+      lookup =
+          InsnSupport.prev(node.getPrevious())
+              .map(
+                  it -> {
+                    if (it instanceof InvokeDynamicInsnNode invokeDynamic) {
+                      Object[] args = invokeDynamic.bsmArgs;
+                      if (args.length > 1 && args[1] instanceof Handle handle) {
+                        return Arrays.asList(handle.getOwner(), handle.getName(), handle.getDesc());
+                      }
                     }
-                  }
-                  if (it instanceof FieldInsnNode) {
-                    return Collections.singletonList(((FieldInsnNode) it).owner);
-                  }
-                  if (it instanceof MethodInsnNode) {
-                    Signature signature = Signature.create((MethodInsnNode) it);
-                    if (!signature.matches("<init>", KT_FUN_1)) {
-                      return Collections.singletonList(((MethodInsnNode) it).owner);
+                    if (it instanceof FieldInsnNode fieldInsnNode) {
+                      return Collections.singletonList(fieldInsnNode.owner);
                     }
-                  }
-                  return null;
-                })
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "Kotlin lambda not found: " + InsnSupport.toString(node)));
+                    if (it instanceof MethodInsnNode methodInsnNode) {
+                      Signature signature = Signature.create(methodInsnNode);
+                      if (!signature.matches("<init>", KT_FUN_1)) {
+                        return Collections.singletonList(((MethodInsnNode) it).owner);
+                      }
+                    }
+                    return null;
+                  })
+              .filter(Objects::nonNull)
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new IllegalStateException(
+                          "Kotlin lambda not found: " + InsnSupport.toString(node)));
+    }
 
     ClassNode classNode = ctx.classNode(Type.getObjectType(lookup.get(0)));
     MethodNode apply = null;
@@ -867,7 +900,7 @@ public class RouteParser {
   private OperationExt newRouteDescriptor(
       ParserContext ctx, MethodNode node, String httpMethod, String prefix) {
     Optional<RequestBodyExt> requestBody = RequestParser.requestBody(ctx, node);
-    List<ParameterExt> arguments = RequestParser.parameters(node);
+    List<ParameterExt> arguments = RequestParser.parameters(node, prefix);
     ResponseExt response = new ResponseExt();
     List<String> returnTypes = ReturnTypeParser.parse(ctx, node);
     response.setJavaTypes(returnTypes);
@@ -898,15 +931,19 @@ public class RouteParser {
    * @param node
    * @return
    */
-  private String routePattern(MethodInsnNode methodInsnNode, AbstractInsnNode node) {
+  private LdcInsnNode routePatternNode(MethodInsnNode methodInsnNode, AbstractInsnNode node) {
     return InsnSupport.prev(node)
         .filter(it -> it instanceof LdcInsnNode && (((LdcInsnNode) it).cst instanceof String))
         .findFirst()
-        .map(it -> ((LdcInsnNode) it).cst.toString())
+        .map(LdcInsnNode.class::cast)
         .orElseThrow(
             () ->
                 new IllegalStateException(
                     "Route pattern not found: " + InsnSupport.toString(methodInsnNode)));
+  }
+
+  private String routePattern(MethodInsnNode methodInsnNode, AbstractInsnNode node) {
+    return routePatternNode(methodInsnNode, node).cst.toString();
   }
 
   private MethodNode findRouteHandler(ParserContext ctx, MethodInsnNode node) {

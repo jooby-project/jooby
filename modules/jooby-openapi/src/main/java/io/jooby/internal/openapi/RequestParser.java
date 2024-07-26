@@ -5,17 +5,7 @@
  */
 package io.jooby.internal.openapi;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -34,6 +24,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import io.jooby.FileUpload;
 import io.jooby.MediaType;
+import io.jooby.Router;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -191,7 +182,7 @@ public class RequestParser {
         .ifPresent(schema -> consumer.accept(name, argument.set(schema)));
   }
 
-  public static List<ParameterExt> parameters(MethodNode node) {
+  public static List<ParameterExt> parameters(MethodNode node, String path) {
     List<MethodInsnNode> nodes =
         StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(
@@ -200,9 +191,10 @@ public class RequestParser {
             .filter(MethodInsnNode.class::isInstance)
             .map(MethodInsnNode.class::cast)
             .filter(i -> i.owner.equals("io/jooby/Context"))
-            .collect(Collectors.toList());
+            .toList();
+    var pathParams = new LinkedHashSet<>(Router.pathKeys(path));
     List<ParameterExt> args = new ArrayList<>();
-    for (MethodInsnNode methodInsnNode : nodes) {
+    for (var methodInsnNode : nodes) {
       Signature signature = Signature.create(methodInsnNode);
       ParameterExt argument = new ParameterExt();
       String scope = signature.getMethod();
@@ -216,13 +208,13 @@ public class RequestParser {
           {
             argument.setIn(scope);
             if (signature.matches(String.class)) {
-              argument.setName(argumentName(methodInsnNode));
+              var name = argumentName(methodInsnNode);
+              pathParams.remove(name);
+              argument.setName(name);
               argumentValue(argument.getName(), methodInsnNode).set(argument);
             } else if (signature.matches(Class.class)) {
               argument.setName(signature.getMethod());
               contextObjectToType(argument, methodInsnNode);
-            } else {
-              // Unsupported path usage
             }
           }
       }
@@ -231,9 +223,20 @@ public class RequestParser {
       }
       if (argument.getJavaType() != null) {
         args.add(argument);
-      } else {
-        // Unsupported parameter usage
       }
+    }
+    if (!pathParams.isEmpty()) {
+      pathParams.stream()
+          .map(
+              name -> {
+                var it = new ParameterExt();
+                it.setName(name);
+                it.setRequired(true);
+                it.setIn("path");
+                it.setJavaType("java.lang.String");
+                return it;
+              })
+          .forEach(args::add);
     }
     return args;
   }

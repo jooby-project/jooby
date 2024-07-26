@@ -135,7 +135,10 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   }
 
   public Optional<Parameter> getParameter(String name) {
-    return getParameters().stream().filter(p -> p.getName().equals(name)).findFirst();
+    if (getParameters() != null) {
+      return getParameters().stream().filter(p -> p.getName().equals(name)).findFirst();
+    }
+    return Optional.empty();
   }
 
   public ResponseExt addResponse(String code) {

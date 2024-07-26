@@ -61,8 +61,14 @@ public class OpenAPIGeneratorTest {
               assertEquals("GET /variable", route.toString());
             })
         .next(
-            route -> {
+            (route, params) -> {
               assertEquals("DELETE /variable/{id}", route.toString());
+              params.next(
+                  param -> {
+                    assertEquals("path", param.getIn());
+                    assertEquals("id", param.getName());
+                    assertEquals(String.class.getName(), param.getJavaType());
+                  });
             })
         .next(
             route -> {
