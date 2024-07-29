@@ -35,19 +35,19 @@
     <HikariCP.version>5.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.5.2.Final</hibernate.version>
-    <ebean.version>15.4.0</ebean.version>
+    <ebean.version>15.5.0</ebean.version>
     <jdbi.version>3.45.2</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
     <graphql-java.version>22.1</graphql-java.version>
     <lettuce.version>6.3.2.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.0</commons-pool2.version>
-    <kafka.version>3.7.1</kafka.version>
+    <kafka.version>3.8.0</kafka.version>
     <caffeine.version>3.1.8</caffeine.version>
 
     <config.version>1.4.3</config.version>
 
     <!-- dependency injection -->
-    <avaje-inject.version>10.1</avaje-inject.version>
+    <avaje-inject.version>10.2</avaje-inject.version>
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
@@ -92,7 +92,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.762</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.765</aws-java-sdk.version>
     <camel.version>3.22.2</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
