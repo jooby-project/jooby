@@ -41,7 +41,10 @@ public class ConcurrentHandler implements Route.Filter {
                   Throwable exception = unwrap((Throwable) x);
                   ctx.sendError(exception);
                 } else {
-                  ctx.render(value);
+                  // See https://github.com/jooby-project/jooby/issues/3486
+                  if (!ctx.isResponseStarted() && value != ctx) {
+                    ctx.render(value);
+                  }
                 }
               } catch (Throwable cause) {
                 ctx.sendError(cause);

@@ -18,12 +18,12 @@ import io.reactivex.rxjava3.disposables.Disposable;
 
 public class RxSubscriber implements MaybeObserver<Object>, SingleObserver<Object> {
 
-  private final Context context;
+  private final Context ctx;
 
   private Disposable subscription;
 
-  public RxSubscriber(Context context) {
-    this.context = context;
+  public RxSubscriber(Context ctx) {
+    this.ctx = ctx;
   }
 
   @Override
@@ -33,14 +33,17 @@ public class RxSubscriber implements MaybeObserver<Object>, SingleObserver<Objec
 
   @Override
   public void onSuccess(Object value) {
-    after(context, value, null);
-    context.render(value);
+    after(ctx, value, null);
+    // See https://github.com/jooby-project/jooby/issues/3486
+    if (!ctx.isResponseStarted() && value != ctx) {
+      ctx.render(value);
+    }
   }
 
   @Override
   public void onError(Throwable x) {
-    after(context, null, unwrap(x));
-    context.sendError(x);
+    after(ctx, null, unwrap(x));
+    ctx.sendError(x);
     subscription.dispose();
   }
 
@@ -53,9 +56,9 @@ public class RxSubscriber implements MaybeObserver<Object>, SingleObserver<Objec
 
   @Override
   public void onComplete() {
-    if (!context.isResponseStarted()) {
+    if (!ctx.isResponseStarted()) {
       // assume it is a maybe response:
-      context.send(StatusCode.NOT_FOUND);
+      ctx.send(StatusCode.NOT_FOUND);
     }
     subscription.dispose();
   }

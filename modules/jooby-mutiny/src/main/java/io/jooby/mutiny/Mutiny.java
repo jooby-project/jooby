@@ -55,8 +55,11 @@ public class Mutiny {
                       value -> {
                         // fire after:
                         after(ctx, value, null);
-                        // render:
-                        ctx.render(value);
+                        // See https://github.com/jooby-project/jooby/issues/3486
+                        if (!ctx.isResponseStarted() && value != ctx) {
+                          // render:
+                          ctx.render(value);
+                        }
                       },
                       failure -> {
                         // fire after:
