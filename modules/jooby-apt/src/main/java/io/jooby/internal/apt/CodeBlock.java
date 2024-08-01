@@ -61,14 +61,14 @@ public class CodeBlock {
             // java.util.List => List
             from = "java.util.".length();
           }
-          yield result.substring(from, end) + generics(true, result, arg);
+          yield result.substring(from, end) + ktGenerics(result, arg);
         }
       };
     }
     return result;
   }
 
-  private static String generics(boolean kt, String type, int i) {
+  private static String ktGenerics(String type, int i) {
     if (i == -1) {
       return "";
     }
@@ -78,7 +78,7 @@ public class CodeBlock {
     for (int j = i + 1; j < type.length(); j++) {
       char ch = type.charAt(j);
       if (ch == '>' || ch == ',') {
-        buffer.append(type(kt, arg));
+        buffer.append(type(true, arg));
         buffer.append(ch);
         if (ch == ',') {
           buffer.append(' ');
@@ -87,6 +87,9 @@ public class CodeBlock {
       } else if (!Character.isWhitespace(ch)) {
         arg.append(ch);
       }
+    }
+    if (!arg.isEmpty()) {
+      buffer.append(type(true, arg));
     }
     return buffer.toString();
   }
