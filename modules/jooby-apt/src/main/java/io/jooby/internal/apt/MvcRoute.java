@@ -29,6 +29,7 @@ public class MvcRoute {
   private final TypeDefinition returnType;
   private String generatedName;
   private final boolean suspendFun;
+  private boolean uncheckedCast;
 
   public MvcRoute(MvcContext context, MvcRouter router, ExecutableElement method) {
     this.context = context;
@@ -297,11 +298,19 @@ public class MvcRoute {
               kotlinNotEnoughTypeInformation,
               paramList.toString());
       if (!cast.isEmpty()) {
+        setUncheckedCast(true);
         call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
       }
       buffer.add(statement(indent(2), "return ", call, semicolon(kt)));
     }
     buffer.add(statement("}", System.lineSeparator()));
+    if (uncheckedCast) {
+      if (kt) {
+        buffer.add(0, statement("@Suppress(\"UNCHECKED_CAST\")"));
+      } else {
+        buffer.add(0, statement("@SuppressWarnings(\"unchecked\")"));
+      }
+    }
     return buffer;
   }
 
@@ -451,5 +460,9 @@ public class MvcRoute {
         "(",
         String.join(", ", getRawParameterTypes(true)),
         ") */");
+  }
+
+  public void setUncheckedCast(boolean value) {
+    this.uncheckedCast = value;
   }
 }

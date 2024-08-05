@@ -43,14 +43,14 @@ public class CodeBlock {
     var result = value.toString().replace("java.lang.", "");
     if (kt) {
       return switch (result) {
-        case "byte" -> "Byte";
-        case "boolean" -> "Boolean";
+        case "byte", "Byte" -> "Byte";
+        case "boolean", "Boolean" -> "Boolean";
         case "char", "Character" -> "Char";
         case "int", "Integer" -> "Int";
-        case "short" -> "Short";
-        case "long" -> "Long";
-        case "double" -> "Double";
-        case "float" -> "Float";
+        case "short", "Short" -> "Short";
+        case "long", "Long" -> "Long";
+        case "double", "Double" -> "Double";
+        case "float", "Float" -> "Float";
         case "Object" -> "Any";
         default -> {
           var arg = result.indexOf('<');

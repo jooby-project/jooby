@@ -25,6 +25,7 @@ import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import io.jooby.*;
+import io.jooby.internal.apt.MvcContext;
 
 public class ProcessorRunner {
 
@@ -71,6 +72,10 @@ public class ProcessorRunner {
       return source;
     }
 
+    public MvcContext getContext() {
+      return context;
+    }
+
     @Override
     protected void onGeneratedSource(JavaFileObject source) {
       this.source = source;
@@ -114,6 +119,12 @@ public class ProcessorRunner {
 
   public ProcessorRunner withSource(SneakyThrows.Consumer<JavaFileObject> consumer) {
     consumer.accept(processor.getSource());
+    return this;
+  }
+
+  public ProcessorRunner withSource(boolean kt, SneakyThrows.Consumer<String> consumer)
+      throws IOException {
+    consumer.accept(processor.getContext().getRouters().get(0).toSourceCode(kt));
     return this;
   }
 

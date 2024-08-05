@@ -107,8 +107,8 @@ public class MvcRouter {
    *
    * @return
    */
-  public String toSourceCode() throws IOException {
-    var kt = isKt();
+  public String toSourceCode(Boolean generateKotlin) throws IOException {
+    var kt = generateKotlin == Boolean.TRUE || isKt();
     var generateTypeName = context.generateRouterName(getTargetType().getSimpleName().toString());
     try (var in = getClass().getResourceAsStream("Source" + (kt ? ".kt" : ".java"))) {
       Objects.requireNonNull(in);

@@ -31,6 +31,7 @@ public enum ParameterGenerator {
         boolean nullable) {
       if (type.is(Map.class)) {
         if (kt) {
+          route.setUncheckedCast(true);
           return CodeBlock.of(
               "(ctx.attributes[",
               CodeBlock.string(name),
@@ -42,17 +43,13 @@ public enum ParameterGenerator {
               ")).orElseGet(() ->" + " ctx.getAttributes())");
         }
       } else {
-        return kt
-            ? CodeBlock.of(
-                "ctx.", method, "(", CodeBlock.string(name), ") as ", type.getRawType().toString())
-            : CodeBlock.of(
-                "(",
-                type.getRawType().toString(),
-                ") ctx.",
-                method,
-                "(",
-                CodeBlock.string(name),
-                ")");
+        if (kt) {
+          route.setUncheckedCast(true);
+          return CodeBlock.of(
+              "ctx.", method, "(", CodeBlock.string(name), ") as ", type.getRawType().toString());
+        }
+        return CodeBlock.of(
+            "(", type.getRawType().toString(), ") ctx.", method, "(", CodeBlock.string(name), ")");
       }
     }
   },
@@ -234,6 +231,7 @@ public enum ParameterGenerator {
           var prefix = "";
           var suffix = "";
           if (toValue.getValue().isParameterizedType()) {
+            route.setUncheckedCast(true);
             prefix = "(";
             suffix = ") as " + CodeBlock.type(true, toValue.getValue().toString());
           }

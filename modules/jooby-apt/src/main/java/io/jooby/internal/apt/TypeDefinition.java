@@ -31,7 +31,7 @@ public class TypeDefinition {
   }
 
   public String toSourceCode(boolean kt) {
-    return toSourceCode(this, kt);
+    return toSourceCode(this, kt, false);
   }
 
   public String getArgumentsString(boolean kt, boolean convertTypeVar, Set<TypeKind> kinds) {
@@ -54,7 +54,7 @@ public class TypeDefinition {
         .collect(Collectors.joining(", ", "<", "> "));
   }
 
-  private static String toSourceCode(TypeDefinition type, boolean kt) {
+  private static String toSourceCode(TypeDefinition type, boolean kt, boolean generics) {
     if (type.isParameterizedType()) {
       var buffer = new StringBuilder();
       var methodName =
@@ -78,12 +78,16 @@ public class TypeDefinition {
             .append(", ");
       }
       for (TypeDefinition arg : type.getArguments()) {
-        buffer.append(toSourceCode(arg, kt)).append(separator);
+        // Generics are always wrapper
+        buffer.append(toSourceCode(arg, kt, true)).append(separator);
       }
       buffer.setLength(buffer.length() - separator.length());
       buffer.append(").getType()");
       return buffer.toString();
     } else {
+      if (generics && kt) {
+        return type.getRawType().toString().replace("java.lang.", "") + clazz(kt);
+      }
       return CodeBlock.type(kt, type.getRawType().toString()) + clazz(kt);
     }
   }

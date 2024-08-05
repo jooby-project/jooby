@@ -58,7 +58,7 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  private MvcContext context;
+  protected MvcContext context;
   private Consumer<String> output;
   private final Set<Object> processed = new HashSet<>();
 
@@ -96,7 +96,7 @@ public class JoobyProcessor extends AbstractProcessor {
       var routeMap = buildRouteRegistry(annotations, roundEnv);
       for (var router : routeMap.values()) {
         try {
-          var sourceCode = router.toSourceCode();
+          var sourceCode = router.toSourceCode(null);
           var sourceLocation = router.getGeneratedFilename();
           onGeneratedSource(toJavaFileObject(sourceLocation, sourceCode));
           context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
