@@ -15,7 +15,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,10 +71,10 @@ public class JoobyProcessor extends AbstractProcessor {
   }
 
   protected MvcContext context;
-  private Consumer<String> output;
+  private BiConsumer<Diagnostic.Kind, String> output;
   private final Set<Object> processed = new HashSet<>();
 
-  public JoobyProcessor(Consumer<String> output) {
+  public JoobyProcessor(BiConsumer<Diagnostic.Kind, String> output) {
     this.output = output;
   }
 
@@ -88,38 +88,42 @@ public class JoobyProcessor extends AbstractProcessor {
             ofNullable(output)
                 .orElseGet(
                     () ->
-                        message ->
-                            processingEnvironment
-                                .getMessager()
-                                .printMessage(Diagnostic.Kind.OTHER, message)));
+                        (kind, message) ->
+                            processingEnvironment.getMessager().printMessage(kind, message)));
     super.init(processingEnvironment);
   }
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    if (roundEnv.processingOver()) {
-      context.debug("Output:");
-      context.getRouters().forEach(it -> context.debug("  %s.java", it.getGeneratedType()));
-      if (context.generateServices()) {
-        doServices(context.getProcessingEnvironment().getFiler(), context.getRouters());
-      }
-      return false;
-    } else {
-      var routeMap = buildRouteRegistry(annotations, roundEnv);
-      for (var router : routeMap.values()) {
-        try {
-          var sourceCode = router.toSourceCode(null);
-          var sourceLocation = router.getGeneratedFilename();
-          onGeneratedSource(toJavaFileObject(sourceLocation, sourceCode));
-          context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
-          router.getRoutes().forEach(it -> context.debug("   %s", it));
-          writeSource(router, sourceLocation, sourceCode);
-          context.add(router);
-        } catch (IOException cause) {
-          throw new RuntimeException("Unable to generate: " + router.getTargetType(), cause);
+    try {
+      if (roundEnv.processingOver()) {
+        context.debug("Output:");
+        context.getRouters().forEach(it -> context.debug("  %s.java", it.getGeneratedType()));
+        if (context.generateServices()) {
+          doServices(context.getProcessingEnvironment().getFiler(), context.getRouters());
         }
+        return false;
+      } else {
+        var routeMap = buildRouteRegistry(annotations, roundEnv);
+        for (var router : routeMap.values()) {
+          try {
+            var sourceCode = router.toSourceCode(null);
+            var sourceLocation = router.getGeneratedFilename();
+            onGeneratedSource(toJavaFileObject(sourceLocation, sourceCode));
+            context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
+            router.getRoutes().forEach(it -> context.debug("   %s", it));
+            writeSource(router, sourceLocation, sourceCode);
+            context.add(router);
+          } catch (IOException cause) {
+            throw new RuntimeException("Unable to generate: " + router.getTargetType(), cause);
+          }
+        }
+        return true;
       }
-      return true;
+    } catch (Exception cause) {
+      context.error(
+          Optional.ofNullable(cause.getMessage()).orElse("Unable to generate routes"), cause);
+      throw sneakyThrow0(cause);
     }
   }
 

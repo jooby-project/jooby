@@ -5,15 +5,17 @@
  */
 package io.jooby.internal.apt;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic;
 
 import io.jooby.apt.JoobyProcessor.Options;
 
@@ -30,13 +32,14 @@ public class MvcContext {
   private final boolean services;
   private final String routerPrefix;
   private final String routerSuffix;
-  private final Consumer<String> output;
+  private final BiConsumer<Diagnostic.Kind, String> output;
   private final List<MvcRouter> routers = new ArrayList<>();
   private final boolean returnType;
   private final boolean mvcMethod;
   private final Map<TypeElement, ResultType> handler = new HashMap<>();
 
-  public MvcContext(ProcessingEnvironment processingEnvironment, Consumer<String> output) {
+  public MvcContext(
+      ProcessingEnvironment processingEnvironment, BiConsumer<Diagnostic.Kind, String> output) {
     this.processingEnvironment = processingEnvironment;
     this.output = output;
     this.debug = Options.boolOpt(processingEnvironment, Options.DEBUG, false);
@@ -258,13 +261,29 @@ public class MvcContext {
 
   public void debug(String message, Object... args) {
     if (debug) {
-      info(message, args);
+      report(Diagnostic.Kind.OTHER, message, args);
     }
   }
 
-  public void info(String message, Object... args) {
+  public void error(String message, Object... args) {
+    Throwable cause =
+        args.length > 0 && args[args.length - 1] instanceof Throwable
+            ? (Throwable) args[args.length - 1]
+            : null;
+    if (cause != null) {
+      var str = new StringWriter();
+      cause.printStackTrace(new PrintWriter(str, true));
+      var errorMessage = cause.getMessage();
+      args[args.length - 1] =
+          (errorMessage == null || errorMessage.equals(message) ? "" : errorMessage) + ":\n" + str;
+      message += ": %s";
+    }
+    report(Diagnostic.Kind.ERROR, message, args);
+  }
+
+  private void report(Diagnostic.Kind kind, String message, Object... args) {
     var msg = args.length == 0 ? message : message.formatted(args);
-    output.accept(msg);
+    output.accept(kind, msg);
   }
 
   public void generateStaticImports(MvcRouter mvcRouter, BiConsumer<String, String> consumer) {

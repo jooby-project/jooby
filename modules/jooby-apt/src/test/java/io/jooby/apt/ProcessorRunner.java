@@ -60,7 +60,7 @@ public class ProcessorRunner {
     private JavaFileObject source;
 
     public HookJoobyProcessor(Consumer<String> console) {
-      super(console);
+      super((kind, message) -> console.accept(message));
     }
 
     public GeneratedSourceClassLoader createClassLoader() {
