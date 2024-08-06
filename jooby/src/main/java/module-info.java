@@ -22,6 +22,7 @@ module io.jooby {
    * True core deps
    */
   requires jakarta.inject;
+  requires jakarta.validation;
   requires org.slf4j;
   requires static com.github.spotbugs.annotations;
   requires typesafe.config;
