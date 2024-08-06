@@ -652,7 +652,7 @@ public class Route {
   }
 
   /**
-   * Return return type.
+   * Route return type.
    *
    * @return Return type.
    */

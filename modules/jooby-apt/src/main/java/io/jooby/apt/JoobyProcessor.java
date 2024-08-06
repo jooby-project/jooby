@@ -30,7 +30,15 @@ import javax.tools.StandardLocation;
 
 import io.jooby.internal.apt.*;
 
-@SupportedOptions({HANDLER, DEBUG, INCREMENTAL, SERVICES, SKIP_ATTRIBUTE_ANNOTATIONS})
+@SupportedOptions({
+  HANDLER,
+  DEBUG,
+  INCREMENTAL,
+  SERVICES,
+  MVC_METHOD,
+  RETURN_TYPE,
+  SKIP_ATTRIBUTE_ANNOTATIONS
+})
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class JoobyProcessor extends AbstractProcessor {
   public interface Options {
@@ -39,6 +47,8 @@ public class JoobyProcessor extends AbstractProcessor {
     String ROUTER_PREFIX = "jooby.routerPrefix";
     String ROUTER_SUFFIX = "jooby.routerSuffix";
     String INCREMENTAL = "jooby.incremental";
+    String RETURN_TYPE = "jooby.returnType";
+    String MVC_METHOD = "jooby.mvcMethod";
     String SERVICES = "jooby.services";
     String SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
 
@@ -49,7 +59,9 @@ public class JoobyProcessor extends AbstractProcessor {
 
     static List<String> stringListOpt(ProcessingEnvironment environment, String option) {
       String value = string(environment, option, null);
-      return value == null || value.isEmpty() ? List.of() : List.of(value.split(","));
+      return value == null || value.isEmpty()
+          ? List.of()
+          : Stream.of(value.split(",")).filter(it -> !it.isBlank()).map(String::trim).toList();
     }
 
     static String string(ProcessingEnvironment environment, String option, String defaultValue) {
@@ -307,7 +319,7 @@ public class JoobyProcessor extends AbstractProcessor {
       options.add(
           String.format(
               "org.gradle.annotation.processing.%s",
-              context.isServices() ? "aggregating" : "isolating"));
+              context.generateServices() ? "aggregating" : "isolating"));
     }
 
     return options;

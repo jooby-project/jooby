@@ -142,22 +142,33 @@ public class MvcRoute {
             .toSourceCode(kt, this, 2)
             .ifPresent(
                 attributes -> block.add(statement(indent(2), ".setAttributes(", attributes, ")")));
-        /* returnType */
-        block.add(statement(indent(2), ".setReturnType(", returnType.toSourceCode(kt), ")"));
-        /* mvcMethod */
+        if (context.generateReturnType()) {
+          /* returnType */
+          block.add(statement(indent(2), ".setReturnType(", returnType.toSourceCode(kt), ")"));
+        }
         var lineSep = lastLine ? lineSeparator() : lineSeparator() + lineSeparator();
-        block.add(
-            CodeBlock.of(
-                indent(2),
-                ".setMvcMethod(",
-                router.getTargetType().getSimpleName(),
-                clazz(kt),
-                ".getMethod(",
-                string(getMethodName()),
-                paramString.isEmpty() ? "" : ", " + paramString,
-                "))",
-                semicolon(kt),
-                lineSep));
+        if (context.generateMvcMethod()) {
+          /* mvcMethod */
+          block.add(
+              CodeBlock.of(
+                  indent(2),
+                  ".setMvcMethod(",
+                  router.getTargetType().getSimpleName(),
+                  clazz(kt),
+                  ".getMethod(",
+                  string(getMethodName()),
+                  paramString.isEmpty() ? "" : ", " + paramString,
+                  "))",
+                  semicolon(kt),
+                  lineSep));
+        } else {
+          var lastStatement = block.get(block.size() - 1);
+          if (lastStatement.endsWith(lineSeparator())) {
+            lastStatement =
+                lastStatement.substring(0, lastStatement.length() - lineSeparator().length());
+          }
+          block.set(block.size() - 1, lastStatement + semicolon(kt) + lineSep);
+        }
       }
     }
     return block;

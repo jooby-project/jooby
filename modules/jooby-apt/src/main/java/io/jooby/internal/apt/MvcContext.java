@@ -32,6 +32,8 @@ public class MvcContext {
   private final String routerSuffix;
   private final Consumer<String> output;
   private final List<MvcRouter> routers = new ArrayList<>();
+  private final boolean returnType;
+  private final boolean mvcMethod;
   private final Map<TypeElement, ResultType> handler = new HashMap<>();
 
   public MvcContext(ProcessingEnvironment processingEnvironment, Consumer<String> output) {
@@ -39,6 +41,8 @@ public class MvcContext {
     this.output = output;
     this.debug = Options.boolOpt(processingEnvironment, Options.DEBUG, false);
     this.incremental = Options.boolOpt(processingEnvironment, Options.INCREMENTAL, true);
+    this.returnType = Options.boolOpt(processingEnvironment, Options.RETURN_TYPE, true);
+    this.mvcMethod = Options.boolOpt(processingEnvironment, Options.MVC_METHOD, true);
     this.services = Options.boolOpt(processingEnvironment, Options.SERVICES, true);
     this.routerPrefix = Options.string(processingEnvironment, Options.ROUTER_PREFIX, "");
     this.routerSuffix = Options.string(processingEnvironment, Options.ROUTER_SUFFIX, "_");
@@ -240,12 +244,16 @@ public class MvcContext {
     return services;
   }
 
-  public boolean isIncremental() {
-    return incremental;
+  public boolean generateMvcMethod() {
+    return mvcMethod;
   }
 
-  public boolean isServices() {
-    return services;
+  public boolean generateReturnType() {
+    return returnType;
+  }
+
+  public boolean isIncremental() {
+    return incremental;
   }
 
   public void debug(String message, Object... args) {
