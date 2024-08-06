@@ -5,6 +5,7 @@
  */
 package io.jooby.i2784;
 
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 
 import org.asynchttpclient.Dsl;
@@ -60,16 +61,18 @@ public class Issue2784 {
                           })
                       .build();
 
-              WebSocket webSocketClient =
-                  Dsl.asyncHttpClient()
-                      .prepareGet("ws://localhost:" + http.getPort() + "/2784")
-                      .setRequestTimeout(5000)
-                      .execute(wsHandler)
-                      .get();
-              // Send ping
-              webSocketClient.sendPingFrame();
+              try (var client = Dsl.asyncHttpClient()) {
+                WebSocket webSocketClient =
+                    client
+                        .prepareGet("ws://localhost:" + http.getPort() + "/2784")
+                        .setRequestTimeout(Duration.ofSeconds(5))
+                        .execute(wsHandler)
+                        .get();
+                // Send ping
+                webSocketClient.sendPingFrame();
 
-              latch.await();
+                latch.await();
+              }
             });
   }
 }
