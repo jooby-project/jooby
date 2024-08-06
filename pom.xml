@@ -25,9 +25,9 @@
     <pebble.version>3.2.2</pebble.version>
     <jackson.version>2.17.2</jackson.version>
     <gson.version>2.11.0</gson.version>
-    <avaje-jsonb.version>2.0</avaje-jsonb.version>
+    <avaje-jsonb.version>2.1</avaje-jsonb.version>
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
-    <yasson.version>3.0.3</yasson.version>
+    <yasson.version>3.0.4</yasson.version>
     <rocker.version>1.4.0</rocker.version>
     <thymeleaf.version>3.1.2.RELEASE</thymeleaf.version>
 
@@ -36,10 +36,10 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.5.2.Final</hibernate.version>
     <ebean.version>15.5.0</ebean.version>
-    <jdbi.version>3.45.2</jdbi.version>
+    <jdbi.version>3.45.3</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
     <graphql-java.version>22.1</graphql-java.version>
-    <lettuce.version>6.3.2.RELEASE</lettuce.version>
+    <lettuce.version>6.4.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.0</commons-pool2.version>
     <kafka.version>3.8.0</kafka.version>
     <caffeine.version>3.1.8</caffeine.version>
@@ -47,7 +47,7 @@
     <config.version>1.4.3</config.version>
 
     <!-- dependency injection -->
-    <avaje-inject.version>10.2</avaje-inject.version>
+    <avaje-inject.version>10.3</avaje-inject.version>
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
@@ -69,7 +69,7 @@
 
     <!-- Server -->
     <undertow.version>2.3.15.Final</undertow.version>
-    <jetty.version>12.0.11</jetty.version>
+    <jetty.version>12.0.12</jetty.version>
     <netty.version>4.1.112.Final</netty.version>
 
     <!--OpenAPI-->
@@ -92,7 +92,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.765</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.767</aws-java-sdk.version>
     <camel.version>3.22.2</camel.version>
     <frontend-plugin-core.version>1.15.0</frontend-plugin-core.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -100,7 +100,7 @@
     <commons-io.version>2.16.1</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>2.0.0</kotlin.version>
+    <kotlin.version>2.0.10</kotlin.version>
     <kotlinx-coroutines-core.version>1.8.1</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
