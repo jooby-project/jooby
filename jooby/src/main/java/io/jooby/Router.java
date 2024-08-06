@@ -8,6 +8,7 @@ package io.jooby;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 
 import com.typesafe.config.Config;
@@ -508,6 +510,8 @@ public interface Router extends Registry {
    */
   @NonNull Router decoder(@NonNull MediaType contentType, @NonNull MessageDecoder decoder);
 
+  @NonNull Router messageValidator(@NonNull Validator validator, @NonNull Predicate<Type> predicate);
+  @Nullable MessageValidator getMessageValidator();
   /**
    * Returns the worker thread pool. This thread pool is used to run application blocking code.
    *

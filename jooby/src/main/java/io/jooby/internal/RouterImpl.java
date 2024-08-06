@@ -8,6 +8,7 @@ package io.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,6 +148,8 @@ public class RouterImpl implements Router {
   private Map<Route, Executor> routeExecutor = new HashMap<>();
 
   private Map<String, MessageDecoder> decoders = new HashMap<>();
+
+  private MessageValidator messageValidator = null;
 
   private Map<String, Object> attributes = new ConcurrentHashMap<>();
 
@@ -366,6 +370,18 @@ public class RouterImpl implements Router {
   public Router decoder(@NonNull MediaType contentType, @NonNull MessageDecoder decoder) {
     decoders.put(contentType.getValue(), decoder);
     return this;
+  }
+
+  @NonNull
+  @Override
+  public Router messageValidator(@NonNull Validator validator, @NonNull Predicate<Type> predicate) {
+    this.messageValidator = new MessageValidator(validator, predicate);
+    return this;
+  }
+
+  @Override
+  public MessageValidator getMessageValidator() {
+    return messageValidator;
   }
 
   @NonNull @Override

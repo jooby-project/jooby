@@ -12,6 +12,7 @@ import static java.util.stream.StreamSupport.stream;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +42,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -625,6 +627,19 @@ public class Jooby implements Router, Registry {
   public Jooby decoder(@NonNull MediaType contentType, @NonNull MessageDecoder decoder) {
     router.decoder(contentType, decoder);
     return this;
+  }
+
+  @NonNull
+  @Override
+  public Router messageValidator(@NonNull Validator validator, @NonNull Predicate<Type> predicate) {
+    router.messageValidator(validator, predicate);
+    return this;
+  }
+
+  @Nullable
+  @Override
+  public MessageValidator getMessageValidator() {
+    return router.getMessageValidator();
   }
 
   @NonNull @Override
