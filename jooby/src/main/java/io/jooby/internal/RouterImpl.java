@@ -911,7 +911,8 @@ public class RouterImpl implements Router {
     it.setExecutorKey(src.getExecutorKey());
     it.setTags(src.getTags());
     it.setDescription(src.getDescription());
-    it.setDecoders(src.getDecoders());
+    // DO NOT COPY: See https://github.com/jooby-project/jooby/issues/3500
+    // it.setDecoders(src.getDecoders());
     it.setMvcMethod(src.getMvcMethod());
     it.setNonBlocking(src.isNonBlocking());
     it.setSummary(src.getSummary());
@@ -983,7 +984,7 @@ public class RouterImpl implements Router {
       Jooby app = (Jooby) router;
       override(src, app.getRouter(), consumer);
     } else if (router instanceof RouterImpl that) {
-      consumer.accept((RouterImpl) src, that);
+      consumer.accept(src, that);
     }
   }
 
