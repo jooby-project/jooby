@@ -708,7 +708,7 @@ public interface Router extends Registry {
    * @param source File system directory.
    * @return A route.
    */
-  default @NonNull Route assets(@NonNull String pattern, @NonNull Path source) {
+  default @NonNull AssetHandler assets(@NonNull String pattern, @NonNull Path source) {
     return assets(pattern, AssetSource.create(source));
   }
 
@@ -722,9 +722,9 @@ public interface Router extends Registry {
    *
    * @param pattern Path pattern.
    * @param source File-System folder when exists, or fallback to a classpath folder.
-   * @return A route.
+   * @return AssetHandler.
    */
-  default @NonNull Route assets(@NonNull String pattern, @NonNull String source) {
+  default @NonNull AssetHandler assets(@NonNull String pattern, @NonNull String source) {
     Path path =
         Stream.of(source.split("/"))
             .reduce(Paths.get(System.getProperty("user.dir")), Path::resolve, Path::resolve);
@@ -742,7 +742,7 @@ public interface Router extends Registry {
    * @param sources additional Asset sources.
    * @return A route.
    */
-  default @NonNull Route assets(
+  default @NonNull AssetHandler assets(
       @NonNull String pattern, @NonNull AssetSource source, @NonNull AssetSource... sources) {
     AssetSource[] allSources;
     if (sources.length == 0) {
@@ -762,8 +762,9 @@ public interface Router extends Registry {
    * @param handler Asset handler.
    * @return A route.
    */
-  default @NonNull Route assets(@NonNull String pattern, @NonNull AssetHandler handler) {
-    return route(GET, pattern, handler);
+  default @NonNull AssetHandler assets(@NonNull String pattern, @NonNull AssetHandler handler) {
+    route(GET, pattern, handler);
+    return handler;
   }
 
   /**

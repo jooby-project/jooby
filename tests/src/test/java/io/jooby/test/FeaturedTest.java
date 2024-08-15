@@ -2625,7 +2625,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.assets("/www/?*", new AssetHandler(source).setNoCache());
+              app.assets("/www/?*", source).setNoCache();
             })
         .ready(
             client -> {
@@ -2642,19 +2642,17 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.assets(
-                  "/www/?*",
-                  new AssetHandler(source)
-                      .cacheControl(
-                          path -> {
-                            if (path.endsWith("about.html")) {
-                              return CacheControl.noCache();
-                            } else if (path.equals("foo.js")) {
-                              return CacheControl.defaults().setETag(false);
-                            } else {
-                              return CacheControl.defaults();
-                            }
-                          }));
+              app.assets("/www/?*", source)
+                  .cacheControl(
+                      path -> {
+                        if (path.endsWith("about.html")) {
+                          return CacheControl.noCache();
+                        } else if (path.equals("foo.js")) {
+                          return CacheControl.defaults().setETag(false);
+                        } else {
+                          return CacheControl.defaults();
+                        }
+                      });
             })
         .ready(
             client -> {

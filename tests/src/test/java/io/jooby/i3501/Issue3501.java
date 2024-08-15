@@ -7,8 +7,6 @@ package io.jooby.i3501;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.jooby.handler.AssetHandler;
-import io.jooby.handler.AssetSource;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -19,13 +17,11 @@ public class Issue3501 {
     runner
         .define(
             app -> {
-              app.assets(
-                  "/issue3501/*",
-                  new AssetHandler(AssetSource.create(getClass().getClassLoader(), "/static"))
-                      .notFound(
-                          ctx -> {
-                            throw new UnsupportedOperationException();
-                          }));
+              app.assets("/issue3501/*", "/static")
+                  .notFound(
+                      ctx -> {
+                        throw new UnsupportedOperationException();
+                      });
 
               app.error(
                   UnsupportedOperationException.class,

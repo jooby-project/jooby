@@ -134,11 +134,9 @@ control these headers programmatically:
 [source, java, role="primary"]
 ----
 {
-  AssetSource www = AssetSource.create(Paths.get("www"));
-  assets("/static/*", new AssetHandler(www)
+  assets("/static/*", Paths.get("www"))
     .setLastModified(false)
-    .setEtag(false)
-  );
+    .setEtag(false);
 }
 ----
 
@@ -146,11 +144,9 @@ control these headers programmatically:
 [source, kotlin, role="secondary"]
 ----
 {
-  val www = AssetSource.create(Paths.get("www"))
-  assets("/static/*", AssetHandler(www)
+  assets("/static/*", Paths.get("www"))
     .setLastModified(false)
     .setEtag(false)
-  );
 }
 ----
 
@@ -160,10 +156,8 @@ The `maxAge` option set a `Cache-Control` header:
 [source, java, role="primary"]
 ----
 {
-  AssetSource www = AssetSource.create(Paths.get("www"));
-  assets("/static/*", new AssetHandler(www)
+  assets("/static/*", Paths.get("www"))
     .setMaxAge(Duration.ofDays(365))
-  );
 }
 ----
 
@@ -171,10 +165,8 @@ The `maxAge` option set a `Cache-Control` header:
 [source, kotlin, role="secondary"]
 ----
 {
-  val www = AssetSource.create(Paths.get("www"))
-  assets("/static/*", AssetHandler(www)
+  assets("/static/*", Paths.get("www"))
     .setMaxAge(Duration.ofDays(365))
-  );
 }
 ----
 
@@ -188,8 +180,7 @@ specify a function via javadoc:AssetHandler[cacheControl, java.util.Function]:
 [source, java, role="primary"]
 ----
 {
-  AssetSource www = AssetSource.create(Paths.get("www"));
-  assets("/static/*", new AssetHandler(www)
+  assets("/static/*", Paths.get("www"))
       .cacheControl(path -> {
         if (path.endsWith("dont-cache-me.html")) {
           return CacheControl.noCache(); // disable caching
@@ -200,7 +191,7 @@ specify a function via javadoc:AssetHandler[cacheControl, java.util.Function]:
         } else {
           return CacheControl.defaults(); // AssetHandler defaults
         }
-      }));
+      });
 }
 ----
 
@@ -208,8 +199,7 @@ specify a function via javadoc:AssetHandler[cacheControl, java.util.Function]:
 [source, kotlin, role="secondary"]
 ----
 {
-  val www = AssetSource.create(Paths.get("www"))
-  assets("/static/*", AssetHandler(www)
+  assets("/static/*", Paths.get("www"))
       .cacheControl {
         when {
           it.endsWith("dont-cache-me.html") -> CacheControl.noCache() // disable caching
@@ -218,7 +208,7 @@ specify a function via javadoc:AssetHandler[cacheControl, java.util.Function]:
               .setMaxAge(Duration.ofDays(365))
           else -> CacheControl.defaults() // AssetHandler defaults
         }
-      })
+      }
 }
 ----
 
@@ -230,11 +220,10 @@ an exception or generating any other content you want:
 [source, java, role="primary"]
 ----
 {
-  AssetSource www = AssetSource.create(Paths.get("www"));
-  assets("/static/*", new AssetHandler(www)
+  assets("/static/*", Paths.get("www"))
       .notFound(ctx -> {
         throw new MyAssetException();
-      }));
+      });
 
   error(MyAssetException.class, (ctx, cause, code) -> {
     // render MyAssetException as you want
@@ -246,13 +235,12 @@ an exception or generating any other content you want:
 [source, kotlin, role="secondary"]
 ----
 {
-  val www = AssetSource.create(Paths.get("www"))
-  assets("/static/*", AssetHandler(www)
-      .notFound { _ ->
+  assets("/static/*", Paths.get("www"))
+    .notFound { _ ->
         throw MyAssetException()
-      })
- error(MyAssetException::class) {
+    }
+  error(MyAssetException::class) {
     // render MyAssetException as you want
- }
+  }
 }
 ----
