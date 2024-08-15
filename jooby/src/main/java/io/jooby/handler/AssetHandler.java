@@ -14,10 +14,8 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
-import io.jooby.MediaType;
-import io.jooby.Route;
-import io.jooby.StatusCode;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.*;
 
 /**
  * Handler for static resources represented by the {@link Asset} contract.
@@ -28,6 +26,8 @@ import io.jooby.StatusCode;
  * @since 2.0.0
  */
 public class AssetHandler implements Route.Handler {
+  private static final SneakyThrows.Consumer<Context> NOT_FOUND =
+      ctx -> ctx.send(StatusCode.NOT_FOUND);
   private static final int ONE_SEC = 1000;
 
   private final AssetSource[] sources;
@@ -41,6 +41,7 @@ public class AssetHandler implements Route.Handler {
   private Function<String, CacheControl> cacheControl = path -> defaults;
 
   private Function<Asset, MediaType> mediaTypeResolver = Asset::getContentType;
+  private SneakyThrows.Consumer<Context> notFound = NOT_FOUND;
 
   /**
    * Creates a new asset handler that fallback to the given fallback asset when the asset is not
@@ -82,7 +83,7 @@ public class AssetHandler implements Route.Handler {
       }
       // Still null?
       if (asset == null) {
-        ctx.send(StatusCode.NOT_FOUND);
+        notFound.accept(ctx);
         return ctx;
       } else {
         resolvedPath = fallback;
@@ -230,7 +231,19 @@ public class AssetHandler implements Route.Handler {
     return this;
   }
 
-  private Asset resolve(String filepath) {
+  /**
+   * Sets a custom handler for <code>404</code> asset/resource. By default, generates a <code>404
+   * </code> status code response.
+   *
+   * @param handler Handler.
+   * @return This handler.
+   */
+  public AssetHandler notFound(@NonNull SneakyThrows.Consumer<Context> handler) {
+    this.notFound = handler;
+    return this;
+  }
+
+  private @Nullable Asset resolve(String filepath) {
     for (AssetSource source : sources) {
       Asset asset = source.resolve(filepath);
       if (asset != null) {
@@ -243,7 +256,7 @@ public class AssetHandler implements Route.Handler {
   @Override
   public void setRoute(Route route) {
     List<String> keys = route.getPathKeys();
-    this.filekey = keys.size() == 0 ? route.getPattern().substring(1) : keys.get(0);
+    this.filekey = keys.isEmpty() ? route.getPattern().substring(1) : keys.get(0);
     // NOTE: It send an inputstream we don't need a renderer
     route.setReturnType(Context.class);
   }

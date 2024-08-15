@@ -221,3 +221,38 @@ specify a function via javadoc:AssetHandler[cacheControl, java.util.Function]:
       })
 }
 ----
+
+The asset handler generates a `404` response code when requested path is not found. You can change this by throwing
+an exception or generating any other content you want:
+
+
+.Custom not found:
+[source, java, role="primary"]
+----
+{
+  AssetSource www = AssetSource.create(Paths.get("www"));
+  assets("/static/*", new AssetHandler(www)
+      .notFound(ctx -> {
+        throw new MyAssetException();
+      }));
+
+  error(MyAssetException.class, (ctx, cause, code) -> {
+    // render MyAssetException as you want
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val www = AssetSource.create(Paths.get("www"))
+  assets("/static/*", AssetHandler(www)
+      .notFound { _ ->
+        throw MyAssetException()
+      })
+ error(MyAssetException::class) {
+    // render MyAssetException as you want
+ }
+}
+----
