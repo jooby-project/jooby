@@ -14,30 +14,14 @@ import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 
-import java.lang.reflect.Type;
-import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import static jakarta.validation.Validation.byProvider;
 import static java.util.Objects.requireNonNull;
 
 public class HbvModule implements Extension {
 
-    private final Predicate<Type> predicate;
     private Consumer<HibernateValidatorConfiguration> configurer;
-
-    public HbvModule() {
-        this(none());
-    }
-
-    public HbvModule(Predicate<Type> predicate) {
-        this.predicate = requireNonNull(predicate, "Predicate is required.");
-    }
-
-    public HbvModule(final Class<?>... classes) {
-        this.predicate = typeIs(Set.of(classes));
-    }
 
     public HbvModule doWith(final Consumer<HibernateValidatorConfiguration> configurer) {
         this.configurer = requireNonNull(configurer, "Configurer callback is required.");
@@ -54,17 +38,8 @@ public class HbvModule implements Extension {
 
         try (ValidatorFactory factory = cfg.buildValidatorFactory()) {
             Validator validator = factory.getValidator();
-            application.messageValidator(validator, predicate);
             application.getServices().put(Validator.class, validator);
         }
 
-    }
-
-    static Predicate<Type> typeIs(final Set<Class<?>> classes) {
-        return type -> classes.contains((Class<?>) type);
-    }
-
-    static Predicate<Type> none() {
-        return type -> false;
     }
 }
