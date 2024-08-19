@@ -435,7 +435,8 @@ public class JoobyRun {
     var unload = false;
     Supplier<Boolean> compileTask = null;
     for (; e != null && (t - e.time) > waitTimeBeforeRestartMillis; e = queue.peek()) {
-      unload = unload || options.isCompileExtension(e.path);
+      // unload on source code changes (.java, .kt) or binary changes (.class)
+      unload = unload || options.isCompileExtension(e.path) || options.isClass(e.path);
       compileTask = Optional.ofNullable(compileTask).orElse(e.compileTask);
       queue.poll();
     }

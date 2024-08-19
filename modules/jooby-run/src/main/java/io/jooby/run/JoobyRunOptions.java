@@ -171,6 +171,10 @@ public class JoobyRunOptions {
     return containsExtension(compileExtensions, path);
   }
 
+  public boolean isClass(Path path) {
+    return containsExtension(List.of("class"), path);
+  }
+
   /**
    * Test if the given path matches a restart extension.
    *
