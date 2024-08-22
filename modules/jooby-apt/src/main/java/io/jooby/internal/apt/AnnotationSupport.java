@@ -17,6 +17,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
 
 public interface AnnotationSupport {
+  Predicate<String> NULLABLE = name -> name.toLowerCase().endsWith(".nullable");
+  Predicate<String> NON_NULL =
+      name -> name.toLowerCase().endsWith(".nonnull") || name.toLowerCase().endsWith(".notnull");
   Predicate<String> VALUE = "value"::equals;
   Predicate<String> NAME = "name"::equals;
 

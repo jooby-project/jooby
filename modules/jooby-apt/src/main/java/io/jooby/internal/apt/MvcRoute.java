@@ -209,7 +209,13 @@ public class MvcRoute {
     var returnTypeGenerics =
         getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
     var returnTypeString = type(kt, getReturnType().toString());
+    boolean nullable = false;
     if (kt) {
+      nullable =
+          method.getAnnotationMirrors().stream()
+              .map(AnnotationMirror::getAnnotationType)
+              .map(Objects::toString)
+              .anyMatch(NULLABLE);
       if (throwsException) {
         buffer.add(statement("@Throws(Exception::class)"));
       }
@@ -312,7 +318,7 @@ public class MvcRoute {
         setUncheckedCast(true);
         call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
       }
-      buffer.add(statement(indent(2), "return ", call, semicolon(kt)));
+      buffer.add(statement(indent(2), "return ", call, kt && nullable ? "!!" : "", semicolon(kt)));
     }
     buffer.add(statement("}", System.lineSeparator()));
     if (uncheckedCast) {

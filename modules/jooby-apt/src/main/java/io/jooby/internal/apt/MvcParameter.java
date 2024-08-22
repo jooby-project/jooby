@@ -5,6 +5,9 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.internal.apt.AnnotationSupport.NON_NULL;
+import static io.jooby.internal.apt.AnnotationSupport.NULLABLE;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -15,10 +18,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
 
 public class MvcParameter {
-  private static final Predicate<String> NULLABLE =
-      name -> name.toLowerCase().endsWith(".nullable");
-  private static final Predicate<String> NON_NULL =
-      name -> name.toLowerCase().endsWith(".nonnull") || name.toLowerCase().endsWith(".notnull");
   private final MvcRoute route;
   private final VariableElement parameter;
   private final Map<String, AnnotationMirror> annotations;
