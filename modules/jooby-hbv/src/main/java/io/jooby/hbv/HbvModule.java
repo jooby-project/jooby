@@ -40,6 +40,5 @@ public class HbvModule implements Extension {
             Validator validator = factory.getValidator();
             application.getServices().put(Validator.class, validator);
         }
-
     }
 }

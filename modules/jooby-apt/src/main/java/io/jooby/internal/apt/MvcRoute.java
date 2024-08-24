@@ -203,7 +203,16 @@ public class MvcRoute {
     /* Parameters */
     var paramList = new StringJoiner(", ", "(", ")");
     for (var parameter : getParameters(true)) {
-      paramList.add(parameter.generateMapping(kt));
+      String generatedParameter = parameter.generateMapping(kt);
+      if (parameter.isRequireBeanValidation()) {
+        generatedParameter = CodeBlock.of(
+                "io.jooby.validation.ValidationHelper.validate(",
+                "ctx, ",
+                generatedParameter,
+                ")");
+      }
+
+      paramList.add(generatedParameter);
     }
     var throwsException = !method.getThrownTypes().isEmpty();
     var returnTypeGenerics =

@@ -21,6 +21,12 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-validation</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby</artifactId>
       <version>${jooby.version}</version>
       <scope>test</scope>
