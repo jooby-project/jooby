@@ -58,6 +58,7 @@
     <module>jooby-thymeleaf</module>
     <module>jooby-node</module>
     <module>jooby-camel</module>
+    <module>jooby-hbv</module>
 
     <!-- validation -->
     <module>jooby-validation</module>
