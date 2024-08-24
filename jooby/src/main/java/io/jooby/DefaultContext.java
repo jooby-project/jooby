@@ -20,12 +20,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
 import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -416,20 +417,7 @@ public interface DefaultContext extends Context {
         T result = ValueConverters.convert(body(), type, getRouter());
         return result;
       }
-      T object = (T) decoder(contentType).decode(this, type);
-
-      MessageValidator messageValidator = getRouter().getMessageValidator();
-      if (messageValidator != null) {
-        if (messageValidator.predicate().test(type)) {
-          Validator validator = messageValidator.validator();
-          Set<ConstraintViolation<T>> violations = validator.validate(object);
-          if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-          }
-        }
-      }
-      return object;
-
+      return (T) decoder(contentType).decode(this, type);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
