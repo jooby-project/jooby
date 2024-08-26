@@ -14,4 +14,5 @@ module io.jooby.hbv {
     requires typesafe.config;
     requires org.hibernate.validator;
     requires jakarta.validation;
+    requires io.jooby.validation;
 }

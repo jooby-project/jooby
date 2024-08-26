@@ -11,4 +11,5 @@ module io.jooby.validation {
 
     requires jakarta.validation;
     requires io.jooby;
+    requires com.github.spotbugs.annotations;
 }

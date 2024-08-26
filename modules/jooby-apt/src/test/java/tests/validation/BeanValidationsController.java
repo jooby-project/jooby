@@ -1,9 +1,9 @@
 package tests.validation;
 
-import io.jooby.annotation.FormParam;
-import io.jooby.annotation.POST;
-import io.jooby.annotation.QueryParam;
+import io.jooby.annotation.*;
 import jakarta.validation.Valid;
+
+import java.util.List;
 
 public class BeanValidationsController {
 
@@ -17,9 +17,24 @@ public class BeanValidationsController {
         return bean;
     }
 
+    //todo: revive when flash `toNullable` will be fixed
+//    @POST("/validate/flash-bean")
+//    public Bean validateFlashBean(@Valid @FlashParam Bean bean) {
+//        return bean;
+//    }
+
+    @POST("/validate/bind-param-bean")
+    public Bean validateBindParamBean(@Valid @BindParam Bean bean) {
+        return bean;
+    }
+
     @POST("/validate/body-bean")
     public Bean validateBodyBean(@Valid Bean bean) {
         return bean;
     }
 
+    @POST("/validate/list-of-body-beans")
+    public List<Bean> validateListOfBodyBeans(@Valid List<Bean> bean) {
+        return bean;
+    }
 }

@@ -12,7 +12,7 @@ import jakarta.validation.Validator;
 
 import java.util.*;
 
-public final class ValidationHelper {
+public final class BeanValidator {
 
     public static <T> T validate(Context ctx, T bean) {
         Validator validator = ctx.require(Validator.class);
