@@ -45,15 +45,16 @@ public class BeanValidatorTest {
                 .statusCode(UNPROCESSABLE_ENTITY_CODE)
                 .extract().as(ValidationResult.class);
 
-        var fieldError = new FieldError(
+        var fieldError = new ValidationResult.Error(
                 "firstName",
-                List.of("must not be empty", "must not be null")
+                List.of("must not be empty", "must not be null"),
+                ValidationResult.ErrorType.FIELD
         );
-        ValidationResult expectedResult = buildResult(new Errors(List.of(), List.of(fieldError)));
+        ValidationResult expectedResult = buildResult(List.of(fieldError));
 
         Assertions.assertThat(expectedResult)
                 .usingRecursiveComparison()
-                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.fieldErrors\\.messages")
+                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.messages")
                 .isEqualTo(actualResult);
     }
 
@@ -71,15 +72,16 @@ public class BeanValidatorTest {
                 .statusCode(UNPROCESSABLE_ENTITY_CODE)
                 .extract().as(ValidationResult.class);
 
-        var fieldError = new FieldError(
+        var fieldError = new ValidationResult.Error(
                 "firstName",
-                List.of("must not be empty", "must not be null")
+                List.of("must not be empty", "must not be null"),
+                ValidationResult.ErrorType.FIELD
         );
-        ValidationResult expectedResult = buildResult(new Errors(List.of(), List.of(fieldError)));
+        ValidationResult expectedResult = buildResult(List.of(fieldError));
 
         Assertions.assertThat(expectedResult)
                 .usingRecursiveComparison()
-                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.fieldErrors\\.messages")
+                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.messages")
                 .isEqualTo(actualResult);
     }
 
@@ -97,15 +99,16 @@ public class BeanValidatorTest {
                 .statusCode(UNPROCESSABLE_ENTITY_CODE)
                 .extract().as(ValidationResult.class);
 
-        var fieldError = new FieldError(
+        var fieldError = new ValidationResult.Error(
                 "firstName",
-                List.of("must not be empty", "must not be null")
+                List.of("must not be empty", "must not be null"),
+                ValidationResult.ErrorType.FIELD
         );
-        ValidationResult expectedResult = buildResult(new Errors(List.of(), List.of(fieldError)));
+        ValidationResult expectedResult = buildResult( List.of(fieldError));
 
         Assertions.assertThat(expectedResult)
                 .usingRecursiveComparison()
-                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.fieldErrors\\.messages")
+                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.messages")
                 .isEqualTo(actualResult);
     }
 
@@ -123,15 +126,16 @@ public class BeanValidatorTest {
                 .statusCode(UNPROCESSABLE_ENTITY_CODE)
                 .extract().as(ValidationResult.class);
 
-        var fieldError = new FieldError(
+        var fieldError = new ValidationResult.Error(
                 "firstName",
-                List.of("must not be empty", "must not be null")
+                List.of("must not be empty", "must not be null"),
+                ValidationResult.ErrorType.FIELD
         );
-        ValidationResult expectedResult = buildResult(new Errors(List.of(), List.of(fieldError)));
+        ValidationResult expectedResult = buildResult(List.of(fieldError));
 
         Assertions.assertThat(expectedResult)
                 .usingRecursiveComparison()
-                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.fieldErrors\\.messages")
+                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.messages")
                 .isEqualTo(actualResult);
     }
 
@@ -152,37 +156,44 @@ public class BeanValidatorTest {
                 .statusCode(UNPROCESSABLE_ENTITY_CODE)
                 .extract().as(ValidationResult.class);
 
-        List<FieldError> fieldErrors = new ArrayList<>() {{
-            add(new FieldError(
+        List<ValidationResult.Error> errors = new ArrayList<>() {{
+            add(new ValidationResult.Error(
+                    null,
+                    List.of("Passwords should match"),
+                    ValidationResult.ErrorType.GLOBAL)
+            );
+            add(new ValidationResult.Error(
                     "person.firstName",
-                    List.of("must not be empty", "must not be null"))
+                    List.of("must not be empty", "must not be null"),
+                    ValidationResult.ErrorType.FIELD)
             );
-            add(new FieldError(
+            add(new ValidationResult.Error(
                     "login",
-                    List.of("size must be between 3 and 16"))
+                    List.of("size must be between 3 and 16"),
+                    ValidationResult.ErrorType.FIELD)
             );
-            add(new FieldError(
+            add(new ValidationResult.Error(
                     "password",
-                    List.of("size must be between 8 and 24"))
+                    List.of("size must be between 8 and 24"),
+                    ValidationResult.ErrorType.FIELD)
             );
-            add(new FieldError(
+            add(new ValidationResult.Error(
                     "confirmPassword",
-                    List.of("size must be between 8 and 24"))
+                    List.of("size must be between 8 and 24"),
+                    ValidationResult.ErrorType.FIELD)
             );
         }};
 
-        String objectErrors = "Passwords should match";
-        Errors errors = new Errors(List.of(objectErrors), fieldErrors);
         ValidationResult expectedResult = buildResult(errors);
 
         Assertions.assertThat(expectedResult)
                 .usingRecursiveComparison()
-                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.fieldErrors")
-                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.fieldErrors\\.messages")
+                .ignoringCollectionOrderInFieldsMatchingRegexes("errors")
+                .ignoringCollectionOrderInFieldsMatchingRegexes("errors\\.messages")
                 .isEqualTo(actualResult);
     }
 
-    private ValidationResult buildResult(Errors errors) {
+    private ValidationResult buildResult(List<ValidationResult.Error> errors) {
         return new ValidationResult(DEFAULT_TITLE, UNPROCESSABLE_ENTITY_CODE, errors);
     }
 }

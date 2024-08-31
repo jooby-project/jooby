@@ -1,4 +1,12 @@
 package io.jooby.validation;
 
-public record ValidationResult(String title, int status, Errors errors) {
+import java.util.List;
+
+public record ValidationResult(String title, int status, List<Error> errors) {
+    public record Error(String field, List<String> messages, ErrorType type) {
+    }
+
+    public enum ErrorType {
+        FIELD, GLOBAL
+    }
 }

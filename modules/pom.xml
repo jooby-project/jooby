@@ -61,7 +61,7 @@
 
     <!-- validation -->
     <module>jooby-jakarta-validation</module>
-    <module>jooby-hbv</module>
+    <module>jooby-hibernate-validator</module>
 
     <module>jooby-pac4j</module>
 

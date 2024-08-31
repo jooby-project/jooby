@@ -3,8 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.hbv;
-
+package io.jooby.hibernate.validator;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
@@ -21,7 +20,7 @@ import java.util.function.Consumer;
 
 import static jakarta.validation.Validation.byProvider;
 
-public class HbvModule implements Extension {
+public class HibernateValidatorModule implements Extension {
 
     private Consumer<HibernateValidatorConfiguration> configurer;
     private StatusCode statusCode = StatusCode.UNPROCESSABLE_ENTITY;
@@ -34,7 +33,7 @@ public class HbvModule implements Extension {
      * @param configurer Configurer callback.
      * @return This module.
      */
-    public HbvModule doWith(@NonNull final Consumer<HibernateValidatorConfiguration> configurer) {
+    public HibernateValidatorModule doWith(@NonNull final Consumer<HibernateValidatorConfiguration> configurer) {
         this.configurer = configurer;
         return this;
     }
@@ -46,7 +45,7 @@ public class HbvModule implements Extension {
      * @param statusCode new status code
      * @return This module.
      */
-    public HbvModule statusCode(@NonNull StatusCode statusCode) {
+    public HibernateValidatorModule statusCode(@NonNull StatusCode statusCode) {
         this.statusCode = statusCode;
         return this;
     }
@@ -58,20 +57,21 @@ public class HbvModule implements Extension {
      * @param title new title
      * @return This module.
      */
-    public HbvModule validationTitle(@NonNull String title) {
+    public HibernateValidatorModule validationTitle(@NonNull String title) {
         this.title = title;
         return this;
     }
 
     /**
      * Disables default constraint violation handler.
-     * By default {@link HbvModule} provide built-in error handler for the {@link ConstraintViolationException}
+     * By default {@link HibernateValidatorModule} provides
+     * built-in error handler for the {@link ConstraintViolationException}
      * Such exceptions are transformed into response of {@link io.jooby.validation.ValidationResult}
      * Use this flag to disable default error handler and provide your custom.
      *
      * @return This module.
      */
-    public HbvModule disableViolationHandler() {
+    public HibernateValidatorModule disableViolationHandler() {
         this.disableDefaultViolationHandler = true;
         return this;
     }

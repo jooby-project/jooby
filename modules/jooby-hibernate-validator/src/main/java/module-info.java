@@ -4,10 +4,10 @@
  * Copyright 2014 Edgar Espina
  */
 /**
- * Hbv module.
+ * Hibernate Validator Module.
  */
-module io.jooby.hbv {
-    exports io.jooby.hbv;
+module io.jooby.hibernate.validator {
+    exports io.jooby.hibernate.validator;
 
     requires transitive io.jooby;
     requires static com.github.spotbugs.annotations;

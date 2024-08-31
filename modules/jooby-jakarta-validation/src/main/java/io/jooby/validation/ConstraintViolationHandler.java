@@ -12,32 +12,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.jooby.validation.ValidationResult.ErrorType.FIELD;
+import static io.jooby.validation.ValidationResult.ErrorType.GLOBAL;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
  * Catches and transform {@link ConstraintViolationException} into {@link ValidationResult}
- *
+ * <p>
  * Payload example:
- * <code>
+ * <pre>{@code
  * {
- *     "title": "Validation failed",
- *     "status": 422,
- *     "errors": {
- *         "objectErrors": [
- *              "Passwords should match"
- *         ],
- *         "fieldErrors": [
- *             {
- *                 "field": "firstName",
- *                 "messages": [
- *                     "must not be empty",
- *                     "must not be null"
- *                 ]
- *             }
- *         ]
- *     }
+ *    "title": "Validation failed",
+ *    "status": 422,
+ *    "errors": [
+ *       {
+ *          "field": null,
+ *          "messages": [
+ *             "Passwords should match"
+ *          ],
+ *          "type": "GLOBAL"
+ *       },
+ *       {
+ *          "field": "firstName",
+ *          "messages": [
+ *             "must not be empty",
+ *             "must not be null"
+ *          ],
+ *          "type": "FIELD"
+ *       }
+ *    ]
  * }
- * </code>
+ * }</pre>
+ *
+ * @author kliushnichenko
+ * @since 3.2.10
  */
 public class ConstraintViolationHandler implements ErrorHandler {
 
@@ -60,31 +68,23 @@ public class ConstraintViolationHandler implements ErrorHandler {
         Map<String, List<ConstraintViolation<?>>> groupedByPath = violations.stream()
                 .collect(groupingBy(violation -> violation.getPropertyPath().toString()));
 
-        List<FieldError> fieldErrors = collectFieldErrors(groupedByPath);
-        List<String> objectErrors = collectObjectErrors(groupedByPath);
+        List<ValidationResult.Error> errors = collectErrors(groupedByPath);
 
-        Errors errors = new Errors(objectErrors, fieldErrors);
         ValidationResult result = new ValidationResult(title, statusCode.value(), errors);
         ctx.setResponseCode(statusCode).render(result);
     }
 
-    private List<FieldError> collectFieldErrors(Map<String, List<ConstraintViolation<?>>> groupedViolations) {
-        List<FieldError> fieldErrors = new ArrayList<>();
+    private List<ValidationResult.Error> collectErrors(Map<String, List<ConstraintViolation<?>>> groupedViolations) {
+        List<ValidationResult.Error> errors = new ArrayList<>();
         for (Map.Entry<String, List<ConstraintViolation<?>>> entry : groupedViolations.entrySet()) {
-            var field = entry.getKey();
-            if (!ROOT_VIOLATIONS_PATH.equals(field)) {
-                fieldErrors.add(new FieldError(field, extractMessages(entry.getValue())));
+            var path = entry.getKey();
+            if (ROOT_VIOLATIONS_PATH.equals(path)) {
+                errors.add(new ValidationResult.Error(null, extractMessages(entry.getValue()), GLOBAL));
+            } else {
+                errors.add(new ValidationResult.Error(path, extractMessages(entry.getValue()), FIELD));
             }
         }
-        return fieldErrors;
-    }
-
-    private List<String> collectObjectErrors(Map<String, List<ConstraintViolation<?>>> groupedViolations) {
-        List<ConstraintViolation<?>> violations = groupedViolations.get(ROOT_VIOLATIONS_PATH);
-        if (violations != null) {
-            return extractMessages(violations);
-        }
-        return List.of();
+        return errors;
     }
 
     private List<String> extractMessages(List<ConstraintViolation<?>> violations) {
