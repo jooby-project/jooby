@@ -5,12 +5,11 @@
  */
 package io.jooby.internal.handlebars;
 
-import static com.github.jknack.handlebars.Context.newContext;
-
 import java.util.Collections;
 import java.util.List;
 
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.ValueResolver;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
@@ -19,11 +18,14 @@ import io.jooby.buffer.DataBuffer;
 
 public class HandlebarsTemplateEngine implements TemplateEngine {
 
-  private final List<String> extensions;
   private final Handlebars handlebars;
+  private final ValueResolver[] resolvers;
+  private final List<String> extensions;
 
-  public HandlebarsTemplateEngine(Handlebars handlebars, List<String> extensions) {
+  public HandlebarsTemplateEngine(
+      Handlebars handlebars, ValueResolver[] resolvers, List<String> extensions) {
     this.handlebars = handlebars;
+    this.resolvers = resolvers;
     this.extensions = Collections.unmodifiableList(extensions);
   }
 
@@ -35,7 +37,11 @@ public class HandlebarsTemplateEngine implements TemplateEngine {
   @Override
   public DataBuffer render(Context ctx, ModelAndView modelAndView) throws Exception {
     var template = handlebars.compile(modelAndView.getView());
-    var engineModel = newContext(modelAndView.getModel()).data(ctx.getAttributes());
+    var engineModel =
+        com.github.jknack.handlebars.Context.newBuilder(modelAndView.getModel())
+            .resolver(resolvers)
+            .build()
+            .data(ctx.getAttributes());
     var buffer = ctx.getBufferFactory().allocateBuffer();
     template.apply(engineModel, buffer.asWriter());
     return buffer;
