@@ -62,7 +62,7 @@ public class DocGenerator {
     int adocCount =
         Stream.of(treeDirs)
             .map(throwingFunction(dir -> countAdoc(asciidoc.resolve(dir))))
-            .reduce(1, (a, b) -> a + b);
+            .reduce(1, Integer::sum);
     int steps = 7 + (doAscii ? adocCount : 0);
 
     ProgressBarBuilder pbb =
@@ -71,7 +71,7 @@ public class DocGenerator {
             .setInitialMax(steps)
             .setTaskName("Building Site");
 
-    try (ProgressBar pb = pbb.build()) {
+    try (var pb = pbb.build()) {
 
       Path outdir = asciidoc.resolve("site");
       if (!Files.exists(outdir)) {
