@@ -1,9 +1,10 @@
-package io.jooby.validation;
+package io.jooby.hibernate.validator;
 
+import io.jooby.hibernate.validator.app.App;
+import io.jooby.hibernate.validator.app.NewAccountRequest;
+import io.jooby.hibernate.validator.app.Person;
 import io.jooby.test.JoobyTest;
-import io.jooby.validation.app.App;
-import io.jooby.validation.app.NewAccountRequest;
-import io.jooby.validation.app.Person;
+import io.jooby.validation.ValidationResult;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
@@ -16,11 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 import static io.jooby.StatusCode.UNPROCESSABLE_ENTITY_CODE;
-import static io.jooby.validation.app.App.DEFAULT_TITLE;
+import static io.jooby.hibernate.validator.app.App.DEFAULT_TITLE;
 import static io.restassured.RestAssured.given;
 
 @JoobyTest(value = App.class, port = 8099)
-public class BeanValidatorTest {
+public class HibernateValidatorModuleTest {
 
     protected static RequestSpecification SPEC = new RequestSpecBuilder()
             .setPort(8099)

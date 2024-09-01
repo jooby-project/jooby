@@ -1,4 +1,4 @@
-package io.jooby.validation.app;
+package io.jooby.hibernate.validator.app;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

@@ -28,8 +28,14 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-jakarta-validation</artifactId>
+      <artifactId>jooby-validation</artifactId>
       <version>${jooby.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
       <scope>test</scope>
     </dependency>
 

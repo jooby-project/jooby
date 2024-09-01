@@ -1,9 +1,10 @@
-package io.jooby.validation;
+package io.jooby.hibernate.validator;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ErrorHandler;
 import io.jooby.StatusCode;
+import io.jooby.validation.ValidationResult;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 

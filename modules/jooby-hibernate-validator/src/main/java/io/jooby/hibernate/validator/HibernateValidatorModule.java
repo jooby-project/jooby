@@ -9,13 +9,15 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
-import io.jooby.validation.ConstraintViolationHandler;
+import io.jooby.validation.MvcValidator;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static jakarta.validation.Validation.byProvider;
@@ -87,9 +89,27 @@ public class HibernateValidatorModule implements Extension {
         try (ValidatorFactory factory = cfg.buildValidatorFactory()) {
             Validator validator = factory.getValidator();
             app.getServices().put(Validator.class, validator);
+            app.getServices().put(MvcValidator.class, new MvcValidatorImpl(validator));
 
             if (!disableDefaultViolationHandler) {
                 app.error(ConstraintViolationException.class, new ConstraintViolationHandler(statusCode, title));
+            }
+        }
+    }
+
+    static class MvcValidatorImpl implements MvcValidator<ConstraintViolationException> {
+
+        private final Validator validator;
+
+        MvcValidatorImpl(Validator validator) {
+            this.validator = validator;
+        }
+
+        @Override
+        public void validate(Object bean) {
+            Set<ConstraintViolation<Object>> violations = validator.validate(bean);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
             }
         }
     }
