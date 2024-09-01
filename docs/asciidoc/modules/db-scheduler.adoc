@@ -1,0 +1,215 @@
+== db-scheduler
+
+Task scheduler module using https://github.com/kagkarlsson/db-scheduler[db-scheduler].
+
+=== Usage
+
+1) Add the dependencies (hikari):
+
+[dependency, artifactId="jooby-hikari:DataSource via HikariCP, jooby-db-scheduler:Db Scheduler Module"]
+.
+
+2) Add database driver (mySQL here):
+
+[dependency, groupId="mysql", artifactId="mysql-connector-java", version="${mysql-connector-java.version}"]
+.
+
+3) Install DbScheduler. Add SampleJob:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.dbscheduler.DbSchedulerModule;
+
+{
+  install(new HikariModule());
+  install(new DbSchedulerModule(Tasks.recurring(...)));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.dbscheduler.DbSchedulerModule
+
+{
+  install(DbSchedulerModule(Tasks.recurring(...)))
+}
+----
+
+=== Tasks
+
+Tasks are created as described in https://github.com/kagkarlsson/db-scheduler[db-scheduler documentation]. Optionally,
+you can annotate a method with the javadoc:dbscheduler.Scheduled[] annotation:
+
+.Sample Job
+[source, java, role="primary"]
+----
+import io.jooby.dbscheduler.Scheduled;
+
+public class SampleJob {
+  
+  @Scheduled("1m")
+  public void everyMinute() {
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.dbscheduler.Scheduled
+
+class SampleJob {
+  
+  @Scheduled("1m")
+  fun everyMinute() : Unit {
+    ...
+  }
+}
+----
+
+Once you annotate your method you must create task from them with:
+
+.Bean Tasks
+[source, java]
+----
+import io.jooby.dbscheduler.BeanTasks;
+
+{
+    install(new HikariModule());
+    install(new DbSchedulerModule(BeanTasks.recurring(this, SampleJob.class)));
+}
+----
+
+A task method must follow these rules:
+
+- Must be a public method
+- Possible arguments: none (zero), `TaskInstance`, `ExecutionContext`, `task data` or any other application service.
+- Return value: Task can return a value, which is persisted by DbScheduler. This is known as task data or task state.
+
+=== Scheduled
+
+The javadoc:dbscheduler.Scheduled[] annotation supports simple and cron triggers as well as property references:
+
+.Same as .fixedDelay(Duration) with duration.
+----
+@Scheduled("1h")
+----
+
+.Same as .fixedDelay(Duration) with duration set to N seconds.
+----
+@Scheduled("FIXED_DELAY|Ns")
+----
+
+.Same as .daily(LocalTime) with optional time zone (e.g. Europe/Rome, UTC)
+----
+@Scheduled("DAILY|12:30,15:30...(|time_zone)")
+----
+
+.Cron, every 5 minutes
+----
+@Scheduled("0 0/5 * * * ?")
+----
+
+.Cron, fires every 5 minutes, at 10 seconds after the minute (i.e. 10:00:10 am, 10:05:10 am, etc.)
+----
+@Scheduled("10 0/5 * * * ?")
+----
+
+.Property reference
+----
+@Scheduled("mytask.trigger")
+----
+
+The `mytask.trigger` must be defined in your application property file. It could be a any of previous expressions.
+
+=== Configuration
+
+Configuration from properties files is fully supported, just need to add javadoc:dbscheduler.DbSchedulerProperties[] properties to your
+application configuration file:
+
+.Options
+[source, properties]
+----
+# Turn on/off scheduler.
+db-scheduler.enabled = true
+# Set number of threads to use, default is to use the number of available processor
+db-scheduler.threads = 8
+db-scheduler.pollingInterval = 10s
+db-scheduler.alwaysPersistTimestampInUTC = true
+db-scheduler.enableImmediateExecution = false
+# No need to use registerShutdownHook, the scheduler is shutdown on application shutdown
+db-scheduler.registerShutdownHook = false
+db-scheduler.shutdownMaxWait = 1s
+----
+
+Check more configuration options at https://github.com/kagkarlsson/db-scheduler?tab=readme-ov-file#configuration[configuration]
+
+=== REST API
+
+This modules comes with a simple REST API (sort of) to manage tasks:
+
+.Scheduler API
+[source, java, role="primary"]
+----
+import io.jooby.dbscheduler.DbSchedulerApp;
+import io.jooby.dbscheduler.DbSchedulerModule;
+
+{
+  install(new DbScheduler(SampleJob.class));
+  
+  mount("/scheduler", new DbSchedulerApp());
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.dbscheduler.DbSchedulerApp
+import io.jooby.dbscheduler.DbSchedulerModule
+
+{
+  install(DbScheduler(SampleJob::class.java))
+
+  mount("/scheduler", DbSchedulerApp())
+}
+----
+
+The API supports all these operations:
+
+.List all tasks
+----
+GET /
+----
+
+.Running tasks
+----
+GET /running
+----
+
+.List tasks
+----
+GET /{taskName}
+----
+
+.Reschedule a task
+----
+GET /{taskName}/reschedule
+----
+
+.Pause schedule
+----
+GET /pause
+----
+
+.Resume
+----
+GET /resume
+----
+
+.State
+----
+GET /state
+----
