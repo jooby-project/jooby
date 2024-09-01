@@ -28,7 +28,6 @@ Available modules are listed next.
 
 === Development Tools
    * link:#hot-reload[Jooby Run]: Run and hot reload your application. 
-   * link:/modules/node[Node]: Download, Install and Run node locally.
    * link:/modules/whoops[Whoops]: Pretty page stacktrace reporter.
    * link:/modules/metrics[Metrics]: Application metrics from the excellent metrics library.
 
