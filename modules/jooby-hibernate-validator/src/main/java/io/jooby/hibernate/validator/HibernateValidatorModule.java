@@ -5,6 +5,7 @@
  */
 package io.jooby.hibernate.validator;
 
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -22,7 +23,35 @@ import java.util.function.Consumer;
 
 import static jakarta.validation.Validation.byProvider;
 
+/**
+ * Hibernate Validator Module: https://jooby.io/modules/hibernate-validator.
+ *
+ * <pre>{@code
+ * {
+ *   install(new HibernateValidatorModule());
+ *
+ * }
+ *
+ * public class Controller {
+ *
+ *   @POST("/create")
+ *   public void create(@Valid Bean bean) {
+ *   }
+ *
+ * }
+ * }</pre>
+ *
+ * <p>Supports validation of a single bean, list, array, or map.</p>
+ *
+ * <p>The module also provides a built-in error handler that catches {@link ConstraintViolationException}
+ * and transforms it into a {@link io.jooby.validation.ValidationResult}</p>
+ *
+ * @author kliushnichenko
+ * @since 3.2.10
+ */
 public class HibernateValidatorModule implements Extension {
+
+    private static final String CONFIG_ROOT_PATH = "hibernate.validator";
 
     private Consumer<HibernateValidatorConfiguration> configurer;
     private StatusCode statusCode = StatusCode.UNPROCESSABLE_ENTITY;
@@ -79,14 +108,21 @@ public class HibernateValidatorModule implements Extension {
     }
 
     @Override
-    public void install(@NonNull Jooby app) {
-        HibernateValidatorConfiguration cfg = byProvider(HibernateValidator.class).configure();
+    public void install(@NonNull Jooby app) throws Exception {
+        Config config = app.getConfig();
+        HibernateValidatorConfiguration hbvConfig = byProvider(HibernateValidator.class).configure();
 
-        if (configurer != null) {
-            configurer.accept(cfg);
+        if (config.hasPath(CONFIG_ROOT_PATH)) {
+            config.getConfig(CONFIG_ROOT_PATH)
+                    .root()
+                    .forEach((k, v) -> hbvConfig.addProperty(CONFIG_ROOT_PATH + "." + k, v.unwrapped().toString()));
         }
 
-        try (ValidatorFactory factory = cfg.buildValidatorFactory()) {
+        if (configurer != null) {
+            configurer.accept(hbvConfig);
+        }
+
+        try (ValidatorFactory factory = hbvConfig.buildValidatorFactory()) {
             Validator validator = factory.getValidator();
             app.getServices().put(Validator.class, validator);
             app.getServices().put(MvcValidator.class, new MvcValidatorImpl(validator));
@@ -97,7 +133,7 @@ public class HibernateValidatorModule implements Extension {
         }
     }
 
-    static class MvcValidatorImpl implements MvcValidator<ConstraintViolationException> {
+    static class MvcValidatorImpl implements MvcValidator {
 
         private final Validator validator;
 
@@ -106,7 +142,7 @@ public class HibernateValidatorModule implements Extension {
         }
 
         @Override
-        public void validate(Object bean) {
+        public void validate(Object bean) throws ConstraintViolationException {
             Set<ConstraintViolation<Object>> violations = validator.validate(bean);
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);

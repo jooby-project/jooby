@@ -385,7 +385,7 @@ public class JoobyProcessor extends AbstractProcessor {
                 "Unable to load 'BeanValidator' class. " +
                 "Bean validation usage (@Valid) was detected, but the appropriate dependency is missing. " +
                 "Please ensure that you have added the corresponding validation dependency " +
-                "(e.g., jooby-hbv).");
+                "(e.g., jooby-hibernate-validator).");
       }
     }
   }
