@@ -26,6 +26,19 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-validation</artifactId>
+      <version>${jooby.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>com.google.testing.compile</groupId>

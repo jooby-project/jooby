@@ -58,6 +58,10 @@
     <module>jooby-thymeleaf</module>
     <module>jooby-camel</module>
 
+    <!-- validation -->
+    <module>jooby-validation</module>
+    <module>jooby-hibernate-validator</module>
+
     <module>jooby-pac4j</module>
 
     <module>jooby-db-scheduler</module>

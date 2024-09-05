@@ -22,6 +22,7 @@ public class MvcParameter {
   private final VariableElement parameter;
   private final Map<String, AnnotationMirror> annotations;
   private final TypeDefinition type;
+  private final boolean requireBeanValidation;
 
   public MvcParameter(MvcContext context, MvcRoute route, VariableElement parameter) {
     this.route = route;
@@ -29,6 +30,7 @@ public class MvcParameter {
     this.annotations = annotationMap(parameter);
     this.type =
         new TypeDefinition(context.getProcessingEnvironment().getTypeUtils(), parameter.asType());
+    this.requireBeanValidation = annotations.get("jakarta.validation.Valid") != null;
   }
 
   public TypeDefinition getType() {
@@ -143,5 +145,9 @@ public class MvcParameter {
 
   private List<? extends AnnotationMirror> annotationFromAnnotationType(Element element) {
     return Optional.ofNullable(element.getAnnotationMirrors()).orElse(Collections.emptyList());
+  }
+
+  public boolean isRequireBeanValidation() {
+    return requireBeanValidation;
   }
 }

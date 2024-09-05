@@ -362,4 +362,8 @@ public class MvcRouter {
     buffer.append("}");
     return buffer.toString();
   }
+
+  public boolean hasBeanValidation() {
+    return getRoutes().stream().anyMatch(MvcRoute::hasBeanValidation);
+  }
 }

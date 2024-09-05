@@ -1,0 +1,367 @@
+== Hibernate Validator
+
+Bean validation via https://hibernate.org/validator/[Hibernate Validator].
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-hibernate-validator"]
+.
+
+2) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.hibernate.validator.HibernateValidatorModule;
+
+{
+  install(new HibernateValidatorModule());
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hibernate.validator.HibernateValidatorModule
+
+{
+  install(new HibernateValidatorModule())
+}
+----
+
+3) Usage in MVC routes
+
+.Java
+[source,java,role="primary"]
+----
+import io.jooby.annotation.*;
+import jakarta.validation.Valid;
+
+@Path("/mvc")
+public class Controller {
+
+  @POST("/validate-body")
+  public void validateBody(@Valid Bean bean) {                 // <1>
+    ...
+  }
+
+  @POST("/validate-query")
+  public void validateQuery(@Valid @QueryParam Bean bean) {    // <2>
+    ...
+  }
+
+  @POST("/validate-list")
+  public void validateList(@Valid List<Bean> beans) {          // <3>
+    ...
+  }
+
+  @POST("/validate-map")
+  public void validateMap(@Valid Map<String, Bean> beans) {    // <4>
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotation.*;
+import jakarta.validation.Valid
+
+@Path("/mvc")
+class Controller {
+
+  @POST("/validate-body")
+  fun validateBody(@Valid bean: Bean) : Unit {                 // <1>
+    ...
+  }
+
+  @POST("/validate-query")
+  fun validateQuery(@Valid @QueryParam bean: Bean) : Unit {    // <2>
+    ...
+  }
+
+  @POST("/validate-list")
+  fun validateList(@Valid beans: List<Bean>) : Unit {          // <3>
+    ...
+  }
+
+  @POST("/validate-map")
+  fun validateMap(@Valid beans: Map<String, Bean>) : Unit {    // <4>
+    ...
+  }
+}
+----
+
+<1> Validate a bean decoded from the request body
+<2> Validate a bean parsed from query parameters. This works the same for `@FormParam` or `@BindParam`
+<3> Validate a list of beans. This also applies to arrays `@Valid Bean[] beans`
+<4> Validate a map of beans
+
+4) Usage in in script/lambda routes
+
+Jooby doesn't provide fully native bean validation in script/lambda at the moment,
+but you can use a helper that we utilize under the hood in MVC routes:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.validation.BeanValidator;
+
+{
+  post("/validate", ctx -> {
+    Bean bean = BeanValidator.validate(ctx, ctx.body(Bean.class));
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.validation.BeanValidator
+
+{
+  post("/validate") {
+    val bean = BeanValidator.validate(ctx, ctx.body(Bean.class))
+    ...
+  }
+}
+----
+
+`BeanValidator.validate()` behaves identically to validation in MVC routes.
+It also supports validating list, array, and map of beans
+
+=== Constraint Violations Rendering
+
+`HibernateValidatorModule` provides default built-in error handler that
+catches `ConstraintViolationException` and transforms it into the following response:
+
+.JSON:
+----
+{
+  "title": "Validation failed",
+  "status": 422,
+  "errors": [
+    {
+      "field": "firstName",
+      "messages": [
+        "must not be empty",
+        "must not be null"
+      ],
+      "type": "FIELD"
+    },
+    {
+      "field": null,
+      "messages": [
+        "passwords are not the same"
+      ],
+      "type": "GLOBAL"
+    }
+  ]
+}
+----
+
+It is possible to override the `title` and `status` code of the response above:
+
+[source, java]
+----
+
+{
+  install(new JacksonModule());
+  install(new HibernateValidatorModule()
+    .statusCode(StatusCode.BAD_REQUEST)
+    .validationTitle("Incorrect input data")
+  );
+}
+----
+
+If the default error handler doesn't fully meet your needs, you can always disable it and provide your own:
+
+[source, java]
+----
+
+{
+  install(new JacksonModule());
+  install(new HibernateValidatorModule().disableViolationHandler());
+
+  error(ConstraintViolationException.class, new MyConstraintViolationHandler());
+}
+----
+
+=== Manual Validation
+
+The module exposes `Validator` as a service, allowing you to run validation manually at any time.
+
+==== Script/lambda:
+
+[source, java]
+----
+import jakarta.validation.Validator;
+
+{
+  post("/validate", ctx -> {
+    Validator validator = require(Validator.class);
+    Set<ConstraintViolation<Bean>> violations = validator.validate(ctx.body(Bean.class));
+    if (!violations.isEmpty()) {
+      ...
+    }
+    ...
+  });
+}
+----
+
+==== MVC routes with dependency injection:
+
+1) Install DI framework at first.
+
+[source, java]
+----
+import io.jooby.hibernate.validator.HibernateValidatorModule;
+
+{
+  install(new GuiceModule());                 // <1>
+  install(new HibernateValidatorModule());
+}
+----
+
+<1> `Guice` is just an example, you can achieve the same with `Avaje` or `Dagger`
+
+2) Inject `Validator` in controller, service etc.
+
+[source, java]
+----
+import jakarta.validation.Validator;
+import jakarta.inject.Inject;
+
+@Path("/mvc")
+public class Controller {
+
+  private final Validator validator;
+
+  @Inject
+  public Controller(Validator validator) {
+    this.validator = validator;
+  }
+
+  @POST("/validate")
+  public void validate(Bean bean) {
+    Set<ConstraintViolation<Bean>> violations = validator.validate(bean);
+    ...
+  }
+}
+----
+
+=== Business rules validation
+
+As you know, `Hibernate Validator` allows you to build fully custom `ConstraintValidator`.
+In some scenarios, you may need access not only to the bean but also to services, repositories, or other resources
+to perform more complex validations required by business rules.
+
+In this case you need to implement a custom `ConstraintValidatorFactory` that will rely on your DI framework
+instantiating your custom `ConstraintValidator`
+
+1) Implement custom `ConstraintValidatorFactory`:
+
+[source, java]
+----
+public class MyConstraintValidatorFactory implements ConstraintValidatorFactory {
+
+    private final Function<Class<?>, ?> require;
+    private final ConstraintValidatorFactory defaultFactory;
+
+    public MyConstraintValidatorFactory(Function<Class<?>, ?> require) {
+        this.require = require;
+        try (ValidatorFactory factory = Validation.byDefaultProvider()
+                                          .configure().buildValidatorFactory()) {
+            this.defaultFactory = factory.getConstraintValidatorFactory();
+        }
+    }
+
+    @Override
+    public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> key) {
+        if (isBuiltIn(key)) {
+            // use default factory for built-in constraint validators
+            return defaultFactory.getInstance(key);
+        } else {
+            // use DI to instantiate custom constraint validator
+            return (T) require.apply(key);
+        }
+    }
+
+    @Override
+    public void releaseInstance(ConstraintValidator<?, ?> instance) {
+      if(isBuiltIn(instance.getClass())) {
+        defaultFactory.releaseInstance(instance);
+      } else {
+        // No-op: lifecycle usually handled by DI framework
+      }
+    }
+
+    private boolean isBuiltIn(Class<?> key) {
+      return key.getName().startsWith("org.hibernate.validator");
+    }
+}
+----
+
+2) Register your custom `ConstraintValidatorFactory`:
+
+[source, java]
+----
+{
+  install(new HibernateValidatorModule().doWith(cfg -> {
+    cfg.constraintValidatorFactory(new MyConstraintValidatorFactory(this::require));  // <1>
+  }));
+}
+----
+
+<1> This approach using `require` will work with `Guice` or `Avaje`. For `Dagger`, a bit more effort is required,
+but the concept is the same, and the same result can be achieved. Both `Avaje` and `Dagger` require additional
+configuration due to their build-time nature.
+
+
+3) Implement your custom `ConstraintValidator`
+
+[source, java]
+----
+public class MyCustomValidator implements ConstraintValidator<MyCustomAnnotation, Bean> {
+
+  // This is the service you want to inject
+  private final MyService myService;
+
+  @Inject
+  public MyCustomValidator(MyService myService) {
+    this.myService = myService;
+  }
+
+  @Override
+  public boolean isValid(Bean bean, ConstraintValidatorContext context) {
+    // Use the injected service for validation logic
+    return myService.isValid(bean);
+  }
+}
+----
+
+=== Configuration
+Any property defined at `hibernate.validator` will be added automatically:
+
+.application.conf
+[source, properties]
+----
+hibernate.validator.fail_fast = true
+----
+
+Or programmatically:
+
+[source, java]
+----
+import io.jooby.hibernate.validator.HibernateValidatorModule;
+
+{
+  install(new HibernateValidatorModule().doWith(cfg -> {
+    cfg.failFast(true);
+  }));
+}
+----

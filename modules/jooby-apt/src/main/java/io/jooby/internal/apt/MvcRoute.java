@@ -30,6 +30,7 @@ public class MvcRoute {
   private String generatedName;
   private final boolean suspendFun;
   private boolean uncheckedCast;
+  private final boolean hasBeanValidation;
 
   public MvcRoute(MvcContext context, MvcRouter router, ExecutableElement method) {
     this.context = context;
@@ -37,6 +38,7 @@ public class MvcRoute {
     this.method = method;
     this.parameters =
         method.getParameters().stream().map(it -> new MvcParameter(context, this, it)).toList();
+    this.hasBeanValidation = parameters.stream().anyMatch(MvcParameter::isRequireBeanValidation);
     this.suspendFun =
         !parameters.isEmpty()
             && parameters.get(parameters.size() - 1).getType().is("kotlin.coroutines.Continuation");
@@ -51,6 +53,7 @@ public class MvcRoute {
     this.method = route.method;
     this.parameters =
         method.getParameters().stream().map(it -> new MvcParameter(context, this, it)).toList();
+    this.hasBeanValidation = parameters.stream().anyMatch(MvcParameter::isRequireBeanValidation);
     this.returnType =
         new TypeDefinition(
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
@@ -203,7 +206,16 @@ public class MvcRoute {
     /* Parameters */
     var paramList = new StringJoiner(", ", "(", ")");
     for (var parameter : getParameters(true)) {
-      paramList.add(parameter.generateMapping(kt));
+      String generatedParameter = parameter.generateMapping(kt);
+      if (parameter.isRequireBeanValidation()) {
+        generatedParameter = CodeBlock.of(
+                "io.jooby.validation.BeanValidator.validate(",
+                "ctx, ",
+                generatedParameter,
+                ")");
+      }
+
+      paramList.add(generatedParameter);
     }
     var throwsException = !method.getThrownTypes().isEmpty();
     var returnTypeGenerics =
@@ -481,5 +493,9 @@ public class MvcRoute {
 
   public void setUncheckedCast(boolean value) {
     this.uncheckedCast = value;
+  }
+
+  public boolean hasBeanValidation() {
+    return hasBeanValidation;
   }
 }

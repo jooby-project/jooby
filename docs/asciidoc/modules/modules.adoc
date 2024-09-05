@@ -26,6 +26,9 @@ Available modules are listed next.
    * link:/modules/kafka[Kafka]: Kafka module.
    * link:/modules/redis[Redis]: Redis module.
 
+=== Validation
+   * link:/modules/hibernate-validator[Hibernate Validator]: Hibernate Validator module.
+
 === Development Tools
    * link:#hot-reload[Jooby Run]: Run and hot reload your application. 
    * link:/modules/whoops[Whoops]: Pretty page stacktrace reporter.
