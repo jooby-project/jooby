@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -221,7 +222,10 @@ public interface DefaultContext extends Context {
 
   @Override
   @NonNull default Map<String, String> headerMap() {
-    return header().toMap();
+    final var header = header();
+    Map<String, String> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    header.toMultimap().forEach((k, v) -> map.put(k, v.get(0)));
+    return map;
   }
 
   @Override
