@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.awssdkv1;
+package io.jooby.awssdkv1;
 
 import static com.amazonaws.SDKGlobalConfiguration.ACCESS_KEY_SYSTEM_PROPERTY;
 import static com.amazonaws.SDKGlobalConfiguration.SECRET_KEY_SYSTEM_PROPERTY;
@@ -17,7 +17,7 @@ import com.typesafe.config.ConfigException;
 
 public class ConfigCredentialsProvider implements AWSCredentialsProvider {
 
-  private Config config;
+  private final Config config;
 
   public ConfigCredentialsProvider(Config config) {
     this.config = config;

@@ -5,10 +5,7 @@
  */
 package io.jooby.awssdkv1;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -26,7 +23,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
-import io.jooby.internal.awssdkv1.ConfigCredentialsProvider;
 import io.jooby.internal.awssdkv1.ServiceShutdown;
 
 /**
@@ -64,6 +60,15 @@ import io.jooby.internal.awssdkv1.ServiceShutdown;
 public class AwsModule implements Extension {
 
   private final List<Function<AWSCredentialsProvider, Object>> factoryList = new ArrayList<>();
+  private final AWSCredentialsProvider credentialsProvider;
+
+  public AwsModule(@NonNull AWSCredentialsProvider credentialsProvider) {
+    this.credentialsProvider = credentialsProvider;
+  }
+
+  public AwsModule() {
+    this.credentialsProvider = null;
+  }
 
   /**
    * Setup a new AWS service. Supported outputs are:
@@ -83,7 +88,9 @@ public class AwsModule implements Extension {
 
   @Override
   public void install(@NonNull Jooby application) throws Exception {
-    AWSCredentialsProvider credentialsProvider = newCredentialsProvider(application.getConfig());
+    var credentialsProvider =
+        Optional.ofNullable(this.credentialsProvider)
+            .orElseGet(() -> newCredentialsProvider(application.getConfig()));
     List<Object> serviceList = new ArrayList<>(factoryList.size());
     for (Function<AWSCredentialsProvider, Object> factory : factoryList) {
       Object value = factory.apply(credentialsProvider);
