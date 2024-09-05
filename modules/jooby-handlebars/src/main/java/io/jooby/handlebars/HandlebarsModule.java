@@ -14,10 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.ValueResolver;
 import com.github.jknack.handlebars.cache.HighConcurrencyTemplateCache;
 import com.github.jknack.handlebars.cache.NullTemplateCache;
 import com.github.jknack.handlebars.cache.TemplateCache;
@@ -199,6 +202,9 @@ public class HandlebarsModule implements Extension {
 
   private Path templatesPath;
 
+  private final Deque<ValueResolver> resolvers =
+      new LinkedList<>(ValueResolver.defaultValueResolvers());
+
   /**
    * Creates a new handlebars module.
    *
@@ -233,6 +239,17 @@ public class HandlebarsModule implements Extension {
     this(TemplateEngine.PATH);
   }
 
+  /**
+   * Add custom value resolver.
+   *
+   * @param resolver Value resolver.
+   * @return This module.
+   */
+  public HandlebarsModule with(@NonNull ValueResolver resolver) {
+    resolvers.addFirst(resolver);
+    return this;
+  }
+
   @Override
   public void install(@NonNull Jooby application) throws Exception {
     if (handlebars == null) {
@@ -242,7 +259,8 @@ public class HandlebarsModule implements Extension {
               .setTemplatesPath(templatesPath)
               .build(application.getEnvironment());
     }
-    application.encoder(new HandlebarsTemplateEngine(handlebars, EXT));
+    application.encoder(
+        new HandlebarsTemplateEngine(handlebars, resolvers.toArray(new ValueResolver[0]), EXT));
 
     ServiceRegistry services = application.getServices();
     services.put(Handlebars.class, handlebars);

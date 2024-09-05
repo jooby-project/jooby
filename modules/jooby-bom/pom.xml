@@ -7,13 +7,13 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.2.10-SNAPSHOT</version>
+    <version>3.3.1-SNAPSHOT</version>
   </parent>
 
   <groupId>io.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
   <packaging>pom</packaging>
-  <version>3.2.10-SNAPSHOT</version>
+  <version>3.3.1-SNAPSHOT</version>
   <description>Jooby (Bill of Materials)</description>
   <url>https://jooby.io</url>
 
@@ -67,6 +67,11 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-conscrypt</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-db-scheduler</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -207,11 +212,6 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-netty</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-node</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

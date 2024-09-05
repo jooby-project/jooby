@@ -6,15 +6,11 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.2.10-SNAPSHOT</version>
+    <version>3.3.1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-node</artifactId>
-
-  <properties>
-    <Module-Name>io.jooby.node</Module-Name>
-  </properties>
+  <artifactId>jooby-db-scheduler</artifactId>
 
   <dependencies>
     <dependency>
@@ -23,10 +19,11 @@
       <version>${jooby.version}</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/com.github.kagkarlsson/db-scheduler -->
     <dependency>
-      <groupId>com.github.eirslett</groupId>
-      <artifactId>frontend-plugin-core</artifactId>
-      <version>${frontend-plugin-core.version}</version>
+      <groupId>com.github.kagkarlsson</groupId>
+      <artifactId>db-scheduler</artifactId>
+      <version>14.1.0</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -42,28 +39,5 @@
       <classifier>runtime</classifier>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-test</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven-jar-plugin.version}</version>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

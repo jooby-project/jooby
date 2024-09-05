@@ -6,10 +6,10 @@ Templates are available via javadoc:ModelAndView[] and requires a javadoc:Templa
 [source, java, role = "primary"]
 ----
 {
-  install(new MyTemplateEngineModule());            <1>
+  install(new MyTemplateEngineModule());           <1>
   
   get("/", ctx -> {
-    MyModel model = ...;                <2>
+    MyModel model = ...;                           <2>
     return new ModelAndView("index.html", model);  <3>
   });
 }
@@ -22,8 +22,8 @@ Templates are available via javadoc:ModelAndView[] and requires a javadoc:Templa
   install(MyTemplateEngineModule())                 <1>
   
   get("/") { ctx ->
-    val model = MyModel(...)                          <2>
-    ModelAndView("index.html", model)              <3>
+    val model = MyModel(...)                        <2>
+    ModelAndView("index.html", model)               <3>
   }
 }
 ----

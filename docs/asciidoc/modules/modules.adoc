@@ -31,7 +31,6 @@ Available modules are listed next.
 
 === Development Tools
    * link:#hot-reload[Jooby Run]: Run and hot reload your application. 
-   * link:/modules/node[Node]: Download, Install and Run node locally.
    * link:/modules/whoops[Whoops]: Pretty page stacktrace reporter.
    * link:/modules/metrics[Metrics]: Application metrics from the excellent metrics library.
 
@@ -57,7 +56,7 @@ Available modules are listed next.
    * link:/modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.
 
 === Security
-   * link:/modules/jasypt[Jasypt]: Encripted configuration files.
+   * link:/modules/jasypt[Jasypt]: Encrypted configuration files.
    * link:/modules/pac4j[Pac4j]: Security engine module.
 
 === Session Store
@@ -65,8 +64,8 @@ Available modules are listed next.
    * link:/modules/jwt-session-store[JWT]: JSON Web Token session store.
    * link:/modules/redis#redis-http-session[Redis]: Save session data on redis.
 
-=== Misc
-   * link:/modules/node[Node]: Node integration module.
+=== Scheduler
+   * link:/modules/db-scheduler[DbScheduler]: Db scheduler module.
    * link:/modules/quartz[Quartz]: Quartz scheduler module.
 
 .

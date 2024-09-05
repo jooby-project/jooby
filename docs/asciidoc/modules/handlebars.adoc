@@ -28,7 +28,7 @@ import io.jooby.handlebars.HandlebarsModule;
   install(new HandlebarsModule());
 
   get("/", ctx -> {
-    return new ModelAndView("index.hbs")
+    return new MapModelAndView("index.hbs")
         .put("name", "Jooby");
   });
 }
@@ -43,7 +43,7 @@ import io.jooby.handlebars.HandlebarsModule
   install(HandlebarsModule())
   
   get("/") {
-    ModelAndView("index.hbs")
+    MapModelAndView("index.hbs")
         .put("name", "Jooby")
   }
 }

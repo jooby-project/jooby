@@ -14,6 +14,7 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.ValueResolver;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Environment;
 import io.jooby.ModelAndView;
@@ -46,7 +47,10 @@ public class HandlebarsModuleTest {
         HandlebarsModule.create()
             .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
     HandlebarsTemplateEngine engine =
-        new HandlebarsTemplateEngine(handlebars, Arrays.asList(".hbs"));
+        new HandlebarsTemplateEngine(
+            handlebars,
+            ValueResolver.defaultValueResolvers().toArray(new ValueResolver[0]),
+            Arrays.asList(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     var output =
@@ -63,7 +67,10 @@ public class HandlebarsModuleTest {
             .setTemplatesPath(Paths.get("src", "test", "resources", "views").toString())
             .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
     HandlebarsTemplateEngine engine =
-        new HandlebarsTemplateEngine(handlebars, Arrays.asList(".hbs"));
+        new HandlebarsTemplateEngine(
+            handlebars,
+            ValueResolver.defaultValueResolvers().toArray(new ValueResolver[0]),
+            Arrays.asList(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     var output =
