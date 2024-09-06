@@ -28,7 +28,7 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Hibernate Validator -->
+    <!-- Avaje Validator -->
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-validator</artifactId>

@@ -9,7 +9,44 @@ Bean validation via https://avaje.io/validator/[Avaje Validator].
 [dependency, artifactId="jooby-avaje-validator"]
 .
 
-2) Install
+2) Configure annotation processor
+
+.Maven
+[source, xml, role = "primary"]
+----
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>...</version>
+      <configuration>
+        <annotationProcessorPaths>
+          <path>
+            <groupId>io.avaje</groupId>
+            <artifactId>avaje-validator-generator</artifactId>
+            <version>2.1</version>
+          </path>
+        </annotationProcessorPaths>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+----
+
+.Gradle
+[source, kotlin, role = "secondary"]
+----
+plugins {
+  id "org.jetbrains.kotlin.kapt" version "1.9.10"
+}
+
+dependencies {
+  kapt 'io.avaje:avaje-validator-generator:2.1'
+}
+----
+
+3) Install
 
 .Java
 [source, java, role="primary"]
@@ -31,7 +68,7 @@ import io.jooby.avaje.validator.AvajeValidatorModule
 }
 ----
 
-3) Usage in MVC routes
+4) Usage in MVC routes
 
 .Java
 [source,java,role="primary"]

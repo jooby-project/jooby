@@ -48,7 +48,7 @@ import static jakarta.validation.Validation.byProvider;
  * and transforms it into a {@link io.jooby.validation.ValidationResult}</p>
  *
  * @author kliushnichenko
- * @since 3.2.10
+ * @since 3.3.1
  */
 public class HibernateValidatorModule implements Extension {
 
