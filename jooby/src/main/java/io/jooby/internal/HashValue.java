@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -29,17 +28,11 @@ import io.jooby.FileUpload;
 import io.jooby.ValueNode;
 
 public class HashValue implements ValueNode {
-  private static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
+  protected static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
   private Context ctx;
-  private Map<String, ValueNode> hash = EMPTY;
+  protected Map<String, ValueNode> hash = EMPTY;
   private final String name;
   private boolean arrayLike;
-
-  public HashValue(Context ctx, String name, Supplier<Map<String, ValueNode>> mapSupplier) {
-    this.ctx = ctx;
-    this.name = name;
-    this.hash = mapSupplier.get();
-  }
 
   public HashValue(Context ctx, String name) {
     this.ctx = ctx;
@@ -164,7 +157,7 @@ public class HashValue implements ValueNode {
     return true;
   }
 
-  private Map<String, ValueNode> hash() {
+  protected Map<String, ValueNode> hash() {
     if (hash == EMPTY) {
       hash = new LinkedHashMap<>();
     }

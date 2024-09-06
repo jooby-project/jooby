@@ -397,7 +397,7 @@ public interface Context extends Registry {
   /**
    * Header as single-value map.
    *
-   * @return Header as single-value map.
+   * @return Header as single-value map, with case insensitive keys.
    */
   @NonNull Map<String, String> headerMap();
 
