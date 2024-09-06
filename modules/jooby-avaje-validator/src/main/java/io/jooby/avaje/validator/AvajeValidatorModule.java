@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.validation.ConstraintViolationException;
 import io.avaje.validation.Validator;
+import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
@@ -169,8 +170,8 @@ public class AvajeValidatorModule implements Extension {
     }
 
     @Override
-    public void validate(Object bean) throws ConstraintViolationException {
-      validator.validate(bean);
+    public void validate(Context ctx, Object bean) throws ConstraintViolationException {
+      validator.validate(bean, ctx.locale());
     }
   }
 }

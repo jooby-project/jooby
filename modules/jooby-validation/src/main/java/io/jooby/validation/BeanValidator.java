@@ -20,33 +20,27 @@ import java.util.Map;
  */
 public final class BeanValidator {
 
+    private BeanValidator() {}
+
     public static <T> T validate(Context ctx, T bean) {
         MvcValidator validator = ctx.require(MvcValidator.class);
 
         if (bean instanceof Collection<?>) {
-            validateCollection(validator, (Collection<?>) bean);
+            validateCollection(validator, ctx, (Collection<?>) bean);
         } else if (bean.getClass().isArray()) {
-            validateCollection(validator, Arrays.asList((Object[]) bean));
+            validateCollection(validator, ctx, Arrays.asList((Object[]) bean));
         } else if (bean instanceof Map<?, ?>) {
-            validateCollection(validator, ((Map<?, ?>) bean).values());
+            validateCollection(validator, ctx, ((Map<?, ?>) bean).values());
         } else {
-            validateObject(validator, bean);
+            validator.validate(ctx, bean);
         }
 
         return bean;
     }
 
-    private static void validateCollection(MvcValidator validator, Collection<?> beans) {
-        for (Object item : beans) {
-            validateObject(validator, item);
-        }
-    }
-
-    private static void validateObject(MvcValidator validator, Object bean) {
-        try {
-            validator.validate(bean);
-        } catch (Throwable e) {
-            SneakyThrows.propagate(e);
+    private static void validateCollection(MvcValidator validator, Context ctx, Collection<?> beans) {
+        for (var item : beans) {
+          validator.validate(ctx, item);
         }
     }
 }

@@ -351,6 +351,12 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-avaje-validator</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-hibernate</artifactId>
         <version>${jooby.version}</version>
       </dependency>

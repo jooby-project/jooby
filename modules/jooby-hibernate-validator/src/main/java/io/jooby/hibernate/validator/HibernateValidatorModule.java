@@ -7,6 +7,7 @@ package io.jooby.hibernate.validator;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
@@ -142,7 +143,7 @@ public class HibernateValidatorModule implements Extension {
         }
 
         @Override
-        public void validate(Object bean) throws ConstraintViolationException {
+        public void validate(Context ctx, Object bean) throws ConstraintViolationException {
             Set<ConstraintViolation<Object>> violations = validator.validate(bean);
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
