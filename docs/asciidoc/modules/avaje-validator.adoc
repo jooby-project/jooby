@@ -1,0 +1,274 @@
+== Avaje Validator
+
+Bean validation via https://avaje.io/validator/[Avaje Validator].
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-avaje-validator"]
+.
+
+2) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.avaje.validator.AvajeValidatorModule;
+
+{
+  install(new AvajeValidatorModule());
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.avaje.validator.AvajeValidatorModule
+
+{
+  install(new AvajeValidatorModule())
+}
+----
+
+3) Usage in MVC routes
+
+.Java
+[source,java,role="primary"]
+----
+import io.jooby.annotation.*;
+import jakarta.validation.Valid;
+
+@Path("/mvc")
+public class Controller {
+
+  @POST("/validate-body")
+  public void validateBody(@Valid Bean bean) {                 // <1>
+    ...
+  }
+
+  @POST("/validate-query")
+  public void validateQuery(@Valid @QueryParam Bean bean) {    // <2>
+    ...
+  }
+
+  @POST("/validate-list")
+  public void validateList(@Valid List<Bean> beans) {          // <3>
+    ...
+  }
+
+  @POST("/validate-map")
+  public void validateMap(@Valid Map<String, Bean> beans) {    // <4>
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotation.*;
+import jakarta.validation.Valid
+
+@Path("/mvc")
+class Controller {
+
+  @POST("/validate-body")
+  fun validateBody(@Valid bean: Bean) : Unit {                 // <1>
+    ...
+  }
+
+  @POST("/validate-query")
+  fun validateQuery(@Valid @QueryParam bean: Bean) : Unit {    // <2>
+    ...
+  }
+
+  @POST("/validate-list")
+  fun validateList(@Valid beans: List<Bean>) : Unit {          // <3>
+    ...
+  }
+
+  @POST("/validate-map")
+  fun validateMap(@Valid beans: Map<String, Bean>) : Unit {    // <4>
+    ...
+  }
+}
+----
+
+<1> Validate a bean decoded from the request body
+<2> Validate a bean parsed from query parameters. This works the same for `@FormParam` or `@BindParam`
+<3> Validate a list of beans. This also applies to arrays `@Valid Bean[] beans`
+<4> Validate a map of beans
+
+4) Usage in in script/lambda routes
+
+Jooby doesn't provide fully native bean validation in script/lambda at the moment,
+but you can use a helper that we utilize under the hood in MVC routes:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.validation.BeanValidator;
+
+{
+  post("/validate", ctx -> {
+    Bean bean = BeanValidator.validate(ctx, ctx.body(Bean.class));
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.validation.BeanValidator
+
+{
+  post("/validate") {
+    val bean = BeanValidator.validate(ctx, ctx.body(Bean.class))
+    ...
+  }
+}
+----
+
+`BeanValidator.validate()` behaves identically to validation in MVC routes.
+It also supports validating list, array, and map of beans
+
+=== Constraint Violations Rendering
+
+`AvajeValidatorModule` provides default built-in error handler that
+catches `ConstraintViolationException` and transforms it into the following response:
+
+.JSON:
+----
+{
+  "title": "Validation failed",
+  "status": 422,
+  "errors": [
+    {
+      "field": "firstName",
+      "messages": [
+        "must not be empty",
+        "must not be null"
+      ],
+      "type": "FIELD"
+    },
+    {
+      "field": null,
+      "messages": [
+        "passwords are not the same"
+      ],
+      "type": "GLOBAL"
+    }
+  ]
+}
+----
+
+It is possible to override the `title` and `status` code of the response above:
+
+[source, java]
+----
+
+{
+  install(new AvajeJsonbModule());
+  install(new AvajeValidatorModule()
+    .statusCode(StatusCode.BAD_REQUEST)
+    .validationTitle("Incorrect input data")
+  );
+}
+----
+
+If the default error handler doesn't fully meet your needs, you can always disable it and provide your own:
+
+[source, java]
+----
+
+{
+  install(new AvajeJsonbModule());
+  install(new AvajeValidatorModule().disableViolationHandler());
+
+  error(ConstraintViolationException.class, new MyConstraintViolationHandler());
+}
+----
+
+=== Manual Validation
+
+The module exposes `Validator` as a service, allowing you to run validation manually at any time.
+
+==== Script/lambda:
+
+[source, java]
+----
+import io.avaje.validation.Validator;
+
+{
+  post("/validate", ctx -> {
+    Validator validator = require(Validator.class);
+    validator.validate(ctx.body(Bean.class));
+    ...
+  });
+}
+----
+
+==== MVC routes with dependency injection:
+
+1) Install DI framework at first.
+
+[source, java]
+----
+import io.jooby.avaje.validator.AvajeValidatorModule;
+
+{
+  install(AvajeInjectModule.of());                 // <1>
+  install(new AvajeValidatorModule());
+}
+----
+
+<1> `Avaje` is just an example, you can achieve the same with `Dagger` or `Guice`
+
+2) Inject `Validator` in controller, service etc.
+
+[source, java]
+----
+import io.avaje.validation.Validator;
+import jakarta.inject.Inject;
+
+@Path("/mvc")
+public class Controller {
+
+  private final Validator validator;
+
+  @Inject
+  public Controller(Validator validator) {
+    this.validator = validator;
+  }
+
+  @POST("/validate")
+  public void validate(Bean bean) {
+    Set<ConstraintViolation<Bean>> violations = validator.validate(bean);
+    ...
+  }
+}
+----
+
+=== Configuration
+Any property defined at `validation` will be added automatically:
+
+.application.conf
+[source, properties]
+----
+validation.fail_fast = true
+----
+
+Or programmatically:
+
+[source, java]
+----
+import io.jooby.avaje.validator.AvajeValidatorModule;
+
+{
+  install(new AvajeValidatorModule().doWith(cfg -> {
+    cfg.failFast(true);
+  }));
+}
+----
