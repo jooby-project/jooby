@@ -27,6 +27,7 @@ Available modules are listed next.
    * link:/modules/redis[Redis]: Redis module.
 
 === Validation
+   * link:/modules/avaje-validator[Avaje Validator]: Avaje Validator module.
    * link:/modules/hibernate-validator[Hibernate Validator]: Hibernate Validator module.
 
 === Development Tools

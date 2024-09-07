@@ -46,7 +46,7 @@ import static java.util.stream.Collectors.groupingBy;
  * }</pre>
  *
  * @author kliushnichenko
- * @since 3.2.10
+ * @since 3.3.1
  */
 public class ConstraintViolationHandler implements ErrorHandler {
 

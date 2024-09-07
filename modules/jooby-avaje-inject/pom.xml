@@ -11,7 +11,11 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-avaje-inject</artifactId>
-
+  
+  <properties>
+    <maven.compiler.proc>full</maven.compiler.proc>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>com.github.spotbugs</groupId>
@@ -21,7 +25,6 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby</artifactId>
-      <version>${jooby.version}</version>
     </dependency>
 
     <!-- Avaje Inject -->
@@ -33,7 +36,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-inject-generator</artifactId>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
 
     <!-- Test dependencies -->
@@ -74,30 +77,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>test</id>
-            <phase>test-compile</phase>
-          </execution>
-        </executions>
-        <configuration>
-           <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>io.avaje</groupId>
-              <artifactId>avaje-inject-generator</artifactId>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
