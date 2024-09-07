@@ -41,7 +41,17 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-avaje-validator</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-awssdk-v1</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-awssdk-v2</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -287,6 +297,11 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-undertow</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-validation</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
