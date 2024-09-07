@@ -22,12 +22,6 @@
       <artifactId>jooby</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-validation</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- Avaje Validator -->
     <dependency>
       <groupId>io.avaje</groupId>

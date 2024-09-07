@@ -27,7 +27,7 @@ import io.jooby.hibernate.validator.HibernateValidatorModule;
 import io.jooby.hibernate.validator.HibernateValidatorModule
 
 {
-  install(new HibernateValidatorModule())
+  install(HibernateValidatorModule())
 }
 ----
 
@@ -102,17 +102,15 @@ class Controller {
 
 4) Usage in in script/lambda routes
 
-Jooby doesn't provide fully native bean validation in script/lambda at the moment,
-but you can use a helper that we utilize under the hood in MVC routes:
-
 .Java
 [source, java, role="primary"]
 ----
 import io.jooby.validation.BeanValidator;
 
 {
+  use(BeanValidator.validate());
   post("/validate", ctx -> {
-    Bean bean = BeanValidator.validate(ctx, ctx.body(Bean.class));
+    Bean bean = ctx.body(Bean.class);
     ...
   });
 }
@@ -124,8 +122,9 @@ import io.jooby.validation.BeanValidator;
 import io.jooby.validation.BeanValidator
 
 {
+  use(BeanValidator.validate())
   post("/validate") {
-    val bean = BeanValidator.validate(ctx, ctx.body(Bean.class))
+    val bean = ctx, ctx.body(Bean.class)
     ...
   }
 }
@@ -133,6 +132,21 @@ import io.jooby.validation.BeanValidator
 
 `BeanValidator.validate()` behaves identically to validation in MVC routes.
 It also supports validating list, array, and map of beans
+
+There is a handler version of it, so you can apply per route:
+
+.validate
+[source, java]
+----
+import io.jooby.validation.BeanValidator.validate;
+
+{
+  post("/validate", validate(ctx -> {
+    Bean bean = ctx.body(Bean.class);
+    ...
+  }));
+}
+----
 
 === Constraint Violations Rendering
 

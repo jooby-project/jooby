@@ -16,10 +16,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.security.cert.Certificate;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -30,10 +30,573 @@ import io.jooby.exception.RegistryException;
 /**
  * Utility class that helps to wrap and delegate to another context.
  *
- * @since 2.0.2
  * @author edgar
+ * @since 2.0.2
  */
 public class ForwardingContext implements Context {
+
+  public static class ForwardingBody implements Body {
+    protected final Body delegate;
+
+    public ForwardingBody(Body body) {
+      this.delegate = body;
+    }
+
+    @Override
+    @NonNull public String value(@NonNull Charset charset) {
+      return delegate.value(charset);
+    }
+
+    @Override
+    @NonNull public byte[] bytes() {
+      return delegate.bytes();
+    }
+
+    @Override
+    public boolean isInMemory() {
+      return delegate.isInMemory();
+    }
+
+    @Override
+    public long getSize() {
+      return delegate.getSize();
+    }
+
+    @Override
+    @NonNull public ReadableByteChannel channel() {
+      return delegate.channel();
+    }
+
+    @Override
+    @NonNull public InputStream stream() {
+      return delegate.stream();
+    }
+
+    @Override
+    @NonNull public <T> List<T> toList(@NonNull Class<T> type) {
+      return delegate.toList(type);
+    }
+
+    @Override
+    @NonNull public List<String> toList() {
+      return delegate.toList();
+    }
+
+    @Override
+    @NonNull public Set<String> toSet() {
+      return delegate.toSet();
+    }
+
+    @Override
+    @NonNull public <T> T to(@NonNull Class<T> type) {
+      return delegate.to(type);
+    }
+
+    @Override
+    @Nullable public <T> T toNullable(@NonNull Class<T> type) {
+      return delegate.toNullable(type);
+    }
+
+    @Override
+    @NonNull public <T> T to(@NonNull Type type) {
+      return delegate.to(type);
+    }
+
+    @Override
+    @Nullable public <T> T toNullable(@NonNull Type type) {
+      return delegate.toNullable(type);
+    }
+
+    @Override
+    @NonNull public ValueNode get(@NonNull int index) {
+      return delegate.get(index);
+    }
+
+    @Override
+    @NonNull public ValueNode get(@NonNull String name) {
+      return delegate.get(name);
+    }
+
+    @Override
+    public int size() {
+      return delegate.size();
+    }
+
+    @Override
+    @NonNull public Iterator<ValueNode> iterator() {
+      return delegate.iterator();
+    }
+
+    @Override
+    @NonNull public String resolve(@NonNull String expression) {
+      return delegate.resolve(expression);
+    }
+
+    @Override
+    @NonNull public String resolve(@NonNull String expression, boolean ignoreMissing) {
+      return delegate.resolve(expression, ignoreMissing);
+    }
+
+    @Override
+    @NonNull public String resolve(
+        @NonNull String expression, @NonNull String startDelim, @NonNull String endDelim) {
+      return delegate.resolve(expression, startDelim, endDelim);
+    }
+
+    @Override
+    @NonNull public String resolve(
+        @NonNull String expression,
+        boolean ignoreMissing,
+        @NonNull String startDelim,
+        @NonNull String endDelim) {
+      return delegate.resolve(expression, ignoreMissing, startDelim, endDelim);
+    }
+
+    @Override
+    public void forEach(Consumer<? super ValueNode> action) {
+      delegate.forEach(action);
+    }
+
+    @Override
+    public Spliterator<ValueNode> spliterator() {
+      return delegate.spliterator();
+    }
+
+    @Override
+    public long longValue() {
+      return delegate.longValue();
+    }
+
+    @Override
+    public long longValue(long defaultValue) {
+      return delegate.longValue(defaultValue);
+    }
+
+    @Override
+    public int intValue() {
+      return delegate.intValue();
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+      return delegate.intValue(defaultValue);
+    }
+
+    @Override
+    public byte byteValue() {
+      return delegate.byteValue();
+    }
+
+    @Override
+    public byte byteValue(byte defaultValue) {
+      return delegate.byteValue(defaultValue);
+    }
+
+    @Override
+    public float floatValue() {
+      return delegate.floatValue();
+    }
+
+    @Override
+    public float floatValue(float defaultValue) {
+      return delegate.floatValue(defaultValue);
+    }
+
+    @Override
+    public double doubleValue() {
+      return delegate.doubleValue();
+    }
+
+    @Override
+    public double doubleValue(double defaultValue) {
+      return delegate.doubleValue(defaultValue);
+    }
+
+    @Override
+    public boolean booleanValue() {
+      return delegate.booleanValue();
+    }
+
+    @Override
+    public boolean booleanValue(boolean defaultValue) {
+      return delegate.booleanValue(defaultValue);
+    }
+
+    @Override
+    @NonNull public String value(@NonNull String defaultValue) {
+      return delegate.value(defaultValue);
+    }
+
+    @Override
+    @Nullable public String valueOrNull() {
+      return delegate.valueOrNull();
+    }
+
+    @Override
+    @NonNull public <T> T value(@NonNull SneakyThrows.Function<String, T> fn) {
+      return delegate.value(fn);
+    }
+
+    @Override
+    @NonNull public String value() {
+      return delegate.value();
+    }
+
+    @Override
+    @NonNull public <T extends Enum<T>> T toEnum(@NonNull SneakyThrows.Function<String, T> fn) {
+      return delegate.toEnum(fn);
+    }
+
+    @Override
+    @NonNull public <T extends Enum<T>> T toEnum(
+        @NonNull SneakyThrows.Function<String, T> fn,
+        @NonNull Function<String, String> nameProvider) {
+      return delegate.toEnum(fn, nameProvider);
+    }
+
+    @Override
+    @NonNull public Optional<String> toOptional() {
+      return delegate.toOptional();
+    }
+
+    @Override
+    public boolean isSingle() {
+      return delegate.isSingle();
+    }
+
+    @Override
+    public boolean isMissing() {
+      return delegate.isMissing();
+    }
+
+    @Override
+    public boolean isPresent() {
+      return delegate.isPresent();
+    }
+
+    @Override
+    public boolean isArray() {
+      return delegate.isArray();
+    }
+
+    @Override
+    public boolean isObject() {
+      return delegate.isObject();
+    }
+
+    @Override
+    @Nullable public String name() {
+      return delegate.name();
+    }
+
+    @Override
+    @NonNull public <T> Optional<T> toOptional(@NonNull Class<T> type) {
+      return delegate.toOptional(type);
+    }
+
+    @Override
+    @NonNull public <T> Set<T> toSet(@NonNull Class<T> type) {
+      return delegate.toSet(type);
+    }
+
+    @Override
+    @NonNull public Map<String, List<String>> toMultimap() {
+      return delegate.toMultimap();
+    }
+
+    @Override
+    @NonNull public Map<String, String> toMap() {
+      return delegate.toMap();
+    }
+  }
+
+  public static class ForwardingValueNode implements ValueNode {
+    protected final ValueNode delegate;
+
+    public ForwardingValueNode(ValueNode delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    @NonNull public ValueNode get(@NonNull int index) {
+      return delegate.get(index);
+    }
+
+    @Override
+    @NonNull public ValueNode get(@NonNull String name) {
+      return delegate.get(name);
+    }
+
+    @Override
+    public int size() {
+      return delegate.size();
+    }
+
+    @Override
+    @NonNull public Iterator<ValueNode> iterator() {
+      return delegate.iterator();
+    }
+
+    @Override
+    @NonNull public String resolve(@NonNull String expression) {
+      return delegate.resolve(expression);
+    }
+
+    @Override
+    @NonNull public String resolve(@NonNull String expression, boolean ignoreMissing) {
+      return delegate.resolve(expression, ignoreMissing);
+    }
+
+    @Override
+    @NonNull public String resolve(
+        @NonNull String expression, @NonNull String startDelim, @NonNull String endDelim) {
+      return delegate.resolve(expression, startDelim, endDelim);
+    }
+
+    @Override
+    @NonNull public String resolve(
+        @NonNull String expression,
+        boolean ignoreMissing,
+        @NonNull String startDelim,
+        @NonNull String endDelim) {
+      return delegate.resolve(expression, ignoreMissing, startDelim, endDelim);
+    }
+
+    @Override
+    public void forEach(Consumer<? super ValueNode> action) {
+      delegate.forEach(action);
+    }
+
+    @Override
+    public Spliterator<ValueNode> spliterator() {
+      return delegate.spliterator();
+    }
+
+    @Override
+    public long longValue() {
+      return delegate.longValue();
+    }
+
+    @Override
+    public long longValue(long defaultValue) {
+      return delegate.longValue(defaultValue);
+    }
+
+    @Override
+    public int intValue() {
+      return delegate.intValue();
+    }
+
+    @Override
+    public int intValue(int defaultValue) {
+      return delegate.intValue(defaultValue);
+    }
+
+    @Override
+    public byte byteValue() {
+      return delegate.byteValue();
+    }
+
+    @Override
+    public byte byteValue(byte defaultValue) {
+      return delegate.byteValue(defaultValue);
+    }
+
+    @Override
+    public float floatValue() {
+      return delegate.floatValue();
+    }
+
+    @Override
+    public float floatValue(float defaultValue) {
+      return delegate.floatValue(defaultValue);
+    }
+
+    @Override
+    public double doubleValue() {
+      return delegate.doubleValue();
+    }
+
+    @Override
+    public double doubleValue(double defaultValue) {
+      return delegate.doubleValue(defaultValue);
+    }
+
+    @Override
+    public boolean booleanValue() {
+      return delegate.booleanValue();
+    }
+
+    @Override
+    public boolean booleanValue(boolean defaultValue) {
+      return delegate.booleanValue(defaultValue);
+    }
+
+    @Override
+    @NonNull public String value(@NonNull String defaultValue) {
+      return delegate.value(defaultValue);
+    }
+
+    @Override
+    @Nullable public String valueOrNull() {
+      return delegate.valueOrNull();
+    }
+
+    @Override
+    @NonNull public <T> T value(@NonNull SneakyThrows.Function<String, T> fn) {
+      return delegate.value(fn);
+    }
+
+    @Override
+    @NonNull public String value() {
+      return delegate.value();
+    }
+
+    @Override
+    @NonNull public List<String> toList() {
+      return delegate.toList();
+    }
+
+    @Override
+    @NonNull public Set<String> toSet() {
+      return delegate.toSet();
+    }
+
+    @Override
+    @NonNull public <T extends Enum<T>> T toEnum(@NonNull SneakyThrows.Function<String, T> fn) {
+      return delegate.toEnum(fn);
+    }
+
+    @Override
+    @NonNull public <T extends Enum<T>> T toEnum(
+        @NonNull SneakyThrows.Function<String, T> fn,
+        @NonNull Function<String, String> nameProvider) {
+      return delegate.toEnum(fn, nameProvider);
+    }
+
+    @Override
+    @NonNull public Optional<String> toOptional() {
+      return delegate.toOptional();
+    }
+
+    @Override
+    public boolean isSingle() {
+      return delegate.isSingle();
+    }
+
+    @Override
+    public boolean isMissing() {
+      return delegate.isMissing();
+    }
+
+    @Override
+    public boolean isPresent() {
+      return delegate.isPresent();
+    }
+
+    @Override
+    public boolean isArray() {
+      return delegate.isArray();
+    }
+
+    @Override
+    public boolean isObject() {
+      return delegate.isObject();
+    }
+
+    @Override
+    @Nullable public String name() {
+      return delegate.name();
+    }
+
+    @Override
+    @NonNull public <T> Optional<T> toOptional(@NonNull Class<T> type) {
+      return delegate.toOptional(type);
+    }
+
+    @Override
+    @NonNull public <T> List<T> toList(@NonNull Class<T> type) {
+      return delegate.toList(type);
+    }
+
+    @Override
+    @NonNull public <T> Set<T> toSet(@NonNull Class<T> type) {
+      return delegate.toSet(type);
+    }
+
+    @Override
+    @NonNull public <T> T to(@NonNull Class<T> type) {
+      return delegate.to(type);
+    }
+
+    @Override
+    @Nullable public <T> T toNullable(@NonNull Class<T> type) {
+      return delegate.toNullable(type);
+    }
+
+    @Override
+    @NonNull public Map<String, List<String>> toMultimap() {
+      return delegate.toMultimap();
+    }
+
+    @Override
+    @NonNull public Map<String, String> toMap() {
+      return delegate.toMap();
+    }
+  }
+
+  public static class ForwardingQueryString extends ForwardingValueNode implements QueryString {
+    public ForwardingQueryString(QueryString queryString) {
+      super(queryString);
+    }
+
+    @NonNull @Override
+    public String queryString() {
+      return ((QueryString) delegate).queryString();
+    }
+  }
+
+  public static class ForwardingFormdata extends ForwardingValueNode implements Formdata {
+    public ForwardingFormdata(Formdata delegate) {
+      super(delegate);
+    }
+
+    @Override
+    public void put(@NonNull String path, @NonNull ValueNode value) {
+      ((Formdata) delegate).put(path, value);
+    }
+
+    @Override
+    public void put(@NonNull String path, @NonNull String value) {
+      ((Formdata) delegate).put(path, value);
+    }
+
+    @Override
+    public void put(@NonNull String path, @NonNull Collection<String> values) {
+      ((Formdata) delegate).put(path, values);
+    }
+
+    @Override
+    public void put(@NonNull String name, @NonNull FileUpload file) {
+      ((Formdata) delegate).put(name, file);
+    }
+
+    @NonNull @Override
+    public List<FileUpload> files() {
+      return ((Formdata) delegate).files();
+    }
+
+    @NonNull @Override
+    public List<FileUpload> files(@NonNull String name) {
+      return ((Formdata) delegate).files(name);
+    }
+
+    @NonNull @Override
+    public FileUpload file(@NonNull String name) {
+      return ((Formdata) delegate).file(name);
+    }
+  }
+
   protected final Context ctx;
 
   /**

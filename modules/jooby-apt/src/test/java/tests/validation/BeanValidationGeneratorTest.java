@@ -21,31 +21,31 @@ public class BeanValidationGeneratorTest {
             source -> {
               assertTrue(
                   source.contains(
-                      "c.validateQueryBean(io.jooby.validation.BeanValidator.validate(ctx,"
+                      "c.validateQueryBean(io.jooby.validation.BeanValidator.apply(ctx,"
                           + " ctx.query(\"bean\").isMissing() ?"
                           + " ctx.query().toNullable(tests.validation.Bean.class) :"
                           + " ctx.query(\"bean\").toNullable(tests.validation.Bean.class)))"));
 
               assertTrue(
                   source.contains(
-                      "c.validateFormBean(io.jooby.validation.BeanValidator.validate(ctx,"
+                      "c.validateFormBean(io.jooby.validation.BeanValidator.apply(ctx,"
                           + " ctx.form(\"bean\").isMissing() ?"
                           + " ctx.form().toNullable(tests.validation.Bean.class) :"
                           + " ctx.form(\"bean\").toNullable(tests.validation.Bean.class)))"));
 
               assertTrue(
                   source.contains(
-                      "c.validateBindParamBean(io.jooby.validation.BeanValidator.validate(ctx,"
+                      "c.validateBindParamBean(io.jooby.validation.BeanValidator.apply(ctx,"
                           + " tests.validation.Bean.map(ctx)))"));
 
               assertTrue(
                   source.contains(
-                      "c.validateBodyBean(io.jooby.validation.BeanValidator.validate(ctx,"
+                      "c.validateBodyBean(io.jooby.validation.BeanValidator.apply(ctx,"
                           + " ctx.body(tests.validation.Bean.class)))"));
 
               assertTrue(
                   source.contains(
-                      "c.validateListOfBodyBeans(io.jooby.validation.BeanValidator.validate(ctx,"
+                      "c.validateListOfBodyBeans(io.jooby.validation.BeanValidator.apply(ctx,"
                           + " ctx.body(io.jooby.Reified.list(tests.validation.Bean.class).getType())))"));
             });
   }

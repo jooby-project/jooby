@@ -19,12 +19,6 @@
             <version>${jooby.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.jooby</groupId>
-            <artifactId>jooby-validation</artifactId>
-            <version>${jooby.version}</version>
-        </dependency>
-
         <!-- Hibernate Validator -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
