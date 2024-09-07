@@ -14,8 +14,6 @@
 
   <properties>
     <aws.java.sdk.version>2.20.43</aws.java.sdk.version>
-
-    <Module-Name>io.jooby.awssdkv2</Module-Name>
   </properties>
 
   <dependencies>
@@ -74,20 +72,4 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven-jar-plugin.version}</version>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
