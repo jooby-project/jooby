@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.Function;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -25,6 +24,7 @@ import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.ArrayValue;
 import io.jooby.internal.HashValue;
+import io.jooby.internal.HeadersValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.MultipartNode;
 import io.jooby.internal.SingleValue;
@@ -545,7 +545,7 @@ public interface Value {
    * @return A hash/object value.
    */
   static @NonNull ValueNode headers(Context ctx, @NonNull Map<String, Collection<String>> values) {
-    HashValue node = new HashValue(ctx, null, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+    HeadersValue node = new HeadersValue(ctx);
     node.put(values);
     return node;
   }
