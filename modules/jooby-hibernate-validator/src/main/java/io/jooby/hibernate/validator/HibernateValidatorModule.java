@@ -5,24 +5,21 @@
  */
 package io.jooby.hibernate.validator;
 
-import com.typesafe.config.Config;
+import static jakarta.validation.Validation.byProvider;
+
+import java.util.function.Consumer;
+
+import org.hibernate.validator.HibernateValidator;
+import org.hibernate.validator.HibernateValidatorConfiguration;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
 import io.jooby.validation.MvcValidator;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import org.hibernate.validator.HibernateValidator;
-import org.hibernate.validator.HibernateValidatorConfiguration;
-
-import java.util.Set;
-import java.util.function.Consumer;
-
-import static jakarta.validation.Validation.byProvider;
 
 /**
  * Hibernate Validator Module: https://jooby.io/modules/hibernate-validator.
@@ -42,112 +39,115 @@ import static jakarta.validation.Validation.byProvider;
  * }
  * }</pre>
  *
- * <p>Supports validation of a single bean, list, array, or map.</p>
+ * <p>Supports validation of a single bean, list, array, or map.
  *
- * <p>The module also provides a built-in error handler that catches {@link ConstraintViolationException}
- * and transforms it into a {@link io.jooby.validation.ValidationResult}</p>
+ * <p>The module also provides a built-in error handler that catches {@link
+ * ConstraintViolationException} and transforms it into a {@link
+ * io.jooby.validation.ValidationResult}
  *
  * @author kliushnichenko
  * @since 3.3.1
  */
 public class HibernateValidatorModule implements Extension {
+  private static final String CONFIG_ROOT_PATH = "hibernate.validator";
+  private Consumer<HibernateValidatorConfiguration> configurer;
+  private StatusCode statusCode = StatusCode.UNPROCESSABLE_ENTITY;
+  private String title = "Validation failed";
+  private boolean disableDefaultViolationHandler = false;
 
-    private static final String CONFIG_ROOT_PATH = "hibernate.validator";
+  /**
+   * Setups a configurer callback.
+   *
+   * @param configurer Configurer callback.
+   * @return This module.
+   */
+  public HibernateValidatorModule doWith(
+      @NonNull final Consumer<HibernateValidatorConfiguration> configurer) {
+    this.configurer = configurer;
+    return this;
+  }
 
-    private Consumer<HibernateValidatorConfiguration> configurer;
-    private StatusCode statusCode = StatusCode.UNPROCESSABLE_ENTITY;
-    private String title = "Validation failed";
-    private boolean disableDefaultViolationHandler = false;
+  /**
+   * Overrides the default status code for the errors produced by validation. Default code is
+   * UNPROCESSABLE_ENTITY(422)
+   *
+   * @param statusCode new status code
+   * @return This module.
+   */
+  public HibernateValidatorModule statusCode(@NonNull StatusCode statusCode) {
+    this.statusCode = statusCode;
+    return this;
+  }
 
-    /**
-     * Setups a configurer callback.
-     *
-     * @param configurer Configurer callback.
-     * @return This module.
-     */
-    public HibernateValidatorModule doWith(@NonNull final Consumer<HibernateValidatorConfiguration> configurer) {
-        this.configurer = configurer;
-        return this;
+  /**
+   * Overrides the default title for the errors produced by validation. Default title is "Validation
+   * failed"
+   *
+   * @param title new title
+   * @return This module.
+   */
+  public HibernateValidatorModule validationTitle(@NonNull String title) {
+    this.title = title;
+    return this;
+  }
+
+  /**
+   * Disables default constraint violation handler. By default {@link HibernateValidatorModule}
+   * provides built-in error handler for the {@link ConstraintViolationException} Such exceptions
+   * are transformed into response of {@link io.jooby.validation.ValidationResult} Use this flag to
+   * disable default error handler and provide your custom.
+   *
+   * @return This module.
+   */
+  public HibernateValidatorModule disableViolationHandler() {
+    this.disableDefaultViolationHandler = true;
+    return this;
+  }
+
+  @Override
+  public void install(@NonNull Jooby app) throws Exception {
+    var config = app.getConfig();
+    var hbvConfig = byProvider(HibernateValidator.class).configure();
+
+    if (config.hasPath(CONFIG_ROOT_PATH)) {
+      config
+          .getConfig(CONFIG_ROOT_PATH)
+          .root()
+          .forEach(
+              (k, v) ->
+                  hbvConfig.addProperty(CONFIG_ROOT_PATH + "." + k, v.unwrapped().toString()));
     }
 
-    /**
-     * Overrides the default status code for the errors produced by validation.
-     * Default code is UNPROCESSABLE_ENTITY(422)
-     *
-     * @param statusCode new status code
-     * @return This module.
-     */
-    public HibernateValidatorModule statusCode(@NonNull StatusCode statusCode) {
-        this.statusCode = statusCode;
-        return this;
+    if (configurer != null) {
+      configurer.accept(hbvConfig);
     }
 
-    /**
-     * Overrides the default title for the errors produced by validation.
-     * Default title is "Validation failed"
-     *
-     * @param title new title
-     * @return This module.
-     */
-    public HibernateValidatorModule validationTitle(@NonNull String title) {
-        this.title = title;
-        return this;
-    }
+    try (var factory = hbvConfig.buildValidatorFactory()) {
+      Validator validator = factory.getValidator();
+      app.getServices().put(Validator.class, validator);
+      app.getServices().put(MvcValidator.class, new MvcValidatorImpl(validator));
 
-    /**
-     * Disables default constraint violation handler.
-     * By default {@link HibernateValidatorModule} provides
-     * built-in error handler for the {@link ConstraintViolationException}
-     * Such exceptions are transformed into response of {@link io.jooby.validation.ValidationResult}
-     * Use this flag to disable default error handler and provide your custom.
-     *
-     * @return This module.
-     */
-    public HibernateValidatorModule disableViolationHandler() {
-        this.disableDefaultViolationHandler = true;
-        return this;
+      if (!disableDefaultViolationHandler) {
+        app.error(
+            ConstraintViolationException.class, new ConstraintViolationHandler(statusCode, title));
+      }
+    }
+  }
+
+  static class MvcValidatorImpl implements MvcValidator {
+
+    private final Validator validator;
+
+    MvcValidatorImpl(Validator validator) {
+      this.validator = validator;
     }
 
     @Override
-    public void install(@NonNull Jooby app) throws Exception {
-        Config config = app.getConfig();
-        HibernateValidatorConfiguration hbvConfig = byProvider(HibernateValidator.class).configure();
-
-        if (config.hasPath(CONFIG_ROOT_PATH)) {
-            config.getConfig(CONFIG_ROOT_PATH)
-                    .root()
-                    .forEach((k, v) -> hbvConfig.addProperty(CONFIG_ROOT_PATH + "." + k, v.unwrapped().toString()));
-        }
-
-        if (configurer != null) {
-            configurer.accept(hbvConfig);
-        }
-
-        try (ValidatorFactory factory = hbvConfig.buildValidatorFactory()) {
-            Validator validator = factory.getValidator();
-            app.getServices().put(Validator.class, validator);
-            app.getServices().put(MvcValidator.class, new MvcValidatorImpl(validator));
-
-            if (!disableDefaultViolationHandler) {
-                app.error(ConstraintViolationException.class, new ConstraintViolationHandler(statusCode, title));
-            }
-        }
+    public void validate(Context ctx, Object bean) throws ConstraintViolationException {
+      var violations = validator.validate(bean);
+      if (!violations.isEmpty()) {
+        throw new ConstraintViolationException(violations);
+      }
     }
-
-    static class MvcValidatorImpl implements MvcValidator {
-
-        private final Validator validator;
-
-        MvcValidatorImpl(Validator validator) {
-            this.validator = validator;
-        }
-
-        @Override
-        public void validate(Context ctx, Object bean) throws ConstraintViolationException {
-            Set<ConstraintViolation<Object>> violations = validator.validate(bean);
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
-            }
-        }
-    }
+  }
 }

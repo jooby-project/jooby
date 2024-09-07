@@ -7,12 +7,12 @@ package io.jooby.avaje.validator;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueType;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.validation.ConstraintViolationException;
 import io.avaje.validation.Validator;
@@ -46,11 +46,11 @@ import io.jooby.validation.MvcValidator;
  * ConstraintViolationException} and transforms it into a {@link
  * io.jooby.validation.ValidationResult}
  *
- * @authors kliushnichenko, SentryMan
+ * @author kliushnichenko
+ * @author SentryMan
  * @since 3.3.1
  */
 public class AvajeValidatorModule implements Extension {
-
   private Consumer<Validator.Builder> configurer;
   private StatusCode statusCode = StatusCode.UNPROCESSABLE_ENTITY;
   private String title = "Validation failed";
@@ -105,43 +105,34 @@ public class AvajeValidatorModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby app) throws Exception {
+  public void install(@NonNull Jooby app) {
+    var conf = app.getConfig();
 
-    var props = app.getEnvironment();
-
-    final var locales = new ArrayList<Locale>();
     final var builder = Validator.builder();
-    Optional.ofNullable(props.getProperty("validation.failFast", "false"))
-        .map(Boolean::valueOf)
-        .ifPresent(builder::failFast);
+    withProperty(conf, "validation.failFast", conf::getBoolean).ifPresent(builder::failFast);
 
-    Optional.ofNullable(props.getProperty("validation.resourcebundle.names"))
-        .map(s -> s.split(","))
-        .ifPresent(builder::addResourceBundles);
-
-    Optional.ofNullable(props.getProperty("validation.locale.default"))
-        .map(Locale::forLanguageTag)
+    withProperty(conf, "validation.resourcebundle.names", path -> getStringList(conf, path))
+        .ifPresent(values -> values.forEach(builder::addResourceBundles));
+    // Locales from application
+    Optional.ofNullable(app.getLocales())
         .ifPresent(
-            l -> {
-              builder.setDefaultLocale(l);
-              locales.add(l);
+            locales -> {
+              builder.setDefaultLocale(locales.get(0));
+              locales.stream().skip(1).forEach(builder::addLocales);
             });
-
-    Optional.ofNullable(props.getProperty("validation.locale.addedLocales")).stream()
-        .flatMap(s -> Arrays.stream(s.split(",")))
+    withProperty(conf, "validation.locale.default", conf::getString)
         .map(Locale::forLanguageTag)
-        .forEach(
-            l -> {
-              builder.addLocales(l);
-              locales.add(l);
-            });
-
-    Optional.ofNullable(props.getProperty("validation.temporal.tolerance.value"))
-        .map(Long::valueOf)
+        .ifPresent(builder::setDefaultLocale);
+    withProperty(conf, "validation.locale.addedLocales", path -> getStringList(conf, path))
+        .orElseGet(List::of)
+        .stream()
+        .map(Locale::forLanguageTag)
+        .forEach(builder::addLocales);
+    withProperty(conf, "validation.temporal.tolerance.value", conf::getLong)
         .ifPresent(
             duration -> {
-              final var unit =
-                  Optional.ofNullable(props.getProperty("validation.temporal.tolerance.chronoUnit"))
+              var unit =
+                  withProperty(conf, "validation.temporal.tolerance.chronoUnit", conf::getString)
                       .map(ChronoUnit::valueOf)
                       .orElse(ChronoUnit.MILLIS);
               builder.temporalTolerance(Duration.of(duration, unit));
@@ -151,13 +142,12 @@ public class AvajeValidatorModule implements Extension {
       configurer.accept(builder);
     }
 
-    Validator validator = builder.build();
+    var validator = builder.build();
     app.getServices().put(Validator.class, validator);
     app.getServices().put(MvcValidator.class, new MvcValidatorImpl(validator));
 
     if (!disableDefaultViolationHandler) {
-      app.error(
-          ConstraintViolationException.class, new ConstraintViolationHandler(statusCode, title));
+      app.error(new ConstraintViolationHandler(statusCode, title));
     }
   }
 
@@ -173,5 +163,18 @@ public class AvajeValidatorModule implements Extension {
     public void validate(Context ctx, Object bean) throws ConstraintViolationException {
       validator.validate(bean, ctx.locale());
     }
+  }
+
+  private static <T> Optional<T> withProperty(Config config, String path, Function<String, T> fn) {
+    if (config.hasPath(path)) {
+      return Optional.of(fn.apply(path));
+    }
+    return Optional.empty();
+  }
+
+  private static List<String> getStringList(Config config, String path) {
+    return config.getValue(path).valueType() == ConfigValueType.STRING
+        ? List.of(config.getString(path))
+        : config.getStringList(path);
   }
 }

@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.avaje.validator;
 
 import static io.jooby.validation.ValidationResult.ErrorType.FIELD;
@@ -49,36 +54,32 @@ import io.jooby.validation.ValidationResult;
  * @since 3.2.10
  */
 public class ConstraintViolationHandler implements ErrorHandler {
-
   private static final String ROOT_VIOLATIONS_PATH = "";
-
   private final StatusCode statusCode;
   private final String title;
 
-  public ConstraintViolationHandler(StatusCode statusCode, String title) {
+  public ConstraintViolationHandler(@NonNull StatusCode statusCode, @NonNull String title) {
     this.statusCode = statusCode;
     this.title = title;
   }
 
   @Override
   public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
-    var ex = (ConstraintViolationException) cause;
+    if (cause instanceof ConstraintViolationException ex) {
+      var violations = ex.violations();
 
-    var violations = ex.violations();
+      var groupedByPath = violations.stream().collect(groupingBy(ConstraintViolation::path));
+      var errors = collectErrors(groupedByPath);
 
-    Map<String, List<ConstraintViolation>> groupedByPath =
-        violations.stream().collect(groupingBy(violation -> violation.path().toString()));
-
-    List<ValidationResult.Error> errors = collectErrors(groupedByPath);
-
-    ValidationResult result = new ValidationResult(title, statusCode.value(), errors);
-    ctx.setResponseCode(statusCode).render(result);
+      var result = new ValidationResult(title, statusCode.value(), errors);
+      ctx.setResponseCode(statusCode).render(result);
+    }
   }
 
   private List<ValidationResult.Error> collectErrors(
       Map<String, List<ConstraintViolation>> groupedViolations) {
     List<ValidationResult.Error> errors = new ArrayList<>();
-    for (Map.Entry<String, List<ConstraintViolation>> entry : groupedViolations.entrySet()) {
+    for (var entry : groupedViolations.entrySet()) {
       var path = entry.getKey();
       if (ROOT_VIOLATIONS_PATH.equals(path)) {
         errors.add(new ValidationResult.Error(null, extractMessages(entry.getValue()), GLOBAL));
