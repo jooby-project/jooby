@@ -29,9 +29,12 @@ class Issue2357 {
                       Assertions.assertEquals("value1", ctx.headerMap().get("x-header1"));
                       Assertions.assertEquals("value1", ctx.headerMap().get("X-HEADER1"));
                       Assertions.assertEquals("value1", ctx.headerMap().get("X-hEaDeR1"));
-                      Assertions.assertEquals("value1", ctx.header().toMultimap().get("x-header1").get(0));
-                      Assertions.assertEquals("value1", ctx.header().toMultimap().get("X-HEADER1").get(0));
-                      Assertions.assertEquals("value1", ctx.header().toMultimap().get("X-hEaDeR1").get(0));
+                      Assertions.assertEquals(
+                          "value1", ctx.header().toMultimap().get("x-header1").get(0));
+                      Assertions.assertEquals(
+                          "value1", ctx.header().toMultimap().get("X-HEADER1").get(0));
+                      Assertions.assertEquals(
+                          "value1", ctx.header().toMultimap().get("X-hEaDeR1").get(0));
                       return "OK";
                     }))
         .ready(
