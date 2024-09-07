@@ -279,8 +279,12 @@ public class DocGenerator {
     // versions:
     Document pom =
         Jsoup.parse(DocGenerator.basedir().getParent().resolve("pom.xml").toFile(), "UTF-8");
-    pom.select("properties > *").stream()
-        .forEach(tag -> attributes.setAttribute(toJavaName(tag.tagName()), tag.text().trim()));
+    pom.select("properties > *").forEach(tag -> {
+          var tagName = tag.tagName();
+          var value = tag.text().trim();
+          Stream.of(tagName, tagName.replaceAll("[.-]", "_"), tagName.replaceAll("[.-]", "-"), toJavaName(tagName))
+                  .forEach(key -> attributes.setAttribute(key, value));
+        });
 
     attributes.setAttribute("joobyVersion", version);
     attributes.setAttribute("date", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));

@@ -14,7 +14,8 @@ configuration properties.
 Available modules are listed next.
 
 === Cloud
-  * link:/modules/aws[AWS]: Amazon Web Service module.
+  * link:/modules/awssdkv2[AWS-SDK v2]: Amazon Web Service module SDK 2.
+  * link:/modules/aws[AWS SDK v1]: Amazon Web Service module SDK 1.
 
 === Data
    * link:/modules/ebean[Ebean]: Ebean ORM module.

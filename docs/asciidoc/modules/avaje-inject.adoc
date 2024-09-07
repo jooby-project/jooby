@@ -2,13 +2,13 @@
 
 1) Add Avaje Inject to your project
 
-[dependency, groupId="io.jooby", artifactId="jooby-avaje-inject", version="1.1.0"]
+[dependency, artifactId="jooby-avaje-inject"]
 .
 
 2) Configure annotation processor
 
 .Maven
-[source, xml, role = "primary"]
+[source, xml, role = "primary", subs="verbatim,attributes"]
 ----
 <build>
   <plugins>
@@ -21,7 +21,7 @@
           <path>
             <groupId>io.avaje</groupId>
             <artifactId>avaje-inject-generator</artifactId>
-            <version>10.3</version>
+            <version>{avaje_inject_version}</version>
           </path>
         </annotationProcessorPaths>
       </configuration>
@@ -31,14 +31,14 @@
 ----
 
 .Gradle
-[source, kotlin, role = "secondary"]
+[source, kotlin, role = "secondary", subs="verbatim,attributes"]
 ----
 plugins {
   id "org.jetbrains.kotlin.kapt" version "1.9.10"
 }
 
 dependencies {
-  kapt 'io.avaje:avaje-inject-generator:10.0'
+  kapt 'io.avaje:avaje-inject-generator:{avaje.inject.version}'
 }
 ----
 
@@ -127,7 +127,7 @@ public class App extends Jooby {
   {
     install(AvajeInjectModule.of());  <1>
           
-    mvc(MyController.class);     <2>
+    mvc(MyController.class);          <2>
   }
 
   public static void main(String[] args) {
@@ -143,7 +143,7 @@ fun main(args: Array<String>) {
   runApp(args) {
     install(AvajeInjectModule.of())       <1>
 
-    mvc(MyController::class)     <2>
+    mvc(MyController::class)              <2>
   }
 }
 ----

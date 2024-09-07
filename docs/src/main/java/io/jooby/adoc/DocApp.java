@@ -34,6 +34,12 @@ public class DocApp extends Jooby {
 
     Path site = DocGenerator.basedir().resolve("asciidoc").resolve("site");
     assets("/*", site);
+
+    onStarted(() ->
+      getLog().info("Access to maven properties is available from ascii files. If you want to access to `${avaje.inject.version}` uses the `{avaje_inject_version}` syntax and make sure to set the `subs` attribute, like:\n\n" +
+              "[source, xml, role = \"primary\", subs=\"verbatim,attributes\"]\n" +
+              " .... {avaje_inject_version}\n")
+    );
   }
 
   public static void main(String[] args) throws Exception {

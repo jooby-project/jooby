@@ -6,10 +6,7 @@
 package io.jooby.adoc;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 import org.asciidoctor.ast.StructuralNode;
@@ -28,18 +25,28 @@ public class DependencyProcessor extends BlockProcessor {
       List<String> lines = new ArrayList<>();
       String[] artifactId = ((String) attributes.get("artifactId")).split("\\s*,\\s*");
 
+      var groupId = (String) attributes.get("groupId");
+      var version = (String) attributes.get("version");
+      if (version== null || version.trim().isEmpty()) {
+        if (artifactId.length== 1 && !artifactId[0].startsWith("jooby")) {
+          version = Optional.ofNullable(Dependencies.get(artifactId[0])).map(it -> it.version).orElse(null);
+          if (version== null) {
+            throw new IllegalArgumentException("Dependency without version: " + groupId + ":" + Arrays.toString(artifactId));
+          }
+        }
+      }
       maven(
-          (String) attributes.get("groupId"),
+          groupId,
           artifactId,
-          (String) attributes.get("version"),
+          version,
           lines::add);
 
       lines.add("");
 
       gradle(
-          (String) attributes.get("groupId"),
+          groupId,
           artifactId,
-          (String) attributes.get("version"),
+          version,
           lines::add);
       lines.add("");
 

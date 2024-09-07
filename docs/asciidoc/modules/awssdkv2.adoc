@@ -1,0 +1,72 @@
+== AmazonWebServices
+
+Amazon Web Services module for https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html[aws-sdk-java 2.x]
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-awssdk-v2", version="{aws_java_sdk_version}", subs="verbatim,attributes"]
+.
+
+2) Add required service dependency (S3 here):
+
+[dependency, artifactId="s3"]
+.
+
+3) Add the `aws.accessKeyId` and `aws.secretKey` properties: 
+
+.application.conf
+[source, properties]
+----
+aws.accessKeyId = "your access key id"
+aws.secretKey = "your secret key"
+----
+
+This step is optional if you choose one of the https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials-chain.html[default credentials mechanism].
+
+4) Install
+
+.Java
+[source,java,role="primary"]
+----
+import io.jooby.awssdkv2.AwsModule;
+
+{
+  install(
+        new AwsModule()                                     <1>
+            .setup(credentials -> {                         <2>
+              var s3 = S3Client.builder().build();
+              var s3transfer = S3TransferManager.builder().s3Client(s3).build();
+              return Stream.of(s3, s3transfer);
+            })
+        )
+   );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.awssdkv2.AwsModule
+
+{
+  install(
+        AwsModule()                                         <1>
+            .setup { credentials ->                         <2>
+              val s3 = S3Client.builder().build()
+              val s3transfer = S3TransferManager.builder().s3Client(s3).build()
+              return Stream.of(s3, s3transfer)
+            }
+        )
+   );
+}
+----
+
+<1> Install module
+<2> Setup one or more services
+
+Services created from setup function are:
+
+- Registered in the application service registry, for require call usage or DI framework
+- Services are shutdown at application shutdown time

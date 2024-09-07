@@ -140,6 +140,7 @@ It also supports validating list, array, and map of beans
 catches `ConstraintViolationException` and transforms it into the following response:
 
 .JSON:
+[source, json]
 ----
 {
   "title": "Validation failed",

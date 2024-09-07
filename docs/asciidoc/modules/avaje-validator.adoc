@@ -12,7 +12,7 @@ Bean validation via https://avaje.io/validator/[Avaje Validator].
 2) Configure annotation processor
 
 .Maven
-[source, xml, role = "primary"]
+[source, xml, role = "primary", subs="verbatim,attributes"]
 ----
 <build>
   <plugins>
@@ -25,7 +25,7 @@ Bean validation via https://avaje.io/validator/[Avaje Validator].
           <path>
             <groupId>io.avaje</groupId>
             <artifactId>avaje-validator-generator</artifactId>
-            <version>2.1</version>
+            <version>{avajeValidatorVersion}</version>
           </path>
         </annotationProcessorPaths>
       </configuration>
@@ -35,14 +35,14 @@ Bean validation via https://avaje.io/validator/[Avaje Validator].
 ----
 
 .Gradle
-[source, kotlin, role = "secondary"]
+[source, kotlin, role = "secondary", subs="verbatim,attributes"]
 ----
 plugins {
   id "org.jetbrains.kotlin.kapt" version "1.9.10"
 }
 
 dependencies {
-  kapt 'io.avaje:avaje-validator-generator:2.1'
+  kapt 'io.avaje:avaje-validator-generator:{avajeValidatorVersion}'
 }
 ----
 
@@ -177,6 +177,7 @@ It also supports validating list, array, and map of beans
 catches `ConstraintViolationException` and transforms it into the following response:
 
 .JSON:
+[source, json]
 ----
 {
   "title": "Validation failed",

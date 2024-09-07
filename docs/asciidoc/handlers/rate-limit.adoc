@@ -4,7 +4,7 @@ Rate limit handler using https://github.com/vladimir-bukhtoyarov/bucket4j[Bucket
 
 Add the dependency to your project:
 
-[dependency, artifactId="bucket4j-core"]
+[dependency, artifactId="bucket4j-core", version="{bucket4j_core_version}", subs="verbatim,attributes"]
 .
 
 .10 requests per minute
