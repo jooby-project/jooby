@@ -1,4 +1,19 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.avaje.validator;
+
+import static io.jooby.StatusCode.UNPROCESSABLE_ENTITY_CODE;
+import static io.jooby.avaje.validator.app.App.DEFAULT_TITLE;
+import static io.restassured.RestAssured.given;
+
+import java.util.List;
+import java.util.Map;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.jooby.avaje.validator.app.App;
 import io.jooby.avaje.validator.app.NewAccountRequest;
@@ -9,16 +24,6 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static io.jooby.StatusCode.UNPROCESSABLE_ENTITY_CODE;
-import static io.jooby.avaje.validator.app.App.DEFAULT_TITLE;
-import static io.restassured.RestAssured.given;
 
 @JoobyTest(value = App.class, port = 8099)
 public class AvajeValidatorModuleTest {

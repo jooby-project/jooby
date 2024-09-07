@@ -208,11 +208,9 @@ public class MvcRoute {
     for (var parameter : getParameters(true)) {
       String generatedParameter = parameter.generateMapping(kt);
       if (parameter.isRequireBeanValidation()) {
-        generatedParameter = CodeBlock.of(
-                "io.jooby.validation.BeanValidator.validate(",
-                "ctx, ",
-                generatedParameter,
-                ")");
+        generatedParameter =
+            CodeBlock.of(
+                "io.jooby.validation.BeanValidator.validate(", "ctx, ", generatedParameter, ")");
       }
 
       paramList.add(generatedParameter);

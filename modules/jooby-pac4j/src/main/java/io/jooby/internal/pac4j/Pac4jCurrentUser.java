@@ -7,8 +7,8 @@ package io.jooby.internal.pac4j;
 
 import java.util.function.Function;
 
-import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.profile.ProfileManager;
 
 import io.jooby.Context;
 import io.jooby.pac4j.Pac4jContext;

@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.typesafe.config.Config;
-
 import io.avaje.inject.spi.ConfigPropertyPlugin;
 
 class JoobyPropertyPlugin implements ConfigPropertyPlugin {

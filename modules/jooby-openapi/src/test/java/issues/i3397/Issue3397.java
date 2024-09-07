@@ -1,9 +1,14 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i3397;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jooby.openapi.OpenAPIResult;
 import io.jooby.openapi.OpenAPITest;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue3397 {
 

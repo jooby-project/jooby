@@ -1,11 +1,16 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.avaje.validator.app;
+
+import java.util.List;
+import java.util.Map;
 
 import io.jooby.annotation.POST;
 import io.jooby.annotation.Path;
 import jakarta.validation.Valid;
-
-import java.util.List;
-import java.util.Map;
 
 @Path("")
 public class Controller {

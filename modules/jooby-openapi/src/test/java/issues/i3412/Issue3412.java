@@ -1,15 +1,21 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package issues.i3412;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jooby.openapi.OpenAPIResult;
 import io.jooby.openapi.OpenAPITest;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue3412 {
 
   @OpenAPITest(value = App3412.class)
   public void shouldParseNonnullQueryParameter(OpenAPIResult result) {
-    assertEquals("""
+    assertEquals(
+        """
               openapi: 3.0.1
               info:
                 title: 3412 API

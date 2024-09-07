@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package examples;
 
 import io.jooby.Jooby;
@@ -7,18 +12,18 @@ import io.jooby.annotation.Path;
 
 public class MvcRequireApp extends Jooby {
 
-    @Path("/")
-    static class Controller {
+  @Path("/")
+  static class Controller {
 
-        @GET("/welcome")
-        public String sayHi() {
-            return "hi";
-        }
+    @GET("/welcome")
+    public String sayHi() {
+      return "hi";
     }
+  }
 
-    {
-        install(new OpenAPIModule());
+  {
+    install(new OpenAPIModule());
 
-        mvc(require(Controller.class));
-    }
+    mvc(require(Controller.class));
+  }
 }

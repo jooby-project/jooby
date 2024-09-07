@@ -5,10 +5,10 @@
  */
 package io.jooby.openapi;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import examples.*;
 import kt.KtMinApp;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OpenAPIYamlTest {
 
@@ -577,44 +577,44 @@ public class OpenAPIYamlTest {
   @OpenAPITest(value = MvcDaggerApp.class)
   public void shouldParseDaggerController(OpenAPIResult result) {
     assertEquals(
-            "openapi: 3.0.1\n"
-                    + "info:\n"
-                    + "  title: MvcDagger API\n"
-                    + "  description: MvcDagger API description\n"
-                    + "  version: \"1.0\"\n"
-                    + "paths:\n"
-                    + "  /welcome:\n"
-                    + "    get:\n"
-                    + "      operationId: sayHi\n"
-                    + "      responses:\n"
-                    + "        \"200\":\n"
-                    + "          description: Success\n"
-                    + "          content:\n"
-                    + "            application/json:\n"
-                    + "              schema:\n"
-                    + "                type: string\n",
-            result.toYaml());
+        "openapi: 3.0.1\n"
+            + "info:\n"
+            + "  title: MvcDagger API\n"
+            + "  description: MvcDagger API description\n"
+            + "  version: \"1.0\"\n"
+            + "paths:\n"
+            + "  /welcome:\n"
+            + "    get:\n"
+            + "      operationId: sayHi\n"
+            + "      responses:\n"
+            + "        \"200\":\n"
+            + "          description: Success\n"
+            + "          content:\n"
+            + "            application/json:\n"
+            + "              schema:\n"
+            + "                type: string\n",
+        result.toYaml());
   }
 
   @OpenAPITest(value = MvcRequireApp.class)
   public void shouldParseMvcRequireController(OpenAPIResult result) {
     assertEquals(
-            "openapi: 3.0.1\n"
-                    + "info:\n"
-                    + "  title: MvcRequire API\n"
-                    + "  description: MvcRequire API description\n"
-                    + "  version: \"1.0\"\n"
-                    + "paths:\n"
-                    + "  /welcome:\n"
-                    + "    get:\n"
-                    + "      operationId: sayHi\n"
-                    + "      responses:\n"
-                    + "        \"200\":\n"
-                    + "          description: Success\n"
-                    + "          content:\n"
-                    + "            application/json:\n"
-                    + "              schema:\n"
-                    + "                type: string\n",
-            result.toYaml());
+        "openapi: 3.0.1\n"
+            + "info:\n"
+            + "  title: MvcRequire API\n"
+            + "  description: MvcRequire API description\n"
+            + "  version: \"1.0\"\n"
+            + "paths:\n"
+            + "  /welcome:\n"
+            + "    get:\n"
+            + "      operationId: sayHi\n"
+            + "      responses:\n"
+            + "        \"200\":\n"
+            + "          description: Success\n"
+            + "          content:\n"
+            + "            application/json:\n"
+            + "              schema:\n"
+            + "                type: string\n",
+        result.toYaml());
   }
 }

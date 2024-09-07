@@ -252,8 +252,9 @@ public class JobGenerator {
                   case "priority" -> value.priority = Integer.parseInt(attr[1].trim());
                   case "calendar" -> value.calendar = attr[1].trim();
                   case "misfire" -> value.misfire = Integer.parseInt(attr[1].trim());
-                  default -> throw new IllegalArgumentException(
-                      "Unknown attribute: " + attr[0] + " at " + key);
+                  default ->
+                      throw new IllegalArgumentException(
+                          "Unknown attribute: " + attr[0] + " at " + key);
                 }
               }
               return value;
