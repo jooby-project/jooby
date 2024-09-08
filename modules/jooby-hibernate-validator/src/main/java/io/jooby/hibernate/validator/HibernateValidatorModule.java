@@ -54,6 +54,7 @@ public class HibernateValidatorModule implements Extension {
   private StatusCode statusCode = StatusCode.UNPROCESSABLE_ENTITY;
   private String title = "Validation failed";
   private boolean disableDefaultViolationHandler = false;
+  private boolean logException = false;
 
   /**
    * Setups a configurer callback.
@@ -76,6 +77,16 @@ public class HibernateValidatorModule implements Extension {
    */
   public HibernateValidatorModule statusCode(@NonNull StatusCode statusCode) {
     this.statusCode = statusCode;
+    return this;
+  }
+
+  /**
+   * Ask the error handler to log the exception. Default is: false.
+   *
+   * @return This module.
+   */
+  public HibernateValidatorModule logException() {
+    this.logException = true;
     return this;
   }
 
@@ -129,7 +140,8 @@ public class HibernateValidatorModule implements Extension {
 
       if (!disableDefaultViolationHandler) {
         app.error(
-            ConstraintViolationException.class, new ConstraintViolationHandler(statusCode, title));
+            ConstraintViolationException.class,
+            new ConstraintViolationHandler(statusCode, title, logException));
       }
     }
   }

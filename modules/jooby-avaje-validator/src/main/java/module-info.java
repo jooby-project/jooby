@@ -11,4 +11,5 @@ module io.jooby.avaje.validator {
   requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires transitive io.avaje.validation;
+  requires org.slf4j;
 }

@@ -12,4 +12,5 @@ module io.jooby.hibernate.validator {
   requires typesafe.config;
   requires org.hibernate.validator;
   requires jakarta.validation;
+  requires org.slf4j;
 }

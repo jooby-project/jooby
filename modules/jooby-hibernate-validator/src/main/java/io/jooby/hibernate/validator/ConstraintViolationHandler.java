@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ErrorHandler;
@@ -54,20 +57,25 @@ import jakarta.validation.ConstraintViolationException;
  * @since 3.3.1
  */
 public class ConstraintViolationHandler implements ErrorHandler {
-
   private static final String ROOT_VIOLATIONS_PATH = "";
-
+  private final Logger log = LoggerFactory.getLogger(ConstraintViolationHandler.class);
   private final StatusCode statusCode;
   private final String title;
+  private final boolean logException;
 
-  public ConstraintViolationHandler(@NonNull StatusCode statusCode, @NonNull String title) {
+  public ConstraintViolationHandler(
+      @NonNull StatusCode statusCode, @NonNull String title, boolean logException) {
     this.statusCode = statusCode;
     this.title = title;
+    this.logException = logException;
   }
 
   @Override
   public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
     if (cause instanceof ConstraintViolationException ex) {
+      if (logException) {
+        log.error(ErrorHandler.errorMessage(ctx, code), cause);
+      }
       var violations = ex.getConstraintViolations();
 
       var groupedByPath =

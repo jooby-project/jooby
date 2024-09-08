@@ -55,6 +55,7 @@ public class AvajeValidatorModule implements Extension {
   private StatusCode statusCode = StatusCode.UNPROCESSABLE_ENTITY;
   private String title = "Validation failed";
   private boolean disableDefaultViolationHandler = false;
+  private boolean logException;
 
   /**
    * Setups a configurer callback.
@@ -88,6 +89,16 @@ public class AvajeValidatorModule implements Extension {
    */
   public AvajeValidatorModule validationTitle(@NonNull String title) {
     this.title = title;
+    return this;
+  }
+
+  /**
+   * Ask the error handler to log the exception. Default is: false.
+   *
+   * @return This module.
+   */
+  public AvajeValidatorModule logException() {
+    this.logException = true;
     return this;
   }
 
@@ -147,7 +158,7 @@ public class AvajeValidatorModule implements Extension {
     app.getServices().put(BeanValidator.class, new BeanValidatorImpl(validator));
 
     if (!disableDefaultViolationHandler) {
-      app.error(new ConstraintViolationHandler(statusCode, title));
+      app.error(new ConstraintViolationHandler(statusCode, title, logException));
     }
   }
 

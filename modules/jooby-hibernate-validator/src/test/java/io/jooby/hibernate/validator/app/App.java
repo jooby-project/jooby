@@ -7,10 +7,8 @@ package io.jooby.hibernate.validator.app;
 
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
-import io.jooby.hibernate.validator.ConstraintViolationHandler;
 import io.jooby.hibernate.validator.HibernateValidatorModule;
 import io.jooby.jackson.JacksonModule;
-import jakarta.validation.ConstraintViolationException;
 
 public class App extends Jooby {
 
@@ -19,12 +17,8 @@ public class App extends Jooby {
 
   {
     install(new JacksonModule());
-    install(new HibernateValidatorModule());
+    install(new HibernateValidatorModule().validationTitle(DEFAULT_TITLE).statusCode(STATUS_CODE));
 
     mvc(new Controller());
-
-    error(
-        ConstraintViolationException.class,
-        new ConstraintViolationHandler(STATUS_CODE, DEFAULT_TITLE));
   }
 }
