@@ -17,7 +17,7 @@ import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
-import io.jooby.validation.MvcValidator;
+import io.jooby.validation.BeanValidator;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 
@@ -125,7 +125,7 @@ public class HibernateValidatorModule implements Extension {
     try (var factory = hbvConfig.buildValidatorFactory()) {
       Validator validator = factory.getValidator();
       app.getServices().put(Validator.class, validator);
-      app.getServices().put(MvcValidator.class, new MvcValidatorImpl(validator));
+      app.getServices().put(BeanValidator.class, new BeanValidatorImpl(validator));
 
       if (!disableDefaultViolationHandler) {
         app.error(
@@ -134,11 +134,11 @@ public class HibernateValidatorModule implements Extension {
     }
   }
 
-  static class MvcValidatorImpl implements MvcValidator {
+  static class BeanValidatorImpl implements BeanValidator {
 
     private final Validator validator;
 
-    MvcValidatorImpl(Validator validator) {
+    BeanValidatorImpl(Validator validator) {
       this.validator = validator;
     }
 

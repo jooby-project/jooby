@@ -11,6 +11,7 @@ module io.jooby {
   exports io.jooby.buffer;
   exports io.jooby.exception;
   exports io.jooby.handler;
+  exports io.jooby.validation;
 
   uses io.jooby.MvcFactory;
   uses io.jooby.Server;

@@ -59,7 +59,6 @@
     <module>jooby-camel</module>
 
     <!-- validation -->
-    <module>jooby-validation</module>
     <module>jooby-avaje-validator</module>
     <module>jooby-hibernate-validator</module>
 

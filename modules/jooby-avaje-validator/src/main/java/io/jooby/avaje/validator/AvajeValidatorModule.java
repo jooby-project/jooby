@@ -20,7 +20,7 @@ import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
-import io.jooby.validation.MvcValidator;
+import io.jooby.validation.BeanValidator;
 
 /**
  * Avaje Validator Module: https://jooby.io/modules/avaje-validator.
@@ -144,18 +144,18 @@ public class AvajeValidatorModule implements Extension {
 
     var validator = builder.build();
     app.getServices().put(Validator.class, validator);
-    app.getServices().put(MvcValidator.class, new MvcValidatorImpl(validator));
+    app.getServices().put(BeanValidator.class, new BeanValidatorImpl(validator));
 
     if (!disableDefaultViolationHandler) {
       app.error(new ConstraintViolationHandler(statusCode, title));
     }
   }
 
-  static class MvcValidatorImpl implements MvcValidator {
+  static class BeanValidatorImpl implements BeanValidator {
 
     private final Validator validator;
 
-    MvcValidatorImpl(Validator validator) {
+    BeanValidatorImpl(Validator validator) {
       this.validator = validator;
     }
 

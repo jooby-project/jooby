@@ -210,7 +210,7 @@ public class MvcRoute {
       if (parameter.isRequireBeanValidation()) {
         generatedParameter =
             CodeBlock.of(
-                "io.jooby.validation.BeanValidator.validate(", "ctx, ", generatedParameter, ")");
+                "io.jooby.validation.BeanValidator.apply(", "ctx, ", generatedParameter, ")");
       }
 
       paramList.add(generatedParameter);

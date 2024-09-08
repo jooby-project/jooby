@@ -376,10 +376,16 @@ public class JoobyProcessor extends AbstractProcessor {
   private void verifyBeanValidationDependency(Collection<MvcRouter> routers) {
     var hasBeanValidation = routers.stream().anyMatch(MvcRouter::hasBeanValidation);
     if (hasBeanValidation) {
-      TypeElement validatorElement =
-          processingEnv.getElementUtils().getTypeElement("io.jooby.validation.BeanValidator");
-
-      if (validatorElement == null) {
+      var missingDependency =
+          Stream.of(
+                  "io.jooby.hibernate.validator.HibernateValidatorModule",
+                  "io.jooby.avaje.validator.AvajeValidatorModule",
+                  "io.jooby.apt.validator.FakeValidatorModule")
+              .map(name -> processingEnv.getElementUtils().getTypeElement(name))
+              .filter(Objects::nonNull)
+              .findFirst()
+              .isEmpty();
+      if (missingDependency) {
         processingEnv
             .getMessager()
             .printMessage(
@@ -387,7 +393,7 @@ public class JoobyProcessor extends AbstractProcessor {
                 "Unable to load 'BeanValidator' class. Bean validation usage (@Valid) was detected,"
                     + " but the appropriate dependency is missing. Please ensure that you have"
                     + " added the corresponding validation dependency (e.g.,"
-                    + " jooby-hibernate-validator).");
+                    + " jooby-hibernate-validator, jooby-avaje-validator).");
       }
     }
   }
