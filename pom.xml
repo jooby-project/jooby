@@ -34,10 +34,10 @@
     <HikariCP.version>5.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.6.0.Final</hibernate.version>
-    <ebean.version>15.5.0</ebean.version>
+    <ebean.version>15.5.1</ebean.version>
     <jdbi.version>3.45.4</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
-    <graphql-java.version>22.2</graphql-java.version>
+    <graphql-java.version>22.3</graphql-java.version>
     <lettuce.version>6.4.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.0</commons-pool2.version>
     <kafka.version>3.8.0</kafka.version>
@@ -49,8 +49,8 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.7</logback-classic.version>
-    <log4j.version>2.23.1</log4j.version>
+    <logback-classic.version>1.5.8</logback-classic.version>
+    <log4j.version>2.24.0</log4j.version>
     <slf4j.version>2.0.16</slf4j.version>
 
     <!-- communication -->
@@ -67,8 +67,8 @@
 
     <!-- Server -->
     <undertow.version>2.3.17.Final</undertow.version>
-    <jetty.version>12.0.12</jetty.version>
-    <netty.version>4.1.112.Final</netty.version>
+    <jetty.version>12.0.13</jetty.version>
+    <netty.version>4.1.113.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.23</swagger.version>
@@ -96,7 +96,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.770</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.771</aws-java-sdk.version>
     <camel.version>3.22.2</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
