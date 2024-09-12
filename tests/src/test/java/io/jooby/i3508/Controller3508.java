@@ -3,17 +3,19 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.avaje.validator.app;
+package io.jooby.i3508;
 
 import java.util.List;
 import java.util.Map;
 
 import io.jooby.annotation.POST;
 import io.jooby.annotation.Path;
+import io.jooby.i3508.data.NewAccountRequest;
+import io.jooby.i3508.data.Person;
 import jakarta.validation.Valid;
 
 @Path("")
-public class Controller {
+public class Controller3508 {
 
   @POST("/create-person")
   public void createPerson(@Valid Person person) {}

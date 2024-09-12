@@ -241,7 +241,7 @@ there is a non-blocking route handler.
 <3> Value is provided from *event loop*. No blocking code is permitted
 <4> Value is computed/produces from completable future context
 
-Running your `App` in *worker* mode works identically, except for we are able to do blocking calls:
+Running your `App3508` in *worker* mode works identically, except for we are able to do blocking calls:
 
 .In worker mode
 [source,java,role="primary"]
@@ -284,7 +284,7 @@ Running your `App` in *worker* mode works identically, except for we are able to
 <3> Value is provided from *worker mode*. Blocking code is permitted
 <4> Value is computed/produces from completable future context
 
-Running your `App` in *default* mode works identically to running in the *event loop* mode:
+Running your `App3508` in *default* mode works identically to running in the *event loop* mode:
 
 .In default mode
 [source,java,role="primary"]

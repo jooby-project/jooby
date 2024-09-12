@@ -1274,7 +1274,7 @@ class App: Kooby({
 
 <2> Imports all routes, services, callbacks, etc... from `Bar`. Output: `/bar` => `/bar`
 
-This operator lets you for example to deploy `Foo` as a standalone application or integrate it into a main one called `App`.
+This operator lets you for example to deploy `Foo` as a standalone application or integrate it into a main one called `App3508`.
 The install operator shares the state of the main application, so lazy initialization (and therefore _instantiation_) of
 any child applications is *mandatory*.
 

@@ -45,11 +45,6 @@
       <artifactId>jooby-apt</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>io.avaje</groupId>
-      <artifactId>avaje-validator-generator</artifactId>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
       <groupId>io.jooby</groupId>
