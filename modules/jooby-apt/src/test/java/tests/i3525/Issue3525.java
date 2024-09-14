@@ -5,7 +5,7 @@
  */
 package tests.i3525;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,8 +18,8 @@ public class Issue3525 {
     new ProcessorRunner(new C3525())
         .withSourceCode(
             source -> {
-              assertTrue(source.contains("\"Parameter.description\", \"paramA\","));
-              assertTrue(source.contains("\"Parameter.description\", \"paramB\","));
+              assertFalse(source.contains("\"Parameter.description\", \"paramA\","));
+              assertFalse(source.contains("\"Parameter.description\", \"paramB\","));
             });
   }
 }

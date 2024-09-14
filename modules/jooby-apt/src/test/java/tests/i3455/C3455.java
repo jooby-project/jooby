@@ -9,7 +9,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.QueryParam;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Path("/\"path")
 public class C3455 {

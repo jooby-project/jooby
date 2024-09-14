@@ -7,7 +7,6 @@ package io.jooby.internal.apt;
 
 import static io.jooby.apt.JoobyProcessor.Options.SKIP_ATTRIBUTE_ANNOTATIONS;
 import static io.jooby.internal.apt.CodeBlock.indent;
-import static io.jooby.internal.apt.CodeBlock.type;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -16,7 +15,6 @@ import java.util.function.Predicate;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleAnnotationValueVisitor14;
 import javax.lang.model.util.Types;
 
@@ -32,6 +30,8 @@ public class RouteAttributesGenerator {
               || it.startsWith("jakarta.ws.rs")
               || it.startsWith("javax.ws.rs");
 
+  private static final Predicate<String> OPEN_API = it -> it.startsWith("io.swagger");
+
   private static final Predicate<String> NULL_ANNOTATION =
       it ->
           it.endsWith("NonNull")
@@ -42,15 +42,13 @@ public class RouteAttributesGenerator {
   private static final Predicate<String> KOTLIN_ANNOTATION = it -> it.equals("kotlin.Metadata");
 
   private static final Predicate<String> ATTR_FILTER =
-      HTTP_ANNOTATION.or(NULL_ANNOTATION).or(KOTLIN_ANNOTATION);
+      HTTP_ANNOTATION.or(NULL_ANNOTATION).or(KOTLIN_ANNOTATION).or(OPEN_API);
 
   private final List<String> skip;
-  private final Elements elements;
   private final Types types;
 
   public RouteAttributesGenerator(MvcContext context) {
     var environment = context.getProcessingEnvironment();
-    this.elements = environment.getElementUtils();
     this.types = environment.getTypeUtils();
     this.skip = Options.stringListOpt(environment, SKIP_ATTRIBUTE_ANNOTATIONS);
   }
