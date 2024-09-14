@@ -277,7 +277,7 @@ public class ModuleCompilerTest {
         .withRouter(
             app -> {
               Route route = app.getRoutes().get(0);
-              assertEquals(13, route.getAttributes().size(), route.getAttributes().toString());
+              assertEquals(12, route.getAttributes().size(), route.getAttributes().toString());
               assertEquals("string", route.attribute("someAnnotation"));
               assertEquals(Integer.valueOf(5), route.attribute("someAnnotation.i"));
               assertEquals(Long.valueOf(200), route.attribute("someAnnotation.l"));
@@ -289,7 +289,6 @@ public class ModuleCompilerTest {
               assertEquals(Short.MIN_VALUE, (short) route.attribute("someAnnotation.s"));
               assertEquals(Arrays.asList("a", "b"), route.attribute("someAnnotation.values"));
               assertEquals("User", route.attribute("roleAnnotation"));
-              assertEquals("one", route.attribute("roleAnnotation.level"));
               Map<String, Object> link = route.attribute("someAnnotation.annotation");
               assertNotNull(link);
               assertEquals("link", link.get("LinkAnnotation"));

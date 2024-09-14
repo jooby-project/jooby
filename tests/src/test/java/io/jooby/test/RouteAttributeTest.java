@@ -22,7 +22,9 @@ public class RouteAttributeTest {
                   next ->
                       ctx -> {
                         String role = (String) ctx.getRoute().attribute("Role");
-                        String level = (String) ctx.getRoute().attribute("Role.level");
+                        String level =
+                            (String)
+                                ctx.getRoute().getAttributes().getOrDefault("Role.level", "one");
 
                         if (ctx.getRoute().getPattern().equals("/attr/secured/otherpath")) {
                           assertEquals("User", role);

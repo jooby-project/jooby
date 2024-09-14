@@ -18,7 +18,7 @@ public class Issue3490 {
   @Test
   public void shouldNotGeneratePrimitiveOnKotlinGenerics() throws IOException {
     new ProcessorRunner(new C3490())
-        .withSource(
+        .withSourceCode(
             true,
             source -> {
               assertTrue(

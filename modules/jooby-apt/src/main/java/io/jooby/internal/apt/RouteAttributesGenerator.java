@@ -60,11 +60,13 @@ public class RouteAttributesGenerator {
     if (attributes.isEmpty()) {
       return Optional.empty();
     } else {
-      return Optional.of(toSourceCode(kt, annotationMap(route.getMethod()), indent + 6));
+      return Optional.of(
+          toSourceCode(kt, annotationMap(route.getMethod()), indent + 6, new HashMap<>()));
     }
   }
 
-  private String toSourceCode(boolean kt, Map<String, Object> attributes, int indent) {
+  private String toSourceCode(
+      boolean kt, Map<String, Object> attributes, int indent, Map<String, Object> defaults) {
     var buffer = new StringBuilder();
     var separator = ",\n";
     var pairPrefix = "";
@@ -82,7 +84,7 @@ public class RouteAttributesGenerator {
       buffer.append(indent(indent + 4));
       buffer.append(pairPrefix);
       buffer.append(CodeBlock.string(e.getKey())).append(", ");
-      buffer.append(valueToSourceCode(kt, e.getValue(), indent + 4));
+      buffer.append(valueToSourceCode(kt, e.getValue(), indent + 4, defaults));
       buffer.append(pairSuffix).append(separator);
     }
     buffer.setLength(buffer.length() - separator.length());
@@ -90,15 +92,16 @@ public class RouteAttributesGenerator {
     return buffer.toString();
   }
 
-  private Object valueToSourceCode(boolean kt, Object value, int indent) {
+  private Object valueToSourceCode(
+      boolean kt, Object value, int indent, Map<String, Object> defaults) {
     if (value instanceof String) {
       return CodeBlock.string((String) value);
     } else if (value instanceof Character) {
       return "'" + value + "'";
     } else if (value instanceof Map attributeMap) {
-      return "\n  " + indent(indent) + toSourceCode(kt, attributeMap, indent + 1);
+      return "\n  " + indent(indent) + toSourceCode(kt, attributeMap, indent + 1, defaults);
     } else if (value instanceof List list) {
-      return valueToSourceCode(kt, list, indent);
+      return valueToSourceCode(kt, list, indent, defaults);
     } else if (value instanceof EnumValue enumValue) {
       return enumValue.type + "." + enumValue.value;
     } else if (value instanceof TypeMirror) {
@@ -118,12 +121,13 @@ public class RouteAttributesGenerator {
     }
   }
 
-  private String valueToSourceCode(boolean kt, List values, int indent) {
+  private String valueToSourceCode(
+      boolean kt, List values, int indent, Map<String, Object> defaults) {
     var buffer = new StringBuilder();
     buffer.append("java.util.List.of(");
     var separator = ", ";
     for (Object value : values) {
-      buffer.append(valueToSourceCode(kt, value, indent)).append(separator);
+      buffer.append(valueToSourceCode(kt, value, indent, defaults)).append(separator);
     }
     buffer.setLength(buffer.length() - separator.length());
     buffer.append(")");
@@ -158,7 +162,8 @@ public class RouteAttributesGenerator {
       String prefix = elem.getSimpleName().toString();
       // Set all values and then override with present values (fix for JDK 11+)
       result.putAll(toMap(annotation.getElementValues(), prefix));
-      toMap(elements.getElementValuesWithDefaults(annotation), prefix).forEach(result::putIfAbsent);
+      // toMap(elements.getElementValuesWithDefaults(annotation),
+      // prefix).forEach(result::putIfAbsent);
     }
     return result;
   }

@@ -108,13 +108,13 @@ public class JoobyProcessor extends AbstractProcessor {
         verifyBeanValidationDependency(routeMap.values());
         for (var router : routeMap.values()) {
           try {
+            context.add(router);
             var sourceCode = router.toSourceCode(null);
             var sourceLocation = router.getGeneratedFilename();
             onGeneratedSource(toJavaFileObject(sourceLocation, sourceCode));
             context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
             router.getRoutes().forEach(it -> context.debug("   %s", it));
             writeSource(router, sourceLocation, sourceCode);
-            context.add(router);
           } catch (IOException cause) {
             throw new RuntimeException("Unable to generate: " + router.getTargetType(), cause);
           }

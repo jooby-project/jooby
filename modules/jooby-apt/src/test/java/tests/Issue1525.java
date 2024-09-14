@@ -20,11 +20,11 @@ public class Issue1525 {
         .withRouter(
             app -> {
               Route route0 = app.getRoutes().get(0);
-              assertEquals(2, route0.getAttributes().size(), route0.getAttributes().toString());
+              assertEquals(1, route0.getAttributes().size(), route0.getAttributes().toString());
               assertEquals("Admin", route0.attribute("roleAnnotation"));
 
               Route route1 = app.getRoutes().get(1);
-              assertEquals(2, route1.getAttributes().size(), route1.getAttributes().toString());
+              assertEquals(1, route1.getAttributes().size(), route1.getAttributes().toString());
               assertEquals("User", route1.attribute("roleAnnotation"));
             });
   }

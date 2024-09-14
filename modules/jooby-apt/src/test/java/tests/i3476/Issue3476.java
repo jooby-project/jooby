@@ -16,7 +16,7 @@ public class Issue3476 {
   @Test
   public void shouldGenerateGenerics() throws Exception {
     new ProcessorRunner(new C3476())
-        .withSource(
+        .withJavaObject(
             source -> {
               assertTrue(source.toString().contains("public <T> java.util.List<T> get("));
               assertTrue(source.toString().contains("return (java.util.List<T>) c.get("));

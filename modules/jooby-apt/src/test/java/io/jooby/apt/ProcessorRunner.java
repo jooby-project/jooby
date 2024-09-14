@@ -58,6 +58,7 @@ public class ProcessorRunner {
 
   private static class HookJoobyProcessor extends JoobyProcessor {
     private JavaFileObject source;
+    private String kotlinSource;
 
     public HookJoobyProcessor(Consumer<String> console) {
       super((kind, message) -> console.accept(message));
@@ -72,6 +73,10 @@ public class ProcessorRunner {
       return source;
     }
 
+    public String getKotlinSource() {
+      return kotlinSource;
+    }
+
     public MvcContext getContext() {
       return context;
     }
@@ -79,6 +84,12 @@ public class ProcessorRunner {
     @Override
     protected void onGeneratedSource(JavaFileObject source) {
       this.source = source;
+      try {
+        // Generate kotlin source code inside the compiler scope... avoid false positive errors
+        this.kotlinSource = context.getRouters().get(0).toSourceCode(true);
+      } catch (IOException e) {
+        SneakyThrows.propagate(e);
+      }
     }
   }
 
@@ -117,14 +128,17 @@ public class ProcessorRunner {
     return this;
   }
 
-  public ProcessorRunner withSource(SneakyThrows.Consumer<JavaFileObject> consumer) {
+  public ProcessorRunner withJavaObject(SneakyThrows.Consumer<JavaFileObject> consumer) {
     consumer.accept(processor.getSource());
     return this;
   }
 
-  public ProcessorRunner withSource(boolean kt, SneakyThrows.Consumer<String> consumer)
-      throws IOException {
-    consumer.accept(processor.getContext().getRouters().get(0).toSourceCode(kt));
+  public ProcessorRunner withSourceCode(SneakyThrows.Consumer<String> consumer) {
+    return withSourceCode(false, consumer);
+  }
+
+  public ProcessorRunner withSourceCode(boolean kt, SneakyThrows.Consumer<String> consumer) {
+    consumer.accept(kt ? processor.kotlinSource : processor.getSource().toString());
     return this;
   }
 

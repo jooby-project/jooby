@@ -16,7 +16,7 @@ public class BeanValidationGeneratorTest {
   @Test
   public void generate_validation_forBean() throws Exception {
     new ProcessorRunner(new BeanValidationsController())
-        .withSource(
+        .withSourceCode(
             false,
             source -> {
               assertTrue(

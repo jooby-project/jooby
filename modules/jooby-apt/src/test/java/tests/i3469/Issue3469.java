@@ -19,7 +19,7 @@ public class Issue3469 {
   @Test
   public void shouldGenerateConstructors() throws Exception {
     new ProcessorRunner(new C3469(new Foo3469(), List.of(new Bar3469())))
-        .withSource(
+        .withJavaObject(
             source -> {
               assertTrue(
                   source
@@ -35,7 +35,7 @@ public class Issue3469 {
   @Test
   public void shouldGenerateFieldInjectWithDefaultConstructor() throws Exception {
     new ProcessorRunner(new C3469FieldInject())
-        .withSource(
+        .withJavaObject(
             source -> {
               assertTrue(source.toString().contains("this(C3469FieldInject.class);"));
             });
