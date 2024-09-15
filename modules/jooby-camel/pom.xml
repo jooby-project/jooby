@@ -12,10 +12,6 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-camel</artifactId>
 
-  <properties>
-    <Module-Name>io.jooby.camel</Module-Name>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.github.spotbugs</groupId>
@@ -58,21 +54,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven-jar-plugin.version}</version>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

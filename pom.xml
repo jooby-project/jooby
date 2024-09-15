@@ -97,7 +97,7 @@
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
     <aws-java-sdk.version>1.12.771</aws-java-sdk.version>
-    <camel.version>3.22.2</camel.version>
+    <camel.version>4.7.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
     <commons-io.version>2.16.1</commons-io.version>
@@ -390,7 +390,7 @@
         <artifactId>jooby-jte</artifactId>
         <version>${jooby.version}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-pebble</artifactId>
@@ -677,7 +677,7 @@
         <artifactId>jackson-datatype-hibernate5</artifactId>
         <version>${jackson.version}</version>
       </dependency>
-      
+
       <!-- avaje-inject -->
       <dependency>
         <groupId>io.avaje</groupId>
