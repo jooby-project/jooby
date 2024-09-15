@@ -99,7 +99,7 @@ public class MvcRoute {
     var returnType = getReturnType();
     var paramString = String.join(", ", getJavaMethodSignature(kt));
     var javadocLink = javadocComment(kt);
-    var attributeGenerator = new RouteAttributesGenerator(context);
+    var attributeGenerator = new RouteAttributesGenerator(context, hasBeanValidation);
     var routes = router.getRoutes();
     var lastRoute = routes.get(routes.size() - 1).equals(this);
     var entries = annotationMap.entrySet().stream().toList();

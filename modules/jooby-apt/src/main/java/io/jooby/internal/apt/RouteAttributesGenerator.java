@@ -46,11 +46,13 @@ public class RouteAttributesGenerator {
 
   private final List<String> skip;
   private final Types types;
+  private final boolean hasBeanValidation;
 
-  public RouteAttributesGenerator(MvcContext context) {
+  public RouteAttributesGenerator(MvcContext context, boolean hasBeanValidation) {
     var environment = context.getProcessingEnvironment();
     this.types = environment.getTypeUtils();
     this.skip = Options.stringListOpt(environment, SKIP_ATTRIBUTE_ANNOTATIONS);
+    this.hasBeanValidation = hasBeanValidation;
   }
 
   public Optional<String> toSourceCode(boolean kt, MvcRoute route, int indent) {
@@ -137,6 +139,9 @@ public class RouteAttributesGenerator {
     var attributes = annotationMap(method.getEnclosingElement().getAnnotationMirrors());
     // method
     attributes.putAll(annotationMap(method.getAnnotationMirrors()));
+    if (hasBeanValidation) {
+      attributes.put("io.jooby.validation.BeanValidator", true);
+    }
     return attributes;
   }
 

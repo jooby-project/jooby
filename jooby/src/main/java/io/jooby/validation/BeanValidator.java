@@ -78,6 +78,11 @@ public interface BeanValidator {
   static Route.Handler validate(Route.Handler next) {
     return ctx -> {
       try {
+        // The io.jooby.validation.BeanValidator attribute is set by jooby-apt. Skip validation
+        // let generated code to invoke BeanValidator.
+        if (ctx.getRoute().getAttributes().containsKey(BeanValidator.class.getName())) {
+          return next.apply(ctx);
+        }
         return next.apply(new ValidationContext(ctx));
       } catch (UndeclaredThrowableException | InvocationTargetException e) {
         // unwrap reflective exception

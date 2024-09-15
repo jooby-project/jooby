@@ -619,6 +619,10 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  public Context getDelegate() {
+    return ctx;
+  }
+
   @NonNull @Override
   public Object forward(@NonNull String path) {
     Object result = ctx.forward(path);
