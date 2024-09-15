@@ -8,6 +8,7 @@ package tests.i3490;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ public class Issue3490 {
 
   @Test
   public void shouldNotGeneratePrimitiveOnKotlinGenerics() throws IOException {
-    new ProcessorRunner(new C3490())
+    new ProcessorRunner(new C3490(), Map.of("jooby.returnType", true))
         .withSourceCode(
             true,
             source -> {

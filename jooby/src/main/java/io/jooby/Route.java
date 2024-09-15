@@ -1041,7 +1041,8 @@ public class Route {
   }
 
   /**
-   * Method for MVC/Controller. Not available for lambda routes.
+   * Method for MVC/Controller available when <code>jooby.mvcMethod</code> processor option is set
+   * to <code>true</code>. Not available for lambda routes.
    *
    * @return Method for MVC/Controller. Not available for lambda routes.
    */

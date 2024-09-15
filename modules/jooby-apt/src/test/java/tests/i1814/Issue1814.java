@@ -7,6 +7,8 @@ package tests.i1814;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import io.jooby.apt.ProcessorRunner;
@@ -17,7 +19,7 @@ public class Issue1814 {
 
   @Test
   public void shouldIgnoreWildcardResponseType() throws Exception {
-    new ProcessorRunner(new C1814())
+    new ProcessorRunner(new C1814(), Map.of("jooby.returnType", true))
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

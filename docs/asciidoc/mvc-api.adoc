@@ -912,6 +912,11 @@ on them (mostly annotations processors).
 |string
 |[]
 |Add custom handler mapping.
+
+|jooby.mvcMethod
+|boolean
+|false
+|Set the Route.mvcMethod when true.
 |=== 
 
 ==== Setting options

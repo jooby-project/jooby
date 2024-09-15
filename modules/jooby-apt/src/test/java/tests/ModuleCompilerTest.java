@@ -81,7 +81,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void routes() throws Exception {
-    new ProcessorRunner(new Routes())
+    new ProcessorRunner(new Routes(), Map.of("jooby.returnType", true))
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
@@ -263,7 +263,7 @@ public class ModuleCompilerTest {
 
   @Test
   public void setPrimitiveReturnType() throws Exception {
-    new ProcessorRunner(new PrimitiveReturnType())
+    new ProcessorRunner(new PrimitiveReturnType(), Map.of("jooby.returnType", true))
         .withRouter(
             app -> {
               Route route = app.getRoutes().get(0);

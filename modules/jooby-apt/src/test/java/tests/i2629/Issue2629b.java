@@ -8,6 +8,8 @@ package tests.i2629;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import io.jooby.apt.ProcessorRunner;
@@ -18,7 +20,7 @@ public class Issue2629b {
 
   @Test
   public void shouldSetMvcMethod() throws Exception {
-    new ProcessorRunner(new C2629b())
+    new ProcessorRunner(new C2629b(), Map.of("jooby.mvcMethod", true))
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);
