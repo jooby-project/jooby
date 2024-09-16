@@ -93,7 +93,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-inject</artifactId>
-      <version>10.3</version>
+      <version>10.4</version>
       <scope>test</scope>
     </dependency>
 
