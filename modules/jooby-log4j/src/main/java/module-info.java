@@ -9,6 +9,7 @@ module io.jooby.log4j {
   requires org.slf4j;
   requires org.apache.logging.log4j;
   requires org.apache.logging.log4j.core;
+  requires org.jspecify;
 
   provides LoggingService with
       Log4jService;
