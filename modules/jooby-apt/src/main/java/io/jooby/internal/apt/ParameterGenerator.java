@@ -6,13 +6,9 @@
 package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.AnnotationSupport.findAnnotationValue;
+import static io.jooby.internal.apt.Types.BUILT_IN;
 import static java.util.stream.Collectors.joining;
 
-import java.net.URI;
-import java.net.URL;
-import java.time.Duration;
-import java.time.Period;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -53,10 +49,10 @@ public enum ParameterGenerator {
       }
     }
   },
-  CookieParam("cookie", "io.jooby.annotation.CookieParam", "jakarta.ws.rs.CookieParam"),
-  FlashParam("flash", "io.jooby.annotation.FlashParam"),
+  CookieParam("cookie", BUILT_IN, "io.jooby.annotation.CookieParam", "jakarta.ws.rs.CookieParam"),
+  FlashParam("flash", BUILT_IN, "io.jooby.annotation.FlashParam"),
   FormParam("form", "io.jooby.annotation.FormParam", "jakarta.ws.rs.FormParam"),
-  HeaderParam("header", "io.jooby.annotation.HeaderParam", "jakarta.ws.rs.HeaderParam"),
+  HeaderParam("header", BUILT_IN, "io.jooby.annotation.HeaderParam", "jakarta.ws.rs.HeaderParam"),
   Lookup("lookup", "io.jooby.annotation.Param") {
     @Override
     protected Predicate<String> namePredicate() {
@@ -65,7 +61,7 @@ public enum ParameterGenerator {
   },
   PathParam("path", "io.jooby.annotation.PathParam", "jakarta.ws.rs.PathParam"),
   QueryParam("query", "io.jooby.annotation.QueryParam", "jakarta.ws.rs.QueryParam"),
-  SessionParam("session", "io.jooby.annotation.SessionParam"),
+  SessionParam("session", BUILT_IN, "io.jooby.annotation.SessionParam"),
   BodyParam("body") {
     @Override
     public String parameterName(AnnotationMirror annotation, String defaultParameterName) {
@@ -368,6 +364,24 @@ public enum ParameterGenerator {
     this.annotations = Set.of(annotations);
   }
 
+  ParameterGenerator(String method, Set<String> typeRestrictions, String... annotations) {
+    this(method, annotations);
+    this.typeRestrictions = typeRestrictions;
+  }
+
+  public void verifyType(String type, String parameterName, MvcRoute route) {
+    if (!typeRestrictions.isEmpty()) {
+      if (typeRestrictions.stream().noneMatch(type::equals)) {
+        throw new IllegalArgumentException("""
+            Illegal argument type at '%s.%s()'.\s
+            Parameter '%s' annotated as %s cannot be of type '%s'.\s
+            Supported types are: %s
+            """.formatted(route.getRouter().getTargetType().toString(),
+            route.getMethodName(), parameterName, annotations, type, Types.BUILT_IN));
+      }
+    }
+  }
+
   protected String source(AnnotationMirror annotation) {
     if (ParameterGenerator.Lookup.annotations.contains(annotation.getAnnotationType().toString())) {
       var sources = findAnnotationValue(annotation, AnnotationSupport.VALUE);
@@ -382,40 +396,6 @@ public enum ParameterGenerator {
 
   protected final String method;
   private final Set<String> annotations;
+  private Set<String> typeRestrictions = Set.of(); // empty set means no restrictions by default
   private static final Set<Class> CONTAINER = Set.of(List.class, Set.class, Optional.class);
-  private static final Set<String> BUILT_IN =
-      Set.of(
-          String.class.getName(),
-          Boolean.class.getName(),
-          Boolean.TYPE.getName(),
-          Byte.class.getName(),
-          Byte.TYPE.getName(),
-          Character.class.getName(),
-          Character.TYPE.getName(),
-          Short.class.getName(),
-          Short.TYPE.getName(),
-          Integer.class.getName(),
-          Integer.TYPE.getName(),
-          Long.class.getName(),
-          Long.TYPE.getName(),
-          Float.class.getName(),
-          Float.TYPE.getName(),
-          Double.class.getName(),
-          Double.TYPE.getName(),
-          Enum.class.getName(),
-          java.util.UUID.class.getName(),
-          java.time.Instant.class.getName(),
-          java.util.Date.class.getName(),
-          java.time.LocalDate.class.getName(),
-          java.time.LocalDateTime.class.getName(),
-          java.math.BigDecimal.class.getName(),
-          java.math.BigInteger.class.getName(),
-          Duration.class.getName(),
-          Period.class.getName(),
-          java.nio.charset.Charset.class.getName(),
-          "io.jooby.StatusCode",
-          TimeZone.class.getName(),
-          ZoneId.class.getName(),
-          URI.class.getName(),
-          URL.class.getName());
 }
