@@ -100,11 +100,11 @@ public class MvcParameter {
           yield ParameterGenerator.BodyParam.toSourceCode(
               kt, route, null, type, parameterName, isNullable(kt));
         } else {
-          yield strategy
-              .get()
-              .getKey()
-              .toSourceCode(
-                  kt, route, strategy.get().getValue(), type, parameterName, isNullable(kt));
+          var paramGenerator = strategy.get().getKey();
+          paramGenerator.verifyType(parameterType, parameterName, route);
+
+          yield paramGenerator.toSourceCode(
+              kt, route, strategy.get().getValue(), type, parameterName, isNullable(kt));
         }
       }
     };

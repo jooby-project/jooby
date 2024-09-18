@@ -22,12 +22,6 @@ public class BeanValidationsController {
     return bean;
   }
 
-  // todo: revive when flash `toNullable` will be fixed
-  //    @POST("/validate/flash-bean")
-  //    public Bean validateFlashBean(@Valid @FlashParam Bean bean) {
-  //        return bean;
-  //    }
-
   @POST("/validate/bind-param-bean")
   public Bean validateBindParamBean(@Valid @BindParam Bean bean) {
     return bean;

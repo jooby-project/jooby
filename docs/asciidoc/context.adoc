@@ -576,7 +576,7 @@ a javadoc:Session[] but the lifecycle is shorter: *data is kept for only one req
   });
 
   post("/save", ctx -> {
-    ctx.flash("success", "Item created");          <1>
+    ctx.flash().put("success", "Item created");    <1>
     return ctx.sendRedirect("/");                  <2>
   });
 ----
@@ -589,7 +589,7 @@ a javadoc:Session[] but the lifecycle is shorter: *data is kept for only one req
   }
   
   post("/save") { ctx ->
-    ctx.flash("success", "Item created")           <1>
+    ctx.flash().put("success", "Item created")     <1>
     ctx.sendRedirect("/")                          <2>
   }
 ----
