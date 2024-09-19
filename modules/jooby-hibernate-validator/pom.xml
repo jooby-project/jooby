@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.jooby</groupId>
         <artifactId>modules</artifactId>
-        <version>3.3.2-SNAPSHOT</version>
+        <version>3.4.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -57,30 +57,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>test</id>
-                        <phase>test-compile</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>io.jooby</groupId>
-                            <artifactId>jooby-apt</artifactId>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
