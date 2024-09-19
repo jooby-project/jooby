@@ -6,6 +6,9 @@
 package io.jooby;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -370,11 +373,54 @@ public class Route {
           if (contentType == null) {
             throw new UnsupportedMediaType(null);
           }
-          if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
+          if (ctx.getRoute().getConsumes().stream().noneMatch(contentType::matches)) {
             throw new UnsupportedMediaType(contentType.getValue());
           }
         }
       };
+
+  /**
+   * Carry metadata for mvc/controller method.
+   *
+   * @param declaringClass Controller class.
+   * @param name Method name.
+   * @param returnType Method return type.
+   * @param parameterTypes Method argument types.
+   */
+  public record MvcMethod(
+      @NonNull Class<?> declaringClass,
+      @NonNull String name,
+      @NonNull Class<?> returnType,
+      Class<?>... parameterTypes) {
+
+    /**
+     * Convert to {@link java.lang.reflect.Method}.
+     *
+     * @return A {@link java.lang.reflect.Method}.
+     */
+    public Method toMethod() {
+      try {
+        return declaringClass.getDeclaredMethod(name, parameterTypes);
+      } catch (NoSuchMethodException e) {
+        throw SneakyThrows.propagate(e);
+      }
+    }
+
+    /**
+     * Convert to {@link MethodHandle}.
+     *
+     * @return A {@link MethodHandle}.
+     */
+    public MethodHandle toMethodHandle() {
+      var lookup = MethodHandles.publicLookup();
+      var methodType = MethodType.methodType(returnType, parameterTypes);
+      try {
+        return lookup.findVirtual(declaringClass, name, methodType);
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw SneakyThrows.propagate(e);
+      }
+    }
+  }
 
   /** Favicon handler as a silent 404 error. */
   public static final Handler FAVICON = ctx -> ctx.send(StatusCode.NOT_FOUND);
@@ -423,7 +469,7 @@ public class Route {
 
   private Boolean nonBlocking;
 
-  private Method mvcMethod;
+  private MvcMethod mvcMethod;
 
   private boolean httpHead;
 
@@ -655,7 +701,9 @@ public class Route {
    * Route return type.
    *
    * @return Return type.
+   * @deprecated Marked for removal on 4.0
    */
+  @Deprecated
   public @Nullable Type getReturnType() {
     return returnType;
   }
@@ -665,7 +713,9 @@ public class Route {
    *
    * @param returnType Return type.
    * @return This route.
+   * @deprecated Marked for removal on 4.0
    */
+  @Deprecated
   public @NonNull Route setReturnType(@Nullable Type returnType) {
     this.returnType = returnType;
     return this;
@@ -1046,7 +1096,7 @@ public class Route {
    *
    * @return Method for MVC/Controller. Not available for lambda routes.
    */
-  public @Nullable Method getMvcMethod() {
+  public @Nullable MvcMethod getMvcMethod() {
     return mvcMethod;
   }
 
@@ -1056,7 +1106,7 @@ public class Route {
    * @param mvcMethod Mvc/controller method.
    * @return This route
    */
-  public @NonNull Route setMvcMethod(@Nullable Method mvcMethod) {
+  public @NonNull Route setMvcMethod(@Nullable MvcMethod mvcMethod) {
     this.mvcMethod = mvcMethod;
     return this;
   }
@@ -1067,7 +1117,7 @@ public class Route {
    * @param mvcMethod Mvc/controller method.
    * @return This route
    */
-  public @NonNull Route mvcMethod(@Nullable Method mvcMethod) {
+  public @NonNull Route mvcMethod(@Nullable MvcMethod mvcMethod) {
     return setMvcMethod(mvcMethod);
   }
 

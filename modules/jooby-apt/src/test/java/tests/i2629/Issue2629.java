@@ -5,8 +5,7 @@
  */
 package tests.i2629;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.Map;
@@ -30,9 +29,16 @@ public class Issue2629 {
               assertEquals("foo:[12]:true", router.get("/2629", ctx).value().toString());
               var route = app.getRoutes().get(0);
               assertNotNull(route.getMvcMethod());
-              assertEquals(
-                  "foo:[14]:false",
-                  route.getMvcMethod().invoke(new C2629(), "foo", List.of(14), false));
+              try {
+                assertEquals(
+                    "foo:[14]:false",
+                    route
+                        .getMvcMethod()
+                        .toMethodHandle()
+                        .invoke(new C2629(), "foo", List.of(14), Boolean.FALSE));
+              } catch (Throwable cause) {
+                fail(cause);
+              }
             });
   }
 }
