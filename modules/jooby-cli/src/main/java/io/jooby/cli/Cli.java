@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
@@ -124,7 +125,7 @@ public class Cli extends Cmd {
         try {
           String line = reader.readLine(prompt);
           ParsedLine pl = reader.getParser().parse(line, 0);
-          String[] arguments = pl.words().toArray(new String[0]);
+          String[] arguments = rewrite(cmd, pl.words().toArray(new String[0]));
           cmd.execute(arguments);
         } catch (UserInterruptException e) {
           System.exit(0);
@@ -133,5 +134,14 @@ public class Cli extends Cmd {
         }
       }
     }
+  }
+
+  static String[] rewrite(CommandLine cmd, String... command) {
+    if (command.length > 1) {
+      if (!cmd.getSubcommands().containsKey(command[0])) {
+        return Stream.concat(Stream.of("create"), Stream.of(command)).toArray(String[]::new);
+      }
+    }
+    return command;
   }
 }

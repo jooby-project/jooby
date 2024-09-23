@@ -44,7 +44,9 @@ import picocli.CommandLine;
  *
  * @since 2.0.6
  */
-@CommandLine.Command(name = "create", description = "Creates a new application")
+@CommandLine.Command(
+    name = "create",
+    description = "Creates a new application. This is the default command/action")
 public class CreateCmd extends Cmd {
   @CommandLine.Parameters(
       description = "Application name or coordinates (groupId:artifactId:version)")
