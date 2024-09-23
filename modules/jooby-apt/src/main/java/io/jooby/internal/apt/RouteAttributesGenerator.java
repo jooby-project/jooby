@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleAnnotationValueVisitor14;
 import javax.lang.model.util.Types;
 
@@ -46,10 +47,12 @@ public class RouteAttributesGenerator {
 
   private final List<String> skip;
   private final Types types;
+  private final Elements elements;
   private final boolean hasBeanValidation;
 
   public RouteAttributesGenerator(MvcContext context, boolean hasBeanValidation) {
     var environment = context.getProcessingEnvironment();
+    this.elements = environment.getElementUtils();
     this.types = environment.getTypeUtils();
     this.skip = Options.stringListOpt(environment, SKIP_ATTRIBUTE_ANNOTATIONS);
     this.hasBeanValidation = hasBeanValidation;
@@ -165,22 +168,33 @@ public class RouteAttributesGenerator {
       String prefix = elem.getSimpleName().toString();
       // Set all values and then override with present values (fix for JDK 11+)
       result.putAll(toMap(annotation.getElementValues(), prefix));
-      // toMap(elements.getElementValuesWithDefaults(annotation),
-      // prefix).forEach(result::putIfAbsent);
+
+      // Defaults value only pick "value"
+      toMap(elements.getElementValuesWithDefaults(annotation), prefix, "value"::equals)
+          .forEach(result::putIfAbsent);
     }
     return result;
   }
 
   private Map<String, Object> toMap(
       Map<? extends ExecutableElement, ? extends AnnotationValue> values, String prefix) {
+    return toMap(values, prefix, name -> true);
+  }
+
+  private Map<String, Object> toMap(
+      Map<? extends ExecutableElement, ? extends AnnotationValue> values,
+      String prefix,
+      Predicate<String> filter) {
     Map<String, Object> result = new LinkedHashMap<>();
     for (var attribute : values.entrySet()) {
       var value = annotationValue(attribute.getValue());
       if (value != null && !value.toString().isEmpty()) {
         var method = attribute.getKey().getSimpleName().toString();
-        var name = method.equals("value") ? prefix : prefix + "." + method;
-        // Found value is override on JDK 11 with default annotation value, we trust that spe
-        result.putIfAbsent(name, value);
+        if (filter.test(method)) {
+          var name = method.equals("value") ? prefix : prefix + "." + method;
+          // Found value is override on JDK 11 with default annotation value, we trust that spe
+          result.putIfAbsent(name, value);
+        }
       }
     }
     return result;
