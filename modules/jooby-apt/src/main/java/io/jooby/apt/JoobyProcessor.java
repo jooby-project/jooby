@@ -37,6 +37,8 @@ import io.jooby.internal.apt.*;
   SERVICES,
   MVC_METHOD,
   RETURN_TYPE,
+  ROUTER_PREFIX,
+  ROUTER_SUFFIX,
   SKIP_ATTRIBUTE_ANNOTATIONS
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_17)

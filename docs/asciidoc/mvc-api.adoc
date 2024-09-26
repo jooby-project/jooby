@@ -917,6 +917,17 @@ on them (mostly annotations processors).
 |boolean
 |false
 |Set the Route.mvcMethod when true.
+
+|jooby.routerPrefix
+|string
+|
+|Prefix for generated class
+
+|jooby.routerSuffix
+|string
+|_
+|Suffix for generated class
+
 |=== 
 
 ==== Setting options
