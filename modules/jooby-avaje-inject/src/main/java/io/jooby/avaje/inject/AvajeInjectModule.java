@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.inject.BeanScope;
 import io.avaje.inject.BeanScopeBuilder;
+import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
@@ -75,6 +76,8 @@ public class AvajeInjectModule implements Extension {
             });
 
     final var environment = application.getEnvironment();
+
+    beanScope.bean(Environment.class, environment);
     beanScope.profiles(environment.getActiveNames().toArray(String[]::new));
 
     // configuration properties
