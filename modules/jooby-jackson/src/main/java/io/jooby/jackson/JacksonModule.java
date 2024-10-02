@@ -143,7 +143,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
 
-    application.onStarted(
+    application.onStarting(
         () -> {
           for (Class<? extends Module> type : modules) {
             Module module = application.require(type);

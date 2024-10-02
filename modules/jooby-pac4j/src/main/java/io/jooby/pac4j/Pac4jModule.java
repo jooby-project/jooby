@@ -447,7 +447,7 @@ public class Pac4jModule implements Extension {
         allClients.values().stream().flatMap(List::stream).filter(r -> !r.isResolved()).toList();
 
     if (!unresolved.isEmpty()) {
-      application.onStarted(
+      application.onStarting(
           () -> {
             List<Client> clientList = new ArrayList<>(clients.getClients());
             unresolved.stream()
@@ -567,7 +567,7 @@ public class Pac4jModule implements Extension {
     /** Compute default url as next available route. We only select static path patterns. */
     if (options.getDefaultUrl() == null) {
       int index = application.getRoutes().size();
-      application.onStarted(
+      application.onStarting(
           () -> {
             List<Route> routes = application.getRoutes();
             String defaultUrl = application.getContextPath();

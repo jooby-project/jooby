@@ -241,7 +241,7 @@ public class MetricsModule implements Extension {
 
     final Set<Reporter> reporters = new HashSet<>();
 
-    application.onStarted(
+    application.onStarting(
         () -> {
           metricClasses.forEach(
               (name, clazz) -> metricRegistry.register(name, application.require(clazz)));
