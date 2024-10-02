@@ -70,9 +70,9 @@ public class ProblemDetailsErrorHandler extends DefaultErrorHandler {
 
   private void setResponseType(Context ctx, MediaType type) {
     if (json.equals(type)) {
-      ctx.setResponseType("application/problem+json");
+      ctx.setResponseType(PROBLEM_JSON);
     } else if (xml.equals(type)) {
-      ctx.setResponseType("application/problem+xml");
+      ctx.setResponseType(PROBLEM_XML);
     }
   }
 
