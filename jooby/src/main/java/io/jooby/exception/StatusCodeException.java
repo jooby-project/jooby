@@ -8,6 +8,8 @@ package io.jooby.exception;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.StatusCode;
+import io.jooby.problem.HttpProblem;
+import io.jooby.problem.HttpProblemMappable;
 
 /**
  * Runtime exception with status code.
@@ -15,9 +17,9 @@ import io.jooby.StatusCode;
  * @author edgar
  * @since 2.0.0
  */
-public class StatusCodeException extends RuntimeException {
+public class StatusCodeException extends RuntimeException implements HttpProblemMappable {
 
-  private final StatusCode statusCode;
+  protected final StatusCode statusCode;
 
   /**
    * Creates an error with the given status code.
@@ -58,5 +60,10 @@ public class StatusCodeException extends RuntimeException {
    */
   public @NonNull StatusCode getStatusCode() {
     return statusCode;
+  }
+
+  @Override
+  public HttpProblem toHttpProblem() {
+    return HttpProblem.valueOf(statusCode, getMessage());
   }
 }

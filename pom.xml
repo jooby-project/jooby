@@ -112,6 +112,7 @@
     <junit.version>5.11.0</junit.version>
     <rest-assured.version>5.5.0</rest-assured.version>
     <mockito.version>5.13.0</mockito.version>
+    <assertj-core.version>3.26.3</assertj-core.version>
     <guava.version>33.3.0-jre</guava.version>
 
     <auto-service.version>1.1.1</auto-service.version>
@@ -1160,6 +1161,12 @@
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-params</artifactId>
         <version>${junit.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj-core.version}</version>
       </dependency>
 
       <dependency>

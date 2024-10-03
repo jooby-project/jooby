@@ -17,11 +17,11 @@ import java.util.Map;
 import static io.jooby.MediaType.*;
 import static io.jooby.StatusCode.*;
 
-public class ProblemDetailsErrorHandler extends DefaultErrorHandler {
+public class ProblemDetailsHandler extends DefaultErrorHandler {
 
   private boolean log4xxErrors;
 
-  public ProblemDetailsErrorHandler log4xxErrors() {
+  public ProblemDetailsHandler log4xxErrors() {
     this.log4xxErrors = true;
     return this;
   }
@@ -31,11 +31,7 @@ public class ProblemDetailsErrorHandler extends DefaultErrorHandler {
     Logger log = ctx.getRouter().getLog();
     if (cause instanceof NotAcceptableException ex) {
       // no matching produce type, respond in html
-      var problem = HttpProblem.valueOf(ex.getStatusCode(),
-          NOT_ACCEPTABLE.reason(),
-          "Server cannot produce a response matching the list of " +
-          "acceptable values defined in the request's 'Accept' header"
-      );
+      var problem = ((HttpProblemMappable) ex).toHttpProblem();
 
       logProblem(ctx, problem, cause);
       sendHtml(ctx, problem);
@@ -47,7 +43,7 @@ public class ProblemDetailsErrorHandler extends DefaultErrorHandler {
 
       logProblem(ctx, problem, cause);
 
-      MediaType type = ctx.accept(Arrays.asList(ctx.getRequestType(), html, text, json, xml));
+      MediaType type = ctx.accept(Arrays.asList(ctx.getRequestType(text), html, text, json, xml));
       ctx.setResponseCode(problem.getStatus());
       problem.getHeaders().forEach(ctx::setResponseHeader);
 
@@ -80,13 +76,13 @@ public class ProblemDetailsErrorHandler extends DefaultErrorHandler {
     HttpProblem problem;
     if (cause instanceof HttpProblem httpProblem) {
       problem = httpProblem;
-    } else if (cause instanceof StatusCodeException ex) {
-      problem = handleStatusCodeExceptionSuccessors(ex, ctx);
+    } else if (cause instanceof HttpProblemMappable problemMappable) {
+      problem = problemMappable.toHttpProblem();
     } else {
       var code = statusCode.value();
-      if (code == 500) {
+      if (code == SERVER_ERROR_CODE) {
         problem = HttpProblem.internalServerError();
-      } else if (code > 500) {
+      } else if (code > SERVER_ERROR_CODE) {
         problem = HttpProblem.valueOf(statusCode, statusCode.reason());
       } else {
         if (cause.getMessage() != null) {
@@ -97,35 +93,6 @@ public class ProblemDetailsErrorHandler extends DefaultErrorHandler {
         }
       }
     }
-    return problem;
-  }
-
-  private HttpProblem handleStatusCodeExceptionSuccessors(StatusCodeException ex, Context ctx) {
-    HttpProblem problem;
-    StatusCode code = ex.getStatusCode();
-
-    if (ex instanceof InvalidCsrfToken) {
-      problem = HttpProblem.valueOf(code,
-          "Invalid CSRF token",
-          "CSRF token '" + ex.getMessage() + "' is invalid");
-    } else if (ex instanceof MethodNotAllowedException) {
-      problem = HttpProblem.valueOf(code,
-          METHOD_NOT_ALLOWED.reason(),
-          "HTTP method '" + ex.getMessage() + "' for the requested path '" + ctx.getRequestPath() +
-          "' is not allowed");
-    } else if (ex instanceof NotFoundException) {
-      problem = HttpProblem.valueOf(
-          code, NOT_FOUND.reason(), "Route not found. Please verify request 'path'");
-    } else if (ex instanceof TypeMismatchException) {
-      problem = HttpProblem.valueOf(code, "Type Mismatch", ex.getMessage());
-    } else if (ex instanceof UnsupportedMediaType) {
-      problem = HttpProblem.valueOf(code,
-          UNSUPPORTED_MEDIA_TYPE.reason(),
-          "Media type '" + ex.getMessage() + "' is not supported");
-    } else {
-      problem = HttpProblem.valueOf(code, ex.getMessage());
-    }
-
     return problem;
   }
 
@@ -197,7 +164,7 @@ public class ProblemDetailsErrorHandler extends DefaultErrorHandler {
     StatusCode statusCode = StatusCode.valueOf(problem.getStatus());
     var log = ctx.getRouter().getLog();
 
-    if (problem.getStatus() >= 500) {
+    if (problem.getStatus() >= SERVER_ERROR_CODE) {
       var msg = buildLogMsg(ctx, problem, statusCode);
       log.error(msg, cause);
     } else {

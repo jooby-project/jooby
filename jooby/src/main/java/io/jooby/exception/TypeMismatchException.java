@@ -8,6 +8,7 @@ package io.jooby.exception;
 import java.lang.reflect.Type;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.problem.HttpProblem;
 
 /**
  * Type mismatch exception. Used when a value can't be converted to the required type.
@@ -47,5 +48,11 @@ public class TypeMismatchException extends BadRequestException {
    */
   public @NonNull String getName() {
     return name;
+  }
+
+
+  @Override
+  public HttpProblem toHttpProblem() {
+    return HttpProblem.valueOf(statusCode, "Type Mismatch", getMessage());
   }
 }

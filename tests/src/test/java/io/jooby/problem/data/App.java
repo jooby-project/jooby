@@ -14,7 +14,7 @@ import io.jooby.exception.StatusCodeException;
 import io.jooby.handler.AccessLogHandler;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.problem.HttpProblem;
-import io.jooby.problem.ProblemDetailsErrorHandler;
+import io.jooby.problem.ProblemDetailsHandler;
 
 import java.net.URI;
 import java.util.List;
@@ -66,7 +66,7 @@ public class App extends Jooby {
           .param("key2", List.of(1, 2, 3, 4, 5))
           .param("key3", Map.of("m1", List.of(), "m2", Map.of()))
           .error(new CustomError("Error 1", "#/firstName", "FIELD"))
-          .error(new CustomError("Error 2", "#/lastName", "FIELD"))
+          .errors(List.of(new CustomError("Error 2", "#/lastName", "FIELD")))
           .build();
     });
 
@@ -137,7 +137,7 @@ public class App extends Jooby {
     });
 
     // should always go at the bottom
-    error(new ProblemDetailsErrorHandler().log4xxErrors());
+    error(new ProblemDetailsHandler().log4xxErrors());
   }
 
   public static void main(final String[] args) {

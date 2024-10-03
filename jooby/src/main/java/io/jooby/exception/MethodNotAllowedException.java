@@ -9,6 +9,7 @@ import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
+import io.jooby.problem.HttpProblem;
 
 /**
  * Whether a HTTP method isn't supported. The {@link #getAllow()} contains the supported HTTP
@@ -47,5 +48,13 @@ public class MethodNotAllowedException extends StatusCodeException {
    */
   public List<String> getAllow() {
     return allow;
+  }
+
+  @Override
+  public HttpProblem toHttpProblem() {
+    return HttpProblem.valueOf(statusCode,
+        statusCode.reason(),
+        "HTTP method '" + getMethod() + "' is not allowed. Allowed methods are: " + allow
+    );
   }
 }

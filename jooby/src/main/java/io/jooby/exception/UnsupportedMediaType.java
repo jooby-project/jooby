@@ -7,6 +7,7 @@ package io.jooby.exception;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.StatusCode;
+import io.jooby.problem.HttpProblem;
 
 /**
  * Whether there is no decoder for the requested <code>Content-Type</code>.
@@ -31,5 +32,12 @@ public class UnsupportedMediaType extends StatusCodeException {
    */
   public @Nullable String getContentType() {
     return getMessage();
+  }
+
+  @Override
+  public HttpProblem toHttpProblem() {
+    return HttpProblem.valueOf(statusCode,
+        statusCode.reason(),
+        "Media type '" + getContentType() + "' is not supported");
   }
 }

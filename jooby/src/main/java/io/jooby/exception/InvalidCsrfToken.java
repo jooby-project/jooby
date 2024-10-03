@@ -6,6 +6,7 @@
 package io.jooby.exception;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.problem.HttpProblem;
 
 /**
  * Generate by CSRF handler.
@@ -22,5 +23,12 @@ public class InvalidCsrfToken extends ForbiddenException {
    */
   public InvalidCsrfToken(@Nullable String token) {
     super(token);
+  }
+
+  @Override
+  public HttpProblem toHttpProblem() {
+    return HttpProblem.valueOf(statusCode,
+        "Invalid CSRF token",
+        "CSRF token '" + getMessage() + "' is invalid");
   }
 }
