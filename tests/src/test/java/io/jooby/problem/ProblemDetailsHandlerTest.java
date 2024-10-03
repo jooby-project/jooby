@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.*;
 class ProblemDetailsHandlerTest {
 
   protected static RequestSpecification GENERIC_SPEC = new RequestSpecBuilder()
-      .setPort(9999)
       .setContentType(ContentType.JSON)
       .build();
 
@@ -45,7 +44,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void titleAndStatusOnly_shouldProduceCorrectProblemResponse(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-simple-http-problem")
           .then()
           .assertThat()
@@ -67,7 +66,7 @@ class ProblemDetailsHandlerTest {
     runner.use(App::new).ready(http -> {
       Header accept = new Header("Accept", null);
       Header type = new Header(CONTENT_TYPE, null);
-      var resp = given().spec(GENERIC_SPEC)
+      var resp = spec(runner)
           .header(accept)
           .header(type)
           .get("/throw-simple-http-problem")
@@ -83,8 +82,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void titleStatusAndDetails_shouldProduceCorrectProblemResponse(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-http-problem-with-details")
           .then()
           .assertThat()
@@ -99,7 +97,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void allParametersAreSet_shouldHaveAllParameters(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-problem-with-builder-all-parameters")
           .then()
           .assertThat()
@@ -124,7 +122,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwStatusCodeException_shouldHandleStatusCodeException(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-status-code-exception")
           .then()
           .assertThat()
@@ -139,7 +137,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwStatusCodeExceptionWithMsg_messageShouldBeInTitle(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-status-code-exception-with-message")
           .then()
           .assertThat()
@@ -154,7 +152,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwNumberFormatException_shouldRespondAsBadRequest(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-number-format-exception")
           .then()
           .assertThat()
@@ -169,7 +167,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwNumberFormatExceptionWithMessage_messageShouldBeInDetail(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-number-format-exception-with-message")
           .then()
           .assertThat()
@@ -184,7 +182,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwIllegalStateException_shouldNotExposeInternalDetails(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-illegal-state-exception")
           .then()
           .assertThat()
@@ -199,7 +197,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwInvalidCsrfTokenException_shouldBeTransformedToProblem(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-invalid-csrf-token")
           .then()
           .assertThat()
@@ -214,7 +212,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwMethodNotAllowedException_shouldBeTransformedToProblem(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/not-allowed")
           .then()
           .assertThat()
@@ -229,7 +227,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwNotFoundException_shouldBeTransformedToProblem(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/not-found")
           .then()
           .assertThat()
@@ -244,7 +242,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwMissingValueException_shouldBeTransformedToProblem(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .get("/throw-missing-value-exception")
           .then()
           .assertThat()
@@ -259,7 +257,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwNotAcceptableException_shouldRespondInHtml(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      var actualHtml = given().spec(GENERIC_SPEC)
+      var actualHtml = spec(runner)
           .when()
           .header("Accept", "application/yaml")
           .get("/throw-not-acceptable-exception")
@@ -281,7 +279,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void throwUnsupportedMediaType_shouldBeTransformedToProblem(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .when()
           .header("Content-Type", "application/json")
           .get("/throw-unsupported-media-type")
@@ -298,7 +296,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void customExceptionHandlingWithCustomRender_customExceptionHandlerShouldRender(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .when()
           .get("/throw-my-custom-exception-with-custom-render")
           .then()
@@ -311,7 +309,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void customExceptionCaughtAndPropagateAsProblem_shouldBeTransformedToProblem(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .when()
           .get("/throw-my-custom-exception-and-propagate-as-problem")
           .then()
@@ -326,7 +324,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void customOutOfStockProblem_shouldBeHandledAsHttpProblem(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .when()
           .get("/throw-inherited-out-of-stock-problem")
           .then()
@@ -344,7 +342,7 @@ class ProblemDetailsHandlerTest {
   @ServerTest
   void sendEmptyBody_shouldRespond422withDetails(ServerTestRunner runner) {
     runner.use(App::new).ready(http -> {
-      given().spec(GENERIC_SPEC)
+      spec(runner)
           .post("/post-empty-body")
           .then()
           .assertThat()
@@ -354,5 +352,9 @@ class ProblemDetailsHandlerTest {
           .body("status", equalTo(422))
           .body("detail", equalTo("No content to map due to end-of-input"));
     });
+  }
+
+  private RequestSpecification spec(ServerTestRunner runner) {
+    return given().spec(GENERIC_SPEC).port(runner.getAllocatedPort());
   }
 }
