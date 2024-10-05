@@ -36,8 +36,14 @@ public final class MediaType implements Comparable<MediaType> {
   /** APPLICATION_JSON. */
   public static final String JSON = "application/json";
 
+  /** APPLICATION_PROBLEM_JSON. */
+  public static final String PROBLEM_JSON = "application/problem+json";
+
   /** APPLICATION_XML. */
   public static final String XML = "application/xml";
+
+  /** APPLICATION_PROBLEM_XML. */
+  public static final String PROBLEM_XML = "application/problem+xml";
 
   /** TEXT_PLAIN. */
   public static final String TEXT = "text/plain";
@@ -81,7 +87,7 @@ public final class MediaType implements Comparable<MediaType> {
   /** TEXT_HTML. */
   public static final MediaType html = new MediaType(HTML, UTF_8);
 
-  /** APPLICATION_JSON. */
+  /** APPLICATION_JAVASCRIPT. */
   public static final MediaType js = new MediaType(JS, UTF_8);
 
   /** TEXT_CSS. */

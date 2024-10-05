@@ -7,6 +7,7 @@ package io.jooby.exception;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
+import io.jooby.problem.HttpProblem;
 
 /**
  * When a request doesn't match any of the available routes.
@@ -32,5 +33,12 @@ public class NotFoundException extends StatusCodeException {
    */
   public @NonNull String getRequestPath() {
     return getMessage();
+  }
+
+  @Override
+  public HttpProblem toHttpProblem() {
+    return HttpProblem.valueOf(statusCode,
+        statusCode.reason(),
+        "Route '" + getRequestPath() + "' not found. Please verify request path");
   }
 }

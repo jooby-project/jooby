@@ -49,6 +49,8 @@ public class ServerTestRunner {
 
   private boolean followRedirects = true;
 
+  private int allocatedPort;
+
   public ServerTestRunner(
       Method testMethod, String testName, ServerProvider server, ExecutionMode executionMode) {
     this.testMethod = testMethod;
@@ -113,6 +115,7 @@ public class ServerTestRunner {
       ServerOptions options = server.getOptions();
       options.setHttp2(Optional.ofNullable(options.isHttp2()).orElse(Boolean.FALSE));
       options.setPort(Integer.parseInt(System.getenv().getOrDefault("BUILD_PORT", "9999")));
+      this.allocatedPort = options.getPort();
       WebClient https;
       if (options.isSSLEnabled()) {
         options.setSecurePort(
@@ -179,6 +182,10 @@ public class ServerTestRunner {
       path = path.resolve(segment);
     }
     return path;
+  }
+
+  public int getAllocatedPort() {
+    return allocatedPort;
   }
 
   @Override

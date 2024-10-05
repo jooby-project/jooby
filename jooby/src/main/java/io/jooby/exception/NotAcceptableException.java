@@ -7,6 +7,7 @@ package io.jooby.exception;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.StatusCode;
+import io.jooby.problem.HttpProblem;
 
 /**
  * Whether the accept header isn't acceptable.
@@ -31,5 +32,14 @@ public class NotAcceptableException extends StatusCodeException {
    */
   public @Nullable String getContentType() {
     return getMessage();
+  }
+
+  @Override
+  public HttpProblem toHttpProblem() {
+    return HttpProblem.valueOf(statusCode,
+        statusCode.reason(),
+        "Server cannot produce a response matching the list of " +
+        "acceptable values defined in the request's 'Accept' header"
+    );
   }
 }

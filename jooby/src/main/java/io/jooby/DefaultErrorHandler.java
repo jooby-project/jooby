@@ -120,7 +120,7 @@ public class DefaultErrorHandler implements ErrorHandler {
     }
   }
 
-  private boolean isMuted(Throwable cause, StatusCode statusCode) {
+  protected boolean isMuted(Throwable cause, StatusCode statusCode) {
     return muteCodes.contains(statusCode)
         // same class filter
         || muteTypes.stream().anyMatch(type -> type == cause.getClass())
