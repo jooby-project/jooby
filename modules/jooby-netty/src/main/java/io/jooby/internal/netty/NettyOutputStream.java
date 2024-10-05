@@ -7,6 +7,7 @@ package io.jooby.internal.netty;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -22,6 +23,7 @@ public class NettyOutputStream extends OutputStream {
   private final ChannelHandlerContext context;
   private final ChannelFutureListener closeListener;
   private HttpResponse headers;
+  private AtomicBoolean closed = new AtomicBoolean(false);
 
   public NettyOutputStream(
       NettyContext ctx, ChannelHandlerContext context, int bufferSize, HttpResponse headers) {
@@ -106,10 +108,12 @@ public class NettyOutputStream extends OutputStream {
 
   @Override
   public void close() {
-    try {
-      flush(null, closeListener);
-    } finally {
-      ctx.requestComplete();
+    if (closed.compareAndSet(false, true)) {
+      try {
+        flush(null, closeListener);
+      } finally {
+        ctx.requestComplete();
+      }
     }
   }
 }

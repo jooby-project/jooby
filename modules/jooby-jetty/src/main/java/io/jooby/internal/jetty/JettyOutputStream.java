@@ -6,13 +6,15 @@
 package io.jooby.internal.jetty;
 
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.jooby.SneakyThrows;
 
 public class JettyOutputStream extends OutputStream {
 
-  private JettyContext jetty;
-  private OutputStream out;
+  private final JettyContext jetty;
+  private final OutputStream out;
+  private AtomicBoolean closed = new AtomicBoolean(false);
 
   public JettyOutputStream(OutputStream out, JettyContext jetty) {
     this.out = out;
@@ -41,7 +43,9 @@ public class JettyOutputStream extends OutputStream {
 
   @Override
   public void close() {
-    block(out::close, true);
+    if (closed.compareAndSet(false, true)) {
+      block(out::close, true);
+    }
   }
 
   private void block(SneakyThrows.Runnable task, boolean complete) {
