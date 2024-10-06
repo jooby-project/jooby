@@ -5,6 +5,7 @@
  */
 package io.jooby.exception;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.StatusCode;
 import io.jooby.problem.HttpProblem;
@@ -35,7 +36,7 @@ public class NotAcceptableException extends StatusCodeException {
   }
 
   @Override
-  public HttpProblem toHttpProblem() {
+  public @NonNull HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(statusCode,
         statusCode.reason(),
         "Server cannot produce a response matching the list of " +
