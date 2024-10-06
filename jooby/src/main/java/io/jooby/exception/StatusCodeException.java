@@ -63,7 +63,7 @@ public class StatusCodeException extends RuntimeException implements HttpProblem
   }
 
   @Override
-  public HttpProblem toHttpProblem() {
+  public @NonNull HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(statusCode, getMessage());
   }
 }

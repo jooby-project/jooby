@@ -238,6 +238,8 @@ include::responses.adoc[]
 
 include::error-handler.adoc[]
 
+include::problem-details.adoc[]
+
 include::handlers.adoc[]
 
 include::configuration.adoc[]

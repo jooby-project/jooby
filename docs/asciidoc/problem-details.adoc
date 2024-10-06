@@ -1,0 +1,294 @@
+== Problem Details
+
+Most APIs have a way to report problems and errors, helping the user understand when something went wrong and what the issue is.
+The method used depends on the API’s style, technology, and design.
+Handling error reporting is an important part of the overall API design process.
+
+You could create your own error-reporting system, but that takes time and effort, both for the designer and for users who need to learn the custom approach.
+Thankfully, there’s a standard called https://www.rfc-editor.org/rfc/rfc7807[IETF RFC 7807] (later refined in https://www.rfc-editor.org/rfc/rfc9457[RFC 9457]) that can help.
+
+By adopting `RFC 7807`, API designers don’t have to spend time creating a custom solution, and users benefit by recognizing a familiar format across different APIs.
+If it suits the API’s needs, using this standard benefits both designers and users alike.
+
+`Jooby` provides built-in support for `Problem Details`. There are two main entities to work with:
+
+1. `HttpProblem` - representation of the `RFC 7807` model and the way to instantiate the problem.
+
+2. `ProblemDetailsHandler` - global error handler that catches all exceptions, transforms them into `Problem Details` compliant format and renders the response based on the `Accept` header value.
+It also sets the appropriate content-type in response (e.g. application/problem+json, application/problem+xml)
+
+=== Set up handler
+
+The bare minimal requirement is to set up an error handler:
+
+.Java
+[source,java,role="primary"]
+----
+import io.jooby.problem.ProblemDetailsHandler;
+
+{
+  ...  
+  error(new ProblemDetailsHandler()          // <1>
+    .log4xxErrors()                          // <2>
+    .mute(StatusCode.UNAUTHORIZED)           // <3>
+  );
+}
+----
+
+.Kotlin
+[source,kt,role="secondary"]
+----
+import io.jooby.problem.ProblemDetailsHandler
+
+{
+  ...  
+  error(new ProblemDetailsHandler()          // <1>
+    .log4xxErrors()                          // <2>
+    .mute(StatusCode.UNAUTHORIZED)           // <3>
+  )
+}
+----
+
+<1> Enable `Problem Details` handler.
+Keep in mind, order matters (WYSIWYG), so if you have some specific exception handlers, they should be placed above this line.
+<2> By default, only server errors (5xx) will be logged. You can optionally enable the logging of client errors (4xx). If `DEBUG` logging level is enabled, the log will contain a stacktrace as well.
+<3> You can optionally mute some status codes or exceptions logging completely.
+
+=== Creating problems
+
+==== Static helpers
+
+There are several handy static methods to produce a simple `HttpProblem`:
+
+- `HttpProblem.valueOf(StatusCode status)` - will pick the title by status code.
+Don't overuse it, the problem should have meaningful `title` and `detail` when possible.
+- `HttpProblem.valueOf(StatusCode status, String title)` - with custom `title`
+- `HttpProblem.valueOf(StatusCode status, String title, String detail)` - with `title` and `detail`
+
+`HttpProblem` extends `RuntimeException` so you can naturally throw it (as you do with exceptions):
+
+.Java
+[source,java,role="primary"]
+----
+get("/users/{userId}", ctx -> {
+  var userId = ctx.path("userId").value();
+  User user = userRepository.findUser(userId);
+
+  if (user == null) {
+    throw HttpProblem.valueOf(StatusCode.NOT_FOUND,
+      "User Not Found",
+      "User with ID %s was not found in the system.".formatted(userId)
+    );
+  }
+  ...
+});
+----
+
+.Kotlin
+[source,kt,role="secondary"]
+----
+get("/users/{userId}") { ctx ->
+  val userId = ctx.path("userId").value()
+  val user = userRepository.findUser(userId)
+
+  if (user == null) {
+    throw HttpProblem.valueOf(StatusCode.NOT_FOUND,
+      "User Not Found",
+      "User with ID $userId was not found in the system."
+    )
+  }
+  ...
+})
+----
+
+Resulting response:
+
+[source,json]
+----
+{
+    "timestamp": "2024-10-05T14:10:41.648933100Z",
+    "type": "about:blank",
+    "title": "User Not Found",
+    "status": 404,
+    "detail": "User with ID 123 was not found in the system.",
+    "instance": null
+}
+----
+
+==== Builder
+
+Use builder to create rich problem instance with all properties:
+
+[source,java]
+----
+throw HttpProblem.builder()
+  .type(URI.create("http://example.com/invalid-params"))
+  .title("Invalid input parameters")
+  .status(StatusCode.UNPROCESSABLE_ENTITY)
+  .detail("'Name' may not be empty")
+  .instance(URI.create("http://example.com/invalid-params/3325"))
+  .build();
+----
+
+=== Adding extra parameters
+
+`RFC 7807` has a simple extension model: APIs are free to add any other properties to the problem details object, so all properties other than the five ones listed above are extensions.
+
+However, variadic root level fields are usually not very convenient for (de)serialization (especially in statically typed languages). That's why `HttpProblem` implementation grabs all extensions under a single root field `parameters`. You can add parameters using builder like this:
+
+[source,java]
+----
+throw HttpProblem.builder()
+  .title("Order not found")
+  .status(StatusCode.NOT_FOUND)
+  .detail("Order with ID $orderId could not be processed because it is missing or invalid.")
+  .param("reason", "Order ID format incorrect or order does not exist.")
+  .param("suggestion", "Please check the order ID and try again")
+  .param("supportReference", "/support")
+  .build();
+----
+
+Resulting response:
+
+[source,json]
+----
+{
+  "timestamp": "2024-10-06T07:34:06.643235500Z",
+  "type": "about:blank",
+  "title": "Order not found",
+  "status": 404,
+  "detail": "Order with ID $orderId could not be processed because it is missing or invalid.",
+  "instance": null,
+  "parameters": {
+    "reason": "Order ID format incorrect or order does not exist.",
+    "suggestion": "Please check the order ID and try again",
+    "supportReference": "/support"
+  }
+}
+----
+
+=== Adding headers
+
+Some `HTTP` codes (like `413` or `426`) require additional response headers, or it may be required by third-party system/integration. `HttpProblem` support additional headers in response:
+
+[source,java]
+----
+throw HttpProblem.builder()
+  .title("Invalid input parameters")
+  .status(StatusCode.UNPROCESSABLE_ENTITY)
+  .header("my-string-header", "string")
+  .header("my-int-header", 100)
+  .build();
+----
+
+=== Respond with errors details
+
+`RFC 9457` finally described how errors should be delivered in HTTP APIs.
+It is basically another extension `errors` on a root level. Adding errors is straight-forward using `error()` or `errors()` for bulk addition in builder:
+
+[source,java]
+----
+throw HttpProblem.builder()
+  ...
+  .error(new HttpProblem.Error("First name cannot be blank", "#/firstName"))
+  .error(new HttpProblem.Error("Last name is required", "#/lastName"))
+  .build();
+----
+
+In response:
+[source,json]
+----
+{
+  ...
+  "errors": [
+    {
+      "detail": "First name cannot be blank",
+      "pointer": "#/firstName"
+    },
+    {
+      "detail": "Last name is required",
+      "pointer": "#/lastName"
+    }
+  ]
+}
+----
+
+[TIP]
+====
+If you need to enrich errors with more information feel free to extend `HttpProblem.Error` and make your custom errors model.
+====
+
+=== Custom `Exception` to `HttpProblem`
+
+Apparently, you may already have many custom `Exception` classes in the codebase, and you want to make them `Problem Details` compliant without complete re-write. You can achieve this by implementing `HttpProblemMappable` interface. It allows you to control how exceptions should be transformed into `HttpProblem` if default behaviour doesn't suite your needs:
+
+[source,java]
+----
+import io.jooby.problem.HttpProblemMappable;
+
+public class MyException implements HttpProblemMappable {
+    
+  public HttpProblem toHttpProblem() {
+    return HttpProblem.builder()
+      ...
+      build();
+  }
+  
+}
+----
+
+=== Custom Problems
+
+Extending `HttpProblem` and utilizing builder functionality makes it really easy:
+
+[source,java]
+----
+public class OutOfStockProblem extends HttpProblem {
+
+  private static final URI TYPE = URI.create("https://example.org/out-of-stock");
+
+  public OutOfStockProblem(final String product) {
+    super(builder()
+      .type(TYPE)
+      .title("Out of Stock")
+      .status(StatusCode.BAD_REQUEST)
+      .detail(String.format("'%s' is no longer available", product))
+      .param("suggestions", List.of("Coffee Grinder MX-17", "Coffee Grinder MX-25"))
+    );
+  }
+}
+----
+
+=== Custom Exception Handlers
+
+All the features described above should give you ability to rely solely on `ProblemDetailsHandler`.
+But, in case you still need custom exception handler for some reason, you still can do it:
+
+[source,java]
+----
+{
+    ...
+    error(MyCustomException.class, (ctx, cause, code) -> {
+      MyCustomException ex = (MyCustomException) cause;
+      
+      HttpProblem problem = ... ;                                      // <1>
+      
+      ctx.getRouter().getErrorHandler().apply(ctx, problem, code);     // <2>
+    });
+
+    // should always go below (WYSIWYG)
+    error(new ProblemDetailsHandler());                                // <3>
+}
+----
+
+<1> Transform exception to `HttpProblem`
+<2> Propagate the problem to `ProblemDetailsHandler`. It will handle the rest.
+<3> `ProblemDetailsHandler` should always go below your custom exception handlers
+
+[IMPORTANT]
+====
+Do not attempt to render `HttpProblem` manually, it is strongly discouraged.
+`HttpProblem` is derived from the `RuntimeException` to enable ease of `HttpProblem` throwing.
+Thus, thrown `HttpProblem` will also contain a stacktrace, if you render `HttpProblem` as is -
+it will be rendered together with stacktrace. It is  strongly advised not to expose the stacktrace to the client. Propagate the problem to `ProblemDetailsHandler` and let him take care of the rest. 
+====

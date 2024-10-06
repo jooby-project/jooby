@@ -52,7 +52,7 @@ public class TypeMismatchException extends BadRequestException {
 
 
   @Override
-  public HttpProblem toHttpProblem() {
+  public @NonNull HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(statusCode, "Type Mismatch", getMessage());
   }
 }

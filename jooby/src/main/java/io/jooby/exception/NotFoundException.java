@@ -36,7 +36,7 @@ public class NotFoundException extends StatusCodeException {
   }
 
   @Override
-  public HttpProblem toHttpProblem() {
+  public @NonNull HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(statusCode,
         statusCode.reason(),
         "Route '" + getRequestPath() + "' not found. Please verify request path");

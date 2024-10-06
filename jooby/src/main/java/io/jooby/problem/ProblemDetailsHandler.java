@@ -7,7 +7,7 @@ package io.jooby.problem;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.exception.*;
+import io.jooby.exception.NotAcceptableException;
 import org.slf4j.Logger;
 
 import java.util.Arrays;
@@ -15,8 +15,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static io.jooby.MediaType.*;
-import static io.jooby.StatusCode.*;
+import static io.jooby.StatusCode.SERVER_ERROR_CODE;
 
+/**
+ * Global error handler that catches all exceptions, transforms them into
+ * <a href="https://www.rfc-editor.org/rfc/rfc7807">RFC7807</a>
+ * compliant format and renders the response based on the `Accept` header value.
+ * It also sets the appropriate content-type in
+ * response (e.g. application/problem+json, application/problem+xml)
+ *
+ * @author kliushnichenko
+ * @since 3.4.2
+ */
 public class ProblemDetailsHandler extends DefaultErrorHandler {
 
   private boolean log4xxErrors;

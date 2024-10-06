@@ -5,6 +5,7 @@
  */
 package io.jooby.exception;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.problem.HttpProblem;
 
@@ -26,7 +27,7 @@ public class InvalidCsrfToken extends ForbiddenException {
   }
 
   @Override
-  public HttpProblem toHttpProblem() {
+  public @NonNull HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(statusCode,
         "Invalid CSRF token",
         "CSRF token '" + getMessage() + "' is invalid");
