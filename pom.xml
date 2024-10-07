@@ -57,21 +57,21 @@
     <commons-email.version>1.6.0</commons-email.version>
 
     <!-- util -->
-    <metrics.version>4.2.27</metrics.version>
+    <metrics.version>4.2.28</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>2.1.5.Final</jboss-modules.version>
 
     <!-- ASM -->
-    <asm.version>9.7</asm.version>
+    <asm.version>9.7.1</asm.version>
 
     <!-- Server -->
     <undertow.version>2.3.17.Final</undertow.version>
-    <jetty.version>12.0.13</jetty.version>
-    <netty.version>4.1.113.Final</netty.version>
+    <jetty.version>12.0.14</jetty.version>
+    <netty.version>4.1.114.Final</netty.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.24</swagger.version>
+    <swagger.version>2.2.25</swagger.version>
     <swagger-parser.version>2.1.22</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
@@ -84,7 +84,7 @@
     <avaje.validator.version>2.3</avaje.validator.version>
 
     <!-- jakarta -->
-    <jakarta.inject.version>2.0.1</jakarta.inject.version>
+    <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
     <jakarta.validation.version>3.1.0</jakarta.validation.version>
     <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
     <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
@@ -96,7 +96,7 @@
     <quartz.version>2.3.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.772</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.773</aws-java-sdk.version>
     <camel.version>4.7.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -109,10 +109,10 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.12</jacoco.version>
-    <junit.version>5.11.1</junit.version>
+    <junit.version>5.11.2</junit.version>
     <rest-assured.version>5.5.0</rest-assured.version>
     <assertj-core.version>3.26.3</assertj-core.version>
-    <mockito.version>5.14.0</mockito.version>
+    <mockito.version>5.14.1</mockito.version>
     <guava.version>33.3.1-jre</guava.version>
 
     <auto-service.version>1.1.1</auto-service.version>
@@ -136,7 +136,7 @@
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.10.0</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.10.1</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.15.0</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.9.9</maven-plugin-api.version>
@@ -146,7 +146,7 @@
     <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
     <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-    <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
     <plexus-utils.version>4.0.2</plexus-utils.version>
