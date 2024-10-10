@@ -9,6 +9,7 @@ import static jakarta.validation.Validation.byProvider;
 
 import java.util.function.Consumer;
 
+import io.jooby.problem.ProblemDetailsHandler;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 
@@ -141,7 +142,10 @@ public class HibernateValidatorModule implements Extension {
       if (!disableDefaultViolationHandler) {
         app.error(
             ConstraintViolationException.class,
-            new ConstraintViolationHandler(statusCode, title, logException));
+            new ConstraintViolationHandler(
+                statusCode, title, logException, app.problemDetailsEnabled()
+            )
+        );
       }
     }
   }

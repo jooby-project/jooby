@@ -5,6 +5,7 @@
  */
 package io.jooby.problem;
 
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.NotAcceptableException;
@@ -15,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static io.jooby.MediaType.*;
+import static io.jooby.SneakyThrows.throwingConsumer;
 import static io.jooby.StatusCode.SERVER_ERROR_CODE;
 
 /**
@@ -28,6 +30,9 @@ import static io.jooby.StatusCode.SERVER_ERROR_CODE;
  * @since 3.4.2
  */
 public class ProblemDetailsHandler extends DefaultErrorHandler {
+
+  public static final String ROOT_CONFIG_PATH = "problem.details";
+  public static final String ENABLE_KEY = ROOT_CONFIG_PATH + ".enable";
 
   private boolean log4xxErrors;
 
@@ -191,5 +196,28 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
 
   private String buildLogMsg(Context ctx, HttpProblem problem, StatusCode statusCode) {
     return "%s | %s".formatted(ErrorHandler.errorMessage(ctx, statusCode), problem.toString());
+  }
+
+  public static ProblemDetailsHandler fromConfig(Config config) {
+    var handler = new ProblemDetailsHandler();
+
+    if(config.hasPath("log4xxErrors")) {
+      if(config.getBoolean("log4xxErrors")) {
+        handler.log4xxErrors();
+      }
+    }
+
+    if(config.hasPath("muteCodes")) {
+      config.getIntList("muteCodes")
+          .forEach(code -> handler.mute(StatusCode.valueOf(code)));
+    }
+
+    if(config.hasPath("muteTypes")) {
+      config.getStringList("muteTypes")
+          .forEach(throwingConsumer(
+              className -> handler.mute((Class<? extends Exception>) Class.forName(className))));
+    }
+
+    return handler;
   }
 }

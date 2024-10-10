@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import io.jooby.problem.ProblemDetailsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -594,10 +595,11 @@ public class RouterImpl implements Router {
 
   @NonNull public Router start(@NonNull Jooby app, @NonNull Server server) {
     started = true;
+    var globalErrHandler = defineGlobalErrorHandler(app);
     if (err == null) {
-      err = ErrorHandler.create();
+      err = globalErrHandler;
     } else {
-      err = err.then(ErrorHandler.create());
+      err = err.then(globalErrHandler);
     }
 
     ExecutionMode mode = app.getExecutionMode();
@@ -663,6 +665,15 @@ public class RouterImpl implements Router {
     routeExecutor.clear();
     routeExecutor = null;
     return this;
+  }
+
+  private ErrorHandler defineGlobalErrorHandler(Jooby app) {
+    if (app.problemDetailsEnabled()) {
+      var problemDetailsConfig = app.getConfig().getConfig(ProblemDetailsHandler.ROOT_CONFIG_PATH);
+      return ProblemDetailsHandler.fromConfig(problemDetailsConfig);
+    } else {
+      return ErrorHandler.create();
+    }
   }
 
   private ExecutionMode forceMode(Route route, ExecutionMode mode) {

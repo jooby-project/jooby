@@ -243,7 +243,7 @@ public class HttpProblem extends RuntimeException {
       return this;
     }
 
-    public Builder errors(final List<Error> errors) {
+    public Builder errors(final List<? extends Error> errors) {
       this.errors.addAll(errors);
       return this;
     }

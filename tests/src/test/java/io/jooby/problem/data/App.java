@@ -6,6 +6,8 @@
 package io.jooby.problem.data;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.StatusCode;
@@ -14,7 +16,6 @@ import io.jooby.exception.StatusCodeException;
 import io.jooby.handler.AccessLogHandler;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.problem.HttpProblem;
-import io.jooby.problem.ProblemDetailsHandler;
 
 import java.net.URI;
 import java.util.List;
@@ -23,6 +24,15 @@ import java.util.Map;
 public class App extends Jooby {
 
   {
+    Config problemDetailsConfig = ConfigFactory.parseMap(
+        Map.of("problem.details.enable", true,
+            "problem.details.log4xxErrors", true,
+            "problem.details.muteCodes", List.of(405, 406),
+            "problem.details.muteTypes", List.of("io.jooby.exception.UnauthorizedException"))
+    );
+    getEnvironment()
+        .setConfig(problemDetailsConfig.withFallback(getConfig()));
+
     use(new AccessLogHandler());
     install(new JacksonModule());
 
@@ -135,9 +145,6 @@ public class App extends Jooby {
       var p = HttpProblem.valueOf(StatusCode.BAD_REQUEST, ex.getMessage());
       ctx.getRouter().getErrorHandler().apply(ctx, p, code);
     });
-
-    // should always go at the bottom
-    error(new ProblemDetailsHandler().log4xxErrors());
   }
 
   public static void main(final String[] args) {
