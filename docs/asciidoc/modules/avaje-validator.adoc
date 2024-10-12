@@ -167,13 +167,6 @@ import io.jooby.validation.BeanValidator
 }
 ----
 
-[IMPORTANT]
-====
-Please note, if you are mixing both approaches (MVC/scripts), it's better to avoid using a filter,
-as it may lead to double validation on MVC routes. In this case,
-it's recommended to use the handler version (see below).
-====
-
 `BeanValidator.validate()` behaves identically to validation in MVC routes.
 It also supports validating list, array, and map of beans.
 
@@ -222,6 +215,12 @@ catches `ConstraintViolationException` and transforms it into the following resp
   ]
 }
 ----
+
+[NOTE]
+====
+`AvajeValidatorModule` is compliant with `ProblemDetails`. Therefore, if you enable 
+the Problem Details feature, the response above will be transformed into an `RFC 7807` compliant format
+====
 
 It is possible to override the `title` and `status` code of the response above:
 

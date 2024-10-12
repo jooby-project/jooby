@@ -15,6 +15,7 @@ import io.jooby.i3508.data.NewAccountRequest;
 import io.jooby.i3508.data.Person;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.problem.HttpProblem;
 import io.jooby.validation.ValidationResult;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -71,7 +72,7 @@ public class Issue3508ProblemDetails {
               request.setConfirmPassword("1234");
               request.setPerson(new Person(null, "Last Name"));
 
-              List<ValidationResult.ProblemError> actualErrors = spec(runner)
+              List<HttpProblem.Error> actualErrors = spec(runner)
                   .body(request)
                   .post(newAccEndpoint)
                   .then()
@@ -82,30 +83,25 @@ public class Issue3508ProblemDetails {
                   .body("detail", equalTo("5 constraint violation(s) detected"))
                   .extract()
                   .jsonPath()
-                  .getList("errors", ValidationResult.ProblemError.class);
+                  .getList("errors", HttpProblem.Error.class);
 
               var expectedErrors =
                   List.of(
-                      new ValidationResult.ProblemError(
+                      new HttpProblem.Error(
                           "Passwords should match",
-                          "/",
-                          ValidationResult.ErrorType.GLOBAL),
-                      new ValidationResult.ProblemError(
+                          ""),
+                      new HttpProblem.Error(
                           sizeLabel + " must be between 8 and 24",
-                          "/password",
-                          ValidationResult.ErrorType.FIELD),
-                      new ValidationResult.ProblemError(
+                          "/password"),
+                      new HttpProblem.Error(
                           "must not be empty",
-                          "/person/firstName",
-                          ValidationResult.ErrorType.FIELD),
-                      new ValidationResult.ProblemError(
+                          "/person/firstName"),
+                      new HttpProblem.Error(
                           sizeLabel + " must be between 8 and 24",
-                          "/confirmPassword",
-                          ValidationResult.ErrorType.FIELD),
-                      new ValidationResult.ProblemError(
+                          "/confirmPassword"),
+                      new HttpProblem.Error(
                           sizeLabel + " must be between 3 and 16",
-                          "/login",
-                          ValidationResult.ErrorType.FIELD));
+                          "/login"));
 
               Assertions.assertThat(expectedErrors)
                   .usingRecursiveComparison()

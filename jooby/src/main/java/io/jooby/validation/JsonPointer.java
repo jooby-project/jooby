@@ -5,6 +5,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Transforms hibernate-validator (or avaje-validator) `propertyPath` into
+ * <a href="https://www.rfc-editor.org/rfc/rfc6901.html">JSON POINTER</a> format.
+ * For example:
+ * <p>"person.firstName" -> "/person/firstName"</p>
+ * <p>"persons[0].firstName" -> "/persons/0/firstName"</p>
+ *
+ * @author kliushnichenko
+ * @since 3.4.2
+ */
 public class JsonPointer {
   private static final Pattern ARRAY_PATTERN = Pattern.compile("(\\w+)\\[(\\d+)]");
 
@@ -14,7 +24,7 @@ public class JsonPointer {
 
   private static String toJsonPointer(String path) {
     if (path == null || path.isEmpty()) {
-      return "/";
+      return ""; // means the whole document
     }
 
     List<String> parts = List.of(path.split("\\."));

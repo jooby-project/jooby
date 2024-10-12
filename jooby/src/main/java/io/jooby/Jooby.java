@@ -1325,10 +1325,15 @@ public class Jooby implements Router, Registry {
     return app;
   }
 
-  public boolean problemDetailsEnabled() {
+  /**
+   * Check if {@link ProblemDetailsHandler} is enabled as a global error handler
+   *
+   * @return boolean flag
+   */
+  public boolean problemDetailsIsEnabled() {
     var config = getConfig();
-    return config.hasPath(ProblemDetailsHandler.ENABLE_KEY)
-           && config.getBoolean(ProblemDetailsHandler.ENABLE_KEY);
+    return config.hasPath(ProblemDetailsHandler.ENABLED_KEY)
+           && config.getBoolean(ProblemDetailsHandler.ENABLED_KEY);
   }
 
   private static void configurePackage(Package pkg) {

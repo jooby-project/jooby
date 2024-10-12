@@ -667,8 +667,17 @@ public class RouterImpl implements Router {
     return this;
   }
 
+  /**
+   * Define the global error handler.
+   * If ProblemDetails is enabled the {@link ProblemDetailsHandler} instantiated
+   * from configuration settings and returned. Otherwise, {@link DefaultErrorHandler} instance
+   * returned.
+   *
+   * @param app - Jooby application instance
+   * @return global error handler
+   */
   private ErrorHandler defineGlobalErrorHandler(Jooby app) {
-    if (app.problemDetailsEnabled()) {
+    if (app.problemDetailsIsEnabled()) {
       var problemDetailsConfig = app.getConfig().getConfig(ProblemDetailsHandler.ROOT_CONFIG_PATH);
       return ProblemDetailsHandler.fromConfig(problemDetailsConfig);
     } else {

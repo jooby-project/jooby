@@ -48,6 +48,9 @@ import java.util.function.Function;
  * ConstraintViolationException} and transforms it into a {@link
  * io.jooby.validation.ValidationResult}
  *
+ * <p>When ProblemDetails is enabled {@link io.jooby.validation.ValidationResult} transformed
+ * to compliant response, see {@link io.jooby.problem.HttpProblem}
+ *
  * @author kliushnichenko
  * @author SentryMan
  * @since 3.3.1
@@ -161,7 +164,7 @@ public class AvajeValidatorModule implements Extension {
 
     if (!disableDefaultViolationHandler) {
       app.error(new ConstraintViolationHandler(
-          statusCode, title, logException, app.problemDetailsEnabled())
+          statusCode, title, logException, app.problemDetailsIsEnabled())
       );
     }
   }

@@ -25,7 +25,7 @@ public class App extends Jooby {
 
   {
     Config problemDetailsConfig = ConfigFactory.parseMap(
-        Map.of("problem.details.enable", true,
+        Map.of("problem.details.enabled", true,
             "problem.details.log4xxErrors", true,
             "problem.details.muteCodes", List.of(405, 406),
             "problem.details.muteTypes", List.of("io.jooby.exception.UnauthorizedException"))

@@ -38,30 +38,17 @@ public class ValidationResult implements HttpProblemMappable {
         .build();
   }
 
-  private List<ProblemError> convertErrors() {
-    List<ProblemError> problemErrors = new LinkedList<>();
+  private List<HttpProblem.Error> convertErrors() {
+    List<HttpProblem.Error> problemErrors = new LinkedList<>();
     for (Error err : errors) {
       for (var msg : err.messages()) {
-        problemErrors.add(new ProblemError(msg, JsonPointer.of(err.field), err.type));
+        problemErrors.add(new HttpProblem.Error(msg, JsonPointer.of(err.field)));
       }
     }
     return problemErrors;
   }
 
   public record Error(String field, List<String> messages, ErrorType type) {
-  }
-
-  public static class ProblemError extends HttpProblem.Error {
-    private final ErrorType type;
-
-    public ProblemError(String detail, String pointer, ErrorType type) {
-      super(detail, pointer);
-      this.type = type;
-    }
-
-    public ErrorType getType() {
-      return type;
-    }
   }
 
   public enum ErrorType {

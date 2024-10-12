@@ -18,7 +18,7 @@ public class App3508 extends Jooby {
 
     if (withProblemDetails) {
       Config problemDetailsConfig = ConfigFactory.parseMap(
-          Map.of("problem.details.enable", true,
+          Map.of("problem.details.enabled", true,
               "problem.details.log4xxErrors", true)
       );
 
