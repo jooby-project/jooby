@@ -5,17 +5,6 @@
  */
 package io.jooby.avaje.validator;
 
-import static io.jooby.validation.ValidationResult.ErrorType.FIELD;
-import static io.jooby.validation.ValidationResult.ErrorType.GLOBAL;
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.validation.ConstraintViolation;
 import io.avaje.validation.ConstraintViolationException;
@@ -23,6 +12,16 @@ import io.jooby.Context;
 import io.jooby.ErrorHandler;
 import io.jooby.StatusCode;
 import io.jooby.validation.ValidationResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static io.jooby.validation.ValidationResult.ErrorType.FIELD;
+import static io.jooby.validation.ValidationResult.ErrorType.GLOBAL;
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * Catches and transform {@link ConstraintViolationException} into {@link ValidationResult}
@@ -62,12 +61,17 @@ public class ConstraintViolationHandler implements ErrorHandler {
   private final StatusCode statusCode;
   private final String title;
   private final boolean logException;
+  private final boolean problemDetailsEnabled;
 
   public ConstraintViolationHandler(
-      @NonNull StatusCode statusCode, @NonNull String title, boolean logException) {
+      @NonNull StatusCode statusCode,
+      @NonNull String title,
+      boolean logException,
+      boolean problemDetailsEnabled) {
     this.statusCode = statusCode;
     this.title = title;
     this.logException = logException;
+    this.problemDetailsEnabled = problemDetailsEnabled;
   }
 
   @Override
@@ -82,7 +86,7 @@ public class ConstraintViolationHandler implements ErrorHandler {
       var errors = collectErrors(groupedByPath);
 
       var result = new ValidationResult(title, statusCode.value(), errors);
-      ctx.setResponseCode(statusCode).render(result);
+      renderOrPropagate(ctx, result, code);
     }
   }
 
@@ -102,5 +106,13 @@ public class ConstraintViolationHandler implements ErrorHandler {
 
   private List<String> extractMessages(List<ConstraintViolation> violations) {
     return violations.stream().map(ConstraintViolation::message).toList();
+  }
+
+  private void renderOrPropagate(Context ctx, ValidationResult result, StatusCode code) {
+    if (problemDetailsEnabled) {
+      ctx.getRouter().getErrorHandler().apply(ctx, result.toHttpProblem(), code);
+    } else {
+      ctx.setResponseCode(statusCode).render(result);
+    }
   }
 }

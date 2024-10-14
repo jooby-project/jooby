@@ -5,12 +5,6 @@
  */
 package io.jooby.avaje.validator;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueType;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -21,6 +15,14 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
 import io.jooby.validation.BeanValidator;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Avaje Validator Module: https://jooby.io/modules/avaje-validator.
@@ -45,6 +47,9 @@ import io.jooby.validation.BeanValidator;
  * <p>The module also provides a built-in error handler that catches {@link
  * ConstraintViolationException} and transforms it into a {@link
  * io.jooby.validation.ValidationResult}
+ *
+ * <p>When ProblemDetails is enabled {@link io.jooby.validation.ValidationResult} transformed
+ * to compliant response, see {@link io.jooby.problem.HttpProblem}
  *
  * @author kliushnichenko
  * @author SentryMan
@@ -158,7 +163,9 @@ public class AvajeValidatorModule implements Extension {
     app.getServices().put(BeanValidator.class, new BeanValidatorImpl(validator));
 
     if (!disableDefaultViolationHandler) {
-      app.error(new ConstraintViolationHandler(statusCode, title, logException));
+      app.error(new ConstraintViolationHandler(
+          statusCode, title, logException, app.problemDetailsIsEnabled())
+      );
     }
   }
 

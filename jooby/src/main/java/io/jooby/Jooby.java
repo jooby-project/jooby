@@ -41,6 +41,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import io.jooby.problem.ProblemDetailsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1322,6 +1323,17 @@ public class Jooby implements Router, Registry {
     }
 
     return app;
+  }
+
+  /**
+   * Check if {@link ProblemDetailsHandler} is enabled as a global error handler
+   *
+   * @return boolean flag
+   */
+  public boolean problemDetailsIsEnabled() {
+    var config = getConfig();
+    return config.hasPath(ProblemDetailsHandler.ENABLED_KEY)
+           && config.getBoolean(ProblemDetailsHandler.ENABLED_KEY);
   }
 
   private static void configurePackage(Package pkg) {

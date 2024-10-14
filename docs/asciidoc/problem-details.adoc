@@ -10,51 +10,43 @@ Thankfully, there’s a standard called https://www.rfc-editor.org/rfc/rfc7807[I
 By adopting `RFC 7807`, API designers don’t have to spend time creating a custom solution, and users benefit by recognizing a familiar format across different APIs.
 If it suits the API’s needs, using this standard benefits both designers and users alike.
 
-`Jooby` provides built-in support for `Problem Details`. There are two main entities to work with:
+`Jooby` provides built-in support for `Problem Details`.
 
-1. `HttpProblem` - representation of the `RFC 7807` model and the way to instantiate the problem.
+=== Set up ProblemDetails
 
-2. `ProblemDetailsHandler` - global error handler that catches all exceptions, transforms them into `Problem Details` compliant format and renders the response based on the `Accept` header value.
-It also sets the appropriate content-type in response (e.g. application/problem+json, application/problem+xml)
+To enable the `ProblemDetails`, simply add the following line to your configuration:
 
-=== Set up handler
-
-The bare minimal requirement is to set up an error handler:
-
-.Java
-[source,java,role="primary"]
+.application.conf
+[source, properties]
 ----
-import io.jooby.problem.ProblemDetailsHandler;
+problem.details.enabled = true
+----
 
-{
-  ...  
-  error(new ProblemDetailsHandler()          // <1>
-    .log4xxErrors()                          // <2>
-    .mute(StatusCode.UNAUTHORIZED)           // <3>
-  );
+This is the bare minimal configuration you need.
+It enables a global error handler that catches all exceptions, transforms them into Problem Details compliant format and renders the response based on the Accept header value. It also sets the appropriate content-type in response (e.g. application/problem+json, application/problem+xml)
+
+All supported settings include:
+
+.application.conf
+[source, properties]
+----
+problem.details {
+  enabled = true
+  log4xxErrors = true                                // <1>
+  muteCodes = [401, 403]                             // <2>
+  muteTypes = ["com.example.MyMutedException"]       // <3>
 }
 ----
 
-.Kotlin
-[source,kt,role="secondary"]
-----
-import io.jooby.problem.ProblemDetailsHandler
 
-{
-  ...  
-  error(new ProblemDetailsHandler()          // <1>
-    .log4xxErrors()                          // <2>
-    .mute(StatusCode.UNAUTHORIZED)           // <3>
-  )
-}
-----
+<1> By default, only server errors (5xx) will be logged. You can optionally enable the logging of client errors (4xx). If `DEBUG` logging level is enabled, the log will contain a stacktrace as well.
+<2> You can optionally mute some status codes completely.
+<3> You can optionally mute some exceptions logging completely.
 
-<1> Enable `Problem Details` handler.
-Keep in mind, order matters (WYSIWYG), so if you have some specific exception handlers, they should be placed above this line.
-<2> By default, only server errors (5xx) will be logged. You can optionally enable the logging of client errors (4xx). If `DEBUG` logging level is enabled, the log will contain a stacktrace as well.
-<3> You can optionally mute some status codes or exceptions logging completely.
 
 === Creating problems
+
+`HttpProblem` class represents the `RFC 7807` model. It is the main entity you need to work with to produce the problem.
 
 ==== Static helpers
 
@@ -70,6 +62,8 @@ Don't overuse it, the problem should have meaningful `title` and `detail` when p
 .Java
 [source,java,role="primary"]
 ----
+import io.jooby.problem.HttpProblem;
+
 get("/users/{userId}", ctx -> {
   var userId = ctx.path("userId").value();
   User user = userRepository.findUser(userId);
@@ -87,6 +81,8 @@ get("/users/{userId}", ctx -> {
 .Kotlin
 [source,kt,role="secondary"]
 ----
+import io.jooby.problem.HttpProblem
+
 get("/users/{userId}") { ctx ->
   val userId = ctx.path("userId").value()
   val user = userRepository.findUser(userId)
@@ -117,7 +113,7 @@ Resulting response:
 
 ==== Builder
 
-Use builder to create rich problem instance with all properties:
+Use builder to create a rich problem instance with all properties:
 
 [source,java]
 ----
@@ -190,8 +186,8 @@ It is basically another extension `errors` on a root level. Adding errors is str
 ----
 throw HttpProblem.builder()
   ...
-  .error(new HttpProblem.Error("First name cannot be blank", "#/firstName"))
-  .error(new HttpProblem.Error("Last name is required", "#/lastName"))
+  .error(new HttpProblem.Error("First name cannot be blank", "/firstName"))
+  .error(new HttpProblem.Error("Last name is required", "/lastName"))
   .build();
 ----
 
@@ -203,11 +199,11 @@ In response:
   "errors": [
     {
       "detail": "First name cannot be blank",
-      "pointer": "#/firstName"
+      "pointer": "/firstName"
     },
     {
       "detail": "Last name is required",
-      "pointer": "#/lastName"
+      "pointer": "/lastName"
     }
   ]
 }
@@ -261,8 +257,7 @@ public class OutOfStockProblem extends HttpProblem {
 
 === Custom Exception Handlers
 
-All the features described above should give you ability to rely solely on `ProblemDetailsHandler`.
-But, in case you still need custom exception handler for some reason, you still can do it:
+All the features described above should give you ability to rely solely on built-in global error handler. But, in case you still need custom exception handler for some reason, you still can do it:
 
 [source,java]
 ----
@@ -275,20 +270,16 @@ But, in case you still need custom exception handler for some reason, you still 
       
       ctx.getRouter().getErrorHandler().apply(ctx, problem, code);     // <2>
     });
-
-    // should always go below (WYSIWYG)
-    error(new ProblemDetailsHandler());                                // <3>
 }
 ----
 
 <1> Transform exception to `HttpProblem`
 <2> Propagate the problem to `ProblemDetailsHandler`. It will handle the rest.
-<3> `ProblemDetailsHandler` should always go below your custom exception handlers
 
 [IMPORTANT]
 ====
 Do not attempt to render `HttpProblem` manually, it is strongly discouraged.
 `HttpProblem` is derived from the `RuntimeException` to enable ease of `HttpProblem` throwing.
 Thus, thrown `HttpProblem` will also contain a stacktrace, if you render `HttpProblem` as is -
-it will be rendered together with stacktrace. It is  strongly advised not to expose the stacktrace to the client. Propagate the problem to `ProblemDetailsHandler` and let him take care of the rest. 
+it will be rendered together with stacktrace. It is  strongly advised not to expose the stacktrace to the client system. Propagate the problem to global error handler and let him take care of the rest. 
 ====

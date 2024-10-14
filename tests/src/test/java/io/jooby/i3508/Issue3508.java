@@ -77,7 +77,8 @@ public class Issue3508 {
     validatorTest(
         runner,
         new AvajeValidatorModule().validationTitle(DEFAULT_TITLE).statusCode(STATUS_CODE),
-        new AvajeNewAccountRequest());
+        new AvajeNewAccountRequest(),
+        "/create-new-avaje-account");
   }
 
   @ServerTest
@@ -85,15 +86,16 @@ public class Issue3508 {
     validatorTest(
         runner,
         new HibernateValidatorModule().validationTitle(DEFAULT_TITLE).statusCode(STATUS_CODE),
-        new HbvNewAccountRequest());
+        new HbvNewAccountRequest(),
+        "/create-new-hbv-account");
   }
 
   private void validatorTest(
-      ServerTestRunner runner, Extension extension, NewAccountRequest request) {
+      ServerTestRunner runner, Extension extension, NewAccountRequest request, String newAccEndpoint) {
     var sizeLabel = extension instanceof HibernateValidatorModule ? "size" : "length";
     var json = JsonMapper.builder().build();
     runner
-        .use(() -> new App3508(extension))
+        .use(() -> new App3508(extension, false))
         .ready(
             http -> {
               http.post(
@@ -195,7 +197,7 @@ public class Issue3508 {
               request.setConfirmPassword("1234");
               request.setPerson(new Person(null, "Last Name"));
               http.post(
-                  "/create-new-account",
+                  newAccEndpoint,
                   RequestBody.create(
                       json.writeValueAsBytes(request), MediaType.get("application/json")),
                   rsp -> {
@@ -203,6 +205,10 @@ public class Issue3508 {
                     var actualResult = json.readValue(rsp.body().string(), ValidationResult.class);
                     var errors =
                         List.of(
+                            new ValidationResult.Error(
+                                null,
+                                List.of("Passwords should match"),
+                                ValidationResult.ErrorType.GLOBAL),
                             new ValidationResult.Error(
                                 "password",
                                 List.of(sizeLabel + " must be between 8 and 24"),

@@ -5,6 +5,7 @@
  */
 package io.jooby.problem;
 
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.NotAcceptableException;
@@ -15,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static io.jooby.MediaType.*;
+import static io.jooby.SneakyThrows.throwingConsumer;
 import static io.jooby.StatusCode.SERVER_ERROR_CODE;
 
 /**
@@ -28,6 +30,13 @@ import static io.jooby.StatusCode.SERVER_ERROR_CODE;
  * @since 3.4.2
  */
 public class ProblemDetailsHandler extends DefaultErrorHandler {
+
+  private static final String MUTE_CODES_KEY = "muteCodes";
+  private static final String MUTE_TYPES_KEY = "muteTypes";
+  private static final String LOG_4XX_ERRORS_KEY = "log4xxErrors";
+
+  public static final String ROOT_CONFIG_PATH = "problem.details";
+  public static final String ENABLED_KEY = ROOT_CONFIG_PATH + ".enabled";
 
   private boolean log4xxErrors;
 
@@ -49,7 +58,7 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
     }
 
     try {
-      HttpProblem problem = evaluateTheProblem(ctx, cause, code);
+      HttpProblem problem = evaluateTheProblem(cause, code);
 
       logProblem(ctx, problem, cause);
 
@@ -82,7 +91,7 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
     }
   }
 
-  private HttpProblem evaluateTheProblem(Context ctx, Throwable cause, StatusCode statusCode) {
+  private HttpProblem evaluateTheProblem(Throwable cause, StatusCode statusCode) {
     HttpProblem problem;
     if (cause instanceof HttpProblem httpProblem) {
       problem = httpProblem;
@@ -191,5 +200,26 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
 
   private String buildLogMsg(Context ctx, HttpProblem problem, StatusCode statusCode) {
     return "%s | %s".formatted(ErrorHandler.errorMessage(ctx, statusCode), problem.toString());
+  }
+
+  public static ProblemDetailsHandler fromConfig(Config config) {
+    var handler = new ProblemDetailsHandler();
+
+    if (config.hasPath(LOG_4XX_ERRORS_KEY) && config.getBoolean(LOG_4XX_ERRORS_KEY)) {
+      handler.log4xxErrors();
+    }
+
+    if (config.hasPath(MUTE_CODES_KEY)) {
+      config.getIntList(MUTE_CODES_KEY)
+          .forEach(code -> handler.mute(StatusCode.valueOf(code)));
+    }
+
+    if (config.hasPath(MUTE_TYPES_KEY)) {
+      config.getStringList(MUTE_TYPES_KEY)
+          .forEach(throwingConsumer(
+              className -> handler.mute((Class<? extends Exception>) Class.forName(className))));
+    }
+
+    return handler;
   }
 }
