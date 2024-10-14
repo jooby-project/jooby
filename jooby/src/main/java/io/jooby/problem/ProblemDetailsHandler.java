@@ -5,25 +5,25 @@
  */
 package io.jooby.problem;
 
-import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.*;
-import io.jooby.exception.NotAcceptableException;
-import org.slf4j.Logger;
-
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import static io.jooby.MediaType.*;
 import static io.jooby.SneakyThrows.throwingConsumer;
 import static io.jooby.StatusCode.SERVER_ERROR_CODE;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+
+import com.typesafe.config.Config;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.*;
+import io.jooby.exception.NotAcceptableException;
+
 /**
- * Global error handler that catches all exceptions, transforms them into
- * <a href="https://www.rfc-editor.org/rfc/rfc7807">RFC7807</a>
- * compliant format and renders the response based on the `Accept` header value.
- * It also sets the appropriate content-type in
+ * Global error handler that catches all exceptions, transforms them into <a
+ * href="https://www.rfc-editor.org/rfc/rfc7807">RFC7807</a> compliant format and renders the
+ * response based on the `Accept` header value. It also sets the appropriate content-type in
  * response (e.g. application/problem+json, application/problem+xml)
  *
  * @author kliushnichenko
@@ -50,7 +50,7 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
     Logger log = ctx.getRouter().getLog();
     if (cause instanceof NotAcceptableException ex) {
       // no matching produce type, respond in html
-      var problem = ((HttpProblemMappable) ex).toHttpProblem();
+      var problem = ex.toHttpProblem();
 
       logProblem(ctx, problem, cause);
       sendHtml(ctx, problem);
@@ -58,11 +58,11 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
     }
 
     try {
-      HttpProblem problem = evaluateTheProblem(cause, code);
+      var problem = evaluateTheProblem(cause, code);
 
       logProblem(ctx, problem, cause);
 
-      MediaType type = ctx.accept(Arrays.asList(ctx.getRequestType(text), html, text, json, xml));
+      var type = ctx.accept(List.of(ctx.getRequestType(text), html, text, json, xml));
       ctx.setResponseCode(problem.getStatus());
       problem.getHeaders().forEach(ctx::setResponseHeader);
 
@@ -104,8 +104,9 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
       } else if (code > SERVER_ERROR_CODE) {
         problem = HttpProblem.valueOf(statusCode, statusCode.reason());
       } else {
-        if (cause.getMessage() != null) {
-          String details = cause.getMessage().split("\n")[0];
+        var message = cause.getMessage();
+        if (message != null) {
+          String details = message.split("\n")[0];
           problem = HttpProblem.valueOf(statusCode, statusCode.reason(), details);
         } else {
           problem = HttpProblem.valueOf(statusCode, statusCode.reason());
@@ -117,7 +118,9 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
 
   private void sendHtml(Context ctx, HttpProblem problem) {
     String title = problem.getTitle();
-    StringBuilder html = new StringBuilder("""
+    var html =
+        new StringBuilder(
+                """
         <!doctype html>
         <html>
         <head>
@@ -133,14 +136,26 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
         p.tab {padding-left: 40px;}
         </style>
         """)
-        .append("<title>").append(problem.getStatus()).append("</title>\n")
-        .append("<body>\n")
-        .append("<h1>").append(title).append("</h1>\n")
-        .append("<hr>\n")
-        .append("<h2>timestamp: ").append(problem.getTimestamp()).append("</h2>\n")
-        .append("<h2>type: ").append(problem.getType()).append("</h2>\n")
-        .append("<h2>title: ").append(title).append("</h2>\n")
-        .append("<h2>status: ").append(problem.getStatus()).append("</h2>\n");
+            .append("<title>")
+            .append(problem.getStatus())
+            .append("</title>\n")
+            .append("<body>\n")
+            .append("<h1>")
+            .append(title)
+            .append("</h1>\n")
+            .append("<hr>\n")
+            .append("<h2>timestamp: ")
+            .append(problem.getTimestamp())
+            .append("</h2>\n")
+            .append("<h2>type: ")
+            .append(problem.getType())
+            .append("</h2>\n")
+            .append("<h2>title: ")
+            .append(title)
+            .append("</h2>\n")
+            .append("<h2>status: ")
+            .append(problem.getStatus())
+            .append("</h2>\n");
 
     if (problem.getInstance() != null) {
       html.append("<h2>instance: ").append(problem.getInstance()).append("</h2>\n");
@@ -157,9 +172,7 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
 
     html.append("</body>\n").append("</html>");
 
-    ctx.setResponseType(MediaType.html)
-        .setResponseCode(problem.getStatus())
-        .send(html.toString());
+    ctx.setResponseType(MediaType.html).setResponseCode(problem.getStatus()).send(html.toString());
   }
 
   private Map<String, Object> toProblemResponse(HttpProblem httpProblem) {
@@ -180,7 +193,7 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
   }
 
   private void logProblem(Context ctx, HttpProblem problem, Throwable cause) {
-    StatusCode statusCode = StatusCode.valueOf(problem.getStatus());
+    var statusCode = StatusCode.valueOf(problem.getStatus());
     var log = ctx.getRouter().getLog();
 
     if (problem.getStatus() >= SERVER_ERROR_CODE) {
@@ -202,22 +215,45 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
     return "%s | %s".formatted(ErrorHandler.errorMessage(ctx, statusCode), problem.toString());
   }
 
-  public static ProblemDetailsHandler fromConfig(Config config) {
+  /**
+   * Creates a problem handler from configuration.
+   *
+   * <pre>{@code
+   * problem.details {
+   *   enable: true
+   *   muteCodes: [401, 106]
+   *   muteTypes: ['com.example.MyException']
+   * }
+   * }</pre>
+   *
+   * @param conf Configuration.
+   * @return Problem handler.
+   */
+  public static ProblemDetailsHandler from(Config conf) {
     var handler = new ProblemDetailsHandler();
+    if (conf.hasPath(ROOT_CONFIG_PATH)) {
+      var problemConfig = conf.getConfig(ROOT_CONFIG_PATH);
+      if (problemConfig.hasPath(LOG_4XX_ERRORS_KEY)
+          && problemConfig.getBoolean(LOG_4XX_ERRORS_KEY)) {
+        handler.log4xxErrors();
+      }
 
-    if (config.hasPath(LOG_4XX_ERRORS_KEY) && config.getBoolean(LOG_4XX_ERRORS_KEY)) {
-      handler.log4xxErrors();
-    }
+      if (problemConfig.hasPath(MUTE_CODES_KEY)) {
+        problemConfig
+            .getIntList(MUTE_CODES_KEY)
+            .forEach(code -> handler.mute(StatusCode.valueOf(code)));
+      }
 
-    if (config.hasPath(MUTE_CODES_KEY)) {
-      config.getIntList(MUTE_CODES_KEY)
-          .forEach(code -> handler.mute(StatusCode.valueOf(code)));
-    }
-
-    if (config.hasPath(MUTE_TYPES_KEY)) {
-      config.getStringList(MUTE_TYPES_KEY)
-          .forEach(throwingConsumer(
-              className -> handler.mute((Class<? extends Exception>) Class.forName(className))));
+      if (problemConfig.hasPath(MUTE_TYPES_KEY)) {
+        var classLoader = ProblemDetailsHandler.class.getClassLoader();
+        problemConfig
+            .getStringList(MUTE_TYPES_KEY)
+            .forEach(
+                throwingConsumer(
+                    className ->
+                        handler.mute(
+                            (Class<? extends Exception>) classLoader.loadClass(className))));
+      }
     }
 
     return handler;

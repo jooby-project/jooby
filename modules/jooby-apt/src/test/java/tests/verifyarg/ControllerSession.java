@@ -10,6 +10,5 @@ import io.jooby.annotation.SessionParam;
 
 class ControllerSession {
   @GET
-  public void param(@SessionParam Object param) {
-  }
+  public void param(@SessionParam Object param) {}
 }

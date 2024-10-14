@@ -37,8 +37,7 @@ public class UnsupportedMediaType extends StatusCodeException {
 
   @Override
   public @NonNull HttpProblem toHttpProblem() {
-    return HttpProblem.valueOf(statusCode,
-        statusCode.reason(),
-        "Media type '" + getContentType() + "' is not supported");
+    return HttpProblem.valueOf(
+        statusCode, statusCode.reason(), "Media type '" + getContentType() + "' is not supported");
   }
 }

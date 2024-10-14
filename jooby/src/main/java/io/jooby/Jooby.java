@@ -41,7 +41,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import io.jooby.problem.ProblemDetailsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +54,7 @@ import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.MutedServer;
 import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
+import io.jooby.problem.ProblemDetailsHandler;
 import jakarta.inject.Provider;
 
 /**
@@ -1333,7 +1333,7 @@ public class Jooby implements Router, Registry {
   public boolean problemDetailsIsEnabled() {
     var config = getConfig();
     return config.hasPath(ProblemDetailsHandler.ENABLED_KEY)
-           && config.getBoolean(ProblemDetailsHandler.ENABLED_KEY);
+        && config.getBoolean(ProblemDetailsHandler.ENABLED_KEY);
   }
 
   private static void configurePackage(Package pkg) {

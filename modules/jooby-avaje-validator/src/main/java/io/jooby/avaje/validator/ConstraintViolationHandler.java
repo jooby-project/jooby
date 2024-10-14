@@ -5,6 +5,17 @@
  */
 package io.jooby.avaje.validator;
 
+import static io.jooby.validation.ValidationResult.ErrorType.FIELD;
+import static io.jooby.validation.ValidationResult.ErrorType.GLOBAL;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.validation.ConstraintViolation;
 import io.avaje.validation.ConstraintViolationException;
@@ -12,16 +23,6 @@ import io.jooby.Context;
 import io.jooby.ErrorHandler;
 import io.jooby.StatusCode;
 import io.jooby.validation.ValidationResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static io.jooby.validation.ValidationResult.ErrorType.FIELD;
-import static io.jooby.validation.ValidationResult.ErrorType.GLOBAL;
-import static java.util.stream.Collectors.groupingBy;
 
 /**
  * Catches and transform {@link ConstraintViolationException} into {@link ValidationResult}

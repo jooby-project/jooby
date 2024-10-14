@@ -28,8 +28,7 @@ public class InvalidCsrfToken extends ForbiddenException {
 
   @Override
   public @NonNull HttpProblem toHttpProblem() {
-    return HttpProblem.valueOf(statusCode,
-        "Invalid CSRF token",
-        "CSRF token '" + getMessage() + "' is invalid");
+    return HttpProblem.valueOf(
+        statusCode, "Invalid CSRF token", "CSRF token '" + getMessage() + "' is invalid");
   }
 }

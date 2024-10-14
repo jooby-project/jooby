@@ -10,6 +10,5 @@ import io.jooby.annotation.GET;
 
 class ControllerCookie {
   @GET
-  public void param(@CookieParam Object param) {
-  }
+  public void param(@CookieParam Object param) {}
 }

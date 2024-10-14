@@ -372,12 +372,19 @@ public enum ParameterGenerator {
   public void verifyType(String type, String parameterName, MvcRoute route) {
     if (!typeRestrictions.isEmpty()) {
       if (typeRestrictions.stream().noneMatch(type::equals)) {
-        throw new IllegalArgumentException("""
+        throw new IllegalArgumentException(
+            """
             Illegal argument type at '%s.%s()'.\s
             Parameter '%s' annotated as %s cannot be of type '%s'.\s
             Supported types are: %s
-            """.formatted(route.getRouter().getTargetType().toString(),
-            route.getMethodName(), parameterName, annotations, type, Types.BUILT_IN));
+            """
+                .formatted(
+                    route.getRouter().getTargetType().toString(),
+                    route.getMethodName(),
+                    parameterName,
+                    annotations,
+                    type,
+                    Types.BUILT_IN));
       }
     }
   }

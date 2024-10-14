@@ -52,9 +52,9 @@ public class MethodNotAllowedException extends StatusCodeException {
 
   @Override
   public @NonNull HttpProblem toHttpProblem() {
-    return HttpProblem.valueOf(statusCode,
+    return HttpProblem.valueOf(
+        statusCode,
         statusCode.reason(),
-        "HTTP method '" + getMethod() + "' is not allowed. Allowed methods are: " + allow
-    );
+        "HTTP method '" + getMethod() + "' is not allowed. Allowed methods are: " + allow);
   }
 }

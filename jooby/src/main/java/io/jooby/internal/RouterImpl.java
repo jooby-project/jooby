@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import io.jooby.problem.ProblemDetailsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +47,7 @@ import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
+import io.jooby.problem.ProblemDetailsHandler;
 import jakarta.inject.Provider;
 
 public class RouterImpl implements Router {
@@ -668,18 +668,16 @@ public class RouterImpl implements Router {
   }
 
   /**
-   * Define the global error handler.
-   * If ProblemDetails is enabled the {@link ProblemDetailsHandler} instantiated
-   * from configuration settings and returned. Otherwise, {@link DefaultErrorHandler} instance
-   * returned.
+   * Define the global error handler. If ProblemDetails is enabled the {@link ProblemDetailsHandler}
+   * instantiated from configuration settings and returned. Otherwise, {@link DefaultErrorHandler}
+   * instance returned.
    *
    * @param app - Jooby application instance
    * @return global error handler
    */
   private ErrorHandler defineGlobalErrorHandler(Jooby app) {
     if (app.problemDetailsIsEnabled()) {
-      var problemDetailsConfig = app.getConfig().getConfig(ProblemDetailsHandler.ROOT_CONFIG_PATH);
-      return ProblemDetailsHandler.fromConfig(problemDetailsConfig);
+      return ProblemDetailsHandler.from(app.getConfig());
     } else {
       return ErrorHandler.create();
     }

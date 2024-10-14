@@ -5,23 +5,24 @@
  */
 package tests.verifyarg;
 
-import io.jooby.apt.ProcessorRunner;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import io.jooby.apt.ProcessorRunner;
 
 class VerifyArgTypeTest {
 
   @ParameterizedTest
   @MethodSource("provideControllers")
   public void compileController_illegalArgumentType_shouldThrowException(Object controller) {
-    RuntimeException ex = assertThrows(RuntimeException.class,
-        () -> new ProcessorRunner(controller));
+    RuntimeException ex =
+        assertThrows(RuntimeException.class, () -> new ProcessorRunner(controller));
 
     assertTrue(ex.getMessage().contains("Illegal argument type at"));
   }
@@ -32,7 +33,6 @@ class VerifyArgTypeTest {
         Arguments.of(new ControllerFlashOpt()),
         Arguments.of(new ControllerCookie()),
         Arguments.of(new ControllerSession()),
-        Arguments.of(new ControllerHeader())
-    );
+        Arguments.of(new ControllerHeader()));
   }
 }

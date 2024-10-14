@@ -8,14 +8,13 @@ package io.jooby.problem;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * Implementing {@link HttpProblemMappable} allows to control the transformation of exception
- * into {@link HttpProblem}.
- * {@link ProblemDetailsHandler} rely on `toHttpProblem()` method when it is available.
+ * Implementing {@link HttpProblemMappable} allows to control the transformation of exception into
+ * {@link HttpProblem}. {@link ProblemDetailsHandler} rely on `toHttpProblem()` method when it is
+ * available.
  *
  * @author kliushnichenko
  * @since 3.4.2
  */
 public interface HttpProblemMappable {
-  @NonNull
-  HttpProblem toHttpProblem();
+  @NonNull HttpProblem toHttpProblem();
 }

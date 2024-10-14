@@ -10,6 +10,5 @@ import io.jooby.annotation.GET;
 
 class ControllerFlash {
   @GET
-  public void param(@FlashParam Object param) {
-  }
+  public void param(@FlashParam Object param) {}
 }

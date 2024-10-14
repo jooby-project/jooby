@@ -12,7 +12,6 @@ import io.jooby.annotation.POST;
 import io.jooby.annotation.Path;
 import io.jooby.i3508.data.AvajeNewAccountRequest;
 import io.jooby.i3508.data.HbvNewAccountRequest;
-import io.jooby.i3508.data.NewAccountRequest;
 import io.jooby.i3508.data.Person;
 import jakarta.validation.Valid;
 
@@ -33,6 +32,7 @@ public class Controller3508 {
 
   @POST("/create-new-hbv-account")
   public void createNewAccount(@Valid HbvNewAccountRequest request) {}
+
   @POST("/create-new-avaje-account")
   public void createNewAccount(@Valid AvajeNewAccountRequest request) {}
 }

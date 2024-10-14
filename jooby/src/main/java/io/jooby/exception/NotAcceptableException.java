@@ -37,10 +37,10 @@ public class NotAcceptableException extends StatusCodeException {
 
   @Override
   public @NonNull HttpProblem toHttpProblem() {
-    return HttpProblem.valueOf(statusCode,
+    return HttpProblem.valueOf(
+        statusCode,
         statusCode.reason(),
-        "Server cannot produce a response matching the list of " +
-        "acceptable values defined in the request's 'Accept' header"
-    );
+        "Server cannot produce a response matching the list of "
+            + "acceptable values defined in the request's 'Accept' header");
   }
 }

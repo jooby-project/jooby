@@ -10,6 +10,5 @@ import jakarta.ws.rs.HeaderParam;
 
 class ControllerHeader {
   @GET
-  public void param(@HeaderParam("test") Object param) {
-  }
+  public void param(@HeaderParam("test") Object param) {}
 }

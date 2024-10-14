@@ -1,3 +1,8 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.validation;
 
 import java.util.List;
@@ -6,16 +11,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Transforms hibernate-validator (or avaje-validator) `propertyPath` into
- * <a href="https://www.rfc-editor.org/rfc/rfc6901.html">JSON POINTER</a> format.
- * For example:
- * <p>"person.firstName" -> "/person/firstName"</p>
- * <p>"persons[0].firstName" -> "/persons/0/firstName"</p>
+ * Transforms hibernate-validator (or avaje-validator) `propertyPath` into <a
+ * href="https://www.rfc-editor.org/rfc/rfc6901.html">JSON POINTER</a> format. For example:
+ *
+ * <p>"person.firstName" -> "/person/firstName"
+ *
+ * <p>"persons[0].firstName" -> "/persons/0/firstName"
  *
  * @author kliushnichenko
  * @since 3.4.2
  */
-public class JsonPointer {
+class JsonPointer {
   private static final Pattern ARRAY_PATTERN = Pattern.compile("(\\w+)\\[(\\d+)]");
 
   public static String of(String propertyPath) {
@@ -29,9 +35,7 @@ public class JsonPointer {
 
     List<String> parts = List.of(path.split("\\."));
 
-    return "/" + parts.stream()
-        .map(JsonPointer::handleArrayIndex)
-        .collect(Collectors.joining("/"));
+    return "/" + parts.stream().map(JsonPointer::handleArrayIndex).collect(Collectors.joining("/"));
   }
 
   private static String handleArrayIndex(String part) {

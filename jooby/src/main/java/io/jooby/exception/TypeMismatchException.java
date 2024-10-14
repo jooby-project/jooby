@@ -50,7 +50,6 @@ public class TypeMismatchException extends BadRequestException {
     return name;
   }
 
-
   @Override
   public @NonNull HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(statusCode, "Type Mismatch", getMessage());

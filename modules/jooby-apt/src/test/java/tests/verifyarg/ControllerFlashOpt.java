@@ -5,13 +5,12 @@
  */
 package tests.verifyarg;
 
+import java.util.Optional;
+
 import io.jooby.annotation.FlashParam;
 import io.jooby.annotation.GET;
 
-import java.util.Optional;
-
 class ControllerFlashOpt {
   @GET
-  public void param(@FlashParam Optional<Object> param) {
-  }
+  public void param(@FlashParam Optional<Object> param) {}
 }

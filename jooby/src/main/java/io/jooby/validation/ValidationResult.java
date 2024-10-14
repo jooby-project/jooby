@@ -5,13 +5,13 @@
  */
 package io.jooby.validation;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 import io.jooby.problem.HttpProblem;
 import io.jooby.problem.HttpProblemMappable;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public class ValidationResult implements HttpProblemMappable {
 
@@ -19,7 +19,7 @@ public class ValidationResult implements HttpProblemMappable {
   private int status;
   private List<Error> errors;
 
-  public ValidationResult(){}
+  public ValidationResult() {}
 
   public ValidationResult(String title, int status, List<Error> errors) {
     this.title = title;
@@ -27,8 +27,7 @@ public class ValidationResult implements HttpProblemMappable {
     this.errors = errors;
   }
 
-  @NonNull
-  @Override
+  @NonNull @Override
   public HttpProblem toHttpProblem() {
     return HttpProblem.builder()
         .title(title)
@@ -40,7 +39,7 @@ public class ValidationResult implements HttpProblemMappable {
 
   private List<HttpProblem.Error> convertErrors() {
     List<HttpProblem.Error> problemErrors = new LinkedList<>();
-    for (Error err : errors) {
+    for (var err : errors) {
       for (var msg : err.messages()) {
         problemErrors.add(new HttpProblem.Error(msg, JsonPointer.of(err.field)));
       }
@@ -48,8 +47,7 @@ public class ValidationResult implements HttpProblemMappable {
     return problemErrors;
   }
 
-  public record Error(String field, List<String> messages, ErrorType type) {
-  }
+  public record Error(String field, List<String> messages, ErrorType type) {}
 
   public enum ErrorType {
     FIELD,

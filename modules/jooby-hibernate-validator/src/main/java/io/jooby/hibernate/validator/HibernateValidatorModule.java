@@ -45,8 +45,8 @@ import jakarta.validation.Validator;
  * ConstraintViolationException} and transforms it into a {@link
  * io.jooby.validation.ValidationResult}.
  *
- * <p>When ProblemDetails is enabled {@link io.jooby.validation.ValidationResult} transformed
- * to compliant response, see {@link io.jooby.problem.HttpProblem}
+ * <p>When ProblemDetails is enabled {@link io.jooby.validation.ValidationResult} transformed to
+ * compliant response, see {@link io.jooby.problem.HttpProblem}
  *
  * @author kliushnichenko
  * @since 3.3.1
@@ -145,9 +145,7 @@ public class HibernateValidatorModule implements Extension {
         app.error(
             ConstraintViolationException.class,
             new ConstraintViolationHandler(
-                statusCode, title, logException, app.problemDetailsIsEnabled()
-            )
-        );
+                statusCode, title, logException, app.problemDetailsIsEnabled()));
       }
     }
   }

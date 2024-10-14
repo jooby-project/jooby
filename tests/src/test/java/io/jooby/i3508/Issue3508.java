@@ -91,7 +91,10 @@ public class Issue3508 {
   }
 
   private void validatorTest(
-      ServerTestRunner runner, Extension extension, NewAccountRequest request, String newAccEndpoint) {
+      ServerTestRunner runner,
+      Extension extension,
+      NewAccountRequest request,
+      String newAccEndpoint) {
     var sizeLabel = extension instanceof HibernateValidatorModule ? "size" : "length";
     var json = JsonMapper.builder().build();
     runner
