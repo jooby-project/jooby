@@ -352,7 +352,9 @@ public class Route {
 
   /** Handler for {@link StatusCode#REQUEST_ENTITY_TOO_LARGE} responses. */
   public static final Handler REQUEST_ENTITY_TOO_LARGE =
-      ctx -> ctx.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+      ctx ->
+          ctx.setResponseCode(StatusCode.REQUEST_ENTITY_TOO_LARGE)
+              .sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
 
   /** Handler for {@link StatusCode#NOT_ACCEPTABLE} responses. */
   public static final Route.Before ACCEPT =
