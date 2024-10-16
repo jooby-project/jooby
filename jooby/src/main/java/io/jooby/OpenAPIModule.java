@@ -180,9 +180,11 @@ public class OpenAPIModule implements Extension {
   public void install(@NonNull Jooby application) throws Exception {
     String dir = Optional.ofNullable(application.getBasePackage()).orElse("/").replace(".", "/");
 
-    String appname = application.getName().replace("Jooby", "openapi").replace("Kooby", "openapi");
+    String appName = application.getClass().getSimpleName()
+        .replace("Jooby", "openapi")
+        .replace("Kooby", "openapi");
     for (Format ext : format) {
-      String filename = String.format("/%s.%s", appname, ext.name().toLowerCase());
+      String filename = String.format("/%s.%s", appName, ext.name().toLowerCase());
       String openAPIFileLocation = Router.normalizePath(dir) + filename;
       application.assets(
           fullPath(openAPIPath, "/openapi." + ext.name().toLowerCase()), openAPIFileLocation);
