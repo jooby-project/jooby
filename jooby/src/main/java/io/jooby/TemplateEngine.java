@@ -34,7 +34,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @return Rendered template.
    * @throws Exception If something goes wrong.
    */
-  DataBuffer render(Context ctx, ModelAndView modelAndView) throws Exception;
+  DataBuffer render(Context ctx, ModelAndView<?> modelAndView) throws Exception;
 
   @Override
   default DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {

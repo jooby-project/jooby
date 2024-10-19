@@ -34,12 +34,7 @@ class PebbleTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public boolean supports(@NonNull ModelAndView modelAndView) {
-    return TemplateEngine.super.supports(modelAndView) && modelAndView instanceof MapModelAndView;
-  }
-
-  @Override
-  public DataBuffer render(Context ctx, ModelAndView modelAndView) throws Exception {
+  public DataBuffer render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
       var buffer = ctx.getBufferFactory().allocateBuffer();
       var template = engine.getTemplate(modelAndView.getView());
@@ -52,8 +47,7 @@ class PebbleTemplateEngine implements TemplateEngine {
       template.evaluate(buffer.asWriter(), model, locale);
       return buffer;
     } else {
-      throw new IllegalArgumentException(
-          "Only " + MapModelAndView.class.getName() + " are supported");
+      throw new ModelAndView.UnsupportedModelAndView(MapModelAndView.class);
     }
   }
 }

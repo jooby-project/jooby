@@ -32,7 +32,7 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
   }
 
   @Override
-  public DataBuffer render(Context ctx, ModelAndView modelAndView) {
+  public DataBuffer render(Context ctx, ModelAndView<?> modelAndView) {
     var buffer = ctx.getBufferFactory().allocateBuffer();
     var output = new DataBufferOutput(buffer, StandardCharsets.UTF_8);
     var attributes = ctx.getAttributes();

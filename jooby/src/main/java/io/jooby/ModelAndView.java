@@ -7,6 +7,8 @@ package io.jooby;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -18,6 +20,21 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @author edgar
  */
 public class ModelAndView<T> {
+
+  /** Thrown by template engine when they are not capable of rendering a {@link ModelAndView}. */
+  public static class UnsupportedModelAndView extends IllegalArgumentException {
+    /**
+     * Constructor.
+     *
+     * @param supported List of supported model implementation.
+     */
+    public UnsupportedModelAndView(Class<?>... supported) {
+      super(
+          "Only "
+              + Set.of(supported).stream().map(Class::getName).collect(Collectors.joining(", "))
+              + " are supported");
+    }
+  }
 
   /** View name. */
   private final String view;

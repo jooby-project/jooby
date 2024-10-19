@@ -7,11 +7,13 @@ package io.jooby.pebble;
 
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -57,6 +59,19 @@ public class PebbleModuleTest {
             ctx,
             ModelAndView.map("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
     assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void shouldUnsupportedModelAndView() {
+    PebbleEngine.Builder builder =
+        PebbleModule.create()
+            .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
+    PebbleTemplateEngine engine =
+        new PebbleTemplateEngine(builder, Collections.singletonList(".peb"));
+    MockContext ctx = new MockContext();
+    assertThrows(
+        ModelAndView.UnsupportedModelAndView.class,
+        () -> engine.render(ctx, new ModelAndView<>("index.peb", Map.of("foo", "bar"))));
   }
 
   @Test

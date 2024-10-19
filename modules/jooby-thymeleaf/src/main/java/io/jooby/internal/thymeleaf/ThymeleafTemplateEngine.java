@@ -34,13 +34,7 @@ public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
   }
 
   @Override
-  public boolean supports(@NonNull ModelAndView modelAndView) {
-    return io.jooby.TemplateEngine.super.supports(modelAndView)
-        && modelAndView instanceof MapModelAndView;
-  }
-
-  @Override
-  public DataBuffer render(io.jooby.Context ctx, ModelAndView modelAndView) {
+  public @NonNull DataBuffer render(io.jooby.Context ctx, ModelAndView<?> modelAndView) {
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
       Map<String, Object> model = new HashMap<>(ctx.getAttributes());
       model.putAll(mapModelAndView.getModel());
@@ -59,8 +53,7 @@ public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
       templateEngine.process(templateName, context, buffer.asWriter());
       return buffer;
     } else {
-      throw new IllegalArgumentException(
-          "Only " + MapModelAndView.class.getName() + " are supported");
+      throw new ModelAndView.UnsupportedModelAndView(MapModelAndView.class);
     }
   }
 }

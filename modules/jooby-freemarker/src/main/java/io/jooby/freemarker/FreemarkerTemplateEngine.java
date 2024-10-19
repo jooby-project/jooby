@@ -33,7 +33,7 @@ class FreemarkerTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public DataBuffer render(Context ctx, ModelAndView modelAndView) throws Exception {
+  public DataBuffer render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     var buffer = ctx.getBufferFactory().allocateBuffer();
     var template = freemarker.getTemplate(modelAndView.getView());
     var writer = buffer.asWriter();

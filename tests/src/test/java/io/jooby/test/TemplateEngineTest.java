@@ -12,6 +12,7 @@ import io.jooby.freemarker.FreemarkerModule;
 import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.pebble.PebbleModule;
 import io.jooby.thymeleaf.ThymeleafModule;
 
 public class TemplateEngineTest {
@@ -23,10 +24,12 @@ public class TemplateEngineTest {
               app.install(new ThymeleafModule());
               app.install(new HandlebarsModule());
               app.install(new FreemarkerModule());
+              app.install(new PebbleModule());
 
               app.get("/1", ctx -> ModelAndView.map("index.hbs").put("name", "Handlebars"));
               app.get("/2", ctx -> ModelAndView.map("index.ftl").put("name", "Freemarker"));
               app.get("/3", ctx -> ModelAndView.map("index.html").put("name", "Thymeleaf"));
+              app.get("/4", ctx -> ModelAndView.map("index.pebble").put("name", "Pebble"));
             })
         .ready(
             client -> {
@@ -53,6 +56,11 @@ public class TemplateEngineTest {
                             + "</body>\n"
                             + "</html>",
                         rsp.body().string().replace("\r", "").trim());
+                  });
+              client.get(
+                  "/4",
+                  rsp -> {
+                    assertEquals("Hello Pebble!", rsp.body().string().trim());
                   });
             });
   }

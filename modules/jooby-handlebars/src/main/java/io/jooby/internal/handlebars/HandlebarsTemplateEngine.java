@@ -35,7 +35,7 @@ public class HandlebarsTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public DataBuffer render(Context ctx, ModelAndView modelAndView) throws Exception {
+  public DataBuffer render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     var template = handlebars.compile(modelAndView.getView());
     var engineModel =
         com.github.jknack.handlebars.Context.newBuilder(modelAndView.getModel())
