@@ -18,6 +18,8 @@
       <version>...</version>
       <configuration>
         <annotationProcessorPaths>
+          <!-- if using lombok, it must be placed before the avaje-inject-generator -->
+          <!-- avaje-inject-generator must be placed before the jooby-apt -->
           <path>
             <groupId>io.avaje</groupId>
             <artifactId>avaje-inject-generator</artifactId>

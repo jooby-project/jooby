@@ -939,6 +939,8 @@ on them (mostly annotations processors).
     <artifactId>maven-compiler-plugin</artifactId>
     <configuration>
       <annotationProcessorPaths>
+        <!-- if using lombok, it must be placed before the jooby-apt -->
+        <!-- if using avaje-inject, it must be placed after lombok, but before the jooby-apt -->
         <path>
           <groupId>io.jooby</groupId>
           <artifactId>jooby-apt</artifactId>

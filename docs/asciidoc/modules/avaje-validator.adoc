@@ -22,6 +22,7 @@ Bean validation via https://avaje.io/validator/[Avaje Validator].
       <version>...</version>
       <configuration>
         <annotationProcessorPaths>
+          <!-- if using lombok, it must be placed before the generator -->
           <path>
             <groupId>io.avaje</groupId>
             <artifactId>avaje-validator-generator</artifactId>
