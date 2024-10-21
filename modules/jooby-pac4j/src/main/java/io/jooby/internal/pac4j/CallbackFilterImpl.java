@@ -5,12 +5,13 @@
  */
 package io.jooby.internal.pac4j;
 
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.pac4j.Pac4jContext;
+import io.jooby.pac4j.Pac4jFrameworkParameters;
 import io.jooby.pac4j.Pac4jOptions;
 
 public class CallbackFilterImpl implements Route.Handler {
@@ -26,19 +27,16 @@ public class CallbackFilterImpl implements Route.Handler {
 
   @NonNull @Override
   public Object apply(@NonNull Context ctx) throws Exception {
-    Pac4jContext pac4j = Pac4jContext.create(ctx);
-
-    Object result =
+    FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
+    var result =
         config
             .getCallbackLogic()
             .perform(
-                pac4j,
-                pac4j.getSessionStore(),
                 config,
-                config.getHttpActionAdapter(),
                 options.getDefaultUrl(),
-                options.getSaveInSession(),
-                options.getDefaultClient());
+                options.getRenewSession(),
+                options.getDefaultClient(),
+                Pac4jFrameworkParameters.create(ctx));
 
     return result == null ? ctx : result;
   }

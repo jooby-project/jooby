@@ -5,12 +5,13 @@
  */
 package io.jooby.internal.pac4j;
 
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.pac4j.Pac4jContext;
+import io.jooby.pac4j.Pac4jFrameworkParameters;
 import io.jooby.pac4j.Pac4jOptions;
 
 public class LogoutImpl implements Route.Handler {
@@ -26,23 +27,21 @@ public class LogoutImpl implements Route.Handler {
 
   @NonNull @Override
   public Object apply(@NonNull Context ctx) throws Exception {
-    String redirectTo = (String) ctx.getAttributes().get("pac4j.logout.redirectTo");
-    if (redirectTo == null || redirectTo.length() == 0) {
+    FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
+    var redirectTo = (String) ctx.getAttributes().get("pac4j.logout.redirectTo");
+    if (redirectTo == null || redirectTo.isEmpty()) {
       redirectTo = options.getDefaultUrl();
     }
     redirectTo = ctx.getRequestURL(redirectTo);
-    Pac4jContext pac4jContext = Pac4jContext.create(ctx);
     return config
         .getLogoutLogic()
         .perform(
-            pac4jContext,
-            pac4jContext.getSessionStore(),
             config,
-            config.getHttpActionAdapter(),
             redirectTo,
-            null,
+            options.getLogoutUrlPattern(),
             options.isLocalLogout(),
             options.isDestroySession(),
-            options.isCentralLogout());
+            options.isCentralLogout(),
+            Pac4jFrameworkParameters.create(ctx));
   }
 }
