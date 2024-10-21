@@ -7,10 +7,12 @@ package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.pac4j.core.credentials.TokenCredentials;
 import org.pac4j.core.profile.BasicUserProfile;
+import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.http.client.direct.HeaderClient;
 
 import io.jooby.junit.ServerTest;
@@ -31,11 +33,13 @@ public class Issue3328 {
                           conf ->
                               new HeaderClient(
                                   "user-id",
-                                  (credentials, context, sessionStore) -> {
-                                    var profile = new BasicUserProfile();
-                                    profile.setId(((TokenCredentials) credentials).getToken());
-                                    credentials.setUserProfile(profile);
-                                  })));
+                                  (ProfileCreator)
+                                      (ctx, credentials) -> {
+                                        var profile = new BasicUserProfile();
+                                        profile.setId(((TokenCredentials) credentials).getToken());
+                                        credentials.setUserProfile(profile);
+                                        return Optional.of(profile);
+                                      })));
 
               app.get("/i3328", ctx -> ((BasicUserProfile) ctx.getUser()).getId());
             })

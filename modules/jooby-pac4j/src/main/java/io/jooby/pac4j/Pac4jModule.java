@@ -22,16 +22,15 @@ import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.DirectClient;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.engine.DefaultCallbackLogic;
 import org.pac4j.core.engine.DefaultLogoutLogic;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import org.pac4j.core.engine.LogoutLogic;
-import org.pac4j.core.engine.SecurityLogic;
 import org.pac4j.core.exception.http.ForbiddenAction;
 import org.pac4j.core.exception.http.UnauthorizedAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.http.url.UrlResolver;
+import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
@@ -43,17 +42,7 @@ import io.jooby.Jooby;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
-import io.jooby.internal.pac4j.ActionAdapterImpl;
-import io.jooby.internal.pac4j.CallbackFilterImpl;
-import io.jooby.internal.pac4j.ClientReference;
-import io.jooby.internal.pac4j.DevLoginForm;
-import io.jooby.internal.pac4j.ForwardingAuthorizer;
-import io.jooby.internal.pac4j.LogoutImpl;
-import io.jooby.internal.pac4j.NoopAuthorizer;
-import io.jooby.internal.pac4j.Pac4jCurrentUser;
-import io.jooby.internal.pac4j.SavedRequestHandlerImpl;
-import io.jooby.internal.pac4j.SecurityFilterImpl;
-import io.jooby.internal.pac4j.UrlResolverImpl;
+import io.jooby.internal.pac4j.*;
 
 /**
  * Pac4j module: https://jooby.io/modules/pac4j.
@@ -369,26 +358,25 @@ public class Pac4jModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
-    application.getServices().putIfAbsent(Pac4jOptions.class, options);
+  public void install(@NonNull Jooby app) throws Exception {
+    app.getServices().putIfAbsent(Pac4jOptions.class, options);
 
-    Clients clients =
+    var clients =
         ofNullable(pac4j.getClients())
-            /** No client? set a default one: */
+            /* No client? set a default one: */
             .orElseGet(Clients::new);
 
-    /** No client instance added from DSL, init them from pac4j config. */
+    /* No client instance added from DSL, init them from pac4j config. */
     if (clientMap == null) {
       clientMap = initializeClients(pac4j);
     }
 
-    String contextPath =
-        application.getContextPath().equals("/") ? "" : application.getContextPath();
+    var contextPath = app.getContextPath().equals("/") ? "" : app.getContextPath();
 
     Map<String, List<ClientReference>> allClients = new LinkedHashMap<>();
 
-    /** Should add simple login form? */
-    boolean devLogin = false;
+    /* Should add simple login form? */
+    var devLogin = false;
     if (clientMap.isEmpty()) {
       devLogin = true;
       client(
@@ -396,13 +384,12 @@ public class Pac4jModule implements Extension {
               new FormClient(
                   contextPath + "/login", new SimpleTestUsernamePasswordAuthenticator()));
     }
-    com.typesafe.config.Config conf = application.getConfig();
-    /** Initialize clients from DSL: */
-    for (Map.Entry<String, ProtectedPath> routing : clientMap.entrySet()) {
-      List<ClientReference> localClients =
-          allClients.computeIfAbsent(routing.getKey(), k -> new ArrayList<>());
-      ProtectedPath path = routing.getValue();
-      for (Object candidate : path.clients) {
+    var conf = app.getConfig();
+    /* Initialize clients from DSL: */
+    for (var routing : clientMap.entrySet()) {
+      var localClients = allClients.computeIfAbsent(routing.getKey(), k -> new ArrayList<>());
+      var path = routing.getValue();
+      for (var candidate : path.clients) {
         if (candidate instanceof Class) {
           localClients.add(new ClientReference((Class<Client>) candidate));
         } else if (candidate instanceof Client) {
@@ -416,24 +403,24 @@ public class Pac4jModule implements Extension {
       allClients.put(routing.getKey(), localClients);
 
       // check for forwarding authorizers
-      for (String authorizerName : path.authorizers) {
+      for (var authorizerName : path.authorizers) {
         Authorizer authorizer = pac4j.getAuthorizers().get(authorizerName);
         if (authorizer instanceof ForwardingAuthorizer) {
-          ((ForwardingAuthorizer) authorizer).setRegistry(application);
+          ((ForwardingAuthorizer) authorizer).setRegistry(app);
         }
       }
     }
 
     pac4j.getAuthorizers().put(NoopAuthorizer.NAME, new NoopAuthorizer());
 
-    /** Default callback URL if none was set at client level: */
+    /* Default callback URL if none was set at client level: */
     clients.setCallbackUrl(
         ofNullable(clients.getCallbackUrl()).orElse(contextPath + options.getCallbackPath()));
-    /** Default URL resolver if none was set at client level: */
+    /* Default URL resolver if none was set at client level: */
     clients.setUrlResolver(
         ofNullable(clients.getUrlResolver()).orElseGet(Pac4jModule::newUrlResolver));
 
-    /** Set resolved clients: */
+    /* Set resolved clients: */
     clients.setClients(
         allClients.values().stream()
             .flatMap(List::stream)
@@ -442,16 +429,16 @@ public class Pac4jModule implements Extension {
             .collect(Collectors.toList()));
     pac4j.setClients(clients);
 
-    /** Delay setting unresolved clients: */
-    List<ClientReference> unresolved =
+    /* Delay setting unresolved clients: */
+    var unresolved =
         allClients.values().stream().flatMap(List::stream).filter(r -> !r.isResolved()).toList();
 
     if (!unresolved.isEmpty()) {
-      application.onStarting(
+      app.onStarting(
           () -> {
             List<Client> clientList = new ArrayList<>(clients.getClients());
             unresolved.stream()
-                .peek(r -> r.resolve(application::require))
+                .peek(r -> r.resolve(app::require))
                 .map(ClientReference::getClient)
                 .forEachOrdered(clientList::add);
             clients.setClients(clientList);
@@ -464,15 +451,23 @@ public class Pac4jModule implements Extension {
           });
     }
 
-    /** Set default http action adapter: */
+    /* Set default http action adapter: */
     pac4j.setHttpActionAdapter(
         ofNullable(pac4j.getHttpActionAdapter()).orElseGet(Pac4jModule::newActionAdapter));
 
+    /* WebContextFactory: */
+    pac4j.setWebContextFactory(
+        ofNullable(pac4j.getWebContextFactory()).orElseGet(ContextFactoryImpl::new));
+    pac4j.setSessionStoreFactory(
+        ofNullable(pac4j.getSessionStoreFactory()).orElseGet(SessionStoreFactoryImpl::new));
+    pac4j.setProfileManagerFactory(
+        ofNullable(pac4j.getProfileManagerFactory()).orElse(ProfileManagerFactory.DEFAULT));
+
     if (devLogin) {
-      application.get("/login", new DevLoginForm(pac4j, contextPath + options.getCallbackPath()));
+      app.get("/login", new DevLoginForm(pac4j, contextPath + options.getCallbackPath()));
     }
 
-    /**
+    /*
      * If we have multiple clients on specific paths, we collect those path and configure pac4j to
      * ignore them. So after login they are redirected to the requested url and not to one of this
      * sign-in endpoints.
@@ -486,30 +481,30 @@ public class Pac4jModule implements Extension {
      *
      * So <code>google</code> and <code>twitter</code> paths are never saved as requested urls.
      */
-    Set<String> excludes =
+    var excludes =
         allClients.keySet().stream()
             .filter(it -> !it.equals("*"))
             .map(it -> contextPath + it)
             .collect(Collectors.toSet());
 
-    CallbackLogic callbackLogic = pac4j.getCallbackLogic();
+    var callbackLogic = pac4j.getCallbackLogic();
     if (callbackLogic == null) {
       pac4j.setCallbackLogic(newCallbackLogic(excludes));
     }
     var direct = clients.getClients().stream().allMatch(it -> it instanceof DirectClient);
     if (!direct || options.isForceCallbackRoutes()) {
       CallbackFilterImpl callbackFilter = new CallbackFilterImpl(pac4j, options);
-      application.get(options.getCallbackPath(), callbackFilter);
-      application.post(options.getCallbackPath(), callbackFilter);
+      app.get(options.getCallbackPath(), callbackFilter);
+      app.post(options.getCallbackPath(), callbackFilter);
     }
 
-    SecurityLogic securityLogic = pac4j.getSecurityLogic();
+    var securityLogic = pac4j.getSecurityLogic();
     if (securityLogic == null) {
       pac4j.setSecurityLogic(newSecurityLogic(excludes));
     }
 
     /** For each client to a specific path, add a security handler. */
-    for (Map.Entry<String, List<ClientReference>> entry : allClients.entrySet()) {
+    for (var entry : allClients.entrySet()) {
       String pattern = entry.getKey();
       if (!pattern.equals("*")) {
         List<String> keys = Router.pathKeys(pattern);
@@ -521,11 +516,11 @@ public class Pac4jModule implements Extension {
                   options,
                   lazyClientNameList(entry.getValue()),
                   clientMap.get(pattern).authorizers);
-          application.get(pattern, securityFilter);
+          app.get(pattern, securityFilter);
           // POST for direct authentication
-          application.post(pattern, securityFilter);
+          app.post(pattern, securityFilter);
         } else {
-          application.use(
+          app.use(
               new SecurityFilterImpl(
                   pattern,
                   pac4j,
@@ -537,12 +532,12 @@ public class Pac4jModule implements Extension {
     }
 
     /* Is there is a global client, use it as decorator/filter (default client): */
-    List<ClientReference> defaultSecurityFilter = allClients.get("*");
+    var defaultSecurityFilter = allClients.get("*");
     if (defaultSecurityFilter != null) {
       if (options.getDefaultClient() == null && defaultSecurityFilter.get(0).isResolved()) {
         options.setDefaultClient(defaultSecurityFilter.get(0).getClient().getName());
       }
-      application.use(
+      app.use(
           new SecurityFilterImpl(
               null,
               pac4j,
@@ -551,26 +546,26 @@ public class Pac4jModule implements Extension {
               clientMap.get("*").authorizers));
     }
 
-    /** Logout configuration: */
-    LogoutLogic logoutLogic = pac4j.getLogoutLogic();
+    /* Logout configuration: */
+    var logoutLogic = pac4j.getLogoutLogic();
     if (logoutLogic == null) {
       pac4j.setLogoutLogic(newLogoutLogic());
     }
     if (!direct || options.isForceLogoutRoutes()) {
-      application.get(options.getLogoutPath(), new LogoutImpl(pac4j, options));
+      app.get(options.getLogoutPath(), new LogoutImpl(pac4j, options));
     }
 
-    /** Better response code for some errors. */
-    application.errorCode(UnauthorizedAction.class, StatusCode.UNAUTHORIZED);
-    application.errorCode(ForbiddenAction.class, StatusCode.FORBIDDEN);
+    /* Better response code for some errors. */
+    app.errorCode(UnauthorizedAction.class, StatusCode.UNAUTHORIZED);
+    app.errorCode(ForbiddenAction.class, StatusCode.FORBIDDEN);
 
-    /** Compute default url as next available route. We only select static path patterns. */
+    /* Compute default url as next available route. We only select static path patterns. */
     if (options.getDefaultUrl() == null) {
-      int index = application.getRoutes().size();
-      application.onStarting(
+      int index = app.getRoutes().size();
+      app.onStarting(
           () -> {
-            List<Route> routes = application.getRoutes();
-            String defaultUrl = application.getContextPath();
+            List<Route> routes = app.getRoutes();
+            String defaultUrl = app.getContextPath();
             if (index < routes.size()) {
               Route route = routes.get(index);
               if (route.getPathKeys().isEmpty()) {
@@ -581,10 +576,10 @@ public class Pac4jModule implements Extension {
           });
     }
 
-    application.getServices().put(Config.class, pac4j);
+    app.getServices().put(Config.class, pac4j);
 
-    /** Set current user provider */
-    application.setCurrentUser(new Pac4jCurrentUser());
+    /* Set current user provider */
+    app.setCurrentUser(new Pac4jCurrentUser(pac4j));
     // cleanup
     clientMap.clear();
   }

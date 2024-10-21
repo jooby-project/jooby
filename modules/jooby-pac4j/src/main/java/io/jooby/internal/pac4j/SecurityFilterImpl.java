@@ -10,29 +10,29 @@ import static java.util.Optional.ofNullable;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.client.finder.DefaultSecurityClientFinder;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import org.pac4j.core.engine.SecurityLogic;
-import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.util.Pac4jConstants;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.pac4j.Pac4jContext;
+import io.jooby.pac4j.Pac4jFrameworkParameters;
 import io.jooby.pac4j.Pac4jOptions;
 
 public class SecurityFilterImpl implements Route.Filter, Route.Handler {
 
-  private String pattern;
+  private final String pattern;
 
-  private Config config;
+  private final Config config;
 
-  private Pac4jOptions options;
+  private final Pac4jOptions options;
 
-  private Supplier<String> clients;
+  private final Supplier<String> clients;
 
   private String authorizers;
 
@@ -61,10 +61,10 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (pattern == null) {
-        return perform(Pac4jContext.create(ctx), new GrantAccessAdapterImpl(ctx, next));
+        return perform(ctx, new GrantAccessAdapterImpl(ctx, options, next));
       } else {
         if (ctx.matches(pattern)) {
-          return perform(Pac4jContext.create(ctx), new GrantAccessAdapterImpl(ctx, next));
+          return perform(ctx, new GrantAccessAdapterImpl(ctx, options, next));
         } else {
           return next.apply(ctx);
         }
@@ -74,32 +74,16 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
 
   @NonNull @Override
   public Object apply(@NonNull Context ctx) throws Exception {
-    Pac4jContext pac4j = Pac4jContext.create(ctx);
-    String requestedUrl =
-        (String)
-            pac4j
-                .getSessionStore()
-                .get(pac4j, Pac4jConstants.REQUESTED_URL)
-                .filter(WithLocationAction.class::isInstance)
-                .map(it -> ((WithLocationAction) it).getLocation())
-                .orElse(options.getDefaultUrl());
-    return perform(pac4j, GrantAccessAdapterImpl.redirect(ctx, requestedUrl));
+    return perform(ctx, new GrantAccessAdapterImpl(ctx, options));
   }
 
-  private Object perform(Pac4jContext ctx, GrantAccessAdapterImpl grantAccessAdapter) {
-    SecurityLogic securityLogic = config.getSecurityLogic();
-    String clients = ctx.getContext().query(clientName(securityLogic)).value(this.clients.get());
-    String authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);
+  private Object perform(Context ctx, GrantAccessAdapterImpl accessAdapter) throws Exception {
+    FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
+    var securityLogic = config.getSecurityLogic();
+    var clients = ctx.lookup(clientName(securityLogic)).value(this.clients.get());
+    var authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);
     return securityLogic.perform(
-        ctx,
-        ctx.getSessionStore(),
-        config,
-        grantAccessAdapter,
-        config.getHttpActionAdapter(),
-        clients,
-        authorizers,
-        null,
-        options.getMultiProfile());
+        config, accessAdapter, clients, authorizers, null, Pac4jFrameworkParameters.create(ctx));
   }
 
   private String clientName(SecurityLogic securityLogic) {

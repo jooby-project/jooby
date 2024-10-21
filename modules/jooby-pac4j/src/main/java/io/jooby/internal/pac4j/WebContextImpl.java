@@ -35,7 +35,7 @@ public class WebContextImpl implements Pac4jContext {
   }
 
   @Override
-  public Context getContext() {
+  public @NonNull Context getContext() {
     return context;
   }
 
