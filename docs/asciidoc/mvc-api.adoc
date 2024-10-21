@@ -982,3 +982,8 @@ tasks.withType(JavaCompile) {
     ]
 }
 ----
+
+[NOTE]
+====
+Please note that the order of annotation processors is important. For example, if you're using `lombok` and `avaje-inject`, the correct order should be: `lombok` -> `avaje-inject` -> `jooby-apt`
+====
