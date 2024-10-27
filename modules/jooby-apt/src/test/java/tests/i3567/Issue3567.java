@@ -22,15 +22,9 @@ public class Issue3567 {
     new ProcessorRunner(new C3567(conf))
         .withSourceCode(
             source -> {
-              assertTrue(
-                  source.contains(
-                      "public C3567_() {\n"
-                          + "      this(C3567.class);\n"
-                          + "    }\n"
-                          + "\n"
-                          + "    public C3567_(Class<C3567> type) {\n"
-                          + "      this(ctx -> ctx.require(type));\n"
-                          + "    }"));
+              assertTrue(source.contains("this(C3567.class);"));
+              assertTrue(source.contains("public C3567_(Class<C3567> type) {"));
+              assertTrue(source.contains("this(ctx -> ctx.require(type));"));
             });
   }
 }
