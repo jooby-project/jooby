@@ -298,7 +298,8 @@ public class MvcRouter {
   }
 
   private static Predicate<Element> hasInjectAnnotation() {
-    var injectAnnotations = Set.of("javax.inject.Inject", "jakarta.inject.Inject");
+    var injectAnnotations =
+        Set.of("javax.inject.Inject", "jakarta.inject.Inject", "com.google.inject.Inject");
     return it ->
         injectAnnotations.stream()
             .anyMatch(annotation -> findAnnotationByName(it, annotation) != null);
