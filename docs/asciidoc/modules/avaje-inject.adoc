@@ -18,6 +18,8 @@
       <version>...</version>
       <configuration>
         <annotationProcessorPaths>
+          <!-- if using lombok, it must be placed before the avaje-inject-generator -->
+          <!-- avaje-inject-generator must be placed before the jooby-apt -->
           <path>
             <groupId>io.avaje</groupId>
             <artifactId>avaje-inject-generator</artifactId>
@@ -41,6 +43,11 @@ dependencies {
   kapt 'io.avaje:avaje-inject-generator:{avaje.inject.version}'
 }
 ----
+
+[NOTE]
+====
+Please note that the order of annotation processors is important. For example, if you're using `lombok` and `avaje-inject`, the correct order should be: `lombok` -> `avaje-inject` -> `jooby-apt`
+====
 
 3) Install Avaje Inject:
 

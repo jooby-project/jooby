@@ -22,6 +22,7 @@ Bean validation via https://avaje.io/validator/[Avaje Validator].
       <version>...</version>
       <configuration>
         <annotationProcessorPaths>
+          <!-- if using lombok, it must be placed before the generator -->
           <path>
             <groupId>io.avaje</groupId>
             <artifactId>avaje-validator-generator</artifactId>
@@ -45,6 +46,11 @@ dependencies {
   kapt 'io.avaje:avaje-validator-generator:{avajeValidatorVersion}'
 }
 ----
+
+[NOTE]
+====
+Please note that the order of annotation processors is important. For example, if you're using `lombok`, the correct order should be: `lombok` -> `avaje-validator`
+====
 
 3) Install
 
