@@ -36,6 +36,8 @@ public class Pac4jOptions {
 
   private boolean localLogout = true;
 
+  private String logoutUrlPattern;
+
   private boolean destroySession = true;
 
   private boolean centralLogout;
@@ -303,5 +305,26 @@ public class Pac4jOptions {
   public @NonNull Pac4jOptions setForceLogoutRoutes(boolean forceLogoutRoutes) {
     this.forceLogoutRoutes = forceLogoutRoutes;
     return this;
+  }
+
+  /**
+   * It’s the logout URL pattern that the url parameter must match. It is an optional parameter and
+   * only relative URLs are allowed by default.
+   *
+   * @return Logout URL Pattern.
+   */
+  public @Nullable String getLogoutUrlPattern() {
+    return logoutUrlPattern;
+  }
+
+  /**
+   * It’s the logout URL pattern that the url parameter must match. It is an optional parameter and
+   * only relative URLs are allowed by default.
+   *
+   * @param logoutUrlPattern It’s the logout URL pattern that the url parameter must match. It is an
+   *     optional parameter and only relative URLs are allowed by default.
+   */
+  public void setLogoutUrlPattern(String logoutUrlPattern) {
+    this.logoutUrlPattern = logoutUrlPattern;
   }
 }

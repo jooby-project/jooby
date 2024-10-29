@@ -8,18 +8,24 @@ package io.jooby.internal.pac4j;
 import java.util.function.Function;
 
 import org.pac4j.core.config.Config;
-import org.pac4j.core.profile.ProfileManager;
 
 import io.jooby.Context;
 import io.jooby.pac4j.Pac4jContext;
 
 public class Pac4jCurrentUser implements Function<Context, Object> {
 
+  private final Config config;
+
+  public Pac4jCurrentUser(Config config) {
+    this.config = config;
+  }
+
   @Override
   public Object apply(Context ctx) {
-    Pac4jContext pac4jContext = Pac4jContext.create(ctx);
-    ProfileManager pm = new ProfileManager(pac4jContext, pac4jContext.getSessionStore());
-    pm.setConfig(ctx.require(Config.class));
-    return pm.getProfile().orElse(null);
+    var pmf = config.getProfileManagerFactory();
+    var pac4jContext = Pac4jContext.create(ctx);
+    var pm = pmf.apply(pac4jContext, pac4jContext.getSessionStore());
+    var profile = pm.getProfile().orElse(null);
+    return profile;
   }
 }
