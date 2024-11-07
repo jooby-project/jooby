@@ -5,12 +5,9 @@
  */
 package io.jooby.hibernate;
 
-import java.net.URL;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,20 +15,13 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.hibernate.Session;
-import org.hibernate.SessionBuilder;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataBuilder;
+import org.hibernate.*;
 import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.SessionFactoryBuilder;
-import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
 
-import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Extension;
@@ -40,6 +30,7 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import io.jooby.internal.hibernate.ScanEnvImpl;
 import io.jooby.internal.hibernate.SessionServiceProvider;
+import io.jooby.internal.hibernate.StatelessSessionServiceProvider;
 import io.jooby.internal.hibernate.UnitOfWorkProvider;
 import jakarta.inject.Provider;
 import jakarta.persistence.EntityManager;
@@ -145,9 +136,11 @@ public class HibernateModule implements Extension {
 
   private final String name;
   private List<String> packages = Collections.emptyList();
-  private List<Class> classes;
+  private final List<Class<?>> classes;
   private HibernateConfigurer configurer = new HibernateConfigurer();
   private SessionProvider sessionBuilder = SessionBuilder::openSession;
+  private StatelessSessionProvider statelessSessionProvider =
+      StatelessSessionBuilder::openStatelessSession;
 
   /**
    * Creates a Hibernate module.
@@ -155,9 +148,9 @@ public class HibernateModule implements Extension {
    * @param name The name/key of the data source to attach.
    * @param classes Persistent classes.
    */
-  public HibernateModule(@NonNull String name, Class... classes) {
+  public HibernateModule(@NonNull String name, Class<?>... classes) {
     this.name = name;
-    this.classes = Arrays.asList(classes);
+    this.classes = List.of(classes);
   }
 
   /**
@@ -176,7 +169,7 @@ public class HibernateModule implements Extension {
    * @param name The name/key of the data source to attach.
    * @param classes Persistent classes.
    */
-  public HibernateModule(@NonNull String name, List<Class> classes) {
+  public HibernateModule(@NonNull String name, List<Class<?>> classes) {
     this.name = name;
     this.classes = classes;
   }
@@ -188,7 +181,7 @@ public class HibernateModule implements Extension {
    * @return This module.
    */
   public @NonNull HibernateModule scan(@NonNull String... packages) {
-    this.packages = Arrays.asList(packages);
+    this.packages = List.of(packages);
     return this;
   }
 
@@ -227,36 +220,36 @@ public class HibernateModule implements Extension {
 
   @Override
   public void install(@NonNull Jooby application) {
-    Environment env = application.getEnvironment();
-    Config config = application.getConfig();
-    ServiceRegistry registry = application.getServices();
-    DataSource dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));
+    var env = application.getEnvironment();
+    var config = application.getConfig();
+    var registry = application.getServices();
+    var dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));
     boolean fallback = false;
     if (dataSource == null) {
       // TODO: replace with usage exception
       dataSource = registry.require(DataSource.class);
       fallback = true;
     }
-    BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder();
+    var bsrb = new BootstrapServiceRegistryBuilder();
     boolean defaultDdlAuto = env.isActive("dev", "test");
 
-    boolean flyway = isFlywayPresent(env, registry, name, fallback);
-    String ddlAuto = flyway ? "none" : (defaultDdlAuto ? "update" : "none");
+    var flyway = isFlywayPresent(env, registry, name, fallback);
+    var ddlAuto = flyway ? "none" : (defaultDdlAuto ? "update" : "none");
 
     configurer.configure(bsrb, config);
 
-    BootstrapServiceRegistry bsr = bsrb.build();
-    StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder(bsr);
+    var bsr = bsrb.build();
+    var ssrb = new StandardServiceRegistryBuilder(bsr);
 
     ssrb.applySetting(AvailableSettings.HBM2DDL_AUTO, ddlAuto);
     ssrb.applySetting(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed");
     // apply application.conf
     var base = env.getProperties("hibernate");
     var custom = env.getProperties(name + ".hibernate", "hibernate");
-    Map<String, String> javax = env.getProperties("hibernate.javax", "javax");
-    Map<String, String> jakarta = env.getProperties("hibernate.jakarta", "jakarta");
+    var javax = env.getProperties("hibernate.javax", "javax");
+    var jakarta = env.getProperties("hibernate.jakarta", "jakarta");
 
-    Map<String, Object> settings = new HashMap<>();
+    var settings = new HashMap<String, Object>();
     settings.putAll(base);
     settings.putAll(custom);
     settings.putAll(javax);
@@ -282,31 +275,31 @@ public class HibernateModule implements Extension {
 
     configurer.configure(sources, config);
 
-    /** Scan package? */
-    ClassLoader classLoader = env.getClassLoader();
-    List<URL> packages =
+    /* Scan package? */
+    var classLoader = env.getClassLoader();
+    var packages =
         sources.getAnnotatedPackages().stream()
             .map(pkg -> classLoader.getResource(pkg.replace('.', '/')))
-            .collect(Collectors.toList());
+            .toList();
 
-    MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
+    var metadataBuilder = sources.getMetadataBuilder();
     if (!packages.isEmpty()) {
       metadataBuilder.applyScanEnvironment(new ScanEnvImpl(packages));
     }
 
     configurer.configure(metadataBuilder, config);
 
-    Metadata metadata = metadataBuilder.build();
+    var metadata = metadataBuilder.build();
 
-    SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
+    var sfb = metadata.getSessionFactoryBuilder();
     sfb.applyName(name);
     sfb.applyNameAsJndiName(false);
 
     configurer.configure(sfb, config);
 
-    SessionFactory sf = sfb.build();
+    var sf = sfb.build();
 
-    /** Session and EntityManager. */
+    /* Session and EntityManager. */
     Provider sessionServiceProvider = new SessionServiceProvider(sf, sessionBuilder);
     registry.putIfAbsent(Session.class, sessionServiceProvider);
     registry.put(ServiceKey.key(Session.class, name), sessionServiceProvider);
@@ -314,18 +307,27 @@ public class HibernateModule implements Extension {
     registry.putIfAbsent(EntityManager.class, sessionServiceProvider);
     registry.put(ServiceKey.key(EntityManager.class, name), sessionServiceProvider);
 
-    /** SessionFactory and EntityManagerFactory. */
+    /* StatelessSession. */
+    registry.putIfAbsent(
+        StatelessSession.class, new StatelessSessionServiceProvider(sf, statelessSessionProvider));
+
+    /* SessionFactory and EntityManagerFactory. */
     registry.putIfAbsent(SessionFactory.class, sf);
     registry.put(ServiceKey.key(SessionFactory.class, name), sf);
 
     registry.putIfAbsent(EntityManagerFactory.class, sf);
     registry.put(ServiceKey.key(EntityManagerFactory.class, name), sf);
 
-    /** Session Provider: */
+    /* Session Provider: */
     registry.putIfAbsent(SessionProvider.class, sessionBuilder);
     registry.put(ServiceKey.key(SessionProvider.class, name), sessionBuilder);
 
-    /** UnitOfWork Provider: */
+    /* StatelessSession Provider: */
+    registry.putIfAbsent(StatelessSessionProvider.class, this.statelessSessionProvider);
+    registry.put(
+        ServiceKey.key(StatelessSessionProvider.class, name), this.statelessSessionProvider);
+
+    /* UnitOfWork Provider: */
     UnitOfWorkProvider unitOfWorkProvider = new UnitOfWorkProvider(sf, sessionBuilder);
     registry.putIfAbsent(UnitOfWork.class, unitOfWorkProvider);
     registry.put(ServiceKey.key(UnitOfWork.class, name), unitOfWorkProvider);
