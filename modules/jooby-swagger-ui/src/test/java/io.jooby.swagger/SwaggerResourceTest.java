@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ public class SwaggerResourceTest {
 
   private String asset(String resource) throws IOException {
     return IOUtils.toString(
-        getClass().getResource("/swagger-ui/" + resource), StandardCharsets.UTF_8);
+        Objects.requireNonNull(getClass().getResource("/swagger-ui/" + resource)),
+        StandardCharsets.UTF_8);
   }
 }

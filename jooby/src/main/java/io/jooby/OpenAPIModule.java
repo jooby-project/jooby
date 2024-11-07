@@ -122,6 +122,7 @@ public class OpenAPIModule implements Extension {
   private String redocPath = "/redoc";
   private EnumSet<Format> format = EnumSet.of(Format.JSON, Format.YAML);
   private final Set<String> customFiles = new LinkedHashSet<>();
+  private String contextPath;
 
   /**
    * Creates an OpenAPI module. The path is used to route the open API files. For example:
@@ -153,8 +154,20 @@ public class OpenAPIModule implements Extension {
    * @param path Path.
    * @return This module.
    */
-  public @NonNull OpenAPIModule file(String path) {
+  public @NonNull OpenAPIModule file(@NonNull String path) {
     customFiles.add(path);
+    return this;
+  }
+
+  /**
+   * Set/override context path of OpenAPI resource. Helps when it runs behind a proxy on a different
+   * context path or path prefix.
+   *
+   * @param contextPath Context path/Path prefix.
+   * @return This module.
+   */
+  public @NonNull OpenAPIModule setContextPath(@NonNull String contextPath) {
+    this.contextPath = contextPath;
     return this;
   }
 
@@ -251,8 +264,7 @@ public class OpenAPIModule implements Extension {
 
   private void redoc(Jooby application, AssetSource source) throws Exception {
 
-    String openAPIJSON =
-        fullPath(fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
+    String openAPIJSON = fullPath(fullPath(contextPath(application), openAPIPath), "/openapi.json");
 
     AssetSource customSource =
         new OpenAPISource()
@@ -265,14 +277,13 @@ public class OpenAPIModule implements Extension {
                     "${openAPIPath}",
                     openAPIJSON,
                     "${redocPath}",
-                    fullPath(application.getContextPath(), redocPath)));
+                    fullPath(contextPath(application), redocPath)));
 
     application.assets(redocPath + "/?*", customSource, source);
   }
 
   private void swaggerUI(Jooby application, AssetSource source) throws Exception {
-    String openAPIJSON =
-        fullPath(fullPath(application.getContextPath(), openAPIPath), "/openapi.json");
+    String openAPIJSON = fullPath(fullPath(contextPath(application), openAPIPath), "/openapi.json");
 
     AssetSource customSource =
         new OpenAPISource()
@@ -283,7 +294,7 @@ public class OpenAPIModule implements Extension {
                     MediaType.html,
                     "index.html",
                     "${swaggerPath}",
-                    fullPath(application.getContextPath(), swaggerUIPath)))
+                    fullPath(contextPath(application), swaggerUIPath)))
             .put(
                 "swagger-initializer.js",
                 processAsset(
@@ -310,5 +321,9 @@ public class OpenAPIModule implements Extension {
 
   private static String fullPath(String contextPath, String path) {
     return Router.noTrailingSlash(Router.normalizePath(contextPath + path));
+  }
+
+  private String contextPath(Jooby application) {
+    return contextPath == null ? application.getContextPath() : contextPath;
   }
 }

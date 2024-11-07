@@ -5,6 +5,7 @@
  */
 package io.jooby.redoc;
 
+import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,6 +30,7 @@ public class RedocResourceTest {
   }
 
   private String asset(String resource) throws IOException {
-    return IOUtils.toString(getClass().getResource("/redoc/" + resource), StandardCharsets.UTF_8);
+    return IOUtils.toString(
+        requireNonNull(getClass().getResource("/redoc/" + resource)), StandardCharsets.UTF_8);
   }
 }
