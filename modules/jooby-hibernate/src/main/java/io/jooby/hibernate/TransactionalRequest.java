@@ -8,16 +8,14 @@ package io.jooby.hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Route;
-import io.jooby.ServiceKey;
-import io.jooby.SneakyThrows;
+import io.jooby.*;
 import io.jooby.annotation.Transactional;
+import io.jooby.internal.hibernate.RequestSessionFactory;
 
 /**
  * Attaches a {@link Session} and {@link jakarta.persistence.EntityManager} to the current request
@@ -52,11 +50,11 @@ import io.jooby.annotation.Transactional;
  */
 public class TransactionalRequest implements Route.Filter {
 
-  private static final Logger log = LoggerFactory.getLogger(SessionRequest.class);
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final ServiceKey<SessionFactory> sessionFactoryKey;
 
-  private final ServiceKey<SessionProvider> sessionProviderKey;
+  private RequestSessionFactory sessionProvider;
 
   private boolean enabledByDefault = true;
 
@@ -78,10 +76,9 @@ public class TransactionalRequest implements Route.Filter {
 
   private TransactionalRequest(ServiceKey<SessionFactory> sessionFactoryKey) {
     this.sessionFactoryKey = sessionFactoryKey;
-    this.sessionProviderKey =
-        sessionFactoryKey.getName() == null
-            ? ServiceKey.key(SessionProvider.class)
-            : ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName());
+    this.sessionProvider =
+        RequestSessionFactory.stateful(
+            ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName()));
   }
 
   /**
@@ -99,15 +96,24 @@ public class TransactionalRequest implements Route.Filter {
     return this;
   }
 
+  /**
+   * Creates a {@link org.hibernate.StatelessSession} and attach to current HTTP request.
+   *
+   * @return This instance.
+   */
+  public TransactionalRequest useStatelessSession() {
+    this.sessionProvider =
+        RequestSessionFactory.stateless(
+            ServiceKey.key(StatelessSessionProvider.class, sessionFactoryKey.getName()));
+    return this;
+  }
+
   @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
-        SessionFactory sessionFactory = ctx.require(sessionFactoryKey);
-        SessionProvider sessionProvider = ctx.require(sessionProviderKey);
-
-        try (Session session = sessionProvider.newSession(sessionFactory.withOptions())) {
-          ManagedSessionContext.bind(session);
+        var sessionFactory = ctx.require(sessionFactoryKey);
+        try (var session = sessionProvider.create(ctx, sessionFactory)) {
 
           Object result;
 
@@ -132,7 +138,7 @@ public class TransactionalRequest implements Route.Filter {
 
           return result;
         } finally {
-          ManagedSessionContext.unbind(sessionFactory);
+          sessionProvider.release(sessionFactory);
         }
       } else {
         return next.apply(ctx);
