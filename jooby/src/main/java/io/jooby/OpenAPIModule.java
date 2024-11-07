@@ -166,7 +166,7 @@ public class OpenAPIModule implements Extension {
    * @param contextPath Context path/Path prefix.
    * @return This module.
    */
-  public @NonNull OpenAPIModule setContextPath(@NonNull String contextPath) {
+  public @NonNull OpenAPIModule contextPath(@NonNull String contextPath) {
     this.contextPath = contextPath;
     return this;
   }
