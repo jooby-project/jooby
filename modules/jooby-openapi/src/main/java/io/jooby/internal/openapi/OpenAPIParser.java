@@ -39,10 +39,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jooby.MediaType;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.enums.Explode;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
@@ -184,6 +181,25 @@ public class OpenAPIParser {
     consumer.accept(flow);
   }
 
+  private static Boolean isHidden(List<AnnotationNode> annotations) {
+    if (annotations != null) {
+      // If the method is annotated with @Hidden, it's always hidden
+      return annotations.stream().anyMatch(a -> a.desc.equals(Type.getDescriptor(Hidden.class)))
+          ? true
+          : null;
+    }
+    return null;
+  }
+
+  private static Boolean isDeprecated(List<AnnotationNode> annotations) {
+    if (annotations != null) {
+      return annotations.stream().anyMatch(a -> a.desc.equals(Type.getDescriptor(Deprecated.class)))
+          ? true
+          : null;
+    }
+    return null;
+  }
+
   public static void parse(ParserContext ctx, OperationExt operation) {
     /** Tags: */
     MethodNode method = operation.getNode();
@@ -196,6 +212,8 @@ public class OpenAPIParser {
         .findFirst()
         .ifPresent(it -> tags(singletonList(toMap(it)), operation::addTag));
 
+    operation.setHidden(isHidden(annotations));
+    operation.setDeprecated(isDeprecated(annotations));
     /**
      * @Operation:
      */
@@ -392,9 +410,15 @@ public class OpenAPIParser {
 
     stringValue(annotation, "method", operation::setMethod);
 
-    boolValue(annotation, "deprecated", operation::setDeprecated);
+    if (operation.getDeprecated() != Boolean.TRUE) {
+      // Don't override deprecated
+      boolValue(annotation, "deprecated", operation::setDeprecated);
+    }
 
-    boolValue(annotation, "hidden", operation::setHidden);
+    if (operation.getHidden() != Boolean.TRUE) {
+      // Don't override hidden
+      boolValue(annotation, "hidden", operation::setHidden);
+    }
 
     stringValue(annotation, "summary", operation::setSummary);
 

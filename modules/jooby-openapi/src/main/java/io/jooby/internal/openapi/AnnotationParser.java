@@ -32,8 +32,6 @@ import io.jooby.annotation.HeaderParam;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.PathParam;
 import io.jooby.annotation.QueryParam;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -265,26 +263,18 @@ public class AnnotationParser {
 
   private static List<OperationExt> routerMethod(
       ParserContext ctx, String prefix, ClassNode classNode, MethodNode method) {
-    List<OperationExt> result = new ArrayList<>();
 
     AtomicReference<RequestBodyExt> requestBody = new AtomicReference<>();
     List<ParameterExt> arguments = routerArguments(ctx, method, requestBody::set);
     ResponseExt response = returnTypes(method);
 
-    // If the method is hidden, don't generate an operation for it
-    if (isHidden(method.visibleAnnotations)) {
-      return result;
-    }
-
+    List<OperationExt> result = new ArrayList<>();
     for (String httpMethod : httpMethod(method.visibleAnnotations)) {
       for (String pattern : httpPattern(ctx, classNode, method, httpMethod)) {
         OperationExt operation =
             new OperationExt(
                 method, httpMethod, RoutePath.path(prefix, pattern), arguments, response);
         operation.setOperationId(method.name);
-        if (isDeprecated(method.visibleAnnotations)) {
-          operation.setDeprecated(true);
-        }
         Optional.ofNullable(requestBody.get()).ifPresent(operation::setRequestBody);
 
         result.add(operation);
@@ -292,31 +282,6 @@ public class AnnotationParser {
     }
 
     return result;
-  }
-
-  private static boolean isDeprecated(List<AnnotationNode> annotations) {
-    if (annotations != null) {
-      return annotations.stream()
-          .anyMatch(a -> a.desc.equals(Type.getDescriptor(Deprecated.class)));
-    }
-    return false;
-  }
-
-  private static boolean isHidden(List<AnnotationNode> annotations) {
-    if (annotations != null) {
-      // If the method is annotated with @Hidden, it's always hidden
-      boolean hiddenAnnotationExists =
-          annotations.stream().anyMatch(a -> a.desc.equals(Type.getDescriptor(Hidden.class)));
-
-      if (hiddenAnnotationExists) {
-        return true;
-      }
-
-      // If the method is annotated with @Operation, and the value of "hidden" is true, it's hidden
-      return findAnnotationByType(annotations, Operation.class).stream()
-          .anyMatch(it -> boolValue(toMap(it), "hidden"));
-    }
-    return false;
   }
 
   private static ResponseExt returnTypes(MethodNode method) {
@@ -393,9 +358,7 @@ public class AnnotationParser {
         ParamType paramType = ParamType.find(annotations);
 
         /* Required: */
-        boolean required =
-            isPrimitive(javaType)
-                || !isNullable(method, i); // !javaType.startsWith("java.util.Optional");
+        boolean required = isPrimitive(javaType) || !isNullable(method, i);
 
         if (paramType == ParamType.BODY) {
           RequestBodyExt body = new RequestBodyExt();

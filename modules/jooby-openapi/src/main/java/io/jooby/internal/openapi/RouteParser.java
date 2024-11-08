@@ -253,9 +253,15 @@ public class RouteParser {
   }
 
   private void cleanup(List<OperationExt> operations) {
-    for (OperationExt operation : operations) {
-      if (operation.getParameters().isEmpty()) {
-        operation.setParameters(null);
+    var it = operations.iterator();
+    while (it.hasNext()) {
+      var operation = it.next();
+      if (operation.getHidden() == Boolean.TRUE) {
+        it.remove();
+      } else {
+        if (operation.getParameters().isEmpty()) {
+          operation.setParameters(null);
+        }
       }
     }
   }
@@ -326,8 +332,7 @@ public class RouteParser {
     AbstractInsnNode instructionTo = null;
     int routeIndex = -1;
     for (AbstractInsnNode it : method.instructions) {
-      if (it instanceof MethodInsnNode && ctx.process(it)) {
-        MethodInsnNode node = (MethodInsnNode) it;
+      if (it instanceof MethodInsnNode node && ctx.process(it)) {
         Signature signature = Signature.create(node);
         if (ctx.isRouter(signature.getOwner().orElse(null))) {
           if (signature.matches("mvc")) {
