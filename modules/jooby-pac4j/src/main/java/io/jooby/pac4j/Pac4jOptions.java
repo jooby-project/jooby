@@ -5,6 +5,10 @@
  */
 package io.jooby.pac4j;
 
+import java.util.Optional;
+
+import org.pac4j.core.config.Config;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SameSite;
@@ -18,7 +22,7 @@ import io.jooby.SameSite;
  * @author edgar
  * @since 2.4.0
  */
-public class Pac4jOptions {
+public class Pac4jOptions extends Config {
 
   private String defaultUrl;
 
@@ -47,6 +51,32 @@ public class Pac4jOptions {
   private boolean forceCallbackRoutes = false;
 
   private boolean forceLogoutRoutes = false;
+
+  private Pac4jOptions(Config config) {
+    setClients(config.getClients());
+    Optional.ofNullable(config.getAuthorizers()).ifPresent(this::setAuthorizers);
+    Optional.ofNullable(config.getMatchers()).ifPresent(this::setMatchers);
+    setSecurityLogic(config.getSecurityLogic());
+    setCallbackLogic(config.getCallbackLogic());
+    setLogoutLogic(config.getLogoutLogic());
+    setWebContextFactory(config.getWebContextFactory());
+    setSessionStoreFactory(config.getSessionStoreFactory());
+    setProfileManagerFactory(config.getProfileManagerFactory());
+    setHttpActionAdapter(config.getHttpActionAdapter());
+    setSessionLogoutHandler(config.getSessionLogoutHandler());
+  }
+
+  public Pac4jOptions() {}
+
+  /**
+   * Get a Pac4j options instance of {@link Config}.
+   *
+   * @param config Config object.
+   * @return Pac4j options.
+   */
+  public static @NonNull Pac4jOptions from(@NonNull Config config) {
+    return config instanceof Pac4jOptions options ? options : new Pac4jOptions(config);
+  }
 
   /**
    * Default url to redirect to after successful login. Used by {@link

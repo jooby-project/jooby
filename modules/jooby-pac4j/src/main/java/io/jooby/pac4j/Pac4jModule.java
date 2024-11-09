@@ -82,9 +82,9 @@ import io.jooby.internal.pac4j.*;
 public class Pac4jModule implements Extension {
 
   private static class ProtectedPath {
-    private List<String> authorizers = new ArrayList<>();
+    private final List<String> authorizers = new ArrayList<>();
 
-    private List<Object> clients = new ArrayList<>();
+    private final List<Object> clients = new ArrayList<>();
 
     public ProtectedPath add(String authorizer, Object client) {
       this.authorizers.add(authorizer);
@@ -93,35 +93,13 @@ public class Pac4jModule implements Extension {
     }
   }
 
-  private final Config pac4j;
-
-  private Pac4jOptions options;
+  private final Pac4jOptions options;
 
   private Map<String, ProtectedPath> clientMap;
 
   /** Creates a new pac4j module. */
   public Pac4jModule() {
-    this(new Pac4jOptions(), new Config());
-  }
-
-  /**
-   * Creates a new pac4j module.
-   *
-   * @param options Options.
-   * @param pac4j Pac4j advance configuration options.
-   */
-  public Pac4jModule(Pac4jOptions options, Config pac4j) {
-    this.options = options;
-    this.pac4j = pac4j;
-  }
-
-  /**
-   * Creates a new pac4j module.
-   *
-   * @param pac4j Pac4j advance configuration options.
-   */
-  public Pac4jModule(Config pac4j) {
-    this(new Pac4jOptions(), pac4j);
+    this(new Pac4jOptions());
   }
 
   /**
@@ -130,7 +108,16 @@ public class Pac4jModule implements Extension {
    * @param options Options.
    */
   public Pac4jModule(Pac4jOptions options) {
-    this(options, new Config());
+    this.options = options;
+  }
+
+  /**
+   * Creates a new pac4j module.
+   *
+   * @param options Options.
+   */
+  public Pac4jModule(Config options) {
+    this(Pac4jOptions.from(options));
   }
 
   /**
@@ -240,7 +227,7 @@ public class Pac4jModule implements Extension {
       @Nullable String authorizer,
       @NonNull Function<com.typesafe.config.Config, Client> provider) {
     if (clientMap == null) {
-      clientMap = initializeClients(pac4j);
+      clientMap = initializeClients(options);
     }
     clientMap.computeIfAbsent(pattern, k -> new ProtectedPath()).add(authorizer, provider);
     return this;
@@ -351,7 +338,7 @@ public class Pac4jModule implements Extension {
       @Nullable String authorizer,
       @NonNull Class<? extends Client> client) {
     if (clientMap == null) {
-      clientMap = initializeClients(pac4j);
+      clientMap = initializeClients(options);
     }
     clientMap.computeIfAbsent(pattern, k -> new ProtectedPath()).add(authorizer, client);
     return this;
@@ -362,13 +349,13 @@ public class Pac4jModule implements Extension {
     app.getServices().putIfAbsent(Pac4jOptions.class, options);
 
     var clients =
-        ofNullable(pac4j.getClients())
+        ofNullable(options.getClients())
             /* No client? set a default one: */
             .orElseGet(Clients::new);
 
     /* No client instance added from DSL, init them from pac4j config. */
     if (clientMap == null) {
-      clientMap = initializeClients(pac4j);
+      clientMap = initializeClients(options);
     }
 
     var contextPath = app.getContextPath().equals("/") ? "" : app.getContextPath();
@@ -404,14 +391,14 @@ public class Pac4jModule implements Extension {
 
       // check for forwarding authorizers
       for (var authorizerName : path.authorizers) {
-        Authorizer authorizer = pac4j.getAuthorizers().get(authorizerName);
+        Authorizer authorizer = options.getAuthorizers().get(authorizerName);
         if (authorizer instanceof ForwardingAuthorizer) {
           ((ForwardingAuthorizer) authorizer).setRegistry(app);
         }
       }
     }
 
-    pac4j.getAuthorizers().put(NoopAuthorizer.NAME, new NoopAuthorizer());
+    options.getAuthorizers().put(NoopAuthorizer.NAME, new NoopAuthorizer());
 
     /* Default callback URL if none was set at client level: */
     clients.setCallbackUrl(
@@ -427,7 +414,7 @@ public class Pac4jModule implements Extension {
             .filter(ClientReference::isResolved)
             .map(ClientReference::getClient)
             .collect(Collectors.toList()));
-    pac4j.setClients(clients);
+    options.setClients(clients);
 
     /* Delay setting unresolved clients: */
     var unresolved =
@@ -452,19 +439,19 @@ public class Pac4jModule implements Extension {
     }
 
     /* Set default http action adapter: */
-    pac4j.setHttpActionAdapter(
-        ofNullable(pac4j.getHttpActionAdapter()).orElseGet(Pac4jModule::newActionAdapter));
+    options.setHttpActionAdapter(
+        ofNullable(options.getHttpActionAdapter()).orElseGet(Pac4jModule::newActionAdapter));
 
     /* WebContextFactory: */
-    pac4j.setWebContextFactory(
-        ofNullable(pac4j.getWebContextFactory()).orElseGet(ContextFactoryImpl::new));
-    pac4j.setSessionStoreFactory(
-        ofNullable(pac4j.getSessionStoreFactory()).orElseGet(SessionStoreFactoryImpl::new));
-    pac4j.setProfileManagerFactory(
-        ofNullable(pac4j.getProfileManagerFactory()).orElse(ProfileManagerFactory.DEFAULT));
+    options.setWebContextFactory(
+        ofNullable(options.getWebContextFactory()).orElseGet(ContextFactoryImpl::new));
+    options.setSessionStoreFactory(
+        ofNullable(options.getSessionStoreFactory()).orElseGet(SessionStoreFactoryImpl::new));
+    options.setProfileManagerFactory(
+        ofNullable(options.getProfileManagerFactory()).orElse(ProfileManagerFactory.DEFAULT));
 
     if (devLogin) {
-      app.get("/login", new DevLoginForm(pac4j, contextPath + options.getCallbackPath()));
+      app.get("/login", new DevLoginForm(options, contextPath + options.getCallbackPath()));
     }
 
     /*
@@ -487,20 +474,20 @@ public class Pac4jModule implements Extension {
             .map(it -> contextPath + it)
             .collect(Collectors.toSet());
 
-    var callbackLogic = pac4j.getCallbackLogic();
+    var callbackLogic = options.getCallbackLogic();
     if (callbackLogic == null) {
-      pac4j.setCallbackLogic(newCallbackLogic(excludes));
+      options.setCallbackLogic(newCallbackLogic(excludes));
     }
     var direct = clients.getClients().stream().allMatch(it -> it instanceof DirectClient);
     if (!direct || options.isForceCallbackRoutes()) {
-      CallbackFilterImpl callbackFilter = new CallbackFilterImpl(pac4j, options);
+      CallbackFilterImpl callbackFilter = new CallbackFilterImpl(options, options);
       app.get(options.getCallbackPath(), callbackFilter);
       app.post(options.getCallbackPath(), callbackFilter);
     }
 
-    var securityLogic = pac4j.getSecurityLogic();
+    var securityLogic = options.getSecurityLogic();
     if (securityLogic == null) {
-      pac4j.setSecurityLogic(newSecurityLogic(excludes));
+      options.setSecurityLogic(newSecurityLogic(excludes));
     }
 
     /** For each client to a specific path, add a security handler. */
@@ -512,7 +499,7 @@ public class Pac4jModule implements Extension {
           SecurityFilterImpl securityFilter =
               new SecurityFilterImpl(
                   null,
-                  pac4j,
+                  options,
                   options,
                   lazyClientNameList(entry.getValue()),
                   clientMap.get(pattern).authorizers);
@@ -523,7 +510,7 @@ public class Pac4jModule implements Extension {
           app.use(
               new SecurityFilterImpl(
                   pattern,
-                  pac4j,
+                  options,
                   options,
                   lazyClientNameList(entry.getValue()),
                   clientMap.get(pattern).authorizers));
@@ -540,19 +527,19 @@ public class Pac4jModule implements Extension {
       app.use(
           new SecurityFilterImpl(
               null,
-              pac4j,
+              options,
               options,
               lazyClientNameList(defaultSecurityFilter),
               clientMap.get("*").authorizers));
     }
 
     /* Logout configuration: */
-    var logoutLogic = pac4j.getLogoutLogic();
+    var logoutLogic = options.getLogoutLogic();
     if (logoutLogic == null) {
-      pac4j.setLogoutLogic(newLogoutLogic());
+      options.setLogoutLogic(newLogoutLogic());
     }
     if (!direct || options.isForceLogoutRoutes()) {
-      app.get(options.getLogoutPath(), new LogoutImpl(pac4j, options));
+      app.get(options.getLogoutPath(), new LogoutImpl(options, options));
     }
 
     /* Better response code for some errors. */
@@ -576,10 +563,10 @@ public class Pac4jModule implements Extension {
           });
     }
 
-    app.getServices().put(Config.class, pac4j);
+    app.getServices().put(Config.class, options);
 
     /* Set current user provider */
-    app.setCurrentUser(new Pac4jCurrentUser(pac4j));
+    app.setCurrentUser(new Pac4jCurrentUser(options));
     // cleanup
     clientMap.clear();
   }
@@ -658,7 +645,7 @@ public class Pac4jModule implements Extension {
 
   private String registerAuthorizer(Class type, Authorizer authorizer) {
     String authorizerName = authorizerName(type);
-    pac4j.getAuthorizers().putIfAbsent(authorizerName, authorizer);
+    options.getAuthorizers().putIfAbsent(authorizerName, authorizer);
     return authorizerName;
   }
 }

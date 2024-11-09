@@ -25,7 +25,6 @@ public class Pac4jCurrentUser implements Function<Context, Object> {
     var pmf = config.getProfileManagerFactory();
     var pac4jContext = Pac4jContext.create(ctx);
     var pm = pmf.apply(pac4jContext, pac4jContext.getSessionStore());
-    var profile = pm.getProfile().orElse(null);
-    return profile;
+    return pm.getProfile().orElse(null);
   }
 }

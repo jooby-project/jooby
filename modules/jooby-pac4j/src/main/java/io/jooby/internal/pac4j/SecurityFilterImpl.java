@@ -10,7 +10,6 @@ import static java.util.Optional.ofNullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.client.finder.DefaultSecurityClientFinder;
 import org.pac4j.core.config.Config;
@@ -78,7 +77,6 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
   }
 
   private Object perform(Context ctx, GrantAccessAdapterImpl accessAdapter) throws Exception {
-    FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
     var securityLogic = config.getSecurityLogic();
     var clients = ctx.lookup(clientName(securityLogic)).value(this.clients.get());
     var authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);

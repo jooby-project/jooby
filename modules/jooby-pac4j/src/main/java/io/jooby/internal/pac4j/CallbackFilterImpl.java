@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.pac4j;
 
-import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -27,7 +26,6 @@ public class CallbackFilterImpl implements Route.Handler {
 
   @NonNull @Override
   public Object apply(@NonNull Context ctx) throws Exception {
-    FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
     var result =
         config
             .getCallbackLogic()
