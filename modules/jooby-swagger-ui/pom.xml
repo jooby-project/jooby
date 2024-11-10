@@ -56,6 +56,9 @@
               <goal>npm</goal>
             </goals>
             <phase>generate-resources</phase>
+            <configuration>
+              <arguments>install</arguments>
+            </configuration>
           </execution>
         </executions>
       </plugin>
