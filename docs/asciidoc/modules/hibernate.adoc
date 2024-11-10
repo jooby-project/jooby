@@ -1,6 +1,6 @@
 == Hibernate
 
-https://hibernate.org/orm/[Hibernate ORM] module.
+https://hibernate.org/orm/[Hibernate ORM] module. 
 
 === Usage
 
@@ -119,8 +119,8 @@ options for more explicit control:
 
 === Transactional Request
 
-The javadoc:hibernate.TransactionalRequest[] decorator takes care of a lifecycle of an `EntityManager` per HTTP request.
-The decorator creates, bind, begin/commit/rollback transaction and finally close it, so route handler
+The javadoc:hibernate.TransactionalRequest[] filter takes care of a lifecycle of an `EntityManager`/`StatelessSession` per HTTP request.
+The filter creates, bind, begin/commit/rollback transaction and finally close it, so route handler
 doesn't have to deal with that boring lines of code.
 
 .TransactionalRequest
@@ -175,17 +175,69 @@ import io.jooby.hibernate.TransactionalRequest
 }
 ----
 
-The `EntityManager` is tied to the current HTTP request. Multiple `require`/`injection` calls produce
-the same `EntityManager`. It is a simple way of managed simple read/write operations.
+.TransactionalRequest with StatelessSession
+[source, java, role = "primary"]
+----
+import io.jooby.hikari.HikariModule;
+import io.jooby.hibernate.HibernateModule;
+import io.jooby.hibernate.TransactionalRequest;
+
+{
+  install(new HikariModule());
+  
+  install(new HibernateModule());
+  
+  use(new TransactionalRequest().useStatelessSession());
+  
+  post("/create", ctx -> {
+    StatelessSession session = require(StatelessSession.class);
+    
+    MyEntity e = ...;
+    
+    session.insert(e);
+
+    return e;
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.HikariModule
+import io.jooby.hibernate.HibernateModule
+import io.jooby.hibernate.TransactionalRequest
+
+{
+  install(HikariModule())
+  
+  install(HibernateModule())
+  
+  use(TransactionalRequest().useStatelessSession())
+  
+  post("/create") { ctx ->
+    val session = require(StatelessSession::class)
+    
+    val e = ...
+    
+    session.insert(e)
+
+    e
+  }
+}
+----
+
+The `EntityManager`/`StatelessSession` is tied to the current HTTP request. Multiple `require`/`injection` calls produce
+the same `EntityManager`/`StatelessSession`. It is a simple way of managed simple read/write operations.
 
 [NOTE]
 ====
-The javadoc:hiernate.TransactionalRequest[] doesn't extend session to the rendering phase (json, html, etc.).
+The javadoc:hibernate.TransactionalRequest[] doesn't extend session to the rendering phase (json, html, etc.).
 The route handler needs to make sure all the information required by the rendering phase is available.
 Otherwise, you are going to see `LazyInitializationException`.
 ====
 
-There is a javadoc:hibernate.SessionRequest[] decorator that works identically but leaves transaction
+There is a javadoc:hibernate.SessionRequest[] filter that works identically but leaves transaction
 management to you, so no transaction is started/committed or rollback during a HTTP request.
 
 ==== @Transactional
