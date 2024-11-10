@@ -5,6 +5,7 @@
  */
 package io.jooby.openapi;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import io.jooby.SneakyThrows;
@@ -16,13 +17,14 @@ import io.swagger.v3.parser.core.models.SwaggerParseResult;
 
 public class OpenAPIResult {
   public final OpenAPIExt openAPI;
+  private RuntimeException failure;
 
   public OpenAPIResult(OpenAPIExt openAPI) {
     this.openAPI = openAPI;
   }
 
   public RouteIterator iterator(boolean ignoreArgs) {
-    return new RouteIterator(openAPI.getOperations(), ignoreArgs);
+    return new RouteIterator(openAPI == null ? List.of() : openAPI.getOperations(), ignoreArgs);
   }
 
   public String toYaml() {
@@ -30,6 +32,9 @@ public class OpenAPIResult {
   }
 
   public String toYaml(boolean validate) {
+    if (failure != null) {
+      throw failure;
+    }
     try {
       String yaml = Yaml.mapper().writeValueAsString(openAPI);
       if (validate) {
@@ -39,7 +44,7 @@ public class OpenAPIResult {
         }
         throw new IllegalStateException(
             "Invalid OpenAPI specification:\n\t- "
-                + result.getMessages().stream().collect(Collectors.joining("\n\t- ")).trim()
+                + String.join("\n\t- ", result.getMessages()).trim()
                 + "\n\n"
                 + yaml);
       }
@@ -54,6 +59,9 @@ public class OpenAPIResult {
   }
 
   public String toJson(boolean validate) {
+    if (failure != null) {
+      throw failure;
+    }
     try {
       String json = Json.mapper().writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
       if (validate) {
@@ -71,5 +79,11 @@ public class OpenAPIResult {
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
+  }
+
+  public static OpenAPIResult failure(RuntimeException failure) {
+    var result = new OpenAPIResult(null);
+    result.failure = failure;
+    return result;
   }
 }

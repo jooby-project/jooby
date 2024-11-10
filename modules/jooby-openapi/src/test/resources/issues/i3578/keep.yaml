@@ -1,0 +1,20 @@
+openapi: 3.0.1
+info:
+  title: Pets API
+  description: Nunc fermentum ipsum id bibendum blandit. Praesent sagittis est ut.
+  version: "1.0"
+x-merge-policy: keep
+paths:
+  /app-path:
+    get:
+      operationId: home
+  /app-path/pets:
+    get:
+      operationId: listPets
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string

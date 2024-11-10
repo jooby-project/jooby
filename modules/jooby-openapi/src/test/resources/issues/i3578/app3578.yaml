@@ -1,0 +1,24 @@
+openapi: 3.0.1
+info:
+  title: Pets API
+  description: Nunc fermentum ipsum id bibendum blandit. Praesent sagittis est ut.
+  version: "1.0"
+paths:
+  /api/pets:
+    get:
+      operationId: listPets
+    post:
+      operationId: createPet
+  /api/pets/{id}:
+    get:
+      operationId: findPetById
+    put:
+      operationId: updatePet
+      description: Update a valid pet
+    delete:
+      operationId: deletePet
+      description: Delete a Pet from database
+      parameters:
+      - name: id
+        description: Pet ID to delete
+

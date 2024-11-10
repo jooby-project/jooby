@@ -28,4 +28,6 @@ public @interface OpenAPITest {
   String includes() default "";
 
   String excludes() default "";
+
+  String templateName() default "";
 }

@@ -428,8 +428,7 @@ The OpenAPI output generates some default values for `info` and `server` section
 the necessary to follow the specification and produces a valid output. These sections can be override
 with better information/metadata.
 
-To do so just write an `openapi.yaml` file inside the `conf` directory the we are going to use it
-as template.
+To do so just write an `openapi.yaml` file inside the `conf` directory to use it as template.
 
 .conf/openapi.yaml
 [source, yaml]
@@ -446,9 +445,26 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
+  paths:
+    /api/pets:
+      get:
+        operationId: listPets
+        description: List and sort pets.
+        parameters:
+          name: page
+            descripton: Page number.
+          
 ----
 
-All sections from template file (except the paths section) are merged into the final output.
+All sections from template file are merged into the final output.
+
+The extension property: `x-merge-policy` controls how merge must be done:
+
+- ignore: Silently ignore a path or operation present in template but not found in generated output. This is the default value.
+- keep: Add a path or operation to final output. Must be valid path or operation.
+- fail: Throw an error when path or operation is present in template but not found in generated output.
+
+The extension property can be added at root/global level, paths, pathItem, operation or parameter level.
 
 [NOTE]
 ====

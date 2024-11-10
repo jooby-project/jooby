@@ -38,7 +38,7 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
     AnnotatedElement method =
         context.getElement().orElseThrow(() -> new IllegalStateException("Context: " + context));
     OpenAPITest metadata = method.getAnnotation(OpenAPITest.class);
-    Class klass = metadata.value();
+    var klass = metadata.value();
     String classname = klass.getName();
     Set<DebugOption> debugOptions =
         metadata.debug().length == 0
@@ -46,17 +46,25 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
             : EnumSet.copyOf(Arrays.asList(metadata.debug()));
 
     OpenAPIGenerator tool = newTool(debugOptions, klass);
-    String templateName = classname.replace(".", "/").toLowerCase() + ".yaml";
+    String templateName = metadata.templateName();
+    if (templateName.isEmpty()) {
+      templateName = classname.replace(".", "/").toLowerCase() + ".yaml";
+    }
     tool.setTemplateName(templateName);
-    if (metadata.includes().length() > 0) {
+    if (!metadata.includes().isEmpty()) {
       tool.setIncludes(metadata.includes());
     }
-    if (metadata.excludes().length() > 0) {
+    if (!metadata.excludes().isEmpty()) {
       tool.setExcludes(metadata.excludes());
     }
     Parameter parameter = parameterContext.getParameter();
-    OpenAPIExt openAPI = (OpenAPIExt) tool.generate(classname);
-    OpenAPIResult result = new OpenAPIResult(openAPI);
+    OpenAPIResult result;
+    try {
+      OpenAPIExt openAPI = (OpenAPIExt) tool.generate(classname);
+      result = new OpenAPIResult(openAPI);
+    } catch (RuntimeException re) {
+      result = OpenAPIResult.failure(re);
+    }
     if (parameter.getType() == OpenAPIResult.class) {
       return result;
     }

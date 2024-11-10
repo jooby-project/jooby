@@ -25,14 +25,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.openapi.ClassSource;
-import io.jooby.internal.openapi.ContextPathParser;
-import io.jooby.internal.openapi.OpenAPIExt;
-import io.jooby.internal.openapi.OpenAPIParser;
-import io.jooby.internal.openapi.OperationExt;
-import io.jooby.internal.openapi.ParserContext;
-import io.jooby.internal.openapi.RouteParser;
-import io.jooby.internal.openapi.TypeFactory;
+import io.jooby.internal.openapi.*;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -172,21 +165,20 @@ public class OpenAPIGenerator {
         Optional.ofNullable(this.classLoader).orElseGet(getClass()::getClassLoader);
     ClassSource source = new ClassSource(classLoader);
 
+    /* Create OpenAPI from template and make sure min required information is present: */
+    OpenAPIExt openapi =
+        OpenApiTemplate.fromTemplate(basedir, classLoader, templateName).orElseGet(OpenAPIExt::new);
+
     RouteParser routes = new RouteParser(metaInf);
     ParserContext ctx = new ParserContext(source, TypeFactory.fromJavaName(classname), debug);
     List<OperationExt> operations = routes.parse(ctx);
 
     String contextPath = ContextPathParser.parse(ctx);
 
-    /** Create OpenAPI from template and make sure min required information is present: */
-    OpenAPIExt openapi = new OpenAPIExt();
     openapi.setSource(Optional.ofNullable(ctx.getMainClass()).orElse(classname));
 
-    /** Top Level annotations. */
+    /* Top Level annotations. */
     OpenAPIParser.parse(ctx, openapi);
-
-    OpenAPIExt.fromTemplate(basedir, classLoader, templateName)
-        .ifPresent(template -> merge(openapi, template));
 
     defaults(classname, contextPath, openapi);
 
@@ -241,24 +233,6 @@ public class OpenAPIGenerator {
     openapi.setPaths(paths);
 
     return openapi;
-  }
-
-  private void merge(OpenAPIExt openapi, OpenAPI template) {
-    try {
-      openapi.setComponents(
-          Optional.ofNullable(openapi.getComponents()).orElseGet(template::getComponents));
-      openapi.setSecurity(
-          Optional.ofNullable(openapi.getSecurity()).orElseGet(template::getSecurity));
-      openapi.setServers(Optional.ofNullable(openapi.getServers()).orElseGet(template::getServers));
-      openapi.setInfo(Optional.ofNullable(openapi.getInfo()).orElseGet(template::getInfo));
-      openapi.setExternalDocs(
-          Optional.ofNullable(openapi.getExternalDocs()).orElseGet(template::getExternalDocs));
-      openapi.setTags(Optional.ofNullable(openapi.getTags()).orElseGet(template::getTags));
-      openapi.setExtensions(
-          Optional.ofNullable(openapi.getExtensions()).orElseGet(template::getExtensions));
-    } catch (Exception x) {
-      throw SneakyThrows.propagate(x);
-    }
   }
 
   private boolean includes(String value) {
