@@ -27,20 +27,20 @@
     <gson.version>2.11.0</gson.version>
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.4</yasson.version>
-    <rocker.version>1.4.0</rocker.version>
+    <rocker.version>2.1.0</rocker.version>
     <thymeleaf.version>3.1.2.RELEASE</thymeleaf.version>
 
     <!-- data -->
-    <HikariCP.version>6.0.0</HikariCP.version>
+    <HikariCP.version>6.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.1.Final</hibernate.version>
+    <hibernate.version>6.6.2.Final</hibernate.version>
     <ebean.version>15.8.0</ebean.version>
     <jdbi.version>3.47.0</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
     <graphql-java.version>22.3</graphql-java.version>
     <lettuce.version>6.5.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.0</commons-pool2.version>
-    <kafka.version>3.8.1</kafka.version>
+    <kafka.version>3.9.0</kafka.version>
     <caffeine.version>3.1.8</caffeine.version>
 
     <config.version>1.4.3</config.version>
@@ -67,7 +67,7 @@
 
     <!-- Server -->
     <undertow.version>2.3.18.Final</undertow.version>
-    <jetty.version>12.0.14</jetty.version>
+    <jetty.version>12.0.15</jetty.version>
     <netty.version>4.1.114.Final</netty.version>
 
     <!--OpenAPI-->
@@ -79,7 +79,7 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>10.4</avaje.inject.version>
+    <avaje.inject.version>10.5</avaje.inject.version>
     <avaje.jsonb.version>2.3</avaje.jsonb.version>
     <avaje.validator.version>2.3</avaje.validator.version>
 
@@ -1524,7 +1524,7 @@
               <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
-                <version>3.0.22</version>
+                <version>3.0.23</version>
                 <type>pom</type>
                 <exclusions>
                   <exclusion>
