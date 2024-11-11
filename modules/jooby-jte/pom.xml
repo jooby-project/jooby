@@ -23,7 +23,7 @@
     <dependency>
       <groupId>gg.jte</groupId>
       <artifactId>jte</artifactId>
-      <version>3.1.13</version>
+      <version>3.1.14</version>
     </dependency>
 
     <!-- Test dependencies -->
