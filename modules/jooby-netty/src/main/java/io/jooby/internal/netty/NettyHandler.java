@@ -173,7 +173,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private void offer(NettyContext context, HttpContent chunk) {
     try {
       context.decoder.offer(chunk);
-    } catch (HttpPostRequestDecoder.ErrorDataDecoderException x) {
+    } catch (HttpPostRequestDecoder.ErrorDataDecoderException | HttpPostRequestDecoder.TooLongFormFieldException | HttpPostRequestDecoder.TooManyFormFieldsException x) {
       resetDecoderState(context, true);
       context.sendError(x, StatusCode.BAD_REQUEST);
     }
