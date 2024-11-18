@@ -84,7 +84,7 @@ public class NettyBody implements Body {
   }
 
   @NonNull @Override
-  public ValueNode get(@NonNull int index) {
+  public ValueNode get(int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 

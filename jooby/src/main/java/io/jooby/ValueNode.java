@@ -40,7 +40,7 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
    * @param index Position.
    * @return A value at the given position.
    */
-  @NonNull ValueNode get(@NonNull int index);
+  @NonNull ValueNode get(int index);
 
   /**
    * Get a value that matches the given name.

@@ -40,12 +40,12 @@ public class ByteArrayBody implements Body {
   }
 
   @Override
-  public byte[] bytes() {
+  public @NonNull byte[] bytes() {
     return bytes;
   }
 
   @Override
-  public ReadableByteChannel channel() {
+  public @NonNull ReadableByteChannel channel() {
     return Channels.newChannel(stream());
   }
 
@@ -55,7 +55,7 @@ public class ByteArrayBody implements Body {
   }
 
   @Override
-  public InputStream stream() {
+  public @NonNull InputStream stream() {
     return new ByteArrayInputStream(bytes);
   }
 
@@ -70,7 +70,7 @@ public class ByteArrayBody implements Body {
   }
 
   @NonNull @Override
-  public ValueNode get(@NonNull int index) {
+  public ValueNode get(int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
@@ -95,8 +95,8 @@ public class ByteArrayBody implements Body {
   }
 
   @Override
-  public Map<String, List<String>> toMultimap() {
-    return Collections.emptyMap();
+  public @NonNull Map<String, List<String>> toMultimap() {
+    return Map.of();
   }
 
   public static Body empty(Context ctx) {

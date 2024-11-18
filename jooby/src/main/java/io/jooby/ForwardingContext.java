@@ -108,7 +108,7 @@ public class ForwardingContext implements Context {
     }
 
     @Override
-    @NonNull public ValueNode get(@NonNull int index) {
+    @NonNull public ValueNode get(int index) {
       return delegate.get(index);
     }
 

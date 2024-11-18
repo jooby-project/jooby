@@ -48,7 +48,7 @@ public class FileBody implements Body {
   }
 
   @Override
-  public ReadableByteChannel channel() {
+  public @NonNull ReadableByteChannel channel() {
     try {
       return Files.newByteChannel(file);
     } catch (IOException x) {
@@ -57,7 +57,7 @@ public class FileBody implements Body {
   }
 
   @Override
-  public InputStream stream() {
+  public @NonNull InputStream stream() {
     try {
       return Files.newInputStream(file);
     } catch (IOException x) {
@@ -66,7 +66,7 @@ public class FileBody implements Body {
   }
 
   @Override
-  public byte[] bytes() {
+  public @NonNull byte[] bytes() {
     try {
       return Files.readAllBytes(file);
     } catch (IOException x) {
@@ -84,8 +84,8 @@ public class FileBody implements Body {
     return Collections.singletonList(value());
   }
 
-  @NonNull @Override
-  public ValueNode get(@NonNull int index) {
+  @Override
+  public @NonNull ValueNode get(int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
@@ -110,7 +110,7 @@ public class FileBody implements Body {
   }
 
   @Override
-  public Map<String, List<String>> toMultimap() {
-    return Collections.emptyMap();
+  public @NonNull Map<String, List<String>> toMultimap() {
+    return Map.of();
   }
 }

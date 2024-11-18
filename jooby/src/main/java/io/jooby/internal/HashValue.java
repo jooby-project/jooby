@@ -168,7 +168,7 @@ public class HashValue implements ValueNode {
     return (HashValue) hash().computeIfAbsent(name, k -> new HashValue(ctx, k));
   }
 
-  public ValueNode get(@NonNull String name) {
+  public @NonNull ValueNode get(@NonNull String name) {
     ValueNode value = hash.get(name);
     if (value == null) {
       return new MissingValue(scope(name));
@@ -181,7 +181,7 @@ public class HashValue implements ValueNode {
   }
 
   @Override
-  public ValueNode get(@NonNull int index) {
+  public @NonNull ValueNode get(int index) {
     return get(Integer.toString(index));
   }
 

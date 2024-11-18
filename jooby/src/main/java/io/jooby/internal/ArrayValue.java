@@ -7,7 +7,6 @@ package io.jooby.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,7 +55,7 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override
-  public ValueNode get(@NonNull int index) {
+  public @NonNull ValueNode get(int index) {
     try {
       return list.get(index);
     } catch (IndexOutOfBoundsException x) {
@@ -65,7 +64,7 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override
-  public ValueNode get(@NonNull String name) {
+  public @NonNull ValueNode get(@NonNull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
@@ -75,7 +74,7 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override
-  public String value() {
+  public @NonNull String value() {
     String name = name();
     throw new TypeMismatchException(name == null ? getClass().getSimpleName() : name, String.class);
   }
@@ -86,7 +85,7 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override
-  public Iterator<ValueNode> iterator() {
+  public @NonNull Iterator<ValueNode> iterator() {
     return list.iterator();
   }
 
@@ -120,24 +119,24 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override
-  public Map<String, List<String>> toMultimap() {
+  public @NonNull Map<String, List<String>> toMultimap() {
     List<String> values = new ArrayList<>();
-    list.stream().forEach(it -> it.toMultimap().values().forEach(values::addAll));
-    return Collections.singletonMap(name, values);
+    list.forEach(it -> it.toMultimap().values().forEach(values::addAll));
+    return Map.of(name, values);
   }
 
   @Override
-  public List<String> toList() {
+  public @NonNull List<String> toList() {
     return collect(new ArrayList<>(), String.class);
   }
 
   @Override
-  public Set<String> toSet() {
+  public @NonNull Set<String> toSet() {
     return collect(new LinkedHashSet<>(), String.class);
   }
 
   private <T, C extends Collection<T>> C collect(C collection, Class<T> type) {
-    for (ValueNode node : list) {
+    for (var node : list) {
       collection.add(node.to(type));
     }
     return collection;

@@ -30,12 +30,12 @@ public class MissingValue implements ValueNode {
   }
 
   @Override
-  public ValueNode get(@NonNull String name) {
+  public @NonNull ValueNode get(@NonNull String name) {
     return this.name.equals(name) ? this : new MissingValue(this.name + "." + name);
   }
 
   @Override
-  public ValueNode get(@NonNull int index) {
+  public @NonNull ValueNode get(int index) {
     return new MissingValue(this.name + "[" + index + "]");
   }
 

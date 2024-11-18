@@ -41,12 +41,12 @@ public class SingleValue implements ValueNode {
   }
 
   @Override
-  public ValueNode get(@NonNull int index) {
+  public @NonNull ValueNode get(int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
   @Override
-  public ValueNode get(@NonNull String name) {
+  public @NonNull ValueNode get(@NonNull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
