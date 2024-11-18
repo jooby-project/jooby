@@ -166,7 +166,7 @@ public class QuartzApp extends Jooby {
     Optional.ofNullable(detail.getDescription()).ifPresent(value -> json.put("description", value));
     json.put("jobDataMap", detail.getJobDataMap());
     json.put("stoppable", InterruptableJob.class.isAssignableFrom(detail.getJobClass()));
-    json.put("concurrentExecutionDisallowed", detail.isConcurrentExectionDisallowed());
+    json.put("concurrentExecutionDisallowed", detail.isConcurrentExecutionDisallowed());
     json.put("durable", detail.isDurable());
     json.put("persistJobDataAfterExecution", detail.isPersistJobDataAfterExecution());
     json.put("requestsRecovery", detail.requestsRecovery());
