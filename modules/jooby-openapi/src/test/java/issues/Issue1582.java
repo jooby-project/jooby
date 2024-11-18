@@ -20,7 +20,7 @@ import io.jooby.openapi.OpenAPIGenerator;
 import io.swagger.v3.oas.models.info.Info;
 
 public class Issue1582 {
-  private Path outDir = Paths.get(System.getProperty("user.dir"), "target", "classes");
+  private Path outDir = Paths.get(System.getProperty("user.dir"), "target", "test-classes");
 
   @Test
   public void shouldGenerateOnOneLvelPackageLocation() throws IOException {
