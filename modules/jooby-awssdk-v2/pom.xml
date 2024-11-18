@@ -13,7 +13,7 @@
   <artifactId>jooby-awssdk-v2</artifactId>
 
   <properties>
-    <aws.java.sdk.version>2.29.9</aws.java.sdk.version>
+    <aws.java.sdk.version>2.29.15</aws.java.sdk.version>
   </properties>
 
   <dependencies>
