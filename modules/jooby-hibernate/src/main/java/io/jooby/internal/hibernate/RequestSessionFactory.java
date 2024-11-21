@@ -39,7 +39,8 @@ public abstract class RequestSessionFactory {
     public SharedSessionContract create(Context ctx, SessionFactory sessionFactory) {
       var sessionProvider = ctx.require(sessionProviderKey);
       var session = sessionProvider.newSession(sessionFactory.withOptions());
-      return ManagedSessionContext.bind(session);
+      ManagedSessionContext.bind(session);
+      return session;
     }
 
     @Override
