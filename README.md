@@ -48,8 +48,7 @@ Documentation is available at [https://jooby.io](https://jooby.io)
 
 help
 =====
-
-[Discord](https://discord.gg/nmfJmmrq)
+[Discord](https://discord.gg/JmyxrKPvjY)
 
 donate & support
 =====
