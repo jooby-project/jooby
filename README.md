@@ -50,13 +50,21 @@ help
 =====
 [Discord](https://discord.gg/JmyxrKPvjY)
 
-donate & support
+support my work
 =====
 - [Sponsor](https://github.com/sponsors/jknack)
 - [Paypal](https://www.paypal.com/paypalme2/edgarespina)
 - [Patreon](https://www.patreon.com/edgarespina)
 - [support@jooby.io](mailto:support@jooby.io?Subject=Jooby%20Support)
 
+sponsors
+======
+
+| Logo | Sponsor |
+|------|---------|
+| <img src="https://github.com/user-attachments/assets/4a3f519e-0b2e-4bb4-b2eb-624b05720e31" alt="Premium Minds" width="32" height="32"> | [@premium-minds](https://github.com/premium-minds) |
+| <img src="https://github.com/user-attachments/assets/51073649-6cba-4e7b-8eee-8c05f4b9648e" alt="David" width="32" height="32"> | [@tipsy](https://github.com/tipsy)|
+| <img src="https://github.com/user-attachments/assets/ac8c311c-1873-4024-9670-0e7599b1026b" alt="Mercedes Benz" width="32" height="32"> | [@mercedes-benz](https://github.com/mercedes-benz)|
 
 Previous version
 =====
