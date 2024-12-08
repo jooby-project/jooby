@@ -7,17 +7,18 @@ package io.jooby.hibernate.validator;
 
 import static jakarta.validation.Validation.byProvider;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.StatusCode;
+import io.jooby.*;
+import io.jooby.internal.hibernate.validator.CompositeConstraintValidatorFactory;
 import io.jooby.validation.BeanValidator;
+import jakarta.validation.ConstraintValidatorFactory;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 
@@ -53,18 +54,32 @@ import jakarta.validation.Validator;
  */
 public class HibernateValidatorModule implements Extension {
   private static final String CONFIG_ROOT_PATH = "hibernate.validator";
+  // TODO: remove it on next major
   private Consumer<HibernateValidatorConfiguration> configurer;
   private StatusCode statusCode = StatusCode.UNPROCESSABLE_ENTITY;
   private String title = "Validation failed";
   private boolean disableDefaultViolationHandler = false;
   private boolean logException = false;
+  private List<ConstraintValidatorFactory> factories;
+  private final HibernateValidatorConfiguration configuration;
+
+  public HibernateValidatorModule(@NonNull HibernateValidatorConfiguration configuration) {
+    this.configuration = configuration;
+  }
+
+  public HibernateValidatorModule() {
+    this(byProvider(HibernateValidator.class).configure());
+  }
 
   /**
    * Setups a configurer callback.
    *
    * @param configurer Configurer callback.
    * @return This module.
+   * @deprecated Use {@link
+   *     HibernateValidatorModule#HibernateValidatorModule(HibernateValidatorConfiguration)}
    */
+  @Deprecated
   public HibernateValidatorModule doWith(
       @NonNull final Consumer<HibernateValidatorConfiguration> configurer) {
     this.configurer = configurer;
@@ -118,28 +133,53 @@ public class HibernateValidatorModule implements Extension {
     return this;
   }
 
+  /**
+   * Add a custom {@link ConstraintValidatorFactory}. This factory is allowed to returns <code>null
+   * </code> allowing next factory to create an instance (default or one provided by DI).
+   *
+   * @param factory Factory.
+   * @return This module.
+   */
+  public HibernateValidatorModule with(ConstraintValidatorFactory factory) {
+    if (factories == null) {
+      factories = new ArrayList<>();
+    }
+    this.factories.add(factory);
+    return this;
+  }
+
   @Override
   public void install(@NonNull Jooby app) throws Exception {
     var config = app.getConfig();
-    var hbvConfig = byProvider(HibernateValidator.class).configure();
-
     if (config.hasPath(CONFIG_ROOT_PATH)) {
       config
           .getConfig(CONFIG_ROOT_PATH)
           .root()
           .forEach(
               (k, v) ->
-                  hbvConfig.addProperty(CONFIG_ROOT_PATH + "." + k, v.unwrapped().toString()));
+                  configuration.addProperty(CONFIG_ROOT_PATH + "." + k, v.unwrapped().toString()));
     }
 
+    // Set default constraint validator factory.
+    var delegateFactory =
+        new CompositeConstraintValidatorFactory(
+            app, configuration.getDefaultConstraintValidatorFactory());
+    if (this.factories != null) {
+      this.factories.forEach(delegateFactory::add);
+      this.factories.clear();
+    }
+    configuration.constraintValidatorFactory(delegateFactory);
     if (configurer != null) {
-      configurer.accept(hbvConfig);
+      configurer.accept(configuration);
     }
-
-    try (var factory = hbvConfig.buildValidatorFactory()) {
-      Validator validator = factory.getValidator();
-      app.getServices().put(Validator.class, validator);
-      app.getServices().put(BeanValidator.class, new BeanValidatorImpl(validator));
+    var services = app.getServices();
+    try (var factory = configuration.buildValidatorFactory()) {
+      var validator = factory.getValidator();
+      services.put(Validator.class, validator);
+      services.put(BeanValidator.class, new BeanValidatorImpl(validator));
+      // Allow to access validator factory so hibernate can access later
+      var constraintValidatorFactory = factory.getConstraintValidatorFactory();
+      services.put(ConstraintValidatorFactory.class, constraintValidatorFactory);
 
       if (!disableDefaultViolationHandler) {
         app.error(
