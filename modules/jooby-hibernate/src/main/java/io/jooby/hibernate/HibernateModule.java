@@ -5,11 +5,7 @@
  */
 package io.jooby.hibernate;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -127,7 +123,8 @@ import jakarta.persistence.EntityManagerFactory;
  *
  * Transaction and lifecycle of session/entityManager is managed by {@link TransactionalRequest}.
  *
- * <p>Complete documentation is available at: https://jooby.io/modules/hibernate.
+ * <p>Complete documentation is available at: <a
+ * href="https://jooby.io/modules/hibernate">hibernate</a>.
  *
  * @author edgar
  * @since 2.0.0
@@ -159,7 +156,7 @@ public class HibernateModule implements Extension {
    *
    * @param classes Persistent classes.
    */
-  public HibernateModule(Class... classes) {
+  public HibernateModule(Class<?>... classes) {
     this("db", classes);
   }
 
@@ -204,6 +201,17 @@ public class HibernateModule implements Extension {
    */
   public @NonNull HibernateModule with(@NonNull SessionProvider sessionProvider) {
     this.sessionBuilder = sessionProvider;
+    return this;
+  }
+
+  /**
+   * Allow to customize a {@link StatelessSession} before opening it.
+   *
+   * @param sessionProvider Session customizer.
+   * @return This module.
+   */
+  public @NonNull HibernateModule with(@NonNull StatelessSessionProvider sessionProvider) {
+    this.statelessSessionProvider = sessionProvider;
     return this;
   }
 
@@ -294,6 +302,19 @@ public class HibernateModule implements Extension {
     var sfb = metadata.getSessionFactoryBuilder();
     sfb.applyName(name);
     sfb.applyNameAsJndiName(false);
+    /*
+    Bind Validator instance, so hibernate doesn't create a new factory.
+    Need to scan due hibernate doesn't depend on validation classes
+    */
+    registry.entrySet().stream()
+        .filter(
+            it ->
+                it.getKey()
+                    .getType()
+                    .getName()
+                    .equals("jakarta.validation.ConstraintValidatorFactory"))
+        .findFirst()
+        .ifPresent(it -> sfb.applyValidatorFactory(it.getValue().get()));
 
     configurer.configure(sfb, config);
 

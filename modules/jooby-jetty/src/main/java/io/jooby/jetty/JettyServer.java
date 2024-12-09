@@ -30,7 +30,6 @@ import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.buffer.DataBufferFactory;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyHttpExpectAndContinueHandler;
 import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
@@ -52,10 +51,11 @@ public class JettyServer extends io.jooby.Server.Base {
 
   private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
   private Consumer<HttpConfiguration> httpConfigurer;
-  private DataBufferFactory bufferFactory;
 
-  public JettyServer(@NonNull DataBufferFactory bufferFactory, @NonNull ThreadPool threadPool) {
-    this.bufferFactory = bufferFactory;
+  // TODO: integrate buffer factory with Jetty.
+  // private DataBufferFactory bufferFactory;
+
+  public JettyServer(@NonNull QueuedThreadPool threadPool) {
     this.threadPool = threadPool;
   }
 
@@ -91,7 +91,7 @@ public class JettyServer extends io.jooby.Server.Base {
   @NonNull @Override
   public io.jooby.Server start(@NonNull Jooby application) {
     try {
-      /** Set max request size attribute: */
+      /* Set max request size attribute: */
       System.setProperty(
           "org.eclipse.jetty.server.Request.maxFormContentSize",
           Long.toString(options.getMaxRequestSize()));

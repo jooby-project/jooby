@@ -224,8 +224,8 @@ import jakarta.validation.Validator;
 
 {
   post("/validate", ctx -> {
-    Validator validator = require(Validator.class);
-    Set<ConstraintViolation<Bean>> violations = validator.validate(ctx.body(Bean.class));
+    var validator = require(Validator.class);
+    var violations = validator.validate(ctx.body(Bean.class));
     if (!violations.isEmpty()) {
       ...
     }
@@ -281,72 +281,23 @@ As you know, `Hibernate Validator` allows you to build fully custom `ConstraintV
 In some scenarios, you may need access not only to the bean but also to services, repositories, or other resources
 to perform more complex validations required by business rules.
 
-In this case you need to implement a custom `ConstraintValidatorFactory` that will rely on your DI framework
-instantiating your custom `ConstraintValidator`
+In this case you need to implement a custom `ConstraintValidator` that will rely on your DI framework.
 
-1) Implement custom `ConstraintValidatorFactory`:
-
+.Custom Annotation and Validator
 [source, java]
 ----
-public class MyConstraintValidatorFactory implements ConstraintValidatorFactory {
 
-    private final Function<Class<?>, ?> require;
-    private final ConstraintValidatorFactory defaultFactory;
+@Constraint(validatedBy = MyCustomValidator.class)
+@Target({TYPE, ANNOTATION_TYPE})
+@Retention(RUNTIME)
+public @interface MyCustomAnnotation {
+  String message() default "My custom message";
 
-    public MyConstraintValidatorFactory(Function<Class<?>, ?> require) {
-        this.require = require;
-        try (ValidatorFactory factory = Validation.byDefaultProvider()
-                                          .configure().buildValidatorFactory()) {
-            this.defaultFactory = factory.getConstraintValidatorFactory();
-        }
-    }
+  Class<?>[] groups() default {};
 
-    @Override
-    public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> key) {
-        if (isBuiltIn(key)) {
-            // use default factory for built-in constraint validators
-            return defaultFactory.getInstance(key);
-        } else {
-            // use DI to instantiate custom constraint validator
-            return (T) require.apply(key);
-        }
-    }
-
-    @Override
-    public void releaseInstance(ConstraintValidator<?, ?> instance) {
-      if(isBuiltIn(instance.getClass())) {
-        defaultFactory.releaseInstance(instance);
-      } else {
-        // No-op: lifecycle usually handled by DI framework
-      }
-    }
-
-    private boolean isBuiltIn(Class<?> key) {
-      return key.getName().startsWith("org.hibernate.validator");
-    }
+  Class<? extends Payload>[] payload() default {};
 }
-----
 
-2) Register your custom `ConstraintValidatorFactory`:
-
-[source, java]
-----
-{
-  install(new HibernateValidatorModule().doWith(cfg -> {
-    cfg.constraintValidatorFactory(new MyConstraintValidatorFactory(this::require));  // <1>
-  }));
-}
-----
-
-<1> This approach using `require` will work with `Guice` or `Avaje`. For `Dagger`, a bit more effort is required,
-but the concept is the same, and the same result can be achieved. Both `Avaje` and `Dagger` require additional
-configuration due to their build-time nature.
-
-
-3) Implement your custom `ConstraintValidator`
-
-[source, java]
-----
 public class MyCustomValidator implements ConstraintValidator<MyCustomAnnotation, Bean> {
 
   // This is the service you want to inject
@@ -381,8 +332,26 @@ Or programmatically:
 import io.jooby.hibernate.validator.HibernateValidatorModule;
 
 {
-  install(new HibernateValidatorModule().doWith(cfg -> {
-    cfg.failFast(true);
-  }));
+  var cfg = byProvider(HibernateValidator.class).configure();
+  cfg.failFast(true);
+  install(new HibernateValidatorModule(cfg));
 }
 ----
+
+=== Hibernate integration
+
+Just install `HibernateValidatorModule` before `HibernateModule`, like:
+
+[source, java]
+----
+import io.jooby.hibernate.validator.HibernateValidatorModule;
+
+{
+  install(new HibernateValidatorModule());
+
+  install(new HibernateModule());
+}
+----
+
+The `HibernateModule` will detect the constraint validator factory and setup. This avoid creating
+a new instance of constraint validator factory.
