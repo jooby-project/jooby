@@ -7,7 +7,7 @@ supports classpath and file-system resources.
 [source, java, role="primary"]
 ----
 {
-  assets("/static/*"); <1>
+  assets("/static/*", "/source"); <1>
 }
 ----
 
@@ -15,15 +15,18 @@ supports classpath and file-system resources.
 [source, kotlin, role="secondary"]
 ----
 {
-  assets("/static/*")  <1>
+  assets("/static/*", "/source")  <1>
 }
 ----
 
-<1> Map all the incoming request starting with `/static/` to the root of classpath
+<1> Map all the incoming request starting with `/static/` to the `/source` classpath or file system location.
 
-- GET `/static/index.html`     => `/index.html`
-- GET `/static/js/file.js`     => `/js/file.js`
-- GET `/static/css/styles.css` => `/css/styles.css`
+- GET `/static/index.html`     => `/source/index.html`
+- GET `/static/js/file.js`     => `/source/js/file.js`
+- GET `/static/css/styles.css` => `/source/css/styles.css`
+
+The `/source` is resolved against the file system by prepending the `user.dir` path when exists
+it favors the file system source, otherwise the `/source` directory must be present on classpath.
 
 .File system resources:
 [source, java, role="primary"]
