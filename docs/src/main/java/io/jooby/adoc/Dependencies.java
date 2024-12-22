@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
@@ -38,6 +40,8 @@ public class Dependencies {
 
   private Map<String, Dependency> dependencyMap = new TreeMap<>();
 
+  private Map<String, String> properties = new TreeMap<>();
+
   private static final Dependencies instance = new Dependencies();
 
   private Dependencies() {
@@ -45,6 +49,7 @@ public class Dependencies {
       for (Document pom : pomList()) {
         collectDependencies(pom, pom.select("dependencyManagement").select("dependencies"));
         collectDependencies(pom, pom.select("dependencies"));
+        properties(pom, properties::putIfAbsent);
       }
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
@@ -68,6 +73,10 @@ public class Dependencies {
       throw new IllegalArgumentException("Missing artifact: " + artifactId);
     }
     return dep;
+  }
+
+  public static String version(String property) {
+    return instance.properties.getOrDefault(property, property);
   }
 
   private List<Document> pomList() throws IOException {
@@ -121,5 +130,9 @@ public class Dependencies {
           .orElseGet(() -> pom.select("version").first().text());
     }
     return versionRef;
+  }
+
+  private static void properties(Document pom, BiConsumer<String, String> properties) {
+    pom.select("properties > *").forEach(e -> properties.accept(e.tagName(), e.text()));
   }
 }

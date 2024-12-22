@@ -11,4 +11,5 @@ module io.jooby.jte {
   requires static com.github.spotbugs.annotations;
   requires gg.jte;
   requires gg.jte.runtime;
+  requires static gg.jte.models;
 }

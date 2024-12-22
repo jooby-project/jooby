@@ -22,9 +22,10 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.ServiceRegistry;
+import io.jooby.internal.jte.JteModelEncoder;
 
 /**
- * Jte templates: https://jte.gg.
+ * Jte templates: https://jooby.io/modules/jte
  *
  * <pre>
  * </pre>
@@ -85,7 +86,10 @@ public class JteModule implements Extension {
 
     ServiceRegistry services = application.getServices();
     services.put(TemplateEngine.class, templateEngine);
+    // model and view
     application.encoder(MediaType.html, new JteTemplateEngine(templateEngine));
+    // jte models
+    application.encoder(new JteModelEncoder());
   }
 
   /**

@@ -17,7 +17,7 @@ https://jte.gg[Jte] Secure and speedy templates for Java and Kotlin.
 <plugin>
     <groupId>gg.jte</groupId>
     <artifactId>jte-maven-plugin</artifactId>
-    <version>${jte.version}</version>
+    <version>{jte_version}</version>
     <configuration>
         <sourceDirectory>${basedir}/src/main/jte</sourceDirectory> <!-- This is the directory where your .jte files are located. -->
         <contentType>Html</contentType>
@@ -38,11 +38,11 @@ https://jte.gg[Jte] Secure and speedy templates for Java and Kotlin.
 ----
 plugins {
     id 'java'
-    id 'gg.jte.gradle' version '${jte.version}'
+    id 'gg.jte.gradle' version '{jte_version}'
 }
 
 dependencies {
-    implementation('gg.jte:jte:${jte.version}')
+    implementation('gg.jte:jte:{jte_version}')
 }
 
 jte {
@@ -70,10 +70,10 @@ NOTE: Complete code generator options are https://github.com/casid/jte/blob/main
 import io.jooby.jte.JteModule;
 
 {
-  install(new JteModule(Paths.of("src", "main", "jte")));         <1>
+  install(new JteModule(Paths.get("src", "main", "jte")));         <1>
 
   get("/", ctx -> {
-    return new ModelAndView("hello.jte", Map.of("name", "Jte"));  <2>
+    return new MapModelAndView("hello.jte", Map.of("name", "Jte"));  <2>
   });
 }
 ----
@@ -84,10 +84,10 @@ import io.jooby.jte.JteModule;
 import io.jooby.jte.JteModule
 
 {
-  install(JteModule(Paths.of("src", "main", "jte")))              <1>
+  install(JteModule(Paths.get("src", "main", "jte")))              <1>
 
   get("/") {
-    ModelAndView("hello.jte", Map.of("name", "Jte"))              <2>
+    MapModelAndView("hello.jte", Map.of("name", "Jte"))              <2>
   }
 }
 ----
@@ -100,13 +100,121 @@ will put all the generated classes in `src/main/jte/jte-classes`.
 
 In production will read the classes from classpath.
 
+=== Models
+
+jte-models is a generator extension for jte that creates a typesafe facade for rendering templates.
+
+1) Add the dependency:
+
+[dependency, groupId="gg.jte", artifactId="jte-models", version="jte.version"]
+.
+
+2) Configure code generator
+
+.Maven
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<plugin>
+    <groupId>gg.jte</groupId>
+    <artifactId>jte-maven-plugin</artifactId>
+    <version>{jte_version}</version>
+    <configuration>
+        <sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
+        <contentType>Html</contentType>
+        <extensions>
+            <extension>
+                <className>gg.jte.models.generator.ModelExtension</className>
+            </extension>
+        </extensions>
+    </configuration>
+    <executions>
+        <execution>
+            <phase>generate-sources</phase>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+        </execution>
+    </executions>
+    <dependencies>
+        <dependency>
+            <groupId>gg.jte</groupId>
+            <artifactId>jte-models</artifactId>
+            <version>{jte_version}</version>
+        </dependency>
+    </dependencies>
+</plugin>
+----
+
+.Gradle
+[source,groovy,role="secondary",subs="verbatim,attributes"]
+----
+plugins {
+    id 'gg.jte.gradle' version '{jte_version}'
+}
+
+dependencies {
+    implementation 'gg.jte:jte-runtime:{jte_version}'
+    jteGenerate 'gg.jte:jte-models:{jte_version}'
+}
+
+jte {
+    generate()
+    binaryStaticContent = true
+    jteExtension 'gg.jte.models.generator.ModelExtension'
+}
+----
+
+==== Usage
+
+.Java
+[source,java,role="primary"]
+----
+import io.jooby.jte.JteModule;
+
+{
+  install(new JteModule(Paths.get("src", "main", "jte")));
+
+  get("/static", ctx -> {
+    var templates = new StaticTemplates();
+    return templates.helloWorld("Hi!");
+  });
+
+  get("/dynamic", ctx -> {
+    var templates = new DynamicTemplates(require(TemplateEngine.class));
+    return templates.helloWorld("Hi!");
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jte.JteModule
+
+{
+  install(JteModule(Paths.get("src", "main", "jte")))
+
+  get("/static") {
+    val templates = StaticTemplates()
+    templates.helloWorld("Hi!")
+  }
+
+  get("/dynamic") {
+    val templates = DynamicTemplates(require(TemplateEngine::class))
+    templates.helloWorld("Hi!")
+  }
+}
+----
+
+More at https://jte.gg/jte-models/[jte-models].
+
 === Options
 
 ==== Custom class directory
 
 If you prefer a custom directory for compiled templates you need to do use:
 
-    install(new JteModule(Paths.of("src", "main", "jte"), Paths.of("compiled-templates")));
+    install(new JteModule(Paths.get("src", "main", "jte"), Paths.get("compiled-templates")));
 
 Also, you need to configure Maven or Gradle to generate templates classes:
 
@@ -156,5 +264,8 @@ You need to make sure to copy the `compiled-templates` folder as part of your de
 
 It is possible to provide your own/custom template engine:
 
+[source,java]
+----
     var templateEngine = TemplateEngine.create(...) or TemplateEngine.createPrecompiled(..)
     install(new JteModule(templateEngine));
+----

@@ -34,6 +34,8 @@ public class DependencyProcessor extends BlockProcessor {
             throw new IllegalArgumentException("Dependency without version: " + groupId + ":" + Arrays.toString(artifactId));
           }
         }
+      } else {
+        version = Dependencies.version(version);
       }
       maven(
           groupId,
