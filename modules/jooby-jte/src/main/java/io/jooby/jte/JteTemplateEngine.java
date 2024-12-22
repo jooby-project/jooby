@@ -37,7 +37,7 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
     var output = new DataBufferOutput(buffer, StandardCharsets.UTF_8);
     var attributes = ctx.getAttributes();
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
-      var mapModel = new HashMap<>();
+      var mapModel = new HashMap<String, Object>();
       mapModel.putAll(attributes);
       mapModel.putAll(mapModelAndView.getModel());
       jte.render(modelAndView.getView(), mapModel, output);
