@@ -10,7 +10,6 @@ import static io.jooby.ServerOptions._8KB;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 import java.net.BindException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -54,13 +53,13 @@ public class NettyServer extends Server.Base {
 
   private static final int _100 = 100;
 
-  private List<Jooby> applications = new ArrayList<>();
   private EventLoopGroup acceptorloop;
   private EventLoopGroup eventloop;
   private EventLoopGroup dateLoop;
   private ExecutorService worker;
 
   private NettyDataBufferFactory bufferFactory;
+  private Jooby application;
 
   private ServerOptions options = new ServerOptions().setServer("netty");
 
@@ -116,6 +115,7 @@ public class NettyServer extends Server.Base {
   @NonNull @Override
   public Server start(@NonNull Jooby application) {
     try {
+      this.application = application;
       /* Worker: Application blocking code */
       if (worker == null) {
         worker = newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
@@ -125,14 +125,13 @@ public class NettyServer extends Server.Base {
       }
       // Make sure context use same buffer factory
       application.setBufferFactory(bufferFactory);
-      applications.add(application);
 
       addShutdownHook();
 
-      fireStart(applications, worker);
+      fireStart(List.of(application), worker);
 
       /* Disk attributes: */
-      String tmpdir = applications.get(0).getTmpdir().toString();
+      String tmpdir = application.getTmpdir().toString();
       DiskFileUpload.baseDirectory = tmpdir;
       DiskAttribute.baseDirectory = tmpdir;
 
@@ -174,7 +173,7 @@ public class NettyServer extends Server.Base {
             "Server configured for httpsOnly, but ssl options not set");
       }
 
-      fireReady(applications);
+      fireReady(List.of(application));
     } catch (InterruptedException x) {
       throw SneakyThrows.propagate(x);
     } catch (ExecutionException x) {
@@ -207,7 +206,6 @@ public class NettyServer extends Server.Base {
 
   private NettyPipeline newPipeline(
       SslContext sslContext, HttpDataFactory factory, NettyDateService dateService, boolean http2) {
-    var router = applications.get(0);
     var bufferSize = options.getBufferSize();
     var headersFactory = HeadersMultiMap.httpHeadersFactory();
     var decoderConfig =
@@ -222,7 +220,7 @@ public class NettyServer extends Server.Base {
         dateService,
         factory,
         decoderConfig,
-        router,
+        application,
         options.getMaxRequestSize(),
         bufferSize,
         options.getDefaultHeaders(),
@@ -233,8 +231,7 @@ public class NettyServer extends Server.Base {
 
   @NonNull @Override
   public synchronized Server stop() {
-    fireStop(applications);
-    applications.clear();
+    fireStop(List.of(application));
     // only for jooby build where close events may take longer.
     NettyWebSocket.all.clear();
 

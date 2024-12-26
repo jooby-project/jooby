@@ -8,3 +8,11 @@ Copy from: https://github.com/spring-projects/spring-framework/tree/main/spring-
 - replace reactive stream classes references by JDK reactive streams
 - DataBufferUtils is a limited version of original - remove Deprecated methods
 - Remove all deprecated since 6.0 from DataBuffer and DataBufferFactory
+
+
+= NEW BUFFER API
+
+== JETTY
+  - https://github.com/jetty/jetty.project/issues/10476
+  - https://javadoc.jetty.org/jetty-12/org/eclipse/jetty/util/BufferUtil.html
+  - https://stackoverflow.com/questions/78659372/how-do-you-set-in-jetty-12-a-max-request-size-programmatically

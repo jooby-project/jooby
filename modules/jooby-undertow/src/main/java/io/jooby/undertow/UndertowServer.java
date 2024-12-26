@@ -8,8 +8,6 @@ package io.jooby.undertow;
 import static io.undertow.UndertowOptions.ENABLE_HTTP2;
 
 import java.net.BindException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,8 +48,7 @@ public class UndertowServer extends Server.Base {
   private static final int _10 = 10;
 
   private Undertow server;
-
-  private List<Jooby> applications = new ArrayList<>();
+  private Jooby application;
 
   private ServerOptions options =
       new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer("utow");
@@ -76,13 +73,13 @@ public class UndertowServer extends Server.Base {
   @Override
   public @NonNull Server start(@NonNull Jooby application) {
     try {
-      applications.add(application);
+      this.application = application;
 
       addShutdownHook();
 
       HttpHandler handler =
           new UndertowHandler(
-              applications.get(0),
+              application,
               options.getBufferSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
@@ -151,11 +148,11 @@ public class UndertowServer extends Server.Base {
       } else if (options.isHttpsOnly()) {
         throw new StartupException("Server configured for httpsOnly, but ssl options not set");
       }
-      fireStart(applications, worker);
+      fireStart(List.of(application), worker);
       server = builder.build();
       server.start();
 
-      fireReady(Collections.singletonList(application));
+      fireReady(List.of(application));
 
       return this;
     } catch (Exception x) {
@@ -184,8 +181,7 @@ public class UndertowServer extends Server.Base {
   @NonNull @Override
   public synchronized Server stop() {
     try {
-      fireStop(applications);
-      applications.clear();
+      fireStop(List.of(application));
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     } finally {

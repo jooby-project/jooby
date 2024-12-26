@@ -47,7 +47,6 @@ public class JettyServer extends io.jooby.Server.Base {
   private Server server;
 
   private ThreadPool threadPool;
-  private List<Jooby> applications = new ArrayList<>();
 
   private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
   private Consumer<HttpConfiguration> httpConfigurer;
@@ -96,8 +95,6 @@ public class JettyServer extends io.jooby.Server.Base {
           "org.eclipse.jetty.server.Request.maxFormContentSize",
           Long.toString(options.getMaxRequestSize()));
 
-      applications.add(application);
-
       addShutdownHook();
 
       if (threadPool == null) {
@@ -105,11 +102,12 @@ public class JettyServer extends io.jooby.Server.Base {
         ((QueuedThreadPool) threadPool).setName("worker");
       }
 
-      fireStart(applications, threadPool);
+      fireStart(List.of(application), threadPool);
 
       var acceptors = 1;
       var selectors = options.getIoThreads();
       this.server = new Server(threadPool);
+      server.addBean(application);
       server.setStopAtShutdown(false);
 
       JettyHttp2Configurer http2 =
@@ -217,7 +215,7 @@ public class JettyServer extends io.jooby.Server.Base {
       Handler handler =
           new JettyHandler(
               invocationType,
-              applications.get(0),
+              application,
               options.getBufferSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
@@ -255,7 +253,7 @@ public class JettyServer extends io.jooby.Server.Base {
       server.setHandler(context);
       server.start();
 
-      fireReady(applications);
+      fireReady(List.of(application));
     } catch (Exception x) {
       if (io.jooby.Server.isAddressInUse(x.getCause())) {
         x = new BindException("Address already in use: " + options.getPort());
@@ -289,9 +287,9 @@ public class JettyServer extends io.jooby.Server.Base {
 
   @NonNull @Override
   public synchronized io.jooby.Server stop() {
-    fireStop(applications);
-    applications.clear();
     if (server != null) {
+      var app = server.getBean(Jooby.class);
+      fireStop(List.of(app));
       try {
         server.stop();
       } catch (Exception x) {
