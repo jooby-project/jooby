@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
 
+import io.jooby.Context;
+
 /**
  * Default implementation of the {@link DataBuffer} interface that uses a {@link ByteBuffer}
  * internally. with separate read and write positions. Constructed using the {@link
@@ -472,6 +474,12 @@ public class DefaultDataBuffer implements DataBuffer {
   public DataBuffer clear() {
     this.byteBuffer.clear();
     return this;
+  }
+
+  @Override
+  public Context send(Context ctx) {
+    ctx.send(this.byteBuffer.slice(this.readPosition, readableByteCount()));
+    return ctx;
   }
 
   private static final class ByteBufferIterator implements DataBuffer.ByteBufferIterator {

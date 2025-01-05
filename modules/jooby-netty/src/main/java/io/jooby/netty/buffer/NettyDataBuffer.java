@@ -12,8 +12,10 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntPredicate;
 
+import io.jooby.Context;
 import io.jooby.buffer.DataBuffer;
 import io.jooby.buffer.PooledDataBuffer;
+import io.jooby.internal.netty.NettyContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 
@@ -285,6 +287,12 @@ public class NettyDataBuffer implements PooledDataBuffer {
   public DataBuffer clear() {
     this.byteBuf.clear();
     return this;
+  }
+
+  @Override
+  public Context send(Context ctx) {
+    ((NettyContext) ctx).send(this.byteBuf);
+    return ctx;
   }
 
   @Override

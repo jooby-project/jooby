@@ -71,7 +71,6 @@ import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.jooby.buffer.DataBuffer;
-import io.jooby.netty.buffer.NettyDataBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -597,10 +596,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Context send(@NonNull DataBuffer data) {
-    return send(((NettyDataBuffer) data).getNativeBuffer());
+    data.send(this);
+    return this;
   }
 
-  private Context send(@NonNull ByteBuf data) {
+  public Context send(@NonNull ByteBuf data) {
     try {
       responseStarted = true;
       setHeaders.set(CONTENT_LENGTH, Integer.toString(data.readableBytes()));

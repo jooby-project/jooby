@@ -500,10 +500,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
 
   @NonNull @Override
   public Context send(@NonNull DataBuffer data) {
-    exchange
-        .getResponseHeaders()
-        .put(Headers.CONTENT_LENGTH, Long.toString(data.readableByteCount()));
-    new UndertowDataBufferCallback(data, this).send(exchange);
+    data.send(this);
     return this;
   }
 

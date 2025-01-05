@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.IntPredicate;
 
+import io.jooby.Context;
+
 /**
  * Provides a convenient implementation of the {@link DataBuffer} interface that can be overridden
  * to adapt the delegate.
@@ -208,8 +210,14 @@ public class DataBufferWrapper implements DataBuffer {
 
   @Override
   public DataBuffer clear() {
-    this.clear();
+    delegate.clear();
     return this;
+  }
+
+  @Override
+  public Context send(Context ctx) {
+    this.delegate.send(ctx);
+    return ctx;
   }
 
   @Override

@@ -6,7 +6,6 @@
 package io.jooby.internal.jetty;
 
 import static io.jooby.internal.jetty.JettyCallbacks.fromByteBufferArray;
-import static io.jooby.internal.jetty.JettyCallbacks.fromDataBuffer;
 import static org.eclipse.jetty.http.HttpHeader.*;
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
@@ -520,12 +519,7 @@ public class JettyContext implements DefaultContext, Callback {
 
   @NonNull @Override
   public Context send(@NonNull DataBuffer data) {
-    var length = response.getHeaders().getLongField(CONTENT_LENGTH);
-    if (length <= 0) {
-      setResponseLength(data.readableByteCount());
-    }
-    responseStarted = true;
-    fromDataBuffer(response, this, data).send(true);
+    data.send(this);
     return this;
   }
 

@@ -28,7 +28,9 @@ import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.StartupSummary;
 import io.jooby.StatusCode;
+import io.jooby.buffer.DefaultDataBufferFactory;
 import io.jooby.internal.MutedServer;
+import io.jooby.netty.NettyServer;
 import io.jooby.test.WebClient;
 
 public class ServerTestRunner {
@@ -89,6 +91,9 @@ public class ServerTestRunner {
       System.setProperty("___app_name__", testName);
       System.setProperty("___server_name__", server.getName());
       Jooby app = provider.get();
+      if (!(server instanceof NettyServer)) {
+        app.setBufferFactory(new DefaultDataBufferFactory());
+      }
       Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       // Reduce log from maven build:
       var mavenBuild = System.getProperty("surefire.real.class.path", "").length() > 0;

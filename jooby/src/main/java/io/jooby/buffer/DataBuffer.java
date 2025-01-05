@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.function.IntPredicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
 
 /**
  * Basic abstraction over byte buffers.
@@ -446,6 +447,14 @@ public interface DataBuffer {
    * @return This buffer
    */
   DataBuffer clear();
+
+  /**
+   * Send the buffer data to the client.
+   *
+   * @param ctx HTTP context.
+   * @return HTTP context.
+   */
+  Context send(Context ctx);
 
   /**
    * A dedicated iterator type that ensures the lifecycle of iterated {@link ByteBuffer} elements.
