@@ -673,6 +673,11 @@ public class ForwardingContext implements Context {
     return ctx.flash();
   }
 
+  @Nullable @Override
+  public FlashMap flashOrNull() {
+    return ctx.flashOrNull();
+  }
+
   @NonNull @Override
   public Value flash(@NonNull String name) {
     return ctx.flash(name);

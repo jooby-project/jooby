@@ -39,7 +39,7 @@ public interface TemplateEngine extends MessageEncoder {
   @Override
   default DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     // initialize flash and session attributes (if any)
-    ctx.flash();
+    ctx.flashOrNull();
     ctx.sessionOrNull();
 
     ctx.setDefaultResponseType(MediaType.html);

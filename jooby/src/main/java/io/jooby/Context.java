@@ -155,6 +155,13 @@ public interface Context extends Registry {
   @NonNull FlashMap flash();
 
   /**
+   * Flash map or null when no flash cookie exists.
+   *
+   * @return Flash map or null when no flash cookie exists.
+   */
+  @Nullable FlashMap flashOrNull();
+
+  /**
    * Get a flash attribute.
    *
    * @param name Attribute's name.

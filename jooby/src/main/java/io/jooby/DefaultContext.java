@@ -110,6 +110,12 @@ public interface DefaultContext extends Context {
                 FlashMap.NAME, key -> FlashMap.create(this, getRouter().getFlashCookie().clone()));
   }
 
+  @Nullable @Override
+  default FlashMap flashOrNull() {
+    var flashCookie = cookie(getRouter().getFlashCookie().getName());
+    return flashCookie.isMissing() ? null : flash();
+  }
+
   /**
    * Get a flash attribute.
    *
