@@ -21,6 +21,7 @@ import io.avaje.validation.Validator;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.ServiceKey;
 import io.jooby.StatusCode;
 import io.jooby.validation.BeanValidator;
 
@@ -159,7 +160,7 @@ public class AvajeValidatorModule implements Extension {
     }
 
     var validator = builder.build();
-    app.getServices().put(Validator.class, validator);
+    app.getServices().put(ServiceKey.key(Validator.class, "validator") , validator);
     app.getServices().put(BeanValidator.class, new BeanValidatorImpl(validator));
 
     if (!disableDefaultViolationHandler) {
