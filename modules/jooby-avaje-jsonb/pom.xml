@@ -22,6 +22,12 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb</artifactId>
+      <exclusions>
+      	<exclusion>
+      		<groupId>io.avaje</groupId>
+      		<artifactId>avaje-jsonb-inject-plugin</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
