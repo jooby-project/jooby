@@ -68,7 +68,11 @@ public class AvajeInjectModule implements Extension {
             e -> {
               var key = e.getKey();
               var provider = e.getValue();
-              beanScope.bean(key.getName(), key.getType(), provider);
+              if (key.getName() == null) {
+                beanScope.provideDefault(key.getType(), provider::get);
+              } else {
+                beanScope.bean(key.getName(), key.getType(), provider);
+              }
             });
 
     final var environment = application.getEnvironment();
