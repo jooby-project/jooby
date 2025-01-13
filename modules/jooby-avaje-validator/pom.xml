@@ -26,6 +26,16 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-validator</artifactId>
+      <exclusions>
+      	<exclusion>
+      		<groupId>io.avaje</groupId>
+      		<artifactId>avaje-validator-inject-plugin</artifactId>
+      	</exclusion>
+      	<exclusion>
+      		<groupId>io.avaje</groupId>
+      		<artifactId>avaje-validator-http-plugin</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
