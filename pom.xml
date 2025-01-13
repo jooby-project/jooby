@@ -80,7 +80,7 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>11.0</avaje.inject.version>
+    <avaje.inject.version>11.1</avaje.inject.version>
     <avaje.jsonb.version>2.4</avaje.jsonb.version>
     <avaje.validator.version>2.4</avaje.validator.version>
 
@@ -1663,7 +1663,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>2.44.0</version>
+            <version>2.44.1</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
