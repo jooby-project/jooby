@@ -27,14 +27,14 @@
     <gson.version>2.11.0</gson.version>
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.4</yasson.version>
-    <rocker.version>2.1.0</rocker.version>
+    <rocker.version>2.2.1</rocker.version>
     <thymeleaf.version>3.1.3.RELEASE</thymeleaf.version>
-    <jte.version>3.1.15</jte.version>
+    <jte.version>3.1.16</jte.version>
 
     <!-- data -->
     <HikariCP.version>6.2.1</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.4.Final</hibernate.version>
+    <hibernate.version>6.6.5.Final</hibernate.version>
     <ebean.version>15.8.1</ebean.version>
     <jdbi.version>3.47.0</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
@@ -42,7 +42,7 @@
     <lettuce.version>6.5.2.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.0</commons-pool2.version>
     <kafka.version>3.9.0</kafka.version>
-    <caffeine.version>3.1.8</caffeine.version>
+    <caffeine.version>3.2.0</caffeine.version>
 
     <config.version>1.4.3</config.version>
 
@@ -58,7 +58,7 @@
     <commons-email.version>1.6.0</commons-email.version>
 
     <!-- util -->
-    <metrics.version>4.2.29</metrics.version>
+    <metrics.version>4.2.30</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>2.1.6.Final</jboss-modules.version>
@@ -69,26 +69,26 @@
     <!-- Server -->
     <undertow.version>2.3.18.Final</undertow.version>
     <jetty.version>12.0.16</jetty.version>
-    <netty.version>4.1.116.Final</netty.version>
+    <netty.version>4.1.117.Final</netty.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.27</swagger.version>
-    <swagger-parser.version>2.1.24</swagger-parser.version>
+    <swagger.version>2.2.28</swagger.version>
+    <swagger-parser.version>2.1.25</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>11.0</avaje.inject.version>
+    <avaje.inject.version>11.1</avaje.inject.version>
     <avaje.jsonb.version>2.4</avaje.jsonb.version>
-    <avaje.validator.version>2.4</avaje.validator.version>
+    <avaje.validator.version>2.5</avaje.validator.version>
 
     <!-- jakarta -->
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
     <jakarta.validation.version>3.1.0</jakarta.validation.version>
     <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-    <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
+    <spotbugs-annotations.version>4.9.0</spotbugs-annotations.version>
 
     <!-- Misc -->
     <okhttp.version>4.12.0</okhttp.version>
@@ -112,7 +112,7 @@
     <jacoco.version>0.8.12</jacoco.version>
     <junit.version>5.11.4</junit.version>
     <rest-assured.version>5.5.0</rest-assured.version>
-    <assertj-core.version>3.27.2</assertj-core.version>
+    <assertj-core.version>3.27.3</assertj-core.version>
     <mockito.version>5.15.2</mockito.version>
     <guava.version>33.4.0-jre</guava.version>
 
@@ -151,7 +151,7 @@
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
     <plexus-utils.version>4.0.2</plexus-utils.version>
-    <stork-maven-plugin.version>3.1.3</stork-maven-plugin.version>
+    <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
     <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
@@ -1663,7 +1663,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>2.44.0</version>
+            <version>2.44.2</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
