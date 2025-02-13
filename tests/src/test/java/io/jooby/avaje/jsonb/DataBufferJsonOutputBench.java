@@ -8,14 +8,14 @@ package io.jooby.avaje.jsonb;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import io.avaje.jsonb.stream.JsonOutput;
+import io.avaje.json.stream.JsonOutput;
 import io.jooby.buffer.DataBuffer;
 
-public class DataBufferJsonOutput implements JsonOutput {
+public class DataBufferJsonOutputBench implements JsonOutput {
 
   private DataBuffer buffer;
 
-  public DataBufferJsonOutput(DataBuffer buffer) {
+  public DataBufferJsonOutputBench(DataBuffer buffer) {
     this.buffer = buffer;
   }
 

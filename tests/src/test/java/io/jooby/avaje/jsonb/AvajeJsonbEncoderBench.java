@@ -48,7 +48,7 @@ public class AvajeJsonbEncoderBench {
   @Benchmark
   public void withDataBufferOutputStream() {
     var buffer = cache.get();
-    jsonb.toJson(message, jsonb.writer(new DataBufferJsonOutput(buffer)));
+    jsonb.toJson(message, jsonb.writer(new DataBufferJsonOutputBench(buffer)));
     buffer.getNativeBuffer().clear();
   }
 }

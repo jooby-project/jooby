@@ -8,7 +8,7 @@ package io.jooby.internal.avaje.jsonb;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import io.avaje.jsonb.stream.JsonOutput;
+import io.avaje.json.stream.JsonOutput;
 import io.jooby.buffer.DataBuffer;
 
 public class DataBufferJsonOutput implements JsonOutput {
