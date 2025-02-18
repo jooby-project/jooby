@@ -34,7 +34,7 @@
     <!-- data -->
     <HikariCP.version>6.2.1</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.7.Final</hibernate.version>
+    <hibernate.version>6.6.8.Final</hibernate.version>
     <ebean.version>15.9.0</ebean.version>
     <jdbi.version>3.48.0</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
@@ -111,7 +111,7 @@
     <!-- Test dependencies -->
     <jacoco.version>0.8.12</jacoco.version>
     <junit.version>5.11.4</junit.version>
-    <rest-assured.version>5.5.0</rest-assured.version>
+    <rest-assured.version>5.5.1</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito.version>5.15.2</mockito.version>
     <guava.version>33.4.0-jre</guava.version>
