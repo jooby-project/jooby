@@ -86,10 +86,9 @@ public class Pac4jModule implements Extension {
 
     private final List<Object> clients = new ArrayList<>();
 
-    public ProtectedPath add(String authorizer, Object client) {
+    public void add(String authorizer, Object client) {
       this.authorizers.add(authorizer);
       this.clients.add(client);
-      return this;
     }
   }
 

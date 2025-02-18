@@ -20,6 +20,7 @@ import org.pac4j.core.util.Pac4jConstants;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
+import io.jooby.SneakyThrows;
 import io.jooby.pac4j.Pac4jFrameworkParameters;
 import io.jooby.pac4j.Pac4jOptions;
 
@@ -76,12 +77,19 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
     return perform(ctx, new GrantAccessAdapterImpl(ctx, options));
   }
 
-  private Object perform(Context ctx, GrantAccessAdapterImpl accessAdapter) throws Exception {
-    var securityLogic = config.getSecurityLogic();
-    var clients = ctx.lookup(clientName(securityLogic)).value(this.clients.get());
-    var authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);
-    return securityLogic.perform(
-        config, accessAdapter, clients, authorizers, null, Pac4jFrameworkParameters.create(ctx));
+  private Object perform(Context ctx, GrantAccessAdapterImpl accessAdapter) {
+    try {
+      var securityLogic = config.getSecurityLogic();
+      var clients = ctx.lookup(clientName(securityLogic)).value(this.clients.get());
+      var authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);
+      return securityLogic.perform(
+          config, accessAdapter, clients, authorizers, null, Pac4jFrameworkParameters.create(ctx));
+    } catch (RuntimeException re) {
+      if (re.getCause() != null) {
+        throw SneakyThrows.propagate(re.getCause());
+      }
+      throw re;
+    }
   }
 
   private String clientName(SecurityLogic securityLogic) {
