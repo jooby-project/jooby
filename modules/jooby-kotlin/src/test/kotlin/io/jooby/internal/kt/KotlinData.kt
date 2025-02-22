@@ -31,7 +31,7 @@ class KotlinMvc {
   fun queryBean(
     @QueryParam point: QueryPoint,
     @QueryParam x: String,
-    @QueryParam y: String
+    @QueryParam y: String,
   ): String {
     return point.toString() + ";" + x + ";" + y
   }

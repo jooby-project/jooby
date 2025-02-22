@@ -61,7 +61,7 @@ paths:
               schema:
                 type: string
 """,
-      result.toYaml()
+      result.toYaml(),
     )
   }
 }

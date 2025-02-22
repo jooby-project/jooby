@@ -7,6 +7,5 @@ package io.jooby.i3508.data;
 
 import jakarta.validation.Valid;
 
-@Valid
-@HbvPasswordsShouldMatch
+@Valid @HbvPasswordsShouldMatch
 public class HbvNewAccountRequest extends NewAccountRequest {}

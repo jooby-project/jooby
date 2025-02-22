@@ -121,21 +121,21 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
     var html =
         new StringBuilder(
                 """
-        <!doctype html>
-        <html>
-        <head>
-        <meta charset="utf-8">
-        <style>
-        body {font-family: "open sans",sans-serif; margin-left: 20px;}
-        h1 {font-weight: 300; line-height: 44px; margin: 25px 0 0 0;}
-        h2 {font-size: 16px;font-weight: 300; line-height: 44px; margin: 0;}
-        footer {font-weight: 300; line-height: 44px; margin-top: 10px;}
-        hr {background-color: #f7f7f9;}
-        div.trace {border:1px solid #e1e1e8; background-color: #f7f7f9;}
-        p {padding-left: 20px;}
-        p.tab {padding-left: 40px;}
-        </style>
-        """)
+                <!doctype html>
+                <html>
+                <head>
+                <meta charset="utf-8">
+                <style>
+                body {font-family: "open sans",sans-serif; margin-left: 20px;}
+                h1 {font-weight: 300; line-height: 44px; margin: 25px 0 0 0;}
+                h2 {font-size: 16px;font-weight: 300; line-height: 44px; margin: 0;}
+                footer {font-weight: 300; line-height: 44px; margin-top: 10px;}
+                hr {background-color: #f7f7f9;}
+                div.trace {border:1px solid #e1e1e8; background-color: #f7f7f9;}
+                p {padding-left: 20px;}
+                p.tab {padding-left: 40px;}
+                </style>
+                """)
             .append("<title>")
             .append(problem.getStatus())
             .append("</title>\n")

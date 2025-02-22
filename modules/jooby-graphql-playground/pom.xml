@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
     <version>3.6.2-SNAPSHOT</version>
   </parent>
-
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-graphql-playground</artifactId>
 
   <dependencies>
@@ -25,6 +23,9 @@
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
+        <configuration>
+          <nodeVersion>${node.version}</nodeVersion>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -40,9 +41,6 @@
             <phase>generate-resources</phase>
           </execution>
         </executions>
-        <configuration>
-          <nodeVersion>${node.version}</nodeVersion>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -50,26 +48,19 @@
         <version>${maven-antrun-plugin.version}</version>
         <executions>
           <execution>
-            <phase>generate-resources</phase>
-            <configuration>
-              <target>
-                <property name="output"
-                          value="${project.build.outputDirectory}${file.separator}graphql-playground${file.separator}"/>
-
-                <copy failonerror="true"
-                      file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}static${file.separator}css${file.separator}index.css"
-                      tofile="${output}index.css"/>
-                <copy failonerror="true"
-                      file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}favicon.png"
-                      tofile="${output}favicon.png"/>
-                <copy failonerror="true"
-                      file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}static${file.separator}js${file.separator}middleware.js"
-                      tofile="${output}middleware.js"/>
-              </target>
-            </configuration>
             <goals>
               <goal>run</goal>
             </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <target>
+                <property name="output" value="${project.build.outputDirectory}${file.separator}graphql-playground${file.separator}"/>
+
+                <copy failonerror="true" file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}static${file.separator}css${file.separator}index.css" tofile="${output}index.css"/>
+                <copy failonerror="true" file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}favicon.png" tofile="${output}favicon.png"/>
+                <copy failonerror="true" file="node_modules${file.separator}graphql-playground-react${file.separator}build${file.separator}static${file.separator}js${file.separator}middleware.js" tofile="${output}middleware.js"/>
+              </target>
+            </configuration>
           </execution>
         </executions>
       </plugin>

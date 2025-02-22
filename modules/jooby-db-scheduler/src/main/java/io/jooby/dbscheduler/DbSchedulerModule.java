@@ -249,7 +249,7 @@ public class DbSchedulerModule implements Extension {
                 case "postgresql" -> DbTable.POSTGRESQL;
                 case "oracle" -> DbTable.ORACLE;
                 case "mysql" -> DbTable.MY_SQL;
-                  // Assume mysql as default
+                // Assume mysql as default
                 default -> DbTable.MY_SQL;
               };
           try (var createTableStt = connection.createStatement()) {

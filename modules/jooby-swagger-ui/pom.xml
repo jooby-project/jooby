@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
     <version>3.6.2-SNAPSHOT</version>
   </parent>
-
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-swagger-ui</artifactId>
 
   <properties>
@@ -69,16 +67,16 @@
         <version>${maven-antrun-plugin.version}</version>
         <executions>
           <execution>
-            <phase>generate-resources</phase>
-            <configuration>
-              <target>
-                <ant antfile="${project.basedir}/build.xml"></ant>
-                <delete dir="${project.build.outputDirectory}${file.separator}META-INF"/>
-              </target>
-            </configuration>
             <goals>
               <goal>run</goal>
             </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <target>
+                <ant antfile="${project.basedir}/build.xml"/>
+                <delete dir="${project.build.outputDirectory}${file.separator}META-INF"/>
+              </target>
+            </configuration>
           </execution>
         </executions>
       </plugin>

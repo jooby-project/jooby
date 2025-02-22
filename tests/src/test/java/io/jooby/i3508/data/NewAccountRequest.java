@@ -10,19 +10,12 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-@Valid
-public class NewAccountRequest {
-  @NotNull @NotEmpty
-  @Size(min = 3, max = 16)
-  private String login;
+@Valid public class NewAccountRequest {
+  @NotNull @NotEmpty @Size(min = 3, max = 16) private String login;
 
-  @NotNull @NotEmpty
-  @Size(min = 8, max = 24)
-  private String password;
+  @NotNull @NotEmpty @Size(min = 8, max = 24) private String password;
 
-  @NotNull @NotEmpty
-  @Size(min = 8, max = 24)
-  private String confirmPassword;
+  @NotNull @NotEmpty @Size(min = 8, max = 24) private String confirmPassword;
 
   @Valid private Person person;
 

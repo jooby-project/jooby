@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
     <version>3.6.2-SNAPSHOT</version>
   </parent>
-
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-avaje-validator</artifactId>
-  
+
   <properties>
     <maven.compiler.proc>full</maven.compiler.proc>
   </properties>
-  
+
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
@@ -27,14 +25,14 @@
       <groupId>io.avaje</groupId>
       <artifactId>avaje-validator</artifactId>
       <exclusions>
-      	<exclusion>
-      		<groupId>io.avaje</groupId>
-      		<artifactId>avaje-validator-inject-plugin</artifactId>
-      	</exclusion>
-      	<exclusion>
-      		<groupId>io.avaje</groupId>
-      		<artifactId>avaje-validator-http-plugin</artifactId>
-      	</exclusion>
+        <exclusion>
+          <groupId>io.avaje</groupId>
+          <artifactId>avaje-validator-inject-plugin</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.avaje</groupId>
+          <artifactId>avaje-validator-http-plugin</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -99,17 +97,17 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
         <executions>
           <execution>
             <id>test</id>
             <phase>test-compile</phase>
           </execution>
         </executions>
-        <configuration>
-          <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
-        </configuration>
       </plugin>
     </plugins>
   </build>

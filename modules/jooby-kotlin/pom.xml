@@ -1,51 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
     <version>3.6.2-SNAPSHOT</version>
   </parent>
-
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-kotlin</artifactId>
-
-  <build>
-    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
-
-    <plugins>
-      <plugin>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-maven-plugin</artifactId>
-        <extensions>true</extensions>
-      </plugin>
-      <plugin>
-        <groupId>org.jetbrains.dokka</groupId>
-        <artifactId>dokka-maven-plugin</artifactId>
-        <version>2.0.0</version>
-        <configuration>
-          <documentedVisibilities>
-            <visibility>PUBLIC</visibility>
-          </documentedVisibilities>
-          <suppressedFiles>
-            <file>${project.build.sourceDirectory}/io/jooby/internal</file>
-          </suppressedFiles>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <id>attach-javadocs-dokka</id>
-            <goals>
-              <goal>javadocJar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
     <dependency>
@@ -84,4 +47,39 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+
+    <plugins>
+      <plugin>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.jetbrains.dokka</groupId>
+        <artifactId>dokka-maven-plugin</artifactId>
+        <version>2.0.0</version>
+        <configuration>
+          <documentedVisibilities>
+            <visibility>PUBLIC</visibility>
+          </documentedVisibilities>
+          <suppressedFiles>
+            <file>${project.build.sourceDirectory}/io/jooby/internal</file>
+          </suppressedFiles>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs-dokka</id>
+            <goals>
+              <goal>javadocJar</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+  </build>
 </project>

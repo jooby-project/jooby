@@ -44,7 +44,7 @@ fun deletePet(ctx: Context) {
   summary = "Find a pet by ID",
   description = "Find a pet by ID or throws a 404",
   tags = ["find", "query"],
-  parameters = [Parameter(description = "Pet ID", `in` = ParameterIn.PATH)]
+  parameters = [Parameter(description = "Pet ID", `in` = ParameterIn.PATH)],
 )
 @ApiResponse
 fun findPetById(ctx: Context): Pet {

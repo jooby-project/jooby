@@ -17,29 +17,29 @@ public class Issue3059 {
     assertEquals(
         result.toYaml(),
         """
-      openapi: 3.0.1
-      info:
-        title: 3059A API
-        description: 3059A API description
-        version: "1.0"
-      paths:
-        /mvc/a:
-          get:
-            operationId: pathA
-            responses:
-              "200":
-                description: Success
-                content:
-                  application/json:
-                    schema:
-                      type: string
-        /mvc/b:
-          post:
-            operationId: pathB
-            responses:
-              "200":
-                description: Success
-      """);
+        openapi: 3.0.1
+        info:
+          title: 3059A API
+          description: 3059A API description
+          version: "1.0"
+        paths:
+          /mvc/a:
+            get:
+              operationId: pathA
+              responses:
+                "200":
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+          /mvc/b:
+            post:
+              operationId: pathB
+              responses:
+                "200":
+                  description: Success
+        """);
   }
 
   @OpenAPITest(value = App3059B.class)
@@ -47,28 +47,28 @@ public class Issue3059 {
     assertEquals(
         result.toYaml(),
         """
-      openapi: 3.0.1
-      info:
-        title: 3059B API
-        description: 3059B API description
-        version: "1.0"
-      paths:
-        /mvc/a:
-          get:
-            operationId: pathA
-            responses:
-              "200":
-                description: Success
-                content:
-                  application/json:
-                    schema:
-                      type: string
-        /mvc/c:
-          put:
-            operationId: pathC
-            responses:
-              "200":
-                description: Success
-      """);
+        openapi: 3.0.1
+        info:
+          title: 3059B API
+          description: 3059B API description
+          version: "1.0"
+        paths:
+          /mvc/a:
+            get:
+              operationId: pathA
+              responses:
+                "200":
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+          /mvc/c:
+            put:
+              operationId: pathC
+              responses:
+                "200":
+                  description: Success
+        """);
   }
 }

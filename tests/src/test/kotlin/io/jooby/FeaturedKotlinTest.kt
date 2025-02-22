@@ -167,7 +167,7 @@ class FeaturedKotlinTest {
               mapOf(
                 "key" to value,
                 "thread" to thread,
-                "currentThread" to Thread.currentThread().name
+                "currentThread" to Thread.currentThread().name,
               )
             }
           }

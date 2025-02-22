@@ -14,14 +14,14 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class CompanyRequest(
   val baseYear: Int,
   val naceCode: List<String>,
-  @get:Schema(required = false, description = "blablabla", example = "HEY") val region: String
+  @get:Schema(required = false, description = "blablabla", example = "HEY") val region: String,
 )
 
 @Path("/issues/2004")
 class Controller2004 {
   @Operation(
     summary = "Get all companies",
-    description = "Find all companies defined by the search parameters"
+    description = "Find all companies defined by the search parameters",
   )
   @GET
   fun getAllCompanies(companyRequest: CompanyRequest): String {

@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
     <version>3.6.2-SNAPSHOT</version>
   </parent>
-
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-openapi</artifactId>
 
   <properties>
@@ -176,17 +174,17 @@
           </execution>
           <execution>
             <id>java-compile</id>
-            <phase>compile</phase>
             <goals>
               <goal>compile</goal>
             </goals>
+            <phase>compile</phase>
           </execution>
           <execution>
             <id>java-test-compile</id>
-            <phase>test-compile</phase>
             <goals>
               <goal>testCompile</goal>
             </goals>
+            <phase>test-compile</phase>
           </execution>
         </executions>
       </plugin>
@@ -197,10 +195,10 @@
         <executions>
           <execution>
             <id>fat-jar</id>
-            <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <minimizeJar>true</minimizeJar>
               <artifactSet>

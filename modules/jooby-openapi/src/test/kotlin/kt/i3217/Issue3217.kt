@@ -64,7 +64,7 @@ class Issue3217 {
         "      properties:\n" +
         "        name:\n" +
         "          type: string\n",
-      result.toYaml()
+      result.toYaml(),
     )
   }
 }

@@ -24,15 +24,15 @@ class Controller2121 {
           name = "year",
           example = "2018",
           description = "The year where the data will be retrieved",
-          required = true
+          required = true,
         ),
         Parameter(
           name = "id",
           example = "XD12345",
           description = "An ID value which belongs to a dataset",
-          required = true
-        )
-      ]
+          required = true,
+        ),
+      ],
   )
   @GET
   suspend fun listDataForID(@QueryParam year: Int, @QueryParam id: String): String {

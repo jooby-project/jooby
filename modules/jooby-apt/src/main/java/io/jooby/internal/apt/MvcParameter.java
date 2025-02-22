@@ -59,7 +59,7 @@ public class MvcParameter {
     // keep kotlin.coroutines.Continuation as main type
     var parameterType = elementType.toString();
     return switch (parameterType) {
-        /* Type Injection: */
+      /* Type Injection: */
       case "io.jooby.Context" -> CodeBlock.of("ctx");
       case "io.jooby.QueryString" -> {
         if (type.is(Optional.class)) {
@@ -81,7 +81,7 @@ public class MvcParameter {
         }
       }
       case "io.jooby.Route" -> CodeBlock.of("ctx.getRoute()");
-        // FileUpload
+      // FileUpload
       case "io.jooby.FileUpload" ->
           switch (rawType.toString()) {
             case "java.util.List" ->

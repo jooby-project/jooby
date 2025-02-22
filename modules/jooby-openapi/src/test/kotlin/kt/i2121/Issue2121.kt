@@ -49,7 +49,7 @@ paths:
               schema:
                 type: object
 """,
-      result.toYaml()
+      result.toYaml(),
     )
   }
 }

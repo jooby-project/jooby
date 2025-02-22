@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.jooby</groupId>
@@ -14,6 +12,46 @@
   <description>The modular web framework for Java and Kotlin</description>
 
   <url>https://jooby.io</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>jknack</id>
+      <name>Edgar Espina</name>
+      <url>https://github.com/jknack</url>
+    </developer>
+  </developers>
+
+  <modules>
+    <module>jooby</module>
+    <module>modules</module>
+    <module>tests</module>
+  </modules>
+
+  <scm>
+    <connection>scm:git:git@github.com:jooby-project/jooby.git</connection>
+    <developerConnection>scm:git:git@github.com:jooby-project/jooby.git</developerConnection>
+    <url>scm:git:git@github.com:jooby-project/jooby.git</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <properties>
     <shaded.package>io.jooby.internal.\$shaded</shaded.package>
@@ -181,46 +219,6 @@
     <sonar.organization>jooby-project</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
   </properties>
-
-  <modules>
-    <module>jooby</module>
-    <module>modules</module>
-    <module>tests</module>
-  </modules>
-
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
-
-  <developers>
-    <developer>
-      <id>jknack</id>
-      <name>Edgar Espina</name>
-      <url>https://github.com/jknack</url>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>scm:git:git@github.com:jooby-project/jooby.git</connection>
-    <developerConnection>scm:git:git@github.com:jooby-project/jooby.git</developerConnection>
-    <url>scm:git:git@github.com:jooby-project/jooby.git</url>
-  </scm>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <name>Nexus Release Repository</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
 
   <dependencyManagement>
     <dependencies>
@@ -1107,8 +1105,8 @@
       <dependency>
         <groupId>org.jacoco</groupId>
         <artifactId>org.jacoco.agent</artifactId>
-        <classifier>runtime</classifier>
         <version>${jacoco.version}</version>
+        <classifier>runtime</classifier>
       </dependency>
 
       <dependency>
@@ -1251,77 +1249,6 @@
 
   <build>
 
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <encoding>${project.build.sourceEncoding}</encoding>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven-jar-plugin.version}</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <!-- version plugin -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>versions-maven-plugin</artifactId>
-        <version>${versions-maven-plugin.version}</version>
-      </plugin>
-
-      <!-- sure-fire -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
-        <configuration>
-          <skip>false</skip>
-          <includes>
-            <include>**/*Test.java</include>
-            <include>**/*Tests.java</include>
-            <include>**/*Feature.java</include>
-            <include>**/*Issue*.java</include>
-          </includes>
-          <useModulePath>false</useModulePath>
-          <systemPropertyVariables>
-            <jooby.maven.build>true</jooby.maven.build>
-          </systemPropertyVariables>
-        </configuration>
-      </plugin>
-
-      <!-- Deploy plugin -->
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>${nexus-staging-maven-plugin.version}</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>${maven-deploy-plugin.version}</version>
-      </plugin>
-    </plugins>
-
     <pluginManagement>
       <plugins>
         <!-- jooby maven plugin  -->
@@ -1332,8 +1259,8 @@
         </plugin>
         <!-- kotlin -->
         <plugin>
-          <artifactId>kotlin-maven-plugin</artifactId>
           <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-maven-plugin</artifactId>
           <version>${kotlin.version}</version>
           <configuration>
             <args>
@@ -1431,6 +1358,77 @@
       </plugins>
     </pluginManagement>
 
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <encoding>${project.build.sourceEncoding}</encoding>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <!-- version plugin -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>${versions-maven-plugin.version}</version>
+      </plugin>
+
+      <!-- sure-fire -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <configuration>
+          <skip>false</skip>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+            <include>**/*Feature.java</include>
+            <include>**/*Issue*.java</include>
+          </includes>
+          <useModulePath>false</useModulePath>
+          <systemPropertyVariables>
+            <jooby.maven.build>true</jooby.maven.build>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+
+      <!-- Deploy plugin -->
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>${nexus-staging-maven-plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven-deploy-plugin.version}</version>
+      </plugin>
+    </plugins>
+
   </build>
 
   <profiles>
@@ -1443,15 +1441,6 @@
             <artifactId>groovy-maven-plugin</artifactId>
             <version>2.1.1</version>
             <inherited>false</inherited>
-            <executions>
-              <execution>
-                <id>jooby-bom</id>
-                <phase>initialize</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <source>modules/jooby-bom/bom.groovy</source>
             </configuration>
@@ -1469,6 +1458,15 @@
                 </exclusions>
               </dependency>
             </dependencies>
+            <executions>
+              <execution>
+                <id>jooby-bom</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>initialize</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
@@ -1490,15 +1488,15 @@
             <executions>
               <execution>
                 <id>formatter.sh</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
                 <phase>initialize</phase>
                 <configuration>
                   <target>
                     <chmod file="${pre-commit-hook}" perm="755"/>
                   </target>
                 </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
               </execution>
             </executions>
           </plugin>
@@ -1543,10 +1541,10 @@
             <executions>
               <execution>
                 <id>enforce-versions</id>
-                <phase>initialize</phase>
                 <goals>
                   <goal>enforce</goal>
                 </goals>
+                <phase>initialize</phase>
                 <configuration>
                   <failFast>true</failFast>
                   <rules>
@@ -1556,7 +1554,7 @@
                     <requireJavaVersion>
                       <version>[${maven.compiler.source},)</version>
                     </requireJavaVersion>
-                    <banDuplicatePomDependencyVersions />
+                    <banDuplicatePomDependencyVersions/>
                   </rules>
                 </configuration>
               </execution>
@@ -1616,13 +1614,18 @@
                   <endWithNewline/>
                 </format>
               </formats>
-              <pom />
+              <pom>
+                <sortPom>
+                  <expandEmptyElements>false</expandEmptyElements>
+                </sortPom>
+              </pom>
               <java>
+                <toggleOffOn />
                 <googleJavaFormat>
                   <reflowLongStrings>true</reflowLongStrings>
                 </googleJavaFormat>
 
-                <formatAnnotations />
+                <formatAnnotations/>
 
                 <importOrder>
                   <order>java,javax,org,</order>
@@ -1679,17 +1682,17 @@
             <executions>
               <execution>
                 <id>module-info.shade</id>
-                <phase>process-resources</phase>
-                <configuration>
-                  <target>
-                    <property name="input" value="src${file.separator}main${file.separator}java${file.separator}module-info.java" />
-                    <copy file="${input}" tofile="${module-info.shade}"/>
-                    <replaceregexp file="${module-info.shade}" match="(// SHADED:).*" flags="s"  replace="}" />
-                  </target>
-                </configuration>
                 <goals>
                   <goal>run</goal>
                 </goals>
+                <phase>process-resources</phase>
+                <configuration>
+                  <target>
+                    <property name="input" value="src${file.separator}main${file.separator}java${file.separator}module-info.java"/>
+                    <copy file="${input}" tofile="${module-info.shade}"/>
+                    <replaceregexp file="${module-info.shade}" flags="s" match="(// SHADED:).*" replace="}"/>
+                  </target>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -1701,10 +1704,10 @@
             <executions>
               <execution>
                 <id>add-module-infos</id>
-                <phase>package</phase>
                 <goals>
                   <goal>add-module-info</goal>
                 </goals>
+                <phase>package</phase>
                 <configuration>
                   <overwriteExistingFiles>true</overwriteExistingFiles>
                   <failOnWarning>false</failOnWarning>
@@ -1835,10 +1838,10 @@
             <executions>
               <execution>
                 <id>sign-artifacts</id>
-                <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <phase>verify</phase>
                 <configuration>
                   <gpgArguments>
                     <arg>--pinentry-mode</arg>

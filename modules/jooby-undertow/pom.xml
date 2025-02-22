@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
     <version>3.6.2-SNAPSHOT</version>
   </parent>
+  <artifactId>jooby-undertow</artifactId>
 
   <properties>
     <Module-Name>io.jooby.undertow</Module-Name>
   </properties>
-
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-undertow</artifactId>
 
   <dependencies>
     <dependency>
@@ -26,7 +24,7 @@
     <!-- utow -->
     <dependency>
       <!-- remove xnio once we upgrade to 2.2.18 +  There is a Invalida Path on Windows-->
-      <groupId> org.jboss.xnio</groupId>
+      <groupId>org.jboss.xnio</groupId>
       <artifactId>xnio-api</artifactId>
       <version>3.8.16.Final</version>
     </dependency>

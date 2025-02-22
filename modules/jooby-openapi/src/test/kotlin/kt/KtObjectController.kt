@@ -37,7 +37,7 @@ object KtObjectController {
     @QueryParam("I") i: Int,
     @QueryParam("oI") oi: Int?,
     @QueryParam("q") q: String,
-    @QueryParam("nullq") nullq: String?
+    @QueryParam("nullq") nullq: String?,
   ): ABean {
     println("i:$i oi: $oi q: $q nullq: $nullq")
     return ABean()
@@ -60,7 +60,7 @@ object KtObjectController {
   @Path("/httpNames")
   fun httpNames(
     @HeaderParam("Last-Modified-Since") lastModifiedSince: String,
-    @Named("x-search") @io.jooby.annotation.QueryParam q: String
+    @Named("x-search") @io.jooby.annotation.QueryParam q: String,
   ): String {
     println("lastModifiedSince:$lastModifiedSince q: $q")
     return lastModifiedSince

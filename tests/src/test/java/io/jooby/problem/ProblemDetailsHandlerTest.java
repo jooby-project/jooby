@@ -327,11 +327,11 @@ class ProblemDetailsHandlerTest {
                   actualHtml,
                   containsString(
                       """
-          <h2>type: about:blank</h2>
-          <h2>title: Not Acceptable</h2>
-          <h2>status: 406</h2>
-          <h2>detail: Server cannot produce a response matching the list of acceptable values defined in the request's 'Accept' header</h2>
-          """));
+<h2>type: about:blank</h2>
+<h2>title: Not Acceptable</h2>
+<h2>status: 406</h2>
+<h2>detail: Server cannot produce a response matching the list of acceptable values defined in the request's 'Accept' header</h2>
+"""));
             });
   }
 

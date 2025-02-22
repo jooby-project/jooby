@@ -21,9 +21,7 @@ class JoobyPropertyPlugin implements ConfigPropertyPlugin {
 
   @Override
   public Optional<String> get(String property) {
-    return config.hasPath(property)
-        ? Optional.of(config.getString(property))
-        : Optional.empty();
+    return config.hasPath(property) ? Optional.of(config.getString(property)) : Optional.empty();
   }
 
   @Override

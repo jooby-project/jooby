@@ -42,7 +42,7 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
   @RouterDsl
   fun error(
     statusCode: StatusCode,
-    handler: suspend ErrorHandlerContext.() -> Unit
+    handler: suspend ErrorHandlerContext.() -> Unit,
   ): CoroutineRouter {
     return error({ it: StatusCode -> statusCode == it }, handler)
   }
@@ -57,7 +57,7 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
   @RouterDsl
   fun error(
     type: KClass<Throwable>,
-    handler: suspend ErrorHandlerContext.() -> Unit
+    handler: suspend ErrorHandlerContext.() -> Unit,
   ): CoroutineRouter {
     return error {
       if (type.java.isInstance(cause) || type.java.isInstance(cause.cause)) {
@@ -76,7 +76,7 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
   @RouterDsl
   fun error(
     predicate: Predicate<StatusCode>,
-    handler: suspend ErrorHandlerContext.() -> Unit
+    handler: suspend ErrorHandlerContext.() -> Unit,
   ): CoroutineRouter {
     return error {
       if (predicate.test(statusCode)) {
@@ -96,7 +96,7 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     val chain =
       fun(
         current: suspend ErrorHandlerContext.() -> Unit,
-        next: suspend ErrorHandlerContext.() -> Unit
+        next: suspend ErrorHandlerContext.() -> Unit,
       ): suspend ErrorHandlerContext.() -> Unit {
         return {
           current(this)

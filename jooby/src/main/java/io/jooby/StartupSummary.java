@@ -89,17 +89,13 @@ public interface StartupSummary {
    * @return Summary level or <code>{@link #DEFAULT}</code>.
    */
   static StartupSummary create(String value) {
-    switch (value.toLowerCase()) {
-      case "verbose":
-        return VERBOSE;
-      case "none":
-        return NONE;
-      case "routes":
-        return ROUTES;
-        // fallback
-      default:
-        return DEFAULT;
-    }
+    return switch (value.toLowerCase()) {
+      case "verbose" -> VERBOSE;
+      case "none" -> NONE;
+      case "routes" -> ROUTES;
+      // fallback
+      default -> DEFAULT;
+    };
   }
 
   void log(Jooby application, Server server);

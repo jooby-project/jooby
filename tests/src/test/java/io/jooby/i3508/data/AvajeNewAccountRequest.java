@@ -7,6 +7,5 @@ package io.jooby.i3508.data;
 
 import jakarta.validation.Valid;
 
-@Valid
-@AvajePasswordsShouldMatch
+@Valid @AvajePasswordsShouldMatch
 public class AvajeNewAccountRequest extends NewAccountRequest {}

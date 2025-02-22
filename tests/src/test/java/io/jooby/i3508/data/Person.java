@@ -8,8 +8,7 @@ package io.jooby.i3508.data;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 
-@Valid
-public class Person {
+@Valid public class Person {
 
   @NotEmpty private String firstName;
   private String lastName;

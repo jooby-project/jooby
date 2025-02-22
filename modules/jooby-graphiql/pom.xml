@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
     <version>3.6.2-SNAPSHOT</version>
   </parent>
-
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-graphiql</artifactId>
 
   <dependencies>
@@ -25,6 +23,9 @@
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
+        <configuration>
+          <nodeVersion>${node.version}</nodeVersion>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -41,9 +42,6 @@
             <phase>generate-resources</phase>
           </execution>
         </executions>
-        <configuration>
-          <nodeVersion>${node.version}</nodeVersion>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -51,18 +49,18 @@
         <version>${maven-antrun-plugin.version}</version>
         <executions>
           <execution>
+            <goals>
+              <goal>run</goal>
+            </goals>
             <phase>generate-resources</phase>
             <configuration>
               <target>
-                <property name="output" value="${project.build.outputDirectory}${file.separator}graphiql${file.separator}" />
+                <property name="output" value="${project.build.outputDirectory}${file.separator}graphiql${file.separator}"/>
 
                 <copy failonerror="true" file="node_modules${file.separator}graphiql${file.separator}graphiql.css" tofile="${output}graphiql.css"/>
                 <copy failonerror="true" file="node_modules${file.separator}graphiql${file.separator}graphiql.js" tofile="${output}graphiql.min.js"/>
               </target>
             </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>

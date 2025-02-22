@@ -84,7 +84,7 @@ class Issue3483 {
         "            application/json:\n" +
         "              schema:\n" +
         "                type: string\n",
-      result.toYaml()
+      result.toYaml(),
     )
   }
 }

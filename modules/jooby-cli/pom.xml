@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
     <version>3.6.2-SNAPSHOT</version>
   </parent>
-
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-cli</artifactId>
 
   <properties>
@@ -97,14 +95,12 @@
         <version>1.2.1</version>
         <executions>
           <execution>
-            <phase>generate-resources</phase>
             <goals>
               <goal>write-project-properties</goal>
             </goals>
+            <phase>generate-resources</phase>
             <configuration>
-              <outputFile>
-                ${project.build.outputDirectory}${file.separator}dependencies.properties
-              </outputFile>
+              <outputFile>${project.build.outputDirectory}${file.separator}dependencies.properties</outputFile>
             </configuration>
           </execution>
         </executions>
@@ -146,10 +142,10 @@
         <executions>
           <execution>
             <id>make-assembly</id>
-            <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <finalName>${project.artifactId}-${project.version}</finalName>
               <appendAssemblyId>false</appendAssemblyId>

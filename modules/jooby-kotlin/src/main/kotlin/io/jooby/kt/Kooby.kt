@@ -35,7 +35,7 @@ import kotlinx.coroutines.CoroutineStart
   AnnotationTarget.CLASS,
   AnnotationTarget.TYPEALIAS,
   AnnotationTarget.TYPE,
-  AnnotationTarget.FUNCTION
+  AnnotationTarget.FUNCTION,
 )
 annotation class RouterDsl
 
@@ -44,7 +44,7 @@ annotation class RouterDsl
   AnnotationTarget.CLASS,
   AnnotationTarget.TYPEALIAS,
   AnnotationTarget.TYPE,
-  AnnotationTarget.FUNCTION
+  AnnotationTarget.FUNCTION,
 )
 annotation class OptionsDsl
 
@@ -268,7 +268,7 @@ open class Kooby() : Jooby() {
   @RouterDsl
   fun coroutine(
     coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
-    block: CoroutineRouter.() -> Unit
+    block: CoroutineRouter.() -> Unit,
   ): CoroutineRouter {
     val from = routes.size
     val router =
