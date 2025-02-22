@@ -245,6 +245,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <!-- Jooby -->
       <dependency>
         <groupId>io.jooby</groupId>
@@ -1091,25 +1098,6 @@
         <version>${jsonwebtoken.version}</version>
       </dependency>
 
-      <!-- Test dependencies -->
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-params</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
@@ -1628,6 +1616,7 @@
                   <endWithNewline/>
                 </format>
               </formats>
+              <pom />
               <java>
                 <googleJavaFormat>
                   <reflowLongStrings>true</reflowLongStrings>
