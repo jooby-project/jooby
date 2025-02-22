@@ -43,7 +43,6 @@
     <dependency>
       <groupId>io.lettuce</groupId>
       <artifactId>lettuce-core</artifactId>
-      <version>6.5.3.RELEASE</version>
     </dependency>
 
     <!-- Test dependencies -->
