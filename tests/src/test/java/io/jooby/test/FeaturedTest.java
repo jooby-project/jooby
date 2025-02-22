@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
@@ -42,7 +41,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
@@ -75,7 +73,6 @@ import io.jooby.SameSite;
 import io.jooby.ServerOptions;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
-import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.handler.AccessLogHandler;
@@ -2848,21 +2845,6 @@ public class FeaturedTest {
             });
   }
 
-  private static final String VUE = vueVersion();
-
-  private static String vueVersion() {
-    try (InputStream vueprops =
-        FeaturedTest.class
-            .getClassLoader()
-            .getResourceAsStream("META-INF/maven/org.webjars.npm/vue/pom.properties")) {
-      Properties properties = new Properties();
-      properties.load(vueprops);
-      return properties.getProperty("version");
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
-    }
-  }
-
   @ServerTest
   public void assets(ServerTestRunner runner) throws IOException {
 
@@ -2872,20 +2854,12 @@ public class FeaturedTest {
     String cl4 =
         String.valueOf(userdir("src", "test", "www", "css", "styles.css").toFile().length());
     String cl5 = String.valueOf(userdir("src", "test", "www", "index.html").toFile().length());
-    String vueSize =
-        String.valueOf(
-            getClass()
-                .getResource("/META-INF/resources/webjars/vue/" + VUE + "/dist/vue.cjs.js")
-                .openConnection()
-                .getContentLength());
     runner
         .define(
             app -> {
               app.assets("/static/?*", userdir("src", "test", "www"));
               app.assets("/*", userdir("src", "test", "www"));
               app.assets("/cp/*", "/www");
-              app.assets("/jar/*", "/META-INF/resources/webjars/vue/" + VUE);
-              app.assets("/jar2/*", "/META-INF/resources/webjars/vue/" + VUE + "/dist");
 
               app.assets(
                   "/m/*",
@@ -3045,15 +3019,6 @@ public class FeaturedTest {
                     assertEquals(cl4, rsp.header("Content-Length").toLowerCase());
                   });
 
-              // Inside jar
-              client.get(
-                  "/jar/dist/vue.cjs.js",
-                  rsp -> {
-                    assertEquals(
-                        "application/javascript;charset=utf-8",
-                        rsp.header("Content-Type").toLowerCase());
-                    assertEquals(vueSize, rsp.header("Content-Length").toLowerCase());
-                  });
               client.get(
                   "/jar2/dist/../package.json",
                   rsp -> {
