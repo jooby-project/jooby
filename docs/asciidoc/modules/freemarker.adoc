@@ -28,7 +28,7 @@ import io.jooby.freemarker.FreemarkerModule;
   install(new FreemarkerModule());
 
   get("/", ctx -> {
-    return new ModelAndView("index.ftl")
+    return new MapModelAndView("index.ftl")
         .put("name", "Jooby");
   });
 }
@@ -43,7 +43,7 @@ import io.jooby.freemarker.FreemarkerModule
   install(FreemarkerModule())
   
   get("/") {
-    ModelAndView("index.ftl")
+    MapModelAndView("index.ftl")
         .put("name", "Jooby")
   }
 }

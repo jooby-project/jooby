@@ -35,7 +35,7 @@ import io.jooby.thymeleaf.ThymeleafModule;
   install(new ThymeleafModule());
 
   get("/", ctx -> {
-    return new ModelAndView("index.html")
+    return new MapModelAndView("index.html")
         .put("name", "Jooby");
   });
 }
@@ -50,7 +50,7 @@ import io.jooby.thymeleaf.ThymeleafModule
   install(ThymeleafModule())
   
   get("/") {
-    ModelAndView("index.html")
+    MapModelAndView("index.html")
         .put("name", "Jooby")
   }
 }

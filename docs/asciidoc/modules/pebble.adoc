@@ -28,7 +28,7 @@ import io.jooby.pebble.PebbleModule;
   install(new PebbleModule());
 
   get("/", ctx -> {
-    return new ModelAndView("index.peb")
+    return new MapModelAndView("index.peb")
         .put("name", "Jooby");
   });
 }
@@ -43,7 +43,7 @@ import io.jooby.pebble.PebbleModule
   install(PebbleModule())
   
   get("/") {
-    ModelAndView("index.peb")
+    MapModelAndView("index.peb")
         .put("name", "Jooby")
   }
 }
@@ -75,9 +75,9 @@ import io.jooby.pebble.PebbleModule;
 {
   // Apply custom configuration via builder
 
-  PebbleEngine.Builder builder = PebbleModule.create()
-  .setTemplatesPath("template")
-  .build(getEnvironment());
+  var.Builder builder = PebbleModule.create()
+    .setTemplatesPath("template")
+    .build(getEnvironment());
 
   install(new PebbleModule(builder));
 }
@@ -90,8 +90,8 @@ import io.jooby.pebble.PebbleModule
 
 {
   val builder = PebbleModule.create()
-      .setTemplatesPath("template")
-      .build(getEnvironment())
+    .setTemplatesPath("template")
+    .build(getEnvironment())
  
   install(PebbleModule(builder))
 }
