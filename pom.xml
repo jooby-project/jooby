@@ -72,7 +72,7 @@
     <!-- data -->
     <HikariCP.version>6.2.1</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.8.Final</hibernate.version>
+    <hibernate.version>6.6.9.Final</hibernate.version>
     <ebean.version>15.9.0</ebean.version>
     <jdbi.version>3.48.0</jdbi.version>
     <flyway.version>9.22.3</flyway.version>
@@ -120,7 +120,7 @@
     <!-- avaje -->
     <avaje.inject.version>11.2</avaje.inject.version>
     <avaje.jsonb.version>3.0</avaje.jsonb.version>
-    <avaje.validator.version>2.7</avaje.validator.version>
+    <avaje.validator.version>2.8</avaje.validator.version>
 
     <!-- jakarta -->
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
