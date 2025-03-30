@@ -13,4 +13,5 @@ module io.jooby.pac4j {
   requires org.slf4j;
   requires pac4j.core;
   requires pac4j.http;
+  requires jsr305;
 }

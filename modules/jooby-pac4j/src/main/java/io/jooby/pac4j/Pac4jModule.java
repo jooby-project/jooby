@@ -31,6 +31,7 @@ import org.pac4j.core.exception.http.UnauthorizedAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.http.url.UrlResolver;
 import org.pac4j.core.profile.factory.ProfileManagerFactory;
+import org.pac4j.core.util.serializer.Serializer;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
@@ -345,7 +346,10 @@ public class Pac4jModule implements Extension {
 
   @Override
   public void install(@NonNull Jooby app) throws Exception {
-    app.getServices().putIfAbsent(Pac4jOptions.class, options);
+    var services = app.getServices();
+    services.putIfAbsent(Pac4jOptions.class, options);
+    // Set defaults:
+    services.putIfAbsent(Serializer.class, options.getSerializer());
 
     var clients =
         ofNullable(options.getClients())
@@ -488,6 +492,7 @@ public class Pac4jModule implements Extension {
     if (securityLogic == null) {
       options.setSecurityLogic(newSecurityLogic(excludes));
     }
+    app.use(new UntrustedSessionDataDetector());
 
     /** For each client to a specific path, add a security handler. */
     for (var entry : allClients.entrySet()) {

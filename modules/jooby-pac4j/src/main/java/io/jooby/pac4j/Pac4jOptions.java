@@ -8,6 +8,8 @@ package io.jooby.pac4j;
 import java.util.Optional;
 
 import org.pac4j.core.config.Config;
+import org.pac4j.core.util.serializer.JavaSerializer;
+import org.pac4j.core.util.serializer.Serializer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -51,6 +53,8 @@ public class Pac4jOptions extends Config {
   private boolean forceCallbackRoutes = false;
 
   private boolean forceLogoutRoutes = false;
+
+  private Serializer serializer = new JavaSerializer();
 
   private Pac4jOptions(Config config) {
     setClients(config.getClients());
@@ -353,8 +357,30 @@ public class Pac4jOptions extends Config {
    *
    * @param logoutUrlPattern It’s the logout URL pattern that the url parameter must match. It is an
    *     optional parameter and only relative URLs are allowed by default.
+   * @return This instance.
    */
-  public void setLogoutUrlPattern(String logoutUrlPattern) {
+  public @NonNull Pac4jOptions setLogoutUrlPattern(String logoutUrlPattern) {
     this.logoutUrlPattern = logoutUrlPattern;
+    return this;
+  }
+
+  /**
+   * Used for save complex object into session while using indirect clients.
+   *
+   * @return Serializer, defaults to {@link JavaSerializer}.
+   */
+  public @NonNull Serializer getSerializer() {
+    return serializer;
+  }
+
+  /**
+   * Set serializer for saving complex object into session while using indirect clients.
+   *
+   * @param serializer Serializer.
+   * @return This instance.
+   */
+  public @NonNull Pac4jOptions setSerializer(@NonNull Serializer serializer) {
+    this.serializer = serializer;
+    return this;
   }
 }

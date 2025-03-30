@@ -13,13 +13,10 @@ import static io.jooby.StatusCode.OK_CODE;
 import static io.jooby.StatusCode.SEE_OTHER_CODE;
 import static io.jooby.StatusCode.TEMPORARY_REDIRECT_CODE;
 import static io.jooby.StatusCode.UNAUTHORIZED_CODE;
+import static io.jooby.internal.pac4j.Pac4jSession.BIN;
+import static io.jooby.internal.pac4j.Pac4jSession.PAC4J;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Base64;
+import java.io.*;
 import java.util.Optional;
 
 import org.pac4j.core.context.WebContext;
@@ -35,18 +32,14 @@ import org.pac4j.core.exception.http.StatusAction;
 import org.pac4j.core.exception.http.UnauthorizedAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
+import org.pac4j.core.util.serializer.Serializer;
 
 import io.jooby.Context;
 import io.jooby.Session;
-import io.jooby.SneakyThrows;
 import io.jooby.Value;
 import io.jooby.pac4j.Pac4jContext;
 
 public class SessionStoreImpl implements org.pac4j.core.context.session.SessionStore {
-
-  private static final String PAC4J = "p4j~";
-
-  private static final String BIN = "b64~";
 
   private Session getSession(WebContext context) {
     return context(context).session();
@@ -75,20 +68,17 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
 
   @Override
   public Optional<Object> get(WebContext context, String key) {
-    Optional sessionValue =
-        getSessionOrEmpty(context)
-            .map(session -> session.get(key))
-            .map(SessionStoreImpl::strToObject)
-            .orElseGet(Optional::empty);
-    return sessionValue;
+    return getSessionOrEmpty(context)
+        .map(session -> session.get(key))
+        .flatMap(value -> strToObject(context(context).require(Serializer.class), value));
   }
 
   @Override
   public void set(WebContext context, String key, Object value) {
-    if (value == null || value.toString().length() == 0) {
+    if (value == null || value.toString().isEmpty()) {
       getSessionOrEmpty(context).ifPresent(session -> session.remove(key));
     } else {
-      String encoded = objToStr(value);
+      String encoded = objToStr(context(context).require(Serializer.class), value);
       getSession(context).put(key, encoded);
     }
   }
@@ -116,42 +106,31 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
 
   @Override
   public boolean renewSession(WebContext context) {
-    getSessionOrEmpty(context).ifPresent(session -> session.renewId());
-    return true;
+    var session = getSessionOrEmpty(context);
+    session.ifPresent(Session::renewId);
+    return session.isPresent();
   }
 
-  static Optional<Object> strToObject(final Value node) {
+  static Optional<Object> strToObject(Serializer serializer, Value node) {
     if (node.isMissing()) {
       return Optional.empty();
     }
     String value = node.value();
     if (value.startsWith(BIN)) {
-      try {
-        byte[] bytes = Base64.getDecoder().decode(value.substring(BIN.length()));
-        return Optional.of(new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject());
-      } catch (Exception x) {
-        throw SneakyThrows.propagate(x);
-      }
+      return Optional.of(serializer.deserializeFromString(value.substring(BIN.length())));
     } else if (value.startsWith(PAC4J)) {
       return Optional.of(strToAction(value.substring(PAC4J.length())));
     }
     return Optional.of(value);
   }
 
-  static String objToStr(final Object value) {
+  static String objToStr(Serializer serializer, Object value) {
     if (value instanceof CharSequence || value instanceof Number || value instanceof Boolean) {
       return value.toString();
     } else if (value instanceof HttpAction) {
       return actionToStr((HttpAction) value);
-    }
-    try {
-      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-      ObjectOutputStream stream = new ObjectOutputStream(bytes);
-      stream.writeObject(value);
-      stream.flush();
-      return BIN + Base64.getEncoder().encodeToString(bytes.toByteArray());
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
+    } else {
+      return BIN + serializer.serializeToString(value);
     }
   }
 
