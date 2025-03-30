@@ -5,8 +5,6 @@
  */
 package io.jooby.internal.pac4j;
 
-import org.pac4j.core.config.Config;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
@@ -16,13 +14,10 @@ import io.jooby.pac4j.Pac4jOptions;
 
 public class CallbackFilterImpl implements Route.Handler {
 
-  private final Pac4jOptions options;
+  private final Pac4jOptions config;
 
-  private final Config config;
-
-  public CallbackFilterImpl(Config config, Pac4jOptions options) {
+  public CallbackFilterImpl(Pac4jOptions config) {
     this.config = config;
-    this.options = options;
   }
 
   @NonNull @Override
@@ -33,9 +28,9 @@ public class CallbackFilterImpl implements Route.Handler {
               .getCallbackLogic()
               .perform(
                   config,
-                  options.getDefaultUrl(),
-                  options.getRenewSession(),
-                  options.getDefaultClient(),
+                  config.getDefaultUrl(),
+                  config.getRenewSession(),
+                  config.getDefaultClient(),
                   Pac4jFrameworkParameters.create(ctx));
 
       return result == null ? ctx : result;

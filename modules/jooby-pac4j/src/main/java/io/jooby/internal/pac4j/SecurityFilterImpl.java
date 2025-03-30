@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 
 import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.client.finder.DefaultSecurityClientFinder;
-import org.pac4j.core.config.Config;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import org.pac4j.core.engine.SecurityLogic;
 import org.pac4j.core.util.Pac4jConstants;
@@ -28,23 +27,16 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
 
   private final String pattern;
 
-  private final Config config;
-
-  private final Pac4jOptions options;
+  private final Pac4jOptions config;
 
   private final Supplier<String> clients;
 
   private String authorizers;
 
   public SecurityFilterImpl(
-      String pattern,
-      Config config,
-      Pac4jOptions options,
-      Supplier<String> clients,
-      List<String> authorizers) {
+      String pattern, Pac4jOptions config, Supplier<String> clients, List<String> authorizers) {
     this.pattern = pattern;
     this.config = config;
-    this.options = options;
     this.clients = clients;
     authorizers.forEach(this::addAuthorizer);
   }
@@ -61,10 +53,10 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (pattern == null) {
-        return perform(ctx, new GrantAccessAdapterImpl(ctx, options, next));
+        return perform(ctx, new GrantAccessAdapterImpl(ctx, config, next));
       } else {
         if (ctx.matches(pattern)) {
-          return perform(ctx, new GrantAccessAdapterImpl(ctx, options, next));
+          return perform(ctx, new GrantAccessAdapterImpl(ctx, config, next));
         } else {
           return next.apply(ctx);
         }
@@ -74,7 +66,7 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
 
   @NonNull @Override
   public Object apply(@NonNull Context ctx) throws Exception {
-    return perform(ctx, new GrantAccessAdapterImpl(ctx, options));
+    return perform(ctx, new GrantAccessAdapterImpl(ctx, config));
   }
 
   private Object perform(Context ctx, GrantAccessAdapterImpl accessAdapter) {

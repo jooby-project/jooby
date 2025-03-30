@@ -480,7 +480,7 @@ public class Pac4jModule implements Extension {
     }
     var direct = clients.getClients().stream().allMatch(it -> it instanceof DirectClient);
     if (!direct || options.isForceCallbackRoutes()) {
-      CallbackFilterImpl callbackFilter = new CallbackFilterImpl(options, options);
+      CallbackFilterImpl callbackFilter = new CallbackFilterImpl(options);
       app.get(options.getCallbackPath(), callbackFilter);
       app.post(options.getCallbackPath(), callbackFilter);
     }
@@ -501,7 +501,6 @@ public class Pac4jModule implements Extension {
               new SecurityFilterImpl(
                   null,
                   options,
-                  options,
                   lazyClientNameList(entry.getValue()),
                   clientMap.get(pattern).authorizers);
           app.get(pattern, securityFilter);
@@ -511,7 +510,6 @@ public class Pac4jModule implements Extension {
           app.use(
               new SecurityFilterImpl(
                   pattern,
-                  options,
                   options,
                   lazyClientNameList(entry.getValue()),
                   clientMap.get(pattern).authorizers));
@@ -528,7 +526,6 @@ public class Pac4jModule implements Extension {
       app.use(
           new SecurityFilterImpl(
               null,
-              options,
               options,
               lazyClientNameList(defaultSecurityFilter),
               clientMap.get("*").authorizers));
