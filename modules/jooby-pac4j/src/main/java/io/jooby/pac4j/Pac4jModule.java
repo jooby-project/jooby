@@ -5,23 +5,8 @@
  */
 package io.jooby.pac4j;
 
-import io.jooby.Context;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.Route;
-import io.jooby.Router;
-import io.jooby.StatusCode;
-import io.jooby.internal.pac4j.ActionAdapterImpl;
-import io.jooby.internal.pac4j.CallbackFilterImpl;
-import io.jooby.internal.pac4j.ClientReference;
-import io.jooby.internal.pac4j.DevLoginForm;
-import io.jooby.internal.pac4j.ForwardingAuthorizer;
-import io.jooby.internal.pac4j.LogoutImpl;
-import io.jooby.internal.pac4j.NoopAuthorizer;
-import io.jooby.internal.pac4j.Pac4jCurrentUser;
-import io.jooby.internal.pac4j.SavedRequestHandlerImpl;
-import io.jooby.internal.pac4j.SecurityFilterImpl;
-import io.jooby.internal.pac4j.UrlResolverImpl;
+import io.jooby.*;
+import io.jooby.internal.pac4j.*;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
@@ -487,6 +472,8 @@ public class Pac4jModule implements Extension {
     if (securityLogic == null) {
       pac4j.setSecurityLogic(newSecurityLogic(excludes));
     }
+
+    application.decorator(new UntrustedSessionDataDetector());
 
     /** For each client to a specific path, add a security handler. */
     for (Map.Entry<String, List<ClientReference>> entry : allClients.entrySet()) {
