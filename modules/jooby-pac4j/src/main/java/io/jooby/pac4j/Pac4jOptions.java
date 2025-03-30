@@ -26,7 +26,7 @@ import io.jooby.SameSite;
  */
 public class Pac4jOptions extends Config {
 
-  private String defaultUrl;
+  private String defaultUrl = "/";
 
   private Boolean saveInSession;
 

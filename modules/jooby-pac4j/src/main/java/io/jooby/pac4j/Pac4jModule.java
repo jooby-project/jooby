@@ -8,11 +8,7 @@ package io.jooby.pac4j;
 import static io.jooby.internal.pac4j.ClientReference.lazyClientNameList;
 import static java.util.Optional.ofNullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,7 +36,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.internal.pac4j.*;
@@ -348,6 +343,8 @@ public class Pac4jModule implements Extension {
   public void install(@NonNull Jooby app) throws Exception {
     var services = app.getServices();
     services.putIfAbsent(Pac4jOptions.class, options);
+    app.getServices().put(Config.class, options);
+
     // Set defaults:
     services.putIfAbsent(Serializer.class, options.getSerializer());
 
@@ -551,23 +548,7 @@ public class Pac4jModule implements Extension {
     app.errorCode(ForbiddenAction.class, StatusCode.FORBIDDEN);
 
     /* Compute default url as next available route. We only select static path patterns. */
-    if (options.getDefaultUrl() == null) {
-      int index = app.getRoutes().size();
-      app.onStarting(
-          () -> {
-            List<Route> routes = app.getRoutes();
-            String defaultUrl = app.getContextPath();
-            if (index < routes.size()) {
-              Route route = routes.get(index);
-              if (route.getPathKeys().isEmpty()) {
-                defaultUrl = contextPath + route.getPattern();
-              }
-            }
-            options.setDefaultUrl(defaultUrl);
-          });
-    }
-
-    app.getServices().put(Config.class, options);
+    options.setDefaultUrl(Optional.ofNullable(options.getDefaultUrl()).orElse("/"));
 
     /* Set current user provider */
     app.setCurrentUser(new Pac4jCurrentUser(options));
