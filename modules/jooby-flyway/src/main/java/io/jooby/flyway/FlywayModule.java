@@ -121,8 +121,10 @@ public class FlywayModule implements Extension {
         break;
       case "baseline":
         flyway.baseline();
+        break;
       case "repair":
         flyway.repair();
+        break;
       default:
         throw new IllegalArgumentException("Unknown flyway command: " + command);
     }
