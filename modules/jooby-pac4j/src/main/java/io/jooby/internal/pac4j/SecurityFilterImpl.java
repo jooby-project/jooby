@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.pac4j;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.client.finder.DefaultSecurityClientFinder;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import org.pac4j.core.engine.SecurityLogic;
+import org.pac4j.core.matching.matcher.DefaultMatchers;
 import org.pac4j.core.util.Pac4jConstants;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -74,8 +76,19 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
       var securityLogic = config.getSecurityLogic();
       var clients = ctx.lookup(clientName(securityLogic)).value(this.clients.get());
       var authorizers = ofNullable(this.authorizers).orElse(NoopAuthorizer.NAME);
+      var matcherSet = ofNullable(config.getMatchers()).orElse(emptyMap()).keySet();
+      var matchers =
+          matcherSet.isEmpty()
+              ? DefaultMatchers.NONE
+              : String.join(Pac4jConstants.ELEMENT_SEPARATOR, matcherSet);
+
       return securityLogic.perform(
-          config, accessAdapter, clients, authorizers, null, Pac4jFrameworkParameters.create(ctx));
+          config,
+          accessAdapter,
+          clients,
+          authorizers,
+          matchers,
+          Pac4jFrameworkParameters.create(ctx));
     } catch (RuntimeException re) {
       if (re.getCause() != null) {
         throw SneakyThrows.propagate(re.getCause());

@@ -5,10 +5,7 @@
  */
 package io.jooby.internal.pac4j;
 
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static java.util.regex.Pattern.compile;
-
-import java.util.regex.Pattern;
+import java.net.URI;
 
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.http.url.UrlResolver;
@@ -19,27 +16,35 @@ import io.jooby.pac4j.Pac4jContext;
 
 public class UrlResolverImpl implements UrlResolver {
 
-  private static final Pattern HTTP_URL = compile("^https?:.*", CASE_INSENSITIVE);
-
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Override
-  public String compute(String path, WebContext context) {
+  public String compute(String url, WebContext context) {
+    var absoluteURL = isAbsoluteURL(url);
     if (context == null) {
-      if (!HTTP_URL.matcher(path).matches()) {
+      if (!absoluteURL) {
         log.warn(
             "Unable to resolve URL from path '{}' since no web context was provided. This may"
                 + " prevent some authentication clients to work properly. Consider explicitly"
                 + " specifying an absolute callback URL or using a custom url resolver.",
-            path);
+            url);
       }
 
-      return path;
+      return url;
     }
-
-    String requestURL = ((Pac4jContext) context).getContext().getRequestURL(path);
+    // Rewrite using context which might uses trust proxy setting.
+    var path = absoluteURL ? URI.create(url).getPath() : url;
+    var requestURL = ((Pac4jContext) context).getContext().getRequestURL(path);
     // no query String
     int i = requestURL.indexOf('?');
     return i > 0 ? requestURL.substring(0, i) : requestURL;
+  }
+
+  private static boolean isAbsoluteURL(String url) {
+    try {
+      return URI.create(url).isAbsolute();
+    } catch (Exception ignored) {
+      return false;
+    }
   }
 }

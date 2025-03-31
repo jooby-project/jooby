@@ -5,8 +5,11 @@
  */
 package io.jooby.pac4j;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.pac4j.core.client.Client;
+import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.util.serializer.JavaSerializer;
 import org.pac4j.core.util.serializer.Serializer;
@@ -71,6 +74,26 @@ public class Pac4jOptions extends Config {
   }
 
   public Pac4jOptions() {}
+
+  public Pac4jOptions(Clients clients) {
+    super(clients);
+  }
+
+  public Pac4jOptions(Client client) {
+    super(client);
+  }
+
+  public Pac4jOptions(List<Client> client) {
+    super(client);
+  }
+
+  public Pac4jOptions(String callbackPath, Client client) {
+    super(callbackPath, client);
+  }
+
+  public Pac4jOptions(String callbackPath, List<Client> clients) {
+    super(callbackPath, clients);
+  }
 
   /**
    * Get a Pac4j options instance of {@link Config}.

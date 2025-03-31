@@ -78,7 +78,7 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
     if (value == null || value.toString().isEmpty()) {
       getSessionOrEmpty(context).ifPresent(session -> session.remove(key));
     } else {
-      String encoded = objToStr(context(context).require(Serializer.class), value);
+      var encoded = objToStr(context(context).require(Serializer.class), value);
       getSession(context).put(key, encoded);
     }
   }
