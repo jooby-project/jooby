@@ -21,11 +21,10 @@ public class HttpChunkContentCompressor extends HttpContentCompressor {
   @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise)
       throws Exception {
-    if (msg instanceof ByteBuf) {
+    if (msg instanceof ByteBuf buff) {
       // convert ByteBuf to HttpContent to make it work with compression. This is needed as we use
       // the
       // ChunkedWriteHandler to send files when compression is enabled.
-      ByteBuf buff = (ByteBuf) msg;
       if (buff.isReadable()) {
         // We only encode non empty buffers, as empty buffers can be used for determining when
         // the content has been flushed and it confuses the HttpContentCompressor

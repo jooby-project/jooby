@@ -24,9 +24,10 @@ module io.jooby.netty {
   requires io.netty.common;
   requires io.netty.buffer;
   requires io.netty.codec;
+  requires io.netty.codec.compression;
   requires static io.netty.transport.classes.epoll;
   requires static io.netty.transport.classes.kqueue;
-  requires static io.netty.incubator.transport.classes.io_uring;
+  requires static io.netty.transport.classes.io_uring;
 
   provides Server with
       NettyServer;

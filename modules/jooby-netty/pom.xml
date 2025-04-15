@@ -49,9 +49,9 @@
     </dependency>
 
     <dependency>
-      <groupId>io.netty.incubator</groupId>
-      <artifactId>netty-incubator-transport-native-io_uring</artifactId>
-      <version>0.0.26.Final</version>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-io_uring</artifactId>
+      <version>${netty.version}</version>
       <optional>true</optional>
     </dependency>
 

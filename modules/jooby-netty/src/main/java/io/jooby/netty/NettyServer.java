@@ -12,8 +12,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import java.net.BindException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
 import javax.net.ssl.SSLContext;
 
@@ -55,7 +54,7 @@ public class NettyServer extends Server.Base {
 
   private EventLoopGroup acceptorloop;
   private EventLoopGroup eventloop;
-  private EventLoopGroup dateLoop;
+  private ScheduledExecutorService dateLoop;
   private ExecutorService worker;
 
   private NettyDataBufferFactory bufferFactory;
@@ -142,7 +141,7 @@ public class NettyServer extends Server.Base {
 
       /* Event loop: processing connections, parsing messages and doing engine's internal work */
       this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", _100);
-      this.dateLoop = transport.createEventLoop(1, "date-service", _100);
+      this.dateLoop = Executors.newSingleThreadScheduledExecutor();
       var dateService = new NettyDateService(dateLoop);
 
       /* File data factory: */
@@ -235,9 +234,12 @@ public class NettyServer extends Server.Base {
     // only for jooby build where close events may take longer.
     NettyWebSocket.all.clear();
 
-    shutdown(acceptorloop);
-    shutdown(eventloop);
-    shutdown(dateLoop);
+    // required after Netty 4.2
+    shutdown(acceptorloop, 0);
+    shutdown(eventloop, 2);
+    if (dateLoop != null) {
+      dateLoop.shutdown();
+    }
     if (worker != null) {
       worker.shutdown();
       worker = null;
@@ -245,9 +247,9 @@ public class NettyServer extends Server.Base {
     return this;
   }
 
-  private void shutdown(EventLoopGroup eventLoopGroup) {
+  private void shutdown(EventLoopGroup eventLoopGroup, int quietPeriod) {
     if (eventLoopGroup != null) {
-      eventLoopGroup.shutdownGracefully();
+      eventLoopGroup.shutdownGracefully(quietPeriod, 15, TimeUnit.SECONDS);
     }
   }
 
