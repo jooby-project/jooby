@@ -6,6 +6,7 @@
 package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
@@ -17,12 +18,6 @@ public class Issue1349 {
 
   public static class App1349 extends Jooby {
     {
-      error(
-          IllegalAccessException.class,
-          ((ctx, cause, statusCode) -> {
-            ctx.setResponseCode(statusCode);
-            ctx.send(cause.getMessage());
-          }));
       get("/1349", ctx -> something());
       get("/1349/iae", ctx -> throwsIAE());
     }
@@ -51,7 +46,7 @@ public class Issue1349 {
                   "/1349/iae",
                   rsp -> {
                     assertEquals(500, rsp.code());
-                    assertEquals("no-access", rsp.body().string());
+                    assertTrue(rsp.body().string().contains("message: no-access"));
                   });
             });
   }

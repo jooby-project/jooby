@@ -120,7 +120,7 @@ public class App extends Jooby {
     get(
         "/throw-illegal-state-exception",
         ctx -> {
-          throw new IllegalStateException();
+          throw new IllegalStateException("expected error");
         });
 
     get(

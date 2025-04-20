@@ -21,8 +21,15 @@ class VerifyArgTypeTest {
   @ParameterizedTest
   @MethodSource("provideControllers")
   public void compileController_illegalArgumentType_shouldThrowException(Object controller) {
-    RuntimeException ex =
-        assertThrows(RuntimeException.class, () -> new ProcessorRunner(controller));
+    var ex =
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                new ProcessorRunner(
+                    controller,
+                    error -> {
+                      // NOOP
+                    }));
 
     assertTrue(ex.getMessage().contains("Illegal argument type at"));
   }

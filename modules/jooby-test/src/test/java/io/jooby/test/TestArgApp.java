@@ -5,10 +5,14 @@
  */
 package io.jooby.test;
 
+import java.util.List;
+
 import io.jooby.Jooby;
+import io.jooby.StartupSummary;
 
 public class TestArgApp extends Jooby {
   public TestArgApp(String name) {
+    setStartupSummary(List.of(StartupSummary.NONE));
     get("/", ctx -> name);
   }
 }

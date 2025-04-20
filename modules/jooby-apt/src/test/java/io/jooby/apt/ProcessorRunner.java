@@ -99,8 +99,17 @@ public class ProcessorRunner {
     this(instance, Map.of());
   }
 
+  public ProcessorRunner(Object instance, Consumer<String> stdout) throws IOException {
+    this(instance, stdout, Map.of());
+  }
+
   public ProcessorRunner(Object instance, Map<String, Object> options) throws IOException {
-    this.processor = new HookJoobyProcessor(System.out::println);
+    this(instance, System.out::println, options);
+  }
+
+  public ProcessorRunner(Object instance, Consumer<String> stdout, Map<String, Object> options)
+      throws IOException {
+    this.processor = new HookJoobyProcessor(stdout::accept);
     var optionsArray =
         options.entrySet().stream().map(e -> "-A" + e.getKey() + "=" + e.getValue()).toList();
     Truth.assert_()

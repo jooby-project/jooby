@@ -100,16 +100,9 @@ public class ServerTestRunner {
       if (mavenBuild) {
         applogger = app.getClass().getName();
         app.setStartupSummary(List.of(StartupSummary.NONE));
-        if (app.getErrorHandler() == null) {
-          app.error(
-              new DefaultErrorHandler() {
-                @Override
-                protected void log(Context ctx, Throwable cause, StatusCode code) {
-                  app.getLog()
-                      .info(ErrorHandler.errorMessage(ctx, code) + ": " + cause.getMessage());
-                }
-              });
-        }
+        app.error(
+            Optional.ofNullable(app.getErrorHandler())
+                .orElseGet(ServerTestRunner::buildErrorHandler));
       }
 
       ServerOptions serverOptions = app.getServerOptions();
@@ -152,6 +145,18 @@ public class ServerTestRunner {
         MutedServer.mute(server).stop();
       }
     }
+  }
+
+  private static DefaultErrorHandler buildErrorHandler() {
+    return new DefaultErrorHandler() {
+      @Override
+      protected void log(Context ctx, Throwable cause, StatusCode code) {
+        ctx.getRouter()
+            .getLog()
+            .info(ErrorHandler.errorMessage(ctx, code) + ": " + cause.getMessage());
+        ctx.getRouter().getLog().debug(ErrorHandler.errorMessage(ctx, code), cause.getMessage());
+      }
+    };
   }
 
   private boolean disabled() {
