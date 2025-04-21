@@ -6,11 +6,11 @@
 package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -29,66 +29,76 @@ public class Issue1990 {
 
   @Test
   public void withoutContextRelative() {
-    Logger log = (Logger) LoggerFactory.getLogger(UrlResolverImpl.class);
-    ListAppender<ILoggingEvent> appender = new ListAppender<>();
-    appender.start();
-    log.addAppender(appender);
+    var event =
+        withLogback(
+            new UrlResolverImpl(),
+            resolver -> {
+              assertEquals("/callback", resolver.compute("/callback", null));
+            });
+    assertTrue(event.isPresent());
 
-    UrlResolverImpl resolver = new UrlResolverImpl();
-
-    assertEquals("/callback", resolver.compute("/callback", null));
-    assertFalse(appender.list.isEmpty());
-
-    ILoggingEvent event = appender.list.get(0);
+    var e = event.get();
 
     assertEquals(
         "Unable to resolve URL from path '{}' since no web context was provided. This may prevent"
             + " some authentication clients to work properly. Consider explicitly specifying an"
             + " absolute callback URL or using a custom url resolver.",
-        event.getMessage());
+        e.getMessage());
 
-    assertEquals(Level.WARN, event.getLevel());
-    assertNotNull(event.getArgumentArray());
-    assertTrue(event.getArgumentArray().length > 0);
-    assertEquals("/callback", event.getArgumentArray()[0]);
+    assertEquals(Level.WARN, e.getLevel());
+    var args = e.getArgumentArray();
+    assertNotNull(args);
+    assertTrue(args.length > 0);
+    assertEquals("/callback", args[0]);
   }
 
   @Test
   public void withoutContextAbsolute() {
-    Logger log = (Logger) LoggerFactory.getLogger(UrlResolverImpl.class);
-    ListAppender<ILoggingEvent> appender = new ListAppender<>();
-    appender.start();
-    log.addAppender(appender);
-
-    UrlResolverImpl resolver = new UrlResolverImpl();
-
-    assertEquals("https://foo/bar", resolver.compute("https://foo/bar", null));
-    assertEquals("http://foo/bar", resolver.compute("http://foo/bar", null));
-    assertEquals("HTTPS://foo/bar", resolver.compute("HTTPS://foo/bar", null));
-    assertEquals("HTTP://foo/bar", resolver.compute("HTTP://foo/bar", null));
-
-    assertTrue(appender.list.isEmpty());
+    var event =
+        withLogback(
+            new UrlResolverImpl(),
+            resolver -> {
+              assertEquals("https://foo/bar", resolver.compute("https://foo/bar", null));
+              assertEquals("http://foo/bar", resolver.compute("http://foo/bar", null));
+              assertEquals("HTTPS://foo/bar", resolver.compute("HTTPS://foo/bar", null));
+              assertEquals("HTTP://foo/bar", resolver.compute("HTTP://foo/bar", null));
+            });
+    assertTrue(event.isEmpty());
   }
 
   @ServerTest
   public void withContext(ServerTestRunner runner) {
-    AtomicInteger port = new AtomicInteger();
-
     runner
         .define(
             app -> {
               UrlResolverImpl resolver = new UrlResolverImpl();
               app.get("/", ctx -> resolver.compute("/callback?q=foo", Pac4jContext.create(ctx)));
-              app.onStarted(() -> port.set(app.getServerOptions().getPort()));
             })
         .ready(
             http -> {
-              String portFragment = port.get() == Context.PORT ? "" : ":" + port.get();
+              var port = runner.getAllocatedPort();
+              String portFragment = port == Context.PORT ? "" : ":" + port;
               http.get(
                   "/",
                   rsp ->
                       assertEquals(
                           "http://localhost" + portFragment + "/callback", rsp.body().string()));
             });
+  }
+
+  private Optional<ILoggingEvent> withLogback(
+      UrlResolverImpl resolver, Consumer<UrlResolverImpl> consumer) {
+    var log = (Logger) LoggerFactory.getLogger(resolver.getClass());
+    // MUST RUN ON INFO LEVEL
+    log.setLevel(Level.INFO);
+    var appender = new ListAppender<ILoggingEvent>();
+    try {
+      appender.start();
+      log.addAppender(appender);
+      consumer.accept(resolver);
+      return appender.list.stream().findFirst();
+    } finally {
+      appender.stop();
+    }
   }
 }

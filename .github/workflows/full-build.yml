@@ -30,6 +30,7 @@ jobs:
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
+          BUILD_LOG_LEVEL: 'ERROR'
       - name: Test Result
         uses: mikepenz/action-junit-report@v3
         if: failure()

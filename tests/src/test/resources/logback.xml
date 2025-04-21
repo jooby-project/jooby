@@ -2,13 +2,13 @@
 <configuration>
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%-5p [%d{ISO8601}] [%thread] %msg%n</pattern>
+      <pattern>%-5p [%d{ISO8601}] [%thread] %msg %ex{0}%n</pattern>
     </encoder>
   </appender>
 
-  <logger name="okhttp3.Request" level="TRACE" />
+  <variable name="BUILD_LOG_LEVEL" value="${BUILD_LOG_LEVEL:-INFO}" />
 
-  <root level="INFO">
+  <root level="${BUILD_LOG_LEVEL}">
     <appender-ref ref="STDOUT"/>
   </root>
 </configuration>

@@ -17,7 +17,6 @@ import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.jooby.exception.InvalidCsrfToken;
 import io.jooby.exception.StatusCodeException;
-import io.jooby.handler.AccessLogHandler;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.problem.HttpProblem;
 
@@ -37,7 +36,6 @@ public class App extends Jooby {
                 List.of("io.jooby.exception.UnauthorizedException")));
     getEnvironment().setConfig(problemDetailsConfig.withFallback(getConfig()));
 
-    use(new AccessLogHandler());
     install(new JacksonModule());
 
     get(
@@ -183,9 +181,5 @@ public class App extends Jooby {
           var p = HttpProblem.valueOf(StatusCode.BAD_REQUEST, ex.getMessage());
           ctx.getRouter().getErrorHandler().apply(ctx, p, code);
         });
-  }
-
-  public static void main(final String[] args) {
-    runApp(args, App::new);
   }
 }
