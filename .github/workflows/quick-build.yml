@@ -37,7 +37,7 @@ jobs:
           BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
       - name: Test Result
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@v5
         if: failure()
         with:
           check_name: JUnit ${{ matrix.kind }} ${{ matrix.java_version }} ${{ matrix.os }}
