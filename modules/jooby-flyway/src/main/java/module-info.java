@@ -11,5 +11,5 @@ module io.jooby.flyway {
   requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires java.sql;
-  requires org.flywaydb.core;
+  requires flyway.core;
 }
