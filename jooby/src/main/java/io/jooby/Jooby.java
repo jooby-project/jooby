@@ -1311,10 +1311,13 @@ public class Jooby implements Router, Registry {
     /* Dump command line as system properties. */
     parseArguments(args).forEach(System::setProperty);
     var apps = new ArrayList<Jooby>();
+    var targetServer = server.getLoggerOff().isEmpty() ? server : MutedServer.mute(server);
     for (var factory : provider) {
-      apps.add(createApp(executionMode, factory));
+      var app = createApp(executionMode, factory);
+      app.server = targetServer;
+      apps.add(app);
     }
-    server.start(apps.toArray(new Jooby[0]));
+    targetServer.start(apps.toArray(new Jooby[0]));
   }
 
   /**
