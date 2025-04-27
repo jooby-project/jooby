@@ -29,10 +29,6 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpDecoderConfig;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
-import io.netty.handler.codec.http.multipart.DiskAttribute;
-import io.netty.handler.codec.http.multipart.DiskFileUpload;
-import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
@@ -58,7 +54,7 @@ public class NettyServer extends Server.Base {
   private ExecutorService worker;
 
   private NettyDataBufferFactory bufferFactory;
-  private Jooby application;
+  private List<Jooby> applications;
 
   private ServerOptions options = new ServerOptions().setServer("netty");
 
@@ -112,9 +108,10 @@ public class NettyServer extends Server.Base {
   }
 
   @NonNull @Override
-  public Server start(@NonNull Jooby application) {
+  public Server start(@NonNull Jooby... application) {
     try {
-      this.application = application;
+      this.applications = List.of(application);
+      boolean single = applications.size() == 1;
       /* Worker: Application blocking code */
       if (worker == null) {
         worker = newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
@@ -123,18 +120,15 @@ public class NettyServer extends Server.Base {
         bufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
       }
       // Make sure context use same buffer factory
-      application.setBufferFactory(bufferFactory);
+      applications.forEach(app -> app.setBufferFactory(bufferFactory));
 
       addShutdownHook();
 
       fireStart(List.of(application), worker);
 
-      /* Disk attributes: */
-      String tmpdir = application.getTmpdir().toString();
-      DiskFileUpload.baseDirectory = tmpdir;
-      DiskAttribute.baseDirectory = tmpdir;
+      var classLoader = applications.get(0).getClassLoader();
 
-      var transport = NettyTransport.transport(application.getClassLoader());
+      var transport = NettyTransport.transport(classLoader);
 
       /* Acceptor event-loop */
       this.acceptorloop = transport.createEventLoop(1, "acceptor", _50);
@@ -144,35 +138,30 @@ public class NettyServer extends Server.Base {
       this.dateLoop = Executors.newSingleThreadScheduledExecutor();
       var dateService = new NettyDateService(dateLoop);
 
-      /* File data factory: */
-      var factory = new DefaultHttpDataFactory(options.getBufferSize());
       var allocator = bufferFactory.getByteBufAllocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {
-        var http =
-            newBootstrap(allocator, transport, newPipeline(null, factory, dateService, http2));
+        var http = newBootstrap(allocator, transport, newPipeline(null, dateService, http2));
         http.bind(options.getHost(), options.getPort()).get();
       }
 
       if (options.isSSLEnabled()) {
-        var javaSslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
+        var javaSslContext = options.getSSLContext(classLoader);
 
         var sslOptions = options.getSsl();
         var protocol = sslOptions.getProtocol().toArray(String[]::new);
 
         var clientAuth = sslOptions.getClientAuth();
         var sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
-        var https =
-            newBootstrap(
-                allocator, transport, newPipeline(sslContext, factory, dateService, http2));
+        var https = newBootstrap(allocator, transport, newPipeline(sslContext, dateService, http2));
         https.bind(options.getHost(), options.getSecurePort()).get();
       } else if (options.isHttpsOnly()) {
         throw new IllegalArgumentException(
             "Server configured for httpsOnly, but ssl options not set");
       }
 
-      fireReady(List.of(application));
+      fireReady(applications);
     } catch (InterruptedException x) {
       throw SneakyThrows.propagate(x);
     } catch (ExecutionException x) {
@@ -204,7 +193,7 @@ public class NettyServer extends Server.Base {
   }
 
   private NettyPipeline newPipeline(
-      SslContext sslContext, HttpDataFactory factory, NettyDateService dateService, boolean http2) {
+      SslContext sslContext, NettyDateService dateService, boolean http2) {
     var bufferSize = options.getBufferSize();
     var headersFactory = HeadersMultiMap.httpHeadersFactory();
     var decoderConfig =
@@ -217,9 +206,8 @@ public class NettyServer extends Server.Base {
     return new NettyPipeline(
         sslContext,
         dateService,
-        factory,
         decoderConfig,
-        application,
+        applications,
         options.getMaxRequestSize(),
         bufferSize,
         options.getDefaultHeaders(),
@@ -230,7 +218,7 @@ public class NettyServer extends Server.Base {
 
   @NonNull @Override
   public synchronized Server stop() {
-    fireStop(List.of(application));
+    fireStop(applications);
     // only for jooby build where close events may take longer.
     NettyWebSocket.all.clear();
 

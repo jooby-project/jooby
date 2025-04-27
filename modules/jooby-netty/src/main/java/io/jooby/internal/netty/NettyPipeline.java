@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.netty;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import io.jooby.Jooby;
@@ -14,16 +15,14 @@ import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.ssl.SslContext;
 
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private static final String H2_HANDSHAKE = "h2-handshake";
   private final SslContext sslContext;
   private final NettyDateService serverDate;
-  private final HttpDataFactory httpDataFactory;
   private final HttpDecoderConfig decoderConfig;
-  private final Jooby router;
+  private final List<Jooby> applications;
   private final long maxRequestSize;
   private final int bufferSize;
   private final boolean defaultHeaders;
@@ -34,9 +33,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   public NettyPipeline(
       SslContext sslContext,
       NettyDateService dateService,
-      HttpDataFactory httpDataFactory,
       HttpDecoderConfig decoderConfig,
-      Jooby router,
+      List<Jooby> applications,
       long maxRequestSize,
       int bufferSize,
       boolean defaultHeaders,
@@ -45,9 +43,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       Integer compressionLevel) {
     this.sslContext = sslContext;
     this.serverDate = dateService;
-    this.httpDataFactory = httpDataFactory;
     this.decoderConfig = decoderConfig;
-    this.router = router;
+    this.applications = applications;
     this.maxRequestSize = maxRequestSize;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
@@ -58,12 +55,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
   private NettyHandler createHandler() {
     return new NettyHandler(
-        serverDate, router, maxRequestSize, bufferSize, httpDataFactory, defaultHeaders, http2);
+        serverDate, applications, maxRequestSize, bufferSize, defaultHeaders, http2);
   }
 
   @Override
   public void initChannel(SocketChannel ch) {
-    ChannelPipeline p = ch.pipeline();
+    var p = ch.pipeline();
     if (sslContext != null) {
       p.addLast("ssl", sslContext.newHandler(ch.alloc()));
     }

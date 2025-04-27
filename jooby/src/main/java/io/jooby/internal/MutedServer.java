@@ -65,7 +65,7 @@ public class MutedServer implements Server {
     return delegate.getOptions();
   }
 
-  @NonNull public Server start(@NonNull Jooby application) {
+  @NonNull public Server start(@NonNull Jooby... application) {
     loggingService.logOff(mute, () -> delegate.start(application));
     return delegate;
   }

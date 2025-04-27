@@ -48,7 +48,7 @@ public class UndertowServer extends Server.Base {
   private static final int _10 = 10;
 
   private Undertow server;
-  private Jooby application;
+  private List<Jooby> applications;
 
   private ServerOptions options =
       new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer("utow");
@@ -71,15 +71,15 @@ public class UndertowServer extends Server.Base {
   }
 
   @Override
-  public @NonNull Server start(@NonNull Jooby application) {
+  public @NonNull Server start(@NonNull Jooby... application) {
     try {
-      this.application = application;
+      this.applications = List.of(application);
 
       addShutdownHook();
 
       HttpHandler handler =
           new UndertowHandler(
-              application,
+              this.applications,
               options.getBufferSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
@@ -134,8 +134,8 @@ public class UndertowServer extends Server.Base {
 
       // HTTP @
       builder.setServerOption(ENABLE_HTTP2, options.isHttp2() == Boolean.TRUE);
-
-      SSLContext sslContext = options.getSSLContext(application.getEnvironment().getClassLoader());
+      var classLoader = this.applications.get(0).getClassLoader();
+      SSLContext sslContext = options.getSSLContext(classLoader);
       if (sslContext != null) {
         builder.addHttpsListener(options.getSecurePort(), options.getHost(), sslContext);
         SslOptions ssl = options.getSsl();
@@ -148,11 +148,11 @@ public class UndertowServer extends Server.Base {
       } else if (options.isHttpsOnly()) {
         throw new StartupException("Server configured for httpsOnly, but ssl options not set");
       }
-      fireStart(List.of(application), worker);
+      fireStart(applications, worker);
       server = builder.build();
       server.start();
 
-      fireReady(List.of(application));
+      fireReady(applications);
 
       return this;
     } catch (Exception x) {
@@ -181,7 +181,7 @@ public class UndertowServer extends Server.Base {
   @NonNull @Override
   public synchronized Server stop() {
     try {
-      fireStop(List.of(application));
+      fireStop(applications);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     } finally {

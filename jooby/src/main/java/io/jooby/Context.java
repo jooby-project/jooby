@@ -46,6 +46,38 @@ import io.jooby.internal.WebSocketSender;
  */
 public interface Context extends Registry {
 
+  interface Selector {
+    Jooby select(List<Jooby> applications, String path);
+
+    static Selector create(List<Jooby> applications) {
+      return applications.size() == 1 ? single() : multiple();
+    }
+
+    static Selector multiple() {
+      return (applications, path) -> {
+        var defaultApp = applications.get(0);
+        for (var app : applications) {
+          var contextPath = app.getContextPath();
+          if ("/".equals(contextPath)) {
+            defaultApp = app;
+          } else if (path.startsWith(contextPath)) {
+            return app;
+          }
+        }
+        return defaultApp;
+      };
+    }
+
+    static Selector single() {
+      return new Selector() {
+        @Override
+        public Jooby select(List<Jooby> applications, String path) {
+          return applications.get(0);
+        }
+      };
+    }
+  }
+
   /** Constant for default HTTP port. */
   int PORT = 80;
 

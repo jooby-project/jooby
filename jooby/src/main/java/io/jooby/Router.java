@@ -794,11 +794,11 @@ public interface Router extends Registry {
    * <p>If no match exists this method returns a route with a <code>404</code> handler. See {@link
    * Route#NOT_FOUND}.
    *
-   * @param method Method to match.
+   * @param pattern Pattern to match.
    * @param path Path to match.
    * @return A route match result.
    */
-  boolean match(@NonNull String method, @NonNull String path);
+  boolean match(@NonNull String pattern, @NonNull String path);
 
   /* Error handler: */
 
