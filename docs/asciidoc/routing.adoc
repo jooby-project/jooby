@@ -1364,11 +1364,11 @@ Done {love}!
 
 === Multiple routers
 
-This model let you `run` multiple applications independently on single server. Each application
+This model let you `run` multiple applications on single server instance. Each application
 works like a standalone application, they don't share any kind of services.
 
 .Multiple routers
-[source, java]
+[source, java,role="primary"]
 ----
 public class Foo extends Jooby {
   {
@@ -1390,6 +1390,17 @@ public class MultiApp {
   public static void main(String[] args) {
     runApp(args, List.of(Foo::new, Bar::new));
   }
+}
+----
+
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+
+import io.jooby.kt.Kooby.runApp
+
+fun main(args: Array<String>) {
+  runApp(args, ::Foo, ::Bar)
 }
 ----
 
