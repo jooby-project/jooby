@@ -11,7 +11,7 @@
 
   <properties>
     <application.class>io.jooby.adoc.DocApp</application.class>
-    <jooby.version>3.2.0</jooby.version>
+    <jooby.version>3.7.0</jooby.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.release>17</maven.compiler.release>
@@ -20,7 +20,7 @@
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-undertow</artifactId>
+      <artifactId>jooby-netty</artifactId>
       <version>${jooby.version}</version>
     </dependency>
 
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>org.asciidoctor</groupId>
       <artifactId>asciidoctorj</artifactId>
-      <version>2.5.7</version>
+      <version>3.0.0</version>
     </dependency>
 
     <dependency>
@@ -63,7 +63,7 @@
     <dependency>
       <groupId>io.methvin</groupId>
       <artifactId>directory-watcher</artifactId>
-      <version>0.18.0</version>
+      <version>0.19.0</version>
     </dependency>
 
     <!-- zt-exec -->

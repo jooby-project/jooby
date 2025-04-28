@@ -251,30 +251,30 @@ public class DocGenerator {
 
   private static Options createOptions(Path basedir, Path outdir, String version, String title)
       throws IOException {
-    Attributes attributes = new Attributes();
+    var attributes = Attributes.builder();
 
-    attributes.setAttribute("love", "&#9825;");
-    attributes.setAttribute("docinfo", "shared");
-    attributes.setTitle(title == null ? "jooby: do more! more easily!!" : "jooby: " + title);
-    attributes.setTableOfContents(Placement.LEFT);
-    attributes.setAttribute("toclevels", "3");
+    attributes.attribute("love", "&#9825;");
+    attributes.attribute("docinfo", "shared");
+    attributes.title(title == null ? "jooby: do more! more easily!!" : "jooby: " + title);
+    attributes.tableOfContents(Placement.LEFT);
+    attributes.attribute("toclevels", "3");
     attributes.setAnchors(true);
-    attributes.setAttribute("sectlinks", "");
-    attributes.setSectionNumbers(true);
-    attributes.setAttribute("sectnumlevels", "3");
-    attributes.setLinkAttrs(true);
-    attributes.setNoFooter(true);
-    attributes.setAttribute("idprefix", "");
-    attributes.setAttribute("idseparator", "-");
-    attributes.setIcons("font");
-    attributes.setAttribute("description", "The modular micro web framework for Java");
-    attributes.setAttribute(
+    attributes.attribute("sectlinks", "");
+    attributes.sectionNumbers(true);
+    attributes.attribute("sectnumlevels", "3");
+    attributes.linkAttrs(true);
+    attributes.noFooter(true);
+    attributes.attribute("idprefix", "");
+    attributes.attribute("idseparator", "-");
+    attributes.icons("font");
+    attributes.attribute("description", "The modular micro web framework for Java");
+    attributes.attribute(
         "keywords", "Java, Modern, Micro, Web, Framework, Reactive, Lightweight, Microservices");
-    attributes.setImagesDir("images");
-    attributes.setSourceHighlighter("highlightjs");
-    attributes.setAttribute("highlightjsdir", "js");
-    attributes.setAttribute("highlightjs-theme", "agate");
-    attributes.setAttribute("favicon", "images/favicon96.png");
+    attributes.imagesDir("images");
+    attributes.sourceHighlighter("highlightjs");
+    attributes.attribute("highlightjsdir", "js");
+    attributes.attribute("highlightjs-theme", "agate");
+    attributes.attribute("favicon", "images/favicon96.png");
 
     // versions:
     Document pom =
@@ -283,21 +283,20 @@ public class DocGenerator {
           var tagName = tag.tagName();
           var value = tag.text().trim();
           Stream.of(tagName, tagName.replaceAll("[.-]", "_"), tagName.replaceAll("[.-]", "-"), toJavaName(tagName))
-                  .forEach(key -> attributes.setAttribute(key, value));
+                  .forEach(key -> attributes.attribute(key, value));
         });
 
-    attributes.setAttribute("joobyVersion", version);
-    attributes.setAttribute("date", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
+    attributes.attribute("joobyVersion", version);
+    attributes.attribute("date", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
 
     OptionsBuilder options = Options.builder();
     options.backend("html");
 
-    options.attributes(attributes);
+    options.attributes(attributes.build());
     options.baseDir(basedir.toAbsolutePath().toFile());
     options.docType("book");
     options.toDir(outdir.toFile());
     options.mkDirs(true);
-    options.destinationDir(outdir.resolve("site").toFile());
     options.safe(SafeMode.UNSAFE);
     return options.build();
   }

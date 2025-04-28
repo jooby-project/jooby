@@ -1362,6 +1362,45 @@ Output:
 
 Done {love}!
 
+=== Multiple routers
+
+This model let you `run` multiple applications independently on single server. Each application
+works like a standalone application, they don't share any kind of services.
+
+.Multiple routers
+[source, java]
+----
+public class Foo extends Jooby {
+  {
+    setContextPath("/foo");
+    get("/hello", ctx -> ...);
+  }
+}
+
+public class Bar extends Jooby {
+  {
+    setContextPath("/bar");
+    get("/hello", ctx -> ...);
+  }
+}
+
+import static io.jooby.Jooby.runApp;
+
+public class MultiApp {
+  public static void main(String[] args) {
+    runApp(args, List.of(Foo::new, Bar::new));
+  }
+}
+----
+
+You write your application as always and them you deploy them using the `runApp` method.
+
+[IMPORTANT]
+====
+Due to nature of logging framework (static loading and initialization) the logging bootstrap
+might not work as you expected. It is recommend to use just the `logback.xml` or `log4j.xml` file.
+====
+
 === Options
 
 include::router-hidden-method.adoc[]

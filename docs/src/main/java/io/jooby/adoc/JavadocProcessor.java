@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.asciidoctor.ast.ContentNode;
+import org.asciidoctor.ast.PhraseNode;
+import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.extension.InlineMacroProcessor;
 
 public class JavadocProcessor extends InlineMacroProcessor {
@@ -22,8 +24,7 @@ public class JavadocProcessor extends InlineMacroProcessor {
   }
 
   @Override
-  public Object process(ContentNode parent, String clazz, Map<String, Object> attributes) {
-
+  public PhraseNode process(StructuralNode parent, String clazz, Map<String, Object> attributes) {
     StringBuilder link =
         new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby/latest/io.jooby/io/jooby/");
     StringBuilder text = new StringBuilder();

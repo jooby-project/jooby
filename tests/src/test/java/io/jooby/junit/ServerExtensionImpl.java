@@ -104,7 +104,7 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
               return serverInfos.stream();
             })
         .sorted()
-        .map(info -> invocationContext(info));
+        .map(this::invocationContext);
   }
 
   private Class[] defaultServers(String serverName) {
@@ -125,7 +125,7 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
 
       @Override
       public List<Extension> getAdditionalExtensions() {
-        return Arrays.asList(new ServerParameterResolver(serverInfo.server, serverInfo.mode));
+        return List.of(new ServerParameterResolver(serverInfo.server, serverInfo.mode));
       }
     };
   }
