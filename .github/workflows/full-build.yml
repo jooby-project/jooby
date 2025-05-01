@@ -22,7 +22,10 @@ jobs:
         with:
           java-version: ${{ matrix.jre }}
           distribution: 'temurin'
-          cache: maven
+      - name: Restore Maven cache
+        uses: skjolber/maven-cache-github-action@v3.1.1
+        with:
+          step: restore
       - name: Install
         run: mvn clean install -DskipTests -q -P gradlePlugin
       - name: Build
@@ -31,6 +34,10 @@ jobs:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
+      - name: Save Maven Cache
+        uses: skjolber/maven-cache-github-action@v3.1.1
+        with:
+          step: save
       - name: Test Result
         uses: mikepenz/action-junit-report@v5
         if: failure()
