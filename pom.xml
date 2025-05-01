@@ -74,10 +74,10 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.6.13.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
-    <jdbi.version>3.49.2</jdbi.version>
+    <jdbi.version>3.49.3</jdbi.version>
     <flyway.version>11.8.0</flyway.version>
     <graphql-java.version>23.1</graphql-java.version>
-    <lettuce.version>6.5.5.RELEASE</lettuce.version>
+    <lettuce.version>6.6.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
     <kafka.version>4.0.0</kafka.version>
     <caffeine.version>3.2.0</caffeine.version>
