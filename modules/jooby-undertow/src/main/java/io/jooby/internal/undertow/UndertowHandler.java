@@ -6,11 +6,9 @@
 package io.jooby.internal.undertow;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-import io.jooby.Context;
-import io.jooby.Route;
-import io.jooby.Router;
-import io.jooby.StatusCode;
+import io.jooby.*;
 import io.undertow.io.Receiver;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -22,14 +20,16 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
 
 public class UndertowHandler implements HttpHandler {
-  protected final Router router;
+  protected final List<Jooby> applications;
   private final long maxRequestSize;
   private final int bufferSize;
   private final boolean defaultHeaders;
+  private final Context.Selector ctxSelector;
 
   public UndertowHandler(
-      Router router, int bufferSize, long maxRequestSize, boolean defaultHeaders) {
-    this.router = router;
+      List<Jooby> applications, int bufferSize, long maxRequestSize, boolean defaultHeaders) {
+    this.applications = applications;
+    this.ctxSelector = Context.Selector.create(applications);
     this.maxRequestSize = maxRequestSize;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
@@ -37,9 +37,10 @@ public class UndertowHandler implements HttpHandler {
 
   @Override
   public void handleRequest(HttpServerExchange exchange) throws Exception {
-    UndertowContext context = new UndertowContext(exchange, router);
+    var router = ctxSelector.select(applications, exchange.getRequestPath());
+    var context = new UndertowContext(exchange, router);
 
-    /** default headers: */
+    /* default headers: */
     HeaderMap responseHeaders = exchange.getResponseHeaders();
     responseHeaders.put(Headers.CONTENT_TYPE, "text/plain");
     if (defaultHeaders) {
@@ -65,7 +66,7 @@ public class UndertowHandler implements HttpHandler {
           return;
         }
 
-        /** Eager body parsing: */
+        /* Eager body parsing: */
         FormDataParser parser =
             FormParserFactory.builder(false)
                 .addParser(

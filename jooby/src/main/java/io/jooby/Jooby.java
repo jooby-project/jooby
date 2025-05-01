@@ -7,7 +7,6 @@ package io.jooby;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
 import java.io.IOException;
@@ -30,7 +29,6 @@ import java.util.Properties;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.Spliterator;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -149,7 +147,9 @@ public class Jooby implements Router, Registry {
    * Server options or <code>null</code>.
    *
    * @return Server options or <code>null</code>.
+   * @deprecated Use {@link Server#getOptions()}
    */
+  @Deprecated(since = "3.8.0", forRemoval = true)
   public @Nullable ServerOptions getServerOptions() {
     return serverOptions;
   }
@@ -159,7 +159,9 @@ public class Jooby implements Router, Registry {
    *
    * @param serverOptions Server options.
    * @return This application.
+   * @deprecated Use {@link Server#setOptions(ServerOptions)}
    */
+  @Deprecated(since = "3.8.0", forRemoval = true)
   public @NonNull Jooby setServerOptions(@NonNull ServerOptions serverOptions) {
     this.serverOptions = serverOptions;
     return this;
@@ -970,10 +972,12 @@ public class Jooby implements Router, Registry {
    * etc..
    *
    * @return Server.
+   * @deprecated Use {@link Server#start(Jooby[])}
    */
+  @Deprecated(since = "3.8.0", forRemoval = true)
   public @NonNull Server start() {
     if (server == null) {
-      this.server = loadServer();
+      this.server = Server.loadServer();
     }
     if (!server.getLoggerOff().isEmpty()) {
       this.server = MutedServer.mute(this.server);
@@ -1002,31 +1006,6 @@ public class Jooby implements Router, Registry {
           ? (StartupException) startupError
           : new StartupException("Application startup resulted in exception", startupError);
     }
-  }
-
-  /**
-   * Load server from classpath using {@link ServiceLoader}.
-   *
-   * @return A server.
-   */
-  private Server loadServer() {
-    List<Server> servers =
-        stream(
-                spliteratorUnknownSize(
-                    ServiceLoader.load(Server.class).iterator(), Spliterator.ORDERED),
-                false)
-            .toList();
-    if (servers.isEmpty()) {
-      throw new StartupException("Server not found.");
-    }
-    if (servers.size() > 1) {
-      List<String> names =
-          servers.stream()
-              .map(it -> it.getClass().getSimpleName().toLowerCase())
-              .collect(Collectors.toList());
-      getLog().warn("Multiple servers found {}. Using: {}", names, names.get(0));
-    }
-    return servers.get(0);
   }
 
   /**
@@ -1277,28 +1256,81 @@ public class Jooby implements Router, Registry {
       @NonNull String[] args,
       @NonNull ExecutionMode executionMode,
       @NonNull Supplier<Jooby> provider) {
-    createApp(args, executionMode, provider).start();
+    runApp(args, Server.loadServer(), executionMode, List.of(provider));
   }
 
   /**
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
+   * @param provider Application provider.
+   */
+  public static void runApp(@NonNull String[] args, @NonNull List<Supplier<Jooby>> provider) {
+    runApp(args, Server.loadServer(), ExecutionMode.DEFAULT, provider);
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param executionMode Execution mode.
+   * @param provider Application provider.
+   */
+  public static void runApp(
+      @NonNull String[] args,
+      @NonNull ExecutionMode executionMode,
+      @NonNull List<Supplier<Jooby>> provider) {
+    runApp(args, Server.loadServer(), executionMode, provider);
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param server Server.
+   * @param provider Application provider.
+   */
+  public static void runApp(
+      @NonNull String[] args, @NonNull Server server, @NonNull List<Supplier<Jooby>> provider) {
+    runApp(args, server, ExecutionMode.DEFAULT, provider);
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param server Server.
+   * @param executionMode Execution mode.
+   * @param provider Application provider.
+   */
+  public static void runApp(
+      @NonNull String[] args,
+      @NonNull Server server,
+      @NonNull ExecutionMode executionMode,
+      @NonNull List<Supplier<Jooby>> provider) {
+    /* Dump command line as system properties. */
+    parseArguments(args).forEach(System::setProperty);
+    var apps = new ArrayList<Jooby>();
+    var targetServer = server.getLoggerOff().isEmpty() ? server : MutedServer.mute(server);
+    for (var factory : provider) {
+      var app = createApp(executionMode, factory);
+      app.server = targetServer;
+      apps.add(app);
+    }
+    targetServer.start(apps.toArray(new Jooby[0]));
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
    * @param executionMode Application execution mode.
    * @param provider Application provider.
    * @return Application.
    */
   public static Jooby createApp(
-      @NonNull String[] args,
-      @NonNull ExecutionMode executionMode,
-      @NonNull Supplier<Jooby> provider) {
-
+      @NonNull ExecutionMode executionMode, @NonNull Supplier<Jooby> provider) {
     configurePackage(provider.getClass().getPackage());
-
-    /** Dump command line as system properties. */
-    parseArguments(args).forEach(System::setProperty);
-
-    /** Find application.env: */
+    /* Find application.env: */
     String logfile =
         LoggingService.configure(
             provider.getClass().getClassLoader(), new EnvironmentOptions().getActiveNames());

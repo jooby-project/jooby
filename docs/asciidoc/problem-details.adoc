@@ -1,4 +1,4 @@
-== Problem Details
+=== Problem Details
 
 Most APIs have a way to report problems and errors, helping the user understand when something went wrong and what the issue is.
 The method used depends on the API’s style, technology, and design.
@@ -12,7 +12,7 @@ If it suits the API’s needs, using this standard benefits both designers and u
 
 `Jooby` provides built-in support for `Problem Details`.
 
-=== Set up ProblemDetails
+==== Set up ProblemDetails
 
 To enable the `ProblemDetails`, simply add the following line to your configuration:
 
@@ -44,11 +44,11 @@ problem.details {
 <3> You can optionally mute some exceptions logging completely.
 
 
-=== Creating problems
+==== Creating problems
 
 `HttpProblem` class represents the `RFC 7807` model. It is the main entity you need to work with to produce the problem.
 
-==== Static helpers
+===== Static helpers
 
 There are several handy static methods to produce a simple `HttpProblem`:
 
@@ -111,7 +111,7 @@ Resulting response:
 }
 ----
 
-==== Builder
+===== Builder
 
 Use builder to create a rich problem instance with all properties:
 
@@ -126,7 +126,7 @@ throw HttpProblem.builder()
   .build();
 ----
 
-=== Adding extra parameters
+==== Adding extra parameters
 
 `RFC 7807` has a simple extension model: APIs are free to add any other properties to the problem details object, so all properties other than the five ones listed above are extensions.
 
@@ -163,7 +163,7 @@ Resulting response:
 }
 ----
 
-=== Adding headers
+==== Adding headers
 
 Some `HTTP` codes (like `413` or `426`) require additional response headers, or it may be required by third-party system/integration. `HttpProblem` support additional headers in response:
 
@@ -177,7 +177,7 @@ throw HttpProblem.builder()
   .build();
 ----
 
-=== Respond with errors details
+==== Respond with errors details
 
 `RFC 9457` finally described how errors should be delivered in HTTP APIs.
 It is basically another extension `errors` on a root level. Adding errors is straight-forward using `error()` or `errors()` for bulk addition in builder:
@@ -214,7 +214,7 @@ In response:
 If you need to enrich errors with more information feel free to extend `HttpProblem.Error` and make your custom errors model.
 ====
 
-=== Custom `Exception` to `HttpProblem`
+==== Custom `Exception` to `HttpProblem`
 
 Apparently, you may already have many custom `Exception` classes in the codebase, and you want to make them `Problem Details` compliant without complete re-write. You can achieve this by implementing `HttpProblemMappable` interface. It allows you to control how exceptions should be transformed into `HttpProblem` if default behaviour doesn't suite your needs:
 
@@ -233,7 +233,7 @@ public class MyException implements HttpProblemMappable {
 }
 ----
 
-=== Custom Problems
+==== Custom Problems
 
 Extending `HttpProblem` and utilizing builder functionality makes it really easy:
 
@@ -255,7 +255,7 @@ public class OutOfStockProblem extends HttpProblem {
 }
 ----
 
-=== Custom Exception Handlers
+==== Custom Exception Handlers
 
 All the features described above should give you ability to rely solely on built-in global error handler. But, in case you still need custom exception handler for some reason, you still can do it:
 

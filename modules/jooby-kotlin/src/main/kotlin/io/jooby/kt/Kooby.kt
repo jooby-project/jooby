@@ -21,11 +21,13 @@ import io.jooby.Route
 import io.jooby.RouteSet
 import io.jooby.Router
 import io.jooby.RouterOption
+import io.jooby.Server
 import io.jooby.ServerOptions
 import io.jooby.ServiceRegistry
 import io.jooby.Value
 import io.jooby.ValueNode
 import io.jooby.handler.Cors
+import java.util.function.Supplier
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineStart
@@ -351,6 +353,27 @@ fun <T : Jooby> runApp(args: Array<String>, provider: () -> T) {
 
 fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, provider: () -> T) {
   Jooby.runApp(args, mode, provider)
+}
+
+fun <T : Jooby> runApp(args: Array<String>, vararg provider: () -> T) {
+  runApp(args, Server.loadServer(), ExecutionMode.DEFAULT, *provider)
+}
+
+fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, vararg provider: () -> T) {
+  runApp(args, Server.loadServer(), mode, *provider)
+}
+
+fun <T : Jooby> runApp(args: Array<String>, server: Server, vararg provider: () -> T) {
+  runApp(args, server, ExecutionMode.DEFAULT, *provider)
+}
+
+fun <T : Jooby> runApp(
+  args: Array<String>,
+  server: Server,
+  mode: ExecutionMode,
+  vararg provider: () -> T,
+) {
+  Jooby.runApp(args, server, mode, provider.map { Supplier<Jooby> { it.invoke() } }.toList())
 }
 
 internal fun configurePackage(value: Any) {

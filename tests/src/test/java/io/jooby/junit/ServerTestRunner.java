@@ -90,7 +90,7 @@ public class ServerTestRunner {
     try {
       System.setProperty("___app_name__", testName);
       System.setProperty("___server_name__", server.getName());
-      Jooby app = provider.get();
+      var app = provider.get();
       if (!(server instanceof NettyServer)) {
         app.setBufferFactory(new DefaultDataBufferFactory());
       }

@@ -73,21 +73,25 @@ public class JoobyExtension
     Jooby app;
     String factoryMethod = metadata.factoryMethod();
     if (factoryMethod.isEmpty()) {
-      app =
-          Jooby.createApp(
-              new String[] {metadata.environment()},
-              metadata.executionMode(),
-              reflectionProvider(metadata.value()));
+      var defaultEnv = System.getProperty("application.env");
+      System.setProperty("application.env", metadata.environment());
+      app = Jooby.createApp(metadata.executionMode(), reflectionProvider(metadata.value()));
+      if (defaultEnv != null) {
+        System.setProperty("application.env", defaultEnv);
+      } else {
+        System.getProperties().remove("application.env");
+      }
     } else {
       app = fromFactoryMethod(context, metadata, factoryMethod);
     }
+    var server = Server.loadServer();
     ServerOptions serverOptions = app.getServerOptions();
     if (serverOptions == null) {
-      serverOptions = new ServerOptions();
-      app.setServerOptions(serverOptions);
+      serverOptions = server.getOptions();
     }
     serverOptions.setPort(port(metadata.port(), DEFAULT_PORT));
-    Server server = app.start();
+    server.setOptions(serverOptions);
+    server.start(app);
     ExtensionContext.Store store = getStore(context);
     store.put("server", server);
     store.put("application", app);
@@ -187,30 +191,41 @@ public class JoobyExtension
     }
     if (type == String.class && name.get().equals("serverPath")) {
       return () -> {
-        Jooby app = application(context);
-        return "http://localhost:" + app.getServerOptions().getPort() + app.getContextPath();
+        var app = application(context);
+        var server = server(context);
+        return "http://localhost:" + server.getOptions().getPort() + app.getContextPath();
       };
     }
     if (type == int.class && name.get().equals("serverPort")) {
       return () -> {
-        Jooby app = application(context);
-        return app.getServerOptions().getPort();
+        var server = server(context);
+        return server.getOptions().getPort();
       };
     }
     return null;
   }
 
   private Jooby application(ExtensionContext context) {
-    Jooby application = getStore(context).get("application", Jooby.class);
-    if (application == null) {
-      ExtensionContext parent =
-          context.getParent().orElseThrow(() -> new IllegalStateException("Application not found"));
-      application = getStore(parent).get("application", Jooby.class);
+    return service(context, "application", Jooby.class);
+  }
+
+  private Server server(ExtensionContext context) {
+    return service(context, "server", Server.class);
+  }
+
+  private <T> T service(ExtensionContext context, String name, Class<T> type) {
+    var service = getStore(context).get(name, type);
+    if (service == null) {
+      var parent =
+          context
+              .getParent()
+              .orElseThrow(() -> new IllegalStateException("Not found: " + type.getSimpleName()));
+      service = getStore(parent).get(name, type);
     }
-    if (application == null) {
-      throw new IllegalStateException("Application not found");
+    if (service == null) {
+      throw new IllegalStateException("Not found: " + type.getSimpleName());
     }
-    return application;
+    return service;
   }
 
   private int port(int port, int fallback) {

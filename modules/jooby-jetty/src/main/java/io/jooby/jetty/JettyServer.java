@@ -9,6 +9,7 @@ import java.net.BindException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -32,6 +33,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyHttpExpectAndContinueHandler;
+import io.jooby.internal.jetty.PrefixHandler;
 import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
 
 /**
@@ -47,6 +49,8 @@ public class JettyServer extends io.jooby.Server.Base {
   private Server server;
 
   private ThreadPool threadPool;
+
+  private List<Jooby> applications;
 
   private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
   private Consumer<HttpConfiguration> httpConfigurer;
@@ -88,8 +92,9 @@ public class JettyServer extends io.jooby.Server.Base {
   }
 
   @NonNull @Override
-  public io.jooby.Server start(@NonNull Jooby application) {
+  public io.jooby.Server start(@NonNull Jooby... application) {
     try {
+      this.applications = List.of(application);
       /* Set max request size attribute: */
       System.setProperty(
           "org.eclipse.jetty.server.Request.maxFormContentSize",
@@ -107,7 +112,6 @@ public class JettyServer extends io.jooby.Server.Base {
       var acceptors = 1;
       var selectors = options.getIoThreads();
       this.server = new Server(threadPool);
-      server.addBean(application);
       server.setStopAtShutdown(false);
 
       JettyHttp2Configurer http2 =
@@ -145,9 +149,9 @@ public class JettyServer extends io.jooby.Server.Base {
       }
 
       if (options.isSSLEnabled()) {
+        var classLoader = applications.get(0).getClassLoader();
         var sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setSslContext(
-            options.getSSLContext(application.getEnvironment().getClassLoader()));
+        sslContextFactory.setSslContext(options.getSSLContext(classLoader));
         var protocol = options.getSsl().getProtocol();
         sslContextFactory.setIncludeProtocols(protocol.toArray(new String[0]));
         // exclude
@@ -194,7 +198,7 @@ public class JettyServer extends io.jooby.Server.Base {
       var context = new ContextHandler();
 
       boolean webSockets =
-          application.getRoutes().stream().anyMatch(it -> it.getMethod().equals(Router.WS));
+          application[0].getRoutes().stream().anyMatch(it -> it.getMethod().equals(Router.WS));
 
       /* ********************************* Compression *************************************/
       var gzip = options.getCompressionLevel() != null;
@@ -207,21 +211,10 @@ public class JettyServer extends io.jooby.Server.Base {
         server.addBean(deflater, true);
       }
 
-      /* ********************************* Servlet *************************************/
-      var invocationType =
-          application.getExecutionMode() == ExecutionMode.EVENT_LOOP
-              ? Invocable.InvocationType.NON_BLOCKING
-              : Invocable.InvocationType.BLOCKING;
+      /* ********************************* Handler *************************************/
+      var handlerList = createHandler(applications);
       Handler handler =
-          new JettyHandler(
-              invocationType,
-              application,
-              options.getBufferSize(),
-              options.getMaxRequestSize(),
-              options.getDefaultHeaders());
-      if (options.isExpectContinue() == Boolean.TRUE) {
-        handler = new JettyHttpExpectAndContinueHandler(handler);
-      }
+          handlerList.size() == 1 ? handlerList.get(0).getValue() : new PrefixHandler(handlerList);
       context.setHandler(handler);
 
       /* ********************************* Gzip *************************************/
@@ -231,7 +224,7 @@ public class JettyServer extends io.jooby.Server.Base {
       }
       /* ********************************* WebSocket *************************************/
       if (webSockets) {
-        Config conf = application.getConfig();
+        Config conf = application[0].getConfig();
         int maxSize =
             conf.hasPath("websocket.maxSize")
                 ? conf.getBytes("websocket.maxSize").intValue()
@@ -253,7 +246,7 @@ public class JettyServer extends io.jooby.Server.Base {
       server.setHandler(context);
       server.start();
 
-      fireReady(List.of(application));
+      fireReady(applications);
     } catch (Exception x) {
       if (io.jooby.Server.isAddressInUse(x.getCause())) {
         x = new BindException("Address already in use: " + options.getPort());
@@ -262,6 +255,29 @@ public class JettyServer extends io.jooby.Server.Base {
     }
 
     return this;
+  }
+
+  private List<Map.Entry<String, Handler>> createHandler(List<Jooby> applications) {
+    return applications.stream()
+        .map(
+            application -> {
+              var invocationType =
+                  applications.get(0).getExecutionMode() == ExecutionMode.EVENT_LOOP
+                      ? Invocable.InvocationType.NON_BLOCKING
+                      : Invocable.InvocationType.BLOCKING;
+              Handler handler =
+                  new JettyHandler(
+                      invocationType,
+                      applications.get(0),
+                      options.getBufferSize(),
+                      options.getMaxRequestSize(),
+                      options.getDefaultHeaders());
+              if (options.isExpectContinue() == Boolean.TRUE) {
+                handler = new JettyHttpExpectAndContinueHandler(handler);
+              }
+              return Map.entry(application.getContextPath(), handler);
+            })
+        .toList();
   }
 
   @NonNull @Override
@@ -288,8 +304,7 @@ public class JettyServer extends io.jooby.Server.Base {
   @NonNull @Override
   public synchronized io.jooby.Server stop() {
     if (server != null) {
-      var app = server.getBean(Jooby.class);
-      fireStop(List.of(app));
+      fireStop(applications);
       try {
         server.stop();
       } catch (Exception x) {

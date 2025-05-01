@@ -7,6 +7,8 @@ package io.jooby;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -14,13 +16,19 @@ import java.net.BindException;
 import java.nio.channels.ClosedChannelException;
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.Spliterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.exception.StartupException;
 import io.jooby.internal.MutedServer;
 
 /**
@@ -145,7 +153,7 @@ public interface Server {
    * @param application Application to start.
    * @return This server.
    */
-  @NonNull Server start(@NonNull Jooby application);
+  @NonNull Server start(@NonNull Jooby... application);
 
   /**
    * Utility method to turn off odd logger. This help to ensure same startup log lines across server
@@ -218,5 +226,31 @@ public interface Server {
       }
     }
     return false;
+  }
+
+  /**
+   * Load server from classpath using {@link ServiceLoader}.
+   *
+   * @return A server.
+   */
+  static Server loadServer() {
+    List<Server> servers =
+        stream(
+                spliteratorUnknownSize(
+                    ServiceLoader.load(Server.class).iterator(), Spliterator.ORDERED),
+                false)
+            .toList();
+    if (servers.isEmpty()) {
+      throw new StartupException("Server not found.");
+    }
+    if (servers.size() > 1) {
+      List<String> names =
+          servers.stream()
+              .map(it -> it.getClass().getSimpleName().toLowerCase())
+              .collect(Collectors.toList());
+      var log = LoggerFactory.getLogger(servers.get(0).getClass());
+      log.warn("Multiple servers found {}. Using: {}", names, names.get(0));
+    }
+    return servers.get(0);
   }
 }

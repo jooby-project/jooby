@@ -9,49 +9,47 @@ import static io.jooby.internal.netty.SlowPathChecks.*;
 import static io.netty.handler.codec.http.HttpUtil.isTransferEncodingChunked;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.jooby.*;
+import io.jooby.netty.NettyServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.*;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
+  private final Logger log = LoggerFactory.getLogger(NettyServer.class);
   private static final AsciiString server = AsciiString.cached("N");
   private final NettyDateService serverDate;
-  private final Jooby app;
-  private final Router router;
+  private final List<Jooby> applications;
+  private Router router;
+  private final Context.Selector ctxSelector;
   private final int bufferSize;
   private final boolean defaultHeaders;
-  private final HttpDataFactory factory;
   private final long maxRequestSize;
   private long contentLength;
   private long chunkSize;
-  private boolean http2;
+  private final boolean http2;
   private NettyContext context;
 
   public NettyHandler(
       NettyDateService dateService,
-      Jooby app,
+      List<Jooby> applications,
       long maxRequestSize,
       int bufferSize,
-      HttpDataFactory factory,
       boolean defaultHeaders,
       boolean http2) {
     this.serverDate = dateService;
-    this.app = app;
-    this.router = app.getRouter();
+    this.applications = applications;
+    this.ctxSelector = Context.Selector.create(applications);
     this.maxRequestSize = maxRequestSize;
-    this.factory = factory;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
     this.http2 = http2;
@@ -61,8 +59,11 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
     if (isHttpRequest(msg)) {
       var req = (HttpRequest) msg;
+      var path = pathOnly(req.uri());
+      var app = ctxSelector.select(applications, path);
+      this.router = app.getRouter();
 
-      context = new NettyContext(ctx, req, app, pathOnly(req.uri()), bufferSize, http2);
+      context = new NettyContext(ctx, req, app, path, bufferSize, http2);
 
       if (defaultHeaders) {
         context.setHeaders.set(HttpHeaderNames.DATE, serverDate.date());
@@ -76,7 +77,9 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         // possibly body:
         contentLength = contentLength(req);
         if (contentLength > 0 || isTransferEncodingChunked(req)) {
-          context.decoder = newDecoder(req, factory);
+          context.httpDataFactory = new DefaultHttpDataFactory(bufferSize);
+          context.httpDataFactory.setBaseDir(app.getTmpdir().toString());
+          context.decoder = newDecoder(req, context.httpDataFactory);
         } else {
           // no body, move on
           router.match(context).execute(context);
@@ -145,7 +148,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     try {
-      Logger log = app.getLog();
       if (Server.connectionLost(cause)) {
         if (log.isDebugEnabled()) {
           if (context == null) {
@@ -158,7 +160,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         if (context == null) {
           log.error("execution resulted in exception", cause);
         } else {
-          if (app.isStopped()) {
+          if (context.getRouter().isStopped()) {
             log.debug("execution resulted in exception while application was shutting down", cause);
           } else {
             context.sendError(cause);
@@ -186,7 +188,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     contentLength = -1;
     if (destroy && context.decoder != null) {
       var decoder = context.decoder;
+      var httpDataFactory = context.httpDataFactory;
       context.decoder = null;
+      context.httpDataFactory = null;
+      httpDataFactory.cleanAllHttpData();
       decoder.destroy();
     }
   }

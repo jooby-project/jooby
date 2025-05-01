@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Describe the underlying logging system. Jooby provides two implementation: jooby-logback and
@@ -62,7 +63,7 @@ public interface LoggingService {
    * @param names Actives environment names. Useful for choosing an environment specific logging
    *     configuration file.
    */
-  static String configure(@NonNull ClassLoader classLoader, @NonNull List<String> names) {
+  static @Nullable String configure(@NonNull ClassLoader classLoader, @NonNull List<String> names) {
     // Supported well-know implementation
     String[] keys = {"logback.configurationFile", "log4j.configurationFile"};
     for (String key : keys) {
@@ -177,7 +178,7 @@ public interface LoggingService {
     return result;
   }
 
-  private static String property(String name) {
+  private static @Nullable String property(String name) {
     return System.getProperty(name, System.getenv(name));
   }
 }

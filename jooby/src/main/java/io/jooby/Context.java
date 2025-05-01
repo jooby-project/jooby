@@ -46,6 +46,47 @@ import io.jooby.internal.WebSocketSender;
  */
 public interface Context extends Registry {
 
+  /** Select an application base on context path prefix matching a provided path. */
+  interface Selector {
+    /**
+     * Select an application base on context path prefix matching a provided path.
+     *
+     * @param applications List of applications.
+     * @param path Path to match.
+     * @return Best match application.
+     */
+    Jooby select(List<Jooby> applications, String path);
+
+    static Selector create(List<Jooby> applications) {
+      return applications.size() == 1 ? single() : multiple();
+    }
+
+    /**
+     * Select an application the best match a given path. If none matches it returns the application
+     * that has no context path <code>/</code> or the first of the list.
+     *
+     * @return Best match application.
+     */
+    static Selector multiple() {
+      return (applications, path) -> {
+        var defaultApp = applications.get(0);
+        for (var app : applications) {
+          var contextPath = app.getContextPath();
+          if ("/".equals(contextPath)) {
+            defaultApp = app;
+          } else if (path.startsWith(contextPath)) {
+            return app;
+          }
+        }
+        return defaultApp;
+      };
+    }
+
+    private static Selector single() {
+      return (applications, path) -> applications.get(0);
+    }
+  }
+
   /** Constant for default HTTP port. */
   int PORT = 80;
 
