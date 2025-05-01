@@ -24,10 +24,14 @@ jobs:
           java-version: ${{ matrix.java_version }}
           distribution: 'temurin'
           cache: maven
-      - name: Restore Maven cache
-        uses: skjolber/maven-cache-github-action@v3.1.1
+      - name: Cache Maven repository
+        uses: actions/cache@v4
         with:
-          step: restore
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+          enableCrossOsArchive: true
       - name: Install
         run: mvn clean install -DskipTests -q -B
         env:
@@ -40,10 +44,6 @@ jobs:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
-      - name: Save Maven cache
-        uses: skjolber/maven-cache-github-action@v3.1.1
-        with:
-          step: save
       - name: Test Result
         uses: mikepenz/action-junit-report@v5
         if: failure()
