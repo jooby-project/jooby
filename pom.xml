@@ -118,9 +118,9 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>11.4</avaje.inject.version>
-    <avaje.jsonb.version>3.3</avaje.jsonb.version>
-    <avaje.validator.version>2.10</avaje.validator.version>
+    <avaje.inject.version>11.5</avaje.inject.version>
+    <avaje.jsonb.version>3.4</avaje.jsonb.version>
+    <avaje.validator.version>2.11</avaje.validator.version>
 
     <!-- jakarta -->
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
@@ -135,7 +135,7 @@
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.782</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.783</aws-java-sdk.version>
     <camel.version>4.11.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
