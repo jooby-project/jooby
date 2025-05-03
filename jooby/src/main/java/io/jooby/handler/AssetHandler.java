@@ -257,8 +257,8 @@ public class AssetHandler implements Route.Handler {
   public void setRoute(Route route) {
     List<String> keys = route.getPathKeys();
     this.filekey = keys.isEmpty() ? route.getPattern().substring(1) : keys.get(0);
-    // NOTE: It send an inputstream we don't need a renderer
-    route.setReturnType(Context.class);
+    //    // NOTE: It send an inputstream we don't need a renderer
+    //    route.setReturnType(Context.class);
   }
 
   private static AssetSource[] checkSource(AssetSource[] sources) {

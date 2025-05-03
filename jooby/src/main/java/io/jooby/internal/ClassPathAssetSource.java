@@ -30,7 +30,7 @@ public class ClassPathAssetSource implements AssetSource {
   private final String prefix;
 
   public ClassPathAssetSource(ClassLoader loader, String source) {
-    if (source == null || source.trim().length() == 0 || source.trim().equals("/")) {
+    if (source == null || source.trim().isEmpty() || source.trim().equals("/")) {
       throw new IllegalArgumentException(
           "For security reasons root classpath access is not allowed: " + source);
     }

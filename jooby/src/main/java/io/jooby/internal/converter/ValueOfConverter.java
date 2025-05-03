@@ -18,7 +18,7 @@ public class ValueOfConverter extends FromStringConverter<Method> {
   }
 
   @Override
-  protected Method mappingMethod(Class type) {
+  protected Method mappingMethod(Class<?> type) {
     try {
       Method valueOf = type.getDeclaredMethod("valueOf", String.class);
       if (Modifier.isStatic(valueOf.getModifiers()) && Modifier.isPublic(valueOf.getModifiers())) {

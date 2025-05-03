@@ -24,11 +24,11 @@ public class ConcurrentHandler implements Route.Filter {
       if (ctx.isResponseStarted()) {
         // Return context to mark as handled
         return ctx;
-      } else if (result instanceof Flow.Publisher publisher) {
+      } else if (result instanceof Flow.Publisher<?> publisher) {
         publisher.subscribe(newSubscriber(ctx));
         // Return context to mark as handled
         return ctx;
-      } else if (result instanceof CompletionStage future) {
+      } else if (result instanceof CompletionStage<?> future) {
         future.whenComplete(
             (value, x) -> {
               try {

@@ -7,7 +7,6 @@ package io.jooby;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -58,7 +57,7 @@ public class Usage extends RuntimeException {
    */
   public static @NonNull Usage parameterNameNotPresent(@NonNull Parameter parameter) {
     Executable executable = parameter.getDeclaringExecutable();
-    int p = Stream.of(executable.getParameters()).collect(Collectors.toList()).indexOf(parameter);
+    int p = Stream.of(executable.getParameters()).toList().indexOf(parameter);
     String message =
         "Unable to provision parameter at position: '"
             + p

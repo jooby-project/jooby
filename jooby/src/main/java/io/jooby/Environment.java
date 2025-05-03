@@ -135,8 +135,10 @@ public class Environment {
   public @NonNull Map<String, String> getProperties(@NonNull String key, @Nullable String prefix) {
     if (hasPath(config, key)) {
       Map<String, String> settings = new HashMap<>();
-      String p = prefix == null || prefix.length() == 0 ? "" : prefix + ".";
-      config.getConfig(key).entrySet().stream()
+      String p = prefix == null || prefix.isEmpty() ? "" : prefix + ".";
+      config
+          .getConfig(key)
+          .entrySet()
           .forEach(
               e -> {
                 Object value = e.getValue().unwrapped();

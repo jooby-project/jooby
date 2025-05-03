@@ -23,7 +23,7 @@ public interface ValueConverter<V extends Value> {
    * @param type Conversion type.
    * @return True if the converter applies for the given type.
    */
-  boolean supports(@NonNull Class type);
+  boolean supports(@NonNull Class<?> type);
 
   /**
    * Convert simple to specific type.
@@ -32,14 +32,14 @@ public interface ValueConverter<V extends Value> {
    * @param type Requested type.
    * @return Converted value.
    */
-  Object convert(@NonNull V value, @NonNull Class type);
+  Object convert(@NonNull V value, @NonNull Class<?> type);
 
   /**
    * Immutable list of defaults/built-in {@link ValueConverter}.
    *
    * @return Immutable list of defaults/built-in {@link ValueConverter}.
    */
-  static List<ValueConverter> defaults() {
+  static List<ValueConverter<?>> defaults() {
     return ValueConverters.defaultConverters();
   }
 }

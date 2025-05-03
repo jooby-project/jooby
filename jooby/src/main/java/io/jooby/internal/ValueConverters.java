@@ -6,55 +6,25 @@
 package io.jooby.internal;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import io.jooby.BeanConverter;
 import io.jooby.Router;
 import io.jooby.ValueConverter;
 import io.jooby.ValueNode;
-import io.jooby.internal.converter.BigDecimalConverter;
-import io.jooby.internal.converter.BigIntegerConverter;
-import io.jooby.internal.converter.CharsetConverter;
-import io.jooby.internal.converter.DateConverter;
-import io.jooby.internal.converter.DurationConverter;
-import io.jooby.internal.converter.InstantConverter;
-import io.jooby.internal.converter.LocalDateConverter;
-import io.jooby.internal.converter.LocalDateTimeConverter;
-import io.jooby.internal.converter.PeriodConverter;
+import io.jooby.internal.converter.BuiltinConverter;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
-import io.jooby.internal.converter.StatusCodeConverter;
 import io.jooby.internal.converter.StringConstructorConverter;
-import io.jooby.internal.converter.TimeZoneConverter;
-import io.jooby.internal.converter.URIConverter;
-import io.jooby.internal.converter.UUIDConverter;
 import io.jooby.internal.converter.ValueOfConverter;
-import io.jooby.internal.converter.ZoneIdConverter;
 import io.jooby.internal.reflect.$Types;
 
 public class ValueConverters {
 
-  public static List<ValueConverter> defaultConverters() {
-    return List.of(
-        new UUIDConverter(),
-        new InstantConverter(),
-        new DateConverter(),
-        new LocalDateConverter(),
-        new LocalDateTimeConverter(),
-        new BigDecimalConverter(),
-        new BigIntegerConverter(),
-        new DurationConverter(),
-        new PeriodConverter(),
-        new CharsetConverter(),
-        new StatusCodeConverter(),
-        new TimeZoneConverter(),
-        new ZoneIdConverter(),
-        new URIConverter(),
-        new ValueOfConverter(),
-        new StringConstructorConverter());
+  public static List<ValueConverter<?>> defaultConverters() {
+    var converters = new ArrayList<ValueConverter<?>>(List.of(BuiltinConverter.values()));
+    converters.add(new ValueOfConverter());
+    converters.add(new StringConstructorConverter());
+    return converters;
   }
 
   public static <T> T convert(ValueNode value, Type type, Router router) {

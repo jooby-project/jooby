@@ -90,7 +90,7 @@ public class ReflectiveBeanConverter {
   }
 
   private static boolean allowEmptyBean(Class type, boolean defaults) {
-    return type.getAnnotation(EmptyBean.class) == null ? defaults : true;
+    return type.getAnnotation(EmptyBean.class) != null || defaults;
   }
 
   private static Constructor selectConstructor(Constructor[] constructors) {

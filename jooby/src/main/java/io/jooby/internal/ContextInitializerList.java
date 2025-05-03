@@ -11,7 +11,7 @@ import java.util.List;
 import io.jooby.Context;
 
 public class ContextInitializerList implements ContextInitializer {
-  private List<ContextInitializer> initializers = new ArrayList<>(5);
+  private final List<ContextInitializer> initializers = new ArrayList<>(5);
 
   public ContextInitializerList(ContextInitializer initializer) {
     add(initializer);

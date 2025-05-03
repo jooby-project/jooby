@@ -553,10 +553,10 @@ public class RouterImpl implements Router {
           for (String routePattern : Router.expandOptionalVariables(asciiPattern)) {
             if (route.getMethod().equals(WS)) {
               tree.insert(GET, routePattern, route);
-              route.setReturnType(Context.class);
+              // route.setReturnType(Context.class);
             } else if (route.getMethod().equals(SSE)) {
               tree.insert(GET, routePattern, route);
-              route.setReturnType(Context.class);
+              // route.setReturnType(Context.class);
             } else {
               tree.insert(route.getMethod(), routePattern, route);
 
@@ -921,7 +921,7 @@ public class RouterImpl implements Router {
     it.setFilter(filter);
     it.setAfter(after);
     it.setEncoder(src.getEncoder());
-    it.setReturnType(src.getReturnType());
+    // it.setReturnType(src.getReturnType());
     it.setHandle(src.getHandle());
     it.setProduces(src.getProduces());
     it.setConsumes(src.getConsumes());

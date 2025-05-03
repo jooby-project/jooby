@@ -23,7 +23,7 @@ public class ChunkedSubscriber implements Flow.Subscriber {
   private static final byte JSON_SEP = ',';
   private static final byte[] JSON_RBRACKET = {']'};
   private Flow.Subscription subscription;
-  private Context ctx;
+  private final Context ctx;
   private Sender sender;
   private MediaType responseType;
 

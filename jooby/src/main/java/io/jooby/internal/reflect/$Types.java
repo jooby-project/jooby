@@ -513,13 +513,8 @@ public final class $Types {
     private final Type lowerBound;
 
     public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
-      // checkArgument(lowerBounds.filesize <= 1);
-      // checkArgument(upperBounds.filesize == 1);
-
       if (lowerBounds.length == 1) {
-        // checkNotNull(lowerBounds[0]);
         checkNotPrimitive(lowerBounds[0]);
-        // checkArgument(upperBounds[0] == Object.class);
         this.lowerBound = canonicalize(lowerBounds[0]);
         this.upperBound = Object.class;
 

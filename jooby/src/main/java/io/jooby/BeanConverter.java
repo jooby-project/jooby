@@ -21,7 +21,7 @@ public interface BeanConverter extends ValueConverter<ValueNode> {
    * @param type Conversion type.
    * @return True if the converter applies for the given type.
    */
-  boolean supports(@NonNull Class type);
+  boolean supports(@NonNull Class<?> type);
 
   /**
    * Convert a node value into more specific type.
@@ -30,5 +30,5 @@ public interface BeanConverter extends ValueConverter<ValueNode> {
    * @param type Requested type.
    * @return Converted value.
    */
-  Object convert(@NonNull ValueNode node, @NonNull Class type);
+  Object convert(@NonNull ValueNode node, @NonNull Class<?> type);
 }

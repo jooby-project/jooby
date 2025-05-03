@@ -25,7 +25,7 @@ import io.jooby.handler.Asset;
 public class FileAsset implements Asset {
 
   /** File. */
-  private Path file;
+  private final Path file;
 
   /**
    * Creates a new file asset.

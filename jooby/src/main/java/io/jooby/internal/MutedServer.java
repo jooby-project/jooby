@@ -46,11 +46,10 @@ public class MutedServer implements Server {
 
     Optional<LoggingService> loggingService =
         ServiceLoader.load(LoggingService.class, server.getClass().getClassLoader()).findFirst();
-    if (loggingService.isEmpty()) {
-      return server;
-    }
-
-    return mute.isEmpty() ? server : new MutedServer(server, loggingService.get(), mute);
+    return loggingService
+        .filter(service -> !mute.isEmpty())
+        .<Server>map(service -> new MutedServer(server, service, mute))
+        .orElse(server);
   }
 
   @NonNull public Server setOptions(@NonNull ServerOptions options) {

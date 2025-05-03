@@ -75,7 +75,7 @@ public class CsrfHandler implements Route.Before {
   public static final Function<Context, String> DEFAULT_GENERATOR =
       ctx -> UUID.randomUUID().toString();
 
-  private String name;
+  private final String name;
 
   private Function<Context, String> generator = DEFAULT_GENERATOR;
 

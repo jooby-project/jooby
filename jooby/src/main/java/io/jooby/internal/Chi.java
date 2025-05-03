@@ -549,7 +549,7 @@ class Chi implements RouteTree {
   }
 
   private static class MultipleMethodMatcher implements MethodMatcher {
-    private Map<String, StaticRouterMatch> methods = new ConcurrentHashMap<>();
+    private final Map<String, StaticRouterMatch> methods = new ConcurrentHashMap<>();
 
     public MultipleMethodMatcher(SingleMethodMatcher matcher) {
       methods.put(matcher.method, matcher.route);
@@ -696,7 +696,7 @@ class Chi implements RouteTree {
 
       while (true) {
         // Handle key exhaustion
-        if (search.length() == 0) {
+        if (search.isEmpty()) {
           // Insert or update the node's leaf handler
           n.setEndpoint(method, route);
           return n;
@@ -766,7 +766,7 @@ class Chi implements RouteTree {
 
         // If the new key is a subset, set the method/handler on this node and finish.
         search = search.substring(commonPrefix);
-        if (search.length() == 0) {
+        if (search.isEmpty()) {
           child.setEndpoint(method, route);
           return child;
         }
@@ -940,7 +940,7 @@ class Chi implements RouteTree {
             case ntParam:
             case ntRegexp:
               // short-circuit and return no matching route for empty param values
-              if (xsearch.length() == 0) {
+              if (xsearch.isEmpty()) {
                 continue;
               }
               // serially loop through each node grouped by the tail delimiter
@@ -973,7 +973,7 @@ class Chi implements RouteTree {
                 rctx.value(xsearch.substring(0, p).toString());
                 xsearch = xsearch.substring(p);
 
-                if (xsearch.length() == 0) {
+                if (xsearch.isEmpty()) {
                   if (xn.isLeaf()) {
                     Route h = xn.endpoints.get(method);
                     if (h != null) {
@@ -998,7 +998,7 @@ class Chi implements RouteTree {
             default:
               // catch-all nodes
               // rctx.routeParams.Values = append(rctx.routeParams.Values, search)
-              if (xsearch.length() > 0) {
+              if (!xsearch.isEmpty()) {
                 rctx.value(xsearch.toString());
               }
               xn = nds[0];
@@ -1164,7 +1164,7 @@ class Chi implements RouteTree {
           //          key = key.substring(0, idx);
         }
 
-        if (rexpat.length() > 0) {
+        if (!rexpat.isEmpty()) {
           if (rexpat.charAt(0) != '^') {
             rexpat = "^" + rexpat;
           }

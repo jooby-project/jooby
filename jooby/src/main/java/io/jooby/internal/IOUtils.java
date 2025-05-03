@@ -11,16 +11,13 @@ import java.nio.charset.Charset;
 
 public class IOUtils {
 
-  public static final String toString(InputStream in, Charset charset) throws IOException {
-    try {
+  public static String toString(InputStream in, Charset charset) throws IOException {
+    try (in) {
       return new String(in.readAllBytes(), charset);
-    } finally {
-      in.close();
     }
   }
 
-  public static final InputStream bounded(InputStream in, long start, long size)
-      throws IOException {
+  public static InputStream bounded(InputStream in, long start, long size) throws IOException {
     in.skip(start);
     return new BoundedInputStream(in, size);
   }

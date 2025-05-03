@@ -174,7 +174,7 @@ public class Cookie {
    * @return Cookie's domain..
    */
   public @NonNull String getDomain(@NonNull String domain) {
-    return this.domain == null ? domain : domain;
+    return this.domain == null ? domain : this.domain;
   }
 
   /**

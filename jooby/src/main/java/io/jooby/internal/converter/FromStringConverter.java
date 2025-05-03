@@ -11,22 +11,23 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.Value;
 import io.jooby.ValueConverter;
 
 public abstract class FromStringConverter<E extends Executable>
-    implements ValueConverter, BiFunction<Class, E, E> {
+    implements ValueConverter<Value>, BiFunction<Class<?>, E, E> {
 
-  private Map<Class, E> cache = new ConcurrentHashMap<>();
+  private final Map<Class<?>, E> cache = new ConcurrentHashMap<>();
 
   @Override
-  public boolean supports(Class type) {
+  public boolean supports(@NonNull Class<?> type) {
     return cache.compute(type, this) != null;
   }
 
   @Override
-  public Object convert(Value value, Class type) {
+  public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
     try {
       return invoke(cache.compute(type, this), value.value());
     } catch (InvocationTargetException x) {
@@ -37,7 +38,7 @@ public abstract class FromStringConverter<E extends Executable>
   }
 
   @Override
-  public E apply(Class type, E executable) {
+  public E apply(Class<?> type, E executable) {
     if (executable == null) {
       return mappingMethod(type);
     }
@@ -47,5 +48,5 @@ public abstract class FromStringConverter<E extends Executable>
   protected abstract Object invoke(E executable, String value)
       throws InvocationTargetException, IllegalAccessException, InstantiationException;
 
-  protected abstract E mappingMethod(Class type);
+  protected abstract E mappingMethod(Class<?> type);
 }

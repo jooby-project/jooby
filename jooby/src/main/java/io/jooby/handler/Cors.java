@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -43,28 +42,19 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  */
 public class Cors {
 
-  private static class Matcher<T> implements Predicate<T> {
-
-    private List<String> values;
-
-    private Predicate<T> predicate;
-
-    private boolean wild;
-
-    Matcher(final List<String> values, final Predicate<T> predicate) {
-      this.values = values;
-      this.predicate = predicate;
-      this.wild = values.contains("*");
-    }
-
-    @Override
-    public boolean test(final T value) {
-      return predicate.test(value);
+  private record Matcher<T>(List<String> values, Predicate<T> predicate) implements Predicate<T> {
+    boolean wild() {
+      return values.contains("*");
     }
 
     @Override
     public String toString() {
       return values.toString();
+    }
+
+    @Override
+    public boolean test(T value) {
+      return predicate.test(value);
     }
   }
 
@@ -127,7 +117,7 @@ public class Cors {
    * @return True if any origin is accepted.
    */
   public boolean anyOrigin() {
-    return origin.wild;
+    return origin.wild();
   }
 
   /**
@@ -215,7 +205,7 @@ public class Cors {
    * @return True if any header is allowed: <code>*</code>.
    */
   public boolean anyHeader() {
-    return headers.wild;
+    return headers.wild();
   }
 
   /**
@@ -368,13 +358,9 @@ public class Cors {
   }
 
   private static Matcher<String> firstMatch(final List<String> values) {
-    List<Pattern> patterns = values.stream().map(Cors::rewrite).collect(Collectors.toList());
+    var patterns = values.stream().map(Cors::rewrite).toList();
     Predicate<String> predicate =
-        it ->
-            patterns.stream()
-                .filter(pattern -> pattern.matcher(it).matches())
-                .findFirst()
-                .isPresent();
+        it -> patterns.stream().anyMatch(pattern -> pattern.matcher(it).matches());
 
     return new Matcher<>(values, predicate);
   }
