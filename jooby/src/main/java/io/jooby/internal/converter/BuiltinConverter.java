@@ -5,6 +5,9 @@
  */
 package io.jooby.internal.converter;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -15,14 +18,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
@@ -101,15 +102,58 @@ public enum BuiltinConverter implements ValueConverter<Value> {
       try {
         return java.time.Duration.parse(value.value());
       } catch (DateTimeParseException x) {
-        try {
-          long duration =
-              ConfigFactory.empty()
-                  .withValue("d", ConfigValueFactory.fromAnyRef(value.value()))
-                  .getDuration("d", TimeUnit.MILLISECONDS);
-          return java.time.Duration.ofMillis(duration);
-        } catch (ConfigException ignored) {
-          throw x;
+        var nanos = MILLISECONDS.convert(parseDuration(value.value()), NANOSECONDS);
+        return java.time.Duration.ofMillis(nanos);
+      }
+    }
+
+    /**
+     * Parses a duration string. If no units are specified in the string, it is assumed to be in
+     * milliseconds. The returned duration is in nanoseconds. The purpose of this function is to
+     * implement the duration-related methods in the ConfigObject interface.
+     *
+     * @param value the string to parse
+     * @return duration in nanoseconds
+     */
+    private static long parseDuration(String value) {
+      var unitString = getUnits(value);
+      var numberString = value.substring(0, value.length() - unitString.length());
+
+      // this would be caught later anyway, but the error message
+      // is more helpful if we check it here.
+      if (numberString.isEmpty()) {
+        throw new DateTimeParseException(
+            "No number in duration value: '" + numberString + "'", value, 0);
+      }
+
+      // note that this is deliberately case-sensitive
+      var units =
+          switch (unitString) {
+            case "ms", "milli", "millis", "millisecond", "milliseconds", "" -> MILLISECONDS;
+            case "us", "micro", "micros", "microsecond", "microseconds" -> TimeUnit.MICROSECONDS;
+            case "ns", "nano", "nanos", "nanosecond", "nanoseconds" -> NANOSECONDS;
+            case "s", "second", "seconds" -> TimeUnit.SECONDS;
+            case "m", "minute", "minutes" -> TimeUnit.MINUTES;
+            case "h", "hour", "hours" -> TimeUnit.HOURS;
+            case "d", "day", "days" -> TimeUnit.DAYS;
+            default ->
+                throw new DateTimeParseException(
+                    "Could not parse time unit '" + unitString + "'",
+                    value,
+                    value.length() - unitString.length());
+          };
+      try {
+        // if the string is purely digits, parse as an integer to avoid possible precision loss;
+        // otherwise as a double.
+        if (numberString.matches("[+-]?[0-9]+")) {
+          return units.toNanos(Long.parseLong(numberString));
+        } else {
+          long nanosInUnit = units.toNanos(1);
+          return (long) (Double.parseDouble(numberString) * nanosInUnit);
         }
+      } catch (NumberFormatException e) {
+        throw new DateTimeParseException(
+            "Could not parse duration number '" + numberString + "'", numberString, 0);
       }
     }
   },
@@ -121,7 +165,63 @@ public enum BuiltinConverter implements ValueConverter<Value> {
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return java.time.Period.from((Duration) Duration.convert(value, type));
+      try {
+        return java.time.Period.from((Duration) Duration.convert(value, type));
+      } catch (DateTimeException x) {
+        return parsePeriod(value.value());
+      }
+    }
+
+    /**
+     * Parses a period string. If no units are specified in the string, it is assumed to be in days.
+     * The returned period is in days. The purpose of this function is to implement the
+     * period-related methods in the ConfigObject interface.
+     *
+     * @param value the string to parse path to include in exceptions
+     * @return duration in days
+     */
+    public static Period parsePeriod(String value) {
+      var unitString = getUnits(value);
+      var numberString = value.substring(0, value.length() - unitString.length());
+
+      // this would be caught later anyway, but the error message
+      // is more helpful if we check it here.
+      if (numberString.isEmpty())
+        throw new DateTimeParseException(
+            "No number in period value '" + numberString + "'", numberString, 0);
+
+      var units =
+          switch (unitString) {
+            case "d", "day", "days", "" -> ChronoUnit.DAYS;
+            case "w", "week", "weeks" -> ChronoUnit.WEEKS;
+            case "m", "mo", "month", "months" -> ChronoUnit.MONTHS;
+            case "y", "year", "years" -> ChronoUnit.YEARS;
+            default ->
+                throw new DateTimeParseException(
+                    "Could not parse time unit '" + unitString + "' (try d, w, mo, y)",
+                    value,
+                    value.length() - unitString.length());
+          };
+      try {
+        return periodOf(Integer.parseInt(numberString), units);
+      } catch (NumberFormatException e) {
+        throw new DateTimeParseException(
+            "Could not parse duration number '" + numberString + "'", numberString, 0);
+      }
+    }
+
+    private static Period periodOf(int n, ChronoUnit unit) {
+      if (unit.isTimeBased()) {
+        throw new DateTimeException(unit + " cannot be converted to a java.time.Period");
+      }
+
+      return switch (unit) {
+        case DAYS -> java.time.Period.ofDays(n);
+        case WEEKS -> java.time.Period.ofWeeks(n);
+        case MONTHS -> java.time.Period.ofMonths(n);
+        case YEARS -> java.time.Period.ofYears(n);
+        default -> throw new DateTimeException(unit + " cannot be converted to a java.time.Period");
+      };
     }
   },
   Instant {
@@ -239,4 +339,14 @@ public enum BuiltinConverter implements ValueConverter<Value> {
       return java.time.ZoneId.of(java.time.ZoneId.SHORT_IDS.getOrDefault(zoneId, zoneId));
     }
   };
+
+  private static String getUnits(String s) {
+    int i = s.length() - 1;
+    while (i >= 0) {
+      char c = s.charAt(i);
+      if (!Character.isLetter(c)) break;
+      i -= 1;
+    }
+    return s.substring(i + 1);
+  }
 }
