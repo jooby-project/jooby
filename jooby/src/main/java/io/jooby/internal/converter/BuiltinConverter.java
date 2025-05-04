@@ -102,8 +102,8 @@ public enum BuiltinConverter implements ValueConverter<Value> {
       try {
         return java.time.Duration.parse(value.value());
       } catch (DateTimeParseException x) {
-        var nanos = MILLISECONDS.convert(parseDuration(value.value()), NANOSECONDS);
-        return java.time.Duration.ofMillis(nanos);
+        var millis = MILLISECONDS.convert(parseDuration(value.value()), NANOSECONDS);
+        return java.time.Duration.ofMillis(millis);
       }
     }
 
