@@ -207,8 +207,8 @@ Custom configuration and environment are available too using:
 [source,java,role="primary"]
 ----
 {
-  Environment env = setEnvironmentOptions(new EnvOptions() <1>            
-    .setFilename("myapp.conf")
+  Environment env = setEnvironmentOptions(
+    new EnvironmentOptions().setFilename("myapp.conf"));   <1>
   )
 }
 ----
@@ -234,9 +234,9 @@ To skip/ignore Jooby loading and precedence mechanism, just instantiate and set 
 [source,java,role="primary"]
 ----
 {
-  Config conf = ConfigFactory.load("/path/to/myapp.conf"); <1>
-  Environment env = new Env(customConfig, "prod");         <2>
-  setEnvironment(env);                                     <3>
+  Config conf = ConfigFactory.load("myapp.conf");            <1>
+  Environment env = new Environment(getClassLoader(), conf); <2>
+  setEnvironment(env);                                       <3>
 }
 ----
 
@@ -244,8 +244,8 @@ To skip/ignore Jooby loading and precedence mechanism, just instantiate and set 
 [source,kotlin,role="secondary"]
 ----
 {
-  val conf = ConfigFactory.load("/path/to/myapp.conf")     <1>
-  val env = new Env(conf, "prod")                          <2>    
+  val conf = ConfigFactory.load("myapp.conf")              <1>
+  val env = Environment(classLoader, conf)                 <2>    
   environment = env                                        <3>
 }
 ----
