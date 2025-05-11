@@ -50,19 +50,18 @@ public class UndertowServer extends Server.Base {
   private Undertow server;
   private List<Jooby> applications;
 
-  private ServerOptions options =
-      new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer("utow");
   private XnioWorker worker;
 
   @NonNull @Override
   public UndertowServer setOptions(@NonNull ServerOptions options) {
-    this.options = options.setIoThreads(options.getIoThreads());
+    // default io threads
+    super.setOptions(options.setIoThreads(options.getIoThreads()));
     return this;
   }
 
-  @NonNull @Override
-  public ServerOptions getOptions() {
-    return options;
+  @Override
+  protected ServerOptions defaultOptions() {
+    return new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer("utow");
   }
 
   @NonNull @Override
@@ -72,6 +71,8 @@ public class UndertowServer extends Server.Base {
 
   @Override
   public @NonNull Server start(@NonNull Jooby... application) {
+    // force options to be non-null
+    var options = getOptions();
     try {
       this.applications = List.of(application);
 

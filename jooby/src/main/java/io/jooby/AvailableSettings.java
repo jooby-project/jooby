@@ -67,4 +67,10 @@ public interface AvailableSettings {
    * Paths.get(System.getProperty("user.dir"), "tmp")</code>
    */
   String TMP_DIR = "application.tmpdir";
+
+  /**
+   * Print a warning when {@link Server#setOptions(ServerOptions)} is called multiple times. Default
+   * value is: <code>true</code> set to <code>false</code> to disable.
+   */
+  String SERVER_OPTIONS_WARN = "server.options.warn";
 }

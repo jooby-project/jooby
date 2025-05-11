@@ -52,7 +52,6 @@ public class JettyServer extends io.jooby.Server.Base {
 
   private List<Jooby> applications;
 
-  private ServerOptions options = new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
   private Consumer<HttpConfiguration> httpConfigurer;
 
   // TODO: integrate buffer factory with Jetty.
@@ -66,13 +65,13 @@ public class JettyServer extends io.jooby.Server.Base {
 
   @NonNull @Override
   public JettyServer setOptions(@NonNull ServerOptions options) {
-    this.options = options.setWorkerThreads(options.getWorkerThreads(THREADS));
+    super.setOptions(options.setWorkerThreads(options.getWorkerThreads(THREADS)));
     return this;
   }
 
-  @NonNull @Override
-  public ServerOptions getOptions() {
-    return options;
+  @Override
+  protected ServerOptions defaultOptions() {
+    return new ServerOptions().setServer("jetty").setWorkerThreads(THREADS);
   }
 
   @NonNull @Override
@@ -93,6 +92,8 @@ public class JettyServer extends io.jooby.Server.Base {
 
   @NonNull @Override
   public io.jooby.Server start(@NonNull Jooby... application) {
+    // force options to be non-null
+    var options = getOptions();
     try {
       this.applications = List.of(application);
       /* Set max request size attribute: */
@@ -212,7 +213,7 @@ public class JettyServer extends io.jooby.Server.Base {
       }
 
       /* ********************************* Handler *************************************/
-      var handlerList = createHandler(applications);
+      var handlerList = createHandler(options, applications);
       Handler handler =
           handlerList.size() == 1 ? handlerList.get(0).getValue() : new PrefixHandler(handlerList);
       context.setHandler(handler);
@@ -257,7 +258,8 @@ public class JettyServer extends io.jooby.Server.Base {
     return this;
   }
 
-  private List<Map.Entry<String, Handler>> createHandler(List<Jooby> applications) {
+  private List<Map.Entry<String, Handler>> createHandler(
+      ServerOptions options, List<Jooby> applications) {
     return applications.stream()
         .map(
             application -> {

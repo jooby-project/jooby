@@ -1315,6 +1315,18 @@ public class Jooby implements Router, Registry {
     for (var factory : provider) {
       var app = createApp(executionMode, factory);
       app.server = targetServer;
+      /*
+       When running a single app instance, there is no issue with server options, when multiple
+       apps set options a warning will be printed
+      */
+      var options = app.serverOptions;
+      if (options == null) {
+        options = ServerOptions.from(app.getConfig()).orElse(null);
+      }
+      if (options != null) {
+        options.setServer(server.getName());
+        server.setOptions(options);
+      }
       apps.add(app);
     }
     targetServer.start(apps.toArray(new Jooby[0]));

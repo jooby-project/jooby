@@ -56,8 +56,6 @@ public class NettyServer extends Server.Base {
   private NettyDataBufferFactory bufferFactory;
   private List<Jooby> applications;
 
-  private ServerOptions options = new ServerOptions().setServer("netty");
-
   /**
    * Creates a server.
    *
@@ -93,13 +91,13 @@ public class NettyServer extends Server.Base {
 
   @Override
   public @NonNull NettyServer setOptions(@NonNull ServerOptions options) {
-    this.options = options;
+    super.setOptions(options);
     return this;
   }
 
-  @NonNull @Override
-  public ServerOptions getOptions() {
-    return options;
+  @Override
+  protected ServerOptions defaultOptions() {
+    return new ServerOptions().setServer("netty");
   }
 
   @NonNull @Override
@@ -109,6 +107,8 @@ public class NettyServer extends Server.Base {
 
   @NonNull @Override
   public Server start(@NonNull Jooby... application) {
+    // force options to be non-null
+    var options = getOptions();
     try {
       this.applications = List.of(application);
       boolean single = applications.size() == 1;
@@ -142,7 +142,8 @@ public class NettyServer extends Server.Base {
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {
-        var http = newBootstrap(allocator, transport, newPipeline(null, dateService, http2));
+        var http =
+            newBootstrap(allocator, transport, newPipeline(options, null, dateService, http2));
         http.bind(options.getHost(), options.getPort()).get();
       }
 
@@ -154,7 +155,9 @@ public class NettyServer extends Server.Base {
 
         var clientAuth = sslOptions.getClientAuth();
         var sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
-        var https = newBootstrap(allocator, transport, newPipeline(sslContext, dateService, http2));
+        var https =
+            newBootstrap(
+                allocator, transport, newPipeline(options, sslContext, dateService, http2));
         https.bind(options.getHost(), options.getSecurePort()).get();
       } else if (options.isHttpsOnly()) {
         throw new IllegalArgumentException(
@@ -193,7 +196,7 @@ public class NettyServer extends Server.Base {
   }
 
   private NettyPipeline newPipeline(
-      SslContext sslContext, NettyDateService dateService, boolean http2) {
+      ServerOptions options, SslContext sslContext, NettyDateService dateService, boolean http2) {
     var bufferSize = options.getBufferSize();
     var headersFactory = HeadersMultiMap.httpHeadersFactory();
     var decoderConfig =

@@ -96,6 +96,8 @@ public interface Server {
 
     private final AtomicBoolean stopping = new AtomicBoolean();
 
+    private boolean defaultOptions;
+
     protected void fireStart(@NonNull List<Jooby> applications, @NonNull Executor defaultWorker) {
       for (Jooby app : applications) {
         app.setDefaultWorker(defaultWorker).start(this);
@@ -110,10 +112,8 @@ public interface Server {
 
     protected void fireStop(@NonNull List<Jooby> applications) {
       if (stopping.compareAndSet(false, true)) {
-        if (applications != null) {
-          for (Jooby app : applications) {
-            app.stop();
-          }
+        for (Jooby app : applications) {
+          app.stop();
         }
       }
     }
@@ -123,10 +123,42 @@ public interface Server {
         Runtime.getRuntime().addShutdownHook(new Thread(MutedServer.mute(this)::stop));
       }
     }
+
+    private ServerOptions options;
+
+    @Override
+    public final ServerOptions getOptions() {
+      if (options == null) {
+        options = defaultOptions();
+        defaultOptions = true;
+      }
+      return options;
+    }
+
+    @Override
+    public Server setOptions(@NonNull ServerOptions options) {
+      if (this.options != null && !defaultOptions) {
+        var warn =
+            Boolean.parseBoolean(System.getProperty(AvailableSettings.SERVER_OPTIONS_WARN, "true"));
+        if (warn) {
+          LoggerFactory.getLogger(getClass())
+              .warn(
+                  "Server options must be called once. To turn off this warning set the: `{}`"
+                      + " system property to `false`",
+                  AvailableSettings.SERVER_OPTIONS_WARN);
+        }
+      }
+      this.options = options;
+      this.defaultOptions = false;
+      return this;
+    }
+
+    protected abstract ServerOptions defaultOptions();
   }
 
   /**
-   * Set server options.
+   * Set server options. This method should be called once, calling this method multiple times will
+   * print a warning.
    *
    * @param options Server options.
    * @return This server.
@@ -156,8 +188,8 @@ public interface Server {
   @NonNull Server start(@NonNull Jooby... application);
 
   /**
-   * Utility method to turn off odd logger. This help to ensure same startup log lines across server
-   * implementations.
+   * Utility method to turn off odd logger. This helps to ensure same startup log lines across
+   * server implementations.
    *
    * <p>These logs are silent at application startup time.
    *
@@ -234,6 +266,16 @@ public interface Server {
    * @return A server.
    */
   static Server loadServer() {
+    return loadServer(null);
+  }
+
+  /**
+   * Load server from classpath using {@link ServiceLoader}.
+   *
+   * @param options Optional server options.
+   * @return A server.
+   */
+  static Server loadServer(@Nullable ServerOptions options) {
     List<Server> servers =
         stream(
                 spliteratorUnknownSize(
@@ -244,13 +286,18 @@ public interface Server {
       throw new StartupException("Server not found.");
     }
     if (servers.size() > 1) {
-      List<String> names =
+      var names =
           servers.stream()
               .map(it -> it.getClass().getSimpleName().toLowerCase())
               .collect(Collectors.toList());
       var log = LoggerFactory.getLogger(servers.get(0).getClass());
       log.warn("Multiple servers found {}. Using: {}", names, names.get(0));
     }
-    return servers.get(0);
+    var server = servers.get(0);
+    if (options != null) {
+      options.setServer(server.getName());
+      server.setOptions(options);
+    }
+    return server;
   }
 }
