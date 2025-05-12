@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.8.1-SNAPSHOT</version>
+    <version>3.8.1</version>
   </parent>
   <artifactId>jooby-test</artifactId>
 
