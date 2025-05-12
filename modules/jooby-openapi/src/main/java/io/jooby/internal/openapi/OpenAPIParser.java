@@ -40,8 +40,6 @@ import io.jooby.MediaType;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.oas.annotations.*;
-import io.swagger.v3.oas.annotations.enums.Explode;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.Extensions;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -231,14 +229,14 @@ public class OpenAPIParser {
 
     operation.setHidden(isHidden(annotations));
     operation.setDeprecated(isDeprecated(annotations));
-    /**
+    /*
      * @Operation:
      */
     findAnnotationByType(method.visibleAnnotations, Operation.class).stream()
         .findFirst()
         .ifPresent(a -> operation(ctx, operation, toMap(a)));
 
-    /**
+    /*
      * @Parameters:
      */
     findAnnotationByType(method.visibleAnnotations, Parameters.class).stream()
@@ -248,14 +246,18 @@ public class OpenAPIParser {
         .findFirst()
         .ifPresent(a -> parameters(ctx, operation, singletonList(toMap(a))));
     if (method.visibleParameterAnnotations != null) {
-      for (List<AnnotationNode> paramAnnotations : method.visibleParameterAnnotations) {
-        /**
+      for (int paramIndex = 0;
+          paramIndex < method.visibleParameterAnnotations.length;
+          paramIndex++) {
+        var paramAnnotations = method.visibleParameterAnnotations[paramIndex];
+        var pindex = paramIndex;
+        /*
          * @Parameter:
          */
         findAnnotationByType(paramAnnotations, Parameter.class).stream()
             .findFirst()
-            .ifPresent(a -> parameters(ctx, operation, singletonList(toMap(a))));
-        /**
+            .ifPresent(a -> parameter(ctx, operation, pindex, toMap(a)));
+        /*
          * @RequestBody:
          */
         findAnnotationByType(paramAnnotations, RequestBody.class).stream()
@@ -267,14 +269,14 @@ public class OpenAPIParser {
         .findFirst()
         .ifPresent(a -> requestBody(ctx, operation, toMap(a)));
 
-    /**
+    /*
      * @ApiResponse:
      */
     findAnnotationByType(method.visibleAnnotations, ApiResponse.class).stream()
         .findFirst()
         .ifPresent(a -> operationResponse(ctx, operation, toMap(a)));
 
-    /** SecurityRequirements: */
+    /* SecurityRequirements: */
     findAnnotationByType(method.visibleAnnotations, SecurityRequirements.class).stream()
         .map(it -> annotationList(toMap(it), "value"))
         .forEach(a -> securityRequirements(a, operation::addSecurityItem));
@@ -283,14 +285,14 @@ public class OpenAPIParser {
         .findFirst()
         .ifPresent(a -> securityRequirements(singletonList(toMap(a)), operation::addSecurityItem));
 
-    /**
+    /*
      * @ApiResponses:
      */
     findAnnotationByType(method.visibleAnnotations, ApiResponses.class).stream()
         .flatMap(it -> annotationList(toMap(it), "value").stream())
         .forEach(a -> operationResponse(ctx, operation, a));
 
-    /**
+    /*
      * @ApiResponse:
      */
     findAnnotationByType(method.visibleAnnotations, ApiResponse.class).stream()
@@ -479,7 +481,7 @@ public class OpenAPIParser {
 
   private static void requestBody(
       ParserContext ctx, OperationExt operation, Map<String, Object> annotation) {
-    if (annotation.size() > 0) {
+    if (!annotation.isEmpty()) {
       RequestBodyExt requestBody = operation.getRequestBody();
       if (requestBody == null) {
         requestBody = new RequestBodyExt();
@@ -492,60 +494,51 @@ public class OpenAPIParser {
     }
   }
 
-  @io.swagger.v3.oas.annotations.Operation(
-      parameters =
-          @Parameter(
-              name = "p",
-              description = "des",
-              in = ParameterIn.COOKIE,
-              required = false,
-              deprecated = true,
-              allowEmptyValue = true,
-              allowReserved = false,
-              hidden = false,
-              explode = Explode.TRUE,
-              ref = "Pet"))
   private static void parameters(
       ParserContext ctx, OperationExt operation, List<Map<String, Object>> parameters) {
     for (int i = 0; i < parameters.size(); i++) {
       Map<String, Object> parameterMap = parameters.get(i);
-      String name = (String) parameterMap.get("name");
-      io.swagger.v3.oas.models.parameters.Parameter parameter;
-      if (name != null) {
-        int index = i;
-        parameter =
-            operation.getParameters().stream()
-                .filter(it -> it.getName().equals(name))
-                .findFirst()
-                .orElseGet(() -> operation.getParameter(index));
-      } else {
-        parameter = operation.getParameter(i);
-      }
-      if (parameter == null) {
-        throw new IllegalArgumentException(
-            "Parameter not found: "
-                + name
-                + " at  position: "
-                + i
-                + " for annotation: "
-                + parameterMap);
-      }
-      Optional.ofNullable(name).ifPresent(parameter::setName);
-      stringValue(parameterMap, "description", parameter::setDescription);
-      enumValue(parameterMap, "in", in -> parameter.setIn(in.toLowerCase()));
-      boolValue(parameterMap, "required", parameter::setRequired);
-      boolValue(parameterMap, "deprecated", parameter::setDeprecated);
-      boolValue(parameterMap, "allowEmptyValue", parameter::setAllowEmptyValue);
-      boolValue(parameterMap, "allowReserved", parameter::setAllowReserved);
-      // NOTE: Hidden is not present on parameter
-      // boolValue(parameterMap, "hidden", parameter::setHidden);
-      enumValue(parameterMap, "explode", value -> parameter.setExample(Boolean.valueOf(value)));
-      stringValue(parameterMap, "ref", ref -> parameter.set$ref(RefUtils.constructRef(ref)));
-      arrayOrSchema(ctx, parameterMap).ifPresent(parameter::setSchema);
-      examples(parameterMap, parameter::setExample, parameter::setExamples);
-      annotationList(
-          parameterMap, "extensions", values -> extensions(values, parameter::addExtension));
+      parameter(ctx, operation, i, parameterMap);
     }
+  }
+
+  private static void parameter(
+      ParserContext ctx, OperationExt operation, int index, Map<String, Object> parameterMap) {
+    String name = (String) parameterMap.get("name");
+    io.swagger.v3.oas.models.parameters.Parameter parameter;
+    if (name != null) {
+      parameter =
+          operation.getParameters().stream()
+              .filter(it -> it.getName().equals(name))
+              .findFirst()
+              .orElseGet(() -> operation.getParameter(index));
+    } else {
+      parameter = operation.getParameter(index);
+    }
+    if (parameter == null) {
+      throw new IllegalArgumentException(
+          "Parameter not found: "
+              + name
+              + " at  position: "
+              + index
+              + " for annotation: "
+              + parameterMap);
+    }
+    Optional.ofNullable(name).ifPresent(parameter::setName);
+    stringValue(parameterMap, "description", parameter::setDescription);
+    enumValue(parameterMap, "in", in -> parameter.setIn(in.toLowerCase()));
+    boolValue(parameterMap, "required", parameter::setRequired);
+    boolValue(parameterMap, "deprecated", parameter::setDeprecated);
+    boolValue(parameterMap, "allowEmptyValue", parameter::setAllowEmptyValue);
+    boolValue(parameterMap, "allowReserved", parameter::setAllowReserved);
+    // NOTE: Hidden is not present on parameter
+    // boolValue(parameterMap, "hidden", parameter::setHidden);
+    enumValue(parameterMap, "explode", value -> parameter.setExample(Boolean.valueOf(value)));
+    stringValue(parameterMap, "ref", ref -> parameter.set$ref(RefUtils.constructRef(ref)));
+    arrayOrSchema(ctx, parameterMap).ifPresent(parameter::setSchema);
+    examples(parameterMap, parameter::setExample, parameter::setExamples);
+    annotationList(
+        parameterMap, "extensions", values -> extensions(values, parameter::addExtension));
   }
 
   private static void examples(
