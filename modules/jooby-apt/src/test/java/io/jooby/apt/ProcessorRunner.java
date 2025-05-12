@@ -12,10 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -147,7 +144,10 @@ public class ProcessorRunner {
   }
 
   public ProcessorRunner withSourceCode(boolean kt, SneakyThrows.Consumer<String> consumer) {
-    consumer.accept(kt ? processor.kotlinSource : processor.getSource().toString());
+    consumer.accept(
+        kt
+            ? processor.kotlinSource
+            : Optional.ofNullable(processor.getSource()).map(Objects::toString).orElse(null));
     return this;
   }
 

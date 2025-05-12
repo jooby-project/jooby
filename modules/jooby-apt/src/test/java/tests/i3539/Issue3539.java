@@ -29,7 +29,7 @@ public class Issue3539 {
               assertNotNull(attributes);
               assertFalse(attributes.isEmpty());
               var secured = attributes.get(Secured3525.class.getSimpleName());
-              assertSame(secured, Boolean.TRUE);
+              assertSame(Boolean.TRUE, secured);
             });
   }
 }
