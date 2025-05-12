@@ -72,7 +72,7 @@
     <!-- data -->
     <HikariCP.version>6.3.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.13.Final</hibernate.version>
+    <hibernate.version>6.6.14.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
     <jdbi.version>3.49.3</jdbi.version>
     <flyway.version>11.8.0</flyway.version>
@@ -107,11 +107,11 @@
     <!-- Server -->
     <undertow.version>2.3.18.Final</undertow.version>
     <jetty.version>12.0.20</jetty.version>
-    <netty.version>4.2.0.Final</netty.version>
+    <netty.version>4.2.1.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.30</swagger.version>
-    <swagger-parser.version>2.1.26</swagger-parser.version>
+    <swagger-parser.version>2.1.27</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
