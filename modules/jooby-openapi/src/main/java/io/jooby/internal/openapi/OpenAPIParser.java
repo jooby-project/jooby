@@ -73,6 +73,17 @@ public class OpenAPIParser {
     Type type = Type.getObjectType(openapi.getSource().replace(".", "/"));
     ClassNode node = ctx.classNode(type);
 
+    rootOpenApiAnnotations(openapi, node);
+  }
+
+  /**
+   * These annotations are expected to be on main class (App), but we still check on controller for
+   * them.
+   *
+   * @param openapi Open API.
+   * @param node Main or controller class.
+   */
+  private static void rootOpenApiAnnotations(OpenAPIExt openapi, ClassNode node) {
     findAnnotationByType(node.visibleAnnotations, OpenAPIDefinition.class).stream()
         .findFirst()
         .ifPresent(a -> definition(openapi, a));
@@ -200,7 +211,13 @@ public class OpenAPIParser {
     return null;
   }
 
-  public static void parse(ParserContext ctx, OperationExt operation) {
+  public static void parse(ParserContext ctx, OpenAPIExt openapi, OperationExt operation) {
+    /* SecurityScheme */
+    var controller = operation.getController();
+    if (controller != null) {
+      rootOpenApiAnnotations(openapi, controller);
+    }
+
     /** Tags: */
     MethodNode method = operation.getNode();
     List<AnnotationNode> annotations = operation.getAllAnnotations();

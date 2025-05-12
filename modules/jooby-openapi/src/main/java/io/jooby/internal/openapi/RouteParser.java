@@ -75,7 +75,7 @@ public class RouteParser {
     this.metaInf = metaInf;
   }
 
-  public List<OperationExt> parse(ParserContext ctx) {
+  public List<OperationExt> parse(ParserContext ctx, OpenAPIExt openapi) {
     List<OperationExt> operations = parse(ctx, null, ctx.classNode(ctx.getRouter()));
 
     // Checkout controllers without explicit mapping, just META-INF
@@ -95,7 +95,7 @@ public class RouteParser {
     // swagger/openapi:
     for (OperationExt operation : operations) {
       operation.setApplication(application);
-      OpenAPIParser.parse(ctx, operation);
+      OpenAPIParser.parse(ctx, openapi, operation);
     }
 
     List<OperationExt> result = new ArrayList<>();

@@ -171,7 +171,7 @@ public class OpenAPIGenerator {
 
     RouteParser routes = new RouteParser(metaInf);
     ParserContext ctx = new ParserContext(source, TypeFactory.fromJavaName(classname), debug);
-    List<OperationExt> operations = routes.parse(ctx);
+    List<OperationExt> operations = routes.parse(ctx, openapi);
 
     String contextPath = ContextPathParser.parse(ctx);
 
