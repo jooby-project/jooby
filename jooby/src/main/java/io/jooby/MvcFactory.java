@@ -12,6 +12,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  *
  * @since 2.1.0
  */
+@Deprecated(since = "3.8.0", forRemoval = true)
 public interface MvcFactory<T> {
   /**
    * Check if the factory applies for the given MVC route.

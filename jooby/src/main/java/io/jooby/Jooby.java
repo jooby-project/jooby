@@ -541,17 +541,20 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
+  @Deprecated(since = "3.8.0", forRemoval = true)
   public Jooby mvc(@NonNull Object router) {
     Provider provider = () -> router;
     return mvc(router.getClass(), provider);
   }
 
   @NonNull @Override
+  @Deprecated(since = "3.8.0", forRemoval = true)
   public Jooby mvc(@NonNull Class router) {
     return mvc(router, () -> require(router));
   }
 
   @NonNull @Override
+  @Deprecated(since = "3.8.0", forRemoval = true)
   public <T> Jooby mvc(@NonNull Class<T> router, @NonNull Provider<T> provider) {
     try {
       MvcFactory module = loadModule(router);
@@ -563,6 +566,7 @@ public class Jooby implements Router, Registry {
     }
   }
 
+  @Deprecated(since = "3.8.0", forRemoval = true)
   private <T> MvcFactory<T> loadModule(Class<T> router) {
     try {
       ServiceLoader<MvcFactory> modules = ServiceLoader.load(MvcFactory.class);
@@ -571,10 +575,10 @@ public class Jooby implements Router, Registry {
           .findFirst()
           .orElseGet(
               () ->
-                  /** Make happy IDE incremental build: */
+                  /* Make happy IDE incremental build: */
                   mvcReflectionFallback(router, getClassLoader()));
     } catch (ServiceConfigurationError notfound) {
-      /** Make happy IDE incremental build: */
+      /* Make happy IDE incremental build: */
       return mvcReflectionFallback(router, getClassLoader());
     }
   }
@@ -1508,7 +1512,10 @@ public class Jooby implements Router, Registry {
    */
   private MvcFactory mvcReflectionFallback(Class source, ClassLoader classLoader) {
     try {
-      String moduleName = source.getName() + "$Module";
+      var moduleName =
+          System.getProperty("jooby.routerPrefix", "")
+              + source.getName()
+              + System.getProperty("jooby.routerSuffix", "_");
       Class<?> moduleType = classLoader.loadClass(moduleName);
       Constructor<?> constructor = moduleType.getDeclaredConstructor();
       getLog().debug("Loading mvc using reflection: " + source);
