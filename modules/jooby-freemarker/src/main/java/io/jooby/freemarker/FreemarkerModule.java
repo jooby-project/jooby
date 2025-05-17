@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
@@ -29,7 +28,6 @@ import freemarker.template.TemplateException;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.ServiceRegistry;
 import io.jooby.SneakyThrows;
 import io.jooby.TemplateEngine;
 
@@ -164,12 +162,11 @@ public class FreemarkerModule implements Extension {
      */
     public @NonNull Configuration build(@NonNull Environment env) {
       try {
-        Configuration freemarker =
-            new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+        var freemarker = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
         freemarker.setOutputFormat(outputFormat);
 
         /** Settings: */
-        Config conf = env.getConfig();
+        var conf = env.getConfig();
         if (conf.hasPath("freemarker")) {
           conf.getConfig("freemarker")
               .root()
@@ -179,7 +176,7 @@ public class FreemarkerModule implements Extension {
 
         settings.putIfAbsent("defaultEncoding", "UTF-8");
         /** Cache storage: */
-        String defaultCacheStorage =
+        var defaultCacheStorage =
             env.isActive("dev", "test") ? "freemarker.cache.NullCacheStorage" : "soft";
         settings.putIfAbsent(Configuration.CACHE_STORAGE_KEY_CAMEL_CASE, defaultCacheStorage);
 
@@ -187,7 +184,7 @@ public class FreemarkerModule implements Extension {
 
         /** Template loader: */
         if (templateLoader == null) {
-          String templatesPathString =
+          var templatesPathString =
               normalizePath(
                   env.getProperty(
                       TEMPLATE_PATH,
@@ -197,8 +194,7 @@ public class FreemarkerModule implements Extension {
         freemarker.setTemplateLoader(templateLoader);
 
         /** Object wrapper: */
-        DefaultObjectWrapperBuilder dowb =
-            new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_22);
+        var dowb = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_22);
         dowb.setExposeFields(true);
         freemarker.setObjectWrapper(dowb.build());
 
@@ -215,7 +211,7 @@ public class FreemarkerModule implements Extension {
     private TemplateLoader defaultTemplateLoader(
         Environment env, String templatesPathString, Path templatesPath) {
       try {
-        Path templateDir =
+        var templateDir =
             Optional.ofNullable(templatesPath)
                 .orElse(Paths.get(System.getProperty("user.dir"), templatesPathString));
         if (Files.exists(templateDir)) {
@@ -256,7 +252,7 @@ public class FreemarkerModule implements Extension {
   }
 
   /**
-   * Freemarker module which look at the given path.
+   * Freemarker module that looks at the given path.
    *
    * @param templatesPath Template path.
    */
@@ -280,7 +276,7 @@ public class FreemarkerModule implements Extension {
     }
     application.encoder(new FreemarkerTemplateEngine(freemarker, EXT));
 
-    ServiceRegistry services = application.getServices();
+    var services = application.getServices();
     services.put(Configuration.class, freemarker);
   }
 

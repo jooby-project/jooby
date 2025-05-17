@@ -5,9 +5,7 @@
  */
 package io.jooby.guice;
 
-import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,7 +19,6 @@ import com.typesafe.config.ConfigObject;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Jooby;
-import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import jakarta.inject.Provider;
 
@@ -33,7 +30,7 @@ import jakarta.inject.Provider;
  * @since 2.0.0
  */
 public class JoobyModule extends AbstractModule {
-  private Jooby application;
+  private final Jooby application;
 
   /**
    * Creates a new Jooby Module.
@@ -52,8 +49,8 @@ public class JoobyModule extends AbstractModule {
 
   private void configureResources(ServiceRegistry registry) {
     // bind the available resources as well, supporting the name annotations that may be set
-    for (Map.Entry<ServiceKey<?>, Provider<?>> entry : registry.entrySet()) {
-      ServiceKey<?> key = entry.getKey();
+    for (var entry : registry.entrySet()) {
+      var key = entry.getKey();
       Provider provider = entry.getValue();
       LinkedBindingBuilder<?> binding;
       if (key.getName() != null) {
@@ -76,11 +73,11 @@ public class JoobyModule extends AbstractModule {
       var named = Names.named(name);
       var value = entry.getValue().unwrapped();
 
-      if (value instanceof List values) {
+      if (value instanceof List<?> values) {
         componentType(values)
             .forEach(
                 componentType -> {
-                  Type listType = Types.listOf(componentType);
+                  var listType = Types.listOf(componentType);
                   Key key = Key.get(listType, Names.named(name));
                   bind(key).toInstance(values);
                 });
@@ -102,9 +99,9 @@ public class JoobyModule extends AbstractModule {
         });
   }
 
-  private Stream<Class> componentType(List values) {
+  private Stream<Class<?>> componentType(List<?> values) {
     if (values.isEmpty()) {
-      // For empty list we generates a binding for primitive wrappers.
+      // Generates a binding for primitive wrappers.
       return Stream.of(
           String.class,
           Integer.class,

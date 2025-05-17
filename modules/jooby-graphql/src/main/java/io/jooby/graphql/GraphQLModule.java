@@ -12,8 +12,6 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import graphql.GraphQL;
@@ -24,8 +22,6 @@ import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.Route;
-import io.jooby.ServiceRegistry;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.graphql.BlockingGraphQLHandler;
 import io.jooby.internal.graphql.GraphQLHandler;
@@ -49,7 +45,7 @@ import io.jooby.internal.graphql.GraphQLHandler;
  */
 public class GraphQLModule implements Extension {
 
-  private GraphQL graphQL;
+  private final GraphQL graphQL;
 
   private boolean async = true;
 
@@ -105,18 +101,17 @@ public class GraphQLModule implements Extension {
 
   @Override
   public void install(@NonNull Jooby application) throws Exception {
-    String graphqlPath = application.getEnvironment().getProperty("graphql.path", "/graphql");
+    var graphqlPath = application.getEnvironment().getProperty("graphql.path", "/graphql");
 
-    GraphQLHandler handler =
-        async ? new GraphQLHandler(graphQL) : new BlockingGraphQLHandler(graphQL);
+    var handler = async ? new GraphQLHandler(graphQL) : new BlockingGraphQLHandler(graphQL);
 
     if (supportGetRequest) {
-      executionMode(application.get(graphqlPath, handler), async);
+      application.get(graphqlPath, handler);
     }
 
-    executionMode(application.post(graphqlPath, handler), async);
+    application.post(graphqlPath, handler);
 
-    ServiceRegistry services = application.getServices();
+    var services = application.getServices();
     services.put(GraphQL.class, graphQL);
   }
 
@@ -140,14 +135,6 @@ public class GraphQLModule implements Extension {
   public GraphQLModule setSupportGetRequest(boolean supportGetRequest) {
     this.supportGetRequest = supportGetRequest;
     return this;
-  }
-
-  private void executionMode(Route route, boolean async) {
-    if (async) {
-      route.setReturnType(CompletableFuture.class);
-    } else {
-      route.setReturnType(Map.class);
-    }
   }
 
   private static Reader fileReader(Path path) {

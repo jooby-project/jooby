@@ -11,6 +11,7 @@ import java.util.function.Function;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SessionStore;
 import io.jooby.SessionToken;
 
@@ -60,24 +61,24 @@ public class CaffeineSessionStore extends SessionStore.InMemory {
   }
 
   @Override
-  protected Data getOrCreate(String sessionId, Function<String, Data> factory) {
+  protected Data getOrCreate(@NonNull String sessionId, @NonNull Function<String, Data> factory) {
     return (Data) cache.get(sessionId, factory);
   }
 
   @Override
-  protected Data getOrNull(String sessionId) {
+  protected @Nullable Data getOrNull(@NonNull String sessionId) {
     return (Data) cache.getIfPresent(sessionId);
   }
 
   @Override
-  protected Data remove(String sessionId) {
+  protected @Nullable Data remove(@NonNull String sessionId) {
     Data data = (Data) cache.getIfPresent(sessionId);
     cache.invalidate(sessionId);
     return data;
   }
 
   @Override
-  protected void put(String sessionId, Data data) {
+  protected void put(@NonNull String sessionId, @NonNull Data data) {
     cache.put(sessionId, data);
   }
 }

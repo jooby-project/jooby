@@ -14,7 +14,6 @@ import javax.sql.DataSource;
 import org.hibernate.*;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
 
@@ -269,7 +268,7 @@ public class HibernateModule implements Extension {
 
     configurer.configure(ssrb, config);
 
-    StandardServiceRegistry serviceRegistry = ssrb.build();
+    var serviceRegistry = ssrb.build();
     if (packages.isEmpty() && classes.isEmpty()) {
       packages =
           Stream.of(application.getBasePackage())
@@ -277,7 +276,7 @@ public class HibernateModule implements Extension {
               .collect(Collectors.toList());
     }
 
-    MetadataSources sources = new MetadataSources(serviceRegistry);
+    var sources = new MetadataSources(serviceRegistry);
     packages.forEach(sources::addPackage);
     classes.forEach(sources::addAnnotatedClass);
 
@@ -349,7 +348,7 @@ public class HibernateModule implements Extension {
         ServiceKey.key(StatelessSessionProvider.class, name), this.statelessSessionProvider);
 
     /* UnitOfWork Provider: */
-    UnitOfWorkProvider unitOfWorkProvider = new UnitOfWorkProvider(sf, sessionBuilder);
+    var unitOfWorkProvider = new UnitOfWorkProvider(sf, sessionBuilder);
     registry.putIfAbsent(UnitOfWork.class, unitOfWorkProvider);
     registry.put(ServiceKey.key(UnitOfWork.class, name), unitOfWorkProvider);
 

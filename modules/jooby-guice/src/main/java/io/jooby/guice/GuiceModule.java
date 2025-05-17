@@ -7,14 +7,12 @@ package io.jooby.guice;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
@@ -44,7 +42,7 @@ public class GuiceModule implements Extension {
 
   private Injector injector;
 
-  private List<Module> modules = new ArrayList<>();
+  private Module[] modules;
 
   /**
    * Creates a new guice module using the given injector.
@@ -61,7 +59,7 @@ public class GuiceModule implements Extension {
    * @param modules Module to add.
    */
   public GuiceModule(@NonNull Module... modules) {
-    Stream.of(modules).forEach(this.modules::add);
+    this.modules = modules;
   }
 
   @Override
@@ -72,9 +70,13 @@ public class GuiceModule implements Extension {
   @Override
   public void install(@NonNull Jooby application) {
     if (injector == null) {
-      Environment env = application.getEnvironment();
+      var env = application.getEnvironment();
+      List<Module> modules = new ArrayList<>();
+      if (this.modules != null) {
+        modules.addAll(List.of(this.modules));
+      }
       modules.add(new JoobyModule(application));
-      Stage stage = env.isActive("dev", "test") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
+      var stage = env.isActive("dev", "test") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
       injector = Guice.createInjector(stage, modules);
     }
     application.registry(new GuiceRegistry(injector));

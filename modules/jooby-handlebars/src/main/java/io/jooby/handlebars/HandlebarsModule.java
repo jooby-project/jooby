@@ -31,7 +31,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.ServiceRegistry;
 import io.jooby.TemplateEngine;
 import io.jooby.internal.handlebars.HandlebarsTemplateEngine;
 
@@ -92,7 +91,7 @@ public class HandlebarsModule implements Extension {
   /** Utility class for creating {@link Handlebars} instances. */
   public static class Builder {
 
-    private Handlebars handlebars = new Handlebars().setCharset(StandardCharsets.UTF_8);
+    private final Handlebars handlebars = new Handlebars().setCharset(StandardCharsets.UTF_8);
 
     private TemplateLoader loader;
 
@@ -154,7 +153,7 @@ public class HandlebarsModule implements Extension {
      */
     public @NonNull Handlebars build(@NonNull Environment env) {
       if (loader == null) {
-        String templatesPathString =
+        var templatesPathString =
             normalizePath(
                 env.getProperty(
                     TEMPLATE_PATH,
@@ -178,13 +177,13 @@ public class HandlebarsModule implements Extension {
 
     private static TemplateLoader defaultTemplateLoader(
         Environment env, String templatePathString, Path templatesPath) {
-      Path dir =
+      var dir =
           Optional.ofNullable(templatesPath)
               .orElse(Paths.get(System.getProperty("user.dir"), templatePathString));
       if (Files.exists(dir)) {
         return new FileTemplateLoader(dir.toFile(), "");
       }
-      ClassLoader classLoader = env.getClassLoader();
+      var classLoader = env.getClassLoader();
       return new ClassPathTemplateLoader(templatePathString, "") {
         @Override
         protected URL getResource(String location) {
@@ -262,7 +261,7 @@ public class HandlebarsModule implements Extension {
     application.encoder(
         new HandlebarsTemplateEngine(handlebars, resolvers.toArray(new ValueResolver[0]), EXT));
 
-    ServiceRegistry services = application.getServices();
+    var services = application.getServices();
     services.put(Handlebars.class, handlebars);
   }
 

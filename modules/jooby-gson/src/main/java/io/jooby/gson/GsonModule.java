@@ -15,14 +15,12 @@ import java.lang.reflect.Type;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
-import io.jooby.ServiceRegistry;
 import io.jooby.buffer.DataBuffer;
 
 /**
@@ -91,13 +89,13 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
-    ServiceRegistry services = application.getServices();
+    var services = application.getServices();
     services.put(Gson.class, gson);
   }
 
   @NonNull @Override
   public Object decode(@NonNull Context ctx, @NonNull Type type) throws Exception {
-    Body body = ctx.body();
+    var body = ctx.body();
     if (body.isInMemory()) {
       return gson.fromJson(
           new InputStreamReader(new ByteArrayInputStream(body.bytes()), UTF_8), type);

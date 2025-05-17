@@ -21,7 +21,7 @@ import io.jooby.Jooby;
 
 public class JoobyCamelContext extends DefaultCamelContext {
 
-  private Jooby application;
+  private final Jooby application;
 
   public JoobyCamelContext(Jooby application) {
     super(false);

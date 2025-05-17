@@ -6,7 +6,7 @@
 package io.jooby.internal.camel;
 
 public class CamelBeans {
-  public static String camelBeanId(Class type) {
+  public static String camelBeanId(Class<?> type) {
     String beanId = type.getSimpleName();
     return Character.toLowerCase(beanId.charAt(0)) + beanId.substring(1);
   }

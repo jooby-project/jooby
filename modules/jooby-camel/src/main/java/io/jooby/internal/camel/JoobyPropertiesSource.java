@@ -10,7 +10,7 @@ import org.apache.camel.spi.PropertiesSource;
 import com.typesafe.config.Config;
 
 public class JoobyPropertiesSource implements PropertiesSource {
-  private Config config;
+  private final Config config;
 
   public JoobyPropertiesSource(Config config) {
     this.config = config;

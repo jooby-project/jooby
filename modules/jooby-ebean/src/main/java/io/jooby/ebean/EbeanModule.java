@@ -17,7 +17,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
-import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
@@ -111,13 +110,13 @@ public class EbeanModule implements Extension {
    * @return Database configuration.
    */
   public static @NonNull DatabaseConfig create(@NonNull Jooby application, @NonNull String name) {
-    Environment environment = application.getEnvironment();
-    ServiceRegistry registry = application.getServices();
-    DatabaseConfig databaseConfig = new DatabaseConfig();
-    Properties properties = new Properties();
+    var environment = application.getEnvironment();
+    var registry = application.getServices();
+    var databaseConfig = new DatabaseConfig();
+    var properties = new Properties();
 
-    Config config = environment.getConfig();
-    Config ebean = config(config, "ebean." + name).withFallback(config(config, "ebean"));
+    var config = environment.getConfig();
+    var ebean = config(config, "ebean." + name).withFallback(config(config, "ebean"));
 
     ebean.entrySet().forEach(e -> properties.put(e.getKey(), e.getValue().unwrapped().toString()));
     databaseConfig.loadFromProperties(properties);

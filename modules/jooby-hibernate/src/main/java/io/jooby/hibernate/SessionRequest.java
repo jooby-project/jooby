@@ -56,7 +56,7 @@ public class SessionRequest implements Route.Filter {
 
   private final ServiceKey<SessionFactory> sessionFactoryKey;
 
-  private RequestSessionFactory sessionProvider;
+  private final RequestSessionFactory sessionProvider;
 
   /**
    * Creates a new session request and attach the to a named session factory.

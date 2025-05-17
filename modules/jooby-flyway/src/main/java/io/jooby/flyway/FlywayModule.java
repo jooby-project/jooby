@@ -15,11 +15,9 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
-import io.jooby.ServiceRegistry;
 
 /**
  * Flyway database migration module: https://jooby.io/modules/flyway.
@@ -70,31 +68,31 @@ public class FlywayModule implements Extension {
 
   @Override
   public void install(@NonNull Jooby application) throws Exception {
-    Environment environment = application.getEnvironment();
-    ServiceRegistry registry = application.getServices();
-    DataSource dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));
+    var environment = application.getEnvironment();
+    var registry = application.getServices();
+    var dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));
     if (dataSource == null) {
       // TODO: replace with usage exception
       dataSource = registry.require(DataSource.class);
     }
-    FluentConfiguration configuration = new FluentConfiguration(environment.getClassLoader());
+    var configuration = new FluentConfiguration(environment.getClassLoader());
 
-    Map<String, String> defaults = environment.getProperties("flyway");
-    Map<String, String> overrides = environment.getProperties(name + ".flyway", "flyway");
+    var defaults = environment.getProperties("flyway");
+    var overrides = environment.getProperties(name + ".flyway", "flyway");
 
     Map<String, String> properties = new HashMap<>();
     properties.putAll(defaults);
     properties.putAll(overrides);
 
-    String[] commandString =
+    var commandString =
         Optional.ofNullable(properties.remove("flyway.run")).orElse("migrate").split("\\s*,\\s*");
 
     configuration.configuration(properties);
     configuration.dataSource(dataSource);
 
-    Flyway flyway = new Flyway(configuration);
+    var flyway = new Flyway(configuration);
 
-    for (String command : commandString) {
+    for (var command : commandString) {
       runCommand(command.toLowerCase(), flyway);
     }
 

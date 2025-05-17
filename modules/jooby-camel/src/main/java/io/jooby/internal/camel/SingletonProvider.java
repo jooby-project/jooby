@@ -16,9 +16,9 @@ public class SingletonProvider<T> implements Provider<T> {
 
   protected T instance;
 
-  private Supplier<T> factory;
+  private final Supplier<T> factory;
 
-  private SneakyThrows.Consumer<T> close;
+  private final SneakyThrows.Consumer<T> close;
 
   public SingletonProvider(Supplier<T> factory, SneakyThrows.Consumer<T> close) {
     this.factory = factory;

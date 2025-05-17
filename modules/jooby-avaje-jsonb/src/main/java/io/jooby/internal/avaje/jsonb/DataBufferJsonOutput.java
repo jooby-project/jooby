@@ -12,7 +12,7 @@ import io.avaje.json.stream.JsonOutput;
 import io.jooby.buffer.DataBuffer;
 
 public class DataBufferJsonOutput implements JsonOutput {
-  private DataBuffer buffer;
+  private final DataBuffer buffer;
 
   public DataBufferJsonOutput(DataBuffer buffer) {
     this.buffer = buffer;

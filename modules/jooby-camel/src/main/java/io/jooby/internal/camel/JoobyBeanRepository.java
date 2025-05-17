@@ -24,7 +24,7 @@ import jakarta.inject.Provider;
 /** Look into {@link Jooby#getServices()} it doesn't extend lookup into DI. */
 public class JoobyBeanRepository implements BeanRepository {
 
-  private ServiceRegistry registry;
+  private final ServiceRegistry registry;
 
   public JoobyBeanRepository(ServiceRegistry registry) {
     this.registry = registry;
@@ -32,7 +32,7 @@ public class JoobyBeanRepository implements BeanRepository {
 
   @Override
   public Object lookupByName(String name) {
-    Provider provider = beanByName(name);
+    var provider = beanByName(name);
     return provider == null ? null : provider.get();
   }
 
@@ -43,7 +43,7 @@ public class JoobyBeanRepository implements BeanRepository {
 
   @Override
   public <T> Map<String, T> findByTypeWithName(Class<T> type) {
-    Object bean = getBean(ServiceKey.key(type));
+    var bean = getBean(ServiceKey.key(type));
     String beanName = null;
     if (bean == null) {
       // Look if there is named bean:
@@ -69,7 +69,7 @@ public class JoobyBeanRepository implements BeanRepository {
     return registry.getOrNull(key);
   }
 
-  private Provider beanByName(String beanId) {
+  private Provider<?> beanByName(String beanId) {
     var entry =
         findBean(
             key ->

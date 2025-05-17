@@ -7,7 +7,6 @@ package io.jooby.ebean;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.ebean.Database;
-import io.ebean.Transaction;
 import io.jooby.Route;
 import io.jooby.ServiceKey;
 import io.jooby.annotation.Transactional;
@@ -20,7 +19,7 @@ import io.jooby.annotation.Transactional;
  */
 public class TransactionalRequest implements Route.Filter {
 
-  private ServiceKey<Database> key;
+  private final ServiceKey<Database> key;
 
   private boolean enabledByDefault = true;
 
@@ -59,9 +58,9 @@ public class TransactionalRequest implements Route.Filter {
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
-        Database db = ctx.require(key);
-        try (Transaction transaction = db.beginTransaction()) {
-          Object result = next.apply(ctx);
+        var db = ctx.require(key);
+        try (var transaction = db.beginTransaction()) {
+          var result = next.apply(ctx);
           transaction.commit();
           return result;
         }
