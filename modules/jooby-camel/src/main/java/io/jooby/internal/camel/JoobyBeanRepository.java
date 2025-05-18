@@ -74,13 +74,13 @@ public class JoobyBeanRepository implements BeanRepository {
         findBean(
             key ->
                 ofNullable(key.getName())
-                    .orElseGet(() -> camelBeanId(key.getType()))
+                    .orElseGet(() -> camelBeanId(key.getRawType()))
                     .equals(beanId));
     return entry == null ? null : entry.getValue();
   }
 
   private Map.Entry<ServiceKey<?>, Provider<?>> beanByType(Class type) {
-    return findBean(key -> key.getType().equals(type));
+    return findBean(key -> key.getRawType().equals(type));
   }
 
   private Map.Entry<ServiceKey<?>, Provider<?>> findBean(Predicate<ServiceKey<?>> predicate) {

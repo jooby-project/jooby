@@ -40,6 +40,27 @@ public interface Registry {
   /**
    * Provides an instance of the given type.
    *
+   * @param type Object type.
+   * @param <T> Object type.
+   * @return Instance of this type.
+   * @throws RegistryException If there was a runtime failure while providing an instance.
+   */
+  @NonNull <T> T require(@NonNull Reified<T> type) throws RegistryException;
+
+  /**
+   * Provides an instance of the given type where name matches it.
+   *
+   * @param type Object type.
+   * @param name Object name.
+   * @param <T> Object type.
+   * @return Instance of this type.
+   * @throws RegistryException If there was a runtime failure while providing an instance.
+   */
+  @NonNull <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException;
+
+  /**
+   * Provides an instance of the given type.
+   *
    * @param key Object key.
    * @param <T> Object type.
    * @return Instance of this type.

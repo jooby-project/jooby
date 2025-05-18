@@ -24,6 +24,9 @@ public class OpenAPIResult {
   }
 
   public RouteIterator iterator(boolean ignoreArgs) {
+    if (failure != null) {
+      throw failure;
+    }
     return new RouteIterator(openAPI == null ? List.of() : openAPI.getOperations(), ignoreArgs);
   }
 

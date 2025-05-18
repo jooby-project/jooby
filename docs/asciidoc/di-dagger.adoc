@@ -1,4 +1,4 @@
-=== Dagger
+==== Dagger
 
 1) Add Dagger to your project
 
@@ -95,7 +95,7 @@ fun main(args: Array<String>) {
 Check out the https://dagger.dev/tutorial[Dagger tutorial] to learn more.
 ====
 
-==== MVC routes
+===== MVC routes
 
 Integration of MVC routes with Dagger is as simple as:
 

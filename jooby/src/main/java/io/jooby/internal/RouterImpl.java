@@ -811,6 +811,16 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+    return services.require(type, name);
+  }
+
+  @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type) throws RegistryException {
+    return services.require(type);
+  }
+
+  @NonNull @Override
   public Cookie getFlashCookie() {
     return flashCookie;
   }

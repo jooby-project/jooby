@@ -309,7 +309,7 @@ public class HibernateModule implements Extension {
         .filter(
             it ->
                 it.getKey()
-                    .getType()
+                    .getRawType()
                     .getName()
                     .equals("jakarta.validation.ConstraintValidatorFactory"))
         .findFirst()

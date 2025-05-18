@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
@@ -54,9 +55,9 @@ public class JoobyModule extends AbstractModule {
       Provider provider = entry.getValue();
       LinkedBindingBuilder<?> binding;
       if (key.getName() != null) {
-        binding = bind(key.getType()).annotatedWith(Names.named(key.getName()));
+        binding = bind(TypeLiteral.get(key.getType())).annotatedWith(Names.named(key.getName()));
       } else {
-        binding = bind(key.getType());
+        binding = bind(TypeLiteral.get(key.getType()));
       }
       binding.toProvider(provider);
     }

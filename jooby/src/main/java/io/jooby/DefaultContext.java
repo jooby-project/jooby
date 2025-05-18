@@ -58,6 +58,16 @@ public interface DefaultContext extends Context {
   }
 
   @NonNull @Override
+  default <T> T require(@NonNull Reified<T> type) throws RegistryException {
+    return getRouter().require(type);
+  }
+
+  @NonNull @Override
+  default <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+    return getRouter().require(type, name);
+  }
+
+  @NonNull @Override
   default <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     return getRouter().require(key);
   }

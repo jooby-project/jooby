@@ -827,6 +827,16 @@ public class Jooby implements Router, Registry {
     return require(ServiceKey.key(type));
   }
 
+  @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type) throws RegistryException {
+    return require(ServiceKey.key(type));
+  }
+
+  @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+    return require(ServiceKey.key(type, name));
+  }
+
   @Override
   public @NonNull <T> T require(@NonNull ServiceKey<T> key) {
     ServiceRegistry services = getServices();
@@ -835,10 +845,7 @@ public class Jooby implements Router, Registry {
       if (!registry.isSet()) {
         throw new RegistryException("Service not found: " + key);
       }
-      String name = key.getName();
-      return name == null
-          ? registry.get().require(key.getType())
-          : registry.get().require(key.getType(), name);
+      return registry.get().require(key);
     }
     return service;
   }

@@ -1,4 +1,4 @@
-=== Avaje Inject
+==== Avaje Inject
 
 1) Add Avaje Inject to your project
 
@@ -89,7 +89,7 @@ fun main(args: Array<String>) {
 <1> Install Avaje Inject module
 <2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Avaje Inject
 
-==== Property Injection
+===== Property Injection
 
 Configuration properties can be injected using the `@Named` annotation. As Avaje checks beans at compile time, `@External` is required to prevent false-positive compilation errors:
 
@@ -122,7 +122,7 @@ class BillingService @Inject constructor(@External @Named("currency") currency: 
 }
 ----
 
-==== MVC routes
+===== MVC routes
 
 Avaje Inject will also provisioning MVC routes
 

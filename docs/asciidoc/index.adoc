@@ -240,21 +240,21 @@ include::error-handler.adoc[]
 
 include::problem-details.adoc[]
 
-include::handlers.adoc[]
-
 include::configuration.adoc[]
+
+include::extension.adoc[]
+
+include::dependency-injection.adoc[]
 
 include::testing.adoc[]
 
 include::dev-tools.adoc[]
 
+include::handlers.adoc[]
+
 include::packaging/packaging.adoc[]
 
 include::servers.adoc[]
-
-include::extension.adoc[]
-
-include::dependency-injection.adoc[]
 
 include::modules.adoc[]
 

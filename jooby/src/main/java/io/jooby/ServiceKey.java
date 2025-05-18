@@ -5,10 +5,12 @@
  */
 package io.jooby;
 
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.internal.reflect.$Types;
 
 /**
  * Utility class to access application services.
@@ -16,14 +18,16 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @param <T> Service type.
  */
 public final class ServiceKey<T> {
-  private final Class<T> type;
+  private final Type type;
+  private final Class<T> rawType;
 
   private final int hashCode;
 
   private final String name;
 
-  private ServiceKey(Class<T> type, String name) {
+  private ServiceKey(Type type, Class<T> rawType, String name) {
     this.type = type;
+    this.rawType = rawType;
     this.name = name;
     this.hashCode = Objects.hash(type, name);
   }
@@ -33,8 +37,12 @@ public final class ServiceKey<T> {
    *
    * @return Resource type.
    */
-  public @NonNull Class<T> getType() {
+  public @NonNull Type getType() {
     return type;
+  }
+
+  public @NonNull Class<T> getRawType() {
+    return rawType;
   }
 
   /**
@@ -48,9 +56,8 @@ public final class ServiceKey<T> {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof ServiceKey) {
-      ServiceKey that = (ServiceKey) obj;
-      return this.type == that.type && Objects.equals(this.name, that.name);
+    if (obj instanceof ServiceKey<?> key) {
+      return this.type.equals(key.type) && Objects.equals(this.name, key.name);
     }
     return false;
   }
@@ -62,10 +69,11 @@ public final class ServiceKey<T> {
 
   @Override
   public String toString() {
+    var typeName = $Types.typeToString(type);
     if (name == null) {
-      return type.getName();
+      return typeName;
     }
-    return type.getName() + "(" + name + ")";
+    return typeName + "(" + name + ")";
   }
 
   /**
@@ -76,7 +84,7 @@ public final class ServiceKey<T> {
    * @return A new resource key.
    */
   public static @NonNull <T> ServiceKey<T> key(@NonNull Class<T> type) {
-    return new ServiceKey<>(type, null);
+    return new ServiceKey<>(type, type, null);
   }
 
   /**
@@ -88,6 +96,16 @@ public final class ServiceKey<T> {
    * @return A new resource key.
    */
   public static @NonNull <T> ServiceKey<T> key(@NonNull Class<T> type, @NonNull String name) {
-    return new ServiceKey<>(type, name);
+    return new ServiceKey<>(type, type, name);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static @NonNull <T> ServiceKey<T> key(@NonNull Reified<T> type, @NonNull String name) {
+    return new ServiceKey<>(type.getType(), (Class<T>) type.getRawType(), name);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static @NonNull <T> ServiceKey<T> key(@NonNull Reified<T> type) {
+    return new ServiceKey<>(type.getType(), (Class<T>) type.getRawType(), null);
   }
 }

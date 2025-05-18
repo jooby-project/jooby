@@ -1,4 +1,4 @@
-== Dependency Injection
+=== Dependency Injection
 
 include::modules/avaje-inject.adoc[]
 

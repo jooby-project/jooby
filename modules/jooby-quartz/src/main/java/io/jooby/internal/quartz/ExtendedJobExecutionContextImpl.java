@@ -18,6 +18,7 @@ import org.quartz.TriggerKey;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Registry;
+import io.jooby.Reified;
 import io.jooby.ServiceKey;
 import io.jooby.exception.RegistryException;
 import io.jooby.quartz.ExtendedJobExecutionContext;
@@ -47,6 +48,16 @@ public class ExtendedJobExecutionContextImpl implements ExtendedJobExecutionCont
   @NonNull @Override
   public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     return registry.require(key);
+  }
+
+  @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type) throws RegistryException {
+    return registry.require(type);
+  }
+
+  @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+    return registry.require(type, name);
   }
 
   @Override

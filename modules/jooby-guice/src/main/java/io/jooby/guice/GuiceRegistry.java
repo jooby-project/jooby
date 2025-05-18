@@ -12,6 +12,7 @@ import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Registry;
+import io.jooby.Reified;
 import io.jooby.ServiceKey;
 import io.jooby.exception.RegistryException;
 
@@ -33,9 +34,24 @@ class GuiceRegistry implements Registry {
   }
 
   @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type) throws RegistryException {
+    //noinspection unchecked
+    return (T) require(Key.get(type.getType()));
+  }
+
+  @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+    //noinspection unchecked
+    return (T) require(Key.get(type.getType(), Names.named(name)));
+  }
+
+  @NonNull @Override
   public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     String name = key.getName();
-    return name == null ? require(key.getType()) : require(key.getType(), name);
+    //noinspection unchecked
+    return name == null
+        ? (T) require(Key.get(key.getType()))
+        : (T) require(Key.get(key.getType(), Names.named(name)));
   }
 
   @NonNull private <T> T require(@NonNull Key<T> key) {

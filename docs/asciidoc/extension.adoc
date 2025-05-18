@@ -21,7 +21,7 @@ public class MyExtension implements Extension {
       DataSource dataSource = createDataSource();           <1>
 
       ServiceRegistry registry = application.getServices(); <2>
-      registry.put(DataSource.class, dataSource);           <3>
+      registry.put(MyDataSource.class, dataSource);         <3>
 
       application.onStop(dataSource::close)                 <4>
    }
@@ -38,15 +38,15 @@ class MyExtension: Extension {
     val dataSource = createDataSource()                     <1>
 
     val registry = application.services                     <2>
-    registry.put(DataSource::class, dataSource)             <3>
+    registry.put(MyDataSource::class, dataSource)           <3>
     application.onStop(dataSource::close)                   <4>
   }
 }
 ----
 
-<1> Create the service
-<2> Access to service registry
-<3> Add it to the service registry
+<1> Create the service (DataSource)
+<2> Access to the service registry
+<3> Save into the service registry
 <4> Close/release service on application stop
 
 Let's install the extension and use the service!!
@@ -86,12 +86,67 @@ class App: Kooby({
 <1> Install the extension
 <2> Use the service
 
-Services are accessible via javadoc:Registry[require, java.lang.Class].
+=== Collection of Services
+
+Adding a collection to the service registry is supported too.
+
+.List/Set
+[source,java]
+----
+import io.jooby.Extension;import io.jooby.Reified;
+
+public class Cats implements Extension {
+   
+   public void install(Jooby application) {
+      ServiceRegistry registry = application.getServices();
+      // as list
+      registry.listOf(Animal.class).add(new Cat());
+      // as set
+      registry.setOf(Animal.class).add(new Cat());
+      // as map
+      registry.mapOf(String.class, Animal.class).put("cat", new Cat());
+   }
+}
+
+public class Dogs implements Extension {
+   
+   public void install(Jooby application) {
+      ServiceRegistry registry = application.getServices();
+      // as list
+      registry.listOf(Animal.class).add(new Dog());
+      // as set
+      registry.setOf(Animal.class).add(new Dog());
+      // as map
+      registry.mapOf(String.class, Animal.class).put("dog", new Dog());
+   }
+}
+
+{
+  install(new Cats());
+  install(new Dogs());
+  // as list
+  get("/list", ctx -> {
+    return ctx.require(Reified.list(Animal.class));
+  });
+  // as set
+  get("/set", ctx -> {
+    return ctx.require(Reified.set(Animal.class));
+  });
+  // as map
+  get("/map", ctx -> {
+    return ctx.require(Reified.map(String.class, Animal.class));
+  });
+}
+----
+
+Services are accessible via javadoc:Registry[require, java.lang.Class] and integrated with
+dependency injection frameworks provided by Jooby like Guice and Avaje Inject. This mean they are
+accessible using the `jakarta.inject.Inject` annotation.
 
 In addition to services, an extension module may provides infrastructure routes, body decoder/encoder,
 template engines, etc.
 
 The extension mechanism is a simple way of reusing code and decoupling technical features from
-business logic. 
+business logic.
 
-More advanced techniques are describe in the <<Dependency Injection>> section.
+More advanced techniques are described in the next section.

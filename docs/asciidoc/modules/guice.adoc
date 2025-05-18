@@ -1,4 +1,4 @@
-=== Guice
+==== Guice
 
 1) Add Guice dependency to your project:
 
@@ -52,7 +52,7 @@ fun main(args: Array<String>) {
 <1> Install Guice module
 <2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Guice
 
-==== Property Injection
+===== Property Injection
 
 Configuration properties can be injected using the `@Named` annotation:
 
@@ -87,7 +87,7 @@ class BillingService @Inject constructor(@Named("currency") currency: String) {
 }
 ----
 
-==== MVC routes
+===== MVC routes
 
 Guice will also provisioning MVC routes
 

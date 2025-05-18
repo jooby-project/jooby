@@ -1325,6 +1325,16 @@ public class ForwardingContext implements Context {
   }
 
   @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type) throws RegistryException {
+    return ctx.require(type);
+  }
+
+  @NonNull @Override
+  public <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+    return ctx.require(type, name);
+  }
+
+  @NonNull @Override
   public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     return ctx.require(key);
   }
