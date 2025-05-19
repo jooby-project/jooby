@@ -78,17 +78,19 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.jacoco</groupId>
-      <artifactId>org.jacoco.agent</artifactId>
-      <classifier>runtime</classifier>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
+        <inherited>false</inherited>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>properties-maven-plugin</artifactId>
