@@ -72,11 +72,11 @@
     <!-- data -->
     <HikariCP.version>6.3.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.14.Final</hibernate.version>
+    <hibernate.version>6.6.15.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
-    <jdbi.version>3.49.3</jdbi.version>
+    <jdbi.version>3.49.4</jdbi.version>
     <flyway.version>11.8.0</flyway.version>
-    <graphql-java.version>23.1</graphql-java.version>
+    <graphql-java.version>24.0</graphql-java.version>
     <lettuce.version>6.6.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
     <kafka.version>4.0.0</kafka.version>
@@ -106,12 +106,12 @@
 
     <!-- Server -->
     <undertow.version>2.3.18.Final</undertow.version>
-    <jetty.version>12.0.20</jetty.version>
+    <jetty.version>12.0.21</jetty.version>
     <netty.version>4.2.1.Final</netty.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.30</swagger.version>
-    <swagger-parser.version>2.1.27</swagger-parser.version>
+    <swagger.version>2.2.32</swagger.version>
+    <swagger-parser.version>2.1.28</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -142,14 +142,14 @@
     <commons-io.version>2.19.0</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>2.1.20</kotlin.version>
+    <kotlin.version>2.1.21</kotlin.version>
     <kotlinx-coroutines-core.version>1.10.2</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.13</jacoco.version>
     <junit.version>5.12.2</junit.version>
-    <rest-assured.version>5.5.1</rest-assured.version>
+    <rest-assured.version>5.5.2</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito.version>5.17.0</mockito.version>
     <guava.version>33.4.8-jre</guava.version>
