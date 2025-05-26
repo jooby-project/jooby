@@ -72,7 +72,7 @@
     <!-- data -->
     <HikariCP.version>6.3.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.15.Final</hibernate.version>
+    <hibernate.version>7.0.0.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
     <jdbi.version>3.49.4</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
@@ -96,7 +96,7 @@
     <commons-email.version>1.6.0</commons-email.version>
 
     <!-- util -->
-    <metrics.version>4.2.30</metrics.version>
+    <metrics.version>4.2.32</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>2.1.6.Final</jboss-modules.version>
@@ -149,9 +149,9 @@
     <!-- Test dependencies -->
     <jacoco.version>0.8.13</jacoco.version>
     <junit.version>5.12.2</junit.version>
-    <rest-assured.version>5.5.2</rest-assured.version>
+    <rest-assured.version>5.5.5</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
-    <mockito.version>5.17.0</mockito.version>
+    <mockito.version>5.18.0</mockito.version>
     <guava.version>33.4.8-jre</guava.version>
 
     <compile-testing.version>0.21.0</compile-testing.version>
