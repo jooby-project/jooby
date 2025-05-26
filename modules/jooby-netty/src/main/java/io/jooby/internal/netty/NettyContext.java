@@ -91,6 +91,7 @@ import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.IllegalReferenceCountException;
 
 public class NettyContext implements DefaultContext, ChannelFutureListener {
 
@@ -857,8 +858,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     if (decoder != null) {
       try {
         decoder.destroy();
-      } catch (Exception x) {
-        router.getLog().debug("body decoder destroy resulted in exception", x);
+      } catch (IllegalReferenceCountException ex) {
+        router.getLog().trace("decoder was released already", ex);
+      } catch (Exception ex) {
+        router.getLog().debug("body decoder destroy resulted in exception", ex);
       }
       decoder = null;
     }
