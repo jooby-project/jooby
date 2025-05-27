@@ -4,8 +4,6 @@
   "private": true,
   "license": "ASF",
   "dependencies": {
-    "ejs": "3.1.10",
-    "graphql-playground-html": "1.6.30",
     "graphql-playground-react": "1.7.28"
   }
 }
