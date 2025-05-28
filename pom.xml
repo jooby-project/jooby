@@ -111,7 +111,7 @@
 
     <!--OpenAPI-->
     <swagger.version>2.2.32</swagger.version>
-    <swagger-parser.version>2.1.28</swagger-parser.version>
+    <swagger-parser.version>2.1.29</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -119,7 +119,7 @@
 
     <!-- avaje -->
     <avaje.inject.version>11.5</avaje.inject.version>
-    <avaje.jsonb.version>3.4</avaje.jsonb.version>
+    <avaje.jsonb.version>3.5</avaje.jsonb.version>
     <avaje.validator.version>2.11</avaje.validator.version>
 
     <!-- jakarta -->
@@ -131,12 +131,12 @@
     <!-- Misc -->
     <okhttp.version>4.12.0</okhttp.version>
     <jsonwebtoken.version>0.12.6</jsonwebtoken.version>
-    <pac4j.version>6.1.2</pac4j.version>
+    <pac4j.version>6.1.3</pac4j.version>
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
     <aws-java-sdk.version>1.12.783</aws-java-sdk.version>
-    <camel.version>4.11.0</camel.version>
+    <camel.version>4.12.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
     <commons-io.version>2.19.0</commons-io.version>
