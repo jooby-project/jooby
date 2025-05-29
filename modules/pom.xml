@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>3.9.1</version>
+    <version>3.9.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>modules</artifactId>
