@@ -72,11 +72,11 @@
     <!-- data -->
     <HikariCP.version>6.3.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.15.Final</hibernate.version>
+    <hibernate.version>6.6.17.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
     <jdbi.version>3.49.4</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
-    <graphql-java.version>24.0</graphql-java.version>
+    <graphql-java.version>24.1</graphql-java.version>
     <lettuce.version>6.6.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
     <kafka.version>4.0.0</kafka.version>
@@ -148,7 +148,7 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.13</jacoco.version>
-    <junit.version>5.12.2</junit.version>
+    <junit.version>5.13.0</junit.version>
     <rest-assured.version>5.5.5</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito.version>5.18.0</mockito.version>
@@ -190,7 +190,7 @@
     <plexus-utils.version>4.0.2</plexus-utils.version>
     <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
-    <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
+    <exec-maven-plugin.version>3.5.1</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
     <node.version>v20.11.0</node.version>
@@ -1447,7 +1447,7 @@
               <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
-                <version>3.0.24</version>
+                <version>3.0.25</version>
                 <type>pom</type>
                 <exclusions>
                   <exclusion>
@@ -1594,7 +1594,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>2.44.4</version>
+            <version>2.44.5</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
