@@ -55,7 +55,7 @@ public class Reactor {
               // Return context to mark as handled
               return ctx;
             } else if (result instanceof Mono mono) {
-              mono.subscribe(
+              mono.defaultIfEmpty(ctx.getResponseCode()).subscribe(
                   value -> {
                     // fire after:
                     after(ctx, value, null);
