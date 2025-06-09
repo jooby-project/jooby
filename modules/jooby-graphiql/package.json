@@ -5,6 +5,6 @@
   "license": "ASF",
   "dependencies": {
     "graphql": "^16.11.0",
-    "graphiql": "^4.1.1"
+    "graphiql": "^4.1.2"
   }
 }
