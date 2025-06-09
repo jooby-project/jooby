@@ -77,7 +77,7 @@
     <jdbi.version>3.49.4</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
     <graphql-java.version>24.1</graphql-java.version>
-    <lettuce.version>6.6.0.RELEASE</lettuce.version>
+    <lettuce.version>6.7.1.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
     <kafka.version>4.0.0</kafka.version>
     <caffeine.version>3.2.0</caffeine.version>
@@ -106,8 +106,8 @@
 
     <!-- Server -->
     <undertow.version>2.3.18.Final</undertow.version>
-    <jetty.version>12.0.21</jetty.version>
-    <netty.version>4.2.1.Final</netty.version>
+    <jetty.version>12.0.22</jetty.version>
+    <netty.version>4.2.2.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.32</swagger.version>
@@ -135,7 +135,7 @@
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.783</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.785</aws-java-sdk.version>
     <camel.version>4.11.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -148,7 +148,7 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.13</jacoco.version>
-    <junit.version>5.13.0</junit.version>
+    <junit.version>5.13.1</junit.version>
     <rest-assured.version>5.5.5</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito.version>5.18.0</mockito.version>
@@ -169,7 +169,7 @@
     <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
     <maven-tiles-plugin.version>2.40</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-    <maven-core.version>3.9.9</maven-core.version>
+    <maven-core.version>3.9.10</maven-core.version>
     <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
@@ -177,7 +177,7 @@
     <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.15.1</maven-plugin-annotations.version>
-    <maven-plugin-api.version>3.9.9</maven-plugin-api.version>
+    <maven-plugin-api.version>3.9.10</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.15.1</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
