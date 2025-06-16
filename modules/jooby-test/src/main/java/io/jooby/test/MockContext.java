@@ -59,6 +59,7 @@ import io.jooby.buffer.DataBuffer;
 import io.jooby.buffer.DataBufferFactory;
 import io.jooby.buffer.DefaultDataBufferFactory;
 import io.jooby.exception.TypeMismatchException;
+import io.jooby.value.ValueFactory;
 
 /** Unit test friendly context implementation. Allows to set context properties. */
 public class MockContext implements DefaultContext {
@@ -75,7 +76,9 @@ public class MockContext implements DefaultContext {
 
   private Map<String, Collection<String>> headers = new HashMap<>();
 
-  private Formdata formdata = Formdata.create(this);
+  private ValueFactory valueFactory = new ValueFactory();
+
+  private Formdata formdata = Formdata.create(valueFactory);
 
   private Body body;
 
@@ -275,7 +278,7 @@ public class MockContext implements DefaultContext {
 
   @NonNull @Override
   public QueryString query() {
-    return QueryString.create(this, queryString);
+    return QueryString.create(valueFactory, queryString);
   }
 
   @NonNull @Override
@@ -296,7 +299,7 @@ public class MockContext implements DefaultContext {
 
   @NonNull @Override
   public ValueNode header() {
-    return Value.headers(this, headers);
+    return Value.headers(valueFactory, headers);
   }
 
   /**

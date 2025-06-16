@@ -28,6 +28,7 @@ import io.jooby.internal.HeadersValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.MultipartNode;
 import io.jooby.internal.SingleValue;
+import io.jooby.value.ValueFactory;
 
 /**
  * Unified API for HTTP value. This API plays two role:
@@ -451,27 +452,27 @@ public interface Value {
   /**
    * Creates a single value.
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @param name Name of value.
    * @param value Value.
    * @return Single value.
    */
   static @NonNull ValueNode value(
-      @NonNull Context ctx, @NonNull String name, @NonNull String value) {
-    return new SingleValue(ctx, name, value);
+      @NonNull ValueFactory valueFactory, @NonNull String name, @NonNull String value) {
+    return new SingleValue(valueFactory, name, value);
   }
 
   /**
    * Creates a sequence/array of values.
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @param name Name of array.
    * @param values Field values.
    * @return Array value.
    */
   static @NonNull ValueNode array(
-      @NonNull Context ctx, @NonNull String name, @NonNull List<String> values) {
-    return new ArrayValue(ctx, name).add(values);
+      @NonNull ValueFactory valueFactory, @NonNull String name, @NonNull List<String> values) {
+    return new ArrayValue(valueFactory, name).add(values);
   }
 
   /**
@@ -480,20 +481,20 @@ public interface Value {
    * <p>- For null/empty values. It produces a missing value. - For single element (size==1). It
    * produces a single value - For multi-value elements (size&gt;1). It produces an array value.
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @param name Field name.
    * @param values Field values.
    * @return A value.
    */
   static @NonNull ValueNode create(
-      Context ctx, @NonNull String name, @Nullable List<String> values) {
+      ValueFactory valueFactory, @NonNull String name, @Nullable List<String> values) {
     if (values == null || values.size() == 0) {
       return missing(name);
     }
     if (values.size() == 1) {
-      return value(ctx, name, values.get(0));
+      return value(valueFactory, name, values.get(0));
     }
-    return new ArrayValue(ctx, name).add(values);
+    return new ArrayValue(valueFactory, name).add(values);
   }
 
   /**
@@ -502,27 +503,29 @@ public interface Value {
    * <p>- For null/empty values. It produces a missing value. - For single element (size==1). It
    * produces a single value
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @param name Field name.
    * @param value Field values.
    * @return A value.
    */
-  static @NonNull ValueNode create(Context ctx, @NonNull String name, @Nullable String value) {
+  static @NonNull ValueNode create(
+      ValueFactory valueFactory, @NonNull String name, @Nullable String value) {
     if (value == null) {
       return missing(name);
     }
-    return value(ctx, name, value);
+    return value(valueFactory, name, value);
   }
 
   /**
    * Create a hash/object value using the map values.
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @param values Map values.
    * @return A hash/object value.
    */
-  static @NonNull ValueNode hash(Context ctx, @NonNull Map<String, Collection<String>> values) {
-    HashValue node = new HashValue(ctx, null);
+  static @NonNull ValueNode hash(
+      ValueFactory valueFactory, @NonNull Map<String, Collection<String>> values) {
+    var node = new HashValue(valueFactory, null);
     node.put(values);
     return node;
   }
@@ -530,22 +533,23 @@ public interface Value {
   /**
    * Creates a formdata.
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @return A hash/object value.
    */
-  static @NonNull Formdata formdata(Context ctx) {
-    return new MultipartNode(ctx);
+  static @NonNull Formdata formdata(ValueFactory valueFactory) {
+    return new MultipartNode(valueFactory);
   }
 
   /**
    * Create a hash/object value using the map values.
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @param values Map values.
    * @return A hash/object value.
    */
-  static @NonNull ValueNode headers(Context ctx, @NonNull Map<String, Collection<String>> values) {
-    HeadersValue node = new HeadersValue(ctx);
+  static @NonNull ValueNode headers(
+      ValueFactory valueFactory, @NonNull Map<String, Collection<String>> values) {
+    HeadersValue node = new HeadersValue(valueFactory);
     node.put(values);
     return node;
   }

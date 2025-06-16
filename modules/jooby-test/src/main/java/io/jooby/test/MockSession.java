@@ -15,11 +15,13 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Session;
 import io.jooby.Value;
+import io.jooby.value.ValueFactory;
 
 /** Mock session. */
 public class MockSession implements Session {
   private MockContext ctx;
   private String sessionId;
+  private ValueFactory valueFactory = new ValueFactory();
 
   private Map<String, String> data = new HashMap<>();
   private Instant creationTime;
@@ -89,7 +91,7 @@ public class MockSession implements Session {
   @NonNull @Override
   public Value get(@NonNull String name) {
     return Optional.ofNullable(data.get(name))
-        .map(value -> Value.create(ctx, name, value))
+        .map(value -> Value.create(valueFactory, name, value))
         .orElse(Value.missing(name));
   }
 

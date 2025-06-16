@@ -8,6 +8,7 @@ package io.jooby;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.internal.UrlParser;
+import io.jooby.value.ValueFactory;
 
 /**
  * Query string class for direct MVC parameter provisioning.
@@ -33,11 +34,12 @@ public interface QueryString extends ValueNode {
    *
    * <pre>{@code {q: foo, sort: name}}</pre>
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @param queryString Query string.
    * @return A query string.
    */
-  static @NonNull QueryString create(@NonNull Context ctx, @Nullable String queryString) {
-    return UrlParser.queryString(ctx, queryString);
+  static @NonNull QueryString create(
+      @NonNull ValueFactory valueFactory, @Nullable String queryString) {
+    return UrlParser.queryString(valueFactory, queryString);
   }
 }

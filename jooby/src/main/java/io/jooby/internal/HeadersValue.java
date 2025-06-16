@@ -11,13 +11,13 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
 import io.jooby.ValueNode;
+import io.jooby.value.ValueFactory;
 
 public class HeadersValue extends HashValue implements ValueNode {
 
-  public HeadersValue(final Context ctx) {
-    super(ctx);
+  public HeadersValue(ValueFactory valueFactory) {
+    super(valueFactory);
   }
 
   @Override

@@ -134,7 +134,7 @@ public interface DefaultContext extends Context {
    */
   @Override
   default @NonNull Value flash(@NonNull String name) {
-    return Value.create(this, name, flash().get(name));
+    return Value.create(getRouter().getValueFactory(), name, flash().get(name));
   }
 
   @Override
@@ -185,7 +185,9 @@ public interface DefaultContext extends Context {
   @Override
   default @NonNull Value cookie(@NonNull String name) {
     String value = cookieMap().get(name);
-    return value == null ? Value.missing(name) : Value.value(this, name, value);
+    return value == null
+        ? Value.missing(name)
+        : Value.value(getRouter().getValueFactory(), name, value);
   }
 
   @Override
@@ -193,7 +195,7 @@ public interface DefaultContext extends Context {
     String value = pathMap().get(name);
     return value == null
         ? new MissingValue(name)
-        : new SingleValue(this, name, UrlParser.decodePathSegment(value));
+        : new SingleValue(getRouter().getValueFactory(), name, UrlParser.decodePathSegment(value));
   }
 
   @Override
@@ -203,7 +205,7 @@ public interface DefaultContext extends Context {
 
   @Override
   @NonNull default ValueNode path() {
-    HashValue path = new HashValue(this, null);
+    var path = new HashValue(getRouter().getValueFactory(), null);
     for (Map.Entry<String, String> entry : pathMap().entrySet()) {
       path.put(entry.getKey(), entry.getValue());
     }
@@ -423,14 +425,14 @@ public interface DefaultContext extends Context {
 
   @Override
   default @NonNull <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type) {
-    return ValueConverters.convert(value, type, getRouter());
+    return ValueConverters.convert(value, type, getRouter().getValueFactory());
   }
 
   @Override
   default @NonNull <T> T decode(@NonNull Type type, @NonNull MediaType contentType) {
     try {
       if (MediaType.text.equals(contentType)) {
-        T result = ValueConverters.convert(body(), type, getRouter());
+        T result = ValueConverters.convert(body(), type, getRouter().getValueFactory());
         return result;
       }
       return (T) decoder(contentType).decode(this, type);

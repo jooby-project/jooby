@@ -29,9 +29,16 @@ import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueConverter;
+import io.jooby.value.Converter;
+import io.jooby.value.ValueFactory;
 
-public enum BuiltinConverter implements ValueConverter<Value> {
+public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   BigDecimal {
+    @Override
+    public void register(ValueFactory factory) {
+      factory.put(BigDecimal.class, this);
+    }
+
     @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == BigDecimal.class;
@@ -39,10 +46,20 @@ public enum BuiltinConverter implements ValueConverter<Value> {
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       return new BigDecimal(value.value());
     }
   },
   BigInteger {
+    @Override
+    public void register(ValueFactory factory) {
+      factory.put(BigInteger.class, this);
+    }
+
     @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == BigInteger.class;
@@ -50,10 +67,20 @@ public enum BuiltinConverter implements ValueConverter<Value> {
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       return new BigInteger(value.value());
     }
   },
   Charset {
+    @Override
+    public void register(ValueFactory factory) {
+      factory.put(Charset.class, this);
+    }
+
     @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == Charset.class;
@@ -61,6 +88,11 @@ public enum BuiltinConverter implements ValueConverter<Value> {
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       String charset = value.value();
       return switch (charset.toLowerCase()) {
         case "utf-8" -> StandardCharsets.UTF_8;
@@ -75,12 +107,22 @@ public enum BuiltinConverter implements ValueConverter<Value> {
   },
   Date {
     @Override
+    public void register(ValueFactory factory) {
+      factory.put(Date.class, this);
+    }
+
+    @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == Date.class;
     }
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       try {
         // must be millis
         return new Date(Long.parseLong(value.value()));
@@ -93,12 +135,22 @@ public enum BuiltinConverter implements ValueConverter<Value> {
   },
   Duration {
     @Override
+    public void register(ValueFactory factory) {
+      factory.put(Duration.class, this);
+    }
+
+    @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == Duration.class;
     }
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       try {
         return java.time.Duration.parse(value.value());
       } catch (DateTimeParseException x) {
@@ -159,12 +211,22 @@ public enum BuiltinConverter implements ValueConverter<Value> {
   },
   Period {
     @Override
+    public void register(ValueFactory factory) {
+      factory.put(Period.class, this);
+    }
+
+    @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == Period.class;
     }
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       try {
         return java.time.Period.from((Duration) Duration.convert(value, type));
       } catch (DateTimeException x) {
@@ -226,12 +288,22 @@ public enum BuiltinConverter implements ValueConverter<Value> {
   },
   Instant {
     @Override
+    public void register(ValueFactory factory) {
+      factory.put(Instant.class, this);
+    }
+
+    @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == Instant.class;
     }
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       try {
         return java.time.Instant.ofEpochMilli(Long.parseLong(value.value()));
       } catch (NumberFormatException x) {
@@ -241,12 +313,22 @@ public enum BuiltinConverter implements ValueConverter<Value> {
   },
   LocalDate {
     @Override
+    public void register(ValueFactory factory) {
+      factory.put(LocalDate.class, this);
+    }
+
+    @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == LocalDate.class;
     }
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       try {
         // must be millis
         var instant = java.time.Instant.ofEpochMilli(Long.parseLong(value.value()));
@@ -259,12 +341,22 @@ public enum BuiltinConverter implements ValueConverter<Value> {
   },
   LocalDateTime {
     @Override
+    public void register(ValueFactory factory) {
+      factory.put(LocalDateTime.class, this);
+    }
+
+    @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == LocalDateTime.class;
     }
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       try {
         // must be millis
         var instant = java.time.Instant.ofEpochMilli(Long.parseLong(value.value()));
@@ -277,16 +369,31 @@ public enum BuiltinConverter implements ValueConverter<Value> {
   },
   StatusCode {
     @Override
+    public void register(ValueFactory factory) {
+      factory.put(StatusCode.class, this);
+    }
+
+    @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == StatusCode.class;
     }
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       return io.jooby.StatusCode.valueOf(value.intValue());
     }
   },
   TimeZone {
+    @Override
+    public void register(ValueFactory factory) {
+      factory.put(TimeZone.class, this);
+    }
+
     @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == TimeZone.class;
@@ -294,10 +401,20 @@ public enum BuiltinConverter implements ValueConverter<Value> {
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       return java.util.TimeZone.getTimeZone(value.value());
     }
   },
   URI {
+    @Override
+    public void register(ValueFactory factory) {
+      factory.put(URI.class, this);
+    }
+
     @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == URI.class || type == URL.class;
@@ -305,6 +422,11 @@ public enum BuiltinConverter implements ValueConverter<Value> {
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       try {
         var uri = java.net.URI.create(value.value());
         if (type == URL.class) {
@@ -318,16 +440,31 @@ public enum BuiltinConverter implements ValueConverter<Value> {
   },
   UUID {
     @Override
+    public void register(ValueFactory factory) {
+      factory.put(UUID.class, this);
+    }
+
+    @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == UUID.class;
     }
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       return java.util.UUID.fromString(value.value());
     }
   },
   ZoneId {
+    @Override
+    public void register(ValueFactory factory) {
+      factory.put(ZoneId.class, this);
+    }
+
     @Override
     public boolean supports(@NonNull Class<?> type) {
       return type == ZoneId.class;
@@ -335,10 +472,17 @@ public enum BuiltinConverter implements ValueConverter<Value> {
 
     @Override
     public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
+      return convert(type, value);
+    }
+
+    @Override
+    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
       var zoneId = value.value();
       return java.time.ZoneId.of(java.time.ZoneId.SHORT_IDS.getOrDefault(zoneId, zoneId));
     }
   };
+
+  public abstract void register(ValueFactory factory);
 
   private static String getUnits(String s) {
     int i = s.length() - 1;

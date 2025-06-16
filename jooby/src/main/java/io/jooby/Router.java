@@ -37,6 +37,7 @@ import io.jooby.buffer.DataBufferFactory;
 import io.jooby.exception.MissingValueException;
 import io.jooby.handler.AssetHandler;
 import io.jooby.handler.AssetSource;
+import io.jooby.value.ValueFactory;
 import jakarta.inject.Provider;
 
 /**
@@ -951,27 +952,9 @@ public interface Router extends Registry {
    */
   @NonNull Router setFlashCookie(@NonNull Cookie flashCookie);
 
-  /**
-   * Add a custom string value converter.
-   *
-   * @param converter Custom value converter.
-   * @return This router.
-   */
-  @NonNull Router converter(@NonNull ValueConverter converter);
+  @NonNull ValueFactory getValueFactory();
 
-  /**
-   * Get all simple/string value converters.
-   *
-   * @return All simple/string value converters.
-   */
-  @NonNull List<ValueConverter> getConverters();
-
-  /**
-   * Get all complex/bean value converters.
-   *
-   * @return All complex/bean value converters.
-   */
-  @NonNull List<BeanConverter> getBeanConverters();
+  @NonNull Router setValueFactory(@NonNull ValueFactory valueFactory);
 
   /**
    * Available server options.

@@ -13,18 +13,18 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 
-import io.jooby.Context;
 import io.jooby.QueryString;
 import io.jooby.SneakyThrows;
+import io.jooby.value.ValueFactory;
 
 public final class UrlParser {
   private static final char SPACE = 0x20;
 
-  public static QueryString queryString(Context ctx, String queryString) {
+  public static QueryString queryString(ValueFactory valueFactory, String queryString) {
     if (queryString == null || queryString.length() == 0) {
-      return new QueryStringValue(ctx, "");
+      return new QueryStringValue(valueFactory, "");
     }
-    QueryStringValue result = new QueryStringValue(ctx, "?" + queryString);
+    QueryStringValue result = new QueryStringValue(valueFactory, "?" + queryString);
     decodeParams(result, queryString, 0, StandardCharsets.UTF_8, 1024);
     return result;
   }

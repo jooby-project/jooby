@@ -13,6 +13,7 @@ module io.jooby {
   exports io.jooby.handler;
   exports io.jooby.validation;
   exports io.jooby.problem;
+  exports io.jooby.value;
 
   uses io.jooby.MvcFactory;
   uses io.jooby.Server;

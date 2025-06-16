@@ -48,6 +48,7 @@ import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
 import io.jooby.problem.ProblemDetailsHandler;
+import io.jooby.value.ValueFactory;
 import jakarta.inject.Provider;
 
 public class RouterImpl implements Router {
@@ -173,6 +174,8 @@ public class RouterImpl implements Router {
   private boolean started;
 
   private boolean stopped;
+
+  private ValueFactory valueFactory = new ValueFactory();
 
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
@@ -467,23 +470,14 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public Router converter(ValueConverter converter) {
-    if (converter instanceof BeanConverter) {
-      beanConverters.add((BeanConverter) converter);
-    } else {
-      converters.addFirst(converter);
-    }
+  public ValueFactory getValueFactory() {
+    return valueFactory;
+  }
+
+  @NonNull @Override
+  public Router setValueFactory(@NonNull ValueFactory valueFactory) {
+    this.valueFactory = valueFactory;
     return this;
-  }
-
-  @NonNull @Override
-  public List<ValueConverter> getConverters() {
-    return converters;
-  }
-
-  @NonNull @Override
-  public List<BeanConverter> getBeanConverters() {
-    return beanConverters;
   }
 
   @NonNull @Override

@@ -10,6 +10,7 @@ import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.MultipartNode;
+import io.jooby.value.ValueFactory;
 
 /**
  * Form class for direct MVC parameter provisioning.
@@ -87,10 +88,10 @@ public interface Formdata extends ValueNode {
   /**
    * Creates a new multipart object.
    *
-   * @param ctx Current context.
+   * @param valueFactory Current context.
    * @return Multipart instance.
    */
-  static @NonNull Formdata create(@NonNull Context ctx) {
-    return new MultipartNode(ctx);
+  static @NonNull Formdata create(@NonNull ValueFactory valueFactory) {
+    return new MultipartNode(valueFactory);
   }
 }

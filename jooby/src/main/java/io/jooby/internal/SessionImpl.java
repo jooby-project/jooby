@@ -78,7 +78,7 @@ public class SessionImpl implements Session {
 
   @Override
   public @NonNull Value get(@NonNull String name) {
-    return Value.create(ctx, name, attributes.get(name));
+    return Value.create(ctx.getRouter().getValueFactory(), name, attributes.get(name));
   }
 
   @Override
@@ -92,7 +92,9 @@ public class SessionImpl implements Session {
   public @NonNull ValueNode remove(@NonNull String name) {
     String value = attributes.remove(name);
     updateState();
-    return value == null ? Value.missing(name) : Value.value(ctx, name, value);
+    return value == null
+        ? Value.missing(name)
+        : Value.value(ctx.getRouter().getValueFactory(), name, value);
   }
 
   @Override

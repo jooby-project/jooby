@@ -16,20 +16,20 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Context;
 import io.jooby.ValueNode;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
+import io.jooby.value.ValueFactory;
 
 public class ArrayValue implements ValueNode {
-  private final Context ctx;
+  private final ValueFactory factory;
 
   private final String name;
 
   private final List<ValueNode> list = new ArrayList<>(5);
 
-  public ArrayValue(Context ctx, String name) {
-    this.ctx = ctx;
+  public ArrayValue(ValueFactory factory, String name) {
+    this.factory = factory;
     this.name = name;
   }
 
@@ -51,7 +51,7 @@ public class ArrayValue implements ValueNode {
   }
 
   public ArrayValue add(String value) {
-    return this.add(new SingleValue(ctx, name, value));
+    return this.add(new SingleValue(factory, name, value));
   }
 
   @Override
@@ -91,12 +91,12 @@ public class ArrayValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return ctx.convert(list.get(0), type);
+    return (T) factory.convert(type, list.get(0));
   }
 
   @Nullable @Override
   public <T> T toNullable(@NonNull Class<T> type) {
-    return list.isEmpty() ? null : ctx.convertOrNull(list.get(0), type);
+    return list.isEmpty() ? null : (T) factory.convert(type, list.get(0));
   }
 
   @NonNull @Override

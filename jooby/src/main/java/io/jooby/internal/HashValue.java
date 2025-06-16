@@ -23,24 +23,24 @@ import java.util.function.BiConsumer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.ValueNode;
+import io.jooby.value.ValueFactory;
 
 public class HashValue implements ValueNode {
   protected static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
-  private Context ctx;
+  private final ValueFactory factory;
   protected Map<String, ValueNode> hash = EMPTY;
   private final String name;
   private boolean arrayLike;
 
-  public HashValue(Context ctx, String name) {
-    this.ctx = ctx;
+  public HashValue(ValueFactory factory, String name) {
+    this.factory = factory;
     this.name = name;
   }
 
-  protected HashValue(Context ctx) {
-    this.ctx = ctx;
+  protected HashValue(ValueFactory factory) {
+    this.factory = factory;
     this.name = null;
   }
 
@@ -65,7 +65,7 @@ public class HashValue implements ValueNode {
             if (existing instanceof ArrayValue) {
               list = (ArrayValue) existing;
             } else {
-              list = new ArrayValue(ctx, name).add(existing);
+              list = new ArrayValue(factory, name).add(existing);
               scope.put(name, list);
             }
             list.add(node);
@@ -80,13 +80,13 @@ public class HashValue implements ValueNode {
           for (String value : values) {
             ValueNode existing = scope.get(name);
             if (existing == null) {
-              scope.put(name, new SingleValue(ctx, name, decode(value)));
+              scope.put(name, new SingleValue(factory, name, decode(value)));
             } else {
               ArrayValue list;
               if (existing instanceof ArrayValue) {
                 list = (ArrayValue) existing;
               } else {
-                list = new ArrayValue(ctx, name).add(existing);
+                list = new ArrayValue(factory, name).add(existing);
                 scope.put(name, list);
               }
               list.add(decode(value));
@@ -165,7 +165,7 @@ public class HashValue implements ValueNode {
   }
 
   /*package*/ HashValue getOrCreateScope(String name) {
-    return (HashValue) hash().computeIfAbsent(name, k -> new HashValue(ctx, k));
+    return (HashValue) hash().computeIfAbsent(name, k -> new HashValue(factory, k));
   }
 
   public @NonNull ValueNode get(@NonNull String name) {
@@ -240,16 +240,17 @@ public class HashValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return ctx.convert(this, type);
+    return (T) factory.convert(type, this);
   }
 
   @Nullable @Override
   public final <T> T toNullable(@NonNull Class<T> type) {
-    return toNullable(ctx, type, allowEmptyBean());
+    return toNullable(factory, type, allowEmptyBean());
   }
 
-  protected <T> T toNullable(@NonNull Context ctx, @NonNull Class<T> type, boolean allowEmpty) {
-    return ValueConverters.convert(this, type, ctx.getRouter(), allowEmpty);
+  protected <T> T toNullable(
+      @NonNull ValueFactory factory, @NonNull Class<T> type, boolean allowEmpty) {
+    return ValueConverters.convert(this, type, factory, allowEmpty);
   }
 
   @Override
@@ -288,22 +289,22 @@ public class HashValue implements ValueNode {
           if (e.getKey().chars().allMatch(Character::isDigit)) {
             // put only [index] where index is a number
             if (e.getValue() instanceof HashValue node) {
-              addItem(ctx, node, type, collection);
+              addItem(factory, node, type, collection);
             } else {
               ofNullable(e.getValue().toNullable(type)).ifPresent(collection::add);
             }
           }
         }
       } else {
-        addItem(ctx, this, type, collection);
+        addItem(factory, this, type, collection);
       }
     }
     return collection;
   }
 
   private static <T> void addItem(
-      Context ctx, HashValue node, Class<T> type, Collection<T> container) {
-    var item = node.toNullable(ctx, type, false);
+      ValueFactory factory, HashValue node, Class<T> type, Collection<T> container) {
+    var item = node.toNullable(factory, type, false);
     if (item != null) {
       container.add(item);
     }

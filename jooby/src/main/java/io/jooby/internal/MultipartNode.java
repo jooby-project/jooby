@@ -9,16 +9,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.SneakyThrows;
+import io.jooby.value.ValueFactory;
 
 public class MultipartNode extends HashValue implements Formdata {
   private Map<String, List<FileUpload>> files = new HashMap<>();
 
-  public MultipartNode(Context ctx) {
-    super(ctx);
+  public MultipartNode(ValueFactory valueFactory) {
+    super(valueFactory);
   }
 
   @Override

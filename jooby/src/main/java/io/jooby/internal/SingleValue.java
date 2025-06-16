@@ -18,19 +18,19 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Context;
 import io.jooby.ValueNode;
+import io.jooby.value.ValueFactory;
 
 public class SingleValue implements ValueNode {
 
-  private final Context ctx;
+  private final ValueFactory factory;
 
   private final String name;
 
   private String value;
 
-  public SingleValue(Context ctx, String name, String value) {
-    this.ctx = ctx;
+  public SingleValue(ValueFactory factory, String name, String value) {
+    this.factory = factory;
     this.name = name;
     this.value = value;
   }
@@ -87,12 +87,12 @@ public class SingleValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return ctx.convert(this, type);
+    return (T) factory.convert(type, this);
   }
 
   @Nullable @Override
   public <T> T toNullable(@NonNull Class<T> type) {
-    return ctx.convertOrNull(this, type);
+    return (T) factory.convert(type, this);
   }
 
   @Override

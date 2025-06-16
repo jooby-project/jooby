@@ -8,8 +8,6 @@ package io.jooby.internal;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import io.jooby.BeanConverter;
-import io.jooby.Router;
 import io.jooby.ValueConverter;
 import io.jooby.ValueNode;
 import io.jooby.internal.converter.BuiltinConverter;
@@ -17,6 +15,7 @@ import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StringConstructorConverter;
 import io.jooby.internal.converter.ValueOfConverter;
 import io.jooby.internal.reflect.$Types;
+import io.jooby.value.ValueFactory;
 
 public class ValueConverters {
 
@@ -27,7 +26,7 @@ public class ValueConverters {
     return converters;
   }
 
-  public static <T> T convert(ValueNode value, Type type, Router router) {
+  public static <T> T convert(ValueNode value, Type type, ValueFactory router) {
     Class rawType = $Types.getRawType(type);
     if (List.class.isAssignableFrom(rawType)) {
       return (T) Collections.singletonList(convert(value, $Types.parameterizedType0(type), router));
@@ -41,7 +40,8 @@ public class ValueConverters {
     return convert(value, rawType, router, false);
   }
 
-  public static <T> T convert(ValueNode value, Class type, Router router, boolean allowEmptyBean) {
+  public static <T> T convert(
+      ValueNode value, Class type, ValueFactory router, boolean allowEmptyBean) {
     if (type == String.class) {
       return (T) value.valueOrNull();
     }
@@ -83,19 +83,23 @@ public class ValueConverters {
       return (T) (value.isMissing() ? null : Byte.valueOf(value.byteValue()));
     }
 
-    if (value.isSingle()) {
-      for (ValueConverter converter : router.getConverters()) {
-        if (converter.supports(type)) {
-          return (T) converter.convert(value, type);
-        }
-      }
-    } else if (value.isObject()) {
-      for (BeanConverter converter : router.getBeanConverters()) {
-        if (converter.supports(type)) {
-          return (T) converter.convert(value, type);
-        }
-      }
+    var converter = router.get(type);
+    if (converter != null) {
+      return (T) converter.convert(type, value);
     }
+    //    if (value.isSingle()) {
+    //      for (ValueConverter converter : router.getConverters()) {
+    //        if (converter.supports(type)) {
+    //          return (T) converter.convert(value, type);
+    //        }
+    //      }
+    //    } else if (value.isObject()) {
+    //      for (BeanConverter converter : router.getBeanConverters()) {
+    //        if (converter.supports(type)) {
+    //          return (T) converter.convert(value, type);
+    //        }
+    //      }
+    //    }
     // Fallback:
     ReflectiveBeanConverter reflective = new ReflectiveBeanConverter();
     return (T) reflective.convert(value, type, allowEmptyBean);
