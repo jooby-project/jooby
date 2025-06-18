@@ -5,12 +5,11 @@
  */
 package io.jooby.internal;
 
-import io.jooby.ValueConverter;
 import io.jooby.value.ValueFactory;
 
 public class ValueConverterHelper {
 
-  public static ValueFactory testContext(ValueConverter... converters) {
+  public static ValueFactory testContext() {
     var result = new ValueFactory();
     return result;
     //    List<BeanConverter> beans = new ArrayList<>();

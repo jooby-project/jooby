@@ -5,20 +5,20 @@
  */
 package io.jooby.test;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.BeanConverter;
+import java.lang.reflect.Type;
+
+import org.jetbrains.annotations.NotNull;
+
+import io.jooby.Value;
 import io.jooby.ValueNode;
+import io.jooby.value.Converter;
 
-public class MyValueBeanConverter implements BeanConverter {
-  @Override
-  public boolean supports(@NonNull Class<?> type) {
-    return MyValue.class == type;
-  }
+public class MyValueBeanConverter implements Converter {
 
   @Override
-  public Object convert(@NonNull ValueNode value, @NonNull Class<?> type) {
+  public Object convert(@NotNull Type type, @NotNull Value value) {
     MyValue result = new MyValue();
-    result.setString(value.get("string").value());
+    result.setString(((ValueNode) value).get("string").value());
     return result;
   }
 }

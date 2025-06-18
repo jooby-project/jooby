@@ -45,7 +45,6 @@ public class ReflectiveBeanConverter {
       method.invoke(instance, arg);
     }
   }
-  ;
 
   private static final String AMBIGUOUS_CONSTRUCTOR =
       "Ambiguous constructor found. Expecting a single constructor or only one annotated with "

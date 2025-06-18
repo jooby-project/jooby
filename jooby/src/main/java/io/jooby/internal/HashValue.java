@@ -25,6 +25,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.FileUpload;
 import io.jooby.ValueNode;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.value.ValueFactory;
 
 public class HashValue implements ValueNode {
@@ -240,7 +241,11 @@ public class HashValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return (T) factory.convert(type, this);
+    var result = ValueConverters.convert(this, type, factory);
+    if (result == null) {
+      throw new TypeMismatchException(name(), type);
+    }
+    return (T) result;
   }
 
   @Nullable @Override
@@ -296,7 +301,9 @@ public class HashValue implements ValueNode {
           }
         }
       } else {
-        addItem(factory, this, type, collection);
+        var item = new HashValue(factory, this.name);
+        item.hash = hash;
+        addItem(factory, item, type, collection);
       }
     }
     return collection;

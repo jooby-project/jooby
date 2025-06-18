@@ -91,12 +91,12 @@ public class ArrayValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return (T) factory.convert(type, list.get(0));
+    return ValueConverters.convert(list.get(0), type, factory);
   }
 
   @Nullable @Override
   public <T> T toNullable(@NonNull Class<T> type) {
-    return list.isEmpty() ? null : (T) factory.convert(type, list.get(0));
+    return list.isEmpty() ? null : ValueConverters.convert(list.get(0), type, factory);
   }
 
   @NonNull @Override
@@ -120,24 +120,39 @@ public class ArrayValue implements ValueNode {
 
   @Override
   public @NonNull Map<String, List<String>> toMultimap() {
-    List<String> values = new ArrayList<>();
+    var values = new ArrayList<String>();
     list.forEach(it -> it.toMultimap().values().forEach(values::addAll));
     return Map.of(name, values);
   }
 
   @Override
   public @NonNull List<String> toList() {
-    return collect(new ArrayList<>(), String.class);
+    return switch (list.size()) {
+      case 0 -> List.of();
+      case 1 -> List.of(list.get(0).value());
+      case 2 -> List.of(list.get(0).value(), list.get(1).value());
+      case 3 -> List.of(list.get(0).value(), list.get(1).value(), list.get(2).value());
+      default -> collect(new ArrayList<>(list.size()), String.class);
+    };
   }
 
   @Override
   public @NonNull Set<String> toSet() {
-    return collect(new LinkedHashSet<>(), String.class);
+    return switch (list.size()) {
+      case 0 -> Set.of();
+      case 1 -> Set.of(list.get(0).value());
+      default -> collect(new LinkedHashSet<>(list.size()), String.class);
+    };
   }
 
   private <T, C extends Collection<T>> C collect(C collection, Class<T> type) {
     for (var node : list) {
-      collection.add(node.to(type));
+      if (type == String.class) {
+        //noinspection unchecked
+        collection.add((T) node.value());
+      } else {
+        collection.add(node.to(type));
+      }
     }
     return collection;
   }

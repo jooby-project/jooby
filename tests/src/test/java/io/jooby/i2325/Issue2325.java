@@ -18,7 +18,8 @@ public class Issue2325 {
     runner
         .define(
             app -> {
-              app.converter(new VC2325());
+              var factory = app.getValueFactory();
+              factory.put(MyID2325.class, new VC2325());
 
               app.mvc(new C2325_());
             })

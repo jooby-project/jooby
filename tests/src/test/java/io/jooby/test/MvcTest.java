@@ -536,7 +536,8 @@ public class MvcTest {
     runner
         .define(
             app -> {
-              app.converter(new MyValueBeanConverter());
+              var factory = app.getValueFactory();
+              factory.put(MyValue.class, new MyValueBeanConverter());
               app.mvc(new MyValueRouter_());
             })
         .ready(

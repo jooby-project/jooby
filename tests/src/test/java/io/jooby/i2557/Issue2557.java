@@ -53,12 +53,12 @@ public class Issue2557 {
                   "/2557/strict",
                   new FormBody.Builder().add("uuid", "").build(),
                   rsp -> {
+                    var body = rsp.body().string();
                     assertTrue(
-                        rsp.body()
-                            .string()
-                            .contains(
-                                "Cannot convert value: &apos;null&apos;, to:"
-                                    + " &apos;io.jooby.i2557.Issue2557$MyStrict&apos;"));
+                        body.contains(
+                            "Cannot convert value: &apos;null&apos;, to:"
+                                + " &apos;io.jooby.i2557.Issue2557$MyStrict&apos;"),
+                        body);
                   });
               http.post(
                   "/2557/flexible",

@@ -101,12 +101,11 @@ class FeaturedKotlinTest {
         }
 
         client.get("/kotlin/point") { rsp ->
+          val body = rsp.body!!.string()
           assertTrue(
-            rsp.body!!
-              .string()
-              .contains(
-                "Cannot convert value: &apos;null&apos;, to: &apos;io.jooby.internal.mvc.QueryPoint&apos;"
-              )
+            body.contains(
+              "Cannot convert value: &apos;null&apos;, to: &apos;io.jooby.internal.mvc.QueryPoint&apos;"
+            )
           )
         }
 

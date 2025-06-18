@@ -848,4 +848,12 @@ public class MockContext implements DefaultContext {
   void setMockRouter(MockRouter mockRouter) {
     this.mockRouter = mockRouter;
   }
+
+  public ValueFactory getValueFactory() {
+    return valueFactory;
+  }
+
+  public void setValueFactory(ValueFactory valueFactory) {
+    this.valueFactory = valueFactory;
+  }
 }

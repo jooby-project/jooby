@@ -8,6 +8,7 @@ package io.jooby.internal.converter;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -35,7 +36,7 @@ import io.jooby.value.ValueFactory;
 public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   BigDecimal {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(BigDecimal.class, this);
     }
 
@@ -50,13 +51,13 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       return new BigDecimal(value.value());
     }
   },
   BigInteger {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(BigInteger.class, this);
     }
 
@@ -71,13 +72,13 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       return new BigInteger(value.value());
     }
   },
   Charset {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(Charset.class, this);
     }
 
@@ -92,7 +93,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       String charset = value.value();
       return switch (charset.toLowerCase()) {
         case "utf-8" -> StandardCharsets.UTF_8;
@@ -107,7 +108,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   },
   Date {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(Date.class, this);
     }
 
@@ -122,7 +123,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         // must be millis
         return new Date(Long.parseLong(value.value()));
@@ -135,7 +136,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   },
   Duration {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(Duration.class, this);
     }
 
@@ -150,7 +151,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         return java.time.Duration.parse(value.value());
       } catch (DateTimeParseException x) {
@@ -211,7 +212,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   },
   Period {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(Period.class, this);
     }
 
@@ -226,9 +227,9 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
-        return java.time.Period.from((Duration) Duration.convert(value, type));
+        return java.time.Period.from((Duration) Duration.convert(type, value));
       } catch (DateTimeException x) {
         return parsePeriod(value.value());
       }
@@ -288,7 +289,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   },
   Instant {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(Instant.class, this);
     }
 
@@ -303,7 +304,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         return java.time.Instant.ofEpochMilli(Long.parseLong(value.value()));
       } catch (NumberFormatException x) {
@@ -313,7 +314,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   },
   LocalDate {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(LocalDate.class, this);
     }
 
@@ -328,7 +329,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         // must be millis
         var instant = java.time.Instant.ofEpochMilli(Long.parseLong(value.value()));
@@ -341,7 +342,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   },
   LocalDateTime {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(LocalDateTime.class, this);
     }
 
@@ -356,7 +357,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         // must be millis
         var instant = java.time.Instant.ofEpochMilli(Long.parseLong(value.value()));
@@ -369,7 +370,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   },
   StatusCode {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(StatusCode.class, this);
     }
 
@@ -384,13 +385,13 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       return io.jooby.StatusCode.valueOf(value.intValue());
     }
   },
   TimeZone {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(TimeZone.class, this);
     }
 
@@ -405,13 +406,13 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       return java.util.TimeZone.getTimeZone(value.value());
     }
   },
   URI {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(URI.class, this);
     }
 
@@ -426,7 +427,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         var uri = java.net.URI.create(value.value());
         if (type == URL.class) {
@@ -440,7 +441,7 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
   },
   UUID {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(UUID.class, this);
     }
 
@@ -455,13 +456,13 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       return java.util.UUID.fromString(value.value());
     }
   },
   ZoneId {
     @Override
-    public void register(ValueFactory factory) {
+    protected void add(ValueFactory factory) {
       factory.put(ZoneId.class, this);
     }
 
@@ -476,13 +477,19 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public Object convert(@NonNull Class<?> type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value) {
       var zoneId = value.value();
       return java.time.ZoneId.of(java.time.ZoneId.SHORT_IDS.getOrDefault(zoneId, zoneId));
     }
   };
 
-  public abstract void register(ValueFactory factory);
+  protected abstract void add(ValueFactory factory);
+
+  public static void register(ValueFactory factory) {
+    for (var converter : values()) {
+      converter.add(factory);
+    }
+  }
 
   private static String getUnits(String s) {
     int i = s.length() - 1;

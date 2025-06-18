@@ -19,6 +19,7 @@ import java.util.Set;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.ValueNode;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.value.ValueFactory;
 
 public class SingleValue implements ValueNode {
@@ -87,12 +88,16 @@ public class SingleValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return (T) factory.convert(type, this);
+    var result = ValueConverters.convert(this, type, factory);
+    if (result == null) {
+      throw new TypeMismatchException(name(), type);
+    }
+    return (T) result;
   }
 
   @Nullable @Override
   public <T> T toNullable(@NonNull Class<T> type) {
-    return (T) factory.convert(type, this);
+    return ValueConverters.convert(this, type, factory);
   }
 
   @Override

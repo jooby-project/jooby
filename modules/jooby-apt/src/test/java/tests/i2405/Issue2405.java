@@ -19,7 +19,8 @@ public class Issue2405 {
     new ProcessorRunner(new C2405())
         .withRouter(
             app -> {
-              app.converter(new Converter2405());
+              var factory = app.getValueFactory();
+              factory.put(Bean2405.class, new Converter2405());
               MockRouter router = new MockRouter(app);
               assertEquals(
                   "foo",

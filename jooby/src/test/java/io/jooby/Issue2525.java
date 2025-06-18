@@ -7,6 +7,8 @@ package io.jooby;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -14,19 +16,15 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.internal.UrlParser;
-import io.jooby.internal.ValueConverterHelper;
+import io.jooby.value.Converter;
+import io.jooby.value.ValueFactory;
 import jakarta.inject.Inject;
 
 public class Issue2525 {
 
-  public class VC2525 implements ValueConverter {
+  public class VC2525 implements Converter {
     @Override
-    public boolean supports(@NotNull Class type) {
-      return type == MyID2525.class;
-    }
-
-    @Override
-    public Object convert(@NotNull Value value, @NotNull Class type) {
+    public Object convert(@NotNull Type type, @NotNull Value value) {
       return new MyID2525(value.value());
     }
   }
@@ -99,7 +97,7 @@ public class Issue2525 {
         queryString -> {
           assertEquals("MyID:1234", queryString.get("id").to(MyID2525.class).toString());
         },
-        new VC2525());
+        Map.of(MyID2525.class, new VC2525()));
     queryString(
         "a=1&b=2&foo.a=3&foo.b=4",
         queryString -> {
@@ -126,9 +124,14 @@ public class Issue2525 {
         });
   }
 
+  private void queryString(String queryString, Consumer<QueryString> consumer) {
+    queryString(queryString, consumer, Map.of());
+  }
+
   private void queryString(
-      String queryString, Consumer<QueryString> consumer, ValueConverter... converter) {
-    consumer.accept(
-        UrlParser.queryString(ValueConverterHelper.testContext(converter), queryString));
+      String queryString, Consumer<QueryString> consumer, Map<Type, Converter> converters) {
+    var factory = new ValueFactory();
+    converters.forEach(factory::put);
+    consumer.accept(UrlParser.queryString(factory, queryString));
   }
 }

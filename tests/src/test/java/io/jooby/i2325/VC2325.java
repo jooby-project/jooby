@@ -5,19 +5,18 @@
  */
 package io.jooby.i2325;
 
+import java.lang.reflect.Type;
+
 import org.jetbrains.annotations.NotNull;
 
+import io.jooby.QueryString;
 import io.jooby.Value;
-import io.jooby.ValueConverter;
+import io.jooby.value.Converter;
 
-public class VC2325 implements ValueConverter {
+public class VC2325 implements Converter {
   @Override
-  public boolean supports(@NotNull Class type) {
-    return type == MyID2325.class;
-  }
-
-  @Override
-  public Object convert(@NotNull Value value, @NotNull Class type) {
-    return new MyID2325(value.value());
+  public Object convert(@NotNull Type type, @NotNull Value value) {
+    var v = value instanceof QueryString query ? query.get("value").value() : value.value();
+    return new MyID2325(v);
   }
 }

@@ -14,6 +14,8 @@ import static io.jooby.ParamSource.QUERY;
 import static io.jooby.ParamSource.SESSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,11 +25,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.jooby.Formdata;
-import io.jooby.ParamLookup;
-import io.jooby.ParamSource;
-import io.jooby.Value;
+import io.jooby.*;
 import io.jooby.exception.MissingValueException;
+import io.jooby.value.ValueFactory;
 
 public class LookupTest {
 
@@ -35,7 +35,7 @@ public class LookupTest {
 
   @BeforeEach
   public void makeContext() {
-    context = new MockContext();
+    context = mockContext();
 
     Map<String, String> pathMap = new HashMap<>();
     pathMap.put("foo", "path-bar");
@@ -55,7 +55,7 @@ public class LookupTest {
 
     context.setQueryString("?foo=query-bar");
 
-    Formdata formdata = Value.formdata(context);
+    Formdata formdata = Value.formdata(context.getValueFactory());
     formdata.put("foo", "form-bar");
     context.setForm(formdata);
   }
@@ -91,14 +91,12 @@ public class LookupTest {
     assertThrows(
         MissingValueException.class,
         () ->
-            new MockContext()
-                .lookup("foo", PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM)
-                .value());
+            mockContext().lookup("foo", PATH, HEADER, COOKIE, FLASH, SESSION, QUERY, FORM).value());
 
     assertThrows(
         MissingValueException.class,
         () ->
-            new MockContext()
+            mockContext()
                 .lookup()
                 .inPath()
                 .inHeader()
@@ -109,6 +107,14 @@ public class LookupTest {
                 .inForm()
                 .get("foo")
                 .value());
+  }
+
+  private static MockContext mockContext() {
+    var router = mock(Router.class);
+    when(router.getValueFactory()).thenReturn(new ValueFactory());
+    var ctx = new MockContext();
+    ctx.setRouter(router);
+    return ctx;
   }
 
   private void test(ParamSource... sources) {

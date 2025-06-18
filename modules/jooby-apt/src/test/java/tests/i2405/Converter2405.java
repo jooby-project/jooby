@@ -5,17 +5,17 @@
  */
 package tests.i2405;
 
+import java.lang.reflect.Type;
+
+import org.jetbrains.annotations.NotNull;
+
 import io.jooby.Value;
-import io.jooby.ValueConverter;
+import io.jooby.value.Converter;
 
-public class Converter2405 implements ValueConverter {
-  @Override
-  public boolean supports(Class type) {
-    return type == Bean2405.class;
-  }
+public class Converter2405 implements Converter {
 
   @Override
-  public Object convert(Value value, Class type) {
+  public Object convert(@NotNull Type type, @NotNull Value value) {
     return new Bean2405(value.value());
   }
 }

@@ -153,7 +153,7 @@ public class HandlerCompilerTest {
               MockRouter router = new MockRouter(app);
 
               MockContext ctx = MockContextHelper.mockContext();
-              Formdata formdata = Formdata.create(ctx);
+              Formdata formdata = Formdata.create(ctx.getValueFactory());
               formdata.put("name", "yo");
 
               assertEquals("yo", router.get("/p/formParam", ctx.setForm(formdata)).value());

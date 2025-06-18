@@ -125,7 +125,7 @@ public class UnitTest {
 
     MockRouter router = new MockRouter(app);
     MockContext context = new MockContext();
-    Formdata formdata = Formdata.create(context);
+    Formdata formdata = Formdata.create(context.getValueFactory());
     formdata.put("name", "Easy Unit");
     context.setForm(formdata);
 

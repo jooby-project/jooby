@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +62,7 @@ public interface Value {
         LocalDateTime date = LocalDateTime.parse(value(), Context.RFC1123);
         Instant instant = date.toInstant(ZoneOffset.UTC);
         return instant.toEpochMilli();
-      } catch (DateTimeParseException expected) {
+      } catch (DateTimeParseException ignored) {
       }
       throw new TypeMismatchException(name(), long.class, x);
     }
@@ -382,7 +381,7 @@ public interface Value {
    * @return List of items.
    */
   @NonNull default <T> List<T> toList(@NonNull Class<T> type) {
-    return Collections.singletonList(to(type));
+    return List.of(to(type));
   }
 
   /**
@@ -393,7 +392,7 @@ public interface Value {
    * @return Set of items.
    */
   @NonNull default <T> Set<T> toSet(@NonNull Class<T> type) {
-    return Collections.singleton(to(type));
+    return Set.of(to(type));
   }
 
   /**

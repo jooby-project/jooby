@@ -5,6 +5,8 @@
  */
 package io.jooby.value;
 
+import java.lang.reflect.Type;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Value;
 
@@ -23,5 +25,5 @@ public interface Converter {
    * @param value Value value.
    * @return Converted value.
    */
-  Object convert(@NonNull Class<?> type, @NonNull Value value);
+  Object convert(@NonNull Type type, @NonNull Value value);
 }
