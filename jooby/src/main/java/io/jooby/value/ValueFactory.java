@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SneakyThrows;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
@@ -28,28 +29,44 @@ public class ValueFactory {
 
   private final Map<Type, Converter> converterMap = new HashMap<>();
 
-  private MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+  private ConversionHint defaultHint = ConversionHint.Strict;
 
-  public ValueFactory() {
+  private MethodHandles.Lookup lookup;
+
+  private Converter fallback;
+
+  public ValueFactory(@NonNull MethodHandles.Lookup lookup) {
+    this.lookup = lookup;
+    this.fallback = new ReflectiveBeanConverter(lookup);
     StandardConverter.register(this);
   }
 
-  public Converter get(Type type) {
+  public ValueFactory() {
+    this(MethodHandles.publicLookup());
+  }
+
+  public @NonNull ValueFactory lookup(@NonNull MethodHandles.Lookup lookup) {
+    this.lookup = lookup;
+    this.fallback = new ReflectiveBeanConverter(lookup);
+    return this;
+  }
+
+  public @NonNull ValueFactory hint(@NonNull ConversionHint defaultHint) {
+    this.defaultHint = defaultHint;
+    return this;
+  }
+
+  public @Nullable Converter get(Type type) {
     return converterMap.get(type);
   }
 
-  public ValueFactory put(Type type, Converter converter) {
+  public @NonNull ValueFactory put(@NonNull Type type, @NonNull Converter converter) {
     converterMap.put(type, converter);
     return this;
   }
 
   public <T> T convert(@NonNull Type type, @NonNull Value value) {
-    T result = convert(type, value, ConversionHint.Strict);
-    if (result == null) {
-      throw new TypeMismatchException(value.name(), type);
-    }
-
-    return result;
+    return convert(type, value, defaultHint);
   }
 
   @SuppressWarnings("unchecked")
@@ -84,8 +101,11 @@ public class ValueFactory {
         }
       }
       // anything else fallback to reflective
-      var reflective = new ReflectiveBeanConverter();
-      return (T) reflective.convert(value, rawType, hint == ConversionHint.Empty);
+      var result = (T) fallback.convert(type, value, hint);
+      if (result == null && hint == ConversionHint.Strict) {
+        throw new TypeMismatchException(value.name(), type);
+      }
+      return result;
     }
   }
 

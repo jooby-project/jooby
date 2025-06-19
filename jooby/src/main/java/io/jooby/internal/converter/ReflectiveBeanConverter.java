@@ -7,14 +7,8 @@ package io.jooby.internal.converter;
 
 import static io.jooby.SneakyThrows.propagate;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,15 +27,18 @@ import io.jooby.annotation.EmptyBean;
 import io.jooby.exception.BadRequestException;
 import io.jooby.exception.ProvisioningException;
 import io.jooby.internal.reflect.$Types;
+import io.jooby.value.ConversionHint;
+import io.jooby.value.Converter;
 import io.jooby.value.Value;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-public class ReflectiveBeanConverter {
+public class ReflectiveBeanConverter implements Converter {
 
   private record Setter(Method method, Object arg) {
-    public void invoke(Object instance) throws InvocationTargetException, IllegalAccessException {
-      method.invoke(instance, arg);
+    public void invoke(MethodHandles.Lookup lookup, Object instance) throws Throwable {
+      var handle = lookup.unreflect(method);
+      handle.invoke(instance, arg);
     }
   }
 
@@ -49,40 +46,45 @@ public class ReflectiveBeanConverter {
       "Ambiguous constructor found. Expecting a single constructor or only one annotated with "
           + Inject.class.getName();
 
-  private static final Object[] NO_ARGS = new Object[0];
+  private MethodHandles.Lookup lookup;
 
-  public Object convert(@NonNull Value node, @NonNull Class type, boolean allowEmptyBean) {
+  public ReflectiveBeanConverter(MethodHandles.Lookup lookup) {
+    this.lookup = lookup;
+  }
+
+  @Override
+  public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    return convert(value, $Types.parameterizedType0(type), hint == ConversionHint.Empty);
+  }
+
+  private Object convert(@NonNull Value node, @NonNull Class type, boolean allowEmptyBean) {
     try {
       return newInstance(type, node, allowEmptyBean);
-    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
-      throw propagate(x);
     } catch (InvocationTargetException x) {
       throw propagate(x.getCause());
+    } catch (Throwable x) {
+      throw propagate(x);
     }
   }
 
-  private static Object newInstance(Class type, Value node, boolean allowEmptyBean)
-      throws IllegalAccessException,
-          InstantiationException,
-          InvocationTargetException,
-          NoSuchMethodException {
-    Constructor[] constructors = type.getConstructors();
+  private Object newInstance(Class type, Value node, boolean allowEmptyBean) throws Throwable {
+    var constructors = type.getConstructors();
     Set<Value> state = new HashSet<>();
-    Constructor constructor;
+    Constructor<?> constructor;
     if (constructors.length == 0) {
       constructor = type.getDeclaredConstructor();
     } else {
       constructor = selectConstructor(constructors);
     }
-    Object[] args =
-        constructor.getParameterCount() == 0 ? NO_ARGS : inject(node, constructor, state::add);
-    List<Setter> setters = setters(type, node, state);
+    var args = inject(node, constructor, state::add);
+    var setters = setters(type, node, state);
     if (!allowEmptyBean(type, allowEmptyBean) && state.stream().allMatch(Value::isMissing)) {
       return null;
     }
-    var instance = constructor.newInstance(args);
-    for (Setter setter : setters) {
-      setter.invoke(instance);
+    var handle = lookup.unreflectConstructor(constructor);
+    var instance = handle.invokeWithArguments(args);
+    for (var setter : setters) {
+      setter.invoke(lookup, instance);
     }
     return instance;
   }
@@ -97,9 +99,9 @@ public class ReflectiveBeanConverter {
     } else {
       Constructor injectConstructor = null;
       Constructor defaultConstructor = null;
-      for (Constructor constructor : constructors) {
+      for (var constructor : constructors) {
         if (Modifier.isPublic(constructor.getModifiers())) {
-          Annotation inject = constructor.getAnnotation(Inject.class);
+          var inject = constructor.getAnnotation(Inject.class);
           if (inject == null) {
             if (constructor.getParameterCount() == 0) {
               defaultConstructor = constructor;
@@ -113,7 +115,7 @@ public class ReflectiveBeanConverter {
           }
         }
       }
-      Constructor result = injectConstructor == null ? defaultConstructor : injectConstructor;
+      var result = injectConstructor == null ? defaultConstructor : injectConstructor;
       if (result == null) {
         throw new IllegalStateException(AMBIGUOUS_CONSTRUCTOR);
       }
@@ -121,23 +123,23 @@ public class ReflectiveBeanConverter {
     }
   }
 
-  public static Object[] inject(Value scope, Executable method, Consumer<Value> state) {
-    Parameter[] parameters = method.getParameters();
+  public static List<Object> inject(Value scope, Executable method, Consumer<Value> state) {
+    var parameters = method.getParameters();
     if (parameters.length == 0) {
-      return NO_ARGS;
+      return List.of();
     }
-    Object[] args = new Object[parameters.length];
+    var args = new ArrayList<>(parameters.length);
     for (int i = 0; i < parameters.length; i++) {
-      Parameter parameter = parameters[i];
-      String name = paramName(parameter);
-      Value param = scope.get(name);
+      var parameter = parameters[i];
+      var name = paramName(parameter);
+      var param = scope.get(name);
       var arg = value(parameter, scope, param);
       if (arg == null) {
         state.accept(Value.missing(name));
       } else {
         state.accept(param);
       }
-      args[i] = arg;
+      args.add(arg);
     }
     return args;
   }
@@ -176,13 +178,13 @@ public class ReflectiveBeanConverter {
     var methods = type.getMethods();
     var result = new ArrayList<Setter>();
     for (String name : names(node)) {
-      Value value = node.get(name);
+      var value = node.get(name);
       if (nodes.add(value)) {
-        Method method = findSetter(methods, name);
+        var method = findSetter(methods, name);
         if (method != null) {
-          Parameter parameter = method.getParameters()[0];
+          var parameter = method.getParameters()[0];
           try {
-            Object arg = value(parameter, node, value);
+            var arg = value(parameter, node, value);
             result.add(new Setter(method, arg));
           } catch (ProvisioningException x) {
             throw x;
@@ -200,9 +202,9 @@ public class ReflectiveBeanConverter {
   private static Object value(Parameter parameter, Value node, Value value) {
     try {
       if (isFileUpload(node, parameter)) {
-        Formdata formdata = (Formdata) node;
+        var formdata = (Formdata) node;
         if (Set.class.isAssignableFrom(parameter.getType())) {
-          return new HashSet<>(formdata.files(value.name()));
+          return new LinkedHashSet<>(formdata.files(value.name()));
         } else if (Collection.class.isAssignableFrom(parameter.getType())) {
           return formdata.files(value.name());
         } else if (Optional.class.isAssignableFrom(parameter.getType())) {
@@ -222,7 +224,7 @@ public class ReflectiveBeanConverter {
           if (isNullable(parameter)) {
             if (value.isSingle()) {
               var str = value.valueOrNull();
-              if (str == null || str.length() == 0) {
+              if (str == null || str.isEmpty()) {
                 // treat empty values as null
                 return null;
               }
@@ -252,7 +254,7 @@ public class ReflectiveBeanConverter {
 
   private static boolean hasAnnotation(AnnotatedElement element, String... names) {
     var nameList = List.of(names);
-    for (Annotation annotation : element.getAnnotations()) {
+    for (var annotation : element.getAnnotations()) {
       if (nameList.stream()
           .anyMatch(name -> annotation.annotationType().getSimpleName().endsWith(name))) {
         return true;
@@ -273,7 +275,7 @@ public class ReflectiveBeanConverter {
   private static Method findSetter(Method[] methods, String name) {
     var setter = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
     var candidates = new LinkedList<Method>();
-    for (Method method : methods) {
+    for (var method : methods) {
       if ((method.getName().equals(name) || method.getName().equals(setter))
           && method.getParameterCount() == 1) {
         if (method.getName().startsWith("set")) {

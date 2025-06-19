@@ -15,7 +15,7 @@ import io.jooby.value.Value;
 
 public class VC2325 implements Converter {
   @Override
-  public Object convert(@NotNull Type type, @NotNull Value value, ConversionHint hint) {
+  public Object convert(@NotNull Type type, @NotNull Value value, @NotNull ConversionHint hint) {
     return new MyID2325(value.value());
   }
 }
