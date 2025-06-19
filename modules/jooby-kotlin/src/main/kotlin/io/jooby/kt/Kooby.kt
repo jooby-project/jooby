@@ -25,7 +25,6 @@ import io.jooby.Server
 import io.jooby.ServerOptions
 import io.jooby.ServiceRegistry
 import io.jooby.Value
-import io.jooby.ValueNode
 import io.jooby.handler.Cors
 import java.util.function.Supplier
 import kotlin.reflect.KClass
@@ -84,7 +83,7 @@ fun <T : Any> ServiceRegistry.putIfAbsent(klass: KClass<T>, service: T): T? {
 }
 
 /** Value: */
-inline operator fun <reified T> ValueNode.getValue(thisRef: Any?, property: KProperty<*>): T {
+inline operator fun <reified T> Value.getValue(thisRef: Any?, property: KProperty<*>): T {
   return this.get(property.name).to(T::class.java)
 }
 

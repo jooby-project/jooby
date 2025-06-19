@@ -20,7 +20,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 
 public class ByteArrayBody implements Body {
   private static final byte[] EMPTY = new byte[0];
@@ -70,12 +70,12 @@ public class ByteArrayBody implements Body {
   }
 
   @NonNull @Override
-  public ValueNode get(int index) {
+  public Value get(int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
   @NonNull @Override
-  public ValueNode get(@NonNull String name) {
+  public Value get(@NonNull String name) {
     return new MissingValue(name);
   }
 

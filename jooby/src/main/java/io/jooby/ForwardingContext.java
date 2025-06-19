@@ -108,12 +108,12 @@ public class ForwardingContext implements Context {
     }
 
     @Override
-    @NonNull public ValueNode get(int index) {
+    @NonNull public Value get(int index) {
       return delegate.get(index);
     }
 
     @Override
-    @NonNull public ValueNode get(@NonNull String name) {
+    @NonNull public Value get(@NonNull String name) {
       return delegate.get(name);
     }
 
@@ -123,7 +123,7 @@ public class ForwardingContext implements Context {
     }
 
     @Override
-    @NonNull public Iterator<ValueNode> iterator() {
+    @NonNull public Iterator<Value> iterator() {
       return delegate.iterator();
     }
 
@@ -153,12 +153,12 @@ public class ForwardingContext implements Context {
     }
 
     @Override
-    public void forEach(Consumer<? super ValueNode> action) {
+    public void forEach(Consumer<? super Value> action) {
       delegate.forEach(action);
     }
 
     @Override
-    public Spliterator<ValueNode> spliterator() {
+    public Spliterator<Value> spliterator() {
       return delegate.spliterator();
     }
 
@@ -310,20 +310,20 @@ public class ForwardingContext implements Context {
     }
   }
 
-  public static class ForwardingValueNode implements ValueNode {
-    protected final ValueNode delegate;
+  public static class ForwardingValue implements Value {
+    protected final Value delegate;
 
-    public ForwardingValueNode(ValueNode delegate) {
+    public ForwardingValue(Value delegate) {
       this.delegate = delegate;
     }
 
     @Override
-    @NonNull public ValueNode get(@NonNull int index) {
+    @NonNull public Value get(@NonNull int index) {
       return delegate.get(index);
     }
 
     @Override
-    @NonNull public ValueNode get(@NonNull String name) {
+    @NonNull public Value get(@NonNull String name) {
       return delegate.get(name);
     }
 
@@ -333,7 +333,7 @@ public class ForwardingContext implements Context {
     }
 
     @Override
-    @NonNull public Iterator<ValueNode> iterator() {
+    @NonNull public Iterator<Value> iterator() {
       return delegate.iterator();
     }
 
@@ -363,12 +363,12 @@ public class ForwardingContext implements Context {
     }
 
     @Override
-    public void forEach(Consumer<? super ValueNode> action) {
+    public void forEach(Consumer<? super Value> action) {
       delegate.forEach(action);
     }
 
     @Override
-    public Spliterator<ValueNode> spliterator() {
+    public Spliterator<Value> spliterator() {
       return delegate.spliterator();
     }
 
@@ -545,7 +545,7 @@ public class ForwardingContext implements Context {
     }
   }
 
-  public static class ForwardingQueryString extends ForwardingValueNode implements QueryString {
+  public static class ForwardingQueryString extends ForwardingValue implements QueryString {
     public ForwardingQueryString(QueryString queryString) {
       super(queryString);
     }
@@ -556,13 +556,13 @@ public class ForwardingContext implements Context {
     }
   }
 
-  public static class ForwardingFormdata extends ForwardingValueNode implements Formdata {
+  public static class ForwardingFormdata extends ForwardingValue implements Formdata {
     public ForwardingFormdata(Formdata delegate) {
       super(delegate);
     }
 
     @Override
-    public void put(@NonNull String path, @NonNull ValueNode value) {
+    public void put(@NonNull String path, @NonNull Value value) {
       ((Formdata) delegate).put(path, value);
     }
 
@@ -751,7 +751,7 @@ public class ForwardingContext implements Context {
   }
 
   @NonNull @Override
-  public ValueNode path() {
+  public Value path() {
     return ctx.path();
   }
 
@@ -772,7 +772,7 @@ public class ForwardingContext implements Context {
   }
 
   @NonNull @Override
-  public ValueNode query(@NonNull String name) {
+  public Value query(@NonNull String name) {
     return ctx.query(name);
   }
 
@@ -792,7 +792,7 @@ public class ForwardingContext implements Context {
   }
 
   @Override
-  @NonNull public ValueNode header() {
+  @NonNull public Value header() {
     return ctx.header();
   }
 
@@ -916,7 +916,7 @@ public class ForwardingContext implements Context {
   }
 
   @NonNull @Override
-  public ValueNode form(@NonNull String name) {
+  public Value form(@NonNull String name) {
     return ctx.form(name);
   }
 
@@ -961,12 +961,12 @@ public class ForwardingContext implements Context {
   }
 
   @NonNull @Override
-  public <T> T convert(@NonNull ValueNode value, @NonNull Class<T> type) {
+  public <T> T convert(@NonNull Value value, @NonNull Class<T> type) {
     return ctx.convert(value, type);
   }
 
   @Nullable @Override
-  public <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type) {
+  public <T> T convertOrNull(@NonNull Value value, @NonNull Class<T> type) {
     return ctx.convertOrNull(value, type);
   }
 

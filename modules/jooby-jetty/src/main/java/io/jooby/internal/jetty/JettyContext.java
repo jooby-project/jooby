@@ -70,7 +70,6 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.jooby.buffer.DataBuffer;
 
@@ -83,7 +82,7 @@ public class JettyContext implements DefaultContext, Callback {
   private QueryString query;
   private Formdata formdata;
   private List<FileUpload> files;
-  private ValueNode headers;
+  private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes = new HashMap<>();
   private Router router;
@@ -258,7 +257,7 @@ public class JettyContext implements DefaultContext, Callback {
   }
 
   @NonNull @Override
-  public ValueNode header() {
+  public Value header() {
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
       for (HttpField header : request.getHeaders()) {

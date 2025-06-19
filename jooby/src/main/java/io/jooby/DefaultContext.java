@@ -203,7 +203,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  @NonNull default ValueNode path() {
+  @NonNull default Value path() {
     var path = new HashValue(getValueFactory(), null);
     for (Map.Entry<String, String> entry : pathMap().entrySet()) {
       path.put(entry.getKey(), entry.getValue());
@@ -212,7 +212,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  @NonNull default ValueNode query(@NonNull String name) {
+  @NonNull default Value query(@NonNull String name) {
     return query().get(name);
   }
 
@@ -383,7 +383,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  @NonNull default ValueNode form(@NonNull String name) {
+  @NonNull default Value form(@NonNull String name) {
     return form().get(name);
   }
 
@@ -427,7 +427,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default @NonNull <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type) {
+  default @NonNull <T> T convertOrNull(@NonNull Value value, @NonNull Class<T> type) {
     return getValueFactory().convert(type, value, ConversionHint.Nullable);
   }
 

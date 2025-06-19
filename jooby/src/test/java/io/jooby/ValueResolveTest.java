@@ -17,7 +17,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveOne() {
-    ValueNode value = Value.value(null, "foo", "bar");
+    Value value = Value.value(null, "foo", "bar");
     assertEquals("bar", value.resolve("${foo}"));
     assertEquals("- bar", value.resolve("- ${foo}"));
     assertEquals("bar-", value.resolve("${foo}-"));
@@ -52,13 +52,13 @@ public class ValueResolveTest {
   @Test
   public void resolveMissing() {
     try {
-      ValueNode value = Value.value(null, "x", "y");
+      Value value = Value.value(null, "x", "y");
       assertEquals("bar", value.resolve("${foo}"));
     } catch (NoSuchElementException x) {
       assertEquals("Missing ${foo} at 1:1", x.getMessage());
     }
 
-    ValueNode value = Value.value(null, "x", "y");
+    Value value = Value.value(null, "x", "y");
     assertEquals("${foo}", value.resolve("${foo}", true));
   }
 }

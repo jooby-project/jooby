@@ -23,7 +23,7 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 
 public class InputStreamBody implements Body {
   private Context ctx;
@@ -77,12 +77,12 @@ public class InputStreamBody implements Body {
   }
 
   @NonNull @Override
-  public ValueNode get(int index) {
+  public Value get(int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
   @NonNull @Override
-  public ValueNode get(@NonNull String name) {
+  public Value get(@NonNull String name) {
     return new MissingValue(name);
   }
 

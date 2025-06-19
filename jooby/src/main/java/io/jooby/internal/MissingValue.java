@@ -14,10 +14,10 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.exception.MissingValueException;
 
-public class MissingValue implements ValueNode {
+public class MissingValue implements Value {
   private String name;
 
   public MissingValue(String name) {
@@ -30,12 +30,12 @@ public class MissingValue implements ValueNode {
   }
 
   @Override
-  public @NonNull ValueNode get(@NonNull String name) {
+  public @NonNull Value get(@NonNull String name) {
     return this.name.equals(name) ? this : new MissingValue(this.name + "." + name);
   }
 
   @Override
-  public @NonNull ValueNode get(int index) {
+  public @NonNull Value get(int index) {
     return new MissingValue(this.name + "[" + index + "]");
   }
 

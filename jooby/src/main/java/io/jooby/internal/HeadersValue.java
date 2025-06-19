@@ -11,17 +11,17 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.value.ValueFactory;
 
-public class HeadersValue extends HashValue implements ValueNode {
+public class HeadersValue extends HashValue implements Value {
 
   public HeadersValue(ValueFactory valueFactory) {
     super(valueFactory);
   }
 
   @Override
-  protected Map<String, ValueNode> hash() {
+  protected Map<String, Value> hash() {
     if (hash == EMPTY) {
       hash = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     }
@@ -38,9 +38,9 @@ public class HeadersValue extends HashValue implements ValueNode {
   @NonNull @Override
   public Map<String, List<String>> toMultimap() {
     Map<String, List<String>> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    Set<Map.Entry<String, ValueNode>> entries = hash.entrySet();
-    for (Map.Entry<String, ValueNode> entry : entries) {
-      ValueNode value = entry.getValue();
+    Set<Map.Entry<String, Value>> entries = hash.entrySet();
+    for (Map.Entry<String, Value> entry : entries) {
+      Value value = entry.getValue();
       result.putAll(value.toMultimap());
     }
     return result;

@@ -24,10 +24,10 @@ import io.jooby.*;
  */
 public class ValidationContext extends ForwardingContext {
 
-  public static class ValidatedValue extends ForwardingValueNode {
+  public static class ValidatedValue extends ForwardingValue {
     protected final Context ctx;
 
-    public ValidatedValue(Context ctx, ValueNode delegate) {
+    public ValidatedValue(Context ctx, Value delegate) {
       super(delegate);
       this.ctx = ctx;
     }
@@ -113,7 +113,7 @@ public class ValidationContext extends ForwardingContext {
     }
 
     @Override
-    public void put(@NonNull String path, @NonNull ValueNode value) {
+    public void put(@NonNull String path, @NonNull Value value) {
       ((Formdata) delegate).put(path, value);
     }
 
@@ -168,7 +168,7 @@ public class ValidationContext extends ForwardingContext {
   }
 
   @NonNull @Override
-  public ValueNode path() {
+  public Value path() {
     return new ValidatedValue(ctx, super.path());
   }
 
@@ -198,7 +198,7 @@ public class ValidationContext extends ForwardingContext {
   }
 
   @NonNull @Override
-  public ValueNode header() {
+  public Value header() {
     return new ValidatedValue(ctx, super.header());
   }
 }

@@ -14,11 +14,11 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.ValueFactory;
 
-public class SingleValue implements ValueNode {
+public class SingleValue implements Value {
 
   private final ValueFactory factory;
 
@@ -38,12 +38,12 @@ public class SingleValue implements ValueNode {
   }
 
   @Override
-  public @NonNull ValueNode get(int index) {
+  public @NonNull Value get(int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
   @Override
-  public @NonNull ValueNode get(@NonNull String name) {
+  public @NonNull Value get(@NonNull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
@@ -63,8 +63,8 @@ public class SingleValue implements ValueNode {
   }
 
   @Override
-  public Iterator<ValueNode> iterator() {
-    return List.<ValueNode>of(this).iterator();
+  public Iterator<Value> iterator() {
+    return List.<Value>of(this).iterator();
   }
 
   @NonNull @Override

@@ -16,7 +16,7 @@ import io.jooby.value.ValueFactory;
  * @author edgar
  * @since 2.0.0
  */
-public interface QueryString extends ValueNode {
+public interface QueryString extends Value {
 
   /**
    * Query string with the leading <code>?</code> or empty string.

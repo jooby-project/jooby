@@ -94,7 +94,6 @@
       <version>3.4.15</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>

@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import java.util.Optional;
-
 /**
  * Fluent interface allowing to conveniently search context parameters in multiple sources.
  *
@@ -117,16 +115,5 @@ public interface ParamLookup {
      *     if none found.
      */
     Value get(String name);
-
-    /**
-     * Wraps the result of {@link #get(String)} in an {@link Optional} if the value is a {@link
-     * ValueNode} or returns an empty {@link Optional} otherwise.
-     *
-     * @param name The name of the parameter.
-     * @return An {@link Optional} wrapping the result of {@link #get(String)}
-     */
-    default Optional<ValueNode> getNode(String name) {
-      return Optional.of(get(name)).map(v -> v instanceof ValueNode ? (ValueNode) v : null);
-    }
   }
 }

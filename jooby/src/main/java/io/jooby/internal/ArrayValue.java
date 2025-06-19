@@ -16,18 +16,18 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.ValueFactory;
 
-public class ArrayValue implements ValueNode {
+public class ArrayValue implements Value {
   private final ValueFactory factory;
 
   private final String name;
 
-  private final List<ValueNode> list = new ArrayList<>(5);
+  private final List<Value> list = new ArrayList<>(5);
 
   public ArrayValue(ValueFactory factory, String name) {
     this.factory = factory;
@@ -39,7 +39,7 @@ public class ArrayValue implements ValueNode {
     return name;
   }
 
-  public ArrayValue add(ValueNode value) {
+  public ArrayValue add(Value value) {
     this.list.add(value);
     return this;
   }
@@ -56,7 +56,7 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override
-  public @NonNull ValueNode get(int index) {
+  public @NonNull Value get(int index) {
     try {
       return list.get(index);
     } catch (IndexOutOfBoundsException x) {
@@ -65,7 +65,7 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override
-  public @NonNull ValueNode get(@NonNull String name) {
+  public @NonNull Value get(@NonNull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
@@ -86,7 +86,7 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override
-  public @NonNull Iterator<ValueNode> iterator() {
+  public @NonNull Iterator<Value> iterator() {
     return list.iterator();
   }
 

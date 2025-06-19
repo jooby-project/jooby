@@ -29,7 +29,7 @@ import io.jooby.internal.InputStreamBody;
  * @author edgar
  * @since 2.0.0
  */
-public interface Body extends ValueNode {
+public interface Body extends Value {
 
   /**
    * HTTP body as string.

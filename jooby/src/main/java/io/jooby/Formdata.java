@@ -21,7 +21,7 @@ import io.jooby.value.ValueFactory;
  * @author edgar
  * @since 2.0.0
  */
-public interface Formdata extends ValueNode {
+public interface Formdata extends Value {
 
   /**
    * Add a form field.
@@ -30,7 +30,7 @@ public interface Formdata extends ValueNode {
    * @param value Form value.
    */
   @NonNull
-  void put(@NonNull String path, @NonNull ValueNode value);
+  void put(@NonNull String path, @NonNull Value value);
 
   /**
    * Add a form field.

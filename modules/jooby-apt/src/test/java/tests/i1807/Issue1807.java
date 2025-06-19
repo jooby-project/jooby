@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Formdata;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
@@ -27,7 +27,7 @@ public class Issue1807 {
               Word1807 word = new Word1807();
               MockRouter router = new MockRouter(app);
               Formdata formdata = mock(Formdata.class);
-              ValueNode missing = mock(ValueNode.class);
+              Value missing = mock(Value.class);
               when(missing.isMissing()).thenReturn(true);
               when(formdata.get("data")).thenReturn(missing);
               when(formdata.to(Word1807.class)).thenReturn(word);

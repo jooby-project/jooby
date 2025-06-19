@@ -20,7 +20,7 @@ import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.WebSocketMessage;
 import io.reactivex.rxjava3.core.Single;
 
@@ -138,7 +138,7 @@ public class UnitTest {
 
     app.post("/", ctx -> ctx.form("name").value());
 
-    ValueNode name = mock(ValueNode.class);
+    Value name = mock(Value.class);
     when(name.value()).thenReturn("Easy Unit");
 
     Context context = mock(Context.class);

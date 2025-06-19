@@ -53,7 +53,6 @@ import io.jooby.ServerSentEmitter;
 import io.jooby.Session;
 import io.jooby.StatusCode;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.jooby.buffer.DataBuffer;
 import io.jooby.buffer.DataBufferFactory;
@@ -298,7 +297,7 @@ public class MockContext implements DefaultContext {
   }
 
   @NonNull @Override
-  public ValueNode header() {
+  public Value header() {
     return Value.headers(valueFactory, headers);
   }
 
@@ -816,7 +815,7 @@ public class MockContext implements DefaultContext {
   }
 
   @NonNull @Override
-  public <T> T convert(@NonNull ValueNode value, @NonNull Class<T> type) {
+  public <T> T convert(@NonNull Value value, @NonNull Class<T> type) {
     return DefaultContext.super.convert(value, type);
   }
 

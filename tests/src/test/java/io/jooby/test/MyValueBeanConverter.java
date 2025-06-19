@@ -9,17 +9,17 @@ import java.lang.reflect.Type;
 
 import org.jetbrains.annotations.NotNull;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
 
 public class MyValueBeanConverter implements Converter {
 
   @Override
-  public Object convert(@NotNull Type type, @NotNull Value value, ConversionHint hint) {
+  public Object convert(@NotNull Type type, @NotNull Value value, @NonNull ConversionHint hint) {
     MyValue result = new MyValue();
-    result.setString(((ValueNode) value).get("string").value());
+    result.setString(value.get("string").value());
     return result;
   }
 }

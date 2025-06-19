@@ -6,7 +6,6 @@
 package io.jooby.internal;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
@@ -15,25 +14,25 @@ import io.jooby.SneakyThrows;
 import io.jooby.value.ValueFactory;
 
 public class MultipartNode extends HashValue implements Formdata {
-  private Map<String, List<FileUpload>> files = new HashMap<>();
+  private final Map<String, List<FileUpload>> files = new HashMap<>();
 
   public MultipartNode(ValueFactory valueFactory) {
     super(valueFactory);
   }
 
   @Override
-  public void put(String name, FileUpload file) {
+  public void put(@NonNull String name, @NonNull FileUpload file) {
     files.computeIfAbsent(name, k -> new ArrayList<>()).add(file);
   }
 
   @NonNull @Override
   public List<FileUpload> files() {
-    return files.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+    return files.values().stream().flatMap(Collection::stream).toList();
   }
 
   @NonNull @Override
   public List<FileUpload> files(@NonNull String name) {
-    return this.files.getOrDefault(name, Collections.emptyList());
+    return this.files.getOrDefault(name, List.of());
   }
 
   @NonNull @Override

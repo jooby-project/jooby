@@ -24,14 +24,14 @@ import java.util.function.BiConsumer;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.FileUpload;
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.ValueFactory;
 
-public class HashValue implements ValueNode {
-  protected static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
+public class HashValue implements Value {
+  protected static final Map<String, Value> EMPTY = Collections.emptyMap();
   protected final ValueFactory factory;
-  protected Map<String, ValueNode> hash = EMPTY;
+  protected Map<String, Value> hash = EMPTY;
   private final String name;
   private boolean arrayLike;
 
@@ -54,11 +54,11 @@ public class HashValue implements ValueNode {
     put(path, Collections.singletonList(value));
   }
 
-  public void put(String path, ValueNode node) {
+  public void put(String path, Value node) {
     put(
         path,
         (name, scope) -> {
-          ValueNode existing = scope.get(name);
+          Value existing = scope.get(name);
           if (existing == null) {
             scope.put(name, node);
           } else {
@@ -79,7 +79,7 @@ public class HashValue implements ValueNode {
         path,
         (name, scope) -> {
           for (String value : values) {
-            ValueNode existing = scope.get(name);
+            Value existing = scope.get(name);
             if (existing == null) {
               scope.put(name, new SingleValue(factory, name, decode(value)));
             } else {
@@ -100,7 +100,7 @@ public class HashValue implements ValueNode {
     return value;
   }
 
-  private void put(String path, BiConsumer<String, Map<String, ValueNode>> consumer) {
+  private void put(String path, BiConsumer<String, Map<String, Value>> consumer) {
     // Locate node:
     int nameStart = 0;
     int nameEnd = path.length();
@@ -143,7 +143,7 @@ public class HashValue implements ValueNode {
       return;
     }
     this.arrayLike = true;
-    TreeMap<String, ValueNode> ordered = new TreeMap<>();
+    TreeMap<String, Value> ordered = new TreeMap<>();
     ordered.putAll(hash);
     hash.clear();
     this.hash = ordered;
@@ -158,7 +158,7 @@ public class HashValue implements ValueNode {
     return true;
   }
 
-  protected Map<String, ValueNode> hash() {
+  protected Map<String, Value> hash() {
     if (hash == EMPTY) {
       hash = new LinkedHashMap<>();
     }
@@ -169,8 +169,8 @@ public class HashValue implements ValueNode {
     return (HashValue) hash().computeIfAbsent(name, k -> new HashValue(factory, k));
   }
 
-  public @NonNull ValueNode get(@NonNull String name) {
-    ValueNode value = hash.get(name);
+  public @NonNull Value get(@NonNull String name) {
+    Value value = hash.get(name);
     if (value == null) {
       return new MissingValue(scope(name));
     }
@@ -182,7 +182,7 @@ public class HashValue implements ValueNode {
   }
 
   @Override
-  public @NonNull ValueNode get(int index) {
+  public @NonNull Value get(int index) {
     return get(Integer.toString(index));
   }
 
@@ -205,7 +205,7 @@ public class HashValue implements ValueNode {
   }
 
   @Override
-  public Iterator<ValueNode> iterator() {
+  public Iterator<Value> iterator() {
     return hash.values().iterator();
   }
 
@@ -254,10 +254,10 @@ public class HashValue implements ValueNode {
   @Override
   public Map<String, List<String>> toMultimap() {
     Map<String, List<String>> result = new LinkedHashMap<>(hash.size());
-    Set<Map.Entry<String, ValueNode>> entries = hash.entrySet();
+    Set<Map.Entry<String, Value>> entries = hash.entrySet();
     String scope = name == null ? "" : name + ".";
-    for (Map.Entry<String, ValueNode> entry : entries) {
-      ValueNode value = entry.getValue();
+    for (Map.Entry<String, Value> entry : entries) {
+      Value value = entry.getValue();
       value
           .toMultimap()
           .forEach(
@@ -283,7 +283,7 @@ public class HashValue implements ValueNode {
     if (!hash.isEmpty()) {
       if (arrayLike) {
         // indexes access, treat like a list
-        for (Map.Entry<String, ValueNode> e : hash.entrySet()) {
+        for (Map.Entry<String, Value> e : hash.entrySet()) {
           if (e.getKey().chars().allMatch(Character::isDigit)) {
             // put only [index] where index is a number
             if (e.getValue() instanceof HashValue node) {

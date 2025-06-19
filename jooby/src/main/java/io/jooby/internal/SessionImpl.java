@@ -15,7 +15,6 @@ import io.jooby.Context;
 import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 
 public class SessionImpl implements Session {
 
@@ -89,7 +88,7 @@ public class SessionImpl implements Session {
   }
 
   @Override
-  public @NonNull ValueNode remove(@NonNull String name) {
+  public @NonNull Value remove(@NonNull String name) {
     String value = attributes.remove(name);
     updateState();
     return value == null

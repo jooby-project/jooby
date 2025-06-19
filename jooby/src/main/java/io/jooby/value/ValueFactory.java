@@ -14,7 +14,6 @@ import java.util.*;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StandardConverter;
@@ -87,7 +86,7 @@ public class ValueFactory {
       }
       // anything else fallback to reflective
       var reflective = new ReflectiveBeanConverter();
-      return (T) reflective.convert((ValueNode) value, rawType, hint == ConversionHint.Empty);
+      return (T) reflective.convert(value, rawType, hint == ConversionHint.Empty);
     }
   }
 

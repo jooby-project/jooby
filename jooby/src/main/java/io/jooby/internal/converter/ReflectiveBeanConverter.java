@@ -30,7 +30,6 @@ import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Usage;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 import io.jooby.annotation.EmptyBean;
 import io.jooby.exception.BadRequestException;
 import io.jooby.exception.ProvisioningException;
@@ -52,7 +51,7 @@ public class ReflectiveBeanConverter {
 
   private static final Object[] NO_ARGS = new Object[0];
 
-  public Object convert(@NonNull ValueNode node, @NonNull Class type, boolean allowEmptyBean) {
+  public Object convert(@NonNull Value node, @NonNull Class type, boolean allowEmptyBean) {
     try {
       return newInstance(type, node, allowEmptyBean);
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
@@ -62,13 +61,13 @@ public class ReflectiveBeanConverter {
     }
   }
 
-  private static Object newInstance(Class type, ValueNode node, boolean allowEmptyBean)
+  private static Object newInstance(Class type, Value node, boolean allowEmptyBean)
       throws IllegalAccessException,
           InstantiationException,
           InvocationTargetException,
           NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
-    Set<ValueNode> state = new HashSet<>();
+    Set<Value> state = new HashSet<>();
     Constructor constructor;
     if (constructors.length == 0) {
       constructor = type.getDeclaredConstructor();
@@ -122,7 +121,7 @@ public class ReflectiveBeanConverter {
     }
   }
 
-  public static Object[] inject(ValueNode scope, Executable method, Consumer<ValueNode> state) {
+  public static Object[] inject(Value scope, Executable method, Consumer<Value> state) {
     Parameter[] parameters = method.getParameters();
     if (parameters.length == 0) {
       return NO_ARGS;
@@ -131,7 +130,7 @@ public class ReflectiveBeanConverter {
     for (int i = 0; i < parameters.length; i++) {
       Parameter parameter = parameters[i];
       String name = paramName(parameter);
-      ValueNode param = scope.get(name);
+      Value param = scope.get(name);
       var arg = value(parameter, scope, param);
       if (arg == null) {
         state.accept(Value.missing(name));
@@ -160,9 +159,9 @@ public class ReflectiveBeanConverter {
    * @param node Root node.
    * @return Names, including file names.
    */
-  private static Set<String> names(ValueNode node) {
+  private static Set<String> names(Value node) {
     Set<String> names = new LinkedHashSet<>();
-    for (ValueNode item : node) {
+    for (var item : node) {
       names.add(item.name());
     }
     if (node instanceof Formdata) {
@@ -173,11 +172,11 @@ public class ReflectiveBeanConverter {
     return names;
   }
 
-  private static List<Setter> setters(Class type, ValueNode node, Set<ValueNode> nodes) {
+  private static List<Setter> setters(Class type, Value node, Set<Value> nodes) {
     var methods = type.getMethods();
     var result = new ArrayList<Setter>();
     for (String name : names(node)) {
-      ValueNode value = node.get(name);
+      Value value = node.get(name);
       if (nodes.add(value)) {
         Method method = findSetter(methods, name);
         if (method != null) {
@@ -198,7 +197,7 @@ public class ReflectiveBeanConverter {
     return result;
   }
 
-  private static Object value(Parameter parameter, ValueNode node, ValueNode value) {
+  private static Object value(Parameter parameter, Value node, Value value) {
     try {
       if (isFileUpload(node, parameter)) {
         Formdata formdata = (Formdata) node;
@@ -262,7 +261,7 @@ public class ReflectiveBeanConverter {
     return false;
   }
 
-  private static boolean isFileUpload(ValueNode node, Parameter parameter) {
+  private static boolean isFileUpload(Value node, Parameter parameter) {
     return (node instanceof Formdata) && isFileUpload(parameter.getType())
         || isFileUpload($Types.parameterizedType0(parameter.getParameterizedType()));
   }

@@ -68,7 +68,6 @@ import io.jooby.Session;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.jooby.buffer.DataBuffer;
 import io.netty.buffer.ByteBuf;
@@ -113,7 +112,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private QueryString query;
   private Formdata formdata;
   private List<FileUpload> files;
-  private ValueNode headers;
+  private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
   private Map<String, Object> attributes;
@@ -340,7 +339,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @NonNull @Override
-  public ValueNode header() {
+  public Value header() {
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
       HttpHeaders headers = req.headers();

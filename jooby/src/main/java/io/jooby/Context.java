@@ -164,7 +164,7 @@ public interface Context extends Registry {
    * @param <T> Generic type.
    * @return Converted value.
    */
-  default @NonNull <T> T convert(@NonNull ValueNode value, @NonNull Class<T> type) {
+  default @NonNull <T> T convert(@NonNull Value value, @NonNull Class<T> type) {
     T result = convertOrNull(value, type);
     if (result == null) {
       throw new TypeMismatchException(value.name(), type);
@@ -180,7 +180,7 @@ public interface Context extends Registry {
    * @param <T> Generic type.
    * @return Converted value or <code>null</code>.
    */
-  @Nullable <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type);
+  @Nullable <T> T convertOrNull(@NonNull Value value, @NonNull Class<T> type);
 
   /*
    * **********************************************************************************************
@@ -328,11 +328,11 @@ public interface Context extends Registry {
   @NonNull <T> T path(@NonNull Class<T> type);
 
   /**
-   * Convert {@link #pathMap()} to a {@link ValueNode} object.
+   * Convert {@link #pathMap()} to a {@link Value} object.
    *
    * @return A value object.
    */
-  @NonNull ValueNode path();
+  @NonNull Value path();
 
   /**
    * Path map represent all the path keys with their values.
@@ -367,9 +367,9 @@ public interface Context extends Registry {
    */
 
   /**
-   * Query string as {@link ValueNode} object.
+   * Query string as {@link Value} object.
    *
-   * @return Query string as {@link ValueNode} object.
+   * @return Query string as {@link Value} object.
    */
   @NonNull QueryString query();
 
@@ -389,7 +389,7 @@ public interface Context extends Registry {
    * @param name Parameter name.
    * @return A query value.
    */
-  @NonNull ValueNode query(@NonNull String name);
+  @NonNull Value query(@NonNull String name);
 
   /**
    * Query string with the leading <code>?</code> or empty string. This is the raw query string,
@@ -428,11 +428,11 @@ public interface Context extends Registry {
    */
 
   /**
-   * Request headers as {@link ValueNode}.
+   * Request headers as {@link Value}.
    *
-   * @return Request headers as {@link ValueNode}.
+   * @return Request headers as {@link Value}.
    */
-  @NonNull ValueNode header();
+  @NonNull Value header();
 
   /**
    * Get a header that matches the given name.
@@ -764,7 +764,7 @@ public interface Context extends Registry {
    * @param name Field name.
    * @return Multipart value.
    */
-  @NonNull ValueNode form(@NonNull String name);
+  @NonNull Value form(@NonNull String name);
 
   /**
    * Convert form data to the given type.

@@ -57,7 +57,6 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 import io.jooby.WebSocket;
 import io.jooby.buffer.DataBuffer;
 import io.undertow.Handlers;
@@ -76,7 +75,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   private Router router;
   private QueryString query;
   private Formdata formdata;
-  private ValueNode headers;
+  private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes;
   Body body;
@@ -262,7 +261,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   }
 
   @NonNull @Override
-  public ValueNode header() {
+  public Value header() {
     HeaderMap map = exchange.getRequestHeaders();
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();

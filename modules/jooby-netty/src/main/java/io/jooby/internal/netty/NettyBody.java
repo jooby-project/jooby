@@ -25,7 +25,6 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 import io.jooby.Value;
-import io.jooby.ValueNode;
 import io.netty.handler.codec.http.multipart.HttpData;
 
 public class NettyBody implements Body {
@@ -84,12 +83,12 @@ public class NettyBody implements Body {
   }
 
   @NonNull @Override
-  public ValueNode get(int index) {
+  public Value get(int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
   @NonNull @Override
-  public ValueNode get(@NonNull String name) {
+  public Value get(@NonNull String name) {
     return Value.missing(name);
   }
 
