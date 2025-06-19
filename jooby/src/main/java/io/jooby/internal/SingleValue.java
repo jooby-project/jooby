@@ -5,10 +5,6 @@
  */
 package io.jooby.internal;
 
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +15,6 @@ import java.util.Set;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.ValueNode;
-import io.jooby.exception.TypeMismatchException;
 import io.jooby.value.ValueFactory;
 
 public class SingleValue implements ValueNode {
@@ -68,7 +63,7 @@ public class SingleValue implements ValueNode {
 
   @Override
   public Iterator<ValueNode> iterator() {
-    return Collections.<ValueNode>singletonList(this).iterator();
+    return List.<ValueNode>of(this).iterator();
   }
 
   @NonNull @Override
@@ -88,30 +83,26 @@ public class SingleValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    var result = ValueConverters.convert(this, type, factory);
-    if (result == null) {
-      throw new TypeMismatchException(name(), type);
-    }
-    return (T) result;
+    return factory.convert(type, this);
   }
 
   @Nullable @Override
   public <T> T toNullable(@NonNull Class<T> type) {
-    return ValueConverters.convert(this, type, factory);
+    return factory.convertOrNull(type, this);
   }
 
   @Override
   public Map<String, List<String>> toMultimap() {
-    return singletonMap(name, singletonList(value));
+    return Map.of(name, List.of(value));
   }
 
   @Override
   public List<String> toList() {
-    return singletonList(value);
+    return List.of(value);
   }
 
   @Override
   public Set<String> toSet() {
-    return singleton(value);
+    return Set.of(value);
   }
 }

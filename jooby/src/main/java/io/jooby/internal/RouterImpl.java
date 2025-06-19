@@ -180,7 +180,7 @@ public class RouterImpl implements Router {
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
 
-    converters = new LinkedList<>(ValueConverters.defaultConverters());
+    converters = new LinkedList<>();
     beanConverters = new ArrayList<>(3);
   }
 

@@ -91,12 +91,12 @@ public class ArrayValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return ValueConverters.convert(list.get(0), type, factory);
+    return factory.convert(type, list.get(0));
   }
 
   @Nullable @Override
   public <T> T toNullable(@NonNull Class<T> type) {
-    return list.isEmpty() ? null : ValueConverters.convert(list.get(0), type, factory);
+    return list.isEmpty() ? null : factory.convertOrNull(type, list.get(0));
   }
 
   @NonNull @Override
@@ -107,7 +107,7 @@ public class ArrayValue implements ValueNode {
   @NonNull @Override
   public <T> Optional<T> toOptional(@NonNull Class<T> type) {
     try {
-      return Optional.ofNullable(to(type));
+      return Optional.ofNullable(toNullable(type));
     } catch (MissingValueException x) {
       return Optional.empty();
     }

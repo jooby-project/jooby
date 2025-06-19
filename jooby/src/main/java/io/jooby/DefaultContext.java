@@ -37,7 +37,6 @@ import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
-import io.jooby.internal.ValueConverters;
 
 /***
  * Like {@link Context} but with couple of default methods.
@@ -425,7 +424,7 @@ public interface DefaultContext extends Context {
 
   @Override
   default @NonNull <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type) {
-    return ValueConverters.convert(value, type, getRouter().getValueFactory());
+    return getRouter().getValueFactory().convertOrNull(type, value);
   }
 
   @Override

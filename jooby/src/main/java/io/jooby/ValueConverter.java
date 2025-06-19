@@ -8,7 +8,6 @@ package io.jooby;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.internal.ValueConverters;
 
 /**
  * Value converter for simple values that come from query, path, form, etc... parameters into more
@@ -40,6 +39,6 @@ public interface ValueConverter<V extends Value> {
    * @return Immutable list of defaults/built-in {@link ValueConverter}.
    */
   static List<ValueConverter<?>> defaults() {
-    return ValueConverters.defaultConverters();
+    return null;
   }
 }
