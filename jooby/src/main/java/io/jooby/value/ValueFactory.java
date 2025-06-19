@@ -16,7 +16,6 @@ import io.jooby.SneakyThrows;
 import io.jooby.Value;
 import io.jooby.ValueNode;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.internal.converter.BuiltinConverter;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StandardConverter;
 import io.jooby.internal.reflect.$Types;
@@ -27,11 +26,8 @@ public class ValueFactory {
 
   private MethodHandles.Lookup lookup = MethodHandles.publicLookup();
 
-  private MethodType methodType = MethodType.methodType(Object.class, String.class);
-
   public ValueFactory() {
     StandardConverter.register(this);
-    BuiltinConverter.register(this);
   }
 
   public Converter get(Type type) {

@@ -33,4 +33,5 @@ module io.jooby {
    * Optional dependency for rate limiting
    */
   requires static io.github.bucket4j.core;
+  requires io.jooby;
 }
