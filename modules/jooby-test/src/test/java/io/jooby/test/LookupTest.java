@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import io.jooby.*;
 import io.jooby.exception.MissingValueException;
+import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 public class LookupTest {

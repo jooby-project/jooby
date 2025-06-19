@@ -16,7 +16,6 @@ import static io.jooby.StatusCode.UNAUTHORIZED_CODE;
 import static io.jooby.internal.pac4j.Pac4jSession.BIN;
 import static io.jooby.internal.pac4j.Pac4jSession.PAC4J;
 
-import java.io.*;
 import java.util.Optional;
 
 import org.pac4j.core.context.WebContext;
@@ -36,8 +35,8 @@ import org.pac4j.core.util.serializer.Serializer;
 
 import io.jooby.Context;
 import io.jooby.Session;
-import io.jooby.Value;
 import io.jooby.pac4j.Pac4jContext;
+import io.jooby.value.Value;
 
 public class SessionStoreImpl implements org.pac4j.core.context.session.SessionStore {
 

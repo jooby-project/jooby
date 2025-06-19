@@ -12,10 +12,10 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Formdata;
-import io.jooby.Value;
 import io.jooby.apt.ProcessorRunner;
 import io.jooby.test.MockContext;
 import io.jooby.test.MockRouter;
+import io.jooby.value.Value;
 
 public class Issue1807 {
 

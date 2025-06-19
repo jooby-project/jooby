@@ -23,7 +23,8 @@ import org.junit.jupiter.api.function.Executable;
 import io.jooby.exception.BadRequestException;
 import io.jooby.exception.MissingValueException;
 import io.jooby.internal.UrlParser;
-import io.jooby.internal.ValueConverterHelper;
+import io.jooby.value.Value;
+import io.jooby.value.ValueFactory;
 
 public class ValueTest {
 
@@ -230,7 +231,8 @@ public class ValueTest {
   @Test
   public void arrayArity() {
     assertEquals("1", Value.value(null, "a", "1").value());
-    assertEquals("1", Value.value(null, "a", "1").get(0).value());
+
+    assertThrows(MissingValueException.class, () -> Value.value(null, "a", "1").get(0).value());
     assertEquals(1, Value.value(null, "a", "1").size());
     queryString(
         "a=1&a=2",
@@ -303,7 +305,7 @@ public class ValueTest {
         queryString -> {
           assertThrows(
               MissingValueException.class, () -> queryString.get("foo").get("missing").value());
-          assertEquals("bar", queryString.get("foo").get(0).value());
+          assertThrows(MissingValueException.class, () -> queryString.get("foo").get(0).value());
         });
 
     /** Missing Property: */
@@ -514,7 +516,9 @@ public class ValueTest {
     }
   }
 
+  private final ValueFactory valueFactory = new ValueFactory();
+
   private void queryString(String queryString, Consumer<QueryString> consumer) {
-    consumer.accept(UrlParser.queryString(ValueConverterHelper.testContext(), queryString));
+    consumer.accept(UrlParser.queryString(valueFactory, queryString));
   }
 }

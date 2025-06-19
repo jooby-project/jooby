@@ -16,10 +16,10 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Value;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.value.ConversionHint;
+import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 public class ArrayValue implements Value {

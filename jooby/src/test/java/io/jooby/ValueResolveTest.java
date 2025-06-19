@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.internal.HashValue;
+import io.jooby.value.Value;
 
 public class ValueResolveTest {
 

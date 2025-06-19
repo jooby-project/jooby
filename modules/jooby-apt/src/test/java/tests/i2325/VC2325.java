@@ -9,9 +9,9 @@ import java.lang.reflect.Type;
 
 import org.jetbrains.annotations.NotNull;
 
-import io.jooby.Value;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
+import io.jooby.value.Value;
 
 public class VC2325 implements Converter {
   @Override

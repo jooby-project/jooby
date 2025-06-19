@@ -9,7 +9,6 @@ import static java.util.Optional.ofNullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -24,12 +23,12 @@ import java.util.function.BiConsumer;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.FileUpload;
-import io.jooby.Value;
 import io.jooby.value.ConversionHint;
+import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 public class HashValue implements Value {
-  protected static final Map<String, Value> EMPTY = Collections.emptyMap();
+  protected static final Map<String, Value> EMPTY = Map.of();
   protected final ValueFactory factory;
   protected Map<String, Value> hash = EMPTY;
   private final String name;
@@ -51,14 +50,14 @@ public class HashValue implements Value {
   }
 
   public void put(String path, String value) {
-    put(path, Collections.singletonList(value));
+    put(path, List.of(value));
   }
 
   public void put(String path, Value node) {
     put(
         path,
         (name, scope) -> {
-          Value existing = scope.get(name);
+          var existing = scope.get(name);
           if (existing == null) {
             scope.put(name, node);
           } else {
@@ -78,10 +77,10 @@ public class HashValue implements Value {
     put(
         path,
         (name, scope) -> {
-          for (String value : values) {
-            Value existing = scope.get(name);
+          for (var value : values) {
+            var existing = scope.get(name);
             if (existing == null) {
-              scope.put(name, new SingleValue(factory, name, decode(value)));
+              scope.put(name, new SingleValue(factory, name, value));
             } else {
               ArrayValue list;
               if (existing instanceof ArrayValue) {
@@ -90,36 +89,32 @@ public class HashValue implements Value {
                 list = new ArrayValue(factory, name).add(existing);
                 scope.put(name, list);
               }
-              list.add(decode(value));
+              list.add(value);
             }
           }
         });
   }
 
-  protected String decode(String value) {
-    return value;
-  }
-
   private void put(String path, BiConsumer<String, Map<String, Value>> consumer) {
     // Locate node:
-    int nameStart = 0;
-    int nameEnd = path.length();
-    HashValue target = this;
-    for (int i = nameStart; i < nameEnd; i++) {
-      char ch = path.charAt(i);
+    var nameStart = 0;
+    var nameEnd = path.length();
+    var target = this;
+    for (var i = nameStart; i < nameEnd; i++) {
+      var ch = path.charAt(i);
       if (ch == '.') {
-        String name = path.substring(nameStart, i);
+        var name = path.substring(nameStart, i);
         nameStart = i + 1;
         target = target.getOrCreateScope(name);
       } else if (ch == '[') {
         if (nameStart < i) {
-          String name = path.substring(nameStart, i);
+          var name = path.substring(nameStart, i);
           target = target.getOrCreateScope(name);
         }
         nameStart = i + 1;
       } else if (ch == ']') {
         if (i + 1 < nameEnd) {
-          String name = path.substring(nameStart, i);
+          var name = path.substring(nameStart, i);
           if (isNumber(name)) {
             target.useIndexes();
           }
@@ -130,7 +125,7 @@ public class HashValue implements Value {
         }
       }
     }
-    String key = path.substring(nameStart, nameEnd);
+    var key = path.substring(nameStart, nameEnd);
     if (isNumber(key)) {
       target.useIndexes();
     }
@@ -143,9 +138,11 @@ public class HashValue implements Value {
       return;
     }
     this.arrayLike = true;
-    TreeMap<String, Value> ordered = new TreeMap<>();
-    ordered.putAll(hash);
-    hash.clear();
+    var ordered = new TreeMap<String, Value>();
+    if (hash != EMPTY) {
+      ordered.putAll(hash);
+      hash.clear();
+    }
     this.hash = ordered;
   }
 
@@ -170,7 +167,7 @@ public class HashValue implements Value {
   }
 
   public @NonNull Value get(@NonNull String name) {
-    Value value = hash.get(name);
+    var value = hash.get(name);
     if (value == null) {
       return new MissingValue(scope(name));
     }
@@ -253,16 +250,15 @@ public class HashValue implements Value {
 
   @Override
   public Map<String, List<String>> toMultimap() {
-    Map<String, List<String>> result = new LinkedHashMap<>(hash.size());
-    Set<Map.Entry<String, Value>> entries = hash.entrySet();
-    String scope = name == null ? "" : name + ".";
-    for (Map.Entry<String, Value> entry : entries) {
-      Value value = entry.getValue();
+    var result = new LinkedHashMap<String, List<String>>(hash.size());
+    var entries = hash.entrySet();
+    for (var entry : entries) {
+      var value = entry.getValue();
       value
           .toMultimap()
           .forEach(
               (k, v) -> {
-                result.put(scope + k, v);
+                result.put(scope(k), v);
               });
     }
     return result;
@@ -274,7 +270,7 @@ public class HashValue implements Value {
   }
 
   public void put(Map<String, Collection<String>> headers) {
-    for (Map.Entry<String, Collection<String>> entry : headers.entrySet()) {
+    for (var entry : headers.entrySet()) {
       put(entry.getKey(), entry.getValue());
     }
   }
@@ -294,8 +290,6 @@ public class HashValue implements Value {
           }
         }
       } else {
-        //        var item = new HashValue(factory, this.name);
-        //        item.hash = hash;
         addItem(factory, this, type, collection);
       }
     }

@@ -24,13 +24,12 @@ import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
-import io.jooby.Value;
 import io.netty.handler.codec.http.multipart.HttpData;
 
 public class NettyBody implements Body {
   private final Context ctx;
   private final HttpData data;
-  private long length;
+  private final long length;
 
   public NettyBody(Context ctx, HttpData data, long contentLength) {
     this.ctx = ctx;
@@ -80,16 +79,6 @@ public class NettyBody implements Body {
   @NonNull @Override
   public String value() {
     return value(StandardCharsets.UTF_8);
-  }
-
-  @NonNull @Override
-  public Value get(int index) {
-    return index == 0 ? this : get(Integer.toString(index));
-  }
-
-  @NonNull @Override
-  public Value get(@NonNull String name) {
-    return Value.missing(name);
   }
 
   @Override

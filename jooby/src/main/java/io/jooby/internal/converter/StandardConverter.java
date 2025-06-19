@@ -30,9 +30,9 @@ import java.util.concurrent.TimeUnit;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import io.jooby.Value;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
+import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 public enum StandardConverter implements Converter {

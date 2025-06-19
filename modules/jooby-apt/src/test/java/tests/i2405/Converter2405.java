@@ -10,9 +10,9 @@ import java.lang.reflect.Type;
 import org.jetbrains.annotations.NotNull;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Value;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
+import io.jooby.value.Value;
 
 public class Converter2405 implements Converter {
 

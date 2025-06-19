@@ -14,8 +14,8 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Value;
 import io.jooby.value.ConversionHint;
+import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 public class SingleValue implements Value {
@@ -39,7 +39,7 @@ public class SingleValue implements Value {
 
   @Override
   public @NonNull Value get(int index) {
-    return index == 0 ? this : get(Integer.toString(index));
+    return get(Integer.toString(index));
   }
 
   @Override
@@ -53,7 +53,7 @@ public class SingleValue implements Value {
   }
 
   @Override
-  public String value() {
+  public @NonNull String value() {
     return value;
   }
 
@@ -63,8 +63,8 @@ public class SingleValue implements Value {
   }
 
   @Override
-  public Iterator<Value> iterator() {
-    return List.<Value>of(this).iterator();
+  public @NonNull Iterator<Value> iterator() {
+    return List.of((Value) this).iterator();
   }
 
   @NonNull @Override

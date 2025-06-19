@@ -20,9 +20,9 @@ import org.pac4j.core.context.session.SessionStore;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SameSite;
-import io.jooby.Value;
 import io.jooby.pac4j.Pac4jContext;
 import io.jooby.pac4j.Pac4jOptions;
+import io.jooby.value.Value;
 
 public class WebContextImpl implements Pac4jContext {
 

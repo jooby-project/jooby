@@ -69,9 +69,9 @@ import io.jooby.Session;
 import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import io.jooby.Value;
 import io.jooby.WebSocket;
 import io.jooby.buffer.DataBuffer;
+import io.jooby.value.Value;
 
 public class JettyContext implements DefaultContext, Callback {
   private final int bufferSize;

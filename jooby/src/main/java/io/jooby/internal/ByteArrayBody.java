@@ -20,7 +20,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.Value;
 
 public class ByteArrayBody implements Body {
   private static final byte[] EMPTY = new byte[0];
@@ -67,16 +66,6 @@ public class ByteArrayBody implements Body {
   @NonNull @Override
   public List<String> toList() {
     return Collections.singletonList(value());
-  }
-
-  @NonNull @Override
-  public Value get(int index) {
-    return index == 0 ? this : get(Integer.toString(index));
-  }
-
-  @NonNull @Override
-  public Value get(@NonNull String name) {
-    return new MissingValue(name);
   }
 
   @Override

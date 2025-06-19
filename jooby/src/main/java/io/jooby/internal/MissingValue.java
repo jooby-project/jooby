@@ -5,20 +5,15 @@
  */
 package io.jooby.internal;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Value;
 import io.jooby.exception.MissingValueException;
+import io.jooby.value.Value;
 
 public class MissingValue implements Value {
-  private String name;
+  private final String name;
 
   public MissingValue(String name) {
     this.name = name;
@@ -32,6 +27,16 @@ public class MissingValue implements Value {
   @Override
   public @NonNull Value get(@NonNull String name) {
     return this.name.equals(name) ? this : new MissingValue(this.name + "." + name);
+  }
+
+  @Override
+  public int size() {
+    return 0;
+  }
+
+  @Override
+  public @NonNull Iterator<Value> iterator() {
+    return Collections.emptyIterator();
   }
 
   @Override

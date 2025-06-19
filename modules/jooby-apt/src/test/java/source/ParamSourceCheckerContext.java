@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.ParamSource;
-import io.jooby.Value;
 import io.jooby.test.MockContext;
+import io.jooby.value.Value;
 
 public class ParamSourceCheckerContext extends MockContext {
 

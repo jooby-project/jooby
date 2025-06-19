@@ -369,8 +369,7 @@ public class RequestParser {
   private static Predicate<AbstractInsnNode> valueOwner() {
     return e -> {
       if (e instanceof MethodInsnNode) {
-        return ((MethodInsnNode) e).owner.equals("io/jooby/Value")
-            || ((MethodInsnNode) e).owner.equals("io/jooby/ValueNode")
+        return ((MethodInsnNode) e).owner.equals("io/jooby/value/Value")
             || ((MethodInsnNode) e).owner.equals("io/jooby/Body")
             || (((MethodInsnNode) e).owner.equals("io/jooby/Context")
                 && isFileUpload((MethodInsnNode) e));

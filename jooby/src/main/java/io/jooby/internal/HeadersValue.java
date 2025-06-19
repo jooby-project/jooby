@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Value;
+import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 public class HeadersValue extends HashValue implements Value {

@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.WebSocketMessageImpl;
+import io.jooby.value.Value;
 
 /**
  * Websocket message generated from a {@link WebSocket.OnMessage} callback. Message is a subclass.

@@ -11,7 +11,7 @@ import java.util.List;
 import io.jooby.Context;
 import io.jooby.ParamLookup;
 import io.jooby.ParamSource;
-import io.jooby.Value;
+import io.jooby.value.Value;
 
 public class ParamLookupImpl implements ParamLookup.Stage {
 

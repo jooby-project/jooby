@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.internal.UrlParser;
-import io.jooby.internal.ValueConverterHelper;
+import io.jooby.value.ValueFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
@@ -549,7 +549,9 @@ public class ValueToBeanTest {
         });
   }
 
+  private final ValueFactory valueFactory = new ValueFactory();
+
   private void queryString(String queryString, Consumer<QueryString> consumer) {
-    consumer.accept(UrlParser.queryString(ValueConverterHelper.testContext(), queryString));
+    consumer.accept(UrlParser.queryString(valueFactory, queryString));
   }
 }

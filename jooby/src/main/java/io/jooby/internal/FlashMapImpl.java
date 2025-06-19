@@ -16,7 +16,7 @@ import java.util.function.Function;
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.FlashMap;
-import io.jooby.Value;
+import io.jooby.value.Value;
 
 public class FlashMapImpl extends HashMap<String, String> implements FlashMap {
 

@@ -11,6 +11,7 @@ import java.util.Map;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.internal.SessionImpl;
+import io.jooby.value.Value;
 
 /**
  * HTTP session. Only basic data types can be saved into session.

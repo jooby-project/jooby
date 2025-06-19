@@ -24,8 +24,8 @@ import io.jooby.RouterOption
 import io.jooby.Server
 import io.jooby.ServerOptions
 import io.jooby.ServiceRegistry
-import io.jooby.Value
 import io.jooby.handler.Cors
+import io.jooby.value.Value
 import java.util.function.Supplier
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty

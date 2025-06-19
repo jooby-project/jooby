@@ -12,6 +12,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.pac4j.Pac4jUntrustedDataFound;
+import io.jooby.value.Value;
 
 class Pac4jSession implements Session {
   public static final String PAC4J = "p4j~";

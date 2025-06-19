@@ -13,7 +13,6 @@ import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
-import io.jooby.Value;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StandardConverter;

@@ -14,7 +14,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.Session;
 import io.jooby.SessionStore;
-import io.jooby.Value;
+import io.jooby.value.Value;
 
 public class SessionImpl implements Session {
 

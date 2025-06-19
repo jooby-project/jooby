@@ -32,11 +32,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.buffer.DataBuffer;
 import io.jooby.buffer.DataBufferFactory;
-import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.ParamLookupImpl;
 import io.jooby.internal.ReadOnlyContext;
 import io.jooby.internal.WebSocketSender;
+import io.jooby.value.Value;
+import io.jooby.value.ValueFactory;
 
 /**
  * HTTP context allows you to interact with the HTTP Request and manipulate the HTTP Response.
@@ -135,16 +136,16 @@ public interface Context extends Registry {
    * @param value Attribute value.
    * @return This router.
    */
-  @NonNull Context setAttribute(@NonNull String key, Object value);
+  Context setAttribute(@NonNull String key, Object value);
 
   /**
    * Get the HTTP router (usually this represents an instance of {@link Jooby}.
    *
    * @return HTTP router (usually this represents an instance of {@link Jooby}.
    */
-  @NonNull Router getRouter();
+  Router getRouter();
 
-  @NonNull DataBufferFactory getBufferFactory();
+  DataBufferFactory getBufferFactory();
 
   /**
    * Forward executing to another route. We use the given path to find a matching route.
@@ -154,33 +155,7 @@ public interface Context extends Registry {
    * @param path Path to forward the request.
    * @return Forward result.
    */
-  @NonNull Object forward(@NonNull String path);
-
-  /**
-   * Converts a value (single or hash) into the given type.
-   *
-   * @param value Value to convert.
-   * @param type Expected type.
-   * @param <T> Generic type.
-   * @return Converted value.
-   */
-  default @NonNull <T> T convert(@NonNull Value value, @NonNull Class<T> type) {
-    T result = convertOrNull(value, type);
-    if (result == null) {
-      throw new TypeMismatchException(value.name(), type);
-    }
-    return result;
-  }
-
-  /**
-   * Converts a value (single or hash) into the given type.
-   *
-   * @param value Value to convert.
-   * @param type Expected type.
-   * @param <T> Generic type.
-   * @return Converted value or <code>null</code>.
-   */
-  @Nullable <T> T convertOrNull(@NonNull Value value, @NonNull Class<T> type);
+  Object forward(@NonNull String path);
 
   /*
    * **********************************************************************************************
@@ -193,7 +168,7 @@ public interface Context extends Registry {
    *
    * @return Flash map.
    */
-  @NonNull FlashMap flash();
+  FlashMap flash();
 
   /**
    * Flash map or null when no flash cookie exists.
@@ -202,13 +177,15 @@ public interface Context extends Registry {
    */
   @Nullable FlashMap flashOrNull();
 
+  ValueFactory getValueFactory();
+
   /**
    * Get a flash attribute.
    *
    * @param name Attribute's name.
    * @return Flash attribute.
    */
-  @NonNull Value flash(@NonNull String name);
+  Value flash(@NonNull String name);
 
   /**
    * Find a session or creates a new session.

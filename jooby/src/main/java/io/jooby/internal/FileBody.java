@@ -22,7 +22,6 @@ import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
-import io.jooby.Value;
 
 public class FileBody implements Body {
   private Context ctx;
@@ -82,16 +81,6 @@ public class FileBody implements Body {
   @NonNull @Override
   public List<String> toList() {
     return Collections.singletonList(value());
-  }
-
-  @Override
-  public @NonNull Value get(int index) {
-    return index == 0 ? this : get(Integer.toString(index));
-  }
-
-  @NonNull @Override
-  public Value get(@NonNull String name) {
-    return new MissingValue(name);
   }
 
   @Override

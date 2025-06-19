@@ -8,7 +8,6 @@ package io.jooby.value;
 import java.lang.reflect.Type;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Value;
 
 /**
  * Value converter for values that come from config, query, path, form, path parameters into more

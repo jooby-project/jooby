@@ -10,6 +10,7 @@ import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.MultipartNode;
+import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 /**

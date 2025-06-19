@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import io.jooby.Value;
 import io.jooby.internal.converter.StandardConverter;
 import io.jooby.value.ConversionHint;
+import io.jooby.value.Value;
 
 public class DurationConverterTest {
 

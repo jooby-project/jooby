@@ -14,7 +14,7 @@ import java.util.UUID;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Session;
-import io.jooby.Value;
+import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 /** Mock session. */

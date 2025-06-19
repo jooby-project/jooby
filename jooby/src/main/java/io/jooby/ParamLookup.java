@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.value.Value;
+
 /**
  * Fluent interface allowing to conveniently search context parameters in multiple sources.
  *

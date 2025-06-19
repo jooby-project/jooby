@@ -5,8 +5,6 @@
  */
 package io.jooby.value;
 
-import io.jooby.Value;
-
 /**
  * Instructs how a {@link Value} must be converted to the requested type. The hint is applied on all
  * the built-in converters. Custom converters might or might not follow the conversion hint.

@@ -29,11 +29,11 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Usage;
-import io.jooby.Value;
 import io.jooby.annotation.EmptyBean;
 import io.jooby.exception.BadRequestException;
 import io.jooby.exception.ProvisioningException;
 import io.jooby.internal.reflect.$Types;
+import io.jooby.value.Value;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 

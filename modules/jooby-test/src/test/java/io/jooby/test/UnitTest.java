@@ -20,8 +20,8 @@ import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
-import io.jooby.Value;
 import io.jooby.WebSocketMessage;
+import io.jooby.value.Value;
 import io.reactivex.rxjava3.core.Single;
 
 public class UnitTest {

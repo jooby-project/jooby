@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ import io.jooby.exception.MissingValueException;
 import io.jooby.internal.ByteArrayBody;
 import io.jooby.internal.FileBody;
 import io.jooby.internal.InputStreamBody;
+import io.jooby.internal.MissingValue;
+import io.jooby.value.Value;
 
 /**
  * HTTP body value. Allows to access HTTP body as string, byte[], stream, etc..
@@ -43,6 +46,26 @@ public interface Body extends Value {
       throw new MissingValueException("body");
     }
     return new String(bytes, charset);
+  }
+
+  @Override
+  default int size() {
+    return 1;
+  }
+
+  @Override
+  default Value get(int index) {
+    return get(Integer.toString(index));
+  }
+
+  @Override
+  default Value get(@NonNull String name) {
+    return new MissingValue(name);
+  }
+
+  @Override
+  default Iterator<Value> iterator() {
+    return List.of((Value) this).iterator();
   }
 
   /**
