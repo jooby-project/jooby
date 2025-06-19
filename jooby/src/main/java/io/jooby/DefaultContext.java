@@ -37,6 +37,8 @@ import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
+import io.jooby.value.ConversionHint;
+import io.jooby.value.ValueFactory;
 
 /***
  * Like {@link Context} but with couple of default methods.
@@ -133,7 +135,7 @@ public interface DefaultContext extends Context {
    */
   @Override
   default @NonNull Value flash(@NonNull String name) {
-    return Value.create(getRouter().getValueFactory(), name, flash().get(name));
+    return Value.create(getValueFactory(), name, flash().get(name));
   }
 
   @Override
@@ -184,9 +186,7 @@ public interface DefaultContext extends Context {
   @Override
   default @NonNull Value cookie(@NonNull String name) {
     String value = cookieMap().get(name);
-    return value == null
-        ? Value.missing(name)
-        : Value.value(getRouter().getValueFactory(), name, value);
+    return value == null ? Value.missing(name) : Value.value(getValueFactory(), name, value);
   }
 
   @Override
@@ -194,7 +194,7 @@ public interface DefaultContext extends Context {
     String value = pathMap().get(name);
     return value == null
         ? new MissingValue(name)
-        : new SingleValue(getRouter().getValueFactory(), name, UrlParser.decodePathSegment(value));
+        : new SingleValue(getValueFactory(), name, UrlParser.decodePathSegment(value));
   }
 
   @Override
@@ -204,7 +204,7 @@ public interface DefaultContext extends Context {
 
   @Override
   @NonNull default ValueNode path() {
-    var path = new HashValue(getRouter().getValueFactory(), null);
+    var path = new HashValue(getValueFactory(), null);
     for (Map.Entry<String, String> entry : pathMap().entrySet()) {
       path.put(entry.getKey(), entry.getValue());
     }
@@ -422,9 +422,13 @@ public interface DefaultContext extends Context {
     return body().to(type);
   }
 
+  default ValueFactory getValueFactory() {
+    return getRouter().getValueFactory();
+  }
+
   @Override
   default @NonNull <T> T convertOrNull(@NonNull ValueNode value, @NonNull Class<T> type) {
-    return getRouter().getValueFactory().convertOrNull(type, value);
+    return getValueFactory().convert(type, value, ConversionHint.Nullable);
   }
 
   @Override
@@ -432,7 +436,7 @@ public interface DefaultContext extends Context {
     try {
       if (MediaType.text.equals(contentType)) {
         //noinspection unchecked
-        return (T) getRouter().getValueFactory().convert(type, body());
+        return (T) getValueFactory().convert(type, body());
       }
       //noinspection unchecked
       return (T) decoder(contentType).decode(this, type);

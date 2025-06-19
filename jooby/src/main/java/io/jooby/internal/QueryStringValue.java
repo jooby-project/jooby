@@ -8,6 +8,7 @@ package io.jooby.internal;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.QueryString;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.ValueFactory;
 
 public class QueryStringValue extends HashValue implements QueryString {
@@ -24,8 +25,7 @@ public class QueryStringValue extends HashValue implements QueryString {
     // GET /search?
     // with class Search (q="*")
     // so q is defaulted to "*"
-    //noinspection unchecked
-    return (T) factory.convertOrEmpty(type, this);
+    return factory.convert(type, this, ConversionHint.Empty);
   }
 
   @NonNull @Override

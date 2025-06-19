@@ -22,6 +22,12 @@ import io.jooby.internal.reflect.$Types;
 
 public class ValueFactory {
 
+  public enum ConversionType {
+    Strict,
+    Nullable,
+    Empty,
+  }
+
   private final Map<Type, Converter> converterMap = new HashMap<>();
 
   private MethodHandles.Lookup lookup = MethodHandles.publicLookup();
@@ -40,7 +46,7 @@ public class ValueFactory {
   }
 
   public <T> T convert(@NonNull Type type, @NonNull Value value) {
-    T result = convert(type, value, false);
+    T result = convert(type, value, ConversionHint.Strict);
     if (result == null) {
       throw new TypeMismatchException(value.name(), type);
     }
@@ -48,20 +54,12 @@ public class ValueFactory {
     return result;
   }
 
-  public <T> T convertOrNull(@NonNull Type type, @NonNull Value value) {
-    return convert(type, value, false);
-  }
-
-  public <T> T convertOrEmpty(@NonNull Type type, @NonNull Value value) {
-    return convert(type, value, true);
-  }
-
   @SuppressWarnings("unchecked")
-  private <T> T convert(@NonNull Type type, @NonNull Value value, boolean allowEmptyBean) {
+  public <T> T convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
     var converter = converterMap.get(type);
     if (converter != null) {
       // Specific converter at type level.
-      return (T) converter.convert(type, value);
+      return (T) converter.convert(type, value, hint);
     }
     var rawType = $Types.getRawType(type);
     // Is it a container?
@@ -89,7 +87,7 @@ public class ValueFactory {
       }
       // anything else fallback to reflective
       var reflective = new ReflectiveBeanConverter();
-      return (T) reflective.convert((ValueNode) value, rawType, allowEmptyBean);
+      return (T) reflective.convert((ValueNode) value, rawType, hint == ConversionHint.Empty);
     }
   }
 

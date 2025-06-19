@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.internal.UrlParser;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
 import io.jooby.value.ValueFactory;
 import jakarta.inject.Inject;
@@ -24,7 +25,7 @@ public class Issue2525 {
 
   public class VC2525 implements Converter {
     @Override
-    public Object convert(@NotNull Type type, @NotNull Value value) {
+    public Object convert(@NotNull Type type, @NotNull Value value, ConversionHint hint) {
       return new MyID2525(value.value());
     }
   }

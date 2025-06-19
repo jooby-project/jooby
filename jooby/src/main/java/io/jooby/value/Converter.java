@@ -23,7 +23,8 @@ public interface Converter {
    *
    * @param type Requested type.
    * @param value Value value.
+   * @param hint Requested hint.
    * @return Converted value.
    */
-  Object convert(@NonNull Type type, @NonNull Value value);
+  Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint);
 }

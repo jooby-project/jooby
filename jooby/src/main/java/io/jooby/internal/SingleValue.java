@@ -15,6 +15,7 @@ import java.util.Set;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.ValueNode;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.ValueFactory;
 
 public class SingleValue implements ValueNode {
@@ -88,7 +89,7 @@ public class SingleValue implements ValueNode {
 
   @Nullable @Override
   public <T> T toNullable(@NonNull Class<T> type) {
-    return factory.convertOrNull(type, this);
+    return factory.convert(type, this, ConversionHint.Nullable);
   }
 
   @Override

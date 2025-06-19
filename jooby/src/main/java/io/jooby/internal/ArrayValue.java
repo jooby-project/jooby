@@ -19,6 +19,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.ValueNode;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.ValueFactory;
 
 public class ArrayValue implements ValueNode {
@@ -96,7 +97,7 @@ public class ArrayValue implements ValueNode {
 
   @Nullable @Override
   public <T> T toNullable(@NonNull Class<T> type) {
-    return list.isEmpty() ? null : factory.convertOrNull(type, list.get(0));
+    return list.isEmpty() ? null : factory.convert(type, list.get(0), ConversionHint.Nullable);
   }
 
   @NonNull @Override

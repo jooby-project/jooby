@@ -9,13 +9,15 @@ import java.lang.reflect.Type;
 
 import org.jetbrains.annotations.NotNull;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Value;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
 
 public class Converter2405 implements Converter {
 
   @Override
-  public Object convert(@NotNull Type type, @NotNull Value value) {
+  public Object convert(@NotNull Type type, @NotNull Value value, @NonNull ConversionHint hint) {
     return new Bean2405(value.value());
   }
 }

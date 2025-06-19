@@ -25,6 +25,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.FileUpload;
 import io.jooby.ValueNode;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.ValueFactory;
 
 public class HashValue implements ValueNode {
@@ -238,8 +239,7 @@ public class HashValue implements ValueNode {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    //noinspection unchecked
-    return (T) factory.convert(type, this);
+    return factory.convert(type, this);
   }
 
   @Nullable @Override
@@ -248,8 +248,7 @@ public class HashValue implements ValueNode {
   }
 
   private <T> T toNullable(@NonNull ValueFactory factory, @NonNull Class<T> type) {
-    //noinspection unchecked
-    return (T) factory.convertOrNull(type, this);
+    return factory.convert(type, this, ConversionHint.Nullable);
   }
 
   @Override

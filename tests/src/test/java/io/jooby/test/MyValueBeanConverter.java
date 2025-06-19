@@ -11,12 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 import io.jooby.Value;
 import io.jooby.ValueNode;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
 
 public class MyValueBeanConverter implements Converter {
 
   @Override
-  public Object convert(@NotNull Type type, @NotNull Value value) {
+  public Object convert(@NotNull Type type, @NotNull Value value, ConversionHint hint) {
     MyValue result = new MyValue();
     result.setString(((ValueNode) value).get("string").value());
     return result;

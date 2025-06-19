@@ -31,6 +31,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
 import io.jooby.value.ValueFactory;
 
@@ -42,7 +43,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.valueOrNull();
     }
   },
@@ -53,7 +54,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.intValue();
     }
   },
@@ -64,7 +65,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.isMissing() ? null : value.intValue();
     }
   },
@@ -75,7 +76,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.longValue();
     }
   },
@@ -86,7 +87,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.isMissing() ? null : value.longValue();
     }
   },
@@ -97,7 +98,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.floatValue();
     }
   },
@@ -108,7 +109,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.isMissing() ? null : value.floatValue();
     }
   },
@@ -119,7 +120,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.doubleValue();
     }
   },
@@ -130,7 +131,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.isMissing() ? null : value.doubleValue();
     }
   },
@@ -141,7 +142,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.booleanValue();
     }
   },
@@ -152,7 +153,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.isMissing() ? null : value.booleanValue();
     }
   },
@@ -163,7 +164,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.byteValue();
     }
   },
@@ -174,7 +175,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return value.isMissing() ? null : value.byteValue();
     }
   },
@@ -185,7 +186,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return new BigDecimal(value.value());
     }
   },
@@ -196,7 +197,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return new BigInteger(value.value());
     }
   },
@@ -207,7 +208,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       String charset = value.value();
       return switch (charset.toLowerCase()) {
         case "utf-8" -> StandardCharsets.UTF_8;
@@ -227,7 +228,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       try {
         // must be millis
         return new Date(parseLong(value.value()));
@@ -245,7 +246,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       try {
         return java.time.Duration.parse(value.value());
       } catch (DateTimeParseException x) {
@@ -311,9 +312,9 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       try {
-        return java.time.Period.from((Duration) Duration.convert(type, value));
+        return java.time.Period.from((Duration) Duration.convert(type, value, hint));
       } catch (DateTimeException x) {
         return parsePeriod(value.value());
       }
@@ -378,7 +379,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       try {
         return java.time.Instant.ofEpochMilli(parseLong(value.value()));
       } catch (NumberFormatException x) {
@@ -393,7 +394,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       try {
         // must be millis
         var instant = java.time.Instant.ofEpochMilli(parseLong(value.value()));
@@ -411,7 +412,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       try {
         // must be millis
         var instant = java.time.Instant.ofEpochMilli(parseLong(value.value()));
@@ -429,7 +430,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return io.jooby.StatusCode.valueOf(value.intValue());
     }
   },
@@ -440,7 +441,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return java.util.TimeZone.getTimeZone(value.value());
     }
   },
@@ -451,7 +452,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       try {
         var uri = java.net.URI.create(value.value());
         if (type == URL.class) {
@@ -470,7 +471,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return java.util.UUID.fromString(value.value());
     }
   },
@@ -481,7 +482,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       var zoneId = value.value();
       return java.time.ZoneId.of(java.time.ZoneId.SHORT_IDS.getOrDefault(zoneId, zoneId));
     }

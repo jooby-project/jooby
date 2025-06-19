@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import io.jooby.Value;
-import io.jooby.internal.converter.BuiltinConverter;
+import io.jooby.internal.converter.StandardConverter;
+import io.jooby.value.ConversionHint;
 
 public class DurationConverterTest {
 
@@ -53,11 +54,13 @@ public class DurationConverterTest {
   }
 
   private Duration duration(String value) {
-    return (Duration) BuiltinConverter.Duration.convert(Duration.class, value(value));
+    return (Duration)
+        StandardConverter.Duration.convert(Duration.class, value(value), ConversionHint.Strict);
   }
 
   private Period period(String value) {
-    return (Period) BuiltinConverter.Period.convert(Period.class, value(value));
+    return (Period)
+        StandardConverter.Period.convert(Period.class, value(value), ConversionHint.Strict);
   }
 
   private Value value(String value) {
