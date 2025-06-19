@@ -6,6 +6,7 @@
 package io.jooby.internal;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.QueryString;
 import io.jooby.value.ValueFactory;
 
@@ -17,18 +18,14 @@ public class QueryStringValue extends HashValue implements QueryString {
     this.queryString = queryString;
   }
 
-  protected boolean allowEmptyBean() {
-    return true;
-  }
-
-  @Override
-  protected <T> T toNullable(
-      @NonNull ValueFactory valueFactory, @NonNull Class<T> type, boolean allowEmpty) {
+  @Nullable @Override
+  public <T> T toNullable(@NonNull Class<T> type) {
     // NOTE: 2.x backward compatible. Make sure Query object are almost always created
     // GET /search?
     // with class Search (q="*")
     // so q is defaulted to "*"
-    return ValueConverters.convert(this, type, valueFactory, allowEmpty);
+    //noinspection unchecked
+    return (T) factory.convertOrEmpty(type, this);
   }
 
   @NonNull @Override

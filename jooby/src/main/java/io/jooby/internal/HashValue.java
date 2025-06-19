@@ -25,12 +25,11 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.FileUpload;
 import io.jooby.ValueNode;
-import io.jooby.exception.TypeMismatchException;
 import io.jooby.value.ValueFactory;
 
 public class HashValue implements ValueNode {
   protected static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
-  private final ValueFactory factory;
+  protected final ValueFactory factory;
   protected Map<String, ValueNode> hash = EMPTY;
   private final String name;
   private boolean arrayLike;
@@ -192,13 +191,11 @@ public class HashValue implements ValueNode {
 
   @Override
   public String value() {
-    StringJoiner joiner = new StringJoiner("&");
+    var joiner = new StringJoiner("&");
     hash.forEach(
         (k, v) -> {
-          Iterator<ValueNode> it = v.iterator();
-          while (it.hasNext()) {
-            ValueNode value = it.next();
-            String str =
+          for (var value : v) {
+            var str =
                 value instanceof FileUpload ? ((FileUpload) value).getFileName() : value.toString();
             joiner.add(k + "=" + str);
           }
@@ -236,26 +233,23 @@ public class HashValue implements ValueNode {
     if (hash.isEmpty()) {
       return Optional.empty();
     }
-    return ofNullable(to(type));
+    return ofNullable(toNullable(type));
   }
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    var result = ValueConverters.convert(this, type, factory);
-    if (result == null) {
-      throw new TypeMismatchException(name(), type);
-    }
-    return (T) result;
+    //noinspection unchecked
+    return (T) factory.convert(type, this);
   }
 
   @Nullable @Override
-  public final <T> T toNullable(@NonNull Class<T> type) {
-    return toNullable(factory, type, allowEmptyBean());
+  public <T> T toNullable(@NonNull Class<T> type) {
+    return toNullable(factory, type);
   }
 
-  protected <T> T toNullable(
-      @NonNull ValueFactory factory, @NonNull Class<T> type, boolean allowEmpty) {
-    return ValueConverters.convert(this, type, factory, allowEmpty);
+  private <T> T toNullable(@NonNull ValueFactory factory, @NonNull Class<T> type) {
+    //noinspection unchecked
+    return (T) factory.convertOrNull(type, this);
   }
 
   @Override
@@ -301,9 +295,9 @@ public class HashValue implements ValueNode {
           }
         }
       } else {
-        var item = new HashValue(factory, this.name);
-        item.hash = hash;
-        addItem(factory, item, type, collection);
+        //        var item = new HashValue(factory, this.name);
+        //        item.hash = hash;
+        addItem(factory, this, type, collection);
       }
     }
     return collection;
@@ -311,13 +305,9 @@ public class HashValue implements ValueNode {
 
   private static <T> void addItem(
       ValueFactory factory, HashValue node, Class<T> type, Collection<T> container) {
-    var item = node.toNullable(factory, type, false);
+    var item = node.toNullable(factory, type);
     if (item != null) {
       container.add(item);
     }
-  }
-
-  protected boolean allowEmptyBean() {
-    return false;
   }
 }

@@ -432,9 +432,10 @@ public interface DefaultContext extends Context {
   default @NonNull <T> T decode(@NonNull Type type, @NonNull MediaType contentType) {
     try {
       if (MediaType.text.equals(contentType)) {
-        T result = ValueConverters.convert(body(), type, getRouter().getValueFactory());
-        return result;
+        //noinspection unchecked
+        return (T) getRouter().getValueFactory().convert(type, body());
       }
+      //noinspection unchecked
       return (T) decoder(contentType).decode(this, type);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);

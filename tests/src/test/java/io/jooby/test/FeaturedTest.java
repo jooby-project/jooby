@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
-import java.lang.reflect.Type;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -65,7 +64,6 @@ import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.InlineFile;
 import io.jooby.Jooby;
-import io.jooby.MessageDecoder;
 import io.jooby.ModelAndView;
 import io.jooby.Router;
 import io.jooby.RouterOption;
@@ -1182,30 +1180,14 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.decoder(
-                  io.jooby.MediaType.json,
-                  new MessageDecoder() {
-                    @NonNull @Override
-                    public String decode(@NonNull Context ctx, @NonNull Type type)
-                        throws Exception {
-                      return "{" + ctx.body().value("") + "}";
-                    }
-                  });
+              app.decoder(io.jooby.MediaType.json, (ctx, type) -> "{" + ctx.body().value("") + "}");
 
-              app.decoder(
-                  xml,
-                  new MessageDecoder() {
-                    @NonNull @Override
-                    public String decode(@NonNull Context ctx, @NonNull Type type)
-                        throws Exception {
-                      return "<" + ctx.body().value("") + ">";
-                    }
-                  });
+              app.decoder(xml, (ctx, type) -> "<" + ctx.body().value("") + ">");
 
               app.get(
                   "/defaults",
                   ctx -> {
-                    return Optional.ofNullable(ctx.body(String.class)).orElse("");
+                    return ctx.body(String.class);
                   });
 
               app.get("/consumes", ctx -> ctx.body(String.class))
@@ -1225,13 +1207,6 @@ public class FeaturedTest {
                   rsp -> {
                     assertEquals("<>", rsp.body().string());
                   });
-              client.header("Content-Type", "text/plain");
-              client.get(
-                  "/defaults",
-                  rsp -> {
-                    assertEquals("", rsp.body().string());
-                  });
-
               client.header("Content-Type", "application/json");
               client.get(
                   "/consumes",

@@ -12,10 +12,10 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.QueryString;
 import io.jooby.SneakyThrows;
 import io.jooby.Value;
 import io.jooby.ValueNode;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.converter.BuiltinConverter;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StandardConverter;
@@ -44,6 +44,22 @@ public class ValueFactory {
   }
 
   public Object convert(@NonNull Type type, @NonNull Value value) {
+    var result = convert(type, value, false);
+    if (result == null) {
+      throw new TypeMismatchException(value.name(), type);
+    }
+    return result;
+  }
+
+  public Object convertOrNull(@NonNull Type type, @NonNull Value value) {
+    return convert(type, value, false);
+  }
+
+  public Object convertOrEmpty(@NonNull Type type, @NonNull Value value) {
+    return convert(type, value, true);
+  }
+
+  private Object convert(@NonNull Type type, @NonNull Value value, boolean allowEmptyBean) {
     var converter = converterMap.get(type);
     if (converter != null) {
       // Specific converter at type level.
@@ -75,8 +91,7 @@ public class ValueFactory {
       }
       // anything else fallback to reflective
       var reflective = new ReflectiveBeanConverter();
-      // TODO: review emptyBean flag
-      return reflective.convert((ValueNode) value, rawType, value instanceof QueryString);
+      return reflective.convert((ValueNode) value, rawType, allowEmptyBean);
     }
   }
 

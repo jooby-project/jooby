@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -88,11 +87,11 @@ public interface Body extends ValueNode {
   }
 
   default @NonNull @Override List<String> toList() {
-    return Collections.singletonList(value());
+    return List.of(value());
   }
 
   default @NonNull @Override Set<String> toSet() {
-    return Collections.singleton(value());
+    return Set.of(value());
   }
 
   @Override
