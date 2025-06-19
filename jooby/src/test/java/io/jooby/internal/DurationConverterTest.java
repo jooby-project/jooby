@@ -53,11 +53,11 @@ public class DurationConverterTest {
   }
 
   private Duration duration(String value) {
-    return (Duration) BuiltinConverter.Duration.convert(value(value), Duration.class);
+    return (Duration) BuiltinConverter.Duration.convert(Duration.class, value(value));
   }
 
   private Period period(String value) {
-    return (Period) BuiltinConverter.Period.convert(value(value), Period.class);
+    return (Period) BuiltinConverter.Period.convert(Period.class, value(value));
   }
 
   private Value value(String value) {

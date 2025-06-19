@@ -367,7 +367,7 @@ public interface Value {
    */
   @NonNull default <T> Optional<T> toOptional(@NonNull Class<T> type) {
     try {
-      return Optional.ofNullable(to(type));
+      return Optional.ofNullable(toNullable(type));
     } catch (MissingValueException x) {
       return Optional.empty();
     }

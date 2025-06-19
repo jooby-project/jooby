@@ -29,25 +29,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
-import io.jooby.ValueConverter;
 import io.jooby.value.Converter;
 import io.jooby.value.ValueFactory;
 
-public enum BuiltinConverter implements ValueConverter<Value>, Converter {
+public enum BuiltinConverter implements Converter {
   BigDecimal {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(BigDecimal.class, this);
-    }
-
-    @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == BigDecimal.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
     }
 
     @Override
@@ -62,16 +51,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == BigInteger.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
-    }
-
-    @Override
     public Object convert(@NonNull Type type, @NonNull Value value) {
       return new BigInteger(value.value());
     }
@@ -80,16 +59,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(Charset.class, this);
-    }
-
-    @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == Charset.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
     }
 
     @Override
@@ -113,16 +82,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == Date.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
-    }
-
-    @Override
     public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         // must be millis
@@ -138,16 +97,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(Duration.class, this);
-    }
-
-    @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == Duration.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
     }
 
     @Override
@@ -214,16 +163,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(Period.class, this);
-    }
-
-    @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == Period.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
     }
 
     @Override
@@ -294,16 +233,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == Instant.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
-    }
-
-    @Override
     public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         return java.time.Instant.ofEpochMilli(Long.parseLong(value.value()));
@@ -316,16 +245,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(LocalDate.class, this);
-    }
-
-    @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == LocalDate.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
     }
 
     @Override
@@ -347,16 +266,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == LocalDateTime.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
-    }
-
-    @Override
     public Object convert(@NonNull Type type, @NonNull Value value) {
       try {
         // must be millis
@@ -375,16 +284,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == StatusCode.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
-    }
-
-    @Override
     public Object convert(@NonNull Type type, @NonNull Value value) {
       return io.jooby.StatusCode.valueOf(value.intValue());
     }
@@ -396,16 +295,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == TimeZone.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
-    }
-
-    @Override
     public Object convert(@NonNull Type type, @NonNull Value value) {
       return java.util.TimeZone.getTimeZone(value.value());
     }
@@ -414,16 +303,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(URI.class, this);
-    }
-
-    @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == URI.class || type == URL.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
     }
 
     @Override
@@ -446,16 +325,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     }
 
     @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == UUID.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
-    }
-
-    @Override
     public Object convert(@NonNull Type type, @NonNull Value value) {
       return java.util.UUID.fromString(value.value());
     }
@@ -464,16 +333,6 @@ public enum BuiltinConverter implements ValueConverter<Value>, Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(ZoneId.class, this);
-    }
-
-    @Override
-    public boolean supports(@NonNull Class<?> type) {
-      return type == ZoneId.class;
-    }
-
-    @Override
-    public @NonNull Object convert(@NonNull Value value, @NonNull Class<?> type) {
-      return convert(type, value);
     }
 
     @Override

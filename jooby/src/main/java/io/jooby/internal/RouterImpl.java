@@ -157,10 +157,6 @@ public class RouterImpl implements Router {
 
   private Cookie flashCookie = new Cookie("jooby.flash").setHttpOnly(true);
 
-  private LinkedList<ValueConverter> converters;
-
-  private List<BeanConverter> beanConverters;
-
   private ContextInitializer preDispatchInitializer;
 
   private ContextInitializer postDispatchInitializer;
@@ -179,9 +175,6 @@ public class RouterImpl implements Router {
 
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
-
-    converters = new LinkedList<>();
-    beanConverters = new ArrayList<>(3);
   }
 
   @NonNull @Override

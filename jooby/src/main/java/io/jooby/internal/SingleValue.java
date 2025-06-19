@@ -78,7 +78,7 @@ public class SingleValue implements ValueNode {
 
   @NonNull @Override
   public <T> Optional<T> toOptional(@NonNull Class<T> type) {
-    return Optional.of(to(type));
+    return Optional.ofNullable(toNullable(type));
   }
 
   @NonNull @Override
