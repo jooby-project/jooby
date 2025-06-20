@@ -22,8 +22,8 @@ public class JavadocProcessor extends InlineMacroProcessor {
 
   @Override
   public PhraseNode process(StructuralNode parent, String clazz, Map<String, Object> attributes) {
-    StringBuilder link =
-        new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby/latest/io.jooby/io/jooby/");
+    StringBuilder link = generateLink(attributes);
+
     StringBuilder text = new StringBuilder();
     String[] names = clazz.split("\\.");
     List<String> pkg = new ArrayList<>();
@@ -92,5 +92,19 @@ public class JavadocProcessor extends InlineMacroProcessor {
     options.put("type", ":link");
     options.put("target", link.toString());
     return createPhraseNode(parent, "anchor", text.toString(), attributes, options);
+  }
+
+  private static StringBuilder generateLink(Map<String, Object> attributes) {
+    String library = (String) attributes.get("library");
+    StringBuilder link = new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby");
+    if (library != null) {
+      link.append("-").append(library);
+    }
+    link.append("/latest/io.jooby");
+    if (library != null) {
+      link.append('.').append(library);
+    }
+    link.append("/io/jooby/");
+    return link;
   }
 }
