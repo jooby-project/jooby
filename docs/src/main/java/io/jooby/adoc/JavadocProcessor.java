@@ -9,10 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-import org.asciidoctor.ast.ContentNode;
 import org.asciidoctor.ast.PhraseNode;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.extension.InlineMacroProcessor;
@@ -38,10 +35,10 @@ public class JavadocProcessor extends InlineMacroProcessor {
         pkg.add(name);
       }
     }
-    if (pkg.size() > 0) {
-      link.append(pkg.stream().collect(Collectors.joining("/"))).append("/");
+    if (!pkg.isEmpty()) {
+      link.append(String.join("/", pkg)).append("/");
     }
-    String classname = nameList.stream().collect(Collectors.joining("."));
+    String classname = String.join(".", nameList);
     link.append(classname).append(".html");
 
     String arg1 = (String) attributes.get("1");
@@ -57,7 +54,7 @@ public class JavadocProcessor extends InlineMacroProcessor {
       }
     }
     if (method != null) {
-      link.append("#").append(method).append("-");
+      link.append("#").append(method).append("(");
       text.append(method).append("(");
       int index = 2;
       while (attributes.get(String.valueOf(index)) != null) {
@@ -72,11 +69,11 @@ public class JavadocProcessor extends InlineMacroProcessor {
         index += 1;
 
         if (attributes.get(String.valueOf(index)) != null) {
-          link.append("-");
+          link.append(",");
           text.append(",");
         }
       }
-      link.append("-");
+      link.append(")");
       String label = (String) attributes.get("text");
       if (label != null) {
         text.setLength(0);
@@ -86,9 +83,9 @@ public class JavadocProcessor extends InlineMacroProcessor {
       }
     } else if (variable != null) {
       link.append("#").append(variable);
-      text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(classname)));
+      text.append(attributes.getOrDefault("text", arg1));
     } else {
-      text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(classname)));
+      text.append(attributes.getOrDefault("text", arg1 != null ? arg1 : classname));
     }
 
     Map<String, Object> options = new HashMap<>();
