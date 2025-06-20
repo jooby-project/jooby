@@ -354,7 +354,7 @@ worker executor is used when:
 
 Each web server provides a default *worker executor*:
 
-- Netty: The javadoc:netty.Netty[text=Netty server] implementation multiply the number of available processors
+- Netty: The javadoc:netty.NettyServer[text=Netty server, library=netty] implementation multiply the number of available processors
 (with a minimum of 2) by 8.
 
 ----
@@ -363,7 +363,7 @@ workerThreads = Math.max(Runtime.getRuntime().availableProcessors(), 2) * 8
 
 For example `8` cores gives us `64` worker threads.
 
-- Undertow: The javadoc:utow.Utow[text=Undertow server] implementation multiply the number of available processors
+- Undertow: The javadoc:undertow.UndertowServer[text=Undertow server, library=undertow] implementation multiply the number of available processors
 by 8.
 
 ----
@@ -372,7 +372,7 @@ workerThreads = Runtime.getRuntime().availableProcessors() * 8
 
 For `8` cores gives us `64` worker threads.
 
-- Jetty: The javadoc:jetty.Jetty[text=Jetty server] implementation uses the default configuration
+- Jetty: The javadoc:jetty.JettyServer[text=Jetty server, library=jetty] implementation uses the default configuration
 with `200` worker threads.
 
 These are sensible defaults suggested by the server implementation. If you need to increase/decrease
