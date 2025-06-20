@@ -11,7 +11,7 @@ about current user, etc.
 A session attribute must be a String or a primitive. The session doesn't allow storing of arbitrary 
 objects. It's intended as a simple mechanism to store basic data (not an object graph).
 
-Jooby provides the following javadoc::SessionStore[]:
+Jooby provides the following javadoc:SessionStore[]:
 
 - In-Memory sessions - which you should combine with an a sticky sessions proxy if you plan to run multiple instances.
 - Cookie sessions signed with a secret key
@@ -56,7 +56,7 @@ Default session store uses memory to save session data. This store:
 <2> Set a session attribute
 <3> Get a session attribute
 
-Session token/ID is retrieved it from request cookie. Default session cookie is javadoc::SessionToken[SID, text=jooby.sid]. To customize cookie details:
+Session token/ID is retrieved it from request cookie. Default session cookie is javadoc:SessionToken[SID, text=jooby.sid]. To customize cookie details:
 
 .In-Memory Session with Custom Cookie
 [source,java,role="primary"]
