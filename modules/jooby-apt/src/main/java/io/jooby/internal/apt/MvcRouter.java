@@ -99,7 +99,7 @@ public class MvcRouter {
    * Generate the controller extension for MVC controller:
    *
    * <pre>{@code
-   * public class Controller_ implements MvcExtension, MvcFactory {
+   * public class Controller_ implements MvcExtension {
    *     ....
    * }
    *

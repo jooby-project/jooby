@@ -1,7 +1,7 @@
 package ${packageName};
 ${imports}
 @io.jooby.annotation.Generated(${className}.class)
-public class ${generatedClassName} implements io.jooby.MvcExtension, io.jooby.MvcFactory<${className}> {
+public class ${generatedClassName} implements io.jooby.MvcExtension {
     protected final java.util.function.Function<io.jooby.Context, ${className}> factory;
 ${constructors}
     public ${generatedClassName}(${className} instance) {
@@ -17,12 +17,4 @@ ${constructors}
     }
 
 ${methods}
-
-    public boolean supports(Class<${className}> type) {
-        return type == ${className}.class;
-    }
-
-    public io.jooby.Extension create(java.util.function.Supplier<${className}> provider) {
-        return new ${generatedClassName}(provider);
-    }
 }
