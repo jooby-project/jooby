@@ -24,7 +24,7 @@ public class SingleValue implements Value {
 
   private final String name;
 
-  private String value;
+  private final String value;
 
   public SingleValue(ValueFactory factory, String name, String value) {
     this.factory = factory;

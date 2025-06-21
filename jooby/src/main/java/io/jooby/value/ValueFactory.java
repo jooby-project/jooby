@@ -14,11 +14,27 @@ import java.util.*;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SneakyThrows;
+import io.jooby.exception.ProvisioningException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.converter.ReflectiveBeanConverter;
 import io.jooby.internal.converter.StandardConverter;
 import io.jooby.internal.reflect.$Types;
 
+/**
+ * Keep track of existing {@link Converter} and convert values to a more concrete type. This class
+ * resolve all the <code>toXXX</code> calls from {@link Value}.
+ *
+ * <ul>
+ *   <li>{@link Value#to(Class)}: convert to request type using {@link ConversionHint#Strict}
+ *   <li>{@link Value#toNullable(Class)}: convert to request type using {@link
+ *       ConversionHint#Nullable}
+ *   <li>{@link io.jooby.QueryString#toEmpty(Class)}: convert to request type using {@link
+ *       ConversionHint#Empty}
+ * </ul>
+ *
+ * @author edgar
+ * @since 4.0.0
+ */
 public class ValueFactory {
 
   private final Map<Type, Converter> converterMap = new HashMap<>();
@@ -29,42 +45,134 @@ public class ValueFactory {
 
   private Converter fallback;
 
+  /**
+   * Creates a new instance.
+   *
+   * @param lookup Lookup to use.
+   */
   public ValueFactory(@NonNull MethodHandles.Lookup lookup) {
     this.lookup = lookup;
     this.fallback = new ReflectiveBeanConverter(lookup);
     StandardConverter.register(this);
   }
 
+  /** Creates a new instance with public lookup. */
   public ValueFactory() {
     this(MethodHandles.publicLookup());
   }
 
+  /**
+   * Set lookup to use. Required by:
+   *
+   * <ul>
+   *   <li>valueOf(String) converter
+   *   <li>constructor(String) converter
+   *   <li>fallback/reflective bean converter
+   * </ul>
+   *
+   * @param lookup Look up to use.
+   * @return This instance.
+   */
   public @NonNull ValueFactory lookup(@NonNull MethodHandles.Lookup lookup) {
     this.lookup = lookup;
     this.fallback = new ReflectiveBeanConverter(lookup);
     return this;
   }
 
+  /**
+   * Set default conversion hint to use. Defaults is {@link ConversionHint#Strict}.
+   *
+   * @param defaultHint Default conversion hint.
+   * @return This instance.
+   */
   public @NonNull ValueFactory hint(@NonNull ConversionHint defaultHint) {
     this.defaultHint = defaultHint;
     return this;
   }
 
+  /**
+   * Get a converter for the given type. This is an exact lookup, no inheritance rule applies here.
+   *
+   * @param type The requested type.
+   * @return A converter or <code>null</code>.
+   */
   public @Nullable Converter get(Type type) {
     return converterMap.get(type);
   }
 
+  /**
+   * Set a custom converter for type.
+   *
+   * @param type Target type.
+   * @param converter Converter.
+   * @return This instance.
+   */
   public @NonNull ValueFactory put(@NonNull Type type, @NonNull Converter converter) {
     converterMap.put(type, converter);
     return this;
   }
 
-  public <T> T convert(@NonNull Type type, @NonNull Value value) {
+  /**
+   * Convert a value to target type using the default {@link #hint(ConversionHint)}. Conversion
+   * steps:
+   *
+   * <ul>
+   *   <li>Find a converter by type and use it. If no converter is found:
+   *   <li>Find a factory method <code>valueOf(String)</code> for {@link Value#isSingle()} values
+   *       and use it. If no converter is found:
+   *   <li>Find a <code>constructor(String)</code> for {@link Value#isSingle()} values. If no
+   *       converter is found:
+   *   <li>Fallback to reflective converter.
+   * </ul>
+   *
+   * @param type Target type.
+   * @param value Value.
+   * @param <T> Target type.
+   * @return New instance.
+   * @throws TypeMismatchException when convert returns <code>null</code> and hint is set to {@link
+   *     ConversionHint#Strict}.
+   * @throws ProvisioningException when convert target type constructor requires a non-null value
+   *     and value is missing or null.
+   */
+  public <T> T convert(@NonNull Type type, @NonNull Value value)
+      throws TypeMismatchException, ProvisioningException {
     return convert(type, value, defaultHint);
   }
 
+  /**
+   * Convert a value to target type using a hint. Conversion steps:
+   *
+   * <ul>
+   *   <li>Find a converter by type and use it. If no converter is found:
+   *   <li>Find a factory method <code>valueOf(String)</code> for {@link Value#isSingle()} values
+   *       and use it. If no converter is found:
+   *   <li>Find a <code>constructor(String)</code> for {@link Value#isSingle()} values. If no
+   *       converter is found:
+   *   <li>Fallback to reflective converter.
+   * </ul>
+   *
+   * @param type Target type.
+   * @param value Value.
+   * @param hint Conversion hint.
+   * @param <T> Target type.
+   * @return New instance.
+   * @throws TypeMismatchException when convert returns <code>null</code> and hint is set to {@link
+   *     ConversionHint#Strict}.
+   * @throws ProvisioningException when convert target type constructor requires a non-null value
+   *     and value is missing or null.
+   */
+  public <T> T convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint)
+      throws TypeMismatchException, ProvisioningException {
+    T result = convertInternal(type, value, hint);
+    if (result == null && hint == ConversionHint.Strict) {
+      throw new TypeMismatchException(value.name(), type);
+    }
+    return result;
+  }
+
   @SuppressWarnings("unchecked")
-  public <T> T convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+  private <T> T convertInternal(
+      @NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
     var converter = converterMap.get(type);
     if (converter != null) {
       // Specific converter at type level.
@@ -95,11 +203,7 @@ public class ValueFactory {
         }
       }
       // anything else fallback to reflective
-      var result = (T) fallback.convert(type, value, hint);
-      if (result == null && hint == ConversionHint.Strict) {
-        throw new TypeMismatchException(value.name(), type);
-      }
-      return result;
+      return (T) fallback.convert(type, value, hint);
     }
   }
 
