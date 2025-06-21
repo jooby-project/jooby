@@ -672,7 +672,7 @@ suspend fun Context.doSomething(): String {
 A coroutine works like any of the other non-blocking types. You start Jooby using the **event loop**
 or **default mode**, Jooby creates a coroutine context to execute it.
 
-Jooby uses the *worker executor* to creates a coroutine context. As described in <<worker-executor, worker executor section>>
+Jooby uses the *worker executor* to creates a coroutine context. As described in <<execution-model-worker-executor, worker executor section>>
 this is provided by the web server implementation unless you provided your own.
 
 .Coroutines with custom executor:
@@ -695,7 +695,7 @@ this is provided by the web server implementation unless you provided your own.
 <2> Call a suspending function
 <3> Produces a response
 
-Coroutines always run in the <<worker-executor, worker executor>>. There is an experimental API where
+Coroutines always run in the <<execution-model-worker-executor, worker executor>>. There is an experimental API where
 coroutines run in the *caller thread*(event loop in this case) until a suspending function is found.
 
 Jooby allows you to use this experimental API by setting the `coroutineStart` option:
@@ -773,10 +773,10 @@ Family of send methods include:
 
 - javadoc:Context[send, byte[\]]
 - javadoc:Route[consumes, io.jooby.MediaType...]
-- javadoc:Context[send, java.nio.Buffer]
+// Code review comment: is this supposed to be jooby databuffer or nio bytebuffer
+- javadoc:Context[send, java.nio.ByteBuffer]
 - javadoc:Context[send, java.lang.String]
 - javadoc:Context[send, java.nio.file.Path]
-- javadoc:Context[send, java.io.File]
 - javadoc:Context[send, java.nio.channels.FileChannel]
 - javadoc:Context[send, io.jooby.FileDownload]
 - javadoc:Context[send, io.jooby.StatusCode]
