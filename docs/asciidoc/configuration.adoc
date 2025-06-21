@@ -251,7 +251,7 @@ To skip/ignore Jooby loading and precedence mechanism, just instantiate and set 
 ----
 
 <1> Loads and parses configuration
-<2> Create a new environment with configuration and (http://optionally[optionally]) active names
+<2> Create a new environment with configuration and (optionally) active names
 <3> Set environment on Jooby instance
 
 IMPORTANT: Custom configuration is very flexible. You can reuse Jooby mechanism or provide your own.
