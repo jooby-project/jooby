@@ -59,12 +59,14 @@ public class JavadocProcessor extends InlineMacroProcessor {
       int index = 2;
       while (attributes.get(String.valueOf(index)) != null) {
         String qualifiedType = attributes.get(String.valueOf(index)).toString();
-        link.append(qualifiedType.replace("[]", ":A").replace("&#8230;&#8203;", "..."));
+        link.append(qualifiedType.replace("[]", "%5B%5D").replace("&#8230;&#8203;", "..."));
 
         int start = qualifiedType.lastIndexOf('.');
         String simpleName = start > 0 ? qualifiedType.substring(start + 1) : qualifiedType;
 
-        text.append(simpleName);
+        // Code review comment: this feels like a hack but I can't get it to work otherwise
+        // even when replacing with the escaped version "[\]"
+        text.append(simpleName.replace("[]", "&#91;&#93;"));
 
         index += 1;
 
@@ -95,7 +97,6 @@ public class JavadocProcessor extends InlineMacroProcessor {
   }
 
   private static StringBuilder generateLink(Map<String, Object> attributes) {
-
     String artifact = (String) attributes.getOrDefault("artifact", "jooby");
     return new StringBuilder("https://www.javadoc.io/doc/io.jooby/")
         .append(artifact)
