@@ -1,12 +1,12 @@
 === AccessLogHandler
 
-The javadoc:AccessLogHandler[] logs incoming requests using the https://en.wikipedia.org/wiki/Common_Log_Format[NCSA format] (a.k.a common log format).
+The javadoc:handler.AccessLogHandler[] logs incoming requests using the https://en.wikipedia.org/wiki/Common_Log_Format[NCSA format] (a.k.a common log format).
 
 .Usage
 [source, java, role = "primary"]
 ----
 import io.jooby.Jooby;
-import io.jooby.AccessLogHandler;
+import io.jooby.handler.AccessLogHandler;
 ...
 {
   
@@ -21,7 +21,7 @@ import io.jooby.AccessLogHandler;
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.AccessLogHandler
+import io.jooby.handler.AccessLogHandler
 ...
 {
   use(AccessLogHandler())      <1>
@@ -50,8 +50,8 @@ Message is represented by:
 
 Extra request or response headers can be appended at the end using the available methods:
 
-- javadoc:AccessLogHandler[requestHeader, java.lang.String...]
-- javadoc:AccessLogHandler[responseHeader, java.lang.String...]
+- javadoc:handler.AccessLogHandler[requestHeader, java.lang.String...]
+- javadoc:handler.AccessLogHandler[responseHeader, java.lang.String...]
 
 [TIP]
 ====
