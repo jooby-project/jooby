@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.converter;
+package io.jooby.value;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.Long.parseLong;
@@ -30,10 +30,6 @@ import java.util.concurrent.TimeUnit;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import io.jooby.value.ConversionHint;
-import io.jooby.value.Converter;
-import io.jooby.value.Value;
-import io.jooby.value.ValueFactory;
 
 public enum StandardConverter implements Converter {
   String {
@@ -51,21 +47,14 @@ public enum StandardConverter implements Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(int.class, this);
-    }
-
-    @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
-      return value.intValue();
-    }
-  },
-  IntNullable {
-    @Override
-    protected void add(ValueFactory factory) {
       factory.put(Integer.class, this);
     }
 
     @Override
     public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+      if (type == int.class) {
+        return value.intValue();
+      }
       return value.isMissing() ? null : value.intValue();
     }
   },
@@ -73,21 +62,14 @@ public enum StandardConverter implements Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(long.class, this);
-    }
-
-    @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
-      return value.longValue();
-    }
-  },
-  LongNullable {
-    @Override
-    protected void add(ValueFactory factory) {
       factory.put(Long.class, this);
     }
 
     @Override
     public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+      if (type == long.class) {
+        return value.longValue();
+      }
       return value.isMissing() ? null : value.longValue();
     }
   },
@@ -95,21 +77,14 @@ public enum StandardConverter implements Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(float.class, this);
-    }
-
-    @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
-      return value.floatValue();
-    }
-  },
-  FloatNullable {
-    @Override
-    protected void add(ValueFactory factory) {
       factory.put(Float.class, this);
     }
 
     @Override
     public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+      if (type == float.class) {
+        return value.floatValue();
+      }
       return value.isMissing() ? null : value.floatValue();
     }
   },
@@ -117,21 +92,14 @@ public enum StandardConverter implements Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(double.class, this);
-    }
-
-    @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
-      return value.doubleValue();
-    }
-  },
-  DoubleNullable {
-    @Override
-    protected void add(ValueFactory factory) {
       factory.put(Double.class, this);
     }
 
     @Override
     public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+      if (type == double.class) {
+        return value.doubleValue();
+      }
       return value.isMissing() ? null : value.doubleValue();
     }
   },
@@ -139,21 +107,14 @@ public enum StandardConverter implements Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(boolean.class, this);
-    }
-
-    @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
-      return value.booleanValue();
-    }
-  },
-  BooleanNullable {
-    @Override
-    protected void add(ValueFactory factory) {
       factory.put(Boolean.class, this);
     }
 
     @Override
     public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+      if (type == boolean.class) {
+        return value.booleanValue();
+      }
       return value.isMissing() ? null : value.booleanValue();
     }
   },
@@ -161,21 +122,14 @@ public enum StandardConverter implements Converter {
     @Override
     protected void add(ValueFactory factory) {
       factory.put(byte.class, this);
-    }
-
-    @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
-      return value.byteValue();
-    }
-  },
-  ByteNullable {
-    @Override
-    protected void add(ValueFactory factory) {
       factory.put(Byte.class, this);
     }
 
     @Override
     public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+      if (type == byte.class) {
+        return value.byteValue();
+      }
       return value.isMissing() ? null : value.byteValue();
     }
   },
@@ -209,7 +163,7 @@ public enum StandardConverter implements Converter {
 
     @Override
     public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
-      String charset = value.value();
+      var charset = value.value();
       return switch (charset.toLowerCase()) {
         case "utf-8" -> StandardCharsets.UTF_8;
         case "us-ascii" -> StandardCharsets.US_ASCII;

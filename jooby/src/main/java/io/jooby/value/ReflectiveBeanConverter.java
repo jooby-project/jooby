@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.converter;
+package io.jooby.value;
 
 import static io.jooby.SneakyThrows.propagate;
 
@@ -18,16 +18,16 @@ import io.jooby.Formdata;
 import io.jooby.Usage;
 import io.jooby.exception.BadRequestException;
 import io.jooby.exception.ProvisioningException;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.reflect.$Types;
-import io.jooby.value.ConversionHint;
-import io.jooby.value.Converter;
-import io.jooby.value.Value;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /**
  * Creates an object from {@link Value}. Value might come from HTTP Context (Query, Path, Form,
  * etc.) or from configuration value.
+ *
+ * <p>This is the fallback/default converter for a JavaBeans object.
  *
  * @author edgar
  * @since 1.0.0
@@ -47,18 +47,76 @@ public class ReflectiveBeanConverter implements Converter {
 
   private final MethodHandles.Lookup lookup;
 
+  /**
+   * Creates a new instance using a lookup.
+   *
+   * @param lookup Method handle lookup.
+   */
   public ReflectiveBeanConverter(MethodHandles.Lookup lookup) {
     this.lookup = lookup;
   }
 
+  /**
+   * Convert a value into a JavaBean object.
+   *
+   * <p>Selected constructor follows one of these rules:
+   *
+   * <ul>
+   *   <li>It is the default (no args) constructor.
+   *   <li>There is only when constructor. If the constructor has non-null arguments a {@link
+   *       ProvisioningException} will be thrown when {@link Value} fails to resolve the non-null
+   *       argument
+   *   <li>There are multiple constructor but only one is annotated with {@link Inject}. If the
+   *       constructor has non-null arguments a {@link ProvisioningException} will be thrown when
+   *       {@link Value} fails to resolve the non-null argument
+   * </ul>
+   *
+   * <p>Any other value is matched against a setter like method. Method might or might not be
+   * prefixed with <code>set</code>.
+   *
+   * <p>Argument might be annotated with nullable like annotations. Optionally with {@link Named}
+   * annotation for non-standard Java Names.
+   *
+   * @param type Requested type.
+   * @param value Value value.
+   * @param hint Requested hint.
+   * @return Object instance.
+   * @throws TypeMismatchException when convert returns <code>null</code> and hint is set to {@link
+   *     ConversionHint#Strict}.
+   * @throws ProvisioningException when convert target type constructor requires a non-null value
+   *     and value is missing or null.
+   */
   @Override
-  public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
-    return convert(value, $Types.parameterizedType0(type), hint == ConversionHint.Empty);
-  }
-
-  private Object convert(@NonNull Value node, @NonNull Class type, boolean allowEmptyBean) {
+  public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint)
+      throws TypeMismatchException, ProvisioningException {
+    var rawType = $Types.parameterizedType0(type);
+    var allowEmptyBean = hint == ConversionHint.Empty;
     try {
-      return newInstance(type, node, allowEmptyBean);
+      var constructors = rawType.getConstructors();
+      Set<Value> state = new HashSet<>();
+      Constructor<?> constructor;
+      if (constructors.length == 0) {
+        //noinspection unchecked
+        constructor = rawType.getDeclaredConstructor();
+      } else {
+        constructor = selectConstructor(constructors);
+      }
+      var args = inject(value, constructor, state::add);
+      var setters = setters(rawType, value, state);
+      Object instance;
+      if (!allowEmptyBean && state.stream().allMatch(Value::isMissing)) {
+        instance = null;
+      } else {
+        var handle = lookup.unreflectConstructor(constructor);
+        instance = handle.invokeWithArguments(args);
+        for (var setter : setters) {
+          setter.invoke(lookup, instance);
+        }
+      }
+      if (instance == null && hint == ConversionHint.Strict) {
+        throw new TypeMismatchException(value.name(), type);
+      }
+      return instance;
     } catch (InvocationTargetException x) {
       throw propagate(x.getCause());
     } catch (Throwable x) {
@@ -66,34 +124,12 @@ public class ReflectiveBeanConverter implements Converter {
     }
   }
 
-  private Object newInstance(Class type, Value node, boolean allowEmptyBean) throws Throwable {
-    var constructors = type.getConstructors();
-    Set<Value> state = new HashSet<>();
-    Constructor<?> constructor;
-    if (constructors.length == 0) {
-      constructor = type.getDeclaredConstructor();
-    } else {
-      constructor = selectConstructor(constructors);
-    }
-    var args = inject(node, constructor, state::add);
-    var setters = setters(type, node, state);
-    if (!allowEmptyBean && state.stream().allMatch(Value::isMissing)) {
-      return null;
-    }
-    var handle = lookup.unreflectConstructor(constructor);
-    var instance = handle.invokeWithArguments(args);
-    for (var setter : setters) {
-      setter.invoke(lookup, instance);
-    }
-    return instance;
-  }
-
-  private static Constructor selectConstructor(Constructor[] constructors) {
+  private static Constructor<?> selectConstructor(Constructor<?>[] constructors) {
     if (constructors.length == 1) {
       return constructors[0];
     } else {
-      Constructor injectConstructor = null;
-      Constructor defaultConstructor = null;
+      Constructor<?> injectConstructor = null;
+      Constructor<?> defaultConstructor = null;
       for (var constructor : constructors) {
         if (Modifier.isPublic(constructor.getModifiers())) {
           var inject = constructor.getAnnotation(Inject.class);
@@ -124,9 +160,8 @@ public class ReflectiveBeanConverter implements Converter {
       return List.of();
     }
     var args = new ArrayList<>(parameters.length);
-    for (int i = 0; i < parameters.length; i++) {
-      var parameter = parameters[i];
-      var name = paramName(parameter);
+    for (var parameter : parameters) {
+      var name = parameterName(parameter);
       var param = scope.get(name);
       var arg = value(parameter, scope, param);
       if (arg == null) {
@@ -139,9 +174,9 @@ public class ReflectiveBeanConverter implements Converter {
     return args;
   }
 
-  private static String paramName(Parameter parameter) {
-    Named named = parameter.getAnnotation(Named.class);
-    if (named != null && named.value().length() > 0) {
+  private static String parameterName(Parameter parameter) {
+    var named = parameter.getAnnotation(Named.class);
+    if (named != null && !named.value().isEmpty()) {
       return named.value();
     }
     if (parameter.isNamePresent()) {
@@ -169,7 +204,7 @@ public class ReflectiveBeanConverter implements Converter {
     return names;
   }
 
-  private static List<Setter> setters(Class type, Value node, Set<Value> nodes) {
+  private static List<Setter> setters(Class<?> type, Value node, Set<Value> nodes) {
     var methods = type.getMethods();
     var result = new ArrayList<Setter>();
     for (String name : names(node)) {
@@ -194,6 +229,7 @@ public class ReflectiveBeanConverter implements Converter {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   private static Object value(Parameter parameter, Value node, Value value) {
     try {
       if (isFileUpload(node, parameter)) {
@@ -263,7 +299,7 @@ public class ReflectiveBeanConverter implements Converter {
         || isFileUpload($Types.parameterizedType0(parameter.getParameterizedType()));
   }
 
-  private static boolean isFileUpload(Class type) {
+  private static boolean isFileUpload(Class<?> type) {
     return FileUpload.class == type;
   }
 
