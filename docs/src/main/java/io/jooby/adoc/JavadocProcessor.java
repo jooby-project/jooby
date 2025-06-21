@@ -95,16 +95,12 @@ public class JavadocProcessor extends InlineMacroProcessor {
   }
 
   private static StringBuilder generateLink(Map<String, Object> attributes) {
-    String library = (String) attributes.get("library");
-    StringBuilder link = new StringBuilder("https://www.javadoc.io/doc/io.jooby/jooby");
-    if (library != null) {
-      link.append("-").append(library);
-    }
-    link.append("/latest/io.jooby");
-    if (library != null) {
-      link.append('.').append(library);
-    }
-    link.append("/io/jooby/");
-    return link;
+
+    String artifact = (String) attributes.getOrDefault("artifact", "jooby");
+    return new StringBuilder("https://www.javadoc.io/doc/io.jooby/")
+        .append(artifact)
+        .append("/latest/io.")
+        .append(artifact.replace('-', '.'))
+        .append("/io/jooby/");
   }
 }
