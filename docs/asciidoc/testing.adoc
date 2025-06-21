@@ -68,7 +68,7 @@ class TestApp {
 
 Simple and easy {love}!
 
-The javadoc:MockRouter[] returns the value produced by the route handler. It is possible to get
+The javadoc:test.MockRouter[artifact=jooby-test] returns the value produced by the route handler. It is possible to get
 access and check response metadata:
 
 .App
@@ -128,7 +128,7 @@ class TestApp {
 }
 ----
 
-For more complex route context interaction or responses, you can pass in a javadoc:MockContext[]:
+For more complex route context interaction or responses, you can pass in a javadoc:test.MockContext[artifact=jooby-test]:
 
 .App
 [source,java,role="primary"]
@@ -245,14 +245,14 @@ For MVC routes you might prefer to write a unit test using a mock library. No ne
 
 ==== Options
 
-- javadoc:MockRouter[setFullExecution]: the javadoc:MockRouter[] class ONLY execute the route
-handler. For executing the entire pipeline use: javadoc:MockRouter[setFullExecution].
+- javadoc:test.MockRouter[setFullExecution, boolean, artifact=jooby-test]: the javadoc:test.MockRouter[artifact=jooby-test] class ONLY execute the route
+handler. For executing the entire pipeline use: javadoc:test.MockRouter[setFullExecution, boolean, artifact=jooby-test].
 
-- javadoc:Jooby[setLateInit]: extension modules usually run at the time they are installed it. 
-This might not be ideally for unit tests. To delay extension initialization use the javadoc:Jooby[setLateInit] mode.
+- javadoc:Jooby[setLateInit, boolean]: extension modules usually run at the time they are installed it. 
+This might not be ideally for unit tests. To delay extension initialization use the javadoc:Jooby[setLateInit, boolean] mode.
 
-Unit testing is simple and easy in Jooby. The javadoc:MockRouter[] let you execute the route function,
-while the javadoc:MockContext[] allows you to create an light-weight and mutable context where
+Unit testing is simple and easy in Jooby. The javadoc:test.MockRouter[artifact=jooby-test] let you execute the route function,
+while the javadoc:test.MockContext[artifact=jooby-test] allows you to create an light-weight and mutable context where
 you can set HTTP parameters, body, headers, etc.
 
 === Integration Testing
@@ -343,9 +343,9 @@ The example uses https://square.github.io/okhttp/[OkHttp] client, but you are fr
 
 Simple and easy {love}!
 
-The javadoc:JoobyTest[] takes care of start and stop the application.
+The javadoc:test.JoobyTest[artifact=jooby-test] takes care of start and stop the application.
 
-The default port is: `8911`. Application port can be configured directly using the javadoc:JoobyTest[port] method:
+The default port is: `8911`. Application port can be configured directly using the javadoc:test.JoobyTest[port, artifact=jooby-test] method:
 
 `@JoobyTest(value = App.class, port = 9999)`
 
@@ -391,7 +391,7 @@ Here is the list of available injectable values:
 
 These values can be injected via parameter or instance fields.
 
-The javadoc:JoobyTest[] annotation starts the application using the `test` environment name. You can
+The javadoc:test.JoobyTest[artifact=jooby-test] annotation starts the application using the `test` environment name. You can
 creates a `conf/application.test.conf` file to override any other values for testing purpose.
 
 ==== Arguments
