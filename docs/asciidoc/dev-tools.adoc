@@ -143,7 +143,7 @@ joobyRun {
 <3> Source extensions. A change on these files trigger a compilation request, followed by a restart request.
 <4> Application port
 <5> How long to wait after last file change to restart. Default is: `500` milliseconds.
-<5> Use a single/fat class loader to run your application. This is required on complex project classpath where you start seeing weird reflection errors. This was the default mode in Jooby 2.x. The new model since 3.x uses a modular classloader which improves restart times and memory usage making it faster. Default is: `false`.
+<6> Use a single/fat class loader to run your application. This is required on complex project classpath where you start seeing weird reflection errors. This was the default mode in Jooby 2.x. The new model since 3.x uses a modular classloader which improves restart times and memory usage making it faster. Default is: `false`.
 
 For Maven and Gradle there are two variant `mvn jooby:testRun` and `./gradlew joobyTestRun` they work
 by expanding the classpath to uses the `test` scope or source set.
