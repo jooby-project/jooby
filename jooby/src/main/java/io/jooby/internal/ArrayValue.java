@@ -92,7 +92,7 @@ public class ArrayValue implements Value {
 
   @NonNull @Override
   public <T> T to(@NonNull Class<T> type) {
-    return factory.convert(type, list.get(0));
+    return factory.convert(type, list.get(0), ConversionHint.Strict);
   }
 
   @Nullable @Override

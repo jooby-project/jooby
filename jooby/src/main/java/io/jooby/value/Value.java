@@ -569,6 +569,8 @@ public interface Value extends Iterable<Value> {
    * Convert this value to the given type. Support values are single-value, array-value and
    * object-value. Object-value can be converted to a JavaBean type.
    *
+   * <p>At least one of the property of the node must match a target type property.
+   *
    * @param type Type to convert.
    * @param <T> Element type.
    * @return Instance of the type.

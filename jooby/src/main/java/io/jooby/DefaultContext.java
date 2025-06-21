@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -224,7 +223,7 @@ public interface DefaultContext extends Context {
 
   @Override
   default <T> T query(@NonNull Class<T> type) {
-    return query().to(type);
+    return query().toEmpty(type);
   }
 
   @Override
@@ -248,25 +247,25 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default MediaType accept(@NonNull List<MediaType> produceTypes) {
-    Value accept = header(ACCEPT);
+  default @Nullable MediaType accept(@NonNull List<MediaType> produceTypes) {
+    var accept = header(ACCEPT);
     if (accept.isMissing()) {
       // NO header? Pick first, which is the default.
       return produceTypes.isEmpty() ? null : produceTypes.get(0);
     }
 
     // Sort accept by most relevant/specific first:
-    List<MediaType> acceptTypes =
+    var acceptTypes =
         accept.toList().stream()
             .flatMap(value -> MediaType.parse(value).stream())
             .distinct()
             .sorted()
-            .collect(Collectors.toList());
+            .toList();
 
     // Find most appropriated type:
-    int idx = Integer.MAX_VALUE;
+    var idx = Integer.MAX_VALUE;
     MediaType result = null;
-    for (MediaType produceType : produceTypes) {
+    for (var produceType : produceTypes) {
       for (int i = 0; i < acceptTypes.size(); i++) {
         MediaType acceptType = acceptTypes.get(i);
         if (produceType.matches(acceptType)) {
@@ -288,15 +287,15 @@ public interface DefaultContext extends Context {
 
   @Override
   default String getRequestURL(@NonNull String path) {
-    String scheme = getScheme();
-    String host = getHost();
+    var scheme = getScheme();
+    var host = getHost();
     int port = getPort();
-    StringBuilder url = new StringBuilder();
+    var url = new StringBuilder();
     url.append(scheme).append("://").append(host);
     if (port > 0 && port != PORT && port != SECURE_PORT) {
       url.append(":").append(port);
     }
-    String contextPath = getContextPath();
+    var contextPath = getContextPath();
     if (!contextPath.equals("/") && !path.startsWith(contextPath)) {
       url.append(contextPath);
     }
@@ -324,10 +323,10 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default @Nullable String getHostAndPort() {
+  default String getHostAndPort() {
     Optional<String> header =
         getRouter().isTrustProxy() ? header("X-Forwarded-Host").toOptional() : Optional.empty();
-    String value =
+    var value =
         header.orElseGet(
             () ->
                 ofNullable(header("Host").valueOrNull())
@@ -342,13 +341,13 @@ public interface DefaultContext extends Context {
 
   @Override
   default String getServerHost() {
-    String host = getRouter().getServerOptions().getHost();
+    var host = getRouter().getServerOptions().getHost();
     return host.equals("0.0.0.0") ? "localhost" : host;
   }
 
   @Override
   default int getServerPort() {
-    ServerOptions options = getRouter().getServerOptions();
+    var options = getRouter().getServerOptions();
     return isSecure()
         // Buggy proxy where it report a https scheme but there is no HTTPS configured option
         ? ofNullable(options.getSecurePort()).orElse(options.getPort())
@@ -357,7 +356,7 @@ public interface DefaultContext extends Context {
 
   @Override
   default int getPort() {
-    String hostAndPort = getHostAndPort();
+    var hostAndPort = getHostAndPort();
     if (hostAndPort != null) {
       int index = hostAndPort.indexOf(':');
       if (index > 0) {
@@ -647,7 +646,7 @@ public interface DefaultContext extends Context {
         }
       }
     }
-    /** rethrow fatal exceptions: */
+    /* rethrow fatal exceptions: */
     if (SneakyThrows.isFatal(cause)) {
       throw SneakyThrows.propagate(cause);
     }

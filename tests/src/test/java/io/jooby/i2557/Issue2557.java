@@ -10,16 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 
-import io.jooby.annotation.EmptyBean;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.value.ConversionHint;
 import okhttp3.FormBody;
 
 public class Issue2557 {
   public record MyStrict(UUID uuid) {}
 
-  @EmptyBean
   public record MyFlexible(UUID uuid) {}
 
   public record AllGoodWithPartialMatching(UUID uuid, String name) {}
@@ -39,7 +38,8 @@ public class Issue2557 {
               app.post(
                   "/2557/flexible",
                   ctx -> {
-                    return ctx.form(MyFlexible.class);
+                    return ctx.getValueFactory()
+                        .convert(MyFlexible.class, ctx.form(), ConversionHint.Empty);
                   });
               app.post(
                   "/2557/partial",

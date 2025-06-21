@@ -24,7 +24,34 @@ public interface QueryString extends Value {
    *
    * @return Query string with the leading <code>?</code> or empty string.
    */
-  @NonNull String queryString();
+  String queryString();
+
+  /**
+   * Query string produces always a non-null result even if no property matches. This is bc the
+   * query string run with {@link io.jooby.value.ConversionHint#Empty}. It fits better for empty
+   * query string when target object has some default properties.
+   *
+   * <pre>{@code
+   * var factory = ctx.getValueFactory();
+   * var nullable = factory.convert(MyBean.class, ctx.query(), ConversionHint.Nullable);
+   * }</pre>
+   *
+   * @param type Type to convert.
+   * @return Non null result.
+   * @param <T> Type result.
+   */
+  @Nullable <T> T toNullable(@NonNull Class<T> type);
+
+  /**
+   * Query string produces always a non-null result even if no property matches. This is bc the
+   * query string run with {@link io.jooby.value.ConversionHint#Empty}. It fits better for empty
+   * query string when target object has some default properties.
+   *
+   * @param type Type to convert.
+   * @return Non null result.
+   * @param <T> Type result.
+   */
+  <T> T toEmpty(@NonNull Class<T> type);
 
   /**
    * Query string hash value.
@@ -39,8 +66,7 @@ public interface QueryString extends Value {
    * @param queryString Query string.
    * @return A query string.
    */
-  static @NonNull QueryString create(
-      @NonNull ValueFactory valueFactory, @Nullable String queryString) {
+  static QueryString create(@NonNull ValueFactory valueFactory, @Nullable String queryString) {
     return UrlParser.queryString(valueFactory, queryString);
   }
 }

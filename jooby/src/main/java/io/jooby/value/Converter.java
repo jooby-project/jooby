@@ -18,7 +18,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  */
 public interface Converter {
   /**
-   * Convert to specific type.
+   * Convert a {@link Value} specific type.
    *
    * @param type Requested type.
    * @param value Value value.

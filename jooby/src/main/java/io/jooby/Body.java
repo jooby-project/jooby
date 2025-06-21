@@ -40,7 +40,7 @@ public interface Body extends Value {
    * @param charset Charset.
    * @return Body as string.
    */
-  default @NonNull String value(@NonNull Charset charset) {
+  default String value(@NonNull Charset charset) {
     byte[] bytes = bytes();
     if (bytes.length == 0) {
       throw new MissingValueException("body");
@@ -95,30 +95,30 @@ public interface Body extends Value {
    *
    * @return Body as readable channel.
    */
-  @NonNull ReadableByteChannel channel();
+  ReadableByteChannel channel();
 
   /**
    * Body as input stream.
    *
    * @return Body as input stream.
    */
-  @NonNull InputStream stream();
+  InputStream stream();
 
-  @NonNull @Override
+  @Override
   default <T> List<T> toList(@NonNull Class<T> type) {
     return to(Reified.list(type).getType());
   }
 
-  default @NonNull @Override List<String> toList() {
+  default @Override List<String> toList() {
     return List.of(value());
   }
 
-  default @NonNull @Override Set<String> toSet() {
+  default @Override Set<String> toSet() {
     return Set.of(value());
   }
 
   @Override
-  default @NonNull <T> T to(@NonNull Class<T> type) {
+  default <T> T to(@NonNull Class<T> type) {
     return to((Type) type);
   }
 
@@ -133,7 +133,7 @@ public interface Body extends Value {
    * @param <T> Generic type.
    * @return Converted value.
    */
-  @NonNull <T> T to(@NonNull Type type);
+  <T> T to(@NonNull Type type);
 
   /**
    * Convert this body into the given type.
@@ -155,7 +155,7 @@ public interface Body extends Value {
    * @param ctx Current context.
    * @return Empty body.
    */
-  static @NonNull Body empty(@NonNull Context ctx) {
+  static Body empty(@NonNull Context ctx) {
     return ByteArrayBody.empty(ctx);
   }
 
@@ -167,7 +167,7 @@ public interface Body extends Value {
    * @param size Size in bytes or <code>-1</code>.
    * @return A new body.
    */
-  static @NonNull Body of(@NonNull Context ctx, @NonNull InputStream stream, long size) {
+  static Body of(@NonNull Context ctx, @NonNull InputStream stream, long size) {
     return new InputStreamBody(ctx, stream, size);
   }
 
@@ -178,7 +178,7 @@ public interface Body extends Value {
    * @param bytes byte array.
    * @return A new body.
    */
-  static @NonNull Body of(@NonNull Context ctx, @NonNull byte[] bytes) {
+  static Body of(@NonNull Context ctx, @NonNull byte[] bytes) {
     return new ByteArrayBody(ctx, bytes);
   }
 
@@ -189,7 +189,7 @@ public interface Body extends Value {
    * @param file File.
    * @return A new body.
    */
-  static @NonNull Body of(@NonNull Context ctx, @NonNull Path file) {
+  static Body of(@NonNull Context ctx, @NonNull Path file) {
     return new FileBody(ctx, file);
   }
 }

@@ -21,12 +21,6 @@ import io.jooby.internal.reflect.$Types;
 
 public class ValueFactory {
 
-  public enum ConversionType {
-    Strict,
-    Nullable,
-    Empty,
-  }
-
   private final Map<Type, Converter> converterMap = new HashMap<>();
 
   private ConversionHint defaultHint = ConversionHint.Strict;

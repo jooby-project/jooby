@@ -9,21 +9,13 @@ import static io.jooby.SneakyThrows.propagate;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Usage;
-import io.jooby.annotation.EmptyBean;
 import io.jooby.exception.BadRequestException;
 import io.jooby.exception.ProvisioningException;
 import io.jooby.internal.reflect.$Types;
@@ -33,6 +25,13 @@ import io.jooby.value.Value;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
+/**
+ * Creates an object from {@link Value}. Value might come from HTTP Context (Query, Path, Form,
+ * etc.) or from configuration value.
+ *
+ * @author edgar
+ * @since 1.0.0
+ */
 public class ReflectiveBeanConverter implements Converter {
 
   private record Setter(Method method, Object arg) {
@@ -46,7 +45,7 @@ public class ReflectiveBeanConverter implements Converter {
       "Ambiguous constructor found. Expecting a single constructor or only one annotated with "
           + Inject.class.getName();
 
-  private MethodHandles.Lookup lookup;
+  private final MethodHandles.Lookup lookup;
 
   public ReflectiveBeanConverter(MethodHandles.Lookup lookup) {
     this.lookup = lookup;
@@ -78,7 +77,7 @@ public class ReflectiveBeanConverter implements Converter {
     }
     var args = inject(node, constructor, state::add);
     var setters = setters(type, node, state);
-    if (!allowEmptyBean(type, allowEmptyBean) && state.stream().allMatch(Value::isMissing)) {
+    if (!allowEmptyBean && state.stream().allMatch(Value::isMissing)) {
       return null;
     }
     var handle = lookup.unreflectConstructor(constructor);
@@ -87,10 +86,6 @@ public class ReflectiveBeanConverter implements Converter {
       setter.invoke(lookup, instance);
     }
     return instance;
-  }
-
-  private static boolean allowEmptyBean(Class type, boolean defaults) {
-    return type.getAnnotation(EmptyBean.class) != null || defaults;
   }
 
   private static Constructor selectConstructor(Constructor[] constructors) {

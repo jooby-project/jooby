@@ -221,6 +221,29 @@ public enum ParameterGenerator {
                     return Map.entry(convertMethod, type);
                   });
       if (paramSource.isEmpty() && BUILT_IN.stream().noneMatch(it -> toValue.getValue().is(it))) {
+        var useEmpty = this == QueryParam && toValue.getKey().equals("toNullable");
+        String valueToBean;
+        String toMethod = toValue.getKey();
+        if (useEmpty) {
+          valueToBean =
+              CodeBlock.of(
+                  method,
+                  "(",
+                  CodeBlock.type(kt, toValue.getValue().getName()),
+                  CodeBlock.clazz(kt),
+                  ")");
+          toMethod = "toEmpty";
+        } else {
+          valueToBean =
+              CodeBlock.of(
+                  method,
+                  "().",
+                  toValue.getKey(),
+                  "(",
+                  CodeBlock.type(kt, toValue.getValue().getName()),
+                  CodeBlock.clazz(kt),
+                  ")");
+        }
         // for unsupported types, we check if node with matching name is present, if not we fallback
         // to entire scope converter
         if (kt) {
@@ -238,18 +261,13 @@ public enum ParameterGenerator {
               "(",
               CodeBlock.string(name),
               ").isMissing()) ctx.",
-              method,
-              "().",
-              toValue.getKey(),
-              "(",
-              CodeBlock.type(kt, toValue.getValue().getName()),
-              CodeBlock.clazz(kt),
-              ") else ctx.",
+              valueToBean,
+              " else ctx.",
               method,
               "(",
               CodeBlock.string(name),
               ").",
-              toValue.getKey(),
+              toMethod,
               "(",
               CodeBlock.type(kt, toValue.getValue().getName()),
               CodeBlock.clazz(kt),
@@ -262,13 +280,8 @@ public enum ParameterGenerator {
               "(",
               CodeBlock.string(name),
               ").isMissing() ? ctx.",
-              method,
-              "().",
-              toValue.getKey(),
-              "(",
-              CodeBlock.type(kt, toValue.getValue().getName()),
-              CodeBlock.clazz(kt),
-              ") : ctx.",
+              valueToBean,
+              " : ctx.",
               method,
               "(",
               CodeBlock.string(name),

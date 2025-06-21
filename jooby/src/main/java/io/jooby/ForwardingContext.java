@@ -553,6 +553,11 @@ public class ForwardingContext implements Context {
     }
 
     @Override
+    public <T> T toEmpty(@NonNull Class<T> type) {
+      return ((QueryString) delegate).toEmpty(type);
+    }
+
+    @Override
     public String queryString() {
       return ((QueryString) delegate).queryString();
     }

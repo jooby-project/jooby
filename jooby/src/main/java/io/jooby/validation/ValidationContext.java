@@ -15,6 +15,7 @@ import java.util.Set;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
+import io.jooby.value.ConversionHint;
 import io.jooby.value.Value;
 
 /**
@@ -35,13 +36,18 @@ public class ValidationContext extends ForwardingContext {
 
     @NonNull @Override
     public <T> T to(@NonNull Class<T> type) {
-      // Call nullable version to let bean validator to run
-      return BeanValidator.apply(ctx, super.toNullable(type));
+      return validate(type);
+    }
+
+    protected <T> T validate(@NonNull Class<T> type) {
+      // Call empty version to let bean validator to run
+      return BeanValidator.apply(
+          ctx, ctx.getValueFactory().convert(type, this, ConversionHint.Empty));
     }
 
     @Nullable @Override
     public <T> T toNullable(@NonNull Class<T> type) {
-      return BeanValidator.apply(ctx, super.toNullable(type));
+      return validate(type);
     }
 
     @NonNull @Override
@@ -100,6 +106,11 @@ public class ValidationContext extends ForwardingContext {
   public static class ValidatedQueryString extends ValidatedValue implements QueryString {
     public ValidatedQueryString(Context ctx, QueryString delegate) {
       super(ctx, delegate);
+    }
+
+    @Override
+    public @NonNull <T> T toEmpty(@NonNull Class<T> type) {
+      return validate(type);
     }
 
     @NonNull @Override
@@ -180,7 +191,7 @@ public class ValidationContext extends ForwardingContext {
 
   @NonNull @Override
   public <T> T query(@NonNull Class<T> type) {
-    return query().to(type);
+    return query().toEmpty(type);
   }
 
   @NonNull @Override

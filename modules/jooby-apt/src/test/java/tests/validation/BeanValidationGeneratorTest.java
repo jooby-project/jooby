@@ -23,7 +23,7 @@ public class BeanValidationGeneratorTest {
                   source.contains(
                       "c.validateQueryBean(io.jooby.validation.BeanValidator.apply(ctx,"
                           + " ctx.query(\"bean\").isMissing() ?"
-                          + " ctx.query().toNullable(tests.validation.Bean.class) :"
+                          + " ctx.query(tests.validation.Bean.class) :"
                           + " ctx.query(\"bean\").toNullable(tests.validation.Bean.class)))"));
 
               assertTrue(

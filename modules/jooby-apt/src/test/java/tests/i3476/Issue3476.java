@@ -25,7 +25,7 @@ public class Issue3476 {
                       .toString()
                       .contains(
                           "c.box(ctx.query(\"box\").isMissing() ?"
-                              + " ctx.query().toNullable(tests.i3476.Box.class) :"
+                              + " ctx.query(tests.i3476.Box.class) :"
                               + " ctx.query(\"box\").toNullable(tests.i3476.Box.class))"));
             });
   }

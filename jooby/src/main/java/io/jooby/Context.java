@@ -117,7 +117,7 @@ public interface Context extends Registry {
    *
    * @return Mutable Context attributes.
    */
-  @NonNull Map<String, Object> getAttributes();
+  Map<String, Object> getAttributes();
 
   /**
    * Get an attribute by his key. This is just an utility method around {@link #getAttributes()}.
@@ -192,7 +192,7 @@ public interface Context extends Registry {
    *
    * @return Session.
    */
-  @NonNull Session session();
+  Session session();
 
   /**
    * Find a session attribute using the given name. If there is no session or attribute under that
@@ -201,7 +201,7 @@ public interface Context extends Registry {
    * @param name Attribute's name.
    * @return Session's attribute or missing.
    */
-  @NonNull Value session(@NonNull String name);
+  Value session(@NonNull String name);
 
   /**
    * Find an existing session.
@@ -216,21 +216,21 @@ public interface Context extends Registry {
    * @param name Cookie's name.
    * @return Cookie value.
    */
-  @NonNull Value cookie(@NonNull String name);
+  Value cookie(@NonNull String name);
 
   /**
    * Request cookies.
    *
    * @return Request cookies.
    */
-  @NonNull Map<String, String> cookieMap();
+  Map<String, String> cookieMap();
 
   /**
    * HTTP method in upper-case form.
    *
    * @return HTTP method in upper-case form.
    */
-  @NonNull String getMethod();
+  String getMethod();
 
   /**
    * Set HTTP method in upper-case form.
@@ -238,14 +238,14 @@ public interface Context extends Registry {
    * @param method HTTP method in upper-case form.
    * @return This context.
    */
-  @NonNull Context setMethod(@NonNull String method);
+  Context setMethod(@NonNull String method);
 
   /**
    * Matching route.
    *
    * @return Matching route.
    */
-  @NonNull Route getRoute();
+  Route getRoute();
 
   /**
    * Check if the request path matches the given pattern.
@@ -261,14 +261,14 @@ public interface Context extends Registry {
    * @param route Matching route.
    * @return This context.
    */
-  @NonNull Context setRoute(@NonNull Route route);
+  Context setRoute(@NonNull Route route);
 
   /**
    * Get application context path (a.k.a as base path).
    *
    * @return Application context path (a.k.a as base path).
    */
-  default @NonNull String getContextPath() {
+  default String getContextPath() {
     return getRouter().getContextPath();
   }
 
@@ -277,7 +277,7 @@ public interface Context extends Registry {
    *
    * @return Request path without decoding (a.k.a raw Path) without query string.
    */
-  @NonNull String getRequestPath();
+  String getRequestPath();
 
   /**
    * Set request path. This is usually done by Web Server or framework, but by user.
@@ -285,7 +285,7 @@ public interface Context extends Registry {
    * @param path Request path.
    * @return This context.
    */
-  @NonNull Context setRequestPath(@NonNull String path);
+  Context setRequestPath(@NonNull String path);
 
   /**
    * Path variable. Value is decoded.
@@ -293,7 +293,7 @@ public interface Context extends Registry {
    * @param name Path key.
    * @return Associated value or a missing value, but never a <code>null</code> reference.
    */
-  @NonNull Value path(@NonNull String name);
+  Value path(@NonNull String name);
 
   /**
    * Convert the {@link #pathMap()} to the given type.
@@ -302,14 +302,14 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Instance of target type.
    */
-  @NonNull <T> T path(@NonNull Class<T> type);
+  <T> T path(@NonNull Class<T> type);
 
   /**
    * Convert {@link #pathMap()} to a {@link Value} object.
    *
    * @return A value object.
    */
-  @NonNull Value path();
+  Value path();
 
   /**
    * Path map represent all the path keys with their values.
@@ -328,7 +328,7 @@ public interface Context extends Registry {
    *
    * @return Path map from path pattern.
    */
-  @NonNull Map<String, String> pathMap();
+  Map<String, String> pathMap();
 
   /**
    * Set path map. This method is part of public API but shouldn't be use it by application code.
@@ -336,7 +336,7 @@ public interface Context extends Registry {
    * @param pathMap Path map.
    * @return This context.
    */
-  @NonNull Context setPathMap(@NonNull Map<String, String> pathMap);
+  Context setPathMap(@NonNull Map<String, String> pathMap);
 
   /* **********************************************************************************************
    * Query String API
@@ -348,7 +348,7 @@ public interface Context extends Registry {
    *
    * @return Query string as {@link Value} object.
    */
-  @NonNull QueryString query();
+  QueryString query();
 
   /**
    * Get a query parameter that matches the given name.
@@ -366,7 +366,7 @@ public interface Context extends Registry {
    * @param name Parameter name.
    * @return A query value.
    */
-  @NonNull Value query(@NonNull String name);
+  Value query(@NonNull String name);
 
   /**
    * Query string with the leading <code>?</code> or empty string. This is the raw query string,
@@ -375,7 +375,7 @@ public interface Context extends Registry {
    * @return Query string with the leading <code>?</code> or empty string. This is the raw query
    *     string, without decoding it.
    */
-  @NonNull String queryString();
+  String queryString();
 
   /**
    * Convert the queryString to the given type.
@@ -384,12 +384,12 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Query string converted to target type.
    */
-  @NonNull <T> T query(@NonNull Class<T> type);
+  <T> T query(@NonNull Class<T> type);
 
   /**
    * Query string as simple map.
    *
-   * <pre>{@code/search?q=jooby&sort=name}</pre>
+   * <pre>{@code /search?q=jooby&sort=name}</pre>
    *
    * Produces
    *
@@ -397,7 +397,7 @@ public interface Context extends Registry {
    *
    * @return Query string as map.
    */
-  @NonNull Map<String, String> queryMap();
+  Map<String, String> queryMap();
 
   /* **********************************************************************************************
    * Header API
@@ -409,7 +409,7 @@ public interface Context extends Registry {
    *
    * @return Request headers as {@link Value}.
    */
-  @NonNull Value header();
+  Value header();
 
   /**
    * Get a header that matches the given name.
@@ -417,14 +417,14 @@ public interface Context extends Registry {
    * @param name Header name. Case insensitive.
    * @return A header value or missing value, never a <code>null</code> reference.
    */
-  @NonNull Value header(@NonNull String name);
+  Value header(@NonNull String name);
 
   /**
    * Header as single-value map.
    *
    * @return Header as single-value map, with case insensitive keys.
    */
-  @NonNull Map<String, String> headerMap();
+  Map<String, String> headerMap();
 
   /**
    * True if the given type matches the `Accept` header. This method returns <code>true</code> if
@@ -467,7 +467,7 @@ public interface Context extends Registry {
    * @param defaults Default content type to use when the header is missing.
    * @return Request <code>Content-Type</code> header or <code>null</code> when missing.
    */
-  @NonNull MediaType getRequestType(MediaType defaults);
+  MediaType getRequestType(MediaType defaults);
 
   /**
    * Request <code>Content-Length</code> header or <code>-1</code> when missing.
@@ -494,7 +494,7 @@ public interface Context extends Registry {
    * @param filter A locale filter.
    * @return A list of matching locales.
    */
-  @NonNull default List<Locale> locales(
+  default List<Locale> locales(
       BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter) {
     return filter.apply(
         header("Accept-Language")
@@ -510,7 +510,7 @@ public interface Context extends Registry {
    * @return A list of matching locales or empty list.
    * @see #locales(BiFunction)
    */
-  @NonNull default List<Locale> locales() {
+  default List<Locale> locales() {
     return locales(Locale::filter);
   }
 
@@ -532,7 +532,7 @@ public interface Context extends Registry {
    * @param filter A locale filter.
    * @return A matching locale.
    */
-  @NonNull default Locale locale(BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> filter) {
+  default Locale locale(BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> filter) {
     return filter.apply(
         header("Accept-Language")
             .toOptional()
@@ -547,7 +547,7 @@ public interface Context extends Registry {
    *
    * @return A matching locale.
    */
-  @NonNull default Locale locale() {
+  default Locale locale() {
     return locale(
         (priorityList, locales) ->
             Optional.ofNullable(Locale.lookup(priorityList, locales)).orElse(locales.get(0)));
@@ -567,7 +567,7 @@ public interface Context extends Registry {
    * @param user Current user.
    * @return This context.
    */
-  @NonNull Context setUser(@Nullable Object user);
+  Context setUser(@Nullable Object user);
 
   /**
    * Recreates full/entire url of the current request using the <code>Host</code> header.
@@ -577,7 +577,7 @@ public interface Context extends Registry {
    *
    * @return Full/entire request url using the <code>Host</code> header.
    */
-  @NonNull String getRequestURL();
+  String getRequestURL();
 
   /**
    * Recreates full/entire request url using the <code>Host</code> header with a custom path/suffix.
@@ -588,7 +588,7 @@ public interface Context extends Registry {
    * @param path Path or suffix to use, can also include query string parameters.
    * @return Full/entire request url using the <code>Host</code> header.
    */
-  @NonNull String getRequestURL(@NonNull String path);
+  String getRequestURL(@NonNull String path);
 
   /**
    * The IP address of the client or last proxy that sent the request.
@@ -599,7 +599,7 @@ public interface Context extends Registry {
    * @return The IP address of the client or last proxy that sent the request or <code>empty string
    *     </code> for interrupted requests.
    */
-  @NonNull String getRemoteAddress();
+  String getRemoteAddress();
 
   /**
    * Set IP address of client or last proxy that sent the request.
@@ -607,7 +607,7 @@ public interface Context extends Registry {
    * @param remoteAddress Remote Address.
    * @return This context.
    */
-  @NonNull Context setRemoteAddress(@NonNull String remoteAddress);
+  Context setRemoteAddress(@NonNull String remoteAddress);
 
   /**
    * Return the host that this request was sent to, in general this will be the value of the Host
@@ -620,7 +620,7 @@ public interface Context extends Registry {
    * @return Return the host that this request was sent to, in general this will be the value of the
    *     Host header, minus the port specifier.
    */
-  @NonNull String getHost();
+  String getHost();
 
   /**
    * Set the host (without the port value).
@@ -630,7 +630,7 @@ public interface Context extends Registry {
    * @param host Host value.
    * @return This context.
    */
-  @NonNull Context setHost(@NonNull String host);
+  Context setHost(@NonNull String host);
 
   /**
    * Return the host and port that this request was sent to, in general this will be the value of
@@ -642,7 +642,7 @@ public interface Context extends Registry {
    * @return Return the host that this request was sent to, in general this will be the value of the
    *     Host header.
    */
-  @NonNull String getHostAndPort();
+  String getHostAndPort();
 
   /**
    * Return the port that this request was sent to. In general this will be the value of the Host
@@ -661,14 +661,14 @@ public interface Context extends Registry {
    * @param port Port.
    * @return This context.
    */
-  @NonNull Context setPort(int port);
+  Context setPort(int port);
 
   /**
    * The name of the protocol the request. Always in lower-case.
    *
    * @return The name of the protocol the request. Always in lower-case.
    */
-  @NonNull String getProtocol();
+  String getProtocol();
 
   /**
    * The certificates presented by the client for mutual TLS. Empty if ssl is not enabled, or client
@@ -677,7 +677,7 @@ public interface Context extends Registry {
    * @return The certificates presented by the client for mutual TLS. Empty if ssl is not enabled,
    *     or client authentication is not required.
    */
-  @NonNull List<Certificate> getClientCertificates();
+  List<Certificate> getClientCertificates();
 
   /**
    * Server port for current request.
@@ -691,7 +691,7 @@ public interface Context extends Registry {
    *
    * @return Server host.
    */
-  @NonNull String getServerHost();
+  String getServerHost();
 
   /**
    * Returns a boolean indicating whether this request was made using a secure channel, such as
@@ -706,7 +706,7 @@ public interface Context extends Registry {
    *
    * @return HTTP scheme in lower case.
    */
-  @NonNull String getScheme();
+  String getScheme();
 
   /**
    * Set HTTP scheme in lower case.
@@ -714,7 +714,7 @@ public interface Context extends Registry {
    * @param scheme HTTP scheme in lower case.
    * @return This context.
    */
-  @NonNull Context setScheme(@NonNull String scheme);
+  Context setScheme(@NonNull String scheme);
 
   /* **********************************************************************************************
    * Form/Multipart API
@@ -729,7 +729,7 @@ public interface Context extends Registry {
    *
    * @return Multipart value.
    */
-  @NonNull Formdata form();
+  Formdata form();
 
   /**
    * Get a form field that matches the given name.
@@ -741,7 +741,7 @@ public interface Context extends Registry {
    * @param name Field name.
    * @return Multipart value.
    */
-  @NonNull Value form(@NonNull String name);
+  Value form(@NonNull String name);
 
   /**
    * Convert form data to the given type.
@@ -753,7 +753,7 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Target value.
    */
-  @NonNull <T> T form(@NonNull Class<T> type);
+  <T> T form(@NonNull Class<T> type);
 
   /**
    * Form data as single-value map.
@@ -763,14 +763,14 @@ public interface Context extends Registry {
    *
    * @return Single-value map.
    */
-  @NonNull Map<String, String> formMap();
+  Map<String, String> formMap();
 
   /**
    * All file uploads. Only for <code>multipart/form-data</code> request.
    *
    * @return All file uploads.
    */
-  @NonNull List<FileUpload> files();
+  List<FileUpload> files();
 
   /**
    * All file uploads that matches the given field name.
@@ -780,7 +780,7 @@ public interface Context extends Registry {
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return All file uploads.
    */
-  @NonNull List<FileUpload> files(@NonNull String name);
+  List<FileUpload> files(@NonNull String name);
 
   /**
    * A file upload that matches the given field name.
@@ -790,7 +790,7 @@ public interface Context extends Registry {
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return A file upload.
    */
-  @NonNull FileUpload file(@NonNull String name);
+  FileUpload file(@NonNull String name);
 
   /* **********************************************************************************************
    * Parameter Lookup
@@ -863,7 +863,7 @@ public interface Context extends Registry {
    *
    * @return HTTP body which provides access to body content.
    */
-  @NonNull Body body();
+  Body body();
 
   /**
    * Convert the HTTP body to the given type.
@@ -872,7 +872,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  @NonNull <T> T body(@NonNull Class<T> type);
+  <T> T body(@NonNull Class<T> type);
 
   /**
    * Convert the HTTP body to the given type.
@@ -881,7 +881,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  @NonNull <T> T body(@NonNull Type type);
+  <T> T body(@NonNull Type type);
 
   /**
    * Convert the HTTP body to the given type.
@@ -891,7 +891,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  @NonNull <T> T decode(@NonNull Type type, @NonNull MediaType contentType);
+  <T> T decode(@NonNull Type type, @NonNull MediaType contentType);
 
   /* **********************************************************************************************
    * Body MessageDecoder
@@ -904,7 +904,7 @@ public interface Context extends Registry {
    * @param contentType Content type.
    * @return MessageDecoder.
    */
-  @NonNull MessageDecoder decoder(@NonNull MediaType contentType);
+  MessageDecoder decoder(@NonNull MediaType contentType);
 
   /* **********************************************************************************************
    * Dispatch methods
@@ -939,7 +939,7 @@ public interface Context extends Registry {
    * @param action Application code.
    * @return This context.
    */
-  @NonNull Context dispatch(@NonNull Runnable action);
+  Context dispatch(@NonNull Runnable action);
 
   /**
    * Dispatch context to the given executor.
@@ -962,7 +962,7 @@ public interface Context extends Registry {
    * @param action Application code.
    * @return This context.
    */
-  @NonNull Context dispatch(@NonNull Executor executor, @NonNull Runnable action);
+  Context dispatch(@NonNull Executor executor, @NonNull Runnable action);
 
   /**
    * Tells context that response will be generated form a different thread. This operation is
@@ -974,7 +974,7 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception When detach operation fails.
    */
-  @NonNull Context detach(@NonNull Route.Handler next) throws Exception;
+  Context detach(@NonNull Route.Handler next) throws Exception;
 
   /**
    * Perform a websocket handsahke and upgrade a HTTP GET into a websocket protocol.
@@ -984,7 +984,7 @@ public interface Context extends Registry {
    * @param handler Web socket initializer.
    * @return This context.
    */
-  @NonNull Context upgrade(@NonNull WebSocket.Initializer handler);
+  Context upgrade(@NonNull WebSocket.Initializer handler);
 
   /**
    * Perform a server-sent event handshake and upgrade HTTP GET into a Server-Sent protocol.
@@ -994,7 +994,7 @@ public interface Context extends Registry {
    * @param handler Server-Sent event handler.
    * @return This context.
    */
-  @NonNull Context upgrade(@NonNull ServerSentEmitter.Handler handler);
+  Context upgrade(@NonNull ServerSentEmitter.Handler handler);
 
   /*
    * **********************************************************************************************
@@ -1009,7 +1009,7 @@ public interface Context extends Registry {
    * @param value Header value.
    * @return This context.
    */
-  @NonNull Context setResponseHeader(@NonNull String name, @NonNull Date value);
+  Context setResponseHeader(@NonNull String name, @NonNull Date value);
 
   /**
    * Set response header.
@@ -1018,7 +1018,7 @@ public interface Context extends Registry {
    * @param value Header value.
    * @return This context.
    */
-  @NonNull Context setResponseHeader(@NonNull String name, @NonNull Instant value);
+  Context setResponseHeader(@NonNull String name, @NonNull Instant value);
 
   /**
    * Set response header.
@@ -1027,7 +1027,7 @@ public interface Context extends Registry {
    * @param value Header value.
    * @return This context.
    */
-  @NonNull Context setResponseHeader(@NonNull String name, @NonNull Object value);
+  Context setResponseHeader(@NonNull String name, @NonNull Object value);
 
   /**
    * Set response header.
@@ -1036,7 +1036,7 @@ public interface Context extends Registry {
    * @param value Header value.
    * @return This context.
    */
-  @NonNull Context setResponseHeader(@NonNull String name, @NonNull String value);
+  Context setResponseHeader(@NonNull String name, @NonNull String value);
 
   /**
    * Remove a response header.
@@ -1044,14 +1044,14 @@ public interface Context extends Registry {
    * @param name Header's name.
    * @return This context.
    */
-  @NonNull Context removeResponseHeader(@NonNull String name);
+  Context removeResponseHeader(@NonNull String name);
 
   /**
    * Clear/reset all the headers, including cookies.
    *
    * @return This context.
    */
-  @NonNull Context removeResponseHeaders();
+  Context removeResponseHeaders();
 
   /**
    * Set response content length header.
@@ -1059,7 +1059,7 @@ public interface Context extends Registry {
    * @param length Response length.
    * @return This context.
    */
-  @NonNull Context setResponseLength(long length);
+  Context setResponseLength(long length);
 
   /**
    * Get response header.
@@ -1082,7 +1082,7 @@ public interface Context extends Registry {
    * @param cookie Cookie to add.
    * @return This context.
    */
-  @NonNull Context setResponseCookie(@NonNull Cookie cookie);
+  Context setResponseCookie(@NonNull Cookie cookie);
 
   /**
    * Set response content type header.
@@ -1090,7 +1090,7 @@ public interface Context extends Registry {
    * @param contentType Content type.
    * @return This context.
    */
-  @NonNull Context setResponseType(@NonNull String contentType);
+  Context setResponseType(@NonNull String contentType);
 
   /**
    * Set response content type header.
@@ -1098,7 +1098,7 @@ public interface Context extends Registry {
    * @param contentType Content type.
    * @return This context.
    */
-  @NonNull Context setResponseType(@NonNull MediaType contentType);
+  Context setResponseType(@NonNull MediaType contentType);
 
   /**
    * Set response content type header.
@@ -1107,7 +1107,7 @@ public interface Context extends Registry {
    * @param charset Charset.
    * @return This context.
    */
-  @NonNull Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset);
+  Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset);
 
   /**
    * Set the default response content type header. It is used if the response content type header
@@ -1116,14 +1116,14 @@ public interface Context extends Registry {
    * @param contentType Content type.
    * @return This context.
    */
-  @NonNull Context setDefaultResponseType(@NonNull MediaType contentType);
+  Context setDefaultResponseType(@NonNull MediaType contentType);
 
   /**
    * Get response content type.
    *
    * @return Response content type.
    */
-  @NonNull MediaType getResponseType();
+  MediaType getResponseType();
 
   /**
    * Set response status code.
@@ -1131,7 +1131,7 @@ public interface Context extends Registry {
    * @param statusCode Status code.
    * @return This context.
    */
-  @NonNull Context setResponseCode(@NonNull StatusCode statusCode);
+  Context setResponseCode(@NonNull StatusCode statusCode);
 
   /**
    * Set response status code.
@@ -1139,14 +1139,14 @@ public interface Context extends Registry {
    * @param statusCode Status code.
    * @return This context.
    */
-  @NonNull Context setResponseCode(int statusCode);
+  Context setResponseCode(int statusCode);
 
   /**
    * Get response status code.
    *
    * @return Response status code.
    */
-  @NonNull StatusCode getResponseCode();
+  StatusCode getResponseCode();
 
   /**
    * Render a value and send the response to client.
@@ -1154,14 +1154,14 @@ public interface Context extends Registry {
    * @param value Object value.
    * @return This context.
    */
-  @NonNull Context render(@NonNull Object value);
+  Context render(@NonNull Object value);
 
   /**
    * HTTP response channel as output stream. Usually for chunked responses.
    *
    * @return HTTP channel as output stream. Usually for chunked responses.
    */
-  @NonNull OutputStream responseStream();
+  OutputStream responseStream();
 
   /**
    * HTTP response channel as output stream. Usually for chunked responses.
@@ -1169,7 +1169,7 @@ public interface Context extends Registry {
    * @param contentType Media type.
    * @return HTTP channel as output stream. Usually for chunked responses.
    */
-  @NonNull OutputStream responseStream(@NonNull MediaType contentType);
+  OutputStream responseStream(@NonNull MediaType contentType);
 
   /**
    * HTTP response channel as output stream. Usually for chunked responses.
@@ -1179,8 +1179,8 @@ public interface Context extends Registry {
    * @return HTTP channel as output stream. Usually for chunked responses.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseStream(
-      @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<OutputStream> consumer)
+  Context responseStream(
+      MediaType contentType, @NonNull SneakyThrows.Consumer<OutputStream> consumer)
       throws Exception;
 
   /**
@@ -1190,21 +1190,21 @@ public interface Context extends Registry {
    * @return HTTP channel as output stream. Usually for chunked responses.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseStream(@NonNull SneakyThrows.Consumer<OutputStream> consumer) throws Exception;
+  Context responseStream(@NonNull SneakyThrows.Consumer<OutputStream> consumer) throws Exception;
 
   /**
    * HTTP response channel as chunker.
    *
    * @return HTTP channel as chunker. Usually for chunked response.
    */
-  @NonNull Sender responseSender();
+  Sender responseSender();
 
   /**
    * HTTP response channel as response writer.
    *
    * @return HTTP channel as response writer. Usually for chunked response.
    */
-  @NonNull PrintWriter responseWriter();
+  PrintWriter responseWriter();
 
   /**
    * HTTP response channel as response writer.
@@ -1212,7 +1212,7 @@ public interface Context extends Registry {
    * @param contentType Content type.
    * @return HTTP channel as response writer. Usually for chunked response.
    */
-  @NonNull PrintWriter responseWriter(@NonNull MediaType contentType);
+  PrintWriter responseWriter(@NonNull MediaType contentType);
 
   /**
    * HTTP response channel as response writer.
@@ -1221,7 +1221,7 @@ public interface Context extends Registry {
    * @param charset Charset.
    * @return HTTP channel as response writer. Usually for chunked response.
    */
-  @NonNull PrintWriter responseWriter(@NonNull MediaType contentType, @Nullable Charset charset);
+  PrintWriter responseWriter(@NonNull MediaType contentType, @Nullable Charset charset);
 
   /**
    * HTTP response channel as response writer.
@@ -1230,7 +1230,7 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
+  Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
 
   /**
    * HTTP response channel as response writer.
@@ -1240,9 +1240,8 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseWriter(
-      @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
-      throws Exception;
+  Context responseWriter(
+      MediaType contentType, @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
 
   /**
    * HTTP response channel as response writer.
@@ -1253,10 +1252,8 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Context responseWriter(
-      @NonNull MediaType contentType,
-      @Nullable Charset charset,
-      @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
+  Context responseWriter(
+      MediaType contentType, @Nullable Charset charset, SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception;
 
   /**
@@ -1265,7 +1262,7 @@ public interface Context extends Registry {
    * @param location Location.
    * @return This context.
    */
-  @NonNull Context sendRedirect(@NonNull String location);
+  Context sendRedirect(@NonNull String location);
 
   /**
    * Send a redirect response.
@@ -1274,7 +1271,7 @@ public interface Context extends Registry {
    * @param location Location.
    * @return This context.
    */
-  @NonNull Context sendRedirect(@NonNull StatusCode redirect, @NonNull String location);
+  Context sendRedirect(@NonNull StatusCode redirect, @NonNull String location);
 
   /**
    * Send response data.
@@ -1282,7 +1279,7 @@ public interface Context extends Registry {
    * @param data Response. Use UTF-8 charset.
    * @return This context.
    */
-  @NonNull Context send(@NonNull String data);
+  Context send(@NonNull String data);
 
   /**
    * Send response data.
@@ -1291,7 +1288,7 @@ public interface Context extends Registry {
    * @param charset Charset.
    * @return This context.
    */
-  @NonNull Context send(@NonNull String data, @NonNull Charset charset);
+  Context send(@NonNull String data, @NonNull Charset charset);
 
   /**
    * Send response data.
@@ -1299,7 +1296,7 @@ public interface Context extends Registry {
    * @param data Response.
    * @return This context.
    */
-  @NonNull Context send(@NonNull byte[] data);
+  Context send(@NonNull byte[] data);
 
   /**
    * Send response data.
@@ -1307,7 +1304,7 @@ public interface Context extends Registry {
    * @param data Response.
    * @return This context.
    */
-  @NonNull Context send(@NonNull ByteBuffer data);
+  Context send(@NonNull ByteBuffer data);
 
   /**
    * Send response data.
@@ -1315,7 +1312,7 @@ public interface Context extends Registry {
    * @param data Response.
    * @return This context.
    */
-  @NonNull Context send(@NonNull DataBuffer data);
+  Context send(@NonNull DataBuffer data);
 
   /**
    * Send response data.
@@ -1323,7 +1320,7 @@ public interface Context extends Registry {
    * @param data Response.
    * @return This context.
    */
-  @NonNull Context send(@NonNull byte[]... data);
+  Context send(@NonNull byte[]... data);
 
   /**
    * Send response data.
@@ -1331,7 +1328,7 @@ public interface Context extends Registry {
    * @param data Response.
    * @return This context.
    */
-  @NonNull Context send(@NonNull ByteBuffer[] data);
+  Context send(@NonNull ByteBuffer[] data);
 
   /**
    * Send response data.
@@ -1339,7 +1336,7 @@ public interface Context extends Registry {
    * @param channel Response input.
    * @return This context.
    */
-  @NonNull Context send(@NonNull ReadableByteChannel channel);
+  Context send(@NonNull ReadableByteChannel channel);
 
   /**
    * Send response data.
@@ -1347,7 +1344,7 @@ public interface Context extends Registry {
    * @param input Response.
    * @return This context.
    */
-  @NonNull Context send(@NonNull InputStream input);
+  Context send(@NonNull InputStream input);
 
   /**
    * Send a file download response.
@@ -1355,7 +1352,7 @@ public interface Context extends Registry {
    * @param file File download.
    * @return This context.
    */
-  @NonNull Context send(@NonNull FileDownload file);
+  Context send(@NonNull FileDownload file);
 
   /**
    * Send a file response.
@@ -1363,7 +1360,7 @@ public interface Context extends Registry {
    * @param file File response.
    * @return This context.
    */
-  @NonNull Context send(@NonNull Path file);
+  Context send(@NonNull Path file);
 
   /**
    * Send a file response.
@@ -1371,7 +1368,7 @@ public interface Context extends Registry {
    * @param file File response.
    * @return This context.
    */
-  @NonNull Context send(@NonNull FileChannel file);
+  Context send(@NonNull FileChannel file);
 
   /**
    * Send an empty response with the given status code.
@@ -1379,7 +1376,7 @@ public interface Context extends Registry {
    * @param statusCode Status code.
    * @return This context.
    */
-  @NonNull Context send(@NonNull StatusCode statusCode);
+  Context send(@NonNull StatusCode statusCode);
 
   /**
    * Send an error response. Status code is computed via {@link Router#errorCode(Throwable)}.
@@ -1387,7 +1384,7 @@ public interface Context extends Registry {
    * @param cause Error. If this is a fatal error it is going to be rethrow it.
    * @return This context.
    */
-  @NonNull Context sendError(@NonNull Throwable cause);
+  Context sendError(@NonNull Throwable cause);
 
   /**
    * Send an error response.
@@ -1396,7 +1393,7 @@ public interface Context extends Registry {
    * @param statusCode Status code.
    * @return This context.
    */
-  @NonNull Context sendError(@NonNull Throwable cause, @NonNull StatusCode statusCode);
+  Context sendError(@NonNull Throwable cause, @NonNull StatusCode statusCode);
 
   /**
    * True if response already started.
@@ -1420,7 +1417,7 @@ public interface Context extends Registry {
    * @param value True for reset/clear headers.
    * @return This context.
    */
-  @NonNull Context setResetHeadersOnError(boolean value);
+  Context setResetHeadersOnError(boolean value);
 
   /**
    * Add a complete listener.
@@ -1428,7 +1425,7 @@ public interface Context extends Registry {
    * @param task Task to execute.
    * @return This context.
    */
-  @NonNull Context onComplete(@NonNull Route.Complete task);
+  Context onComplete(@NonNull Route.Complete task);
 
   /* **********************************************************************************************
    * Factory methods
@@ -1442,7 +1439,7 @@ public interface Context extends Registry {
    * @param ctx Originating context.
    * @return Read only context.
    */
-  static @NonNull Context readOnly(@NonNull Context ctx) {
+  static Context readOnly(@NonNull Context ctx) {
     return new ReadOnlyContext(ctx);
   }
 
@@ -1461,11 +1458,8 @@ public interface Context extends Registry {
    * @param binary True for sending binary message.
    * @return Read only context.
    */
-  static @NonNull Context websocket(
-      @NonNull Context ctx,
-      @NonNull WebSocket ws,
-      boolean binary,
-      WebSocket.WriteCallback callback) {
+  static Context websocket(
+      Context ctx, WebSocket ws, boolean binary, WebSocket.WriteCallback callback) {
     return new WebSocketSender(ctx, ws, binary, callback);
   }
 }
