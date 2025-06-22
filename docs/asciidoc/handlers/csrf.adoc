@@ -1,6 +1,6 @@
 === CsrfHandler
 
-The javadoc:CsrfHandler[text="Cross Site Request Forgery Handler"] helps to protect from (CSRF) 
+The javadoc:handler.CsrfHandler[text="Cross Site Request Forgery Handler"] helps to protect from (CSRF) 
 attacks. Cross-site request forgeries are a type of malicious exploit whereby unauthorized commands
 are performed on behalf of an authenticated user.
 
@@ -20,10 +20,10 @@ field in the form so that the CSRF protection middleware can validate the reques
 </form>
 ----
 
-The `csrf` is a request attribute created by the javadoc:CsrfHandler[] handler and rendered by a
+The `csrf` is a request attribute created by the javadoc:handler.CsrfHandler[] handler and rendered by a
 template engine. Here `{{csrf}}` we use Handlebars template engine (as example).
 
-The javadoc:CsrfHandler[] handler, will automatically verify that the token in the request input 
+The javadoc:handler.CsrfHandler[] handler, will automatically verify that the token in the request input 
 matches the token stored in the session.
 
 The token defaults name is `csrf` and can be provided as:
@@ -34,5 +34,5 @@ The token defaults name is `csrf` and can be provided as:
 
 Configuration methods:
 
-- javadoc:CsrfHandler["setTokenGenerator", java.util.Function]: Set a custom token generator. Defaults uses a random UUID.
-- javadoc:CsrfHandler["setRequestFilter", java.util.Predicate]: Set a custom request filter. Defaults is to process `POST`, `PUT`, `PATCH` and `DELETE`.
+- javadoc:handler.CsrfHandler["setTokenGenerator", java.util.function.Function]: Set a custom token generator. Defaults uses a random UUID.
+- javadoc:handler.CsrfHandler["setRequestFilter", java.util.function.Predicate]: Set a custom request filter. Defaults is to process `POST`, `PUT`, `PATCH` and `DELETE`.
