@@ -2,9 +2,9 @@
 
 There are three server implementations:
 
-- javadoc:JettyServer[]
-- javadoc:NettyServer[]
-- javadoc:UndertowServer[]
+- javadoc:jetty.JettyServer[artifact=jooby-jetty]
+- javadoc:netty.NettyServer[artifact=jooby-netty]
+- javadoc:undertow.UndertowServer[artifact=jooby-undertow]
 
 Servers are automatically registered based on their presence on the project classpath.
 
@@ -341,7 +341,7 @@ To use a valid PKCS12 certificate:
 
 <1> Creates SslOptions using PKCS12 certificates path
 
-Certificate (.p12 location can be file system or class path locations.
+Certificate (.p12) location can be file system or class path locations.
 
 Optionally you can define the SSL options in your application configuration file:
 
