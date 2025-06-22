@@ -7,13 +7,13 @@ request when it requests a resource that has a different origin (domain, protoco
 its own origin.
 
 Jooby supports CORS out of the box. By default, **CORS requests will be rejected**.
-To enable processing of CORS requests, use the javadoc:CorsHandler[]:
+To enable processing of CORS requests, use the javadoc:handler.CorsHandler[]:
 
 .CorsExample
 [source, java, role = "primary"]
 ----
 import io.jooby.Jooby;
-import io.jooby.CorsHandler;
+import io.jooby.handler.CorsHandler;
 ...
 {
   
@@ -28,7 +28,7 @@ import io.jooby.CorsHandler;
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.CorsHandler
+import io.jooby.handler.CorsHandler
 ...
 {
   use(CorsHandler())      <1>
@@ -49,13 +49,14 @@ Default options are:
 - allowed headers: `X-Requested-With`, `Content-Type`, `Accept` and `Origin`
 - max age: `30m`;
 
-To customize default options use javadoc:Cors[]:
+To customize default options use javadoc:handler.Cors[]:
 
 .Cors options
 [source, java, role = "primary"]
 ----
 import io.jooby.Jooby;
-import io.jooby.CorsHandler;
+import io.jooby.handler.Cors;
+import io.jooby.handler.CorsHandler;
 ...
 {
   Cors cors = new Cors()
@@ -73,7 +74,7 @@ import io.jooby.CorsHandler;
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.Jooby
-import io.jooby.CorsHandler
+import io.jooby.handler.CorsHandler
 import io.jooby.cors
 ...
 {
@@ -110,7 +111,8 @@ cors {
 [source, java, role = "primary"]
 ----
 import io.jooby.Jooby;
-import io.jooby.CorsHandler;
+import io.jooby.handler.Cors;
+import io.jooby.handler.CorsHandler;
 ...
 {
   Cors cors = Cors.from(getConfig());  <1>
@@ -127,7 +129,7 @@ import io.jooby.CorsHandler;
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.Jooby
-import io.jooby.CorsHandler
+import io.jooby.handler.CorsHandler
 ...
 {
   val cors = Cors.from(config)         <1>
