@@ -98,10 +98,14 @@ public class JavadocProcessor extends InlineMacroProcessor {
 
   private static StringBuilder generateLink(Map<String, Object> attributes) {
     String artifact = (String) attributes.getOrDefault("artifact", "jooby");
+    String packageName = (String) attributes.get("package");
+    if (packageName == null) {
+      packageName = artifact.replace('-', '.');
+    }
     return new StringBuilder("https://www.javadoc.io/doc/io.jooby/")
         .append(artifact)
         .append("/latest/io.")
-        .append(artifact.replace('-', '.'))
+        .append(packageName)
         .append("/io/jooby/");
   }
 }
