@@ -40,7 +40,7 @@ import io.jooby.dbscheduler.DbSchedulerModule
 === Tasks
 
 Tasks are created as described in https://github.com/kagkarlsson/db-scheduler[db-scheduler documentation]. Optionally,
-you can annotate a method with the javadoc:dbscheduler.Scheduled[artifact="jooby-db-scheduler", package="jooby.dbscheduler"] annotation:
+you can annotate a method with the javadoc:dbscheduler.Scheduled[artifact="jooby-db-scheduler", module="jooby.dbscheduler"] annotation:
 
 .Sample Job
 [source, java, role="primary"]
@@ -91,7 +91,7 @@ A task method must follow these rules:
 
 === Scheduled
 
-The javadoc:dbscheduler.Scheduled[artifact="jooby-db-scheduler", package="jooby.dbscheduler"] annotation supports simple and cron triggers as well as property references:
+The javadoc:dbscheduler.Scheduled[artifact="jooby-db-scheduler", module="jooby.dbscheduler"] annotation supports simple and cron triggers as well as property references:
 
 .Same as .fixedDelay(Duration) with duration.
 ----
@@ -127,7 +127,7 @@ The `mytask.trigger` must be defined in your application property file. It could
 
 === Configuration
 
-Configuration from properties files is fully supported, just need to add javadoc:dbscheduler.DbSchedulerProperties[artifact="jooby-db-scheduler", package="jooby.dbscheduler"]
+Configuration from properties files is fully supported, just need to add javadoc:dbscheduler.DbSchedulerProperties[artifact="jooby-db-scheduler", module="jooby.dbscheduler"]
 properties to your application configuration file:
 
 .Options
