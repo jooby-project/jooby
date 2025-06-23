@@ -66,13 +66,13 @@ class SampleJob: Job {                             <1>
 ----
 
 <1> Implements `org.quartz.Job`
-<2> Creates a trigger using the javadoc:quartz.Scheduled[] annotation
+<2> Creates a trigger using the javadoc:quartz.Scheduled[artifact="jooby-quartz"] annotation
 
 === Jobs
 
 A Job must implements `org.quartz.Job` interface or `org.quartz.InterruptableJob` as described in
 http://www.quartz-scheduler.org/documentation[Quartz documentation] or if you prefer just annotates
-an arbitrary method with the javadoc:quartz.Scheduled[] annotation:
+an arbitrary method with the javadoc:quartz.Scheduled[artifact="jooby-quartz"] annotation:
 
 .Without Job interface
 [source, java, role="primary"]
@@ -205,7 +205,7 @@ public class MyJob {
 
 === Triggers
 
-The javadoc:quartz.Scheduled[] annotation supports simple and cron triggers as well as property references:
+The javadoc:quartz.Scheduled[artifact="jooby-quartz"] annotation supports simple and cron triggers as well as property references:
 
 .Run every hour, repeat for ever:
 ----
