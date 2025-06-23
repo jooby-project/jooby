@@ -326,7 +326,7 @@ This last example ask application registry (dependency injection framework usual
 
 === Advanced Usage
 
-You can customize default options by using the javadoc:pac4j.Pac4jOptions[] and/or providing your
+You can customize default options by using the javadoc:pac4j.Pac4jOptions[artifact="jooby-pac4j"] and/or providing your
 own Pac4j configuration.
 
 .Java
