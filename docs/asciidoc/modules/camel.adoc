@@ -158,7 +158,7 @@ class MyRoutes: RouteBuilder() {
 
 [IMPORTANT]
 ====
-  Keep in mind Camel beans are singleton by default, regardless of what dependency injection
+Keep in mind Camel beans are singleton by default, regardless of what dependency injection
 framework you choose.
 ====
 
