@@ -1,9 +1,9 @@
 === JWT Session
 
-The javadoc:JWTSession[] session store works it also a stateless session that
+The javadoc:jwt.JwtSessionStore[artifact="jooby-jwt"] session store works it also a stateless session that
 uses https://jwt.io[JSON Web Token] standard to decode/encode data.
 
-To use the javadoc:JWTSession[] session store you need to add the `jooby-jwt` dependency:
+To use the javadoc:jwt.JwtSessionStore[artifact="jooby-jwt"] session store you need to add the `jooby-jwt` dependency:
 
 [dependency, artifactId="jooby-jwt"]
 .
