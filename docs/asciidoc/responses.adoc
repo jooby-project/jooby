@@ -772,11 +772,15 @@ side effects ignoring the output of the route handler.
 Family of send methods include:
 
 - javadoc:Context[send, byte[\]]
-- javadoc:Route[consumes, io.jooby.MediaType...]
-// Code review comment: is this supposed to be jooby databuffer or nio bytebuffer
-- javadoc:Context[send, java.nio.ByteBuffer]
-- javadoc:Context[send, java.lang.String]
-- javadoc:Context[send, java.nio.file.Path]
-- javadoc:Context[send, java.nio.channels.FileChannel]
+- javadoc:Context[send, byte[\]...]
+- javadoc:Context[send, io.jooby.buffer.DataBuffer]
 - javadoc:Context[send, io.jooby.FileDownload]
 - javadoc:Context[send, io.jooby.StatusCode]
+- javadoc:Context[send, java.io.InputStream]
+- javadoc:Context[send, java.lang.String]
+- javadoc:Context[send, java.lang.String, java.nio.charset.Charset]
+- javadoc:Context[send, java.nio.ByteBuffer]
+- javadoc:Context[send, java.nio.ByteBuffer[\]]
+- javadoc:Context[send, java.nio.channels.FileChannel]
+- javadoc:Context[send, java.nio.channels.ReadableByteChannel]
+- javadoc:Context[send, java.nio.file.Path]
