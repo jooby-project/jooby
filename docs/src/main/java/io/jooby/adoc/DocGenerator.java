@@ -7,6 +7,7 @@ package io.jooby.adoc;
 
 import static io.jooby.SneakyThrows.throwingConsumer;
 import static io.jooby.SneakyThrows.throwingFunction;
+import static java.util.function.Predicate.not;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -37,7 +37,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 
@@ -324,7 +323,7 @@ public class DocGenerator {
   private static String document(Path index) {
     try {
       Document doc = Jsoup.parse(index.toFile(), "UTF-8");
-      tocItems(doc);
+      headerIds(doc);
       languageTab(doc);
       clipboard(doc);
       externalLink(doc);
@@ -381,45 +380,43 @@ public class DocGenerator {
       primaryContent.appendTo(primary);
       secondaryContent.appendTo(primary);
       secondaryContent.addClass("hidden").addClass("option-2");
-      ;
     }
   }
 
-  private static void tocItems(Document doc) {
-    tocItems(doc, 2);
-    tocItems(doc, 3);
-    tocItems(doc, 4);
+  private static void headerIds(Document doc) {
+    headerIds(doc, 2);
+    headerIds(doc, 3);
+    headerIds(doc, 4);
+    headerIds(doc, 5);
   }
 
-  private static void tocItems(Document doc, int level) {
-    doc.select("h" + level)
-        .forEach(
-            h -> {
-              if (!h.hasClass("discrete")) {
-                String id = h.attr("id");
-                LinkedHashSet<String> name = new LinkedHashSet<>();
-                int parent = level - 1;
-                Element p = h.parents().select("h" + parent).first();
-                if (p != null && !p.hasClass("discrete")) {
-                  String parentId = p.attr("id");
-                  if (parentId != null && parentId.length() > 0) {
-                    name.add(parentId);
-                  }
-                }
-                name.add(id.replaceAll("([a-zA-Z0-9-]+)-\\d+$", "$1"));
-                String newId = name.stream().collect(Collectors.joining("-"));
-                if (!id.equals(newId)) {
-                  h.attr("id", newId);
-                  doc.select("a")
-                      .forEach(
-                          a -> {
-                            if (a.attr("href").equals("#" + id) && a.attr("class").length() > 0) {
-                              a.attr("href", "#" + newId);
-                            }
-                          });
-                }
+  private static void headerIds(Document doc, int level) {
+    doc.select("h" + level).stream()
+        .filter(not(DocGenerator::isDiscrete))
+        .forEach(h -> {
+            String id = h.attr("id");
+            LinkedHashSet<String> name = new LinkedHashSet<>();
+            int parent = level - 1;
+            Element p = h.parents().select("h" + parent).first();
+            if (p != null && !isDiscrete(p)) {
+              String parentId = p.attr("id");
+              if (!parentId.isEmpty()) {
+                name.add(parentId);
               }
-            });
+            }
+            name.add(id.replaceAll("([a-zA-Z0-9-]+)-\\d+$", "$1"));
+            String newId = String.join("-", name);
+            if (!id.equals(newId)) {
+              h.attr("id", newId);
+              h.select("a").stream()
+                  .filter(a -> a.attr("href").equals("#" + id) && !a.attr("class").isEmpty())
+                  .forEach(a -> a.attr("href", "#" + newId));
+            }
+          });
+  }
+
+  private static boolean isDiscrete(Element p) {
+    return p.hasClass("discrete");
   }
 
   private static void clipboard(Document doc) {
@@ -449,8 +446,7 @@ public class DocGenerator {
   public static String version() {
     try {
       Document doc = Jsoup.parse(basedir().getParent().resolve("pom.xml").toFile(), "utf-8");
-      String version = doc.selectFirst("version").text().trim();
-      return version;
+      return doc.selectFirst("version").text().trim();
     } catch (IOException x) {
       throw new IllegalStateException(x);
     }
