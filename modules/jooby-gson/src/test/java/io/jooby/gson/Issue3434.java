@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.GsonBuilder;
 import io.jooby.Context;
-import io.jooby.buffer.DefaultDataBufferFactory;
+import io.jooby.output.ByteBufferOutputFactory;
 
 public class Issue3434 {
   String text =
@@ -139,12 +139,12 @@ public class Issue3434 {
   @Test
   void shouldEncodeUsingBufferWriter() {
     var gson = new GsonBuilder().create();
-    var factory = new DefaultDataBufferFactory();
+    var factory = new ByteBufferOutputFactory();
     var ctx = mock(Context.class);
-    when(ctx.getBufferFactory()).thenReturn(factory);
+    when(ctx.getOutputFactory()).thenReturn(factory);
 
     var encoder = new GsonModule();
     var result = encoder.encode(ctx, new Bean3434(text));
-    assertEquals(gson.toJson(new Bean3434(text)), result.toString(StandardCharsets.UTF_8));
+    assertEquals(gson.toJson(new Bean3434(text)), result.asString(StandardCharsets.UTF_8));
   }
 }

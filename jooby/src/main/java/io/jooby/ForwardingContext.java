@@ -26,6 +26,8 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.buffer.DataBuffer;
 import io.jooby.buffer.DataBufferFactory;
 import io.jooby.exception.RegistryException;
+import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -676,6 +678,11 @@ public class ForwardingContext implements Context {
   }
 
   @Override
+  public OutputFactory getOutputFactory() {
+    return ctx.getOutputFactory();
+  }
+
+  @Override
   public FlashMap flash() {
     return ctx.flash();
   }
@@ -1231,6 +1238,12 @@ public class ForwardingContext implements Context {
   @Override
   public Context send(@NonNull DataBuffer data) {
     ctx.send(data);
+    return this;
+  }
+
+  @Override
+  public Context send(@NonNull Output output) {
+    ctx.send(output);
     return this;
   }
 

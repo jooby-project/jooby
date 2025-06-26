@@ -16,12 +16,11 @@ import org.thymeleaf.context.Context;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
-
-  private TemplateEngine templateEngine;
-  private List<String> extensions;
+  private final TemplateEngine templateEngine;
+  private final List<String> extensions;
 
   public ThymeleafTemplateEngine(TemplateEngine templateEngine, List<String> extensions) {
     this.templateEngine = templateEngine;
@@ -34,7 +33,7 @@ public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
   }
 
   @Override
-  public @NonNull DataBuffer render(io.jooby.Context ctx, ModelAndView<?> modelAndView) {
+  public @NonNull Output render(io.jooby.Context ctx, ModelAndView<?> modelAndView) {
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
       Map<String, Object> model = new HashMap<>(ctx.getAttributes());
       model.putAll(mapModelAndView.getModel());
@@ -44,7 +43,7 @@ public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
       if (locale == null) {
         locale = ctx.locale();
       }
-      var buffer = ctx.getBufferFactory().allocateBuffer();
+      var buffer = ctx.getOutputFactory().newBufferedOutput();
       var context = new Context(locale, model);
       var templateName = modelAndView.getView();
       if (!templateName.startsWith("/")) {

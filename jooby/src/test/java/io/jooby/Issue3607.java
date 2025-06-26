@@ -9,16 +9,15 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.buffer.DataBuffer;
-import io.jooby.buffer.DefaultDataBufferFactory;
+import io.jooby.output.Output;
 
 public class Issue3607 {
 
   private static class TemplateEngineImpl implements TemplateEngine {
     @Override
-    public DataBuffer render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
+    public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
       // do nothing
-      return DefaultDataBufferFactory.sharedInstance.wrap(new byte[0]);
+      return Output.wrap(new byte[0]);
     }
   }
 

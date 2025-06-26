@@ -21,7 +21,7 @@ import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 /**
  * JSON module using Gson: https://github.com/google/gson.
@@ -107,8 +107,8 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
   }
 
   @NonNull @Override
-  public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) {
-    var buffer = ctx.getBufferFactory().allocateBuffer();
+  public Output encode(@NonNull Context ctx, @NonNull Object value) {
+    var buffer = ctx.getOutputFactory().newBufferedOutput();
     ctx.setDefaultResponseType(MediaType.json);
     gson.toJson(value, buffer.asWriter());
     return buffer;

@@ -58,7 +58,7 @@ public class PebbleModuleTest {
         engine.render(
             ctx,
             ModelAndView.map("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8));
+    assertEquals("Hello foo bar var!", output.asString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -89,7 +89,7 @@ public class PebbleModuleTest {
         engine.render(
             ctx,
             ModelAndView.map("index.peb").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8));
+    assertEquals("Hello foo bar var!", output.asString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -104,30 +104,30 @@ public class PebbleModuleTest {
 
     assertEquals(
         "Greetings!",
-        engine.render(ctx, ModelAndView.map("locales.peb")).toString(StandardCharsets.UTF_8));
+        engine.render(ctx, ModelAndView.map("locales.peb")).asString(StandardCharsets.UTF_8));
 
     assertEquals(
         "Hi!",
         engine
             .render(ctx, ModelAndView.map("locales.peb").setLocale(new Locale("en", "GB")))
-            .toString(StandardCharsets.UTF_8));
+            .asString(StandardCharsets.UTF_8));
 
     assertEquals(
         "Grüß Gott!",
         engine
             .render(ctx, ModelAndView.map("locales.peb").setLocale(Locale.GERMAN))
-            .toString(StandardCharsets.UTF_8));
+            .asString(StandardCharsets.UTF_8));
 
     assertEquals(
         "Grüß Gott!",
         engine
             .render(ctx, ModelAndView.map("locales.peb").setLocale(Locale.GERMANY))
-            .toString(StandardCharsets.UTF_8));
+            .asString(StandardCharsets.UTF_8));
 
     assertEquals(
         "Servus!",
         engine
             .render(ctx, ModelAndView.map("locales.peb").setLocale(new Locale("de", "AT")))
-            .toString(StandardCharsets.UTF_8));
+            .asString(StandardCharsets.UTF_8));
   }
 }

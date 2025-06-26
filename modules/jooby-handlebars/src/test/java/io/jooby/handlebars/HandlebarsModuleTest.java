@@ -57,7 +57,7 @@ public class HandlebarsModuleTest {
         engine.render(
             ctx,
             ModelAndView.map("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8).trim());
+    assertEquals("Hello foo bar var!", output.asString(StandardCharsets.UTF_8).trim());
   }
 
   @Test
@@ -77,6 +77,6 @@ public class HandlebarsModuleTest {
         engine.render(
             ctx,
             ModelAndView.map("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.toString(StandardCharsets.UTF_8).trim());
+    assertEquals("Hello foo bar var!", output.asString(StandardCharsets.UTF_8).trim());
   }
 }

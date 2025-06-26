@@ -10,13 +10,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.charset.StandardCharsets;
 
 import com.google.common.collect.ImmutableMap;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
-import io.jooby.buffer.DataBuffer;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.output.Output;
 
 public class Issue2613 {
 
@@ -29,10 +30,10 @@ public class Issue2613 {
   public static class ThemeResultEncoder implements MessageEncoder {
 
     @Override
-    public DataBuffer encode(Context ctx, Object value) throws Exception {
+    public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
       if (value instanceof ThemeResult) {
         ctx.setDefaultResponseType(MediaType.html);
-        return ctx.getBufferFactory()
+        return ctx.getOutputFactory()
             .wrap(((ThemeResult) value).html().getBytes(StandardCharsets.UTF_8));
       }
       return null;

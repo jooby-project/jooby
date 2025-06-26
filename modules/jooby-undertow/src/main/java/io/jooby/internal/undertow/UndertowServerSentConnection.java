@@ -24,7 +24,7 @@ import org.xnio.channels.StreamSinkChannel;
 
 import io.jooby.Context;
 import io.jooby.ServerSentMessage;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 import io.undertow.connector.PooledByteBuffer;
 import io.undertow.server.HttpServerExchange;
 
@@ -129,9 +129,9 @@ public class UndertowServerSentConnection implements Channel {
       buffered.add(data);
       if (data.leftOverData == null) {
         var message = data.message.encode(context);
-        if (message.readableByteCount() < buffer.remaining()) {
+        if (message.size() < buffer.remaining()) {
           message.toByteBuffer(buffer);
-          buffer.position(buffer.position() + message.readableByteCount());
+          buffer.position(buffer.position() + message.size());
           data.endBufferPosition = buffer.position();
         } else {
           queue.addFirst(data);
@@ -142,7 +142,7 @@ public class UndertowServerSentConnection implements Channel {
           data.leftOverDataOffset = rem;
         }
       } else {
-        int remainingData = data.leftOverData.readableByteCount() - data.leftOverDataOffset;
+        int remainingData = data.leftOverData.size() - data.leftOverDataOffset;
         if (remainingData > buffer.remaining()) {
           queue.addFirst(data);
           int toWrite = buffer.remaining();
@@ -247,7 +247,7 @@ public class UndertowServerSentConnection implements Channel {
     final ServerSentMessage message;
     final UndertowServerSentConnection.EventCallback callback;
     private int endBufferPosition = -1;
-    private DataBuffer leftOverData;
+    private Output leftOverData;
     private int leftOverDataOffset;
 
     private SSEData(

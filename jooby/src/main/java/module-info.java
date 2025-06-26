@@ -14,6 +14,7 @@ module io.jooby {
   exports io.jooby.validation;
   exports io.jooby.problem;
   exports io.jooby.value;
+  exports io.jooby.output;
 
   uses io.jooby.MvcFactory;
   uses io.jooby.Server;

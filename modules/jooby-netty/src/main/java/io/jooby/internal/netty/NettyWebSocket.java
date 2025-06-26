@@ -28,6 +28,8 @@ import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 import io.jooby.buffer.DataBuffer;
 import io.jooby.netty.buffer.NettyDataBuffer;
+import io.jooby.netty.output.NettyOutput;
+import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -146,6 +148,24 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   @NonNull @Override
   public WebSocket send(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
     return sendMessage(((NettyDataBuffer) message).getNativeBuffer(), false, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
+    if (message instanceof NettyOutput netty) {
+      return sendMessage(netty.byteBuf(), false, callback);
+    } else {
+      return sendMessage(Unpooled.wrappedBuffer(message.asByteBuffer()), false, callback);
+    }
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
+    if (message instanceof NettyOutput netty) {
+      return sendMessage(netty.byteBuf(), false, callback);
+    } else {
+      return sendMessage(Unpooled.wrappedBuffer(message.asByteBuffer()), true, callback);
+    }
   }
 
   @Override

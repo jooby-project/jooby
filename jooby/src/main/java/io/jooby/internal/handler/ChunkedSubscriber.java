@@ -11,11 +11,10 @@ import org.slf4j.Logger;
 
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Sender;
 import io.jooby.Server;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 public class ChunkedSubscriber implements Flow.Subscriber {
 
@@ -39,12 +38,12 @@ public class ChunkedSubscriber implements Flow.Subscriber {
 
   public void onNext(Object item) {
     try {
-      Route route = ctx.getRoute();
-      Route.After after = route.getAfter();
+      var route = ctx.getRoute();
+      var after = route.getAfter();
       if (after != null) {
         after.apply(ctx, item, null);
       }
-      MessageEncoder encoder = route.getEncoder();
+      var encoder = route.getEncoder();
       var data = encoder.encode(ctx, item);
 
       if (responseType == null) {
@@ -117,10 +116,10 @@ public class ChunkedSubscriber implements Flow.Subscriber {
     sender().close();
   }
 
-  private static DataBuffer prepend(Context ctx, DataBuffer data, byte c) {
-    var buffer = ctx.getBufferFactory().allocateBuffer();
+  private static Output prepend(Context ctx, Output data, byte c) {
+    var buffer = ctx.getOutputFactory().newChunkedOutput();
     buffer.write(c);
-    buffer.write(data);
+    data.accept(buffer::write);
     return buffer;
   }
 

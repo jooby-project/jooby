@@ -14,7 +14,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 public class HandlebarsTemplateEngine implements TemplateEngine {
 
@@ -35,14 +35,14 @@ public class HandlebarsTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public DataBuffer render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
+  public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     var template = handlebars.compile(modelAndView.getView());
     var engineModel =
         com.github.jknack.handlebars.Context.newBuilder(modelAndView.getModel())
             .resolver(resolvers)
             .build()
             .data(ctx.getAttributes());
-    var buffer = ctx.getBufferFactory().allocateBuffer();
+    var buffer = ctx.getOutputFactory().newBufferedOutput();
     template.apply(engineModel, buffer.asWriter());
     return buffer;
   }

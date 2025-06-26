@@ -15,7 +15,7 @@ import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 import io.pebbletemplates.pebble.PebbleEngine;
 
 class PebbleTemplateEngine implements TemplateEngine {
@@ -34,9 +34,9 @@ class PebbleTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public DataBuffer render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
+  public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
-      var buffer = ctx.getBufferFactory().allocateBuffer();
+      var buffer = ctx.getOutputFactory().newBufferedOutput();
       var template = engine.getTemplate(modelAndView.getView());
       Map<String, Object> model = new HashMap<>(ctx.getAttributes());
       model.putAll(mapModelAndView.getModel());

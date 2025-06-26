@@ -36,6 +36,8 @@ import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.ParamLookupImpl;
 import io.jooby.internal.ReadOnlyContext;
 import io.jooby.internal.WebSocketSender;
+import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -146,6 +148,8 @@ public interface Context extends Registry {
   Router getRouter();
 
   DataBufferFactory getBufferFactory();
+
+  OutputFactory getOutputFactory();
 
   /**
    * Forward executing to another route. We use the given path to find a matching route.
@@ -1313,6 +1317,14 @@ public interface Context extends Registry {
    * @return This context.
    */
   Context send(@NonNull DataBuffer data);
+
+  /**
+   * Send response data.
+   *
+   * @param output Output.
+   * @return This context.
+   */
+  Context send(@NonNull Output output);
 
   /**
    * Send response data.

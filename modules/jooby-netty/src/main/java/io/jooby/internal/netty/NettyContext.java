@@ -69,6 +69,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
 import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 import io.jooby.value.Value;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -596,6 +597,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @NonNull @Override
   public Context send(@NonNull DataBuffer data) {
     data.send(this);
+    return this;
+  }
+
+  @Override
+  @NonNull public Context send(@NonNull Output output) {
+    output.send(this);
     return this;
   }
 

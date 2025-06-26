@@ -57,6 +57,9 @@ import io.jooby.buffer.DataBuffer;
 import io.jooby.buffer.DataBufferFactory;
 import io.jooby.buffer.DefaultDataBufferFactory;
 import io.jooby.exception.TypeMismatchException;
+import io.jooby.output.ByteBufferOutputFactory;
+import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -121,6 +124,8 @@ public class MockContext implements DefaultContext {
 
   private DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
 
+  private OutputFactory outputFactory = new ByteBufferOutputFactory();
+
   @Override
   public String getMethod() {
     return method;
@@ -140,6 +145,11 @@ public class MockContext implements DefaultContext {
   @Override
   public DataBufferFactory getBufferFactory() {
     return bufferFactory;
+  }
+
+  @Override
+  public OutputFactory getOutputFactory() {
+    return outputFactory;
   }
 
   /**
@@ -577,6 +587,13 @@ public class MockContext implements DefaultContext {
         return this;
       }
 
+      @NonNull @Override
+      public Sender write(@NonNull Output output, @NonNull Callback callback) {
+        response.setResult(output);
+        callback.onComplete(MockContext.this, null);
+        return this;
+      }
+
       @Override
       public void close() {
         listeners.run(MockContext.this);
@@ -673,6 +690,14 @@ public class MockContext implements DefaultContext {
   public Context send(@NonNull DataBuffer data) {
     responseStarted = true;
     this.response.setResult(data).setContentLength(data.readableByteCount());
+    listeners.run(this);
+    return this;
+  }
+
+  @Override
+  public Context send(@NonNull Output output) {
+    responseStarted = true;
+    this.response.setResult(output).setContentLength(output.size());
     listeners.run(this);
     return this;
   }

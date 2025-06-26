@@ -7,11 +7,14 @@ package io.jooby;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.function.IntPredicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.*;
 
 /**
  * Server-Sent message.
@@ -129,47 +132,109 @@ public class ServerSentMessage {
    * @param ctx Web context. To encode complex objects.
    * @return Encoded data.
    */
-  public @NonNull DataBuffer encode(@NonNull Context ctx) {
+  public @NonNull Output encode(@NonNull Context ctx) {
     try {
-      Route route = ctx.getRoute();
-      MessageEncoder encoder = route.getEncoder();
-      var bufferFactory = ctx.getBufferFactory();
-      var buffer = bufferFactory.allocateBuffer();
-      var message = encoder.encode(ctx, data);
+      var route = ctx.getRoute();
+      var encoder = route.getEncoder();
+      var bufferFactory = ctx.getOutputFactory();
+      var buffer = bufferFactory.newBufferedOutput();
 
       if (id != null) {
         buffer.write(ID);
-        buffer.write(id.toString().getBytes(UTF_8));
+        buffer.write(id.toString());
         buffer.write(SEPARATOR);
       }
       if (event != null) {
         buffer.write(EVENT);
-        buffer.write(event.getBytes(UTF_8));
+        buffer.write(event);
         buffer.write(SEPARATOR);
       }
       if (retry != null) {
         buffer.write(RETRY);
-        buffer.write(retry.toString().getBytes(UTF_8));
+        buffer.write(retry.toString());
         buffer.write(SEPARATOR);
       }
       /* do multi-line processing: */
       buffer.write(DATA);
+
       IntPredicate nl = ch -> ch == '\n';
-      var i = message.indexOf(nl, 0);
-      while (i > 0) {
-        buffer.write(message.split(i + 1));
-        if (message.readableByteCount() > 0) {
+      var message = encoder.encode(ctx, data);
+      var lines = message.split(nl);
+      while (lines.hasNext()) {
+        buffer.write(lines.next());
+        if (lines.hasNext()) {
           buffer.write(DATA);
         }
-        i = message.indexOf(nl, 1);
       }
-      // write any pending bytes
-      buffer.write(message);
       buffer.write(SEPARATOR);
       buffer.write(SEPARATOR);
       return buffer;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
+  }
+
+  class ServerSentMessageOutput implements Output {
+    private final Output delegate;
+
+    public ServerSentMessageOutput(Output delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer() {
+      return delegate.asByteBuffer();
+    }
+
+    @Override
+    public String asString(@NonNull Charset charset) {
+      return delegate.asString(charset);
+    }
+
+    @Override
+    public void accept(SneakyThrows.Consumer<ByteBuffer> consumer) {
+      delegate.accept(consumer);
+    }
+
+    @Override
+    public int size() {
+      return delegate.size();
+    }
+
+    @Override
+    public Output write(byte b) {
+      return write(new byte[] {b}, 0, 1);
+    }
+
+    @Override
+    public Output write(byte[] source) {
+      return write(ByteBuffer.wrap(source));
+    }
+
+    @Override
+    public Output write(byte[] source, int offset, int length) {
+      var begin = offset;
+      var len = offset + length;
+      for (int i = offset; i < len; i++) {
+        var ch = source[i];
+        if (ch == '\n') {
+          delegate.write(source, begin, i + 1);
+          if (i < len - 1) {
+            delegate.write(DATA);
+          }
+          begin = i + 1;
+        }
+      }
+      if (begin < len) {
+        delegate.write(source, begin, len);
+      }
+      return this;
+    }
+
+    @Override
+    public void send(Context ctx) {}
+
+    @Override
+    public void close() throws IOException {}
   }
 }

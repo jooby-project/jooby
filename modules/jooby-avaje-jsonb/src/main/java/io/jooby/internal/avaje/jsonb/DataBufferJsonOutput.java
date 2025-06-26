@@ -9,18 +9,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import io.avaje.json.stream.JsonOutput;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 public class DataBufferJsonOutput implements JsonOutput {
-  private final DataBuffer buffer;
+  private final Output output;
 
-  public DataBufferJsonOutput(DataBuffer buffer) {
-    this.buffer = buffer;
+  public DataBufferJsonOutput(Output output) {
+    this.output = output;
   }
 
   @Override
   public void write(byte[] content, int offset, int length) throws IOException {
-    buffer.write(content, offset, length);
+    output.write(content, offset, length);
   }
 
   @Override
@@ -30,7 +30,7 @@ public class DataBufferJsonOutput implements JsonOutput {
 
   @Override
   public OutputStream unwrapOutputStream() {
-    return buffer.asOutputStream();
+    return output.asOutputStream();
   }
 
   @Override

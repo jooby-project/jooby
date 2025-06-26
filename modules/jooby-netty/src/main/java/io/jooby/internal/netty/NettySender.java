@@ -9,6 +9,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
 import io.jooby.buffer.DataBuffer;
 import io.jooby.netty.buffer.NettyDataBuffer;
+import io.jooby.netty.output.NettyOutput;
+import io.jooby.output.Output;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,6 +40,20 @@ public class NettySender implements Sender {
   public Sender write(@NonNull DataBuffer data, @NonNull Callback callback) {
     context
         .writeAndFlush(new DefaultHttpContent(((NettyDataBuffer) data).getNativeBuffer()))
+        .addListener(newChannelFutureListener(ctx, callback));
+    return this;
+  }
+
+  @NonNull @Override
+  public Sender write(@NonNull Output output, @NonNull Callback callback) {
+    ByteBuf buf;
+    if (output instanceof NettyOutput netty) {
+      buf = netty.byteBuf();
+    } else {
+      buf = Unpooled.wrappedBuffer(output.asByteBuffer());
+    }
+    context
+        .writeAndFlush(new DefaultHttpContent(buf))
         .addListener(newChannelFutureListener(ctx, callback));
     return this;
   }

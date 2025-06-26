@@ -13,69 +13,69 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.buffer.DefaultDataBufferFactory;
+import io.jooby.output.ByteBufferOutputFactory;
 
 public class ServerSentMessageTest {
 
   @Test
   public void shouldFormatMessage() throws Exception {
-    String data = "some";
-    Context ctx = mock(Context.class);
+    var data = "some";
+    var ctx = mock(Context.class);
 
-    var bufferFactory = new DefaultDataBufferFactory();
-    when(ctx.getBufferFactory()).thenReturn(bufferFactory);
-    MessageEncoder encoder = mock(MessageEncoder.class);
+    var bufferFactory = new ByteBufferOutputFactory();
+    when(ctx.getOutputFactory()).thenReturn(bufferFactory);
+    var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))
         .thenReturn(bufferFactory.wrap(data.getBytes(StandardCharsets.UTF_8)));
 
-    Route route = mock(Route.class);
+    var route = mock(Route.class);
     when(route.getEncoder()).thenReturn(encoder);
 
     when(ctx.getRoute()).thenReturn(route);
 
-    ServerSentMessage message = new ServerSentMessage(data);
-    assertEquals("data: " + data + "\n\n", message.encode(ctx).toString(StandardCharsets.UTF_8));
+    var message = new ServerSentMessage(data);
+    assertEquals("data: " + data + "\n\n", message.encode(ctx).asString(StandardCharsets.UTF_8));
   }
 
   @Test
   public void shouldFormatMultiLineMessage() throws Exception {
-    String data = "line 1\n line ,a .. 2\nline ...abc  3";
-    Context ctx = mock(Context.class);
+    var data = "line 1\n line ,a .. 2\nline ...abc  3";
+    var ctx = mock(Context.class);
 
-    var bufferFactory = new DefaultDataBufferFactory();
-    when(ctx.getBufferFactory()).thenReturn(bufferFactory);
-    MessageEncoder encoder = mock(MessageEncoder.class);
+    var bufferFactory = new ByteBufferOutputFactory();
+    when(ctx.getOutputFactory()).thenReturn(bufferFactory);
+    var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))
         .thenReturn(bufferFactory.wrap(data.getBytes(StandardCharsets.UTF_8)));
 
-    Route route = mock(Route.class);
+    var route = mock(Route.class);
     when(route.getEncoder()).thenReturn(encoder);
 
     when(ctx.getRoute()).thenReturn(route);
 
-    ServerSentMessage message = new ServerSentMessage(data);
+    var message = new ServerSentMessage(data);
     assertEquals(
         "data: line 1\ndata:  line ,a .. 2\ndata: line ...abc  3\n\n",
-        message.encode(ctx).toString(StandardCharsets.UTF_8));
+        message.encode(ctx).asString(StandardCharsets.UTF_8));
   }
 
   @Test
   public void shouldFormatMessageEndingWithNL() throws Exception {
-    String data = "line 1\n";
-    Context ctx = mock(Context.class);
+    var data = "line 1\n";
+    var ctx = mock(Context.class);
 
-    var bufferFactory = new DefaultDataBufferFactory();
-    when(ctx.getBufferFactory()).thenReturn(bufferFactory);
-    MessageEncoder encoder = mock(MessageEncoder.class);
+    var bufferFactory = new ByteBufferOutputFactory();
+    when(ctx.getOutputFactory()).thenReturn(bufferFactory);
+    var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))
         .thenReturn(bufferFactory.wrap(data.getBytes(StandardCharsets.UTF_8)));
 
-    Route route = mock(Route.class);
+    var route = mock(Route.class);
     when(route.getEncoder()).thenReturn(encoder);
 
     when(ctx.getRoute()).thenReturn(route);
 
-    ServerSentMessage message = new ServerSentMessage(data);
-    assertEquals("data: " + data + "\n\n", message.encode(ctx).toString(StandardCharsets.UTF_8));
+    var message = new ServerSentMessage(data);
+    assertEquals("data: " + data + "\n\n", message.encode(ctx).asString(StandardCharsets.UTF_8));
   }
 }

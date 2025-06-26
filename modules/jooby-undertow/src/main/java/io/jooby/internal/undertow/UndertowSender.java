@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
 import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 
@@ -32,6 +33,12 @@ public class UndertowSender implements Sender {
   @NonNull @Override
   public Sender write(@NonNull DataBuffer data, @NonNull Callback callback) {
     new UndertowDataBufferCallback(data, newIoCallback(ctx, callback)).send(exchange);
+    return this;
+  }
+
+  @NonNull @Override
+  public Sender write(@NonNull Output output, @NonNull Callback callback) {
+    new UndertowOutputCallback(output, newIoCallback(ctx, callback)).send(exchange);
     return this;
   }
 

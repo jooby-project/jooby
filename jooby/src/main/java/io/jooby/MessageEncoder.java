@@ -5,15 +5,13 @@
  */
 package io.jooby;
 
-import java.nio.charset.StandardCharsets;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.DataBuffer;
 import io.jooby.exception.NotAcceptableException;
+import io.jooby.output.Output;
 
 /**
- * Render a route output as byte array.
+ * Render a route output as a byte array.
  *
  * @author edgar
  * @since 2.0.0
@@ -24,7 +22,7 @@ public interface MessageEncoder {
   MessageEncoder TO_STRING =
       (ctx, value) -> {
         if (ctx.accept(ctx.getResponseType())) {
-          return ctx.getBufferFactory().wrap(value.toString().getBytes(StandardCharsets.UTF_8));
+          return ctx.getOutputFactory().wrap(value.toString());
         }
         throw new NotAcceptableException(ctx.header("Accept").valueOrNull());
       };
@@ -35,8 +33,8 @@ public interface MessageEncoder {
    *
    * @param ctx Web context.
    * @param value Value to render.
-   * @return Value as byte array or <code>null</code> if given object isn't supported it.
+   * @return Value as a byte array or <code>null</code> if given object isn't supported it.
    * @throws Exception If something goes wrong.
    */
-  @Nullable DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
+  @Nullable Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
 }

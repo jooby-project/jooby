@@ -5,8 +5,6 @@
  */
 package io.jooby.yasson;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,7 +20,7 @@ import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
@@ -103,8 +101,11 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
   }
 
   @Nullable @Override
-  public DataBuffer encode(@NonNull final Context ctx, @NonNull final Object value) {
+  public Output encode(@NonNull final Context ctx, @NonNull final Object value) {
     ctx.setDefaultResponseType(MediaType.json);
-    return ctx.getBufferFactory().wrap(jsonb.toJson(value).getBytes(UTF_8));
+    var factory = ctx.getOutputFactory();
+    var output = factory.newBufferedOutput();
+    jsonb.toJson(value, output.asOutputStream());
+    return output;
   }
 }

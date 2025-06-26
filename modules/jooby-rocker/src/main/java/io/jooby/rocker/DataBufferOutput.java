@@ -10,8 +10,8 @@ import java.nio.charset.Charset;
 import com.fizzed.rocker.ContentType;
 import com.fizzed.rocker.RockerOutput;
 import com.fizzed.rocker.RockerOutputFactory;
-import io.jooby.buffer.DataBuffer;
-import io.jooby.buffer.DataBufferFactory;
+import io.jooby.output.ChunkedOutput;
+import io.jooby.output.OutputFactory;
 
 /**
  * Rocker output that uses a byte array to render the output.
@@ -27,9 +27,9 @@ public class DataBufferOutput implements RockerOutput<DataBufferOutput> {
   private final ContentType contentType;
 
   /** The buffer where data is stored. */
-  protected DataBuffer buffer;
+  protected ChunkedOutput buffer;
 
-  DataBufferOutput(Charset charset, ContentType contentType, DataBuffer buffer) {
+  DataBufferOutput(Charset charset, ContentType contentType, ChunkedOutput buffer) {
     this.charset = charset;
     this.contentType = contentType;
     this.buffer = buffer;
@@ -59,7 +59,7 @@ public class DataBufferOutput implements RockerOutput<DataBufferOutput> {
 
   @Override
   public int getByteLength() {
-    return buffer.readableByteCount();
+    return buffer.size();
   }
 
   /**
@@ -67,13 +67,13 @@ public class DataBufferOutput implements RockerOutput<DataBufferOutput> {
    *
    * @return Byte buffer.
    */
-  public DataBuffer toBuffer() {
+  public ChunkedOutput toBuffer() {
     return buffer;
   }
 
   static RockerOutputFactory<DataBufferOutput> factory(
-      Charset charset, DataBufferFactory factory, int bufferSize) {
+      Charset charset, OutputFactory factory, int bufferSize) {
     return (contentType, charsetName) ->
-        new DataBufferOutput(charset, contentType, factory.allocateBuffer(bufferSize));
+        new DataBufferOutput(charset, contentType, factory.newChunkedOutput());
   }
 }

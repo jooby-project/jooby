@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -21,7 +20,7 @@ import io.jooby.MessageEncoder;
 import io.jooby.ModelAndView;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 public class HttpMessageEncoder implements MessageEncoder {
 
@@ -31,7 +30,7 @@ public class HttpMessageEncoder implements MessageEncoder {
 
   public HttpMessageEncoder add(MediaType type, MessageEncoder encoder) {
     if (encoder instanceof TemplateEngine engine) {
-      // media type is ignored for template engines. They  have a custom object type
+      // Media type is ignored for template engines. They have a custom object type
       templateEngineList.add(engine);
     } else {
       if (encoders == null) {
@@ -43,67 +42,67 @@ public class HttpMessageEncoder implements MessageEncoder {
   }
 
   @Override
-  public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
-    if (value instanceof ModelAndView modelAndView) {
-      for (TemplateEngine engine : templateEngineList) {
+  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+    if (value instanceof ModelAndView<?> modelAndView) {
+      for (var engine : templateEngineList) {
         if (engine.supports(modelAndView)) {
           return engine.encode(ctx, modelAndView);
         }
       }
       throw new IllegalArgumentException("No template engine for: " + modelAndView.getView());
     }
-    /** InputStream: */
-    if (value instanceof InputStream) {
-      ctx.send((InputStream) value);
+    /* InputStream: */
+    if (value instanceof InputStream in) {
+      ctx.send(in);
       return null;
     }
-    /** StatusCode: */
-    if (value instanceof StatusCode) {
-      ctx.send((StatusCode) value);
+    /* StatusCode: */
+    if (value instanceof StatusCode statusCode) {
+      ctx.send(statusCode);
       return null;
     }
-    /** FileChannel: */
-    if (value instanceof FileChannel) {
-      ctx.send((FileChannel) value);
+    /* FileChannel: */
+    if (value instanceof FileChannel channel) {
+      ctx.send(channel);
       return null;
     }
-    if (value instanceof File) {
-      ctx.send(((File) value).toPath());
+    if (value instanceof File file) {
+      ctx.send(file.toPath());
       return null;
     }
-    if (value instanceof Path) {
-      ctx.send((Path) value);
+    if (value instanceof Path path) {
+      ctx.send(path);
       return null;
     }
-    /** FileDownload: */
-    if (value instanceof FileDownload) {
-      ctx.send((FileDownload) value);
+    /* FileDownload: */
+    if (value instanceof FileDownload download) {
+      ctx.send(download);
       return null;
     }
-    var bufferFactory = ctx.getBufferFactory();
-    /** Strings: */
-    if (value instanceof CharSequence) {
-      return bufferFactory.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
+    var outputFactory = ctx.getOutputFactory();
+    /* Strings: */
+    if (value instanceof CharSequence charSequence) {
+      return outputFactory.wrap(charSequence.toString());
     }
     if (value instanceof Number) {
-      return bufferFactory.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
+      return outputFactory.wrap(value.toString());
     }
-    /** RawByte: */
-    if (value instanceof byte[]) {
-      return bufferFactory.wrap((byte[]) value);
+    /* RawByte: */
+    if (value instanceof byte[] bytes) {
+      return outputFactory.wrap(bytes);
     }
-    if (value instanceof ByteBuffer) {
-      ctx.send((ByteBuffer) value);
+    if (value instanceof ByteBuffer buffer) {
+      ctx.send(buffer);
       return null;
     }
     if (encoders != null) {
       // Content negotiation, find best:
-      List<MediaType> produces = ctx.getRoute().getProduces();
+      var produces = ctx.getRoute().getProduces();
       if (produces.isEmpty()) {
-        produces = new ArrayList<>(encoders.keySet());
+        produces = encoders.keySet().stream().toList();
       }
-      MediaType type = ctx.accept(produces);
-      MessageEncoder encoder = encoders.getOrDefault(type, MessageEncoder.TO_STRING);
+      var type = ctx.accept(produces);
+      var encoder = encoders.getOrDefault(type, MessageEncoder.TO_STRING);
       return encoder.encode(ctx, value);
     } else {
       return MessageEncoder.TO_STRING.encode(ctx, value);

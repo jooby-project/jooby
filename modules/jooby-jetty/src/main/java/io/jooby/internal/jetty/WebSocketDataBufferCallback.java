@@ -6,30 +6,29 @@
 package io.jooby.internal.jetty;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import org.eclipse.jetty.websocket.api.Callback;
 
 import io.jooby.SneakyThrows.Consumer2;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 public class WebSocketDataBufferCallback implements Callback {
 
-  private final DataBuffer.ByteBufferIterator it;
+  private final Iterator<ByteBuffer> it;
   private final Callback cb;
   private Consumer2<ByteBuffer, Callback> sender;
 
   public WebSocketDataBufferCallback(
-      Callback cb, DataBuffer buffer, Consumer2<ByteBuffer, Callback> sender) {
+      Callback cb, Output buffer, Consumer2<ByteBuffer, Callback> sender) {
     this.cb = cb;
-    this.it = buffer.readableByteBuffers();
+    this.it = buffer.iterator();
     this.sender = sender;
   }
 
   public void send() {
     if (it.hasNext()) {
       sender.accept(it.next(), this);
-    } else {
-      it.close();
     }
   }
 
@@ -44,10 +43,6 @@ public class WebSocketDataBufferCallback implements Callback {
 
   @Override
   public void fail(Throwable x) {
-    try {
-      cb.fail(x);
-    } finally {
-      it.close();
-    }
+    cb.fail(x);
   }
 }

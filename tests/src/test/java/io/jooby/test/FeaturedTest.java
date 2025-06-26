@@ -1006,11 +1006,7 @@ public class FeaturedTest {
                           return "{\"message\": \"raw\"}".getBytes(StandardCharsets.UTF_8);
                         });
 
-                    app.get(
-                        "/",
-                        ctx -> {
-                          return Arrays.asList(mapOf("message", "fooo"));
-                        });
+                    app.get("/", ctx -> List.of(mapOf("message", "fooo")));
                   });
             })
         .ready(
@@ -1058,14 +1054,12 @@ public class FeaturedTest {
               app.encoder(
                   io.jooby.MediaType.json,
                   (@NonNull Context ctx, @NonNull Object value) ->
-                      ctx.getBufferFactory()
-                          .wrap(("{" + value + "}").getBytes(StandardCharsets.UTF_8)));
+                      ctx.getOutputFactory().wrap("{" + value + "}"));
 
               app.encoder(
                   io.jooby.MediaType.xml,
                   (@NonNull Context ctx, @NonNull Object value) ->
-                      ctx.getBufferFactory()
-                          .wrap(("<" + value + ">").getBytes(StandardCharsets.UTF_8)));
+                      ctx.getOutputFactory().wrap("<" + value + ">"));
 
               app.get(
                   "/defaults",

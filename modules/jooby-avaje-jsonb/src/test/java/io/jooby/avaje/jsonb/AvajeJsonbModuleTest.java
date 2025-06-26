@@ -38,6 +38,6 @@ class AvajeJsonbModuleTest {
     var ctx = new MockContext();
     var o = List.of(1, 2, 3);
     var json = decoder.encode(ctx, o);
-    assertEquals("[1,2,3]", json.toString(StandardCharsets.UTF_8));
+    assertEquals("[1,2,3]", json.asString(StandardCharsets.UTF_8));
   }
 }

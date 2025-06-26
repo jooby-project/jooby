@@ -37,6 +37,7 @@ import io.jooby.buffer.DataBufferFactory;
 import io.jooby.exception.MissingValueException;
 import io.jooby.handler.AssetHandler;
 import io.jooby.handler.AssetSource;
+import io.jooby.output.OutputFactory;
 import io.jooby.value.ValueFactory;
 import jakarta.inject.Provider;
 
@@ -537,6 +538,10 @@ public interface Router extends Registry {
   @NonNull Router setDefaultWorker(@NonNull Executor worker);
 
   @NonNull DataBufferFactory getBufferFactory();
+
+  @NonNull OutputFactory getOutputFactory();
+
+  @NonNull Router setOutputFactory(@NonNull OutputFactory outputFactory);
 
   @NonNull Router setBufferFactory(@NonNull DataBufferFactory bufferFactory);
 

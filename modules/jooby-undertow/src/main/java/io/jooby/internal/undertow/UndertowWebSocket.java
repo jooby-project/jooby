@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -33,6 +34,7 @@ import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedBinaryMessage;
 import io.undertow.websockets.core.BufferedTextMessage;
@@ -87,7 +89,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   private static class WebSocketDataBufferCallback implements WebSocketCallback<Void> {
-    private final DataBuffer.ByteBufferIterator it;
+    private final Iterator<ByteBuffer> it;
     private final boolean binary;
     private final WebSocketChannel channel;
     private final UndertowWebSocket ws;
@@ -98,12 +100,12 @@ public class UndertowWebSocket extends AbstractReceiveListener
         WebSocketChannel channel,
         WriteCallback callback,
         boolean binary,
-        DataBuffer buffer) {
+        Output buffer) {
       this.ws = ws;
       this.channel = channel;
       this.binary = binary;
       this.cb = callback;
-      this.it = buffer.readableByteBuffers();
+      this.it = buffer.iterator();
     }
 
     public void send() {
@@ -223,11 +225,21 @@ public class UndertowWebSocket extends AbstractReceiveListener
 
   @NonNull @Override
   public WebSocket sendBinary(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
+    return this; // sendMessage(message, true, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
     return sendMessage(message, true, callback);
   }
 
   @NonNull @Override
   public WebSocket send(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
+    return this; // sendMessage(message, false, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
     return sendMessage(message, false, callback);
   }
 
@@ -236,7 +248,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
     return sendMessage(message, true, callback);
   }
 
-  private WebSocket sendMessage(DataBuffer buffer, boolean binary, WriteCallback callback) {
+  private WebSocket sendMessage(Output buffer, boolean binary, WriteCallback callback) {
     if (isOpen()) {
       try {
         new WebSocketDataBufferCallback(this, channel, callback, binary, buffer).send();

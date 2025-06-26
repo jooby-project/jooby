@@ -6,11 +6,13 @@
 package io.jooby.internal.jetty;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
 import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 public class JettyCallbacks {
   public static class ByteBufferArrayCallback implements Callback {
@@ -41,6 +43,48 @@ public class JettyCallbacks {
     @Override
     public void failed(Throwable x) {
       callback.failed(x);
+    }
+  }
+
+  public static class OutputCallback implements Callback {
+
+    private final Response response;
+    private final Callback cb;
+    private final Iterator<ByteBuffer> it;
+    private boolean closeOnLast;
+
+    public OutputCallback(Response response, Callback cb, Output buffer) {
+      this.response = response;
+      this.cb = cb;
+      this.it = buffer.iterator();
+    }
+
+    public void send(boolean closeOnLast) {
+      this.closeOnLast = closeOnLast;
+      if (it.hasNext()) {
+        var buffer = it.next();
+        if (it.hasNext()) {
+          response.write(false, buffer, this);
+        } else {
+          sendLast(closeOnLast, buffer);
+        }
+      } else {
+        sendLast(closeOnLast, null);
+      }
+    }
+
+    private void sendLast(boolean last, ByteBuffer buffer) {
+      response.write(last, buffer, cb);
+    }
+
+    @Override
+    public void succeeded() {
+      send(closeOnLast);
+    }
+
+    @Override
+    public void failed(Throwable x) {
+      cb.failed(x);
     }
   }
 
@@ -97,6 +141,10 @@ public class JettyCallbacks {
   public static DataBufferCallback fromDataBuffer(
       Response response, Callback cb, DataBuffer buffer) {
     return new DataBufferCallback(response, cb, buffer);
+  }
+
+  public static OutputCallback fromOutput(Response response, Callback cb, Output output) {
+    return new OutputCallback(response, cb, output);
   }
 
   public static ByteBufferArrayCallback fromByteBufferArray(

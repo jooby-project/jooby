@@ -32,7 +32,7 @@ import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson.
@@ -153,8 +153,8 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   }
 
   @Override
-  public DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
-    var buffer = ctx.getBufferFactory().allocateBuffer();
+  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+    var buffer = ctx.getOutputFactory().newBufferedOutput();
     ctx.setDefaultResponseType(mediaType);
     mapper.writer().writeValue(buffer.asOutputStream(), value);
     return buffer;

@@ -24,6 +24,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.internal.netty.*;
 import io.jooby.netty.buffer.NettyDataBufferFactory;
+import io.jooby.netty.output.NettyOutputFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelOption;
@@ -121,6 +122,8 @@ public class NettyServer extends Server.Base {
       }
       // Make sure context use same buffer factory
       applications.forEach(app -> app.setBufferFactory(bufferFactory));
+      var outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT);
+      applications.forEach(app -> app.setOutputFactory(outputFactory));
 
       addShutdownHook();
 

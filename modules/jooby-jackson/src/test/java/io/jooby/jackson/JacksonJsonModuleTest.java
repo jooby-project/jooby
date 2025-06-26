@@ -21,19 +21,19 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.buffer.DefaultDataBufferFactory;
+import io.jooby.output.ByteBufferOutputFactory;
 
 public class JacksonJsonModuleTest {
 
   @Test
   public void renderJson() throws Exception {
     Context ctx = mock(Context.class);
-    when(ctx.getBufferFactory()).thenReturn(new DefaultDataBufferFactory());
+    when(ctx.getOutputFactory()).thenReturn(new ByteBufferOutputFactory());
 
     JacksonModule jackson = new JacksonModule(new ObjectMapper());
 
     var buffer = jackson.encode(ctx, mapOf("k", "v"));
-    assertEquals("{\"k\":\"v\"}", buffer.toString(StandardCharsets.UTF_8));
+    assertEquals("{\"k\":\"v\"}", buffer.asString(StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.json);
   }
@@ -57,12 +57,12 @@ public class JacksonJsonModuleTest {
   @Test
   public void renderXml() throws Exception {
     Context ctx = mock(Context.class);
-    when(ctx.getBufferFactory()).thenReturn(new DefaultDataBufferFactory());
+    when(ctx.getOutputFactory()).thenReturn(new ByteBufferOutputFactory());
 
     JacksonModule jackson = new JacksonModule(new XmlMapper());
 
     var buffer = jackson.encode(ctx, mapOf("k", "v"));
-    assertEquals("<HashMap><k>v</k></HashMap>", buffer.toString(StandardCharsets.UTF_8));
+    assertEquals("<HashMap><k>v</k></HashMap>", buffer.asString(StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.xml);
   }

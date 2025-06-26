@@ -97,7 +97,7 @@ public class RockerModule implements Extension {
         this.reloading == null
             ? (env.isActive("dev") && runtime.isReloadingPossible())
             : this.reloading;
-    var factory = DataBufferOutput.factory(charset, application.getBufferFactory(), bufferSize);
+    var factory = DataBufferOutput.factory(charset, application.getOutputFactory(), bufferSize);
     runtime.setReloading(reloading);
     // renderer
     application.encoder(new RockerMessageEncoder(factory));

@@ -19,23 +19,23 @@ import gg.jte.TemplateOutput;
 import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
-import io.jooby.buffer.DataBuffer;
-import io.jooby.buffer.DataBufferFactory;
+import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
 
 public class Issue3599 {
 
   @Test
   public void shouldNotCallObjectMethodOnMapModels() {
-    var bufferFactory = mock(DataBufferFactory.class);
-    var buffer = mock(DataBuffer.class);
-    when(bufferFactory.allocateBuffer()).thenReturn(buffer);
+    var bufferFactory = mock(OutputFactory.class);
+    var buffer = mock(Output.class);
+    when(bufferFactory.newBufferedOutput()).thenReturn(buffer);
 
     var attributes = Map.<String, Object>of("foo", 1);
     var mapModel = new HashMap<String, Object>();
     mapModel.put("param1", new Issue3599());
 
     var ctx = mock(Context.class);
-    when(ctx.getBufferFactory()).thenReturn(bufferFactory);
+    when(ctx.getOutputFactory()).thenReturn(bufferFactory);
     when(ctx.getAttributes()).thenReturn(attributes);
 
     var jteParams = new HashMap<String, Object>();
@@ -53,15 +53,15 @@ public class Issue3599 {
 
   @Test
   public void shouldCallObjectMethodOnObjectModels() {
-    var bufferFactory = mock(DataBufferFactory.class);
-    var buffer = mock(DataBuffer.class);
-    when(bufferFactory.allocateBuffer()).thenReturn(buffer);
+    var bufferFactory = mock(OutputFactory.class);
+    var buffer = mock(Output.class);
+    when(bufferFactory.newBufferedOutput()).thenReturn(buffer);
 
     var attributes = Map.<String, Object>of("foo", 1);
     var model = new Issue3599();
 
     var ctx = mock(Context.class);
-    when(ctx.getBufferFactory()).thenReturn(bufferFactory);
+    when(ctx.getOutputFactory()).thenReturn(bufferFactory);
     when(ctx.getAttributes()).thenReturn(attributes);
 
     var jte = mock(TemplateEngine.class);

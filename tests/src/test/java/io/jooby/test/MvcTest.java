@@ -124,13 +124,13 @@ public class MvcTest {
               app.encoder(
                   io.jooby.MediaType.json,
                   (@NonNull Context ctx, @NonNull Object value) ->
-                      ctx.getBufferFactory()
+                      ctx.getOutputFactory()
                           .wrap(("{" + value + "}").getBytes(StandardCharsets.UTF_8)));
 
               app.encoder(
                   io.jooby.MediaType.xml,
                   (@NonNull Context ctx, @NonNull Object value) ->
-                      ctx.getBufferFactory()
+                      ctx.getOutputFactory()
                           .wrap(("<" + value + ">").getBytes(StandardCharsets.UTF_8)));
 
               app.decoder(

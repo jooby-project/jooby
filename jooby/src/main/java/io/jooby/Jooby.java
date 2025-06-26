@@ -52,6 +52,7 @@ import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.MutedServer;
 import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
+import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
 import io.jooby.value.ValueFactory;
 import jakarta.inject.Provider;
@@ -927,6 +928,17 @@ public class Jooby implements Router, Registry {
   @NonNull @Override
   public Jooby setValueFactory(@NonNull ValueFactory valueFactory) {
     router.setValueFactory(valueFactory);
+    return this;
+  }
+
+  @NonNull @Override
+  public OutputFactory getOutputFactory() {
+    return router.getOutputFactory();
+  }
+
+  @NonNull @Override
+  public Jooby setOutputFactory(@NonNull OutputFactory outputFactory) {
+    router.setOutputFactory(outputFactory);
     return this;
   }
 
