@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.netty.output;
+package io.jooby.internal.netty;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -11,11 +11,11 @@ import java.nio.charset.Charset;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.netty.NettyContext;
 import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
-class NettyBufferedOutput implements NettyOutput {
+public class NettyBufferedOutput implements Output {
 
   private final ByteBuf buffer;
 
@@ -23,7 +23,14 @@ class NettyBufferedOutput implements NettyOutput {
     this.buffer = buffer;
   }
 
-  @Override
+  public static ByteBuf byteBuf(Output output) {
+    if (output instanceof NettyBufferedOutput netty) {
+      return netty.byteBuf();
+    } else {
+      return Unpooled.wrappedBuffer(output.asByteBuffer());
+    }
+  }
+
   @NonNull public ByteBuf byteBuf() {
     return this.buffer;
   }

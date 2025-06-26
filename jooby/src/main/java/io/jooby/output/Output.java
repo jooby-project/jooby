@@ -42,6 +42,21 @@ public interface Output {
     toByteBuffer(0, dest, dest.position(), size());
   }
 
+  /**
+   * Copies the given length from this data buffer into the given destination {@code ByteBuffer},
+   * beginning at the given source position, and the given destination position in the destination
+   * byte buffer.
+   *
+   * @param srcPos the position of this data buffer from where copying should start
+   * @param dest the destination byte buffer
+   * @param destPos the position in {@code dest} to where copying should start
+   * @param length the amount of data to copy
+   */
+  default void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length) {
+    dest = dest.duplicate().clear();
+    dest.put(destPos, asByteBuffer(), srcPos, length);
+  }
+
   default Iterator<ByteBuffer> split(IntPredicate predicate) {
     // TODO: fix me for chunks
     var buffer = asByteBuffer();
@@ -58,21 +73,6 @@ public interface Output {
       chunks.add(buffer.duplicate().position(offset));
     }
     return chunks.iterator();
-  }
-
-  /**
-   * Copies the given length from this data buffer into the given destination {@code ByteBuffer},
-   * beginning at the given source position, and the given destination position in the destination
-   * byte buffer.
-   *
-   * @param srcPos the position of this data buffer from where copying should start
-   * @param dest the destination byte buffer
-   * @param destPos the position in {@code dest} to where copying should start
-   * @param length the amount of data to copy
-   */
-  default void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length) {
-    dest = dest.duplicate().clear();
-    dest.put(destPos, asByteBuffer(), srcPos, length);
   }
 
   void accept(SneakyThrows.Consumer<ByteBuffer> consumer);

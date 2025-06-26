@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.netty;
 
+import static io.jooby.internal.netty.NettyBufferedOutput.byteBuf;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -26,7 +28,6 @@ import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
-import io.jooby.netty.output.NettyOutput;
 import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -140,20 +141,12 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
 
   @NonNull @Override
   public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
-    if (message instanceof NettyOutput netty) {
-      return sendMessage(netty.byteBuf(), false, callback);
-    } else {
-      return sendMessage(Unpooled.wrappedBuffer(message.asByteBuffer()), false, callback);
-    }
+    return sendMessage(byteBuf(message), false, callback);
   }
 
   @NonNull @Override
   public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
-    if (message instanceof NettyOutput netty) {
-      return sendMessage(netty.byteBuf(), false, callback);
-    } else {
-      return sendMessage(Unpooled.wrappedBuffer(message.asByteBuffer()), true, callback);
-    }
+    return sendMessage(byteBuf(message), true, callback);
   }
 
   @Override

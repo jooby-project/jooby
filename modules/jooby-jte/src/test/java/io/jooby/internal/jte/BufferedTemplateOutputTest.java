@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test;
 
 import io.jooby.output.DefaultOutputFactory;
 
-public class DataBufferOutputTest {
+public class BufferedTemplateOutputTest {
 
   @Test
   public void checkWriteContent() {
     var factory = new DefaultOutputFactory();
     var buffer = factory.newBufferedOutput();
-    var output = new DataBufferOutput(buffer, StandardCharsets.UTF_8);
+    var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeContent("Hello");
     assertEquals("Hello", buffer.asString(StandardCharsets.UTF_8));
   }
@@ -28,7 +28,7 @@ public class DataBufferOutputTest {
   public void checkWriteContentSubstring() {
     var factory = new DefaultOutputFactory();
     var buffer = factory.newBufferedOutput();
-    var output = new DataBufferOutput(buffer, StandardCharsets.UTF_8);
+    var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeContent(" Hello World! ", 1, " Hello World! ".length() - 2);
     assertEquals("Hello World", buffer.asString(StandardCharsets.UTF_8));
   }
@@ -37,7 +37,7 @@ public class DataBufferOutputTest {
   public void checkWriteBinaryContent() {
     var factory = new DefaultOutputFactory();
     var buffer = factory.newBufferedOutput();
-    var output = new DataBufferOutput(buffer, StandardCharsets.UTF_8);
+    var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeBinaryContent("Hello".getBytes(StandardCharsets.UTF_8));
     assertEquals("Hello", buffer.asString(StandardCharsets.UTF_8));
   }

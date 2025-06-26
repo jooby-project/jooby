@@ -54,9 +54,6 @@ public class JettyServer extends io.jooby.Server.Base {
 
   private Consumer<HttpConfiguration> httpConfigurer;
 
-  // TODO: integrate buffer factory with Jetty.
-  // private DataBufferFactory bufferFactory;
-
   public JettyServer(@NonNull QueuedThreadPool threadPool) {
     this.threadPool = threadPool;
   }

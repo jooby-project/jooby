@@ -23,7 +23,6 @@ import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.internal.netty.*;
-import io.jooby.netty.output.NettyOutputFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelOption;

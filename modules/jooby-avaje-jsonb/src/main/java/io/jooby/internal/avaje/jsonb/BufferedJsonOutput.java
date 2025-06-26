@@ -11,10 +11,10 @@ import java.io.OutputStream;
 import io.avaje.json.stream.JsonOutput;
 import io.jooby.output.Output;
 
-public class DataBufferJsonOutput implements JsonOutput {
+public class BufferedJsonOutput implements JsonOutput {
   private final Output output;
 
-  public DataBufferJsonOutput(Output output) {
+  public BufferedJsonOutput(Output output) {
     this.output = output;
   }
 

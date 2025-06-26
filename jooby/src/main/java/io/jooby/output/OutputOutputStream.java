@@ -21,8 +21,8 @@ final class OutputOutputStream extends OutputStream {
 
   private boolean closed;
 
-  public OutputOutputStream(@NonNull Output dataBuffer) {
-    this.output = dataBuffer;
+  public OutputOutputStream(@NonNull Output output) {
+    this.output = output;
   }
 
   @Override

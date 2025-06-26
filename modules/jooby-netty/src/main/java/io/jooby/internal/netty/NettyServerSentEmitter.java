@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.netty;
 
+import static io.jooby.internal.netty.NettyBufferedOutput.byteBuf;
+
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,9 +20,6 @@ import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
 import io.jooby.ServerSentMessage;
 import io.jooby.SneakyThrows;
-import io.jooby.netty.output.NettyOutput;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -67,13 +66,7 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
   public ServerSentEmitter send(ServerSentMessage data) {
     if (checkOpen()) {
       var output = data.encode(netty);
-      ByteBuf byteBuf;
-      if (output instanceof NettyOutput outputNetty) {
-        byteBuf = outputNetty.byteBuf();
-      } else {
-        byteBuf = Unpooled.wrappedBuffer(output.asByteBuffer());
-      }
-      netty.ctx.writeAndFlush(byteBuf).addListener(this);
+      netty.ctx.writeAndFlush(byteBuf(output)).addListener(this);
     } else {
       log.warn("server-sent-event closed: {}", id);
     }

@@ -18,8 +18,7 @@ public class JteModelEncoder implements io.jooby.MessageEncoder {
   public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     if (value instanceof JteModel jte) {
       var buffer = ctx.getOutputFactory().newBufferedOutput();
-      var output = new DataBufferOutput(buffer, StandardCharsets.UTF_8);
-      jte.render(output);
+      jte.render(new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8));
       return buffer;
     }
     return null;

@@ -12,9 +12,9 @@ import io.jooby.MediaType;
 import io.jooby.Route;
 
 class RockerHandler implements Route.Filter {
-  private final RockerOutputFactory<DataBufferOutput> factory;
+  private final RockerOutputFactory<BufferedRockerOutput> factory;
 
-  RockerHandler(RockerOutputFactory<DataBufferOutput> factory) {
+  RockerHandler(RockerOutputFactory<BufferedRockerOutput> factory) {
     this.factory = factory;
   }
 

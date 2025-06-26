@@ -7,6 +7,8 @@ package io.jooby.output;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
@@ -57,6 +59,11 @@ class ByteBufferOut implements Output {
   @Override
   public void accept(SneakyThrows.Consumer<ByteBuffer> consumer) {
     consumer.accept(asByteBuffer());
+  }
+
+  @Override
+  public Iterator<ByteBuffer> iterator() {
+    return List.of(asByteBuffer()).iterator();
   }
 
   private int writableByteCount() {

@@ -14,9 +14,9 @@ import io.jooby.MessageEncoder;
 import io.jooby.output.Output;
 
 class RockerMessageEncoder implements MessageEncoder {
-  private final RockerOutputFactory<DataBufferOutput> factory;
+  private final RockerOutputFactory<BufferedRockerOutput> factory;
 
-  RockerMessageEncoder(RockerOutputFactory<DataBufferOutput> factory) {
+  RockerMessageEncoder(RockerOutputFactory<BufferedRockerOutput> factory) {
     this.factory = factory;
   }
 

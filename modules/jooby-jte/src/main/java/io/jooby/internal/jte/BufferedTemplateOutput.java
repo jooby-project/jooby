@@ -11,11 +11,11 @@ import java.nio.charset.Charset;
 import gg.jte.TemplateOutput;
 import io.jooby.output.Output;
 
-public class DataBufferOutput implements TemplateOutput {
+public class BufferedTemplateOutput implements TemplateOutput {
   private final Output buffer;
   private final Charset charset;
 
-  public DataBufferOutput(Output buffer, Charset charset) {
+  public BufferedTemplateOutput(Output buffer, Charset charset) {
     this.buffer = buffer;
     this.charset = charset;
   }

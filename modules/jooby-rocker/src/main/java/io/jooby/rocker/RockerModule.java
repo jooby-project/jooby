@@ -33,7 +33,7 @@ public class RockerModule implements Extension {
   }
 
   public RockerModule(@NonNull Charset charset) {
-    this(charset, DataBufferOutput.BUFFER_SIZE);
+    this(charset, BufferedRockerOutput.BUFFER_SIZE);
   }
 
   public RockerModule() {
@@ -78,7 +78,7 @@ public class RockerModule implements Extension {
 
   /**
    * Allow simple reuse of raw byte buffers. It is usually used through <code>ThreadLocal</code>
-   * variable pointing to instance of {@link DataBufferOutput}.
+   * variable pointing to instance of {@link BufferedRockerOutput}.
    *
    * @param reuseBuffer True for reuse the buffer. Default is: <code>false</code>
    * @return This module.
@@ -97,7 +97,7 @@ public class RockerModule implements Extension {
         this.reloading == null
             ? (env.isActive("dev") && runtime.isReloadingPossible())
             : this.reloading;
-    var factory = DataBufferOutput.factory(charset, application.getOutputFactory(), bufferSize);
+    var factory = BufferedRockerOutput.factory(charset, application.getOutputFactory(), bufferSize);
     runtime.setReloading(reloading);
     // renderer
     application.encoder(new RockerMessageEncoder(factory));

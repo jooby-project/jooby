@@ -18,7 +18,7 @@ import io.jooby.output.OutputFactory;
  *
  * @author edgar
  */
-public class DataBufferOutput implements RockerOutput<DataBufferOutput> {
+public class BufferedRockerOutput implements RockerOutput<BufferedRockerOutput> {
 
   /** Default buffer size: <code>4k</code>. */
   public static final int BUFFER_SIZE = 4096;
@@ -27,12 +27,12 @@ public class DataBufferOutput implements RockerOutput<DataBufferOutput> {
   private final ContentType contentType;
 
   /** The buffer where data is stored. */
-  protected Output buffer;
+  protected Output output;
 
-  DataBufferOutput(Charset charset, ContentType contentType, Output buffer) {
+  BufferedRockerOutput(Charset charset, ContentType contentType, Output output) {
     this.charset = charset;
     this.contentType = contentType;
-    this.buffer = buffer;
+    this.output = output;
   }
 
   @Override
@@ -46,20 +46,20 @@ public class DataBufferOutput implements RockerOutput<DataBufferOutput> {
   }
 
   @Override
-  public DataBufferOutput w(String string) {
-    buffer.write(string, getCharset());
+  public BufferedRockerOutput w(String string) {
+    output.write(string, getCharset());
     return this;
   }
 
   @Override
-  public DataBufferOutput w(byte[] bytes) {
-    buffer.write(bytes);
+  public BufferedRockerOutput w(byte[] bytes) {
+    output.write(bytes);
     return this;
   }
 
   @Override
   public int getByteLength() {
-    return buffer.size();
+    return output.size();
   }
 
   /**
@@ -68,12 +68,12 @@ public class DataBufferOutput implements RockerOutput<DataBufferOutput> {
    * @return Byte buffer.
    */
   public Output asOutput() {
-    return buffer;
+    return output;
   }
 
-  static RockerOutputFactory<DataBufferOutput> factory(
+  static RockerOutputFactory<BufferedRockerOutput> factory(
       Charset charset, OutputFactory factory, int bufferSize) {
     return (contentType, charsetName) ->
-        new DataBufferOutput(charset, contentType, factory.newCompositeOutput());
+        new BufferedRockerOutput(charset, contentType, factory.newCompositeOutput());
   }
 }
