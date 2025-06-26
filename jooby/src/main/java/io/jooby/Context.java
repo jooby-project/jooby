@@ -30,8 +30,6 @@ import java.util.function.BiFunction;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.DataBuffer;
-import io.jooby.buffer.DataBufferFactory;
 import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.ParamLookupImpl;
 import io.jooby.internal.ReadOnlyContext;
@@ -146,8 +144,6 @@ public interface Context extends Registry {
    * @return HTTP router (usually this represents an instance of {@link Jooby}.
    */
   Router getRouter();
-
-  DataBufferFactory getBufferFactory();
 
   OutputFactory getOutputFactory();
 
@@ -1309,14 +1305,6 @@ public interface Context extends Registry {
    * @return This context.
    */
   Context send(@NonNull ByteBuffer data);
-
-  /**
-   * Send response data.
-   *
-   * @param data Response.
-   * @return This context.
-   */
-  Context send(@NonNull DataBuffer data);
 
   /**
    * Send response data.

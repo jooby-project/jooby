@@ -33,7 +33,6 @@ import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
-import io.jooby.buffer.DataBuffer;
 import io.jooby.output.Output;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedBinaryMessage;
@@ -88,14 +87,14 @@ public class UndertowWebSocket extends AbstractReceiveListener
     }
   }
 
-  private static class WebSocketDataBufferCallback implements WebSocketCallback<Void> {
+  private static class WebSocketOutputCallback implements WebSocketCallback<Void> {
     private final Iterator<ByteBuffer> it;
     private final boolean binary;
     private final WebSocketChannel channel;
     private final UndertowWebSocket ws;
     private final WriteCallback cb;
 
-    public WebSocketDataBufferCallback(
+    public WebSocketOutputCallback(
         UndertowWebSocket ws,
         WebSocketChannel channel,
         WriteCallback callback,
@@ -224,18 +223,8 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
-    return this; // sendMessage(message, true, callback);
-  }
-
-  @NonNull @Override
   public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
     return sendMessage(message, true, callback);
-  }
-
-  @NonNull @Override
-  public WebSocket send(@NonNull DataBuffer message, @NonNull WriteCallback callback) {
-    return this; // sendMessage(message, false, callback);
   }
 
   @NonNull @Override
@@ -251,7 +240,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
   private WebSocket sendMessage(Output buffer, boolean binary, WriteCallback callback) {
     if (isOpen()) {
       try {
-        new WebSocketDataBufferCallback(this, channel, callback, binary, buffer).send();
+        new WebSocketOutputCallback(this, channel, callback, binary, buffer).send();
       } catch (Throwable x) {
         onError(channel, x);
       }

@@ -11,7 +11,6 @@ import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.DataBuffer;
 import io.jooby.output.Output;
 
 /**
@@ -242,12 +241,6 @@ public interface WebSocket {
 
   @NonNull WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
 
-  default @NonNull WebSocket send(@NonNull DataBuffer message) {
-    return send(message, WriteCallback.NOOP);
-  }
-
-  @NonNull WebSocket send(@NonNull DataBuffer message, @NonNull WriteCallback callback);
-
   default @NonNull WebSocket send(@NonNull Output message) {
     return send(message, WriteCallback.NOOP);
   }
@@ -299,12 +292,6 @@ public interface WebSocket {
   }
 
   @NonNull WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
-
-  default @NonNull WebSocket sendBinary(@NonNull DataBuffer message) {
-    return sendBinary(message, WriteCallback.NOOP);
-  }
-
-  @NonNull WebSocket sendBinary(@NonNull DataBuffer message, @NonNull WriteCallback callback);
 
   default @NonNull WebSocket sendBinary(@NonNull Output message) {
     return sendBinary(message, WriteCallback.NOOP);

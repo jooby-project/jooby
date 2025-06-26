@@ -13,13 +13,13 @@ import org.eclipse.jetty.websocket.api.Callback;
 import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.output.Output;
 
-public class WebSocketDataBufferCallback implements Callback {
+public class WebSocketOutputCallback implements Callback {
 
   private final Iterator<ByteBuffer> it;
   private final Callback cb;
   private Consumer2<ByteBuffer, Callback> sender;
 
-  public WebSocketDataBufferCallback(
+  public WebSocketOutputCallback(
       Callback cb, Output buffer, Consumer2<ByteBuffer, Callback> sender) {
     this.cb = cb;
     this.it = buffer.iterator();

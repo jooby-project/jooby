@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.DataBufferFactory;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.LocaleUtils;
@@ -738,17 +737,6 @@ public class Jooby implements Router, Registry {
   @NonNull @Override
   public Jooby setDefaultWorker(@NonNull Executor worker) {
     this.router.setDefaultWorker(worker);
-    return this;
-  }
-
-  @NonNull @Override
-  public DataBufferFactory getBufferFactory() {
-    return router.getBufferFactory();
-  }
-
-  @NonNull @Override
-  public Jooby setBufferFactory(@NonNull DataBufferFactory bufferFactory) {
-    router.setBufferFactory(bufferFactory);
     return this;
   }
 

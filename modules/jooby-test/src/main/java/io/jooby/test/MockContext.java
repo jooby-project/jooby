@@ -53,9 +53,6 @@ import io.jooby.ServerSentEmitter;
 import io.jooby.Session;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
-import io.jooby.buffer.DataBuffer;
-import io.jooby.buffer.DataBufferFactory;
-import io.jooby.buffer.DefaultDataBufferFactory;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.output.ByteBufferOutputFactory;
 import io.jooby.output.Output;
@@ -122,8 +119,6 @@ public class MockContext implements DefaultContext {
 
   private int port = -1;
 
-  private DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
-
   private OutputFactory outputFactory = new ByteBufferOutputFactory();
 
   @Override
@@ -140,11 +135,6 @@ public class MockContext implements DefaultContext {
   @Override
   public int getPort() {
     return port;
-  }
-
-  @Override
-  public DataBufferFactory getBufferFactory() {
-    return bufferFactory;
   }
 
   @Override
@@ -580,13 +570,6 @@ public class MockContext implements DefaultContext {
         return this;
       }
 
-      @Override
-      public Sender write(@NonNull DataBuffer data, @NonNull Callback callback) {
-        response.setResult(data);
-        callback.onComplete(MockContext.this, null);
-        return this;
-      }
-
       @NonNull @Override
       public Sender write(@NonNull Output output, @NonNull Callback callback) {
         response.setResult(output);
@@ -682,14 +665,6 @@ public class MockContext implements DefaultContext {
   public MockContext send(@NonNull ByteBuffer data) {
     responseStarted = true;
     this.response.setResult(data).setContentLength(data.remaining());
-    listeners.run(this);
-    return this;
-  }
-
-  @Override
-  public Context send(@NonNull DataBuffer data) {
-    responseStarted = true;
-    this.response.setResult(data).setContentLength(data.readableByteCount());
     listeners.run(this);
     return this;
   }

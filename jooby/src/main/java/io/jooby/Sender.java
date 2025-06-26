@@ -10,11 +10,10 @@ import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.DataBuffer;
 import io.jooby.output.Output;
 
 /**
- * Non-blocking sender. Reactive responses uses this class to send partial data in non-blocking
+ * Non-blocking sender. Reactive responses use this class to send partial data in a non-blocking
  * manner.
  *
  * <p>RxJava example:
@@ -87,17 +86,15 @@ public interface Sender {
   }
 
   /**
-   * Write a bytes chunk. Chunk is flushed immediately.
+   * Write a byte chunk. Chunk is flushed immediately.
    *
    * @param data Bytes chunk.
    * @param callback Callback.
    * @return This sender.
    */
-  @NonNull Sender write(@NonNull byte[] data, @NonNull Callback callback);
+  Sender write(@NonNull byte[] data, @NonNull Callback callback);
 
-  @NonNull Sender write(@NonNull DataBuffer data, @NonNull Callback callback);
-
-  @NonNull Sender write(@NonNull Output output, @NonNull Callback callback);
+  Sender write(@NonNull Output output, @NonNull Callback callback);
 
   /** Close the sender. */
   void close();

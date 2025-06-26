@@ -19,7 +19,6 @@ import java.nio.file.Path;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.buffer.DataBuffer;
 import io.jooby.output.Output;
 
 public class HeadContext extends ForwardingContext {
@@ -61,14 +60,6 @@ public class HeadContext extends ForwardingContext {
   @NonNull @Override
   public Context send(@NonNull ByteBuffer data) {
     ctx.setResponseLength(data.remaining());
-    checkSizeHeaders();
-    ctx.send(StatusCode.OK);
-    return this;
-  }
-
-  @NonNull @Override
-  public Context send(@NonNull DataBuffer data) {
-    ctx.setResponseLength(data.readableByteCount());
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
     return this;
@@ -191,11 +182,6 @@ public class HeadContext extends ForwardingContext {
   private static class NoopSender implements Sender {
     @NonNull @Override
     public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
-      return this;
-    }
-
-    @NonNull @Override
-    public Sender write(@NonNull DataBuffer data, @NonNull Callback callback) {
       return this;
     }
 

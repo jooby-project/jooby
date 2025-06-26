@@ -42,6 +42,10 @@ public class NettyOutputFactory implements OutputFactory {
     this(ByteBufAllocator.DEFAULT);
   }
 
+  public ByteBufAllocator allocator() {
+    return allocator;
+  }
+
   @Override
   public Output newBufferedOutput(int size) {
     return new NettyBufferedOutput(this.allocator.buffer(size));

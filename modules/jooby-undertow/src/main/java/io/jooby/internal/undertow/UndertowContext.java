@@ -57,7 +57,6 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
-import io.jooby.buffer.DataBuffer;
 import io.jooby.output.Output;
 import io.jooby.value.Value;
 import io.undertow.Handlers;
@@ -496,12 +495,6 @@ public class UndertowContext implements DefaultContext, IoCallback {
   public Context send(@NonNull ByteBuffer data) {
     exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(data.remaining()));
     exchange.getResponseSender().send(data, this);
-    return this;
-  }
-
-  @NonNull @Override
-  public Context send(@NonNull DataBuffer data) {
-    data.send(this);
     return this;
   }
 

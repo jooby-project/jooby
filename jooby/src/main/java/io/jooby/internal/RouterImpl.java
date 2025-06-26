@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -41,8 +40,6 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.buffer.DataBufferFactory;
-import io.jooby.buffer.DefaultDataBufferFactory;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.handler.ServerSentEventHandler;
@@ -164,7 +161,7 @@ public class RouterImpl implements Router {
   private ContextInitializer postDispatchInitializer;
 
   private Set<RouterOption> routerOptions = EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR);
-  private DataBufferFactory bufferFactory;
+
   private boolean trustProxy;
 
   private boolean contextAsService;
@@ -372,23 +369,6 @@ public class RouterImpl implements Router {
   @NonNull @Override
   public Executor getWorker() {
     return worker;
-  }
-
-  @NonNull @Override
-  public DataBufferFactory getBufferFactory() {
-    if (bufferFactory == null) {
-      bufferFactory =
-          ServiceLoader.load(DataBufferFactory.class)
-              .findFirst()
-              .orElse(DefaultDataBufferFactory.sharedInstance);
-    }
-    return bufferFactory;
-  }
-
-  @NonNull @Override
-  public Router setBufferFactory(@NonNull DataBufferFactory bufferFactory) {
-    this.bufferFactory = bufferFactory;
-    return this;
   }
 
   @NonNull @Override

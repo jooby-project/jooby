@@ -8,7 +8,6 @@
 module io.jooby {
   exports io.jooby;
   exports io.jooby.annotation;
-  exports io.jooby.buffer;
   exports io.jooby.exception;
   exports io.jooby.handler;
   exports io.jooby.validation;
@@ -20,7 +19,6 @@ module io.jooby {
   uses io.jooby.Server;
   uses io.jooby.SslProvider;
   uses io.jooby.LoggingService;
-  uses io.jooby.buffer.DataBufferFactory;
 
   /*
    * True core deps

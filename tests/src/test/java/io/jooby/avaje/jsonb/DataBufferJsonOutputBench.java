@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import io.avaje.json.stream.JsonOutput;
-import io.jooby.buffer.DataBuffer;
+import io.jooby.output.Output;
 
 public class DataBufferJsonOutputBench implements JsonOutput {
 
-  private DataBuffer buffer;
+  private Output buffer;
 
-  public DataBufferJsonOutputBench(DataBuffer buffer) {
+  public DataBufferJsonOutputBench(Output buffer) {
     this.buffer = buffer;
   }
 

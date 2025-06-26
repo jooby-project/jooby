@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.DataBufferFactory;
 import io.jooby.exception.MissingValueException;
 import io.jooby.handler.AssetHandler;
 import io.jooby.handler.AssetSource;
@@ -537,13 +536,9 @@ public interface Router extends Registry {
    */
   @NonNull Router setDefaultWorker(@NonNull Executor worker);
 
-  @NonNull DataBufferFactory getBufferFactory();
-
   @NonNull OutputFactory getOutputFactory();
 
   @NonNull Router setOutputFactory(@NonNull OutputFactory outputFactory);
-
-  @NonNull Router setBufferFactory(@NonNull DataBufferFactory bufferFactory);
 
   /**
    * Attach a filter to the route pipeline.

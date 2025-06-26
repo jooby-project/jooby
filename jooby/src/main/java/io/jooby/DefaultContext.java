@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.DataBufferFactory;
 import io.jooby.exception.RegistryException;
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
@@ -653,10 +652,6 @@ public interface DefaultContext extends Context {
       throw SneakyThrows.propagate(cause);
     }
     return this;
-  }
-
-  default DataBufferFactory getBufferFactory() {
-    return getRouter().getBufferFactory();
   }
 
   @Override

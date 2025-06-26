@@ -11,7 +11,6 @@ import java.util.Iterator;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
-import io.jooby.buffer.DataBuffer;
 import io.jooby.output.Output;
 
 public class JettyCallbacks {
@@ -86,61 +85,6 @@ public class JettyCallbacks {
     public void failed(Throwable x) {
       cb.failed(x);
     }
-  }
-
-  public static class DataBufferCallback implements Callback {
-
-    private final Response response;
-    private final Callback cb;
-    private final DataBuffer.ByteBufferIterator it;
-    private boolean closeOnLast;
-
-    public DataBufferCallback(Response response, Callback cb, DataBuffer buffer) {
-      this.response = response;
-      this.cb = cb;
-      this.it = buffer.readableByteBuffers();
-    }
-
-    public void send(boolean closeOnLast) {
-      this.closeOnLast = closeOnLast;
-      if (it.hasNext()) {
-        var buffer = it.next();
-        if (it.hasNext()) {
-          response.write(false, buffer, this);
-        } else {
-          sendLast(closeOnLast, buffer);
-        }
-      } else {
-        sendLast(closeOnLast, null);
-      }
-    }
-
-    private void sendLast(boolean last, ByteBuffer buffer) {
-      try {
-        response.write(last, buffer, cb);
-      } finally {
-        it.close();
-      }
-    }
-
-    @Override
-    public void succeeded() {
-      send(closeOnLast);
-    }
-
-    @Override
-    public void failed(Throwable x) {
-      try {
-        cb.failed(x);
-      } finally {
-        it.close();
-      }
-    }
-  }
-
-  public static DataBufferCallback fromDataBuffer(
-      Response response, Callback cb, DataBuffer buffer) {
-    return new DataBufferCallback(response, cb, buffer);
   }
 
   public static OutputCallback fromOutput(Response response, Callback cb, Output output) {

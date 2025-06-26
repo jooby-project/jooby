@@ -23,7 +23,6 @@ import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.internal.netty.*;
-import io.jooby.netty.buffer.NettyDataBufferFactory;
 import io.jooby.netty.output.NettyOutputFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -54,20 +53,7 @@ public class NettyServer extends Server.Base {
   private ScheduledExecutorService dateLoop;
   private ExecutorService worker;
 
-  private NettyDataBufferFactory bufferFactory;
   private List<Jooby> applications;
-
-  /**
-   * Creates a server.
-   *
-   * @param bufferFactory Byte buffer allocator.
-   * @param worker Thread-pool to use.
-   */
-  public NettyServer(
-      @NonNull NettyDataBufferFactory bufferFactory, @NonNull ExecutorService worker) {
-    this.worker = worker;
-    this.bufferFactory = bufferFactory;
-  }
 
   /**
    * Creates a server.
@@ -76,15 +62,6 @@ public class NettyServer extends Server.Base {
    */
   public NettyServer(@NonNull ExecutorService worker) {
     this.worker = worker;
-  }
-
-  /**
-   * Creates a server.
-   *
-   * @param bufferFactory Byte buffer allocator.
-   */
-  public NettyServer(@NonNull NettyDataBufferFactory bufferFactory) {
-    this.bufferFactory = bufferFactory;
   }
 
   /** Creates a server. */
@@ -117,11 +94,7 @@ public class NettyServer extends Server.Base {
       if (worker == null) {
         worker = newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
       }
-      if (bufferFactory == null) {
-        bufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
-      }
       // Make sure context use same buffer factory
-      applications.forEach(app -> app.setBufferFactory(bufferFactory));
       var outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT);
       applications.forEach(app -> app.setOutputFactory(outputFactory));
 
@@ -141,7 +114,7 @@ public class NettyServer extends Server.Base {
       this.dateLoop = Executors.newSingleThreadScheduledExecutor();
       var dateService = new NettyDateService(dateLoop);
 
-      var allocator = bufferFactory.getByteBufAllocator();
+      var allocator = outputFactory.allocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {
