@@ -7,29 +7,29 @@ package io.jooby.output;
 
 import java.nio.ByteBuffer;
 
-public class ByteBufferOutputFactory implements OutputFactory {
+public class DefaultOutputFactory implements OutputFactory {
   @Override
   public Output newBufferedOutput(int size) {
-    return new ByteBufferOutputImpl(size);
+    return new ByteBufferOut(size);
   }
 
   @Override
-  public ChunkedOutput newChunkedOutput() {
-    return new ByteBufferChunkedOutput();
+  public Output newCompositeOutput() {
+    return new CompsiteByteBufferOutput();
   }
 
   @Override
   public Output wrap(ByteBuffer buffer) {
-    return new WrappedOutput(buffer);
+    return new ByteBufferWrappedOutput(buffer);
   }
 
   @Override
   public Output wrap(byte[] bytes) {
-    return new WrappedOutput(bytes);
+    return new ByteBufferWrappedOutput(bytes);
   }
 
   @Override
   public Output wrap(byte[] bytes, int offset, int length) {
-    return new WrappedOutput(bytes, offset, length);
+    return new ByteBufferWrappedOutput(bytes, offset, length);
   }
 }

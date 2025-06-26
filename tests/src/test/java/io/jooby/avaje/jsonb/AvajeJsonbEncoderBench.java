@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 
 import io.avaje.jsonb.Jsonb;
-import io.jooby.output.ByteBufferOutputFactory;
+import io.jooby.output.DefaultOutputFactory;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
 
@@ -37,7 +37,7 @@ public class AvajeJsonbEncoderBench {
   public void setup() {
     message = Map.of("id", 98, "value", "Hello World");
     jsonb = Jsonb.builder().build();
-    factory = new ByteBufferOutputFactory();
+    factory = new DefaultOutputFactory();
   }
 
   @Benchmark
@@ -48,7 +48,7 @@ public class AvajeJsonbEncoderBench {
   @Benchmark
   public void withDataBufferOutputStream() {
     var buffer = cache.get();
-    jsonb.toJson(message, jsonb.writer(new DataBufferJsonOutputBench(buffer)));
+    jsonb.toJson(message, jsonb.writer(new JsonOutputBench(buffer)));
     // TODO: add clear to output or use close
     buffer.asByteBuffer().clear();
   }

@@ -60,7 +60,7 @@ class OutputWriter extends Writer {
       return;
     }
     this.closed = true;
-    output.close();
+    output.clear();
   }
 
   private void checkClosed() throws IOException {

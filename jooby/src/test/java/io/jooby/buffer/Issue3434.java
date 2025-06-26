@@ -15,11 +15,11 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
-import io.jooby.output.ByteBufferOutputFactory;
+import io.jooby.output.DefaultOutputFactory;
 import io.jooby.output.OutputFactory;
 
 public class Issue3434 {
-  OutputFactory factory = new ByteBufferOutputFactory();
+  OutputFactory factory = new DefaultOutputFactory();
 
   @Test
   void shouldWriteCharBufferOnBufferWriter() throws IOException {

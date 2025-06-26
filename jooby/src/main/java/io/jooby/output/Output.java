@@ -5,7 +5,6 @@
  */
 package io.jooby.output;
 
-import java.io.Closeable;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.ByteBuffer;
@@ -19,7 +18,7 @@ import java.util.function.IntPredicate;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 
-public interface Output extends Closeable {
+public interface Output {
   /** Default buffer size: <code>4k</code>. */
   int BUFFER_SIZE = 4096;
 
@@ -177,16 +176,20 @@ public interface Output extends Closeable {
     return this;
   }
 
+  void send(io.jooby.Context ctx);
+
+  Output clear();
+
   static Output wrap(ByteBuffer buffer) {
-    return new WrappedOutput(buffer);
+    return new ByteBufferWrappedOutput(buffer);
   }
 
   static Output wrap(byte[] bytes) {
-    return new WrappedOutput(bytes);
+    return new ByteBufferWrappedOutput(bytes);
   }
 
   static Output wrap(byte[] bytes, int offset, int length) {
-    return new WrappedOutput(bytes, offset, length);
+    return new ByteBufferWrappedOutput(bytes, offset, length);
   }
 
   static Output wrap(String value) {
@@ -196,6 +199,4 @@ public interface Output extends Closeable {
   static Output wrap(String value, Charset charset) {
     return wrap(value.getBytes(charset));
   }
-
-  void send(io.jooby.Context ctx);
 }

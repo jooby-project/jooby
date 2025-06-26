@@ -35,7 +35,7 @@ import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
-import io.jooby.output.ByteBufferOutputFactory;
+import io.jooby.output.DefaultOutputFactory;
 import io.jooby.output.OutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
@@ -656,6 +656,6 @@ public interface DefaultContext extends Context {
 
   @Override
   default OutputFactory getOutputFactory() {
-    return new ByteBufferOutputFactory();
+    return new DefaultOutputFactory();
   }
 }

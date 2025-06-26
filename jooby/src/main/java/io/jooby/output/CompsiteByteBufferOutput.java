@@ -5,10 +5,8 @@
  */
 package io.jooby.output;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +14,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 
-class ByteBufferChunkedOutput implements ChunkedOutput {
+class CompsiteByteBufferOutput implements Output {
   private final List<ByteBuffer> chunks = new ArrayList<>();
   private int size = 0;
   private int bufferSizeHint = BUFFER_SIZE;
-
-  @Override
-  public List<ByteBuffer> getChunks() {
-    return chunks;
-  }
 
   @Override
   public int size() {
@@ -50,8 +43,10 @@ class ByteBufferChunkedOutput implements ChunkedOutput {
   }
 
   @Override
-  public void close() throws IOException {
-    // NOOP
+  public Output clear() {
+    chunks.forEach(ByteBuffer::clear);
+    chunks.clear();
+    return this;
   }
 
   /**
@@ -86,7 +81,7 @@ class ByteBufferChunkedOutput implements ChunkedOutput {
 
   @Override
   public String toString() {
-    return asString(StandardCharsets.UTF_8);
+    return "chunks=" + chunks.size() + ", size=" + size;
   }
 
   @Override

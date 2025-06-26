@@ -54,7 +54,7 @@ import io.jooby.Session;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.output.ByteBufferOutputFactory;
+import io.jooby.output.DefaultOutputFactory;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
 import io.jooby.value.Value;
@@ -119,7 +119,7 @@ public class MockContext implements DefaultContext {
 
   private int port = -1;
 
-  private OutputFactory outputFactory = new ByteBufferOutputFactory();
+  private OutputFactory outputFactory = new DefaultOutputFactory();
 
   @Override
   public String getMethod() {

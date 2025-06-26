@@ -16,6 +16,8 @@ public interface OutputFactory {
     return newBufferedOutput(Output.BUFFER_SIZE);
   }
 
+  Output newCompositeOutput();
+
   default Output wrap(String value) {
     return wrap(value, StandardCharsets.UTF_8);
   }
@@ -29,6 +31,4 @@ public interface OutputFactory {
   Output wrap(byte[] bytes);
 
   Output wrap(byte[] bytes, int offset, int length);
-
-  ChunkedOutput newChunkedOutput();
 }

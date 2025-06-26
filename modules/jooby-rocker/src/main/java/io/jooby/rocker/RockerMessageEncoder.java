@@ -26,7 +26,7 @@ class RockerMessageEncoder implements MessageEncoder {
       var output = template.render(factory);
       ctx.setResponseLength(output.getByteLength());
       ctx.setDefaultResponseType(MediaType.html);
-      return output.toBuffer();
+      return output.asOutput();
     }
     return null;
   }

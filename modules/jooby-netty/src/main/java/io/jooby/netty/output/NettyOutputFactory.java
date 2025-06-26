@@ -7,7 +7,6 @@ package io.jooby.netty.output;
 
 import java.nio.ByteBuffer;
 
-import io.jooby.output.ChunkedOutput;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
 import io.netty.buffer.ByteBufAllocator;
@@ -67,7 +66,7 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   @Override
-  public ChunkedOutput newChunkedOutput() {
-    return new NettyChunkedOutput(allocator.compositeBuffer(48));
+  public Output newCompositeOutput() {
+    return new NettyCompositeOutput(allocator.compositeBuffer(48));
   }
 }

@@ -11,27 +11,27 @@ import java.io.OutputStream;
 import io.avaje.json.stream.JsonOutput;
 import io.jooby.output.Output;
 
-public class DataBufferJsonOutputBench implements JsonOutput {
+public class JsonOutputBench implements JsonOutput {
 
-  private Output buffer;
+  private final Output output;
 
-  public DataBufferJsonOutputBench(Output buffer) {
-    this.buffer = buffer;
+  public JsonOutputBench(Output output) {
+    this.output = output;
   }
 
   @Override
   public void write(byte[] content, int offset, int length) throws IOException {
-    buffer.write(content, offset, length);
+    output.write(content, offset, length);
   }
 
   @Override
-  public void flush() throws IOException {}
+  public void flush() {}
 
   @Override
   public OutputStream unwrapOutputStream() {
-    return this.buffer.asOutputStream();
+    return this.output.asOutputStream();
   }
 
   @Override
-  public void close() throws IOException {}
+  public void close() {}
 }

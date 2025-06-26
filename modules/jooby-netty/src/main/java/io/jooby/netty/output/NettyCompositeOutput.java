@@ -5,26 +5,22 @@
  */
 package io.jooby.netty.output;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.netty.NettyContext;
-import io.jooby.output.ChunkedOutput;
 import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 
-class NettyChunkedOutput implements ChunkedOutput, NettyOutput {
+class NettyCompositeOutput implements NettyOutput {
 
   private final CompositeByteBuf buffer;
 
-  protected NettyChunkedOutput(CompositeByteBuf buffer) {
+  protected NettyCompositeOutput(CompositeByteBuf buffer) {
     this.buffer = buffer;
   }
 
@@ -81,10 +77,8 @@ class NettyChunkedOutput implements ChunkedOutput, NettyOutput {
   }
 
   @Override
-  public void close() throws IOException {}
-
-  @Override
-  public List<ByteBuffer> getChunks() {
-    return Arrays.asList(buffer.nioBuffers());
+  public Output clear() {
+    this.buffer.clear();
+    return this;
   }
 }

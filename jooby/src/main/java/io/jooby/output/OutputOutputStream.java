@@ -45,7 +45,7 @@ final class OutputOutputStream extends OutputStream {
       return;
     }
     this.closed = true;
-    output.close();
+    output.clear();
   }
 
   private void checkClosed() throws IOException {

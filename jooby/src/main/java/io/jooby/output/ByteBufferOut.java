@@ -5,16 +5,14 @@
  */
 package io.jooby.output;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 
-class ByteBufferOutputImpl implements Output {
+class ByteBufferOut implements Output {
   private static final int MAX_CAPACITY = Integer.MAX_VALUE;
 
   private static final int CAPACITY_THRESHOLD = 1024 * 1024 * 4;
@@ -27,20 +25,20 @@ class ByteBufferOutputImpl implements Output {
 
   private int writePosition;
 
-  public ByteBufferOutputImpl(boolean direct, int capacity) {
+  public ByteBufferOut(boolean direct, int capacity) {
     this.buffer = allocate(capacity, direct);
     this.capacity = this.buffer.remaining();
   }
 
-  public ByteBufferOutputImpl(boolean direct) {
+  public ByteBufferOut(boolean direct) {
     this(direct, BUFFER_SIZE);
   }
 
-  public ByteBufferOutputImpl(int bufferSize) {
+  public ByteBufferOut(int bufferSize) {
     this(false, bufferSize);
   }
 
-  public ByteBufferOutputImpl() {
+  public ByteBufferOut() {
     this(BUFFER_SIZE);
   }
 
@@ -114,8 +112,9 @@ class ByteBufferOutputImpl implements Output {
   }
 
   @Override
-  public void close() throws IOException {
+  public Output clear() {
     this.buffer.clear();
+    return this;
   }
 
   @Override
@@ -125,7 +124,14 @@ class ByteBufferOutputImpl implements Output {
 
   @Override
   public String toString() {
-    return asString(StandardCharsets.UTF_8);
+    return "readPosition="
+        + this.readPosition
+        + ", writePosition="
+        + this.writePosition
+        + ", size="
+        + this.size()
+        + ", capacity="
+        + this.capacity;
   }
 
   /** Calculate the capacity of the buffer. */

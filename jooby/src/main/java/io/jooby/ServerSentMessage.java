@@ -7,9 +7,6 @@ package io.jooby;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.function.IntPredicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -172,69 +169,5 @@ public class ServerSentMessage {
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
-  }
-
-  class ServerSentMessageOutput implements Output {
-    private final Output delegate;
-
-    public ServerSentMessageOutput(Output delegate) {
-      this.delegate = delegate;
-    }
-
-    @Override
-    public ByteBuffer asByteBuffer() {
-      return delegate.asByteBuffer();
-    }
-
-    @Override
-    public String asString(@NonNull Charset charset) {
-      return delegate.asString(charset);
-    }
-
-    @Override
-    public void accept(SneakyThrows.Consumer<ByteBuffer> consumer) {
-      delegate.accept(consumer);
-    }
-
-    @Override
-    public int size() {
-      return delegate.size();
-    }
-
-    @Override
-    public Output write(byte b) {
-      return write(new byte[] {b}, 0, 1);
-    }
-
-    @Override
-    public Output write(byte[] source) {
-      return write(ByteBuffer.wrap(source));
-    }
-
-    @Override
-    public Output write(byte[] source, int offset, int length) {
-      var begin = offset;
-      var len = offset + length;
-      for (int i = offset; i < len; i++) {
-        var ch = source[i];
-        if (ch == '\n') {
-          delegate.write(source, begin, i + 1);
-          if (i < len - 1) {
-            delegate.write(DATA);
-          }
-          begin = i + 1;
-        }
-      }
-      if (begin < len) {
-        delegate.write(source, begin, len);
-      }
-      return this;
-    }
-
-    @Override
-    public void send(Context ctx) {}
-
-    @Override
-    public void close() throws IOException {}
   }
 }

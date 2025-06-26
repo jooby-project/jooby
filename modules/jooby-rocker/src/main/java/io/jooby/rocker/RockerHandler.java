@@ -24,7 +24,7 @@ class RockerHandler implements Route.Filter {
       try {
         RockerModel template = (RockerModel) next.apply(ctx);
         ctx.setResponseType(MediaType.html);
-        return ctx.send(template.render(factory).toBuffer());
+        return ctx.send(template.render(factory).asOutput());
       } catch (Throwable x) {
         ctx.sendError(x);
         return x;
