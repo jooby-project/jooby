@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.output;
+package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -13,8 +13,9 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
+import io.jooby.output.Output;
 
-class CompsiteByteBufferOutput implements Output {
+public class CompsiteByteBufferOutput implements Output {
   private final List<ByteBuffer> chunks = new ArrayList<>();
   private int size = 0;
   private int bufferSizeHint = BUFFER_SIZE;
@@ -70,13 +71,8 @@ class CompsiteByteBufferOutput implements Output {
   }
 
   @Override
-  public void accept(SneakyThrows.Consumer<ByteBuffer> consumer) {
+  public void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
     chunks.forEach(consumer);
-  }
-
-  @Override
-  public int bufferSizeHint() {
-    return bufferSizeHint;
   }
 
   @Override

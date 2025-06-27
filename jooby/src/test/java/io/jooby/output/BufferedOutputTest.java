@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
+import io.jooby.internal.output.ByteBufferOutput;
+import io.jooby.internal.output.CompsiteByteBufferOutput;
 
 public class BufferedOutputTest {
 
@@ -36,7 +38,7 @@ public class BufferedOutputTest {
               StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
           assertEquals(30, buffered.size());
         },
-        new ByteBufferOut(3));
+        new ByteBufferOutput(3));
 
     output(
         buffered -> {
@@ -52,7 +54,7 @@ public class BufferedOutputTest {
               StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
           assertEquals(30, buffered.size());
         },
-        new ByteBufferOut());
+        new ByteBufferOutput());
 
     output(
         buffered -> {
@@ -61,7 +63,7 @@ public class BufferedOutputTest {
           assertEquals("Hello World!", buffered.asString(StandardCharsets.UTF_8));
           assertEquals(12, buffered.size());
         },
-        new ByteBufferOut());
+        new ByteBufferOutput());
 
     output(
         buffered -> {
@@ -69,7 +71,7 @@ public class BufferedOutputTest {
           assertEquals("A", buffered.asString(StandardCharsets.UTF_8));
           assertEquals(1, buffered.size());
         },
-        new ByteBufferOut());
+        new ByteBufferOutput());
   }
 
   private void output(SneakyThrows.Consumer<Output> consumer, Output... buffers) {
@@ -102,7 +104,7 @@ public class BufferedOutputTest {
   @Test
   public void wrapOutput() throws IOException {
     var bytes = "xxHello World!xx".getBytes(StandardCharsets.UTF_8);
-    var output = new ByteBufferWrappedOutput(bytes, 2, bytes.length - 4);
+    var output = Output.wrap(bytes, 2, bytes.length - 4);
     assertEquals("Hello World!", output.asString(StandardCharsets.UTF_8));
     assertEquals(12, output.size());
   }

@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.output;
+package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -11,21 +11,14 @@ import java.nio.charset.Charset;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
+import io.jooby.output.Output;
 
-class ByteBufferWrappedOutput implements Output {
+public class ByteArrayWrappedOutput implements Output {
 
-  private final ByteBuffer buffer;
+  private final byte[] buffer;
 
-  public ByteBufferWrappedOutput(byte[] source, int offset, int length) {
-    this(ByteBuffer.wrap(source, offset, length));
-  }
-
-  public ByteBufferWrappedOutput(byte[] source) {
-    this(source, 0, source.length);
-  }
-
-  public ByteBufferWrappedOutput(ByteBuffer buffer) {
-    this.buffer = buffer;
+  public ByteArrayWrappedOutput(byte[] source) {
+    this.buffer = source;
   }
 
   @Override
@@ -45,23 +38,22 @@ class ByteBufferWrappedOutput implements Output {
 
   @Override
   public Output clear() {
-    buffer.clear();
     return this;
   }
 
   @Override
   public int size() {
-    return buffer.remaining();
+    return buffer.length;
   }
 
   @Override
-  public void accept(SneakyThrows.Consumer<ByteBuffer> consumer) {
-    consumer.accept(buffer);
+  public void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
+    consumer.accept(ByteBuffer.wrap(buffer));
   }
 
   @Override
   public ByteBuffer asByteBuffer() {
-    return buffer.duplicate();
+    return ByteBuffer.wrap(buffer);
   }
 
   @Override

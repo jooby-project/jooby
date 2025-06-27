@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.output;
+package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -13,8 +13,9 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
+import io.jooby.output.Output;
 
-class ByteBufferOut implements Output {
+public class ByteBufferOutput implements Output {
   private static final int MAX_CAPACITY = Integer.MAX_VALUE;
 
   private static final int CAPACITY_THRESHOLD = 1024 * 1024 * 4;
@@ -27,20 +28,20 @@ class ByteBufferOut implements Output {
 
   private int writePosition;
 
-  public ByteBufferOut(boolean direct, int capacity) {
+  public ByteBufferOutput(boolean direct, int capacity) {
     this.buffer = allocate(capacity, direct);
     this.capacity = this.buffer.remaining();
   }
 
-  public ByteBufferOut(boolean direct) {
+  public ByteBufferOutput(boolean direct) {
     this(direct, BUFFER_SIZE);
   }
 
-  public ByteBufferOut(int bufferSize) {
+  public ByteBufferOutput(int bufferSize) {
     this(false, bufferSize);
   }
 
-  public ByteBufferOut() {
+  public ByteBufferOutput() {
     this(BUFFER_SIZE);
   }
 
@@ -57,12 +58,12 @@ class ByteBufferOut implements Output {
   }
 
   @Override
-  public void accept(SneakyThrows.Consumer<ByteBuffer> consumer) {
+  public void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
     consumer.accept(asByteBuffer());
   }
 
   @Override
-  public Iterator<ByteBuffer> iterator() {
+  public @NonNull Iterator<ByteBuffer> iterator() {
     return List.of(asByteBuffer()).iterator();
   }
 
@@ -71,7 +72,7 @@ class ByteBufferOut implements Output {
   }
 
   @Override
-  public ByteBuffer asByteBuffer() {
+  public @NonNull ByteBuffer asByteBuffer() {
     return this.buffer.duplicate().position(this.readPosition).limit(this.writePosition);
   }
 

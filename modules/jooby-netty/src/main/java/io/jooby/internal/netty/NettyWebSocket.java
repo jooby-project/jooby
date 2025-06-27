@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.netty;
 
-import static io.jooby.internal.netty.NettyBufferedOutput.byteBuf;
+import static io.jooby.internal.netty.NettyByteBufOutput.byteBuf;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

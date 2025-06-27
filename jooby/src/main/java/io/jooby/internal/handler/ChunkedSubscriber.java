@@ -119,7 +119,7 @@ public class ChunkedSubscriber implements Flow.Subscriber {
   private static Output prepend(Context ctx, Output data, byte c) {
     var buffer = ctx.getOutputFactory().newCompositeOutput();
     buffer.write(c);
-    data.accept(buffer::write);
+    data.transferTo(buffer::write);
     return buffer;
   }
 

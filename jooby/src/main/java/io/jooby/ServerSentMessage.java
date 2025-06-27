@@ -7,6 +7,9 @@ package io.jooby;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.function.IntPredicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -156,7 +159,7 @@ public class ServerSentMessage {
 
       IntPredicate nl = ch -> ch == '\n';
       var message = encoder.encode(ctx, data);
-      var lines = message.split(nl);
+      var lines = split(message.iterator(), nl);
       while (lines.hasNext()) {
         buffer.write(lines.next());
         if (lines.hasNext()) {
@@ -169,5 +172,47 @@ public class ServerSentMessage {
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
+  }
+
+  private Iterator<ByteBuffer> split(Iterator<ByteBuffer> buffers, IntPredicate predicate) {
+    var chunks = new ArrayList<ByteBuffer>();
+    ByteBuffer left = null;
+    while (buffers.hasNext()) {
+      var buffer = buffers.next();
+      var offset = 0;
+      for (int i = 0; i < buffer.remaining(); i++) {
+        var b = buffer.get(i);
+        if (predicate.test(b)) {
+          if (left == null) {
+            chunks.add(buffer.duplicate().position(offset).limit(i + 1));
+          } else {
+            chunks.add(merge(left, buffer, offset, i + 1));
+            left = null;
+          }
+          offset = i + 1;
+        }
+      }
+      if (offset < buffer.remaining()) {
+        if (left == null) {
+          left = buffer.duplicate().position(offset);
+        } else {
+          left = merge(left, buffer, offset, buffer.remaining());
+        }
+      } else {
+        left = null;
+      }
+    }
+    if (left != null) {
+      chunks.add(left);
+    }
+    return chunks.iterator();
+  }
+
+  private ByteBuffer merge(ByteBuffer tail, ByteBuffer buffer, int offset, int index) {
+    ByteBuffer chunk = ByteBuffer.allocate(tail.remaining() + index - offset);
+    chunk.put(tail);
+    chunk.put(buffer.duplicate().position(offset).limit(index));
+    chunk.flip();
+    return chunk;
   }
 }

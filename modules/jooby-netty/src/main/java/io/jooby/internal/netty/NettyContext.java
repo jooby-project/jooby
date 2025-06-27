@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.netty;
 
-import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -565,12 +564,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Context send(@NonNull String data) {
-    return send(copiedBuffer(data, UTF_8));
+    return send(data, UTF_8);
   }
 
   @Override
   public final Context send(String data, Charset charset) {
-    return send(copiedBuffer(data, charset));
+    return send(wrappedBuffer(data.getBytes(charset)));
   }
 
   @Override

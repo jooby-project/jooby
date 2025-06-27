@@ -12,11 +12,11 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
 
-public class NettyBufferedOutput implements NettyByteBufOutput {
+public class NettyWrappedOutput implements NettyByteBufOutput {
 
   private final ByteBuf buffer;
 
-  protected NettyBufferedOutput(ByteBuf buffer) {
+  protected NettyWrappedOutput(ByteBuf buffer) {
     this.buffer = buffer;
   }
 
@@ -26,37 +26,31 @@ public class NettyBufferedOutput implements NettyByteBufOutput {
 
   @Override
   @NonNull public Output write(byte b) {
-    buffer.writeByte(b);
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @NonNull public Output write(byte[] source) {
-    buffer.writeBytes(source);
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @NonNull public Output write(byte[] source, int offset, int length) {
-    this.buffer.writeBytes(source, offset, length);
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @NonNull public Output write(@NonNull String source, @NonNull Charset charset) {
-    this.buffer.writeBytes(source.getBytes(charset));
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Output write(@NonNull CharBuffer source, @NonNull Charset charset) {
-    this.buffer.writeBytes(charset.encode(source));
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @NonNull public Output clear() {
-    this.buffer.clear();
     return this;
   }
 }

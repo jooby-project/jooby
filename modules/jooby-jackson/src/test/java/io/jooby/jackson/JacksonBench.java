@@ -3,14 +3,16 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.avaje.jsonb;
+package io.jooby.jackson;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import io.avaje.jsonb.Jsonb;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.output.DefaultOutputFactory;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
@@ -21,34 +23,34 @@ import io.jooby.output.OutputFactory;
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Benchmark)
-public class AvajeJsonbEncoderBench {
-
-  private Jsonb jsonb;
+public class JacksonBench {
+  private ObjectMapper mapper;
   private Map<String, Object> message;
 
   private OutputFactory factory;
   private ThreadLocal<Output> cache =
-      ThreadLocal.withInitial(
-          () -> {
-            return factory.newBufferedOutput(1024);
-          });
+      ThreadLocal.withInitial(() -> factory.newBufferedOutput(1024));
 
   @Setup
   public void setup() {
     message = Map.of("id", 98, "value", "Hello World");
-    jsonb = Jsonb.builder().build();
+    mapper = new ObjectMapper();
     factory = new DefaultOutputFactory();
   }
 
   @Benchmark
-  public void withJsonBuffer() {
-    jsonb.toJsonBytes(message);
+  public void bytes() throws JsonProcessingException {
+    mapper.writeValueAsBytes(message);
   }
 
   @Benchmark
-  public void withBufferedOutput() {
-    var buffer = cache.get();
-    jsonb.toJson(message, jsonb.writer(new JsonOutputBench(buffer)));
-    buffer.clear();
+  public void wrapBytes() throws JsonProcessingException {
+    factory.wrap(mapper.writeValueAsBytes(message));
+  }
+
+  @Benchmark
+  public void output() throws IOException {
+    var buffer = cache.get().clear();
+    mapper.writeValue(buffer.asOutputStream(), message);
   }
 }

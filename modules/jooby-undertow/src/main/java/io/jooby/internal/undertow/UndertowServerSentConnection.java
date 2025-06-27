@@ -22,6 +22,7 @@ import org.xnio.ChannelListeners;
 import org.xnio.IoUtils;
 import org.xnio.channels.StreamSinkChannel;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ServerSentMessage;
 import io.jooby.output.Output;
@@ -130,13 +131,13 @@ public class UndertowServerSentConnection implements Channel {
       if (data.leftOverData == null) {
         var message = data.message.encode(context);
         if (message.size() < buffer.remaining()) {
-          message.toByteBuffer(buffer);
+          transferTo(message, buffer);
           buffer.position(buffer.position() + message.size());
           data.endBufferPosition = buffer.position();
         } else {
           queue.addFirst(data);
           int rem = buffer.remaining();
-          message.toByteBuffer(0, buffer, buffer.position(), rem);
+          transferTo(message, 0, buffer, buffer.position(), rem);
           buffer.position(buffer.position() + rem);
           data.leftOverData = message;
           data.leftOverDataOffset = rem;
@@ -146,13 +147,13 @@ public class UndertowServerSentConnection implements Channel {
         if (remainingData > buffer.remaining()) {
           queue.addFirst(data);
           int toWrite = buffer.remaining();
-          data.leftOverData.toByteBuffer(
-              data.leftOverDataOffset, buffer, buffer.position(), toWrite);
+          transferTo(
+              data.leftOverData, data.leftOverDataOffset, buffer, buffer.position(), toWrite);
           buffer.position(buffer.position() + toWrite);
           data.leftOverDataOffset += toWrite;
         } else {
-          data.leftOverData.toByteBuffer(
-              data.leftOverDataOffset, buffer, buffer.position(), remainingData);
+          transferTo(
+              data.leftOverData, data.leftOverDataOffset, buffer, buffer.position(), remainingData);
           buffer.position(buffer.position() + remainingData);
           data.endBufferPosition = buffer.position();
           data.leftOverData = null;
@@ -161,6 +162,31 @@ public class UndertowServerSentConnection implements Channel {
     }
     buffer.flip();
     sink.resumeWrites();
+  }
+
+  /**
+   * Copy bytes into the given buffer.
+   *
+   * @param dest Destination buffer.
+   */
+  private void transferTo(@NonNull Output source, @NonNull ByteBuffer dest) {
+    transferTo(source, 0, dest, dest.position(), source.size());
+  }
+
+  /**
+   * Copies the given length from this data buffer into the given destination {@code ByteBuffer},
+   * beginning at the given source position, and the given destination position in the destination
+   * byte buffer.
+   *
+   * @param srcPos the position of this data buffer from where copying should start
+   * @param dest the destination byte buffer
+   * @param destPos the position in {@code dest} to where copying should start
+   * @param length the amount of data to copy
+   */
+  private void transferTo(
+      @NonNull Output source, int srcPos, @NonNull ByteBuffer dest, int destPos, int length) {
+    dest = dest.duplicate().clear();
+    dest.put(destPos, source.asByteBuffer(), srcPos, length);
   }
 
   /** execute a graceful shutdown once all data has been sent */

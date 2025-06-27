@@ -6,6 +6,7 @@
 package io.jooby.internal.netty;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.Output;
@@ -40,18 +41,23 @@ public record NettyOutputFactory(ByteBufAllocator allocator) implements OutputFa
   }
 
   @Override
-  @NonNull public Output wrap(ByteBuffer buffer) {
-    return new NettyBufferedOutput(Unpooled.wrappedBuffer(buffer));
+  @NonNull public Output wrap(@NonNull ByteBuffer buffer) {
+    return new NettyWrappedOutput(Unpooled.wrappedBuffer(buffer));
   }
 
   @Override
-  @NonNull public Output wrap(byte[] bytes) {
-    return new NettyBufferedOutput(Unpooled.wrappedBuffer(bytes));
+  public Output wrap(@NonNull String value, @NonNull Charset charset) {
+    return new NettyWrappedOutput(Unpooled.wrappedBuffer(value.getBytes(charset)));
   }
 
   @Override
-  @NonNull public Output wrap(byte[] bytes, int offset, int length) {
-    return new NettyBufferedOutput(Unpooled.wrappedBuffer(bytes, offset, length));
+  @NonNull public Output wrap(@NonNull byte[] bytes) {
+    return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes));
+  }
+
+  @Override
+  @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+    return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes, offset, length));
   }
 
   @Override

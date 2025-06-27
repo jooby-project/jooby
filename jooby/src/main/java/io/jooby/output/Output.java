@@ -13,73 +13,90 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.function.IntPredicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
+import io.jooby.internal.output.ByteArrayWrappedOutput;
+import io.jooby.internal.output.ByteBufferWrappedOutput;
+import io.jooby.internal.output.OutputOutputStream;
+import io.jooby.internal.output.OutputWriter;
 
+/**
+ * Buffered output used to support multiple implementations like byte array, byte buffer, netty
+ * buffers.
+ *
+ * <p>There are two implementations of output one is backed by a {@link ByteBuffer} and the other is
+ * a view of multiple {@link ByteBuffer} byffers. See {@link OutputFactory#newBufferedOutput()} and
+ * {@link OutputFactory#newCompositeOutput()}
+ *
+ * @author edgar
+ * @since 4.0.0
+ */
 public interface Output {
   /** Default buffer size: <code>4k</code>. */
   int BUFFER_SIZE = 4096;
 
+  /**
+   * This output as an output stream. Changes made to the output stream are reflected in this
+   * output.
+   *
+   * @return An output stream.
+   */
   default OutputStream asOutputStream() {
     return new OutputOutputStream(this);
   }
 
+  /**
+   * This output as a writer. Changes made to the writer are reflected in this output. Bytes are
+   * written using the {@link StandardCharsets#UTF_8} charset.
+   *
+   * @return An output stream.
+   */
   default Writer asWriter() {
     return asWriter(StandardCharsets.UTF_8);
   }
 
+  /**
+   * This output as a writer. Changes made to the writer are reflected in this output.
+   *
+   * @param charset Charset to use.
+   * @return An output stream.
+   */
   default Writer asWriter(@NonNull Charset charset) {
     return new OutputWriter(this, charset);
   }
 
+  /**
+   * A view of internal bytes as {@link byte buffer} changes made to the buffer are reflected in
+   * this output.
+   *
+   * @return A byte byffer.
+   */
   ByteBuffer asByteBuffer();
 
+  /**
+   * A view of internal bytes as string.
+   *
+   * @param charset Charset to use.
+   * @return A string.
+   */
   String asString(@NonNull Charset charset);
 
-  default void toByteBuffer(ByteBuffer dest) {
-    toByteBuffer(0, dest, dest.position(), size());
-  }
+  /**
+   * Transfers the entire buffered output (one or multiple buffers) to a consumer.
+   *
+   * @param consumer Consumer.
+   */
+  void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer);
 
   /**
-   * Copies the given length from this data buffer into the given destination {@code ByteBuffer},
-   * beginning at the given source position, and the given destination position in the destination
-   * byte buffer.
+   * An iterator over byte buffers.
    *
-   * @param srcPos the position of this data buffer from where copying should start
-   * @param dest the destination byte buffer
-   * @param destPos the position in {@code dest} to where copying should start
-   * @param length the amount of data to copy
+   * @return An iterator over byte buffers.
    */
-  default void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length) {
-    dest = dest.duplicate().clear();
-    dest.put(destPos, asByteBuffer(), srcPos, length);
-  }
-
-  default Iterator<ByteBuffer> split(IntPredicate predicate) {
-    // TODO: fix me for chunks
-    var buffer = asByteBuffer();
-    var chunks = new ArrayList<ByteBuffer>();
-    var offset = 0;
-    for (int i = 0; i < buffer.remaining(); i++) {
-      var b = buffer.get(i);
-      if (predicate.test(b)) {
-        chunks.add(buffer.duplicate().position(offset).limit(i + 1));
-        offset = i + 1;
-      }
-    }
-    if (offset < buffer.remaining()) {
-      chunks.add(buffer.duplicate().position(offset));
-    }
-    return chunks.iterator();
-  }
-
-  void accept(SneakyThrows.Consumer<ByteBuffer> consumer);
-
   default Iterator<ByteBuffer> iterator() {
     var list = new ArrayList<ByteBuffer>();
-    accept(list::add);
+    transferTo(list::add);
     return list.iterator();
   }
 
@@ -89,15 +106,6 @@ public interface Output {
    * @return size
    */
   int size();
-
-  /**
-   * The recommend buffer size to use for extracting with
-   *
-   * @return buffer size to use which by default is {@link #size()}.
-   */
-  default int bufferSizeHint() {
-    return size();
-  }
 
   /**
    * Write a single byte into this buffer at the current writing position.
@@ -185,11 +193,11 @@ public interface Output {
   }
 
   static Output wrap(byte[] bytes) {
-    return new ByteBufferWrappedOutput(bytes);
+    return new ByteArrayWrappedOutput(bytes);
   }
 
   static Output wrap(byte[] bytes, int offset, int length) {
-    return new ByteBufferWrappedOutput(bytes, offset, length);
+    return new ByteBufferWrappedOutput(ByteBuffer.wrap(bytes, offset, length));
   }
 
   static Output wrap(String value) {
