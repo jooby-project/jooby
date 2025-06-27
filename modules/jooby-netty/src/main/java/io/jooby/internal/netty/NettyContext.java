@@ -92,12 +92,13 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.IllegalReferenceCountException;
 
 public class NettyContext implements DefaultContext, ChannelFutureListener {
-
+  public static HttpHeadersFactory HEADERS =
+      DefaultHttpHeadersFactory.headersFactory().withValidation(false);
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   private static final String STREAM_ID = "x-http2-stream-id";
 
   private String streamId;
-  HeadersMultiMap setHeaders = new HeadersMultiMap();
+  HttpHeaders setHeaders = HEADERS.newHeaders();
   private int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   DefaultHttpDataFactory httpDataFactory;
@@ -436,7 +437,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @NonNull @Override
   public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
     responseStarted = true;
-    ctx.writeAndFlush(new AssembledHttpResponse(route.isHttpHead(), HTTP_1_1, status, setHeaders));
+    ctx.writeAndFlush(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
 
     //    ctx.executor().execute(() -> {
     try {
@@ -553,7 +554,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @NonNull @Override
   public Sender responseSender() {
     prepareChunked();
-    ctx.write(new AssembledHttpResponse(route.isHttpHead(), HTTP_1_1, status, setHeaders));
+    ctx.write(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
     return new NettySender(this, ctx);
   }
 
@@ -602,9 +603,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     try {
       responseStarted = true;
       setHeaders.set(CONTENT_LENGTH, Integer.toString(data.readableBytes()));
-      var response =
-          new AssembledFullHttpResponse(
-              route.isHttpHead(), HTTP_1_1, status, setHeaders, data, NO_TRAILING);
+      var response = new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING);
       if (ctx.channel().eventLoop().inEventLoop()) {
         needsFlush = true;
         ctx.write(response, promise(this));
@@ -629,7 +628,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   public Context send(@NonNull ReadableByteChannel channel) {
     try {
       prepareChunked();
-      var rsp = new AssembledHttpResponse(route.isHttpHead(), HTTP_1_1, status, setHeaders);
+      var rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       int bufferSize = contentLength > 0 ? (int) contentLength : this.bufferSize;
       ctx.channel()
           .eventLoop()
@@ -660,7 +659,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       prepareChunked();
       ChunkedStream chunkedStream = new ChunkedStream(range.apply(in), bufferSize);
 
-      var rsp = new AssembledHttpResponse(route.isHttpHead(), HTTP_1_1, status, setHeaders);
+      var rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
       ctx.channel()
           .eventLoop()
@@ -689,7 +688,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
       ByteRange range = ByteRange.parse(req.headers().get(RANGE), len).apply(this);
 
-      var rsp = new AssembledHttpResponse(route.isHttpHead(), HTTP_1_1, status, setHeaders);
+      var rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       responseStarted = true;
 
       if (preferChunked()) {
@@ -765,8 +764,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
         setHeaders.set(CONTENT_LENGTH, "0");
       }
       var rsp =
-          new AssembledFullHttpResponse(
-              route.isHttpHead(), HTTP_1_1, status, setHeaders, Unpooled.EMPTY_BUFFER, NO_TRAILING);
+          new DefaultFullHttpResponse(
+              HTTP_1_1, status, Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
       if (ctx.channel().eventLoop().inEventLoop()) {
         needsFlush = true;
         ctx.write(rsp, promise(this));
@@ -869,10 +868,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private NettyOutputStream newOutputStream() {
     prepareChunked();
     return new NettyOutputStream(
-        this,
-        ctx,
-        bufferSize,
-        new AssembledHttpResponse(route.isHttpHead(), HTTP_1_1, status, setHeaders));
+        this, ctx, bufferSize, new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
   }
 
   private FileUpload register(FileUpload upload) {

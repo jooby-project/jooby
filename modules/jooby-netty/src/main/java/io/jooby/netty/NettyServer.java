@@ -173,14 +173,13 @@ public class NettyServer extends Server.Base {
   private NettyPipeline newPipeline(
       ServerOptions options, SslContext sslContext, NettyDateService dateService, boolean http2) {
     var bufferSize = options.getBufferSize();
-    var headersFactory = HeadersMultiMap.httpHeadersFactory();
     var decoderConfig =
         new HttpDecoderConfig()
             .setMaxInitialLineLength(_4KB)
             .setMaxHeaderSize(_8KB)
             .setMaxChunkSize(bufferSize)
-            .setHeadersFactory(headersFactory)
-            .setTrailersFactory(headersFactory);
+            .setHeadersFactory(NettyContext.HEADERS)
+            .setTrailersFactory(NettyContext.HEADERS);
     return new NettyPipeline(
         sslContext,
         dateService,

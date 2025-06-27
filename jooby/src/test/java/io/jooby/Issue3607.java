@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
 
 public class Issue3607 {
 
@@ -24,6 +25,7 @@ public class Issue3607 {
   @Test
   public void shouldNotGenerateEmptyFlashMap() throws Exception {
     var ctx = mock(Context.class);
+    when(ctx.getOutputFactory()).thenReturn(OutputFactory.create(false));
 
     var templateEngine = new TemplateEngineImpl();
     templateEngine.encode(ctx, ModelAndView.map("index.html"));

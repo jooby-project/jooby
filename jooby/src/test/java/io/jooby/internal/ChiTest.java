@@ -34,6 +34,17 @@ public class ChiTest {
   }
 
   @Test
+  public void staticMap6() {
+    Chi router = new Chi();
+    router.insert(route("GET", "/1", stringHandler("1")));
+    router.insert(route("GET", "/2", stringHandler("2")));
+    router.insert(route("GET", "/3", stringHandler("3")));
+    router.insert(route("GET", "/4", stringHandler("4")));
+    router.insert(route("GET", "/5", stringHandler("5")));
+    router.insert(route("GET", "/6", stringHandler("6")));
+  }
+
+  @Test
   public void routeCase() {
     Chi router = new Chi();
     Route foo = route("GET", "/abcd", stringHandler("foo"));

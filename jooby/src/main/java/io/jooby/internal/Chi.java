@@ -6,9 +6,9 @@
 package io.jooby.internal;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -485,7 +485,7 @@ class Chi implements RouteTree {
   }
 
   private static class StaticMapN implements StaticMap {
-    private final Map<String, StaticRoute> paths = new ConcurrentHashMap<>(10);
+    private final Map<String, StaticRoute> paths = new HashMap<>(10);
 
     public StaticMapN(StaticMap6 staticMap, String path, StaticRoute staticRoute) {
       put(staticMap.pattern1, staticMap.route1);
@@ -549,7 +549,7 @@ class Chi implements RouteTree {
   }
 
   private static class MultipleMethodMatcher implements MethodMatcher {
-    private final Map<String, StaticRouterMatch> methods = new ConcurrentHashMap<>();
+    private final Map<String, StaticRouterMatch> methods = new HashMap<>();
 
     public MultipleMethodMatcher(SingleMethodMatcher matcher) {
       methods.put(matcher.method, matcher.route);
@@ -890,7 +890,7 @@ class Chi implements RouteTree {
       Node n = this;
       // Set the handler for the method type on the node
       if (n.endpoints == null) {
-        n.endpoints = new ConcurrentHashMap<>();
+        n.endpoints = new HashMap<>();
       }
 
       //      if ((method & mSTUB) == mSTUB) {

@@ -5,20 +5,10 @@
  */
 package io.jooby.internal.netty;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 
 public class NettyResponseEncoder extends HttpResponseEncoder {
-  @Override
-  protected void encodeHeaders(HttpHeaders headers, ByteBuf buf) {
-    if (headers instanceof HeadersMultiMap headersMultiMap) {
-      headersMultiMap.encode(buf);
-    } else {
-      super.encodeHeaders(headers, buf);
-    }
-  }
-
   @Override
   public boolean acceptOutboundMessage(Object msg) throws Exception {
     // fast-path singleton(s)
@@ -34,7 +24,7 @@ public class NettyResponseEncoder extends HttpResponseEncoder {
     // users can
     // extends such types and make them to implement HttpRequest (non-sense, but still possible).
     final Class<?> msgClass = msg.getClass();
-    if (msgClass == AssembledFullHttpResponse.class || msgClass == AssembledHttpResponse.class) {
+    if (msgClass == DefaultFullHttpResponse.class || msgClass == DefaultHttpResponse.class) {
       return true;
     }
     return super.acceptOutboundMessage(msg) && !(msg instanceof HttpRequest);
