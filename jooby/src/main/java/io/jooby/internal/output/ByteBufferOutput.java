@@ -33,18 +33,6 @@ public class ByteBufferOutput implements Output {
     this.capacity = this.buffer.remaining();
   }
 
-  public ByteBufferOutput(boolean direct) {
-    this(direct, BUFFER_SIZE);
-  }
-
-  public ByteBufferOutput(int bufferSize) {
-    this(false, bufferSize);
-  }
-
-  public ByteBufferOutput() {
-    this(BUFFER_SIZE);
-  }
-
   @Override
   public int size() {
     return this.writePosition - this.readPosition;

@@ -19,10 +19,34 @@ import io.jooby.internal.output.CompsiteByteBufferOutput;
  * @author edgar
  * @since 4.0.0
  */
-public class DefaultOutputFactory implements OutputFactory {
+public class ByteBufferOutputFactory implements OutputFactory {
+  private int initialBufferSize;
+  private final boolean direct;
+
+  public ByteBufferOutputFactory(boolean direct, int initialBufferSize) {
+    this.initialBufferSize = initialBufferSize;
+    this.direct = direct;
+  }
+
   @Override
-  public Output newBufferedOutput(int size) {
-    return new ByteBufferOutput(size);
+  public int getInitialBufferSize() {
+    return initialBufferSize;
+  }
+
+  @Override
+  public OutputFactory setInitialBufferSize(int initialBufferSize) {
+    this.initialBufferSize = initialBufferSize;
+    return this;
+  }
+
+  @Override
+  public boolean isDirect() {
+    return direct;
+  }
+
+  @Override
+  public Output newBufferedOutput(boolean direct, int size) {
+    return new ByteBufferOutput(direct, size);
   }
 
   @Override

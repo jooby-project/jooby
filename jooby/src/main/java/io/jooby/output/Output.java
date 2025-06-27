@@ -16,8 +16,6 @@ import java.util.Iterator;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.output.ByteArrayWrappedOutput;
-import io.jooby.internal.output.ByteBufferWrappedOutput;
 import io.jooby.internal.output.OutputOutputStream;
 import io.jooby.internal.output.OutputWriter;
 
@@ -187,24 +185,4 @@ public interface Output {
   void send(io.jooby.Context ctx);
 
   Output clear();
-
-  static Output wrap(ByteBuffer buffer) {
-    return new ByteBufferWrappedOutput(buffer);
-  }
-
-  static Output wrap(byte[] bytes) {
-    return new ByteArrayWrappedOutput(bytes);
-  }
-
-  static Output wrap(byte[] bytes, int offset, int length) {
-    return new ByteBufferWrappedOutput(ByteBuffer.wrap(bytes, offset, length));
-  }
-
-  static Output wrap(String value) {
-    return wrap(value, StandardCharsets.UTF_8);
-  }
-
-  static Output wrap(String value, Charset charset) {
-    return wrap(value.getBytes(charset));
-  }
 }

@@ -113,7 +113,7 @@ public class NettyServer extends Server.Base {
       this.dateLoop = Executors.newSingleThreadScheduledExecutor();
       var dateService = new NettyDateService(dateLoop);
 
-      var allocator = outputFactory.allocator();
+      var allocator = outputFactory.getAllocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {

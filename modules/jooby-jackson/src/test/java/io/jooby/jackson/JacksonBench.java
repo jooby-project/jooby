@@ -13,7 +13,6 @@ import org.openjdk.jmh.annotations.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jooby.output.DefaultOutputFactory;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
 
@@ -35,7 +34,7 @@ public class JacksonBench {
   public void setup() {
     message = Map.of("id", 98, "value", "Hello World");
     mapper = new ObjectMapper();
-    factory = new DefaultOutputFactory();
+    factory = OutputFactory.create(false);
   }
 
   @Benchmark

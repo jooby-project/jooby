@@ -11,13 +11,13 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.output.DefaultOutputFactory;
+import io.jooby.output.OutputFactory;
 
 public class BufferedTemplateOutputTest {
 
   @Test
   public void checkWriteContent() {
-    var factory = new DefaultOutputFactory();
+    var factory = OutputFactory.create(false);
     var buffer = factory.newBufferedOutput();
     var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeContent("Hello");
@@ -26,7 +26,7 @@ public class BufferedTemplateOutputTest {
 
   @Test
   public void checkWriteContentSubstring() {
-    var factory = new DefaultOutputFactory();
+    var factory = OutputFactory.create(false);
     var buffer = factory.newBufferedOutput();
     var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeContent(" Hello World! ", 1, " Hello World! ".length() - 2);
@@ -35,7 +35,7 @@ public class BufferedTemplateOutputTest {
 
   @Test
   public void checkWriteBinaryContent() {
-    var factory = new DefaultOutputFactory();
+    var factory = OutputFactory.create(false);
     var buffer = factory.newBufferedOutput();
     var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeBinaryContent("Hello".getBytes(StandardCharsets.UTF_8));

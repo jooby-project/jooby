@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.output.DefaultOutputFactory;
+import io.jooby.output.OutputFactory;
 
 public class ServerSentMessageTest {
 
@@ -22,7 +22,7 @@ public class ServerSentMessageTest {
     var data = "some";
     var ctx = mock(Context.class);
 
-    var bufferFactory = new DefaultOutputFactory();
+    var bufferFactory = OutputFactory.create(false);
     when(ctx.getOutputFactory()).thenReturn(bufferFactory);
     var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))
@@ -42,7 +42,7 @@ public class ServerSentMessageTest {
     var data = "line 1\n line ,a .. 2\nline ...abc  3";
     var ctx = mock(Context.class);
 
-    var bufferFactory = new DefaultOutputFactory();
+    var bufferFactory = OutputFactory.create(false);
     when(ctx.getOutputFactory()).thenReturn(bufferFactory);
     var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))
@@ -64,7 +64,7 @@ public class ServerSentMessageTest {
     var data = "line 1\n";
     var ctx = mock(Context.class);
 
-    var bufferFactory = new DefaultOutputFactory();
+    var bufferFactory = OutputFactory.create(false);
     when(ctx.getOutputFactory()).thenReturn(bufferFactory);
     var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))

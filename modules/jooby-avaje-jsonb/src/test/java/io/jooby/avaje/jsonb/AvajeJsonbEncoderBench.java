@@ -12,7 +12,6 @@ import org.openjdk.jmh.annotations.*;
 
 import io.avaje.jsonb.Jsonb;
 import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
-import io.jooby.output.DefaultOutputFactory;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
 
@@ -38,7 +37,7 @@ public class AvajeJsonbEncoderBench {
   public void setup() {
     message = Map.of("id", 98, "value", "Hello World");
     jsonb = Jsonb.builder().build();
-    factory = new DefaultOutputFactory();
+    factory = OutputFactory.create(false);
   }
 
   @Benchmark

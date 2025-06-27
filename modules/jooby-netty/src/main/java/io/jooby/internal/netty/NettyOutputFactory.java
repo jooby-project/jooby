@@ -15,7 +15,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ResourceLeakDetector;
 
-public record NettyOutputFactory(ByteBufAllocator allocator) implements OutputFactory {
+public class NettyOutputFactory implements OutputFactory {
   private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
 
   static {
@@ -26,18 +26,37 @@ public record NettyOutputFactory(ByteBufAllocator allocator) implements OutputFa
         ResourceLeakDetector.Level.valueOf(System.getProperty(LEAK_DETECTION)));
   }
 
-  /**
-   * Create a new {@code OutputFactory} based on the given factory.
-   *
-   * @param allocator the factory to use
-   * @see io.netty.buffer.PooledByteBufAllocator
-   * @see io.netty.buffer.UnpooledByteBufAllocator
-   */
-  public NettyOutputFactory {}
+  private final ByteBufAllocator allocator;
+  private int initialBufferSize = Output.BUFFER_SIZE;
+
+  public NettyOutputFactory(ByteBufAllocator allocator) {
+    this.allocator = allocator;
+  }
+
+  public ByteBufAllocator getAllocator() {
+    return allocator;
+  }
 
   @Override
-  @NonNull public Output newBufferedOutput(int size) {
-    return new NettyBufferedOutput(this.allocator.buffer(size));
+  public boolean isDirect() {
+    return allocator.isDirectBufferPooled();
+  }
+
+  @Override
+  public int getInitialBufferSize() {
+    return initialBufferSize;
+  }
+
+  @Override
+  public @NonNull OutputFactory setInitialBufferSize(int initialBufferSize) {
+    this.initialBufferSize = initialBufferSize;
+    return this;
+  }
+
+  @Override
+  public @NonNull Output newBufferedOutput(boolean direct, int size) {
+    return new NettyBufferedOutput(
+        direct ? this.allocator.directBuffer(size) : this.allocator.heapBuffer(size));
   }
 
   @Override

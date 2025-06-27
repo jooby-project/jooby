@@ -21,14 +21,14 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.output.DefaultOutputFactory;
+import io.jooby.output.OutputFactory;
 
 public class JacksonJsonModuleTest {
 
   @Test
   public void renderJson() throws Exception {
     Context ctx = mock(Context.class);
-    when(ctx.getOutputFactory()).thenReturn(new DefaultOutputFactory());
+    when(ctx.getOutputFactory()).thenReturn(OutputFactory.create(false));
 
     JacksonModule jackson = new JacksonModule(new ObjectMapper());
 
@@ -57,7 +57,7 @@ public class JacksonJsonModuleTest {
   @Test
   public void renderXml() throws Exception {
     Context ctx = mock(Context.class);
-    when(ctx.getOutputFactory()).thenReturn(new DefaultOutputFactory());
+    when(ctx.getOutputFactory()).thenReturn(OutputFactory.create(false));
 
     JacksonModule jackson = new JacksonModule(new XmlMapper());
 

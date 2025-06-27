@@ -13,6 +13,12 @@ import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
+/**
+ * Factory class for buffered {@link Output}.
+ *
+ * @author edgar
+ * @since 4.0.0
+ */
 public interface OutputFactory {
 
   /**
@@ -22,10 +28,14 @@ public interface OutputFactory {
    * @param factory Factory.
    * @return Thread local factory.
    */
-  static OutputFactory threadLocal(OutputFactory factory, int bufferSize) {
+  static OutputFactory threadLocal(OutputFactory factory) {
     return new ForwardingOutputFactory(factory) {
-      private final ThreadLocal<Output> threadLocal =
-          withInitial(() -> factory.newBufferedOutput(bufferSize));
+      private final ThreadLocal<Output> threadLocal = withInitial(factory::newBufferedOutput);
+
+      @Override
+      public Output newBufferedOutput(boolean direct, int size) {
+        return threadLocal.get().clear();
+      }
 
       @Override
       public Output newBufferedOutput(int size) {
@@ -44,25 +54,62 @@ public interface OutputFactory {
    *
    * @return Default output factory.
    */
-  static OutputFactory create() {
-    return new DefaultOutputFactory();
+  static OutputFactory create(boolean direct, int bufferSize) {
+    return new ByteBufferOutputFactory(direct, bufferSize);
   }
+
+  /**
+   * Default output factory, backed by {@link ByteBuffer}.
+   *
+   * @return Default output factory.
+   */
+  static OutputFactory create(boolean direct) {
+    return new ByteBufferOutputFactory(direct, Output.BUFFER_SIZE);
+  }
+
+  /**
+   * Indicates whether this factory allocates direct buffers (i.e. non-heap, native memory).
+   *
+   * @return {@code true} if this factory allocates direct buffers; {@code false} otherwise
+   */
+  boolean isDirect();
+
+  /**
+   * Buffer of a default initial capacity. Default capacity is <code>1024</code> bytes.
+   *
+   * @return buffer of a default initial capacity.
+   */
+  int getInitialBufferSize();
+
+  /**
+   * Set default buffer initial capacity.
+   *
+   * @param initialBufferSize Default initial buffer capacity.
+   * @return This buffer factory.
+   */
+  OutputFactory setInitialBufferSize(int initialBufferSize);
 
   /**
    * Creates a new byte buffered output.
    *
+   * @param direct True for direct buffers.
    * @param size Output size.
    * @return A byte buffered output.
    */
-  Output newBufferedOutput(int size);
+  Output newBufferedOutput(boolean direct, int size);
 
   /**
    * Creates a new byte buffered output with an initial size of {@link Output#BUFFER_SIZE}.
    *
+   * @param size Output size.
    * @return A byte buffered output.
    */
+  default Output newBufferedOutput(int size) {
+    return newBufferedOutput(isDirect(), size);
+  }
+
   default Output newBufferedOutput() {
-    return newBufferedOutput(Output.BUFFER_SIZE);
+    return newBufferedOutput(isDirect(), Output.BUFFER_SIZE);
   }
 
   /**

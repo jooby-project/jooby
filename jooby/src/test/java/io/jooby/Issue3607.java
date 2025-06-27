@@ -17,7 +17,7 @@ public class Issue3607 {
     @Override
     public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
       // do nothing
-      return Output.wrap(new byte[0]);
+      return ctx.getOutputFactory().wrap(new byte[0]);
     }
   }
 

@@ -19,13 +19,34 @@ public abstract class ForwardingOutputFactory implements OutputFactory {
 
   protected final OutputFactory delegate;
 
-  public ForwardingOutputFactory(OutputFactory delegate) {
+  public ForwardingOutputFactory(@NonNull OutputFactory delegate) {
     this.delegate = delegate;
+  }
+
+  @Override
+  public int getInitialBufferSize() {
+    return delegate.getInitialBufferSize();
+  }
+
+  @Override
+  public OutputFactory setInitialBufferSize(int initialBufferSize) {
+    delegate.setInitialBufferSize(initialBufferSize);
+    return this;
+  }
+
+  @Override
+  public boolean isDirect() {
+    return delegate.isDirect();
   }
 
   @Override
   public Output newBufferedOutput(int size) {
     return delegate.newBufferedOutput(size);
+  }
+
+  @Override
+  public Output newBufferedOutput(boolean direct, int size) {
+    return delegate.newBufferedOutput(direct, size);
   }
 
   @Override
