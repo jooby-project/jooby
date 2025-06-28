@@ -119,7 +119,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
   private void http11(ChannelPipeline p) {
     p.addLast("decoder", new NettyRequestDecoder(decoderConfig));
-    p.addLast("encoder", new NettyResponseEncoder());
+    p.addLast("encoder", new HttpResponseEncoder());
     additionalHandlers(p);
     p.addLast("handler", createHandler());
   }

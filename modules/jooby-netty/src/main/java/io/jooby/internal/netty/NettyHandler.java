@@ -71,7 +71,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       }
       context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
 
-      if (req.method().equals(HttpMethod.GET)) {
+      if (req.method() == HttpMethod.GET) {
         router.match(context).execute(context);
       } else {
         // possibly body:

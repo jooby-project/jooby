@@ -9,6 +9,11 @@ import io.netty.handler.codec.http.*;
 
 public class NettyRequestDecoder extends HttpRequestDecoder {
 
+  private static final String GET = HttpMethod.GET.name();
+  private static final String POST = HttpMethod.POST.name();
+  private static final String PUT = HttpMethod.PUT.name();
+  private static final String DELETE = HttpMethod.DELETE.name();
+
   public NettyRequestDecoder(HttpDecoderConfig config) {
     super(config);
   }
@@ -24,16 +29,16 @@ public class NettyRequestDecoder extends HttpRequestDecoder {
 
   private static HttpMethod valueOf(String name) {
     // fast-path
-    if (name == HttpMethod.GET.name()) {
+    if (name == GET) {
       return HttpMethod.GET;
     }
-    if (name == HttpMethod.POST.name()) {
+    if (name == POST) {
       return HttpMethod.POST;
     }
-    if (name == HttpMethod.DELETE.name()) {
+    if (name == DELETE) {
       return HttpMethod.DELETE;
     }
-    if (name == HttpMethod.PUT.name()) {
+    if (name == PUT) {
       return HttpMethod.PUT;
     }
     // "slow"-path: ensure method is on upper case
