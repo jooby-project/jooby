@@ -9,13 +9,13 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 import gg.jte.TemplateOutput;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 public class BufferedTemplateOutput implements TemplateOutput {
-  private final Output buffer;
+  private final BufferedOutput buffer;
   private final Charset charset;
 
-  public BufferedTemplateOutput(Output buffer, Charset charset) {
+  public BufferedTemplateOutput(BufferedOutput buffer, Charset charset) {
     this.buffer = buffer;
     this.charset = charset;
   }

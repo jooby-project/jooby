@@ -7,6 +7,7 @@ package io.jooby;
 
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,12 +37,11 @@ public class ServerOptionsTest {
     assertEquals(9443, options.getSecurePort());
     assertEquals(4, options.getIoThreads());
     assertEquals("Test", options.getServer());
-    assertEquals(1024, options.getBufferSize());
     assertEquals(8, options.getCompressionLevel());
     assertEquals(2048, options.getMaxRequestSize());
     assertEquals(32, options.getWorkerThreads());
     assertEquals("0.0.0.0", options.getHost());
-    assertEquals(true, options.isHttpsOnly());
+    assertTrue(options.isHttpsOnly());
   }
 
   @Test

@@ -37,7 +37,6 @@ class Idioms :
 
     /** Options: */
     serverOptions {
-      bufferSize = 8194
       ioThreads = 8
       compressionLevel = 6
       defaultHeaders = false

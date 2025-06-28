@@ -70,7 +70,7 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.jooby.value.Value;
 
 public class JettyContext implements DefaultContext, Callback {
@@ -518,7 +518,7 @@ public class JettyContext implements DefaultContext, Callback {
   }
 
   @NonNull @Override
-  public Context send(@NonNull Output output) {
+  public Context send(@NonNull BufferedOutput output) {
     output.send(this);
     return this;
   }

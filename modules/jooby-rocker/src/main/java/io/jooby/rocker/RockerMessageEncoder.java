@@ -11,7 +11,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 class RockerMessageEncoder implements MessageEncoder {
   private final RockerOutputFactory<BufferedRockerOutput> factory;
@@ -21,7 +21,7 @@ class RockerMessageEncoder implements MessageEncoder {
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) {
+  public BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) {
     if (value instanceof RockerModel template) {
       var output = template.render(factory);
       ctx.setResponseLength(output.getByteLength());

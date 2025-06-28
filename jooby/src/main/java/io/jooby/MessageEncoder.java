@@ -8,7 +8,7 @@ package io.jooby;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.NotAcceptableException;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 /**
  * Render a route output as a byte array.
@@ -36,5 +36,5 @@ public interface MessageEncoder {
    * @return Value as a byte array or <code>null</code> if given object isn't supported it.
    * @throws Exception If something goes wrong.
    */
-  @Nullable Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
+  @Nullable BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
 }

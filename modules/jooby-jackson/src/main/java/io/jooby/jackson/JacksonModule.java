@@ -32,7 +32,7 @@ import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson.
@@ -153,7 +153,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     var factory = ctx.getOutputFactory();
     ctx.setDefaultResponseType(mediaType);
     // let jackson uses his own cache, so just wrap the bytes

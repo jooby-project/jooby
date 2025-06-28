@@ -11,11 +11,11 @@ import java.util.function.BiFunction;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.jstach.jstachio.JStachio;
 import io.jstach.jstachio.output.ByteBufferEncodedOutput;
 
-class JStachioMessageEncoder extends JStachioRenderer<Output> implements MessageEncoder {
+class JStachioMessageEncoder extends JStachioRenderer<BufferedOutput> implements MessageEncoder {
 
   public JStachioMessageEncoder(
       JStachio jstachio,
@@ -25,7 +25,7 @@ class JStachioMessageEncoder extends JStachioRenderer<Output> implements Message
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     if (supportsType(value.getClass())) {
       return render(ctx, value);
     }
@@ -33,7 +33,7 @@ class JStachioMessageEncoder extends JStachioRenderer<Output> implements Message
   }
 
   @Override
-  Output extractOutput(Context ctx, ByteBufferEncodedOutput stream) throws IOException {
+  BufferedOutput extractOutput(Context ctx, ByteBufferEncodedOutput stream) throws IOException {
     return ctx.getOutputFactory().wrap(stream.asByteBuffer());
   }
 }

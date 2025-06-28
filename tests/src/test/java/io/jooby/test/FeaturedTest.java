@@ -86,6 +86,7 @@ import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.netty.NettyServer;
+import io.jooby.output.BufferOptions;
 import io.jooby.rxjava3.Reactivex;
 import io.jooby.undertow.UndertowServer;
 import io.reactivex.rxjava3.core.Single;
@@ -1536,7 +1537,7 @@ public class FeaturedTest {
             app -> {
               app.setServerOptions(
                   new ServerOptions()
-                      .setBufferSize(ServerOptions._16KB / 2)
+                      .setBuffer(new BufferOptions().setSize(ServerOptions._16KB / 2))
                       .setMaxRequestSize(ServerOptions._16KB));
               app.post("/request-size", ctx -> ctx.body().value(""));
 

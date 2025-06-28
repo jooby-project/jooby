@@ -48,9 +48,16 @@ public class UndertowServer extends Server.Base {
   private static final int _10 = 10;
 
   private Undertow server;
+
   private List<Jooby> applications;
 
   private XnioWorker worker;
+
+  public UndertowServer(@NonNull ServerOptions options) {
+    setOptions(options);
+  }
+
+  public UndertowServer() {}
 
   @NonNull @Override
   public UndertowServer setOptions(@NonNull ServerOptions options) {
@@ -61,7 +68,7 @@ public class UndertowServer extends Server.Base {
 
   @Override
   protected ServerOptions defaultOptions() {
-    return new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer("utow");
+    return new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer(getName());
   }
 
   @NonNull @Override
@@ -81,7 +88,7 @@ public class UndertowServer extends Server.Base {
       HttpHandler handler =
           new UndertowHandler(
               this.applications,
-              options.getBufferSize(),
+              getOptions().getBuffer().getSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
 
@@ -115,7 +122,8 @@ public class UndertowServer extends Server.Base {
 
       Undertow.Builder builder =
           Undertow.builder()
-              .setBufferSize(options.getBufferSize())
+              .setBufferSize(options.getBuffer().getSize())
+              .setDirectBuffers(options.getBuffer().isDirectBuffers())
               /* Socket : */
               .setSocketOption(Options.BACKLOG, BACKLOG)
               /* Server: */

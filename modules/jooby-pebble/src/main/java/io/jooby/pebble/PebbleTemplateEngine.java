@@ -15,7 +15,7 @@ import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.pebbletemplates.pebble.PebbleEngine;
 
 class PebbleTemplateEngine implements TemplateEngine {
@@ -34,7 +34,7 @@ class PebbleTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
+  public BufferedOutput render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
       var buffer = ctx.getOutputFactory().newBufferedOutput();
       var template = engine.getTemplate(modelAndView.getView());

@@ -14,12 +14,12 @@ import java.nio.charset.StandardCharsets;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * Factory class for buffered {@link Output}.
+ * Factory class for buffered {@link BufferedOutput}.
  *
  * @author edgar
  * @since 4.0.0
  */
-public interface OutputFactory {
+public interface BufferedOutputFactory {
 
   /**
    * Thread local for output buffer. Please note only store calls to {@link #newBufferedOutput()},
@@ -28,22 +28,23 @@ public interface OutputFactory {
    * @param factory Factory.
    * @return Thread local factory.
    */
-  static OutputFactory threadLocal(OutputFactory factory) {
-    return new ForwardingOutputFactory(factory) {
-      private final ThreadLocal<Output> threadLocal = withInitial(factory::newBufferedOutput);
+  static BufferedOutputFactory threadLocal(BufferedOutputFactory factory) {
+    return new ForwardingBufferedOutputFactory(factory) {
+      private final ThreadLocal<BufferedOutput> threadLocal =
+          withInitial(factory::newBufferedOutput);
 
       @Override
-      public Output newBufferedOutput(boolean direct, int size) {
+      public BufferedOutput newBufferedOutput(boolean direct, int size) {
         return threadLocal.get().clear();
       }
 
       @Override
-      public Output newBufferedOutput(int size) {
+      public BufferedOutput newBufferedOutput(int size) {
         return threadLocal.get().clear();
       }
 
       @Override
-      public Output newBufferedOutput() {
+      public BufferedOutput newBufferedOutput() {
         return threadLocal.get().clear();
       }
     };
@@ -54,8 +55,8 @@ public interface OutputFactory {
    *
    * @return Default output factory.
    */
-  static OutputFactory create(boolean direct, int bufferSize) {
-    return new ByteBufferOutputFactory(direct, bufferSize);
+  static BufferedOutputFactory create(BufferOptions options) {
+    return new ByteBufferOutputFactory(options);
   }
 
   /**
@@ -63,31 +64,13 @@ public interface OutputFactory {
    *
    * @return Default output factory.
    */
-  static OutputFactory create(boolean direct) {
-    return new ByteBufferOutputFactory(direct, Output.BUFFER_SIZE);
+  static BufferedOutputFactory create() {
+    return create(new BufferOptions());
   }
 
-  /**
-   * Indicates whether this factory allocates direct buffers (i.e. non-heap, native memory).
-   *
-   * @return {@code true} if this factory allocates direct buffers; {@code false} otherwise
-   */
-  boolean isDirect();
+  BufferOptions getOptions();
 
-  /**
-   * Buffer of a default initial capacity. Default capacity is <code>1024</code> bytes.
-   *
-   * @return buffer of a default initial capacity.
-   */
-  int getInitialBufferSize();
-
-  /**
-   * Set default buffer initial capacity.
-   *
-   * @param initialBufferSize Default initial buffer capacity.
-   * @return This buffer factory.
-   */
-  OutputFactory setInitialBufferSize(int initialBufferSize);
+  BufferedOutputFactory setOptions(BufferOptions options);
 
   /**
    * Creates a new byte buffered output.
@@ -96,20 +79,20 @@ public interface OutputFactory {
    * @param size Output size.
    * @return A byte buffered output.
    */
-  Output newBufferedOutput(boolean direct, int size);
+  BufferedOutput newBufferedOutput(boolean direct, int size);
 
   /**
-   * Creates a new byte buffered output with an initial size of {@link Output#BUFFER_SIZE}.
+   * Creates a new byte buffered output.
    *
    * @param size Output size.
    * @return A byte buffered output.
    */
-  default Output newBufferedOutput(int size) {
-    return newBufferedOutput(isDirect(), size);
+  default BufferedOutput newBufferedOutput(int size) {
+    return newBufferedOutput(getOptions().isDirectBuffers(), size);
   }
 
-  default Output newBufferedOutput() {
-    return newBufferedOutput(isDirect(), Output.BUFFER_SIZE);
+  default BufferedOutput newBufferedOutput() {
+    return newBufferedOutput(getOptions().isDirectBuffers(), getOptions().getSize());
   }
 
   /**
@@ -118,7 +101,7 @@ public interface OutputFactory {
    *
    * @return A new composite buffer.
    */
-  Output newCompositeOutput();
+  BufferedOutput newCompositeOutput();
 
   /**
    * Readonly buffer created from string utf-8 bytes.
@@ -126,7 +109,7 @@ public interface OutputFactory {
    * @param value String.
    * @return Readonly buffer.
    */
-  default Output wrap(String value) {
+  default BufferedOutput wrap(String value) {
     return wrap(value, StandardCharsets.UTF_8);
   }
 
@@ -137,7 +120,7 @@ public interface OutputFactory {
    * @param charset Charset to use.
    * @return Readonly buffer.
    */
-  default Output wrap(@NonNull String value, @NonNull Charset charset) {
+  default BufferedOutput wrap(@NonNull String value, @NonNull Charset charset) {
     return wrap(value.getBytes(charset));
   }
 
@@ -147,7 +130,7 @@ public interface OutputFactory {
    * @param buffer Input buffer.
    * @return Readonly buffer.
    */
-  Output wrap(@NonNull ByteBuffer buffer);
+  BufferedOutput wrap(@NonNull ByteBuffer buffer);
 
   /**
    * Readonly buffer created from byte array.
@@ -155,7 +138,7 @@ public interface OutputFactory {
    * @param bytes Byte array.
    * @return Readonly buffer.
    */
-  Output wrap(@NonNull byte[] bytes);
+  BufferedOutput wrap(@NonNull byte[] bytes);
 
   /**
    * Readonly buffer created from byte array.
@@ -165,5 +148,5 @@ public interface OutputFactory {
    * @param length Length.
    * @return Readonly buffer.
    */
-  Output wrap(@NonNull byte[] bytes, int offset, int length);
+  BufferedOutput wrap(@NonNull byte[] bytes, int offset, int length);
 }

@@ -9,14 +9,15 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.output.Output;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferOptions;
+import io.jooby.output.BufferedOutput;
+import io.jooby.output.BufferedOutputFactory;
 
 public class Issue3607 {
 
   private static class TemplateEngineImpl implements TemplateEngine {
     @Override
-    public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
+    public BufferedOutput render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
       // do nothing
       return ctx.getOutputFactory().wrap(new byte[0]);
     }
@@ -25,7 +26,7 @@ public class Issue3607 {
   @Test
   public void shouldNotGenerateEmptyFlashMap() throws Exception {
     var ctx = mock(Context.class);
-    when(ctx.getOutputFactory()).thenReturn(OutputFactory.create(false));
+    when(ctx.getOutputFactory()).thenReturn(BufferedOutputFactory.create(BufferOptions.small()));
 
     var templateEngine = new TemplateEngineImpl();
     templateEngine.encode(ctx, ModelAndView.map("index.html"));

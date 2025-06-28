@@ -9,12 +9,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import io.avaje.json.stream.JsonOutput;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 public class BufferedJsonOutput implements JsonOutput {
-  private final Output output;
+  private final BufferedOutput output;
 
-  public BufferedJsonOutput(Output output) {
+  public BufferedJsonOutput(BufferedOutput output) {
     this.output = output;
   }
 

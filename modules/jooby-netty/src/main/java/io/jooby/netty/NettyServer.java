@@ -59,22 +59,30 @@ public class NettyServer extends Server.Base {
    *
    * @param worker Thread-pool to use.
    */
+  public NettyServer(@NonNull ServerOptions options, @NonNull ExecutorService worker) {
+    super.setOptions(options);
+    this.worker = worker;
+  }
+
+  /**
+   * Creates a server.
+   *
+   * @param worker Thread-pool to use.
+   */
   public NettyServer(@NonNull ExecutorService worker) {
     this.worker = worker;
   }
 
   /** Creates a server. */
+  public NettyServer(@NonNull ServerOptions options) {
+    super.setOptions(options);
+  }
+
   public NettyServer() {}
 
   @Override
-  public @NonNull NettyServer setOptions(@NonNull ServerOptions options) {
-    super.setOptions(options);
-    return this;
-  }
-
-  @Override
   protected ServerOptions defaultOptions() {
-    return new ServerOptions().setServer("netty");
+    return new ServerOptions().setServer(getName());
   }
 
   @NonNull @Override
@@ -88,13 +96,12 @@ public class NettyServer extends Server.Base {
     var options = getOptions();
     try {
       this.applications = List.of(application);
-      boolean single = applications.size() == 1;
       /* Worker: Application blocking code */
       if (worker == null) {
         worker = newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
       }
       // Make sure context use same buffer factory
-      var outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT);
+      var outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT, options.getBuffer());
       applications.forEach(app -> app.setOutputFactory(outputFactory));
 
       addShutdownHook();
@@ -172,12 +179,11 @@ public class NettyServer extends Server.Base {
 
   private NettyPipeline newPipeline(
       ServerOptions options, SslContext sslContext, NettyDateService dateService, boolean http2) {
-    var bufferSize = options.getBufferSize();
     var decoderConfig =
         new HttpDecoderConfig()
             .setMaxInitialLineLength(_4KB)
             .setMaxHeaderSize(_8KB)
-            .setMaxChunkSize(bufferSize)
+            .setMaxChunkSize(options.getBuffer().getSize())
             .setHeadersFactory(NettyContext.HEADERS)
             .setTrailersFactory(NettyContext.HEADERS);
     return new NettyPipeline(
@@ -186,7 +192,7 @@ public class NettyServer extends Server.Base {
         decoderConfig,
         applications,
         options.getMaxRequestSize(),
-        bufferSize,
+        options.getBuffer().getSize(),
         options.getDefaultHeaders(),
         http2,
         options.isExpectContinue() == Boolean.TRUE,

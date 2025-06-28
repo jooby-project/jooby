@@ -9,13 +9,14 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.output.Output;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferOptions;
+import io.jooby.output.BufferedOutput;
+import io.jooby.output.BufferedOutputFactory;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ResourceLeakDetector;
 
-public class NettyOutputFactory implements OutputFactory {
+public class NettyOutputFactory implements BufferedOutputFactory {
   private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
 
   static {
@@ -27,10 +28,11 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   private final ByteBufAllocator allocator;
-  private int initialBufferSize = Output.BUFFER_SIZE;
+  private BufferOptions options;
 
-  public NettyOutputFactory(ByteBufAllocator allocator) {
+  public NettyOutputFactory(ByteBufAllocator allocator, BufferOptions options) {
     this.allocator = allocator;
+    this.options = options;
   }
 
   public ByteBufAllocator getAllocator() {
@@ -38,49 +40,44 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   @Override
-  public boolean isDirect() {
-    return allocator.isDirectBufferPooled();
+  public BufferOptions getOptions() {
+    return options;
   }
 
   @Override
-  public int getInitialBufferSize() {
-    return initialBufferSize;
-  }
-
-  @Override
-  public @NonNull OutputFactory setInitialBufferSize(int initialBufferSize) {
-    this.initialBufferSize = initialBufferSize;
+  public BufferedOutputFactory setOptions(BufferOptions options) {
+    this.options = options;
     return this;
   }
 
   @Override
-  public @NonNull Output newBufferedOutput(boolean direct, int size) {
+  public @NonNull BufferedOutput newBufferedOutput(boolean direct, int size) {
     return new NettyBufferedOutput(
         direct ? this.allocator.directBuffer(size) : this.allocator.heapBuffer(size));
   }
 
   @Override
-  @NonNull public Output wrap(@NonNull ByteBuffer buffer) {
+  @NonNull public BufferedOutput wrap(@NonNull ByteBuffer buffer) {
     return new NettyWrappedOutput(Unpooled.wrappedBuffer(buffer));
   }
 
   @Override
-  public Output wrap(@NonNull String value, @NonNull Charset charset) {
+  public BufferedOutput wrap(@NonNull String value, @NonNull Charset charset) {
     return new NettyWrappedOutput(Unpooled.wrappedBuffer(value.getBytes(charset)));
   }
 
   @Override
-  @NonNull public Output wrap(@NonNull byte[] bytes) {
+  @NonNull public BufferedOutput wrap(@NonNull byte[] bytes) {
     return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes));
   }
 
   @Override
-  @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+  @NonNull public BufferedOutput wrap(@NonNull byte[] bytes, int offset, int length) {
     return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes, offset, length));
   }
 
   @Override
-  @NonNull public Output newCompositeOutput() {
+  @NonNull public BufferedOutput newCompositeOutput() {
     return new NettyBufferedOutput(allocator.compositeBuffer(48));
   }
 }

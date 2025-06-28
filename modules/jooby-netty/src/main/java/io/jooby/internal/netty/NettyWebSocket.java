@@ -28,7 +28,7 @@ import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -140,12 +140,12 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
+  public WebSocket send(@NonNull BufferedOutput message, @NonNull WriteCallback callback) {
     return sendMessage(byteBuf(message), false, callback);
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
+  public WebSocket sendBinary(@NonNull BufferedOutput message, @NonNull WriteCallback callback) {
     return sendMessage(byteBuf(message), true, callback);
   }
 

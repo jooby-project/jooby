@@ -13,9 +13,9 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
-public class ByteBufferOutput implements Output {
+public class ByteBufferOutput implements BufferedOutput {
   private static final int MAX_CAPACITY = Integer.MAX_VALUE;
 
   private static final int CAPACITY_THRESHOLD = 1024 * 1024 * 4;
@@ -70,7 +70,7 @@ public class ByteBufferOutput implements Output {
   }
 
   @Override
-  public Output write(byte b) {
+  public BufferedOutput write(byte b) {
     ensureWritable(1);
     this.buffer.put(this.writePosition, b);
     this.writePosition += 1;
@@ -78,12 +78,12 @@ public class ByteBufferOutput implements Output {
   }
 
   @Override
-  public Output write(byte[] source) {
+  public BufferedOutput write(byte[] source) {
     return write(source, 0, source.length);
   }
 
   @Override
-  public Output write(byte[] source, int offset, int length) {
+  public BufferedOutput write(byte[] source, int offset, int length) {
     ensureWritable(length);
 
     var tmp = this.buffer.duplicate();
@@ -96,7 +96,7 @@ public class ByteBufferOutput implements Output {
   }
 
   @Override
-  public Output write(@NonNull ByteBuffer source) {
+  public BufferedOutput write(@NonNull ByteBuffer source) {
     ensureWritable(source.remaining());
     var length = source.remaining();
     var tmp = this.buffer.duplicate();
@@ -108,7 +108,7 @@ public class ByteBufferOutput implements Output {
   }
 
   @Override
-  public Output clear() {
+  public BufferedOutput clear() {
     this.buffer.clear();
     return this;
   }

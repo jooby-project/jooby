@@ -20,7 +20,7 @@ import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
@@ -101,7 +101,7 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
   }
 
   @Nullable @Override
-  public Output encode(@NonNull final Context ctx, @NonNull final Object value) {
+  public BufferedOutput encode(@NonNull final Context ctx, @NonNull final Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     var factory = ctx.getOutputFactory();
     var output = factory.newBufferedOutput();

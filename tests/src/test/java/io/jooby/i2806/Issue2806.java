@@ -15,6 +15,7 @@ import io.jooby.ServerOptions;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.output.BufferOptions;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
@@ -30,7 +31,7 @@ public class Issue2806 {
             app -> {
               app.setServerOptions(
                   new ServerOptions()
-                      .setBufferSize(ServerOptions._16KB / 2)
+                      .setBuffer(new BufferOptions().setSize(ServerOptions._16KB / 2))
                       .setMaxRequestSize(ServerOptions._16KB));
 
               app.install(new JacksonModule());

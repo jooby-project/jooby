@@ -75,7 +75,7 @@ public class BufferedOutputTest {
         new ByteBufferOutput(false, 255));
   }
 
-  private void output(SneakyThrows.Consumer<Output> consumer, Output... buffers) {
+  private void output(SneakyThrows.Consumer<BufferedOutput> consumer, BufferedOutput... buffers) {
     Stream.of(buffers).forEach(consumer);
   }
 

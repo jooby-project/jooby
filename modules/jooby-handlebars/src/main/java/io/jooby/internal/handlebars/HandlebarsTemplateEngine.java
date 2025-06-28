@@ -14,7 +14,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 public class HandlebarsTemplateEngine implements TemplateEngine {
 
@@ -35,7 +35,7 @@ public class HandlebarsTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
+  public BufferedOutput render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     var template = handlebars.compile(modelAndView.getView());
     var engineModel =
         com.github.jknack.handlebars.Context.newBuilder(modelAndView.getModel())

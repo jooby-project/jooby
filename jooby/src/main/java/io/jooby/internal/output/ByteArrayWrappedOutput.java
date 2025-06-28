@@ -11,9 +11,9 @@ import java.nio.charset.Charset;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
-public class ByteArrayWrappedOutput implements Output {
+public class ByteArrayWrappedOutput implements BufferedOutput {
 
   private final byte[] buffer;
 
@@ -22,22 +22,22 @@ public class ByteArrayWrappedOutput implements Output {
   }
 
   @Override
-  public Output write(byte b) {
+  public BufferedOutput write(byte b) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Output write(byte[] source) {
+  public BufferedOutput write(byte[] source) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Output write(byte[] source, int offset, int length) {
+  public BufferedOutput write(byte[] source, int offset, int length) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Output clear() {
+  public BufferedOutput clear() {
     return this;
   }
 

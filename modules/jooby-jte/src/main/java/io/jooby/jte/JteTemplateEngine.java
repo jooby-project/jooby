@@ -15,7 +15,7 @@ import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
 import io.jooby.internal.jte.BufferedTemplateOutput;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 class JteTemplateEngine implements io.jooby.TemplateEngine {
   private final TemplateEngine jte;
@@ -32,7 +32,7 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
   }
 
   @Override
-  public Output render(Context ctx, ModelAndView<?> modelAndView) {
+  public BufferedOutput render(Context ctx, ModelAndView<?> modelAndView) {
     var buffer = ctx.getOutputFactory().newBufferedOutput();
     var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     var attributes = ctx.getAttributes();

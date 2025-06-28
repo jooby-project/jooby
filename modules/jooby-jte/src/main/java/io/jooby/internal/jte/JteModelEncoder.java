@@ -11,11 +11,11 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import gg.jte.models.runtime.JteModel;
 import io.jooby.Context;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 public class JteModelEncoder implements io.jooby.MessageEncoder {
   @Nullable @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     if (value instanceof JteModel jte) {
       var buffer = ctx.getOutputFactory().newBufferedOutput();
       jte.render(new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8));

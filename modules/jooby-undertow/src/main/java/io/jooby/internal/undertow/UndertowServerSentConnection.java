@@ -25,7 +25,7 @@ import org.xnio.channels.StreamSinkChannel;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ServerSentMessage;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.undertow.connector.PooledByteBuffer;
 import io.undertow.server.HttpServerExchange;
 
@@ -169,7 +169,7 @@ public class UndertowServerSentConnection implements Channel {
    *
    * @param dest Destination buffer.
    */
-  private void transferTo(@NonNull Output source, @NonNull ByteBuffer dest) {
+  private void transferTo(@NonNull BufferedOutput source, @NonNull ByteBuffer dest) {
     transferTo(source, 0, dest, dest.position(), source.size());
   }
 
@@ -184,7 +184,11 @@ public class UndertowServerSentConnection implements Channel {
    * @param length the amount of data to copy
    */
   private void transferTo(
-      @NonNull Output source, int srcPos, @NonNull ByteBuffer dest, int destPos, int length) {
+      @NonNull BufferedOutput source,
+      int srcPos,
+      @NonNull ByteBuffer dest,
+      int destPos,
+      int length) {
     dest = dest.duplicate().clear();
     dest.put(destPos, source.asByteBuffer(), srcPos, length);
   }
@@ -273,7 +277,7 @@ public class UndertowServerSentConnection implements Channel {
     final ServerSentMessage message;
     final UndertowServerSentConnection.EventCallback callback;
     private int endBufferPosition = -1;
-    private Output leftOverData;
+    private BufferedOutput leftOverData;
     private int leftOverDataOffset;
 
     private SSEData(

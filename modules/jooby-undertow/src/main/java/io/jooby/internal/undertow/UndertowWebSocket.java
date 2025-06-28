@@ -33,7 +33,7 @@ import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedBinaryMessage;
 import io.undertow.websockets.core.BufferedTextMessage;
@@ -99,7 +99,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
         WebSocketChannel channel,
         WriteCallback callback,
         boolean binary,
-        Output buffer) {
+        BufferedOutput buffer) {
       this.ws = ws;
       this.channel = channel;
       this.binary = binary;
@@ -223,12 +223,12 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
+  public WebSocket sendBinary(@NonNull BufferedOutput message, @NonNull WriteCallback callback) {
     return sendMessage(message, true, callback);
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
+  public WebSocket send(@NonNull BufferedOutput message, @NonNull WriteCallback callback) {
     return sendMessage(message, false, callback);
   }
 
@@ -237,7 +237,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
     return sendMessage(message, true, callback);
   }
 
-  private WebSocket sendMessage(Output buffer, boolean binary, WriteCallback callback) {
+  private WebSocket sendMessage(BufferedOutput buffer, boolean binary, WriteCallback callback) {
     if (isOpen()) {
       try {
         new WebSocketOutputCallback(this, channel, callback, binary, buffer).send();

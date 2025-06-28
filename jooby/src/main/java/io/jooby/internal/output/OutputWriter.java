@@ -11,14 +11,14 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 public class OutputWriter extends Writer {
-  private final Output output;
+  private final BufferedOutput output;
   private final Charset charset;
   private boolean closed;
 
-  public OutputWriter(@NonNull Output output, @NonNull Charset charset) {
+  public OutputWriter(@NonNull BufferedOutput output, @NonNull Charset charset) {
     this.output = output;
     this.charset = charset;
   }

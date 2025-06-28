@@ -17,7 +17,7 @@ import io.jooby.MessageEncoder;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 public class Issue2613 {
 
@@ -30,7 +30,7 @@ public class Issue2613 {
   public static class ThemeResultEncoder implements MessageEncoder {
 
     @Override
-    public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+    public BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
       if (value instanceof ThemeResult) {
         ctx.setDefaultResponseType(MediaType.html);
         return ctx.getOutputFactory()

@@ -8,57 +8,59 @@ package io.jooby.output;
 import java.nio.ByteBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.internal.output.ByteArrayWrappedOutput;
-import io.jooby.internal.output.ByteBufferOutput;
-import io.jooby.internal.output.ByteBufferWrappedOutput;
-import io.jooby.internal.output.CompsiteByteBufferOutput;
 
 /**
- * An output factory backed by {@link ByteBuffer}.
+ * Delegate/forwarding class for output factory.
  *
  * @author edgar
  * @since 4.0.0
  */
-public class ByteBufferOutputFactory implements BufferedOutputFactory {
-  private BufferOptions options;
+public abstract class ForwardingBufferedOutputFactory implements BufferedOutputFactory {
 
-  public ByteBufferOutputFactory(BufferOptions options) {
-    this.options = options;
+  protected final BufferedOutputFactory delegate;
+
+  public ForwardingBufferedOutputFactory(@NonNull BufferedOutputFactory delegate) {
+    this.delegate = delegate;
   }
 
   @Override
   public BufferOptions getOptions() {
-    return options;
+    return delegate.getOptions();
   }
 
   @Override
   public BufferedOutputFactory setOptions(BufferOptions options) {
-    this.options = options;
+    delegate.setOptions(options);
     return this;
   }
 
   @Override
+  public BufferedOutput newBufferedOutput(int size) {
+    return delegate.newBufferedOutput(size);
+  }
+
+  @Override
   public BufferedOutput newBufferedOutput(boolean direct, int size) {
-    return new ByteBufferOutput(direct, size);
+    return delegate.newBufferedOutput(direct, size);
   }
 
   @Override
   public BufferedOutput newCompositeOutput() {
-    return new CompsiteByteBufferOutput();
+    return delegate.newCompositeOutput();
   }
 
   @Override
   public BufferedOutput wrap(@NonNull ByteBuffer buffer) {
-    return new ByteBufferWrappedOutput(buffer);
+    return delegate.wrap(buffer);
   }
 
   @Override
   public BufferedOutput wrap(@NonNull byte[] bytes) {
-    return new ByteArrayWrappedOutput(bytes);
+    return delegate.wrap(bytes);
   }
 
   @Override
   public BufferedOutput wrap(@NonNull byte[] bytes, int offset, int length) {
-    return new ByteBufferWrappedOutput(ByteBuffer.wrap(bytes, offset, length));
+    return delegate.wrap(bytes, offset, length);
   }
 }

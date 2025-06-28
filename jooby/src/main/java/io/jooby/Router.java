@@ -36,7 +36,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.MissingValueException;
 import io.jooby.handler.AssetHandler;
 import io.jooby.handler.AssetSource;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferedOutputFactory;
 import io.jooby.value.ValueFactory;
 import jakarta.inject.Provider;
 
@@ -536,9 +536,9 @@ public interface Router extends Registry {
    */
   @NonNull Router setDefaultWorker(@NonNull Executor worker);
 
-  @NonNull OutputFactory getOutputFactory();
+  @NonNull BufferedOutputFactory getOutputFactory();
 
-  @NonNull Router setOutputFactory(@NonNull OutputFactory outputFactory);
+  @NonNull Router setOutputFactory(@NonNull BufferedOutputFactory outputFactory);
 
   /**
    * Attach a filter to the route pipeline.

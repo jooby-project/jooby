@@ -26,6 +26,7 @@ import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.internal.SslContextProvider;
+import io.jooby.output.BufferOptions;
 
 /**
  * Available server options. To load server options from configuration files, just do:
@@ -47,7 +48,7 @@ public class ServerOptions {
   public static final int SERVER_PORT = Integer.parseInt(System.getProperty("server.port", "8080"));
 
   /**
-   * Default application secure port <code>8443</code> or the value of system property <code>
+   * Default application secures port <code>8443</code> or the value of system property <code>
    * server.securePort</code>.
    */
   public static final int SEVER_SECURE_PORT =
@@ -69,9 +70,6 @@ public class ServerOptions {
   public static final int _10MB = 10485760;
 
   private static final String LOCAL_HOST = "0.0.0.0";
-
-  /** Buffer size used by server. Usually for reading/writing data. */
-  private int bufferSize = _16KB;
 
   /** Number of available threads, but never smaller than <code>2</code>. */
   public static final int IO_THREADS = Runtime.getRuntime().availableProcessors() * 2;
@@ -99,6 +97,8 @@ public class ServerOptions {
 
   /** Name of server: Jetty, Netty or Undertow. */
   private String server;
+
+  private BufferOptions buffer = BufferOptions.defaults();
 
   /**
    * Maximum request size in bytes. Request exceeding this value results in {@link
@@ -143,8 +143,11 @@ public class ServerOptions {
       if (conf.hasPath("server.name")) {
         options.setServer(conf.getString("server.name"));
       }
-      if (conf.hasPath("server.bufferSize")) {
-        options.setBufferSize(conf.getInt("server.bufferSize"));
+      if (conf.hasPath("server.buffer.size")) {
+        options.buffer.setSize(conf.getInt("server.buffer.size"));
+      }
+      if (conf.hasPath("server.buffer.useDirectBuffers")) {
+        options.buffer.setDirectBuffers(conf.getBoolean("server.buffer.useDirectBuffers"));
       }
       if (conf.hasPath("server.defaultHeaders")) {
         options.setDefaultHeaders(conf.getBoolean("server.defaultHeaders"));
@@ -191,7 +194,7 @@ public class ServerOptions {
       buff.append(", ioThreads: ").append(Optional.ofNullable(ioThreads).orElse(IO_THREADS));
     }
     buff.append(", workerThreads: ").append(getWorkerThreads());
-    buff.append(", bufferSize: ").append(bufferSize);
+    buff.append(", buffer: ").append(getBuffer());
     buff.append(", maxRequestSize: ").append(maxRequestSize);
     buff.append(", httpsOnly: ").append(httpsOnly);
     if (compressionLevel != null) {
@@ -405,24 +408,12 @@ public class ServerOptions {
     return this;
   }
 
-  /**
-   * Server buffer size in bytes. Default is: <code>16kb</code>. Used for reading/writing data.
-   *
-   * @return Server buffer size in bytes. Default is: <code>16kb</code>. Used for reading/writing
-   *     data.
-   */
-  public int getBufferSize() {
-    return bufferSize;
+  public BufferOptions getBuffer() {
+    return buffer;
   }
 
-  /**
-   * Set buffer size.
-   *
-   * @param bufferSize Buffer size.
-   * @return This options.
-   */
-  public @NonNull ServerOptions setBufferSize(int bufferSize) {
-    this.bufferSize = bufferSize;
+  public ServerOptions setBuffer(@NonNull BufferOptions buffer) {
+    this.buffer = buffer;
     return this;
   }
 

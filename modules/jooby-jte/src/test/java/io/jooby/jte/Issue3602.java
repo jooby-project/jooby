@@ -16,15 +16,15 @@ import gg.jte.TemplateOutput;
 import gg.jte.models.runtime.JteModel;
 import io.jooby.Context;
 import io.jooby.internal.jte.JteModelEncoder;
-import io.jooby.output.Output;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferedOutput;
+import io.jooby.output.BufferedOutputFactory;
 
 public class Issue3602 {
 
   @Test
   public void shouldRenderJteModel() throws Exception {
-    var bufferFactory = mock(OutputFactory.class);
-    var buffer = mock(Output.class);
+    var bufferFactory = mock(BufferedOutputFactory.class);
+    var buffer = mock(BufferedOutput.class);
     when(bufferFactory.newBufferedOutput()).thenReturn(buffer);
 
     var attributes = Map.<String, Object>of("foo", 1);

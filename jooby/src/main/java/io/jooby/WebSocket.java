@@ -11,7 +11,7 @@ import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 /**
  * Websocket. Usage:
@@ -241,11 +241,11 @@ public interface WebSocket {
 
   @NonNull WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
 
-  default @NonNull WebSocket send(@NonNull Output message) {
+  default @NonNull WebSocket send(@NonNull BufferedOutput message) {
     return send(message, WriteCallback.NOOP);
   }
 
-  @NonNull WebSocket send(@NonNull Output message, @NonNull WriteCallback callback);
+  @NonNull WebSocket send(@NonNull BufferedOutput message, @NonNull WriteCallback callback);
 
   /**
    * Send a binary message to client.
@@ -293,11 +293,11 @@ public interface WebSocket {
 
   @NonNull WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
 
-  default @NonNull WebSocket sendBinary(@NonNull Output message) {
+  default @NonNull WebSocket sendBinary(@NonNull BufferedOutput message) {
     return sendBinary(message, WriteCallback.NOOP);
   }
 
-  @NonNull WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback);
+  @NonNull WebSocket sendBinary(@NonNull BufferedOutput message, @NonNull WriteCallback callback);
 
   /**
    * Encode a value and send a text message to client.

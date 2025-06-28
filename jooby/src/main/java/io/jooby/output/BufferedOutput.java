@@ -24,16 +24,13 @@ import io.jooby.internal.output.OutputWriter;
  * buffers.
  *
  * <p>There are two implementations of output one is backed by a {@link ByteBuffer} and the other is
- * a view of multiple {@link ByteBuffer} byffers. See {@link OutputFactory#newBufferedOutput()} and
- * {@link OutputFactory#newCompositeOutput()}
+ * a view of multiple {@link ByteBuffer} byffers. See {@link
+ * BufferedOutputFactory#newBufferedOutput()} and {@link BufferedOutputFactory#newCompositeOutput()}
  *
  * @author edgar
  * @since 4.0.0
  */
-public interface Output {
-  /** Default buffer size: <code>4k</code>. */
-  int BUFFER_SIZE = 4096;
-
+public interface BufferedOutput {
   /**
    * This output as an output stream. Changes made to the output stream are reflected in this
    * output.
@@ -111,7 +108,7 @@ public interface Output {
    * @param b the byte to be written
    * @return this output
    */
-  Output write(byte b);
+  BufferedOutput write(byte b);
 
   /**
    * Write the given source into this buffer, starting at the current writing position of this
@@ -120,7 +117,7 @@ public interface Output {
    * @param source the bytes to be written into this buffer
    * @return this output
    */
-  Output write(byte[] source);
+  BufferedOutput write(byte[] source);
 
   /**
    * Write at most {@code length} bytes of the given source into this buffer, starting at the
@@ -131,7 +128,7 @@ public interface Output {
    * @param length the maximum number of bytes to be written from {@code source}
    * @return this output
    */
-  Output write(byte[] source, int offset, int length);
+  BufferedOutput write(byte[] source, int offset, int length);
 
   /**
    * Write the given {@code String} using {@code UTF-8}, starting at the current writing position.
@@ -139,7 +136,7 @@ public interface Output {
    * @param source the char sequence to write into this buffer
    * @return this output
    */
-  default Output write(@NonNull String source) {
+  default BufferedOutput write(@NonNull String source) {
     return write(source, StandardCharsets.UTF_8);
   }
 
@@ -151,7 +148,7 @@ public interface Output {
    * @param charset the charset to encode the char sequence with
    * @return this output
    */
-  default Output write(@NonNull String source, @NonNull Charset charset) {
+  default BufferedOutput write(@NonNull String source, @NonNull Charset charset) {
     if (!source.isEmpty()) {
       return write(source.getBytes(charset));
     }
@@ -165,7 +162,7 @@ public interface Output {
    * @param source the bytes to be written into this buffer
    * @return this output
    */
-  default Output write(@NonNull ByteBuffer source) {
+  default BufferedOutput write(@NonNull ByteBuffer source) {
     if (source.hasArray()) {
       return write(source.array(), source.arrayOffset() + source.position(), source.remaining());
     } else {
@@ -175,7 +172,7 @@ public interface Output {
     }
   }
 
-  default Output write(@NonNull CharBuffer source, @NonNull Charset charset) {
+  default BufferedOutput write(@NonNull CharBuffer source, @NonNull Charset charset) {
     if (!source.isEmpty()) {
       return write(charset.encode(source));
     }
@@ -184,5 +181,5 @@ public interface Output {
 
   void send(io.jooby.Context ctx);
 
-  Output clear();
+  BufferedOutput clear();
 }

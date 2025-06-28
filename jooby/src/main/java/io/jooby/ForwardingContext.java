@@ -24,8 +24,8 @@ import java.util.function.Function;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.RegistryException;
-import io.jooby.output.Output;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferedOutput;
+import io.jooby.output.BufferedOutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -671,7 +671,7 @@ public class ForwardingContext implements Context {
   }
 
   @Override
-  public OutputFactory getOutputFactory() {
+  public BufferedOutputFactory getOutputFactory() {
     return ctx.getOutputFactory();
   }
 
@@ -1229,7 +1229,7 @@ public class ForwardingContext implements Context {
   }
 
   @Override
-  public Context send(@NonNull Output output) {
+  public Context send(@NonNull BufferedOutput output) {
     ctx.send(output);
     return this;
   }

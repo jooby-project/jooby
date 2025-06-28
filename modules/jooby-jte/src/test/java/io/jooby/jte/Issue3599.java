@@ -19,15 +19,15 @@ import gg.jte.TemplateOutput;
 import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
-import io.jooby.output.Output;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferedOutput;
+import io.jooby.output.BufferedOutputFactory;
 
 public class Issue3599 {
 
   @Test
   public void shouldNotCallObjectMethodOnMapModels() {
-    var bufferFactory = mock(OutputFactory.class);
-    var buffer = mock(Output.class);
+    var bufferFactory = mock(BufferedOutputFactory.class);
+    var buffer = mock(BufferedOutput.class);
     when(bufferFactory.newBufferedOutput()).thenReturn(buffer);
 
     var attributes = Map.<String, Object>of("foo", 1);
@@ -53,8 +53,8 @@ public class Issue3599 {
 
   @Test
   public void shouldCallObjectMethodOnObjectModels() {
-    var bufferFactory = mock(OutputFactory.class);
-    var buffer = mock(Output.class);
+    var bufferFactory = mock(BufferedOutputFactory.class);
+    var buffer = mock(BufferedOutput.class);
     when(bufferFactory.newBufferedOutput()).thenReturn(buffer);
 
     var attributes = Map.<String, Object>of("foo", 1);

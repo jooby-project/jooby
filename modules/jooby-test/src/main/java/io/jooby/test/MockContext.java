@@ -54,8 +54,9 @@ import io.jooby.Session;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.output.Output;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferOptions;
+import io.jooby.output.BufferedOutput;
+import io.jooby.output.BufferedOutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -118,7 +119,7 @@ public class MockContext implements DefaultContext {
 
   private int port = -1;
 
-  private OutputFactory outputFactory = OutputFactory.create(false);
+  private BufferedOutputFactory outputFactory = BufferedOutputFactory.create(BufferOptions.small());
 
   @Override
   public String getMethod() {
@@ -137,7 +138,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public OutputFactory getOutputFactory() {
+  public BufferedOutputFactory getOutputFactory() {
     return outputFactory;
   }
 
@@ -570,7 +571,7 @@ public class MockContext implements DefaultContext {
       }
 
       @NonNull @Override
-      public Sender write(@NonNull Output output, @NonNull Callback callback) {
+      public Sender write(@NonNull BufferedOutput output, @NonNull Callback callback) {
         response.setResult(output);
         callback.onComplete(MockContext.this, null);
         return this;
@@ -669,7 +670,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Context send(@NonNull Output output) {
+  public Context send(@NonNull BufferedOutput output) {
     responseStarted = true;
     this.response.setResult(output).setContentLength(output.size());
     listeners.run(this);

@@ -9,7 +9,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.netty.buffer.ByteBuf;
 
 public class NettyWrappedOutput implements NettyByteBufOutput {
@@ -25,32 +25,32 @@ public class NettyWrappedOutput implements NettyByteBufOutput {
   }
 
   @Override
-  @NonNull public Output write(byte b) {
+  @NonNull public BufferedOutput write(byte b) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @NonNull public Output write(byte[] source) {
+  @NonNull public BufferedOutput write(byte[] source) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @NonNull public Output write(byte[] source, int offset, int length) {
+  @NonNull public BufferedOutput write(byte[] source, int offset, int length) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @NonNull public Output write(@NonNull String source, @NonNull Charset charset) {
+  @NonNull public BufferedOutput write(@NonNull String source, @NonNull Charset charset) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Output write(@NonNull CharBuffer source, @NonNull Charset charset) {
+  public BufferedOutput write(@NonNull CharBuffer source, @NonNull Charset charset) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @NonNull public Output clear() {
+  @NonNull public BufferedOutput clear() {
     return this;
   }
 }

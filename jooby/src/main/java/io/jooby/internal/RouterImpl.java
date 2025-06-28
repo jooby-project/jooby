@@ -44,7 +44,7 @@ import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferedOutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
 import io.jooby.value.ValueFactory;
 import jakarta.inject.Provider;
@@ -171,7 +171,7 @@ public class RouterImpl implements Router {
 
   private ValueFactory valueFactory = new ValueFactory();
 
-  private OutputFactory outputFactory = OutputFactory.create(false);
+  private BufferedOutputFactory outputFactory = BufferedOutputFactory.create();
 
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
@@ -457,12 +457,12 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public OutputFactory getOutputFactory() {
+  public BufferedOutputFactory getOutputFactory() {
     return outputFactory;
   }
 
   @NonNull @Override
-  public Router setOutputFactory(@NonNull OutputFactory outputFactory) {
+  public Router setOutputFactory(@NonNull BufferedOutputFactory outputFactory) {
     this.outputFactory = outputFactory;
     return this;
   }

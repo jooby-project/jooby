@@ -13,7 +13,7 @@ import org.eclipse.jetty.server.Response;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 public class JettySender implements Sender {
   private final JettyContext ctx;
@@ -31,7 +31,7 @@ public class JettySender implements Sender {
   }
 
   @NonNull @Override
-  public Sender write(@NonNull Output output, @NonNull Callback callback) {
+  public Sender write(@NonNull BufferedOutput output, @NonNull Callback callback) {
     fromOutput(response, toJettyCallback(ctx, callback), output).send(false);
     return this;
   }

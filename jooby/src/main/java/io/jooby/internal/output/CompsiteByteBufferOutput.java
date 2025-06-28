@@ -13,12 +13,11 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
-public class CompsiteByteBufferOutput implements Output {
+public class CompsiteByteBufferOutput implements BufferedOutput {
   private final List<ByteBuffer> chunks = new ArrayList<>();
   private int size = 0;
-  private int bufferSizeHint = BUFFER_SIZE;
 
   @Override
   public int size() {
@@ -26,25 +25,25 @@ public class CompsiteByteBufferOutput implements Output {
   }
 
   @Override
-  public Output write(byte b) {
+  public BufferedOutput write(byte b) {
     addChunk(ByteBuffer.wrap(new byte[] {b}));
     return this;
   }
 
   @Override
-  public Output write(byte[] source) {
+  public BufferedOutput write(byte[] source) {
     addChunk(ByteBuffer.wrap(source));
     return this;
   }
 
   @Override
-  public Output write(byte[] source, int offset, int length) {
+  public BufferedOutput write(byte[] source, int offset, int length) {
     addChunk(ByteBuffer.wrap(source, offset, length));
     return this;
   }
 
   @Override
-  public Output clear() {
+  public BufferedOutput clear() {
     chunks.forEach(ByteBuffer::clear);
     chunks.clear();
     return this;
@@ -89,8 +88,5 @@ public class CompsiteByteBufferOutput implements Output {
     chunks.add(chunk);
     int length = chunk.remaining();
     size += length;
-    if (bufferSizeHint < length) {
-      bufferSizeHint = length;
-    }
   }
 }

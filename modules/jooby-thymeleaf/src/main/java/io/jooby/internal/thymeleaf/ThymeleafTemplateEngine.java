@@ -16,7 +16,7 @@ import org.thymeleaf.context.Context;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
 public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
   private final TemplateEngine templateEngine;
@@ -33,7 +33,7 @@ public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
   }
 
   @Override
-  public @NonNull Output render(io.jooby.Context ctx, ModelAndView<?> modelAndView) {
+  public @NonNull BufferedOutput render(io.jooby.Context ctx, ModelAndView<?> modelAndView) {
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
       Map<String, Object> model = new HashMap<>(ctx.getAttributes());
       model.putAll(mapModelAndView.getModel());

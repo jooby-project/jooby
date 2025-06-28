@@ -132,7 +132,7 @@ public class ServerSentMessage {
    * @param ctx Web context. To encode complex objects.
    * @return Encoded data.
    */
-  public @NonNull Output encode(@NonNull Context ctx) {
+  public @NonNull BufferedOutput encode(@NonNull Context ctx) {
     try {
       var route = ctx.getRoute();
       var encoder = route.getEncoder();

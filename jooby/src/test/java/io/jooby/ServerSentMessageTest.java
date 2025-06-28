@@ -13,7 +13,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferOptions;
+import io.jooby.output.BufferedOutputFactory;
 
 public class ServerSentMessageTest {
 
@@ -22,7 +23,7 @@ public class ServerSentMessageTest {
     var data = "some";
     var ctx = mock(Context.class);
 
-    var bufferFactory = OutputFactory.create(false);
+    var bufferFactory = BufferedOutputFactory.create(BufferOptions.small());
     when(ctx.getOutputFactory()).thenReturn(bufferFactory);
     var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))
@@ -42,7 +43,7 @@ public class ServerSentMessageTest {
     var data = "line 1\n line ,a .. 2\nline ...abc  3";
     var ctx = mock(Context.class);
 
-    var bufferFactory = OutputFactory.create(false);
+    var bufferFactory = BufferedOutputFactory.create(BufferOptions.small());
     when(ctx.getOutputFactory()).thenReturn(bufferFactory);
     var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))
@@ -64,7 +65,7 @@ public class ServerSentMessageTest {
     var data = "line 1\n";
     var ctx = mock(Context.class);
 
-    var bufferFactory = OutputFactory.create(false);
+    var bufferFactory = BufferedOutputFactory.create(BufferOptions.small());
     when(ctx.getOutputFactory()).thenReturn(bufferFactory);
     var encoder = mock(MessageEncoder.class);
     when(encoder.encode(ctx, data))

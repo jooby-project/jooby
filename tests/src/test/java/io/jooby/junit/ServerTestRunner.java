@@ -30,7 +30,8 @@ import io.jooby.StartupSummary;
 import io.jooby.StatusCode;
 import io.jooby.internal.MutedServer;
 import io.jooby.netty.NettyServer;
-import io.jooby.output.OutputFactory;
+import io.jooby.output.BufferOptions;
+import io.jooby.output.BufferedOutputFactory;
 import io.jooby.test.WebClient;
 
 public class ServerTestRunner {
@@ -92,7 +93,7 @@ public class ServerTestRunner {
       System.setProperty("___server_name__", server.getName());
       var app = provider.get();
       if (!(server instanceof NettyServer)) {
-        app.setOutputFactory(OutputFactory.create(false));
+        app.setOutputFactory(BufferedOutputFactory.create(BufferOptions.defaults()));
       }
       Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       // Reduce log from maven build:
