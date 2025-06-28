@@ -23,12 +23,12 @@ public class NettyOutputStream extends OutputStream {
   private final ChannelHandlerContext context;
   private final ChannelFutureListener closeListener;
   private HttpResponse headers;
-  private AtomicBoolean closed = new AtomicBoolean(false);
+  private final AtomicBoolean closed = new AtomicBoolean(false);
 
   public NettyOutputStream(
       NettyContext ctx, ChannelHandlerContext context, int bufferSize, HttpResponse headers) {
     this.ctx = ctx;
-    this.buffer = context.alloc().buffer(0, bufferSize);
+    this.buffer = context.alloc().heapBuffer(bufferSize, bufferSize);
     this.context = context;
     this.headers = headers;
     this.closeListener = ctx;
@@ -36,12 +36,7 @@ public class NettyOutputStream extends OutputStream {
 
   @Override
   public void write(int b) {
-    writeHeaders();
-
-    if (buffer.maxWritableBytes() < 1) {
-      flush(null, null);
-    }
-    buffer.writeByte(b);
+    write(new byte[] {(byte) b}, 0, 1);
   }
 
   @Override

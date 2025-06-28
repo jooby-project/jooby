@@ -29,7 +29,7 @@ public class Issue3554 {
     when(buffer.readableBytes()).thenReturn(0);
 
     var bufferAllocator = mock(ByteBufAllocator.class);
-    when(bufferAllocator.buffer(0, 1024)).thenReturn(buffer);
+    when(bufferAllocator.heapBuffer(1024, 1024)).thenReturn(buffer);
 
     var future = mock(ChannelFuture.class);
     var channelContext = mock(ChannelHandlerContext.class);
