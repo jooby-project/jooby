@@ -1,7 +1,7 @@
 == Error Handler
 
 Jooby catches application exception using the javadoc:ErrorHandler[] class. The
-javadoc:ErrorHandler[DEFAULT] error handler produces simple HTML page or JSON based on the value
+javadoc:DefaultErrorHandler[] error handler produces simple HTML page or JSON based on the value
 of the `ACCEPT` header and log the exception.
 
 .HTML:
@@ -32,7 +32,7 @@ io.jooby.StatusCodeException: Not found
 	at java.lang.Thread.run(Thread.java:748)
 ----
 
-The javadoc:StatusCodeException[] works as generic exception that let you specify an status code.
+The javadoc:exception.StatusCodeException[] works as generic exception that let you specify an status code.
 
 ----
 throw new StatusCodeException(StatusCode.FORBIDDEN);

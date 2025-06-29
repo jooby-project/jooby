@@ -90,7 +90,7 @@ There are several parameter types: `header`, `cookie`, `path`, `query`, `form`, 
 `session` and `flash`. All them share a unified/type-safe API for accessing and manipulating their values.
 
 We are going to describe them briefly in the next sections, then go into specific features of the
-<<Value API>>.
+<<context-value-api,Value API>>.
 
 There is also a <<context-parameters-parameter-lookup,parameter lookup>> feature by which you can access a parameter from any combination
 of the above types with well-defined priority.
@@ -540,7 +540,7 @@ File upload are available ONLY for multipart requests.
 
 ==== Session
 
-Session parameters are available via javadoc::Context[session] or javadoc::Context[sessionOrNull]
+Session parameters are available via javadoc:Context[session] or javadoc:Context[sessionOrNull]
 methods. HTTP Session is covered in his own <<session, chapter>>, but here is a quick look:
 
 .Java
@@ -599,7 +599,7 @@ a javadoc:Session[] but the lifecycle is shorter: *data is kept for only one req
 <3> Display an existing flash attribute `success` or shows `Welcome!`
 
 Flash attributes are implemented using an `HTTP Cookie`. To customize the cookie
-(its name defaults to `jooby.flash`) use the javadoc:Router[setFlashCookie, Cookie] method:
+(its name defaults to `jooby.flash`) use the javadoc:Router[setFlashCookie, io.jooby.Cookie] method:
 
 .Java
 [source,java,role="primary"]
@@ -626,7 +626,7 @@ Flash attributes are implemented using an `HTTP Cookie`. To customize the cookie
 ==== Parameter Lookup
 
 You can search for parameters in multiple sources with an explicitly defined priority using the
-javadoc:Context[lookup] or javadoc:Context[lookup, java.lang.String, ParamSource...] method:
+javadoc:Context[lookup] or javadoc:Context[lookup, java.lang.String, io.jooby.ParamSource...] method:
 
 .Java
 [source,java,role="primary"]

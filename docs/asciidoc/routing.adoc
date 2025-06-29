@@ -980,7 +980,7 @@ Output:
 
 ==== Scoped Filter
 
-The javadoc:Router[route, java.lang.Runnable] and javadoc:Router[path, java.lang.String, java.lang.Runnable] operators
+The javadoc:Router[routes, java.lang.Runnable] and javadoc:Router[path, java.lang.String, java.lang.Runnable] operators
 are used to group one or more routes.
   
 A `scoped filter` looks like:
@@ -1035,7 +1035,7 @@ A `scoped filter` looks like:
 
 Output:
 
-<1> Introduce a new scope via `route` operator
+<1> Introduce a new scope via `routes` operator
 <2> `/4`  => `9`
 <3> `/1`  => `2`
 
@@ -1043,7 +1043,7 @@ It is a normal `filter` inside of one of the group operators.
 
 === Grouping routes
 
-As showed previously, the javadoc:Router[route, java.lang.Runnable] operator push a new route `scope`
+As showed previously, the javadoc:Router[routes, java.lang.Runnable] operator push a new route `scope`
 and allows you to selectively apply one or more routes.
 
 .Route operator
@@ -1222,7 +1222,7 @@ is responsible for assembly all the resources and services required by imported 
 ==== Install
 
 Alternatively, you can install a standalone application into another one using the
-javadoc:Jooby[install, io.jooby.Jooby] operator:
+javadoc:Jooby[install, io.jooby.SneakyThrows.Supplier] operator:
 
 .Installing
 [source, java, role="primary"]

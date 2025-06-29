@@ -177,6 +177,6 @@ import io.lettuce.core.RedisClient
 
 More Options:
 
-- javadoc:redis.RedisSessionStore[setTimeout, java.time.Duraction]: Set session timeout. Default is: `30 minutes`
-- javadoc:redis.RedisSessionStore[setNamespace, java.lang.String]: Set key prefix. Default is: `sessions`
-- javadoc:redis.RedisSessionStore[setToken, io.jooby.SessionToken]: Set session token. Default is a cookie token: `jooby.sid`
+- javadoc:redis.RedisSessionStore[setTimeout, java.time.Duration, artifact="jooby-redis"]: Set session timeout. Default is: `30 minutes`
+- javadoc:redis.RedisSessionStore[setNamespace, java.lang.String, artifact="jooby-redis"]: Set key prefix. Default is: `sessions`
+- javadoc:redis.RedisSessionStore[setToken, io.jooby.SessionToken, artifact="jooby-redis"]: Set session token. Default is a cookie token: `jooby.sid`

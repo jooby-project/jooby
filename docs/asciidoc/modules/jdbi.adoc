@@ -81,7 +81,7 @@ Handle must be explicitly closed, we did that with `try-with-resources` statemen
 
 === Transactional Request
 
-The javadoc:jdbi.TransactionalRequest[] decorator takes care of a lifecycle of a `Handle` per HTTP request.
+The javadoc:jdbi.TransactionalRequest[artifact="jooby-jdbi"] decorator takes care of a lifecycle of a `Handle` per HTTP request.
 The decorator creates, bind, begin/commit/rollback transaction and finally close it, so route handler
 doesn't have to deal with that boring lines of code.
 
@@ -254,7 +254,7 @@ import io.jooby.annotation.Transactional
 
 === SQL Objects
 
-Provisioning of custom SQL objects is available javadoc:jdbi.JdbiMdule[sqlObjects, java.lang.Class] method.
+Provisioning of custom SQL objects is available javadoc:jdbi.JdbiModule[sqlObjects, java.lang.Class..., artifact="jooby-jdbi"] method.
 
 .SQLObjects
 [source, java, role = "primary"]

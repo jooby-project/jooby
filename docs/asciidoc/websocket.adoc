@@ -89,7 +89,7 @@ to modify the HTTP context or produces a response from it:
 
 === Structured data
 
-Structure data is supported using the Value API and the javadoc:WebSocket[render] method:
+Structure data is supported using the Value API and the javadoc:WebSocket[render, java.lang.Object] method:
 
 .JSON example:
 

@@ -672,7 +672,7 @@ details please checkout the <<responses-nonblocking, non-blocking responses>> se
 
 === Execution model
 
-The MVC routes follows the execution model described in <<Execution Model>>. To run application
+The MVC routes follows the execution model described in <<execution-model, Execution Model>>. To run application
 logic in the javadoc:ExecutionMode[EVENT_LOOP]:
 
 .EventLoop MVC route

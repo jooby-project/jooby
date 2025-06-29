@@ -59,7 +59,7 @@ import io.jooby.hikari.HikariModule
 
 === Database configuration
 
-By default the javadoc:hikari.Hikari[] module expects to find database properties as application
+By default the javadoc:hikari.HikariModule[text="Hikari", artifact="jooby-hikari"] module expects to find database properties as application
 configuration properties under the `db` key prefix. The next example shows how to overrides the
 database prefix:
 

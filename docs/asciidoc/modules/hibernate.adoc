@@ -102,7 +102,7 @@ import io.jooby.hibernate.HibernateModule
 
 === Entity Discovering
 
-By default the javadoc:hibernate.HibernateModule[] module detects all the persistent entities under javadoc:Jooby[getBasePackage, text = "base/root package"]. The module provides two
+By default the javadoc:hibernate.HibernateModule[artifact="jooby-hibernate"] module detects all the persistent entities under javadoc:Jooby[getBasePackage, text = "base/root package"]. The module provides two
 options for more explicit control:
 
 - List persistent classes at creation time:
@@ -119,7 +119,7 @@ options for more explicit control:
 
 === Transactional Request
 
-The javadoc:hibernate.TransactionalRequest[] filter takes care of a lifecycle of an `EntityManager`/`StatelessSession` per HTTP request.
+The javadoc:hibernate.TransactionalRequest[artifact="jooby-hibernate"] filter takes care of a lifecycle of an `EntityManager`/`StatelessSession` per HTTP request.
 The filter creates, bind, begin/commit/rollback transaction and finally close it, so route handler
 doesn't have to deal with that boring lines of code.
 
@@ -232,12 +232,12 @@ the same `EntityManager`/`StatelessSession`. It is a simple way of managed simpl
 
 [NOTE]
 ====
-The javadoc:hibernate.TransactionalRequest[] doesn't extend session to the rendering phase (json, html, etc.).
+The javadoc:hibernate.TransactionalRequest[artifact="jooby-hibernate"] doesn't extend session to the rendering phase (json, html, etc.).
 The route handler needs to make sure all the information required by the rendering phase is available.
 Otherwise, you are going to see `LazyInitializationException`.
 ====
 
-There is a javadoc:hibernate.SessionRequest[] filter that works identically but leaves transaction
+There is a javadoc:hibernate.SessionRequest[artifact="jooby-hibernate"] filter that works identically but leaves transaction
 management to you, so no transaction is started/committed or rollback during a HTTP request.
 
 ==== @Transactional
@@ -460,7 +460,7 @@ Neither can it be used together with `SessionRequest` or `TransactionalRequest`:
 
 Schema creation is controlled by the `hibernate.hbm2ddl.auto` property. The Hibernate module configure this property using the following rules:
 
-- When the javadoc:flyway.FlywayModule[] module is present, the value of `hibernate.hbm2ddl.auto` is set to `none`
+- When the javadoc:flyway.FlywayModule[artifact="jooby-flyway"] module is present, the value of `hibernate.hbm2ddl.auto` is set to `none`
 - When `application.env` property is set to `dev` or `test`, the value of `hibernate.hbm2ddl.auto` is set to `update`
 - Otherwise is set to `none`
 
@@ -474,7 +474,7 @@ Advanced Hibernate configuration is supported from application configuration pro
 hibernate.hbm2ddl.auto = create
 ----
 
-Or by providing a custom javadoc:HibernateConfigurer[] instance. The javadoc:HibernateConfigurer[] 
+Or by providing a custom javadoc:hibernate.HibernateConfigurer[artifact="jooby-hibernate"] instance. The javadoc:hibernate.HibernateConfigurer[artifact="jooby-hibernate"] 
 let you hook and customize Hibernate bootstrap process:
 
 .HibernateConfigurer:
@@ -534,7 +534,7 @@ public class MyConfigurer extends HibernateConfigurer {
 }
 ----
 
-Something similar is possible for custom Session using a javadoc:hibernate.SessionProvider[]:
+Something similar is possible for custom Session using a javadoc:hibernate.SessionProvider[artifact="jooby-hibernate"]:
 
 .SessionProvider
 [source, java]

@@ -5,13 +5,13 @@ Jooby doesn't support `HTTP HEAD` requests by default. To support them you have 
 - Use the built-in `HeadHandler`
 - Write your own head handler
 
-The javadoc:HeadHandler[] supports `HEAD` requests over existing `GET` handlers.
+The javadoc:handler.HeadHandler[] supports `HEAD` requests over existing `GET` handlers.
 
 .Head Example
 [source, java, role = "primary"]
 ----
 import io.jooby.Jooby;
-import io.jooby.HeadHandler;
+import io.jooby.handler.HeadHandler;
 ...
 {
   

@@ -103,7 +103,7 @@ import io.jooby.ebean.EbeanModule
 
 === Transactional Request
 
-The javadoc:ebean.TransactionalRequest[] decorator takes care of a start/commit/rollback a
+The javadoc:ebean.TransactionalRequest[artifact=jooby-ebean] decorator takes care of a start/commit/rollback a
 transaction per HTTP request.
 
 .TransactionalRequest
@@ -294,7 +294,7 @@ Advanced/Custom configuration is supported programmatically or using property fi
 }
 ----
 
-<1> Manually creates a database config or use the one provided by Jooby: javadoc:ebean.EbeanModule[create, io.jooby.Jooby, java.lang.String].
+<1> Manually creates a database config or use the one provided by Jooby: javadoc:ebean.EbeanModule[create, io.jooby.Jooby, java.lang.String, artifact=jooby-ebean].
 <2> Install Ebean with custom database config
 
 .Configuration

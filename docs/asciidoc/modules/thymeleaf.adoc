@@ -103,5 +103,5 @@ import io.jooby.thymeleaf.ThymeleafModule
 
 [TIP]
 ====
-There is a builder function to create a `TemplateEngine`: javadoc:thymeleaf.ThymeleafModule[create].
+There is a builder function to create a `TemplateEngine`: javadoc:thymeleaf.ThymeleafModule[create, artifact="jooby-thymeleaf"].
 ====
