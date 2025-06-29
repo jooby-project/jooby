@@ -954,40 +954,7 @@ public class Jooby implements Router, Registry {
   }
 
   /**
-   * Start application, find a web server, deploy application, start router, extension modules,
-   * etc..
-   *
-   * @return Server.
-   * @deprecated Use {@link Server#start(Jooby[])}
-   */
-  @Deprecated(since = "3.8.0", forRemoval = true)
-  public @NonNull Server start() {
-    if (server == null) {
-      this.server = Server.loadServer();
-    }
-    if (!server.getLoggerOff().isEmpty()) {
-      this.server = MutedServer.mute(this.server);
-    }
-    try {
-      return server.start(this);
-    } catch (Throwable startupError) {
-      stopped.set(true);
-      Logger log = getLog();
-      log.error("Application startup resulted in exception", startupError);
-      try {
-        server.stop();
-      } catch (Throwable stopError) {
-        log.debug("Server stop resulted in exception", stopError);
-      }
-      // rethrow
-      throw startupError instanceof StartupException
-          ? (StartupException) startupError
-          : new StartupException("Application startup resulted in exception", startupError);
-    }
-  }
-
-  /**
-   * Call back method that indicates application was deploy it in the given server.
+   * Call back method that indicates application was deployed.
    *
    * @param server Server.
    * @return This application.
@@ -1019,7 +986,7 @@ public class Jooby implements Router, Registry {
               .orElseGet(() -> singletonList(Locale.getDefault()));
     }
 
-    ServiceRegistry services = getServices();
+    var services = getServices();
     services.put(Environment.class, getEnvironment());
     services.put(Config.class, getConfig());
 
@@ -1303,7 +1270,20 @@ public class Jooby implements Router, Registry {
               });
       apps.add(app);
     }
-    targetServer.start(apps.toArray(new Jooby[0]));
+    try {
+      targetServer.start(apps.toArray(new Jooby[0]));
+    } catch (Throwable startupError) {
+      apps.forEach(app -> app.stopped.set(true));
+      try {
+        server.stop();
+      } catch (Throwable ignored) {
+        // no need to log here
+      }
+      // rethrow
+      throw startupError instanceof StartupException
+          ? (StartupException) startupError
+          : new StartupException("Startup resulted in exception", startupError);
+    }
   }
 
   /**

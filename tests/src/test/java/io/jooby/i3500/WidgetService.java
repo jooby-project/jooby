@@ -24,10 +24,6 @@ public class WidgetService extends Jooby {
 
     mount(new WidgetRouter());
   }
-
-  public static void main(String[] args) {
-    new WidgetService().start();
-  }
 }
 
 class WidgetRouter extends Jooby {
