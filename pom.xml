@@ -72,7 +72,7 @@
     <!-- data -->
     <HikariCP.version>6.3.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.18.Final</hibernate.version>
+    <hibernate.version>6.6.19.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
     <jdbi.version>3.49.5</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
@@ -89,14 +89,14 @@
 
     <!-- logging -->
     <logback-classic.version>1.5.18</logback-classic.version>
-    <log4j.version>2.24.3</log4j.version>
+    <log4j.version>2.25.0</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
     <!-- communication -->
     <commons-email.version>1.6.0</commons-email.version>
 
     <!-- util -->
-    <metrics.version>4.2.32</metrics.version>
+    <metrics.version>4.2.33</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>2.1.6.Final</jboss-modules.version>
@@ -110,8 +110,8 @@
     <netty.version>4.2.2.Final</netty.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.33</swagger.version>
-    <swagger-parser.version>2.1.29</swagger-parser.version>
+    <swagger.version>2.2.34</swagger.version>
+    <swagger-parser.version>2.1.30</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -142,13 +142,13 @@
     <commons-io.version>2.19.0</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>2.1.21</kotlin.version>
+    <kotlin.version>2.2.0</kotlin.version>
     <kotlinx-coroutines-core.version>1.10.2</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.13</jacoco.version>
-    <junit.version>5.13.1</junit.version>
+    <junit.version>5.13.2</junit.version>
     <rest-assured.version>5.5.5</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito.version>5.18.0</mockito.version>
@@ -167,7 +167,7 @@
     <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
-    <maven-tiles-plugin.version>2.40</maven-tiles-plugin.version>
+    <maven-tiles-plugin.version>2.41</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven-core.version>3.9.10</maven-core.version>
     <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
