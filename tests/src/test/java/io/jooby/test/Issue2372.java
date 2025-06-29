@@ -22,10 +22,9 @@ public class Issue2372 {
   @ServerTest
   public void http2(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setHttp2(true).setSecurePort(8443))
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setHttp2(true).setSecurePort(8443));
-
               app.before(new SSLHandler());
 
               app.use(Reactor.reactor());

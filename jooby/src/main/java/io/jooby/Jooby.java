@@ -111,8 +111,6 @@ public class Jooby implements Router, Registry {
 
   private RegistryRef registry = new RegistryRef();
 
-  private ServerOptions serverOptions;
-
   private List<StartupSummary> startupSummary;
 
   private EnvironmentOptions environmentOptions;
@@ -142,30 +140,6 @@ public class Jooby implements Router, Registry {
     } else {
       copyState(owner, this);
     }
-  }
-
-  /**
-   * Server options or <code>null</code>.
-   *
-   * @return Server options or <code>null</code>.
-   * @deprecated Use {@link Server#getOptions()}
-   */
-  @Deprecated(since = "3.8.0", forRemoval = true)
-  public @Nullable ServerOptions getServerOptions() {
-    return serverOptions;
-  }
-
-  /**
-   * Set server options.
-   *
-   * @param serverOptions Server options.
-   * @return This application.
-   * @deprecated Use {@link Server#setOptions(ServerOptions)}
-   */
-  @Deprecated(since = "3.8.0", forRemoval = true)
-  public @NonNull Jooby setServerOptions(@NonNull ServerOptions serverOptions) {
-    this.serverOptions = serverOptions;
-    return this;
   }
 
   @NonNull @Override
@@ -471,6 +445,11 @@ public class Jooby implements Router, Registry {
    */
   public @NonNull Router getRouter() {
     return router;
+  }
+
+  @Nullable @Override
+  public ServerOptions getServerOptions() {
+    return router.getServerOptions();
   }
 
   @Override
@@ -990,14 +969,6 @@ public class Jooby implements Router, Registry {
       this.server = MutedServer.mute(this.server);
     }
     try {
-      if (serverOptions == null) {
-        serverOptions = ServerOptions.from(getEnvironment().getConfig()).orElse(null);
-      }
-      if (serverOptions != null) {
-        serverOptions.setServer(server.getName());
-        server.setOptions(serverOptions);
-      }
-
       return server.start(this);
     } catch (Throwable startupError) {
       stopped.set(true);
@@ -1079,8 +1050,6 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   public @NonNull Jooby ready(@NonNull Server server) {
-    this.serverOptions = server.getOptions();
-
     if (startupSummary == null) {
       Config config = env.getConfig();
       if (config.hasPath(AvailableSettings.STARTUP_SUMMARY)) {
@@ -1326,14 +1295,12 @@ public class Jooby implements Router, Registry {
        When running a single app instance, there is no issue with server options, when multiple
        apps set options a warning will be printed
       */
-      var options = app.serverOptions;
-      if (options == null) {
-        options = ServerOptions.from(app.getConfig()).orElse(null);
-      }
-      if (options != null) {
-        options.setServer(server.getName());
-        server.setOptions(options);
-      }
+      ServerOptions.from(app.getConfig())
+          .ifPresent(
+              options -> {
+                options.setServer(server.getName());
+                server.setOptions(options);
+              });
       apps.add(app);
     }
     targetServer.start(apps.toArray(new Jooby[0]));
@@ -1535,7 +1502,6 @@ public class Jooby implements Router, Registry {
    * @param dest Destination application.
    */
   private static void copyState(Jooby source, Jooby dest) {
-    dest.serverOptions = source.serverOptions;
     dest.registry = source.registry;
     dest.mode = source.mode;
     dest.environmentOptions = source.environmentOptions;

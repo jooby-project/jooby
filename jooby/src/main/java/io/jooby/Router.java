@@ -183,6 +183,14 @@ public interface Router extends Registry {
   @NonNull ServiceRegistry getServices();
 
   /**
+   * Server options. They might be null during application initialization. Once deployed, they are
+   * never null (at runtime).
+   *
+   * @return Server options or <code>null</code>.
+   */
+  @Nullable ServerOptions getServerOptions();
+
+  /**
    * Set application context path. Context path is the base path for all routes. Default is: <code>/
    * </code>.
    *
@@ -955,13 +963,6 @@ public interface Router extends Registry {
   @NonNull ValueFactory getValueFactory();
 
   @NonNull Router setValueFactory(@NonNull ValueFactory valueFactory);
-
-  /**
-   * Available server options.
-   *
-   * @return Server options.
-   */
-  @NonNull ServerOptions getServerOptions();
 
   /**
    * Ensure path start with a <code>/</code>(leading slash).

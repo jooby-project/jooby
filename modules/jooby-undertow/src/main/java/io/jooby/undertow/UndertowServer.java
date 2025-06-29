@@ -83,6 +83,11 @@ public class UndertowServer extends Server.Base {
     try {
       this.applications = List.of(application);
 
+      for (var app : applications) {
+        app.getServices().put(ServerOptions.class, options);
+        app.getServices().put(Server.class, this);
+      }
+
       addShutdownHook();
 
       HttpHandler handler =

@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
@@ -812,9 +813,9 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override
+  @Nullable @Override
   public ServerOptions getServerOptions() {
-    throw new UnsupportedOperationException();
+    return services.getOrNull(ServerOptions.class);
   }
 
   @NonNull @Override

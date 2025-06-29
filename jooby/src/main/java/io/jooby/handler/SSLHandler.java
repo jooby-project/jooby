@@ -9,6 +9,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
+import io.jooby.ServerOptions;
 
 /**
  * Force SSL handler. Check for non-HTTPs request and force client to use HTTPs by redirecting the
@@ -90,8 +91,11 @@ public class SSLHandler implements Route.Before {
       buff.append(host);
 
       if (host.equals("localhost")) {
-        int securePort = ctx.getRouter().getServerOptions().getSecurePort();
-        buff.append(":").append(securePort);
+        var server = ctx.require(ServerOptions.class);
+        Integer securePort = server.getSecurePort();
+        if (securePort != null) {
+          buff.append(":").append(securePort);
+        }
       } else {
         if (port > 0 && port != SECURE_PORT) {
           buff.append(":").append(port);

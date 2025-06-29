@@ -107,6 +107,10 @@ public class JettyServer extends io.jooby.Server.Base {
           "org.eclipse.jetty.server.Request.maxFormContentSize",
           Long.toString(options.getMaxRequestSize()));
 
+      for (var app : applications) {
+        app.getServices().put(ServerOptions.class, options);
+        app.getServices().put(io.jooby.Server.class, this);
+      }
       addShutdownHook();
 
       if (threadPool == null) {

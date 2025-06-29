@@ -102,7 +102,11 @@ public class NettyServer extends Server.Base {
       }
       // Make sure context use same buffer factory
       var outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT, options.getBuffer());
-      applications.forEach(app -> app.setOutputFactory(outputFactory));
+      for (var app : applications) {
+        app.setOutputFactory(outputFactory);
+        app.getServices().put(ServerOptions.class, options);
+        app.getServices().put(Server.class, this);
+      }
 
       addShutdownHook();
 

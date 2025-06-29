@@ -9,7 +9,6 @@ import io.jooby.Jooby
 import io.jooby.RouterOption.IGNORE_CASE
 import io.jooby.RouterOption.IGNORE_TRAILING_SLASH
 import io.jooby.ServiceKey
-import io.jooby.SslOptions
 import java.nio.file.Paths
 import java.time.Duration
 import kotlinx.coroutines.delay
@@ -34,19 +33,6 @@ class Idioms :
     services.get(Jooby::class)
 
     services.getOrNull(Jooby::class)
-
-    /** Options: */
-    serverOptions {
-      ioThreads = 8
-      compressionLevel = 6
-      defaultHeaders = false
-      maxRequestSize = 8000
-      port = 8080
-      server = "server"
-      workerThreads = 99
-      securePort = 8443
-      ssl = SslOptions().apply { type = "PKCS12" }
-    }
 
     routerOptions(IGNORE_CASE, IGNORE_TRAILING_SLASH)
 

@@ -47,26 +47,9 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Body;
-import io.jooby.ByteRange;
-import io.jooby.CompletionListeners;
-import io.jooby.Context;
+import io.jooby.*;
 import io.jooby.Cookie;
-import io.jooby.DefaultContext;
 import io.jooby.FileUpload;
-import io.jooby.Formdata;
-import io.jooby.MediaType;
-import io.jooby.QueryString;
-import io.jooby.Route;
-import io.jooby.Router;
-import io.jooby.RouterOption;
-import io.jooby.Sender;
-import io.jooby.Server;
-import io.jooby.ServerSentEmitter;
-import io.jooby.Session;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
-import io.jooby.WebSocket;
 import io.jooby.output.BufferedOutput;
 import io.jooby.value.Value;
 import io.netty.buffer.ByteBuf;
@@ -946,6 +929,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private boolean isGzip() {
-    return getRouter().getServerOptions().getCompressionLevel() != null;
+    return require(ServerOptions.class).getCompressionLevel() != null;
   }
 }

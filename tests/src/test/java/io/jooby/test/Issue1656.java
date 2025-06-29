@@ -24,10 +24,9 @@ public class Issue1656 {
   @ServerTest
   public void gzip(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setCompressionLevel(ServerOptions.DEFAULT_COMPRESSION_LEVEL))
         .define(
             app -> {
-              app.setServerOptions(
-                  new ServerOptions().setCompressionLevel(ServerOptions.DEFAULT_COMPRESSION_LEVEL));
               app.assets("/static/*", "/files");
             })
         .ready(

@@ -18,9 +18,9 @@ public class HttpsTest {
   @ServerTest
   public void httpsPkcs12(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setSecurePort(8443))
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setSecurePort(8443));
               app.get(
                   "/",
                   ctx ->
@@ -31,7 +31,7 @@ public class HttpsTest {
                           + "; secure: "
                           + ctx.isSecure()
                           + "; ssl: "
-                          + app.getServerOptions().getSsl().getType());
+                          + ctx.require(ServerOptions.class).getSsl().getType());
             })
         .ready(
             (http, https) -> {
@@ -54,11 +54,11 @@ public class HttpsTest {
 
   @ServerTest
   public void httpsX509(ServerTestRunner runner) {
+    SslOptions options = SslOptions.selfSigned(SslOptions.X509);
     runner
+        .options(new ServerOptions().setSsl(options))
         .define(
             app -> {
-              SslOptions options = SslOptions.selfSigned(SslOptions.X509);
-              app.setServerOptions(new ServerOptions().setSsl(options));
               app.get(
                   "/",
                   ctx ->
@@ -69,7 +69,7 @@ public class HttpsTest {
                           + "; secure: "
                           + ctx.isSecure()
                           + "; ssl: "
-                          + app.getServerOptions().getSsl().getType());
+                          + ctx.require(ServerOptions.class).getSsl().getType());
             })
         .ready(
             (http, https) -> {
@@ -93,12 +93,11 @@ public class HttpsTest {
   @ServerTest
   public void forceSSL(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setSecurePort(8443))
         .define(
             app -> {
               app.setTrustProxy(true);
               app.setContextPath("/secure");
-
-              app.setServerOptions(new ServerOptions().setSecurePort(8443));
 
               app.before(new SSLHandler());
 
@@ -129,11 +128,10 @@ public class HttpsTest {
   @ServerTest
   public void forceSSL2(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setSecurePort(8443))
         .define(
             app -> {
               app.setTrustProxy(true);
-
-              app.setServerOptions(new ServerOptions().setSecurePort(8443));
 
               app.before(new SSLHandler());
 
@@ -163,10 +161,9 @@ public class HttpsTest {
   @ServerTest
   public void forceSSLStatic(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setSecurePort(8443))
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setSecurePort(8443));
-
               app.before(new SSLHandler("static.org"));
 
               app.get("/{path}", ctx -> ctx.getRequestPath());
@@ -194,10 +191,10 @@ public class HttpsTest {
   @ServerTest
   public void forceSSLStatic2(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setSecurePort(8443))
         .define(
             app -> {
               app.setContextPath("/ppp");
-              app.setServerOptions(new ServerOptions().setSecurePort(8443));
 
               app.before(new SSLHandler("static.org"));
 
@@ -226,10 +223,9 @@ public class HttpsTest {
   @ServerTest
   public void httpsOnly(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setSecurePort(8443).setHttpsOnly(true))
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setSecurePort(8443).setHttpsOnly(true));
-
               app.get("/test", ctx -> "test");
             })
         .ready(
@@ -241,9 +237,14 @@ public class HttpsTest {
   @ServerTest
   public void customSslContext(ServerTestRunner runner) {
     runner
+        .options(
+            new ServerOptions()
+                .setSecurePort(8443)
+                .setHttpsOnly(true)
+                .setSsl(SslOptions.selfSigned()))
         .define(
             app -> {
-              var options = new ServerOptions().setSecurePort(8443).setHttpsOnly(true);
+              var options = app.require(ServerOptions.class);
               options.setSsl(SslOptions.selfSigned());
               // a fresh context is created every time based on config
               var ctx1 = options.getSSLContext(this.getClass().getClassLoader());
@@ -255,7 +256,6 @@ public class HttpsTest {
               assertSame(ctx1, options.getSSLContext(this.getClass().getClassLoader()));
               assertSame(ctx1, options.getSSLContext(this.getClass().getClassLoader()));
 
-              app.setServerOptions(options);
               app.get("/test", ctx -> "test");
             })
         .ready(

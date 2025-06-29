@@ -42,10 +42,9 @@ public class Http2Test {
   @ServerTest
   public void http2(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setHttp2(true).setSecurePort(8443))
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setHttp2(true).setSecurePort(8443));
-
               app.get(
                   "/",
                   ctx ->
@@ -77,10 +76,9 @@ public class Http2Test {
   @ServerTest
   public void http2c(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setHttp2(true))
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setHttp2(true));
-
               app.get(
                   "/",
                   ctx ->

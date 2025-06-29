@@ -27,13 +27,12 @@ public class Issue2806 {
     Arrays.fill(chars, 'S');
     String _19kb = new String(chars);
     runner
+        .options(
+            new ServerOptions()
+                .setBuffer(new BufferOptions().setSize(ServerOptions._16KB / 2))
+                .setMaxRequestSize(ServerOptions._16KB))
         .define(
             app -> {
-              app.setServerOptions(
-                  new ServerOptions()
-                      .setBuffer(new BufferOptions().setSize(ServerOptions._16KB / 2))
-                      .setMaxRequestSize(ServerOptions._16KB));
-
               app.install(new JacksonModule());
 
               app.error(

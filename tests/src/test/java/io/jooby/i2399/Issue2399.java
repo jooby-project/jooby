@@ -18,11 +18,6 @@ public class Issue2399 {
     runner
         .define(
             app -> {
-              ServerOptions options = new ServerOptions();
-              options.setHttp2(true);
-              options.setSecurePort(8443);
-              app.setServerOptions(options);
-
               app.error(
                   (ctx, cause, code) -> {
                     ctx.send(cause.getMessage());
@@ -30,6 +25,7 @@ public class Issue2399 {
 
               app.get("/2399", ctx -> ctx.query("q").value());
             })
+        .options(new ServerOptions().setHttp2(true).setSecurePort(8443))
         .ready(
             (http, https) -> {
               https.get(

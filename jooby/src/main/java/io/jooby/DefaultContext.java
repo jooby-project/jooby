@@ -341,13 +341,13 @@ public interface DefaultContext extends Context {
 
   @Override
   default String getServerHost() {
-    var host = getRouter().getServerOptions().getHost();
+    var host = require(ServerOptions.class).getHost();
     return host.equals("0.0.0.0") ? "localhost" : host;
   }
 
   @Override
   default int getServerPort() {
-    var options = getRouter().getServerOptions();
+    var options = require(ServerOptions.class);
     return isSecure()
         // Buggy proxy where it report a https scheme but there is no HTTPS configured option
         ? ofNullable(options.getSecurePort()).orElse(options.getPort())

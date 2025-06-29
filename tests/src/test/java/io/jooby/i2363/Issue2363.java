@@ -34,10 +34,9 @@ public class Issue2363 {
     runner
         .define(
             app -> {
-              app.setServerOptions(new ServerOptions().setExpectContinue(true));
-
               app.post("/2363", ctx -> new String(ctx.file("f").bytes(), StandardCharsets.UTF_8));
             })
+        .options(new ServerOptions().setExpectContinue(true))
         .ready(
             http -> {
               http.header("Expect", "100-continue")

@@ -22,7 +22,6 @@ import io.jooby.RouteSet
 import io.jooby.Router
 import io.jooby.RouterOption
 import io.jooby.Server
-import io.jooby.ServerOptions
 import io.jooby.ServiceRegistry
 import io.jooby.handler.Cors
 import io.jooby.value.Value
@@ -301,14 +300,6 @@ open class Kooby() : Jooby() {
   @RouterDsl
   fun sse(pattern: String, handler: ServerSentHandler.() -> Any): Route {
     return super.sse(pattern) { sse -> handler(ServerSentHandler(sse.context, sse)) }
-  }
-
-  @OptionsDsl
-  fun serverOptions(configurer: ServerOptions.() -> Unit): Kooby {
-    val options = ServerOptions()
-    configurer(options)
-    setServerOptions(options)
-    return this
   }
 
   @OptionsDsl

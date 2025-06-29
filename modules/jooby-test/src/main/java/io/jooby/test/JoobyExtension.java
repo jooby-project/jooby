@@ -31,7 +31,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.Server;
-import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 
 /**
@@ -85,10 +84,11 @@ public class JoobyExtension
       app = fromFactoryMethod(context, metadata, factoryMethod);
     }
     var server = Server.loadServer();
-    ServerOptions serverOptions = app.getServerOptions();
-    if (serverOptions == null) {
-      serverOptions = server.getOptions();
-    }
+    var serverOptions = server.getOptions();
+    //    ServerOptions serverOptions = app.getServerOptions();
+    //    if (serverOptions == null) {
+    //      serverOptions = server.getOptions();
+    //    }
     serverOptions.setPort(port(metadata.port(), DEFAULT_PORT));
     server.setOptions(serverOptions);
     server.start(app);

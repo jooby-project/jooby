@@ -23,12 +23,10 @@ public class Issue3554 {
   @ServerTest(executionMode = ExecutionMode.EVENT_LOOP)
   public void shouldNotThrowErrorOnCompletableWithSideEffect(ServerTestRunner runner) {
     runner
+        .options(new ServerOptions().setPort(9000).setDefaultHeaders(false))
         .define(
             app -> {
               ExecutorService threadPool = Executors.newSingleThreadExecutor();
-
-              var serverOptions = new ServerOptions().setPort(9000).setDefaultHeaders(false);
-              app.setServerOptions(serverOptions);
 
               app.use(ReactiveSupport.concurrent());
 

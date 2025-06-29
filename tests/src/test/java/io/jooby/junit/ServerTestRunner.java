@@ -47,6 +47,7 @@ public class ServerTestRunner {
 
   private final ExecutionMode executionMode;
   private final Method testMethod;
+  private ServerOptions serverOptions;
 
   private Supplier<Jooby> provider;
 
@@ -66,10 +67,18 @@ public class ServerTestRunner {
     use(
         () -> {
           Jooby app = new Jooby();
+          if (serverOptions != null) {
+            app.getServices().put(ServerOptions.class, serverOptions);
+          }
           app.setExecutionMode(executionMode);
           consumer.accept(app);
           return app;
         });
+    return this;
+  }
+
+  public ServerTestRunner options(ServerOptions options) {
+    this.serverOptions = options;
     return this;
   }
 
@@ -106,7 +115,6 @@ public class ServerTestRunner {
                 .orElseGet(ServerTestRunner::buildErrorHandler));
       }
 
-      ServerOptions serverOptions = app.getServerOptions();
       if (serverOptions != null) {
         server.setOptions(serverOptions);
       }

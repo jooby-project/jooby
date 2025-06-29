@@ -390,10 +390,9 @@ public class FeaturedTest {
             + " ipsum a, scelerisque hendrerit lorem. Sed interdum nibh at ante consequat, vitae"
             + " fermentum augue luctus.";
     runner
+        .options(new ServerOptions().setCompressionLevel(ServerOptions.DEFAULT_COMPRESSION_LEVEL))
         .define(
             app -> {
-              app.setServerOptions(
-                  new ServerOptions().setCompressionLevel(ServerOptions.DEFAULT_COMPRESSION_LEVEL));
               app.get("/gzip", ctx -> text);
             })
         .ready(
@@ -1533,12 +1532,12 @@ public class FeaturedTest {
   @ServerTest
   public void maxRequestSize(ServerTestRunner runner) {
     runner
+        .options(
+            new ServerOptions()
+                .setBuffer(new BufferOptions().setSize(ServerOptions._16KB / 2))
+                .setMaxRequestSize(ServerOptions._16KB))
         .define(
             app -> {
-              app.setServerOptions(
-                  new ServerOptions()
-                      .setBuffer(new BufferOptions().setSize(ServerOptions._16KB / 2))
-                      .setMaxRequestSize(ServerOptions._16KB));
               app.post("/request-size", ctx -> ctx.body().value(""));
 
               app.get("/request-size", ctx -> ctx.body().value(""));
