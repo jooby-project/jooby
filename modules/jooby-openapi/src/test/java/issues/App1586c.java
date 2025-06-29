@@ -5,11 +5,13 @@
  */
 package issues;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import examples.OverrideMethodSubClassController;
 import io.jooby.Jooby;
 
 public class App1586c extends Jooby {
   {
-    mvc(new OverrideMethodSubClassController());
+    mvc(toMvcExtension(OverrideMethodSubClassController.class));
   }
 }

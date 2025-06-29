@@ -5,10 +5,12 @@
  */
 package issues.i1580;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 
 public class App1580 extends Jooby {
   {
-    mvc(Controller1580.class);
+    mvc(toMvcExtension(Controller1580.class));
   }
 }

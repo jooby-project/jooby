@@ -5,6 +5,8 @@
  */
 package issues.i3059;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class IndirectRunner {
 
   private void bindResources(Jooby jooby) {
     for (Object resource : resourcesToBind) {
-      jooby.mvc(resource);
+      jooby.mvc(toMvcExtension(resource));
     }
   }
 }

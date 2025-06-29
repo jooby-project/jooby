@@ -144,20 +144,6 @@ open class Kooby() : Jooby() {
   }
 
   @RouterDsl
-  @Deprecated(message = "Use mvc(io.jooby.MvcExtension)")
-  fun <T : Any> mvc(router: KClass<T>): Kooby {
-    super.mvc(router.java)
-    return this
-  }
-
-  @RouterDsl
-  @Deprecated(message = "Use mvc(io.jooby.MvcExtension)")
-  fun <T : Any> mvc(router: KClass<T>, provider: () -> T): Kooby {
-    super.mvc(router.java, provider)
-    return this
-  }
-
-  @RouterDsl
   fun use(handler: FilterContext.() -> Any): Kooby {
     super.use { next -> Route.Handler { ctx -> FilterContext(ctx, next).handler() } }
     return this

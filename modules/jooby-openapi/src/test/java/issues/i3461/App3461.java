@@ -5,6 +5,8 @@
  */
 package issues.i3461;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import java.util.UUID;
 
 import io.jooby.Jooby;
@@ -26,6 +28,6 @@ public class App3461 extends Jooby {
   }
 
   {
-    mvc(new Controller());
+    mvc(toMvcExtension(Controller.class));
   }
 }

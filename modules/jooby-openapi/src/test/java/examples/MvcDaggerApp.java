@@ -5,6 +5,8 @@
  */
 package examples;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 import io.jooby.OpenAPIModule;
 import io.jooby.annotation.GET;
@@ -37,6 +39,6 @@ public class MvcDaggerApp extends Jooby {
     install(new OpenAPIModule());
     DaggerApp daggerApp = new DaggerAppImpl();
 
-    mvc(daggerApp.controller());
+    mvc(toMvcExtension(daggerApp.controller()));
   }
 }

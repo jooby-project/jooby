@@ -5,6 +5,8 @@
  */
 package issues.i1573;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 
 public class App1573 extends Jooby {
@@ -15,6 +17,6 @@ public class App1573 extends Jooby {
           return ctx.path("id").value("self");
         });
 
-    mvc(new Controller1573());
+    mvc(toMvcExtension(Controller1573.class));
   }
 }

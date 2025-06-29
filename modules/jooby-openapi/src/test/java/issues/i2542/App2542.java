@@ -5,10 +5,12 @@
  */
 package issues.i2542;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 
 public class App2542 extends Jooby {
   {
-    mvc(Controller2542.class);
+    mvc(toMvcExtension(Controller2542.class));
   }
 }

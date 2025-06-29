@@ -5,11 +5,13 @@
  */
 package issues;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import examples.EmptySubClassController;
 import io.jooby.Jooby;
 
 public class App1586b extends Jooby {
   {
-    mvc(new EmptySubClassController());
+    mvc(toMvcExtension(EmptySubClassController.class));
   }
 }

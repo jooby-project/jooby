@@ -8,12 +8,13 @@ package examples;
 import java.util.List;
 import java.util.Optional;
 
+import org.jetbrains.annotations.NotNull;
+
 import io.jooby.Context;
+import io.jooby.Jooby;
+import io.jooby.MvcExtension;
 import io.jooby.Session;
-import io.jooby.annotation.GET;
-import io.jooby.annotation.POST;
-import io.jooby.annotation.Path;
-import io.jooby.annotation.QueryParam;
+import io.jooby.annotation.*;
 
 @Path("/api")
 public class ControllerExample {
@@ -62,4 +63,10 @@ public class ControllerExample {
   public ABean save(ABean bean) {
     return bean;
   }
+}
+
+@Generated(ControllerExample.class)
+class COntrollerExample_ implements MvcExtension {
+  @Override
+  public void install(@NotNull Jooby application) throws Exception {}
 }

@@ -6,5 +6,6 @@
 package kt.i2121
 
 import io.jooby.kt.Kooby
+import io.jooby.openapi.MvcExtensionGenerator.toMvcExtension
 
-class App2121 : Kooby({ coroutine { mvc(Controller2121()) } })
+class App2121 : Kooby({ coroutine { mvc(toMvcExtension(Controller2121::class.java)) } })

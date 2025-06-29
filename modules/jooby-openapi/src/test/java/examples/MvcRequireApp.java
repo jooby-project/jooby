@@ -5,6 +5,8 @@
  */
 package examples;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 import io.jooby.OpenAPIModule;
 import io.jooby.annotation.GET;
@@ -24,6 +26,6 @@ public class MvcRequireApp extends Jooby {
   {
     install(new OpenAPIModule());
 
-    mvc(require(Controller.class));
+    mvc(toMvcExtension(require(Controller.class)));
   }
 }

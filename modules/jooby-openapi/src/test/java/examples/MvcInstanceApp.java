@@ -5,11 +5,13 @@
  */
 package examples;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 
 public class MvcInstanceApp extends Jooby {
 
   {
-    mvc(new ControllerExample());
+    mvc(toMvcExtension(ControllerExample.class));
   }
 }

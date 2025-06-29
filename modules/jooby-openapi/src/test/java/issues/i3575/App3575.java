@@ -5,6 +5,8 @@
  */
 package issues.i3575;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Context;
 import io.jooby.Jooby;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -15,7 +17,7 @@ public class App3575 extends Jooby {
     get("/", this::home);
     get("/hide-op", this::hideOp);
 
-    mvc(Controller3575.class);
+    mvc(toMvcExtension(Controller3575.class));
   }
 
   @Operation(hidden = true)

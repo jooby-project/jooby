@@ -5,12 +5,14 @@
  */
 package issues.i1581;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 
 public class App1581 extends Jooby {
   {
     AppComponent dagger = DaggerAppComponent.builder().build();
 
-    mvc(dagger.myController());
+    mvc(toMvcExtension(dagger.myController()));
   }
 }

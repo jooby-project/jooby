@@ -5,6 +5,8 @@
  */
 package issues.i1601;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -39,6 +41,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     security = @SecurityRequirement(name = "oauth", scopes = "read:write"))
 public class App1601b extends Jooby {
   {
-    mvc(new Controller1601());
+    mvc(toMvcExtension(Controller1601.class));
   }
 }

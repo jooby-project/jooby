@@ -38,7 +38,6 @@ import io.jooby.handler.AssetHandler;
 import io.jooby.handler.AssetSource;
 import io.jooby.output.BufferedOutputFactory;
 import io.jooby.value.ValueFactory;
-import jakarta.inject.Provider;
 
 /**
  * Routing DSL functions.
@@ -424,39 +423,6 @@ public interface Router extends Registry {
    * @return This router.
    */
   @NonNull Router mvc(@NonNull MvcExtension router);
-
-  /**
-   * Import all route method from the given controller class. At runtime the controller instance is
-   * resolved by calling {@link Jooby#require(Class)}.
-   *
-   * @param router Controller class.
-   * @return This router.
-   * @deprecated See {{@link #mvc(MvcExtension)}}
-   */
-  @Deprecated
-  @NonNull Router mvc(@NonNull Class router);
-
-  /**
-   * Import all route method from the given controller class.
-   *
-   * @param router Controller class.
-   * @param provider Controller provider.
-   * @param <T> Controller type.
-   * @return This router.
-   * @deprecated See {{@link #mvc(MvcExtension)}}
-   */
-  @Deprecated
-  @NonNull <T> Router mvc(@NonNull Class<T> router, @NonNull Provider<T> provider);
-
-  /**
-   * Import all route methods from given controller instance.
-   *
-   * @param router Controller instance.
-   * @return This routes.
-   * @deprecated See {{@link #mvc(MvcExtension)}}
-   */
-  @Deprecated
-  @NonNull Router mvc(@NonNull Object router);
 
   /**
    * Add a websocket handler.

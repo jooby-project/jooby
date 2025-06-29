@@ -5,10 +5,12 @@
  */
 package issues.i1596;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 
 public class ClassLevelTagApp extends Jooby {
   {
-    mvc(new ClassLevelController());
+    mvc(toMvcExtension(ClassLevelController.class));
   }
 }

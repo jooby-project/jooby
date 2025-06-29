@@ -5,6 +5,8 @@
  */
 package issues;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
@@ -15,8 +17,7 @@ public class App1359 extends Jooby {
 
   {
     get("/script/1359", this::defaultResponse).produces(MediaType.text);
-
-    mvc(new Controller1359());
+    mvc(toMvcExtension(Controller1359.class));
   }
 
   @ApiResponses({

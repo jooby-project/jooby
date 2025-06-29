@@ -11,6 +11,7 @@ import io.jooby.OpenAPIModule;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.QueryParam;
+import io.jooby.openapi.MvcExtensionGenerator;
 
 public class App3412 extends Jooby {
 
@@ -26,6 +27,6 @@ public class App3412 extends Jooby {
   {
     install(new OpenAPIModule());
 
-    mvc(new Controller());
+    mvc(MvcExtensionGenerator.toMvcExtension(Controller.class));
   }
 }

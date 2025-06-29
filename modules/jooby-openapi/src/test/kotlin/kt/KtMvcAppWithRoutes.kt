@@ -6,10 +6,6 @@
 package kt
 
 import io.jooby.kt.Kooby
+import io.jooby.openapi.MvcExtensionGenerator.toMvcExtension
 
-class KtMvcAppWithRoutes :
-  Kooby({
-    val provider = { KtController() }
-
-    routes { mvc(KtController::class, provider) }
-  })
+class KtMvcAppWithRoutes : Kooby({ routes { mvc(toMvcExtension(KtController::class.java)) } })

@@ -185,7 +185,7 @@ public class AnnotationParser {
                       new IllegalStateException(
                           "Mvc class not found: " + InsnSupport.toString(node)));
       return parse(ctx, prefix, type);
-    } else if (signature.matches(MVC_EXTENSION) || signature.matches(Object.class)) {
+    } else if (signature.matches(MVC_EXTENSION)) {
       AbstractInsnNode previous = node.getPrevious();
       if (previous instanceof MethodInsnNode) {
         MethodInsnNode methodInsnNode = (MethodInsnNode) previous;
@@ -220,8 +220,36 @@ public class AnnotationParser {
             Type type = (Type) (ldcInsnNode).cst;
             return parse(ctx, prefix, type);
           } else {
-            // mvc(some.myController());
             Type type = Type.getReturnType(methodInsnNode.desc);
+            if (type.equals(MVC_EXTENSION)) {
+              // support test code: toMvcExtension() but also any other thing that generate an
+              // extension from controller class
+              type =
+                  InsnSupport.prev(methodInsnNode.getPrevious())
+                      .filter(
+                          e ->
+                              (e instanceof LdcInsnNode ldcInsnNode
+                                      && (ldcInsnNode.cst instanceof Type))
+                                  || (e instanceof MethodInsnNode method)
+                                      && (!Type.getReturnType(method.desc)
+                                          .getClassName()
+                                          .equals(Object.class.getName())))
+                      .findFirst()
+                      .map(
+                          e -> {
+                            if (e instanceof LdcInsnNode ldcInsnNode) {
+                              return ldcInsnNode.cst;
+                            } else if (e instanceof MethodInsnNode method) {
+                              return Type.getReturnType(method.desc);
+                            } else {
+                              return e;
+                            }
+                          })
+                      .filter(it -> it instanceof Type)
+                      .map(it -> (Type) it)
+                      .orElse(type);
+            }
+            // mvc(some.myController());
             return parse(ctx, prefix, type);
           }
         }

@@ -6,5 +6,6 @@
 package kt.issues.i2004
 
 import io.jooby.kt.Kooby
+import io.jooby.openapi.MvcExtensionGenerator
 
-class App2004 : Kooby({ mvc(Controller2004()) })
+class App2004 : Kooby({ mvc(MvcExtensionGenerator.toMvcExtension(Controller2004::class.java)) })

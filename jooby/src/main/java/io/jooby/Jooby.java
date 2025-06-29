@@ -7,7 +7,6 @@ package io.jooby;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.StreamSupport.stream;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -26,8 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -54,7 +51,6 @@ import io.jooby.internal.RouterImpl;
 import io.jooby.output.BufferedOutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
 import io.jooby.value.ValueFactory;
-import jakarta.inject.Provider;
 
 /**
  * Welcome to Jooby!
@@ -517,49 +513,6 @@ public class Jooby implements Router, Registry {
       return this;
     } catch (Exception cause) {
       throw SneakyThrows.propagate(cause);
-    }
-  }
-
-  @NonNull @Override
-  @Deprecated(since = "3.8.0", forRemoval = true)
-  public Jooby mvc(@NonNull Object router) {
-    Provider provider = () -> router;
-    return mvc(router.getClass(), provider);
-  }
-
-  @NonNull @Override
-  @Deprecated(since = "3.8.0", forRemoval = true)
-  public Jooby mvc(@NonNull Class router) {
-    return mvc(router, () -> require(router));
-  }
-
-  @NonNull @Override
-  @Deprecated(since = "3.8.0", forRemoval = true)
-  public <T> Jooby mvc(@NonNull Class<T> router, @NonNull Provider<T> provider) {
-    try {
-      MvcFactory module = loadModule(router);
-      Extension extension = module.create(provider::get);
-      extension.install(this);
-      return this;
-    } catch (Exception x) {
-      throw SneakyThrows.propagate(x);
-    }
-  }
-
-  @Deprecated(since = "3.8.0", forRemoval = true)
-  private <T> MvcFactory<T> loadModule(Class<T> router) {
-    try {
-      ServiceLoader<MvcFactory> modules = ServiceLoader.load(MvcFactory.class);
-      return stream(modules.spliterator(), false)
-          .filter(it -> it.supports(router))
-          .findFirst()
-          .orElseGet(
-              () ->
-                  /* Make happy IDE incremental build: */
-                  mvcReflectionFallback(router, getClassLoader()));
-    } catch (ServiceConfigurationError notfound) {
-      /* Make happy IDE incremental build: */
-      return mvcReflectionFallback(router, getClassLoader());
     }
   }
 
@@ -1449,29 +1402,6 @@ public class Jooby implements Router, Registry {
           throw SneakyThrows.propagate(x);
         }
       }
-    }
-  }
-
-  /**
-   * This method exists to integrate IDE incremental build with MVC annotation processor. It
-   * fallback to reflection to lookup for a generated mvc factory.
-   *
-   * @param source Controller class.
-   * @param classLoader Class loader.
-   * @return Mvc factory.
-   */
-  private MvcFactory mvcReflectionFallback(Class source, ClassLoader classLoader) {
-    try {
-      var moduleName =
-          System.getProperty("jooby.routerPrefix", "")
-              + source.getName()
-              + System.getProperty("jooby.routerSuffix", "_");
-      Class<?> moduleType = classLoader.loadClass(moduleName);
-      Constructor<?> constructor = moduleType.getDeclaredConstructor();
-      getLog().debug("Loading mvc using reflection: " + source);
-      return (MvcFactory) constructor.newInstance();
-    } catch (Exception x) {
-      throw Usage.mvcRouterNotFound(source);
     }
   }
 

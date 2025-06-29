@@ -334,21 +334,6 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public Router mvc(@NonNull Object router) {
-    throw new UnsupportedOperationException();
-  }
-
-  @NonNull @Override
-  public Router mvc(@NonNull Class router) {
-    throw new UnsupportedOperationException();
-  }
-
-  @NonNull @Override
-  public <T> Router mvc(@NonNull Class<T> router, @NonNull Provider<T> provider) {
-    throw new UnsupportedOperationException();
-  }
-
-  @NonNull @Override
   public Router encoder(@NonNull MessageEncoder encoder) {
     this.encoder.add(MediaType.all, encoder);
     return this;
