@@ -205,6 +205,7 @@ public class MvcRouter {
       constructor(
           generatedName,
           kt,
+          kt ? ":" : null,
           buffer,
           List.of(),
           (output, params) -> {
@@ -221,6 +222,7 @@ public class MvcRouter {
         constructor(
             generatedName,
             kt,
+            kt ? ":" : null,
             buffer,
             List.of(),
             (output, params) -> {
@@ -243,6 +245,7 @@ public class MvcRouter {
         constructor(
             generatedName,
             kt,
+            kt ? ":" : null,
             buffer,
             constructor.getParameters().stream()
                 .map(it -> Map.<Object, String>entry(it.asType(), it.getSimpleName().toString()))
@@ -262,30 +265,27 @@ public class MvcRouter {
         constructor(
             generatedName,
             true,
+            "{",
             buffer,
             List.of(Map.entry("kotlin.reflect.KClass<" + targetType + ">", "type")),
             (output, params) -> {
-              // this(java.util.function.Function<io.jooby.Context, ${className}> { ctx:
-              // io.jooby.Context -> ctx.require<${className}>(type.java) })
               output
-                  .append("this(java.util.function.Function<io.jooby.Context, ")
-                  .append(targetType)
-                  .append("> { ctx: io.jooby.Context -> ")
-                  .append("ctx.require<")
+                  .append("setup { ctx -> ctx.require<")
                   .append(targetType)
                   .append(">(type.java)")
-                  .append(" })")
+                  .append(" }")
                   .append(System.lineSeparator());
             });
       } else {
         constructor(
             generatedName,
             false,
+            null,
             buffer,
             List.of(Map.entry("Class<" + targetType + ">", "type")),
             (output, params) -> {
               output
-                  .append("this(")
+                  .append("setup(")
                   .append("ctx -> ctx.require(type)")
                   .append(")")
                   .append(";")
@@ -308,6 +308,7 @@ public class MvcRouter {
   private void constructor(
       String generatedName,
       boolean kt,
+      String ktBody,
       StringBuilder buffer,
       List<Map.Entry<Object, String>> parameters,
       BiConsumer<StringBuilder, List<Map.Entry<Object, String>>> body) {
@@ -334,10 +335,10 @@ public class MvcRouter {
       buffer.append(" {").append(System.lineSeparator());
       buffer.append(indent(6));
     } else {
-      buffer.append(" : ");
+      buffer.append(" ").append(ktBody).append(" ");
     }
     body.accept(buffer, parameters);
-    if (!kt) {
+    if (!kt || "{".equals(ktBody)) {
       buffer.append(indent(4)).append("}");
     }
     buffer.append(System.lineSeparator()).append(System.lineSeparator());

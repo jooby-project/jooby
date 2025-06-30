@@ -187,10 +187,13 @@ public class AnnotationParser {
       return parse(ctx, prefix, type);
     } else if (signature.matches(MVC_EXTENSION)) {
       AbstractInsnNode previous = node.getPrevious();
-      if (previous instanceof MethodInsnNode) {
-        MethodInsnNode methodInsnNode = (MethodInsnNode) previous;
+      if (previous instanceof TypeInsnNode) {
+        // kt version of mvc(Controller_())
+        previous = previous.getPrevious();
+      }
+      if (previous instanceof MethodInsnNode methodInsnNode) {
         if (methodInsnNode.getOpcode() == Opcodes.INVOKESPECIAL) {
-          // mvc(new Controller(...));
+          // mvc(new Controller_(...));
           var type = Type.getObjectType(methodInsnNode.owner);
           var classNode = ctx.classNode(type);
           var controllerType =
@@ -204,6 +207,7 @@ public class AnnotationParser {
                   .orElse(type);
           return parse(ctx, prefix, controllerType);
         } else if (methodInsnNode.getOpcode() == Opcodes.INVOKEINTERFACE) {
+          // TODO: almost sure this is dead code
           AbstractInsnNode methodPrev = methodInsnNode.getPrevious();
           if (methodPrev instanceof VarInsnNode) {
             // mvc(daggerApp.myController());

@@ -24,7 +24,7 @@ public class Issue3567 {
             source -> {
               assertTrue(source.contains("this(C3567.class);"));
               assertTrue(source.contains("public C3567_(Class<C3567> type) {"));
-              assertTrue(source.contains("this(ctx -> ctx.require(type));"));
+              assertTrue(source.contains("setup(ctx -> ctx.require(type));"));
             });
   }
 }

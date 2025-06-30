@@ -158,7 +158,7 @@ public class MvcRoute {
                   ".setMvcMethod(",
                   kt ? "" : "new ",
                   "io.jooby.Route.MvcMethod(",
-                  router.getTargetType().getQualifiedName().toString(),
+                  router.getTargetType().getSimpleName().toString(),
                   clazz(kt),
                   ", ",
                   string(getMethodName()),

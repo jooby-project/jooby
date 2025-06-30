@@ -1,11 +1,20 @@
 package ${packageName}
 ${imports}
 @io.jooby.annotation.Generated(${className}::class)
-open class ${generatedClassName}(protected val factory: java.util.function.Function<io.jooby.Context, ${className}>) : io.jooby.MvcExtension {
+open class ${generatedClassName} : io.jooby.MvcExtension {
+    private lateinit var factory: java.util.function.Function<io.jooby.Context, ${className}>
+
     ${constructors}
-    constructor(instance: ${className}) : this(java.util.function.Function<io.jooby.Context, ${className}> { instance })
+    constructor(instance: ${className}) { setup { instance } }
 
-    constructor(provider: java.util.function.Supplier<${className}?>) : this(java.util.function.Function<io.jooby.Context, ${className}> { provider.get()!! })
+    constructor(provider: io.jooby.SneakyThrows.Supplier<${className}>) { setup { provider.get() } }
 
+    constructor(provider: (Class<${className}>) -> ${className}) { setup { provider(${className}::class.java) } }
+
+    constructor(provider:  io.jooby.SneakyThrows.Function<Class<${className}>, ${className}>) { setup { provider.apply(${className}::class.java) } }
+
+    private fun setup(factory: java.util.function.Function<io.jooby.Context, ${className}>) {
+      this.factory = factory
+    }
 ${methods}
 }

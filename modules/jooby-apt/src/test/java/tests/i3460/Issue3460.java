@@ -18,7 +18,7 @@ public class Issue3460 {
     new ProcessorRunner(new C3460())
         .withRouter(
             (app, source) -> {
-              assertTrue(source.toString().contains("C3460_(java.util.function.Supplier<"));
+              assertTrue(source.toString().contains("C3460_(io.jooby.SneakyThrows.Supplier<"));
             });
   }
 }
