@@ -21,7 +21,7 @@ public class RouteAttributeTest {
               app.use(
                   next ->
                       ctx -> {
-                        String role = (String) ctx.getRoute().attribute("Role");
+                        String role = (String) ctx.getRoute().getAttribute("Role");
                         String level =
                             (String)
                                 ctx.getRoute().getAttributes().getOrDefault("Role.level", "one");
@@ -59,13 +59,13 @@ public class RouteAttributeTest {
               app.use(
                   next ->
                       ctx -> {
-                        String foo = (String) ctx.getRoute().attribute("foo");
+                        String foo = (String) ctx.getRoute().getAttribute("foo");
                         assertEquals("bar", foo);
 
                         return next.apply(ctx);
                       });
 
-              app.get("/fb", ctx -> "Hello World!").attribute("foo", "bar");
+              app.get("/fb", ctx -> "Hello World!").setAttribute("foo", "bar");
             })
         .ready(
             client -> {

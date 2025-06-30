@@ -728,14 +728,14 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Jooby attribute(@NonNull String key, @NonNull Object value) {
-    router.attribute(key, value);
+  public Jooby setAttribute(@NonNull String key, @NonNull Object value) {
+    router.setAttribute(key, value);
     return this;
   }
 
   @NonNull @Override
-  public <T> T attribute(@NonNull String key) {
-    return router.attribute(key);
+  public <T> T getAttribute(@NonNull String key) {
+    return router.getAttribute(key);
   }
 
   @NonNull @Override

@@ -37,10 +37,10 @@ public class Issue1599 {
                                 ctx -> {
                                   return toMap(ctx.getRoute());
                                 })
-                            .attribute("foo", "foo");
+                            .setAttribute("foo", "foo");
                       })
                   .produces(MediaType.html)
-                  .attribute("foo", "bar")
+                  .setAttribute("foo", "bar")
                   .tags("top")
                   .summary("1599 API");
             })

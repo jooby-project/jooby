@@ -35,7 +35,6 @@ import io.jooby.internal.apt.*;
   DEBUG,
   INCREMENTAL,
   MVC_METHOD,
-  RETURN_TYPE,
   ROUTER_PREFIX,
   ROUTER_SUFFIX,
   SKIP_ATTRIBUTE_ANNOTATIONS
@@ -48,7 +47,6 @@ public class JoobyProcessor extends AbstractProcessor {
     String ROUTER_PREFIX = "jooby.routerPrefix";
     String ROUTER_SUFFIX = "jooby.routerSuffix";
     String INCREMENTAL = "jooby.incremental";
-    String RETURN_TYPE = "jooby.returnType";
     String MVC_METHOD = "jooby.mvcMethod";
     String SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
 

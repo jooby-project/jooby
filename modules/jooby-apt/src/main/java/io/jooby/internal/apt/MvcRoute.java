@@ -145,10 +145,6 @@ public class MvcRoute {
             .toSourceCode(kt, this, 2)
             .ifPresent(
                 attributes -> block.add(statement(indent(2), ".setAttributes(", attributes, ")")));
-        if (context.generateReturnType()) {
-          /* returnType */
-          block.add(statement(indent(2), ".setReturnType(", returnType.toSourceCode(kt), ")"));
-        }
         var lineSep = lastLine ? lineSeparator() : lineSeparator() + lineSeparator();
         if (context.generateMvcMethod()) {
           /* mvcMethod */

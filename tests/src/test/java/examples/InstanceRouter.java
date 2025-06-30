@@ -19,7 +19,7 @@ public class InstanceRouter {
   @POST
   @Role("some")
   public String getIt(Route route) {
-    return route.attribute("role");
+    return route.getAttribute("role");
   }
 
   @GET

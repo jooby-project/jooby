@@ -10,7 +10,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -443,8 +442,6 @@ public class Route {
 
   private MessageEncoder encoder;
 
-  private Type returnType;
-
   private Object handle;
 
   private List<MediaType> produces = EMPTY_LIST;
@@ -694,30 +691,6 @@ public class Route {
   }
 
   /**
-   * Route return type.
-   *
-   * @return Return type.
-   * @deprecated Marked for removal on 4.0
-   */
-  @Deprecated
-  public @Nullable Type getReturnType() {
-    return returnType;
-  }
-
-  /**
-   * Set route return type.
-   *
-   * @param returnType Return type.
-   * @return This route.
-   * @deprecated Marked for removal on 4.0
-   */
-  @Deprecated
-  public @NonNull Route setReturnType(@Nullable Type returnType) {
-    this.returnType = returnType;
-    return this;
-  }
-
-  /**
    * Response types (format) produces by this route. If set, we expect to find a match in the <code>
    * Accept</code> header. If none matches, we send a {@link StatusCode#NOT_ACCEPTABLE} response.
    *
@@ -806,7 +779,8 @@ public class Route {
    * @param <T> Generic type.
    * @return value of the specific attribute.
    */
-  public @Nullable <T> T attribute(@NonNull String name) {
+  public @Nullable <T> T getAttribute(@NonNull String name) {
+    //noinspection unchecked
     return (T) attributes.get(name);
   }
 
@@ -828,7 +802,7 @@ public class Route {
    * @param value attribute value
    * @return This route.
    */
-  public @NonNull Route attribute(@NonNull String name, @NonNull Object value) {
+  public @NonNull Route setAttribute(@NonNull String name, @NonNull Object value) {
     if (this.attributes == EMPTY_MAP) {
       this.attributes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     }
@@ -1072,7 +1046,7 @@ public class Route {
    * @return whether this route should be considered as transactional
    */
   public boolean isTransactional(boolean defaultValue) {
-    Object attribute = attribute(Transactional.ATTRIBUTE);
+    Object attribute = getAttribute(Transactional.ATTRIBUTE);
 
     if (attribute == null) {
       return defaultValue;

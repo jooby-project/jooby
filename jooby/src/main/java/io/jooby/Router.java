@@ -151,7 +151,8 @@ public interface Router extends Registry {
    * @param <T> Attribute type.
    * @return Attribute value.
    */
-  @NonNull default <T> T attribute(@NonNull String key) {
+  @NonNull default <T> T getAttribute(@NonNull String key) {
+    @SuppressWarnings("unchecked")
     T attribute = (T) getAttributes().get(key);
     if (attribute == null) {
       throw new MissingValueException(key);
@@ -166,7 +167,7 @@ public interface Router extends Registry {
    * @param value Attribute value.
    * @return This router.
    */
-  @NonNull default Router attribute(@NonNull String key, Object value) {
+  @NonNull default Router setAttribute(@NonNull String key, Object value) {
     getAttributes().put(key, value);
     return this;
   }

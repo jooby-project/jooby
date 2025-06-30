@@ -263,7 +263,7 @@ open class Kooby() : Jooby() {
     router.block()
     routes.subList(from, routes.size).forEach {
       it.setNonBlocking(true)
-      it.attribute("coroutine", true)
+      it.setAttribute("coroutine", true)
     }
     return router
   }

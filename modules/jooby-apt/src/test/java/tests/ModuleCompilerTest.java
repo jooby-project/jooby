@@ -39,7 +39,6 @@ import source.JavaBeanParam;
 import source.MinRoute;
 import source.NoPathRoute;
 import source.ParamSourceCheckerContext;
-import source.PrimitiveReturnType;
 import source.RouteAttributes;
 import source.RouteDispatch;
 import source.RouteWithMimeTypes;
@@ -262,34 +261,24 @@ public class ModuleCompilerTest {
   }
 
   @Test
-  public void setPrimitiveReturnType() throws Exception {
-    new ProcessorRunner(new PrimitiveReturnType(), Map.of("jooby.returnType", true))
-        .withRouter(
-            app -> {
-              Route route = app.getRoutes().get(0);
-              assertEquals(int.class, route.getReturnType());
-            });
-  }
-
-  @Test
   public void routeAttributes() throws Exception {
     new ProcessorRunner(new RouteAttributes())
         .withRouter(
             app -> {
               Route route = app.getRoutes().get(0);
               assertEquals(12, route.getAttributes().size(), route.getAttributes().toString());
-              assertEquals("string", route.attribute("someAnnotation"));
-              assertEquals(Integer.valueOf(5), route.attribute("someAnnotation.i"));
-              assertEquals(Long.valueOf(200), route.attribute("someAnnotation.l"));
-              assertEquals(Float.valueOf(8), route.attribute("someAnnotation.f"));
-              assertEquals(Double.valueOf(99), route.attribute("someAnnotation.d"));
-              assertEquals(Integer.class, route.attribute("someAnnotation.type"));
-              assertEquals(true, route.attribute("someAnnotation.bool"));
-              assertEquals(Character.valueOf('X'), route.attribute("someAnnotation.c"));
-              assertEquals(Short.MIN_VALUE, (short) route.attribute("someAnnotation.s"));
-              assertEquals(Arrays.asList("a", "b"), route.attribute("someAnnotation.values"));
-              assertEquals("User", route.attribute("roleAnnotation"));
-              Map<String, Object> link = route.attribute("someAnnotation.annotation");
+              assertEquals("string", route.getAttribute("someAnnotation"));
+              assertEquals(Integer.valueOf(5), route.getAttribute("someAnnotation.i"));
+              assertEquals(Long.valueOf(200), route.getAttribute("someAnnotation.l"));
+              assertEquals(Float.valueOf(8), route.getAttribute("someAnnotation.f"));
+              assertEquals(Double.valueOf(99), route.getAttribute("someAnnotation.d"));
+              assertEquals(Integer.class, route.getAttribute("someAnnotation.type"));
+              assertEquals(true, route.getAttribute("someAnnotation.bool"));
+              assertEquals(Character.valueOf('X'), route.getAttribute("someAnnotation.c"));
+              assertEquals(Short.MIN_VALUE, (short) route.getAttribute("someAnnotation.s"));
+              assertEquals(Arrays.asList("a", "b"), route.getAttribute("someAnnotation.values"));
+              assertEquals("User", route.getAttribute("roleAnnotation"));
+              Map<String, Object> link = route.getAttribute("someAnnotation.annotation");
               assertNotNull(link);
               assertEquals("link", link.get("LinkAnnotation"));
               List<Map> array = (List) link.get("LinkAnnotation.array");

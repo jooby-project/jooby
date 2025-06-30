@@ -121,7 +121,7 @@ public class RouteSet {
    * @param value attribute value
    * @return This route.
    */
-  public @NonNull RouteSet attribute(@NonNull String name, @NonNull Object value) {
+  public @NonNull RouteSet setAttribute(@NonNull String name, @NonNull Object value) {
     routes.forEach(it -> it.getAttributes().putIfAbsent(name, value));
     return this;
   }

@@ -487,7 +487,7 @@ public class MockRouter {
 
     Router.Match match = router.match(findContext);
     Route route = match.route();
-    boolean isCoroutine = route.attribute("coroutine") == Boolean.TRUE;
+    boolean isCoroutine = route.getAttribute("coroutine") == Boolean.TRUE;
     if (isCoroutine) {
       router.setWorker(Optional.ofNullable(getWorker()).orElseGet(MockRouter::singleThreadWorker));
     }

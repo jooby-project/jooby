@@ -132,7 +132,7 @@ public class App extends Jooby {
     get(
         "/throw-missing-value-exception",
         ctx -> {
-          ctx.getRouter().attribute("non-existed"); // throws MissingValueException
+          ctx.getRouter().getAttribute("non-existed"); // throws MissingValueException
           return ctx.send("Hello");
         });
 

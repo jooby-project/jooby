@@ -33,7 +33,6 @@ public class MvcContext {
   private final String routerSuffix;
   private final BiConsumer<Diagnostic.Kind, String> output;
   private final List<MvcRouter> routers = new ArrayList<>();
-  private final boolean returnType;
   private final boolean mvcMethod;
   private final Map<TypeElement, ResultType> handler = new HashMap<>();
 
@@ -43,7 +42,6 @@ public class MvcContext {
     this.output = output;
     this.debug = Options.boolOpt(processingEnvironment, Options.DEBUG, false);
     this.incremental = Options.boolOpt(processingEnvironment, Options.INCREMENTAL, true);
-    this.returnType = Options.boolOpt(processingEnvironment, Options.RETURN_TYPE, false);
     this.mvcMethod = Options.boolOpt(processingEnvironment, Options.MVC_METHOD, false);
     this.routerPrefix = Options.string(processingEnvironment, Options.ROUTER_PREFIX, "");
     this.routerSuffix = Options.string(processingEnvironment, Options.ROUTER_SUFFIX, "_");
@@ -242,10 +240,6 @@ public class MvcContext {
 
   public boolean generateMvcMethod() {
     return mvcMethod;
-  }
-
-  public boolean generateReturnType() {
-    return returnType;
   }
 
   public boolean isIncremental() {

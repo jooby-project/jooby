@@ -5,13 +5,10 @@
  */
 package source;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Arrays;
 import java.util.List;
 
 import io.jooby.Context;
-import io.jooby.Reified;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.POST;
 import io.jooby.annotation.Path;
@@ -21,25 +18,21 @@ public class Routes {
 
   @GET
   public String doIt(Context ctx) {
-    assertEquals(String.class, ctx.getRoute().getReturnType());
     return ctx.getRequestPath();
   }
 
   @GET("/subpath")
   public List<String> subpath(Context ctx) {
-    assertEquals(Reified.list(String.class).getType(), ctx.getRoute().getReturnType());
     return Arrays.asList(ctx.getRequestPath());
   }
 
   @GET("/object")
   public Object object(Context ctx) {
-    assertEquals(Object.class, ctx.getRoute().getReturnType());
     return ctx;
   }
 
   @POST("/post")
   public JavaBeanParam post(Context ctx) {
-    assertEquals(JavaBeanParam.class, ctx.getRoute().getReturnType());
     return new JavaBeanParam();
   }
 

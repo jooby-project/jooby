@@ -68,7 +68,7 @@ class Idioms :
       ctx
     }
 
-    get("/attributes") { "some" }.attribute("k", "v")
+    get("/attributes") { "some" }.setAttribute("k", "v")
 
     /** Router DSL: */
     before { ctx.path() }
