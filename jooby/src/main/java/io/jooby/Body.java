@@ -91,9 +91,9 @@ public interface Body extends Value {
   long getSize();
 
   /**
-   * Body as readable channel.
+   * Body as a readable channel.
    *
-   * @return Body as readable channel.
+   * @return Body as a readable channel.
    */
   ReadableByteChannel channel();
 

@@ -5,14 +5,9 @@
  */
 package io.jooby;
 
-import static java.util.Collections.EMPTY_LIST;
 import static java.util.Optional.ofNullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -29,7 +24,7 @@ public class RouteSet {
 
   private List<Route> routes;
 
-  private List<String> tags = EMPTY_LIST;
+  private List<String> tags;
 
   private String summary;
 
@@ -154,7 +149,7 @@ public class RouteSet {
    * @return Route tags.
    */
   public @NonNull List<String> getTags() {
-    return tags;
+    return tags == null ? List.of() : tags;
   }
 
   /**
@@ -164,9 +159,7 @@ public class RouteSet {
    * @return This route.
    */
   public @NonNull RouteSet setTags(@NonNull List<String> tags) {
-    if (this.tags == EMPTY_LIST) {
-      this.tags = new ArrayList<>();
-    }
+    this.tags = tags;
     routes.forEach(it -> tags.forEach(it::addTag));
     return this;
   }

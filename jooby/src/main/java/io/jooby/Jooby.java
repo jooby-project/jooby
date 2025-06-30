@@ -309,9 +309,9 @@ public class Jooby implements Router, Registry {
    * you don't configure the same service twice or more in the main and imported applications too.
    *
    * @param factory Application factory.
-   * @return This application.
+   * @return Created routes.
    */
-  @NonNull public Jooby install(@NonNull SneakyThrows.Supplier<Jooby> factory) {
+  @NonNull public RouteSet install(@NonNull SneakyThrows.Supplier<Jooby> factory) {
     return install("/", factory);
   }
 
@@ -343,13 +343,12 @@ public class Jooby implements Router, Registry {
    *
    * @param path Path prefix.
    * @param factory Application factory.
-   * @return This application.
+   * @return Created routes.
    */
-  @NonNull public Jooby install(@NonNull String path, @NonNull SneakyThrows.Supplier<Jooby> factory) {
+  @NonNull public RouteSet install(@NonNull String path, @NonNull SneakyThrows.Supplier<Jooby> factory) {
     try {
       owner = this;
-      path(path, factory::get);
-      return this;
+      return path(path, factory::get);
     } finally {
       owner = null;
     }
