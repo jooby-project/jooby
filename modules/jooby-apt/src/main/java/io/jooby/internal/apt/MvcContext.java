@@ -29,7 +29,6 @@ public class MvcContext {
   private final ProcessingEnvironment processingEnvironment;
   private final boolean debug;
   private final boolean incremental;
-  private final boolean services;
   private final String routerPrefix;
   private final String routerSuffix;
   private final BiConsumer<Diagnostic.Kind, String> output;
@@ -46,13 +45,11 @@ public class MvcContext {
     this.incremental = Options.boolOpt(processingEnvironment, Options.INCREMENTAL, true);
     this.returnType = Options.boolOpt(processingEnvironment, Options.RETURN_TYPE, false);
     this.mvcMethod = Options.boolOpt(processingEnvironment, Options.MVC_METHOD, true);
-    this.services = Options.boolOpt(processingEnvironment, Options.SERVICES, true);
     this.routerPrefix = Options.string(processingEnvironment, Options.ROUTER_PREFIX, "");
     this.routerSuffix = Options.string(processingEnvironment, Options.ROUTER_SUFFIX, "_");
     computeResultTypes(processingEnvironment, handler::put);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
-    debug("Generation of service provider configuration is turned %s.", services ? "ON" : "OFF");
   }
 
   private void computeResultTypes(
@@ -241,10 +238,6 @@ public class MvcContext {
       result.addAll(superTypes(supertypeElement));
     }
     return result;
-  }
-
-  public boolean generateServices() {
-    return services;
   }
 
   public boolean generateMvcMethod() {

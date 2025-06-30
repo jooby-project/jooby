@@ -34,7 +34,6 @@ import io.jooby.internal.apt.*;
   HANDLER,
   DEBUG,
   INCREMENTAL,
-  SERVICES,
   MVC_METHOD,
   RETURN_TYPE,
   ROUTER_PREFIX,
@@ -51,7 +50,6 @@ public class JoobyProcessor extends AbstractProcessor {
     String INCREMENTAL = "jooby.incremental";
     String RETURN_TYPE = "jooby.returnType";
     String MVC_METHOD = "jooby.mvcMethod";
-    String SERVICES = "jooby.services";
     String SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
 
     static boolean boolOpt(ProcessingEnvironment environment, String option, boolean defaultValue) {
@@ -101,9 +99,6 @@ public class JoobyProcessor extends AbstractProcessor {
       if (roundEnv.processingOver()) {
         context.debug("Output:");
         context.getRouters().forEach(it -> context.debug("  %s.java", it.getGeneratedType()));
-        if (context.generateServices()) {
-          doServices(context.getProcessingEnvironment().getFiler(), context.getRouters());
-        }
         return false;
       } else {
         var routeMap = buildRouteRegistry(annotations, roundEnv);
@@ -328,10 +323,7 @@ public class JoobyProcessor extends AbstractProcessor {
       // more then one originating element is passed to the Filer
       // API on writing the resource file - isolating mode does not
       // allow this.
-      options.add(
-          String.format(
-              "org.gradle.annotation.processing.%s",
-              context.generateServices() ? "aggregating" : "isolating"));
+      options.add("org.gradle.annotation.processing.isolating");
     }
 
     return options;
