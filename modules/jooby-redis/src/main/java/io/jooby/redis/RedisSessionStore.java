@@ -20,11 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Context;
-import io.jooby.Session;
-import io.jooby.SessionStore;
-import io.jooby.SessionToken;
-import io.jooby.SneakyThrows;
+import io.jooby.*;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
@@ -42,32 +38,37 @@ public class RedisSessionStore implements SessionStore {
   private static final String LAST_ACCESSED_AT = "__accessed_at";
   private static final String CREATED_AT = "__created_at";
 
-  private Logger log = LoggerFactory.getLogger(getClass());
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private SessionToken token = SessionToken.cookieId(SessionToken.SID);
+  private final SessionToken token;
   private String namespace = "sessions";
   private Duration timeout = Duration.ofMinutes(DEFAULT_TIMEOUT);
-  private GenericObjectPool<StatefulRedisConnection<String, String>> pool;
+  private final GenericObjectPool<StatefulRedisConnection<String, String>> pool;
 
   /**
    * Creates a new session store.
    *
+   * @param token Session token.
    * @param pool Redis connection pool.
    */
   public RedisSessionStore(
+      @NonNull SessionToken token,
       @NonNull GenericObjectPool<StatefulRedisConnection<String, String>> pool) {
+    this.token = token;
     this.pool = pool;
   }
 
   /**
    * Creates a new session store.
    *
+   * @param token Session token.
    * @param redis Redis connection.
    */
-  public RedisSessionStore(@NonNull RedisClient redis) {
+  public RedisSessionStore(@NonNull SessionToken token, @NonNull RedisClient redis) {
     this(
+        token,
         ConnectionPoolSupport.createGenericObjectPool(
-            () -> redis.connect(), new GenericObjectPoolConfig()));
+            redis::connect, new GenericObjectPoolConfig<>()));
   }
 
   /**
@@ -95,7 +96,7 @@ public class RedisSessionStore implements SessionStore {
    *
    * @return Session timeout. Default is: <code>30 minutes</code>.
    */
-  public @NonNull Duration getTimeout() {
+  public @Nullable Duration getTimeout() {
     return timeout;
   }
 
@@ -106,7 +107,7 @@ public class RedisSessionStore implements SessionStore {
    * @return This store.
    */
   public @NonNull RedisSessionStore setTimeout(@NonNull Duration timeout) {
-    this.timeout = Optional.ofNullable(timeout).filter(t -> t.getSeconds() > 0).orElse(null);
+    this.timeout = timeout;
     return this;
   }
 
@@ -123,21 +124,10 @@ public class RedisSessionStore implements SessionStore {
   /**
    * Session token.
    *
-   * @return Session token. Uses a cookie by default: {@link SessionToken#SID}.
+   * @return Session token.
    */
   public @NonNull SessionToken getToken() {
     return token;
-  }
-
-  /**
-   * Set custom session token.
-   *
-   * @param token Session token.
-   * @return This store.
-   */
-  public @NonNull RedisSessionStore setToken(@NonNull SessionToken token) {
-    this.token = token;
-    return this;
   }
 
   @NonNull @Override

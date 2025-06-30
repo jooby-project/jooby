@@ -52,33 +52,24 @@ public class JwtSessionStore implements SessionStore {
   private final SessionStore store;
 
   /**
-   * Creates a JSON Web Token session store. It uses a cookie token: {@link SessionToken#SID}.
+   * Creates a JSON Web Token session store. Session token is usually a {@link
+   * SessionToken#signedCookie(Cookie)}, {@link SessionToken#header(String)} or combination of both.
    *
+   * @param token Session token.
    * @param key Secret key.
    */
-  public JwtSessionStore(@NonNull String key) {
-    this(key, SessionToken.signedCookie(SessionToken.SID));
+  public JwtSessionStore(@NonNull SessionToken token, @NonNull String key) {
+    this(token, Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8)));
   }
 
   /**
    * Creates a JSON Web Token session store. Session token is usually a {@link
    * SessionToken#signedCookie(Cookie)}, {@link SessionToken#header(String)} or combination of both.
    *
-   * @param key Secret key.
    * @param token Session token.
-   */
-  public JwtSessionStore(@NonNull String key, @NonNull SessionToken token) {
-    this(Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8)), token);
-  }
-
-  /**
-   * Creates a JSON Web Token session store. Session token is usually a {@link
-   * SessionToken#signedCookie(Cookie)}, {@link SessionToken#header(String)} or combination of both.
-   *
    * @param key Secret key.
-   * @param token Session token.
    */
-  public JwtSessionStore(@NonNull SecretKey key, @NonNull SessionToken token) {
+  public JwtSessionStore(@NonNull SessionToken token, @NonNull SecretKey key) {
     this.store = SessionStore.signed(token, decoder(key), encoder(key));
   }
 

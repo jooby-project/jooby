@@ -46,12 +46,7 @@ public interface SessionToken {
 
     @Override
     public void saveToken(@NonNull Context ctx, @NonNull String token) {
-      // FIXME: Review, bc we don;t need this
-      //  String existingId = findToken(ctx);
-      // write cookie for new or expiring session
-      // if (existingId == null || cookie.getMaxAge() > 0) {
       ctx.setResponseCookie(cookie.clone().setValue(token));
-      // }
     }
 
     @Override
@@ -64,7 +59,7 @@ public interface SessionToken {
    * Looks for a session ID from request headers. This strategy:
    *
    * <p>- find a token from a request header. - on save, send the header back as response header. -
-   * on session destroy. don't send response header back.
+   * on session destruction. don't send response header back.
    */
   class HeaderID implements SessionToken {
 
@@ -129,12 +124,6 @@ public interface SessionToken {
       ctx.setResponseCookie(cookie.clone().setMaxAge(0));
     }
   }
-
-  /**
-   * Default cookie for cookie based session stores. Uses <code>jooby.sid</code> as name. It never
-   * expires, use the root, only for HTTP.
-   */
-  Cookie SID = new Cookie("jooby.sid").setMaxAge(-1).setHttpOnly(true).setPath("/");
 
   /** Secure random for default session token generator. */
   SecureRandom RND = new SecureRandom();

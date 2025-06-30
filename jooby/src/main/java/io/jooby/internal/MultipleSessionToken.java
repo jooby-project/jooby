@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SessionToken;
 
@@ -21,7 +22,7 @@ public class MultipleSessionToken implements SessionToken {
   }
 
   @Override
-  public String findToken(Context ctx) {
+  public String findToken(@NonNull Context ctx) {
     for (SessionToken sessionToken : sessionTokens) {
       String token = sessionToken.findToken(ctx);
       if (token != null) {
@@ -32,12 +33,12 @@ public class MultipleSessionToken implements SessionToken {
   }
 
   @Override
-  public void saveToken(Context ctx, String token) {
+  public void saveToken(@NonNull Context ctx, @NonNull String token) {
     strategy(ctx).forEach(it -> it.saveToken(ctx, token));
   }
 
   @Override
-  public void deleteToken(Context ctx, String token) {
+  public void deleteToken(@NonNull Context ctx, @NonNull String token) {
     strategy(ctx).forEach(it -> it.deleteToken(ctx, token));
   }
 

@@ -44,7 +44,7 @@ public class Issue1737 {
             app -> {
               app.setSessionStore(
                   SessionStore.signed(
-                      "123456789", new Cookie("Test").setMaxAge(Duration.ofDays(7))));
+                      new Cookie("Test").setMaxAge(Duration.ofDays(7)), "123456789"));
 
               app.install(
                   new Pac4jModule()

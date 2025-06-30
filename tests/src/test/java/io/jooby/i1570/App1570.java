@@ -8,12 +8,13 @@ package io.jooby.i1570;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.Session;
+import io.jooby.SessionToken;
 import io.jooby.jwt.JwtSessionStore;
 
 public class App1570 extends Jooby {
   {
     String secret = "9968518B15AD9DCD1B33B54316416341CA518B15AD";
-    setSessionStore(new JwtSessionStore(secret));
+    setSessionStore(new JwtSessionStore(SessionToken.header("sid"), secret));
 
     get(
         "/registerClient/{name}",

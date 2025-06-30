@@ -140,12 +140,12 @@ import io.jooby.redis.RedisSessionStore;
 import io.lettuce.core.RedisClient;
 
 {
-  install(new RedisModule());                                                     <1>
+  install(new RedisModule());                                                                    <1>
 
-  setSessionStore(new RedisSessionStore(require(RedisClient.class)));             <2>
+  setSessionStore(new RedisSessionStore(Cookie.session("myappid"), require(RedisClient.class))); <2>
 
   get("/", ctx -> {
-    Session httpSession = ctx.session();                                          <3>
+    Session httpSession = ctx.session();                                                         <3>
     // HTTP session is backed by Redis
   });
 }
@@ -160,12 +160,12 @@ import io.jooby.redis.RedisSessionStore
 import io.lettuce.core.RedisClient
 
 {
-  install(RedisModule())                                                           <1>
+  install(RedisModule())                                                                        <1>
   
-  sessionStore = RedisSessionStore(require(RedisClient::class))                    <2>
+  sessionStore = RedisSessionStore(Cookie.session("myappid"), require(RedisClient::class))      <2>
 
   get("/") {
-    val httpSession = ctx.session()                                                <3>
+    val httpSession = ctx.session()                                                             <3>
     // HTTP session is backed by Redis
   }
 }
@@ -179,4 +179,3 @@ More Options:
 
 - javadoc:redis.RedisSessionStore[setTimeout, java.time.Duration, artifact="jooby-redis"]: Set session timeout. Default is: `30 minutes`
 - javadoc:redis.RedisSessionStore[setNamespace, java.lang.String, artifact="jooby-redis"]: Set key prefix. Default is: `sessions`
-- javadoc:redis.RedisSessionStore[setToken, io.jooby.SessionToken, artifact="jooby-redis"]: Set session token. Default is a cookie token: `jooby.sid`

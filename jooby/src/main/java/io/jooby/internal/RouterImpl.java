@@ -152,7 +152,7 @@ public class RouterImpl implements Router {
 
   private ServiceRegistry services = new ServiceRegistryImpl();
 
-  private SessionStore sessionStore = SessionStore.memory();
+  private SessionStore sessionStore = SessionStore.UNSUPPORTED;
 
   private Cookie flashCookie = new Cookie("jooby.flash").setHttpOnly(true);
 

@@ -40,8 +40,8 @@ public class CaffeineSessionStore extends SessionStore.InMemory {
    *
    * @param cache Cache.
    */
-  public CaffeineSessionStore(@NonNull Cache<String, Object> cache) {
-    super(SessionToken.cookieId(SessionToken.SID));
+  public CaffeineSessionStore(@NonNull SessionToken token, @NonNull Cache<String, Object> cache) {
+    super(token);
     this.cache = cache;
   }
 
@@ -50,14 +50,14 @@ public class CaffeineSessionStore extends SessionStore.InMemory {
    *
    * @param timeout Session timeout.
    */
-  public CaffeineSessionStore(@NonNull Duration timeout) {
-    super(SessionToken.cookieId(SessionToken.SID));
+  public CaffeineSessionStore(@NonNull SessionToken token, @NonNull Duration timeout) {
+    super(token);
     this.cache = Caffeine.newBuilder().expireAfterAccess(timeout).build();
   }
 
   /** Creates a new session store with timeout of <code>30 minutes</code>. */
-  public CaffeineSessionStore() {
-    this(Duration.ofMinutes(DEFAULT_TIMEOUT));
+  public CaffeineSessionStore(@NonNull SessionToken token) {
+    this(token, Duration.ofMinutes(DEFAULT_TIMEOUT));
   }
 
   @Override

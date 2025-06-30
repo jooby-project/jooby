@@ -588,6 +588,17 @@ public class Cookie {
     return Optional.empty();
   }
 
+  /**
+   * Creates a session cookie which never expires (maxAge: -1), is http only and path is <code>/
+   * </code>.
+   *
+   * @param sid Session ID.
+   * @return Session's cookie.
+   */
+  public static Cookie session(@NonNull String sid) {
+    return new Cookie(sid).setMaxAge(-1).setHttpOnly(true).setPath("/");
+  }
+
   private static <T> void value(
       Config conf, String name, BiFunction<Config, String, T> mapper, Consumer<T> consumer) {
     if (conf.hasPath(name)) {

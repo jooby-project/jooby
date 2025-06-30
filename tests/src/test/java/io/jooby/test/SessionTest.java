@@ -24,6 +24,8 @@ import io.jooby.jwt.JwtSessionStore;
 import okhttp3.Response;
 
 public class SessionTest {
+  private static final Cookie SID = Cookie.session("jooby.sid");
+
   @ServerTest
   public void sessionIdAsCookie(ServerTestRunner runner) {
     runner
@@ -142,7 +144,7 @@ public class SessionTest {
     runner
         .define(
             app -> {
-              app.setSessionStore(SessionStore.signed("ABC123"));
+              app.setSessionStore(SessionStore.signed(SID, "ABC123"));
 
               app.get(
                   "/session",
@@ -300,8 +302,7 @@ public class SessionTest {
               SessionToken token =
                   SessionToken.combine(
                       SessionToken.header("TOKEN"),
-                      SessionToken.cookieId(
-                          SessionToken.SID.clone().setMaxAge(Duration.ofMinutes(30))));
+                      SessionToken.cookieId(SID.clone().setMaxAge(Duration.ofMinutes(30))));
 
               app.setSessionStore((SessionStore.memory(token)));
 
@@ -375,7 +376,9 @@ public class SessionTest {
     runner
         .define(
             app -> {
-              app.setSessionStore(new JwtSessionStore("7a85c3b6-3ef0-4625-82d3-a1da36094804"));
+              app.setSessionStore(
+                  new JwtSessionStore(
+                      SessionToken.cookieId(SID), "7a85c3b6-3ef0-4625-82d3-a1da36094804"));
               app.get(
                   "/session",
                   ctx -> {

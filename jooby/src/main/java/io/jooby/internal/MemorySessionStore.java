@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Session;
 import io.jooby.SessionStore;
@@ -29,27 +30,27 @@ public class MemorySessionStore extends SessionStore.InMemory {
   }
 
   @Override
-  protected Data getOrCreate(String sessionId, Function<String, Data> factory) {
+  protected Data getOrCreate(@NonNull String sessionId, @NonNull Function<String, Data> factory) {
     return sessions.computeIfAbsent(sessionId, factory);
   }
 
   @Override
-  protected Data getOrNull(String sessionId) {
+  protected Data getOrNull(@NonNull String sessionId) {
     return sessions.get(sessionId);
   }
 
   @Override
-  protected Data remove(String sessionId) {
+  protected Data remove(@NonNull String sessionId) {
     return sessions.remove(sessionId);
   }
 
   @Override
-  protected void put(String sessionId, Data data) {
+  protected void put(@NonNull String sessionId, @NonNull Data data) {
     sessions.put(sessionId, data);
   }
 
   @Override
-  public Session findSession(Context ctx) {
+  public Session findSession(@NonNull Context ctx) {
     purge();
     return super.findSession(ctx);
   }

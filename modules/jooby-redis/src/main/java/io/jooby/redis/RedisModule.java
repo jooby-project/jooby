@@ -5,6 +5,8 @@
  */
 package io.jooby.redis;
 
+import static io.lettuce.core.support.ConnectionPoolSupport.createGenericObjectPool;
+
 import java.util.stream.Stream;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -20,7 +22,6 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import io.lettuce.core.support.ConnectionPoolSupport;
 
 /**
  * Redis module: https://jooby.io/modules/redis.
@@ -110,14 +111,12 @@ public class RedisModule implements Extension {
     StatefulRedisConnection<String, String> connection = client.connect();
     StatefulRedisPubSubConnection<String, String> connectPubSub = client.connectPubSub();
 
-    GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
-    GenericObjectPool<StatefulRedisConnection<String, String>> pool =
-        ConnectionPoolSupport.createGenericObjectPool(() -> client.connect(), poolConfig);
+    var pool = createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>());
 
     // Close client and connection on shutdown
-    application.onStop(pool::close);
-    application.onStop(connection::close);
-    application.onStop(connectPubSub::close);
+    application.onStop(pool);
+    application.onStop(connection);
+    application.onStop(connectPubSub);
     application.onStop(client::shutdown);
 
     ServiceRegistry registry = application.getServices();

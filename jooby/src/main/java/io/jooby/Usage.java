@@ -23,15 +23,23 @@ public class Usage extends RuntimeException {
    * Creates a new Usage exception.
    *
    * @param message Message.
-   * @param id Link to detailed section.
+   * @param id Link to a detailed section.
    */
   public Usage(@NonNull String message, @NonNull String id) {
-    super(
+    this(
         (message
             + "\nFor more details, please visit: "
             + System.getProperty("jooby.host", "https://jooby.io")
             + "/usage#"
             + id));
+  }
+
+  protected Usage(@NonNull String message) {
+    super(message);
+  }
+
+  public static @NonNull Usage noSession() {
+    return new Usage("No session available. See https://jooby.io/#session-in-memory-session");
   }
 
   /**

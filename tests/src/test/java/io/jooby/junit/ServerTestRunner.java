@@ -17,17 +17,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.condition.DisabledOnOs;
 
-import io.jooby.Context;
-import io.jooby.DefaultErrorHandler;
-import io.jooby.ErrorHandler;
-import io.jooby.ExecutionMode;
-import io.jooby.Jooby;
-import io.jooby.LoggingService;
-import io.jooby.Server;
-import io.jooby.ServerOptions;
-import io.jooby.SneakyThrows;
-import io.jooby.StartupSummary;
-import io.jooby.StatusCode;
+import io.jooby.*;
 import io.jooby.buffer.BufferOptions;
 import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.MutedServer;
@@ -69,6 +59,10 @@ public class ServerTestRunner {
           Jooby app = new Jooby();
           if (serverOptions != null) {
             app.getServices().put(ServerOptions.class, serverOptions);
+          }
+          if (app.getSessionStore() == SessionStore.UNSUPPORTED) {
+            // set default session
+            app.setSessionStore(SessionStore.memory(Cookie.session("jooby.sid")));
           }
           app.setExecutionMode(executionMode);
           consumer.accept(app);
