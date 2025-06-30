@@ -12,10 +12,10 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import io.jooby.ServerOptions;
+import io.jooby.buffer.BufferOptions;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
-import io.jooby.output.BufferOptions;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 

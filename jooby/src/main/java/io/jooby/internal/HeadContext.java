@@ -19,7 +19,7 @@ import java.nio.file.Path;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class HeadContext extends ForwardingContext {
   /**

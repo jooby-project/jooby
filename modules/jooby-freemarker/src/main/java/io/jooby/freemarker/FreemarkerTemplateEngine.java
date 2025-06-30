@@ -15,7 +15,7 @@ import freemarker.template.*;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 class FreemarkerTemplateEngine implements TemplateEngine {
 

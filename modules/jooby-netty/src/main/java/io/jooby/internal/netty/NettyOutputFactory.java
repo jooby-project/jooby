@@ -9,9 +9,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ResourceLeakDetector;

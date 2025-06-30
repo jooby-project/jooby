@@ -15,7 +15,7 @@ import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 import io.pebbletemplates.pebble.PebbleEngine;
 
 class PebbleTemplateEngine implements TemplateEngine {

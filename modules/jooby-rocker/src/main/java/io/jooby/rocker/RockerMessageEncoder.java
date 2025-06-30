@@ -11,7 +11,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 class RockerMessageEncoder implements MessageEncoder {
   private final RockerOutputFactory<BufferedRockerOutput> factory;

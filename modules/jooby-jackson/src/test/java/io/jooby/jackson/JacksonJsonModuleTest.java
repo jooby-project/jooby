@@ -21,8 +21,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutputFactory;
 
 public class JacksonJsonModuleTest {
 

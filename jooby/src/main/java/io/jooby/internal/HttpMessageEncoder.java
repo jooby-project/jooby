@@ -20,7 +20,7 @@ import io.jooby.MessageEncoder;
 import io.jooby.ModelAndView;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class HttpMessageEncoder implements MessageEncoder {
 

@@ -14,7 +14,7 @@ import java.util.function.IntPredicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.output.*;
+import io.jooby.buffer.*;
 
 /**
  * Server-Sent message.

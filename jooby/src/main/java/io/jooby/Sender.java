@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 /**
  * Non-blocking sender. Reactive responses use this class to send partial data in a non-blocking

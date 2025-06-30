@@ -13,8 +13,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutputFactory;
 
 public class ServerSentMessageTest {
 

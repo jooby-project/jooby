@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 

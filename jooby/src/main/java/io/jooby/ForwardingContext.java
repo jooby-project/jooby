@@ -23,9 +23,9 @@ import java.util.function.Function;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.RegistryException;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -745,6 +745,16 @@ public class ForwardingContext implements Context {
   public Context setRequestPath(@NonNull String path) {
     ctx.setRequestPath(path);
     return this;
+  }
+
+  @Override
+  public ParamLookup lookup() {
+    return ctx.lookup();
+  }
+
+  @Override
+  public Value lookup(@NonNull String name, ParamSource... sources) {
+    return ctx.lookup(name, sources);
   }
 
   @Override

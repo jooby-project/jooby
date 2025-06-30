@@ -19,8 +19,8 @@ import gg.jte.TemplateOutput;
 import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 
 public class Issue3599 {
 

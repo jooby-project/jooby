@@ -32,7 +32,7 @@ import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson.

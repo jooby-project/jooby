@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 /**
  * An {@link OutputStream} that writes to a {@link BufferedOutput}.

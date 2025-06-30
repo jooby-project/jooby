@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 /**
  * Template engine renderer. This class renderer instances of {@link ModelAndView} objects. Template

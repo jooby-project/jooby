@@ -9,9 +9,9 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
 
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 
 public class Issue3607 {
 

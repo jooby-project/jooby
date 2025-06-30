@@ -14,8 +14,8 @@ import gg.jte.TemplateEngine;
 import io.jooby.Context;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
+import io.jooby.buffer.BufferedOutput;
 import io.jooby.internal.jte.BufferedTemplateOutput;
-import io.jooby.output.BufferedOutput;
 
 class JteTemplateEngine implements io.jooby.TemplateEngine {
   private final TemplateEngine jte;

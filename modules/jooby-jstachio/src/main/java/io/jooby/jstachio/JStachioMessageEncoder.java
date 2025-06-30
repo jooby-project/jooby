@@ -11,7 +11,7 @@ import java.util.function.BiFunction;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 import io.jstach.jstachio.JStachio;
 import io.jstach.jstachio.output.ByteBufferEncodedOutput;
 

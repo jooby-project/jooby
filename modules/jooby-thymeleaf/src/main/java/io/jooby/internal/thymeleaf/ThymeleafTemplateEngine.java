@@ -16,7 +16,7 @@ import org.thymeleaf.context.Context;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MapModelAndView;
 import io.jooby.ModelAndView;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
   private final TemplateEngine templateEngine;

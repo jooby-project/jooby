@@ -9,7 +9,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 import gg.jte.TemplateOutput;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class BufferedTemplateOutput implements TemplateOutput {
   private final BufferedOutput buffer;

@@ -20,22 +20,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.RegistryException;
-import io.jooby.internal.HashValue;
-import io.jooby.internal.MissingValue;
-import io.jooby.internal.SingleValue;
-import io.jooby.internal.UrlParser;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.internal.*;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -187,6 +180,49 @@ public interface DefaultContext extends Context {
   default Value cookie(@NonNull String name) {
     String value = cookieMap().get(name);
     return value == null ? Value.missing(name) : Value.value(getValueFactory(), name, value);
+  }
+
+  /**
+   * Returns a {@link ParamLookup} instance which is a fluent interface covering the functionality
+   * of the {@link #lookup(String, ParamSource...)} method.
+   *
+   * <pre>{@code
+   * Value foo = ctx.lookup()
+   *   .inQuery()
+   *   .inPath()
+   *   .get("foo");
+   * }</pre>
+   *
+   * @return A {@link ParamLookup} instance.
+   * @see ParamLookup
+   * @see #lookup(String, ParamSource...)
+   */
+  default ParamLookup lookup() {
+    return new ParamLookupImpl(this);
+  }
+
+  /**
+   * Searches for a parameter in the specified sources, in the specified order, returning the first
+   * non-missing {@link Value}, or a 'missing' {@link Value} if none found.
+   *
+   * <p>At least one {@link ParamSource} must be specified.
+   *
+   * @param name The name of the parameter.
+   * @param sources Sources to search in.
+   * @return The first non-missing {@link Value} or a {@link Value} representing a missing value if
+   *     none found.
+   * @throws IllegalArgumentException If no {@link ParamSource}s are specified.
+   */
+  default Value lookup(@NonNull String name, ParamSource... sources) {
+    if (sources.length == 0) {
+      throw new IllegalArgumentException("No parameter sources were specified.");
+    }
+
+    return Arrays.stream(sources)
+        .map(source -> source.provider.apply(this, name))
+        .filter(value -> !value.isMissing())
+        .findFirst()
+        .orElseGet(() -> Value.missing(name));
   }
 
   @Override

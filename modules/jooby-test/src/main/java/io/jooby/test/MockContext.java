@@ -53,10 +53,10 @@ import io.jooby.ServerSentEmitter;
 import io.jooby.Session;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 

@@ -28,10 +28,10 @@ import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.StartupSummary;
 import io.jooby.StatusCode;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.MutedServer;
 import io.jooby.netty.NettyServer;
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutputFactory;
 import io.jooby.test.WebClient;
 
 public class ServerTestRunner {

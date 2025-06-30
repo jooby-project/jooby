@@ -11,7 +11,7 @@ import java.util.Iterator;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class JettyCallbacks {
   public static class ByteBufferArrayCallback implements Callback {

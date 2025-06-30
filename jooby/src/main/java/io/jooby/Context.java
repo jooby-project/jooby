@@ -18,7 +18,6 @@ import java.security.cert.Certificate;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -30,12 +29,11 @@ import java.util.function.BiFunction;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.LocaleUtils;
-import io.jooby.internal.ParamLookupImpl;
 import io.jooby.internal.ReadOnlyContext;
 import io.jooby.internal.WebSocketSender;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -822,17 +820,7 @@ public interface Context extends Registry {
    *     none found.
    * @throws IllegalArgumentException If no {@link ParamSource}s are specified.
    */
-  default Value lookup(@NonNull String name, ParamSource... sources) {
-    if (sources.length == 0) {
-      throw new IllegalArgumentException("No parameter sources were specified.");
-    }
-
-    return Arrays.stream(sources)
-        .map(source -> source.provider.apply(this, name))
-        .filter(value -> !value.isMissing())
-        .findFirst()
-        .orElseGet(() -> Value.missing(name));
-  }
+  Value lookup(@NonNull String name, ParamSource... sources);
 
   /**
    * Returns a {@link ParamLookup} instance which is a fluent interface covering the functionality
@@ -849,9 +837,7 @@ public interface Context extends Registry {
    * @see ParamLookup
    * @see #lookup(String, ParamSource...)
    */
-  default ParamLookup lookup() {
-    return new ParamLookupImpl(this);
-  }
+  ParamLookup lookup();
 
   /* **********************************************************************************************
    * Request Body

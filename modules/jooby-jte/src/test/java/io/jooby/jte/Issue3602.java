@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 import gg.jte.TemplateOutput;
 import gg.jte.models.runtime.JteModel;
 import io.jooby.Context;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.jte.JteModelEncoder;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
 
 public class Issue3602 {
 

@@ -18,8 +18,8 @@ import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
+import io.jooby.buffer.BufferedOutput;
 import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
-import io.jooby.output.BufferedOutput;
 
 /**
  * JSON module using Avaje-JsonB: <a

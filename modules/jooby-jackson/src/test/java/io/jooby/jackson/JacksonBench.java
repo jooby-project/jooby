@@ -13,9 +13,9 @@ import org.openjdk.jmh.annotations.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 
 @Fork(5)
 @Warmup(iterations = 5, time = 1)

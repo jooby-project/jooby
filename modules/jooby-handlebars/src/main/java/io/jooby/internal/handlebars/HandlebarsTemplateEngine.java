@@ -14,7 +14,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class HandlebarsTemplateEngine implements TemplateEngine {
 

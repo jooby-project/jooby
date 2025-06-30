@@ -25,8 +25,8 @@ import javax.net.ssl.SSLContext;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.BufferOptions;
 import io.jooby.internal.SslContextProvider;
-import io.jooby.output.BufferOptions;
 
 /**
  * Available server options. To load server options from configuration files, just do:

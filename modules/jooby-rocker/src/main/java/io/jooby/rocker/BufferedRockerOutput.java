@@ -10,8 +10,8 @@ import java.nio.charset.Charset;
 import com.fizzed.rocker.ContentType;
 import com.fizzed.rocker.RockerOutput;
 import com.fizzed.rocker.RockerOutputFactory;
-import io.jooby.output.BufferedOutput;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferedOutput;
+import io.jooby.buffer.BufferedOutputFactory;
 
 /**
  * Rocker output that uses a byte array to render the output.

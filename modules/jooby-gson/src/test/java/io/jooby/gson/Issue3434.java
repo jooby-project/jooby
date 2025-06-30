@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.GsonBuilder;
 import io.jooby.Context;
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutputFactory;
 
 public class Issue3434 {
   String text =

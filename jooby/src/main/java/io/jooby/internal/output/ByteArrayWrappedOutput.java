@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class ByteArrayWrappedOutput implements BufferedOutput {
 

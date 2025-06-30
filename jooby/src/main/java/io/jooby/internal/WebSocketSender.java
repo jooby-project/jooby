@@ -19,7 +19,7 @@ import io.jooby.ForwardingContext;
 import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class WebSocketSender extends ForwardingContext implements DefaultContext {
 

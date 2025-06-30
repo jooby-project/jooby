@@ -13,7 +13,7 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class CompsiteByteBufferOutput implements BufferedOutput {
   private final List<ByteBuffer> chunks = new ArrayList<>();

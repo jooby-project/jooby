@@ -14,7 +14,7 @@ import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.Sender;
 import io.jooby.Server;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class ChunkedSubscriber implements Flow.Subscriber {
 

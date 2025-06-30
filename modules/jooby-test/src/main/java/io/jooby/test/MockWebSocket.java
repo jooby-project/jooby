@@ -14,7 +14,7 @@ import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 /**
  * Mock implementation of {@link WebSocket} for unit testing purpose.

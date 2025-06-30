@@ -9,7 +9,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 import io.netty.buffer.ByteBuf;
 
 public class NettyBufferedOutput implements NettyByteBufOutput {

@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.output.BufferOptions;
-import io.jooby.output.BufferedOutputFactory;
+import io.jooby.buffer.BufferOptions;
+import io.jooby.buffer.BufferedOutputFactory;
 
 public class YassonModuleTest {
 

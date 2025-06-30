@@ -11,7 +11,7 @@ import java.util.Iterator;
 import org.eclipse.jetty.websocket.api.Callback;
 
 import io.jooby.SneakyThrows.Consumer2;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class WebSocketOutputCallback implements Callback {
 

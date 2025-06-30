@@ -14,10 +14,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
+import io.jooby.buffer.BufferedOutput;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
-import io.jooby.output.BufferedOutput;
 
 public class Issue2613 {
 

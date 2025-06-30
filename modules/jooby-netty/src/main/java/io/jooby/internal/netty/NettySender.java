@@ -9,7 +9,7 @@ import static io.jooby.internal.netty.NettyByteBufOutput.byteBuf;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;

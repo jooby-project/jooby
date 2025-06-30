@@ -11,7 +11,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import gg.jte.models.runtime.JteModel;
 import io.jooby.Context;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 
 public class JteModelEncoder implements io.jooby.MessageEncoder {
   @Nullable @Override

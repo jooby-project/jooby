@@ -50,7 +50,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.Cookie;
 import io.jooby.FileUpload;
-import io.jooby.output.BufferedOutput;
+import io.jooby.buffer.BufferedOutput;
 import io.jooby.value.Value;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
