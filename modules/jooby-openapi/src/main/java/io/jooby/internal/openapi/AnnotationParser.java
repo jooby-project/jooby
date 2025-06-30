@@ -206,18 +206,6 @@ public class AnnotationParser {
                   .findFirst()
                   .orElse(type);
           return parse(ctx, prefix, controllerType);
-        } else if (methodInsnNode.getOpcode() == Opcodes.INVOKEINTERFACE) {
-          // TODO: almost sure this is dead code
-          AbstractInsnNode methodPrev = methodInsnNode.getPrevious();
-          if (methodPrev instanceof VarInsnNode) {
-            // mvc(daggerApp.myController());
-            Type type = Type.getReturnType(methodInsnNode.desc);
-            return parse(ctx, prefix, type);
-          } else if (methodPrev instanceof LdcInsnNode ldcInsnNode) {
-            // mvc(beanScope.get(...));
-            Type type = (Type) (ldcInsnNode).cst;
-            return parse(ctx, prefix, type);
-          }
         } else {
           if (methodInsnNode.getPrevious() instanceof LdcInsnNode ldcInsnNode) {
             // mvc(require(Controller.class))
