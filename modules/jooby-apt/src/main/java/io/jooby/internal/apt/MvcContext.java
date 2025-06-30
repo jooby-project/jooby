@@ -44,7 +44,7 @@ public class MvcContext {
     this.debug = Options.boolOpt(processingEnvironment, Options.DEBUG, false);
     this.incremental = Options.boolOpt(processingEnvironment, Options.INCREMENTAL, true);
     this.returnType = Options.boolOpt(processingEnvironment, Options.RETURN_TYPE, false);
-    this.mvcMethod = Options.boolOpt(processingEnvironment, Options.MVC_METHOD, true);
+    this.mvcMethod = Options.boolOpt(processingEnvironment, Options.MVC_METHOD, false);
     this.routerPrefix = Options.string(processingEnvironment, Options.ROUTER_PREFIX, "");
     this.routerSuffix = Options.string(processingEnvironment, Options.ROUTER_SUFFIX, "_");
     computeResultTypes(processingEnvironment, handler::put);
