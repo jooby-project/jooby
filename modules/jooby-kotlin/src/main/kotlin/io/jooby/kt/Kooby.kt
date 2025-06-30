@@ -275,7 +275,7 @@ open class Kooby() : Jooby() {
 
   @RouterDsl
   fun route(method: String, pattern: String, handler: HandlerContext.() -> Any): Route {
-    return super.route(method, pattern) { ctx -> handler(HandlerContext(ctx)) }.setHandle(handler)
+    return super.route(method, pattern) { ctx -> handler(HandlerContext(ctx)) }
   }
 
   @RouterDsl

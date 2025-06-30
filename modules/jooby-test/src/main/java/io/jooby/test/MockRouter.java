@@ -495,12 +495,12 @@ public class MockRouter {
     findContext.setRoute(route);
     Object value;
     try {
-      Route.Handler handler = fullExecution ? route.getPipeline() : route.getHandler();
       if (route.getMethod().equals(Router.WS)) {
-        WebSocket.Initializer initializer = (WebSocket.Initializer) route.getHandle();
-        MockWebSocketConfigurer configurer = new MockWebSocketConfigurer(ctx, initializer);
+        var initializer = ((WebSocket.Handler) route.getHandler()).getInitializer();
+        var configurer = new MockWebSocketConfigurer(ctx, initializer);
         return new SingleMockValue(configurer);
       } else {
+        var handler = fullExecution ? route.getPipeline() : route.getHandler();
         value = handler.apply(ctx);
         if (ctx instanceof MockContext) {
           MockResponse response = ((MockContext) ctx).getResponse();

@@ -55,6 +55,10 @@ public interface WebSocket {
     void init(@NonNull Context ctx, @NonNull WebSocketConfigurer configurer);
   }
 
+  interface Handler extends Route.Handler {
+    Initializer getInitializer();
+  }
+
   /** On connect callback. */
   interface OnConnect {
     /**

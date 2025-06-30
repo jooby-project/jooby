@@ -141,28 +141,26 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     route(OPTIONS, pattern, handler)
 
   fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route =
-    router
-      .route(method, pattern) { ctx ->
-        val handlerContext = HandlerContext(ctx)
-        launch(handlerContext) {
+    router.route(method, pattern) { ctx ->
+      val handlerContext = HandlerContext(ctx)
+      launch(handlerContext) {
+        try {
+          val result = handler(handlerContext)
+          ctx.route.after?.apply(ctx, result, null)
+          if (result != ctx && !ctx.isResponseStarted) {
+            ctx.render(result)
+          }
+        } catch (cause: Throwable) {
           try {
-            val result = handler(handlerContext)
-            ctx.route.after?.apply(ctx, result, null)
-            if (result != ctx && !ctx.isResponseStarted) {
-              ctx.render(result)
-            }
-          } catch (cause: Throwable) {
-            try {
-              ctx.route.after?.apply(ctx, null, cause)
-            } finally {
-              errorHandler.invoke(ErrorHandlerContext(ctx, cause, router.errorCode(cause)))
-            }
+            ctx.route.after?.apply(ctx, null, cause)
+          } finally {
+            errorHandler.invoke(ErrorHandlerContext(ctx, cause, router.errorCode(cause)))
           }
         }
-        // Return context to mark as handled
-        ctx
       }
-      .setHandle(handler)
+      // Return context to mark as handled
+      ctx
+    }
 
   internal fun launch(handlerContext: HandlerContext, block: suspend CoroutineScope.() -> Unit) {
     // Global catch-all exception handler

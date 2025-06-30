@@ -446,14 +446,12 @@ public class RouterImpl implements Router {
 
   @NonNull @Override
   public Route ws(@NonNull String pattern, @NonNull WebSocket.Initializer handler) {
-    return route(WS, pattern, new WebSocketHandler(handler)).setHandle(handler);
+    return route(WS, pattern, new WebSocketHandler(handler));
   }
 
   @NonNull @Override
   public Route sse(@NonNull String pattern, @NonNull ServerSentEmitter.Handler handler) {
-    return route(SSE, pattern, new ServerSentEventHandler(handler))
-        .setHandle(handler)
-        .setExecutorKey("worker");
+    return route(SSE, pattern, new ServerSentEventHandler(handler)).setExecutorKey("worker");
   }
 
   @Override
@@ -889,7 +887,6 @@ public class RouterImpl implements Router {
     it.setFilter(filter);
     it.setAfter(after);
     it.setEncoder(src.getEncoder());
-    it.setHandle(src.getHandle());
     it.setProduces(src.getProduces());
     it.setConsumes(src.getConsumes());
     it.setAttributes(src.getAttributes());

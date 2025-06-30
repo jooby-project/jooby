@@ -442,8 +442,6 @@ public class Route {
 
   private MessageEncoder encoder;
 
-  private Object handle;
-
   private List<MediaType> produces = EMPTY_LIST;
 
   private List<MediaType> consumes = EMPTY_LIST;
@@ -477,7 +475,6 @@ public class Route {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.handler = handler;
-    this.handle = handler;
   }
 
   /**
@@ -562,17 +559,6 @@ public class Route {
   }
 
   /**
-   * Handler instance which might or might not be the same as {@link #getHandler()}.
-   *
-   * <p>The handle is required to extract correct metadata.
-   *
-   * @return Handle.
-   */
-  public @NonNull Object getHandle() {
-    return handle;
-  }
-
-  /**
    * After filter or <code>null</code>.
    *
    * @return After filter or <code>null</code>.
@@ -609,17 +595,6 @@ public class Route {
    */
   public @NonNull Route setFilter(@Nullable Filter filter) {
     this.filter = filter;
-    return this;
-  }
-
-  /**
-   * Set route handle instance, required when handle is different from {@link #getHandler()}.
-   *
-   * @param handle Handle instance.
-   * @return This route.
-   */
-  public @NonNull Route setHandle(@NonNull Object handle) {
-    this.handle = handle;
     return this;
   }
 
@@ -1112,17 +1087,11 @@ public class Route {
   }
 
   private Route.Handler computePipeline() {
-    Route.Handler pipeline = computeHeadPipeline();
+    Route.Handler pipeline = filter == null ? handler : filter.then(handler);
 
     if (after != null) {
       pipeline = pipeline.then(after);
     }
-    return pipeline;
-  }
-
-  private Route.Handler computeHeadPipeline() {
-    Route.Handler pipeline = filter == null ? handler : filter.then(handler);
-
     return pipeline;
   }
 }

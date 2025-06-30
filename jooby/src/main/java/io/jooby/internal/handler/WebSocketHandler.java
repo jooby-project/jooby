@@ -7,15 +7,18 @@ package io.jooby.internal.handler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
-import io.jooby.Route;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
 
-public class WebSocketHandler implements Route.Handler {
+public class WebSocketHandler implements WebSocket.Handler {
   private WebSocket.Initializer handler;
 
   public WebSocketHandler(WebSocket.Initializer handler) {
     this.handler = handler;
+  }
+
+  public WebSocket.Initializer getInitializer() {
+    return handler;
   }
 
   @NonNull @Override
