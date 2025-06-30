@@ -469,9 +469,8 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Router domain(@NonNull String domain, @NonNull Router subrouter) {
-    this.router.domain(domain, subrouter);
-    return this;
+  public RouteSet domain(@NonNull String domain, @NonNull Router subrouter) {
+    return this.router.domain(domain, subrouter);
   }
 
   @NonNull @Override
@@ -485,31 +484,36 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Jooby mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
-    this.router.mount(predicate, subrouter);
-    return this;
+  public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
+    return this.router.mount(predicate, subrouter);
   }
 
   @NonNull @Override
-  public Jooby mount(@NonNull String path, @NonNull Router router) {
-    this.router.mount(path, router);
+  public RouteSet mount(@NonNull String path, @NonNull Router router) {
+    var rs = this.router.mount(path, router);
     if (router instanceof Jooby) {
       Jooby child = (Jooby) router;
       child.registry = this.registry;
     }
-    return this;
+    return rs;
   }
 
   @NonNull @Override
-  public Jooby mount(@NonNull Router router) {
+  public RouteSet mount(@NonNull Router router) {
     return mount("/", router);
   }
 
-  @NonNull @Override
-  public Jooby mvc(@NonNull Extension router) {
+  /**
+   * Add controller routes.
+   *
+   * @param router Mvc extension.
+   * @return Route set.
+   */
+  @NonNull public RouteSet mvc(@NonNull Extension router) {
     try {
+      int start = this.router.getRoutes().size();
       router.install(this);
-      return this;
+      return new RouteSet(this.router.getRoutes().subList(start, this.router.getRoutes().size()));
     } catch (Exception cause) {
       throw SneakyThrows.propagate(cause);
     }

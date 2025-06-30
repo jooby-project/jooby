@@ -312,9 +312,9 @@ public interface Router extends Registry {
    *
    * @param domain Predicate
    * @param subrouter Subrouter.
-   * @return This router.
+   * @return Created routes.
    */
-  @NonNull Router domain(@NonNull String domain, @NonNull Router subrouter);
+  @NonNull RouteSet domain(@NonNull String domain, @NonNull Router subrouter);
 
   /**
    * Enabled routes for specific domain. Domain matching is done using the <code>host</code> header.
@@ -334,7 +334,7 @@ public interface Router extends Registry {
    *
    * @param domain Predicate
    * @param body Route action.
-   * @return This router.
+   * @return Created routes.
    */
   @NonNull RouteSet domain(@NonNull String domain, @NonNull Runnable body);
 
@@ -360,9 +360,9 @@ public interface Router extends Registry {
    *
    * @param predicate Context predicate.
    * @param router Router to import.
-   * @return This router.
+   * @return Created routes.
    */
-  @NonNull Router mount(@NonNull Predicate<Context> predicate, @NonNull Router router);
+  @NonNull RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Router router);
 
   /**
    * Import routes from given action. Predicate works like a filter and only when predicate pass the
@@ -387,7 +387,7 @@ public interface Router extends Registry {
    *
    * @param predicate Context predicate.
    * @param body Route action.
-   * @return This router.
+   * @return Created routes.
    */
   @NonNull RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body);
 
@@ -398,9 +398,9 @@ public interface Router extends Registry {
    *
    * @param path Prefix path.
    * @param router Router to import.
-   * @return This router.
+   * @return Created routes.
    */
-  @NonNull Router mount(@NonNull String path, @NonNull Router router);
+  @NonNull RouteSet mount(@NonNull String path, @NonNull Router router);
 
   /**
    * Import all routes from the given router.
@@ -408,22 +408,14 @@ public interface Router extends Registry {
    * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
    * @param router Router to import.
-   * @return This router.
+   * @return Created routes.
    */
-  @NonNull Router mount(@NonNull Router router);
+  @NonNull RouteSet mount(@NonNull Router router);
 
   /* ***********************************************************************************************
    * Mvc
    * ***********************************************************************************************
    */
-
-  /**
-   * Import all routes from the given controller class.
-   *
-   * @param router Router extension.
-   * @return This router.
-   */
-  @NonNull Router mvc(@NonNull Extension router);
 
   /**
    * Add a websocket handler.

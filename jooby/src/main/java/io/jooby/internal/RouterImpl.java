@@ -136,7 +136,7 @@ public class RouterImpl implements Router {
 
   private List<Route> routes = new ArrayList<>();
 
-  private HttpMessageEncoder encoder = new HttpMessageEncoder();
+  private final HttpMessageEncoder encoder = new HttpMessageEncoder();
 
   private String basePath;
 
@@ -265,19 +265,17 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public Router domain(@NonNull String domain, @NonNull Router subrouter) {
+  public RouteSet domain(@NonNull String domain, @NonNull Router subrouter) {
     return mount(domainPredicate(domain), subrouter);
   }
 
   @NonNull @Override
   public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
-    var routeSet = new RouteSet();
     var tree = new Chi();
     putPredicate(predicate, tree);
     int start = this.routes.size();
     newStack(tree, "/", body);
-    routeSet.setRoutes(this.routes.subList(start, this.routes.size()));
-    return routeSet;
+    return new RouteSet(this.routes.subList(start, this.routes.size()));
   }
 
   public Router install(
@@ -297,11 +295,11 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public Router mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
-    /** Override services: */
+  public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
+    /* Override services: */
     overrideAll(this, subrouter);
-    /** Routes: */
-    mount(
+    /* Routes: */
+    return mount(
         predicate,
         () -> {
           for (Route route : subrouter.getRoutes()) {
@@ -309,28 +307,23 @@ public class RouterImpl implements Router {
             copy(route, newRoute);
           }
         });
-    return this;
   }
 
   @NonNull @Override
-  public Router mount(@NonNull String path, @NonNull Router router) {
+  public RouteSet mount(@NonNull String path, @NonNull Router router) {
+    int start = this.routes.size();
     /** Override services: */
     overrideAll(this, router);
     /** Merge error handler: */
     mergeErrorHandler(router);
     /** Routes: */
     copyRoutes(path, router);
-    return this;
+    return new RouteSet(this.routes.subList(start, this.routes.size()));
   }
 
   @NonNull @Override
-  public Router mount(@NonNull Router router) {
+  public RouteSet mount(@NonNull Router router) {
     return mount("/", router);
-  }
-
-  @NonNull @Override
-  public Router mvc(@NonNull Extension router) {
-    throw new UnsupportedOperationException();
   }
 
   @NonNull @Override
@@ -413,11 +406,9 @@ public class RouterImpl implements Router {
 
   @Override
   @NonNull public RouteSet path(@NonNull String pattern, @NonNull Runnable action) {
-    RouteSet routeSet = new RouteSet();
     int start = this.routes.size();
     newStack(chi, pattern, action);
-    routeSet.setRoutes(this.routes.subList(start, this.routes.size()));
-    return routeSet;
+    return new RouteSet(this.routes.subList(start, this.routes.size()));
   }
 
   @NonNull @Override
@@ -898,7 +889,6 @@ public class RouterImpl implements Router {
     it.setFilter(filter);
     it.setAfter(after);
     it.setEncoder(src.getEncoder());
-    // it.setReturnType(src.getReturnType());
     it.setHandle(src.getHandle());
     it.setProduces(src.getProduces());
     it.setConsumes(src.getConsumes());

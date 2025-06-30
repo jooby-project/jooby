@@ -9,6 +9,8 @@ import static java.util.Optional.ofNullable;
 
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -20,7 +22,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @author edgar
  * @since 2.7.3
  */
-public class RouteSet {
+public class RouteSet implements Iterable<Route> {
 
   private List<Route> routes;
 
@@ -29,6 +31,10 @@ public class RouteSet {
   private String summary;
 
   private String description;
+
+  public RouteSet(List<Route> routes) {
+    this.routes = routes;
+  }
 
   /**
    * Sub-routes. Always empty except when used it from {@link Router#path(String, Runnable)} or
@@ -232,5 +238,14 @@ public class RouteSet {
    */
   public @NonNull RouteSet description(@Nullable String description) {
     return setDescription(description);
+  }
+
+  public void forEach(Predicate<Route> predicate, Consumer<? super Route> action) {
+    routes.stream().filter(predicate).forEach(action);
+  }
+
+  @Override
+  public Iterator<Route> iterator() {
+    return routes.iterator();
   }
 }
