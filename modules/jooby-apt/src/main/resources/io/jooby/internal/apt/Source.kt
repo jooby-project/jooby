@@ -1,7 +1,7 @@
 package ${packageName}
 ${imports}
 @io.jooby.annotation.Generated(${className}::class)
-open class ${generatedClassName} : io.jooby.MvcExtension {
+open class ${generatedClassName} : io.jooby.Extension {
     private lateinit var factory: java.util.function.Function<io.jooby.Context, ${className}>
 
     ${constructors}

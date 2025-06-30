@@ -125,7 +125,7 @@ public class ProcessorRunner {
       throws Exception {
     var classLoader = processor.createClassLoader();
     var factoryName = classLoader.getClassName();
-    var factoryClass = (Class<? extends MvcExtension>) classLoader.loadClass(factoryName);
+    var factoryClass = (Class<? extends Extension>) classLoader.loadClass(factoryName);
     var constructor = factoryClass.getDeclaredConstructor();
     var extension = constructor.newInstance();
     var application = new Jooby();

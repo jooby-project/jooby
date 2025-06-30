@@ -5,8 +5,8 @@
  */
 package kt.i3705
 
+import io.jooby.Extension
 import io.jooby.Jooby
-import io.jooby.MvcExtension
 import io.jooby.SneakyThrows
 import io.jooby.annotation.GET
 import io.jooby.annotation.Path
@@ -27,7 +27,7 @@ class BeanScope {
 }
 
 @io.jooby.annotation.Generated(C3705::class)
-class C3705_ : MvcExtension {
+class C3705_ : Extension {
 
   constructor() {}
 

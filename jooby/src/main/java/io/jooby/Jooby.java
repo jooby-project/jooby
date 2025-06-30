@@ -507,7 +507,7 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Jooby mvc(@NonNull MvcExtension router) {
+  public Jooby mvc(@NonNull Extension router) {
     try {
       router.install(this);
       return this;

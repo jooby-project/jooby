@@ -417,12 +417,12 @@ public interface Router extends Registry {
    */
 
   /**
-   * Import all route method from the given controller class.
+   * Import all routes from the given controller class.
    *
    * @param router Router extension.
    * @return This router.
    */
-  @NonNull Router mvc(@NonNull MvcExtension router);
+  @NonNull Router mvc(@NonNull Extension router);
 
   /**
    * Add a websocket handler.

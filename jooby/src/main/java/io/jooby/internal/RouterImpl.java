@@ -329,7 +329,7 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public Router mvc(@NonNull MvcExtension router) {
+  public Router mvc(@NonNull Extension router) {
     throw new UnsupportedOperationException();
   }
 

@@ -10,12 +10,12 @@ import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
 import io.jooby.Context;
+import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.MvcExtension;
 import io.jooby.annotation.Generated;
 
 @Generated(C2968.class)
-public class C2968_ implements MvcExtension {
+public class C2968_ implements Extension {
   private Function<Context, C2968> provider;
 
   public C2968_() {
