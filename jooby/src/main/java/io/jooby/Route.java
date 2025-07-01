@@ -8,7 +8,6 @@ package io.jooby;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -404,16 +403,24 @@ public class Route {
     /**
      * Convert to {@link MethodHandle}.
      *
+     * @param lookup Lookup to use.
+     * @return A {@link MethodHandle}.
+     */
+    public MethodHandle toMethodHandle(MethodHandles.Lookup lookup) {
+      try {
+        return lookup.unreflect(toMethod());
+      } catch (IllegalAccessException e) {
+        throw SneakyThrows.propagate(e);
+      }
+    }
+
+    /**
+     * Convert to {@link MethodHandle} using a public lookup.
+     *
      * @return A {@link MethodHandle}.
      */
     public MethodHandle toMethodHandle() {
-      var lookup = MethodHandles.publicLookup();
-      var methodType = MethodType.methodType(returnType, parameterTypes);
-      try {
-        return lookup.findVirtual(declaringClass, name, methodType);
-      } catch (NoSuchMethodException | IllegalAccessException e) {
-        throw SneakyThrows.propagate(e);
-      }
+      return toMethodHandle(MethodHandles.publicLookup());
     }
   }
 

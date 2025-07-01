@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -845,7 +844,7 @@ public interface Router extends Registry {
    *
    * @return Router options.
    */
-  @NonNull Set<RouterOption> getRouterOptions();
+  @NonNull RouterOptions getRouterOptions();
 
   /**
    * Set router options.
@@ -853,7 +852,7 @@ public interface Router extends Registry {
    * @param options router options.
    * @return This router.
    */
-  @NonNull Router setRouterOptions(@NonNull RouterOption... options);
+  @NonNull Router setRouterOptions(@NonNull RouterOptions options);
 
   /**
    * Session store. Default use a cookie ID with a memory storage.

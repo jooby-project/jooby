@@ -61,7 +61,6 @@ import io.jooby.MediaType;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Router;
-import io.jooby.RouterOption;
 import io.jooby.Sender;
 import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
@@ -589,7 +588,7 @@ public class JettyContext implements DefaultContext, Callback {
   @Override
   public boolean getResetHeadersOnError() {
     return resetHeadersOnError == null
-        ? getRouter().getRouterOptions().contains(RouterOption.RESET_HEADERS_ON_ERROR)
+        ? getRouter().getRouterOptions().isResetHeadersOnError()
         : resetHeadersOnError;
   }
 

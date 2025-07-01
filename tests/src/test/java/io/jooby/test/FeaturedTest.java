@@ -66,7 +66,7 @@ import io.jooby.InlineFile;
 import io.jooby.Jooby;
 import io.jooby.ModelAndView;
 import io.jooby.Router;
-import io.jooby.RouterOption;
+import io.jooby.RouterOptions;
 import io.jooby.SameSite;
 import io.jooby.ServerOptions;
 import io.jooby.ServiceKey;
@@ -1457,7 +1457,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.setRouterOptions(RouterOption.IGNORE_CASE, RouterOption.IGNORE_TRAILING_SLASH);
+              app.setRouterOptions(new RouterOptions().ignoreCase(true).ignoreTrailingSlash(true));
               app.get("/foo", Context::getRequestPath);
 
               app.get("/bar", Context::getRequestPath);
@@ -1590,7 +1590,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.setRouterOptions(RouterOption.IGNORE_TRAILING_SLASH);
+              app.setRouterOptions(new RouterOptions().ignoreTrailingSlash(true));
               app.get("/foo/", ctx -> "foo/");
 
               app.get("/foo", ctx -> "new foo");

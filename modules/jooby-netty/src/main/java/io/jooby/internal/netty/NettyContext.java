@@ -728,8 +728,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @Override
   public boolean getResetHeadersOnError() {
     return resetHeadersOnError == null
-        ? getRouter().getRouterOptions().contains(RouterOption.RESET_HEADERS_ON_ERROR)
-        : resetHeadersOnError.booleanValue();
+        ? getRouter().getRouterOptions().isResetHeadersOnError()
+        : resetHeadersOnError;
   }
 
   @Override

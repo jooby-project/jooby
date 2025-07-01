@@ -20,7 +20,7 @@ import io.jooby.Registry
 import io.jooby.Route
 import io.jooby.RouteSet
 import io.jooby.Router
-import io.jooby.RouterOption
+import io.jooby.RouterOptions
 import io.jooby.Server
 import io.jooby.ServiceRegistry
 import io.jooby.handler.Cors
@@ -289,8 +289,8 @@ open class Kooby() : Jooby() {
   }
 
   @OptionsDsl
-  fun routerOptions(vararg option: RouterOption): Kooby {
-    this.setRouterOptions(*option)
+  fun routerOptions(options: RouterOptions): Kooby {
+    this.setRouterOptions(options)
     return this
   }
 

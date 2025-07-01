@@ -8,13 +8,13 @@ package io.jooby.test;
 import java.util.List;
 
 import io.jooby.Jooby;
-import io.jooby.RouterOption;
+import io.jooby.RouterOptions;
 import io.jooby.StartupSummary;
 
 public class TestApp extends Jooby {
   {
     setStartupSummary(List.of(StartupSummary.NONE));
-    setRouterOptions(RouterOption.IGNORE_CASE, RouterOption.IGNORE_TRAILING_SLASH);
+    setRouterOptions(new RouterOptions().ignoreCase(true).ignoreTrailingSlash(true));
     setContextPath("/test");
     get("/", ctx -> "OK");
   }

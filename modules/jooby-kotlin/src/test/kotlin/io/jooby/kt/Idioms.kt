@@ -6,8 +6,7 @@
 package io.jooby.kt
 
 import io.jooby.Jooby
-import io.jooby.RouterOption.IGNORE_CASE
-import io.jooby.RouterOption.IGNORE_TRAILING_SLASH
+import io.jooby.RouterOptions
 import io.jooby.ServiceKey
 import java.nio.file.Paths
 import java.time.Duration
@@ -34,7 +33,7 @@ class Idioms :
 
     services.getOrNull(Jooby::class)
 
-    routerOptions(IGNORE_CASE, IGNORE_TRAILING_SLASH)
+    routerOptions(RouterOptions().ignoreCase(true).ignoreTrailingSlash(true))
 
     setHiddenMethod { ctx -> ctx.header("").toOptional() }
 

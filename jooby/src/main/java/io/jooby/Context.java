@@ -1390,10 +1390,10 @@ public interface Context extends Registry {
 
   /**
    * True if response headers are cleared on application error. If none set it uses the
-   * default/global value specified by {@link RouterOption#RESET_HEADERS_ON_ERROR}.
+   * default/global value specified by {@link RouterOptions#RESET_HEADERS_ON_ERROR}.
    *
    * @return True if response headers are cleared on application error. If none set it uses the
-   *     default/global value specified by {@link RouterOption#RESET_HEADERS_ON_ERROR}.
+   *     default/global value specified by {@link RouterOptions#RESET_HEADERS_ON_ERROR}.
    */
   boolean getResetHeadersOnError();
 

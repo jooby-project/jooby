@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -23,7 +22,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
@@ -160,7 +158,7 @@ public class RouterImpl implements Router {
 
   private ContextInitializer postDispatchInitializer;
 
-  private Set<RouterOption> routerOptions = EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR);
+  private RouterOptions routerOptions = RouterOptions.defaults();
 
   private boolean trustProxy;
 
@@ -199,19 +197,19 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public Set<RouterOption> getRouterOptions() {
+  public RouterOptions getRouterOptions() {
     return routerOptions;
   }
 
   @NonNull @Override
-  public Router setRouterOptions(@NonNull RouterOption... options) {
-    Stream.of(options).forEach(routerOptions::add);
+  public Router setRouterOptions(@NonNull RouterOptions options) {
+    this.routerOptions = options;
     return this;
   }
 
   @NonNull @Override
   public Router setContextPath(@NonNull String basePath) {
-    if (routes.size() > 0) {
+    if (!routes.isEmpty()) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
     this.basePath = Router.leadingSlash(basePath);
@@ -499,7 +497,7 @@ public class RouterImpl implements Router {
     String finalPattern =
         basePath == null ? safePattern : new PathBuilder(basePath, safePattern).toString();
 
-    if (routerOptions.contains(RouterOption.IGNORE_CASE)) {
+    if (routerOptions.isIgnoreCase()) {
       finalPattern = finalPattern.toLowerCase();
     }
 
@@ -604,13 +602,13 @@ public class RouterImpl implements Router {
     ((Chi) chi).setEncoder(encoder);
 
     /** router options: */
-    if (routerOptions.contains(RouterOption.IGNORE_CASE)) {
+    if (routerOptions.isIgnoreCase()) {
       chi = new RouteTreeLowerCasePath(chi);
     }
-    if (routerOptions.contains(RouterOption.IGNORE_TRAILING_SLASH)) {
+    if (routerOptions.isIgnoreTrailingSlash()) {
       chi = new RouteTreeIgnoreTrailingSlash(chi);
     }
-    if (routerOptions.contains(RouterOption.NORMALIZE_SLASH)) {
+    if (routerOptions.isNormalizeSlash()) {
       chi = new RouteTreeNormPath(chi);
     }
 

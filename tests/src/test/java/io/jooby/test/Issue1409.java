@@ -8,7 +8,7 @@ package io.jooby.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jooby.Context;
-import io.jooby.RouterOption;
+import io.jooby.RouterOptions;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -91,7 +91,7 @@ public class Issue1409 {
         .define(
             app -> {
               app.setRouterOptions(
-                  RouterOption.NORMALIZE_SLASH, RouterOption.IGNORE_TRAILING_SLASH);
+                  new RouterOptions().normalizeSlash(true).ignoreTrailingSlash(true));
               app.get("/doubleslash", Context::getRequestPath);
 
               app.path(

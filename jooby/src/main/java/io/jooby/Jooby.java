@@ -139,12 +139,11 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Set<RouterOption> getRouterOptions() {
+  public RouterOptions getRouterOptions() {
     return router.getRouterOptions();
   }
 
-  @NonNull @Override
-  public Jooby setRouterOptions(@NonNull RouterOption... options) {
+  @NonNull public Jooby setRouterOptions(@NonNull RouterOptions options) {
     router.setRouterOptions(options);
     return this;
   }
