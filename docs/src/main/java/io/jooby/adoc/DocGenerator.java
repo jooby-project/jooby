@@ -10,7 +10,6 @@ import static io.jooby.SneakyThrows.throwingFunction;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,11 +18,8 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -35,9 +31,7 @@ import org.asciidoctor.Placement;
 import org.asciidoctor.SafeMode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
-import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 
@@ -53,9 +47,9 @@ public class DocGenerator {
 
     Path asciidoc = basedir.resolve("asciidoc");
 
-    /**
-     * Tree dir. The .adoc file became a directory
-     * modules/hikari.adoc => modules/hikari/index.html
+    /*
+      Tree dir. The .adoc file became a directory
+      modules/hikari.adoc => modules/hikari/index.html
      */
     String[] treeDirs = {"modules", "packaging", "usage", "migration"};
 
@@ -63,7 +57,7 @@ public class DocGenerator {
         Stream.of(treeDirs)
             .map(throwingFunction(dir -> countAdoc(asciidoc.resolve(dir))))
             .reduce(1, Integer::sum);
-    int steps = 7 + (doAscii ? adocCount : 0);
+    int steps = 6 + (doAscii ? adocCount : 0);
 
     ProgressBarBuilder pbb =
         new ProgressBarBuilder()
@@ -79,11 +73,11 @@ public class DocGenerator {
       }
       pb.step();
 
-      /** Wipe out directory: */
+      /* Wipe out directory: */
       FileUtils.cleanDirectory(outdir.toFile());
       pb.step();
 
-      /** Copy /images and /js: */
+      /* Copy /images and /js: */
       copyFile(
           outdir,
           // images
@@ -100,7 +94,6 @@ public class DocGenerator {
             createOptions(asciidoc, outdir, version, null));
         pb.step();
 
-        AtomicInteger m = new AtomicInteger();
         Stream.of(treeDirs)
             .forEach(
                 throwingConsumer(
@@ -113,20 +106,9 @@ public class DocGenerator {
                               module -> {
                                 processModule(asciidoctor, asciidoc, module, outdir, name, version);
                                 pb.step();
-                                m.incrementAndGet();
                               });
                     }));
       }
-
-      // post process
-      Files.walk(outdir)
-          .filter(it -> it.getFileName().toString().endsWith("index.html"))
-          .forEach(
-              throwingConsumer(
-                  it -> {
-                    Files.write(it, document(it).getBytes(StandardCharsets.UTF_8));
-                  }));
-      pb.step();
 
       // LICENSE
       Files.copy(
@@ -149,7 +131,7 @@ public class DocGenerator {
         Git git = new Git("jooby-project", "jooby.io", website);
         git.clone();
 
-        /** Clean: */
+        /* Clean: */
         FileUtils.deleteDirectory(website.resolve("images").toFile());
         FileUtils.deleteDirectory(website.resolve("js").toFile());
         FileUtils.deleteQuietly(website.resolve("index.html").toFile());
@@ -239,11 +221,10 @@ public class DocGenerator {
       indexlike = indexlike.resolve("index.html");
       Files.createDirectories(indexlike.getParent());
       Files.move(output, indexlike);
-      String content =
-          new String(Files.readAllBytes(indexlike), StandardCharsets.UTF_8)
+      String content = Files.readString(indexlike)
               .replace("js/", "../../js/")
               .replace("images/", "../../images/");
-      Files.write(indexlike, content.getBytes(StandardCharsets.UTF_8));
+      Files.writeString(indexlike, content);
     } catch (IOException x) {
       throw new IllegalStateException(x);
     }
@@ -321,122 +302,6 @@ public class DocGenerator {
     return name.toString();
   }
 
-  private static String document(Path index) {
-    try {
-      Document doc = Jsoup.parse(index.toFile(), "UTF-8");
-      tocItems(doc);
-      languageTab(doc);
-      clipboard(doc);
-      externalLink(doc);
-      Document.OutputSettings settings = new Document.OutputSettings();
-      settings.prettyPrint(false);
-      settings.indentAmount(0);
-      settings.outline(false);
-      return doc.outputSettings(settings).toString();
-    } catch (NullPointerException x) {
-      throw new IllegalStateException("File: " + index, x);
-    } catch (IOException x) {
-      throw new IllegalStateException("File: " + index, x);
-    }
-  }
-
-  private static void externalLink(Document doc) {
-    for (Element a : doc.select("a")) {
-      String href = a.attr("href");
-      if (href.startsWith("http://") || href.startsWith("https://")) {
-        a.attr("target", "_blank");
-      }
-    }
-  }
-
-  private static void languageTab(Document doc) {
-    for (Element primary : doc.select(".listingblock.primary")) {
-      Element secondary = primary.nextElementSibling();
-      String secondaryTitle = secondary.selectFirst(".title").text().trim();
-      Element primaryContent = primary.selectFirst(".content");
-      Element secondaryContent = secondary.selectFirst(".content");
-      secondary.remove();
-      secondaryContent.remove();
-
-      Element title = primary.selectFirst(".title");
-
-      Element tabs = doc.createElement("div").attr("class", "switch");
-      Element tab1 = tabs.appendElement("div");
-      tab1.attr("class", "switch--item option-1 selected");
-      if (secondaryTitle.equalsIgnoreCase("Kotlin")) {
-        tab1.text("Java");
-      } else {
-        tab1.text(title.text());
-      }
-
-      if (title.text().trim().equalsIgnoreCase(tab1.text().trim())) {
-        title.remove();
-      }
-
-      Element tab2 = tabs.appendElement("div");
-      tab2.attr("class", "switch--item option-2");
-      tab2.text(secondaryTitle);
-      tabs.appendTo(primary);
-      primaryContent.addClass("option-1");
-      primaryContent.appendTo(primary);
-      secondaryContent.appendTo(primary);
-      secondaryContent.addClass("hidden").addClass("option-2");
-      ;
-    }
-  }
-
-  private static void tocItems(Document doc) {
-    tocItems(doc, 2);
-    tocItems(doc, 3);
-    tocItems(doc, 4);
-  }
-
-  private static void tocItems(Document doc, int level) {
-    doc.select("h" + level)
-        .forEach(
-            h -> {
-              if (!h.hasClass("discrete")) {
-                String id = h.attr("id");
-                LinkedHashSet<String> name = new LinkedHashSet<>();
-                int parent = level - 1;
-                Element p = h.parents().select("h" + parent).first();
-                if (p != null && !p.hasClass("discrete")) {
-                  String parentId = p.attr("id");
-                  if (parentId != null && parentId.length() > 0) {
-                    name.add(parentId);
-                  }
-                }
-                name.add(id.replaceAll("([a-zA-Z0-9-]+)-\\d+$", "$1"));
-                String newId = name.stream().collect(Collectors.joining("-"));
-                if (!id.equals(newId)) {
-                  h.attr("id", newId);
-                  doc.select("a")
-                      .forEach(
-                          a -> {
-                            if (a.attr("href").equals("#" + id) && a.attr("class").length() > 0) {
-                              a.attr("href", "#" + newId);
-                            }
-                          });
-                }
-              }
-            });
-  }
-
-  private static void clipboard(Document doc) {
-    for (Element code : doc.select("code.hljs")) {
-      String id = "x" + Long.toHexString(UUID.randomUUID().getMostSignificantBits());
-      code.attr("id", id);
-      Element button = code.parent().appendElement("button");
-      button.addClass("clipboard");
-      button.attr("data-clipboard-target", "#" + id);
-      Element img = button.appendElement("img");
-      img.attr("src", "/images/clippy.svg");
-      img.attr("class", "clippy");
-      img.attr("width", "13");
-      img.attr("alt", "Copy to clipboard");
-    }
-  }
-
   public static Path basedir() {
     Path basedir = Paths.get(System.getProperty("user.dir"));
     if (!basedir.toString().endsWith("docs")) {
@@ -449,8 +314,7 @@ public class DocGenerator {
   public static String version() {
     try {
       Document doc = Jsoup.parse(basedir().getParent().resolve("pom.xml").toFile(), "utf-8");
-      String version = doc.selectFirst("version").text().trim();
-      return version;
+      return doc.selectFirst("version").text().trim();
     } catch (IOException x) {
       throw new IllegalStateException(x);
     }
