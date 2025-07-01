@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.9.2-SNAPSHOT</version>
+    <version>3.10.0</version>
   </parent>
   <artifactId>jooby-hikari</artifactId>
 
