@@ -182,7 +182,7 @@ public class App {
   public static void main(String[] args) {
     runApp(args, app -> {
 
-      app.use(new MyController());
+      app.use(new MyController_());
 
     });
   }
@@ -205,7 +205,7 @@ class MyController {
 fun main(args: Array<String>) {
   runApp(args) {
 
-    use(MyController())
+    use(MyController_())
 
   }
 }
