@@ -46,7 +46,6 @@
     <module>jooby-yasson</module>
     <module>jooby-graphql</module>
     <module>jooby-graphiql</module>
-    <module>jooby-graphql-playground</module>
     <module>jooby-freemarker</module>
     <module>jooby-handlebars</module>
     <module>jooby-jstachio</module>
