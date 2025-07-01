@@ -24,6 +24,13 @@
         <configuration>
           <filtering>true</filtering>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>${plexus-utils.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
       <plugin>
