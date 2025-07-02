@@ -222,8 +222,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     if (query == null) {
       String uri = req.uri();
       int q = uri.indexOf('?');
-      query =
-          QueryString.create(getRouter().getValueFactory(), q >= 0 ? uri.substring(q + 1) : null);
+      query = QueryString.create(getValueFactory(), q >= 0 ? uri.substring(q + 1) : null);
     }
     return query;
   }
@@ -231,7 +230,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @NonNull @Override
   public Formdata form() {
     if (formdata == null) {
-      formdata = Formdata.create(getRouter().getValueFactory());
+      formdata = Formdata.create(getValueFactory());
       decodeForm(formdata);
     }
     return formdata;
@@ -239,7 +238,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @NonNull @Override
   public Value header(@NonNull String name) {
-    return Value.create(getRouter().getValueFactory(), name, req.headers().getAll(name));
+    return Value.create(getValueFactory(), name, req.headers().getAll(name));
   }
 
   @NonNull @Override
@@ -330,7 +329,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       for (String name : names) {
         headerMap.put(name, headers.getAll(name));
       }
-      this.headers = Value.headers(getRouter().getValueFactory(), headerMap);
+      this.headers = Value.headers(getValueFactory(), headerMap);
     }
     return headers;
   }

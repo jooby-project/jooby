@@ -255,8 +255,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
 
   @NonNull @Override
   public Value header(@NonNull String name) {
-    return Value.create(
-        getRouter().getValueFactory(), name, exchange.getRequestHeaders().get(name));
+    return Value.create(getValueFactory(), name, exchange.getRequestHeaders().get(name));
   }
 
   @NonNull @Override
@@ -269,7 +268,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
         HeaderValues values = map.get(name);
         headerMap.put(name.toString(), values);
       }
-      headers = Value.headers(getRouter().getValueFactory(), headerMap);
+      headers = Value.headers(getValueFactory(), headerMap);
     }
     return headers;
   }
@@ -277,7 +276,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   @NonNull @Override
   public QueryString query() {
     if (query == null) {
-      query = QueryString.create(getRouter().getValueFactory(), exchange.getQueryString());
+      query = QueryString.create(getValueFactory(), exchange.getQueryString());
     }
     return query;
   }
@@ -285,7 +284,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   @NonNull @Override
   public Formdata form() {
     if (formdata == null) {
-      formdata = Formdata.create(getRouter().getValueFactory());
+      formdata = Formdata.create(getValueFactory());
       formData(formdata, exchange.getAttachment(FORM_DATA));
     }
     return formdata;

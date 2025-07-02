@@ -202,7 +202,7 @@ public class JettyContext implements DefaultContext, Callback {
   @NonNull @Override
   public QueryString query() {
     if (query == null) {
-      query = QueryString.create(getRouter().getValueFactory(), request.getHttpURI().getQuery());
+      query = QueryString.create(getValueFactory(), request.getHttpURI().getQuery());
     }
     return query;
   }
@@ -210,7 +210,7 @@ public class JettyContext implements DefaultContext, Callback {
   @NonNull @Override
   public Formdata form() {
     if (formdata == null) {
-      formdata = Formdata.create(getRouter().getValueFactory());
+      formdata = Formdata.create(getValueFactory());
 
       formParam(request, formdata);
 
@@ -251,8 +251,7 @@ public class JettyContext implements DefaultContext, Callback {
 
   @NonNull @Override
   public Value header(@NonNull String name) {
-    return Value.create(
-        getRouter().getValueFactory(), name, request.getHeaders().getValuesList(name));
+    return Value.create(getValueFactory(), name, request.getHeaders().getValuesList(name));
   }
 
   @NonNull @Override
@@ -262,7 +261,7 @@ public class JettyContext implements DefaultContext, Callback {
       for (HttpField header : request.getHeaders()) {
         headerMap.put(header.getName(), header.getValueList());
       }
-      headers = Value.headers(getRouter().getValueFactory(), headerMap);
+      headers = Value.headers(getValueFactory(), headerMap);
     }
     return headers;
   }
