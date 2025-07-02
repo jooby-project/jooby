@@ -20,16 +20,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -56,7 +47,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
-import io.jooby.RouteSet;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.annotation.OpenApiRegister;
@@ -477,14 +467,14 @@ public class RouteParser {
               parseText(it, instructionTo, handlerList.get(handlerList.size() - 1)::setDescription);
         } else if (signature.matches(Route.class, "tags", String[].class)) {
           instructionTo = parseTags(it, instructionTo, handlerList.get(handlerList.size() - 1));
-        } else if (signature.matches(RouteSet.class, "summary", String.class)) {
+        } else if (signature.matches(Route.Set.class, "summary", String.class)) {
           instructionTo =
               parseText(it, instructionTo, handlerList.get(handlerList.size() - 1)::setPathSummary);
-        } else if (signature.matches(RouteSet.class, "description", String.class)) {
+        } else if (signature.matches(Route.Set.class, "description", String.class)) {
           instructionTo =
               parseText(
                   it, instructionTo, handlerList.get(handlerList.size() - 1)::setPathDescription);
-        } else if (signature.matches(RouteSet.class, "tags", String[].class)) {
+        } else if (signature.matches(Route.Set.class, "tags", String[].class)) {
           if (routeIndex >= 0) {
             for (int i = routeIndex; i < handlerList.size(); i++) {
               instructionTo = parseTags(it, instructionTo, handlerList.get(i));

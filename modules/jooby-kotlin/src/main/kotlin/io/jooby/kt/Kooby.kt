@@ -18,7 +18,7 @@ import io.jooby.Jooby
 import io.jooby.QueryString
 import io.jooby.Registry
 import io.jooby.Route
-import io.jooby.RouteSet
+import io.jooby.Route.Set
 import io.jooby.Router
 import io.jooby.RouterOptions
 import io.jooby.Server
@@ -162,12 +162,12 @@ open class Kooby() : Jooby() {
   }
 
   @RouterDsl
-  override fun path(pattern: String, action: Runnable): RouteSet {
+  override fun path(pattern: String, action: Runnable): Set {
     return super.path(pattern, action)
   }
 
   @RouterDsl
-  override fun routes(action: Runnable): RouteSet {
+  override fun routes(action: Runnable): Set {
     return super.routes(action)
   }
 

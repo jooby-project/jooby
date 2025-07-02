@@ -258,22 +258,22 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public RouteSet domain(@NonNull String domain, @NonNull Runnable body) {
+  public Route.Set domain(@NonNull String domain, @NonNull Runnable body) {
     return mount(domainPredicate(domain), body);
   }
 
   @NonNull @Override
-  public RouteSet domain(@NonNull String domain, @NonNull Router subrouter) {
+  public Route.Set domain(@NonNull String domain, @NonNull Router subrouter) {
     return mount(domainPredicate(domain), subrouter);
   }
 
   @NonNull @Override
-  public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
+  public Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
     var tree = new Chi();
     putPredicate(predicate, tree);
     int start = this.routes.size();
     newStack(tree, "/", body);
-    return new RouteSet(this.routes.subList(start, this.routes.size()));
+    return new Route.Set(this.routes.subList(start, this.routes.size()));
   }
 
   public Router install(
@@ -293,7 +293,7 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
+  public Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
     /* Override services: */
     overrideAll(this, subrouter);
     /* Routes: */
@@ -308,7 +308,7 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public RouteSet mount(@NonNull String path, @NonNull Router router) {
+  public Route.Set mount(@NonNull String path, @NonNull Router router) {
     int start = this.routes.size();
     /** Override services: */
     overrideAll(this, router);
@@ -316,11 +316,11 @@ public class RouterImpl implements Router {
     mergeErrorHandler(router);
     /** Routes: */
     copyRoutes(path, router);
-    return new RouteSet(this.routes.subList(start, this.routes.size()));
+    return new Route.Set(this.routes.subList(start, this.routes.size()));
   }
 
   @NonNull @Override
-  public RouteSet mount(@NonNull Router router) {
+  public Route.Set mount(@NonNull Router router) {
     return mount("/", router);
   }
 
@@ -398,15 +398,15 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public RouteSet routes(@NonNull Runnable action) {
+  public Route.Set routes(@NonNull Runnable action) {
     return path("/", action);
   }
 
   @Override
-  @NonNull public RouteSet path(@NonNull String pattern, @NonNull Runnable action) {
+  @NonNull public Route.Set path(@NonNull String pattern, @NonNull Runnable action) {
     int start = this.routes.size();
     newStack(chi, pattern, action);
-    return new RouteSet(this.routes.subList(start, this.routes.size()));
+    return new Route.Set(this.routes.subList(start, this.routes.size()));
   }
 
   @NonNull @Override

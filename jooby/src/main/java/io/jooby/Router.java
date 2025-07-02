@@ -313,7 +313,7 @@ public interface Router extends Registry {
    * @param subrouter Subrouter.
    * @return Created routes.
    */
-  @NonNull RouteSet domain(@NonNull String domain, @NonNull Router subrouter);
+  @NonNull Route.Set domain(@NonNull String domain, @NonNull Router subrouter);
 
   /**
    * Enabled routes for specific domain. Domain matching is done using the <code>host</code> header.
@@ -335,7 +335,7 @@ public interface Router extends Registry {
    * @param body Route action.
    * @return Created routes.
    */
-  @NonNull RouteSet domain(@NonNull String domain, @NonNull Runnable body);
+  @NonNull Route.Set domain(@NonNull String domain, @NonNull Runnable body);
 
   /**
    * Import routes from given router. Predicate works like a filter and only when predicate pass the
@@ -361,7 +361,7 @@ public interface Router extends Registry {
    * @param router Router to import.
    * @return Created routes.
    */
-  @NonNull RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Router router);
+  @NonNull Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Router router);
 
   /**
    * Import routes from given action. Predicate works like a filter and only when predicate pass the
@@ -388,7 +388,7 @@ public interface Router extends Registry {
    * @param body Route action.
    * @return Created routes.
    */
-  @NonNull RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body);
+  @NonNull Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body);
 
   /**
    * Import all routes from the given router and prefix them with the given path.
@@ -399,7 +399,7 @@ public interface Router extends Registry {
    * @param router Router to import.
    * @return Created routes.
    */
-  @NonNull RouteSet mount(@NonNull String path, @NonNull Router router);
+  @NonNull Route.Set mount(@NonNull String path, @NonNull Router router);
 
   /**
    * Import all routes from the given router.
@@ -409,7 +409,7 @@ public interface Router extends Registry {
    * @param router Router to import.
    * @return Created routes.
    */
-  @NonNull RouteSet mount(@NonNull Router router);
+  @NonNull Route.Set mount(@NonNull Router router);
 
   /* ***********************************************************************************************
    * Mvc
@@ -556,7 +556,7 @@ public interface Router extends Registry {
    * @param body Route body.
    * @return All routes created.
    */
-  @NonNull RouteSet routes(@NonNull Runnable body);
+  @NonNull Route.Set routes(@NonNull Runnable body);
 
   /**
    * Group one or more routes under a common path prefix. Useful for applying cross-cutting concerns
@@ -566,7 +566,7 @@ public interface Router extends Registry {
    * @param body Route body.
    * @return All routes created.
    */
-  @NonNull RouteSet path(@NonNull String pattern, @NonNull Runnable body);
+  @NonNull Route.Set path(@NonNull String pattern, @NonNull Runnable body);
 
   /**
    * Add a HTTP GET handler.

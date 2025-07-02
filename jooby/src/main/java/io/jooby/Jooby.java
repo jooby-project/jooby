@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -310,7 +309,7 @@ public class Jooby implements Router, Registry {
    * @param factory Application factory.
    * @return Created routes.
    */
-  @NonNull public RouteSet install(@NonNull SneakyThrows.Supplier<Jooby> factory) {
+  @NonNull public Route.Set install(@NonNull SneakyThrows.Supplier<Jooby> factory) {
     return install("/", factory);
   }
 
@@ -344,7 +343,7 @@ public class Jooby implements Router, Registry {
    * @param factory Application factory.
    * @return Created routes.
    */
-  @NonNull public RouteSet install(@NonNull String path, @NonNull SneakyThrows.Supplier<Jooby> factory) {
+  @NonNull public Route.Set install(@NonNull String path, @NonNull SneakyThrows.Supplier<Jooby> factory) {
     try {
       owner = this;
       return path(path, factory::get);
@@ -468,27 +467,27 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public RouteSet domain(@NonNull String domain, @NonNull Router subrouter) {
+  public Route.Set domain(@NonNull String domain, @NonNull Router subrouter) {
     return this.router.domain(domain, subrouter);
   }
 
   @NonNull @Override
-  public RouteSet domain(@NonNull String domain, @NonNull Runnable body) {
+  public Route.Set domain(@NonNull String domain, @NonNull Runnable body) {
     return router.domain(domain, body);
   }
 
   @NonNull @Override
-  public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
+  public Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
     return router.mount(predicate, body);
   }
 
   @NonNull @Override
-  public RouteSet mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
+  public Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
     return this.router.mount(predicate, subrouter);
   }
 
   @NonNull @Override
-  public RouteSet mount(@NonNull String path, @NonNull Router router) {
+  public Route.Set mount(@NonNull String path, @NonNull Router router) {
     var rs = this.router.mount(path, router);
     if (router instanceof Jooby) {
       Jooby child = (Jooby) router;
@@ -498,7 +497,7 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public RouteSet mount(@NonNull Router router) {
+  public Route.Set mount(@NonNull Router router) {
     return mount("/", router);
   }
 
@@ -508,11 +507,11 @@ public class Jooby implements Router, Registry {
    * @param router Mvc extension.
    * @return Route set.
    */
-  @NonNull public RouteSet mvc(@NonNull Extension router) {
+  @NonNull public Route.Set mvc(@NonNull Extension router) {
     try {
       int start = this.router.getRoutes().size();
       router.install(this);
-      return new RouteSet(this.router.getRoutes().subList(start, this.router.getRoutes().size()));
+      return new Route.Set(this.router.getRoutes().subList(start, this.router.getRoutes().size()));
     } catch (Exception cause) {
       throw SneakyThrows.propagate(cause);
     }
@@ -618,12 +617,12 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public RouteSet path(@NonNull String pattern, @NonNull Runnable action) {
+  public Route.Set path(@NonNull String pattern, @NonNull Runnable action) {
     return router.path(pattern, action);
   }
 
   @NonNull @Override
-  public RouteSet routes(@NonNull Runnable action) {
+  public Route.Set routes(@NonNull Runnable action) {
     return router.routes(action);
   }
 
@@ -1302,7 +1301,7 @@ public class Jooby implements Router, Registry {
   }
 
   private static void configurePackage(String packageName) {
-    var defaultPackages = Set.of("io.jooby", "io.jooby.kt");
+    var defaultPackages = java.util.Set.of("io.jooby", "io.jooby.kt");
     if (!defaultPackages.contains(packageName)) {
       ifSystemProp(
           AvailableSettings.PACKAGE,
