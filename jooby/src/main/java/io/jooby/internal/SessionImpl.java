@@ -81,17 +81,23 @@ public class SessionImpl implements Session {
   }
 
   @Override
-  public @NonNull Session put(@NonNull String name, String value) {
+  public @NonNull Session put(@NonNull String name, @NonNull String value) {
     attributes.put(name, value);
     updateState();
     return this;
   }
 
+  public @NonNull Session put(@NonNull String name, Object value) {
+    attributes.put(name, value.toString());
+    return this;
+  }
+
   @Override
   public @NonNull Value remove(@NonNull String name) {
-    String value = attributes.remove(name);
+    var value = get(name);
+    attributes.remove(name);
     updateState();
-    return value == null ? Value.missing(name) : Value.value(ctx.getValueFactory(), name, value);
+    return value;
   }
 
   @Override
@@ -105,7 +111,7 @@ public class SessionImpl implements Session {
   }
 
   @NonNull @Override
-  public Session setCreationTime(Instant creationTime) {
+  public Session setCreationTime(@NonNull Instant creationTime) {
     this.creationTime = creationTime;
     return this;
   }
@@ -121,7 +127,7 @@ public class SessionImpl implements Session {
     return this;
   }
 
-  @Override
+  @NonNull @Override
   public Session clear() {
     attributes.clear();
     updateState();
@@ -135,7 +141,7 @@ public class SessionImpl implements Session {
     store(ctx).deleteSession(ctx, this);
   }
 
-  @Override
+  @NonNull @Override
   public Session renewId() {
     store(ctx).renewSessionId(ctx, this);
     updateState();

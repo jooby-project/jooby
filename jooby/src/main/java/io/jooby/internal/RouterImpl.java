@@ -467,9 +467,9 @@ public class RouterImpl implements Router {
     pathBuilder.append(pattern);
 
     /** Filter: */
-    List<Route.Filter> decoratorList = stack.stream().flatMap(Stack::toFilter).toList();
-    Route.Filter decorator =
-        decoratorList.stream().reduce(null, (it, next) -> it == null ? next : it.then(next));
+    List<Route.Filter> filters = stack.stream().flatMap(Stack::toFilter).toList();
+    Route.Filter filter =
+        filters.stream().reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** After: */
     Route.After after =
@@ -481,15 +481,17 @@ public class RouterImpl implements Router {
     String safePattern = pathBuilder.toString();
     Route route = new Route(method, safePattern, handler);
     route.setPathKeys(Router.pathKeys(safePattern));
-    route.setAfter(after);
-    route.setFilter(decorator);
+    if (after != null) {
+      route.setAfter(after);
+    }
+    route.setFilter(filter);
     route.setEncoder(encoder);
     route.setDecoders(decoders);
 
-    decoratorList.forEach(it -> it.setRoute(route));
+    filters.forEach(it -> it.setRoute(route));
     handler.setRoute(route);
 
-    Stack stack = this.stack.peekLast();
+    var stack = this.stack.peekLast();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
     }
@@ -507,10 +509,8 @@ public class RouterImpl implements Router {
           for (String routePattern : Router.expandOptionalVariables(asciiPattern)) {
             if (route.getMethod().equals(WS)) {
               tree.insert(GET, routePattern, route);
-              // route.setReturnType(Context.class);
             } else if (route.getMethod().equals(SSE)) {
               tree.insert(GET, routePattern, route);
-              // route.setReturnType(Context.class);
             } else {
               tree.insert(route.getMethod(), routePattern, route);
 

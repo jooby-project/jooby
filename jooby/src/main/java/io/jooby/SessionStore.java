@@ -167,7 +167,7 @@ public interface SessionStore {
     }
 
     @Override
-    public void saveSession(Context ctx, @NonNull Session session) {
+    public void saveSession(@NonNull Context ctx, @NonNull Session session) {
       String sessionId = session.getId();
       put(sessionId, new Data(session.getCreationTime(), Instant.now(), session.toMap()));
     }
