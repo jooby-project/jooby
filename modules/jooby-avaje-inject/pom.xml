@@ -6,9 +6,10 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.9.2-SNAPSHOT</version>
+    <version>3.11.0-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-avaje-inject</artifactId>
+  <name>jooby-avaje-inject</name>
 
   <properties>
     <maven.compiler.proc>full</maven.compiler.proc>

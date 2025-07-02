@@ -6,9 +6,10 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.9.2-SNAPSHOT</version>
+    <version>3.11.0-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-graphql</artifactId>
+  <name>jooby-graphql</name>
 
   <dependencies>
     <dependency>

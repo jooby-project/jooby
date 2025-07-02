@@ -6,9 +6,10 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.9.2-SNAPSHOT</version>
+    <version>3.11.0-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-swagger-ui</artifactId>
+  <name>jooby-swagger-ui</name>
 
   <properties>
     <Module-Name>io.jooby.swagger.ui</Module-Name>

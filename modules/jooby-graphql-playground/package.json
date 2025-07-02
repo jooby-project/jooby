@@ -1,9 +1,0 @@
-{
-  "name": "jooby-graphql-playground",
-  "version": "3.0.0",
-  "private": true,
-  "license": "ASF",
-  "dependencies": {
-    "graphql-playground-react": "1.7.28"
-  }
-}
