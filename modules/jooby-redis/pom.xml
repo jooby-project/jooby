@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-redis</artifactId>
+  <name>jooby-redis</name>
 
   <dependencies>
     <dependency>

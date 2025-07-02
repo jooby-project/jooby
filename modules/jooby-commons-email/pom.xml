@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-commons-email</artifactId>
+  <name>jooby-commons-email</name>
 
   <properties>
     <Module-Name>io.jooby.commons.mail</Module-Name>

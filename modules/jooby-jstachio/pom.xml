@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-jstachio</artifactId>
+  <name>jooby-jstachio</name>
 
   <dependencies>
     <dependency>

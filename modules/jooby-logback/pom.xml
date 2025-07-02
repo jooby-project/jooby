@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-logback</artifactId>
+  <name>jooby-logback</name>
 
   <dependencies>
     <dependency>

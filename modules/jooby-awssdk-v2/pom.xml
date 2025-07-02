@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-awssdk-v2</artifactId>
+  <name>jooby-awssdk-v2</name>
 
   <properties>
     <aws.java.sdk.version>2.31.73</aws.java.sdk.version>

@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-kotlin</artifactId>
+  <name>jooby-kotlin</name>
 
   <dependencies>
     <dependency>

@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-quartz</artifactId>
+  <name>jooby-quartz</name>
 
   <properties>
     <Module-Name>io.jooby.quartz</Module-Name>

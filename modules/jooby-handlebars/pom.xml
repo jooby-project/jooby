@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-handlebars</artifactId>
+  <name>jooby-handlebars</name>
 
   <properties>
     <Module-Name>io.jooby.handlebars</Module-Name>

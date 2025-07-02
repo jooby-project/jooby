@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-jasypt</artifactId>
+  <name>jooby-jasypt</name>
 
   <properties>
     <Module-Name>io.jooby.jasypt</Module-Name>

@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-maven-plugin</artifactId>
+  <name>jooby-maven-plugin</name>
   <packaging>maven-plugin</packaging>
 
   <properties>

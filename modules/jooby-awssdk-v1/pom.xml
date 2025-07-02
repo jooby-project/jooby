@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-awssdk-v1</artifactId>
+  <name>jooby-awssdk-v1</name>
 
   <properties>
     <Module-Name>io.jooby.awssdkv1</Module-Name>

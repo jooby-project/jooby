@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-pebble</artifactId>
+  <name>jooby-pebble</name>
 
   <dependencies>
     <dependency>

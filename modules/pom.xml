@@ -8,6 +8,7 @@
   </parent>
 
   <artifactId>modules</artifactId>
+  <name>modules</name>
   <packaging>pom</packaging>
 
   <modules>

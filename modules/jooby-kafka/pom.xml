@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-kafka</artifactId>
+  <name>jooby-kafka</name>
 
   <properties>
     <Module-Name>io.jooby.kafka</Module-Name>

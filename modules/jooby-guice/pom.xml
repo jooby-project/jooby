@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-guice</artifactId>
+  <name>jooby-guice</name>
 
   <dependencies>
     <dependency>

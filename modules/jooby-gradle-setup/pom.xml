@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-gradle-setup</artifactId>
+  <name>jooby-gradle-setup</name>
   <packaging>pom</packaging>
 
   <dependencies>

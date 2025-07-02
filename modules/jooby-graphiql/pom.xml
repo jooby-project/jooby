@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-graphiql</artifactId>
+  <name>jooby-graphiql</name>
 
   <dependencies>
     <dependency>

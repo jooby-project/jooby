@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-avaje-jsonb</artifactId>
+  <name>jooby-avaje-jsonb</name>
 
   <dependencies>
     <dependency>

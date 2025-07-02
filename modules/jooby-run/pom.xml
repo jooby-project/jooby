@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-run</artifactId>
+  <name>jooby-run</name>
 
   <properties>
     <Module-Name>io.jooby.run</Module-Name>

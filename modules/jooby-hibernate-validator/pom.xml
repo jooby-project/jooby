@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-hibernate-validator</artifactId>
+  <name>jooby-hibernate-validator</name>
 
   <dependencies>
     <dependency>

@@ -12,6 +12,7 @@
 
   <groupId>io.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
+  <name>jooby-bom</name>
   <packaging>pom</packaging>
   <version>3.10.0</version>
   <description>Jooby (Bill of Materials)</description>

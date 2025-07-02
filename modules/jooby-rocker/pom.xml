@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-rocker</artifactId>
+  <name>jooby-rocker</name>
 
   <properties>
     <Module-Name>io.jooby.rocker</Module-Name>

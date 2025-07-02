@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-avaje-inject</artifactId>
+  <name>jooby-avaje-inject</name>
 
   <properties>
     <maven.compiler.proc>full</maven.compiler.proc>

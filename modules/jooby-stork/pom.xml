@@ -8,6 +8,7 @@
   </parent>
 
   <artifactId>jooby-stork</artifactId>
+  <name>jooby-stork</name>
   <packaging>tile</packaging>
 
   <properties>

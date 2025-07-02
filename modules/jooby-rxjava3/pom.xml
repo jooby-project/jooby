@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-rxjava3</artifactId>
+  <name>jooby-rxjava3</name>
 
   <dependencies>
     <dependency>

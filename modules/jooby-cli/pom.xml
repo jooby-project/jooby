@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-cli</artifactId>
+  <name>jooby-cli</name>
 
   <properties>
     <Module-Name>io.jooby.cli</Module-Name>

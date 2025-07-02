@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-flyway</artifactId>
+  <name>jooby-flyway</name>
 
   <dependencies>
     <dependency>

@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-swagger-ui</artifactId>
+  <name>jooby-swagger-ui</name>
 
   <properties>
     <Module-Name>io.jooby.swagger.ui</Module-Name>

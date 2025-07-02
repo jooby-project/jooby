@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-thymeleaf</artifactId>
+  <name>jooby-thymeleaf</name>
 
   <dependencies>
     <dependency>

@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-distribution</artifactId>
+  <name>jooby-distribution</name>
 
   <properties>
     <Module-Name>io.jooby.distribution</Module-Name>

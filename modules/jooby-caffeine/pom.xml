@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-caffeine</artifactId>
+  <name>jooby-caffeine</name>
 
   <dependencies>
     <dependency>

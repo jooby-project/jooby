@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-whoops</artifactId>
+  <name>jooby-whoops</name>
 
   <dependencies>
     <dependency>

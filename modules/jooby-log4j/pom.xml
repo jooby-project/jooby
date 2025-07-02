@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-log4j</artifactId>
+  <name>jooby-log4j</name>
 
   <dependencies>
     <dependency>

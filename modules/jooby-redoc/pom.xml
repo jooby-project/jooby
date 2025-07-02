@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-redoc</artifactId>
+  <name>jooby-redoc</name>
 
   <properties>
     <Module-Name>io.jooby.redoc</Module-Name>

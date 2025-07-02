@@ -9,6 +9,7 @@
     <version>3.10.0</version>
   </parent>
   <artifactId>jooby-undertow</artifactId>
+  <name>jooby-undertow</name>
 
   <properties>
     <Module-Name>io.jooby.undertow</Module-Name>
