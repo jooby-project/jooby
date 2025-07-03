@@ -110,10 +110,12 @@ public interface Server {
       }
     }
 
-    protected void fireStop(@NonNull List<Jooby> applications) {
-      if (stopping.compareAndSet(false, true)) {
-        for (Jooby app : applications) {
-          app.stop();
+    protected void fireStop(@Nullable List<Jooby> applications) {
+      if (applications != null) {
+        if (stopping.compareAndSet(false, true)) {
+          for (Jooby app : applications) {
+            app.stop();
+          }
         }
       }
     }

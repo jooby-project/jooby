@@ -24,10 +24,15 @@
 
     <!-- utow -->
     <dependency>
-      <!-- remove xnio once we upgrade to 2.2.18 +  There is a Invalida Path on Windows-->
       <groupId>org.jboss.xnio</groupId>
       <artifactId>xnio-api</artifactId>
       <version>3.8.16.Final</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging</artifactId>
+      <version>3.6.1.Final</version>
     </dependency>
 
     <dependency>

@@ -72,7 +72,7 @@
     <!-- data -->
     <HikariCP.version>6.3.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.19.Final</hibernate.version>
+    <hibernate.version>7.0.4.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
     <jdbi.version>3.49.5</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
