@@ -72,21 +72,6 @@ public class HibernateValidatorModule implements Extension {
   }
 
   /**
-   * Setups a configurer callback.
-   *
-   * @param configurer Configurer callback.
-   * @return This module.
-   * @deprecated Use {@link
-   *     HibernateValidatorModule#HibernateValidatorModule(HibernateValidatorConfiguration)}
-   */
-  @Deprecated
-  public HibernateValidatorModule doWith(
-      @NonNull final Consumer<HibernateValidatorConfiguration> configurer) {
-    this.configurer = configurer;
-    return this;
-  }
-
-  /**
    * Overrides the default status code for the errors produced by validation. Default code is
    * UNPROCESSABLE_ENTITY(422)
    *

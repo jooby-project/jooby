@@ -24,16 +24,10 @@ import io.jooby.ServiceRegistry;
  */
 public class RockerModule implements Extension {
   private Boolean reloading;
-  private int bufferSize;
   private final Charset charset;
 
-  public RockerModule(@NonNull Charset charset, int bufferSize) {
-    this.charset = charset;
-    this.bufferSize = bufferSize;
-  }
-
   public RockerModule(@NonNull Charset charset) {
-    this(charset, BufferedRockerOutput.BUFFER_SIZE);
+    this.charset = charset;
   }
 
   public RockerModule() {
@@ -51,44 +45,6 @@ public class RockerModule implements Extension {
     return this;
   }
 
-  /**
-   * Configure buffer size to use while rendering. The buffer can grow ups when need it, so this
-   * option works as a hint to allocate initial memory.
-   *
-   * @param bufferSize Buffer size.
-   * @return This module.
-   * @deprecated Use {@link #bufferSize}
-   */
-  @Deprecated(forRemoval = true)
-  public @NonNull RockerModule useBuffer(int bufferSize) {
-    return bufferSize(bufferSize);
-  }
-
-  /**
-   * Configure buffer size to use while rendering. The buffer can grow ups when need it, so this
-   * option works as a hint to allocate initial memory.
-   *
-   * @param bufferSize Buffer size.
-   * @return This module.
-   */
-  public @NonNull RockerModule bufferSize(int bufferSize) {
-    this.bufferSize = bufferSize;
-    return this;
-  }
-
-  /**
-   * Allow simple reuse of raw byte buffers. It is usually used through <code>ThreadLocal</code>
-   * variable pointing to instance of {@link BufferedRockerOutput}.
-   *
-   * @param reuseBuffer True for reuse the buffer. Default is: <code>false</code>
-   * @return This module.
-   * @deprecated
-   */
-  @Deprecated(forRemoval = true)
-  public RockerModule reuseBuffer(boolean reuseBuffer) {
-    return this;
-  }
-
   @Override
   public void install(@NonNull Jooby application) {
     var env = application.getEnvironment();
@@ -97,7 +53,7 @@ public class RockerModule implements Extension {
         this.reloading == null
             ? (env.isActive("dev") && runtime.isReloadingPossible())
             : this.reloading;
-    var factory = BufferedRockerOutput.factory(charset, application.getOutputFactory(), bufferSize);
+    var factory = BufferedRockerOutput.factory(charset, application.getOutputFactory());
     runtime.setReloading(reloading);
     // renderer
     application.encoder(new RockerMessageEncoder(factory));

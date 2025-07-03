@@ -64,19 +64,6 @@ public class JStachioModule implements Extension {
   }
 
   /**
-   * Allow simple reuse of raw byte buffers. It is usually used through <code>ThreadLocal</code>
-   * variables.
-   *
-   * @param reuseBuffer True for reuse the buffer. Default is: <code>false</code>
-   * @return This module.
-   * @deprecated
-   */
-  @Deprecated
-  public JStachioModule reuseBuffer(boolean reuseBuffer) {
-    return this;
-  }
-
-  /**
    * JStachio will by default bind {@linkplain Context#getAttributes() Context attributes} to <code>
    * &#64;context</code>. This configuration option allows fetching context keys from something
    * else. <a
