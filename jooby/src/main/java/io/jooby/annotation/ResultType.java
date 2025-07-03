@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * Hints source code generator (jooby annotation processor) to map/adapt a specific return type to
- * use a custom handler. This annotation if only for source code generator process so only applies
+ * use a custom handler. This annotation is only for source code generator process so only applies
  * for MVC routes. Example:
  *
  * <pre>{@code

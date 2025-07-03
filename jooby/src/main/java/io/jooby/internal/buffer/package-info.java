@@ -1,4 +1,4 @@
 @ReturnValuesAreNonnullByDefault
-package io.jooby.internal.output;
+package io.jooby.internal.buffer;
 
 import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;

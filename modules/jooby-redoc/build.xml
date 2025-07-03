@@ -4,7 +4,8 @@
   <target name="redoc">
     <property name="output" value="${basedir}${file.separator}target${file.separator}classes${file.separator}redoc" />
     <mkdir dir="${output}" />
-    <copy file="node_modules${file.separator}redoc${file.separator}bundles${file.separator}redoc.standalone.js" tofile="${output}${file.separator}redoc.standalone.js"/>
+
+    <get quiet="true" usetimestamp="true" src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js" dest="${output}${file.separator}redoc.standalone.js"/>
   </target>
 
 </project>

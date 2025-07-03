@@ -16,8 +16,8 @@ import java.util.Iterator;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.output.OutputOutputStream;
-import io.jooby.internal.output.OutputWriter;
+import io.jooby.internal.buffer.OutputOutputStream;
+import io.jooby.internal.buffer.OutputWriter;
 
 /**
  * Buffered output used to support multiple implementations like byte array, byte buffer, netty

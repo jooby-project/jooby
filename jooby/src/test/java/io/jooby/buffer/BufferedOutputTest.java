@@ -15,9 +15,9 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
-import io.jooby.internal.output.ByteBufferOutput;
-import io.jooby.internal.output.ByteBufferWrappedOutput;
-import io.jooby.internal.output.CompsiteByteBufferOutput;
+import io.jooby.internal.buffer.ByteBufferOutput;
+import io.jooby.internal.buffer.ByteBufferWrappedOutput;
+import io.jooby.internal.buffer.CompsiteByteBufferOutput;
 
 public class BufferedOutputTest {
 

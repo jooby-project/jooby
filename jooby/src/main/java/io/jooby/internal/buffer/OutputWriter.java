@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.output;
+package io.jooby.internal.buffer;
 
 import java.io.IOException;
 import java.io.Writer;

@@ -8,10 +8,10 @@ package io.jooby.buffer;
 import java.nio.ByteBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.internal.output.ByteArrayWrappedOutput;
-import io.jooby.internal.output.ByteBufferOutput;
-import io.jooby.internal.output.ByteBufferWrappedOutput;
-import io.jooby.internal.output.CompsiteByteBufferOutput;
+import io.jooby.internal.buffer.ByteArrayWrappedOutput;
+import io.jooby.internal.buffer.ByteBufferOutput;
+import io.jooby.internal.buffer.ByteBufferWrappedOutput;
+import io.jooby.internal.buffer.CompsiteByteBufferOutput;
 
 /**
  * An output factory backed by {@link ByteBuffer}.

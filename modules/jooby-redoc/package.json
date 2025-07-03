@@ -1,9 +1,0 @@
-{
-  "name": "jooby-redoc",
-  "version": "3.0.0",
-  "private": true,
-  "license": "ASF",
-  "dependencies": {
-    "redoc": "^2.5.0"
-  }
-}
