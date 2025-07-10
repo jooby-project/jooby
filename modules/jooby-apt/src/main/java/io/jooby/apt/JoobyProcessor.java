@@ -31,7 +31,6 @@ import javax.tools.StandardLocation;
 import io.jooby.internal.apt.*;
 
 @SupportedOptions({
-  HANDLER,
   DEBUG,
   INCREMENTAL,
   MVC_METHOD,
@@ -42,7 +41,6 @@ import io.jooby.internal.apt.*;
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class JoobyProcessor extends AbstractProcessor {
   public interface Options {
-    String HANDLER = "jooby.handler";
     String DEBUG = "jooby.debug";
     String ROUTER_PREFIX = "jooby.routerPrefix";
     String ROUTER_SUFFIX = "jooby.routerSuffix";

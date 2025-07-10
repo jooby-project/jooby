@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.annotation.ResultType;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
@@ -21,10 +20,6 @@ import io.smallrye.mutiny.Uni;
  *
  * @author edgar
  */
-@ResultType(
-    types = {Uni.class, Mutiny.class},
-    handler = "mutiny",
-    nonBlocking = true)
 public class Mutiny {
 
   private static final Route.Filter MUTINY =

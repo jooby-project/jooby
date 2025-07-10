@@ -8,7 +8,6 @@ package io.jooby;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Flow;
 
-import io.jooby.annotation.ResultType;
 import io.jooby.internal.handler.ChunkedSubscriber;
 import io.jooby.internal.handler.ConcurrentHandler;
 
@@ -18,10 +17,6 @@ import io.jooby.internal.handler.ConcurrentHandler;
  * @author edgar
  * @since 3.0.0
  */
-@ResultType(
-    types = {Flow.Publisher.class, CompletionStage.class},
-    handler = "concurrent",
-    nonBlocking = true)
 public class ReactiveSupport {
 
   private static final Route.Filter CONCURRENT = new ConcurrentHandler();

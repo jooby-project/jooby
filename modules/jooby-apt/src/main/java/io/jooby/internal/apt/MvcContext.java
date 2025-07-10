@@ -9,11 +9,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
@@ -24,8 +22,6 @@ import io.jooby.apt.JoobyProcessor.Options;
  * processor options.
  */
 public class MvcContext {
-  private record ResultType(String type, String handler, boolean nonBlocking) {}
-
   private final ProcessingEnvironment processingEnvironment;
   private final boolean debug;
   private final boolean incremental;
@@ -34,7 +30,7 @@ public class MvcContext {
   private final BiConsumer<Diagnostic.Kind, String> output;
   private final List<MvcRouter> routers = new ArrayList<>();
   private final boolean mvcMethod;
-  private final Map<TypeElement, ResultType> handler = new HashMap<>();
+  private final Map<TypeElement, ReactiveType> reactiveTypeMap = new HashMap<>();
 
   public MvcContext(
       ProcessingEnvironment processingEnvironment, BiConsumer<Diagnostic.Kind, String> output) {
@@ -45,99 +41,28 @@ public class MvcContext {
     this.mvcMethod = Options.boolOpt(processingEnvironment, Options.MVC_METHOD, false);
     this.routerPrefix = Options.string(processingEnvironment, Options.ROUTER_PREFIX, "");
     this.routerSuffix = Options.string(processingEnvironment, Options.ROUTER_SUFFIX, "_");
-    computeResultTypes(processingEnvironment, handler::put);
+    computeReactiveTypes(processingEnvironment, reactiveTypeMap::put);
 
     debug("Incremental annotation processing is turned %s.", incremental ? "ON" : "OFF");
   }
 
-  private void computeResultTypes(
-      ProcessingEnvironment processingEnvironment, BiConsumer<TypeElement, ResultType> consumer) {
-    var handler =
-        new HashSet<>(
-            Set.of(
-                "io.jooby.ReactiveSupport",
-                "io.jooby.mutiny.Mutiny",
-                "io.jooby.reactor.Reactor",
-                "io.jooby.rxjava3.Reactivex"));
-    handler.addAll(Options.stringListOpt(processingEnvironment, Options.HANDLER));
-    handler.stream()
-        .map(type -> processingEnvironment.getElementUtils().getTypeElement(type))
-        .filter(Objects::nonNull)
+  private void computeReactiveTypes(
+      ProcessingEnvironment processingEnvironment, BiConsumer<TypeElement, ReactiveType> consumer) {
+    ReactiveType.supportedTypes()
         .forEach(
-            it -> {
-              var annotation =
-                  AnnotationSupport.findAnnotationByName(it, "io.jooby.annotation.ResultType");
-              if (annotation != null) {
-                var handlerFunction =
-                    AnnotationSupport.findAnnotationValue(annotation, "handler"::equals).get(0);
-                boolean nonBlocking =
-                    AnnotationSupport.findAnnotationValue(annotation, "nonBlocking"::equals)
-                        .stream()
-                        .findFirst()
-                        .map(Boolean::valueOf)
-                        .orElse(Boolean.FALSE);
-                ResultType entry;
-                var i = handlerFunction.lastIndexOf('.');
-                if (i > 0) {
-                  var container = handlerFunction.substring(0, i);
-                  var fn = handlerFunction.substring(i + 1);
-                  entry = new ResultType(container, fn, nonBlocking);
-                } else {
-                  entry = new ResultType(it.asType().toString(), handlerFunction, nonBlocking);
-                }
-                var functions =
-                    it.getEnclosedElements().stream()
-                        .filter(ExecutableElement.class::isInstance)
-                        .map(ExecutableElement.class::cast)
-                        .filter(m -> entry.handler.equals(m.getSimpleName().toString()))
-                        .toList();
-                if (functions.isEmpty()) {
-                  throw new IllegalArgumentException(
-                      "Method not found: " + entry.type + "." + entry.handler);
-                } else {
-                  var args =
-                      functions.stream()
-                          .filter(
-                              m ->
-                                  !m.getParameters().isEmpty()
-                                      && m.getParameters()
-                                          .get(0)
-                                          .asType()
-                                          .toString()
-                                          .equals("io.jooby.Route.Handler"))
-                          .findFirst()
-                          .orElseThrow(
-                              () ->
-                                  new IllegalArgumentException(
-                                      "Signature doesn't match: "
-                                          + functions
-                                          + " must be: "
-                                          + functions.stream()
-                                              .map(
-                                                  e ->
-                                                      e.getSimpleName()
-                                                          + "(io.jooby.Route.Handler)")
-                                              .collect(Collectors.joining(", ", "[", "]"))));
-                  if (!args.getReturnType().toString().equals("io.jooby.Route.Handler")) {
-                    throw new IllegalArgumentException(
-                        "Method returns type not supported: "
-                            + args
-                            + ": "
-                            + args.getReturnType()
-                            + " must be: "
-                            + args
-                            + ": io.jooby.Route.Handler");
-                  }
-                  if (!args.getModifiers().contains(Modifier.STATIC)) {
-                    throw new IllegalArgumentException("Method must be static: " + args);
-                  }
-                }
-                var types =
-                    AnnotationSupport.findAnnotationValue(
-                        annotation, "types"::equals, value -> (DeclaredType) value.getValue());
-                for (var type : types) {
-                  superTypes(type.asElement()).forEach(t -> consumer.accept(t, entry));
-                }
+            reactiveType -> {
+              var handlerType =
+                  processingEnvironment
+                      .getElementUtils()
+                      .getTypeElement(reactiveType.handlerType());
+              if (handlerType != null) {
+                // Handler Type is on classpath
+                reactiveType.reactiveTypes().stream()
+                    .map(it -> processingEnvironment.getElementUtils().getTypeElement(it))
+                    .forEach(
+                        it -> {
+                          superTypes(it).forEach(t -> consumer.accept(t, reactiveType));
+                        });
               }
             });
   }
@@ -199,11 +124,11 @@ public class MvcContext {
 
   public boolean nonBlocking(TypeMirror returnType) {
     var entry = findMappingHandler(returnType);
-    return entry != null && entry.nonBlocking;
+    return entry != null;
   }
 
-  private ResultType findMappingHandler(TypeMirror type) {
-    for (var e : handler.entrySet()) {
+  private ReactiveType findMappingHandler(TypeMirror type) {
+    for (var e : reactiveTypeMap.entrySet()) {
       var that = e.getKey();
       if (type.toString().equals(that.toString())
           || processingEnvironment.getTypeUtils().isAssignable(type, that.asType())) {
@@ -281,7 +206,7 @@ public class MvcContext {
       if (process.add(returnType.toString())) {
         var fnq = findMappingHandler(returnType);
         if (fnq != null) {
-          consumer.accept(fnq.type, fnq.handler);
+          consumer.accept(fnq.handlerType(), fnq.handler());
         }
       }
     }

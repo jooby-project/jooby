@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.annotation.ResultType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,10 +21,6 @@ import reactor.core.publisher.Mono;
  *
  * @author edgar
  */
-@ResultType(
-    types = {Flux.class, Mono.class},
-    handler = "reactor",
-    nonBlocking = true)
 public class Reactor {
 
   private static final Route.Filter REACTOR =
@@ -55,23 +50,24 @@ public class Reactor {
               // Return context to mark as handled
               return ctx;
             } else if (result instanceof Mono mono) {
-              mono.defaultIfEmpty(ctx.getResponseCode()).subscribe(
-                  value -> {
-                    // fire after:
-                    after(ctx, value, null);
-                    // See https://github.com/jooby-project/jooby/issues/3486
-                    if (!ctx.isResponseStarted() && value != ctx) {
+              mono.defaultIfEmpty(ctx.getResponseCode())
+                  .subscribe(
+                      value -> {
+                        // fire after:
+                        after(ctx, value, null);
+                        // See https://github.com/jooby-project/jooby/issues/3486
+                        if (!ctx.isResponseStarted() && value != ctx) {
 
-                      // render:
-                      ctx.render(value);
-                    }
-                  },
-                  failure -> {
-                    // fire after:
-                    after(ctx, null, (Throwable) failure);
-                    // send error:
-                    ctx.sendError((Throwable) failure);
-                  });
+                          // render:
+                          ctx.render(value);
+                        }
+                      },
+                      failure -> {
+                        // fire after:
+                        after(ctx, null, (Throwable) failure);
+                        // send error:
+                        ctx.sendError((Throwable) failure);
+                      });
               // Return context to mark as handled
               return ctx;
             }

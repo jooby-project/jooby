@@ -10,7 +10,6 @@ import static org.reactivestreams.FlowAdapters.toSubscriber;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
-import io.jooby.annotation.ResultType;
 import io.jooby.internal.rxjava3.RxObserver;
 import io.jooby.internal.rxjava3.RxSubscriber;
 import io.reactivex.rxjava3.core.Flowable;
@@ -24,10 +23,6 @@ import io.reactivex.rxjava3.disposables.Disposable;
  *
  * @author edgar
  */
-@ResultType(
-    types = {Flowable.class, Single.class, Observable.class, Maybe.class, Disposable.class},
-    handler = "rx",
-    nonBlocking = true)
 public class Reactivex {
 
   private static final Route.Filter RX =
