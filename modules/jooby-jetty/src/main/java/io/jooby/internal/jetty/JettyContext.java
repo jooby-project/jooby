@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import org.eclipse.jetty.http.*;
@@ -44,6 +45,7 @@ import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.Fields;
+import org.eclipse.jetty.util.Promise;
 import org.eclipse.jetty.websocket.server.ServerWebSocketContainer;
 import org.slf4j.Logger;
 
@@ -231,8 +233,26 @@ public class JettyContext implements DefaultContext, Callback {
             parser.setMaxMemoryFileSize(bufferSize);
             parser.setMaxLength(maxRequestSize);
             // Convert the request content into parts.
-            var parts = parser.parse(request).get();
-            for (var part : parts) {
+            var futureParts = new CompletableFuture<MultiPartFormData.Parts>();
+            var formCallback =
+                new Promise.Invocable<MultiPartFormData.Parts>() {
+                  @Override
+                  public void succeeded(MultiPartFormData.Parts result) {
+                    futureParts.complete(result);
+                  }
+
+                  @Override
+                  public void failed(Throwable x) {
+                    futureParts.completeExceptionally(x);
+                  }
+
+                  @Override
+                  public InvocationType getInvocationType() {
+                    return InvocationType.NON_BLOCKING;
+                  }
+                };
+            parser.parse(request, formCallback);
+            for (var part : futureParts.get()) {
               if (part.getFileName() != null) {
                 String name = part.getName();
                 formdata.put(name, register(new JettyFileUpload(router.getTmpdir(), part)));
