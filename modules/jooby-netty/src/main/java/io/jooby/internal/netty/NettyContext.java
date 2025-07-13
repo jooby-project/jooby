@@ -75,8 +75,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.IllegalReferenceCountException;
 
 public class NettyContext implements DefaultContext, ChannelFutureListener {
-  public static HttpHeadersFactory HEADERS =
-      DefaultHttpHeadersFactory.headersFactory().withValidation(false);
+  public static HttpHeadersFactory HEADERS = HeadersMultiMap.httpHeadersFactory();
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   private static final String STREAM_ID = "x-http2-stream-id";
 
