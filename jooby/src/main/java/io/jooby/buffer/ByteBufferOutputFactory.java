@@ -8,7 +8,6 @@ package io.jooby.buffer;
 import java.nio.ByteBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.internal.buffer.ByteArrayWrappedOutput;
 import io.jooby.internal.buffer.ByteBufferOutput;
 import io.jooby.internal.buffer.ByteBufferWrappedOutput;
 import io.jooby.internal.buffer.CompsiteByteBufferOutput;
@@ -54,7 +53,7 @@ public class ByteBufferOutputFactory implements BufferedOutputFactory {
 
   @Override
   public BufferedOutput wrap(@NonNull byte[] bytes) {
-    return new ByteArrayWrappedOutput(bytes);
+    return new ByteBufferWrappedOutput(ByteBuffer.wrap(bytes));
   }
 
   @Override

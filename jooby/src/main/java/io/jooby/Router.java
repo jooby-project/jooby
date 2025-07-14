@@ -504,8 +504,6 @@ public interface Router extends Registry {
 
   @NonNull BufferedOutputFactory getOutputFactory();
 
-  @NonNull Router setOutputFactory(@NonNull BufferedOutputFactory outputFactory);
-
   /**
    * Attach a filter to the route pipeline.
    *

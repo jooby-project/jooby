@@ -13,11 +13,18 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.jooby.buffer.BufferedOutputFactory;
+
 public class Issue3653 {
 
   private static final ServerOptions defaultOptions = new ServerOptions();
 
   private static class TestServer extends Server.Base {
+
+    @NotNull @Override
+    public BufferedOutputFactory getOutputFactory() {
+      return null;
+    }
 
     @Override
     protected ServerOptions defaultOptions() {

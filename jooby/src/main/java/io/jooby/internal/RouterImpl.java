@@ -170,7 +170,7 @@ public class RouterImpl implements Router {
 
   private ValueFactory valueFactory = new ValueFactory();
 
-  private BufferedOutputFactory outputFactory = BufferedOutputFactory.create();
+  private BufferedOutputFactory outputFactory;
 
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
@@ -436,10 +436,8 @@ public class RouterImpl implements Router {
     return outputFactory;
   }
 
-  @NonNull @Override
-  public Router setOutputFactory(@NonNull BufferedOutputFactory outputFactory) {
+  public void setOutputFactory(@NonNull BufferedOutputFactory outputFactory) {
     this.outputFactory = outputFactory;
-    return this;
   }
 
   @NonNull @Override

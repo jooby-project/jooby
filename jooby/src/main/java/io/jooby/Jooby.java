@@ -87,6 +87,7 @@ public class Jooby implements Router, Registry {
 
   private static Jooby owner;
   private static ExecutionMode BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
+  private static Server BOOT_SERVER;
 
   private RouterImpl router;
 
@@ -132,6 +133,14 @@ public class Jooby implements Router, Registry {
       startingCallbacks = new ArrayList<>();
       readyCallbacks = new ArrayList<>();
       lateExtensions = new ArrayList<>();
+      server = BOOT_SERVER;
+      if (server != null) {
+        router.setOutputFactory(server.getOutputFactory());
+      } else {
+        // NOTE: fallback to default, this is required for direct instance creation of class
+        // app bootstrap always ensures server instance.
+        router.setOutputFactory(BufferedOutputFactory.create());
+      }
     } else {
       copyState(owner, this);
     }
@@ -858,12 +867,6 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public Jooby setOutputFactory(@NonNull BufferedOutputFactory outputFactory) {
-    router.setOutputFactory(outputFactory);
-    return this;
-  }
-
-  @NonNull @Override
   public Jooby setHiddenMethod(@NonNull Function<Context, Optional<String>> provider) {
     router.setHiddenMethod(provider);
     return this;
@@ -1210,8 +1213,7 @@ public class Jooby implements Router, Registry {
     var apps = new ArrayList<Jooby>();
     var targetServer = server.getLoggerOff().isEmpty() ? server : MutedServer.mute(server);
     for (var factory : provider) {
-      var app = createApp(executionMode, factory);
-      app.server = targetServer;
+      var app = createApp(server, executionMode, factory);
       /*
        When running a single app instance, there is no issue with server options, when multiple
        apps set options a warning will be printed
@@ -1248,7 +1250,9 @@ public class Jooby implements Router, Registry {
    * @return Application.
    */
   public static Jooby createApp(
-      @NonNull ExecutionMode executionMode, @NonNull Supplier<Jooby> provider) {
+      @NonNull Server server,
+      @NonNull ExecutionMode executionMode,
+      @NonNull Supplier<Jooby> provider) {
     configurePackage(provider.getClass().getPackage());
     /* Find application.env: */
     String logfile =
@@ -1261,7 +1265,8 @@ public class Jooby implements Router, Registry {
 
     Jooby app;
     try {
-      BOOT_EXECUTION_MODE = executionMode;
+      Jooby.BOOT_SERVER = server;
+      Jooby.BOOT_EXECUTION_MODE = executionMode;
       app = provider.get();
     } catch (Throwable t) {
       LoggerFactory.getLogger(Jooby.class)
@@ -1271,7 +1276,8 @@ public class Jooby implements Router, Registry {
           ? (StartupException) t
           : new StartupException("Application initialization resulted in exception", t);
     } finally {
-      BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
+      Jooby.BOOT_EXECUTION_MODE = executionMode;
+      Jooby.BOOT_SERVER = null;
     }
 
     return app;
@@ -1426,5 +1432,6 @@ public class Jooby implements Router, Registry {
     dest.readyCallbacks = source.readyCallbacks;
     dest.startingCallbacks = source.startingCallbacks;
     dest.stopCallbacks = source.stopCallbacks;
+    dest.server = source.server;
   }
 }

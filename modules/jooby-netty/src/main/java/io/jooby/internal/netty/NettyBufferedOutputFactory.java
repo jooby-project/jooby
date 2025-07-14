@@ -16,7 +16,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ResourceLeakDetector;
 
-public class NettyOutputFactory implements BufferedOutputFactory {
+public class NettyBufferedOutputFactory implements BufferedOutputFactory {
   private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
 
   static {
@@ -30,7 +30,7 @@ public class NettyOutputFactory implements BufferedOutputFactory {
   private final ByteBufAllocator allocator;
   private BufferOptions options;
 
-  public NettyOutputFactory(ByteBufAllocator allocator, BufferOptions options) {
+  public NettyBufferedOutputFactory(ByteBufAllocator allocator, BufferOptions options) {
     this.allocator = allocator;
     this.options = options;
   }
@@ -58,22 +58,22 @@ public class NettyOutputFactory implements BufferedOutputFactory {
 
   @Override
   @NonNull public BufferedOutput wrap(@NonNull ByteBuffer buffer) {
-    return new NettyWrappedOutput(Unpooled.wrappedBuffer(buffer));
+    return new NettyByteBufferWrappedOutput(buffer);
   }
 
   @Override
   public BufferedOutput wrap(@NonNull String value, @NonNull Charset charset) {
-    return new NettyWrappedOutput(Unpooled.wrappedBuffer(value.getBytes(charset)));
+    return new NettyBufferedOutput(Unpooled.wrappedBuffer(value.getBytes(charset)));
   }
 
   @Override
   @NonNull public BufferedOutput wrap(@NonNull byte[] bytes) {
-    return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes));
+    return new NettyByteArrayWrappedOutput(bytes, 0, bytes.length);
   }
 
   @Override
   @NonNull public BufferedOutput wrap(@NonNull byte[] bytes, int offset, int length) {
-    return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes, offset, length));
+    return new NettyByteArrayWrappedOutput(bytes, 0, bytes.length);
   }
 
   @Override

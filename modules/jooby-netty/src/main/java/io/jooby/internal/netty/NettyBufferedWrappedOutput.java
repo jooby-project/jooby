@@ -12,16 +12,16 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.buffer.BufferedOutput;
 import io.netty.buffer.ByteBuf;
 
-public class NettyWrappedOutput implements NettyByteBufOutput {
+public class NettyBufferedWrappedOutput implements NettyByteBufOutput {
 
   private final ByteBuf buffer;
 
-  protected NettyWrappedOutput(ByteBuf buffer) {
+  protected NettyBufferedWrappedOutput(ByteBuf buffer) {
     this.buffer = buffer;
   }
 
   @NonNull public ByteBuf byteBuf() {
-    return this.buffer;
+    return this.buffer.duplicate();
   }
 
   @Override

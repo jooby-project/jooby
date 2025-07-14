@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.MutedServer;
 
@@ -157,6 +158,8 @@ public interface Server {
 
     protected abstract ServerOptions defaultOptions();
   }
+
+  @NonNull BufferedOutputFactory getOutputFactory();
 
   /**
    * Set server options. This method should be called once, calling this method multiple times will
