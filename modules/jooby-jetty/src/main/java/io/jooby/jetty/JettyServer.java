@@ -31,6 +31,7 @@ import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyHttpExpectAndContinueHandler;
 import io.jooby.internal.jetty.PrefixHandler;
@@ -45,6 +46,7 @@ import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
 public class JettyServer extends io.jooby.Server.Base {
 
   private static final int THREADS = 200;
+  private BufferedOutputFactory outputFactory;
 
   private Server server;
 
@@ -68,6 +70,14 @@ public class JettyServer extends io.jooby.Server.Base {
   }
 
   public JettyServer() {}
+
+  @NonNull @Override
+  public BufferedOutputFactory getOutputFactory() {
+    if (outputFactory == null) {
+      this.outputFactory = BufferedOutputFactory.create(getOptions().getBuffer());
+    }
+    return outputFactory;
+  }
 
   @NonNull @Override
   public JettyServer setOptions(@NonNull ServerOptions options) {

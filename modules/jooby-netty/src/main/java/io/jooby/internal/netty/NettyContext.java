@@ -580,10 +580,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  public Context send(@NonNull ByteBuf data) {
+  private Context send(@NonNull ByteBuf data) {
+    return send(data, Integer.toString(data.readableBytes()));
+  }
+
+  Context send(@NonNull ByteBuf data, CharSequence contentLength) {
     try {
       responseStarted = true;
-      setHeaders.set(CONTENT_LENGTH, Integer.toString(data.readableBytes()));
+      setHeaders.set(CONTENT_LENGTH, contentLength);
       var response = new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING);
       if (ctx.channel().eventLoop().inEventLoop()) {
         needsFlush = true;

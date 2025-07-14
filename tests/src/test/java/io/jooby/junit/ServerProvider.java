@@ -8,14 +8,14 @@ package io.jooby.junit;
 import static java.util.stream.StreamSupport.stream;
 
 import java.util.ServiceLoader;
-import java.util.function.Supplier;
 
 import io.jooby.Server;
+import io.jooby.ServerOptions;
 import io.jooby.jetty.JettyServer;
 import io.jooby.netty.NettyServer;
 import io.jooby.undertow.UndertowServer;
 
-public class ServerProvider implements Supplier<Server> {
+public class ServerProvider {
   private Class serverClass;
 
   public ServerProvider(Class serverClass) {
@@ -39,11 +39,15 @@ public class ServerProvider implements Supplier<Server> {
     return serverClass.getSimpleName().replace("Server", "");
   }
 
-  @Override
-  public Server get() {
-    return stream(ServiceLoader.load(Server.class).spliterator(), false)
-        .filter(s -> serverClass.isInstance(s))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Server not found: " + serverClass));
+  public Server get(ServerOptions options) {
+    var server =
+        stream(ServiceLoader.load(Server.class).spliterator(), false)
+            .filter(s -> serverClass.isInstance(s))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Server not found: " + serverClass));
+    if (options != null) {
+      server.setOptions(options);
+    }
+    return server;
   }
 }

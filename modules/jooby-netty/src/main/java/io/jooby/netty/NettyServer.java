@@ -22,6 +22,7 @@ import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.netty.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -53,6 +54,7 @@ public class NettyServer extends Server.Base {
   private ExecutorService worker;
 
   private List<Jooby> applications;
+  private NettyBufferedOutputFactory outputFactory;
 
   /**
    * Creates a server.
@@ -80,6 +82,15 @@ public class NettyServer extends Server.Base {
 
   public NettyServer() {}
 
+  @NonNull @Override
+  public BufferedOutputFactory getOutputFactory() {
+    if (outputFactory == null) {
+      outputFactory =
+          new NettyBufferedOutputFactory(ByteBufAllocator.DEFAULT, getOptions().getBuffer());
+    }
+    return outputFactory;
+  }
+
   @Override
   protected ServerOptions defaultOptions() {
     return new ServerOptions().setServer(getName());
@@ -101,9 +112,7 @@ public class NettyServer extends Server.Base {
         worker = newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
       }
       // Make sure context use same buffer factory
-      var outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT, options.getBuffer());
       for (var app : applications) {
-        app.setOutputFactory(outputFactory);
         app.getServices().put(ServerOptions.class, options);
         app.getServices().put(Server.class, this);
       }
@@ -124,6 +133,7 @@ public class NettyServer extends Server.Base {
       this.dateLoop = Executors.newSingleThreadScheduledExecutor();
       var dateService = new NettyDateService(dateLoop);
 
+      var outputFactory = (NettyBufferedOutputFactory) getOutputFactory();
       var allocator = outputFactory.getAllocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */

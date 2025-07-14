@@ -13,8 +13,8 @@ import java.time.Duration
 import kotlinx.coroutines.delay
 
 /**
- * Kotlin DLS in action, this class does nothing but we need it to make sure Kotlin version compiles
- * sucessfully.
+ * Kotlin DLS in action, this class does nothing, but we need it to make sure Kotlin version
+ * compiles successfully.
  */
 class Idioms :
   Kooby({

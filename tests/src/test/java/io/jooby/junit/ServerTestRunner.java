@@ -18,10 +18,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import io.jooby.*;
-import io.jooby.buffer.BufferOptions;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.MutedServer;
-import io.jooby.netty.NettyServer;
 import io.jooby.test.WebClient;
 
 public class ServerTestRunner {
@@ -89,15 +86,13 @@ public class ServerTestRunner {
     if (disabled()) {
       return;
     }
-    Server server = this.server.get();
+    Server server = this.server.get(serverOptions);
     String applogger = null;
     try {
+      setBootServer(server);
       System.setProperty("___app_name__", testName);
       System.setProperty("___server_name__", server.getName());
       var app = provider.get();
-      if (!(server instanceof NettyServer)) {
-        app.setOutputFactory(BufferedOutputFactory.create(BufferOptions.defaults()));
-      }
       Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       // Reduce log from maven build:
       var mavenBuild = System.getProperty("surefire.real.class.path", "").length() > 0;
@@ -109,9 +104,6 @@ public class ServerTestRunner {
                 .orElseGet(ServerTestRunner::buildErrorHandler));
       }
 
-      if (serverOptions != null) {
-        server.setOptions(serverOptions);
-      }
       // HTTP/2 is off while testing unless explicit set
       ServerOptions options = server.getOptions();
       options.setHttp2(Optional.ofNullable(options.isHttp2()).orElse(Boolean.FALSE));
@@ -141,12 +133,25 @@ public class ServerTestRunner {
       }
     } catch (AssertionError x) {
       throw SneakyThrows.propagate(serverInfo(x));
+    } catch (Exception e) {
+      throw SneakyThrows.propagate(e);
     } finally {
       if (applogger != null) {
         MutedServer.mute(server, applogger).stop();
       } else {
         MutedServer.mute(server).stop();
       }
+      setBootServer(null);
+    }
+  }
+
+  private static void setBootServer(Server server) {
+    try {
+      var bootServer = Jooby.class.getDeclaredField("BOOT_SERVER");
+      bootServer.setAccessible(true);
+      bootServer.set(null, server);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw SneakyThrows.propagate(e);
     }
   }
 

@@ -18,9 +18,4 @@ public class NettyResponseEncoder extends HttpResponseEncoder {
       super.encodeHeaders(headers, buf);
     }
   }
-
-  @Override
-  public boolean acceptOutboundMessage(Object msg) throws Exception {
-    return super.acceptOutboundMessage(msg);
-  }
 }

@@ -41,7 +41,8 @@ public interface NettyByteBufOutput extends BufferedOutput {
   @Override
   default void send(Context ctx) {
     if (ctx instanceof NettyContext netty) {
-      netty.send(byteBuf());
+      var buf = byteBuf();
+      netty.send(buf, Integer.toString(buf.readableBytes()));
     } else {
       ctx.send(asByteBuffer());
     }

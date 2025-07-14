@@ -21,6 +21,7 @@ import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.undertow.UndertowHandler;
 import io.jooby.internal.undertow.UndertowWebSocket;
@@ -53,6 +54,8 @@ public class UndertowServer extends Server.Base {
 
   private XnioWorker worker;
 
+  private BufferedOutputFactory outputFactory;
+
   public UndertowServer(@NonNull ServerOptions options) {
     setOptions(options);
   }
@@ -64,6 +67,14 @@ public class UndertowServer extends Server.Base {
     // default io threads
     super.setOptions(options.setIoThreads(options.getIoThreads()));
     return this;
+  }
+
+  @NonNull @Override
+  public BufferedOutputFactory getOutputFactory() {
+    if (outputFactory == null) {
+      outputFactory = BufferedOutputFactory.create(getOptions().getBuffer());
+    }
+    return outputFactory;
   }
 
   @Override

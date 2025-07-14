@@ -69,12 +69,16 @@ public class JoobyExtension
   }
 
   private Jooby startApp(ExtensionContext context, JoobyTest metadata) throws Exception {
+    var server = Server.loadServer();
+    var serverOptions = server.getOptions();
+    serverOptions.setPort(port(metadata.port(), DEFAULT_PORT));
+    server.setOptions(serverOptions);
     Jooby app;
     String factoryMethod = metadata.factoryMethod();
     if (factoryMethod.isEmpty()) {
       var defaultEnv = System.getProperty("application.env");
       System.setProperty("application.env", metadata.environment());
-      app = Jooby.createApp(metadata.executionMode(), reflectionProvider(metadata.value()));
+      app = Jooby.createApp(server, metadata.executionMode(), reflectionProvider(metadata.value()));
       if (defaultEnv != null) {
         System.setProperty("application.env", defaultEnv);
       } else {
@@ -83,14 +87,6 @@ public class JoobyExtension
     } else {
       app = fromFactoryMethod(context, metadata, factoryMethod);
     }
-    var server = Server.loadServer();
-    var serverOptions = server.getOptions();
-    //    ServerOptions serverOptions = app.getServerOptions();
-    //    if (serverOptions == null) {
-    //      serverOptions = server.getOptions();
-    //    }
-    serverOptions.setPort(port(metadata.port(), DEFAULT_PORT));
-    server.setOptions(serverOptions);
     server.start(app);
     ExtensionContext.Store store = getStore(context);
     store.put("server", server);
