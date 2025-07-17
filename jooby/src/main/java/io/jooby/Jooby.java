@@ -1245,6 +1245,34 @@ public class Jooby implements Router, Registry {
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
+   * @param server Server to run.
+   * @param consumer Application consumer.
+   */
+  public static void runApp(
+      @NonNull String[] args, @NonNull Server server, @NonNull Consumer<Jooby> consumer) {
+    runApp(args, server, ExecutionMode.DEFAULT, consumer);
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param server Server to run.
+   * @param consumer Application consumer.
+   */
+  public static void runApp(
+      @NonNull String[] args,
+      @NonNull Server server,
+      @NonNull ExecutionMode executionMode,
+      @NonNull Consumer<Jooby> consumer) {
+    configurePackage(consumer.getClass().getPackage());
+    runApp(args, server, executionMode, List.of(consumerProvider(consumer)));
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
    * @param executionMode Application execution mode.
    * @param consumer Application consumer.
    */
@@ -1319,28 +1347,44 @@ public class Jooby implements Router, Registry {
       @NonNull Server server,
       @NonNull ExecutionMode executionMode,
       @NonNull List<Supplier<Jooby>> provider) {
+
     /* Dump command line as system properties. */
     parseArguments(args).forEach(System::setProperty);
     var apps = new ArrayList<Jooby>();
     var targetServer = server.getLoggerOff().isEmpty() ? server : MutedServer.mute(server);
-    for (var factory : provider) {
-      var app = createApp(executionMode, factory);
-      app.server = targetServer;
-      /*
-       When running a single app instance, there is no issue with server options, when multiple
-       apps set options a warning will be printed
-      */
-      var options = app.serverOptions;
-      if (options == null) {
-        options = ServerOptions.from(app.getConfig()).orElse(null);
+    try {
+      for (var factory : provider) {
+        var app = createApp(executionMode, factory);
+        app.server = targetServer;
+        /*
+         When running a single app instance, there is no issue with server options, when multiple
+         apps set options a warning will be printed
+        */
+        var options = app.serverOptions;
+        if (options == null) {
+          options = ServerOptions.from(app.getConfig()).orElse(null);
+        }
+        if (options != null) {
+          options.setServer(server.getName());
+          server.setOptions(options);
+        }
+        apps.add(app);
       }
-      if (options != null) {
-        options.setServer(server.getName());
-        server.setOptions(options);
+      targetServer.start(apps.toArray(new Jooby[0]));
+    } catch (Throwable t) {
+      if (targetServer != null) {
+        try {
+          targetServer.stop();
+        } catch (Exception ignore) {
+        }
       }
-      apps.add(app);
+      LoggerFactory.getLogger(Jooby.class)
+          .error("Application initialization resulted in exception", t);
+
+      throw t instanceof StartupException
+          ? (StartupException) t
+          : new StartupException("Application initialization resulted in exception", t);
     }
-    targetServer.start(apps.toArray(new Jooby[0]));
   }
 
   /**
@@ -1366,13 +1410,6 @@ public class Jooby implements Router, Registry {
     try {
       BOOT_EXECUTION_MODE = executionMode;
       app = provider.get();
-    } catch (Throwable t) {
-      LoggerFactory.getLogger(Jooby.class)
-          .error("Application initialization resulted in exception", t);
-
-      throw t instanceof StartupException
-          ? (StartupException) t
-          : new StartupException("Application initialization resulted in exception", t);
     } finally {
       BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
     }

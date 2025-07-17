@@ -252,12 +252,12 @@ public class ServerOptions {
   }
 
   /**
-   * True when SSL is enabled. Either bc the secure port or SSL options are set.
+   * True when SSL is enabled. Either bc the secure port, httpsOnly or SSL options are set.
    *
-   * @return True when SSL is enabled. Either bc the secure port or SSL options are set.
+   * @return True when SSL is enabled. Either bc the secure port, httpsOnly or SSL options are set.
    */
   public boolean isSSLEnabled() {
-    return securePort != null || ssl != null;
+    return securePort != null || ssl != null || httpsOnly;
   }
 
   /**

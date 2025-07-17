@@ -31,6 +31,7 @@ import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
+import io.jooby.exception.StartupException;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyHttpExpectAndContinueHandler;
 import io.jooby.internal.jetty.PrefixHandler;
@@ -94,6 +95,7 @@ public class JettyServer extends io.jooby.Server.Base {
   public io.jooby.Server start(@NonNull Jooby... application) {
     // force options to be non-null
     var options = getOptions();
+    var portInUse = options.getPort();
     try {
       this.applications = List.of(application);
       /* Set max request size attribute: */
@@ -187,13 +189,13 @@ public class JettyServer extends io.jooby.Server.Base {
                 acceptors,
                 selectors,
                 secureConnectionFactories.toArray(new ConnectionFactory[0]));
-        secureConnector.setPort(options.getSecurePort());
+        portInUse = options.getSecurePort();
+        secureConnector.setPort(portInUse);
         secureConnector.setHost(options.getHost());
 
         server.addConnector(secureConnector);
       } else if (options.isHttpsOnly()) {
-        throw new IllegalArgumentException(
-            "Server configured for httpsOnly, but ssl options not set");
+        throw new StartupException("Server configured for httpsOnly, but ssl options not set");
       }
 
       var context = new ContextHandler();
@@ -250,7 +252,7 @@ public class JettyServer extends io.jooby.Server.Base {
       fireReady(applications);
     } catch (Exception x) {
       if (io.jooby.Server.isAddressInUse(x.getCause())) {
-        x = new BindException("Address already in use: " + options.getPort());
+        x = new BindException("Address already in use: " + portInUse);
       }
       throw SneakyThrows.propagate(x);
     }

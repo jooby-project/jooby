@@ -73,6 +73,7 @@ public class UndertowServer extends Server.Base {
   public @NonNull Server start(@NonNull Jooby... application) {
     // force options to be non-null
     var options = getOptions();
+    var portInUse = options.getPort();
     try {
       this.applications = List.of(application);
 
@@ -138,7 +139,8 @@ public class UndertowServer extends Server.Base {
       var classLoader = this.applications.get(0).getClassLoader();
       SSLContext sslContext = options.getSSLContext(classLoader);
       if (sslContext != null) {
-        builder.addHttpsListener(options.getSecurePort(), options.getHost(), sslContext);
+        portInUse = options.getSecurePort();
+        builder.addHttpsListener(portInUse, options.getHost(), sslContext);
         SslOptions ssl = options.getSsl();
         builder.setSocketOption(Options.SSL_ENABLED_PROTOCOLS, Sequence.of(ssl.getProtocol()));
         Optional.ofNullable(options.getSsl())
@@ -160,7 +162,7 @@ public class UndertowServer extends Server.Base {
       Throwable sourceException = x;
       Throwable cause = Optional.ofNullable(x.getCause()).orElse(x);
       if (Server.isAddressInUse(cause)) {
-        sourceException = new BindException("Address already in use: " + options.getPort());
+        sourceException = new BindException("Address already in use: " + portInUse);
       }
       throw SneakyThrows.propagate(sourceException);
     }
@@ -194,13 +196,13 @@ public class UndertowServer extends Server.Base {
   }
 
   private void shutdownServer() {
-    if (server != null) {
-      try {
+    try {
+      if (server != null) {
         server.stop();
-      } finally {
-        shutdownWorker();
-        server = null;
       }
+    } finally {
+      shutdownWorker();
+      server = null;
     }
   }
 

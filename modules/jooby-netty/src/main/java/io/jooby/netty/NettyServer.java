@@ -22,6 +22,7 @@ import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
+import io.jooby.exception.StartupException;
 import io.jooby.internal.netty.*;
 import io.jooby.netty.buffer.NettyDataBufferFactory;
 import io.netty.bootstrap.ServerBootstrap;
@@ -109,6 +110,7 @@ public class NettyServer extends Server.Base {
   public Server start(@NonNull Jooby... application) {
     // force options to be non-null
     var options = getOptions();
+    var portInUse = options.getPort();
     try {
       this.applications = List.of(application);
       boolean single = applications.size() == 1;
@@ -158,10 +160,10 @@ public class NettyServer extends Server.Base {
         var https =
             newBootstrap(
                 allocator, transport, newPipeline(options, sslContext, dateService, http2));
-        https.bind(options.getHost(), options.getSecurePort()).get();
+        portInUse = options.getSecurePort();
+        https.bind(options.getHost(), portInUse).get();
       } else if (options.isHttpsOnly()) {
-        throw new IllegalArgumentException(
-            "Server configured for httpsOnly, but ssl options not set");
+        throw new StartupException("Server configured for httpsOnly, but ssl options not set");
       }
 
       fireReady(applications);
@@ -170,7 +172,7 @@ public class NettyServer extends Server.Base {
     } catch (ExecutionException x) {
       var cause = x.getCause();
       if (Server.isAddressInUse(cause)) {
-        cause = new BindException("Address already in use: " + options.getPort());
+        cause = new BindException("Address already in use: " + portInUse);
       }
       throw SneakyThrows.propagate(cause);
     }
