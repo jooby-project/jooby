@@ -659,17 +659,6 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  /**
-   * Set server to use.
-   *
-   * @param server Web Server.
-   * @return This application.
-   */
-  @NonNull public Jooby install(@NonNull Server server) {
-    this.server = server;
-    return this;
-  }
-
   @NonNull @Override
   public Jooby dispatch(@NonNull Runnable body) {
     router.dispatch(body);
@@ -1234,6 +1223,18 @@ public class Jooby implements Router, Registry {
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
+   * @param provider Application provider.
+   */
+  public static void runApp(
+      @NonNull String[] args, @NonNull Server server, @NonNull Supplier<Jooby> provider) {
+    configurePackage(provider.getClass().getPackage());
+    runApp(args, server, List.of(provider));
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
    * @param consumer Application consumer.
    */
   public static void runApp(@NonNull String[] args, @NonNull Consumer<Jooby> consumer) {
@@ -1295,7 +1296,23 @@ public class Jooby implements Router, Registry {
       @NonNull String[] args,
       @NonNull ExecutionMode executionMode,
       @NonNull Supplier<Jooby> provider) {
-    runApp(args, Server.loadServer(), executionMode, List.of(provider));
+    runApp(args, Server.loadServer(), executionMode, provider);
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param executionMode Application execution mode.
+   * @param provider Application provider.
+   */
+  public static void runApp(
+      @NonNull String[] args,
+      @NonNull Server server,
+      @NonNull ExecutionMode executionMode,
+      @NonNull Supplier<Jooby> provider) {
+    configurePackage(provider.getClass().getPackage());
+    runApp(args, server, executionMode, List.of(provider));
   }
 
   /**
