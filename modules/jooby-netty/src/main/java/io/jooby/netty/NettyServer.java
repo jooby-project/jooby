@@ -6,7 +6,6 @@
 package io.jooby.netty;
 
 import static io.jooby.ServerOptions._4KB;
-import static io.jooby.ServerOptions._8KB;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 import java.net.BindException;
@@ -204,7 +203,7 @@ public class NettyServer extends Server.Base {
     var decoderConfig =
         new HttpDecoderConfig()
             .setMaxInitialLineLength(_4KB)
-            .setMaxHeaderSize(_8KB)
+            .setMaxHeaderSize(options.getMaxHeaderSize())
             .setMaxChunkSize(bufferSize)
             .setHeadersFactory(headersFactory)
             .setTrailersFactory(headersFactory);

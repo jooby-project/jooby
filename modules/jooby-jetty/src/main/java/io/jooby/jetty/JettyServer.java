@@ -127,6 +127,7 @@ public class JettyServer extends io.jooby.Server.Base {
       httpConf.setSendXPoweredBy(false);
       httpConf.setSendDateHeader(options.getDefaultHeaders());
       httpConf.setSendServerVersion(false);
+      httpConf.setRequestHeaderSize(options.getMaxHeaderSize());
 
       if (httpConfigurer != null) {
         httpConfigurer.accept(httpConf);
