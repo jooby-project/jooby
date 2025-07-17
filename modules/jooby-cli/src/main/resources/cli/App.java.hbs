@@ -9,7 +9,6 @@ import io.jooby.OpenAPIModule;
 public class App extends Jooby {
 
   {
-    install(new {{serverClassName}}());
   {{#if openapi}}
     install(new OpenAPIModule());
   {{/if}}
@@ -21,7 +20,6 @@ public class App extends Jooby {
   }
 
   public static void main(final String[] args) {
-    runApp(args, App::new);
+    runApp(args, new {{serverClassName}}(), App::new);
   }
-
 }
