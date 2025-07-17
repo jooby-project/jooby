@@ -6,7 +6,6 @@
 package io.jooby.netty;
 
 import static io.jooby.ServerOptions._4KB;
-import static io.jooby.ServerOptions._8KB;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 import java.net.BindException;
@@ -23,6 +22,7 @@ import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
 import io.jooby.buffer.BufferedOutputFactory;
+import io.jooby.exception.StartupException;
 import io.jooby.internal.netty.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -105,6 +105,7 @@ public class NettyServer extends Server.Base {
   public Server start(@NonNull Jooby... application) {
     // force options to be non-null
     var options = getOptions();
+    var portInUse = options.getPort();
     try {
       this.applications = List.of(application);
       /* Worker: Application blocking code */
@@ -154,10 +155,10 @@ public class NettyServer extends Server.Base {
         var https =
             newBootstrap(
                 allocator, transport, newPipeline(options, sslContext, dateService, http2));
-        https.bind(options.getHost(), options.getSecurePort()).get();
+        portInUse = options.getSecurePort();
+        https.bind(options.getHost(), portInUse).get();
       } else if (options.isHttpsOnly()) {
-        throw new IllegalArgumentException(
-            "Server configured for httpsOnly, but ssl options not set");
+        throw new StartupException("Server configured for httpsOnly, but ssl options not set");
       }
 
       fireReady(applications);
@@ -166,7 +167,7 @@ public class NettyServer extends Server.Base {
     } catch (ExecutionException x) {
       var cause = x.getCause();
       if (Server.isAddressInUse(cause)) {
-        cause = new BindException("Address already in use: " + options.getPort());
+        cause = new BindException("Address already in use: " + portInUse);
       }
       throw SneakyThrows.propagate(cause);
     }
@@ -196,7 +197,7 @@ public class NettyServer extends Server.Base {
     var decoderConfig =
         new HttpDecoderConfig()
             .setMaxInitialLineLength(_4KB)
-            .setMaxHeaderSize(_8KB)
+            .setMaxHeaderSize(options.getMaxHeaderSize())
             .setMaxChunkSize(options.getBuffer().getSize())
             .setHeadersFactory(NettyContext.HEADERS)
             .setTrailersFactory(NettyContext.HEADERS);

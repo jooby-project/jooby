@@ -89,7 +89,7 @@
     <dependency>
       <groupId>io.reactivex.rxjava3</groupId>
       <artifactId>rxjava</artifactId>
-      <version>3.1.10</version>
+      <version>3.1.11</version>
       <scope>test</scope>
     </dependency>
 

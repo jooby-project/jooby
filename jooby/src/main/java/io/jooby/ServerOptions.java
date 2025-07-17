@@ -106,6 +106,9 @@ public class ServerOptions {
    */
   private int maxRequestSize = _10MB;
 
+  /** The maximum size in bytes of a http request header. Default is <code>8kb</code> */
+  private int maxHeaderSize = _8KB;
+
   private String host = LOCAL_HOST;
 
   private SslOptions ssl;
@@ -255,12 +258,12 @@ public class ServerOptions {
   }
 
   /**
-   * True when SSL is enabled. Either bc the secure port or SSL options are set.
+   * True when SSL is enabled. Either bc the secure port, httpsOnly or SSL options are set.
    *
-   * @return True when SSL is enabled. Either bc the secure port or SSL options are set.
+   * @return True when SSL is enabled. Either bc the secure port, httpsOnly or SSL options are set.
    */
   public boolean isSSLEnabled() {
-    return securePort != null || ssl != null;
+    return securePort != null || ssl != null || httpsOnly;
   }
 
   /**
@@ -435,6 +438,34 @@ public class ServerOptions {
    */
   public @NonNull ServerOptions setMaxRequestSize(int maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
+    return this;
+  }
+
+  /**
+   * The maximum size in bytes of an http request header. Exceeding the size generates a different
+   * response across server implementations.
+   *
+   * <ul>
+   *   <li>Jetty: generates a 431 error message
+   *   <li>Netty: the header is dropped/ignored, but don't fail
+   *   <li>Undertow: generates an empty 400 response, and the connection is closed.
+   * </ul>
+   *
+   * @return The maximum size in bytes of an http request header.
+   */
+  public int getMaxHeaderSize() {
+    return maxHeaderSize;
+  }
+
+  /**
+   * Set the maximum size in bytes of an http request header.
+   *
+   * @param maxHeaderSize The maximum size in bytes of an http request header. Default is <code>8kb
+   *     </code>.
+   * @return The maximum size in bytes of an http request header. Default is <code>8kb</code>.
+   */
+  public @NonNull ServerOptions setMaxHeaderSize(int maxHeaderSize) {
+    this.maxHeaderSize = maxHeaderSize;
     return this;
   }
 
