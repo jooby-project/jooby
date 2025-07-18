@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import io.jooby.*;
+import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.MutedServer;
 import io.jooby.test.WebClient;
 
@@ -89,7 +90,7 @@ public class ServerTestRunner {
     Server server = this.server.get(serverOptions);
     String applogger = null;
     try {
-      setBootServer(server);
+      setBufferFactory(server.getOutputFactory());
       System.setProperty("___app_name__", testName);
       System.setProperty("___server_name__", server.getName());
       var app = provider.get();
@@ -141,15 +142,15 @@ public class ServerTestRunner {
       } else {
         MutedServer.mute(server).stop();
       }
-      setBootServer(null);
+      setBufferFactory(null);
     }
   }
 
-  private static void setBootServer(Server server) {
+  private static void setBufferFactory(BufferedOutputFactory bufferedOutputFactory) {
     try {
-      var bootServer = Jooby.class.getDeclaredField("BOOT_SERVER");
-      bootServer.setAccessible(true);
-      bootServer.set(null, server);
+      var field = Jooby.class.getDeclaredField("BUFFER_FACTORY");
+      field.setAccessible(true);
+      field.set(null, bufferedOutputFactory);
     } catch (NoSuchFieldException | IllegalAccessException e) {
       throw SneakyThrows.propagate(e);
     }

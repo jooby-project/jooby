@@ -232,8 +232,7 @@ public class JoobyExtension
   public void postProcessTestInstance(Object instance, ExtensionContext context) throws Exception {
     for (Field field : instance.getClass().getDeclaredFields()) {
       if (!Modifier.isStatic(field.getModifiers())) {
-        Supplier<Object> injectionPoint =
-            injectionPoint(context, field.getType(), () -> field.getName());
+        Supplier<Object> injectionPoint = injectionPoint(context, field.getType(), field::getName);
         if (injectionPoint != null) {
           field.setAccessible(true);
           field.set(instance, injectionPoint.get());

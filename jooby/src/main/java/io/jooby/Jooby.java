@@ -87,7 +87,7 @@ public class Jooby implements Router, Registry {
 
   private static Jooby owner;
   private static ExecutionMode BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
-  private static Server BOOT_SERVER;
+  private static BufferedOutputFactory BUFFER_FACTORY;
 
   private RouterImpl router;
 
@@ -121,8 +121,6 @@ public class Jooby implements Router, Registry {
 
   private String version;
 
-  private Server server;
-
   /** Creates a new Jooby instance. */
   public Jooby() {
     if (owner == null) {
@@ -133,14 +131,10 @@ public class Jooby implements Router, Registry {
       startingCallbacks = new ArrayList<>();
       readyCallbacks = new ArrayList<>();
       lateExtensions = new ArrayList<>();
-      server = BOOT_SERVER;
-      if (server != null) {
-        router.setOutputFactory(server.getOutputFactory());
-      } else {
-        // NOTE: fallback to default, this is required for direct instance creation of class
-        // app bootstrap always ensures server instance.
-        router.setOutputFactory(BufferedOutputFactory.create());
-      }
+      // NOTE: fallback to default, this is required for direct instance creation of class
+      // app bootstrap always ensures server instance.
+      router.setOutputFactory(
+          Optional.ofNullable(BUFFER_FACTORY).orElseGet(BufferedOutputFactory::create));
     } else {
       copyState(owner, this);
     }
@@ -1311,12 +1305,12 @@ public class Jooby implements Router, Registry {
 
     Jooby app;
     try {
-      Jooby.BOOT_SERVER = server;
+      Jooby.BUFFER_FACTORY = server.getOutputFactory();
       Jooby.BOOT_EXECUTION_MODE = executionMode;
       app = provider.get();
     } finally {
       Jooby.BOOT_EXECUTION_MODE = executionMode;
-      Jooby.BOOT_SERVER = null;
+      Jooby.BUFFER_FACTORY = null;
     }
 
     return app;
@@ -1452,7 +1446,7 @@ public class Jooby implements Router, Registry {
   }
 
   /**
-   * Copy internal state from one application into other.
+   * Copy the internal state from one application into others.
    *
    * @param source Source application.
    * @param dest Destination application.
@@ -1471,6 +1465,5 @@ public class Jooby implements Router, Registry {
     dest.readyCallbacks = source.readyCallbacks;
     dest.startingCallbacks = source.startingCallbacks;
     dest.stopCallbacks = source.stopCallbacks;
-    dest.server = source.server;
   }
 }
