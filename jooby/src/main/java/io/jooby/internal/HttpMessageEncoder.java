@@ -92,8 +92,7 @@ public class HttpMessageEncoder implements MessageEncoder {
       return outputFactory.wrap(bytes);
     }
     if (value instanceof ByteBuffer buffer) {
-      ctx.send(buffer);
-      return null;
+      return outputFactory.wrap(buffer);
     }
     if (encoders != null) {
       // Content negotiation, find best:

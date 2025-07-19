@@ -73,7 +73,7 @@ public class NettyBufferedOutputFactory implements BufferedOutputFactory {
 
   @Override
   @NonNull public BufferedOutput wrap(@NonNull byte[] bytes, int offset, int length) {
-    return new NettyByteArrayWrappedOutput(bytes, 0, bytes.length);
+    return new NettyByteArrayWrappedOutput(bytes, offset, length);
   }
 
   @Override
