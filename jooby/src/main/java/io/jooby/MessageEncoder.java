@@ -30,12 +30,11 @@ public interface MessageEncoder {
       };
 
   /**
-   * MessageEncoder a value into a byte array or <code>null</code> if given object isn't supported
-   * it.
+   * Encodes a value into a buffer or <code>null</code> if a given object isn't supported it.
    *
    * @param ctx Web context.
    * @param value Value to render.
-   * @return Value as byte array or <code>null</code> if given object isn't supported it.
+   * @return Encoded value or <code>null</code> if given object isn't supported it.
    * @throws Exception If something goes wrong.
    */
   @Nullable DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception;

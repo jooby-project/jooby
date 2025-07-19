@@ -103,21 +103,11 @@ and returns a single result of the given type.
 }
 ----
 
-<1> Choose your favorite `jackson` library
+<1> Choose your favorite `json` library
 <2> Check if the `Content-Type` header matches `application/json`
 <3> Read the body as `byte[]`
 <4> Parse the `body` and use the requested type
 <5> Route handler now call the `body(Type)` function to trigger the decoder function
-
-[TIP]
-====
-
-Jooby comes with a `jackson` decoder built on top of https://github.com/FasterXML/jackson-databind[Jackson]:
-
-[dependency, artifactId="jooby-jackson"]
-.
-
-====
 
 === Response Body
 
@@ -162,18 +152,21 @@ Response body is generated from `handler` function:
 
 ==== Message Encoder
 
-Response enconding is achieved using the javadoc:MessageEncoder[] functional interface.
+Response encoding is achieved using the javadoc:MessageEncoder[] functional interface.
 
 [source, java]
 ----
 public interface MessageEncoder {
 
-  byte[] encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
+  DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
 }
 ----
 
-MessageEncoder has a single `encode` method that accepts two input arguments: `(context, result)` and 
+MessageEncoder has a single `encode` method that accepts two input arguments: `(context, value)` and 
 produces a result.
+
+The javadoc:buffer.DataBuffer[buffer] works like `java.nio.ByteBuffer` and it is used internally
+for performance reason.
 
 .JSON example:
 [source, java, role="primary"]
@@ -219,19 +212,9 @@ produces a result.
 }
 ----
 
-<1> Choose your favorite `jackson` library
+<1> Choose your favorite `json` library
 <2> Check if the `Accept` header matches `application/json`
 <3> Convert `result` to `JSON`
 <4> Set default `Content-Type` to `application/json`
 <5> Produces JSON response
 <6> Route handler returns a user defined type
-
-[TIP]
-====
-
-Jooby comes with a `jackson` encoder built on top of https://github.com/FasterXML/jackson-databind[Jackson]:
-
-[dependency, artifactId="jooby-jackson"]
-.
-
-====
