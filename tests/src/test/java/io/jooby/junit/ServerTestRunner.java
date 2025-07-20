@@ -18,8 +18,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import io.jooby.*;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.MutedServer;
+import io.jooby.output.OutputFactory;
 import io.jooby.test.WebClient;
 
 public class ServerTestRunner {
@@ -62,7 +62,6 @@ public class ServerTestRunner {
             // set default session
             app.setSessionStore(SessionStore.memory(Cookie.session("jooby.sid")));
           }
-          app.setExecutionMode(executionMode);
           consumer.accept(app);
           return app;
         });
@@ -90,11 +89,11 @@ public class ServerTestRunner {
     Server server = this.server.get(serverOptions);
     String applogger = null;
     try {
-      setBufferFactory(server.getOutputFactory());
+      setOutputFactory(server.getOutputFactory());
+      setExecutionMode(Optional.ofNullable(executionMode).orElse(ExecutionMode.DEFAULT));
       System.setProperty("___app_name__", testName);
       System.setProperty("___server_name__", server.getName());
       var app = provider.get();
-      Optional.ofNullable(executionMode).ifPresent(app::setExecutionMode);
       // Reduce log from maven build:
       var mavenBuild = System.getProperty("surefire.real.class.path", "").length() > 0;
       if (mavenBuild) {
@@ -142,13 +141,24 @@ public class ServerTestRunner {
       } else {
         MutedServer.mute(server).stop();
       }
-      setBufferFactory(null);
+      setOutputFactory(null);
+      setExecutionMode(null);
     }
   }
 
-  private static void setBufferFactory(BufferedOutputFactory bufferedOutputFactory) {
+  private void setExecutionMode(ExecutionMode executionMode) {
     try {
-      var field = Jooby.class.getDeclaredField("BUFFER_FACTORY");
+      var field = Jooby.class.getDeclaredField("BOOT_EXECUTION_MODE");
+      field.setAccessible(true);
+      field.set(null, executionMode);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw SneakyThrows.propagate(e);
+    }
+  }
+
+  private static void setOutputFactory(OutputFactory bufferedOutputFactory) {
+    try {
+      var field = Jooby.class.getDeclaredField("OUTPUT_FACTORY");
       field.setAccessible(true);
       field.set(null, bufferedOutputFactory);
     } catch (NoSuchFieldException | IllegalAccessException e) {

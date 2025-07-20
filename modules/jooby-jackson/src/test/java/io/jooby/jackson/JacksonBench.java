@@ -13,9 +13,9 @@ import org.openjdk.jmh.annotations.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jooby.buffer.BufferOptions;
-import io.jooby.buffer.BufferedOutput;
-import io.jooby.buffer.BufferedOutputFactory;
+import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
+import io.jooby.output.OutputOptions;
 
 @Fork(5)
 @Warmup(iterations = 5, time = 1)
@@ -27,15 +27,14 @@ public class JacksonBench {
   private ObjectMapper mapper;
   private Map<String, Object> message;
 
-  private BufferedOutputFactory factory;
-  private ThreadLocal<BufferedOutput> cache =
-      ThreadLocal.withInitial(() -> factory.newBufferedOutput(1024));
+  private OutputFactory factory;
+  private ThreadLocal<Output> cache = ThreadLocal.withInitial(() -> factory.newOutput(1024));
 
   @Setup
   public void setup() {
     message = Map.of("id", 98, "value", "Hello World");
     mapper = new ObjectMapper();
-    factory = BufferedOutputFactory.create(BufferOptions.small());
+    factory = OutputFactory.create(OutputOptions.small());
   }
 
   @Benchmark

@@ -3,14 +3,13 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.buffer;
+package io.jooby.output;
 
 import java.nio.ByteBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.internal.buffer.ByteBufferOutput;
-import io.jooby.internal.buffer.ByteBufferWrappedOutput;
-import io.jooby.internal.buffer.CompsiteByteBufferOutput;
+import io.jooby.internal.output.ByteBufferWrappedOutput;
+import io.jooby.internal.output.CompsiteByteBufferOutput;
 
 /**
  * An output factory backed by {@link ByteBuffer}.
@@ -18,46 +17,46 @@ import io.jooby.internal.buffer.CompsiteByteBufferOutput;
  * @author edgar
  * @since 4.0.0
  */
-public class ByteBufferOutputFactory implements BufferedOutputFactory {
-  private BufferOptions options;
+public class ByteBufferOutputFactory implements OutputFactory {
+  private OutputOptions options;
 
-  public ByteBufferOutputFactory(BufferOptions options) {
+  public ByteBufferOutputFactory(OutputOptions options) {
     this.options = options;
   }
 
   @Override
-  public BufferOptions getOptions() {
+  public OutputOptions getOptions() {
     return options;
   }
 
   @Override
-  public BufferedOutputFactory setOptions(BufferOptions options) {
+  public OutputFactory setOptions(OutputOptions options) {
     this.options = options;
     return this;
   }
 
   @Override
-  public BufferedOutput newBufferedOutput(boolean direct, int size) {
+  public Output newOutput(boolean direct, int size) {
     return new ByteBufferOutput(direct, size);
   }
 
   @Override
-  public BufferedOutput newCompositeOutput() {
+  public Output newCompositeOutput() {
     return new CompsiteByteBufferOutput();
   }
 
   @Override
-  public BufferedOutput wrap(@NonNull ByteBuffer buffer) {
+  public Output wrap(@NonNull ByteBuffer buffer) {
     return new ByteBufferWrappedOutput(buffer);
   }
 
   @Override
-  public BufferedOutput wrap(@NonNull byte[] bytes) {
+  public Output wrap(@NonNull byte[] bytes) {
     return new ByteBufferWrappedOutput(ByteBuffer.wrap(bytes));
   }
 
   @Override
-  public BufferedOutput wrap(@NonNull byte[] bytes, int offset, int length) {
+  public Output wrap(@NonNull byte[] bytes, int offset, int length) {
     return new ByteBufferWrappedOutput(ByteBuffer.wrap(bytes, offset, length));
   }
 }

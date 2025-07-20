@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
@@ -19,7 +19,7 @@ public class UndertowOutputCallback implements IoCallback {
   private Iterator<ByteBuffer> iterator;
   private IoCallback callback;
 
-  public UndertowOutputCallback(BufferedOutput buffer, IoCallback callback) {
+  public UndertowOutputCallback(Output buffer, IoCallback callback) {
     this.iterator = buffer.iterator();
     this.callback = callback;
   }

@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 
 import io.avaje.jsonb.Jsonb;
-import io.jooby.buffer.BufferOptions;
-import io.jooby.buffer.BufferedOutput;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
+import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
+import io.jooby.output.OutputOptions;
 
 @Fork(5)
 @Warmup(iterations = 5, time = 1)
@@ -27,18 +27,18 @@ public class AvajeJsonbEncoderBench {
   private Jsonb jsonb;
   private Map<String, Object> message;
 
-  private BufferedOutputFactory factory;
-  private ThreadLocal<BufferedOutput> cache =
+  private OutputFactory factory;
+  private ThreadLocal<Output> cache =
       ThreadLocal.withInitial(
           () -> {
-            return factory.newBufferedOutput(1024);
+            return factory.newOutput(1024);
           });
 
   @Setup
   public void setup() {
     message = Map.of("id", 98, "value", "Hello World");
     jsonb = Jsonb.builder().build();
-    factory = BufferedOutputFactory.create(BufferOptions.small());
+    factory = OutputFactory.create(OutputOptions.small());
   }
 
   @Benchmark
@@ -54,7 +54,7 @@ public class AvajeJsonbEncoderBench {
 
   @Benchmark
   public void witBufferedOutput() {
-    var buffer = factory.newBufferedOutput(1024);
+    var buffer = factory.newOutput(1024);
     jsonb.toJson(message, jsonb.writer(new BufferedJsonOutput(buffer)));
   }
 }

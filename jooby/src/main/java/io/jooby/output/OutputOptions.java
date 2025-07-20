@@ -3,14 +3,14 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.buffer;
+package io.jooby.output;
 
-public class BufferOptions {
+public class OutputOptions {
   private int size;
 
   private boolean directBuffers;
 
-  public BufferOptions() {
+  public OutputOptions() {
     long maxMemory = Runtime.getRuntime().maxMemory();
     // smaller than 64mb of ram we use 512b buffers
     if (maxMemory < 64 * 1024 * 1024) {
@@ -40,12 +40,12 @@ public class BufferOptions {
    *
    * @return Heap buffer of 512kb initial size.
    */
-  public static BufferOptions small() {
-    return new BufferOptions().setDirectBuffers(false).setSize(512);
+  public static OutputOptions small() {
+    return new OutputOptions().setDirectBuffers(false).setSize(512);
   }
 
-  public static BufferOptions defaults() {
-    return new BufferOptions();
+  public static OutputOptions defaults() {
+    return new OutputOptions();
   }
 
   /**
@@ -63,7 +63,7 @@ public class BufferOptions {
    * @param size The default initial buffer size.
    * @return This options.
    */
-  public BufferOptions setSize(int size) {
+  public OutputOptions setSize(int size) {
     this.size = size;
     return this;
   }
@@ -72,7 +72,7 @@ public class BufferOptions {
     return directBuffers;
   }
 
-  public BufferOptions setDirectBuffers(boolean directBuffers) {
+  public OutputOptions setDirectBuffers(boolean directBuffers) {
     this.directBuffers = directBuffers;
     return this;
   }

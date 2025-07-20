@@ -19,7 +19,7 @@ import java.nio.file.Path;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 public class HeadContext extends ForwardingContext {
   /**
@@ -66,7 +66,7 @@ public class HeadContext extends ForwardingContext {
   }
 
   @NonNull @Override
-  public Context send(@NonNull BufferedOutput output) {
+  public Context send(@NonNull Output output) {
     ctx.setResponseLength(output.size());
     checkSizeHeaders();
     ctx.send(StatusCode.OK);
@@ -186,7 +186,7 @@ public class HeadContext extends ForwardingContext {
     }
 
     @NonNull @Override
-    public Sender write(@NonNull BufferedOutput output, @NonNull Callback callback) {
+    public Sender write(@NonNull Output output, @NonNull Callback callback) {
       return this;
     }
 

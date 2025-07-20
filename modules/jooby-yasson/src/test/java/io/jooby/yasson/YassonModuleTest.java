@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.buffer.BufferOptions;
-import io.jooby.buffer.BufferedOutputFactory;
+import io.jooby.output.OutputFactory;
+import io.jooby.output.OutputOptions;
 
 public class YassonModuleTest {
 
@@ -40,7 +40,7 @@ public class YassonModuleTest {
     user.age = Integer.MAX_VALUE;
 
     Context ctx = mock(Context.class);
-    when(ctx.getOutputFactory()).thenReturn(BufferedOutputFactory.create(BufferOptions.small()));
+    when(ctx.getOutputFactory()).thenReturn(OutputFactory.create(OutputOptions.small()));
     var buffer = YassonModule.encode(ctx, user);
     assertEquals(
         "{\"age\":2147483647,\"id\":-1,\"name\":\"Lorem €@!?\"}",

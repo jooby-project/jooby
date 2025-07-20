@@ -11,7 +11,7 @@ import java.util.Iterator;
 import org.eclipse.jetty.websocket.api.Callback;
 
 import io.jooby.SneakyThrows.Consumer2;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 public class WebSocketOutputCallback implements Callback {
 
@@ -20,7 +20,7 @@ public class WebSocketOutputCallback implements Callback {
   private Consumer2<ByteBuffer, Callback> sender;
 
   public WebSocketOutputCallback(
-      Callback cb, BufferedOutput buffer, Consumer2<ByteBuffer, Callback> sender) {
+      Callback cb, Output buffer, Consumer2<ByteBuffer, Callback> sender) {
     this.cb = cb;
     this.it = buffer.iterator();
     this.sender = sender;

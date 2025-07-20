@@ -41,13 +41,13 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.MutedServer;
 import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
+import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
 import io.jooby.value.ValueFactory;
 
@@ -80,6 +80,7 @@ public class Jooby implements Router, Registry {
   static final String APP_NAME = "___app_name__";
 
   private static final String JOOBY_RUN_HOOK = "___jooby_run_hook__";
+  private static final Logger log = LoggerFactory.getLogger(Jooby.class);
 
   private final transient AtomicBoolean started = new AtomicBoolean(true);
 
@@ -87,11 +88,11 @@ public class Jooby implements Router, Registry {
 
   private static Jooby owner;
   private static ExecutionMode BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
-  private static BufferedOutputFactory BUFFER_FACTORY;
+  private static OutputFactory OUTPUT_FACTORY;
 
   private RouterImpl router;
 
-  private ExecutionMode mode = BOOT_EXECUTION_MODE;
+  private ExecutionMode mode;
 
   private Path tmpdir;
 
@@ -125,6 +126,7 @@ public class Jooby implements Router, Registry {
   public Jooby() {
     if (owner == null) {
       ClassLoader classLoader = getClass().getClassLoader();
+      mode = BOOT_EXECUTION_MODE;
       environmentOptions = new EnvironmentOptions().setClassLoader(classLoader);
       router = new RouterImpl();
       stopCallbacks = new LinkedList<>();
@@ -133,8 +135,7 @@ public class Jooby implements Router, Registry {
       lateExtensions = new ArrayList<>();
       // NOTE: fallback to default, this is required for direct instance creation of class
       // app bootstrap always ensures server instance.
-      router.setOutputFactory(
-          Optional.ofNullable(BUFFER_FACTORY).orElseGet(BufferedOutputFactory::create));
+      router.setOutputFactory(Optional.ofNullable(OUTPUT_FACTORY).orElseGet(OutputFactory::create));
     } else {
       copyState(owner, this);
     }
@@ -845,7 +846,7 @@ public class Jooby implements Router, Registry {
   }
 
   @NonNull @Override
-  public BufferedOutputFactory getOutputFactory() {
+  public OutputFactory getOutputFactory() {
     return router.getOutputFactory();
   }
 
@@ -903,9 +904,7 @@ public class Jooby implements Router, Registry {
     Path tmpdir = getTmpdir();
     ensureTmpdir(tmpdir);
 
-    if (mode == null) {
-      mode = ExecutionMode.DEFAULT;
-    }
+    log.trace("initialization context static variables {} {}", Context.RFC1123, Context.GMT);
 
     if (locales == null) {
       String path = AvailableSettings.LANG;
@@ -1253,18 +1252,14 @@ public class Jooby implements Router, Registry {
     var apps = new ArrayList<Jooby>();
     var targetServer = server.getLoggerOff().isEmpty() ? server : MutedServer.mute(server);
     try {
+      // Init context static var
       for (var factory : provider) {
         var app = createApp(server, executionMode, factory);
         /*
          When running a single app instance, there is no issue with server options, when multiple
          apps set options a warning will be printed
         */
-        ServerOptions.from(app.getConfig())
-            .ifPresent(
-                options -> {
-                  options.setServer(server.getName());
-                  server.setOptions(options);
-                });
+        ServerOptions.from(app.getConfig()).ifPresent(server::setOptions);
         apps.add(app);
       }
 
@@ -1305,12 +1300,12 @@ public class Jooby implements Router, Registry {
 
     Jooby app;
     try {
-      Jooby.BUFFER_FACTORY = server.getOutputFactory();
+      Jooby.OUTPUT_FACTORY = server.getOutputFactory();
       Jooby.BOOT_EXECUTION_MODE = executionMode;
       app = provider.get();
     } finally {
       Jooby.BOOT_EXECUTION_MODE = executionMode;
-      Jooby.BUFFER_FACTORY = null;
+      Jooby.OUTPUT_FACTORY = null;
     }
 
     return app;

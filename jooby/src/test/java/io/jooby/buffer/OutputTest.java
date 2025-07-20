@@ -15,11 +15,12 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
-import io.jooby.internal.buffer.ByteBufferOutput;
-import io.jooby.internal.buffer.ByteBufferWrappedOutput;
-import io.jooby.internal.buffer.CompsiteByteBufferOutput;
+import io.jooby.internal.output.ByteBufferWrappedOutput;
+import io.jooby.internal.output.CompsiteByteBufferOutput;
+import io.jooby.output.ByteBufferOutput;
+import io.jooby.output.Output;
 
-public class BufferedOutputTest {
+public class OutputTest {
 
   @Test
   public void bufferedOutput() {
@@ -75,7 +76,7 @@ public class BufferedOutputTest {
         new ByteBufferOutput(false, 255));
   }
 
-  private void output(SneakyThrows.Consumer<BufferedOutput> consumer, BufferedOutput... buffers) {
+  private void output(SneakyThrows.Consumer<Output> consumer, Output... buffers) {
     Stream.of(buffers).forEach(consumer);
   }
 

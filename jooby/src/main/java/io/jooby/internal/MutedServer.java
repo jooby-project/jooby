@@ -16,7 +16,7 @@ import io.jooby.Jooby;
 import io.jooby.LoggingService;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
-import io.jooby.buffer.BufferedOutputFactory;
+import io.jooby.output.OutputFactory;
 
 public class MutedServer implements Server {
   private Server delegate;
@@ -32,7 +32,7 @@ public class MutedServer implements Server {
   }
 
   @NonNull @Override
-  public BufferedOutputFactory getOutputFactory() {
+  public OutputFactory getOutputFactory() {
     return delegate.getOutputFactory();
   }
 

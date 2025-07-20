@@ -14,7 +14,7 @@ import java.util.function.IntPredicate;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.*;
+import io.jooby.output.Output;
 
 /**
  * Server-Sent message.
@@ -132,12 +132,12 @@ public class ServerSentMessage {
    * @param ctx Web context. To encode complex objects.
    * @return Encoded data.
    */
-  public @NonNull BufferedOutput encode(@NonNull Context ctx) {
+  public @NonNull Output encode(@NonNull Context ctx) {
     try {
       var route = ctx.getRoute();
       var encoder = route.getEncoder();
       var bufferFactory = ctx.getOutputFactory();
-      var buffer = bufferFactory.newBufferedOutput();
+      var buffer = bufferFactory.newOutput();
 
       if (id != null) {
         buffer.write(ID);

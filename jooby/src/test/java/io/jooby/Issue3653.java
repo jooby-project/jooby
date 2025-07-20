@@ -13,7 +13,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.jooby.buffer.BufferedOutputFactory;
+import io.jooby.output.OutputFactory;
 
 public class Issue3653 {
 
@@ -22,7 +22,7 @@ public class Issue3653 {
   private static class TestServer extends Server.Base {
 
     @NotNull @Override
-    public BufferedOutputFactory getOutputFactory() {
+    public OutputFactory getOutputFactory() {
       return null;
     }
 

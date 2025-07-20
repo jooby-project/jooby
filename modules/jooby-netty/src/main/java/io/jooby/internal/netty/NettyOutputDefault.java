@@ -9,14 +9,14 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
 
-public class NettyBufferedOutput implements NettyByteBufOutput {
+public class NettyOutputDefault implements NettyOutputByteBuf {
 
   private final ByteBuf buffer;
 
-  protected NettyBufferedOutput(ByteBuf buffer) {
+  protected NettyOutputDefault(ByteBuf buffer) {
     this.buffer = buffer;
   }
 
@@ -25,37 +25,37 @@ public class NettyBufferedOutput implements NettyByteBufOutput {
   }
 
   @Override
-  @NonNull public BufferedOutput write(byte b) {
+  @NonNull public Output write(byte b) {
     buffer.writeByte(b);
     return this;
   }
 
   @Override
-  @NonNull public BufferedOutput write(byte[] source) {
+  @NonNull public Output write(byte[] source) {
     buffer.writeBytes(source);
     return this;
   }
 
   @Override
-  @NonNull public BufferedOutput write(byte[] source, int offset, int length) {
+  @NonNull public Output write(byte[] source, int offset, int length) {
     this.buffer.writeBytes(source, offset, length);
     return this;
   }
 
   @Override
-  @NonNull public BufferedOutput write(@NonNull String source, @NonNull Charset charset) {
+  @NonNull public Output write(@NonNull String source, @NonNull Charset charset) {
     this.buffer.writeBytes(source.getBytes(charset));
     return this;
   }
 
   @Override
-  public BufferedOutput write(@NonNull CharBuffer source, @NonNull Charset charset) {
+  public Output write(@NonNull CharBuffer source, @NonNull Charset charset) {
     this.buffer.writeBytes(charset.encode(source));
     return this;
   }
 
   @Override
-  @NonNull public BufferedOutput clear() {
+  @NonNull public Output clear() {
     this.buffer.clear();
     return this;
   }

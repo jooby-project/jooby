@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.buffer;
+package io.jooby.output;
 
 import static java.lang.ThreadLocal.withInitial;
 
@@ -14,37 +14,36 @@ import java.nio.charset.StandardCharsets;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * Factory class for buffered {@link BufferedOutput}.
+ * Factory class for {@link Output}.
  *
  * @author edgar
  * @since 4.0.0
  */
-public interface BufferedOutputFactory {
+public interface OutputFactory {
 
   /**
-   * Thread local for output buffer. Please note only store calls to {@link #newBufferedOutput()},
-   * {@link #newCompositeOutput()} are not saved into thread local.
+   * Thread local for output buffer. Please note only store calls to {@link #newOutput()}, {@link
+   * #newCompositeOutput()} are not saved into thread local.
    *
    * @param factory Factory.
    * @return Thread local factory.
    */
-  static BufferedOutputFactory threadLocal(BufferedOutputFactory factory) {
-    return new ForwardingBufferedOutputFactory(factory) {
-      private final ThreadLocal<BufferedOutput> threadLocal =
-          withInitial(factory::newBufferedOutput);
+  static OutputFactory threadLocal(OutputFactory factory) {
+    return new ForwardingOutputFactory(factory) {
+      private final ThreadLocal<Output> threadLocal = withInitial(factory::newOutput);
 
       @Override
-      public BufferedOutput newBufferedOutput(boolean direct, int size) {
+      public Output newOutput(boolean direct, int size) {
         return threadLocal.get().clear();
       }
 
       @Override
-      public BufferedOutput newBufferedOutput(int size) {
+      public Output newOutput(int size) {
         return threadLocal.get().clear();
       }
 
       @Override
-      public BufferedOutput newBufferedOutput() {
+      public Output newOutput() {
         return threadLocal.get().clear();
       }
     };
@@ -55,7 +54,7 @@ public interface BufferedOutputFactory {
    *
    * @return Default output factory.
    */
-  static BufferedOutputFactory create(BufferOptions options) {
+  static OutputFactory create(OutputOptions options) {
     return new ByteBufferOutputFactory(options);
   }
 
@@ -64,13 +63,13 @@ public interface BufferedOutputFactory {
    *
    * @return Default output factory.
    */
-  static BufferedOutputFactory create() {
-    return create(new BufferOptions());
+  static OutputFactory create() {
+    return create(new OutputOptions());
   }
 
-  BufferOptions getOptions();
+  OutputOptions getOptions();
 
-  BufferedOutputFactory setOptions(BufferOptions options);
+  OutputFactory setOptions(OutputOptions options);
 
   /**
    * Creates a new byte buffered output.
@@ -79,7 +78,7 @@ public interface BufferedOutputFactory {
    * @param size Output size.
    * @return A byte buffered output.
    */
-  BufferedOutput newBufferedOutput(boolean direct, int size);
+  Output newOutput(boolean direct, int size);
 
   /**
    * Creates a new byte buffered output.
@@ -87,12 +86,12 @@ public interface BufferedOutputFactory {
    * @param size Output size.
    * @return A byte buffered output.
    */
-  default BufferedOutput newBufferedOutput(int size) {
-    return newBufferedOutput(getOptions().isDirectBuffers(), size);
+  default Output newOutput(int size) {
+    return newOutput(getOptions().isDirectBuffers(), size);
   }
 
-  default BufferedOutput newBufferedOutput() {
-    return newBufferedOutput(getOptions().isDirectBuffers(), getOptions().getSize());
+  default Output newOutput() {
+    return newOutput(getOptions().isDirectBuffers(), getOptions().getSize());
   }
 
   /**
@@ -101,7 +100,7 @@ public interface BufferedOutputFactory {
    *
    * @return A new composite buffer.
    */
-  BufferedOutput newCompositeOutput();
+  Output newCompositeOutput();
 
   /**
    * Readonly buffer created from string utf-8 bytes.
@@ -109,7 +108,7 @@ public interface BufferedOutputFactory {
    * @param value String.
    * @return Readonly buffer.
    */
-  default BufferedOutput wrap(String value) {
+  default Output wrap(String value) {
     return wrap(value, StandardCharsets.UTF_8);
   }
 
@@ -120,7 +119,7 @@ public interface BufferedOutputFactory {
    * @param charset Charset to use.
    * @return Readonly buffer.
    */
-  default BufferedOutput wrap(@NonNull String value, @NonNull Charset charset) {
+  default Output wrap(@NonNull String value, @NonNull Charset charset) {
     return wrap(value.getBytes(charset));
   }
 
@@ -130,7 +129,7 @@ public interface BufferedOutputFactory {
    * @param buffer Input buffer.
    * @return Readonly buffer.
    */
-  BufferedOutput wrap(@NonNull ByteBuffer buffer);
+  Output wrap(@NonNull ByteBuffer buffer);
 
   /**
    * Readonly buffer created from byte array.
@@ -138,7 +137,7 @@ public interface BufferedOutputFactory {
    * @param bytes Byte array.
    * @return Readonly buffer.
    */
-  BufferedOutput wrap(@NonNull byte[] bytes);
+  Output wrap(@NonNull byte[] bytes);
 
   /**
    * Readonly buffer created from byte array.
@@ -148,5 +147,5 @@ public interface BufferedOutputFactory {
    * @param length Length.
    * @return Readonly buffer.
    */
-  BufferedOutput wrap(@NonNull byte[] bytes, int offset, int length);
+  Output wrap(@NonNull byte[] bytes, int offset, int length);
 }

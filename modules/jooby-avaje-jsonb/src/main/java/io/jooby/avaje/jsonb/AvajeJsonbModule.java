@@ -18,8 +18,8 @@ import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
-import io.jooby.buffer.BufferedOutput;
 import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
+import io.jooby.output.Output;
 
 /**
  * JSON module using Avaje-JsonB: <a
@@ -105,10 +105,10 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   }
 
   @NonNull @Override
-  public BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) {
+  public Output encode(@NonNull Context ctx, @NonNull Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     var factory = ctx.getOutputFactory();
-    var buffer = factory.newBufferedOutput();
+    var buffer = factory.newOutput();
     try (var writer = jsonb.writer(new BufferedJsonOutput(buffer))) {
       jsonb.toJson(value, writer);
       return buffer;

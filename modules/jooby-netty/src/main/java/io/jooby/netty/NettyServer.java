@@ -22,9 +22,9 @@ import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.SslOptions;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.netty.*;
+import io.jooby.output.OutputFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelOption;
@@ -55,7 +55,7 @@ public class NettyServer extends Server.Base {
   private ExecutorService worker;
 
   private List<Jooby> applications;
-  private NettyBufferedOutputFactory outputFactory;
+  private NettyOutputFactory outputFactory;
 
   /**
    * Creates a server.
@@ -84,10 +84,9 @@ public class NettyServer extends Server.Base {
   public NettyServer() {}
 
   @NonNull @Override
-  public BufferedOutputFactory getOutputFactory() {
+  public OutputFactory getOutputFactory() {
     if (outputFactory == null) {
-      outputFactory =
-          new NettyBufferedOutputFactory(ByteBufAllocator.DEFAULT, getOptions().getBuffer());
+      outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT, getOptions().getBuffer());
     }
     return outputFactory;
   }
@@ -135,7 +134,7 @@ public class NettyServer extends Server.Base {
       this.dateLoop = Executors.newSingleThreadScheduledExecutor();
       var dateService = new NettyDateService(dateLoop);
 
-      var outputFactory = (NettyBufferedOutputFactory) getOutputFactory();
+      var outputFactory = (NettyOutputFactory) getOutputFactory();
       var allocator = outputFactory.getAllocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */

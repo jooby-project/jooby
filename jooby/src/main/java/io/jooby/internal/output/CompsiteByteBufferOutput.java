@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.buffer;
+package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -13,9 +13,9 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
-public class CompsiteByteBufferOutput implements BufferedOutput {
+public class CompsiteByteBufferOutput implements Output {
   private final List<ByteBuffer> chunks = new ArrayList<>();
   private int size = 0;
 
@@ -25,25 +25,25 @@ public class CompsiteByteBufferOutput implements BufferedOutput {
   }
 
   @Override
-  public BufferedOutput write(byte b) {
+  public Output write(byte b) {
     addChunk(ByteBuffer.wrap(new byte[] {b}));
     return this;
   }
 
   @Override
-  public BufferedOutput write(byte[] source) {
+  public Output write(byte[] source) {
     addChunk(ByteBuffer.wrap(source));
     return this;
   }
 
   @Override
-  public BufferedOutput write(byte[] source, int offset, int length) {
+  public Output write(byte[] source, int offset, int length) {
     addChunk(ByteBuffer.wrap(source, offset, length));
     return this;
   }
 
   @Override
-  public BufferedOutput clear() {
+  public Output clear() {
     chunks.forEach(ByteBuffer::clear);
     chunks.clear();
     return this;

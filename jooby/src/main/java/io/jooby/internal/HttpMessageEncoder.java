@@ -20,7 +20,7 @@ import io.jooby.MessageEncoder;
 import io.jooby.ModelAndView;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 public class HttpMessageEncoder implements MessageEncoder {
 
@@ -42,7 +42,7 @@ public class HttpMessageEncoder implements MessageEncoder {
   }
 
   @Override
-  public BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     if (value instanceof ModelAndView<?> modelAndView) {
       for (var engine : templateEngineList) {
         if (engine.supports(modelAndView)) {

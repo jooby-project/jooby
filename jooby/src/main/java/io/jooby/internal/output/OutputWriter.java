@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.buffer;
+package io.jooby.internal.output;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -11,14 +11,14 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 public class OutputWriter extends Writer {
-  private final BufferedOutput output;
+  private final Output output;
   private final Charset charset;
   private boolean closed;
 
-  public OutputWriter(@NonNull BufferedOutput output, @NonNull Charset charset) {
+  public OutputWriter(@NonNull Output output, @NonNull Charset charset) {
     this.output = output;
     this.charset = charset;
   }

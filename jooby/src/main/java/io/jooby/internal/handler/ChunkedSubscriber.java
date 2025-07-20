@@ -14,7 +14,7 @@ import io.jooby.MediaType;
 import io.jooby.Route;
 import io.jooby.Sender;
 import io.jooby.Server;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 public class ChunkedSubscriber implements Flow.Subscriber {
 
@@ -116,7 +116,7 @@ public class ChunkedSubscriber implements Flow.Subscriber {
     sender().close();
   }
 
-  private static BufferedOutput prepend(Context ctx, BufferedOutput data, byte c) {
+  private static Output prepend(Context ctx, Output data, byte c) {
     var buffer = ctx.getOutputFactory().newCompositeOutput();
     buffer.write(c);
     data.transferTo(buffer::write);

@@ -14,7 +14,7 @@ import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 /**
  * Mock implementation of {@link WebSocket} for unit testing purpose.
@@ -92,7 +92,7 @@ public class MockWebSocket implements WebSocket {
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull BufferedOutput message, @NonNull WriteCallback callback) {
+  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
     return sendObject(message, callback);
   }
 
@@ -112,7 +112,7 @@ public class MockWebSocket implements WebSocket {
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull BufferedOutput message, @NonNull WriteCallback callback) {
+  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
     return sendObject(message, callback);
   }
 

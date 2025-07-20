@@ -50,7 +50,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.Cookie;
 import io.jooby.FileUpload;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 import io.jooby.value.Value;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -572,7 +572,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Override
-  @NonNull public Context send(@NonNull BufferedOutput output) {
+  @NonNull public Context send(@NonNull Output output) {
     output.send(this);
     return this;
   }

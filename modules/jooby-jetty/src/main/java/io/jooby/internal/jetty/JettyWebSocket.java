@@ -34,7 +34,7 @@ import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, WebSocket {
 
@@ -287,14 +287,14 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
   }
 
   @NonNull @Override
-  public WebSocket send(@NonNull BufferedOutput message, @NonNull WriteCallback callback) {
+  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) -> remote.sendText(message.asString(UTF_8), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
   @NonNull @Override
-  public WebSocket sendBinary(@NonNull BufferedOutput message, @NonNull WriteCallback callback) {
+  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->
             new WebSocketOutputCallback(writeCallback, message, remote::sendBinary).send(),

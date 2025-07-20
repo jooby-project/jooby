@@ -25,8 +25,8 @@ import javax.net.ssl.SSLContext;
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.BufferOptions;
 import io.jooby.internal.SslContextProvider;
+import io.jooby.output.OutputOptions;
 
 /**
  * Available server options. To load server options from configuration files, just do:
@@ -102,7 +102,7 @@ public class ServerOptions {
   /** Name of server: Jetty, Netty or Undertow. */
   private String server;
 
-  private BufferOptions buffer = BufferOptions.defaults();
+  private OutputOptions buffer = OutputOptions.defaults();
 
   /**
    * Maximum request size in bytes. Request exceeding this value results in {@link
@@ -415,11 +415,11 @@ public class ServerOptions {
     return this;
   }
 
-  public BufferOptions getBuffer() {
+  public OutputOptions getBuffer() {
     return buffer;
   }
 
-  public ServerOptions setBuffer(@NonNull BufferOptions buffer) {
+  public ServerOptions setBuffer(@NonNull OutputOptions buffer) {
     this.buffer = buffer;
     return this;
   }

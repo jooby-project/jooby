@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 /**
  * Template engine renderer. This class renderer instances of {@link ModelAndView} objects. Template
@@ -34,10 +34,10 @@ public interface TemplateEngine extends MessageEncoder {
    * @return Rendered template.
    * @throws Exception If something goes wrong.
    */
-  BufferedOutput render(Context ctx, ModelAndView<?> modelAndView) throws Exception;
+  Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception;
 
   @Override
-  default BufferedOutput encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  default Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     // initialize flash and session attributes (if any)
     ctx.flashOrNull();
     ctx.sessionOrNull();

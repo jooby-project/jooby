@@ -13,8 +13,8 @@ module io.jooby {
   exports io.jooby.validation;
   exports io.jooby.problem;
   exports io.jooby.value;
-  exports io.jooby.buffer;
-  exports io.jooby.internal.buffer;
+  exports io.jooby.output;
+  exports io.jooby.internal.output;
 
   uses io.jooby.Server;
   uses io.jooby.SslProvider;

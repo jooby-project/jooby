@@ -5,11 +5,11 @@
  */
 package io.jooby.internal.netty;
 
-import static io.jooby.internal.netty.NettyByteBufOutput.byteBuf;
+import static io.jooby.internal.netty.NettyOutputByteBuf.byteBuf;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,7 +35,7 @@ public class NettySender implements Sender {
   }
 
   @NonNull @Override
-  public Sender write(@NonNull BufferedOutput output, @NonNull Callback callback) {
+  public Sender write(@NonNull Output output, @NonNull Callback callback) {
     context
         .writeAndFlush(new DefaultHttpContent(byteBuf(output)))
         .addListener(newChannelFutureListener(ctx, callback));

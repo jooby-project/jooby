@@ -1,2 +1,2 @@
 @edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
-package io.jooby.buffer;
+package io.jooby.output;

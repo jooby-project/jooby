@@ -3,26 +3,26 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.buffer;
+package io.jooby.internal.output;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 /**
- * An {@link OutputStream} that writes to a {@link BufferedOutput}.
+ * An {@link OutputStream} that writes to a {@link Output}.
  *
- * @see BufferedOutput#asOutputStream()
+ * @see Output#asOutputStream()
  */
 public class OutputOutputStream extends OutputStream {
 
-  private final BufferedOutput output;
+  private final Output output;
 
   private boolean closed;
 
-  public OutputOutputStream(@NonNull BufferedOutput output) {
+  public OutputOutputStream(@NonNull Output output) {
     this.output = output;
   }
 

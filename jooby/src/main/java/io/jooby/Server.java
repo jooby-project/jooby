@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.MutedServer;
+import io.jooby.output.OutputFactory;
 
 /**
  * Web server contract. Defines operations to start, join and stop a web server. Jooby comes with
@@ -159,7 +159,7 @@ public interface Server {
     protected abstract ServerOptions defaultOptions();
   }
 
-  @NonNull BufferedOutputFactory getOutputFactory();
+  @NonNull OutputFactory getOutputFactory();
 
   /**
    * Set server options. This method should be called once, calling this method multiple times will

@@ -56,7 +56,7 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 import io.jooby.value.Value;
 import io.undertow.Handlers;
 import io.undertow.io.IoCallback;
@@ -497,7 +497,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   }
 
   @NonNull @Override
-  public Context send(@NonNull BufferedOutput output) {
+  public Context send(@NonNull Output output) {
     output.send(this);
     return this;
   }

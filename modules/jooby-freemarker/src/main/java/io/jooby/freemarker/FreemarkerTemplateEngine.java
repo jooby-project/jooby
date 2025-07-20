@@ -15,7 +15,7 @@ import freemarker.template.*;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 class FreemarkerTemplateEngine implements TemplateEngine {
 
@@ -33,8 +33,8 @@ class FreemarkerTemplateEngine implements TemplateEngine {
   }
 
   @Override
-  public BufferedOutput render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
-    var buffer = ctx.getOutputFactory().newBufferedOutput();
+  public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
+    var buffer = ctx.getOutputFactory().newOutput();
     var template = freemarker.getTemplate(modelAndView.getView());
     var writer = buffer.asWriter();
     var wrapper = freemarker.getObjectWrapper();

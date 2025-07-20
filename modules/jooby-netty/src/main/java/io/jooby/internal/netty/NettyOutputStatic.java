@@ -5,67 +5,65 @@
  */
 package io.jooby.internal.netty;
 
-import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.util.AsciiString;
 
-public class NettyByteBufferWrappedOutput implements NettyByteBufOutput {
-
-  private final ByteBuffer buffer;
+public class NettyOutputStatic implements NettyOutputByteBuf {
+  private final Supplier<ByteBuf> provider;
   private final AsciiString contentLength;
 
-  protected NettyByteBufferWrappedOutput(ByteBuffer buffer) {
-    this.buffer = buffer;
-    this.contentLength = AsciiString.of(Integer.toString(buffer.remaining()));
+  protected NettyOutputStatic(int length, Supplier<ByteBuf> provider) {
+    this.provider = provider;
+    this.contentLength = AsciiString.of(Integer.toString(length));
   }
 
   @NonNull public ByteBuf byteBuf() {
-    return Unpooled.wrappedBuffer(buffer);
+    return provider.get();
   }
 
   @Override
-  @NonNull public BufferedOutput write(byte b) {
+  @NonNull public Output write(byte b) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @NonNull public BufferedOutput write(byte[] source) {
+  @NonNull public Output write(byte[] source) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @NonNull public BufferedOutput write(byte[] source, int offset, int length) {
+  @NonNull public Output write(byte[] source, int offset, int length) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @NonNull public BufferedOutput write(@NonNull String source, @NonNull Charset charset) {
+  @NonNull public Output write(@NonNull String source, @NonNull Charset charset) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public void send(Context ctx) {
     if (ctx instanceof NettyContext netty) {
-      netty.send(Unpooled.wrappedBuffer(buffer), contentLength);
+      netty.send(provider.get(), contentLength);
     } else {
       ctx.send(asByteBuffer());
     }
   }
 
   @Override
-  public BufferedOutput write(@NonNull CharBuffer source, @NonNull Charset charset) {
+  public Output write(@NonNull CharBuffer source, @NonNull Charset charset) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @NonNull public BufferedOutput clear() {
+  @NonNull public Output clear() {
     return this;
   }
 }

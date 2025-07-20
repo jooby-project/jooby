@@ -29,11 +29,11 @@ import java.util.function.BiFunction;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.BufferedOutput;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.ReadOnlyContext;
 import io.jooby.internal.WebSocketSender;
+import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -143,7 +143,7 @@ public interface Context extends Registry {
    */
   Router getRouter();
 
-  BufferedOutputFactory getOutputFactory();
+  OutputFactory getOutputFactory();
 
   /**
    * Forward executing to another route. We use the given path to find a matching route.
@@ -1298,7 +1298,7 @@ public interface Context extends Registry {
    * @param output Output.
    * @return This context.
    */
-  Context send(@NonNull BufferedOutput output);
+  Context send(@NonNull Output output);
 
   /**
    * Send response data.

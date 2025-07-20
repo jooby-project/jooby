@@ -19,7 +19,7 @@ import io.jooby.ForwardingContext;
 import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 public class WebSocketSender extends ForwardingContext implements DefaultContext {
 
@@ -69,7 +69,7 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
   }
 
   @Override
-  public Context send(@NonNull BufferedOutput output) {
+  public Context send(@NonNull Output output) {
     if (binary) {
       ws.sendBinary(output, callback);
     } else {

@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.buffer;
+package io.jooby.output;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -13,9 +13,8 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.buffer.BufferedOutput;
 
-public class ByteBufferOutput implements BufferedOutput {
+public class ByteBufferOutput implements Output {
   private static final int MAX_CAPACITY = Integer.MAX_VALUE;
 
   private static final int CAPACITY_THRESHOLD = 1024 * 1024 * 4;
@@ -70,7 +69,7 @@ public class ByteBufferOutput implements BufferedOutput {
   }
 
   @Override
-  public BufferedOutput write(byte b) {
+  public Output write(byte b) {
     ensureWritable(1);
     this.buffer.put(this.writePosition, b);
     this.writePosition += 1;
@@ -78,12 +77,12 @@ public class ByteBufferOutput implements BufferedOutput {
   }
 
   @Override
-  public BufferedOutput write(byte[] source) {
+  public Output write(byte[] source) {
     return write(source, 0, source.length);
   }
 
   @Override
-  public BufferedOutput write(byte[] source, int offset, int length) {
+  public Output write(byte[] source, int offset, int length) {
     ensureWritable(length);
 
     var tmp = this.buffer.duplicate();
@@ -96,7 +95,7 @@ public class ByteBufferOutput implements BufferedOutput {
   }
 
   @Override
-  public BufferedOutput write(@NonNull ByteBuffer source) {
+  public Output write(@NonNull ByteBuffer source) {
     ensureWritable(source.remaining());
     var length = source.remaining();
     var tmp = this.buffer.duplicate();
@@ -108,7 +107,7 @@ public class ByteBufferOutput implements BufferedOutput {
   }
 
   @Override
-  public BufferedOutput clear() {
+  public Output clear() {
     this.buffer.clear();
     return this;
   }

@@ -39,11 +39,11 @@ import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
+import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
 import io.jooby.value.ValueFactory;
 import jakarta.inject.Provider;
@@ -170,7 +170,7 @@ public class RouterImpl implements Router {
 
   private ValueFactory valueFactory = new ValueFactory();
 
-  private BufferedOutputFactory outputFactory;
+  private OutputFactory outputFactory;
 
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
@@ -432,11 +432,11 @@ public class RouterImpl implements Router {
   }
 
   @NonNull @Override
-  public BufferedOutputFactory getOutputFactory() {
+  public OutputFactory getOutputFactory() {
     return outputFactory;
   }
 
-  public void setOutputFactory(@NonNull BufferedOutputFactory outputFactory) {
+  public void setOutputFactory(@NonNull OutputFactory outputFactory) {
     this.outputFactory = outputFactory;
   }
 

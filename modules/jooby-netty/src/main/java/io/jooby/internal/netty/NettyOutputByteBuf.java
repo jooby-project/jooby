@@ -11,11 +11,11 @@ import java.nio.charset.Charset;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public interface NettyByteBufOutput extends BufferedOutput {
+public interface NettyOutputByteBuf extends Output {
   @NonNull ByteBuf byteBuf();
 
   @Override
@@ -48,8 +48,8 @@ public interface NettyByteBufOutput extends BufferedOutput {
     }
   }
 
-  static ByteBuf byteBuf(BufferedOutput output) {
-    if (output instanceof NettyByteBufOutput netty) {
+  static ByteBuf byteBuf(Output output) {
+    if (output instanceof NettyOutputByteBuf netty) {
       return netty.byteBuf();
     } else {
       return Unpooled.wrappedBuffer(output.asByteBuffer());

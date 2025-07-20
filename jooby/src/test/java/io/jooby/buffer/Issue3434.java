@@ -15,9 +15,11 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
+import io.jooby.output.OutputFactory;
+import io.jooby.output.OutputOptions;
 
 public class Issue3434 {
-  BufferedOutputFactory factory = BufferedOutputFactory.create(BufferOptions.small());
+  OutputFactory factory = OutputFactory.create(OutputOptions.small());
 
   @Test
   void shouldWriteCharBufferOnBufferWriter() throws IOException {
@@ -142,7 +144,7 @@ public class Issue3434 {
 
   private String writeCharSequence(Charset charset, SneakyThrows.Consumer<Writer> writer)
       throws IOException {
-    var buffer = factory.newBufferedOutput();
+    var buffer = factory.newOutput();
     try (var out = buffer.asWriter(charset)) {
       writer.accept(out);
       return buffer.asString(charset);

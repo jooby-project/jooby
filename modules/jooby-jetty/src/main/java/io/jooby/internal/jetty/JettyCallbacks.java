@@ -11,7 +11,7 @@ import java.util.Iterator;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
 public class JettyCallbacks {
   public static class ByteBufferArrayCallback implements Callback {
@@ -52,7 +52,7 @@ public class JettyCallbacks {
     private final Iterator<ByteBuffer> it;
     private boolean closeOnLast;
 
-    public OutputCallback(Response response, Callback cb, BufferedOutput buffer) {
+    public OutputCallback(Response response, Callback cb, Output buffer) {
       this.response = response;
       this.cb = cb;
       this.it = buffer.iterator();
@@ -87,7 +87,7 @@ public class JettyCallbacks {
     }
   }
 
-  public static OutputCallback fromOutput(Response response, Callback cb, BufferedOutput output) {
+  public static OutputCallback fromOutput(Response response, Callback cb, Output output) {
     return new OutputCallback(response, cb, output);
   }
 

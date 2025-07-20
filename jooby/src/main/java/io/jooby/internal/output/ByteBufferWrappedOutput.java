@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.buffer;
+package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -11,9 +11,9 @@ import java.nio.charset.Charset;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.buffer.BufferedOutput;
+import io.jooby.output.Output;
 
-public class ByteBufferWrappedOutput implements BufferedOutput {
+public class ByteBufferWrappedOutput implements Output {
 
   private final ByteBuffer buffer;
 
@@ -22,22 +22,22 @@ public class ByteBufferWrappedOutput implements BufferedOutput {
   }
 
   @Override
-  public BufferedOutput write(byte b) {
+  public Output write(byte b) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BufferedOutput write(byte[] source) {
+  public Output write(byte[] source) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BufferedOutput write(byte[] source, int offset, int length) {
+  public Output write(byte[] source, int offset, int length) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BufferedOutput clear() {
+  public Output clear() {
     buffer.clear();
     return this;
   }

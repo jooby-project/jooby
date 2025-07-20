@@ -15,17 +15,17 @@ import org.junit.jupiter.api.Test;
 import gg.jte.TemplateOutput;
 import gg.jte.models.runtime.JteModel;
 import io.jooby.Context;
-import io.jooby.buffer.BufferedOutput;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.internal.jte.JteModelEncoder;
+import io.jooby.output.Output;
+import io.jooby.output.OutputFactory;
 
 public class Issue3602 {
 
   @Test
   public void shouldRenderJteModel() throws Exception {
-    var bufferFactory = mock(BufferedOutputFactory.class);
-    var buffer = mock(BufferedOutput.class);
-    when(bufferFactory.newBufferedOutput()).thenReturn(buffer);
+    var bufferFactory = mock(OutputFactory.class);
+    var buffer = mock(Output.class);
+    when(bufferFactory.newOutput()).thenReturn(buffer);
 
     var attributes = Map.<String, Object>of("foo", 1);
     var ctx = mock(Context.class);

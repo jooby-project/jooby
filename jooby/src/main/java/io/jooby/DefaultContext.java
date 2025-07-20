@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.buffer.BufferedOutputFactory;
 import io.jooby.exception.RegistryException;
 import io.jooby.internal.*;
+import io.jooby.output.OutputFactory;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -690,7 +690,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default BufferedOutputFactory getOutputFactory() {
+  default OutputFactory getOutputFactory() {
     return getRouter().getOutputFactory();
   }
 }
