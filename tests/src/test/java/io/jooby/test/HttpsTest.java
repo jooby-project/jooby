@@ -7,6 +7,7 @@ package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import io.jooby.RouterOptions;
 import io.jooby.ServerOptions;
 import io.jooby.SslOptions;
 import io.jooby.handler.SSLHandler;
@@ -96,7 +97,7 @@ public class HttpsTest {
         .options(new ServerOptions().setSecurePort(8443))
         .define(
             app -> {
-              app.setTrustProxy(true);
+              app.setRouterOptions(new RouterOptions().setTrustProxy(true));
               app.setContextPath("/secure");
 
               app.before(new SSLHandler());
@@ -131,7 +132,7 @@ public class HttpsTest {
         .options(new ServerOptions().setSecurePort(8443))
         .define(
             app -> {
-              app.setTrustProxy(true);
+              app.setRouterOptions(new RouterOptions().setTrustProxy(true));
 
               app.before(new SSLHandler());
 

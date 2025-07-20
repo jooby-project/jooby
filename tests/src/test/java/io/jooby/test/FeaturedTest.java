@@ -3820,7 +3820,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.setTrustProxy(true);
+              app.setRouterOptions(new RouterOptions().setTrustProxy(true));
 
               app.get("/{path}", ctx -> ctx.getRequestURL());
             })
@@ -3871,7 +3871,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.setTrustProxy(true);
+              app.setRouterOptions(new RouterOptions().setTrustProxy(true));
               app.setContextPath("/x");
               app.get("/{path}", ctx -> ctx.getRequestURL());
             })

@@ -361,7 +361,9 @@ public interface DefaultContext extends Context {
   @Override
   default String getHostAndPort() {
     Optional<String> header =
-        getRouter().isTrustProxy() ? header("X-Forwarded-Host").toOptional() : Optional.empty();
+        getRouter().getRouterOptions().isTrustProxy()
+            ? header("X-Forwarded-Host").toOptional()
+            : Optional.empty();
     var value =
         header.orElseGet(
             () ->

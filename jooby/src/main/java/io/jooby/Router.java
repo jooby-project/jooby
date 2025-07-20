@@ -204,52 +204,9 @@ public interface Router extends Registry {
    */
   @NonNull String getContextPath();
 
-  /**
-   * When true handles X-Forwarded-* headers by updating the values on the current context to match
-   * what was sent in the header(s).
-   *
-   * <p>This should only be installed behind a reverse proxy that has been configured to send the
-   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by sending a
-   * header with bogus values.
-   *
-   * <p>The headers that are read/set are:
-   *
-   * <ul>
-   *   <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.
-   *   <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.
-   *   <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.
-   *   <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.
-   * </ul>
-   *
-   * @return True when enabled. Default is false.
-   */
-  boolean isTrustProxy();
-
   boolean isStarted();
 
   boolean isStopped();
-
-  /**
-   * When true handles X-Forwarded-* headers by updating the values on the current context to match
-   * what was sent in the header(s).
-   *
-   * <p>This should only be installed behind a reverse proxy that has been configured to send the
-   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by sending a
-   * header with bogus values.
-   *
-   * <p>The headers that are read/set are:
-   *
-   * <ul>
-   *   <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.
-   *   <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.
-   *   <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.
-   *   <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.
-   * </ul>
-   *
-   * @param trustProxy True to enable.
-   * @return This router.
-   */
-  @NonNull Router setTrustProxy(boolean trustProxy);
 
   /**
    * Provides a way to override the current HTTP method. Request must be:
@@ -280,15 +237,6 @@ public interface Router extends Registry {
    */
   @NonNull Router setCurrentUser(@NonNull Function<Context, Object> provider);
 
-  /**
-   * If enabled, allows to retrieve the {@link Context} object associated with the current request
-   * via the service registry while the request is being processed.
-   *
-   * @param contextAsService whether to enable or disable this feature
-   * @return This router.
-   */
-  @NonNull Router setContextAsService(boolean contextAsService);
-
   /* ***********************************************************************************************
    * use(Router)
    * ***********************************************************************************************
@@ -304,7 +252,8 @@ public interface Router extends Registry {
    * }
    * }</pre>
    *
-   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link
+   * RouterOptions#setTrustProxy(boolean)}.
    *
    * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
@@ -328,7 +277,8 @@ public interface Router extends Registry {
    * }
    * }</pre>
    *
-   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link
+   * RouterOptions#setTrustProxy(boolean)}.
    *
    * @param domain Predicate
    * @param body Route action.
@@ -352,7 +302,7 @@ public interface Router extends Registry {
    * Imported routes are matched only when predicate pass.
    *
    * <p>NOTE: if you run behind a reverse proxy you might to enabled {@link
-   * #setTrustProxy(boolean)}.
+   * RouterOptions#setTrustProxy(boolean)}.
    *
    * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
@@ -379,7 +329,8 @@ public interface Router extends Registry {
    * }
    * }</pre>
    *
-   * NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+   * NOTE: if you run behind a reverse proxy you might to enabled {@link
+   * RouterOptions#setTrustProxy(boolean)}.
    *
    * <p>NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
    *
@@ -852,9 +803,7 @@ public interface Router extends Registry {
   @NonNull Router setRouterOptions(@NonNull RouterOptions options);
 
   /**
-   * Session store. Default use a cookie ID with a memory storage.
-   *
-   * <p>See {@link SessionStore#memory()}.
+   * Session store. Default is {@link SessionStore#UNSUPPORTED}.
    *
    * @return Session store.
    */

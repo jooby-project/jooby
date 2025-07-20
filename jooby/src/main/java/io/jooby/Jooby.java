@@ -451,11 +451,6 @@ public class Jooby implements Router, Registry {
   }
 
   @Override
-  public boolean isTrustProxy() {
-    return router.isTrustProxy();
-  }
-
-  @Override
   public boolean isStarted() {
     return started.get();
   }
@@ -463,12 +458,6 @@ public class Jooby implements Router, Registry {
   @Override
   public boolean isStopped() {
     return stopped.get();
-  }
-
-  @NonNull @Override
-  public Jooby setTrustProxy(boolean trustProxy) {
-    this.router.setTrustProxy(trustProxy);
-    return this;
   }
 
   @NonNull @Override
@@ -860,12 +849,6 @@ public class Jooby implements Router, Registry {
   @NonNull @Override
   public Jooby setCurrentUser(@NonNull Function<Context, Object> provider) {
     router.setCurrentUser(provider);
-    return this;
-  }
-
-  @NonNull @Override
-  public Jooby setContextAsService(boolean contextAsService) {
-    router.setContextAsService(contextAsService);
     return this;
   }
 

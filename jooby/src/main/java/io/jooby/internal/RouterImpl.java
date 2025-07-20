@@ -45,7 +45,6 @@ import io.jooby.internal.handler.WebSocketHandler;
 import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
 import io.jooby.value.ValueFactory;
-import jakarta.inject.Provider;
 
 public class RouterImpl implements Router {
 
@@ -159,10 +158,6 @@ public class RouterImpl implements Router {
 
   private RouterOptions routerOptions = RouterOptions.defaults();
 
-  private boolean trustProxy;
-
-  private boolean contextAsService;
-
   private boolean started;
 
   private boolean stopped;
@@ -233,11 +228,6 @@ public class RouterImpl implements Router {
   }
 
   @Override
-  public boolean isTrustProxy() {
-    return trustProxy;
-  }
-
-  @Override
   public boolean isStarted() {
     return started;
   }
@@ -247,15 +237,12 @@ public class RouterImpl implements Router {
     return stopped;
   }
 
-  @NonNull @Override
-  public Router setTrustProxy(boolean trustProxy) {
-    this.trustProxy = trustProxy;
+  private void configureTrustProxy(boolean trustProxy) {
     if (trustProxy) {
       addPreDispatchInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
     } else {
       removePreDispatchInitializer(ContextInitializer.PROXY_PEER_ADDRESS);
     }
-    return this;
   }
 
   @NonNull @Override
@@ -548,6 +535,8 @@ public class RouterImpl implements Router {
 
   @NonNull public Router start(@NonNull Jooby app, @NonNull Server server) {
     started = true;
+    configureTrustProxy(routerOptions.isTrustProxy());
+    setContextAsService();
     var globalErrHandler = defineGlobalErrorHandler(app);
     if (err == null) {
       err = globalErrHandler;
@@ -812,21 +801,9 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override
-  public Router setContextAsService(boolean contextAsService) {
-    if (this.contextAsService == contextAsService) {
-      return this;
-    }
-
-    this.contextAsService = contextAsService;
-
-    if (contextAsService) {
-      addPostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
-      getServices().put(Context.class, ContextAsServiceInitializer.INSTANCE);
-    } else {
-      removePostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
-      getServices().put(Context.class, (Provider<Context>) null);
-    }
+  private Router setContextAsService() {
+    addPostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
+    getServices().put(Context.class, ContextAsServiceInitializer.INSTANCE);
 
     return this;
   }

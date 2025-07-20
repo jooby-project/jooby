@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 /**
  * Router options:
  *
@@ -37,6 +39,25 @@ public class RouterOptions {
 
   /** Indicates whenever response headers are clear/reset in case of exception. */
   private boolean resetHeadersOnError;
+
+  /**
+   * When true handles X-Forwarded-* headers by updating the values on the current context to match
+   * what was sent in the header(s).
+   *
+   * <p>This should only be installed behind a reverse proxy that has been configured to send the
+   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by sending a
+   * header with bogus values.
+   *
+   * <p>The headers that are read/set are:
+   *
+   * <ul>
+   *   <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.
+   *   <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.
+   *   <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.
+   *   <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.
+   * </ul>
+   */
+  private boolean trustProxy;
 
   /**
    * Indicates whenever routing algorithm does case-sensitive matching on an incoming request path.
@@ -177,5 +198,53 @@ public class RouterOptions {
    */
   public static RouterOptions caseInsensitive() {
     return new RouterOptions().ignoreCase(true).resetHeaderOnError(true);
+  }
+
+  /**
+   * When true handles X-Forwarded-* headers by updating the values on the current context to match
+   * what was sent in the header(s).
+   *
+   * <p>This should only be installed behind a reverse proxy that has been configured to send the
+   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by sending a
+   * header with bogus values.
+   *
+   * <p>The headers that are read/set are:
+   *
+   * <ul>
+   *   <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.
+   *   <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.
+   *   <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.
+   *   <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.
+   * </ul>
+   *
+   * @return True when enabled. Default is false.
+   */
+  public boolean isTrustProxy() {
+    return trustProxy;
+  }
+
+  /**
+   * When true handles X-Forwarded-* headers by updating the values on the current context to match
+   * what was sent in the header(s).
+   *
+   * <p>This should only be installed behind a reverse proxy that has been configured to send the
+   * <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by sending a
+   * header with bogus values.
+   *
+   * <p>The headers that are read/set are:
+   *
+   * <ul>
+   *   <li>X-Forwarded-For: Set/update the remote address {@link Context#setRemoteAddress(String)}.
+   *   <li>X-Forwarded-Proto: Set/update request scheme {@link Context#setScheme(String)}.
+   *   <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.
+   *   <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.
+   * </ul>
+   *
+   * @param trustProxy True to enable.
+   * @return This options.
+   */
+  @NonNull public RouterOptions setTrustProxy(boolean trustProxy) {
+    this.trustProxy = trustProxy;
+    return this;
   }
 }
