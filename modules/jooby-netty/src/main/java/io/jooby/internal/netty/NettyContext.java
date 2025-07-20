@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.netty;
 
+import static io.jooby.internal.netty.NettyHeadersFactory.HEADERS;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -31,7 +32,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -75,12 +75,11 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.IllegalReferenceCountException;
 
 public class NettyContext implements DefaultContext, ChannelFutureListener {
-  public static HttpHeadersFactory HEADERS = HeadersMultiMap.httpHeadersFactory();
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   private static final String STREAM_ID = "x-http2-stream-id";
 
   private String streamId;
-  HttpHeaders setHeaders = HEADERS.newHeaders();
+  HeadersMultiMap setHeaders = HEADERS.newHeaders();
   private int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   DefaultHttpDataFactory httpDataFactory;
@@ -286,7 +285,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     SslHandler sslHandler = (SslHandler) ctx.channel().pipeline().get("ssl");
     if (sslHandler != null) {
       try {
-        return Arrays.asList(sslHandler.engine().getSession().getPeerCertificates());
+        return List.of(sslHandler.engine().getSession().getPeerCertificates());
       } catch (SSLPeerUnverifiedException x) {
         throw SneakyThrows.propagate(x);
       }
@@ -420,13 +419,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     responseStarted = true;
     ctx.writeAndFlush(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
 
-    //    ctx.executor().execute(() -> {
     try {
       handler.handle(new NettyServerSentEmitter(this));
     } catch (Throwable x) {
       sendError(x);
     }
-    //    });
     return this;
   }
 

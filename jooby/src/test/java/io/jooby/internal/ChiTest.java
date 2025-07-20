@@ -42,6 +42,9 @@ public class ChiTest {
     router.insert(route("GET", "/4", stringHandler("4")));
     router.insert(route("GET", "/5", stringHandler("5")));
     router.insert(route("GET", "/6", stringHandler("6")));
+
+    Router.Match result = router.find("GET", "/1");
+    assertTrue(result.matches());
   }
 
   @Test

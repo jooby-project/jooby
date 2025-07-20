@@ -20,6 +20,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
+import org.eclipse.jetty.util.ProcessorUtils;
 import org.eclipse.jetty.util.compression.CompressionPool;
 import org.eclipse.jetty.util.compression.DeflaterPool;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -47,6 +48,13 @@ import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
 public class JettyServer extends io.jooby.Server.Base {
 
   private static final int THREADS = 200;
+
+  static {
+    int cpus = ProcessorUtils.availableProcessors();
+    var ioThreads = Math.max(1, Math.min(cpus / 2, THREADS / 16));
+    System.setProperty("jooby.server.ioThreads", ioThreads + "");
+  }
+
   private BufferedOutputFactory outputFactory;
 
   private Server server;

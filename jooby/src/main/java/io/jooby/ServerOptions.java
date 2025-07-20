@@ -72,7 +72,11 @@ public class ServerOptions {
   private static final String LOCAL_HOST = "0.0.0.0";
 
   /** Number of available threads, but never smaller than <code>2</code>. */
-  public static final int IO_THREADS = Runtime.getRuntime().availableProcessors() * 2;
+  public static final int IO_THREADS =
+      Integer.parseInt(
+          System.getProperty(
+              "jooby.server.ioThreads",
+              Integer.toString(Runtime.getRuntime().availableProcessors())));
 
   /**
    * Number of worker (a.k.a application) threads. It is the number of processors multiply by <code>

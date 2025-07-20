@@ -6,6 +6,7 @@
 package io.jooby.netty;
 
 import static io.jooby.ServerOptions._4KB;
+import static io.jooby.internal.netty.NettyHeadersFactory.HEADERS;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 import java.net.BindException;
@@ -199,8 +200,8 @@ public class NettyServer extends Server.Base {
             .setMaxInitialLineLength(_4KB)
             .setMaxHeaderSize(options.getMaxHeaderSize())
             .setMaxChunkSize(options.getBuffer().getSize())
-            .setHeadersFactory(NettyContext.HEADERS)
-            .setTrailersFactory(NettyContext.HEADERS);
+            .setHeadersFactory(HEADERS)
+            .setTrailersFactory(HEADERS);
     return new NettyPipeline(
         sslContext,
         dateService,

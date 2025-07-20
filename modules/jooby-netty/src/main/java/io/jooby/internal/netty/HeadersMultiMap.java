@@ -17,7 +17,6 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.handler.codec.DateFormatter;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpHeadersFactory;
 import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
 
@@ -59,20 +58,6 @@ public final class HeadersMultiMap extends HttpHeaders {
             valueValidator.validate(value);
           };
     }
-  }
-
-  public static HttpHeadersFactory httpHeadersFactory() {
-    return new HttpHeadersFactory() {
-      @Override
-      public HttpHeaders newHeaders() {
-        return new HeadersMultiMap();
-      }
-
-      @Override
-      public HttpHeaders newEmptyHeaders() {
-        return new HeadersMultiMap();
-      }
-    };
   }
 
   @Override

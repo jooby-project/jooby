@@ -515,8 +515,6 @@ class Chi implements RouteTree {
     StaticRouterMatch get(String method);
 
     void put(String method, StaticRouterMatch route);
-
-    boolean matches(String method);
   }
 
   private static class SingleMethodMatcher implements MethodMatcher {
@@ -531,15 +529,7 @@ class Chi implements RouteTree {
 
     @Override
     public StaticRouterMatch get(String method) {
-      if (this.method == method) {
-        return route;
-      }
       return this.method.equals(method) ? route : null;
-    }
-
-    @Override
-    public boolean matches(String method) {
-      return this.method.equals(method);
     }
 
     public void clear() {
@@ -564,11 +554,6 @@ class Chi implements RouteTree {
     @Override
     public void put(String method, StaticRouterMatch route) {
       methods.put(method, route);
-    }
-
-    @Override
-    public boolean matches(String method) {
-      return this.methods.containsKey(method);
     }
   }
 

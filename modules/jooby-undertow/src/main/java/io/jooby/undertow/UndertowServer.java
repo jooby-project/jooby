@@ -42,6 +42,11 @@ import io.undertow.server.handlers.encoding.GzipEncodingProvider;
  */
 public class UndertowServer extends Server.Base {
 
+  static {
+    System.setProperty(
+        "jooby.server.ioThreads", (Runtime.getRuntime().availableProcessors() * 2) + "");
+  }
+
   private static final int BACKLOG = 8192;
 
   private static final int _100 = 100;
