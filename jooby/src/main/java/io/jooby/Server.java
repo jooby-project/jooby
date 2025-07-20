@@ -156,7 +156,9 @@ public interface Server {
       return this;
     }
 
-    protected abstract ServerOptions defaultOptions();
+    protected ServerOptions defaultOptions() {
+      return new ServerOptions();
+    }
   }
 
   @NonNull OutputFactory getOutputFactory();
@@ -298,11 +300,6 @@ public interface Server {
       var log = LoggerFactory.getLogger(servers.get(0).getClass());
       log.warn("Multiple servers found {}. Using: {}", names, names.get(0));
     }
-    var server = servers.get(0);
-    if (options != null) {
-      options.setServer(server.getName());
-      server.setOptions(options);
-    }
-    return server;
+    return servers.get(0);
   }
 }

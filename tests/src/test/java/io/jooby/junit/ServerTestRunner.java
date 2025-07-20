@@ -54,10 +54,7 @@ public class ServerTestRunner {
   public ServerTestRunner define(Consumer<Jooby> consumer) {
     use(
         () -> {
-          Jooby app = new Jooby();
-          if (serverOptions != null) {
-            app.getServices().put(ServerOptions.class, serverOptions);
-          }
+          var app = new Jooby();
           if (app.getSessionStore() == SessionStore.UNSUPPORTED) {
             // set default session
             app.setSessionStore(SessionStore.memory(Cookie.session("jooby.sid")));
@@ -89,6 +86,7 @@ public class ServerTestRunner {
     Server server = this.server.get(serverOptions);
     String applogger = null;
     try {
+      setServerOptions(Optional.ofNullable(serverOptions).orElse(server.getOptions()));
       setOutputFactory(server.getOutputFactory());
       setExecutionMode(Optional.ofNullable(executionMode).orElse(ExecutionMode.DEFAULT));
       System.setProperty("___app_name__", testName);
@@ -143,6 +141,17 @@ public class ServerTestRunner {
       }
       setOutputFactory(null);
       setExecutionMode(null);
+      setServerOptions(null);
+    }
+  }
+
+  private void setServerOptions(ServerOptions options) {
+    try {
+      var field = Jooby.class.getDeclaredField("SERVER_OPTIONS");
+      field.setAccessible(true);
+      field.set(null, options);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw SneakyThrows.propagate(e);
     }
   }
 

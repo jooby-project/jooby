@@ -182,12 +182,11 @@ public interface Router extends Registry {
   @NonNull ServiceRegistry getServices();
 
   /**
-   * Server options. They might be null during application initialization. Once deployed, they are
-   * never null (at runtime).
+   * Server options.
    *
-   * @return Server options or <code>null</code>.
+   * @return Server options.
    */
-  @Nullable ServerOptions getServerOptions();
+  @NonNull ServerOptions getServerOptions();
 
   /**
    * Set application context path. Context path is the base path for all routes. Default is: <code>/

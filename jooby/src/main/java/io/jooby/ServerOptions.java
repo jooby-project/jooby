@@ -75,23 +75,28 @@ public class ServerOptions {
   public static final int IO_THREADS =
       Integer.parseInt(
           System.getProperty(
-              "jooby.server.ioThreads",
-              Integer.toString(Runtime.getRuntime().availableProcessors())));
+              "server.ioThreads", Integer.toString(Runtime.getRuntime().availableProcessors())));
+
+  private static final String SERVER_NAME = System.getProperty("server.name");
 
   /**
    * Number of worker (a.k.a application) threads. It is the number of processors multiply by <code>
    * 8</code>.
    */
-  public static final int WORKER_THREADS = Runtime.getRuntime().availableProcessors() * 8;
+  public static final int WORKER_THREADS =
+      Integer.parseInt(
+          System.getProperty(
+              "server.workerThreads",
+              Integer.toString(Runtime.getRuntime().availableProcessors() * 8)));
 
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */
   private int port = SERVER_PORT;
 
   /** Number of IO threads used by the server. Used by Netty and Undertow. */
-  private Integer ioThreads;
+  private int ioThreads = IO_THREADS;
 
   /** Number of worker threads (a.k.a application) to use. */
-  private Integer workerThreads;
+  private int workerThreads = WORKER_THREADS;
 
   /**
    * Configure server to default headers: <code>Date</code>, <code>Content-Type</code> and <code>
@@ -100,9 +105,9 @@ public class ServerOptions {
   private boolean defaultHeaders = true;
 
   /** Name of server: Jetty, Netty or Undertow. */
-  private String server;
+  private String server = SERVER_NAME;
 
-  private OutputOptions buffer = OutputOptions.defaults();
+  private OutputOptions output = OutputOptions.defaults();
 
   /**
    * Maximum request size in bytes. Request exceeding this value results in {@link
@@ -150,11 +155,11 @@ public class ServerOptions {
       if (conf.hasPath("server.name")) {
         options.setServer(conf.getString("server.name"));
       }
-      if (conf.hasPath("server.buffer.size")) {
-        options.buffer.setSize(conf.getInt("server.buffer.size"));
+      if (conf.hasPath("server.output.size")) {
+        options.output.setSize(conf.getInt("server.output.size"));
       }
-      if (conf.hasPath("server.buffer.useDirectBuffers")) {
-        options.buffer.setDirectBuffers(conf.getBoolean("server.buffer.useDirectBuffers"));
+      if (conf.hasPath("server.output.useDirectBuffers")) {
+        options.output.setDirectBuffers(conf.getBoolean("server.output.useDirectBuffers"));
       }
       if (conf.hasPath("server.defaultHeaders")) {
         options.setDefaultHeaders(conf.getBoolean("server.defaultHeaders"));
@@ -197,11 +202,9 @@ public class ServerOptions {
     StringBuilder buff = new StringBuilder();
     buff.append(Optional.ofNullable(server).orElse("server")).append(" {");
     buff.append("port: ").append(port);
-    if (!"jetty".equals(server)) {
-      buff.append(", ioThreads: ").append(Optional.ofNullable(ioThreads).orElse(IO_THREADS));
-    }
+    buff.append(", ioThreads: ").append(getIoThreads());
     buff.append(", workerThreads: ").append(getWorkerThreads());
-    buff.append(", buffer: ").append(getBuffer());
+    buff.append(", output: ").append(getOutput());
     buff.append(", maxRequestSize: ").append(maxRequestSize);
     buff.append(", httpsOnly: ").append(httpsOnly);
     if (compressionLevel != null) {
@@ -311,17 +314,7 @@ public class ServerOptions {
    * @return Number of IO threads used by the server. Required by Netty and Undertow.
    */
   public int getIoThreads() {
-    return getIoThreads(IO_THREADS);
-  }
-
-  /**
-   * Number of IO threads used by the server. Required by Netty and Undertow.
-   *
-   * @param defaultIoThreads Default number of threads if none was set.
-   * @return Number of IO threads used by the server. Required by Netty and Undertow.
-   */
-  public int getIoThreads(int defaultIoThreads) {
-    return ioThreads == null ? defaultIoThreads : ioThreads;
+    return ioThreads;
   }
 
   /**
@@ -343,19 +336,7 @@ public class ServerOptions {
    *     allowed to block.
    */
   public int getWorkerThreads() {
-    return getWorkerThreads(WORKER_THREADS);
-  }
-
-  /**
-   * Number of worker threads (a.k.a application) to use. These are the threads which are allowed to
-   * block.
-   *
-   * @param defaultWorkerThreads Default worker threads is none was set.
-   * @return Number of worker threads (a.k.a application) to use. These are the threads which are
-   *     allowed to block.
-   */
-  public int getWorkerThreads(int defaultWorkerThreads) {
-    return workerThreads == null ? defaultWorkerThreads : workerThreads;
+    return workerThreads;
   }
 
   /**
@@ -415,12 +396,12 @@ public class ServerOptions {
     return this;
   }
 
-  public OutputOptions getBuffer() {
-    return buffer;
+  public OutputOptions getOutput() {
+    return output;
   }
 
-  public ServerOptions setBuffer(@NonNull OutputOptions buffer) {
-    this.buffer = buffer;
+  public ServerOptions setOutput(@NonNull OutputOptions output) {
+    this.output = output;
     return this;
   }
 

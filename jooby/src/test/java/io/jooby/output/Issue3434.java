@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.buffer;
+package io.jooby.output;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,8 +15,6 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
-import io.jooby.output.OutputFactory;
-import io.jooby.output.OutputOptions;
 
 public class Issue3434 {
   OutputFactory factory = OutputFactory.create(OutputOptions.small());

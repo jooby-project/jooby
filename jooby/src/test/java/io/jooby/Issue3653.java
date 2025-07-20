@@ -26,7 +26,6 @@ public class Issue3653 {
       return null;
     }
 
-    @Override
     protected ServerOptions defaultOptions() {
       return defaultOptions;
     }

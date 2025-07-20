@@ -42,9 +42,11 @@ import io.undertow.server.handlers.encoding.GzipEncodingProvider;
  */
 public class UndertowServer extends Server.Base {
 
+  private static final String NAME = "undertow";
+
   static {
-    System.setProperty(
-        "jooby.server.ioThreads", (Runtime.getRuntime().availableProcessors() * 2) + "");
+    // Default values
+    System.setProperty("server.name", NAME);
   }
 
   private static final int BACKLOG = 8192;
@@ -77,19 +79,14 @@ public class UndertowServer extends Server.Base {
   @NonNull @Override
   public OutputFactory getOutputFactory() {
     if (outputFactory == null) {
-      outputFactory = OutputFactory.create(getOptions().getBuffer());
+      outputFactory = OutputFactory.create(getOptions().getOutput());
     }
     return outputFactory;
   }
 
-  @Override
-  protected ServerOptions defaultOptions() {
-    return new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer(getName());
-  }
-
   @NonNull @Override
   public String getName() {
-    return "undertow";
+    return NAME;
   }
 
   @Override
@@ -110,7 +107,7 @@ public class UndertowServer extends Server.Base {
       HttpHandler handler =
           new UndertowHandler(
               this.applications,
-              getOptions().getBuffer().getSize(),
+              getOptions().getOutput().getSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
 
@@ -144,8 +141,8 @@ public class UndertowServer extends Server.Base {
 
       Undertow.Builder builder =
           Undertow.builder()
-              .setBufferSize(options.getBuffer().getSize())
-              .setDirectBuffers(options.getBuffer().isDirectBuffers())
+              .setBufferSize(options.getOutput().getSize())
+              .setDirectBuffers(options.getOutput().isDirectBuffers())
               /* Socket : */
               .setSocketOption(Options.BACKLOG, BACKLOG)
               /* Server: */

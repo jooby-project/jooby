@@ -33,7 +33,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +88,7 @@ public class Jooby implements Router, Registry {
   private static Jooby owner;
   private static ExecutionMode BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
   private static OutputFactory OUTPUT_FACTORY;
+  private static ServerOptions SERVER_OPTIONS;
 
   private RouterImpl router;
 
@@ -136,6 +136,7 @@ public class Jooby implements Router, Registry {
       // NOTE: fallback to default, this is required for direct instance creation of class
       // app bootstrap always ensures server instance.
       router.setOutputFactory(Optional.ofNullable(OUTPUT_FACTORY).orElseGet(OutputFactory::create));
+      router.setServerOptions(Optional.ofNullable(SERVER_OPTIONS).orElseGet(ServerOptions::new));
     } else {
       copyState(owner, this);
     }
@@ -444,7 +445,7 @@ public class Jooby implements Router, Registry {
     return router;
   }
 
-  @Nullable @Override
+  @NonNull @Override
   public ServerOptions getServerOptions() {
     return router.getServerOptions();
   }
@@ -961,8 +962,7 @@ public class Jooby implements Router, Registry {
       if (config.hasPath(AvailableSettings.STARTUP_SUMMARY)) {
         Object value = config.getAnyRef(AvailableSettings.STARTUP_SUMMARY);
         List<String> values = value instanceof List ? (List) value : List.of(value.toString());
-        startupSummary =
-            values.stream().map(StartupSummary::create).collect(Collectors.toUnmodifiableList());
+        startupSummary = values.stream().map(StartupSummary::create).toList();
       } else {
         startupSummary = List.of(StartupSummary.DEFAULT, StartupSummary.ROUTES);
       }
@@ -1301,11 +1301,13 @@ public class Jooby implements Router, Registry {
     Jooby app;
     try {
       Jooby.OUTPUT_FACTORY = server.getOutputFactory();
+      Jooby.SERVER_OPTIONS = server.getOptions();
       Jooby.BOOT_EXECUTION_MODE = executionMode;
       app = provider.get();
     } finally {
       Jooby.BOOT_EXECUTION_MODE = executionMode;
       Jooby.OUTPUT_FACTORY = null;
+      Jooby.SERVER_OPTIONS = null;
     }
 
     return app;

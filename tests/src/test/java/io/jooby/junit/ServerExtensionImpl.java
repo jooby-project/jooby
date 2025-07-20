@@ -67,7 +67,7 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
     ServerTest serverTest = context.getRequiredTestMethod().getAnnotation(ServerTest.class);
     Class[] servers = serverTest.server();
     if (servers.length == 0) {
-      servers = defaultServers(System.getProperty("jooby.server", "*"));
+      servers = SERVERS;
     }
     Set<ExecutionMode> executionModes = EnumSet.copyOf(Arrays.asList(serverTest.executionMode()));
     if (executionModes.contains(ExecutionMode.DEFAULT) && executionModes.size() == 1) {
@@ -105,15 +105,6 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
             })
         .sorted()
         .map(this::invocationContext);
-  }
-
-  private Class[] defaultServers(String serverName) {
-    return switch (serverName) {
-      case "jetty" -> new Class[] {JettyServer.class};
-      case "netty" -> new Class[] {NettyServer.class};
-      case "undertow" -> new Class[] {UndertowServer.class};
-      default -> SERVERS;
-    };
   }
 
   private TestTemplateInvocationContext invocationContext(ServerInfo serverInfo) {

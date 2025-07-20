@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
@@ -171,6 +170,8 @@ public class RouterImpl implements Router {
   private ValueFactory valueFactory = new ValueFactory();
 
   private OutputFactory outputFactory;
+
+  private ServerOptions serverOptions;
 
   public RouterImpl() {
     stack.addLast(new Stack(chi, null));
@@ -783,9 +784,14 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nullable @Override
+  @NonNull @Override
   public ServerOptions getServerOptions() {
-    return services.getOrNull(ServerOptions.class);
+    return serverOptions;
+  }
+
+  public void setServerOptions(ServerOptions serverOptions) {
+    this.serverOptions = serverOptions;
+    services.put(ServerOptions.class, serverOptions);
   }
 
   @NonNull @Override

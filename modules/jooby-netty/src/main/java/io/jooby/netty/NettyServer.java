@@ -45,6 +45,13 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  * @since 2.0.0
  */
 public class NettyServer extends Server.Base {
+
+  private static final String NAME = "netty";
+
+  static {
+    System.setProperty("server.name", NAME);
+  }
+
   private static final int _50 = 50;
 
   private static final int _100 = 100;
@@ -86,19 +93,14 @@ public class NettyServer extends Server.Base {
   @NonNull @Override
   public OutputFactory getOutputFactory() {
     if (outputFactory == null) {
-      outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT, getOptions().getBuffer());
+      outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT, getOptions().getOutput());
     }
     return outputFactory;
   }
 
-  @Override
-  protected ServerOptions defaultOptions() {
-    return new ServerOptions().setServer(getName());
-  }
-
   @NonNull @Override
   public String getName() {
-    return "netty";
+    return NAME;
   }
 
   @NonNull @Override
@@ -198,7 +200,7 @@ public class NettyServer extends Server.Base {
         new HttpDecoderConfig()
             .setMaxInitialLineLength(_4KB)
             .setMaxHeaderSize(options.getMaxHeaderSize())
-            .setMaxChunkSize(options.getBuffer().getSize())
+            .setMaxChunkSize(options.getOutput().getSize())
             .setHeadersFactory(HEADERS)
             .setTrailersFactory(HEADERS);
     return new NettyPipeline(
@@ -207,7 +209,7 @@ public class NettyServer extends Server.Base {
         decoderConfig,
         applications,
         options.getMaxRequestSize(),
-        options.getBuffer().getSize(),
+        options.getOutput().getSize(),
         options.getDefaultHeaders(),
         http2,
         options.isExpectContinue() == Boolean.TRUE,

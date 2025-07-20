@@ -47,12 +47,15 @@ import io.jooby.output.OutputFactory;
  */
 public class JettyServer extends io.jooby.Server.Base {
 
+  private static final String NAME = "jetty";
   private static final int THREADS = 200;
 
   static {
     int cpus = ProcessorUtils.availableProcessors();
     var ioThreads = Math.max(1, Math.min(cpus / 2, THREADS / 16));
-    System.setProperty("jooby.server.ioThreads", ioThreads + "");
+    System.setProperty("server.ioThreads", ioThreads + "");
+    System.setProperty("server.workerThreads", THREADS + "");
+    System.setProperty("server.name", NAME);
   }
 
   private OutputFactory outputFactory;
@@ -83,25 +86,14 @@ public class JettyServer extends io.jooby.Server.Base {
   @NonNull @Override
   public OutputFactory getOutputFactory() {
     if (outputFactory == null) {
-      this.outputFactory = OutputFactory.create(getOptions().getBuffer());
+      this.outputFactory = OutputFactory.create(getOptions().getOutput());
     }
     return outputFactory;
   }
 
   @NonNull @Override
-  public JettyServer setOptions(@NonNull ServerOptions options) {
-    super.setOptions(options.setWorkerThreads(options.getWorkerThreads(THREADS)));
-    return this;
-  }
-
-  @Override
-  protected ServerOptions defaultOptions() {
-    return new ServerOptions().setServer(getName()).setWorkerThreads(THREADS);
-  }
-
-  @NonNull @Override
   public String getName() {
-    return "jetty";
+    return NAME;
   }
 
   /**
@@ -150,8 +142,8 @@ public class JettyServer extends io.jooby.Server.Base {
 
       var httpConf = new HttpConfiguration();
       httpConf.setUriCompliance(UriCompliance.LEGACY);
-      httpConf.setOutputBufferSize(options.getBuffer().getSize());
-      httpConf.setOutputAggregationSize(options.getBuffer().getSize());
+      httpConf.setOutputBufferSize(options.getOutput().getSize());
+      httpConf.setOutputAggregationSize(options.getOutput().getSize());
       httpConf.setSendXPoweredBy(false);
       httpConf.setSendDateHeader(options.getDefaultHeaders());
       httpConf.setSendServerVersion(false);
@@ -302,7 +294,7 @@ public class JettyServer extends io.jooby.Server.Base {
                   new JettyHandler(
                       invocationType,
                       applications.get(0),
-                      options.getBuffer().getSize(),
+                      options.getOutput().getSize(),
                       options.getMaxRequestSize(),
                       options.getDefaultHeaders());
               if (options.isExpectContinue() == Boolean.TRUE) {

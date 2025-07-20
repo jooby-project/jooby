@@ -29,7 +29,7 @@ public class Issue2806 {
     runner
         .options(
             new ServerOptions()
-                .setBuffer(new OutputOptions().setSize(ServerOptions._16KB / 2))
+                .setOutput(new OutputOptions().setSize(ServerOptions._16KB / 2))
                 .setMaxRequestSize(ServerOptions._16KB))
         .define(
             app -> {
