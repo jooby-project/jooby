@@ -4,7 +4,7 @@
   "private": true,
   "license": "ASF",
   "dependencies": {
-    "swagger-ui-dist": "^5.26.2"
+    "swagger-ui-dist": "^5.27.0"
   },
   "scarfSettings": {
     "enabled": false
