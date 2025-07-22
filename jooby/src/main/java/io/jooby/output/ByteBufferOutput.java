@@ -108,6 +108,8 @@ public class ByteBufferOutput implements Output {
 
   @Override
   public Output clear() {
+    this.writePosition = 0;
+    this.readPosition = 0;
     this.buffer.clear();
     return this;
   }

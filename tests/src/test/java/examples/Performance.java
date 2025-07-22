@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
-import io.jooby.undertow.UndertowServer;
+import io.jooby.netty.NettyServer;
 
 public class Performance extends Jooby {
 
@@ -21,10 +21,12 @@ public class Performance extends Jooby {
   private static final byte[] MESSAGE_BYTES = MESSAGE.getBytes(StandardCharsets.UTF_8);
 
   {
-    var message = getOutputFactory().wrap(MESSAGE_BYTES);
+    var outputFactory = getOutputFactory();
+    var message = outputFactory.wrap(MESSAGE_BYTES);
     get(
         "/plaintext",
         ctx -> {
+          // return ctx.send(outputFactory.wrap(MESSAGE_BYTES));
           return ctx.send(message);
         });
 
@@ -34,13 +36,16 @@ public class Performance extends Jooby {
 
     get("/queries", ctx -> ctx.send(StatusCode.OK));
 
-    get("/fortuxnes", ctx -> ctx.send(StatusCode.OK));
+    get("/fortunes", ctx -> ctx.send(StatusCode.OK));
 
     get("/updates", ctx -> ctx.send(StatusCode.OK));
   }
 
   public static void main(final String[] args) {
     System.setProperty("io.netty.disableHttpHeadersValidation", "true");
-    runApp(args, new UndertowServer(), EVENT_LOOP, Performance::new);
+    // runApp(args, new
+    // UndertowServer().setOutputFactory(OutputFactory.threadLocal(OutputFactory.create())),
+    // EVENT_LOOP, Performance::new);
+    runApp(args, new NettyServer(), EVENT_LOOP, Performance::new);
   }
 }

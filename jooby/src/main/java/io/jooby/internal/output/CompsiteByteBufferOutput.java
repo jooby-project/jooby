@@ -86,7 +86,6 @@ public class CompsiteByteBufferOutput implements Output {
 
   private void addChunk(ByteBuffer chunk) {
     chunks.add(chunk);
-    int length = chunk.remaining();
-    size += length;
+    size += chunk.remaining();
   }
 }

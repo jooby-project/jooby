@@ -7,18 +7,25 @@ package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.output.Output;
 
-public class ByteBufferWrappedOutput implements Output {
+public class ByteBufferOutputStatic implements Output {
 
-  private final ByteBuffer buffer;
+  private final int size;
+  private final Supplier<ByteBuffer> provider;
 
-  public ByteBufferWrappedOutput(ByteBuffer buffer) {
-    this.buffer = buffer;
+  public ByteBufferOutputStatic(int size, Supplier<ByteBuffer> provider) {
+    this.size = size;
+    this.provider = provider;
+  }
+
+  public ByteBufferOutputStatic(ByteBuffer byteBuffer) {
+    this(byteBuffer.remaining(), () -> byteBuffer);
   }
 
   @Override
@@ -38,23 +45,22 @@ public class ByteBufferWrappedOutput implements Output {
 
   @Override
   public Output clear() {
-    buffer.clear();
     return this;
   }
 
   @Override
   public int size() {
-    return buffer.remaining();
+    return size;
   }
 
   @Override
   public void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
-    consumer.accept(buffer);
+    consumer.accept(asByteBuffer());
   }
 
   @Override
   public ByteBuffer asByteBuffer() {
-    return buffer.duplicate();
+    return provider.get();
   }
 
   @Override
@@ -69,6 +75,6 @@ public class ByteBufferWrappedOutput implements Output {
 
   @Override
   public void send(Context ctx) {
-    ctx.send(buffer);
+    ctx.send(asByteBuffer());
   }
 }

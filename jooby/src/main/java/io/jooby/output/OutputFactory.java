@@ -5,8 +5,6 @@
  */
 package io.jooby.output;
 
-import static java.lang.ThreadLocal.withInitial;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -20,34 +18,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @since 4.0.0
  */
 public interface OutputFactory {
-
-  /**
-   * Thread local for output buffer. Please note only store calls to {@link #newOutput()}, {@link
-   * #newCompositeOutput()} are not saved into thread local.
-   *
-   * @param factory Factory.
-   * @return Thread local factory.
-   */
-  static OutputFactory threadLocal(OutputFactory factory) {
-    return new ForwardingOutputFactory(factory) {
-      private final ThreadLocal<Output> threadLocal = withInitial(factory::newOutput);
-
-      @Override
-      public Output newOutput(boolean direct, int size) {
-        return threadLocal.get().clear();
-      }
-
-      @Override
-      public Output newOutput(int size) {
-        return threadLocal.get().clear();
-      }
-
-      @Override
-      public Output newOutput() {
-        return threadLocal.get().clear();
-      }
-    };
-  }
 
   /**
    * Default output factory, backed by {@link ByteBuffer}.
@@ -148,4 +118,13 @@ public interface OutputFactory {
    * @return Readonly buffer.
    */
   Output wrap(@NonNull byte[] bytes, int offset, int length);
+
+  /**
+   * Special implementation when output factory is requested from {@link io.jooby.Context}.
+   *
+   * @return Same or custom implementation.
+   */
+  default OutputFactory getContextOutputFactory() {
+    return this;
+  }
 }

@@ -43,18 +43,24 @@ public class AvajeJsonbEncoderBench {
 
   @Benchmark
   public void withJsonBuffer() {
-    jsonb.toJsonBytes(message);
+    factory.wrap(jsonb.toJsonBytes(message));
   }
 
   @Benchmark
-  public void witCachedBufferedOutput() {
+  public void withCachedBufferedOutput() {
     var buffer = cache.get().clear();
     jsonb.toJson(message, jsonb.writer(new BufferedJsonOutput(buffer)));
   }
 
   @Benchmark
-  public void witBufferedOutput() {
+  public void withBufferedOutput() {
     var buffer = factory.newOutput(1024);
+    jsonb.toJson(message, jsonb.writer(new BufferedJsonOutput(buffer)));
+  }
+
+  @Benchmark
+  public void withCompositeOutput() {
+    var buffer = factory.newCompositeOutput();
     jsonb.toJson(message, jsonb.writer(new BufferedJsonOutput(buffer)));
   }
 }

@@ -693,6 +693,6 @@ public interface DefaultContext extends Context {
 
   @Override
   default OutputFactory getOutputFactory() {
-    return getRouter().getOutputFactory();
+    return getRouter().getOutputFactory().getContextOutputFactory();
   }
 }

@@ -17,6 +17,23 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.ResourceLeakDetector;
 
 public class NettyOutputFactory implements OutputFactory {
+
+  private static class NettyContextOutputFactory extends NettyOutputFactory {
+    public NettyContextOutputFactory(ByteBufAllocator allocator, OutputOptions options) {
+      super(allocator, options);
+    }
+
+    @Override
+    @NonNull public Output wrap(@NonNull byte[] bytes) {
+      return new NettyOutputDefault(Unpooled.wrappedBuffer(bytes));
+    }
+
+    @Override
+    @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+      return new NettyOutputDefault(Unpooled.wrappedBuffer(bytes, offset, length));
+    }
+  }
+
   private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
 
   static {
@@ -80,5 +97,10 @@ public class NettyOutputFactory implements OutputFactory {
   @Override
   @NonNull public Output newCompositeOutput() {
     return new NettyOutputDefault(allocator.compositeBuffer(48));
+  }
+
+  @Override
+  @NonNull public OutputFactory getContextOutputFactory() {
+    return new NettyContextOutputFactory(allocator, options);
   }
 }

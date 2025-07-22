@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
-import io.jooby.internal.output.ByteBufferWrappedOutput;
+import io.jooby.internal.output.ByteBufferOutputStatic;
 import io.jooby.internal.output.CompsiteByteBufferOutput;
 
 public class OutputTest {
@@ -104,7 +104,7 @@ public class OutputTest {
   @Test
   public void wrapOutput() throws IOException {
     var bytes = "xxHello World!xx".getBytes(StandardCharsets.UTF_8);
-    var output = new ByteBufferWrappedOutput(ByteBuffer.wrap(bytes, 2, bytes.length - 4));
+    var output = new ByteBufferOutputStatic(ByteBuffer.wrap(bytes, 2, bytes.length - 4));
     assertEquals("Hello World!", output.asString(StandardCharsets.UTF_8));
     assertEquals(12, output.size());
   }

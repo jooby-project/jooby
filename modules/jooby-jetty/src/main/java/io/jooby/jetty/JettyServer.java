@@ -91,6 +91,11 @@ public class JettyServer extends io.jooby.Server.Base {
     return outputFactory;
   }
 
+  public JettyServer setOutputFactory(OutputFactory outputFactory) {
+    this.outputFactory = outputFactory;
+    return this;
+  }
+
   @NonNull @Override
   public String getName() {
     return NAME;
