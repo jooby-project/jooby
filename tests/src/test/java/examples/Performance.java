@@ -8,8 +8,6 @@ package examples;
 import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.MediaType.JSON;
 
-import java.nio.charset.StandardCharsets;
-
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
 import io.jooby.netty.NettyServer;
@@ -18,15 +16,12 @@ public class Performance extends Jooby {
 
   private static final String MESSAGE = "Hello, World!";
 
-  private static final byte[] MESSAGE_BYTES = MESSAGE.getBytes(StandardCharsets.UTF_8);
-
   {
     var outputFactory = getOutputFactory();
-    var message = outputFactory.wrap(MESSAGE_BYTES);
+    var message = outputFactory.wrap(MESSAGE);
     get(
         "/plaintext",
         ctx -> {
-          // return ctx.send(outputFactory.wrap(MESSAGE_BYTES));
           return ctx.send(message);
         });
 

@@ -22,11 +22,14 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.AsciiString;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Logger log = LoggerFactory.getLogger(NettyServer.class);
-  private static final AsciiString server = AsciiString.cached("N");
+  private static final CharSequence server = NettyString.of("N");
+  public static final CharSequence CONTENT_TYPE = NettyString.of("content-type");
+  public static final CharSequence TEXT_PLAIN = NettyString.of("text/plain");
+  public static final CharSequence DATE = NettyString.of("date");
+  public static final CharSequence SERVER = NettyString.of("server");
   private final NettyDateService serverDate;
   private final List<Jooby> applications;
   private Router router;
@@ -66,10 +69,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       context = new NettyContext(ctx, req, app, path, bufferSize, http2);
 
       if (defaultHeaders) {
-        context.setHeaders.set(HttpHeaderNames.DATE, serverDate.date());
-        context.setHeaders.set(HttpHeaderNames.SERVER, server);
+        context.setHeaders.set(DATE, serverDate.date());
+        context.setHeaders.set(SERVER, server);
       }
-      context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
+      context.setHeaders.set(CONTENT_TYPE, TEXT_PLAIN);
 
       if (req.method() == HttpMethod.GET) {
         router.match(context).execute(context);

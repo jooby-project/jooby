@@ -90,11 +90,6 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   @Override
-  @NonNull public Output wrap(@NonNull String value, @NonNull Charset charset) {
-    return new NettyByteBufOutput(Unpooled.wrappedBuffer(value.getBytes(charset)));
-  }
-
-  @Override
   @NonNull public Output wrap(@NonNull byte[] bytes) {
     return new NettyOutputStatic(bytes.length, () -> Unpooled.wrappedBuffer(bytes));
   }

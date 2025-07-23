@@ -20,6 +20,7 @@ import io.jooby.SneakyThrows;
  * @see BufferedOutput
  */
 public interface Output {
+
   /**
    * A read-only view as {@link ByteBuffer}.
    *

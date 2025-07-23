@@ -10,17 +10,16 @@ import java.util.function.Supplier;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.netty.buffer.ByteBuf;
-import io.netty.util.AsciiString;
 
 public class NettyOutputStatic implements NettyByteBufRef {
   private final Supplier<ByteBuf> provider;
   private final int size;
-  private final AsciiString contentLength;
+  private final NettyString contentLength;
 
   protected NettyOutputStatic(int length, Supplier<ByteBuf> provider) {
     this.provider = provider;
     this.size = length;
-    this.contentLength = AsciiString.cached(Integer.toString(length));
+    this.contentLength = new NettyString(Integer.toString(length));
   }
 
   @Override

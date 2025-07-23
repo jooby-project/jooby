@@ -10,8 +10,8 @@ import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.output.CompositeOutput;
-import io.jooby.internal.output.ContextOutputFactory;
 import io.jooby.internal.output.StaticOutput;
+import io.jooby.internal.output.WrappedOutput;
 
 /**
  * An output factory backed by {@link ByteBuffer}.
@@ -20,6 +20,33 @@ import io.jooby.internal.output.StaticOutput;
  * @since 4.0.0
  */
 public class ByteBufferedOutputFactory implements OutputFactory {
+
+  private static class ContextOutputFactory extends ByteBufferedOutputFactory {
+    public ContextOutputFactory(OutputOptions options) {
+      super(options);
+    }
+
+    @Override
+    public Output wrap(@NonNull ByteBuffer buffer) {
+      return new WrappedOutput(buffer);
+    }
+
+    @Override
+    public Output wrap(@NonNull String value, @NonNull Charset charset) {
+      return new WrappedOutput(charset.encode(value));
+    }
+
+    @Override
+    public Output wrap(@NonNull byte[] bytes) {
+      return new WrappedOutput(ByteBuffer.wrap(bytes));
+    }
+
+    @Override
+    public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+      return new WrappedOutput(ByteBuffer.wrap(bytes, offset, length));
+    }
+  }
+
   private OutputOptions options;
 
   public ByteBufferedOutputFactory(OutputOptions options) {
