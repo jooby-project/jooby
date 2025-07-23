@@ -19,27 +19,27 @@ public class BufferedTemplateOutputTest {
   @Test
   public void checkWriteContent() {
     var factory = OutputFactory.create(OutputOptions.small());
-    var buffer = factory.newOutput();
+    var buffer = factory.allocate();
     var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeContent("Hello");
-    assertEquals("Hello", buffer.asString(StandardCharsets.UTF_8));
+    assertEquals("Hello", StandardCharsets.UTF_8.decode(buffer.asByteBuffer()).toString());
   }
 
   @Test
   public void checkWriteContentSubstring() {
     var factory = OutputFactory.create(OutputOptions.small());
-    var buffer = factory.newOutput();
+    var buffer = factory.allocate();
     var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeContent(" Hello World! ", 1, " Hello World! ".length() - 2);
-    assertEquals("Hello World", buffer.asString(StandardCharsets.UTF_8));
+    assertEquals("Hello World", StandardCharsets.UTF_8.decode(buffer.asByteBuffer()).toString());
   }
 
   @Test
   public void checkWriteBinaryContent() {
     var factory = OutputFactory.create(OutputOptions.small());
-    var buffer = factory.newOutput();
+    var buffer = factory.allocate();
     var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     output.writeBinaryContent("Hello".getBytes(StandardCharsets.UTF_8));
-    assertEquals("Hello", buffer.asString(StandardCharsets.UTF_8));
+    assertEquals("Hello", StandardCharsets.UTF_8.decode(buffer.asByteBuffer()).toString());
   }
 }

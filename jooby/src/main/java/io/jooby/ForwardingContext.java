@@ -672,7 +672,7 @@ public class ForwardingContext implements Context {
 
   @Override
   public OutputFactory getOutputFactory() {
-    return ctx.getOutputFactory().getContextOutputFactory();
+    return ctx.getOutputFactory().getContextFactory();
   }
 
   @Override

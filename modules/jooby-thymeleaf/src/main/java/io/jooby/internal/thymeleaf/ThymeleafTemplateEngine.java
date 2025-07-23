@@ -43,7 +43,7 @@ public class ThymeleafTemplateEngine implements io.jooby.TemplateEngine {
       if (locale == null) {
         locale = ctx.locale();
       }
-      var buffer = ctx.getOutputFactory().newOutput();
+      var buffer = ctx.getOutputFactory().allocate();
       var context = new Context(locale, model);
       var templateName = modelAndView.getView();
       if (!templateName.startsWith("/")) {

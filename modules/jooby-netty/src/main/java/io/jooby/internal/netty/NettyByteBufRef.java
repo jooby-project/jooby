@@ -6,7 +6,6 @@
 package io.jooby.internal.netty;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
@@ -15,18 +14,8 @@ import io.jooby.output.Output;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public interface NettyOutputByteBuf extends Output {
+public interface NettyByteBufRef extends Output {
   @NonNull ByteBuf byteBuf();
-
-  @Override
-  @NonNull default ByteBuffer asByteBuffer() {
-    return byteBuf().nioBuffer();
-  }
-
-  @Override
-  @NonNull default String asString(@NonNull Charset charset) {
-    return byteBuf().toString(charset);
-  }
 
   @Override
   default void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
@@ -34,22 +23,21 @@ public interface NettyOutputByteBuf extends Output {
   }
 
   @Override
-  default int size() {
-    return byteBuf().readableBytes();
+  @NonNull default ByteBuffer asByteBuffer() {
+    return byteBuf().slice().nioBuffer().asReadOnlyBuffer();
   }
 
-  @Override
   default void send(Context ctx) {
-    if (ctx instanceof NettyContext netty) {
+    if (ctx.getClass() == NettyContext.class) {
       var buf = byteBuf();
-      netty.send(buf, Integer.toString(buf.readableBytes()));
+      ((NettyContext) ctx).send(buf, Integer.toString(buf.readableBytes()));
     } else {
       ctx.send(asByteBuffer());
     }
   }
 
   static ByteBuf byteBuf(Output output) {
-    if (output instanceof NettyOutputByteBuf netty) {
+    if (output instanceof NettyByteBufRef netty) {
       return netty.byteBuf();
     } else {
       return Unpooled.wrappedBuffer(output.asByteBuffer());

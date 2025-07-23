@@ -104,7 +104,7 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
   public Output encode(@NonNull final Context ctx, @NonNull final Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     var factory = ctx.getOutputFactory();
-    var output = factory.newOutput();
+    var output = factory.allocate();
     jsonb.toJson(value, output.asOutputStream());
     return output;
   }

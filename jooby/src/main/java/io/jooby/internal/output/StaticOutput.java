@@ -6,7 +6,6 @@
 package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -14,38 +13,18 @@ import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.output.Output;
 
-public class ByteBufferOutputStatic implements Output {
+public class StaticOutput implements Output {
 
   private final int size;
   private final Supplier<ByteBuffer> provider;
 
-  public ByteBufferOutputStatic(int size, Supplier<ByteBuffer> provider) {
+  public StaticOutput(int size, Supplier<ByteBuffer> provider) {
     this.size = size;
     this.provider = provider;
   }
 
-  public ByteBufferOutputStatic(ByteBuffer byteBuffer) {
+  public StaticOutput(ByteBuffer byteBuffer) {
     this(byteBuffer.remaining(), () -> byteBuffer);
-  }
-
-  @Override
-  public Output write(byte b) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Output write(byte[] source) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Output write(byte[] source, int offset, int length) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Output clear() {
-    return this;
   }
 
   @Override
@@ -60,12 +39,8 @@ public class ByteBufferOutputStatic implements Output {
 
   @Override
   public ByteBuffer asByteBuffer() {
-    return provider.get();
-  }
-
-  @Override
-  public String asString(@NonNull Charset charset) {
-    return charset.decode(asByteBuffer()).toString();
+    var buffer = provider.get();
+    return buffer.slice().asReadOnlyBuffer();
   }
 
   @Override
@@ -75,6 +50,6 @@ public class ByteBufferOutputStatic implements Output {
 
   @Override
   public void send(Context ctx) {
-    ctx.send(asByteBuffer());
+    ctx.send(provider.get());
   }
 }

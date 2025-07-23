@@ -137,7 +137,7 @@ public class ServerSentMessage {
       var route = ctx.getRoute();
       var encoder = route.getEncoder();
       var bufferFactory = ctx.getOutputFactory();
-      var buffer = bufferFactory.newOutput();
+      var buffer = bufferFactory.allocate();
 
       if (id != null) {
         buffer.write(ID);

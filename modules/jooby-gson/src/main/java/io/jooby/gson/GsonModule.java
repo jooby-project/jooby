@@ -108,7 +108,7 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
 
   @NonNull @Override
   public Output encode(@NonNull Context ctx, @NonNull Object value) {
-    var buffer = ctx.getOutputFactory().newOutput();
+    var buffer = ctx.getOutputFactory().allocate();
     ctx.setDefaultResponseType(MediaType.json);
     gson.toJson(value, buffer.asWriter());
     return buffer;

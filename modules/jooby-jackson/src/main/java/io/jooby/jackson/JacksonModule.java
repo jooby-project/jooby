@@ -156,7 +156,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     var factory = ctx.getOutputFactory();
     ctx.setDefaultResponseType(mediaType);
-    // let jackson uses his own cache, so just wrap the bytes
+    // let jackson uses his own cache, so wrap the bytes
     return factory.wrap(mapper.writeValueAsBytes(value));
   }
 

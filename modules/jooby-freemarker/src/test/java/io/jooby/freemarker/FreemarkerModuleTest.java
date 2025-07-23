@@ -74,7 +74,9 @@ public class FreemarkerModuleTest {
         engine.render(
             ctx,
             ModelAndView.map("index.ftl").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.asString(StandardCharsets.UTF_8).trim());
+    assertEquals(
+        "Hello foo bar var!",
+        StandardCharsets.UTF_8.decode(output.asByteBuffer()).toString().trim());
   }
 
   @Test
@@ -97,33 +99,42 @@ public class FreemarkerModuleTest {
 
     assertEquals(
         "friday",
-        engine
-            .render(ctx, ModelAndView.map("locales.ftl").put("someDate", nextFriday))
-            .asString(StandardCharsets.UTF_8)
+        StandardCharsets.UTF_8
+            .decode(
+                engine
+                    .render(ctx, ModelAndView.map("locales.ftl").put("someDate", nextFriday))
+                    .asByteBuffer())
+            .toString()
             .trim()
             .toLowerCase());
 
     assertEquals(
         "friday",
-        engine
-            .render(
-                ctx,
-                ModelAndView.map("locales.ftl")
-                    .put("someDate", nextFriday)
-                    .setLocale(new Locale("en", "GB")))
-            .asString(StandardCharsets.UTF_8)
+        StandardCharsets.UTF_8
+            .decode(
+                engine
+                    .render(
+                        ctx,
+                        ModelAndView.map("locales.ftl")
+                            .put("someDate", nextFriday)
+                            .setLocale(new Locale("en", "GB")))
+                    .asByteBuffer())
+            .toString()
             .trim()
             .toLowerCase());
 
     assertEquals(
         "freitag",
-        engine
-            .render(
-                ctx,
-                ModelAndView.map("locales.ftl")
-                    .put("someDate", nextFriday)
-                    .setLocale(Locale.GERMAN))
-            .asString(StandardCharsets.UTF_8)
+        StandardCharsets.UTF_8
+            .decode(
+                engine
+                    .render(
+                        ctx,
+                        ModelAndView.map("locales.ftl")
+                            .put("someDate", nextFriday)
+                            .setLocale(Locale.GERMAN))
+                    .asByteBuffer())
+            .toString()
             .trim()
             .toLowerCase());
   }
@@ -133,8 +144,7 @@ public class FreemarkerModuleTest {
     Configuration freemarker =
         FreemarkerModule.create()
             .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
-    FreemarkerTemplateEngine engine =
-        new FreemarkerTemplateEngine(freemarker, Arrays.asList(".ftl"));
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker, List.of(".ftl"));
     MockContext ctx =
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
@@ -142,7 +152,9 @@ public class FreemarkerModuleTest {
         engine.render(
             ctx,
             ModelAndView.map("index.ftl").put("user", new MyModel("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.asString(StandardCharsets.UTF_8).trim());
+    assertEquals(
+        "Hello foo bar var!",
+        StandardCharsets.UTF_8.decode(output.asByteBuffer()).toString().trim());
   }
 
   @Test
@@ -159,6 +171,6 @@ public class FreemarkerModuleTest {
         new MockContext().setRouter(new Jooby().setLocales(singletonList(Locale.ENGLISH)));
     ctx.getAttributes().put("local", "var");
     var output = engine.render(ctx, ModelAndView.map("index.ftl"));
-    assertEquals("var", output.asString(StandardCharsets.UTF_8).trim());
+    assertEquals("var", StandardCharsets.UTF_8.decode(output.asByteBuffer()).toString().trim());
   }
 }

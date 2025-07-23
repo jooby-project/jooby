@@ -34,7 +34,7 @@ public class JacksonJsonModuleTest {
     JacksonModule jackson = new JacksonModule(new ObjectMapper());
 
     var buffer = jackson.encode(ctx, mapOf("k", "v"));
-    assertEquals("{\"k\":\"v\"}", buffer.asString(StandardCharsets.UTF_8));
+    assertEquals("{\"k\":\"v\"}", StandardCharsets.UTF_8.decode(buffer.asByteBuffer()).toString());
 
     verify(ctx).setDefaultResponseType(MediaType.json);
   }
@@ -63,7 +63,9 @@ public class JacksonJsonModuleTest {
     JacksonModule jackson = new JacksonModule(new XmlMapper());
 
     var buffer = jackson.encode(ctx, mapOf("k", "v"));
-    assertEquals("<HashMap><k>v</k></HashMap>", buffer.asString(StandardCharsets.UTF_8));
+    assertEquals(
+        "<HashMap><k>v</k></HashMap>",
+        StandardCharsets.UTF_8.decode(buffer.asByteBuffer()).toString());
 
     verify(ctx).setDefaultResponseType(MediaType.xml);
   }

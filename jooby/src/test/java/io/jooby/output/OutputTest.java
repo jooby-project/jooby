@@ -15,8 +15,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
-import io.jooby.internal.output.ByteBufferOutputStatic;
-import io.jooby.internal.output.CompsiteByteBufferOutput;
+import io.jooby.internal.output.CompositeOutput;
+import io.jooby.internal.output.StaticOutput;
 
 public class OutputTest {
 
@@ -28,7 +28,8 @@ public class OutputTest {
           buffered.write("Hello".getBytes(StandardCharsets.UTF_8));
           buffered.write(" ");
           buffered.write("World!");
-          assertEquals("Hello World!", buffered.asString(StandardCharsets.UTF_8));
+          assertEquals(
+              "Hello World!", StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
           assertEquals(12, buffered.size());
           assertEquals(
               "Hello World!", StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
@@ -38,13 +39,14 @@ public class OutputTest {
               StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
           assertEquals(30, buffered.size());
         },
-        new ByteBufferOutput(false, 3));
+        new ByteBufferedOutput(false, 3));
 
     output(
         buffered -> {
           var buffer = ByteBuffer.wrap(". New Output API!!".getBytes(StandardCharsets.UTF_8));
           buffered.write(" Hello World! ".getBytes(StandardCharsets.UTF_8), 1, 12);
-          assertEquals("Hello World!", buffered.asString(StandardCharsets.UTF_8));
+          assertEquals(
+              "Hello World!", StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
           assertEquals(12, buffered.size());
           assertEquals(
               "Hello World!", StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
@@ -54,27 +56,28 @@ public class OutputTest {
               StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
           assertEquals(30, buffered.size());
         },
-        new ByteBufferOutput(false, 255));
+        new ByteBufferedOutput(false, 255));
 
     output(
         buffered -> {
           var bytes = "xxHello World!xx".getBytes(StandardCharsets.UTF_8);
           buffered.write(bytes, 2, bytes.length - 4);
-          assertEquals("Hello World!", buffered.asString(StandardCharsets.UTF_8));
+          assertEquals(
+              "Hello World!", StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
           assertEquals(12, buffered.size());
         },
-        new ByteBufferOutput(false, 255));
+        new ByteBufferedOutput(false, 255));
 
     output(
         buffered -> {
           buffered.write((byte) 'A');
-          assertEquals("A", buffered.asString(StandardCharsets.UTF_8));
+          assertEquals("A", StandardCharsets.UTF_8.decode(buffered.asByteBuffer()).toString());
           assertEquals(1, buffered.size());
         },
-        new ByteBufferOutput(false, 255));
+        new ByteBufferedOutput(false, 255));
   }
 
-  private void output(SneakyThrows.Consumer<Output> consumer, Output... buffers) {
+  private void output(SneakyThrows.Consumer<BufferedOutput> consumer, BufferedOutput... buffers) {
     Stream.of(buffers).forEach(consumer);
   }
 
@@ -95,17 +98,18 @@ public class OutputTest {
           assertEquals(8, chunked.size());
           chunked.write(buffer);
           assertEquals(12, chunked.size());
-          assertEquals("Hello World!", chunked.asString(StandardCharsets.UTF_8));
+          assertEquals(
+              "Hello World!", StandardCharsets.UTF_8.decode(chunked.asByteBuffer()).toString());
           assertEquals(12, chunked.size());
         },
-        new CompsiteByteBufferOutput());
+        new CompositeOutput());
   }
 
   @Test
   public void wrapOutput() throws IOException {
     var bytes = "xxHello World!xx".getBytes(StandardCharsets.UTF_8);
-    var output = new ByteBufferOutputStatic(ByteBuffer.wrap(bytes, 2, bytes.length - 4));
-    assertEquals("Hello World!", output.asString(StandardCharsets.UTF_8));
+    var output = new StaticOutput(ByteBuffer.wrap(bytes, 2, bytes.length - 4));
+    assertEquals("Hello World!", StandardCharsets.UTF_8.decode(output.asByteBuffer()).toString());
     assertEquals(12, output.size());
   }
 }

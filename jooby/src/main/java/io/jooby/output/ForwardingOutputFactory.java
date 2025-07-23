@@ -29,24 +29,24 @@ public abstract class ForwardingOutputFactory implements OutputFactory {
   }
 
   @Override
-  public OutputFactory setOptions(OutputOptions options) {
+  public OutputFactory setOptions(@NonNull OutputOptions options) {
     delegate.setOptions(options);
     return this;
   }
 
   @Override
-  public Output newOutput(int size) {
-    return delegate.newOutput(size);
+  public BufferedOutput allocate(int size) {
+    return delegate.allocate(size);
   }
 
   @Override
-  public Output newOutput(boolean direct, int size) {
-    return delegate.newOutput(direct, size);
+  public BufferedOutput allocate(boolean direct, int size) {
+    return delegate.allocate(direct, size);
   }
 
   @Override
-  public Output newCompositeOutput() {
-    return delegate.newCompositeOutput();
+  public BufferedOutput newComposite() {
+    return delegate.newComposite();
   }
 
   @Override

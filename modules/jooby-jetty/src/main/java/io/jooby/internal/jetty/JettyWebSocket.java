@@ -289,7 +289,8 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
   @NonNull @Override
   public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
     return sendMessage(
-        (remote, writeCallback) -> remote.sendText(message.asString(UTF_8), writeCallback),
+        (remote, writeCallback) ->
+            remote.sendText(UTF_8.decode(message.asByteBuffer()).toString(), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 

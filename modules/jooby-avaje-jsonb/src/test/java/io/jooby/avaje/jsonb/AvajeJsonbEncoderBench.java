@@ -12,7 +12,7 @@ import org.openjdk.jmh.annotations.*;
 
 import io.avaje.jsonb.Jsonb;
 import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.jooby.output.OutputFactory;
 import io.jooby.output.OutputOptions;
 
@@ -28,10 +28,10 @@ public class AvajeJsonbEncoderBench {
   private Map<String, Object> message;
 
   private OutputFactory factory;
-  private ThreadLocal<Output> cache =
+  private ThreadLocal<BufferedOutput> cache =
       ThreadLocal.withInitial(
           () -> {
-            return factory.newOutput(1024);
+            return factory.allocate(1024);
           });
 
   @Setup
@@ -54,13 +54,13 @@ public class AvajeJsonbEncoderBench {
 
   @Benchmark
   public void withBufferedOutput() {
-    var buffer = factory.newOutput(1024);
+    var buffer = factory.allocate(1024);
     jsonb.toJson(message, jsonb.writer(new BufferedJsonOutput(buffer)));
   }
 
   @Benchmark
   public void withCompositeOutput() {
-    var buffer = factory.newCompositeOutput();
+    var buffer = factory.newComposite();
     jsonb.toJson(message, jsonb.writer(new BufferedJsonOutput(buffer)));
   }
 }

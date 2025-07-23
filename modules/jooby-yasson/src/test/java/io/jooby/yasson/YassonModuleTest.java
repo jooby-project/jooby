@@ -32,8 +32,7 @@ public class YassonModuleTest {
 
   @Test
   public void render() {
-
-    YassonModule YassonModule = new YassonModule();
+    var yasson = new YassonModule();
     User user = new User();
     user.id = -1;
     user.name = "Lorem €@!?";
@@ -41,10 +40,10 @@ public class YassonModuleTest {
 
     Context ctx = mock(Context.class);
     when(ctx.getOutputFactory()).thenReturn(OutputFactory.create(OutputOptions.small()));
-    var buffer = YassonModule.encode(ctx, user);
+    var buffer = yasson.encode(ctx, user);
     assertEquals(
         "{\"age\":2147483647,\"id\":-1,\"name\":\"Lorem €@!?\"}",
-        buffer.asString(StandardCharsets.UTF_8));
+        StandardCharsets.UTF_8.decode(buffer.asByteBuffer()).toString());
 
     verify(ctx).setDefaultResponseType(MediaType.json);
   }

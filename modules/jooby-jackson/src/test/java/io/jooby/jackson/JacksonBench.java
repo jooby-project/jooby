@@ -13,7 +13,7 @@ import org.openjdk.jmh.annotations.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 import io.jooby.output.OutputFactory;
 import io.jooby.output.OutputOptions;
 
@@ -28,7 +28,7 @@ public class JacksonBench {
   private Map<String, Object> message;
 
   private OutputFactory factory;
-  private ThreadLocal<Output> cache = ThreadLocal.withInitial(() -> factory.newOutput(1024));
+  private ThreadLocal<BufferedOutput> cache = ThreadLocal.withInitial(() -> factory.allocate(1024));
 
   @Setup
   public void setup() {

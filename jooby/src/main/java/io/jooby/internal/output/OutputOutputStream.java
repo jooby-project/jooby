@@ -9,20 +9,21 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.output.BufferedOutput;
 import io.jooby.output.Output;
 
 /**
  * An {@link OutputStream} that writes to a {@link Output}.
  *
- * @see Output#asOutputStream()
+ * @see BufferedOutput#asOutputStream()
  */
 public class OutputOutputStream extends OutputStream {
 
-  private final Output output;
+  private final BufferedOutput output;
 
   private boolean closed;
 
-  public OutputOutputStream(@NonNull Output output) {
+  public OutputOutputStream(@NonNull BufferedOutput output) {
     this.output = output;
   }
 
@@ -46,7 +47,6 @@ public class OutputOutputStream extends OutputStream {
       return;
     }
     this.closed = true;
-    output.clear();
   }
 
   private void checkClosed() throws IOException {

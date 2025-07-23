@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import com.fizzed.rocker.ContentType;
 import com.fizzed.rocker.RockerOutput;
 import com.fizzed.rocker.RockerOutputFactory;
+import io.jooby.output.BufferedOutput;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
 
@@ -27,9 +28,9 @@ public class BufferedRockerOutput implements RockerOutput<BufferedRockerOutput> 
   private final ContentType contentType;
 
   /** The buffer where data is stored. */
-  protected Output output;
+  protected BufferedOutput output;
 
-  BufferedRockerOutput(Charset charset, ContentType contentType, Output output) {
+  BufferedRockerOutput(Charset charset, ContentType contentType, BufferedOutput output) {
     this.charset = charset;
     this.contentType = contentType;
     this.output = output;
@@ -73,6 +74,6 @@ public class BufferedRockerOutput implements RockerOutput<BufferedRockerOutput> 
 
   static RockerOutputFactory<BufferedRockerOutput> factory(Charset charset, OutputFactory factory) {
     return (contentType, charsetName) ->
-        new BufferedRockerOutput(charset, contentType, factory.newCompositeOutput());
+        new BufferedRockerOutput(charset, contentType, factory.newComposite());
   }
 }

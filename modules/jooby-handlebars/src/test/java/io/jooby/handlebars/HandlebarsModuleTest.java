@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +58,9 @@ public class HandlebarsModuleTest {
         engine.render(
             ctx,
             ModelAndView.map("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.asString(StandardCharsets.UTF_8).trim());
+    assertEquals(
+        "Hello foo bar var!",
+        StandardCharsets.UTF_8.decode(output.asByteBuffer()).toString().trim());
   }
 
   @Test
@@ -70,13 +73,15 @@ public class HandlebarsModuleTest {
         new HandlebarsTemplateEngine(
             handlebars,
             ValueResolver.defaultValueResolvers().toArray(new ValueResolver[0]),
-            Arrays.asList(".hbs"));
+            List.of(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     var output =
         engine.render(
             ctx,
             ModelAndView.map("index.hbs").put("user", new User("foo", "bar")).put("sign", "!"));
-    assertEquals("Hello foo bar var!", output.asString(StandardCharsets.UTF_8).trim());
+    assertEquals(
+        "Hello foo bar var!",
+        StandardCharsets.UTF_8.decode(output.asByteBuffer()).toString().trim());
   }
 }

@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.netty;
 
-import static io.jooby.internal.netty.NettyOutputByteBuf.byteBuf;
+import static io.jooby.internal.netty.NettyByteBufRef.byteBuf;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;

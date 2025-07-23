@@ -42,7 +42,7 @@ public class HandlebarsTemplateEngine implements TemplateEngine {
             .resolver(resolvers)
             .build()
             .data(ctx.getAttributes());
-    var buffer = ctx.getOutputFactory().newOutput();
+    var buffer = ctx.getOutputFactory().allocate();
     template.apply(engineModel, buffer.asWriter());
     return buffer;
   }

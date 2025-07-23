@@ -6,16 +6,21 @@
 package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
-import io.jooby.output.Output;
+import io.jooby.output.BufferedOutput;
 
-public class CompsiteByteBufferOutput implements Output {
+/**
+ * Merge buffers into one.
+ *
+ * @author edgar
+ * @since 4.0.0
+ */
+public class CompositeOutput implements BufferedOutput {
   private final List<ByteBuffer> chunks = new ArrayList<>();
   private int size = 0;
 
@@ -25,25 +30,25 @@ public class CompsiteByteBufferOutput implements Output {
   }
 
   @Override
-  public Output write(byte b) {
+  public BufferedOutput write(byte b) {
     addChunk(ByteBuffer.wrap(new byte[] {b}));
     return this;
   }
 
   @Override
-  public Output write(byte[] source) {
+  public BufferedOutput write(byte[] source) {
     addChunk(ByteBuffer.wrap(source));
     return this;
   }
 
   @Override
-  public Output write(byte[] source, int offset, int length) {
+  public BufferedOutput write(byte[] source, int offset, int length) {
     addChunk(ByteBuffer.wrap(source, offset, length));
     return this;
   }
 
   @Override
-  public Output clear() {
+  public BufferedOutput clear() {
     chunks.forEach(ByteBuffer::clear);
     chunks.clear();
     return this;
@@ -57,16 +62,11 @@ public class CompsiteByteBufferOutput implements Output {
   @Override
   public ByteBuffer asByteBuffer() {
     var buf = ByteBuffer.allocate(size);
-    chunks.forEach(buf::put);
+    for (ByteBuffer chunk : chunks) {
+      buf.put(chunk.duplicate());
+    }
     buf.flip();
     return buf;
-  }
-
-  @Override
-  public String asString(@NonNull Charset charset) {
-    var sb = new StringBuilder();
-    chunks.forEach(bytes -> sb.append(charset.decode(bytes)));
-    return sb.toString();
   }
 
   @Override

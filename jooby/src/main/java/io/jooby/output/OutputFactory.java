@@ -24,8 +24,8 @@ public interface OutputFactory {
    *
    * @return Default output factory.
    */
-  static OutputFactory create(OutputOptions options) {
-    return new ByteBufferOutputFactory(options);
+  static OutputFactory create(@NonNull OutputOptions options) {
+    return new ByteBufferedOutputFactory(options);
   }
 
   /**
@@ -39,7 +39,7 @@ public interface OutputFactory {
 
   OutputOptions getOptions();
 
-  OutputFactory setOptions(OutputOptions options);
+  OutputFactory setOptions(@NonNull OutputOptions options);
 
   /**
    * Creates a new byte buffered output.
@@ -48,7 +48,7 @@ public interface OutputFactory {
    * @param size Output size.
    * @return A byte buffered output.
    */
-  Output newOutput(boolean direct, int size);
+  BufferedOutput allocate(boolean direct, int size);
 
   /**
    * Creates a new byte buffered output.
@@ -56,12 +56,12 @@ public interface OutputFactory {
    * @param size Output size.
    * @return A byte buffered output.
    */
-  default Output newOutput(int size) {
-    return newOutput(getOptions().isDirectBuffers(), size);
+  default BufferedOutput allocate(int size) {
+    return allocate(getOptions().isDirectBuffers(), size);
   }
 
-  default Output newOutput() {
-    return newOutput(getOptions().isDirectBuffers(), getOptions().getSize());
+  default BufferedOutput allocate() {
+    return allocate(getOptions().isDirectBuffers(), getOptions().getSize());
   }
 
   /**
@@ -70,7 +70,7 @@ public interface OutputFactory {
    *
    * @return A new composite buffer.
    */
-  Output newCompositeOutput();
+  BufferedOutput newComposite();
 
   /**
    * Readonly buffer created from string utf-8 bytes.
@@ -124,7 +124,5 @@ public interface OutputFactory {
    *
    * @return Same or custom implementation.
    */
-  default OutputFactory getContextOutputFactory() {
-    return this;
-  }
+  OutputFactory getContextFactory();
 }

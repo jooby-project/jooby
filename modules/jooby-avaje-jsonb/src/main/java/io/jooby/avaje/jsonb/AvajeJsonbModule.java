@@ -108,7 +108,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   public Output encode(@NonNull Context ctx, @NonNull Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     var factory = ctx.getOutputFactory();
-    var buffer = factory.newOutput();
+    var buffer = factory.allocate();
     try (var writer = jsonb.writer(new BufferedJsonOutput(buffer))) {
       jsonb.toJson(value, writer);
       return buffer;

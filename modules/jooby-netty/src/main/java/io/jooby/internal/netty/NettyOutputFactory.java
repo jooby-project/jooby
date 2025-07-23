@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.output.BufferedOutput;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
 import io.jooby.output.OutputOptions;
@@ -18,22 +19,6 @@ import io.netty.util.ResourceLeakDetector;
 
 public class NettyOutputFactory implements OutputFactory {
 
-  private static class NettyContextOutputFactory extends NettyOutputFactory {
-    public NettyContextOutputFactory(ByteBufAllocator allocator, OutputOptions options) {
-      super(allocator, options);
-    }
-
-    @Override
-    @NonNull public Output wrap(@NonNull byte[] bytes) {
-      return new NettyOutputDefault(Unpooled.wrappedBuffer(bytes));
-    }
-
-    @Override
-    @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
-      return new NettyOutputDefault(Unpooled.wrappedBuffer(bytes, offset, length));
-    }
-  }
-
   private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
 
   static {
@@ -42,6 +27,32 @@ public class NettyOutputFactory implements OutputFactory {
         System.getProperty(LEAK_DETECTION, ResourceLeakDetector.Level.DISABLED.name()));
     ResourceLeakDetector.setLevel(
         ResourceLeakDetector.Level.valueOf(System.getProperty(LEAK_DETECTION)));
+  }
+
+  private static class NettyContextOutputFactory extends NettyOutputFactory {
+    public NettyContextOutputFactory(ByteBufAllocator allocator, OutputOptions options) {
+      super(allocator, options);
+    }
+
+    @Override
+    @NonNull public Output wrap(@NonNull String value, @NonNull Charset charset) {
+      return new NettyWrappedOutput(Unpooled.wrappedBuffer(value.getBytes(charset)));
+    }
+
+    @Override
+    @NonNull public Output wrap(@NonNull ByteBuffer buffer) {
+      return new NettyWrappedOutput(Unpooled.wrappedBuffer(buffer));
+    }
+
+    @Override
+    @NonNull public Output wrap(@NonNull byte[] bytes) {
+      return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes));
+    }
+
+    @Override
+    @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+      return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes, offset, length));
+    }
   }
 
   private final ByteBufAllocator allocator;
@@ -57,19 +68,19 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   @Override
-  public OutputOptions getOptions() {
+  @NonNull public OutputOptions getOptions() {
     return options;
   }
 
   @Override
-  public OutputFactory setOptions(OutputOptions options) {
+  @NonNull public OutputFactory setOptions(@NonNull OutputOptions options) {
     this.options = options;
     return this;
   }
 
   @Override
-  public @NonNull Output newOutput(boolean direct, int size) {
-    return new NettyOutputDefault(
+  public @NonNull BufferedOutput allocate(boolean direct, int size) {
+    return new NettyByteBufOutput(
         direct ? this.allocator.directBuffer(size) : this.allocator.heapBuffer(size));
   }
 
@@ -79,8 +90,8 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   @Override
-  public Output wrap(@NonNull String value, @NonNull Charset charset) {
-    return new NettyOutputDefault(Unpooled.wrappedBuffer(value.getBytes(charset)));
+  @NonNull public Output wrap(@NonNull String value, @NonNull Charset charset) {
+    return new NettyByteBufOutput(Unpooled.wrappedBuffer(value.getBytes(charset)));
   }
 
   @Override
@@ -95,12 +106,12 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   @Override
-  @NonNull public Output newCompositeOutput() {
-    return new NettyOutputDefault(allocator.compositeBuffer(48));
+  @NonNull public BufferedOutput newComposite() {
+    return new NettyByteBufOutput(allocator.compositeBuffer(48));
   }
 
   @Override
-  @NonNull public OutputFactory getContextOutputFactory() {
+  @NonNull public OutputFactory getContextFactory() {
     return new NettyContextOutputFactory(allocator, options);
   }
 }

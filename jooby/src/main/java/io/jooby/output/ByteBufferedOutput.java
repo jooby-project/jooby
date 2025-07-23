@@ -6,7 +6,6 @@
 package io.jooby.output;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,34 +13,30 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 
-public class ByteBufferOutput implements Output {
+/**
+ * Default implementation of {@link BufferedOutput}.
+ *
+ * @author edgar
+ * @since 4.0.0
+ */
+public class ByteBufferedOutput implements BufferedOutput {
   private static final int MAX_CAPACITY = Integer.MAX_VALUE;
 
   private static final int CAPACITY_THRESHOLD = 1024 * 1024 * 4;
 
   private ByteBuffer buffer;
 
-  private int capacity;
-
   private int readPosition;
 
   private int writePosition;
 
-  public ByteBufferOutput(boolean direct, int capacity) {
+  public ByteBufferedOutput(boolean direct, int capacity) {
     this.buffer = allocate(capacity, direct);
-    this.capacity = this.buffer.remaining();
   }
 
   @Override
   public int size() {
     return this.writePosition - this.readPosition;
-  }
-
-  private void ensureWritable(int length) {
-    if (length > writableByteCount()) {
-      int newCapacity = calculateCapacity(this.writePosition + length);
-      setCapacity(newCapacity);
-    }
   }
 
   @Override
@@ -54,22 +49,13 @@ public class ByteBufferOutput implements Output {
     return List.of(asByteBuffer()).iterator();
   }
 
-  private int writableByteCount() {
-    return this.capacity - this.writePosition;
-  }
-
   @Override
   public @NonNull ByteBuffer asByteBuffer() {
-    return this.buffer.duplicate().position(this.readPosition).limit(this.writePosition);
+    return this.buffer.slice(this.readPosition, size()).asReadOnlyBuffer();
   }
 
   @Override
-  public String asString(@NonNull Charset charset) {
-    return charset.decode(asByteBuffer()).toString();
-  }
-
-  @Override
-  public Output write(byte b) {
+  public BufferedOutput write(byte b) {
     ensureWritable(1);
     this.buffer.put(this.writePosition, b);
     this.writePosition += 1;
@@ -77,12 +63,12 @@ public class ByteBufferOutput implements Output {
   }
 
   @Override
-  public Output write(byte[] source) {
+  public BufferedOutput write(byte[] source) {
     return write(source, 0, source.length);
   }
 
   @Override
-  public Output write(byte[] source, int offset, int length) {
+  public BufferedOutput write(byte[] source, int offset, int length) {
     ensureWritable(length);
 
     var tmp = this.buffer.duplicate();
@@ -95,7 +81,7 @@ public class ByteBufferOutput implements Output {
   }
 
   @Override
-  public Output write(@NonNull ByteBuffer source) {
+  public BufferedOutput write(@NonNull ByteBuffer source) {
     ensureWritable(source.remaining());
     var length = source.remaining();
     var tmp = this.buffer.duplicate();
@@ -107,7 +93,7 @@ public class ByteBufferOutput implements Output {
   }
 
   @Override
-  public Output clear() {
+  public BufferedOutput clear() {
     this.writePosition = 0;
     this.readPosition = 0;
     this.buffer.clear();
@@ -116,7 +102,7 @@ public class ByteBufferOutput implements Output {
 
   @Override
   public void send(Context ctx) {
-    ctx.send(asByteBuffer());
+    ctx.send(this.buffer.slice(this.readPosition, size()));
   }
 
   @Override
@@ -128,7 +114,11 @@ public class ByteBufferOutput implements Output {
         + ", size="
         + this.size()
         + ", capacity="
-        + this.capacity;
+        + this.buffer.capacity();
+  }
+
+  private int writableByteCount() {
+    return this.buffer.capacity() - this.writePosition;
   }
 
   /** Calculate the capacity of the buffer. */
@@ -148,7 +138,7 @@ public class ByteBufferOutput implements Output {
       while (newCapacity < neededCapacity) {
         newCapacity <<= 1;
       }
-      return Math.min(newCapacity, MAX_CAPACITY);
+      return newCapacity;
     }
   }
 
@@ -159,7 +149,7 @@ public class ByteBufferOutput implements Output {
     }
     var readPosition = this.readPosition;
     var writePosition = this.writePosition;
-    var oldCapacity = this.capacity;
+    var oldCapacity = this.buffer.capacity();
 
     if (newCapacity > oldCapacity) {
       var oldBuffer = this.buffer;
@@ -168,7 +158,7 @@ public class ByteBufferOutput implements Output {
       newBuffer.position(0).limit(oldBuffer.capacity());
       newBuffer.put(oldBuffer);
       newBuffer.clear();
-      setNativeBuffer(newBuffer);
+      this.buffer = newBuffer;
     } else if (newCapacity < oldCapacity) {
       var oldBuffer = this.buffer;
       var newBuffer = allocate(newCapacity, oldBuffer.isDirect());
@@ -185,13 +175,15 @@ public class ByteBufferOutput implements Output {
         this.readPosition = newCapacity;
         this.writePosition = newCapacity;
       }
-      setNativeBuffer(newBuffer);
+      this.buffer = newBuffer;
     }
   }
 
-  private void setNativeBuffer(ByteBuffer buffer) {
-    this.buffer = buffer;
-    this.capacity = buffer.capacity();
+  private void ensureWritable(int length) {
+    if (length > writableByteCount()) {
+      int newCapacity = calculateCapacity(this.writePosition + length);
+      setCapacity(newCapacity);
+    }
   }
 
   private static ByteBuffer allocate(int capacity, boolean direct) {

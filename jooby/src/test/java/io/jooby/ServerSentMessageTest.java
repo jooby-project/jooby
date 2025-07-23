@@ -35,7 +35,9 @@ public class ServerSentMessageTest {
     when(ctx.getRoute()).thenReturn(route);
 
     var message = new ServerSentMessage(data);
-    assertEquals("data: " + data + "\n\n", message.encode(ctx).asString(StandardCharsets.UTF_8));
+    assertEquals(
+        "data: " + data + "\n\n",
+        StandardCharsets.UTF_8.decode(message.encode(ctx).asByteBuffer()).toString());
   }
 
   @Test
@@ -57,7 +59,7 @@ public class ServerSentMessageTest {
     var message = new ServerSentMessage(data);
     assertEquals(
         "data: line 1\ndata:  line ,a .. 2\ndata: line ...abc  3\n\n",
-        message.encode(ctx).asString(StandardCharsets.UTF_8));
+        StandardCharsets.UTF_8.decode(message.encode(ctx).asByteBuffer()).toString());
   }
 
   @Test
@@ -77,6 +79,8 @@ public class ServerSentMessageTest {
     when(ctx.getRoute()).thenReturn(route);
 
     var message = new ServerSentMessage(data);
-    assertEquals("data: " + data + "\n\n", message.encode(ctx).asString(StandardCharsets.UTF_8));
+    assertEquals(
+        "data: " + data + "\n\n",
+        StandardCharsets.UTF_8.decode(message.encode(ctx).asByteBuffer()).toString());
   }
 }

@@ -34,7 +34,7 @@ class FreemarkerTemplateEngine implements TemplateEngine {
 
   @Override
   public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
-    var buffer = ctx.getOutputFactory().newOutput();
+    var buffer = ctx.getOutputFactory().allocate();
     var template = freemarker.getTemplate(modelAndView.getView());
     var writer = buffer.asWriter();
     var wrapper = freemarker.getObjectWrapper();

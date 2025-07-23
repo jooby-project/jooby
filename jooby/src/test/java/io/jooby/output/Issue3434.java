@@ -142,10 +142,10 @@ public class Issue3434 {
 
   private String writeCharSequence(Charset charset, SneakyThrows.Consumer<Writer> writer)
       throws IOException {
-    var buffer = factory.newOutput();
+    var buffer = factory.allocate();
     try (var out = buffer.asWriter(charset)) {
       writer.accept(out);
-      return buffer.asString(charset);
+      return charset.decode(buffer.asByteBuffer()).toString();
     }
   }
 }

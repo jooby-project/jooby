@@ -146,6 +146,8 @@ public class Issue3434 {
 
     var encoder = new GsonModule();
     var result = encoder.encode(ctx, new Bean3434(text));
-    assertEquals(gson.toJson(new Bean3434(text)), result.asString(StandardCharsets.UTF_8));
+    assertEquals(
+        gson.toJson(new Bean3434(text)),
+        StandardCharsets.UTF_8.decode(result.asByteBuffer()).toString());
   }
 }

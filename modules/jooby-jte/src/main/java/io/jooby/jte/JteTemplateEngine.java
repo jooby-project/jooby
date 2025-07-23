@@ -33,7 +33,7 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
 
   @Override
   public Output render(Context ctx, ModelAndView<?> modelAndView) {
-    var buffer = ctx.getOutputFactory().newOutput();
+    var buffer = ctx.getOutputFactory().allocate();
     var output = new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8);
     var attributes = ctx.getAttributes();
     if (modelAndView instanceof MapModelAndView mapModelAndView) {

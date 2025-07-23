@@ -36,7 +36,7 @@ class PebbleTemplateEngine implements TemplateEngine {
   @Override
   public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     if (modelAndView instanceof MapModelAndView mapModelAndView) {
-      var buffer = ctx.getOutputFactory().newOutput();
+      var buffer = ctx.getOutputFactory().allocate();
       var template = engine.getTemplate(modelAndView.getView());
       Map<String, Object> model = new HashMap<>(ctx.getAttributes());
       model.putAll(mapModelAndView.getModel());

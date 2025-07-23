@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.netty;
 
-import static io.jooby.internal.netty.NettyOutputByteBuf.byteBuf;
+import static io.jooby.internal.netty.NettyByteBufRef.byteBuf;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
