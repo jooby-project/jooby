@@ -24,12 +24,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.puppycrawl.tools</groupId>
-      <artifactId>checkstyle</artifactId>
-      <version>10.26.1</version>
-    </dependency>
-
-    <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-kotlin</artifactId>
       <version>${jooby.version}</version>
@@ -138,6 +132,13 @@
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
       <version>1.17.5</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.puppycrawl.tools</groupId>
+      <artifactId>checkstyle</artifactId>
+      <version>10.26.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
