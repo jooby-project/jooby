@@ -201,9 +201,9 @@
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
     <javadoc.excludes>io.jooby.internal.*</javadoc.excludes>
 
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.release>21</maven.compiler.release>
     <!--  Javadoc is too strict in 17, don't fail on error -->
     <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
