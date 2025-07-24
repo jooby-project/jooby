@@ -1,3 +1,4 @@
+include::migration/4.x.adoc[]
 include::migration/3.x.adoc[]
 
 === Upgrading from 1.x to 2.x

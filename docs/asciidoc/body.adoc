@@ -48,7 +48,7 @@ Raw `request body` is available via javadoc:Context[body] method:
 <2> `HTTP Body` as `byte array`
 <3> `HTTP Body` as `InputStream`
 
-This give us the `raw body`.
+This gives us the `raw body`.
 
 ==== Message Decoder
 

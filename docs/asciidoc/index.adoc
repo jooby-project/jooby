@@ -62,6 +62,7 @@ Latest Release: https://github.com/jooby-project/jooby/releases/tag/v{joobyVersi
 
 Looking for a previous version?
 
+* Access to link:v3[3.x] documentation. See link:/migration/4.x[migrating from 3.x to 4.x]
 * Access to link:v2[2.x] documentation. See link:/migration/3.x[migrating from 2.x to 3.x]
 * Access to link:v1[1.x] documentation.
 ====

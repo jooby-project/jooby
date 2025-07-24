@@ -1,0 +1,80 @@
+=== Upgrading from 3.x to 4.x
+You will find here notes/tips about how to migrate from 3.x to 4.x.
+
+[NOTE]
+=====
+This is a **work in progress** document, if something is wrong or missing please https://github.com/jooby-project/jooby/issues/new[report to Github] or better https://github.com/jooby-project/jooby/edit/3.x/docs/asciidoc/migration/4.x.adoc[edit this file and fix it]
+=====
+
+==== Requirements
+
+- Java 21 as minimum
+
+==== module-info.java
+
+Jooby is now compatible with Java Module system.
+
+Almost all Jooby components are now Java Modules, but not all them. For those where wasn't
+possible the Jooby module contains the `Automatic-Module-Name` manifest entry.
+
+==== Buffer API
+
+The package `io.jooby.buffer` is gone. It was replaced by `io.jooby.output` these classes
+are used mainly by the javadoc:MessageEncoder[] API, the new API is easier to use and has better
+performance.
+
+==== Value API
+
+The new package is now `io.jooby.value`. The API has now decoupled from javadoc:Context[] 
+in future release will be the basis of a new configuration system.
+
+Also, the `io.jooby.ValueNode` and `io.jooby.ValueNodeConverter` are gone.
+
+==== Session API
+
+For security reasons, the default HTTP session was removed. You need to configure the session
+explicitly and provide a cookie session name. The `jooby.sid` cookie name was removed from project. 
+
+==== Server configuration
+
+The `install(Server)`, `setServerOptions`, `start()` method are gone. With the new support for
+multiple applications in a single server, these methods are useless.
+
+The new way:
+
+.New way to boot
+----
+runApp(args, new NettyServer(new ServerOptions()), App::new);
+----
+
+
+==== Packages
+|===
+|3.x|4.x|Module
+|io.jooby.buffer| io.jooby.output | replacement jooby (core)
+|===
+
+==== Classes
+|===
+|3.x|4.x|Description|Module
+|io.jooby.buffer.*|-| removed | jooby (core)
+||io.jooby.output.*| new output API | jooby (core)
+|io.jooby.MvcFactory|-| was deprecated and now removed | jooby (core)
+|io.jooby.annotation.ResultType|-| removed | jooby (core)
+|io.jooby.ValueNode|io.jooby.value.Value| replaced/merged | jooby (core)
+|io.jooby.ValueNodeConverter|io.jooby.value.ValueConverter| replaced/merged | jooby (core)
+|io.jooby.RouteSet|io.jooby.Route.Set| moved into Route and renamed to Set | jooby (core)
+|===
+
+==== Method
+|===
+|2.x|3.x|Description
+|io.jooby.Jooby.setServerOptions()|Server.setOptions()| removed in favor of `Server.setOptions()`
+|io.jooby.Router.mvc|-| it was deprecated and now removed
+|io.jooby.Router.decorator|-| it was deprecated and now removed
+|io.jooby.Router.getConverters|io.jooby.Router.getValueFactory| replaced
+|io.jooby.Router.getBeanConverters|io.jooby.Router.getValueFactory| replaced
+|io.jooby.Router.attribute(String)|Router.getAttribute(String)| Renamed
+|io.jooby.Router.RouteOption|io.jooby.RouterOptions| Moved to `RouterOptions`
+|io.jooby.Router.setTrustProxy|RouterOptions.setTrustProxy| Moved to `RouterOptions`
+|===
