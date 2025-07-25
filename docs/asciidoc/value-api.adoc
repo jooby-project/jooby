@@ -428,4 +428,22 @@ class Member {
 class Member (@Named("first-name") val firstname: String, @Named("last-name") val lastName: String)
 ----
 
-{love}{love}
+==== Value Factory
+
+The javadoc:value.ValueFactory[] class allow you to register new types for conversion (or even override).
+
+[source,java]
+----
+{
+    var valueFactory = getValueFactory();
+    valueFactory.put(MyBean.class, new MyBeanConverter());
+}
+
+import io.jooby.value.ValueConverter;
+  
+class MyBeanConverter implements ValueConverter {
+  public Object convert(Type type, Value node, ConversionHint hint) {
+    // convert node to MyBean.class
+  }
+}
+----
