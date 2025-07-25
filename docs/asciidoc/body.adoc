@@ -158,14 +158,14 @@ Response encoding is achieved using the javadoc:MessageEncoder[] functional inte
 ----
 public interface MessageEncoder {
 
-  DataBuffer encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
+  Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception;
 }
 ----
 
 MessageEncoder has a single `encode` method that accepts two input arguments: `(context, value)` and 
 produces a result.
 
-The javadoc:buffer.DataBuffer[buffer] works like `java.nio.ByteBuffer` and it is used internally
+The javadoc:output.Output[] works like `java.nio.ByteBuffer` and it is used internally
 for performance reason.
 
 .JSON example:

@@ -10,13 +10,6 @@ This is a **work in progress** document, if something is wrong or missing please
 
 - Java 21 as minimum
 
-==== module-info.java
-
-Jooby is now compatible with Java Module system.
-
-Almost all Jooby components are now Java Modules, but not all them. For those where wasn't
-possible the Jooby module contains the `Automatic-Module-Name` manifest entry.
-
 ==== Buffer API
 
 The package `io.jooby.buffer` is gone. It was replaced by `io.jooby.output` these classes
@@ -25,7 +18,7 @@ performance.
 
 ==== Value API
 
-The new package is now `io.jooby.value`. The API has now decoupled from javadoc:Context[] 
+The new package is now `io.jooby.value`. The API is now decoupled from javadoc:Context[] 
 in future release will be the basis of a new configuration system.
 
 Also, the `io.jooby.ValueNode` and `io.jooby.ValueNodeConverter` are gone.

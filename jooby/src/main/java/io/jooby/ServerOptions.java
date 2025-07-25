@@ -196,7 +196,6 @@ public class ServerOptions {
       if (conf.hasPath("server.http2")) {
         options.setHttp2(conf.getBoolean("server.http2"));
       }
-
       return Optional.of(options);
     }
     return Optional.empty();

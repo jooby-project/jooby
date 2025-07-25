@@ -54,7 +54,6 @@ tasks.withType(JavaCompile) {
     '-parameters',
 {{#if apt}}
     '-Ajooby.incremental=true',
-    '-Ajooby.services=true',
     '-Ajooby.debug=false'
 {{/if}}
   ]

@@ -508,7 +508,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param key Path to use for loading SSL options. Required.
    * @return SSl options or empty.
    */
-  public static @NonNull Optional<SslOptions> from(@NonNull Config conf, String... key) {
+  static @NonNull Optional<SslOptions> from(@NonNull Config conf, String... key) {
     return Stream.of(key)
         .filter(conf::hasPath)
         .findFirst()

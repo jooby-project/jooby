@@ -1238,7 +1238,6 @@ public class Jooby implements Router, Registry {
     var apps = new ArrayList<Jooby>();
     var targetServer = server.getLoggerOff().isEmpty() ? server : MutedServer.mute(server);
     try {
-      // Init context static var
       for (var factory : provider) {
         var app = createApp(server, executionMode, factory);
         /*
