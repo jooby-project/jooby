@@ -13,17 +13,7 @@ import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1202,8 +1192,10 @@ public class Jooby implements Router, Registry {
       @NonNull String[] args,
       @NonNull ExecutionMode executionMode,
       @NonNull List<Supplier<Jooby>> provider) {
-    var cmd = parseArguments(args);
-    var options = ServerOptions.from(ConfigFactory.parseMap(cmd)).orElse(null);
+    Map<String, Object> configMap = new HashMap<>(parseArguments(args));
+    // Override with environment
+    configMap.putAll(System.getenv());
+    var options = ServerOptions.from(ConfigFactory.parseMap(configMap)).orElse(null);
     runApp(args, Server.loadServer(), options, executionMode, provider);
   }
 
