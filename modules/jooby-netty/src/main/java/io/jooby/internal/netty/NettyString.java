@@ -10,12 +10,21 @@ import java.nio.charset.StandardCharsets;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class NettyString implements CharSequence {
+  static final CharSequence server = NettyString.of("N");
+  static final CharSequence CONTENT_TYPE = NettyString.of("content-type");
+  static final CharSequence CONTENT_LENGTH = NettyString.of("content-length");
+  static final CharSequence ZERO = NettyString.of("0");
+  static final CharSequence TEXT_PLAIN = NettyString.of("text/plain");
+  static final CharSequence DATE = NettyString.of("date");
+  static final CharSequence SERVER = NettyString.of("server");
 
   final byte[] bytes;
   private final String value;
+  private final int hashCode;
 
   public NettyString(String value) {
     this.value = value;
+    this.hashCode = value.hashCode();
     this.bytes = value.getBytes(StandardCharsets.US_ASCII);
   }
 
@@ -36,6 +45,19 @@ public class NettyString implements CharSequence {
   @Override
   @NonNull public CharSequence subSequence(int start, int end) {
     return value.subSequence(start, end);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj != null && obj.getClass() == NettyString.class) {
+      return value.equals(((NettyString) obj).value);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return hashCode;
   }
 
   @Override

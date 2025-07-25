@@ -6,8 +6,9 @@
 package io.jooby.internal.netty;
 
 import static io.jooby.internal.netty.NettyHeadersFactory.HEADERS;
+import static io.jooby.internal.netty.NettyString.CONTENT_LENGTH;
+import static io.jooby.internal.netty.NettyString.ZERO;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
@@ -546,13 +547,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return send(data, UTF_8);
   }
 
-  @Override
-  public final Context send(String data, Charset charset) {
+  @NonNull @Override
+  public final Context send(@NonNull String data, @NonNull Charset charset) {
     return send(wrappedBuffer(data.getBytes(charset)));
   }
 
-  @Override
-  public final Context send(byte[] data) {
+  @NonNull @Override
+  public final Context send(@NonNull byte[] data) {
     return send(wrappedBuffer(data));
   }
 
@@ -566,8 +567,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return send(Unpooled.wrappedBuffer(data));
   }
 
-  @Override
-  public final Context send(ByteBuffer data) {
+  @NonNull @Override
+  public final Context send(@NonNull ByteBuffer data) {
     return send(wrappedBuffer(data));
   }
 
@@ -738,12 +739,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @NonNull @Override
-  public Context send(StatusCode statusCode) {
+  public Context send(@NonNull StatusCode statusCode) {
     try {
-      setResponseCode(statusCode);
+      setResponseCode(statusCode.value());
       responseStarted = true;
-      if (!setHeaders.contains(CONTENT_LENGTH)) {
-        setHeaders.set(CONTENT_LENGTH, "0");
+      if (contentLength == -1) {
+        setHeaders.set(CONTENT_LENGTH, ZERO);
       }
       var rsp =
           new DefaultFullHttpResponse(

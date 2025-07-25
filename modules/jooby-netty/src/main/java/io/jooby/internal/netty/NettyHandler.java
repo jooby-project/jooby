@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.netty;
 
+import static io.jooby.internal.netty.NettyString.*;
 import static io.jooby.internal.netty.SlowPathChecks.*;
 import static io.netty.handler.codec.http.HttpUtil.isTransferEncodingChunked;
 
@@ -25,11 +26,6 @@ import io.netty.handler.timeout.IdleStateEvent;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Logger log = LoggerFactory.getLogger(NettyServer.class);
-  private static final CharSequence server = NettyString.of("N");
-  public static final CharSequence CONTENT_TYPE = NettyString.of("content-type");
-  public static final CharSequence TEXT_PLAIN = NettyString.of("text/plain");
-  public static final CharSequence DATE = NettyString.of("date");
-  public static final CharSequence SERVER = NettyString.of("server");
   private final NettyDateService serverDate;
   private final List<Jooby> applications;
   private Router router;

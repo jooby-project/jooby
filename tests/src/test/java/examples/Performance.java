@@ -9,6 +9,7 @@ import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.MediaType.JSON;
 
 import io.jooby.Jooby;
+import io.jooby.ServerOptions;
 import io.jooby.StatusCode;
 import io.jooby.netty.NettyServer;
 
@@ -38,9 +39,6 @@ public class Performance extends Jooby {
 
   public static void main(final String[] args) {
     System.setProperty("io.netty.disableHttpHeadersValidation", "true");
-    // runApp(args, new
-    // UndertowServer().setOutputFactory(OutputFactory.threadLocal(OutputFactory.create())),
-    // EVENT_LOOP, Performance::new);
-    runApp(args, new NettyServer(), EVENT_LOOP, Performance::new);
+    runApp(args, new NettyServer(new ServerOptions().setPort(3001)), EVENT_LOOP, Performance::new);
   }
 }
