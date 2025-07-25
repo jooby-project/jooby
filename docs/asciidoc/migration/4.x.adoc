@@ -61,7 +61,7 @@ runApp(args, new NettyServer(new ServerOptions()), App::new);
 
 ==== Method
 |===
-|2.x|3.x|Description
+|3.x|4.x|Description
 |io.jooby.Jooby.setServerOptions()|Server.setOptions()| removed in favor of `Server.setOptions()`
 |io.jooby.Router.mvc|-| it was deprecated and now removed
 |io.jooby.Router.decorator|-| it was deprecated and now removed

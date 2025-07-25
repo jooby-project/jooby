@@ -1,13 +1,13 @@
 === Value API
 
-The javadoc:Value[Value] is an unified and type-safe API across all parameter types:
+The javadoc:value.Value[Value] is an unified and type-safe API across all parameter types:
 
 - Header
 - Path
 - Query
 - Formdata/Multipart
 
-For learning purpose we are going to show all the javadoc:Value[Value] features using query
+For learning purpose we are going to show all the javadoc:value.Value[Value] features using query
 parameters, but keep in mind these features apply to all the parameter types.
 
 ==== Single value
@@ -127,8 +127,8 @@ Default and optional value are available in two different ways:
 
 Multiple values are available via functions:
 
-- javadoc:Value[toList]: Returns a `java.util.List` of values
-- javadoc:Value[toSet]: Returns a `java.util.Set` of values
+- javadoc:value.Value[toList]: Returns a `java.util.List` of values
+- javadoc:value.Value[toSet]: Returns a `java.util.Set` of values
 
 .Java
 [source, java,role="primary"]
@@ -182,7 +182,7 @@ Multiple values are available via functions:
 
 ==== Structured data
 
-The javadoc:Value[Value API] provides a way to traverse and parse structured data:
+The javadoc:value.Value[Value API] provides a way to traverse and parse structured data:
 
 ----
 /?user.name=root&user.pass=pass
@@ -221,7 +221,7 @@ The javadoc:Value[Value API] provides a way to traverse and parse structured dat
 <3> Get the `pass` value from `user` node
 <4> Get the `mail` value from `user` node. This is an optional value.
 
-The javadoc:Value[get, java.lang.String] takes a `path` and returns another value. The returning
+The javadoc:value.Value[get, java.lang.String] takes a `path` and returns another value. The returning
 value may or may not exists.
 
 ===== Syntax

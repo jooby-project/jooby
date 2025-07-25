@@ -8,7 +8,6 @@ package io.jooby;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +53,7 @@ public class Environment {
    */
   public Environment(
       @NonNull ClassLoader classLoader, @NonNull Config config, @NonNull String... actives) {
-    this(classLoader, config, Arrays.asList(actives));
+    this(classLoader, config, List.of(actives));
   }
 
   /**

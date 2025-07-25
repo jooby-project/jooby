@@ -868,6 +868,27 @@ JAX-RS specification and there is no immediate plan to do it.
 The main reason to support JAX-RS annotations is to let you plug-in third-party tools that rely
 on them (mostly annotations processors).
 
+=== Generated router
+
+For each MVC/controller class a new class is generated. The new class ends with `_`, this class
+mimics the constructors from the source class. If the constructor is annotated with `@Inject` a
+default constructor will exists.
+
+Any annotation found on the controller method will be persisted as route attributes, unless
+`jooby.skipAttributeAnnotations` excludes it.
+
+Access to generated routes is allowed:
+
+[source, java]
+----
+{
+  var routes = mvc(new MyController_());
+  routes.forEach(route -> {
+    // do something with route
+  });
+}
+----
+
 === Annotation Processor Options
 
 [cols="1,1,1,1"]
@@ -884,20 +905,10 @@ on them (mostly annotations processors).
 |true
 |Hints maven/gradle to do incremental compilation. Useful for development.
 
-|jooby.services
-|boolean
-|true
-|Generates META-INF/services metadata
-
 |jooby.skipAttributeAnnotations
 |array
 |[]
 |Skip annotation during byte code generation (i.e. don't generate them as route attributes)
-
-|jooby.handler
-|string
-|[]
-|Add custom handler mapping.
 
 |jooby.mvcMethod
 |boolean

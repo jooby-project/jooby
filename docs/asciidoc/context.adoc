@@ -20,28 +20,6 @@ In most of the cases you can access the context object as a parameter of your ro
 }
 ----
 
-If you need to access the context via the service registry or dependency injection, you need to
-explicitly request the registration of it as a service with the following invocation:
-
-.Java
-[source, java, role="primary"]
-----
-{
-  setContextAsService(true);
-}
-----
-
-.Kotlin
-[source, kotlin, role="secondary"]
-----
-{
-  setContextAsService(true)
-}
-----
-
-Important to note that the context is a *request scoped* object, it's only available through the service
-registry while the request it belongs to is being processed.
-
 javadoc:Context[Context] also provides derived information about the current request such as a
 matching locale (or locales) based on the `Accept-Language` header (if presents). You may use
 the result of javadoc:Context[locale] or javadoc:Context[locales] to present content matching to
@@ -133,7 +111,7 @@ response.
 ----
 
 <1> Header variable `token`
-<2> All headers as javadoc:Value[]
+<2> All headers as javadoc:value.Value[]
 <3> All headers as map
 
 ==== Cookie
@@ -256,7 +234,7 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 - `/a b`    => `/a%20b`  (not decoded)
 - `/%2F%2B` => `/%2F%2B` (not decoded)
 
-<2> Path as javadoc:Value[] object:
+<2> Path as javadoc:value.Value[] object:
 
 - `/a+b`    => `{name=a+b}`
 - `/a b`    => `{name=a b}` (decoded)

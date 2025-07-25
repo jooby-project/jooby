@@ -70,7 +70,7 @@ Attributes let you annotate a route at application bootstrap time. It functions 
 ----
 {
   get("/foo", ctx -> "Foo")
-    .attribute("foo", "bar");
+    .setAttribute("foo", "bar");
 }
 ----
 
@@ -80,7 +80,7 @@ Attributes let you annotate a route at application bootstrap time. It functions 
 {
   get("/foo") {
     "Foo"
-  }.attribute("foo", "bar")
+  }.setAttribute("foo", "bar")
 }
 ----
 
@@ -93,7 +93,7 @@ Attributes can be accessed at runtime in a request/response cycle. For example, 
 {
   use(next -> ctx -> {
     User user = ...;
-    String role = ctx.getRoute().attribute("Role"); 
+    String role = ctx.getRoute().getAttribute("Role"); 
     
     if (user.hasRole(role)) {
         return next.apply(ctx);
@@ -110,7 +110,7 @@ Attributes can be accessed at runtime in a request/response cycle. For example, 
 {
 use(
   val user = ...
-  val role = ctx.route.attribute("Role")
+  val role = ctx.route.getAttribute("Role")
 
   if (user.hasRole(role)) {
     return next.apply(ctx)
@@ -144,7 +144,7 @@ public class AdminResource {
 
 {
   use(next -> ctx -> {
-    System.out.println(ctx.getRoute().attribute("Role"));
+    System.out.println(ctx.getRoute().getAttribute("Role"));
   });
 }
 ----
@@ -168,7 +168,7 @@ class AdminResource {
 
 {
   use {
-    println(ctx.route.attribute("Role"))
+    println(ctx.route.getAttribute("Role"))
   }
 }
 ----
