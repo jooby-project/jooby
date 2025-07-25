@@ -127,37 +127,17 @@ public interface Server {
       }
     }
 
-    private ServerOptions options;
+    private ServerOptions options = new ServerOptions();
 
     @Override
     public final ServerOptions getOptions() {
-      if (options == null) {
-        options = defaultOptions();
-        defaultOptions = true;
-      }
       return options;
     }
 
     @Override
     public Server setOptions(@NonNull ServerOptions options) {
-      if (this.options != null && !defaultOptions) {
-        var warn =
-            Boolean.parseBoolean(System.getProperty(AvailableSettings.SERVER_OPTIONS_WARN, "true"));
-        if (warn) {
-          LoggerFactory.getLogger(getClass())
-              .warn(
-                  "Server options must be called once. To turn off this warning set the: `{}`"
-                      + " system property to `false`",
-                  AvailableSettings.SERVER_OPTIONS_WARN);
-        }
-      }
       this.options = options;
-      this.defaultOptions = false;
       return this;
-    }
-
-    protected ServerOptions defaultOptions() {
-      return new ServerOptions();
     }
   }
 
@@ -273,7 +253,7 @@ public interface Server {
    * @return A server.
    */
   static Server loadServer() {
-    return loadServer(null);
+    return loadServer(new ServerOptions());
   }
 
   /**
@@ -282,7 +262,7 @@ public interface Server {
    * @param options Optional server options.
    * @return A server.
    */
-  static Server loadServer(@Nullable ServerOptions options) {
+  static Server loadServer(@NonNull ServerOptions options) {
     List<Server> servers =
         stream(
                 spliteratorUnknownSize(
@@ -300,6 +280,7 @@ public interface Server {
       var log = LoggerFactory.getLogger(servers.get(0).getClass());
       log.warn("Multiple servers found {}. Using: {}", names, names.get(0));
     }
-    return servers.get(0);
+    var server = servers.get(0);
+    return server.setOptions(options);
   }
 }

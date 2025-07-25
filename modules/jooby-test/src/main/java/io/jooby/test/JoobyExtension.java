@@ -28,10 +28,7 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Environment;
-import io.jooby.Jooby;
-import io.jooby.Server;
-import io.jooby.SneakyThrows;
+import io.jooby.*;
 
 /**
  * JUnit extension that control lifecycle of Jooby applications on tests. The extension shouldn't
@@ -69,10 +66,9 @@ public class JoobyExtension
   }
 
   private Jooby startApp(ExtensionContext context, JoobyTest metadata) throws Exception {
-    var server = Server.loadServer();
-    var serverOptions = server.getOptions();
-    serverOptions.setPort(port(metadata.port(), DEFAULT_PORT));
-    server.setOptions(serverOptions);
+    var options = new ServerOptions();
+    options.setPort(port(metadata.port(), DEFAULT_PORT));
+    var server = Server.loadServer(options);
     Jooby app;
     String factoryMethod = metadata.factoryMethod();
     if (factoryMethod.isEmpty()) {

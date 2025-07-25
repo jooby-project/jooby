@@ -28,6 +28,38 @@ To use Undertow, add the dependency:
 Only one server dependency must be available on classpath.
 ====
 
+=== Run multiple apps
+
+All the code examples show how to run a single application on server. Servers allow running multiple
+applications.
+
+.Server
+[source,java,role="primary"]
+----
+
+import io.jooby.netty.NettyServer;
+
+public static void main(String[] args) {
+  runApp(args, new NettyServer(), List.of(FooApp::new, BarApp::new));
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.netty.NettyServer
+
+fun main(args: Array<String>) {
+  runApp(args, NettyServer(), ::FooApp, ::BarApp)
+}
+----
+
+Some things to keep in mind:
+
+- Application configuration file must NOT define server properties more than once. If they do, the
+first setup wins.
+- Log configuration file must be provided by command line or system property. 
+
 === Manual setup
 
 Servers are automatically loaded using `ServiceLoader` API. If you need to add it manually:
@@ -38,8 +70,8 @@ Servers are automatically loaded using `ServiceLoader` API. If you need to add i
 
 import io.jooby.netty.NettyServer;
 
-{
-  install(new NettyServer());
+public static void main(String[] args) {
+  runApp(args, new NettyServer(), App::new);
 }
 ----
 
@@ -48,8 +80,8 @@ import io.jooby.netty.NettyServer;
 ----
 import io.jooby.netty.NettyServer
 
-{
-  install(NettyServer())
+fun main(args: Array<String>) {
+  runApp(args, NettyServer(), ::App)
 }
 ----
 
@@ -66,14 +98,13 @@ import java.util.concurrent.Executors;
 
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
-
-{
+public static void main(String[] args) {
   // Use virtual Thread in Java 19 with --enable-preview
-  QueuedThreadPool worker = new QueuedThreadPool();
+  var worker = new QueuedThreadPool();
   worker.setReservedThreads(0);
   worker.setVirtualThreadsExecutor(Executors.newVirtualThreadPerTaskExecutor());
 
-  install(new JettyServer(worker));
+  runApp(args, new JettyServer(worker), App::new);
 }
 ----
 
@@ -88,13 +119,13 @@ import java.util.concurrent.Executors
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 
-{
+fun main(args: Array<String>) {
   // Use virtual Thread in Java 19 with --enable-preview
   val worker = QueuedThreadPool()
   worker.reservedThreads = 0
   worker.virtualThreadsExecutor = Executors.newVirtualThreadPerTaskExecutor()
 
-  install(JettyServer(worker))
+  runApp(args, JettyServer(worker), ::App)
 }
 ----
 
@@ -106,8 +137,8 @@ Server options are available via javadoc:ServerOptions[] class:
 [source,java,role="primary"]
 ----
 {
-  setServerOptions(new ServerOptions()
-      .setBufferSize(16384)
+  var options = new ServerOptions()
+      .setOutput(OutputOptions.defaults())
       .setCompressionLevel(6)
       .setPort(8080)
       .setIoThreads(16)
@@ -120,8 +151,7 @@ Server options are available via javadoc:ServerOptions[] class:
       .setSsl(SslOptions.selfSigned())
       .setHttpsOnly(false)
       .setHttp2(true)
-      .setExpectContinue(true)
-  ); 
+      .setExpectContinue(true);
 }
 ----
 
@@ -129,8 +159,9 @@ Server options are available via javadoc:ServerOptions[] class:
 [source,kotlin,role="secondary"]
 ----
 {
-  serverOptions {
-    bufferSize = 16384
+  val options = ServerOptions().appy {
+    output.size = 16384
+    output.useDirectBuffers = true
     compressionLevel = 6
     port = 8080
     ioThreads = 16
@@ -148,7 +179,7 @@ Server options are available via javadoc:ServerOptions[] class:
 }
 ----
 
-- bufferSize: Buffer size used by server for reading/writing data. Default is: `16k`.
+- output.size: Buffer size used by server for reading/writing data. Default is: `16k`.
 - compressionLevel: Gzip support. Set compression level. Value between: `0..9`.
 - port: Server HTTP port or `0` for random port. Default is: `8080`.
 - ioThreads: Number of IO threads used by the server. Used by Netty and Undertow. Default is: `Runtime.getRuntime().availableProcessors() * 2`
@@ -164,12 +195,13 @@ Server options are available via javadoc:ServerOptions[] class:
 - isExpectContinue: Whenever 100-Expect and continue requests are handled by the server. This is off
   by default, except for Jetty which is always ON.
 
-Server options are available as application configuration properties too:
+For single application deployment server options are available as application configuration properties too:
 
 .application.conf
 [source, properties]
 ----
-server.bufferSize = 16384
+server.output.size = 16384
+server.output.useDirectBuffers = true
 server.compressionLevel = 6
 server.port = 8080
 server.ioThreads = 16
@@ -203,20 +235,18 @@ The javadoc:SslOptions[] class provides options to configure SSL:
 .Hello HTTPS
 [source,java,role="primary"]
 ----
-{
-  setServerOptions(new ServerOptions()
-      .setSecurePort(8443)             <1>
-  ); 
+public static void main(String[] args) {
+  var options = new ServerOptions().setSecurePort(8443); <1>
+  runApp(args, new NettyServer(options), App::new);
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-{
-  serverOptions {
-    securePort = 8443                  <1>
-  }
+fun main(args: Array<String>) {
+  var options = ServerOptions().setSecurePort(8443)      <1>
+  runApp(args, NettyServer(options), ::App)
 }
 ----
 
@@ -258,21 +288,24 @@ To use a valid X.509 certificate, for example one created with https://letsencry
 .X509
 [source,java,role="primary"]
 ----
-{
-  SslOptions ssl = SslOptions.x509("path/to/server.crt", "path/to/server.key");
-  setServerOptions(new ServerOptions()
-      .setSsl(ssl)                                                    <1>
-  ); 
+import io.jooby.netty.NettyServer;
+
+public static void main(String[] args) {
+  var ssl = SslOptions.x509("path/to/server.crt", "path/to/server.key");
+  var options = new ServerOptions().setSsl(ssl);
+  runApp(args, new NettyServer(options), App::new); 
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-{
-  serverOptions {
-    ssl = SslOptions.x509("path/to/server.crt", "path/to/server.key")  <1>
-  }
+import io.jooby.netty.NettyServer
+
+fun main(args: Array<String>) {
+  val ssl = SslOptions.x509("path/to/server.crt", "path/to/server.key")
+  val options = ServerOptions().setSsl(ssl)
+  runApp(args, NettyServer(options), ::App) 
 }
 ----
 
@@ -298,9 +331,8 @@ server {
 [source,java,role="primary"]
 ----
 {
-  setServerOptions(new ServerOptions()
-      .setSsl(SslOptions.from(getConfig()))
-  ); 
+  var options = new ServerOptions()
+      .setSsl(SslOptions.from(getConfig()).get());
 }
 ----
 
@@ -308,9 +340,8 @@ server {
 [source,kotlin,role="secondary"]
 ----
 {
-  serverOptions {
-    ssl = SslOptions.from(config).get()
-  }
+  val options = ServerOptions()
+      .setSsl(SslOptions.from(config).get())
 }
 ----
 
@@ -322,10 +353,8 @@ To use a valid PKCS12 certificate:
 [source,java,role="primary"]
 ----
 {
-  SslOptions ssl = SslOptions.pkcs12("path/to/server.p12", "password");
-  setServerOptions(new ServerOptions()
-      .setSsl(ssl)                                                      <1>
-  ); 
+  var ssl = SslOptions.pkcs12("path/to/server.p12", "password"); <1>
+  var options = new ServerOptions().setSsl(ssl);
 }
 ----
 
@@ -333,9 +362,8 @@ To use a valid PKCS12 certificate:
 [source,kotlin,role="secondary"]
 ----
 {
-  serverOptions {
-    ssl = SslOptions.pkcs12("path/to/server.p12", "password")             <1>
-  }
+  val ssl = SslOptions.pkcs12("path/to/server.p12", "password")      <1>
+  val options = ServerOptions().setSsl(ssl) 
 }
 ----
 
@@ -361,9 +389,8 @@ server {
 [source,java,role="primary"]
 ----
 {
-  setServerOptions(new ServerOptions()
-      .setSsl(SslOptions.from(getConfig()))
-  ); 
+  var options = new ServerOptions()
+      .setSsl(SslOptions.from(getConfig()).get());
 }
 ----
 
@@ -371,9 +398,8 @@ server {
 [source,kotlin,role="secondary"]
 ----
 {
-  serverOptions {
-    ssl = SslOptions.from(config).get()
-  }
+  val options = ServerOptions()
+      .setSsl(SslOptions.from(config).get())
 }
 ----
 
@@ -385,14 +411,12 @@ To enable 2-way TLS (Mutual TLS), set the trust certificate and client authentic
 [source,java,role="primary"]
 ----
 {
-  SslOptions ssl = SslOptions.pkcs12("path/to/server.p12", "password")
+  var ssl = SslOptions.pkcs12("path/to/server.p12", "password")
     .setTrustCert(Files.newInputStream("path/to/trustCert")) <1>
     .setTrustPassword("password") <2>
     .setClientAuth(SslOptions.ClientAuth.REQUIRED); <3>
 
-  setServerOptions(new ServerOptions()
-      .setSsl(ssl)                                                      
-  );
+  var options = new ServerOptions().setSsl(ssl);
 }
 ----
 
@@ -400,12 +424,12 @@ To enable 2-way TLS (Mutual TLS), set the trust certificate and client authentic
 [source,kotlin,role="secondary"]
 ----
 {
-  serverOptions {
-    ssl = SslOptions.pkcs12("path/to/server.p12", "password")
+  val ssl = SslOptions.pkcs12("path/to/server.p12", "password")
       .trustCert(Files.newInputStream("path/to/trustCert")) <1>
       .trustPassword("password") <2>
       .clientAuth(SslOptions.ClientAuth.REQUIRED) <3>
-  }
+
+  val options = ServerOptions().setSsl(ssl)
 }
 ----
 
@@ -436,9 +460,8 @@ server {
 [source,java,role="primary"]
 ----
 {
-  setServerOptions(new ServerOptions()
-      .setSsl(SslOptions.from(getConfig()))
-  );
+  var options = new ServerOptions()
+      .setSsl(SslOptions.from(config).get());
 }
 ----
 
@@ -446,9 +469,8 @@ server {
 [source,kotlin,role="secondary"]
 ----
 {
-  serverOptions {
-    ssl = SslOptions.from(config).get()
-  }
+  val options = ServerOptions()
+      .setSsl(SslOptions.from(config).get())
 }
 ----
 
@@ -460,9 +482,8 @@ Default protocol is `TLSv1.3, TLSv1.2`. To override, just do:
 [source,java,role="primary"]
 ----
 {
-  setServerOptions(new ServerOptions()
-      .setSsl(new SslOptions().setProtocol("TLSv1.3", "TLSv1.2"))
-  ); 
+  var options = new ServerOptions()
+      .setSsl(new SslOptions().setProtocol("TLSv1.3", "TLSv1.2"));
 }
 ----
 
@@ -470,11 +491,10 @@ Default protocol is `TLSv1.3, TLSv1.2`. To override, just do:
 [source,kotlin,role="secondary"]
 ----
 {
-  serverOptions {
-    ssl = SslOptions().apply {
+  val options = ServerOptions()
+    .setSsl(SslOptions().apply {
       protocol = listOf("TLSv1.3", "TLSv1.2")
-    }
-  }
+    })
 }
 ----
 
@@ -486,8 +506,6 @@ none of which are supported, an exception will be thrown.
 *TLSv1.3 protocol is available in*
 
 - Open SSL via Conscrypt (see next section)
-- 8u261-b12 from Oracle JDK
-- TLS 1.3 support in OpenJDK is (beside Azul's OpenJSSE) expected to come into 8u272.
 - Java 11.0.3 or higher.
 ====
 
@@ -496,7 +514,7 @@ none of which are supported, an exception will be thrown.
 SSL support is provided using built-in JDK capabilities. Jooby offers an OpenSSL support using
 https://github.com/google/conscrypt[Conscrypt].
 
-To enable, just add the required dependency:
+To enable, add the required dependency:
 
 [dependency, artifactId="jooby-conscrypt"]
 .
@@ -514,14 +532,13 @@ programmatically or via `application.conf` properties.
 [source,java,role="primary"]
 ----
 {
-  setServerOptions(new ServerOptions()
+  var options =new ServerOptions()
       .setHttp2(true)
-      .setSecurePort(8433)
-  );
+      .setSecurePort(8433);
   
-  get("/", ctx -> {
+  get("/", ctx ->
     ctx.getProtocol()
-  })
+  )
 }
 ----
 
@@ -529,8 +546,8 @@ programmatically or via `application.conf` properties.
 [source,kotlin,role="secondary"]
 ----
 {
-  serverOptions {
-    http = 2
+  val options = ServerOptions().apply {
+    http2 = true
     securePort = 8433
   }
   
@@ -542,7 +559,7 @@ programmatically or via `application.conf` properties.
 
 [NOTE]
 ====
-To use HTTP/2 from browsers you need TLS (the h2 protocol) please refer to
+To use HTTP/2 from browsers, you need TLS (the h2 protocol) please refer to
 <<server-https-support, HTTPS support>> to configure TLS.
 ====
 

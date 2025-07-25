@@ -37,3 +37,4 @@ node_modules
 build
 .gradle
 !gradle-wrapper.jar
+.envrc

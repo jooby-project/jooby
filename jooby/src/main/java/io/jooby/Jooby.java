@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -38,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.RegistryException;
@@ -1124,6 +1124,7 @@ public class Jooby implements Router, Registry {
    *
    * @param args Application arguments.
    * @param server Server to run.
+   * @param executionMode Default application execution mode. Can be overridden by application.
    * @param consumer Application consumer.
    */
   public static void runApp(
@@ -1139,7 +1140,7 @@ public class Jooby implements Router, Registry {
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
-   * @param executionMode Application execution mode.
+   * @param executionMode Default application execution mode. Can be overridden by application.
    * @param consumer Application consumer.
    */
   public static void runApp(
@@ -1154,21 +1155,21 @@ public class Jooby implements Router, Registry {
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
-   * @param executionMode Application execution mode.
+   * @param executionMode Default application execution mode. Can be overridden by application.
    * @param provider Application provider.
    */
   public static void runApp(
       @NonNull String[] args,
       @NonNull ExecutionMode executionMode,
       @NonNull Supplier<Jooby> provider) {
-    runApp(args, Server.loadServer(), executionMode, provider);
+    runApp(args, executionMode, List.of(provider));
   }
 
   /**
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
-   * @param executionMode Application execution mode.
+   * @param executionMode Default application execution mode. Can be overridden by application.
    * @param provider Application provider.
    */
   public static void runApp(
@@ -1187,21 +1188,23 @@ public class Jooby implements Router, Registry {
    * @param provider Application provider.
    */
   public static void runApp(@NonNull String[] args, @NonNull List<Supplier<Jooby>> provider) {
-    runApp(args, Server.loadServer(), ExecutionMode.DEFAULT, provider);
+    runApp(args, ExecutionMode.DEFAULT, provider);
   }
 
   /**
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
-   * @param executionMode Execution mode.
+   * @param executionMode Default application execution mode. Can be overridden by application.
    * @param provider Application provider.
    */
   public static void runApp(
       @NonNull String[] args,
       @NonNull ExecutionMode executionMode,
       @NonNull List<Supplier<Jooby>> provider) {
-    runApp(args, Server.loadServer(), executionMode, provider);
+    var cmd = parseArguments(args);
+    var options = ServerOptions.from(ConfigFactory.parseMap(cmd)).orElseGet(ServerOptions::new);
+    runApp(args, Server.loadServer(options), executionMode, provider);
   }
 
   /**
@@ -1221,7 +1224,7 @@ public class Jooby implements Router, Registry {
    *
    * @param args Application arguments.
    * @param server Server.
-   * @param executionMode Execution mode.
+   * @param executionMode Default application execution mode. Can be overridden by application.
    * @param provider Application provider.
    */
   public static void runApp(
@@ -1338,19 +1341,19 @@ public class Jooby implements Router, Registry {
 
   static Map<String, String> parseArguments(String... args) {
     if (args == null || args.length == 0) {
-      return Collections.emptyMap();
+      return Map.of();
     }
-    Map<String, String> conf = new LinkedHashMap<>();
-    for (String arg : args) {
+    var commandLine = new LinkedHashMap<String, String>();
+    for (var arg : args) {
       int eq = arg.indexOf('=');
       if (eq > 0) {
-        conf.put(arg.substring(0, eq).trim(), arg.substring(eq + 1).trim());
+        commandLine.put(arg.substring(0, eq).trim(), arg.substring(eq + 1).trim());
       } else {
         // must be the environment actives
-        conf.putIfAbsent(AvailableSettings.ENV, arg);
+        commandLine.putIfAbsent(AvailableSettings.ENV, arg);
       }
     }
-    return conf;
+    return commandLine;
   }
 
   private static void ensureTmpdir(Path tmpdir) {

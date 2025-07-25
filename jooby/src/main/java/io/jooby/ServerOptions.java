@@ -41,6 +41,11 @@ import io.jooby.output.OutputOptions;
  */
 public class ServerOptions {
 
+  static {
+    // Initialize server defaults by loading server first.
+    ServiceLoader.load(Server.class).findFirst();
+  }
+
   /**
    * Default application port <code>8080</code> or the value of system property <code>server.port
    * </code>.
@@ -142,7 +147,7 @@ public class ServerOptions {
    */
   public static @NonNull Optional<ServerOptions> from(@NonNull Config conf) {
     if (conf.hasPath("server")) {
-      ServerOptions options = new ServerOptions();
+      var options = new ServerOptions();
       if (conf.hasPath("server.port")) {
         options.setPort(conf.getInt("server.port"));
       }

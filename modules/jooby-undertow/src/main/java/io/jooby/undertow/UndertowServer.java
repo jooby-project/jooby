@@ -84,11 +84,6 @@ public class UndertowServer extends Server.Base {
     return outputFactory;
   }
 
-  public UndertowServer setOutputFactory(OutputFactory outputFactory) {
-    this.outputFactory = outputFactory;
-    return this;
-  }
-
   @NonNull @Override
   public String getName() {
     return NAME;
