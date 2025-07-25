@@ -46,7 +46,7 @@ public class UndertowServer extends Server.Base {
 
   static {
     // Default values
-    System.setProperty("server.name", NAME);
+    System.setProperty("__server_.name", NAME);
   }
 
   private static final int BACKLOG = 8192;

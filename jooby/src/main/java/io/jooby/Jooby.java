@@ -1203,8 +1203,8 @@ public class Jooby implements Router, Registry {
       @NonNull ExecutionMode executionMode,
       @NonNull List<Supplier<Jooby>> provider) {
     var cmd = parseArguments(args);
-    var options = ServerOptions.from(ConfigFactory.parseMap(cmd)).orElseGet(ServerOptions::new);
-    runApp(args, Server.loadServer(options), executionMode, provider);
+    var options = ServerOptions.from(ConfigFactory.parseMap(cmd)).orElse(null);
+    runApp(args, Server.loadServer(), options, executionMode, provider);
   }
 
   /**
@@ -1232,6 +1232,23 @@ public class Jooby implements Router, Registry {
       @NonNull Server server,
       @NonNull ExecutionMode executionMode,
       @NonNull List<Supplier<Jooby>> provider) {
+    runApp(args, server, null, executionMode, provider);
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param server Server.
+   * @param executionMode Default application execution mode. Can be overridden by application.
+   * @param provider Application provider.
+   */
+  private static void runApp(
+      @NonNull String[] args,
+      @NonNull Server server,
+      @Nullable ServerOptions options,
+      @NonNull ExecutionMode executionMode,
+      @NonNull List<Supplier<Jooby>> provider) {
 
     /* Dump command line as system properties. */
     parseArguments(args).forEach(System::setProperty);
@@ -1241,13 +1258,17 @@ public class Jooby implements Router, Registry {
       for (var factory : provider) {
         var app = createApp(server, executionMode, factory);
         /*
-         When running a single app instance, there is no issue with server options, when multiple
-         apps set options a warning will be printed
+         When running a single app instance, there is no issue with server options.
+         When multiple apps pick first on the provided order.
         */
-        ServerOptions.from(app.getConfig()).ifPresent(server::setOptions);
+        if (options == null) {
+          options = ServerOptions.from(app.getConfig()).orElse(null);
+        }
         apps.add(app);
       }
-
+      if (options != null) {
+        server.setOptions(options);
+      }
       targetServer.start(apps.toArray(new Jooby[0]));
     } catch (Throwable startupError) {
       try {

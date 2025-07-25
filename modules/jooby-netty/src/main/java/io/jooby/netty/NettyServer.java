@@ -49,7 +49,7 @@ public class NettyServer extends Server.Base {
   private static final String NAME = "netty";
 
   static {
-    System.setProperty("server.name", NAME);
+    System.setProperty("__server_.name", NAME);
   }
 
   private static final int _50 = 50;
@@ -88,7 +88,9 @@ public class NettyServer extends Server.Base {
     super.setOptions(options);
   }
 
-  public NettyServer() {}
+  public NettyServer() {
+    System.out.println("ccc");
+  }
 
   @NonNull @Override
   public OutputFactory getOutputFactory() {

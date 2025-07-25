@@ -80,9 +80,9 @@ public class ServerOptions {
   public static final int IO_THREADS =
       Integer.parseInt(
           System.getProperty(
-              "server.ioThreads", Integer.toString(Runtime.getRuntime().availableProcessors())));
+              "__server_.ioThreads", Integer.toString(Runtime.getRuntime().availableProcessors())));
 
-  private static final String SERVER_NAME = System.getProperty("server.name");
+  private static final String SERVER_NAME = System.getProperty("__server_.name");
 
   /**
    * Number of worker (a.k.a application) threads. It is the number of processors multiply by <code>
@@ -91,7 +91,7 @@ public class ServerOptions {
   public static final int WORKER_THREADS =
       Integer.parseInt(
           System.getProperty(
-              "server.workerThreads",
+              "__server_.workerThreads",
               Integer.toString(Runtime.getRuntime().availableProcessors() * 8)));
 
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */

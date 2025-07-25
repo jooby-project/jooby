@@ -53,9 +53,9 @@ public class JettyServer extends io.jooby.Server.Base {
   static {
     int cpus = ProcessorUtils.availableProcessors();
     var ioThreads = Math.max(1, Math.min(cpus / 2, THREADS / 16));
-    System.setProperty("server.ioThreads", ioThreads + "");
-    System.setProperty("server.workerThreads", THREADS + "");
-    System.setProperty("server.name", NAME);
+    System.setProperty("__server_.ioThreads", ioThreads + "");
+    System.setProperty("__server_.workerThreads", THREADS + "");
+    System.setProperty("__server_.name", NAME);
   }
 
   private OutputFactory outputFactory;
