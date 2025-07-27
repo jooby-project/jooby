@@ -1192,9 +1192,10 @@ public class Jooby implements Router, Registry {
       @NonNull String[] args,
       @NonNull ExecutionMode executionMode,
       @NonNull List<Supplier<Jooby>> provider) {
-    Map<String, Object> configMap = new HashMap<>(parseArguments(args));
-    // Override with environment
-    configMap.putAll(System.getenv());
+    var configMap = new HashMap<>(parseArguments(args));
+    // TODO: Add new way to override server options mainly from system properties/environment
+    //  variables. Probably by adding a new config file: server.conf
+    // configMap.putAll(System.getenv());
     var options = ServerOptions.from(ConfigFactory.parseMap(configMap)).orElse(null);
     runApp(args, Server.loadServer(), options, executionMode, provider);
   }
