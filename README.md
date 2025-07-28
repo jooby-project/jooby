@@ -81,3 +81,7 @@ license
 =====
 
 [Apache License 2](http://www.apache.org/licenses/LICENSE-2.0.html)
+
+### Powered by
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSource)
+
