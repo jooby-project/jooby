@@ -69,6 +69,7 @@ sponsors
 Previous version
 =====
 
+- v3: [Documentation](https://jooby.io/v3) and [source code](https://github.com/jooby-project/jooby/tree/3.x)
 - v2: [Documentation](https://jooby.io/v2) and [source code](https://github.com/jooby-project/jooby/tree/2.x)
 - v1: [Documentation](https://jooby.io/v1) and [source code](https://github.com/jooby-project/jooby/tree/1.x)
 
