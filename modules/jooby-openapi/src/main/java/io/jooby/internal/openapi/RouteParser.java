@@ -189,6 +189,7 @@ public class RouteParser {
             String name = (String) ((Map.Entry) e).getKey();
             Schema s = (Schema) ((Map.Entry) e).getValue();
             ParameterExt p = new ParameterExt();
+            p.setContainerType(javaType);
             p.setName(name);
             p.setIn(parameter.getIn());
             p.setSchema(s);

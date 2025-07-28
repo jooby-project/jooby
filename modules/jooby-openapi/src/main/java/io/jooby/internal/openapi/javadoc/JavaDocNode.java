@@ -16,11 +16,17 @@ import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.JavadocUtil;
 
 public class JavaDocNode {
+  protected final JavaDocContext context;
   protected final DetailNode javadoc;
   protected static final Set<Integer> STOP_TOKENS = Set.of(JavadocTokenTypes.JAVADOC_TAG);
 
-  public JavaDocNode(DetailAST node) {
-    this.javadoc = new JavadocDetailNodeParser().parseJavadocAsDetailNode(node).getTree();
+  public JavaDocNode(JavaDocContext ctx, DetailAST node) {
+    this.context = ctx;
+    this.javadoc = toJavaDocNode(node);
+  }
+
+  private static DetailNode toJavaDocNode(DetailAST node) {
+    return new JavadocDetailNodeParser().parseJavadocAsDetailNode(node).getTree();
   }
 
   public String getText() {
@@ -49,6 +55,10 @@ public class JavaDocNode {
 
   @Override
   public String toString() {
-    return DetailNodeTreeStringPrinter.printTree(javadoc, "", "");
+    return toString(javadoc);
+  }
+
+  protected String toString(DetailNode node) {
+    return DetailNodeTreeStringPrinter.printTree(node, "", "");
   }
 }

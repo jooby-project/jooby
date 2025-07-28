@@ -18,6 +18,7 @@ import com.puppycrawl.tools.checkstyle.AstTreeStringPrinter;
 import com.puppycrawl.tools.checkstyle.JavaParser;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.javadoc.ClassDoc;
+import io.jooby.internal.openapi.javadoc.JavaDocContext;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
 
 public class JavaDocParserTest {
@@ -25,7 +26,7 @@ public class JavaDocParserTest {
   @Test
   public void apiDoc() throws Exception {
     withDoc(
-        baseDir().resolve("ApiDoc.java"),
+        Paths.get("javadoc", "input", "ApiDoc.java"),
         doc -> {
           assertEquals("ApiDoc", doc.getSimpleName());
           assertEquals("javadoc.input.ApiDoc", doc.getName());
@@ -50,37 +51,42 @@ public class JavaDocParserTest {
           assertEquals("This line has a break.", method.get().getParameterDoc("list"));
           assertEquals("Some string.", method.get().getParameterDoc("str"));
 
-          // TODO: continue here
           var search = doc.getMethod("search", List.of("QueryBeanDoc"));
           assertTrue(search.isPresent());
-          assertEquals("This is the Hello /endpoint.", search.get().getText());
+          assertEquals("Search database.", search.get().getText());
+          assertEquals(
+              "Filter query. Works like internal filter.",
+              search.get().getParameterDoc("fq", "javadoc.input.QueryBeanDoc"));
+          assertEquals(
+              "Offset, used for paging.",
+              search.get().getParameterDoc("offset", "javadoc.input.QueryBeanDoc"));
+          assertNull(search.get().getParameterDoc("limit", "javadoc.input.QueryBeanDoc"));
         });
   }
 
   @Test
   public void noDoc() throws Exception {
-    var result = JavaDocParser.parse(baseDir().resolve("NoDoc.java"));
+    var result = newParser().parse(Paths.get("javadoc", "input", "NoDoc.java"));
     assertTrue(result.isEmpty());
   }
 
+  private JavaDocParser newParser() {
+    return new JavaDocParser(new JavaDocContext(baseDir()));
+  }
+
   private Path baseDir() {
-    var baseDir = Paths.get(System.getProperty("user.dir"));
-    return baseDir
-        .resolve("src")
-        .resolve("test")
-        .resolve("java")
-        .resolve("javadoc")
-        .resolve("input");
+    return Paths.get(System.getProperty("user.dir")).resolve("src").resolve("test").resolve("java");
   }
 
   private void withDoc(Path path, Consumer<ClassDoc> consumer) throws Exception {
     try {
-      var result = JavaDocParser.parse(path);
+      var result = newParser().parse(path);
       assertFalse(result.isEmpty());
       consumer.accept(result.get());
     } catch (Throwable cause) {
       var stringAst =
-          AstTreeStringPrinter.printFileAst(path.toFile(), JavaParser.Options.WITH_COMMENTS);
+          AstTreeStringPrinter.printFileAst(
+              baseDir().resolve(path).toFile(), JavaParser.Options.WITH_COMMENTS);
       cause.addSuppressed(new RuntimeException("\n" + stringAst));
       throw SneakyThrows.propagate(cause);
     }

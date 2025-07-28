@@ -22,8 +22,8 @@ public class ClassDoc extends JavaDocNode {
   private final DetailAST node;
   private List<MethodDoc> methods = new ArrayList<>();
 
-  public ClassDoc(DetailAST node, DetailAST javaDoc) {
-    super(javaDoc);
+  public ClassDoc(JavaDocContext ctx, DetailAST node, DetailAST javaDoc) {
+    super(ctx, javaDoc);
     this.node = node;
   }
 

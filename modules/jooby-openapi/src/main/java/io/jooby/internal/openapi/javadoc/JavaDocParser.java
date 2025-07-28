@@ -5,33 +5,39 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.backward;
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.tokens;
+import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Predicate;
 
-import com.puppycrawl.tools.checkstyle.JavaParser;
-import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 public class JavaDocParser {
 
-  public static Optional<ClassDoc> parse(Path filePath) throws CheckstyleException, IOException {
+  private static final Predicate<DetailAST> HAS_CLASS =
+      it -> backward(it).anyMatch(tokens(TokenTypes.CLASS_DEF));
+
+  private final JavaDocContext context;
+
+  public JavaDocParser(JavaDocContext context) {
+    this.context = context;
+  }
+
+  public Optional<ClassDoc> parse(Path filePath) throws Exception {
     ClassDoc result = null;
-    var tree = JavaParser.parseFile(filePath.toFile(), JavaParser.Options.WITH_COMMENTS);
+    var tree = context.resolve(filePath);
     for (var comment :
-        JavaDocSupport.forward(tree).filter(tokens(TokenTypes.COMMENT_CONTENT)).toList()) {
+        forward(tree).filter(tokens(TokenTypes.COMMENT_CONTENT)).filter(HAS_CLASS).toList()) {
       var nodePath = path(comment);
       // ensure class
       if (result == null) {
-        result = new ClassDoc(nodePath[1], comment.getParent());
+        result = new ClassDoc(context, nodePath[1], comment.getParent());
       }
       if (nodePath[nodePath.length - 1] != null) {
         // there is a method here
-        var method = new MethodDoc(nodePath[nodePath.length - 1], comment.getParent());
+        var method = new MethodDoc(context, nodePath[nodePath.length - 1], comment.getParent());
         result.addMethod(method);
       }
     }
@@ -50,7 +56,7 @@ public class JavaDocParser {
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("no type found"));
     var packageDef =
-        JavaDocSupport.forward(classDef.getParent())
+        forward(classDef.getParent())
             .filter(tokens(TokenTypes.PACKAGE_DEF))
             .findFirst()
             .orElse(null);
