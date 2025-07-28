@@ -118,9 +118,9 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>11.5</avaje.inject.version>
+    <avaje.inject.version>11.6</avaje.inject.version>
     <avaje.jsonb.version>3.6</avaje.jsonb.version>
-    <avaje.validator.version>2.12</avaje.validator.version>
+    <avaje.validator.version>2.13</avaje.validator.version>
 
     <!-- jakarta -->
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
