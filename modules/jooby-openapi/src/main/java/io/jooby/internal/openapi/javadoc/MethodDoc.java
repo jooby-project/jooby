@@ -12,10 +12,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
@@ -70,7 +70,6 @@ public class MethodDoc extends JavaDocNode {
   }
 
   public String getParameterDoc(String name, String in) {
-    DetailNode javadoc = this.javadoc;
     if (in != null) {
       var tree = context.resolve(toJavaPath(in));
       if (tree == JavaDocContext.NULL) {
@@ -104,6 +103,19 @@ public class MethodDoc extends JavaDocNode {
         .orElse(null);
   }
 
+  public String getReturnDoc() {
+    return tree(javadoc)
+        .filter(javadocToken(JavadocTokenTypes.RETURN_LITERAL))
+        .findFirst()
+        .flatMap(
+            it ->
+                tree(it.getParent())
+                    .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                    .findFirst())
+        .map(it -> getText(tree(it).toList(), true))
+        .orElse(null);
+  }
+
   private Path toJavaPath(String in) {
     var segments = in.split("\\.");
     segments[segments.length - 1] = segments[segments.length - 1] + ".java";
@@ -111,14 +123,53 @@ public class MethodDoc extends JavaDocNode {
   }
 
   private String getPropertyDoc(DetailAST bean, String name) {
-    var comment = commentFromGetter(bean, name);
-    if (comment == null) {
-      comment = commentFromField(bean, name);
+    String comment;
+    var isRecord = tree(bean).anyMatch(tokens(TokenTypes.RECORD_DEF));
+    if (isRecord) {
+      comment = commentFromRecord(bean, name);
+    } else {
+      comment = commentFromGetter(bean, name);
+      if (comment == null) {
+        comment = commentFromField(bean, name);
+      }
     }
-    return comment == null ? null : new JavaDocNode(context, comment).getText();
+    return comment;
   }
 
-  private DetailAST commentFromGetter(DetailAST bean, String name) {
+  private String commentFromRecord(DetailAST bean, String name) {
+    var commentNode =
+        tree(bean)
+            .filter(tokens(TokenTypes.RECORD_DEF))
+            .findFirst()
+            .flatMap(it -> Optional.ofNullable(commentFromMember(it)))
+            .map(JavaDocNode::toJavaDocNode)
+            .orElse(null);
+    if (commentNode == null) {
+      return null;
+    }
+
+    for (var tag : tree(commentNode).filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG)).toList()) {
+      var isParam = tree(tag).anyMatch(javadocToken(JavadocTokenTypes.PARAM_LITERAL));
+      var matchesName =
+          tree(tag)
+              .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+              .findFirst()
+              .filter(it -> it.getText().equals(name))
+              .isPresent();
+      if (isParam && matchesName) {
+        return getText(
+            tree(tag)
+                .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                .flatMap(it -> Stream.of(it.getChildren()))
+                .toList(),
+            true);
+      }
+    }
+
+    return null;
+  }
+
+  private String commentFromGetter(DetailAST bean, String name) {
     var methods = JavaDocSupport.forward(bean).filter(tokens(TokenTypes.METHOD_DEF)).toList();
     var getterName = "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
     for (var method : methods) {
@@ -133,14 +184,18 @@ public class MethodDoc extends JavaDocNode {
       if (noArgs && isPublic && (methodName.equals(getterName) || methodName.equals(name))) {
         var comment = commentFromMember(method);
         if (comment != null) {
-          return comment;
+          return textFromComment(comment);
         }
       }
     }
     return null;
   }
 
-  private DetailAST commentFromField(DetailAST bean, String name) {
+  private String textFromComment(DetailAST comment) {
+    return comment == null ? null : new JavaDocNode(context, comment).getText();
+  }
+
+  private String commentFromField(DetailAST bean, String name) {
     for (var field :
         JavaDocSupport.forward(bean).filter(tokens(TokenTypes.VARIABLE_DEF)).toList()) {
       var isInstance = tree(field).noneMatch(tokens(TokenTypes.LITERAL_STATIC));
@@ -153,7 +208,7 @@ public class MethodDoc extends JavaDocNode {
       if (isInstance && fieldName.equals(name)) {
         var comment = commentFromMember(field);
         if (comment != null) {
-          return comment;
+          return textFromComment(comment);
         }
       }
     }
@@ -163,11 +218,10 @@ public class MethodDoc extends JavaDocNode {
   private static DetailAST commentFromMember(DetailAST member) {
     var modifiers = tree(member).filter(tokens(TokenTypes.MODIFIERS)).findFirst().orElse(null);
     if (modifiers != null) {
-      var comment =
-          tree(modifiers).filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN)).findFirst().orElse(null);
-      if (comment != null) {
-        return comment;
-      }
+      return tree(modifiers)
+          .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
+          .findFirst()
+          .orElse(null);
     }
     return null;
   }

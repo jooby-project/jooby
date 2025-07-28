@@ -28,7 +28,8 @@ public class ApiDoc {
    * @param age Person age.
    * @param list This line has a break.
    * @param str Some <code>string</code>.
-   * @return Say hello.
+   * @return Welcome message <code>200</code>.
+   * @throws NullPointerException One something is null.
    */
   @NonNull @GET
   public String hello(
@@ -47,6 +48,28 @@ public class ApiDoc {
    */
   @GET
   public String search(@QueryParam QueryBeanDoc query) {
+    return "hello";
+  }
+
+  /**
+   * Record database.
+   *
+   * @param query
+   * @return
+   */
+  @GET
+  public String recordBean(@QueryParam RecordBeanDoc query) {
+    return "hello";
+  }
+
+  /**
+   * Enum database.
+   *
+   * @param query Enum doc.
+   * @return
+   */
+  @GET
+  public String enumParam(@QueryParam EnumDoc query) {
     return "hello";
   }
 }

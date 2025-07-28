@@ -20,6 +20,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.javadoc.ClassDoc;
 import io.jooby.internal.openapi.javadoc.JavaDocContext;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
+import io.jooby.internal.openapi.javadoc.MethodDoc;
 
 public class JavaDocParserTest {
 
@@ -35,32 +36,57 @@ public class JavaDocParserTest {
               "Proin sit amet lectus interdum, porta libero quis, fringilla metus. Integer viverra"
                   + " ante id vestibulum congue. Nam et tortor at magna tempor congue.",
               doc.getDescription());
-          // throw new UnsupportedOperationException();
-          var methods = doc.getMethods();
-          assertEquals(2, methods.size());
-          assertEquals("hello", methods.get(0).getName());
-          assertEquals(List.of("name", "age", "list", "str"), methods.get(0).getParameterNames());
-          assertEquals(
-              List.of("List", "int", "List", "String"), methods.get(0).getParameterTypes());
-          //
-          var method = doc.getMethod("hello", List.of("List", "int", "List", "String"));
-          assertTrue(method.isPresent());
-          assertEquals("This is the Hello /endpoint.", method.get().getText());
-          assertEquals("Person name.", method.get().getParameterDoc("name"));
-          assertEquals("Person age.", method.get().getParameterDoc("age"));
-          assertEquals("This line has a break.", method.get().getParameterDoc("list"));
-          assertEquals("Some string.", method.get().getParameterDoc("str"));
 
-          var search = doc.getMethod("search", List.of("QueryBeanDoc"));
-          assertTrue(search.isPresent());
-          assertEquals("Search database.", search.get().getText());
-          assertEquals(
-              "Filter query. Works like internal filter.",
-              search.get().getParameterDoc("fq", "javadoc.input.QueryBeanDoc"));
-          assertEquals(
-              "Offset, used for paging.",
-              search.get().getParameterDoc("offset", "javadoc.input.QueryBeanDoc"));
-          assertNull(search.get().getParameterDoc("limit", "javadoc.input.QueryBeanDoc"));
+          withMethod(
+              doc,
+              "hello",
+              List.of("List", "int", "List", "String"),
+              method -> {
+                assertEquals("This is the Hello /endpoint.", method.getText());
+                assertEquals("Person name.", method.getParameterDoc("name"));
+                assertEquals("Person age.", method.getParameterDoc("age"));
+                assertEquals("This line has a break.", method.getParameterDoc("list"));
+                assertEquals("Some string.", method.getParameterDoc("str"));
+                assertEquals("Welcome message 200.", method.getReturnDoc());
+              });
+
+          withMethod(
+              doc,
+              "search",
+              List.of("QueryBeanDoc"),
+              method -> {
+                assertEquals("Search database.", method.getText());
+                assertEquals(
+                    "Filter query. Works like internal filter.",
+                    method.getParameterDoc("fq", "javadoc.input.QueryBeanDoc"));
+                assertEquals(
+                    "Offset, used for paging.",
+                    method.getParameterDoc("offset", "javadoc.input.QueryBeanDoc"));
+                assertNull(method.getParameterDoc("limit", "javadoc.input.QueryBeanDoc"));
+                assertNull(method.getReturnDoc());
+              });
+
+          withMethod(
+              doc,
+              "recordBean",
+              List.of("RecordBeanDoc"),
+              method -> {
+                assertEquals("Record database.", method.getText());
+                assertEquals(
+                    "Person id.", method.getParameterDoc("id", "javadoc.input.RecordBeanDoc"));
+                assertEquals(
+                    "Person name. Example: edgar.",
+                    method.getParameterDoc("name", "javadoc.input.RecordBeanDoc"));
+              });
+
+          withMethod(
+              doc,
+              "enumParam",
+              List.of("EnumDoc"),
+              method -> {
+                assertEquals("Enum database.", method.getText());
+                assertEquals("Enum doc.", method.getParameterDoc("query"));
+              });
         });
   }
 
@@ -90,5 +116,12 @@ public class JavaDocParserTest {
       cause.addSuppressed(new RuntimeException("\n" + stringAst));
       throw SneakyThrows.propagate(cause);
     }
+  }
+
+  private void withMethod(
+      ClassDoc doc, String name, List<String> types, Consumer<MethodDoc> consumer) {
+    var method = doc.getMethod(name, types);
+    assertTrue(method.isPresent());
+    consumer.accept(method.get());
   }
 }

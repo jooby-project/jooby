@@ -14,7 +14,6 @@ import java.util.stream.StreamSupport;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.utils.JavadocUtil;
-import com.puppycrawl.tools.checkstyle.utils.TokenUtil;
 
 public final class JavaDocSupport {
 
@@ -22,11 +21,15 @@ public final class JavaDocSupport {
     return tokens(Set.of(types));
   }
 
-  public static Predicate<DetailAST> imaginary() {
-    return it -> it.getText().equals(TokenUtil.getTokenName(it.getType()));
+  private static Predicate<DetailAST> tokens(Set<Integer> types) {
+    return it -> types.contains(it.getType());
   }
 
-  private static Predicate<DetailAST> tokens(Set<Integer> types) {
+  public static Predicate<DetailNode> javadocToken(Integer... types) {
+    return javadocToken(Set.of(types));
+  }
+
+  private static Predicate<DetailNode> javadocToken(Set<Integer> types) {
     return it -> types.contains(it.getType());
   }
 

@@ -25,7 +25,7 @@ public class JavaDocNode {
     this.javadoc = toJavaDocNode(node);
   }
 
-  private static DetailNode toJavaDocNode(DetailAST node) {
+  static DetailNode toJavaDocNode(DetailAST node) {
     return new JavadocDetailNodeParser().parseJavadocAsDetailNode(node).getTree();
   }
 
@@ -50,7 +50,7 @@ public class JavaDocNode {
         }
       }
     }
-    return builder.toString().trim();
+    return builder.isEmpty() ? null : builder.toString().trim();
   }
 
   @Override
