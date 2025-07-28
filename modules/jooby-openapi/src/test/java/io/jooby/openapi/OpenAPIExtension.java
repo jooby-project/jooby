@@ -82,14 +82,7 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
   }
 
   private OpenAPIGenerator newTool(Set<DebugOption> debug, Class klass) {
-    String metaInf =
-        Optional.ofNullable(klass.getPackage())
-                .map(Package::getName)
-                .map(name -> name.replace(".", "/") + "/")
-                .orElse("")
-            + klass.getSimpleName();
-
-    OpenAPIGenerator tool = new OpenAPIGenerator(metaInf);
+    OpenAPIGenerator tool = new OpenAPIGenerator();
     tool.setDebug(debug);
     return tool;
   }

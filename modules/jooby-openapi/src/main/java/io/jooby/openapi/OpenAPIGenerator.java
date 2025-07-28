@@ -100,22 +100,6 @@ public class OpenAPIGenerator {
 
   private String excludes;
 
-  private String metaInf;
-
-  /**
-   * Test Only.
-   *
-   * @param metaInf Location of meta-inf directory.
-   */
-  public OpenAPIGenerator(String metaInf) {
-    this.metaInf = metaInf;
-  }
-
-  /** Creates a new instance. */
-  public OpenAPIGenerator() {
-    this("META-INF/services/io.jooby.MvcFactory");
-  }
-
   /**
    * Export an {@link OpenAPI} model to the given format.
    *
@@ -169,7 +153,7 @@ public class OpenAPIGenerator {
     OpenAPIExt openapi =
         OpenApiTemplate.fromTemplate(basedir, classLoader, templateName).orElseGet(OpenAPIExt::new);
 
-    RouteParser routes = new RouteParser(metaInf);
+    RouteParser routes = new RouteParser();
     ParserContext ctx = new ParserContext(source, TypeFactory.fromJavaName(classname), debug);
     List<OperationExt> operations = routes.parse(ctx, openapi);
 

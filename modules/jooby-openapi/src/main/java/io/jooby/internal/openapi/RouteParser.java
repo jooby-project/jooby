@@ -17,15 +17,12 @@ import static io.jooby.internal.openapi.TypeFactory.STRING;
 import static io.jooby.internal.openapi.TypeFactory.STRING_ARRAY;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 
-import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,22 +56,8 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 
 public class RouteParser {
 
-  private String metaInf;
-
-  public RouteParser(String metaInf) {
-    this.metaInf = metaInf;
-  }
-
   public List<OperationExt> parse(ParserContext ctx, OpenAPIExt openapi) {
     List<OperationExt> operations = parse(ctx, null, ctx.classNode(ctx.getRouter()));
-
-    // Checkout controllers without explicit mapping, just META-INF
-    Set<String> controllers =
-        operations.stream()
-            .map(OperationExt::getControllerName)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
-    operations.addAll(metaInf(ctx, null, name -> !controllers.contains(name)));
 
     operations.addAll(parseManuallyRegisteredControllers(ctx));
 
@@ -278,28 +261,6 @@ public class RouteParser {
       handlerList.addAll(routeHandler(ctx, prefix, method));
     }
     return handlerList;
-  }
-
-  private List<OperationExt> metaInf(
-      ParserContext ctx, String prefix, Predicate<String> predicate) {
-    // META-INF (Spring or similar)
-    try {
-      String content = new String(ctx.loadResource(metaInf), StandardCharsets.UTF_8);
-      String[] lines = content.split("\\n");
-      List<OperationExt> handlerList = new ArrayList<>();
-      for (String line : lines) {
-        String controller = line.replace("$Module", "").trim();
-        if (!controller.isEmpty()) {
-          Type type = TypeFactory.fromJavaName(controller);
-          if (predicate.test(type.getInternalName())) {
-            handlerList.addAll(AnnotationParser.parse(ctx, prefix, type));
-          }
-        }
-      }
-      return handlerList;
-    } catch (IOException ex) {
-      return Collections.emptyList();
-    }
   }
 
   private List<OperationExt> parseManuallyRegisteredControllers(ParserContext ctx) {
