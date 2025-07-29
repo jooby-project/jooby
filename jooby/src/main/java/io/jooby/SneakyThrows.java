@@ -900,6 +900,28 @@ public final class SneakyThrows {
   }
 
   /**
+   * Singleton supplier from existing instance.
+   *
+   * @param instance Singleton.
+   * @return Single supplier.
+   * @param <V> Resulting value.
+   */
+  public static <V> Supplier<V> singleton(V instance) {
+    return () -> instance;
+  }
+
+  /**
+   * Singleton supplier from another supplier.
+   *
+   * @param fn Supplier.
+   * @return Single supplier.
+   * @param <V> Resulting value.
+   */
+  public static <V> Supplier<V> singleton(Supplier<V> fn) {
+    return singleton(fn.get());
+  }
+
+  /**
    * Factory method for {@link Function} and {@link java.util.function.Function}.
    *
    * @param fn Function.
