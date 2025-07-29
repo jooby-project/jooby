@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.0.3</version>
+    <version>4.0.4-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-avaje-jsonb</artifactId>
   <name>jooby-avaje-jsonb</name>
