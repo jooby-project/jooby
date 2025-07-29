@@ -224,13 +224,22 @@ public class MvcRouter {
             buffer,
             List.of(),
             (output, params) -> {
-              output
-                  .append("this(")
-                  .append(kt ? "" : "new ")
-                  .append(targetType)
-                  .append("())")
-                  .append(semicolon(kt))
-                  .append(System.lineSeparator());
+              if (kt) {
+                output
+                    .append("this(")
+                    .append(targetType)
+                    .append("())")
+                    .append(semicolon(true))
+                    .append(System.lineSeparator());
+              } else {
+                output
+                    .append("this(")
+                    .append("io.jooby.SneakyThrows.singleton(")
+                    .append(targetType)
+                    .append("::new))")
+                    .append(semicolon(false))
+                    .append(System.lineSeparator());
+              }
             });
       }
     }
