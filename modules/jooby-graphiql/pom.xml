@@ -58,26 +58,26 @@
 <!--          </execution>-->
 <!--        </executions>-->
 <!--      </plugin>-->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>${maven-antrun-plugin.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <target>
-                <property name="output" value="${project.build.outputDirectory}${file.separator}io${file.separator}jooby${file.separator}graphiql"/>
-                <mkdir dir="${output}" />
-                <get quiet="true" usetimestamp="true" src="https://raw.githubusercontent.com/graphql/graphiql/refs/heads/main/examples/graphiql-cdn/index.html" dest="${output}${file.separator}index.html"/>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-antrun-plugin</artifactId>-->
+<!--        <version>${maven-antrun-plugin.version}</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <goals>-->
+<!--              <goal>run</goal>-->
+<!--            </goals>-->
+<!--            <phase>generate-resources</phase>-->
+<!--            <configuration>-->
+<!--              <target>-->
+<!--                <property name="output" value="${project.build.outputDirectory}${file.separator}io${file.separator}jooby${file.separator}graphiql"/>-->
+<!--                <mkdir dir="${output}" />-->
+<!--                <get quiet="true" usetimestamp="true" src="https://raw.githubusercontent.com/graphql/graphiql/refs/heads/main/examples/graphiql-cdn/index.html" dest="${output}${file.separator}index.html"/>-->
+<!--              </target>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
     </plugins>
   </build>
 </project>
