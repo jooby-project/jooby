@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>3.11.1-SNAPSHOT</version>
+  <version>3.11.1</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -70,7 +70,7 @@
     <jte.version>3.2.1</jte.version>
 
     <!-- data -->
-    <HikariCP.version>6.3.0</HikariCP.version>
+    <HikariCP.version>6.3.2</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.6.22.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
@@ -118,9 +118,9 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>11.5</avaje.inject.version>
-    <avaje.jsonb.version>3.5</avaje.jsonb.version>
-    <avaje.validator.version>2.12</avaje.validator.version>
+    <avaje.inject.version>11.6</avaje.inject.version>
+    <avaje.jsonb.version>3.6</avaje.jsonb.version>
+    <avaje.validator.version>2.13</avaje.validator.version>
 
     <!-- jakarta -->
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
@@ -131,12 +131,12 @@
     <!-- Misc -->
     <okhttp.version>5.1.0</okhttp.version>
     <jsonwebtoken.version>0.12.6</jsonwebtoken.version>
-    <pac4j.version>6.1.3</pac4j.version>
+    <pac4j.version>6.2.0</pac4j.version>
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
     <aws-java-sdk.version>1.12.788</aws-java-sdk.version>
-    <camel.version>4.11.0</camel.version>
+    <camel.version>4.13.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
     <commons-io.version>2.20.0</commons-io.version>
@@ -148,7 +148,7 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.13</jacoco.version>
-    <junit.version>5.13.3</junit.version>
+    <junit.version>5.13.4</junit.version>
     <rest-assured.version>5.5.5</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito.version>5.18.0</mockito.version>
@@ -207,7 +207,7 @@
     <!--  Javadoc is too strict in 17, don't fail on error -->
     <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
-    <project.build.outputTimestamp>2025-07-21T10:12:15Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-07-29T18:28:55Z</project.build.outputTimestamp>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <pre-commit-hook>etc${file.separator}source${file.separator}formatter.sh</pre-commit-hook>
