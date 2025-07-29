@@ -95,13 +95,13 @@ public class JavaDocParserTest {
 
   @Test
   public void ignoreStatementComment() throws Exception {
-    var result = newParser().parseMvc(Paths.get("issues", "i1580", "Controller1580.java"));
+    var result = newParser().parse(Paths.get("issues", "i1580", "Controller1580.java"));
     assertTrue(result.isEmpty());
   }
 
   @Test
   public void noDoc() throws Exception {
-    var result = newParser().parseMvc(Paths.get("javadoc", "input", "NoDoc.java"));
+    var result = newParser().parse(Paths.get("javadoc", "input", "NoDoc.java"));
     assertTrue(result.isEmpty());
   }
 
@@ -109,6 +109,25 @@ public class JavaDocParserTest {
   public void noClassDoc() throws Exception {
     withDoc(
         Paths.get("javadoc", "input", "NoClassDoc.java"),
+        doc -> {
+          assertNull(doc.getSummary());
+          assertNull(doc.getDescription());
+
+          withMethod(
+              doc,
+              "hello",
+              List.of("String"),
+              methodDoc -> {
+                assertEquals("Method Doc.", methodDoc.getSummary());
+                assertNull(methodDoc.getDescription());
+              });
+        });
+  }
+
+  @Test
+  public void shouldParseBean() throws Exception {
+    withDoc(
+        Paths.get("javadoc", "input", "QueryBeanDoc.java"),
         doc -> {
           assertNull(doc.getSummary());
           assertNull(doc.getDescription());
@@ -134,7 +153,7 @@ public class JavaDocParserTest {
 
   private void withDoc(Path path, Consumer<ClassDoc> consumer) throws Exception {
     try {
-      var result = newParser().parseMvc(path);
+      var result = newParser().parse(path);
       assertFalse(result.isEmpty());
       consumer.accept(result.get());
     } catch (Throwable cause) {

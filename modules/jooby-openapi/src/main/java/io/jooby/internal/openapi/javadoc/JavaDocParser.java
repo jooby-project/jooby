@@ -19,8 +19,8 @@ public class JavaDocParser {
   private static final Predicate<DetailAST> HAS_CLASS =
       it -> backward(it).anyMatch(tokens(TokenTypes.CLASS_DEF));
 
-  private static final Predicate<DetailAST> STATEMENT_LIST =
-      it -> backward(it).anyMatch(tokens(TokenTypes.SLIST));
+  private static final Predicate<DetailAST> SINGLE_LINE_COMMENT =
+      it -> backward(it).anyMatch(tokens(TokenTypes.SINGLE_LINE_COMMENT));
 
   private final JavaDocContext context;
 
@@ -28,14 +28,14 @@ public class JavaDocParser {
     this.context = context;
   }
 
-  public Optional<ClassDoc> parseMvc(Path filePath) throws Exception {
+  public Optional<ClassDoc> parse(Path filePath) throws Exception {
     ClassDoc result = null;
     var tree = context.resolve(filePath);
     for (var comment :
         forward(tree)
             .filter(tokens(TokenTypes.COMMENT_CONTENT))
             .filter(HAS_CLASS)
-            .filter(STATEMENT_LIST.negate())
+            .filter(SINGLE_LINE_COMMENT.negate())
             .toList()) {
       var classOrMethod = classOrMethod(comment);
       if (classOrMethod.getType() == TokenTypes.METHOD_DEF) {

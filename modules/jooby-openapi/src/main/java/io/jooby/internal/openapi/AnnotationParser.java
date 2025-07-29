@@ -281,7 +281,7 @@ public class AnnotationParser {
       try {
         var className = operationExt.getControllerName();
         javadocParser
-            .parseMvc(toJavaPath(className))
+            .parse(toJavaPath(className))
             .ifPresent(
                 doc -> {
                   operationExt.setPathDescription(doc.getDescription());
