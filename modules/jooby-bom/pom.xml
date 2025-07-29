@@ -7,14 +7,14 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <version>4.0.3</version>
   </parent>
 
   <groupId>io.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
   <name>jooby-bom</name>
   <packaging>pom</packaging>
-  <version>4.0.3-SNAPSHOT</version>
+  <version>4.0.3</version>
   <description>Jooby (Bill of Materials)</description>
   <url>https://jooby.io</url>
 
