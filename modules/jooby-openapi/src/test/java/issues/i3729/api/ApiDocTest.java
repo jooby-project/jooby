@@ -1,0 +1,117 @@
+/*
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
+package issues.i3729.api;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import io.jooby.openapi.OpenAPIResult;
+import io.jooby.openapi.OpenAPITest;
+
+public class ApiDocTest {
+
+  @OpenAPITest(value = AppLibrary.class)
+  public void shouldGenerateDoc(OpenAPIResult result) {
+    assertEquals(
+        "openapi: 3.0.1\n"
+            + "info:\n"
+            + "  title: Library API\n"
+            + "  description: Library API description\n"
+            + "  version: \"1.0\"\n"
+            + "paths:\n"
+            + "  /api/library/{isbn}:\n"
+            + "    summary: Library API.\n"
+            + "    description: \"Contains all operations for creating, updating and fetching"
+            + " books.\"\n"
+            + "    get:\n"
+            + "      summary: Find a book by isbn.\n"
+            + "      operationId: bookByIsbn\n"
+            + "      parameters:\n"
+            + "      - name: isbn\n"
+            + "        in: path\n"
+            + "        description: Book isbn. Like IK-1900.\n"
+            + "        required: true\n"
+            + "        schema:\n"
+            + "          type: string\n"
+            + "      responses:\n"
+            + "        \"200\":\n"
+            + "          description: Success\n"
+            + "          content:\n"
+            + "            application/json:\n"
+            + "              schema:\n"
+            + "                $ref: \"#/components/schemas/Book\"\n"
+            + "  /api/library:\n"
+            + "    summary: Library API.\n"
+            + "    description: \"Contains all operations for creating, updating and fetching"
+            + " books.\"\n"
+            + "    post:\n"
+            + "      summary: Creates a new book.\n"
+            + "      operationId: createBook\n"
+            + "      requestBody:\n"
+            + "        content:\n"
+            + "          application/json:\n"
+            + "            schema:\n"
+            + "              $ref: \"#/components/schemas/Book\"\n"
+            + "        required: false\n"
+            + "      responses:\n"
+            + "        \"200\":\n"
+            + "          description: Success\n"
+            + "          content:\n"
+            + "            application/json:\n"
+            + "              schema:\n"
+            + "                $ref: \"#/components/schemas/Book\"\n"
+            + "components:\n"
+            + "  schemas:\n"
+            + "    Address:\n"
+            + "      type: object\n"
+            + "      properties:\n"
+            + "        street:\n"
+            + "          type: string\n"
+            + "        city:\n"
+            + "          type: string\n"
+            + "        state:\n"
+            + "          type: string\n"
+            + "        country:\n"
+            + "          type: string\n"
+            + "    Book:\n"
+            + "      type: object\n"
+            + "      properties:\n"
+            + "        isbn:\n"
+            + "          type: string\n"
+            + "        title:\n"
+            + "          type: string\n"
+            + "        publicationDate:\n"
+            + "          type: string\n"
+            + "          format: date\n"
+            + "        text:\n"
+            + "          type: string\n"
+            + "        type:\n"
+            + "          type: string\n"
+            + "          enum:\n"
+            + "          - Book\n"
+            + "          - Manual\n"
+            + "        authors:\n"
+            + "          uniqueItems: true\n"
+            + "          type: array\n"
+            + "          items:\n"
+            + "            $ref: \"#/components/schemas/Author\"\n"
+            + "    Author:\n"
+            + "      type: object\n"
+            + "      properties:\n"
+            + "        ssn:\n"
+            + "          type: string\n"
+            + "        name:\n"
+            + "          type: string\n"
+            + "        address:\n"
+            + "          $ref: \"#/components/schemas/Address\"\n"
+            + "        books:\n"
+            + "          uniqueItems: true\n"
+            + "          type: array\n"
+            + "          items:\n"
+            + "            $ref: \"#/components/schemas/Book\"\n",
+        result.toYaml());
+    System.out.println(result.toYaml());
+  }
+}

@@ -42,7 +42,8 @@ public class JavaDocParserTest {
               "hello",
               List.of("List", "int", "List", "String"),
               method -> {
-                assertEquals("This is the Hello /endpoint.", method.getText());
+                assertEquals("This is the Hello /endpoint", method.getSummary());
+                assertEquals("Operation description", method.getDescription());
                 assertEquals("Person name.", method.getParameterDoc("name"));
                 assertEquals("Person age.", method.getParameterDoc("age"));
                 assertEquals("This line has a break.", method.getParameterDoc("list"));
@@ -55,7 +56,8 @@ public class JavaDocParserTest {
               "search",
               List.of("QueryBeanDoc"),
               method -> {
-                assertEquals("Search database.", method.getText());
+                assertEquals("Search database.", method.getSummary());
+                assertEquals("Search DB", method.getDescription());
                 assertEquals(
                     "Filter query. Works like internal filter.",
                     method.getParameterDoc("fq", "javadoc.input.QueryBeanDoc"));
@@ -71,7 +73,8 @@ public class JavaDocParserTest {
               "recordBean",
               List.of("RecordBeanDoc"),
               method -> {
-                assertEquals("Record database.", method.getText());
+                assertEquals("Record database.", method.getSummary());
+                assertNull(method.getDescription());
                 assertEquals(
                     "Person id.", method.getParameterDoc("id", "javadoc.input.RecordBeanDoc"));
                 assertEquals(
@@ -84,16 +87,41 @@ public class JavaDocParserTest {
               "enumParam",
               List.of("EnumDoc"),
               method -> {
-                assertEquals("Enum database.", method.getText());
+                assertEquals("Enum database.", method.getSummary());
                 assertEquals("Enum doc.", method.getParameterDoc("query"));
               });
         });
   }
 
   @Test
-  public void noDoc() throws Exception {
-    var result = newParser().parse(Paths.get("javadoc", "input", "NoDoc.java"));
+  public void ignoreStatementComment() throws Exception {
+    var result = newParser().parseMvc(Paths.get("issues", "i1580", "Controller1580.java"));
     assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void noDoc() throws Exception {
+    var result = newParser().parseMvc(Paths.get("javadoc", "input", "NoDoc.java"));
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void noClassDoc() throws Exception {
+    withDoc(
+        Paths.get("javadoc", "input", "NoClassDoc.java"),
+        doc -> {
+          assertNull(doc.getSummary());
+          assertNull(doc.getDescription());
+
+          withMethod(
+              doc,
+              "hello",
+              List.of("String"),
+              methodDoc -> {
+                assertEquals("Method Doc.", methodDoc.getSummary());
+                assertNull(methodDoc.getDescription());
+              });
+        });
   }
 
   private JavaDocParser newParser() {
@@ -106,7 +134,7 @@ public class JavaDocParserTest {
 
   private void withDoc(Path path, Consumer<ClassDoc> consumer) throws Exception {
     try {
-      var result = newParser().parse(path);
+      var result = newParser().parseMvc(path);
       assertFalse(result.isEmpty());
       consumer.accept(result.get());
     } catch (Throwable cause) {

@@ -14,13 +14,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 public class ClassDoc extends JavaDocNode {
 
   private final DetailAST node;
-  private List<MethodDoc> methods = new ArrayList<>();
+  private final List<MethodDoc> methods = new ArrayList<>();
 
   public ClassDoc(JavaDocContext ctx, DetailAST node, DetailAST javaDoc) {
     super(ctx, javaDoc);
@@ -31,31 +30,13 @@ public class ClassDoc extends JavaDocNode {
     this.methods.add(method);
   }
 
-  public String getSummary() {
-    var text = new StringBuilder();
-    for (var node : forward(javadoc, STOP_TOKENS).toList()) {
-      if (node.getType() == JavadocTokenTypes.NEWLINE && !text.isEmpty()) {
-        break;
-      } else if (node.getType() == JavadocTokenTypes.TEXT) {
-        text.append(node.getText());
-      }
-    }
-    return text.isEmpty() ? getText().trim() : text.toString().trim();
-  }
-
-  public String getDescription() {
-    var text = getText();
-    var summary = getSummary();
-    return summary.equals(text) ? "" : text.replaceAll(summary, "").trim();
-  }
-
   public Optional<MethodDoc> getMethod(String name, List<String> parameterNames) {
     var filtered = methods.stream().filter(it -> it.getName().equals(name)).toList();
     if (filtered.isEmpty()) {
       return Optional.empty();
     }
     if (filtered.size() == 1) {
-      return Optional.of(filtered.get(0));
+      return Optional.of(filtered.getFirst());
     }
     return filtered.stream()
         .filter(it -> it.getParameterNames().equals(parameterNames))

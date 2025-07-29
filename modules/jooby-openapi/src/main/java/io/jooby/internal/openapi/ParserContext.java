@@ -70,6 +70,8 @@ import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
+import io.jooby.internal.openapi.javadoc.JavaDocContext;
+import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.jooby.openapi.DebugOption;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.converter.ResolvedSchema;
@@ -107,17 +109,24 @@ public class ParserContext {
   private final Set<Object> instructions = new HashSet<>();
   private final Set<DebugOption> debug;
   private final ConcurrentMap<String, SchemaRef> schemas = new ConcurrentHashMap<>();
+  private final JavaDocContext javadocContext;
 
-  public ParserContext(ClassSource source, Type router, Set<DebugOption> debug) {
-    this(source, new HashMap<>(), router, debug);
+  public ParserContext(
+      ClassSource source, Type router, JavaDocContext javadocContext, Set<DebugOption> debug) {
+    this(source, new HashMap<>(), router, javadocContext, debug);
   }
 
   private ParserContext(
-      ClassSource source, Map<Type, ClassNode> nodes, Type router, Set<DebugOption> debug) {
+      ClassSource source,
+      Map<Type, ClassNode> nodes,
+      Type router,
+      JavaDocContext javadocContext,
+      Set<DebugOption> debug) {
     this.router = router;
     this.source = source;
     this.debug = Optional.ofNullable(debug).orElse(Collections.emptySet());
     this.nodes = nodes;
+    this.javadocContext = javadocContext;
 
     List<ObjectMapper> mappers = asList(Json.mapper(), Yaml.mapper());
     jacksonModules(source.getClassLoader(), mappers);
@@ -161,6 +170,10 @@ public class ParserContext {
 
   public Collection<Schema> schemas() {
     return schemas.values().stream().map(ref -> ref.schema).collect(Collectors.toList());
+  }
+
+  public JavaDocContext javadoc() {
+    return javadocContext;
   }
 
   public Schema schema(Class type) {
@@ -269,18 +282,23 @@ public class ParserContext {
           new SchemaRef(
               resolvedSchema.schema, RefUtils.constructRef(resolvedSchema.schema.getName()));
       schemas.put(type.getName(), schemaRef);
-
+      document(type.getName(), resolvedSchema.schema);
       if (resolvedSchema.referencedSchemas != null) {
         for (Map.Entry<String, Schema> e : resolvedSchema.referencedSchemas.entrySet()) {
           if (!e.getKey().equals(schemaRef.schema.getName())) {
             SchemaRef dependency =
                 new SchemaRef(e.getValue(), RefUtils.constructRef(e.getValue().getName()));
             schemas.putIfAbsent(e.getKey(), dependency);
+            document(e.getKey(), dependency.schema);
           }
         }
       }
     }
     return schemaRef.toSchema();
+  }
+
+  private void document(String typeName, Schema schema) {
+    var parser = new JavaDocParser(javadocContext);
   }
 
   public Optional<SchemaRef> schemaRef(String type) {
@@ -429,7 +447,7 @@ public class ParserContext {
   }
 
   public ParserContext newContext(Type router) {
-    return new ParserContext(source, nodes, router, debug);
+    return new ParserContext(source, nodes, router, javadocContext, debug);
   }
 
   public String getMainClass() {

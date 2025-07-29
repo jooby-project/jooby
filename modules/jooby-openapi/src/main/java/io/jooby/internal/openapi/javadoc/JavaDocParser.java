@@ -19,49 +19,62 @@ public class JavaDocParser {
   private static final Predicate<DetailAST> HAS_CLASS =
       it -> backward(it).anyMatch(tokens(TokenTypes.CLASS_DEF));
 
+  private static final Predicate<DetailAST> STATEMENT_LIST =
+      it -> backward(it).anyMatch(tokens(TokenTypes.SLIST));
+
   private final JavaDocContext context;
 
   public JavaDocParser(JavaDocContext context) {
     this.context = context;
   }
 
-  public Optional<ClassDoc> parse(Path filePath) throws Exception {
+  public Optional<ClassDoc> parseMvc(Path filePath) throws Exception {
     ClassDoc result = null;
     var tree = context.resolve(filePath);
     for (var comment :
-        forward(tree).filter(tokens(TokenTypes.COMMENT_CONTENT)).filter(HAS_CLASS).toList()) {
-      var nodePath = path(comment);
-      // ensure class
-      if (result == null) {
-        result = new ClassDoc(context, nodePath[1], comment.getParent());
-      }
-      if (nodePath[nodePath.length - 1] != null) {
-        // there is a method here
-        var method = new MethodDoc(context, nodePath[nodePath.length - 1], comment.getParent());
+        forward(tree)
+            .filter(tokens(TokenTypes.COMMENT_CONTENT))
+            .filter(HAS_CLASS)
+            .filter(STATEMENT_LIST.negate())
+            .toList()) {
+      var classOrMethod = classOrMethod(comment);
+      if (classOrMethod.getType() == TokenTypes.METHOD_DEF) {
+        if (result == null) {
+          // No comment on class
+          result =
+              new ClassDoc(
+                  context,
+                  tree(tree)
+                      .filter(
+                          tokens(
+                              TokenTypes.ENUM_DEF,
+                              TokenTypes.CLASS_DEF,
+                              TokenTypes.INTERFACE_DEF,
+                              TokenTypes.RECORD_DEF))
+                      .findFirst()
+                      .orElseThrow(() -> new IllegalStateException("Class not found " + tree)),
+                  JavaDocNode.EMPTY_AST);
+        }
+        var method = new MethodDoc(context, classOrMethod, comment.getParent());
         result.addMethod(method);
+      } else {
+        // always as class
+        result = new ClassDoc(context, classOrMethod, comment.getParent());
       }
     }
     return Optional.ofNullable(result);
   }
 
-  private static DetailAST[] path(DetailAST comment) {
-    var classDef =
-        backward(comment)
-            .filter(
-                tokens(
-                    TokenTypes.ENUM_DEF,
-                    TokenTypes.CLASS_DEF,
-                    TokenTypes.INTERFACE_DEF,
-                    TokenTypes.RECORD_DEF))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("no type found"));
-    var packageDef =
-        forward(classDef.getParent())
-            .filter(tokens(TokenTypes.PACKAGE_DEF))
-            .findFirst()
-            .orElse(null);
-    var methodDef =
-        backward(comment).filter(tokens(TokenTypes.METHOD_DEF)).findFirst().orElse(null);
-    return new DetailAST[] {packageDef, classDef, methodDef};
+  private static DetailAST classOrMethod(DetailAST comment) {
+    return backward(comment)
+        .filter(
+            tokens(
+                TokenTypes.METHOD_DEF,
+                TokenTypes.ENUM_DEF,
+                TokenTypes.CLASS_DEF,
+                TokenTypes.INTERFACE_DEF,
+                TokenTypes.RECORD_DEF))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Invalid comment: " + comment.getText()));
   }
 }

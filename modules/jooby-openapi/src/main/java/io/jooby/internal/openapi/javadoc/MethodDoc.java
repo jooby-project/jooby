@@ -7,9 +7,6 @@ package io.jooby.internal.openapi.javadoc;
 
 import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,8 +68,8 @@ public class MethodDoc extends JavaDocNode {
 
   public String getParameterDoc(String name, String in) {
     if (in != null) {
-      var tree = context.resolve(toJavaPath(in));
-      if (tree == JavaDocContext.NULL) {
+      var tree = context.resolveType(in);
+      if (tree == JavaDocNode.EMPTY_AST) {
         return null;
       }
       return getPropertyDoc(tree, name);
@@ -114,12 +111,6 @@ public class MethodDoc extends JavaDocNode {
                     .findFirst())
         .map(it -> getText(tree(it).toList(), true))
         .orElse(null);
-  }
-
-  private Path toJavaPath(String in) {
-    var segments = in.split("\\.");
-    segments[segments.length - 1] = segments[segments.length - 1] + ".java";
-    return Paths.get(String.join(File.separator, segments));
   }
 
   private String getPropertyDoc(DetailAST bean, String name) {

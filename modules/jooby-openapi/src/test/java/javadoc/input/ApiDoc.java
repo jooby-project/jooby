@@ -22,7 +22,7 @@ import io.jooby.annotation.QueryParam;
 public class ApiDoc {
 
   /**
-   * This is the Hello <code>/endpoint</code>.
+   * This is the Hello <code>/endpoint</code> Operation description
    *
    * @param name Person name.
    * @param age Person age.
@@ -42,6 +42,8 @@ public class ApiDoc {
 
   /**
    * Search database.
+   *
+   * <p>Search DB
    *
    * @param query
    * @return

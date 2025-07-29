@@ -10,6 +10,8 @@ import static io.jooby.internal.openapi.TypeFactory.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -32,6 +34,7 @@ import io.jooby.annotation.HeaderParam;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.PathParam;
 import io.jooby.annotation.QueryParam;
+import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -251,9 +254,18 @@ public class AnnotationParser {
         return parse(ctx, prefix, type);
       }
     }
-    return Collections.emptyList();
+    return List.of();
   }
 
+  /**
+   * This is the main entrypoint beside there is a public {@link #parse(ParserContext, String,
+   * Signature, MethodInsnNode)}.
+   *
+   * @param ctx
+   * @param prefix
+   * @param type
+   * @return
+   */
   public static List<OperationExt> parse(ParserContext ctx, String prefix, Type type) {
     List<OperationExt> result = new ArrayList<>();
     ClassNode classNode = ctx.classNode(type);
@@ -262,8 +274,61 @@ public class AnnotationParser {
       ctx.debugHandler(method);
       result.addAll(routerMethod(ctx, prefix, classNode, method));
     }
-    result.forEach(it -> it.setController(classNode));
+    var javadocContext = ctx.javadoc();
+    var javadocParser = new JavaDocParser(javadocContext);
+    for (OperationExt operationExt : result) {
+      operationExt.setController(classNode);
+      try {
+        var className = operationExt.getControllerName();
+        javadocParser
+            .parseMvc(toJavaPath(className))
+            .ifPresent(
+                doc -> {
+                  operationExt.setPathDescription(doc.getDescription());
+                  operationExt.setPathSummary(doc.getSummary());
+                  var args =
+                      operationExt.getParameters().stream()
+                          .map(ParameterExt.class::cast)
+                          .map(
+                              p ->
+                                  Optional.ofNullable(p.getContainerType()).orElse(p.getJavaType()))
+                          .map(
+                              qualifiedName -> {
+                                var index = qualifiedName.lastIndexOf('.');
+                                return index == -1
+                                    ? qualifiedName
+                                    : qualifiedName.substring(index + 1);
+                              })
+                          .toList();
+                  doc.getMethod(operationExt.getOperationId(), args)
+                      .ifPresent(
+                          methodDoc -> {
+                            operationExt.setSummary(methodDoc.getSummary());
+                            operationExt.setDescription(methodDoc.getDescription());
+
+                            for (var parameter : operationExt.getParameters()) {
+                              var paramExt = (ParameterExt) parameter;
+                              var paramDoc =
+                                  methodDoc.getParameterDoc(
+                                      paramExt.getName(), paramExt.getContainerType());
+                              if (paramDoc != null) {
+                                paramExt.setDescription(paramDoc);
+                              }
+                            }
+                          });
+                });
+      } catch (Exception x) {
+        // TODO: how to log from here
+        x.printStackTrace();
+      }
+    }
     return result;
+  }
+
+  private static java.nio.file.Path toJavaPath(String className) {
+    var segments = className.split("/");
+    segments[segments.length - 1] = segments[segments.length - 1] + ".java";
+    return Paths.get(String.join(File.separator, segments));
   }
 
   private static Map<String, MethodNode> methods(ParserContext ctx, ClassNode node) {

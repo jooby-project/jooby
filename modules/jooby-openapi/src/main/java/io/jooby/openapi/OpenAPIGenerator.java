@@ -26,6 +26,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
+import io.jooby.internal.openapi.javadoc.JavaDocContext;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -100,6 +101,8 @@ public class OpenAPIGenerator {
 
   private String excludes;
 
+  private List<Path> sources;
+
   /**
    * Export an {@link OpenAPI} model to the given format.
    *
@@ -154,7 +157,9 @@ public class OpenAPIGenerator {
         OpenApiTemplate.fromTemplate(basedir, classLoader, templateName).orElseGet(OpenAPIExt::new);
 
     RouteParser routes = new RouteParser();
-    ParserContext ctx = new ParserContext(source, TypeFactory.fromJavaName(classname), debug);
+    ParserContext ctx =
+        new ParserContext(
+            source, TypeFactory.fromJavaName(classname), new JavaDocContext(sources), debug);
     List<OperationExt> operations = routes.parse(ctx, openapi);
 
     String contextPath = ContextPathParser.parse(ctx);
@@ -179,7 +184,7 @@ public class OpenAPIGenerator {
       Map<String, String> regexMap = new HashMap<>();
       Router.pathKeys(
           pattern, (key, value) -> Optional.ofNullable(value).ifPresent(v -> regexMap.put(key, v)));
-      if (regexMap.size() > 0) {
+      if (!regexMap.isEmpty()) {
         for (Map.Entry<String, String> e : regexMap.entrySet()) {
           String name = e.getKey();
           String regex = e.getValue();
@@ -324,6 +329,10 @@ public class OpenAPIGenerator {
    */
   public void setBasedir(@NonNull Path basedir) {
     this.basedir = basedir;
+  }
+
+  public void setSources(@NonNull List<Path> sources) {
+    this.sources = sources;
   }
 
   /**

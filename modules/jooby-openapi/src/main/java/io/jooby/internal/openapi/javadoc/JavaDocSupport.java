@@ -84,11 +84,11 @@ public final class JavaDocSupport {
     return forward(ASTNode.javadoc(node));
   }
 
-  public static Stream<DetailNode> forward(DetailNode node, Set<Integer> stopOn) {
+  public static Stream<DetailNode> forward(DetailNode node, Predicate<DetailNode> stopOn) {
     var nodes = forward(ASTNode.javadoc(node)).toList();
     var result = new ArrayList<DetailNode>();
     for (var it : nodes) {
-      if (stopOn.contains(it.getType())) {
+      if (stopOn.test(it)) {
         break;
       }
       result.add(it);
