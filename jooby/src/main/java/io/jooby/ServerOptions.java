@@ -56,7 +56,7 @@ public class ServerOptions {
    * Default application secures port <code>8443</code> or the value of system property <code>
    * server.securePort</code>.
    */
-  public static final int SEVER_SECURE_PORT =
+  public static final int SERVER_SECURE_PORT =
       Integer.parseInt(System.getProperty("server.securePort", "8443"));
 
   /** Default compression level for gzip. */
@@ -80,19 +80,20 @@ public class ServerOptions {
   public static final int IO_THREADS =
       Integer.parseInt(
           System.getProperty(
-              "__server_.ioThreads", Integer.toString(Runtime.getRuntime().availableProcessors())));
+              "__server_.ioThreads",
+              Integer.toString(Runtime.getRuntime().availableProcessors() * 2)));
 
   private static final String SERVER_NAME = System.getProperty("__server_.name");
 
   /**
-   * Number of worker (a.k.a application) threads. It is the number of processors multiply by <code>
+   * Number of worker (a.k.a application) threads. It is the number of ioThreads multiply by <code>
    * 8</code>.
    */
   public static final int WORKER_THREADS =
       Integer.parseInt(
           System.getProperty(
               "__server_.workerThreads",
-              Integer.toString(Runtime.getRuntime().availableProcessors() * 8)));
+              Integer.toString(IO_THREADS * 8)));
 
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */
   private int port = SERVER_PORT;
@@ -564,7 +565,7 @@ public class ServerOptions {
    */
   public @Nullable SSLContext getSSLContext(@NonNull ClassLoader loader) {
     if (isSSLEnabled()) {
-      setSecurePort(Optional.ofNullable(securePort).orElse(SEVER_SECURE_PORT));
+      setSecurePort(Optional.ofNullable(securePort).orElse(SERVER_SECURE_PORT));
       SslOptions options = Optional.ofNullable(ssl).orElseGet(SslOptions::selfSigned);
       setSsl(options);
 
