@@ -57,6 +57,13 @@ Don't overuse it, the problem should have meaningful `title` and `detail` when p
 - `HttpProblem.valueOf(StatusCode status, String title)` - with custom `title`
 - `HttpProblem.valueOf(StatusCode status, String title, String detail)` - with `title` and `detail`
 
+and couple shorthands for the most common validation codes:
+
+- `HttpProblem.badRequest(String title, String detail)` - for _400 Bad Request_
+- `HttpProblem.notFound(String title, String detail)` - for _404 Not Found_
+- `HttpProblem.unprocessableEntity(String title, String detail)` - for _422 Unprocessable Entity_
+- `HttpProblem.internalServerError()` - for _500 Internal Server Error_
+
 `HttpProblem` extends `RuntimeException` so you can naturally throw it (as you do with exceptions):
 
 .Java

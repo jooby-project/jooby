@@ -67,6 +67,54 @@ public class HttpProblem extends RuntimeException {
     return builder().title(status.reason()).status(status).build();
   }
 
+  public static HttpProblem badRequest(String title, String detail) {
+    return builder()
+        .title(title)
+        .status(StatusCode.BAD_REQUEST)
+        .detail(detail)
+        .build();
+  }
+
+  public static HttpProblem badRequest(String detail) {
+    return builder()
+        .title(StatusCode.BAD_REQUEST.reason())
+        .status(StatusCode.BAD_REQUEST)
+        .detail(detail)
+        .build();
+  }
+
+  public static HttpProblem notFound(String title, String detail) {
+    return builder()
+        .title(title)
+        .status(StatusCode.NOT_FOUND)
+        .detail(detail)
+        .build();
+  }
+
+  public static HttpProblem notFound(String detail) {
+    return builder()
+        .title(StatusCode.NOT_FOUND.reason())
+        .status(StatusCode.NOT_FOUND)
+        .detail(detail)
+        .build();
+  }
+
+  public static HttpProblem unprocessableEntity(String title, String detail) {
+    return builder()
+        .title(title)
+        .status(StatusCode.UNPROCESSABLE_ENTITY)
+        .detail(detail)
+        .build();
+  }
+
+  public static HttpProblem unprocessableEntity(String detail) {
+    return builder()
+        .title(StatusCode.UNPROCESSABLE_ENTITY.reason())
+        .status(StatusCode.UNPROCESSABLE_ENTITY)
+        .detail(detail)
+        .build();
+  }
+
   public static HttpProblem internalServerError() {
     return builder()
         .title(INTERNAL_ERROR_TITLE)
