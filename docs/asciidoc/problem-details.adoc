@@ -46,25 +46,25 @@ problem.details {
 
 ==== Creating problems
 
-`HttpProblem` class represents the `RFC 7807` model. It is the main entity you need to work with to produce the problem.
+javadoc:problem.HttpProblem[] class represents the `RFC 7807` model. It is the main entity you need to work with to produce the problem.
 
 ===== Static helpers
 
-There are several handy static methods to produce a simple `HttpProblem`:
+There are several handy static methods to produce a simple javadoc:problem.HttpProblem[]:
 
-- `HttpProblem.valueOf(StatusCode status)` - will pick the title by status code.
+- javadoc:problem.HttpProblem[valueOf, io.jooby.StatusCode] - will pick the title by status code.
 Don't overuse it, the problem should have meaningful `title` and `detail` when possible.
-- `HttpProblem.valueOf(StatusCode status, String title)` - with custom `title`
-- `HttpProblem.valueOf(StatusCode status, String title, String detail)` - with `title` and `detail`
+- javadoc:problem.HttpProblem[valueOf, io.jooby.StatusCode, java.lang.String] - with custom `title`
+- javadoc:problem.HttpProblem[valueOf, io.jooby.StatusCode, java.lang.String, java.lang.String] - with `title` and `detail`
 
-and couple shorthands for the most common validation codes:
+and a couple of shorthands for the most common validation codes:
 
-- `HttpProblem.badRequest(String title, String detail)` - for _400 Bad Request_
-- `HttpProblem.notFound(String title, String detail)` - for _404 Not Found_
-- `HttpProblem.unprocessableEntity(String title, String detail)` - for _422 Unprocessable Entity_
-- `HttpProblem.internalServerError()` - for _500 Internal Server Error_
+- javadoc:problem.HttpProblem[badRequest, java.lang.String, java.lang.String] - for _400 Bad Request_
+- javadoc:problem.HttpProblem[notFound, java.lang.String, java.lang.String] - for _404 Not Found_
+- javadoc:problem.HttpProblem[unprocessableEntity, java.lang.String, java.lang.String] - for _422 Unprocessable Entity_
+- javadoc:problem.HttpProblem[internalServerError] - for _500 Internal Server Error_
 
-`HttpProblem` extends `RuntimeException` so you can naturally throw it (as you do with exceptions):
+javadoc:problem.HttpProblem[] extends `RuntimeException` so you can naturally throw it (as you do with exceptions):
 
 .Java
 [source,java,role="primary"]
@@ -137,7 +137,7 @@ throw HttpProblem.builder()
 
 `RFC 7807` has a simple extension model: APIs are free to add any other properties to the problem details object, so all properties other than the five ones listed above are extensions.
 
-However, variadic root level fields are usually not very convenient for (de)serialization (especially in statically typed languages). That's why `HttpProblem` implementation grabs all extensions under a single root field `parameters`. You can add parameters using builder like this:
+However, variadic root level fields are usually not very convenient for (de)serialization (especially in statically typed languages). That's why javadoc:problem.HttpProblem[] implementation grabs all extensions under a single root field `parameters`. You can add parameters using builder like this:
 
 [source,java]
 ----
@@ -172,7 +172,7 @@ Resulting response:
 
 ==== Adding headers
 
-Some `HTTP` codes (like `413` or `426`) require additional response headers, or it may be required by third-party system/integration. `HttpProblem` support additional headers in response:
+Some `HTTP` codes (like `413` or `426`) require additional response headers, or it may be required by third-party system/integration. javadoc:problem.HttpProblem[] support additional headers in response:
 
 [source,java]
 ----
@@ -218,12 +218,12 @@ In response:
 
 [TIP]
 ====
-If you need to enrich errors with more information feel free to extend `HttpProblem.Error` and make your custom errors model.
+If you need to enrich errors with more information feel free to extend javadoc:problem.HttpProblem.Error[] and make your custom errors model.
 ====
 
 ==== Custom `Exception` to `HttpProblem`
 
-Apparently, you may already have many custom `Exception` classes in the codebase, and you want to make them `Problem Details` compliant without complete re-write. You can achieve this by implementing `HttpProblemMappable` interface. It allows you to control how exceptions should be transformed into `HttpProblem` if default behaviour doesn't suite your needs:
+Apparently, you may already have many custom `Exception` classes in the codebase, and you want to make them `Problem Details` compliant without complete re-write. You can achieve this by implementing javadoc:problem.HttpProblemMappable[] interface. It allows you to control how exceptions should be transformed into javadoc:problem.HttpProblem if default behaviour doesn't suite your needs:
 
 [source,java]
 ----
@@ -242,7 +242,7 @@ public class MyException implements HttpProblemMappable {
 
 ==== Custom Problems
 
-Extending `HttpProblem` and utilizing builder functionality makes it really easy:
+Extending javadoc:problem.HttpProblem[] and utilizing builder functionality makes it really easy:
 
 [source,java]
 ----

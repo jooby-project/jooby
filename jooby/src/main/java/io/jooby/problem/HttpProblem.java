@@ -55,18 +55,47 @@ public class HttpProblem extends RuntimeException {
     return Objects.isNull(detail) ? title : title + ": " + detail;
   }
 
+  /**
+   * Creates an HttpProblem with the specified status code and custom title.
+   *
+   * @param status the HTTP status code for this problem
+   * @param title  the title describing the type of problem
+   * @return an HttpProblem instance with the specified status and title
+   */
   public static HttpProblem valueOf(StatusCode status, String title) {
     return builder().title(title).status(status).build();
   }
 
+  /**
+   * Creates an HttpProblem with the specified status code, custom title, and detail.
+   *
+   * @param status the HTTP status code for this problem
+   * @param title  the title describing the type of problem
+   * @param detail a human-readable explanation specific to this occurrence of the problem
+   * @return an HttpProblem instance with the specified status, title, and detail
+   */
   public static HttpProblem valueOf(StatusCode status, String title, String detail) {
     return builder().title(title).status(status).detail(detail).build();
   }
 
+  /**
+   * Creates an HttpProblem with the specified status code using the default title.
+   * The title is automatically set to the status code's reason phrase.
+   *
+   * @param status the HTTP status code for this problem
+   * @return an HttpProblem instance with the specified status and default title
+   */
   public static HttpProblem valueOf(StatusCode status) {
     return builder().title(status.reason()).status(status).build();
   }
 
+  /**
+   * Creates an HttpProblem with BAD_REQUEST status (400) and custom title and detail.
+   *
+   * @param title  the title describing the type of problem
+   * @param detail a human-readable explanation specific to this occurrence of the problem
+   * @return an HttpProblem instance with BAD_REQUEST status
+   */
   public static HttpProblem badRequest(String title, String detail) {
     return builder()
         .title(title)
@@ -75,6 +104,13 @@ public class HttpProblem extends RuntimeException {
         .build();
   }
 
+  /**
+   * Creates an HttpProblem with BAD_REQUEST status (400) using the default title.
+   * The title is automatically set to the status code's reason phrase.
+   *
+   * @param detail a human-readable explanation specific to this occurrence of the problem
+   * @return an HttpProblem instance with BAD_REQUEST status
+   */
   public static HttpProblem badRequest(String detail) {
     return builder()
         .title(StatusCode.BAD_REQUEST.reason())
@@ -83,6 +119,13 @@ public class HttpProblem extends RuntimeException {
         .build();
   }
 
+  /**
+   * Creates an HttpProblem with NOT_FOUND status (404) and custom title and detail.
+   *
+   * @param title  the title describing the type of problem
+   * @param detail a human-readable explanation specific to this occurrence of the problem
+   * @return an HttpProblem instance with NOT_FOUND status
+   */
   public static HttpProblem notFound(String title, String detail) {
     return builder()
         .title(title)
@@ -91,6 +134,13 @@ public class HttpProblem extends RuntimeException {
         .build();
   }
 
+  /**
+   * Creates an HttpProblem with NOT_FOUND status (404) using the default title.
+   * The title is automatically set to the status code's reason phrase.
+   *
+   * @param detail a human-readable explanation specific to this occurrence of the problem
+   * @return an HttpProblem instance with NOT_FOUND status
+   */
   public static HttpProblem notFound(String detail) {
     return builder()
         .title(StatusCode.NOT_FOUND.reason())
@@ -99,6 +149,13 @@ public class HttpProblem extends RuntimeException {
         .build();
   }
 
+  /**
+   * Creates an HttpProblem with UNPROCESSABLE_ENTITY status (422) and custom title and detail.
+   *
+   * @param title  the title describing the type of problem
+   * @param detail a human-readable explanation specific to this occurrence of the problem
+   * @return an HttpProblem instance with UNPROCESSABLE_ENTITY status
+   */
   public static HttpProblem unprocessableEntity(String title, String detail) {
     return builder()
         .title(title)
@@ -107,6 +164,13 @@ public class HttpProblem extends RuntimeException {
         .build();
   }
 
+  /**
+   * Creates an HttpProblem with UNPROCESSABLE_ENTITY status (422) using the default title.
+   * The title is automatically set to the status code's reason phrase.
+   *
+   * @param detail a human-readable explanation specific to this occurrence of the problem
+   * @return an HttpProblem instance with UNPROCESSABLE_ENTITY status
+   */
   public static HttpProblem unprocessableEntity(String detail) {
     return builder()
         .title(StatusCode.UNPROCESSABLE_ENTITY.reason())
@@ -115,6 +179,12 @@ public class HttpProblem extends RuntimeException {
         .build();
   }
 
+  /**
+   * Creates an HttpProblem with SERVER_ERROR status (500) using predefined title and detail.
+   * This is typically used for unexpected server errors or misconfigurations.
+   *
+   * @return an HttpProblem instance with SERVER_ERROR status and predefined error message
+   */
   public static HttpProblem internalServerError() {
     return builder()
         .title(INTERNAL_ERROR_TITLE)
@@ -247,7 +317,8 @@ public class HttpProblem extends RuntimeException {
     private final Map<String, Object> headers = new LinkedHashMap<>();
     private final List<Error> errors = new LinkedList<>();
 
-    Builder() {}
+    Builder() {
+    }
 
     public Builder type(@Nullable final URI type) {
       this.type = type;
@@ -290,7 +361,7 @@ public class HttpProblem extends RuntimeException {
     }
 
     /**
-     * @param key additional info parameter name
+     * @param key   additional info parameter name
      * @param value additional info parameter value
      * @return this for chaining
      */
@@ -317,19 +388,42 @@ public class HttpProblem extends RuntimeException {
     }
   }
 
+  /**
+   * Represents an individual error within an HTTP Problem response.
+   * This class encapsulates error details following RFC 7807/RFC 9457 standards
+   * for providing structured error information in API responses.
+   */
   public static class Error {
     private final String detail;
     private final String pointer;
 
+    /**
+     * Creates a new Error instance with the specified detail and pointer.
+     *
+     * @param detail  a human-readable explanation of the specific error
+     * @param pointer a JSON Pointer (RFC 6901) that identifies the location
+     *                in the request document where the error occurred
+     */
     public Error(String detail, String pointer) {
       this.detail = detail;
       this.pointer = pointer;
     }
 
+    /**
+     * Returns the human-readable explanation of this specific error.
+     *
+     * @return the error detail message
+     */
     public String getDetail() {
       return detail;
     }
 
+    /**
+     * Returns a reference that identifies the location where this error occurred.
+     * This is typically a JSON Pointer (RFC 6901).
+     *
+     * @return the pointer to the location of the error
+     */
     public String getPointer() {
       return pointer;
     }
