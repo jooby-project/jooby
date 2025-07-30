@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.jooby.LoggingService;
+import io.jooby.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -28,10 +29,6 @@ public class DocApp extends Jooby {
   }
 
   {
-    ServerOptions server = new ServerOptions();
-    server.setPort(4000);
-    setServerOptions(server);
-
     Path site = DocGenerator.basedir().resolve("asciidoc").resolve("site");
     assets("/*", site);
 
@@ -52,7 +49,10 @@ public class DocApp extends Jooby {
 
     DocGenerator.generate(basedir, false, Arrays.asList(args).contains("v1"), true);
 
-    runApp(args, DocApp::new);
+    Server server = Server.loadServer();
+    server.setOptions(new ServerOptions().setPort(4000));
+
+    runApp(args, server, DocApp::new);
 
     Path outdir = basedir.resolve("asciidoc").resolve("site");
 
