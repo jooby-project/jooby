@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotEmpty;
 /**
  * Record documentation.
  *
- * @param id Person id.
+ * @param id Person id. Unique person identifier.
  * @param name Person name. Example: edgar.
  */
 public record RecordBeanDoc(String id, @NotEmpty String name) {}

@@ -5,76 +5,130 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
+import static com.puppycrawl.tools.checkstyle.JavaParser.parseFile;
+import static io.jooby.SneakyThrows.throwingFunction;
 import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocSupport.tokens;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
+import com.puppycrawl.tools.checkstyle.JavaParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 public class JavaDocParser {
 
-  private static final Predicate<DetailAST> HAS_CLASS =
-      it -> backward(it).anyMatch(tokens(TokenTypes.CLASS_DEF));
+  private final List<Path> baseDir;
+  private final Map<Path, DetailAST> cache = new HashMap<>();
 
-  private static final Predicate<DetailAST> SINGLE_LINE_COMMENT =
-      it -> backward(it).anyMatch(tokens(TokenTypes.SINGLE_LINE_COMMENT));
-
-  private final JavaDocContext context;
-
-  public JavaDocParser(JavaDocContext context) {
-    this.context = context;
+  public JavaDocParser(Path baseDir) {
+    this(List.of(baseDir));
   }
 
-  public Optional<ClassDoc> parse(Path filePath) throws Exception {
-    ClassDoc result = null;
-    var tree = context.resolve(filePath);
-    for (var comment :
-        forward(tree)
-            .filter(tokens(TokenTypes.COMMENT_CONTENT))
-            .filter(HAS_CLASS)
-            .filter(SINGLE_LINE_COMMENT.negate())
-            .toList()) {
-      var classOrMethod = classOrMethod(comment);
-      if (classOrMethod.getType() == TokenTypes.METHOD_DEF) {
-        if (result == null) {
-          // No comment on class
-          result =
-              new ClassDoc(
-                  context,
-                  tree(tree)
-                      .filter(
-                          tokens(
-                              TokenTypes.ENUM_DEF,
-                              TokenTypes.CLASS_DEF,
-                              TokenTypes.INTERFACE_DEF,
-                              TokenTypes.RECORD_DEF))
-                      .findFirst()
-                      .orElseThrow(() -> new IllegalStateException("Class not found " + tree)),
-                  JavaDocNode.EMPTY_AST);
-        }
-        var method = new MethodDoc(context, classOrMethod, comment.getParent());
-        result.addMethod(method);
-      } else {
-        // always as class
-        result = new ClassDoc(context, classOrMethod, comment.getParent());
+  public JavaDocParser(List<Path> baseDir) {
+    this.baseDir = baseDir;
+  }
+
+  public Optional<ClassDoc> parse(String typeName) {
+    return Optional.ofNullable(traverse(resolveType(typeName)).get(typeName));
+  }
+
+  public Map<String, ClassDoc> traverse(DetailAST tree) {
+    var classes = new HashMap<String, ClassDoc>();
+    var types =
+        tokens(
+            TokenTypes.ENUM_DEF,
+            TokenTypes.CLASS_DEF,
+            TokenTypes.INTERFACE_DEF,
+            TokenTypes.RECORD_DEF);
+    traverse(
+        tree,
+        types,
+        modifiers -> tree(modifiers).noneMatch(tokens(TokenTypes.LITERAL_PRIVATE)),
+        (scope, comment) -> {
+          var counter = new AtomicInteger(0);
+          counter.addAndGet(comment == JavaDocNode.EMPTY_AST ? 0 : 1);
+          var classDoc = new ClassDoc(this, scope, comment);
+
+          traverse(
+              scope,
+              tokens(TokenTypes.VARIABLE_DEF, TokenTypes.METHOD_DEF),
+              modifiers -> tree(modifiers).noneMatch(tokens(TokenTypes.LITERAL_STATIC)),
+              (member, memberComment) -> {
+                counter.addAndGet(memberComment == JavaDocNode.EMPTY_AST ? 0 : 1);
+                // check member belong to current scope
+                if (scope == backward(member).filter(types).findFirst().orElse(null)) {
+                  if (member.getType() == TokenTypes.VARIABLE_DEF) {
+                    classDoc.addField(new FieldDoc(this, member, memberComment));
+                  } else {
+                    classDoc.addMethod(new MethodDoc(this, member, memberComment));
+                  }
+                }
+              });
+
+          if (classDoc.isRecord()) {
+            // complement with record parameter
+          }
+          if (counter.get() > 0) {
+            classes.put(classDoc.getName(), classDoc);
+          }
+        });
+    return classes;
+  }
+
+  private void traverse(
+      DetailAST tree,
+      Predicate<DetailAST> types,
+      Predicate<DetailAST> modifiers,
+      BiConsumer<DetailAST, DetailAST> action) {
+    for (var node : tree(tree).filter(types).toList()) {
+      var mods =
+          tree(node)
+              .filter(tokens(TokenTypes.MODIFIERS))
+              .findFirst()
+              .orElseThrow(() -> new IllegalStateException("Modifiers not found on " + node));
+      if (modifiers.test(mods)) {
+        var docRoot = node.getType() == TokenTypes.VARIABLE_DEF ? mods.getParent() : mods;
+        var comment =
+            tree(docRoot)
+                .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
+                .findFirst()
+                .orElse(JavaDocNode.EMPTY_AST);
+        action.accept(node, comment);
       }
     }
-    return Optional.ofNullable(result);
   }
 
-  private static DetailAST classOrMethod(DetailAST comment) {
-    return backward(comment)
-        .filter(
-            tokens(
-                TokenTypes.METHOD_DEF,
-                TokenTypes.ENUM_DEF,
-                TokenTypes.CLASS_DEF,
-                TokenTypes.INTERFACE_DEF,
-                TokenTypes.RECORD_DEF))
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Invalid comment: " + comment.getText()));
+  public DetailAST resolve(Path path) {
+    return lookup(path)
+        .map(
+            it ->
+                cache.computeIfAbsent(
+                    it,
+                    throwingFunction(
+                        filePath -> {
+                          return parseFile(filePath.toFile(), JavaParser.Options.WITH_COMMENTS);
+                        })))
+        .orElse(JavaDocNode.EMPTY_AST);
+  }
+
+  private DetailAST resolveType(String typeName) {
+    var segments = typeName.split("\\.");
+    segments[segments.length - 1] = segments[segments.length - 1] + ".java";
+    return resolve(Paths.get(String.join(File.separator, segments)));
+  }
+
+  protected Optional<Path> lookup(Path path) {
+    return baseDir.stream()
+        .map(parentDir -> parentDir.resolve(path))
+        .filter(Files::exists)
+        .findFirst();
   }
 }

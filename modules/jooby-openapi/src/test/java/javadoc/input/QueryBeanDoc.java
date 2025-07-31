@@ -13,13 +13,13 @@ import jakarta.validation.constraints.NotEmpty;
 public class QueryBeanDoc {
   public static final int DEFAULT_OFFSET = 0;
 
-  /** This comment will be ignored. */
+  /** The field comment. */
   private String fq;
 
   /** Offset, used for paging. */
   @Min(0)
   // Something
-  private int offset = DEFAULT_OFFSET;
+  int offset = DEFAULT_OFFSET;
 
   private int limit;
 

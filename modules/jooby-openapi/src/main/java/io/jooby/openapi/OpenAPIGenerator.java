@@ -8,13 +8,7 @@ package io.jooby.openapi;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -26,7 +20,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
-import io.jooby.internal.openapi.javadoc.JavaDocContext;
+import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -150,16 +144,31 @@ public class OpenAPIGenerator {
   public @NonNull OpenAPI generate(@NonNull String classname) {
     ClassLoader classLoader =
         Optional.ofNullable(this.classLoader).orElseGet(getClass()::getClassLoader);
+
     ClassSource source = new ClassSource(classLoader);
 
     /* Create OpenAPI from template and make sure min required information is present: */
     OpenAPIExt openapi =
         OpenApiTemplate.fromTemplate(basedir, classLoader, templateName).orElseGet(OpenAPIExt::new);
 
+    var mainType = TypeFactory.fromJavaName(classname);
+    var javadoc = new JavaDocParser(sources);
+
+    if (openapi.getInfo() == null) {
+      var info = new Info();
+      openapi.setInfo(info);
+      javadoc
+          .parse(classname)
+          .ifPresent(
+              doc -> {
+                Optional.ofNullable(doc.getSummary()).ifPresent(info::setTitle);
+                Optional.ofNullable(doc.getDescription()).ifPresent(info::setDescription);
+                Optional.ofNullable(doc.getVersion()).ifPresent(info::setVersion);
+              });
+    }
+
     RouteParser routes = new RouteParser();
-    ParserContext ctx =
-        new ParserContext(
-            source, TypeFactory.fromJavaName(classname), new JavaDocContext(sources), debug);
+    ParserContext ctx = new ParserContext(source, mainType, javadoc, debug);
     List<OperationExt> operations = routes.parse(ctx, openapi);
 
     String contextPath = ContextPathParser.parse(ctx);

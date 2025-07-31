@@ -5,10 +5,17 @@
  */
 package issues.i3729.api;
 
+/** Author address. */
 public class Address {
+  /** Street name. */
   private String street;
+
   private String city;
+
+  /** State. */
   private String state;
+
+  /** Two digit country code. */
   private String country;
 
   public String getStreet() {
@@ -19,6 +26,11 @@ public class Address {
     this.street = street;
   }
 
+  /**
+   * City name.
+   *
+   * @return City name.
+   */
   public String getCity() {
     return city;
   }

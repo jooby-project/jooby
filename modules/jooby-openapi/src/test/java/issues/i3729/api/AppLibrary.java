@@ -9,6 +9,13 @@ import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
 
 import io.jooby.Jooby;
 
+/**
+ * Library API.
+ *
+ * <p>Available data: Books and authors.
+ *
+ * @version 4.0.0
+ */
 public class AppLibrary extends Jooby {
 
   {

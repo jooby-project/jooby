@@ -5,11 +5,13 @@
  */
 package javadoc.input;
 
-/** Enum summary. Enum desc. */
-public enum EnumDoc {
-  /** Foo doc. */
-  Foo,
+/** Interface documentation. */
+public interface InterfaceDoc {
 
-  /** Bar doc. */
-  Bar
+  /**
+   * Name.
+   *
+   * @return name.
+   */
+  String getName();
 }

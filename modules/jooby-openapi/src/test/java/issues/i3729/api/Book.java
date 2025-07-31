@@ -8,19 +8,29 @@ package issues.i3729.api;
 import java.time.LocalDate;
 import java.util.Set;
 
+/** Book model. */
 public class Book {
-  String isbn;
+  /** Book ISBN. */
+  private String isbn;
 
+  /** Book's title. */
   String title;
 
+  /** Publication date. Format mm-dd-yyyy. */
   LocalDate publicationDate;
 
   String text;
 
-  Type type = Type.Book;
+  /** Book type. */
+  Type type = Type.Fiction;
 
   Set<Author> authors;
 
+  /**
+   * Book ISBN. Method.
+   *
+   * @return Book ISBN. Method.
+   */
   public String getIsbn() {
     return isbn;
   }

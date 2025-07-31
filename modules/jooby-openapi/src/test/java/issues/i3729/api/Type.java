@@ -5,9 +5,17 @@
  */
 package issues.i3729.api;
 
-/** Book type. */
+/**
+ * Books can be broadly categorized into fiction and non-fiction. With many genres and subgenres
+ * within each.
+ */
 public enum Type {
-  Book,
+  /**
+   * Fiction books are based on imaginary characters and events, while non-fiction books are based o
+   * n real people and events.
+   */
+  Fiction,
 
-  Manual
+  /** Non-fiction genres include biography, autobiography, history, self-help, and true crime. */
+  NonFiction;
 }

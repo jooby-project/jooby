@@ -7,66 +7,209 @@ package io.jooby.internal.openapi.javadoc;
 
 import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.puppycrawl.tools.checkstyle.DetailAstImpl;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.DetailNode;
+import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import com.puppycrawl.tools.checkstyle.utils.TokenUtil;
 
 public class ClassDoc extends JavaDocNode {
+  private final Map<String, FieldDoc> fields = new LinkedHashMap<>();
+  private final Map<String, MethodDoc> methods = new LinkedHashMap<>();
 
-  private final DetailAST node;
-  private final List<MethodDoc> methods = new ArrayList<>();
+  public ClassDoc(JavaDocParser ctx, DetailAST node, DetailAST javaDoc) {
+    super(ctx, node, javaDoc);
+    if (isRecord()) {
+      defaultRecordMembers();
+    } else if (isEnum()) {
+      defaultEnumMembers();
+    }
+  }
 
-  public ClassDoc(JavaDocContext ctx, DetailAST node, DetailAST javaDoc) {
-    super(ctx, javaDoc);
-    this.node = node;
+  public String getVersion() {
+    return tree(javadoc)
+        .filter(javadocToken(JavadocTokenTypes.VERSION_LITERAL))
+        .findFirst()
+        .flatMap(
+            version ->
+                tree(version.getParent())
+                    .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                    .findFirst()
+                    .flatMap(
+                        it -> tree(it).filter(javadocToken(JavadocTokenTypes.TEXT)).findFirst())
+                    .map(DetailNode::getText))
+        .orElse(null);
+  }
+
+  public String getEnumDescription(String text) {
+    if (isEnum()) {
+      var sb = new StringBuilder();
+      var summary = Optional.ofNullable(text).orElseGet(this::getSummary);
+      if (summary != null) {
+        sb.append(summary);
+      }
+      for (Map.Entry<String, FieldDoc> e : fields.entrySet()) {
+        sb.append("\n  - ").append(e.getKey()).append(": ").append(e.getValue().getText());
+      }
+      return sb.toString().trim();
+    }
+    return text;
+  }
+
+  private void defaultRecordMembers() {
+    for (var tag : tree(javadoc).filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG)).toList()) {
+      var isParam = tree(tag).anyMatch(javadocToken(JavadocTokenTypes.PARAM_LITERAL));
+      var name =
+          tree(tag).filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME)).findFirst().orElse(null);
+      if (isParam && name != null) {
+        /* Virtual Field */
+        var memberDoc =
+            tree(tag)
+                .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                .findFirst()
+                .orElse(EMPTY_NODE);
+        var field =
+            new FieldDoc(
+                context, createVirtualMember(name.getText(), TokenTypes.VARIABLE_DEF), memberDoc);
+        addField(field);
+        /* Virtual method */
+        var method =
+            new MethodDoc(
+                context, createVirtualMember(name.getText(), TokenTypes.METHOD_DEF), memberDoc);
+        addMethod(method);
+      }
+    }
+  }
+
+  private void defaultEnumMembers() {
+    for (var constant : tree(node).filter(tokens(TokenTypes.ENUM_CONSTANT_DEF)).toList()) {
+      /* Virtual Field */
+      var name =
+          tree(constant)
+              .filter(tokens(TokenTypes.IDENT))
+              .findFirst()
+              .map(DetailAST::getText)
+              .orElseThrow(() -> new IllegalStateException("Unnamed constant: " + constant));
+      var comment =
+          tree(constant)
+              .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
+              .findFirst()
+              .orElse(JavaDocNode.EMPTY_AST);
+      var field =
+          new FieldDoc(context, createVirtualMember(name, TokenTypes.VARIABLE_DEF), comment);
+      addField(field);
+    }
+  }
+
+  private static DetailAstImpl createVirtualMember(String name, int tokenType) {
+    var publicMod = new DetailAstImpl();
+    publicMod.initialize(
+        TokenTypes.LITERAL_PUBLIC, TokenUtil.getTokenName(TokenTypes.LITERAL_PUBLIC));
+    var modifiers = new DetailAstImpl();
+    modifiers.initialize(TokenTypes.MODIFIERS, TokenUtil.getTokenName(tokenType));
+    modifiers.addChild(publicMod);
+    var memberName = new DetailAstImpl();
+    memberName.initialize(TokenTypes.IDENT, name);
+    var member = new DetailAstImpl();
+    member.initialize(tokenType, TokenUtil.getTokenName(tokenType));
+    memberName.addChild(modifiers);
+    member.addChild(memberName);
+    return member;
   }
 
   public void addMethod(MethodDoc method) {
-    this.methods.add(method);
+    this.methods.put(toMethodSignature(method), method);
+  }
+
+  public void addField(FieldDoc field) {
+    this.fields.put(field.getName(), field);
+  }
+
+  public Optional<FieldDoc> getField(String name) {
+    return Optional.ofNullable(fields.get(name));
   }
 
   public Optional<MethodDoc> getMethod(String name, List<String> parameterNames) {
-    var filtered = methods.stream().filter(it -> it.getName().equals(name)).toList();
-    if (filtered.isEmpty()) {
-      return Optional.empty();
-    }
-    if (filtered.size() == 1) {
-      return Optional.of(filtered.getFirst());
-    }
-    return filtered.stream()
-        .filter(it -> it.getParameterNames().equals(parameterNames))
-        .findFirst();
+    return Optional.ofNullable(methods.get(toMethodSignature(name, parameterNames)));
+  }
+
+  private String toMethodSignature(MethodDoc method) {
+    return toMethodSignature(method.getName(), method.getParameterNames());
+  }
+
+  private String toMethodSignature(String methodName, List<String> parameterNames) {
+    return methodName + parameterNames.stream().collect(Collectors.joining(", ", "(", ")"));
   }
 
   public String getSimpleName() {
+    return getSimpleName(node);
+  }
+
+  protected String getSimpleName(DetailAST node) {
     return node.findFirstToken(TokenTypes.IDENT).getText();
   }
 
   public String getName() {
-    return forward(node.getParent())
-            .filter(tokens(TokenTypes.PACKAGE_DEF))
-            .map(
-                it ->
-                    tree(it)
-                        .filter(tokens(TokenTypes.DOT, TokenTypes.IDENT))
-                        .findFirst()
-                        .orElse(null))
-            .filter(Objects::nonNull)
-            .flatMap(
-                it ->
-                    tree(it)
-                        .filter(tokens(TokenTypes.DOT, TokenTypes.SEMI).negate())
-                        .map(DetailAST::getText))
-            .collect(Collectors.joining(".", "", "."))
-        + getSimpleName();
+    var classScope =
+        Stream.concat(
+                Stream.of(node),
+                backward(node)
+                    .filter(
+                        tokens(
+                            TokenTypes.CLASS_DEF,
+                            TokenTypes.INTERFACE_DEF,
+                            TokenTypes.ENUM_DEF,
+                            TokenTypes.RECORD_DEF)))
+            .map(this::getSimpleName)
+            .toList();
+    var packageScope =
+        backward(node)
+            .filter(tokens(TokenTypes.COMPILATION_UNIT))
+            .findFirst()
+            .flatMap(it -> tree(it).filter(tokens(TokenTypes.PACKAGE_DEF)).findFirst())
+            .map(it -> tree(it).filter(tokens(TokenTypes.IDENT)).map(DetailAST::getText).toList())
+            .orElse(List.of());
+    return Stream.concat(packageScope.stream(), classScope.stream())
+        .collect(Collectors.joining("."));
   }
 
-  public List<MethodDoc> getMethods() {
-    return methods;
+  public boolean isRecord() {
+    return tree(node).anyMatch(tokens(TokenTypes.RECORD_DEF));
+  }
+
+  public boolean isEnum() {
+    return tree(node).anyMatch(tokens(TokenTypes.ENUM_DEF));
+  }
+
+  public String getPropertyDoc(String name) {
+    var getterDoc =
+        Stream.of(name, getterName(name))
+            .map(n -> methods.get(toMethodSignature(n, List.of())))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(MethodDoc::getText)
+            .orElse(null);
+    if (getterDoc == null) {
+      var field = fields.get(name);
+      return field == null ? null : field.getText();
+    }
+    return getterDoc;
+  }
+
+  private String getterName(String name) {
+    return "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+  }
+
+  @Override
+  public String toString() {
+    return "fields: "
+        + String.join(", ", fields.keySet())
+        + "\nmethods: "
+        + String.join(", ", methods.keySet());
   }
 }

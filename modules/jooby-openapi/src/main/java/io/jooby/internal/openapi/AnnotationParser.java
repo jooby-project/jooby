@@ -10,8 +10,6 @@ import static io.jooby.internal.openapi.TypeFactory.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -22,10 +20,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import io.jooby.Context;
-import io.jooby.MediaType;
-import io.jooby.Router;
-import io.jooby.Session;
+import io.jooby.*;
 import io.jooby.annotation.ContextParam;
 import io.jooby.annotation.CookieParam;
 import io.jooby.annotation.FormParam;
@@ -34,7 +29,6 @@ import io.jooby.annotation.HeaderParam;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.PathParam;
 import io.jooby.annotation.QueryParam;
-import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -274,38 +268,49 @@ public class AnnotationParser {
       ctx.debugHandler(method);
       result.addAll(routerMethod(ctx, prefix, classNode, method));
     }
-    var javadocContext = ctx.javadoc();
-    var javadocParser = new JavaDocParser(javadocContext);
+    var javaDocParser = ctx.javadoc();
     for (OperationExt operationExt : result) {
       operationExt.setController(classNode);
       try {
-        var className = operationExt.getControllerName();
-        javadocParser
-            .parse(toJavaPath(className))
+        var className = operationExt.getControllerName().replace("/", ".");
+        javaDocParser
+            .parse(className)
             .ifPresent(
                 doc -> {
                   operationExt.setPathDescription(doc.getDescription());
                   operationExt.setPathSummary(doc.getSummary());
-                  var args =
-                      operationExt.getParameters().stream()
-                          .map(ParameterExt.class::cast)
-                          .map(
-                              p ->
-                                  Optional.ofNullable(p.getContainerType()).orElse(p.getJavaType()))
-                          .map(
-                              qualifiedName -> {
-                                var index = qualifiedName.lastIndexOf('.');
-                                return index == -1
-                                    ? qualifiedName
-                                    : qualifiedName.substring(index + 1);
-                              })
+                  var parameterNames =
+                      Optional.ofNullable(operationExt.getNode().parameters)
+                          .orElse(List.of())
+                          .stream()
+                          .map(p -> p.name)
                           .toList();
-                  doc.getMethod(operationExt.getOperationId(), args)
+                  doc.getMethod(operationExt.getOperationId(), parameterNames)
                       .ifPresent(
                           methodDoc -> {
                             operationExt.setSummary(methodDoc.getSummary());
                             operationExt.setDescription(methodDoc.getDescription());
-
+                            for (var parameterName : parameterNames) {
+                              var paramExt =
+                                  operationExt.getParameters().stream()
+                                      .filter(p -> p.getName().equals(parameterName))
+                                      .findFirst()
+                                      .map(ParameterExt.class::cast)
+                                      .orElse(null);
+                              var paramDoc =
+                                  methodDoc.getParameterDoc(
+                                      parameterName,
+                                      Optional.ofNullable(paramExt)
+                                          .map(ParameterExt::getContainerType)
+                                          .orElse(null));
+                              if (paramDoc != null) {
+                                if (paramExt == null) {
+                                  operationExt.getRequestBody().setDescription(paramDoc);
+                                } else {
+                                  paramExt.setDescription(paramDoc);
+                                }
+                              }
+                            }
                             for (var parameter : operationExt.getParameters()) {
                               var paramExt = (ParameterExt) parameter;
                               var paramDoc =
@@ -318,17 +323,10 @@ public class AnnotationParser {
                           });
                 });
       } catch (Exception x) {
-        // TODO: how to log from here
-        x.printStackTrace();
+        throw SneakyThrows.propagate(x);
       }
     }
     return result;
-  }
-
-  private static java.nio.file.Path toJavaPath(String className) {
-    var segments = className.split("/");
-    segments[segments.length - 1] = segments[segments.length - 1] + ".java";
-    return Paths.get(String.join(File.separator, segments));
   }
 
   private static Map<String, MethodNode> methods(ParserContext ctx, ClassNode node) {

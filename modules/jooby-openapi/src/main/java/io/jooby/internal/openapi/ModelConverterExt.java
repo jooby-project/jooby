@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.FileUpload;
 import io.jooby.Jooby;
@@ -37,7 +36,7 @@ public class ModelConverterExt extends AbstractModelConverter {
   @Override
   public Schema resolve(
       AnnotatedType type, ModelConverterContext context, Iterator<ModelConverter> chain) {
-    JavaType javaType = _mapper.getTypeFactory().constructType(type.getType());
+    var javaType = _mapper.getTypeFactory().constructType(type.getType());
     if (javaType.isCollectionLikeType() || javaType.isArrayType()) {
       if (isFile(javaType.getContentType().getRawClass())) {
         return new ArraySchema().items(new FileSchema());

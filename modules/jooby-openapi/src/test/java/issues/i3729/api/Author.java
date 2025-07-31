@@ -8,12 +8,17 @@ package issues.i3729.api;
 import java.util.Set;
 
 public class Author {
+  /*
+   * Social security number.
+   */
   String ssn;
 
+  /** Author's name. */
   String name;
 
   Address address;
 
+  /** Published books. */
   Set<Book> books;
 
   public String getSsn() {
