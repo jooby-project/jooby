@@ -290,6 +290,7 @@ public class AnnotationParser {
                           methodDoc -> {
                             operationExt.setSummary(methodDoc.getSummary());
                             operationExt.setDescription(methodDoc.getDescription());
+                            // Parameters
                             for (var parameterName : parameterNames) {
                               var paramExt =
                                   operationExt.getParameters().stream()
@@ -311,14 +312,21 @@ public class AnnotationParser {
                                 }
                               }
                             }
-                            for (var parameter : operationExt.getParameters()) {
-                              var paramExt = (ParameterExt) parameter;
-                              var paramDoc =
-                                  methodDoc.getParameterDoc(
-                                      paramExt.getName(), paramExt.getContainerType());
-                              if (paramDoc != null) {
-                                paramExt.setDescription(paramDoc);
+                            // return types
+                            var defaultResponse = operationExt.getDefaultResponse();
+                            if (defaultResponse != null) {
+                              defaultResponse.setDescription(methodDoc.getReturnDoc());
+                            }
+                            for (var throwsDoc : methodDoc.getThrows().values()) {
+                              var response =
+                                  operationExt.getResponse(
+                                      Integer.toString(throwsDoc.getStatusCode().value()));
+                              if (response == null) {
+                                response =
+                                    operationExt.addResponse(
+                                        Integer.toString(throwsDoc.getStatusCode().value()));
                               }
+                              response.setDescription(throwsDoc.getText());
                             }
                           });
                 });
@@ -445,7 +453,7 @@ public class AnnotationParser {
 
         if (paramType == ParamType.BODY) {
           RequestBodyExt body = new RequestBodyExt();
-          body.setRequired(required);
+          body.setRequired(true);
           body.setJavaType(javaType);
           requestBody.accept(body);
         } else if (paramType == ParamType.FORM) {

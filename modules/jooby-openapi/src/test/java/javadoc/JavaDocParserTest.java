@@ -133,7 +133,8 @@ public class JavaDocParserTest {
           assertEquals("Enum summary.", doc.getSummary());
           assertEquals("Enum desc.", doc.getDescription());
           assertEquals(
-              "Enum summary.\n" + "  - Foo: Foo doc.\n" + "  - Bar: Bar doc.", doc.getText());
+              "Enum summary.\n" + "  - Foo: Foo doc.\n" + "  - Bar: Bar doc.",
+              doc.getEnumDescription(doc.getSummary()));
         });
   }
 
