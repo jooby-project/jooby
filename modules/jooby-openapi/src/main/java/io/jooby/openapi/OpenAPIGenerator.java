@@ -164,6 +164,9 @@ public class OpenAPIGenerator {
                 Optional.ofNullable(doc.getSummary()).ifPresent(info::setTitle);
                 Optional.ofNullable(doc.getDescription()).ifPresent(info::setDescription);
                 Optional.ofNullable(doc.getVersion()).ifPresent(info::setVersion);
+                if (!doc.getExtensions().isEmpty()) {
+                  info.setExtensions(doc.getExtensions());
+                }
               });
     }
 
@@ -215,6 +218,7 @@ public class OpenAPIGenerator {
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);
       Optional.ofNullable(operation.getPathSummary()).ifPresent(pathItem::setSummary);
       Optional.ofNullable(operation.getPathDescription()).ifPresent(pathItem::setDescription);
+      Optional.ofNullable(operation.getPathExtensions()).ifPresent(pathItem::setExtensions);
 
       // global tags
       operation.getGlobalTags().forEach(tag -> globalTags.put(tag.getName(), tag));

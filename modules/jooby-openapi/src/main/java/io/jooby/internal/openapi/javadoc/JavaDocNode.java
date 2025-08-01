@@ -5,17 +5,19 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.forward;
+import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.puppycrawl.tools.checkstyle.DetailNodeTreeStringPrinter;
 import com.puppycrawl.tools.checkstyle.JavadocDetailNodeParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.JavadocUtil;
+import io.swagger.util.Yaml;
 
 public class JavaDocNode {
   private static final Predicate<DetailNode> JAVADOC_TAG =
@@ -24,6 +26,7 @@ public class JavaDocNode {
   protected final JavaDocParser context;
   protected final DetailAST node;
   protected final DetailNode javadoc;
+  private final Map<String, Object> extensions;
 
   public JavaDocNode(JavaDocParser ctx, DetailAST node, DetailAST comment) {
     this(ctx, node, toJavaDocNode(comment));
@@ -33,12 +36,47 @@ public class JavaDocNode {
     this.context = ctx;
     this.node = node;
     this.javadoc = javadoc;
+    if (this.javadoc != EMPTY_NODE) {
+      this.extensions = parseExtensions(this.javadoc);
+    } else {
+      this.extensions = Map.of();
+    }
+  }
+
+  private Map<String, Object> parseExtensions(DetailNode node) {
+    var values = new ArrayList<String>();
+    for (var tag : tree(node).filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG)).toList()) {
+      var extension =
+          tree(tag)
+              .filter(
+                  javadocToken(JavadocTokenTypes.CUSTOM_NAME)
+                      .and(it -> it.getText().startsWith("@x-")))
+              .findFirst()
+              .map(DetailNode::getText)
+              .orElse(null);
+      if (extension != null) {
+        extension = extension.substring(1).trim();
+        var extensionValue =
+            tree(tag)
+                .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                .findFirst()
+                .map(it -> getText(List.of(it.getChildren()), false))
+                .orElse(null);
+        values.add(extension);
+        values.add(extensionValue);
+      }
+    }
+    return ExtensionJavaDocParser.parse(values);
   }
 
   static DetailNode toJavaDocNode(DetailAST node) {
     return node == EMPTY_AST
         ? EMPTY_NODE
         : new JavadocDetailNodeParser().parseJavadocAsDetailNode(node).getTree();
+  }
+
+  public Map<String, Object> getExtensions() {
+    return extensions;
   }
 
   public String getSummary() {
@@ -219,4 +257,16 @@ public class JavaDocNode {
           return false;
         }
       };
+
+  public static void main(String[] args) throws JsonProcessingException {
+    var badges =
+        Yaml.mapper()
+            .readValue(
+                "x-badges:\n"
+                    + "        - name: 'Beta'\n"
+                    + "          position: before\n"
+                    + "          color: purple",
+                Map.class);
+    System.out.println(badges);
+  }
 }

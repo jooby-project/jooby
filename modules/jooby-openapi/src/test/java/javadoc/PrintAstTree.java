@@ -9,10 +9,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javadoc.input.ApiDoc;
 
 import com.puppycrawl.tools.checkstyle.AstTreeStringPrinter;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
-import issues.i3729.api.LibraryApi;
 
 public class PrintAstTree {
   public static void main(String[] args) throws CheckstyleException, IOException {
@@ -25,7 +25,7 @@ public class PrintAstTree {
             .resolve("java");
     var stringAst =
         AstTreeStringPrinter.printJavaAndJavadocTree(
-            baseDir.resolve(toPath(LibraryApi.class)).toFile());
+            baseDir.resolve(toPath(ApiDoc.class)).toFile());
     System.out.println(stringAst);
   }
 

@@ -279,6 +279,9 @@ public class AnnotationParser {
                 doc -> {
                   operationExt.setPathDescription(doc.getDescription());
                   operationExt.setPathSummary(doc.getSummary());
+                  if (!doc.getExtensions().isEmpty()) {
+                    operationExt.setPathExtensions(doc.getExtensions());
+                  }
                   var parameterNames =
                       Optional.ofNullable(operationExt.getNode().parameters)
                           .orElse(List.of())
@@ -290,6 +293,9 @@ public class AnnotationParser {
                           methodDoc -> {
                             operationExt.setSummary(methodDoc.getSummary());
                             operationExt.setDescription(methodDoc.getDescription());
+                            if (!methodDoc.getExtensions().isEmpty()) {
+                              operationExt.setExtensions(methodDoc.getExtensions());
+                            }
                             // Parameters
                             for (var parameterName : parameterNames) {
                               var paramExt =

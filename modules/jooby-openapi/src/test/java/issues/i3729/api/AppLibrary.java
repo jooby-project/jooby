@@ -15,6 +15,8 @@ import io.jooby.Jooby;
  * <p>Available data: Books and authors.
  *
  * @version 4.0.0
+ * @x-logo.url https://redocly.github.io/redoc/museum-logo.png
+ * @x-logo.altText Museum logo
  */
 public class AppLibrary extends Jooby {
 

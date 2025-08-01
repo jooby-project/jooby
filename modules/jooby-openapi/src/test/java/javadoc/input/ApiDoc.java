@@ -17,6 +17,10 @@ import io.jooby.annotation.QueryParam;
  *
  * <p>Proin sit amet lectus interdum, porta libero quis, fringilla metus. Integer viverra ante id
  * vestibulum congue. Nam et tortor at magna tempor congue.
+ *
+ * @x-badges.name Beta
+ * @x-badges.position before
+ * @x-badges.color purple
  */
 @Path("/api")
 public class ApiDoc {
