@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExtensionJavaDocParser {
+public class MiniYamlDocParser {
   @SuppressWarnings("unchecked")
   public static Map<String, Object> parse(List<String> properties) {
     // The root of our final tree structure.
@@ -38,7 +38,7 @@ public class ExtensionJavaDocParser {
     if (result instanceof Map) {
       return (Map<String, Object>) result;
     }
-    throw new IllegalStateException("DD");
+    throw new IllegalArgumentException("Unable to parse: " + properties);
   }
 
   /**
@@ -102,7 +102,7 @@ public class ExtensionJavaDocParser {
         listOfObjects.add(objectMap);
       }
       if (listOfObjects.size() == 1
-          && restructuredMap.keySet().stream().noneMatch(ExtensionJavaDocParser::startsWithDash)) {
+          && restructuredMap.keySet().stream().noneMatch(MiniYamlDocParser::startsWithDash)) {
         return listOfObjects.getFirst();
       }
       return listOfObjects;

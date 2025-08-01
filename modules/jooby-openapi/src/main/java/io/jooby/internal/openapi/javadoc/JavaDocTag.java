@@ -42,9 +42,9 @@ public class JavaDocTag {
           values.add(tag.getText().substring(1));
           values.add(value);
         });
-    List<Server> result = new ArrayList<>();
+    var result = new ArrayList<Server>();
     if (!values.isEmpty()) {
-      var serverMap = ExtensionJavaDocParser.parse(values);
+      var serverMap = MiniYamlDocParser.parse(values);
       var servers = serverMap.get("server");
       if (!(servers instanceof List<?>)) {
         servers = List.of(servers);
@@ -122,7 +122,7 @@ public class JavaDocTag {
           values.add(tag.getText().substring(1));
           values.add(value);
         });
-    return ExtensionJavaDocParser.parse(values);
+    return MiniYamlDocParser.parse(values);
   }
 
   public static List<Tag> tags(DetailNode node) {
@@ -158,7 +158,7 @@ public class JavaDocTag {
           }
         });
     if (!values.isEmpty()) {
-      var tagMap = ExtensionJavaDocParser.parse(values);
+      var tagMap = MiniYamlDocParser.parse(values);
       var tags = tagMap.get("tag");
       if (!(tags instanceof List<?>)) {
         tags = List.of(tags);

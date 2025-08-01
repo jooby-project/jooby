@@ -5,7 +5,7 @@
  */
 package javadoc;
 
-import static io.jooby.internal.openapi.javadoc.ExtensionJavaDocParser.parse;
+import static io.jooby.internal.openapi.javadoc.MiniYamlDocParser.parse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
