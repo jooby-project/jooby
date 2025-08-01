@@ -13,6 +13,8 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+
+import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -44,27 +46,27 @@ public class OpenAPITask extends BaseTask {
 
     String mainClass = Optional.ofNullable(this.mainClass)
         .orElseGet(() -> computeMainClassName(projects));
-
-    Path outputDir = classes(getProject(), false);
-    // Reduce lookup to current project: See https://github.com/jooby-project/jooby/issues/2756
-    String metaInf =
-        outputDir
-            .resolve("META-INF")
-            .resolve("services")
-            .resolve("io.jooby.MvcFactory")
-            .toAbsolutePath()
-            .toString();
+    var sources = projects.stream()
+        .flatMap(project -> {
+          var sourceSet = sourceSet(project, false);
+          return sourceSet.stream()
+              .flatMap(it -> it.getAllSource().getSrcDirs().stream())
+              .map(File::toPath);
+        })
+        .distinct()
+        .toList();    Path outputDir = classes(getProject(), false);
 
     ClassLoader classLoader = createClassLoader(projects);
 
     getLogger().info("Generating OpenAPI: " + mainClass);
     getLogger().debug("Using classloader: " + classLoader);
     getLogger().debug("Output directory: " + outputDir);
-    getLogger().debug("META-INF: " + metaInf);
+    getLogger().debug("Source directories: " + sources);
 
-    OpenAPIGenerator tool = new OpenAPIGenerator(metaInf);
+    OpenAPIGenerator tool = new OpenAPIGenerator();
     tool.setClassLoader(classLoader);
     tool.setOutputDir(outputDir);
+    tool.setSources(sources);
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
 

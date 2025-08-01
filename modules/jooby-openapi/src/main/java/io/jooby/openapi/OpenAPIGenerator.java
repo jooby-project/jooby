@@ -8,13 +8,7 @@ package io.jooby.openapi;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -26,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
+import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -100,21 +95,7 @@ public class OpenAPIGenerator {
 
   private String excludes;
 
-  private String metaInf;
-
-  /**
-   * Test Only.
-   *
-   * @param metaInf Location of meta-inf directory.
-   */
-  public OpenAPIGenerator(String metaInf) {
-    this.metaInf = metaInf;
-  }
-
-  /** Creates a new instance. */
-  public OpenAPIGenerator() {
-    this("META-INF/services/io.jooby.MvcFactory");
-  }
+  private List<Path> sources;
 
   /**
    * Export an {@link OpenAPI} model to the given format.
@@ -163,14 +144,35 @@ public class OpenAPIGenerator {
   public @NonNull OpenAPI generate(@NonNull String classname) {
     ClassLoader classLoader =
         Optional.ofNullable(this.classLoader).orElseGet(getClass()::getClassLoader);
+
     ClassSource source = new ClassSource(classLoader);
 
     /* Create OpenAPI from template and make sure min required information is present: */
     OpenAPIExt openapi =
         OpenApiTemplate.fromTemplate(basedir, classLoader, templateName).orElseGet(OpenAPIExt::new);
 
-    RouteParser routes = new RouteParser(metaInf);
-    ParserContext ctx = new ParserContext(source, TypeFactory.fromJavaName(classname), debug);
+    var mainType = TypeFactory.fromJavaName(classname);
+    var javadoc = new JavaDocParser(sources);
+
+    if (openapi.getInfo() == null) {
+      var info = new Info();
+      openapi.setInfo(info);
+      javadoc
+          .parse(classname)
+          .ifPresent(
+              doc -> {
+                Optional.ofNullable(doc.getSummary()).ifPresent(info::setTitle);
+                Optional.ofNullable(doc.getDescription()).ifPresent(info::setDescription);
+                Optional.ofNullable(doc.getVersion()).ifPresent(info::setVersion);
+                if (!doc.getExtensions().isEmpty()) {
+                  info.setExtensions(doc.getExtensions());
+                }
+                doc.getServers().forEach(openapi::addServersItem);
+              });
+    }
+
+    RouteParser routes = new RouteParser();
+    ParserContext ctx = new ParserContext(source, mainType, javadoc, debug);
     List<OperationExt> operations = routes.parse(ctx, openapi);
 
     String contextPath = ContextPathParser.parse(ctx);
@@ -195,7 +197,7 @@ public class OpenAPIGenerator {
       Map<String, String> regexMap = new HashMap<>();
       Router.pathKeys(
           pattern, (key, value) -> Optional.ofNullable(value).ifPresent(v -> regexMap.put(key, v)));
-      if (regexMap.size() > 0) {
+      if (!regexMap.isEmpty()) {
         for (Map.Entry<String, String> e : regexMap.entrySet()) {
           String name = e.getKey();
           String regex = e.getValue();
@@ -217,18 +219,19 @@ public class OpenAPIGenerator {
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);
       Optional.ofNullable(operation.getPathSummary()).ifPresent(pathItem::setSummary);
       Optional.ofNullable(operation.getPathDescription()).ifPresent(pathItem::setDescription);
+      Optional.ofNullable(operation.getPathExtensions()).ifPresent(pathItem::setExtensions);
 
       // global tags
-      operation.getGlobalTags().forEach(tag -> globalTags.put(tag.getName(), tag));
+      operation
+          .getGlobalTags()
+          .forEach(
+              tag -> {
+                if (tag.getDescription() != null || tag.getExtensions() != null) {
+                  globalTags.put(tag.getName(), tag);
+                }
+              });
     }
-    globalTags
-        .values()
-        .forEach(
-            tag -> {
-              if (tag.getDescription() != null || tag.getExtensions() != null) {
-                openapi.addTagsItem(tag);
-              }
-            });
+    globalTags.values().forEach(openapi::addTagsItem);
     openapi.setOperations(operations);
     openapi.setPaths(paths);
 
@@ -340,6 +343,10 @@ public class OpenAPIGenerator {
    */
   public void setBasedir(@NonNull Path basedir) {
     this.basedir = basedir;
+  }
+
+  public void setSources(@NonNull List<Path> sources) {
+    this.sources = sources;
   }
 
   /**

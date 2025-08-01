@@ -8,12 +8,7 @@ package io.jooby.internal.openapi;
 import static io.jooby.internal.openapi.StatusCodeParser.isSuccessCode;
 import static java.util.Optional.ofNullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,6 +35,7 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   @JsonIgnore private List<String> responseCodes = new ArrayList<>();
   @JsonIgnore private String pathSummary;
   @JsonIgnore private String pathDescription;
+  @JsonIgnore private Map<String, Object> pathExtensions;
   @JsonIgnore private List<Tag> globalTags = new ArrayList<>();
   @JsonIgnore private ClassNode application;
   @JsonIgnore private ClassNode controller;
@@ -172,6 +168,14 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     this.pathSummary = pathSummary;
   }
 
+  public Map<String, Object> getPathExtensions() {
+    return pathExtensions;
+  }
+
+  public void setPathExtensions(Map<String, Object> pathExtensions) {
+    this.pathExtensions = pathExtensions;
+  }
+
   public void addTag(Tag tag) {
     this.globalTags.add(tag);
     addTagsItem(tag.getName());
@@ -224,7 +228,7 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     copy.setTags(getTags());
     copy.setResponses(getResponses());
 
-    /** Redo path keys: */
+    /* Redo path keys: */
     List<String> keys = Router.pathKeys(pattern);
     List<Parameter> newParameters = new ArrayList<>();
     List<Parameter> parameters = getParameters();
@@ -247,12 +251,15 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     copy.setServers(getServers());
     copy.setCallbacks(getCallbacks());
     copy.setExternalDocs(getExternalDocs());
+    copy.setExtensions(getExtensions());
     copy.setSecurity(getSecurity());
     copy.setPathDescription(getPathDescription());
     copy.setPathSummary(getPathSummary());
     copy.setGlobalTags(getGlobalTags());
     copy.setApplication(getApplication());
     copy.setController(getController());
+    copy.setPathDescription(getPathDescription());
+    copy.setPathExtensions(getPathExtensions());
     return copy;
   }
 }

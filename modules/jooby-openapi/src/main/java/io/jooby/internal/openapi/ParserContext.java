@@ -65,14 +65,14 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
+import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.jooby.openapi.DebugOption;
-import io.swagger.v3.core.converter.ModelConverters;
-import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.core.util.Yaml;
@@ -100,28 +100,35 @@ public class ParserContext {
   }
 
   private String mainClass;
-  private final ModelConverters converters;
+  private final ModelConvertersExt converters;
   private final Type router;
   private final Map<Type, ClassNode> nodes;
   private final ClassSource source;
   private final Set<Object> instructions = new HashSet<>();
   private final Set<DebugOption> debug;
   private final ConcurrentMap<String, SchemaRef> schemas = new ConcurrentHashMap<>();
+  private final JavaDocParser javadocParser;
 
-  public ParserContext(ClassSource source, Type router, Set<DebugOption> debug) {
-    this(source, new HashMap<>(), router, debug);
+  public ParserContext(
+      ClassSource source, Type router, JavaDocParser javadocParser, Set<DebugOption> debug) {
+    this(source, new HashMap<>(), router, javadocParser, debug);
   }
 
   private ParserContext(
-      ClassSource source, Map<Type, ClassNode> nodes, Type router, Set<DebugOption> debug) {
+      ClassSource source,
+      Map<Type, ClassNode> nodes,
+      Type router,
+      JavaDocParser javadocParser,
+      Set<DebugOption> debug) {
     this.router = router;
     this.source = source;
     this.debug = Optional.ofNullable(debug).orElse(Collections.emptySet());
     this.nodes = nodes;
+    this.javadocParser = javadocParser;
 
     List<ObjectMapper> mappers = asList(Json.mapper(), Yaml.mapper());
     jacksonModules(source.getClassLoader(), mappers);
-    this.converters = ModelConverters.getInstance();
+    this.converters = new ModelConvertersExt();
     mappers.stream().map(ModelConverterExt::new).forEach(converters::addConverter);
   }
 
@@ -161,6 +168,10 @@ public class ParserContext {
 
   public Collection<Schema> schemas() {
     return schemas.values().stream().map(ref -> ref.schema).collect(Collectors.toList());
+  }
+
+  public JavaDocParser javadoc() {
+    return javadocParser;
   }
 
   public Schema schema(Class type) {
@@ -261,7 +272,7 @@ public class ParserContext {
     }
     SchemaRef schemaRef = schemas.get(type.getName());
     if (schemaRef == null) {
-      ResolvedSchema resolvedSchema = converters.readAllAsResolvedSchema(type);
+      var resolvedSchema = converters.readAllAsResolvedSchema(type);
       if (resolvedSchema.schema == null) {
         throw new IllegalArgumentException("Unsupported type: " + type);
       }
@@ -269,18 +280,104 @@ public class ParserContext {
           new SchemaRef(
               resolvedSchema.schema, RefUtils.constructRef(resolvedSchema.schema.getName()));
       schemas.put(type.getName(), schemaRef);
-
+      document(type, resolvedSchema.schema, resolvedSchema);
       if (resolvedSchema.referencedSchemas != null) {
-        for (Map.Entry<String, Schema> e : resolvedSchema.referencedSchemas.entrySet()) {
+        for (var e : resolvedSchema.referencedSchemas.entrySet()) {
           if (!e.getKey().equals(schemaRef.schema.getName())) {
             SchemaRef dependency =
                 new SchemaRef(e.getValue(), RefUtils.constructRef(e.getValue().getName()));
             schemas.putIfAbsent(e.getKey(), dependency);
           }
         }
+        for (var e : resolvedSchema.referencedSchemasByType.entrySet()) {
+          var qualifiedTypeName = toClass(e.getKey());
+          if (qualifiedTypeName instanceof Class<?> classType) {
+            document(classType, e.getValue(), resolvedSchema);
+          }
+        }
       }
     }
     return schemaRef.toSchema();
+  }
+
+  private java.lang.reflect.Type toClass(java.lang.reflect.Type type) {
+    if (type instanceof Class) {
+      return type;
+    }
+    if (type instanceof SimpleType simpleType) {
+      return simpleType.getRawClass();
+    }
+    return type;
+  }
+
+  private void document(Class typeName, Schema schema, ResolvedSchemaExt resolvedSchema) {
+    javadocParser
+        .parse(typeName.getName())
+        .ifPresent(
+            javadoc -> {
+              Optional.ofNullable(javadoc.getText()).ifPresent(schema::setDescription);
+              Map<String, Schema> properties = schema.getProperties();
+              if (properties != null) {
+                properties.forEach(
+                    (key, value) -> {
+                      var text = javadoc.getPropertyDoc(key);
+                      var propertyType = getPropertyType(typeName, key);
+                      var isEnum =
+                          propertyType != null
+                              && propertyType.isEnum()
+                              && resolvedSchema.referencedSchemasByType.keySet().stream()
+                                  .map(this::toClass)
+                                  .anyMatch(it -> !it.equals(propertyType));
+                      if (isEnum) {
+                        javadocParser
+                            .parse(propertyType.getName())
+                            .ifPresent(
+                                enumDoc -> {
+                                  var enumDesc = enumDoc.getEnumDescription(text);
+                                  if (enumDesc != null) {
+                                    value.setDescription(enumDesc);
+                                  }
+                                });
+                      } else {
+                        value.setDescription(text);
+                      }
+                    });
+              }
+            });
+  }
+
+  public Class getPropertyType(Class clazz, String name) {
+    Class type = null;
+    while (type == null && clazz != Object.class) {
+      type = getGetter(clazz, List.of(name, getName(name)));
+      if (type == null) {
+        type = getField(clazz, name);
+      }
+      clazz = clazz.getSuperclass();
+    }
+    return type;
+  }
+
+  private Class<?> getField(Class clazz, String name) {
+    try {
+      return clazz.getDeclaredField(name).getType();
+    } catch (NoSuchFieldException e) {
+      return null;
+    }
+  }
+
+  private Class<?> getGetter(Class clazz, List<String> names) {
+    for (String name : names) {
+      try {
+        return clazz.getDeclaredMethod(name).getReturnType();
+      } catch (NoSuchMethodException ignored) {
+      }
+    }
+    return null;
+  }
+
+  private String getName(String name) {
+    return "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
   }
 
   public Optional<SchemaRef> schemaRef(String type) {
@@ -429,7 +526,7 @@ public class ParserContext {
   }
 
   public ParserContext newContext(Type router) {
-    return new ParserContext(source, nodes, router, debug);
+    return new ParserContext(source, nodes, router, javadocParser, debug);
   }
 
   public String getMainClass() {

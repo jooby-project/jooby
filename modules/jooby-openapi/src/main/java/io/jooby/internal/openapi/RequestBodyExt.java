@@ -10,6 +10,7 @@ import io.jooby.MediaType;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
 public class RequestBodyExt extends RequestBody {
+
   @JsonIgnore private String javaType;
 
   @JsonIgnore private String contentType = MediaType.JSON;
