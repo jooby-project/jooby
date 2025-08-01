@@ -33,7 +33,6 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.tags.Tag;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 
@@ -280,7 +279,7 @@ public class AnnotationParser {
                 doc -> {
                   operationExt.setPathDescription(doc.getDescription());
                   operationExt.setPathSummary(doc.getSummary());
-                  tags(doc.getTags()).forEach(operationExt::addTag);
+                  doc.getTags().forEach(operationExt::addTag);
                   if (!doc.getExtensions().isEmpty()) {
                     operationExt.setPathExtensions(doc.getExtensions());
                   }
@@ -298,7 +297,7 @@ public class AnnotationParser {
                             if (!methodDoc.getExtensions().isEmpty()) {
                               operationExt.setExtensions(methodDoc.getExtensions());
                             }
-                            tags(methodDoc.getTags()).forEach(operationExt::addTag);
+                            methodDoc.getTags().forEach(operationExt::addTag);
                             // Parameters
                             for (var parameterName : parameterNames) {
                               var paramExt =
@@ -342,17 +341,6 @@ public class AnnotationParser {
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);
       }
-    }
-    return result;
-  }
-
-  private static List<Tag> tags(Map<String, String> tags) {
-    List<Tag> result = new ArrayList<>();
-    for (var tagNode : tags.entrySet()) {
-      var tag = new Tag();
-      tag.setName(tagNode.getKey());
-      tag.setDescription(tagNode.getValue());
-      result.add(tag);
     }
     return result;
   }

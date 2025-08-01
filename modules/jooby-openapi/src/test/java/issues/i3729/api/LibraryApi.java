@@ -16,7 +16,8 @@ import io.jooby.exception.NotFoundException;
  *
  * <p>Contains all operations for creating, updating and fetching books.
  *
- * @tag Library. Access to all books.
+ * @tag.name Library
+ * @tag.description Access to all books.
  */
 @Path("/api/library")
 public class LibraryApi {

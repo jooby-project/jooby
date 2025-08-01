@@ -34,7 +34,11 @@ public class ExtensionJavaDocParser {
           (List<String>) currentNode.computeIfAbsent(finalKey, k -> new ArrayList<String>());
       values.add(value);
     }
-    return (Map<String, Object>) restructureNode(root);
+    var result = restructureNode(root);
+    if (result instanceof Map) {
+      return (Map<String, Object>) result;
+    }
+    throw new IllegalStateException("DD");
   }
 
   /**

@@ -17,6 +17,7 @@ import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.JavadocUtil;
+import io.swagger.v3.oas.models.tags.Tag;
 
 public class JavaDocNode {
   private static final Predicate<DetailNode> JAVADOC_TAG =
@@ -26,7 +27,7 @@ public class JavaDocNode {
   protected final DetailAST node;
   protected final DetailNode javadoc;
   private final Map<String, Object> extensions;
-  private final Map<String, String> tags;
+  private final List<Tag> tags;
 
   public JavaDocNode(JavaDocParser ctx, DetailAST node, DetailAST comment) {
     this(ctx, node, toJavaDocNode(comment));
@@ -76,7 +77,7 @@ public class JavaDocNode {
     return string.isEmpty() ? null : string;
   }
 
-  public Map<String, String> getTags() {
+  public List<Tag> getTags() {
     return tags;
   }
 

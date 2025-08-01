@@ -18,12 +18,13 @@ import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.SneakyThrows.Consumer3;
 import io.jooby.StatusCode;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
 
 public class JavaDocTag {
   private static final Predicate<DetailNode> CUSTOM_TAG =
       javadocToken(JavadocTokenTypes.CUSTOM_NAME);
   private static final Predicate<DetailNode> TAG =
-      CUSTOM_TAG.and(it -> it.getText().equals("@tag"));
+      CUSTOM_TAG.and(it -> it.getText().startsWith("@tag.") || it.getText().equals("@tag"));
   private static final Predicate<DetailNode> SERVER =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@server."));
   private static final Predicate<DetailNode> EXTENSION =
@@ -124,29 +125,61 @@ public class JavaDocTag {
     return ExtensionJavaDocParser.parse(values);
   }
 
-  public static Map<String, String> tags(DetailNode node) {
-    var result = new LinkedHashMap<String, String>();
+  public static List<Tag> tags(DetailNode node) {
+    var result = new ArrayList<Tag>();
+    var values = new ArrayList<String>();
     javaDocTag(
         node,
         TAG,
         (tag, value) -> {
-          var dot = value.indexOf(".");
-          var tagName = value;
-          String tagDescription = null;
-          if (dot > 0) {
-            tagName = value.substring(0, dot);
-            if (dot + 1 < value.length()) {
-              tagDescription = value.substring(dot + 1).trim();
-              if (tagDescription.isBlank()) {
-                tagDescription = null;
+          if (tag.getText().equals("@tag")) {
+            // Process single line tag:
+            // - @tag Book. Book Operations
+            // - @tag Book
+            var dot = value.indexOf(".");
+            var tagName = value;
+            String tagDescription = null;
+            if (dot > 0) {
+              tagName = value.substring(0, dot);
+              if (dot + 1 < value.length()) {
+                tagDescription = value.substring(dot + 1).trim();
+                if (tagDescription.isBlank()) {
+                  tagDescription = null;
+                }
               }
             }
-          }
-          if (!tagName.trim().isEmpty()) {
-            result.put(tagName, tagDescription);
+            if (!tagName.trim().isEmpty()) {
+
+              result.add(createTag(tagName, tagDescription));
+            }
+          } else {
+            values.add(tag.getText().substring(1));
+            values.add(value);
           }
         });
+    if (!values.isEmpty()) {
+      var tagMap = ExtensionJavaDocParser.parse(values);
+      var tags = tagMap.get("tag");
+      if (!(tags instanceof List<?>)) {
+        tags = List.of(tags);
+      }
+      ((List) tags)
+          .forEach(
+              e -> {
+                if (e instanceof Map<?, ?> hash) {
+                  result.add(
+                      createTag((String) hash.get("name"), (String) hash.get("description")));
+                }
+              });
+    }
     return result;
+  }
+
+  private static Tag createTag(String tagName, String tagDescription) {
+    Tag tag = new Tag();
+    tag.setName(tagName);
+    tag.setDescription(tagDescription);
+    return tag;
   }
 
   public static void javaDocTag(
