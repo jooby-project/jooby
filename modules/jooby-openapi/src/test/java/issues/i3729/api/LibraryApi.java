@@ -15,6 +15,8 @@ import io.jooby.exception.NotFoundException;
  * Library API.
  *
  * <p>Contains all operations for creating, updating and fetching books.
+ *
+ * @tag Library. Access to all books.
  */
 @Path("/api/library")
 public class LibraryApi {
@@ -26,10 +28,24 @@ public class LibraryApi {
    * @return A matching book.
    * @throws NotFoundException <code>404</code> If a book doesn't exist.
    * @throws BadRequestException <code>400</code> For bad ISBN code.
+   * @tag Book
+   * @tag Author
    */
   @GET("/{isbn}")
   public Book bookByIsbn(@PathParam String isbn) throws NotFoundException, BadRequestException {
     return new Book();
+  }
+
+  /**
+   * Author by Id.
+   *
+   * @param id ID.
+   * @return An author
+   * @tag Author. Oxxx
+   */
+  @GET("/{id}")
+  public Author author(@PathParam String id) {
+    return new Author();
   }
 
   /**
@@ -53,6 +69,7 @@ public class LibraryApi {
    *
    * @param book Book to create.
    * @return Saved book.
+   * @tag Author
    */
   @POST
   public Book createBook(Book book) {

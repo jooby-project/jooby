@@ -21,6 +21,7 @@ import io.jooby.annotation.QueryParam;
  * @x-badges.name Beta
  * @x-badges.position before
  * @x-badges.color purple
+ * @tag ApiTag
  */
 @Path("/api")
 public class ApiDoc {

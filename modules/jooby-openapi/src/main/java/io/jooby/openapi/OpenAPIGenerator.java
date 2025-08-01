@@ -221,16 +221,16 @@ public class OpenAPIGenerator {
       Optional.ofNullable(operation.getPathExtensions()).ifPresent(pathItem::setExtensions);
 
       // global tags
-      operation.getGlobalTags().forEach(tag -> globalTags.put(tag.getName(), tag));
+      operation
+          .getGlobalTags()
+          .forEach(
+              tag -> {
+                if (tag.getDescription() != null || tag.getExtensions() != null) {
+                  globalTags.put(tag.getName(), tag);
+                }
+              });
     }
-    globalTags
-        .values()
-        .forEach(
-            tag -> {
-              if (tag.getDescription() != null || tag.getExtensions() != null) {
-                openapi.addTagsItem(tag);
-              }
-            });
+    globalTags.values().forEach(openapi::addTagsItem);
     openapi.setOperations(operations);
     openapi.setPaths(paths);
 
