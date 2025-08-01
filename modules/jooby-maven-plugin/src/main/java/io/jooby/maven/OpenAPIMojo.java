@@ -49,15 +49,21 @@ public class OpenAPIMojo extends BaseMojo {
       throws Exception {
     ClassLoader classLoader = createClassLoader(projects);
     Path outputDir = Paths.get(project.getBuild().getOutputDirectory());
-    // Reduce lookup to current project: See https://github.com/jooby-project/jooby/issues/2756
+    var sources =
+        projects.stream()
+            .map(project -> Paths.get(project.getBuild().getSourceDirectory()))
+            .distinct()
+            .toList();
 
     getLog().info("Generating OpenAPI: " + mainClass);
     getLog().debug("Using classloader: " + classLoader);
     getLog().debug("Output directory: " + outputDir);
+    getLog().debug("Source directories: " + sources);
 
     OpenAPIGenerator tool = new OpenAPIGenerator();
     tool.setClassLoader(classLoader);
     tool.setOutputDir(outputDir);
+    tool.setSources(sources);
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
 
