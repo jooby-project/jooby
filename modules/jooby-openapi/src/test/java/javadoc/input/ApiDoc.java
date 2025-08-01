@@ -32,7 +32,7 @@ public class ApiDoc {
    * <p>Operation description
    *
    * @param name Person name.
-   * @param age Person age.
+   * @param age Person age. Multi line doc.
    * @param list This line has a break.
    * @param str Some <code>string</code>.
    * @return Welcome message <code>200</code>.

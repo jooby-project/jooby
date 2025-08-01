@@ -62,28 +62,41 @@ public class ClassDoc extends JavaDocNode {
   }
 
   private void defaultRecordMembers() {
-    for (var tag : tree(javadoc).filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG)).toList()) {
-      var isParam = tree(tag).anyMatch(javadocToken(JavadocTokenTypes.PARAM_LITERAL));
-      var name =
-          tree(tag).filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME)).findFirst().orElse(null);
-      if (isParam && name != null) {
-        /* Virtual Field */
-        var memberDoc =
-            tree(tag)
-                .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
-                .findFirst()
-                .orElse(EMPTY_NODE);
-        var field =
-            new FieldDoc(
-                context, createVirtualMember(name.getText(), TokenTypes.VARIABLE_DEF), memberDoc);
-        addField(field);
-        /* Virtual method */
-        var method =
-            new MethodDoc(
-                context, createVirtualMember(name.getText(), TokenTypes.METHOD_DEF), memberDoc);
-        addMethod(method);
-      }
-    }
+    JavaDocTag.javaDocTag(
+        javadoc,
+        tag -> {
+          var isParam = tree(tag).anyMatch(javadocToken(JavadocTokenTypes.PARAM_LITERAL));
+          var name =
+              tree(tag)
+                  .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+                  .findFirst()
+                  .orElse(null);
+          return isParam && name != null;
+        },
+        (tag, value) -> {
+          var name =
+              tree(tag)
+                  .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+                  .findFirst()
+                  .orElse(null);
+          // name is never null bc previous filter
+          Objects.requireNonNull(name, "name is null");
+          /* Virtual Field */
+          var memberDoc =
+              tree(tag)
+                  .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                  .findFirst()
+                  .orElse(EMPTY_NODE);
+          var field =
+              new FieldDoc(
+                  context, createVirtualMember(name.getText(), TokenTypes.VARIABLE_DEF), memberDoc);
+          addField(field);
+          /* Virtual method */
+          var method =
+              new MethodDoc(
+                  context, createVirtualMember(name.getText(), TokenTypes.METHOD_DEF), memberDoc);
+          addMethod(method);
+        });
   }
 
   private void defaultEnumMembers() {

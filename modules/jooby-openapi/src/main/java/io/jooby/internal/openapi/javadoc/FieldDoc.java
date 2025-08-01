@@ -21,9 +21,4 @@ public class FieldDoc extends JavaDocNode {
   public String getName() {
     return node.findFirstToken(TokenTypes.IDENT).getText();
   }
-
-  @Override
-  public String getText() {
-    return super.getText();
-  }
 }

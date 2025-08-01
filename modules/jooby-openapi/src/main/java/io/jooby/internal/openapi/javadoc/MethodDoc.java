@@ -22,66 +22,7 @@ public class MethodDoc extends JavaDocNode {
 
   public MethodDoc(JavaDocParser ctx, DetailAST node, DetailAST javadoc) {
     super(ctx, node, javadoc);
-    throwList = throwList(this.javadoc);
-  }
-
-  private Map<StatusCode, ThrowsDoc> throwList(DetailNode javadoc) {
-    var result = new LinkedHashMap<StatusCode, ThrowsDoc>();
-    for (var tag : tree(javadoc).filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG)).toList()) {
-      var isThrows = tree(tag).anyMatch(javadocToken(JavadocTokenTypes.THROWS_LITERAL));
-      if (isThrows) {
-        var text =
-            tree(tag)
-                .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
-                .findFirst()
-                .map(it -> getText(List.of(it.getChildren()), true))
-                .orElse(null);
-        var statusCode =
-            tree(tag)
-                .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
-                .findFirst()
-                .flatMap(
-                    it ->
-                        tree(it)
-                            .filter(javadocToken(JavadocTokenTypes.HTML_TAG_NAME))
-                            .filter(tagName -> tagName.getText().equals("code"))
-                            .flatMap(
-                                tagName ->
-                                    backward(tagName)
-                                        .filter(javadocToken(JavadocTokenTypes.HTML_TAG))
-                                        .findFirst()
-                                        .stream())
-                            .flatMap(
-                                htmlTag ->
-                                    children(htmlTag)
-                                        .filter(javadocToken(JavadocTokenTypes.TEXT))
-                                        .findFirst()
-                                        .stream())
-                            .map(DetailNode::getText)
-                            .map(
-                                value -> {
-                                  try {
-                                    return Integer.parseInt(value);
-                                  } catch (NumberFormatException e) {
-                                    return null;
-                                  }
-                                })
-                            .filter(Objects::nonNull)
-                            .filter(code -> code >= 400 && code <= 600)
-                            .map(StatusCode::valueOf)
-                            .findFirst())
-                .orElse(null);
-        //        var className = tree(tag).filter(javadocToken(JavadocTokenTypes.CLASS_NAME))
-        //            .findFirst()
-        //            .map(DetailNode::getText)
-        //            .orElse(null);
-        if (statusCode != null) {
-          var throwsDoc = new ThrowsDoc(statusCode, text);
-          result.putIfAbsent(statusCode, throwsDoc);
-        }
-      }
-    }
-    return result;
+    throwList = JavaDocTag.throwList(this.javadoc);
   }
 
   MethodDoc(JavaDocParser ctx, DetailAST node, DetailNode javadoc) {
@@ -118,7 +59,7 @@ public class MethodDoc extends JavaDocNode {
     }
     return tree(javadoc)
         // must be a tag
-        .filter(it -> it.getType() == JavadocTokenTypes.JAVADOC_TAG)
+        .filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG))
         .filter(
             it -> {
               var children = children(it).toList();

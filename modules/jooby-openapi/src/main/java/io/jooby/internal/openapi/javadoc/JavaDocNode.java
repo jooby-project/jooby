@@ -36,78 +36,8 @@ public class JavaDocNode {
     this.context = ctx;
     this.node = node;
     this.javadoc = javadoc;
-    if (this.javadoc != EMPTY_NODE) {
-      this.extensions = parseExtensions(this.javadoc);
-      this.tags = parseTags(this.javadoc);
-    } else {
-      this.extensions = Map.of();
-      this.tags = Map.of();
-    }
-  }
-
-  private Map<String, String> parseTags(DetailNode node) {
-    var result = new LinkedHashMap<String, String>();
-    for (var docTag : tree(node).filter(JAVADOC_TAG).toList()) {
-      var tag =
-          tree(docTag)
-              .filter(
-                  javadocToken(JavadocTokenTypes.CUSTOM_NAME)
-                      .and(it -> it.getText().equals("@tag")))
-              .findFirst()
-              .orElse(null);
-      if (tag != null) {
-        var tagText =
-            tree(docTag)
-                .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
-                .findFirst()
-                .map(it -> getText(List.of(it.getChildren()), false))
-                .orElse(null);
-        if (tagText != null) {
-          var dot = tagText.indexOf(".");
-          var tagName = tagText;
-          String tagDescription = null;
-          if (dot > 0) {
-            tagName = tagText.substring(0, dot);
-            if (dot + 1 < tagText.length()) {
-              tagDescription = tagText.substring(dot + 1).trim();
-              if (tagDescription.isBlank()) {
-                tagDescription = null;
-              }
-            }
-          }
-          if (!tagName.trim().isEmpty()) {
-            result.put(tagName, tagDescription);
-          }
-        }
-      }
-    }
-    return result;
-  }
-
-  private Map<String, Object> parseExtensions(DetailNode node) {
-    var values = new ArrayList<String>();
-    for (var tag : tree(node).filter(JAVADOC_TAG).toList()) {
-      var extension =
-          tree(tag)
-              .filter(
-                  javadocToken(JavadocTokenTypes.CUSTOM_NAME)
-                      .and(it -> it.getText().startsWith("@x-")))
-              .findFirst()
-              .map(DetailNode::getText)
-              .orElse(null);
-      if (extension != null) {
-        extension = extension.substring(1).trim();
-        var extensionValue =
-            tree(tag)
-                .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
-                .findFirst()
-                .map(it -> getText(List.of(it.getChildren()), false))
-                .orElse(null);
-        values.add(extension);
-        values.add(extensionValue);
-      }
-    }
-    return ExtensionJavaDocParser.parse(values);
+    this.tags = JavaDocTag.tags(javadoc);
+    this.extensions = JavaDocTag.extensions(javadoc);
   }
 
   static DetailNode toJavaDocNode(DetailAST node) {
@@ -163,7 +93,7 @@ public class JavaDocNode {
     return getText(JavaDocSupport.forward(javadoc, JAVADOC_TAG).toList(), false);
   }
 
-  protected String getText(List<DetailNode> nodes, boolean stripLeading) {
+  protected static String getText(List<DetailNode> nodes, boolean stripLeading) {
     var builder = new StringBuilder();
     for (var node : nodes) {
       if (node.getType() == JavadocTokenTypes.TEXT) {

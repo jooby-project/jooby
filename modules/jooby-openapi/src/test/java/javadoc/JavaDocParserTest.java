@@ -45,7 +45,7 @@ public class JavaDocParserTest {
                 assertEquals("This is the Hello /endpoint", method.getSummary());
                 assertEquals("Operation description", method.getDescription());
                 assertEquals("Person name.", method.getParameterDoc("name"));
-                assertEquals("Person age.", method.getParameterDoc("age"));
+                assertEquals("Person age. Multi line doc.", method.getParameterDoc("age"));
                 assertEquals("This line has a break.", method.getParameterDoc("list"));
                 assertEquals("Some string.", method.getParameterDoc("str"));
                 assertEquals("Welcome message 200.", method.getReturnDoc());
