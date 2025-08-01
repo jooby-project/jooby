@@ -23,6 +23,8 @@ public class ApiDocTest {
             + "  x-logo:\n"
             + "    url: https://redocly.github.io/redoc/museum-logo.png\n"
             + "    altText: Museum logo\n"
+            + "servers:\n"
+            + "- url: https://api.fake-museum-example.com/v1\n"
             + "tags:\n"
             + "- name: Library\n"
             + "  description: Access to all books.\n"

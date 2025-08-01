@@ -15,6 +15,7 @@ import io.jooby.Jooby;
  * <p>Available data: Books and authors.
  *
  * @version 4.0.0
+ * @server.url https://api.fake-museum-example.com/v1
  * @x-logo.url https://redocly.github.io/redoc/museum-logo.png
  * @x-logo.altText Museum logo
  */

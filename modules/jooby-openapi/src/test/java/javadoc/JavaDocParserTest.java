@@ -37,6 +37,13 @@ public class JavaDocParserTest {
                   + " ante id vestibulum congue. Nam et tortor at magna tempor congue.",
               doc.getDescription());
 
+          var servers = doc.getServers();
+          assertEquals(2, servers.size());
+          assertEquals("https://api.example.com/v1", servers.get(0).getUrl());
+          assertEquals("Production server (uses live data)", servers.get(0).getDescription());
+          assertEquals("https://sandbox-api.example.com:8443/v1", servers.get(1).getUrl());
+          assertEquals("Sandbox server (uses test data)", servers.get(1).getDescription());
+
           withMethod(
               doc,
               "hello",

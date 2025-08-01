@@ -17,16 +17,50 @@ import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.SneakyThrows.Consumer3;
 import io.jooby.StatusCode;
+import io.swagger.v3.oas.models.servers.Server;
 
 public class JavaDocTag {
   private static final Predicate<DetailNode> CUSTOM_TAG =
       javadocToken(JavadocTokenTypes.CUSTOM_NAME);
   private static final Predicate<DetailNode> TAG =
       CUSTOM_TAG.and(it -> it.getText().equals("@tag"));
+  private static final Predicate<DetailNode> SERVER =
+      CUSTOM_TAG.and(it -> it.getText().startsWith("@server."));
   private static final Predicate<DetailNode> EXTENSION =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@x-"));
   private static final Predicate<DetailNode> THROWS =
       it -> tree(it).anyMatch(javadocToken(JavadocTokenTypes.THROWS_LITERAL));
+
+  @SuppressWarnings("unchecked")
+  public static List<Server> servers(DetailNode node) {
+    var values = new ArrayList<String>();
+    javaDocTag(
+        node,
+        SERVER,
+        (tag, value) -> {
+          values.add(tag.getText().substring(1));
+          values.add(value);
+        });
+    List<Server> result = new ArrayList<>();
+    if (!values.isEmpty()) {
+      var serverMap = ExtensionJavaDocParser.parse(values);
+      var servers = serverMap.get("server");
+      if (!(servers instanceof List<?>)) {
+        servers = List.of(servers);
+      }
+      ((List) servers)
+          .forEach(
+              it -> {
+                if (it instanceof Map<?, ?> hash) {
+                  var server = new Server();
+                  server.setDescription((String) hash.get("description"));
+                  server.setUrl((String) hash.get("url"));
+                  result.add(server);
+                }
+              });
+    }
+    return result;
+  }
 
   public static Map<StatusCode, ThrowsDoc> throwList(DetailNode node) {
     var result = new LinkedHashMap<StatusCode, ThrowsDoc>();

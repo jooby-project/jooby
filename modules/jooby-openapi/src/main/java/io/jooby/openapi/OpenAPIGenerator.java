@@ -167,6 +167,7 @@ public class OpenAPIGenerator {
                 if (!doc.getExtensions().isEmpty()) {
                   info.setExtensions(doc.getExtensions());
                 }
+                doc.getServers().forEach(openapi::addServersItem);
               });
     }
 

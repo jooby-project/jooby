@@ -22,6 +22,10 @@ import io.jooby.annotation.QueryParam;
  * @x-badges.position before
  * @x-badges.color purple
  * @tag ApiTag
+ * @server.url https://api.example.com/v1
+ * @server.description Production server (uses live data)
+ * @server.url https://sandbox-api.example.com:8443/v1
+ * @server.description Sandbox server (uses test data)
  */
 @Path("/api")
 public class ApiDoc {
