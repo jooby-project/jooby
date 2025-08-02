@@ -306,12 +306,7 @@ public class AnnotationParser {
                                       .findFirst()
                                       .map(ParameterExt.class::cast)
                                       .orElse(null);
-                              var paramDoc =
-                                  methodDoc.getParameterDoc(
-                                      parameterName,
-                                      Optional.ofNullable(paramExt)
-                                          .map(ParameterExt::getContainerType)
-                                          .orElse(null));
+                              var paramDoc = methodDoc.getParameterDoc(parameterName);
                               if (paramDoc != null) {
                                 if (paramExt == null) {
                                   operationExt.getRequestBody().setDescription(paramDoc);

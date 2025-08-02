@@ -65,13 +65,9 @@ public class JavaDocParserTest {
               method -> {
                 assertEquals("Search database.", method.getSummary());
                 assertEquals("Search DB", method.getDescription());
-                assertEquals(
-                    "Filter query. Works like internal filter.",
-                    method.getParameterDoc("fq", "javadoc.input.QueryBeanDoc"));
-                assertEquals(
-                    "Offset, used for paging.",
-                    method.getParameterDoc("offset", "javadoc.input.QueryBeanDoc"));
-                assertNull(method.getParameterDoc("limit", "javadoc.input.QueryBeanDoc"));
+                assertNull(method.getParameterDoc("fq"));
+                assertNull(method.getParameterDoc("offset"));
+                assertNull(method.getParameterDoc("limit"));
                 assertNull(method.getReturnDoc());
               });
 
@@ -82,12 +78,8 @@ public class JavaDocParserTest {
               method -> {
                 assertEquals("Record database.", method.getSummary());
                 assertNull(method.getDescription());
-                assertEquals(
-                    "Person id. Unique person identifier.",
-                    method.getParameterDoc("id", "javadoc.input.RecordBeanDoc"));
-                assertEquals(
-                    "Person name. Example: edgar.",
-                    method.getParameterDoc("name", "javadoc.input.RecordBeanDoc"));
+                assertNull(method.getParameterDoc("id"));
+                assertNull(method.getParameterDoc("name"));
               });
 
           withMethod(

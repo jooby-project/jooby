@@ -50,13 +50,6 @@ public class MethodDoc extends JavaDocNode {
   }
 
   public String getParameterDoc(String name) {
-    return getParameterDoc(name, null);
-  }
-
-  public String getParameterDoc(String name, String in) {
-    if (in != null) {
-      return context.parse(in).map(bean -> bean.getPropertyDoc(name)).orElse(null);
-    }
     return tree(javadoc)
         // must be a tag
         .filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG))

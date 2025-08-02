@@ -8,7 +8,7 @@ package issues.i3729.api;
 /**
  * Query books by complex filters.
  *
- * @param title Book's title. Optional.
+ * @param title Book's title.
  * @param author Book's author. Optional.
  * @param isbn Book's isbn. Optional.
  */

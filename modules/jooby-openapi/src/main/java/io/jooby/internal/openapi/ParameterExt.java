@@ -10,9 +10,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ParameterExt extends io.swagger.v3.oas.models.parameters.Parameter {
-  /* keep track of expanded query bean parameters. */
-  @JsonIgnore private String containerType;
-
   @JsonIgnore private String javaType;
 
   @JsonIgnore private Object defaultValue;
@@ -25,14 +22,6 @@ public class ParameterExt extends io.swagger.v3.oas.models.parameters.Parameter 
 
   public String getJavaType() {
     return javaType;
-  }
-
-  public void setContainerType(String containerType) {
-    this.containerType = containerType;
-  }
-
-  public String getContainerType() {
-    return containerType;
   }
 
   public Object getDefaultValue() {

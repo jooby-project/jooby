@@ -169,6 +169,7 @@ public class RouteParser {
                 .isPresent();
         if (expand) {
           SchemaRef ref = ctx.schemaRef(javaType).get();
+          var doc = ctx.javadoc().parse(javaType).orElse(null);
           for (Object e : ref.schema.getProperties().entrySet()) {
             String name = (String) ((Map.Entry) e).getKey();
             Schema s = (Schema) ((Map.Entry) e).getValue();
@@ -176,11 +177,17 @@ public class RouteParser {
             schemaMap.remove("description");
             var schemaNoDesc = Json.mapper().convertValue(schemaMap, Schema.class);
             ParameterExt p = new ParameterExt();
-            p.setContainerType(javaType);
             p.setName(name);
             p.setIn(parameter.getIn());
             p.setSchema(schemaNoDesc);
+            // default doc
             p.setDescription(parameter.getDescription());
+            if (doc != null) {
+              var propertyDoc = doc.getPropertyDoc(name);
+              if (propertyDoc != null) {
+                p.setDescription(propertyDoc);
+              }
+            }
 
             params.add(p);
           }
