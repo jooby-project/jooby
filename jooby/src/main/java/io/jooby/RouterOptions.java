@@ -26,6 +26,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  */
 public class RouterOptions {
   /**
+   * Detect or prevent duplicate route registrations. This option must be set before creating
+   * routes.
+   */
+  private boolean failOnDuplicateRoutes = false;
+
+  /**
    * Indicates whenever routing algorithm does case-sensitive matching on an incoming request path.
    * Default is <code>case sensitive</code>.
    */
@@ -78,6 +84,27 @@ public class RouterOptions {
    */
   public RouterOptions setIgnoreCase(boolean ignoreCase) {
     this.ignoreCase = ignoreCase;
+    return this;
+  }
+
+  /**
+   * Detect or prevent duplicate route registrations. This option must be set before creating
+   * routes.
+   *
+   * @return Detect or prevent duplicate route registrations.
+   */
+  public boolean isFailOnDuplicateRoutes() {
+    return failOnDuplicateRoutes;
+  }
+
+  /**
+   * Detect or prevent duplicate route registrations.
+   *
+   * @param failOnDuplicateRoutes True for detect or prevent duplicate route registrations.
+   * @return This options.
+   */
+  public RouterOptions setFailOnDuplicateRoutes(boolean failOnDuplicateRoutes) {
+    this.failOnDuplicateRoutes = failOnDuplicateRoutes;
     return this;
   }
 

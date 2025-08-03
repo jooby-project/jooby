@@ -126,7 +126,7 @@ public class RouterImpl implements Router {
 
   private Map<String, StatusCode> errorCodes;
 
-  private RouteTree chi = new Chi();
+  private RouteTree chi = new Chi(false);
 
   private LinkedList<Stack> stack = new LinkedList<>();
 
@@ -200,6 +200,7 @@ public class RouterImpl implements Router {
   @NonNull @Override
   public Router setRouterOptions(@NonNull RouterOptions options) {
     this.routerOptions = options;
+    ((Chi) chi).failOnDuplicateRoutes = options.isFailOnDuplicateRoutes();
     return this;
   }
 
@@ -257,7 +258,7 @@ public class RouterImpl implements Router {
 
   @NonNull @Override
   public Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
-    var tree = new Chi();
+    var tree = new Chi(routerOptions.isFailOnDuplicateRoutes());
     putPredicate(predicate, tree);
     int start = this.routes.size();
     newStack(tree, "/", body);
@@ -270,7 +271,7 @@ public class RouterImpl implements Router {
       @NonNull SneakyThrows.Supplier<Jooby> factory) {
     var existingRouter = this.chi;
     try {
-      var tree = new Chi();
+      var tree = new Chi(routerOptions.isFailOnDuplicateRoutes());
       this.chi = tree;
       putPredicate(predicate, tree);
       path(path, factory::get);
@@ -693,7 +694,7 @@ public class RouterImpl implements Router {
 
   @Override
   public boolean match(@NonNull String pattern, @NonNull String path) {
-    Chi chi = new Chi();
+    Chi chi = new Chi(false);
     chi.insert(Router.GET, pattern, ROUTE_MARK);
     return chi.exists(Router.GET, path);
   }

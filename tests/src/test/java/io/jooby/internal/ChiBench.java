@@ -24,7 +24,7 @@ public class ChiBench {
 
   @Setup
   public void setup() {
-    this.router = new Chi();
+    this.router = new Chi(false);
     router.insert(route("GET", "/api/user/edit", stringHandler("static")));
     router.insert(route("GET", "/api/user/{id}", stringHandler("param")));
     router.insert(route("GET", "/api/user/*", stringHandler("tail")));

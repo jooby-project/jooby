@@ -22,7 +22,7 @@ import io.jooby.SneakyThrows;
 public class ChiTest {
   @Test
   public void routeOverride() {
-    Chi router = new Chi();
+    Chi router = new Chi(false);
     Route foo = route("GET", "/abcd", stringHandler("foo"));
     Route bar = route("GET", "/abcd", stringHandler("bar"));
     router.insert(foo);
@@ -35,7 +35,7 @@ public class ChiTest {
 
   @Test
   public void staticMap6() {
-    Chi router = new Chi();
+    Chi router = new Chi(false);
     router.insert(route("GET", "/1", stringHandler("1")));
     router.insert(route("GET", "/2", stringHandler("2")));
     router.insert(route("GET", "/3", stringHandler("3")));
@@ -49,7 +49,7 @@ public class ChiTest {
 
   @Test
   public void routeCase() {
-    Chi router = new Chi();
+    Chi router = new Chi(false);
     Route foo = route("GET", "/abcd", stringHandler("foo"));
     Route foos = route("GET", "/abcd/", stringHandler("foo/"));
     router.insert(foo);
@@ -62,7 +62,7 @@ public class ChiTest {
 
   @Test
   public void wildOnRoot() throws Exception {
-    Chi router = new Chi();
+    Chi router = new Chi(false);
 
     router.insert(route("GET", "/foo/?*", stringHandler("foo")));
     router.insert(route("GET", "/bar/*", stringHandler("bar")));
@@ -127,7 +127,7 @@ public class ChiTest {
 
   @Test
   public void searchString() throws Exception {
-    Chi router = new Chi();
+    Chi router = new Chi(false);
 
     router.insert(route("GET", "/regex/{nid:[0-9]+}", stringHandler("nid")));
     router.insert(route("GET", "/regex/{zid:[0-9]+}/edit", stringHandler("zid")));
@@ -161,7 +161,7 @@ public class ChiTest {
 
   @Test
   public void searchParam() throws Exception {
-    Chi router = new Chi();
+    Chi router = new Chi(false);
 
     router.insert(route("GET", "/catchallWithVarPrefix/{id}/*path", stringHandler("path")));
 
@@ -195,7 +195,7 @@ public class ChiTest {
 
   @Test
   public void multipleRegex() {
-    Chi router = new Chi();
+    Chi router = new Chi(false);
 
     router.insert(route("GET", "/{lang:[a-z][a-z]}/{page:[^.]+}/", stringHandler("1515")));
 
@@ -226,7 +226,7 @@ public class ChiTest {
 
   @Test
   public void regexWithQuantity() {
-    Chi router = new Chi();
+    Chi router = new Chi(false);
 
     router.insert(route("GET", "/{lang:[a-z]{2}}/", stringHandler("qx")));
 

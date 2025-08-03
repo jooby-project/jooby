@@ -674,7 +674,7 @@ class Chi implements RouteTree {
       return node.toString();
     }
 
-    Node insertRoute(String method, String pattern, Route route) {
+    Node insertRoute(String method, String pattern, Route route, boolean failOnDuplicateRoutes) {
       Node n = this;
       Node parent;
       String search = pattern;
@@ -683,7 +683,7 @@ class Chi implements RouteTree {
         // Handle key exhaustion
         if (search.isEmpty()) {
           // Insert or update the node's leaf handler
-          n.setEndpoint(method, route);
+          n.setEndpoint(method, route, failOnDuplicateRoutes);
           return n;
         }
 
@@ -716,7 +716,7 @@ class Chi implements RouteTree {
         if (n == null) {
           Node child = new Node().label(label).tail(seg.tail).prefix(search);
           Node hn = parent.addChild(child, search);
-          hn.setEndpoint(method, route);
+          hn.setEndpoint(method, route, failOnDuplicateRoutes);
           return hn;
         }
 
@@ -752,14 +752,14 @@ class Chi implements RouteTree {
         // If the new key is a subset, set the method/handler on this node and finish.
         search = search.substring(commonPrefix);
         if (search.isEmpty()) {
-          child.setEndpoint(method, route);
+          child.setEndpoint(method, route, failOnDuplicateRoutes);
           return child;
         }
 
         // Create a new edge for the node
         Node subchild = new Node().typ(ntStatic).label(search.charAt(0)).prefix(search);
         Node hn = child.addChild(subchild, search);
-        hn.setEndpoint(method, route);
+        hn.setEndpoint(method, route, failOnDuplicateRoutes);
         return hn;
       }
     }
@@ -871,7 +871,7 @@ class Chi implements RouteTree {
       return null;
     }
 
-    void setEndpoint(String method, Route route) {
+    void setEndpoint(String method, Route route, boolean failOnDuplicateRoutes) {
       Node n = this;
       // Set the handler for the method type on the node
       if (n.endpoints == null) {
@@ -893,6 +893,20 @@ class Chi implements RouteTree {
       //          h.paramKeys = paramKeys;
       //        }
       //      } else {
+      if (failOnDuplicateRoutes) {
+        var existing = n.endpoints.get(method);
+        if (existing != null) {
+          throw new IllegalArgumentException(
+              "Route already exists: "
+                  + method
+                  + " "
+                  + existing.getPattern()
+                  + " at "
+                  + existing.getLocation().filename()
+                  + ":"
+                  + existing.getLocation().line());
+        }
+      }
       n.endpoints.put(method, route);
       //        Endpoint h = n.endpoints.computeIfAbsent(method, k -> new Endpoint(handler));
       //        h.handler = handler;
@@ -1193,6 +1207,12 @@ class Chi implements RouteTree {
 
   private StaticMap staticPaths = StaticMap.INIT;
 
+  boolean failOnDuplicateRoutes;
+
+  public Chi(boolean failOnDuplicateRoutes) {
+    this.failOnDuplicateRoutes = failOnDuplicateRoutes;
+  }
+
   public void insert(String method, String pattern, Route route) {
     String baseCatchAll = baseCatchAll(pattern);
     if (baseCatchAll.length() > 1) {
@@ -1209,7 +1229,7 @@ class Chi implements RouteTree {
       staticPaths = staticPaths.put(pattern, staticRoute);
       staticRoute.put(method, route);
     }
-    root.insertRoute(method, pattern, route);
+    root.insertRoute(method, pattern, route, failOnDuplicateRoutes);
   }
 
   private String baseCatchAll(String pattern) {

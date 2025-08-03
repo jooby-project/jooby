@@ -19,7 +19,7 @@ public class Issue1822 {
   public void routerExistsShouldNotReturnsFalsePositives() {
     String pattern = "/api/*";
     String path = "/";
-    Chi router = new Chi();
+    Chi router = new Chi(false);
     router.insert(route("GET", pattern, stringHandler("api")));
     assertFalse(router.exists("GET", path));
     assertTrue(router.exists("GET", "/api/v1"));

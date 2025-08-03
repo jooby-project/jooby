@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -24,6 +25,7 @@ import io.jooby.exception.NotAcceptableException;
 import io.jooby.exception.NotFoundException;
 import io.jooby.exception.StatusCodeException;
 import io.jooby.exception.UnsupportedMediaType;
+import io.jooby.internal.RouterImpl;
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -317,6 +319,16 @@ public class Route {
     }
   }
 
+  /**
+   * Route location.
+   *
+   * @param filename File name.
+   * @param line Line.
+   */
+  public record Location(String filename, int line) {}
+
+  private static final Location NO_LOCATION = new Location("<<Unknown>>", -1);
+
   /** Handler for {@link StatusCode#NOT_FOUND} responses. */
   public static final Handler NOT_FOUND =
       ctx -> ctx.sendError(new NotFoundException(ctx.getRequestPath()));
@@ -466,6 +478,8 @@ public class Route {
 
   private boolean httpHead;
 
+  private final Location location;
+
   /**
    * Creates a new route.
    *
@@ -477,6 +491,33 @@ public class Route {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.handler = handler;
+    this.location =
+        StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+            .walk(
+                frame ->
+                    frame
+                        .dropWhile(
+                            f ->
+                                Stream.of(
+                                        Route.class.getName(),
+                                        RouterImpl.class.getName(),
+                                        Router.class.getName(),
+                                        Jooby.class.getName(),
+                                        "io.jooby.kt.Kooby",
+                                        "io.jooby.kt.CoroutineRouter")
+                                    .anyMatch(it -> it.equals(f.getDeclaringClass().getName())))
+                        .findFirst()
+                        .map(it -> new Location(it.getFileName(), it.getLineNumber()))
+                        .orElse(NO_LOCATION));
+  }
+
+  /**
+   * Where the route was defined.
+   *
+   * @return Where the route was defined.
+   */
+  public Location getLocation() {
+    return location;
   }
 
   /**
