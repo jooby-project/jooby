@@ -46,6 +46,7 @@ public class TypeFactory {
   public static final Type KT_KLASS = Type.getType("Lkotlin/reflect/KClass;");
 
   public static final Type KT_FUN_0 = Type.getType("Lkotlin/jvm/functions/Function0;");
+  public static final Type KT_FUN_0_ARRAY = Type.getType("[Lkotlin/jvm/functions/Function0;");
 
   public static final Type KT_FUN_1 = Type.getType("Lkotlin/jvm/functions/Function1;");
 

@@ -53,6 +53,16 @@ public class Signature {
     return false;
   }
 
+  public boolean endsWith(String method, Type parameterType) {
+    if (matches(method)) {
+      return argumentTypes.length > 0
+          && argumentTypes[argumentTypes.length - 1]
+              .getInternalName()
+              .equals(parameterType.getInternalName());
+    }
+    return false;
+  }
+
   public boolean matches(Class owner, String method, Class... parameterTypes) {
     if (Type.getType(owner).equals(this.owner)) {
       return matches(method, parameterTypes);

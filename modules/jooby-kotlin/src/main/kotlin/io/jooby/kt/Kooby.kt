@@ -313,26 +313,50 @@ fun cors(init: Cors.() -> Unit): Cors {
 }
 
 /** runApp: */
-fun runApp(args: Array<String>, mode: ExecutionMode, init: Kooby.() -> Unit) {
-  configurePackage(init)
-  Jooby.runApp(args, mode, fun() = Kooby(init))
-}
-
+// Consumers:
 fun runApp(args: Array<String>, init: Kooby.() -> Unit) {
-  configurePackage(init)
-  Jooby.runApp(args, ExecutionMode.DEFAULT, fun() = Kooby(init))
+  runApp(args, ExecutionMode.DEFAULT, init)
 }
 
+fun runApp(args: Array<String>, mode: ExecutionMode, init: Kooby.() -> Unit) {
+  runApp(args, Server.loadServer(), mode, init)
+}
+
+fun runApp(args: Array<String>, server: Server, init: Kooby.() -> Unit) {
+  runApp(args, server, ExecutionMode.DEFAULT, init)
+}
+
+fun runApp(args: Array<String>, server: Server, mode: ExecutionMode, init: Kooby.() -> Unit) {
+  configurePackage(init)
+  Jooby.runApp(args, server, mode, fun() = Kooby(init))
+}
+
+// Suppliers:
 fun <T : Jooby> runApp(args: Array<String>, provider: () -> T) {
   runApp(args, ExecutionMode.DEFAULT, provider)
 }
 
-fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, provider: () -> T) {
-  Jooby.runApp(args, mode, provider)
+fun <T : Jooby> runApp(args: Array<String>, server: Server, provider: () -> T) {
+  runApp(args, server, ExecutionMode.DEFAULT, provider)
 }
 
+fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, provider: () -> T) {
+  runApp(args, Server.loadServer(), mode, provider)
+}
+
+fun <T : Jooby> runApp(
+  args: Array<String>,
+  server: Server,
+  mode: ExecutionMode,
+  provider: () -> T,
+) {
+  configurePackage(provider)
+  Jooby.runApp(args, server, mode, provider)
+}
+
+// List of Suppliers:
 fun <T : Jooby> runApp(args: Array<String>, vararg provider: () -> T) {
-  runApp(args, Server.loadServer(), ExecutionMode.DEFAULT, *provider)
+  runApp(args, ExecutionMode.DEFAULT, *provider)
 }
 
 fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, vararg provider: () -> T) {

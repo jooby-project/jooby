@@ -14,7 +14,6 @@ import static io.jooby.internal.openapi.TypeFactory.KOOBYKT;
 import static io.jooby.internal.openapi.TypeFactory.KT_FUN_1;
 import static io.jooby.internal.openapi.TypeFactory.OBJECT;
 import static io.jooby.internal.openapi.TypeFactory.STRING;
-import static io.jooby.internal.openapi.TypeFactory.STRING_ARRAY;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 
 import java.lang.reflect.Modifier;
@@ -420,7 +419,8 @@ public class RouteParser {
                   ctx,
                   prefix,
                   node,
-                  signature.matches("runApp", STRING_ARRAY, TypeFactory.KT_FUN_0)));
+                  signature.endsWith("runApp", TypeFactory.KT_FUN_0)
+                      || signature.endsWith("runApp", TypeFactory.KT_FUN_0_ARRAY)));
         } else if (signature.matches(Route.class, "produces", MediaType[].class)) {
           if (instructionTo != null) {
             OperationExt route = handlerList.get(handlerList.size() - 1);
