@@ -5,21 +5,19 @@
  */
 package io.jooby.internal.openapi;
 
-import java.util.Optional;
-
 import io.swagger.v3.oas.models.media.Schema;
 
 public class SchemaRef {
   public final Schema schema;
 
-  public final Optional<String> ref;
+  public final String ref;
 
   public SchemaRef(Schema schema, String ref) {
     this.schema = schema;
-    this.ref = Optional.ofNullable(ref);
+    this.ref = ref;
   }
 
   public Schema toSchema() {
-    return this.ref.map(ref -> new Schema().$ref(ref)).orElse(this.schema);
+    return ref == null ? schema : new Schema().$ref(ref);
   }
 }

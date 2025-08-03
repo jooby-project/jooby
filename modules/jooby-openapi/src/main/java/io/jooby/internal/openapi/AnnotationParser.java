@@ -20,10 +20,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import io.jooby.Context;
-import io.jooby.MediaType;
-import io.jooby.Router;
-import io.jooby.Session;
+import io.jooby.*;
 import io.jooby.annotation.ContextParam;
 import io.jooby.annotation.CookieParam;
 import io.jooby.annotation.FormParam;
@@ -251,9 +248,18 @@ public class AnnotationParser {
         return parse(ctx, prefix, type);
       }
     }
-    return Collections.emptyList();
+    return List.of();
   }
 
+  /**
+   * This is the main entrypoint beside there is a public {@link #parse(ParserContext, String,
+   * Signature, MethodInsnNode)}.
+   *
+   * @param ctx
+   * @param prefix
+   * @param type
+   * @return
+   */
   public static List<OperationExt> parse(ParserContext ctx, String prefix, Type type) {
     List<OperationExt> result = new ArrayList<>();
     ClassNode classNode = ctx.classNode(type);
@@ -262,7 +268,75 @@ public class AnnotationParser {
       ctx.debugHandler(method);
       result.addAll(routerMethod(ctx, prefix, classNode, method));
     }
-    result.forEach(it -> it.setController(classNode));
+    var javaDocParser = ctx.javadoc();
+    for (OperationExt operationExt : result) {
+      operationExt.setController(classNode);
+      try {
+        var className = operationExt.getControllerName().replace("/", ".");
+        javaDocParser
+            .parse(className)
+            .ifPresent(
+                doc -> {
+                  operationExt.setPathDescription(doc.getDescription());
+                  operationExt.setPathSummary(doc.getSummary());
+                  doc.getTags().forEach(operationExt::addTag);
+                  if (!doc.getExtensions().isEmpty()) {
+                    operationExt.setPathExtensions(doc.getExtensions());
+                  }
+                  var parameterNames =
+                      Optional.ofNullable(operationExt.getNode().parameters)
+                          .orElse(List.of())
+                          .stream()
+                          .map(p -> p.name)
+                          .toList();
+                  doc.getMethod(operationExt.getOperationId(), parameterNames)
+                      .ifPresent(
+                          methodDoc -> {
+                            operationExt.setSummary(methodDoc.getSummary());
+                            operationExt.setDescription(methodDoc.getDescription());
+                            if (!methodDoc.getExtensions().isEmpty()) {
+                              operationExt.setExtensions(methodDoc.getExtensions());
+                            }
+                            methodDoc.getTags().forEach(operationExt::addTag);
+                            // Parameters
+                            for (var parameterName : parameterNames) {
+                              var paramExt =
+                                  operationExt.getParameters().stream()
+                                      .filter(p -> p.getName().equals(parameterName))
+                                      .findFirst()
+                                      .map(ParameterExt.class::cast)
+                                      .orElse(null);
+                              var paramDoc = methodDoc.getParameterDoc(parameterName);
+                              if (paramDoc != null) {
+                                if (paramExt == null) {
+                                  operationExt.getRequestBody().setDescription(paramDoc);
+                                } else {
+                                  paramExt.setDescription(paramDoc);
+                                }
+                              }
+                            }
+                            // return types
+                            var defaultResponse = operationExt.getDefaultResponse();
+                            if (defaultResponse != null) {
+                              defaultResponse.setDescription(methodDoc.getReturnDoc());
+                            }
+                            for (var throwsDoc : methodDoc.getThrows().values()) {
+                              var response =
+                                  operationExt.getResponse(
+                                      Integer.toString(throwsDoc.getStatusCode().value()));
+                              if (response == null) {
+                                response =
+                                    operationExt.addResponse(
+                                        Integer.toString(throwsDoc.getStatusCode().value()));
+                              }
+                              response.setDescription(throwsDoc.getText());
+                            }
+                          });
+                });
+      } catch (Exception x) {
+        throw SneakyThrows.propagate(x);
+      }
+    }
     return result;
   }
 
@@ -382,7 +456,7 @@ public class AnnotationParser {
 
         if (paramType == ParamType.BODY) {
           RequestBodyExt body = new RequestBodyExt();
-          body.setRequired(required);
+          body.setRequired(true);
           body.setJavaType(javaType);
           requestBody.accept(body);
         } else if (paramType == ParamType.FORM) {

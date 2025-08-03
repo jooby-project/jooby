@@ -8,11 +8,8 @@ package io.jooby.openapi;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.Set;
+import java.nio.file.Paths;
+import java.util.*;
 
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -45,7 +42,7 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
             ? Collections.emptySet()
             : EnumSet.copyOf(Arrays.asList(metadata.debug()));
 
-    OpenAPIGenerator tool = newTool(debugOptions, klass);
+    OpenAPIGenerator tool = newTool(debugOptions);
     String templateName = metadata.templateName();
     if (templateName.isEmpty()) {
       templateName = classname.replace(".", "/").toLowerCase() + ".yaml";
@@ -81,16 +78,14 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
     }
   }
 
-  private OpenAPIGenerator newTool(Set<DebugOption> debug, Class klass) {
-    String metaInf =
-        Optional.ofNullable(klass.getPackage())
-                .map(Package::getName)
-                .map(name -> name.replace(".", "/") + "/")
-                .orElse("")
-            + klass.getSimpleName();
-
-    OpenAPIGenerator tool = new OpenAPIGenerator(metaInf);
+  private OpenAPIGenerator newTool(Set<DebugOption> debug) {
+    OpenAPIGenerator tool = new OpenAPIGenerator();
     tool.setDebug(debug);
+    var baseDir = Paths.get(System.getProperty("user.dir"));
+    if (!baseDir.getFileName().toString().endsWith("openapi")) {
+      baseDir = baseDir.resolve("modules").resolve("jooby-openapi");
+    }
+    tool.setSources(List.of(baseDir.resolve("src").resolve("test").resolve("java")));
     return tool;
   }
 

@@ -53,7 +53,7 @@ public class Issue1795 {
             + "              type: array\n"
             + "              items:\n"
             + "                type: string\n"
-            + "        required: false\n"
+            + "        required: true\n"
             + "      responses:\n"
             + "        \"200\":\n"
             + "          description: Success\n"

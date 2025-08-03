@@ -35,7 +35,7 @@ public class Issue1580 {
             + "          application/json:\n"
             + "            schema:\n"
             + "              $ref: \"#/components/schemas/Data1580\"\n"
-            + "        required: false\n"
+            + "        required: true\n"
             + "      responses:\n"
             + "        \"200\":\n"
             + "          description: Success\n"
