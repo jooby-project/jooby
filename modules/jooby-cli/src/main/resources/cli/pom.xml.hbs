@@ -21,8 +21,8 @@
     <kotlin.version>{{kotlinVersion}}</kotlin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     {{/if}}
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -32,7 +32,7 @@
     <dependency>
       <groupId>{{groupId}}</groupId>
       <artifactId>{{artifactId}}</artifactId>
-      {{#if version}}<version>{{version}}</version>{{/if}}
+      {{~#if version~}}<version>{{version}}</version>{{~/if}}
     </dependency>
   {{/each}}
     <!-- Tests -->
@@ -40,8 +40,12 @@
     <dependency>
       <groupId>{{groupId}}</groupId>
       <artifactId>{{artifactId}}</artifactId>
-      {{#if version}}<version>{{version}}</version>{{/if}}
+      {{#if version}}
+      <version>{{version}}</version>
       <scope>test</scope>
+      {{else}}
+      <scope>test</scope>
+      {{/if}}
     </dependency>
   {{/each}}
   </dependencies>
@@ -129,9 +133,6 @@
           <compilerArgs>
             <compilerArg>
               -Ajooby.debug=false
-            </compilerArg>
-            <compilerArg>
-              -Ajooby.services=true
             </compilerArg>
           </compilerArgs>
         </configuration>

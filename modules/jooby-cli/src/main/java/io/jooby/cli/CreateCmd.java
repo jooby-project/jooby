@@ -345,7 +345,7 @@ public class CreateCmd extends Cmd {
             "org.junit.jupiter", "junit-jupiter-engine", dependencyMap.get("junitVersion")));
     dependencies.add(new Dependency("io.jooby", "jooby-test", null));
     dependencies.add(
-        new Dependency("com.squareup.okhttp3", "okhttp", dependencyMap.get("okhttpVersion")));
+        new Dependency("com.squareup.okhttp3", "okhttp-jvm", dependencyMap.get("okhttpVersion")));
     return dependencies;
   }
 }
