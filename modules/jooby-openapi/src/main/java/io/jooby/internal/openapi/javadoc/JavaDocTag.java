@@ -10,6 +10,7 @@ import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
 import static io.jooby.internal.openapi.javadoc.JavaDocSupport.children;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
@@ -17,6 +18,8 @@ import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.SneakyThrows.Consumer3;
 import io.jooby.StatusCode;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 
@@ -27,36 +30,77 @@ public class JavaDocTag {
       CUSTOM_TAG.and(it -> it.getText().startsWith("@tag.") || it.getText().equals("@tag"));
   private static final Predicate<DetailNode> SERVER =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@server."));
+  private static final Predicate<DetailNode> CONTACT =
+      CUSTOM_TAG.and(it -> it.getText().startsWith("@contact."));
+  private static final Predicate<DetailNode> LICENSE =
+      CUSTOM_TAG.and(it -> it.getText().startsWith("@license."));
   private static final Predicate<DetailNode> EXTENSION =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@x-"));
   private static final Predicate<DetailNode> THROWS =
       it -> tree(it).anyMatch(javadocToken(JavadocTokenTypes.THROWS_LITERAL));
 
-  @SuppressWarnings("unchecked")
   public static List<Server> servers(DetailNode node) {
+    return openApiComponent(
+        node,
+        SERVER,
+        "server",
+        hash -> {
+          var server = new Server();
+          server.setDescription((String) hash.get("description"));
+          server.setUrl((String) hash.get("url"));
+          return server;
+        });
+  }
+
+  public static List<Contact> contacts(DetailNode node) {
+    return openApiComponent(
+        node,
+        CONTACT,
+        "contact",
+        hash -> {
+          var item = new Contact();
+          item.setName((String) hash.get("name"));
+          item.setUrl((String) hash.get("url"));
+          item.setEmail((String) hash.get("email"));
+          return item;
+        });
+  }
+
+  public static List<License> license(DetailNode node) {
+    return openApiComponent(
+        node,
+        LICENSE,
+        "license",
+        hash -> {
+          var item = new License();
+          item.setName((String) hash.get("name"));
+          item.setUrl((String) hash.get("url"));
+          return item;
+        });
+  }
+
+  private static <T> List<T> openApiComponent(
+      DetailNode node, Predicate<DetailNode> filter, String path, Function<Map<?, ?>, T> mapper) {
     var values = new ArrayList<String>();
     javaDocTag(
         node,
-        SERVER,
+        filter,
         (tag, value) -> {
           values.add(tag.getText().substring(1));
           values.add(value);
         });
-    var result = new ArrayList<Server>();
+    var result = new ArrayList<T>();
     if (!values.isEmpty()) {
-      var serverMap = MiniYamlDocParser.parse(values);
-      var servers = serverMap.get("server");
-      if (!(servers instanceof List<?>)) {
-        servers = List.of(servers);
+      var output = MiniYamlDocParser.parse(values);
+      var itemList = output.get(path);
+      if (!(itemList instanceof List<?>)) {
+        itemList = List.of(itemList);
       }
-      ((List) servers)
+      ((List) itemList)
           .forEach(
               it -> {
                 if (it instanceof Map<?, ?> hash) {
-                  var server = new Server();
-                  server.setDescription((String) hash.get("description"));
-                  server.setUrl((String) hash.get("url"));
-                  result.add(server);
+                  result.add(mapper.apply(hash));
                 }
               });
     }

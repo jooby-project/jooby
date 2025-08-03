@@ -17,12 +17,16 @@ import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.TokenUtil;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
 
 public class ClassDoc extends JavaDocNode {
   private final Map<String, FieldDoc> fields = new LinkedHashMap<>();
   private final Map<String, MethodDoc> methods = new LinkedHashMap<>();
   private final List<Server> servers;
+  private final List<Contact> contact;
+  private final List<License> license;
 
   public ClassDoc(JavaDocParser ctx, DetailAST node, DetailAST javaDoc) {
     super(ctx, node, javaDoc);
@@ -32,10 +36,20 @@ public class ClassDoc extends JavaDocNode {
       defaultEnumMembers();
     }
     this.servers = JavaDocTag.servers(this.javadoc);
+    this.contact = JavaDocTag.contacts(this.javadoc);
+    this.license = JavaDocTag.license(this.javadoc);
   }
 
   public List<Server> getServers() {
     return servers;
+  }
+
+  public List<Contact> getContact() {
+    return contact;
+  }
+
+  public List<License> getLicense() {
+    return license;
   }
 
   public String getVersion() {

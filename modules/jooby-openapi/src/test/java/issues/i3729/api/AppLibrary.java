@@ -16,6 +16,11 @@ import io.jooby.Jooby;
  *
  * @version 4.0.0
  * @server.url https://api.fake-museum-example.com/v1
+ * @contact.name Jooby
+ * @contact.url https://jooby.io
+ * @license.name Apache
+ * @contact.email support@jooby.io
+ * @license.url https://jooby.io/LICENSE
  * @x-logo.url https://redocly.github.io/redoc/museum-logo.png
  * @x-logo.altText Museum logo
  */

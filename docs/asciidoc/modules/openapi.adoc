@@ -2,7 +2,7 @@
 
 This module helps automating the generation of API documentation using Jooby projects. jooby-openapi works by examining an application at *build* time to infer API semantics based on byte code and optional annotations.
 
-Automatically generates documentation in JSON/YAML format APIs. This documentation can be completed by comments using swagger-api annotations.
+Automatically generates documentation in JSON/YAML format APIs. This documentation can be completed by javadoc comments or using swagger-api annotations.
 
 This library supports:
 
@@ -148,12 +148,20 @@ The OpenAPI generator works exactly the same for MVC routes (a.k.a Controller):
 {
   install(new OpenAPIModule());
 
-  mvc(new Pets());
+  mvc(new Pets_());
 }
 
+/**
+* Pet Library.
+*/
 @Path("/pets")
 public class Pets {
   
+  /**
+   * List pets.
+   * 
+   * @return All pets.
+   */
   @GET
   public List<Pet> list() {
     ...
@@ -168,7 +176,7 @@ public class Pets {
 {
   install(OpenAPIModule())
 
-  mvc(new MyController())
+  mvc(Pets_())
 }
 
 @Path("/pets")
@@ -185,9 +193,184 @@ class Pets {
 The Maven plugin and Gradle task provide two filter properties `includes` and `excludes`. These
 properties filter routes by their path pattern. The filter is a regular expression.
 
+=== JavaDoc comments
+
+Parsing of JavaDoc comment is supported on Java MVC/Controller.
+
+.Java
+[source,java]
+----
+
+/**
+* My Library.
+* @version 5.4.1
+* @tag Books. All about books.
+* @server.url https://books.api.com
+* @server.description Production
+* @x-logo https://my.api.com/logo.png
+*/
+public class App {
+  {
+    mvc(new Books_());
+    install(new OpenAPIModule());
+  }
+}
+/**
+ * Books operations.
+ * @tag Books  
+ */
+@Path("/api/books")
+public class Books {
+  /**
+   * Query and filter books.
+    * 
+   * @param query Book filter.
+   * @return List of matching books.
+   */
+  public List<Book> query(@QueryParam BookQuery query) {
+     ....
+  }
+  /**
+   * Find a book by ISBN.
+   * 
+   * @param isbn ISBN code.
+   * @return A book.
+   * @throws BookNotFoundException When a book doesn't exist. <code>404</code> 
+   */
+  public Book bookByIsbn(@PathParam String isbn) {
+    
+  }
+}
+
+/**
+ * Book query.
+ * 
+ * @type Book type.
+ * @aga Book age.
+ */
+public record BookQuery(BookType type, int age) {}
+
+/**
+ * Books can be broadly categorized into fiction and non-fiction
+ */
+public enum BookType {
+  /**
+  * Fiction includes genres like fantasy, science fiction, romance, and mystery.
+  */
+  Fiction,
+  /**
+  * Non-fiction encompasses genres like history, biography, and self-help.
+  */
+  NonFiction
+}
+----
+
+A JavaDoc comment is split into:
+
+- summary: Everything before the first `.` or `<p>` paragraph
+- description: Everything after the first `.` or `<p>` paragraph
+
+Whitespaces (including new lines) are ignored. To introduce a new line, you must use a `<p>`.
+
+==== Supported OpenAPI tags
+
+[cols="3,1,1,1,4"]
+|===
+| Tag | Main | Controller | Method | Description
+
+|@version 4.0.4
+| [x]
+|
+|
+|
+
+|@contact.name
+|[x]
+|
+|
+|
+
+|@contact.url
+|[x]
+|
+|
+|
+
+|@contact.email
+|[x]
+|
+|
+|
+
+|@license.name
+|[x]
+|
+|
+|
+
+|@license.url
+|[x]
+|
+|
+|
+
+|@server.description
+|[x]
+|
+|
+|
+
+|@x-
+|[x]
+|[x]
+|[x]
+|Tag starting with `x-` is considered an extension
+
+|@tag.name
+|[x]
+|[x]
+|[x]
+|Tag name
+
+|@tag.description
+|[x]
+|[x]
+|[x]
+|Tag Description
+
+|@tag
+|[x]
+|[x]
+|[x]
+|Shortcut for previous `@tag.name` and `@tag.description`. The tag name is everything before `.`
+
+|@param <name>
+|
+|
+|[x]
+|Operation parameter
+
+|@return
+|
+|
+|[x]
+|Operation default response
+
+|@throws
+|
+|
+|[x]
+|Additional non-success responses types. The HTTP response code is taken from `<code>{number}</code>`, or set to `500` error.
+
+|===
+
+This feature is only available for Java MVC/controller routes. There are plans to support lambda
+routes on Java. Kotlin source code is not supported.
+
+
 === Annotations
 
-To produces a better documentation this plugin depends on some OpenAPI annotations. To use them, you
+To produce a better documentation, this plugin depends on some OpenAPI annotations. To use them, you
 need to add a dependency to your project:
 
 [dependency, artifactId="swagger-annotations"]
