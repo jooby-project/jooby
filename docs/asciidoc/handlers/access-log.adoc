@@ -56,5 +56,5 @@ Extra request or response headers can be appended at the end using the available
 [TIP]
 ====
 If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-please consider to use <<router-options-trust-proxy, trust proxy>> option.
+please consider to use <<router-options-routing, trust proxy>> option.
 ====

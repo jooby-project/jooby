@@ -38,7 +38,7 @@ import io.jooby.handler.SSHandler
 <1> Install SSLHandler
 
 The SSL Handler recreates the HTTPs URL version using the `Host` header, if you are behind a proxy
-you will need to use the `X-Forwarded-Host` header. To do that set the <<router-options-trust-proxy, trust proxy>> option.
+you will need to use the `X-Forwarded-Host` header. To do that set the <<router-options-routing, trust proxy>> option.
 
 Optionally, you can specify the host to use:
 
@@ -79,5 +79,5 @@ For more information about SSL, please check the <<server-https-support, configu
 [TIP]
 ====
 If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-please consider adding the <<router-options-trust-proxy, trust proxy>> to your pipeline.
+please consider adding the <<router-options-routing, trust proxy>> to your pipeline.
 ====

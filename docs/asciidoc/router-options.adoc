@@ -1,0 +1,81 @@
+==== Routing
+
+The javadoc:Router[setRouterOptions, io.jooby.RouterOptions] control routing options.
+
+.Usage
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+...
+{
+  
+  setRouterOptions(new RouterOptions()
+        .setIgnoreCase(true)
+        .setFailOnDuplicateRoutes(true)
+        .setIgnoreTrailingSlash(true)
+        .setNormalizeSlash(true)
+        .setResetHeadersOnError(false)
+        .setTrustProxy(true)
+  );
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+...
+{
+  routerOptions = RouterOptions().apply {
+    ignoreCase = true
+    ignoreTrailingSlash = true
+    failOnDuplicateRoutes = true
+    normalizeSlash = true
+    resetHeadersOnError = false
+    trustProxy = true
+  }
+}
+----
+
+[cols="1,1,1,1"]
+|===
+| Option | Value | Default Value| Description
+
+|ignoreCase
+|boolean
+|false
+|Indicates whenever routing algorithm does case-sensitive matching on an incoming request path.
+
+|ignoreTrailingSlash
+|boolean
+|false
+|Indicates whenever a trailing slash is ignored on an incoming request path.
+
+|failOnDuplicateRoutes
+|boolean
+|false
+|Indicates whenever a trailing slash is ignored on an incoming request path.
+
+|normalizeSlash
+|boolean
+|false
+|Normalize an incoming request path by removing multiple slash sequences.
+
+|resetHeadersOnError
+|boolean
+|true
+|Indicates whenever response headers are clear/reset in case of exception.
+
+|trustProxy
+|boolean
+|false
+|When true handles X-Forwarded-* headers by updating the values on the current context to match what was sent in the header(s).
+
+|===
+
+[IMPORTANT]
+====
+trustProxy: This should only be installed behind a reverse proxy that has been configured to send the
+`X-Forwarded-*` header, otherwise a remote user can spoof their address by sending a header with
+bogus values.
+====

@@ -1414,6 +1414,6 @@ might not work as you expected. It is recommend to use just the `logback.xml` or
 
 === Options
 
-include::router-hidden-method.adoc[]
+include::router-options.adoc[]
 
-include::router-trust-proxy.adoc[]
+include::router-hidden-method.adoc[]
