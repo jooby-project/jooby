@@ -70,13 +70,13 @@
     <jte.version>3.2.1</jte.version>
 
     <!-- data -->
-    <HikariCP.version>6.3.2</HikariCP.version>
+    <HikariCP.version>7.0.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
     <jdbi.version>3.49.5</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
-    <graphql-java.version>24.1</graphql-java.version>
+    <graphql-java.version>24.2</graphql-java.version>
     <lettuce.version>6.7.1.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
     <kafka.version>4.0.0</kafka.version>
@@ -110,7 +110,7 @@
     <netty.version>4.2.3.Final</netty.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.34</swagger.version>
+    <swagger.version>2.2.35</swagger.version>
     <swagger-parser.version>2.1.31</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
