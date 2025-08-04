@@ -34,6 +34,8 @@ public class JavaDocTag {
       CUSTOM_TAG.and(it -> it.getText().startsWith("@contact."));
   private static final Predicate<DetailNode> LICENSE =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@license."));
+  private static final Predicate<DetailNode> OPERATION_ID =
+      CUSTOM_TAG.and(it -> it.getText().equals("@operationId"));
   private static final Predicate<DetailNode> EXTENSION =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@x-"));
   private static final Predicate<DetailNode> THROWS =
@@ -249,5 +251,16 @@ public class JavaDocTag {
         }
       }
     }
+  }
+
+  public static String operationId(DetailNode javadoc) {
+    var operationId = new ArrayList<String>();
+    javaDocTag(
+        javadoc,
+        OPERATION_ID,
+        (tag, value, text) -> {
+          operationId.add(text);
+        });
+    return operationId.isEmpty() ? null : operationId.getFirst();
   }
 }

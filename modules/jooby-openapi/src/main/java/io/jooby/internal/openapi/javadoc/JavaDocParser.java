@@ -76,41 +76,83 @@ public class JavaDocParser {
                 }
               });
           // Script routes
-          for (var script :
-              tree(scope)
-                  .filter(tokens(TokenTypes.METHOD_CALL))
-                  // Test for HTTP method name
-                  .filter(
-                      it ->
-                          tree(it)
-                              .filter(tokens(TokenTypes.IDENT))
-                              .anyMatch(e -> Router.METHODS.contains(e.getText().toUpperCase())))
-                  .toList()) {
-            var scriptComment =
-                children(script)
-                    .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
-                    .findFirst()
-                    .orElse(null);
-            if (scriptComment != null) {
-              // ELIST -> EXPR -> STRING_LITERAL
-              children(script)
-                  .filter(tokens(TokenTypes.ELIST))
-                  .findFirst()
-                  .flatMap(it -> children(it).filter(tokens(TokenTypes.EXPR)).findFirst())
-                  .flatMap(it -> children(it).filter(tokens(TokenTypes.STRING_LITERAL)).findFirst())
-                  .map(XpathUtil::getTextAttributeValue)
-                  .ifPresent(
-                      pattern -> {
-                        classDoc.addScript(pattern, new MethodDoc(this, script, scriptComment));
-                      });
-            }
-          }
+          scripts(scope, null, null, new HashSet<>(), classDoc);
 
           if (counter.get() > 0) {
             classes.put(classDoc.getName(), classDoc);
           }
         });
     return classes;
+  }
+
+  private void scripts(
+      DetailAST scope, PathDoc pathDoc, String prefix, Set<DetailAST> visited, ClassDoc classDoc) {
+    for (var script : tree(scope).filter(tokens(TokenTypes.METHOD_CALL)).toList()) {
+      if (visited.add(script)) {
+        // Test for HTTP method name
+        var callName =
+            tree(script)
+                .filter(tokens(TokenTypes.IDENT))
+                .findFirst()
+                .map(DetailAST::getText)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No method call found: " + script));
+        var scriptComment =
+            children(script)
+                .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
+                .findFirst()
+                .orElse(JavaDocNode.EMPTY_AST);
+        if (Router.METHODS.contains(callName.toUpperCase())) {
+          pathLiteral(script)
+              .ifPresent(
+                  pattern -> {
+                    var scriptDoc =
+                        new ScriptDoc(
+                            this,
+                            callName.toUpperCase(),
+                            computePath(prefix, pattern),
+                            script,
+                            scriptComment);
+                    scriptDoc.setPath(pathDoc);
+                    classDoc.addScript(scriptDoc);
+                  });
+        } else if ("path".equals(callName)) {
+          pathLiteral(script)
+              .ifPresent(
+                  path -> {
+                    scripts(
+                        script,
+                        new PathDoc(this, script, scriptComment),
+                        computePath(prefix, path),
+                        visited,
+                        classDoc);
+                  });
+        }
+      }
+    }
+  }
+
+  /**
+   * ELIST -> EXPR -> STRING_LITERAL
+   *
+   * @param script Get string literal from method call.
+   * @return String literal.
+   */
+  private static Optional<String> pathLiteral(DetailAST script) {
+    return children(script)
+        .filter(tokens(TokenTypes.ELIST))
+        .findFirst()
+        .flatMap(it -> children(it).filter(tokens(TokenTypes.EXPR)).findFirst())
+        .flatMap(it -> children(it).filter(tokens(TokenTypes.STRING_LITERAL)).findFirst())
+        .map(XpathUtil::getTextAttributeValue);
+  }
+
+  private String computePath(String prefix, String pattern) {
+    if (prefix == null) {
+      return Router.normalizePath(pattern);
+    }
+    return Router.noTrailingSlash(Router.normalizePath(prefix + pattern));
   }
 
   private void traverse(

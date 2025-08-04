@@ -15,6 +15,10 @@ public class RequestBodyExt extends RequestBody {
 
   @JsonIgnore private String contentType = MediaType.JSON;
 
+  {
+    setRequired(true);
+  }
+
   public String getJavaType() {
     return javaType;
   }

@@ -16,10 +16,7 @@ import javadoc.input.EnumDoc;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
-import io.jooby.internal.openapi.javadoc.ClassDoc;
-import io.jooby.internal.openapi.javadoc.FieldDoc;
-import io.jooby.internal.openapi.javadoc.JavaDocParser;
-import io.jooby.internal.openapi.javadoc.MethodDoc;
+import io.jooby.internal.openapi.javadoc.*;
 import issues.i3729.api.Book;
 
 public class JavaDocParserTest {
@@ -36,6 +33,7 @@ public class JavaDocParserTest {
 
           withScript(
               doc,
+              "GET",
               "/static",
               method -> {
                 assertEquals("This is a static path.", method.getSummary());
@@ -45,12 +43,82 @@ public class JavaDocParserTest {
 
           withScript(
               doc,
-              "/path/{id}",
+              "DELETE",
+              "/{id}",
+              method -> {
+                assertEquals("Delete something.", method.getSummary());
+                assertEquals("ID to delete.", method.getParameterDoc("id"));
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/{id}",
               method -> {
                 assertEquals("Path param.", method.getSummary());
                 assertNull(method.getDescription());
                 assertEquals("Some value.", method.getReturnDoc());
                 assertEquals("Path ID.", method.getParameterDoc("id"));
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/tree/folder/{id}",
+              method -> {
+                assertNotNull(method.getPath());
+                assertEquals("Tree summary.", method.getPath().getSummary());
+                assertEquals("Tree doc.", method.getPath().getDescription());
+                assertNotNull(method.getPath().getTags());
+                assertEquals(1, method.getPath().getTags().size());
+                assertEquals("Tree", method.getPath().getTags().getFirst().getName());
+
+                assertEquals("Item doc.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/tree/folder",
+              method -> {
+                assertEquals("Items.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/tree/file/{fileId}",
+              method -> {
+                assertEquals("Sub Items.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/tree/mount",
+              method -> {
+                assertEquals("Mounted.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+
+          withScript(
+              doc,
+              "POST",
+              "/routes",
+              method -> {
+                assertEquals("Routes.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+          withScript(
+              doc,
+              "GET",
+              "/nested/last",
+              method -> {
+                assertEquals("Last.", method.getSummary());
+                assertNull(method.getDescription());
               });
         });
   }
@@ -289,10 +357,11 @@ public class JavaDocParserTest {
     consumer.accept(method.get());
   }
 
-  private void withScript(ClassDoc doc, String pattern, Consumer<MethodDoc> consumer) {
-    var method = doc.getScript(pattern);
-    assertTrue(method.isPresent());
-    consumer.accept(method.get());
+  private void withScript(
+      ClassDoc doc, String method, String pattern, Consumer<ScriptDoc> consumer) {
+    var script = doc.getScript(method, pattern);
+    assertTrue(script.isPresent());
+    consumer.accept(script.get());
   }
 
   private void withField(ClassDoc doc, String name, Consumer<FieldDoc> consumer) {

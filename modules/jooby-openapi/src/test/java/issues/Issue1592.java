@@ -30,6 +30,7 @@ public class Issue1592 {
             + "          application/json:\n"
             + "            schema:\n"
             + "              $ref: \"#/components/schemas/FairData\"\n"
+            + "        required: true\n"
             + "      responses:\n"
             + "        \"200\":\n"
             + "          description: Success\n"

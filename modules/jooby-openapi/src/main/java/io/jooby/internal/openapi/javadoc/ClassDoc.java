@@ -24,7 +24,7 @@ import io.swagger.v3.oas.models.servers.Server;
 public class ClassDoc extends JavaDocNode {
   private final Map<String, FieldDoc> fields = new LinkedHashMap<>();
   private final Map<String, MethodDoc> methods = new LinkedHashMap<>();
-  private final Map<String, MethodDoc> scripts = new LinkedHashMap<>();
+  private final Map<String, ScriptDoc> scripts = new LinkedHashMap<>();
   private final List<Server> servers;
   private final List<Contact> contact;
   private final List<License> license;
@@ -161,8 +161,8 @@ public class ClassDoc extends JavaDocNode {
     this.methods.put(toMethodSignature(method), method);
   }
 
-  public void addScript(String pattern, MethodDoc method) {
-    this.scripts.put(pattern, method);
+  public void addScript(ScriptDoc method) {
+    this.scripts.put(toScriptSignature(method), method);
   }
 
   public void addField(FieldDoc field) {
@@ -177,8 +177,16 @@ public class ClassDoc extends JavaDocNode {
     return Optional.ofNullable(methods.get(toMethodSignature(name, parameterNames)));
   }
 
-  public Optional<MethodDoc> getScript(String pattern) {
-    return Optional.ofNullable(scripts.get(pattern));
+  public Optional<ScriptDoc> getScript(String method, String pattern) {
+    return Optional.ofNullable(scripts.get(toScriptSignature(method, pattern)));
+  }
+
+  private String toScriptSignature(ScriptDoc method) {
+    return toScriptSignature(method.getMethod(), method.getPattern());
+  }
+
+  private String toScriptSignature(String method, String pattern) {
+    return method + "/" + pattern;
   }
 
   private String toMethodSignature(MethodDoc method) {

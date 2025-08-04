@@ -65,6 +65,22 @@ public class RouteParser {
         Optional.ofNullable(ctx.getMainClass()).orElse(ctx.getRouter().getClassName());
     ClassNode application = ctx.classNode(Type.getObjectType(applicationName.replace(".", "/")));
 
+    // javadoc
+    var javaDoc = ctx.javadoc().parse(ctx.getRouter().getClassName());
+    for (OperationExt operation : operations) {
+      // Script/lambda
+      if (operation.getController() == null) {
+        javaDoc
+            .flatMap(doc -> doc.getScript(operation.getMethod(), operation.getPattern()))
+            .ifPresent(
+                scriptDoc -> {
+                  if (scriptDoc.getPath() != null) {
+                    JavaDocSetter.setPath(operation, scriptDoc.getPath());
+                  }
+                  JavaDocSetter.set(operation, scriptDoc);
+                });
+      }
+    }
     // swagger/openapi:
     for (OperationExt operation : operations) {
       operation.setApplication(application);

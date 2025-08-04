@@ -5,6 +5,8 @@
  */
 package javadoc.input;
 
+import java.util.function.Predicate;
+
 import io.jooby.Context;
 import io.jooby.Jooby;
 
@@ -33,6 +35,67 @@ public class ScriptApp extends Jooby {
      * @return Some value.
      */
     // Ignored
-    get("/path/{id}", Context::getRequestPath);
+    get("/{id}", Context::getRequestPath);
+
+    /**
+     * Delete something.
+     *
+     * @param id ID to delete.
+     */
+    delete("/{id}", Context::getRequestPath);
+
+    /*
+     * Tree summary.
+     *
+     * Tree doc.
+     *
+     * @tag Tree
+     */
+    path(
+        "/tree",
+        () -> {
+          /*
+           * Item doc.
+           */
+          get("/folder/{id}", Context::getRequestPath);
+
+          /*
+           * Items.
+           */
+          get("/folder", Context::getRequestPath);
+
+          path(
+              "/file",
+              () -> {
+                /*
+                 * Sub Items.
+                 */
+                get("/{fileId}", Context::getRequestPath);
+              });
+          mount(
+              Predicate.isEqual("/folder/{folderId}"),
+              () -> {
+                /*
+                 * Mounted.
+                 */
+                get("/mount", Context::getRequestPath);
+              });
+        });
+
+    routes(
+        () -> {
+          /*
+           * Routes.
+           */
+          post("/routes", Context::getRequestPath);
+          path(
+              "/nested",
+              () -> {
+                /*
+                 * Last.
+                 */
+                get("/last", Context::getRequestPath);
+              });
+        });
   }
 }

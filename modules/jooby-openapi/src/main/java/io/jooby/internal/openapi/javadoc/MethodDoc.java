@@ -18,11 +18,13 @@ import io.jooby.StatusCode;
 
 public class MethodDoc extends JavaDocNode {
 
+  private String operationId;
   private Map<StatusCode, ThrowsDoc> throwList;
 
   public MethodDoc(JavaDocParser ctx, DetailAST node, DetailAST javadoc) {
     super(ctx, node, javadoc);
     throwList = JavaDocTag.throwList(this.javadoc);
+    operationId = JavaDocTag.operationId(this.javadoc);
   }
 
   MethodDoc(JavaDocParser ctx, DetailAST node, DetailNode javadoc) {
@@ -31,6 +33,10 @@ public class MethodDoc extends JavaDocNode {
 
   public String getName() {
     return node.findFirstToken(TokenTypes.IDENT).getText();
+  }
+
+  public String getOperationId() {
+    return operationId;
   }
 
   public List<String> getParameterNames() {
@@ -47,6 +53,18 @@ public class MethodDoc extends JavaDocNode {
       index++;
     }
     return result;
+  }
+
+  public List<String> getJavadocParameterNames() {
+    return tree(javadoc)
+        // must be a tag
+        .filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG))
+        .flatMap(
+            it ->
+                children(it)
+                    .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+                    .map(DetailNode::getText))
+        .toList();
   }
 
   public String getParameterDoc(String name) {
