@@ -22,6 +22,8 @@ import java.util.function.Predicate;
 import com.puppycrawl.tools.checkstyle.JavaParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import com.puppycrawl.tools.checkstyle.utils.XpathUtil;
+import io.jooby.Router;
 
 public class JavaDocParser {
 
@@ -57,6 +59,7 @@ public class JavaDocParser {
           counter.addAndGet(comment == JavaDocNode.EMPTY_AST ? 0 : 1);
           var classDoc = new ClassDoc(this, scope, comment);
 
+          // MVC routes
           traverse(
               scope,
               tokens(TokenTypes.VARIABLE_DEF, TokenTypes.METHOD_DEF),
@@ -72,10 +75,37 @@ public class JavaDocParser {
                   }
                 }
               });
-
-          if (classDoc.isRecord()) {
-            // complement with record parameter
+          // Script routes
+          for (var script :
+              tree(scope)
+                  .filter(tokens(TokenTypes.METHOD_CALL))
+                  // Test for HTTP method name
+                  .filter(
+                      it ->
+                          tree(it)
+                              .filter(tokens(TokenTypes.IDENT))
+                              .anyMatch(e -> Router.METHODS.contains(e.getText().toUpperCase())))
+                  .toList()) {
+            var scriptComment =
+                children(script)
+                    .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
+                    .findFirst()
+                    .orElse(null);
+            if (scriptComment != null) {
+              // ELIST -> EXPR -> STRING_LITERAL
+              children(script)
+                  .filter(tokens(TokenTypes.ELIST))
+                  .findFirst()
+                  .flatMap(it -> children(it).filter(tokens(TokenTypes.EXPR)).findFirst())
+                  .flatMap(it -> children(it).filter(tokens(TokenTypes.STRING_LITERAL)).findFirst())
+                  .map(XpathUtil::getTextAttributeValue)
+                  .ifPresent(
+                      pattern -> {
+                        classDoc.addScript(pattern, new MethodDoc(this, script, scriptComment));
+                      });
+            }
           }
+
           if (counter.get() > 0) {
             classes.put(classDoc.getName(), classDoc);
           }

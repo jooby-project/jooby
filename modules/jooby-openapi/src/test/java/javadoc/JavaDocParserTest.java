@@ -25,6 +25,37 @@ import issues.i3729.api.Book;
 public class JavaDocParserTest {
 
   @Test
+  public void scriptDoc() throws Exception {
+    withDoc(
+        javadoc.input.ScriptApp.class,
+        doc -> {
+          assertEquals("ScriptApp", doc.getSimpleName());
+          assertEquals("javadoc.input.ScriptApp", doc.getName());
+          assertEquals("Script App.", doc.getSummary());
+          assertEquals("Some description.", doc.getDescription());
+
+          withScript(
+              doc,
+              "/static",
+              method -> {
+                assertEquals("This is a static path.", method.getSummary());
+                assertEquals("No parameters", method.getDescription());
+                assertEquals("Request Path.", method.getReturnDoc());
+              });
+
+          withScript(
+              doc,
+              "/path/{id}",
+              method -> {
+                assertEquals("Path param.", method.getSummary());
+                assertNull(method.getDescription());
+                assertEquals("Some value.", method.getReturnDoc());
+                assertEquals("Path ID.", method.getParameterDoc("id"));
+              });
+        });
+  }
+
+  @Test
   public void apiDoc() throws Exception {
     withDoc(
         javadoc.input.ApiDoc.class,
@@ -254,6 +285,12 @@ public class JavaDocParserTest {
   private void withMethod(
       ClassDoc doc, String name, List<String> types, Consumer<MethodDoc> consumer) {
     var method = doc.getMethod(name, types);
+    assertTrue(method.isPresent());
+    consumer.accept(method.get());
+  }
+
+  private void withScript(ClassDoc doc, String pattern, Consumer<MethodDoc> consumer) {
+    var method = doc.getScript(pattern);
     assertTrue(method.isPresent());
     consumer.accept(method.get());
   }
