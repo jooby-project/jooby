@@ -22,6 +22,15 @@ import issues.i3729.api.Book;
 public class JavaDocParserTest {
 
   @Test
+  public void lambdaDoc() throws Exception {
+    withDoc(
+        javadoc.input.LambdaRefApp.class,
+        doc -> {
+          System.out.println(doc);
+        });
+  }
+
+  @Test
   public void scriptDoc() throws Exception {
     withDoc(
         javadoc.input.ScriptApp.class,
