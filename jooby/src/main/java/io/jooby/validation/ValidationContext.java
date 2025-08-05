@@ -97,6 +97,12 @@ public class ValidationContext extends ForwardingContext {
       return BeanValidator.apply(ctx, ((Body) delegate).toNullable(type));
     }
 
+    @NonNull @Override
+    public <T> T to(@NonNull Class<T> type) {
+      // Call nullable version to let bean validator to run
+      return BeanValidator.apply(ctx, ((Body) delegate).toNullable(type));
+    }
+
     @Nullable @Override
     public <T> T toNullable(@NonNull Type type) {
       return BeanValidator.apply(ctx, ((Body) delegate).toNullable(type));
