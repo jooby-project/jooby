@@ -22,12 +22,37 @@ import issues.i3729.api.Book;
 public class JavaDocParserTest {
 
   @Test
+  public void inheritance() throws Exception {
+    withDoc(
+        javadoc.input.Subclass.class,
+        doc -> {
+          assertEquals("Subclass summary.", doc.getSummary());
+          assertEquals("Subclass description.", doc.getDescription());
+
+          assertEquals("Number on subclass.", doc.getPropertyDoc("number"));
+          assertEquals("Name on subclass.", doc.getPropertyDoc("name"));
+          assertEquals("Desc on base class.", doc.getPropertyDoc("description"));
+        });
+
+    withDoc(
+        javadoc.input.sub.Base.class,
+        doc -> {
+          assertEquals("Base summary.", doc.getSummary());
+          assertEquals("Base description.", doc.getDescription());
+
+          assertNull(doc.getPropertyDoc("number"));
+          assertEquals("Name on base class.", doc.getPropertyDoc("name"));
+          assertEquals("Desc on base class.", doc.getPropertyDoc("description"));
+        });
+  }
+
+  @Test
   public void multiline() throws Exception {
     withDoc(
         javadoc.input.MultilineComment.class,
         doc -> {
-          //          assertNull(doc.getSummary());
-          //          assertNull(doc.getDescription());
+          assertNull(doc.getSummary());
+          assertNull(doc.getDescription());
 
           withScript(
               doc,

@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import com.puppycrawl.tools.checkstyle.JavaParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import com.puppycrawl.tools.checkstyle.utils.TokenUtil;
 import com.puppycrawl.tools.checkstyle.utils.XpathUtil;
 import io.jooby.Context;
 import io.jooby.Router;
@@ -46,26 +47,31 @@ public class JavaDocParser {
     return ofNullable(traverse(resolveType(typeName)).get(typeName));
   }
 
-  public Map<String, ClassDoc> traverse(DetailAST tree) {
+  private Map<String, ClassDoc> traverse(DetailAST tree) {
     var classes = new HashMap<String, ClassDoc>();
     traverse(
-        tree,
+        List.of(tree),
         TYPES,
         modifiers -> tree(modifiers).noneMatch(tokens(TokenTypes.LITERAL_PRIVATE)),
         (scope, comment) -> {
+          var scopes = typeHierarchy(scope);
           var counter = new AtomicInteger(0);
           counter.addAndGet(comment == JavaDocNode.EMPTY_AST ? 0 : 1);
           var classDoc = new ClassDoc(this, scope, comment);
 
           // MVC routes
           traverse(
-              scope,
+              scopes,
               tokens(TokenTypes.VARIABLE_DEF, TokenTypes.METHOD_DEF),
               modifiers -> tree(modifiers).noneMatch(tokens(TokenTypes.LITERAL_STATIC)),
               (member, memberComment) -> {
                 counter.addAndGet(memberComment == JavaDocNode.EMPTY_AST ? 0 : 1);
                 // check member belong to current scope
-                if (scope == backward(member).filter(TYPES).findFirst().orElse(null)) {
+                if (backward(member)
+                    .filter(TYPES)
+                    .findFirst()
+                    .filter(scopes::contains)
+                    .isPresent()) {
                   if (member.getType() == TokenTypes.VARIABLE_DEF) {
                     classDoc.addField(new FieldDoc(this, member, memberComment));
                   } else {
@@ -83,6 +89,53 @@ public class JavaDocParser {
     return classes;
   }
 
+  private void traverse(
+      List<DetailAST> scopes,
+      Predicate<DetailAST> types,
+      Predicate<DetailAST> modifiers,
+      BiConsumer<DetailAST, DetailAST> action) {
+
+    for (var scope : scopes) {
+      for (var node : tree(scope).filter(types).toList()) {
+        var mods =
+            tree(node)
+                .filter(tokens(TokenTypes.MODIFIERS))
+                .findFirst()
+                .orElseThrow(
+                    () ->
+                        new IllegalArgumentException(
+                            "Modifiers not found on " + TokenUtil.getTokenName(node.getType())));
+        if (modifiers.test(mods)) {
+          var docRoot = node.getType() == TokenTypes.VARIABLE_DEF ? mods.getParent() : mods;
+          var comment =
+              tree(docRoot)
+                  .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
+                  .findFirst()
+                  .orElse(JavaDocNode.EMPTY_AST);
+          action.accept(node, comment);
+        }
+      }
+    }
+  }
+
+  private List<DetailAST> typeHierarchy(DetailAST scope) {
+    var result = new ArrayList<DetailAST>();
+    // call parent members first, so we can inherit and override later.
+    children(scope)
+        .filter(tokens(TokenTypes.EXTENDS_CLAUSE))
+        .findFirst()
+        .map(it -> JavaDocSupport.toQualifiedName(scope, getQualifiedName(it)))
+        .flatMap(
+            superClass ->
+                tree(resolveType(superClass))
+                    .filter(TYPES)
+                    .filter(it -> superClass.endsWith("." + getSimpleName(it)))
+                    .findFirst())
+        .ifPresent(parent -> result.addAll(typeHierarchy(parent)));
+    result.add(scope);
+    return result;
+  }
+
   private int scripts(
       DetailAST scope, ClassDoc classDoc, PathDoc pathDoc, String prefix, Set<DetailAST> visited) {
     var counter = new AtomicInteger(0);
@@ -96,7 +149,7 @@ public class JavaDocParser {
                 .map(DetailAST::getText)
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No method call found: " + script));
+                .orElseThrow(() -> new IllegalArgumentException("No method call found: " + script));
         var scriptComment =
             children(script)
                 .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
@@ -252,29 +305,6 @@ public class JavaDocParser {
       return Router.normalizePath(pattern);
     }
     return Router.noTrailingSlash(Router.normalizePath(prefix + pattern));
-  }
-
-  private void traverse(
-      DetailAST tree,
-      Predicate<DetailAST> types,
-      Predicate<DetailAST> modifiers,
-      BiConsumer<DetailAST, DetailAST> action) {
-    for (var node : tree(tree).filter(types).toList()) {
-      var mods =
-          tree(node)
-              .filter(tokens(TokenTypes.MODIFIERS))
-              .findFirst()
-              .orElseThrow(() -> new IllegalStateException("Modifiers not found on " + node));
-      if (modifiers.test(mods)) {
-        var docRoot = node.getType() == TokenTypes.VARIABLE_DEF ? mods.getParent() : mods;
-        var comment =
-            tree(docRoot)
-                .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
-                .findFirst()
-                .orElse(JavaDocNode.EMPTY_AST);
-        action.accept(node, comment);
-      }
-    }
   }
 
   public DetailAST resolve(Path path) {
