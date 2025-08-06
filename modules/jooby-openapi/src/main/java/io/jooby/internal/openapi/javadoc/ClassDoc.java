@@ -117,7 +117,11 @@ public class ClassDoc extends JavaDocNode {
           /* Virtual method */
           var method =
               new MethodDoc(
-                  context, createVirtualMember(name.getText(), TokenTypes.METHOD_DEF), memberDoc);
+                      context,
+                      createVirtualMember(name.getText(), TokenTypes.METHOD_DEF),
+                      memberDoc)
+                  .markAsVirtual();
+
           addMethod(method);
         });
   }
@@ -142,7 +146,7 @@ public class ClassDoc extends JavaDocNode {
     }
   }
 
-  private static DetailAstImpl createVirtualMember(String name, int tokenType) {
+  private DetailAstImpl createVirtualMember(String name, int tokenType) {
     var publicMod = new DetailAstImpl();
     publicMod.initialize(
         TokenTypes.LITERAL_PUBLIC, TokenUtil.getTokenName(TokenTypes.LITERAL_PUBLIC));
@@ -174,8 +178,8 @@ public class ClassDoc extends JavaDocNode {
     return Optional.ofNullable(fields.get(name));
   }
 
-  public Optional<MethodDoc> getMethod(String name, List<String> parameterNames) {
-    return Optional.ofNullable(methods.get(toMethodSignature(name, parameterNames)));
+  public Optional<MethodDoc> getMethod(String name, List<String> types) {
+    return Optional.ofNullable(methods.get(toMethodSignature(name, types)));
   }
 
   public Optional<ScriptDoc> getScript(String method, String pattern) {
@@ -191,11 +195,11 @@ public class ClassDoc extends JavaDocNode {
   }
 
   private String toMethodSignature(MethodDoc method) {
-    return toMethodSignature(method.getName(), method.getParameterNames());
+    return toMethodSignature(method.getName(), method.getParameterTypes());
   }
 
-  private String toMethodSignature(String methodName, List<String> parameterNames) {
-    return methodName + parameterNames.stream().collect(Collectors.joining(", ", "(", ")"));
+  private String toMethodSignature(String methodName, List<String> types) {
+    return methodName + types.stream().collect(Collectors.joining(", ", "(", ")"));
   }
 
   public String getSimpleName() {

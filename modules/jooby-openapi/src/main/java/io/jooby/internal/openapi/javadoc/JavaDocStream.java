@@ -80,10 +80,6 @@ public final class JavaDocStream {
     return backward(ASTNode.javadoc(node));
   }
 
-  public static Stream<DetailNode> forward(DetailNode node) {
-    return forward(ASTNode.javadoc(node));
-  }
-
   public static Stream<DetailNode> forward(DetailNode node, Predicate<DetailNode> stopOn) {
     var nodes = forward(ASTNode.javadoc(node)).toList();
     var result = new ArrayList<DetailNode>();

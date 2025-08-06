@@ -72,26 +72,46 @@ public class JavaDocSupport {
             .orElse(List.of()));
   }
 
+  public static String getQualifiedName(DetailAST node) {
+    return tree(node.getFirstChild())
+        .filter(tokens(TokenTypes.DOT).negate())
+        .map(DetailAST::getText)
+        .collect(Collectors.joining("."));
+  }
+
   public static String toQualifiedName(DetailAST classDef, String typeName) {
-    checkTypeDef(TYPES, classDef);
-    if (!typeName.contains(".")) {
-      if (!getSimpleName(classDef).equals(typeName)) {
-        var cu = getCompilationUnit(classDef);
-        return children(cu)
-            .filter(tokens(TokenTypes.IMPORT))
-            .map(
-                it ->
-                    tree(it.getFirstChild())
-                        .filter(tokens(TokenTypes.DOT).negate())
-                        .map(DetailAST::getText)
-                        .collect(Collectors.joining(".")))
-            .filter(qualifiedName -> qualifiedName.endsWith("." + typeName))
-            .findFirst()
-            .orElseGet(() -> String.join(".", getPackageName(classDef), typeName));
+    return switch (typeName) {
+      case "char", "boolean", "int", "short", "long", "float", "double" -> typeName;
+      case "Character" -> Character.class.getName();
+      case "Boolean" -> Boolean.class.getName();
+      case "Integer" -> Integer.class.getName();
+      case "Short" -> Short.class.getName();
+      case "Long" -> Long.class.getName();
+      case "Float" -> Float.class.getName();
+      case "Double" -> Double.class.getName();
+      case "String" -> String.class.getName();
+      default -> {
+        checkTypeDef(TYPES, classDef);
+        if (!typeName.contains(".")) {
+          if (!getSimpleName(classDef).equals(typeName)) {
+            var cu = getCompilationUnit(classDef);
+            yield children(cu)
+                .filter(tokens(TokenTypes.IMPORT))
+                .map(
+                    it ->
+                        tree(it.getFirstChild())
+                            .filter(tokens(TokenTypes.DOT).negate())
+                            .map(DetailAST::getText)
+                            .collect(Collectors.joining(".")))
+                .filter(qualifiedName -> qualifiedName.endsWith("." + typeName))
+                .findFirst()
+                .orElseGet(() -> String.join(".", getPackageName(classDef), typeName));
+          }
+        }
+        // Already qualified.
+        yield typeName;
       }
-    }
-    // Already qualified.
-    return typeName;
+    };
   }
 
   private static void checkTypeDef(Predicate<DetailAST> predicate, DetailAST node) {

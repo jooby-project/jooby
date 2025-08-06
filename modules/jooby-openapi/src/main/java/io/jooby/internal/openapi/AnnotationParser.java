@@ -279,12 +279,12 @@ public class AnnotationParser {
                 doc -> {
                   JavaDocSetter.setPath(operationExt, doc);
                   var parameterNames =
-                      Optional.ofNullable(operationExt.getNode().parameters)
-                          .orElse(List.of())
-                          .stream()
-                          .map(p -> p.name)
+                      operationExt.getNode().parameters.stream().map(p -> p.name).toList();
+                  var parameterTypes =
+                      Stream.of(Type.getArgumentTypes(operationExt.getNode().desc))
+                          .map(Type::getClassName)
                           .toList();
-                  doc.getMethod(operationExt.getOperationId(), parameterNames)
+                  doc.getMethod(operationExt.getOperationId(), parameterTypes)
                       .ifPresent(
                           methodDoc -> JavaDocSetter.set(operationExt, methodDoc, parameterNames));
                 });

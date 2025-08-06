@@ -226,7 +226,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "hello",
-              List.of("name", "age", "list", "str"),
+              List.of("java.util.List", "int", "java.util.List", "java.lang.String"),
               method -> {
                 assertEquals("This is the Hello /endpoint", method.getSummary());
                 assertEquals("Operation description", method.getDescription());
@@ -240,7 +240,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "search",
-              List.of("query"),
+              List.of("javadoc.input.QueryBeanDoc"),
               method -> {
                 assertEquals("Search database.", method.getSummary());
                 assertEquals("Search DB", method.getDescription());
@@ -253,7 +253,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "recordBean",
-              List.of("query"),
+              List.of("javadoc.input.RecordBeanDoc"),
               method -> {
                 assertEquals("Record database.", method.getSummary());
                 assertNull(method.getDescription());
@@ -264,7 +264,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "enumParam",
-              List.of("query"),
+              List.of("javadoc.input.EnumDoc"),
               method -> {
                 assertEquals("Enum database.", method.getSummary());
                 assertEquals("Enum doc.", method.getParameterDoc("query"));
@@ -295,7 +295,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "hello",
-              List.of("name"),
+              List.of("java.lang.String"),
               methodDoc -> {
                 assertEquals("Method Doc.", methodDoc.getSummary());
                 assertNull(methodDoc.getDescription());

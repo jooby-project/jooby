@@ -20,6 +20,7 @@ import io.jooby.internal.openapi.ResponseExt;
 public class MethodDoc extends JavaDocNode {
   private String operationId;
   private Map<StatusCode, ResponseExt> throwList;
+  private List<String> parameterTypes = null;
 
   public MethodDoc(JavaDocParser ctx, DetailAST node, DetailAST javadoc) {
     super(ctx, node, javadoc);
@@ -43,11 +44,34 @@ public class MethodDoc extends JavaDocNode {
     this.operationId = operationId;
   }
 
-  public List<String> getParameterNames() {
-    return tree(node)
-        .filter(tokens(TokenTypes.PARAMETER_DEF))
-        .map(JavaDocSupport::getSimpleName)
-        .toList();
+  public List<String> getParameterTypes() {
+    if (parameterTypes == null) {
+      parameterTypes = new ArrayList<>();
+      var classDef =
+          backward(node)
+              .filter(JavaDocSupport.TYPES)
+              .findFirst()
+              .orElseThrow(() -> new IllegalArgumentException("Class not found: " + node));
+      for (var parameter : tree(node).filter(tokens(TokenTypes.PARAMETER_DEF)).toList()) {
+        var type =
+            children(parameter)
+                .filter(tokens(TokenTypes.TYPE))
+                .findFirst()
+                .orElseThrow(
+                    () ->
+                        new IllegalArgumentException(
+                            "Parameter type not found: "
+                                + JavaDocSupport.getSimpleName(parameter)));
+        parameterTypes.add(
+            JavaDocSupport.toQualifiedName(classDef, JavaDocSupport.getQualifiedName(type)));
+      }
+    }
+    return parameterTypes;
+  }
+
+  public MethodDoc markAsVirtual() {
+    parameterTypes = List.of();
+    return this;
   }
 
   public List<String> getJavadocParameterNames() {

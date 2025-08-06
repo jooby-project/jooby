@@ -9,6 +9,7 @@ import static com.puppycrawl.tools.checkstyle.JavaParser.parseFile;
 import static io.jooby.SneakyThrows.throwingFunction;
 import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
 import static io.jooby.internal.openapi.javadoc.JavaDocStream.tokens;
+import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
@@ -19,7 +20,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import com.puppycrawl.tools.checkstyle.JavaParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
@@ -47,15 +47,9 @@ public class JavaDocParser {
 
   public Map<String, ClassDoc> traverse(DetailAST tree) {
     var classes = new HashMap<String, ClassDoc>();
-    var types =
-        tokens(
-            TokenTypes.ENUM_DEF,
-            TokenTypes.CLASS_DEF,
-            TokenTypes.INTERFACE_DEF,
-            TokenTypes.RECORD_DEF);
     traverse(
         tree,
-        types,
+        TYPES,
         modifiers -> tree(modifiers).noneMatch(tokens(TokenTypes.LITERAL_PRIVATE)),
         (scope, comment) -> {
           var counter = new AtomicInteger(0);
@@ -70,7 +64,7 @@ public class JavaDocParser {
               (member, memberComment) -> {
                 counter.addAndGet(memberComment == JavaDocNode.EMPTY_AST ? 0 : 1);
                 // check member belong to current scope
-                if (scope == backward(member).filter(types).findFirst().orElse(null)) {
+                if (scope == backward(member).filter(TYPES).findFirst().orElse(null)) {
                   if (member.getType() == TokenTypes.VARIABLE_DEF) {
                     classDoc.addField(new FieldDoc(this, member, memberComment));
                   } else {
@@ -183,7 +177,7 @@ public class JavaDocParser {
   }
 
   private ScriptRef resolveFromMethodRef(ClassDoc classDoc, DetailAST methodRef) {
-    var referenceOwner = getTypeName(methodRef);
+    var referenceOwner = getQualifiedName(methodRef);
     DetailAST scope = null;
     String className;
     if (referenceOwner.equals("this")) {
@@ -191,7 +185,7 @@ public class JavaDocParser {
       className = classDoc.getName();
     } else {
       // resolve className
-      className = JavaDocSupport.toQualifiedName(classDoc.node, referenceOwner);
+      className = toQualifiedName(classDoc.node, referenceOwner);
       scope = resolveType(className);
       if (scope == JavaDocNode.EMPTY_AST) {
         // not found
@@ -219,7 +213,7 @@ public class JavaDocParser {
                         .filter(tokens(TokenTypes.PARAMETER_DEF))
                         .findFirst()
                         .flatMap(p -> children(p).filter(tokens(TokenTypes.TYPE)).findFirst())
-                        .filter(type -> getTypeName(type).equals("Context"))
+                        .filter(type -> getQualifiedName(type).equals("Context"))
                         .isPresent())
             .findFirst()
             .orElseThrow(
@@ -232,13 +226,6 @@ public class JavaDocParser {
         .flatMap(it -> children(it).filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN)).findFirst())
         .map(comment -> new ScriptRef(methodName, comment))
         .orElseGet(() -> new ScriptRef(null, JavaDocNode.EMPTY_AST));
-  }
-
-  private static String getTypeName(DetailAST methodRef) {
-    return tree(methodRef.getFirstChild())
-        .filter(tokens(TokenTypes.DOT).negate())
-        .map(DetailAST::getText)
-        .collect(Collectors.joining("."));
   }
 
   /**
