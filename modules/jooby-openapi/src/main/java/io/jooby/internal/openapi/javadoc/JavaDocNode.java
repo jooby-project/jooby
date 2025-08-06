@@ -5,8 +5,8 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.javadocToken;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.javadocToken;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -95,7 +95,7 @@ public class JavaDocNode {
   }
 
   public String getText() {
-    return getText(JavaDocSupport.forward(javadoc, JAVADOC_TAG).toList(), false);
+    return getText(JavaDocStream.forward(javadoc, JAVADOC_TAG).toList(), false);
   }
 
   protected static String getText(List<DetailNode> nodes, boolean stripLeading) {

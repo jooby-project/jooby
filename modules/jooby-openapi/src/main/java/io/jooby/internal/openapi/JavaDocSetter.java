@@ -31,7 +31,7 @@ public class JavaDocSetter {
     var parameterNames = parameters.stream().map(Parameter::getName).collect(Collectors.toList());
     if (operation.getRequestBody() != null) {
       var javaDocNames = new LinkedHashSet<>(doc.getJavadocParameterNames());
-      javaDocNames.removeAll(parameterNames);
+      parameterNames.forEach(javaDocNames::remove);
       if (javaDocNames.size() == 1) {
         // just add body name on lambda/script routes.
         parameterNames.addAll(javaDocNames);
@@ -75,11 +75,11 @@ public class JavaDocSetter {
       defaultResponse.setDescription(doc.getReturnDoc());
     }
     for (var throwsDoc : doc.getThrows().values()) {
-      var response = operation.getResponse(Integer.toString(throwsDoc.getStatusCode().value()));
+      var response = operation.getResponse(throwsDoc.getCode());
       if (response == null) {
-        response = operation.addResponse(Integer.toString(throwsDoc.getStatusCode().value()));
+        response = operation.addResponse(throwsDoc.getCode());
       }
-      response.setDescription(throwsDoc.getText());
+      response.setDescription(throwsDoc.getDescription());
     }
   }
 }

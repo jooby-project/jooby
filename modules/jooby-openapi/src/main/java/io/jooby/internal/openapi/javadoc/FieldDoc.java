@@ -7,7 +7,6 @@ package io.jooby.internal.openapi.javadoc;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
-import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 public class FieldDoc extends JavaDocNode {
   public FieldDoc(JavaDocParser ctx, DetailAST node, DetailAST javadoc) {
@@ -19,6 +18,6 @@ public class FieldDoc extends JavaDocNode {
   }
 
   public String getName() {
-    return node.findFirstToken(TokenTypes.IDENT).getText();
+    return JavaDocSupport.getSimpleName(node);
   }
 }

@@ -5,7 +5,8 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocSupport.getClassName;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -198,40 +199,15 @@ public class ClassDoc extends JavaDocNode {
   }
 
   public String getSimpleName() {
-    return getSimpleName(node);
-  }
-
-  protected String getSimpleName(DetailAST node) {
-    return node.findFirstToken(TokenTypes.IDENT).getText();
+    return JavaDocSupport.getSimpleName(node);
   }
 
   public String getName() {
-    var classScope =
-        Stream.concat(
-                Stream.of(node),
-                backward(node)
-                    .filter(
-                        tokens(
-                            TokenTypes.CLASS_DEF,
-                            TokenTypes.INTERFACE_DEF,
-                            TokenTypes.ENUM_DEF,
-                            TokenTypes.RECORD_DEF)))
-            .map(this::getSimpleName)
-            .toList();
-
-    return Stream.concat(Stream.of(getPackage()), classScope.stream())
-        .collect(Collectors.joining("."));
+    return getClassName(node);
   }
 
   public String getPackage() {
-    return String.join(
-        ".",
-        backward(node)
-            .filter(tokens(TokenTypes.COMPILATION_UNIT))
-            .findFirst()
-            .flatMap(it -> tree(it).filter(tokens(TokenTypes.PACKAGE_DEF)).findFirst())
-            .map(it -> tree(it).filter(tokens(TokenTypes.IDENT)).map(DetailAST::getText).toList())
-            .orElse(List.of()));
+    return JavaDocSupport.getPackageName(node);
   }
 
   public boolean isRecord() {

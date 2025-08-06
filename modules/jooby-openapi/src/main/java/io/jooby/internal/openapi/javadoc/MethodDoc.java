@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -15,11 +15,11 @@ import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import io.jooby.StatusCode;
+import io.jooby.internal.openapi.ResponseExt;
 
 public class MethodDoc extends JavaDocNode {
-
   private String operationId;
-  private Map<StatusCode, ThrowsDoc> throwList;
+  private Map<StatusCode, ResponseExt> throwList;
 
   public MethodDoc(JavaDocParser ctx, DetailAST node, DetailAST javadoc) {
     super(ctx, node, javadoc);
@@ -44,19 +44,10 @@ public class MethodDoc extends JavaDocNode {
   }
 
   public List<String> getParameterNames() {
-    var result = new ArrayList<String>();
-    var index = 0;
-    for (var parameterDef : tree(node).filter(tokens(TokenTypes.PARAMETER_DEF)).toList()) {
-      var name =
-          children(parameterDef)
-              .filter(tokens(TokenTypes.IDENT))
-              .findFirst()
-              .map(DetailAST::getText)
-              .orElse("param" + index);
-      result.add(name);
-      index++;
-    }
-    return result;
+    return tree(node)
+        .filter(tokens(TokenTypes.PARAMETER_DEF))
+        .map(JavaDocSupport::getSimpleName)
+        .toList();
   }
 
   public List<String> getJavadocParameterNames() {
@@ -91,7 +82,7 @@ public class MethodDoc extends JavaDocNode {
                 getText(
                     Stream.of(it.getChildren())
                         .filter(e -> e.getType() == JavadocTokenTypes.DESCRIPTION)
-                        .flatMap(JavaDocSupport::tree)
+                        .flatMap(JavaDocStream::tree)
                         .toList(),
                     true))
         .filter(it -> !it.isEmpty())
@@ -111,7 +102,7 @@ public class MethodDoc extends JavaDocNode {
         .orElse(null);
   }
 
-  public Map<StatusCode, ThrowsDoc> getThrows() {
+  public Map<StatusCode, ResponseExt> getThrows() {
     return throwList;
   }
 }

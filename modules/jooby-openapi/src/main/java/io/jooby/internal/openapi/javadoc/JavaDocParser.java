@@ -7,8 +7,8 @@ package io.jooby.internal.openapi.javadoc;
 
 import static com.puppycrawl.tools.checkstyle.JavaParser.parseFile;
 import static io.jooby.SneakyThrows.throwingFunction;
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.tokens;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.tokens;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
@@ -177,13 +177,12 @@ public class JavaDocParser {
                             tree(statementList)
                                 .filter(tokens(TokenTypes.METHOD_REF))
                                 .findFirst()
-                                .flatMap(
-                                    ref -> ofNullable(resolveFromMethodRef(classDoc, script, ref)))
+                                .flatMap(ref -> ofNullable(resolveFromMethodRef(classDoc, ref)))
                                 .orElseGet(() -> new ScriptRef(null, defaultComment))))
         .orElseGet(() -> new ScriptRef(null, defaultComment));
   }
 
-  private ScriptRef resolveFromMethodRef(ClassDoc classDoc, DetailAST script, DetailAST methodRef) {
+  private ScriptRef resolveFromMethodRef(ClassDoc classDoc, DetailAST methodRef) {
     var referenceOwner = getTypeName(methodRef);
     DetailAST scope = null;
     String className;
@@ -192,7 +191,7 @@ public class JavaDocParser {
       className = classDoc.getName();
     } else {
       // resolve className
-      className = toQualifiedName(classDoc, referenceOwner);
+      className = JavaDocSupport.toQualifiedName(classDoc.node, referenceOwner);
       scope = resolveType(className);
       if (scope == JavaDocNode.EMPTY_AST) {
         // not found
@@ -236,41 +235,10 @@ public class JavaDocParser {
   }
 
   private static String getTypeName(DetailAST methodRef) {
-    var referenceOwner =
-        tree(methodRef.getFirstChild())
-            .filter(tokens(TokenTypes.DOT).negate())
-            .map(DetailAST::getText)
-            .collect(Collectors.joining("."));
-    return referenceOwner;
-  }
-
-  private static String toQualifiedName(ClassDoc classDoc, String referenceOwner) {
-    var className = referenceOwner;
-    if (!className.contains(".")) {
-      if (!classDoc.getSimpleName().equals(className)) {
-        var cu =
-            backward(classDoc.getNode())
-                .filter(tokens(TokenTypes.COMPILATION_UNIT))
-                .findFirst()
-                .orElseThrow(
-                    () ->
-                        new IllegalArgumentException(
-                            "No compilation unit found: " + referenceOwner));
-        className =
-            children(cu)
-                .filter(tokens(TokenTypes.IMPORT))
-                .map(
-                    it ->
-                        tree(it.getFirstChild())
-                            .filter(tokens(TokenTypes.DOT).negate())
-                            .map(DetailAST::getText)
-                            .collect(Collectors.joining(".")))
-                .filter(qualifiedName -> qualifiedName.endsWith("." + referenceOwner))
-                .findFirst()
-                .orElseGet(() -> String.join(".", classDoc.getPackage(), referenceOwner));
-      }
-    }
-    return className;
+    return tree(methodRef.getFirstChild())
+        .filter(tokens(TokenTypes.DOT).negate())
+        .map(DetailAST::getText)
+        .collect(Collectors.joining("."));
   }
 
   /**
