@@ -65,22 +65,9 @@ public class RouteParser {
         Optional.ofNullable(ctx.getMainClass()).orElse(ctx.getRouter().getClassName());
     ClassNode application = ctx.classNode(Type.getObjectType(applicationName.replace(".", "/")));
 
-    // javadoc
-    var javaDoc = ctx.javadoc().parse(ctx.getRouter().getClassName());
-    for (OperationExt operation : operations) {
-      // Script/lambda
-      if (operation.getController() == null) {
-        javaDoc
-            .flatMap(doc -> doc.getScript(operation.getMethod(), operation.getPattern()))
-            .ifPresent(
-                scriptDoc -> {
-                  if (scriptDoc.getPath() != null) {
-                    JavaDocSetter.setPath(operation, scriptDoc.getPath());
-                  }
-                  JavaDocSetter.set(operation, scriptDoc);
-                });
-      }
-    }
+    // JavaDoc
+    addJavaDoc(ctx, ctx.getRouter().getClassName(), "", operations);
+
     // swagger/openapi:
     for (OperationExt operation : operations) {
       operation.setApplication(application);
@@ -114,6 +101,29 @@ public class RouteParser {
     // finalize/cleanup/etc
     cleanup(result);
     return result;
+  }
+
+  private static void addJavaDoc(
+      ParserContext ctx, String className, String prefix, List<OperationExt> operations) {
+    // javadoc
+    var offset = prefix == null || prefix.isEmpty() ? 0 : prefix.length();
+    var javaDoc = ctx.javadoc().parse(className);
+    for (OperationExt operation : operations) {
+      // Script/lambda
+      if (operation.getController() == null) {
+        javaDoc
+            .flatMap(
+                doc ->
+                    doc.getScript(operation.getMethod(), operation.getPattern().substring(offset)))
+            .ifPresent(
+                scriptDoc -> {
+                  if (scriptDoc.getPath() != null) {
+                    JavaDocSetter.setPath(operation, scriptDoc.getPath());
+                  }
+                  JavaDocSetter.set(operation, scriptDoc);
+                });
+      }
+    }
   }
 
   private void checkResponses(ParserContext ctx, OperationExt operation) {
@@ -607,7 +617,9 @@ public class RouteParser {
       throw new UnsupportedOperationException(InsnSupport.toString(node));
     }
     ClassNode classNode = ctx.classNode(router);
-    return parse(ctx.newContext(router), prefix, classNode);
+    var operations = parse(ctx.newContext(router), prefix, classNode);
+    addJavaDoc(ctx, router.getClassName(), prefix, operations);
+    return operations;
   }
 
   private List<OperationExt> installApp(
@@ -632,7 +644,9 @@ public class RouteParser {
       throw new UnsupportedOperationException(InsnSupport.toString(node));
     }
     ClassNode classNode = ctx.classNode(router);
-    return parse(ctx.newContext(router), prefix, classNode);
+    var operations = parse(ctx.newContext(router), prefix, classNode);
+    addJavaDoc(ctx, router.getClassName(), prefix, operations);
+    return operations;
   }
 
   private Type kotlinSupplier(ParserContext ctx, MethodInsnNode node, AbstractInsnNode ins) {
@@ -896,7 +910,8 @@ public class RouteParser {
         node.name.equals("apply")
             || node.name.equals("invoke")
             || node.name.startsWith("invoke$")
-            || node.name.contains("$lambda");
+            || node.name.contains("$lambda")
+            || node.name.startsWith("fake$");
     if (notSynthetic && !lambda) {
       operation.setOperationId(node.name);
     }

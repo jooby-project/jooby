@@ -79,7 +79,7 @@ public class JavaDocParser {
                 }
               });
           // Script routes
-          scripts(scope, classDoc, null, null, new HashSet<>());
+          counter.addAndGet(scripts(scope, classDoc, null, null, new HashSet<>()));
 
           if (counter.get() > 0) {
             classes.put(classDoc.getName(), classDoc);
@@ -88,8 +88,9 @@ public class JavaDocParser {
     return classes;
   }
 
-  private void scripts(
+  private int scripts(
       DetailAST scope, ClassDoc classDoc, PathDoc pathDoc, String prefix, Set<DetailAST> visited) {
+    var counter = new AtomicInteger(0);
     for (var script : tree(scope).filter(tokens(TokenTypes.METHOD_CALL)).toList()) {
       if (visited.add(script)) {
         // Test for HTTP method name
@@ -106,11 +107,17 @@ public class JavaDocParser {
                 .filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN))
                 .findFirst()
                 .orElse(JavaDocNode.EMPTY_AST);
+        if (scriptComment != JavaDocNode.EMPTY_AST) {
+          counter.incrementAndGet();
+        }
         if (Router.METHODS.contains(callName.toUpperCase())) {
           pathLiteral(script)
               .ifPresent(
                   pattern -> {
                     var resolvedComment = resolveScriptComment(classDoc, script, scriptComment);
+                    if (scriptComment != resolvedComment.comment) {
+                      counter.incrementAndGet();
+                    }
                     var scriptDoc =
                         new ScriptDoc(
                             this,
@@ -138,6 +145,7 @@ public class JavaDocParser {
         }
       }
     }
+    return counter.get();
   }
 
   /**
