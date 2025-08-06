@@ -25,6 +25,7 @@ import com.puppycrawl.tools.checkstyle.JavaParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.XpathUtil;
+import io.jooby.Context;
 import io.jooby.Router;
 
 public class JavaDocParser {
@@ -213,7 +214,10 @@ public class JavaDocParser {
                         .filter(tokens(TokenTypes.PARAMETER_DEF))
                         .findFirst()
                         .flatMap(p -> children(p).filter(tokens(TokenTypes.TYPE)).findFirst())
-                        .filter(type -> getQualifiedName(type).equals("Context"))
+                        .filter(
+                            type ->
+                                toQualifiedName(classDoc.node, getQualifiedName(type))
+                                    .equals(Context.class.getName()))
                         .isPresent())
             .findFirst()
             .orElseThrow(
