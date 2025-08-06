@@ -218,15 +218,20 @@ public class ClassDoc extends JavaDocNode {
                             TokenTypes.RECORD_DEF)))
             .map(this::getSimpleName)
             .toList();
-    var packageScope =
+
+    return Stream.concat(Stream.of(getPackage()), classScope.stream())
+        .collect(Collectors.joining("."));
+  }
+
+  public String getPackage() {
+    return String.join(
+        ".",
         backward(node)
             .filter(tokens(TokenTypes.COMPILATION_UNIT))
             .findFirst()
             .flatMap(it -> tree(it).filter(tokens(TokenTypes.PACKAGE_DEF)).findFirst())
             .map(it -> tree(it).filter(tokens(TokenTypes.IDENT)).map(DetailAST::getText).toList())
-            .orElse(List.of());
-    return Stream.concat(packageScope.stream(), classScope.stream())
-        .collect(Collectors.joining("."));
+            .orElse(List.of()));
   }
 
   public boolean isRecord() {

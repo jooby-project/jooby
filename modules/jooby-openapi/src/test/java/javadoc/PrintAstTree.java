@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javadoc.input.LambdaRefApp;
+import javadoc.input.MultilineComment;
 
 import com.puppycrawl.tools.checkstyle.AstTreeStringPrinter;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
@@ -25,7 +25,7 @@ public class PrintAstTree {
             .resolve("java");
     var stringAst =
         AstTreeStringPrinter.printJavaAndJavadocTree(
-            baseDir.resolve(toPath(LambdaRefApp.class)).toFile());
+            baseDir.resolve(toPath(MultilineComment.class)).toFile());
     System.out.println(stringAst);
   }
 

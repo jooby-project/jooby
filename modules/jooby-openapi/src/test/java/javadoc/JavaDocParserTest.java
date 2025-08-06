@@ -22,11 +22,82 @@ import issues.i3729.api.Book;
 public class JavaDocParserTest {
 
   @Test
+  public void multiline() throws Exception {
+    withDoc(
+        javadoc.input.MultilineComment.class,
+        doc -> {
+          //          assertNull(doc.getSummary());
+          //          assertNull(doc.getDescription());
+
+          withScript(
+              doc,
+              "GET",
+              "/multiline",
+              method -> {
+                assertEquals("Multiline comment.", method.getSummary());
+                assertEquals("multilineComment", method.getOperationId());
+                assertEquals("Description in next line.", method.getDescription());
+                assertNull(method.getReturnDoc());
+                assertEquals("Path ID.", method.getParameterDoc("id"));
+              });
+        });
+  }
+
+  @Test
   public void lambdaDoc() throws Exception {
     withDoc(
         javadoc.input.LambdaRefApp.class,
         doc -> {
-          System.out.println(doc);
+          assertEquals("LambdaRefApp", doc.getSimpleName());
+          assertEquals("javadoc.input.LambdaRefApp", doc.getName());
+          assertEquals("Lambda App.", doc.getSummary());
+          assertEquals("Using method ref.", doc.getDescription());
+
+          withScript(
+              doc,
+              "GET",
+              "/reference",
+              method -> {
+                assertEquals("Find pet by id.", method.getSummary());
+                assertEquals("findPetById", method.getOperationId());
+                assertNull(method.getDescription());
+                assertNull(method.getReturnDoc());
+                assertEquals("Pet ID.", method.getParameterDoc("id"));
+              });
+
+          withScript(
+              doc,
+              "POST",
+              "/static-reference",
+              method -> {
+                assertEquals("Static reference.", method.getSummary());
+                assertEquals("staticFindPetById", method.getOperationId());
+                assertEquals("Path ID.", method.getParameterDoc("id"));
+                assertEquals("Description in next line.", method.getDescription());
+                assertNull(method.getReturnDoc());
+              });
+
+          withScript(
+              doc,
+              "PUT",
+              "/external-reference",
+              method -> {
+                assertEquals("External doc.", method.getSummary());
+                assertEquals("external", method.getOperationId());
+                assertNull(method.getDescription());
+                assertNull(method.getReturnDoc());
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/external-subPackage-reference",
+              method -> {
+                assertEquals("Sub package doc.", method.getSummary());
+                assertEquals("subPackage", method.getOperationId());
+                assertNull(method.getDescription());
+                assertNull(method.getReturnDoc());
+              });
         });
   }
 

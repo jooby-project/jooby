@@ -9,6 +9,7 @@ import static com.puppycrawl.tools.checkstyle.JavaParser.parseFile;
 import static io.jooby.SneakyThrows.throwingFunction;
 import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
 import static io.jooby.internal.openapi.javadoc.JavaDocSupport.tokens;
+import static java.util.Optional.ofNullable;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.puppycrawl.tools.checkstyle.JavaParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
@@ -26,6 +28,7 @@ import com.puppycrawl.tools.checkstyle.utils.XpathUtil;
 import io.jooby.Router;
 
 public class JavaDocParser {
+  private record ScriptRef(String operationId, DetailAST comment) {}
 
   private final List<Path> baseDir;
   private final Map<Path, DetailAST> cache = new HashMap<>();
@@ -39,7 +42,7 @@ public class JavaDocParser {
   }
 
   public Optional<ClassDoc> parse(String typeName) {
-    return Optional.ofNullable(traverse(resolveType(typeName)).get(typeName));
+    return ofNullable(traverse(resolveType(typeName)).get(typeName));
   }
 
   public Map<String, ClassDoc> traverse(DetailAST tree) {
@@ -76,7 +79,7 @@ public class JavaDocParser {
                 }
               });
           // Script routes
-          scripts(scope, null, null, new HashSet<>(), classDoc);
+          scripts(scope, classDoc, null, null, new HashSet<>());
 
           if (counter.get() > 0) {
             classes.put(classDoc.getName(), classDoc);
@@ -86,7 +89,7 @@ public class JavaDocParser {
   }
 
   private void scripts(
-      DetailAST scope, PathDoc pathDoc, String prefix, Set<DetailAST> visited, ClassDoc classDoc) {
+      DetailAST scope, ClassDoc classDoc, PathDoc pathDoc, String prefix, Set<DetailAST> visited) {
     for (var script : tree(scope).filter(tokens(TokenTypes.METHOD_CALL)).toList()) {
       if (visited.add(script)) {
         // Test for HTTP method name
@@ -107,13 +110,17 @@ public class JavaDocParser {
           pathLiteral(script)
               .ifPresent(
                   pattern -> {
+                    var resolvedComment = resolveScriptComment(classDoc, script, scriptComment);
                     var scriptDoc =
                         new ScriptDoc(
                             this,
                             callName.toUpperCase(),
                             computePath(prefix, pattern),
                             script,
-                            scriptComment);
+                            resolvedComment.comment);
+                    if (resolvedComment.operationId() != null) {
+                      scriptDoc.setOperationId(resolvedComment.operationId());
+                    }
                     scriptDoc.setPath(pathDoc);
                     classDoc.addScript(scriptDoc);
                   });
@@ -123,14 +130,139 @@ public class JavaDocParser {
                   path -> {
                     scripts(
                         script,
+                        classDoc,
                         new PathDoc(this, script, scriptComment),
                         computePath(prefix, path),
-                        visited,
-                        classDoc);
+                        visited);
                   });
         }
       }
     }
+  }
+
+  /**
+   * get("/reference", this::findPetById); post("/static-reference",
+   * javadoc.input.LambdaRefApp::staticFindPetById); put("/external-reference",
+   * RequestHandler::external); get("/external-subPackage-reference",
+   * SubPackageHandler::subPackage);
+   *
+   * @param classDoc
+   * @param script
+   * @param defaultComment
+   * @return
+   */
+  private ScriptRef resolveScriptComment(
+      ClassDoc classDoc, DetailAST script, DetailAST defaultComment) {
+    // ELIST -> LAMBDA (children)
+    // ELIST -> EXPR -> METHOD_REF (tree)
+    return children(script)
+        .filter(tokens(TokenTypes.ELIST))
+        .findFirst()
+        .map(
+            statementList ->
+                children(statementList)
+                    .filter(tokens(TokenTypes.LAMBDA))
+                    .findFirst()
+                    .map(lambda -> new ScriptRef(null, defaultComment))
+                    .orElseGet(
+                        () ->
+                            tree(statementList)
+                                .filter(tokens(TokenTypes.METHOD_REF))
+                                .findFirst()
+                                .flatMap(
+                                    ref -> ofNullable(resolveFromMethodRef(classDoc, script, ref)))
+                                .orElseGet(() -> new ScriptRef(null, defaultComment))))
+        .orElseGet(() -> new ScriptRef(null, defaultComment));
+  }
+
+  private ScriptRef resolveFromMethodRef(ClassDoc classDoc, DetailAST script, DetailAST methodRef) {
+    var referenceOwner = getTypeName(methodRef);
+    DetailAST scope = null;
+    String className;
+    if (referenceOwner.equals("this")) {
+      scope = classDoc.getNode();
+      className = classDoc.getName();
+    } else {
+      // resolve className
+      className = toQualifiedName(classDoc, referenceOwner);
+      scope = resolveType(className);
+      if (scope == JavaDocNode.EMPTY_AST) {
+        // not found
+        return null;
+      }
+    }
+    var methodName =
+        children(methodRef).filter(tokens(TokenTypes.IDENT)).toList().getLast().getText();
+    var method =
+        tree(scope)
+            .filter(tokens(TokenTypes.METHOD_DEF))
+            .filter(
+                it ->
+                    children(it)
+                        .filter(tokens(TokenTypes.IDENT))
+                        .findFirst()
+                        .filter(e -> e.getText().equals(methodName))
+                        .isPresent())
+            // One Argument
+            .filter(it -> tree(it).filter(tokens(TokenTypes.PARAMETER_DEF)).count() == 1)
+            // Context Type
+            .filter(
+                it ->
+                    tree(it)
+                        .filter(tokens(TokenTypes.PARAMETER_DEF))
+                        .findFirst()
+                        .flatMap(p -> children(p).filter(tokens(TokenTypes.TYPE)).findFirst())
+                        .filter(type -> getTypeName(type).equals("Context"))
+                        .isPresent())
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        "No method found: " + className + "." + methodName));
+    return children(method)
+        .filter(tokens(TokenTypes.MODIFIERS))
+        .findFirst()
+        .flatMap(it -> children(it).filter(tokens(TokenTypes.BLOCK_COMMENT_BEGIN)).findFirst())
+        .map(comment -> new ScriptRef(methodName, comment))
+        .orElseGet(() -> new ScriptRef(null, JavaDocNode.EMPTY_AST));
+  }
+
+  private static String getTypeName(DetailAST methodRef) {
+    var referenceOwner =
+        tree(methodRef.getFirstChild())
+            .filter(tokens(TokenTypes.DOT).negate())
+            .map(DetailAST::getText)
+            .collect(Collectors.joining("."));
+    return referenceOwner;
+  }
+
+  private static String toQualifiedName(ClassDoc classDoc, String referenceOwner) {
+    var className = referenceOwner;
+    if (!className.contains(".")) {
+      if (!classDoc.getSimpleName().equals(className)) {
+        var cu =
+            backward(classDoc.getNode())
+                .filter(tokens(TokenTypes.COMPILATION_UNIT))
+                .findFirst()
+                .orElseThrow(
+                    () ->
+                        new IllegalArgumentException(
+                            "No compilation unit found: " + referenceOwner));
+        className =
+            children(cu)
+                .filter(tokens(TokenTypes.IMPORT))
+                .map(
+                    it ->
+                        tree(it.getFirstChild())
+                            .filter(tokens(TokenTypes.DOT).negate())
+                            .map(DetailAST::getText)
+                            .collect(Collectors.joining(".")))
+                .filter(qualifiedName -> qualifiedName.endsWith("." + referenceOwner))
+                .findFirst()
+                .orElseGet(() -> String.join(".", classDoc.getPackage(), referenceOwner));
+      }
+    }
+    return className;
   }
 
   /**

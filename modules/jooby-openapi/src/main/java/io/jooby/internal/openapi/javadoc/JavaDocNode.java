@@ -47,6 +47,10 @@ public class JavaDocNode {
         : new JavadocDetailNodeParser().parseJavadocAsDetailNode(node).getTree();
   }
 
+  public DetailAST getNode() {
+    return node;
+  }
+
   public Map<String, Object> getExtensions() {
     return extensions;
   }
@@ -96,25 +100,29 @@ public class JavaDocNode {
 
   protected static String getText(List<DetailNode> nodes, boolean stripLeading) {
     var builder = new StringBuilder();
+    var visited = new HashSet<DetailNode>();
     for (var node : nodes) {
-      if (node.getType() == JavadocTokenTypes.TEXT) {
-        var text = node.getText();
-        if (stripLeading && Character.isWhitespace(text.charAt(0))) {
-          builder.append(' ').append(text.stripLeading());
-        } else {
-          builder.append(text);
-        }
-      } else if (node.getType() == JavadocTokenTypes.NEWLINE) {
-        var next = JavadocUtil.getNextSibling(node);
-        if (next != null && next.getType() != JavadocTokenTypes.LEADING_ASTERISK) {
-          builder.append(next.getText());
+      if (visited.add(node)) {
+        if (node.getType() == JavadocTokenTypes.TEXT) {
+          var text = node.getText();
+          if (stripLeading && Character.isWhitespace(text.charAt(0))) {
+            builder.append(' ').append(text.stripLeading());
+          } else {
+            builder.append(text);
+          }
+        } else if (node.getType() == JavadocTokenTypes.NEWLINE) {
+          var next = JavadocUtil.getNextSibling(node);
+          if (next != null && next.getType() != JavadocTokenTypes.LEADING_ASTERISK) {
+            builder.append(next.getText());
+            visited.add(next);
+          }
         }
       }
     }
-    return builder.isEmpty() ? null : builder.toString().trim();
+    return builder.isEmpty() ? null : builder.toString().trim().replaceAll("\\s+", " ");
   }
 
-  protected String toString(DetailNode node) {
+  protected static String toString(DetailNode node) {
     return DetailNodeTreeStringPrinter.printTree(node, "", "");
   }
 

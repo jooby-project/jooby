@@ -8,6 +8,7 @@ package issues.i3729.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.jooby.Context;
 import io.jooby.Jooby;
 
 /**
@@ -39,23 +40,7 @@ public class ScriptLibrary extends Jooby {
     path(
         "/api/library",
         () -> {
-          /*
-           * Find a book by isbn.
-           *
-           * @param isbn Book isbn. Like IK-1900.
-           * @return A matching book.
-           * @throws NotFoundException <code>404</code> If a book doesn't exist.
-           * @throws BadRequestException <code>400</code> For bad ISBN code.
-           * @tag Book
-           * @tag Author
-           * @operationId bookByIsbn
-           */
-          get(
-              "/{isbn}",
-              ctx -> {
-                var isbn = ctx.path("isbn").value();
-                return new Book();
-              });
+          get("/{isbn}", this::bookByIsbn);
 
           /*
            * Author by Id.
@@ -107,5 +92,21 @@ public class ScriptLibrary extends Jooby {
                 return book;
               });
         });
+  }
+
+  /*
+   * Find a book by isbn.
+   *
+   * @param isbn Book isbn. Like IK-1900.
+   * @return A matching book.
+   * @throws NotFoundException <code>404</code> If a book doesn't exist.
+   * @throws BadRequestException <code>400</code> For bad ISBN code.
+   * @tag Book
+   * @tag Author
+   * @operationId bookByIsbn
+   */
+  private Book bookByIsbn(Context ctx) {
+    var isbn = ctx.path("isbn").value();
+    return new Book();
   }
 }

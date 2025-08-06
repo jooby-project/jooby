@@ -39,6 +39,10 @@ public class MethodDoc extends JavaDocNode {
     return operationId;
   }
 
+  public void setOperationId(String operationId) {
+    this.operationId = operationId;
+  }
+
   public List<String> getParameterNames() {
     var result = new ArrayList<String>();
     var index = 0;
