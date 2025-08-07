@@ -16,6 +16,7 @@ import io.jooby.Jooby;
         .setNormalizeSlash(true)
         .setResetHeadersOnError(false)
         .setTrustProxy(true)
+        .setContextAsService(true)
   );
 }
 ----
@@ -33,6 +34,7 @@ import io.jooby.Jooby
     normalizeSlash = true
     resetHeadersOnError = false
     trustProxy = true
+    contextAsService = true
   }
 }
 ----
@@ -40,6 +42,11 @@ import io.jooby.Jooby
 [cols="1,1,1,1"]
 |===
 | Option | Value | Default Value| Description
+
+|contextAsService
+|boolean
+|false
+|If enabled, allows to retrieve the javadoc:Context[] object associated with the current request via the service registry while the request is being processed.
 
 |ignoreCase
 |boolean
@@ -69,7 +76,7 @@ import io.jooby.Jooby
 |trustProxy
 |boolean
 |false
-|When true handles X-Forwarded-* headers by updating the values on the current context to match what was sent in the header(s).
+|When true handles `X-Forwarded-*` headers by updating the values on the current context to match what was sent in the header(s).
 
 |===
 

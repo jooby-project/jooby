@@ -66,6 +66,35 @@ public class RouterOptions {
   private boolean trustProxy;
 
   /**
+   * If enabled, allows to retrieve the {@link Context} object associated with the current request
+   * via the service registry while the request is being processed.
+   */
+  private boolean contextAsService;
+
+  /**
+   * If enabled, allows to retrieve the {@link Context} object associated with the current request
+   * via the service registry while the request is being processed.
+   *
+   * @return If enabled, allows to retrieve the {@link Context} object associated with the current
+   *     request via the service registry while the request is being processed.
+   */
+  public boolean isContextAsService() {
+    return contextAsService;
+  }
+
+  /**
+   * If enabled, allows to retrieve the {@link Context} object associated with the current request
+   * via the service registry while the request is being processed.
+   *
+   * @param contextAsService True for enabled.
+   * @return This options.
+   */
+  public RouterOptions setContextAsService(boolean contextAsService) {
+    this.contextAsService = contextAsService;
+    return this;
+  }
+
+  /**
    * Indicates whenever routing algorithm does case-sensitive matching on an incoming request path.
    * Default is <code>false (case sensitive)</code>.
    *

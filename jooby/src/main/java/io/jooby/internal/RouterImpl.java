@@ -537,7 +537,7 @@ public class RouterImpl implements Router {
   @NonNull public Router start(@NonNull Jooby app, @NonNull Server server) {
     started = true;
     configureTrustProxy(routerOptions.isTrustProxy());
-    setContextAsService();
+    configureContextAsService(routerOptions.isContextAsService());
     var globalErrHandler = defineGlobalErrorHandler(app);
     if (err == null) {
       err = globalErrHandler;
@@ -608,6 +608,13 @@ public class RouterImpl implements Router {
     routeExecutor.clear();
     routeExecutor = null;
     return this;
+  }
+
+  private void configureContextAsService(boolean contextAsService) {
+    if (contextAsService) {
+      addPostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
+      getServices().put(Context.class, ContextAsServiceInitializer.INSTANCE);
+    }
   }
 
   /**
@@ -799,13 +806,6 @@ public class RouterImpl implements Router {
   @NonNull @Override
   public Router setCurrentUser(@NonNull Function<Context, Object> provider) {
     addPreDispatchInitializer(new CurrentUserInitializer(provider));
-    return this;
-  }
-
-  private Router setContextAsService() {
-    addPostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
-    getServices().put(Context.class, ContextAsServiceInitializer.INSTANCE);
-
     return this;
   }
 
