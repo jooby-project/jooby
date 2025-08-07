@@ -5,248 +5,119 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import java.util.*;
-import java.util.function.Function;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.tokens;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.tree;
+
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.DetailNode;
-import com.puppycrawl.tools.checkstyle.utils.JavadocUtil;
+import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import com.puppycrawl.tools.checkstyle.utils.TokenUtil;
 
-public final class JavaDocSupport {
+public class JavaDocSupport {
 
-  public static Predicate<DetailAST> tokens(Integer... types) {
-    return tokens(Set.of(types));
-  }
+  public static final Predicate<DetailAST> TYPES =
+      tokens(
+          TokenTypes.CLASS_DEF,
+          TokenTypes.INTERFACE_DEF,
+          TokenTypes.ENUM_DEF,
+          TokenTypes.RECORD_DEF);
 
-  private static Predicate<DetailAST> tokens(Set<Integer> types) {
-    return it -> types.contains(it.getType());
-  }
-
-  public static Predicate<DetailNode> javadocToken(Integer... types) {
-    return javadocToken(Set.of(types));
-  }
-
-  private static Predicate<DetailNode> javadocToken(Set<Integer> types) {
-    return it -> types.contains(it.getType());
-  }
+  public static final Predicate<DetailAST> EXTENDED_TYPES =
+      TYPES.or(tokens(TokenTypes.VARIABLE_DEF, TokenTypes.PARAMETER_DEF));
 
   /**
-   * Traverse the tree from current node to parent (backward).
+   * Name from class, method, field, parameter.
    *
-   * @param node Starting point
-   * @return Stream.
+   * @param node Node.
+   * @return Name.
    */
-  public static Stream<DetailAST> backward(DetailAST node) {
-    return backward(ASTNode.ast(node));
+  public static String getSimpleName(DetailAST node) {
+    checkTypeDef(EXTENDED_TYPES, node);
+    return node.findFirstToken(TokenTypes.IDENT).getText();
   }
 
-  /**
-   * Traverse the tree from the current node to children and sibling (forward).
-   *
-   * @param node Starting point
-   * @return Stream.
-   */
-  public static Stream<DetailAST> forward(DetailAST node) {
-    return forward(ASTNode.ast(node));
+  public static String getClassName(DetailAST node) {
+    checkTypeDef(TYPES, node);
+    var classScope =
+        Stream.concat(Stream.of(node), backward(node).filter(TYPES))
+            .map(JavaDocSupport::getSimpleName)
+            .toList();
+
+    return Stream.concat(Stream.of(getPackageName(node)), classScope.stream())
+        .collect(Collectors.joining("."));
   }
 
-  /**
-   * Traverse the tree from the current node to children and sibling (forward) but keeping the scope
-   * to the given node (root).
-   *
-   * @param node Root node.
-   * @return Stream.
-   */
-  public static Stream<DetailAST> tree(DetailAST node) {
-    return tree(ASTNode.ast(node));
+  public static DetailAST getCompilationUnit(DetailAST node) {
+    return backward(node)
+        .filter(tokens(TokenTypes.COMPILATION_UNIT))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    "Compilation unit missing: " + TokenUtil.getTokenName(node.getType())));
   }
 
-  public static Stream<DetailNode> tree(DetailNode node) {
-    return tree(ASTNode.javadoc(node));
+  public static String getPackageName(DetailAST node) {
+    return String.join(
+        ".",
+        tree(getCompilationUnit(node))
+            .filter(tokens(TokenTypes.PACKAGE_DEF))
+            .findFirst()
+            .map(it -> tree(it).filter(tokens(TokenTypes.IDENT)).map(DetailAST::getText).toList())
+            .orElse(List.of()));
   }
 
-  public static Stream<DetailAST> children(DetailAST node) {
-    return stream(childrenIterator(ASTNode.ast(node)));
+  public static String getQualifiedName(DetailAST node) {
+    return tree(node.getFirstChild())
+        .filter(tokens(TokenTypes.DOT).negate())
+        .map(DetailAST::getText)
+        .collect(Collectors.joining("."));
   }
 
-  public static Stream<DetailNode> children(DetailNode node) {
-    return stream(childrenIterator(ASTNode.javadoc(node)));
-  }
-
-  public static Stream<DetailNode> backward(DetailNode node) {
-    return backward(ASTNode.javadoc(node));
-  }
-
-  public static Stream<DetailNode> forward(DetailNode node) {
-    return forward(ASTNode.javadoc(node));
-  }
-
-  public static Stream<DetailNode> forward(DetailNode node, Predicate<DetailNode> stopOn) {
-    var nodes = forward(ASTNode.javadoc(node)).toList();
-    var result = new ArrayList<DetailNode>();
-    for (var it : nodes) {
-      if (stopOn.test(it)) {
-        break;
-      }
-      result.add(it);
-    }
-    return result.stream();
-  }
-
-  private static <T> Stream<T> backward(ASTNode<T> node) {
-    return stream(backwardIterator(node));
-  }
-
-  private static <T> Stream<T> forward(ASTNode<T> node) {
-    return stream(forwardIterator(node));
-  }
-
-  private static <T> Stream<T> tree(ASTNode<T> node) {
-    return stream(treeIterator(node));
-  }
-
-  private static <T> Stream<T> stream(Iterator<T> iterator) {
-    return StreamSupport.stream(
-        Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false);
-  }
-
-  private static <T> Iterator<T> treeIterator(ASTNode<T> node) {
-    return forwardIterator(node, false);
-  }
-
-  private static <T> Iterator<T> forwardIterator(ASTNode<T> node) {
-    return forwardIterator(node, true);
-  }
-
-  private static <T> Iterator<T> childrenIterator(ASTNode<T> node) {
-    return new Iterator<>() {
-      Function<ASTNode<T>, ASTNode<T>> direction = null;
-      ASTNode<T> it = node;
-
-      @Override
-      public boolean hasNext() {
-        if (direction == null) {
-          direction = ASTNode::getFirstChild;
-        } else {
-          direction = ASTNode::getNextSibling;
+  public static String toQualifiedName(DetailAST classDef, String typeName) {
+    return switch (typeName) {
+      case "char", "boolean", "int", "short", "long", "float", "double" -> typeName;
+      case "Character" -> Character.class.getName();
+      case "Boolean" -> Boolean.class.getName();
+      case "Integer" -> Integer.class.getName();
+      case "Short" -> Short.class.getName();
+      case "Long" -> Long.class.getName();
+      case "Float" -> Float.class.getName();
+      case "Double" -> Double.class.getName();
+      case "String" -> String.class.getName();
+      default -> {
+        checkTypeDef(TYPES, classDef);
+        if (!typeName.contains(".")) {
+          if (!getSimpleName(classDef).equals(typeName)) {
+            var cu = getCompilationUnit(classDef);
+            yield children(cu)
+                .filter(tokens(TokenTypes.IMPORT))
+                .map(
+                    it ->
+                        tree(it.getFirstChild())
+                            .filter(tokens(TokenTypes.DOT).negate())
+                            .map(DetailAST::getText)
+                            .collect(Collectors.joining(".")))
+                .filter(qualifiedName -> qualifiedName.endsWith("." + typeName))
+                .findFirst()
+                .orElseGet(() -> String.join(".", getPackageName(classDef), typeName));
+          }
         }
-        return direction.apply(it) != null;
-      }
-
-      @Override
-      public T next() {
-        it = direction.apply(it);
-        return it.getNode();
+        // Already qualified.
+        yield typeName;
       }
     };
   }
 
-  private static <T> Iterator<T> backwardIterator(ASTNode<T> node) {
-    return new Iterator<>() {
-      ASTNode<T> it = node;
-
-      @Override
-      public boolean hasNext() {
-        return it.getParent() != null;
-      }
-
-      @Override
-      public T next() {
-        it = it.getParent();
-        return it.getNode();
-      }
-    };
-  }
-
-  private static <T> Iterator<T> forwardIterator(ASTNode<T> node, boolean full) {
-    return new Iterator<>() {
-      ASTNode<T> it = node;
-      final Stack<ASTNode<T>> stack = new Stack<>();
-
-      @Override
-      public boolean hasNext() {
-        return it != null;
-      }
-
-      @Override
-      public T next() {
-        if (it.getNextSibling() != null) {
-          if (full || it != node) {
-            stack.push(it.getNextSibling());
-          }
-        }
-        var current = it;
-        var child = it.getFirstChild();
-        if (child == null) {
-          if (!stack.isEmpty()) {
-            it = stack.pop();
-          } else {
-            it = null;
-          }
-        } else {
-          it = child;
-        }
-        return current.getNode();
-      }
-    };
-  }
-
-  private interface ASTNode<Node> {
-    ASTNode<Node> getFirstChild();
-
-    ASTNode<Node> getNextSibling();
-
-    ASTNode<Node> getParent();
-
-    Node getNode();
-
-    static ASTNode<DetailAST> ast(DetailAST node) {
-      return ast(node, DetailAST::getParent, DetailAST::getFirstChild, DetailAST::getNextSibling);
-    }
-
-    static ASTNode<DetailNode> javadoc(DetailNode node) {
-      return ast(
-          node, DetailNode::getParent, JavadocUtil::getFirstChild, JavadocUtil::getNextSibling);
-    }
-
-    static <N> ASTNode<N> ast(
-        N node, Function<N, N> parent, Function<N, N> child, Function<N, N> sibling) {
-      return new ASTNode<>() {
-        @Override
-        public ASTNode<N> getParent() {
-          var parentNode = parent.apply(node);
-          if (parentNode == null) {
-            return null;
-          }
-          return ast(parentNode, parent, child, sibling);
-        }
-
-        @Override
-        public ASTNode<N> getFirstChild() {
-          var childNode = child.apply(node);
-          if (childNode == null) {
-            return null;
-          }
-          return ast(childNode, parent, child, sibling);
-        }
-
-        @Override
-        public N getNode() {
-          return node;
-        }
-
-        @Override
-        public ASTNode<N> getNextSibling() {
-          var siblingNode = sibling.apply(node);
-          if (siblingNode == null) {
-            return null;
-          }
-          return ast(siblingNode, parent, child, sibling);
-        }
-      };
+  private static void checkTypeDef(Predicate<DetailAST> predicate, DetailAST node) {
+    if (!predicate.test(node)) {
+      throw new IllegalArgumentException(
+          "Must be a type definition, found: " + TokenUtil.getTokenName(node.getType()));
     }
   }
 }

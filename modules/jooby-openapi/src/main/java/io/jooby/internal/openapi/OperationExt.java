@@ -211,6 +211,11 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     this.controller = controller;
   }
 
+  @Override
+  public void setOperationId(String operationId) {
+    super.setOperationId(operationId);
+  }
+
   @JsonIgnore
   public List<AnnotationNode> getAllAnnotations() {
     return Stream.of(

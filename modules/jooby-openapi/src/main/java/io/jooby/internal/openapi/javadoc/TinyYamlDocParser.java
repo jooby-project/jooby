@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MiniYamlDocParser {
+public class TinyYamlDocParser {
   @SuppressWarnings("unchecked")
   public static Map<String, Object> parse(List<String> properties) {
     // The root of our final tree structure.
@@ -102,7 +102,7 @@ public class MiniYamlDocParser {
         listOfObjects.add(objectMap);
       }
       if (listOfObjects.size() == 1
-          && restructuredMap.keySet().stream().noneMatch(MiniYamlDocParser::startsWithDash)) {
+          && restructuredMap.keySet().stream().noneMatch(TinyYamlDocParser::startsWithDash)) {
         return listOfObjects.getFirst();
       }
       return listOfObjects;

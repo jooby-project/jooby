@@ -6,8 +6,8 @@
 package io.jooby.internal.openapi.javadoc;
 
 import static io.jooby.internal.openapi.javadoc.JavaDocNode.getText;
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.children;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.children;
 
 import java.util.*;
 import java.util.function.Function;
@@ -18,6 +18,7 @@ import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.SneakyThrows.Consumer3;
 import io.jooby.StatusCode;
+import io.jooby.internal.openapi.ResponseExt;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
@@ -34,6 +35,8 @@ public class JavaDocTag {
       CUSTOM_TAG.and(it -> it.getText().startsWith("@contact."));
   private static final Predicate<DetailNode> LICENSE =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@license."));
+  private static final Predicate<DetailNode> OPERATION_ID =
+      CUSTOM_TAG.and(it -> it.getText().equals("@operationId"));
   private static final Predicate<DetailNode> EXTENSION =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@x-"));
   private static final Predicate<DetailNode> THROWS =
@@ -91,11 +94,12 @@ public class JavaDocTag {
         });
     var result = new ArrayList<T>();
     if (!values.isEmpty()) {
-      var output = MiniYamlDocParser.parse(values);
+      var output = TinyYamlDocParser.parse(values);
       var itemList = output.get(path);
       if (!(itemList instanceof List<?>)) {
         itemList = List.of(itemList);
       }
+      //noinspection unchecked,rawtypes
       ((List) itemList)
           .forEach(
               it -> {
@@ -107,8 +111,8 @@ public class JavaDocTag {
     return result;
   }
 
-  public static Map<StatusCode, ThrowsDoc> throwList(DetailNode node) {
-    var result = new LinkedHashMap<StatusCode, ThrowsDoc>();
+  public static Map<StatusCode, ResponseExt> throwList(DetailNode node) {
+    var result = new LinkedHashMap<StatusCode, ResponseExt>();
     javaDocTag(
         node,
         THROWS,
@@ -149,7 +153,13 @@ public class JavaDocTag {
                               .findFirst())
                   .orElse(null);
           if (statusCode != null) {
-            var throwsDoc = new ThrowsDoc(statusCode, text);
+            if (text == null) {
+              text = statusCode.reason();
+            } else {
+              text = statusCode.reason() + ": " + text;
+            }
+            var throwsDoc = new ResponseExt(Integer.toString(statusCode.value()));
+            throwsDoc.setDescription(text);
             result.putIfAbsent(statusCode, throwsDoc);
           }
         });
@@ -166,7 +176,7 @@ public class JavaDocTag {
           values.add(tag.getText().substring(1));
           values.add(value);
         });
-    return MiniYamlDocParser.parse(values);
+    return TinyYamlDocParser.parse(values);
   }
 
   public static List<Tag> tags(DetailNode node) {
@@ -202,7 +212,7 @@ public class JavaDocTag {
           }
         });
     if (!values.isEmpty()) {
-      var tagMap = MiniYamlDocParser.parse(values);
+      var tagMap = TinyYamlDocParser.parse(values);
       var tags = tagMap.get("tag");
       if (!(tags instanceof List<?>)) {
         tags = List.of(tags);
@@ -249,5 +259,16 @@ public class JavaDocTag {
         }
       }
     }
+  }
+
+  public static String operationId(DetailNode javadoc) {
+    var operationId = new ArrayList<String>();
+    javaDocTag(
+        javadoc,
+        OPERATION_ID,
+        (tag, value, text) -> {
+          operationId.add(text);
+        });
+    return operationId.isEmpty() ? null : operationId.getFirst();
   }
 }

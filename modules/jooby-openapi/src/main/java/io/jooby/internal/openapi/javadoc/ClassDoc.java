@@ -5,7 +5,8 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import static io.jooby.internal.openapi.javadoc.JavaDocSupport.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
+import static io.jooby.internal.openapi.javadoc.JavaDocSupport.getClassName;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.models.servers.Server;
 public class ClassDoc extends JavaDocNode {
   private final Map<String, FieldDoc> fields = new LinkedHashMap<>();
   private final Map<String, MethodDoc> methods = new LinkedHashMap<>();
+  private final Map<String, ScriptDoc> scripts = new LinkedHashMap<>();
   private final List<Server> servers;
   private final List<Contact> contact;
   private final List<License> license;
@@ -115,7 +117,11 @@ public class ClassDoc extends JavaDocNode {
           /* Virtual method */
           var method =
               new MethodDoc(
-                  context, createVirtualMember(name.getText(), TokenTypes.METHOD_DEF), memberDoc);
+                      context,
+                      createVirtualMember(name.getText(), TokenTypes.METHOD_DEF),
+                      memberDoc)
+                  .markAsVirtual();
+
           addMethod(method);
         });
   }
@@ -140,7 +146,7 @@ public class ClassDoc extends JavaDocNode {
     }
   }
 
-  private static DetailAstImpl createVirtualMember(String name, int tokenType) {
+  private DetailAstImpl createVirtualMember(String name, int tokenType) {
     var publicMod = new DetailAstImpl();
     publicMod.initialize(
         TokenTypes.LITERAL_PUBLIC, TokenUtil.getTokenName(TokenTypes.LITERAL_PUBLIC));
@@ -160,6 +166,10 @@ public class ClassDoc extends JavaDocNode {
     this.methods.put(toMethodSignature(method), method);
   }
 
+  public void addScript(ScriptDoc method) {
+    this.scripts.put(toScriptSignature(method), method);
+  }
+
   public void addField(FieldDoc field) {
     this.fields.put(field.getName(), field);
   }
@@ -168,48 +178,40 @@ public class ClassDoc extends JavaDocNode {
     return Optional.ofNullable(fields.get(name));
   }
 
-  public Optional<MethodDoc> getMethod(String name, List<String> parameterNames) {
-    return Optional.ofNullable(methods.get(toMethodSignature(name, parameterNames)));
+  public Optional<MethodDoc> getMethod(String name, List<String> types) {
+    return Optional.ofNullable(methods.get(toMethodSignature(name, types)));
+  }
+
+  public Optional<ScriptDoc> getScript(String method, String pattern) {
+    return Optional.ofNullable(scripts.get(toScriptSignature(method, pattern)));
+  }
+
+  private String toScriptSignature(ScriptDoc method) {
+    return toScriptSignature(method.getMethod(), method.getPattern());
+  }
+
+  private String toScriptSignature(String method, String pattern) {
+    return method + "/" + pattern;
   }
 
   private String toMethodSignature(MethodDoc method) {
-    return toMethodSignature(method.getName(), method.getParameterNames());
+    return toMethodSignature(method.getName(), method.getParameterTypes());
   }
 
-  private String toMethodSignature(String methodName, List<String> parameterNames) {
-    return methodName + parameterNames.stream().collect(Collectors.joining(", ", "(", ")"));
+  private String toMethodSignature(String methodName, List<String> types) {
+    return methodName + types.stream().collect(Collectors.joining(", ", "(", ")"));
   }
 
   public String getSimpleName() {
-    return getSimpleName(node);
-  }
-
-  protected String getSimpleName(DetailAST node) {
-    return node.findFirstToken(TokenTypes.IDENT).getText();
+    return JavaDocSupport.getSimpleName(node);
   }
 
   public String getName() {
-    var classScope =
-        Stream.concat(
-                Stream.of(node),
-                backward(node)
-                    .filter(
-                        tokens(
-                            TokenTypes.CLASS_DEF,
-                            TokenTypes.INTERFACE_DEF,
-                            TokenTypes.ENUM_DEF,
-                            TokenTypes.RECORD_DEF)))
-            .map(this::getSimpleName)
-            .toList();
-    var packageScope =
-        backward(node)
-            .filter(tokens(TokenTypes.COMPILATION_UNIT))
-            .findFirst()
-            .flatMap(it -> tree(it).filter(tokens(TokenTypes.PACKAGE_DEF)).findFirst())
-            .map(it -> tree(it).filter(tokens(TokenTypes.IDENT)).map(DetailAST::getText).toList())
-            .orElse(List.of());
-    return Stream.concat(packageScope.stream(), classScope.stream())
-        .collect(Collectors.joining("."));
+    return getClassName(node);
+  }
+
+  public String getPackage() {
+    return JavaDocSupport.getPackageName(node);
   }
 
   public boolean isRecord() {

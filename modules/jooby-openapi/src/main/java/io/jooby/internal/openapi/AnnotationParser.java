@@ -277,61 +277,16 @@ public class AnnotationParser {
             .parse(className)
             .ifPresent(
                 doc -> {
-                  operationExt.setPathDescription(doc.getDescription());
-                  operationExt.setPathSummary(doc.getSummary());
-                  doc.getTags().forEach(operationExt::addTag);
-                  if (!doc.getExtensions().isEmpty()) {
-                    operationExt.setPathExtensions(doc.getExtensions());
-                  }
+                  JavaDocSetter.setPath(operationExt, doc);
                   var parameterNames =
-                      Optional.ofNullable(operationExt.getNode().parameters)
-                          .orElse(List.of())
-                          .stream()
-                          .map(p -> p.name)
+                      operationExt.getNode().parameters.stream().map(p -> p.name).toList();
+                  var parameterTypes =
+                      Stream.of(Type.getArgumentTypes(operationExt.getNode().desc))
+                          .map(Type::getClassName)
                           .toList();
-                  doc.getMethod(operationExt.getOperationId(), parameterNames)
+                  doc.getMethod(operationExt.getOperationId(), parameterTypes)
                       .ifPresent(
-                          methodDoc -> {
-                            operationExt.setSummary(methodDoc.getSummary());
-                            operationExt.setDescription(methodDoc.getDescription());
-                            if (!methodDoc.getExtensions().isEmpty()) {
-                              operationExt.setExtensions(methodDoc.getExtensions());
-                            }
-                            methodDoc.getTags().forEach(operationExt::addTag);
-                            // Parameters
-                            for (var parameterName : parameterNames) {
-                              var paramExt =
-                                  operationExt.getParameters().stream()
-                                      .filter(p -> p.getName().equals(parameterName))
-                                      .findFirst()
-                                      .map(ParameterExt.class::cast)
-                                      .orElse(null);
-                              var paramDoc = methodDoc.getParameterDoc(parameterName);
-                              if (paramDoc != null) {
-                                if (paramExt == null) {
-                                  operationExt.getRequestBody().setDescription(paramDoc);
-                                } else {
-                                  paramExt.setDescription(paramDoc);
-                                }
-                              }
-                            }
-                            // return types
-                            var defaultResponse = operationExt.getDefaultResponse();
-                            if (defaultResponse != null) {
-                              defaultResponse.setDescription(methodDoc.getReturnDoc());
-                            }
-                            for (var throwsDoc : methodDoc.getThrows().values()) {
-                              var response =
-                                  operationExt.getResponse(
-                                      Integer.toString(throwsDoc.getStatusCode().value()));
-                              if (response == null) {
-                                response =
-                                    operationExt.addResponse(
-                                        Integer.toString(throwsDoc.getStatusCode().value()));
-                              }
-                              response.setDescription(throwsDoc.getText());
-                            }
-                          });
+                          methodDoc -> JavaDocSetter.set(operationExt, methodDoc, parameterNames));
                 });
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);

@@ -16,13 +16,217 @@ import javadoc.input.EnumDoc;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
-import io.jooby.internal.openapi.javadoc.ClassDoc;
-import io.jooby.internal.openapi.javadoc.FieldDoc;
-import io.jooby.internal.openapi.javadoc.JavaDocParser;
-import io.jooby.internal.openapi.javadoc.MethodDoc;
+import io.jooby.internal.openapi.javadoc.*;
 import issues.i3729.api.Book;
 
 public class JavaDocParserTest {
+
+  @Test
+  public void inheritance() throws Exception {
+    withDoc(
+        javadoc.input.Subclass.class,
+        doc -> {
+          assertEquals("Subclass summary.", doc.getSummary());
+          assertEquals("Subclass description.", doc.getDescription());
+
+          assertEquals("Number on subclass.", doc.getPropertyDoc("number"));
+          assertEquals("Name on subclass.", doc.getPropertyDoc("name"));
+          assertEquals("Desc on base class.", doc.getPropertyDoc("description"));
+        });
+
+    withDoc(
+        javadoc.input.sub.Base.class,
+        doc -> {
+          assertEquals("Base summary.", doc.getSummary());
+          assertEquals("Base description.", doc.getDescription());
+
+          assertNull(doc.getPropertyDoc("number"));
+          assertEquals("Name on base class.", doc.getPropertyDoc("name"));
+          assertEquals("Desc on base class.", doc.getPropertyDoc("description"));
+        });
+  }
+
+  @Test
+  public void multiline() throws Exception {
+    withDoc(
+        javadoc.input.MultilineComment.class,
+        doc -> {
+          assertNull(doc.getSummary());
+          assertNull(doc.getDescription());
+
+          withScript(
+              doc,
+              "GET",
+              "/multiline",
+              method -> {
+                assertEquals("Multiline comment.", method.getSummary());
+                assertEquals("multilineComment", method.getOperationId());
+                assertEquals("Description in next line.", method.getDescription());
+                assertNull(method.getReturnDoc());
+                assertEquals("Path ID.", method.getParameterDoc("id"));
+              });
+        });
+  }
+
+  @Test
+  public void lambdaDoc() throws Exception {
+    withDoc(
+        javadoc.input.LambdaRefApp.class,
+        doc -> {
+          assertEquals("LambdaRefApp", doc.getSimpleName());
+          assertEquals("javadoc.input.LambdaRefApp", doc.getName());
+          assertEquals("Lambda App.", doc.getSummary());
+          assertEquals("Using method ref.", doc.getDescription());
+
+          withScript(
+              doc,
+              "GET",
+              "/reference",
+              method -> {
+                assertEquals("Find pet by id.", method.getSummary());
+                assertEquals("findPetById", method.getOperationId());
+                assertNull(method.getDescription());
+                assertNull(method.getReturnDoc());
+                assertEquals("Pet ID.", method.getParameterDoc("id"));
+              });
+
+          withScript(
+              doc,
+              "POST",
+              "/static-reference",
+              method -> {
+                assertEquals("Static reference.", method.getSummary());
+                assertEquals("staticFindPetById", method.getOperationId());
+                assertEquals("Path ID.", method.getParameterDoc("id"));
+                assertEquals("Description in next line.", method.getDescription());
+                assertNull(method.getReturnDoc());
+              });
+
+          withScript(
+              doc,
+              "PUT",
+              "/external-reference",
+              method -> {
+                assertEquals("External doc.", method.getSummary());
+                assertEquals("external", method.getOperationId());
+                assertNull(method.getDescription());
+                assertNull(method.getReturnDoc());
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/external-subPackage-reference",
+              method -> {
+                assertEquals("Sub package doc.", method.getSummary());
+                assertEquals("subPackage", method.getOperationId());
+                assertNull(method.getDescription());
+                assertNull(method.getReturnDoc());
+              });
+        });
+  }
+
+  @Test
+  public void scriptDoc() throws Exception {
+    withDoc(
+        javadoc.input.ScriptApp.class,
+        doc -> {
+          assertEquals("ScriptApp", doc.getSimpleName());
+          assertEquals("javadoc.input.ScriptApp", doc.getName());
+          assertEquals("Script App.", doc.getSummary());
+          assertEquals("Some description.", doc.getDescription());
+
+          withScript(
+              doc,
+              "GET",
+              "/static",
+              method -> {
+                assertEquals("This is a static path.", method.getSummary());
+                assertEquals("No parameters", method.getDescription());
+                assertEquals("Request Path.", method.getReturnDoc());
+              });
+
+          withScript(
+              doc,
+              "DELETE",
+              "/{id}",
+              method -> {
+                assertEquals("Delete something.", method.getSummary());
+                assertEquals("ID to delete.", method.getParameterDoc("id"));
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/{id}",
+              method -> {
+                assertEquals("Path param.", method.getSummary());
+                assertNull(method.getDescription());
+                assertEquals("Some value.", method.getReturnDoc());
+                assertEquals("Path ID.", method.getParameterDoc("id"));
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/tree/folder/{id}",
+              method -> {
+                assertNotNull(method.getPath());
+                assertEquals("Tree summary.", method.getPath().getSummary());
+                assertEquals("Tree doc.", method.getPath().getDescription());
+                assertNotNull(method.getPath().getTags());
+                assertEquals(1, method.getPath().getTags().size());
+                assertEquals("Tree", method.getPath().getTags().getFirst().getName());
+
+                assertEquals("Item doc.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/tree/folder",
+              method -> {
+                assertEquals("Items.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/tree/file/{fileId}",
+              method -> {
+                assertEquals("Sub Items.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+
+          withScript(
+              doc,
+              "GET",
+              "/tree/mount",
+              method -> {
+                assertEquals("Mounted.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+
+          withScript(
+              doc,
+              "POST",
+              "/routes",
+              method -> {
+                assertEquals("Routes.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+          withScript(
+              doc,
+              "GET",
+              "/nested/last",
+              method -> {
+                assertEquals("Last.", method.getSummary());
+                assertNull(method.getDescription());
+              });
+        });
+  }
 
   @Test
   public void apiDoc() throws Exception {
@@ -47,7 +251,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "hello",
-              List.of("name", "age", "list", "str"),
+              List.of("java.util.List", "int", "java.util.List", "java.lang.String"),
               method -> {
                 assertEquals("This is the Hello /endpoint", method.getSummary());
                 assertEquals("Operation description", method.getDescription());
@@ -61,7 +265,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "search",
-              List.of("query"),
+              List.of("javadoc.input.QueryBeanDoc"),
               method -> {
                 assertEquals("Search database.", method.getSummary());
                 assertEquals("Search DB", method.getDescription());
@@ -74,7 +278,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "recordBean",
-              List.of("query"),
+              List.of("javadoc.input.RecordBeanDoc"),
               method -> {
                 assertEquals("Record database.", method.getSummary());
                 assertNull(method.getDescription());
@@ -85,7 +289,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "enumParam",
-              List.of("query"),
+              List.of("javadoc.input.EnumDoc"),
               method -> {
                 assertEquals("Enum database.", method.getSummary());
                 assertEquals("Enum doc.", method.getParameterDoc("query"));
@@ -116,7 +320,7 @@ public class JavaDocParserTest {
           withMethod(
               doc,
               "hello",
-              List.of("name"),
+              List.of("java.lang.String"),
               methodDoc -> {
                 assertEquals("Method Doc.", methodDoc.getSummary());
                 assertNull(methodDoc.getDescription());
@@ -256,6 +460,13 @@ public class JavaDocParserTest {
     var method = doc.getMethod(name, types);
     assertTrue(method.isPresent());
     consumer.accept(method.get());
+  }
+
+  private void withScript(
+      ClassDoc doc, String method, String pattern, Consumer<ScriptDoc> consumer) {
+    var script = doc.getScript(method, pattern);
+    assertTrue(script.isPresent());
+    consumer.accept(script.get());
   }
 
   private void withField(ClassDoc doc, String name, Consumer<FieldDoc> consumer) {

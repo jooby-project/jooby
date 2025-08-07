@@ -13,7 +13,16 @@ import io.jooby.openapi.OpenAPITest;
 public class ApiDocTest {
 
   @OpenAPITest(value = AppLibrary.class)
-  public void shouldGenerateDoc(OpenAPIResult result) {
+  public void shouldGenerateMvcDoc(OpenAPIResult result) {
+    checkResult(result);
+  }
+
+  @OpenAPITest(value = ScriptLibrary.class)
+  public void shouldGenerateScriptDoc(OpenAPIResult result) {
+    checkResult(result);
+  }
+
+  private void checkResult(OpenAPIResult result) {
     assertEquals(
         "openapi: 3.0.1\n"
             + "info:\n"
