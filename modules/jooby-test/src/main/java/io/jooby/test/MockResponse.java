@@ -124,7 +124,7 @@ public class MockResponse implements MockValue {
    */
   public @NonNull MockResponse setContentType(@NonNull MediaType contentType) {
     this.contentType = contentType;
-    headers.put("content-type", contentType.toContentTypeHeader(contentType.getCharset()));
+    headers.put("content-type", contentType.toContentTypeHeader());
     return this;
   }
 

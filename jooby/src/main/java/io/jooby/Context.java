@@ -571,7 +571,8 @@ public interface Context extends Registry {
    * Recreates full/entire url of the current request using the <code>Host</code> header.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link Router#setRouterOptions(RouterOptions)} {@link
+   * RouterOptions#setTrustProxy(boolean)} option.
    *
    * @return Full/entire request url using the <code>Host</code> header.
    */
@@ -581,7 +582,8 @@ public interface Context extends Registry {
    * Recreates full/entire request url using the <code>Host</code> header with a custom path/suffix.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link Router#setRouterOptions(RouterOptions)} {@link
+   * RouterOptions#setTrustProxy(boolean)} option.
    *
    * @param path Path or suffix to use, can also include query string parameters.
    * @return Full/entire request url using the <code>Host</code> header.
@@ -592,7 +594,8 @@ public interface Context extends Registry {
    * The IP address of the client or last proxy that sent the request.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link Router#setRouterOptions(RouterOptions)} {@link
+   * RouterOptions#setTrustProxy(boolean)} option.
    *
    * @return The IP address of the client or last proxy that sent the request or <code>empty string
    *     </code> for interrupted requests.
@@ -613,7 +616,8 @@ public interface Context extends Registry {
    * method.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link Router#setRouterOptions(RouterOptions)} {@link
+   * RouterOptions#setTrustProxy(boolean)} option.
    *
    * @return Return the host that this request was sent to, in general this will be the value of the
    *     Host header, minus the port specifier.
@@ -635,7 +639,8 @@ public interface Context extends Registry {
    * the Host.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link Router#setRouterOptions(RouterOptions)} {@link
+   * RouterOptions#setTrustProxy(boolean)} option.
    *
    * @return Return the host that this request was sent to, in general this will be the value of the
    *     Host header.
@@ -1087,15 +1092,6 @@ public interface Context extends Registry {
   Context setResponseType(@NonNull MediaType contentType);
 
   /**
-   * Set response content type header.
-   *
-   * @param contentType Content type.
-   * @param charset Charset.
-   * @return This context.
-   */
-  Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset);
-
-  /**
    * Set the default response content type header. It is used if the response content type header
    * was not set yet.
    *
@@ -1203,15 +1199,6 @@ public interface Context extends Registry {
   /**
    * HTTP response channel as response writer.
    *
-   * @param contentType Content type.
-   * @param charset Charset.
-   * @return HTTP channel as response writer. Usually for chunked response.
-   */
-  PrintWriter responseWriter(@NonNull MediaType contentType, @Nullable Charset charset);
-
-  /**
-   * HTTP response channel as response writer.
-   *
    * @param consumer Writer consumer.
    * @return This context.
    * @throws Exception Is something goes wrong.
@@ -1228,19 +1215,6 @@ public interface Context extends Registry {
    */
   Context responseWriter(
       MediaType contentType, @NonNull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
-
-  /**
-   * HTTP response channel as response writer.
-   *
-   * @param contentType Content type.
-   * @param charset Charset.
-   * @param consumer Writer consumer.
-   * @return This context.
-   * @throws Exception Is something goes wrong.
-   */
-  Context responseWriter(
-      MediaType contentType, @Nullable Charset charset, SneakyThrows.Consumer<PrintWriter> consumer)
-      throws Exception;
 
   /**
    * Send a <code>302</code> response.
@@ -1390,10 +1364,12 @@ public interface Context extends Registry {
 
   /**
    * True if response headers are cleared on application error. If none set it uses the
-   * default/global value specified by {@link RouterOptions#RESET_HEADERS_ON_ERROR}.
+   * default/global value specified by {@link Router#setRouterOptions(RouterOptions)} {@link
+   * RouterOptions#setResetHeadersOnError(boolean)} option.
    *
    * @return True if response headers are cleared on application error. If none set it uses the
-   *     default/global value specified by {@link RouterOptions#RESET_HEADERS_ON_ERROR}.
+   *     default/global value specified by {@link Router#setRouterOptions(RouterOptions)} {@link
+   *     RouterOptions#setResetHeadersOnError(boolean)} option.
    */
   boolean getResetHeadersOnError();
 

@@ -10,6 +10,8 @@ import static io.undertow.util.Headers.CONTENT_LENGTH;
 import static io.undertow.util.Headers.CONTENT_TYPE;
 import static io.undertow.util.Headers.RANGE;
 import static io.undertow.util.Headers.SET_COOKIE;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Optional.ofNullable;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,7 +32,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -197,7 +198,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   public String getRemoteAddress() {
     if (remoteAddress == null) {
       String remoteAddr =
-          Optional.ofNullable(exchange.getSourceAddress())
+          ofNullable(exchange.getSourceAddress())
               .map(InetSocketAddress::getHostString)
               .orElse("")
               .trim();
@@ -380,23 +381,21 @@ public class UndertowContext implements DefaultContext, IoCallback {
   @NonNull @Override
   public Context setDefaultResponseType(@NonNull MediaType contentType) {
     if (responseType == null) {
-      setResponseType(contentType, contentType.getCharset());
+      setResponseType(contentType);
     }
     return this;
   }
 
   @NonNull @Override
-  public Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset) {
+  public Context setResponseType(@NonNull MediaType contentType) {
     this.responseType = contentType;
-    exchange.getResponseHeaders().put(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
+    exchange.getResponseHeaders().put(CONTENT_TYPE, contentType.toContentTypeHeader());
     return this;
   }
 
   @NonNull @Override
   public Context setResponseType(@NonNull String contentType) {
-    this.responseType = MediaType.valueOf(contentType);
-    exchange.getResponseHeaders().put(CONTENT_TYPE, contentType);
-    return this;
+    return setResponseType(MediaType.valueOf(contentType));
   }
 
   @Nullable @Override
@@ -448,13 +447,15 @@ public class UndertowContext implements DefaultContext, IoCallback {
   }
 
   @NonNull @Override
-  public PrintWriter responseWriter(MediaType type, Charset charset) {
+  public PrintWriter responseWriter(MediaType type) {
     ifStartBlocking();
 
-    setResponseType(type, charset);
+    setResponseType(type);
     ifSetChunked();
 
-    return new PrintWriter(new UndertowWriter(exchange.getOutputStream(), charset));
+    return new PrintWriter(
+        new UndertowWriter(
+            exchange.getOutputStream(), ofNullable(type.getCharset()).orElse(UTF_8)));
   }
 
   @NonNull @Override

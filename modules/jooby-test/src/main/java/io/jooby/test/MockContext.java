@@ -518,7 +518,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext setResponseType(@NonNull MediaType contentType, @Nullable Charset charset) {
+  public MockContext setResponseType(@NonNull MediaType contentType) {
     response.setContentType(contentType);
     return this;
   }
@@ -627,8 +627,7 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
-  @Override
-  public PrintWriter responseWriter(MediaType type, Charset charset) {
+  public PrintWriter responseWriter(MediaType type) {
     responseStarted = true;
     PrintWriter writer = new PrintWriter(new StringWriter());
     this.response.setResult(writer).setContentType(type);

@@ -6,8 +6,8 @@
 package io.jooby.internal.jetty;
 
 import static io.jooby.internal.jetty.JettyCallbacks.fromByteBufferArray;
+import static java.nio.charset.StandardCharsets.*;
 import static org.eclipse.jetty.http.HttpHeader.*;
-import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
 import static org.eclipse.jetty.io.Content.Sink.asOutputStream;
 
@@ -71,6 +71,7 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
+import io.jooby.internal.jetty.http2.JettyHeaders;
 import io.jooby.output.Output;
 import io.jooby.value.Value;
 
@@ -420,23 +421,21 @@ public class JettyContext implements DefaultContext, Callback {
   @NonNull @Override
   public Context setDefaultResponseType(@NonNull MediaType contentType) {
     if (responseType == null) {
-      setResponseType(contentType, contentType.getCharset());
+      setResponseType(contentType);
     }
     return this;
   }
 
   @NonNull @Override
-  public Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset) {
+  public Context setResponseType(@NonNull MediaType contentType) {
     this.responseType = contentType;
-    response.getHeaders().put(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
+    response.getHeaders().put(JettyHeaders.contentType(contentType));
     return this;
   }
 
   @NonNull @Override
   public Context setResponseType(@NonNull String contentType) {
-    this.responseType = MediaType.valueOf(contentType);
-    response.getHeaders().put(CONTENT_TYPE, contentType);
-    return this;
+    return setResponseType(MediaType.valueOf(contentType));
   }
 
   @NonNull @Override
@@ -501,9 +500,10 @@ public class JettyContext implements DefaultContext, Callback {
   }
 
   @NonNull @Override
-  public PrintWriter responseWriter(MediaType type, Charset charset) {
-    setResponseType(type, charset);
-    return new PrintWriter(responseStream());
+  public PrintWriter responseWriter(MediaType type) {
+    setResponseType(type);
+    return new PrintWriter(
+        responseStream(), false, Optional.ofNullable(type.getCharset()).orElse(UTF_8));
   }
 
   @NonNull @Override

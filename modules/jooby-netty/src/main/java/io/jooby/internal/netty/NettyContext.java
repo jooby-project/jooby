@@ -18,6 +18,7 @@ import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -32,14 +33,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
@@ -471,22 +465,21 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @NonNull @Override
   public Context setDefaultResponseType(@NonNull MediaType contentType) {
     if (responseType == null) {
-      setResponseType(contentType, contentType.getCharset());
+      setResponseType(contentType);
     }
     return this;
   }
 
   @Override
-  public final Context setResponseType(MediaType contentType, Charset charset) {
+  public final Context setResponseType(@NonNull MediaType contentType) {
     this.responseType = contentType;
-    setHeaders.set(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
+    setHeaders.set(CONTENT_TYPE, NettyString.valueOf(contentType));
     return this;
   }
 
   @NonNull @Override
   public Context setResponseType(@NonNull String contentType) {
-    this.responseType = MediaType.valueOf(contentType);
-    setHeaders.set(CONTENT_TYPE, contentType);
+    this.setResponseType(MediaType.valueOf(contentType));
     return this;
   }
 
@@ -524,10 +517,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @NonNull @Override
-  public PrintWriter responseWriter(MediaType type, Charset charset) {
-    setResponseType(type, charset);
+  public PrintWriter responseWriter(MediaType type) {
+    setResponseType(type);
 
-    return new PrintWriter(new NettyWriter(newOutputStream(), charset));
+    return new PrintWriter(
+        new NettyWriter(newOutputStream(), ofNullable(type.getCharset()).orElse(UTF_8)));
   }
 
   @NonNull @Override

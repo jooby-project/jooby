@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BinaryOperator;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -24,14 +23,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @since 2.0.0
  */
 public final class MediaType implements Comparable<MediaType> {
-
-  /** Computes and returns the most specific media type of both. */
-  public static final BinaryOperator<MediaType> MOST_SPECIFIC =
-      (a, b) -> {
-        int aScore = a.getScore();
-        int bScore = b.getScore();
-        return aScore >= bScore ? a : b;
-      };
 
   /** APPLICATION_JSON. */
   public static final String JSON = "application/json";
@@ -72,8 +63,12 @@ public final class MediaType implements Comparable<MediaType> {
   /** ALL. */
   public static final String ALL = "*/*";
 
-  /** APPLICATION_JSON. */
-  public static final MediaType json = new MediaType(JSON, UTF_8);
+  /**
+   * APPLICATION_JSON. The application/json content type, as defined by RFC 8259, does not require a
+   * charset parameter. This is because JSON text is typically expected to be encoded in UTF-8, and
+   * the specification does not define other encodings or a charset parameter for this media type.
+   */
+  public static final MediaType json = new MediaType(JSON, null);
 
   /** YAML. */
   public static final MediaType yaml = new MediaType(YAML, UTF_8);
@@ -115,6 +110,8 @@ public final class MediaType implements Comparable<MediaType> {
 
   private final String value;
 
+  private final String contentTypeHeader;
+
   private MediaType(@NonNull String value, Charset charset) {
     this.raw = value;
     this.subtypeStart = value.indexOf('/');
@@ -130,6 +127,7 @@ public final class MediaType implements Comparable<MediaType> {
       this.subtypeEnd = subtypeEnd;
     }
     this.charset = charset;
+    this.contentTypeHeader = this.charset == null ? value : value + ";charset=" + charset.name();
   }
 
   @Override
@@ -187,18 +185,10 @@ public final class MediaType implements Comparable<MediaType> {
   /**
    * Render a content type header and add the charset parameter (when present).
    *
-   * @param charset Charset.
    * @return Content type header.
    */
-  public @NonNull String toContentTypeHeader(@Nullable Charset charset) {
-    if (charset == null) {
-      Charset paramCharset = getCharset();
-      if (paramCharset == null) {
-        return value;
-      }
-      charset = paramCharset;
-    }
-    return value + ";charset=" + charset.name();
+  public @NonNull String toContentTypeHeader() {
+    return contentTypeHeader;
   }
 
   /**

@@ -34,8 +34,7 @@ public class Issue2413 {
                       "/2413",
                       rsp -> {
                         assertEquals(
-                            "application/json;charset=utf-8",
-                            rsp.body().contentType().toString().toLowerCase());
+                            "application/json", rsp.body().contentType().toString().toLowerCase());
                         assertEquals(
                             "{\"id\":\"someId\",\"name\":\"someName\"}", rsp.body().string());
                       });
@@ -71,8 +70,7 @@ public class Issue2413 {
                       "/2413",
                       rsp -> {
                         assertEquals(
-                            "application/json;charset=utf-8",
-                            rsp.body().contentType().toString().toLowerCase());
+                            "application/json", rsp.body().contentType().toString().toLowerCase());
                         assertEquals(
                             "{\"id\":\"someId\",\"name\":\"someName\"}", rsp.body().string());
                       });
@@ -82,8 +80,7 @@ public class Issue2413 {
                       "/2413",
                       rsp -> {
                         assertEquals(
-                            "application/json;charset=utf-8",
-                            rsp.body().contentType().toString().toLowerCase());
+                            "application/json", rsp.body().contentType().toString().toLowerCase());
                         assertEquals(
                             "{\"id\":\"someId\",\"name\":\"someName\"}", rsp.body().string());
                       });
@@ -108,8 +105,7 @@ public class Issue2413 {
                       "/2413",
                       rsp -> {
                         assertEquals(
-                            "application/json;charset=utf-8",
-                            rsp.body().contentType().toString().toLowerCase());
+                            "application/json", rsp.body().contentType().toString().toLowerCase());
                         assertEquals(
                             "{\"id\":\"someId\",\"name\":\"someName\"}", rsp.body().string());
                       });

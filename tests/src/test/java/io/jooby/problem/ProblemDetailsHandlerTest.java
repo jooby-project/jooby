@@ -11,9 +11,10 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+
+import org.hamcrest.Matchers;
 
 import io.jooby.StatusCode;
 import io.jooby.junit.ServerTest;
@@ -79,7 +80,8 @@ class ProblemDetailsHandlerTest {
                       .then()
                       .assertThat()
                       .statusCode(422)
-                      .header(CONTENT_TYPE, text.toContentTypeHeader(StandardCharsets.UTF_8))
+                      .header(
+                          CONTENT_TYPE, Matchers.equalToIgnoringCase(text.toContentTypeHeader()))
                       .extract()
                       .asString();
               assertThat(
@@ -318,7 +320,7 @@ class ProblemDetailsHandlerTest {
                       .then()
                       .assertThat()
                       .statusCode(406)
-                      .header(CONTENT_TYPE, html.toContentTypeHeader(StandardCharsets.UTF_8))
+                      .header(CONTENT_TYPE, html.toContentTypeHeader())
                       .extract()
                       .body()
                       .asString();

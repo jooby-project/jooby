@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.util.Date;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.DefaultContext;
@@ -146,12 +145,6 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
 
   @NonNull @Override
   public Context setResponseType(@NonNull String contentType) {
-    // NOOP
-    return this;
-  }
-
-  @NonNull @Override
-  public Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset) {
     // NOOP
     return this;
   }

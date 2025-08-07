@@ -38,7 +38,7 @@ public class Issue3400 {
                       "{\"id\": 1, \"name\": \"Cheddar\"}", MediaType.parse("application/json")),
                   rsp -> {
                     assertEquals("{\"id\":1,\"name\":\"Cheddar\"}", rsp.body().string());
-                    assertEquals("application/json;charset=UTF-8", rsp.header("Content-Type"));
+                    assertEquals("application/json", rsp.header("Content-Type"));
                   });
             });
   }
@@ -59,7 +59,7 @@ public class Issue3400 {
                       "{\"id\": 1, \"name\": \"Cheddar\"}", MediaType.parse("application/json")),
                   rsp -> {
                     assertEquals("{\"id\":1,\"name\":\"Cheddar\"}", rsp.body().string());
-                    assertEquals("application/json;charset=UTF-8", rsp.header("Content-Type"));
+                    assertEquals("application/json", rsp.header("Content-Type"));
                   });
             });
   }

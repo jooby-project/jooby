@@ -5,13 +5,13 @@
  */
 package io.jooby.internal.jetty;
 
-import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
 import io.jooby.Router;
+import io.jooby.internal.jetty.http2.JettyHeaders;
 
 public class JettyHandler extends Handler.Abstract {
   private final Router router;
@@ -35,9 +35,9 @@ public class JettyHandler extends Handler.Abstract {
   @Override
   public boolean handle(Request request, Response response, Callback callback) {
     var responseHeaders = response.getHeaders();
-    responseHeaders.put(HttpHeader.CONTENT_TYPE, "text/plain");
+    responseHeaders.put(JettyHeaders.TEXT_PLAIN);
     if (defaultHeaders) {
-      responseHeaders.put(HttpHeader.SERVER.asString(), "J");
+      responseHeaders.put(JettyHeaders.SERVER);
     }
     var context =
         new JettyContext(

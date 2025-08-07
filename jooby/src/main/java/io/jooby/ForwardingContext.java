@@ -1098,12 +1098,6 @@ public class ForwardingContext implements Context {
   }
 
   @Override
-  public Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset) {
-    ctx.setResponseType(contentType, charset);
-    return this;
-  }
-
-  @Override
   public Context setDefaultResponseType(@NonNull MediaType contentType) {
     ctx.setResponseType(contentType);
     return this;
@@ -1176,11 +1170,6 @@ public class ForwardingContext implements Context {
   }
 
   @Override
-  public PrintWriter responseWriter(@NonNull MediaType contentType, @Nullable Charset charset) {
-    return ctx.responseWriter(contentType, charset);
-  }
-
-  @Override
   public Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
     return ctx.responseWriter(consumer);
@@ -1191,15 +1180,6 @@ public class ForwardingContext implements Context {
       @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
     return ctx.responseWriter(contentType, consumer);
-  }
-
-  @Override
-  public Context responseWriter(
-      @NonNull MediaType contentType,
-      @Nullable Charset charset,
-      @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
-      throws Exception {
-    return ctx.responseWriter(contentType, charset, consumer);
   }
 
   @Override

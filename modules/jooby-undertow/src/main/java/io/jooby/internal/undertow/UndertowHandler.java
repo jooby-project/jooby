@@ -42,7 +42,7 @@ public class UndertowHandler implements HttpHandler {
 
     /* default headers: */
     HeaderMap responseHeaders = exchange.getResponseHeaders();
-    responseHeaders.put(Headers.CONTENT_TYPE, "text/plain");
+    responseHeaders.put(Headers.CONTENT_TYPE, "text/plain;charset=utf-8");
     if (defaultHeaders) {
       responseHeaders.put(Headers.SERVER, "U");
     }

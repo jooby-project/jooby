@@ -8,13 +8,15 @@ package io.jooby.internal.netty;
 import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.MediaType;
 
 public class NettyString implements CharSequence {
   static final CharSequence server = NettyString.of("N");
   static final CharSequence CONTENT_TYPE = NettyString.of("content-type");
   static final CharSequence CONTENT_LENGTH = NettyString.of("content-length");
   static final CharSequence ZERO = NettyString.of("0");
-  static final CharSequence TEXT_PLAIN = NettyString.of("text/plain");
+  static final CharSequence TEXT_PLAIN = NettyString.of("text/plain;charset=utf-8");
+  static final CharSequence JSON = NettyString.of("application/json");
   static final CharSequence DATE = NettyString.of("date");
   static final CharSequence SERVER = NettyString.of("server");
 
@@ -63,5 +65,14 @@ public class NettyString implements CharSequence {
   @Override
   @NonNull public String toString() {
     return value;
+  }
+
+  public static CharSequence valueOf(MediaType contentType) {
+    if (MediaType.text.equals(contentType)) {
+      return TEXT_PLAIN;
+    } else if (MediaType.json.equals(contentType)) {
+      return JSON;
+    }
+    return contentType.toContentTypeHeader();
   }
 }

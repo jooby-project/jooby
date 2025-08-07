@@ -17,7 +17,6 @@ import java.time.Instant;
 import java.util.Date;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.FileDownload;
@@ -141,15 +140,6 @@ public class ReadOnlyContext extends ForwardingContext {
   }
 
   @NonNull @Override
-  public Context responseWriter(
-      @NonNull MediaType contentType,
-      @Nullable Charset charset,
-      @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
-      throws Exception {
-    throw new IllegalStateException(MESSAGE);
-  }
-
-  @NonNull @Override
   public OutputStream responseStream() {
     throw new IllegalStateException(MESSAGE);
   }
@@ -166,11 +156,6 @@ public class ReadOnlyContext extends ForwardingContext {
 
   @NonNull @Override
   public PrintWriter responseWriter(@NonNull MediaType contentType) {
-    throw new IllegalStateException(MESSAGE);
-  }
-
-  @NonNull @Override
-  public PrintWriter responseWriter(@NonNull MediaType contentType, @Nullable Charset charset) {
     throw new IllegalStateException(MESSAGE);
   }
 
@@ -231,11 +216,6 @@ public class ReadOnlyContext extends ForwardingContext {
 
   @NonNull @Override
   public Context setResponseType(@NonNull MediaType contentType) {
-    throw new IllegalStateException(MESSAGE);
-  }
-
-  @NonNull @Override
-  public Context setResponseType(@NonNull MediaType contentType, @Nullable Charset charset) {
     throw new IllegalStateException(MESSAGE);
   }
 

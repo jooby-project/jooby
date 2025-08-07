@@ -1014,24 +1014,21 @@ public class FeaturedTest {
               client.get(
                   "/api/pets/fooo",
                   rsp -> {
-                    assertEquals(
-                        "application/json;charset=utf-8", rsp.header("content-type").toLowerCase());
+                    assertEquals("application/json", rsp.header("content-type").toLowerCase());
                     assertEquals("{\"message\": \"fooo\"}", rsp.body().string());
                   });
 
               client.get(
                   "/api/pets/raw",
                   rsp -> {
-                    assertEquals(
-                        "application/json;charset=utf-8", rsp.header("content-type").toLowerCase());
+                    assertEquals("application/json", rsp.header("content-type").toLowerCase());
                     assertEquals("{\"message\": \"raw\"}", rsp.body().string());
                   });
 
               client.get(
                   "/api/pets",
                   rsp -> {
-                    assertEquals(
-                        "application/json;charset=utf-8", rsp.header("content-type").toLowerCase());
+                    assertEquals("application/json", rsp.header("content-type").toLowerCase());
                     assertEquals("[{\"message\":\"fooo\"}]", rsp.body().string());
                   });
             });
@@ -1078,7 +1075,8 @@ public class FeaturedTest {
                   "/defaults",
                   rsp -> {
                     assertEquals("{OK}", rsp.body().string());
-                    assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
+                    assertEquals(
+                        "text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
                   });
 
               client.header("Accept", "application/xml");
@@ -1086,7 +1084,8 @@ public class FeaturedTest {
                   "/defaults",
                   rsp -> {
                     assertEquals("<OK>", rsp.body().string());
-                    assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
+                    assertEquals(
+                        "text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
                   });
 
               client.header("Accept", "text/plain");
@@ -1094,7 +1093,8 @@ public class FeaturedTest {
                   "/defaults",
                   rsp -> {
                     assertEquals("OK", rsp.body().string());
-                    assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
+                    assertEquals(
+                        "text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
                   });
 
               client.header("Accept", "*/*");
@@ -1102,7 +1102,8 @@ public class FeaturedTest {
                   "/defaults",
                   rsp -> {
                     assertEquals("{OK}", rsp.body().string());
-                    assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
+                    assertEquals(
+                        "text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
                   });
 
               client.header("Accept", "text/html");
@@ -1119,7 +1120,8 @@ public class FeaturedTest {
                   "/defaults?type=text/html",
                   rsp -> {
                     assertEquals("OK", rsp.body().string());
-                    assertEquals("text/html", rsp.header("Content-Type").toLowerCase());
+                    assertEquals(
+                        "text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
                   });
 
               client.header("Accept", "application/json");
@@ -1127,8 +1129,7 @@ public class FeaturedTest {
                   "/produces",
                   rsp -> {
                     assertEquals("{OK}", rsp.body().string());
-                    assertEquals(
-                        "application/json;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+                    assertEquals("application/json", rsp.header("Content-Type").toLowerCase());
                   });
 
               client.header("Accept", "application/xml");
@@ -1145,8 +1146,7 @@ public class FeaturedTest {
                   "/produces",
                   rsp -> {
                     assertEquals("{OK}", rsp.body().string());
-                    assertEquals(
-                        "application/json;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+                    assertEquals("application/json", rsp.header("Content-Type").toLowerCase());
                   });
 
               client.header("Accept", "text/html");
@@ -1278,8 +1278,7 @@ public class FeaturedTest {
                   "/",
                   rsp -> {
                     assertEquals(
-                        "application/json;charset=utf-8",
-                        rsp.body().contentType().toString().toLowerCase());
+                        "application/json", rsp.body().contentType().toString().toLowerCase());
                     assertEquals(
                         "{\"message\":\"Intentional error\",\"statusCode\":400,\"reason\":\"Bad"
                             + " Request\"}",
@@ -1769,7 +1768,8 @@ public class FeaturedTest {
                   rsp -> {
                     assertNotNull(rsp.header("Date"));
                     assertEquals(serverHeader, rsp.header("Server"));
-                    assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
+                    assertEquals(
+                        "text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
                   });
             });
   }

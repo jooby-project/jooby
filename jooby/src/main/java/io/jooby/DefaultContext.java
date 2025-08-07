@@ -16,7 +16,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -504,11 +503,6 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Context setResponseType(@NonNull MediaType contentType) {
-    return setResponseType(contentType, contentType.getCharset());
-  }
-
-  @Override
   default Context setResponseCode(@NonNull StatusCode statusCode) {
     return setResponseCode(statusCode.value());
   }
@@ -561,11 +555,6 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default PrintWriter responseWriter(@NonNull MediaType contentType) {
-    return responseWriter(contentType, contentType.getCharset());
-  }
-
-  @Override
   default Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
     return responseWriter(MediaType.text, consumer);
@@ -575,16 +564,7 @@ public interface DefaultContext extends Context {
   default Context responseWriter(
       @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
-    return responseWriter(contentType, contentType.getCharset(), consumer);
-  }
-
-  @Override
-  default Context responseWriter(
-      @NonNull MediaType contentType,
-      @Nullable Charset charset,
-      @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
-      throws Exception {
-    try (PrintWriter writer = responseWriter(contentType, charset)) {
+    try (PrintWriter writer = responseWriter(contentType)) {
       consumer.accept(writer);
     }
     return this;
