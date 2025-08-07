@@ -9,7 +9,7 @@ ${constructors}
     }
 
     public ${generatedClassName}(java.util.function.Supplier<${className}> provider) {
-        this(ctx -> provider.get());
+        this(ctx -> (${className}) provider.get());
     }
 
     public ${generatedClassName}(java.util.function.Function<io.jooby.Context, ${className}> factory) {
