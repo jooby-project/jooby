@@ -9,7 +9,7 @@ ${constructors}
     }
 
     public ${generatedClassName}(io.jooby.SneakyThrows.Supplier<${className}> provider) {
-       setup(ctx -> provider.get());
+       setup(ctx -> (${className}) provider.get());
     }
 
     public ${generatedClassName}(io.jooby.SneakyThrows.Function<Class<${className}>, ${className}> provider) {

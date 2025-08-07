@@ -90,6 +90,7 @@ public class ProcessorRunner {
     }
   }
 
+  private final Object instance;
   private final HookJoobyProcessor processor;
 
   public ProcessorRunner(Object instance) throws IOException {
@@ -106,6 +107,7 @@ public class ProcessorRunner {
 
   public ProcessorRunner(Object instance, Consumer<String> stdout, Map<String, Object> options)
       throws IOException {
+    this.instance = instance;
     this.processor = new HookJoobyProcessor(stdout::accept);
     var optionsArray =
         options.entrySet().stream().map(e -> "-A" + e.getKey() + "=" + e.getValue()).toList();
@@ -126,8 +128,14 @@ public class ProcessorRunner {
     var classLoader = processor.createClassLoader();
     var factoryName = classLoader.getClassName();
     var factoryClass = (Class<? extends Extension>) classLoader.loadClass(factoryName);
-    var constructor = factoryClass.getDeclaredConstructor();
-    var extension = constructor.newInstance();
+    Extension extension;
+    try {
+      var constructor = factoryClass.getDeclaredConstructor();
+      extension = constructor.newInstance();
+    } catch (NoSuchMethodException x) {
+      extension = factoryClass.getDeclaredConstructor(instance.getClass()).newInstance(instance);
+    }
+
     var application = new Jooby();
     application.install(extension);
     consumer.accept(application, processor.getSource());
