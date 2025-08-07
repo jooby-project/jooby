@@ -19,7 +19,6 @@ public class Issue3756 {
     new ProcessorRunner(new C3756((S3756) s -> {}))
         .withRouter(
             (app, source) -> {
-              System.out.println(source);
               var routes = app.getRoutes();
               assertNotNull(routes);
               assertFalse(routes.isEmpty());
