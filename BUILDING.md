@@ -1,6 +1,6 @@
 # Prerequisites
 
-You should have JDK17 and Maven 3.9.0 or above.
+You should have JDK21 and Maven 3.9.0 or above.
 
 # Building everything
 

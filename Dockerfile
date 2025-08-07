@@ -5,7 +5,7 @@
 # - docker run -v "$HOME/.m2":/root/.m2 -it jooby
 # - /build # mvn clean package
 
-FROM maven:3-eclipse-temurin-17 as build
+FROM maven:3-eclipse-temurin-21 AS build
 
 WORKDIR /build
 
@@ -18,7 +18,7 @@ COPY jooby/ /build/jooby/
 COPY modules/ /build/modules/
 COPY tests/ /build/tests/
 
-ENV BUILT_PORT 0
-ENV BUILT_SECURE_PORT 0
+ENV BUILT_PORT=0
+ENV BUILT_SECURE_PORT=0
 
 CMD ["/bin/bash"]
