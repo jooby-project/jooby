@@ -58,7 +58,7 @@
 
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.34</freemarker.version>
-    <handlebars.version>4.4.0</handlebars.version>
+    <handlebars.version>4.5.0</handlebars.version>
     <jstachio.version>1.3.7</jstachio.version>
     <pebble.version>3.2.4</pebble.version>
     <jackson.version>2.19.2</jackson.version>
@@ -152,6 +152,9 @@
     <rest-assured.version>5.5.5</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito.version>5.18.0</mockito.version>
+    <maven.m2.repo>${user.home}${file.separator}.m2${file.separator}repository</maven.m2.repo>
+    <mockito.agent>org${file.separator}mockito${file.separator}mockito-core${file.separator}${mockito.version}${file.separator}mockito-core-${mockito.version}.jar</mockito.agent>
+    <argLine>-javaagent:${maven.m2.repo}${file.separator}${mockito.agent}</argLine>
     <guava.version>33.4.8-jre</guava.version>
 
     <compile-testing.version>0.21.0</compile-testing.version>
@@ -170,7 +173,6 @@
     <maven-tiles-plugin.version>2.41</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven-core.version>3.9.11</maven-core.version>
-    <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
     <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
@@ -1249,12 +1251,6 @@
 
     <pluginManagement>
       <plugins>
-        <!-- jooby maven plugin  -->
-        <plugin>
-          <groupId>io.jooby</groupId>
-          <artifactId>jooby-maven-plugin</artifactId>
-          <version>${jooby.version}</version>
-        </plugin>
         <!-- kotlin -->
         <plugin>
           <groupId>org.jetbrains.kotlin</groupId>
@@ -1404,6 +1400,7 @@
           <systemPropertyVariables>
             <jooby.maven.build>true</jooby.maven.build>
           </systemPropertyVariables>
+          <argLine>@{argLine}</argLine>
         </configuration>
       </plugin>
     </plugins>

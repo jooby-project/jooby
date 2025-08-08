@@ -155,7 +155,6 @@ public class JoobyRun {
     private boolean isFatal(Throwable cause) {
       return cause instanceof InterruptedException
           || cause instanceof LinkageError
-          || cause instanceof ThreadDeath
           || cause instanceof VirtualMachineError;
     }
 
