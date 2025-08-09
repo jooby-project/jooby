@@ -96,8 +96,7 @@ public class JavaDocTag {
               var item = new SecurityScheme();
               item.setDescription((String) hash.get("description"));
               var name = (String) hash.get("name");
-              var paramName = (String) hash.getOrDefault("paramName", name);
-              item.setName(paramName);
+              item.setName((String) hash.get("paramName"));
               ofNullable((String) hash.get("in"))
                   .map(String::toUpperCase)
                   .map(SecurityScheme.In::valueOf)

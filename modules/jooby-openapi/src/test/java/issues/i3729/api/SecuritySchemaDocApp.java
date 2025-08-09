@@ -12,7 +12,7 @@ import io.jooby.Jooby;
  * Security Scheme.
  *
  * @securityScheme.name myOauth2Security
- * @securityScheme.type oauth2
+ * @securityScheme.type apiKey
  * @securityScheme.in header
  * @securityScheme.paramName X-Auth
  * @securityScheme.flows.implicit.authorizationUrl http://url.com/auth

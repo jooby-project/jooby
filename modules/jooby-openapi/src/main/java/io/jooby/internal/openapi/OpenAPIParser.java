@@ -136,9 +136,6 @@ public class OpenAPIParser {
       annotationList(annotation, "extensions", values -> extensions(values, scheme::addExtension));
       annotationValue(annotation, "flows", flows -> flows(flows, scheme::flows));
 
-      if (scheme.getName() == null || scheme.getName().trim().isEmpty()) {
-        scheme.setName(name);
-      }
       openapi.addSecuritySchemes(name, scheme);
     }
   }

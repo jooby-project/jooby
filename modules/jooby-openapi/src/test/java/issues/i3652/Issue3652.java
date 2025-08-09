@@ -46,7 +46,6 @@ public class Issue3652 {
             + "  securitySchemes:\n"
             + "    myBearerToken:\n"
             + "      type: http\n"
-            + "      name: myBearerToken\n"
             + "      in: header\n"
             + "      scheme: bearer\n"
             + "      bearerFormat: JWT\n",

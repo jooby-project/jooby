@@ -43,7 +43,6 @@ public class SecuritySchemeTest {
             + "  securitySchemes:\n"
             + "    myOauth2Security:\n"
             + "      type: oauth2\n"
-            + "      name: myOauth2Security\n"
             + "      in: header\n"
             + "      flows:\n"
             + "        implicit:\n"
