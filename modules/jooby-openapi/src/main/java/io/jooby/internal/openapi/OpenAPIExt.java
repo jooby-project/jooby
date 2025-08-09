@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.Router;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 
 public class OpenAPIExt extends OpenAPI {
   @JsonIgnore private List<OperationExt> operations = Collections.emptyList();
@@ -34,6 +35,15 @@ public class OpenAPIExt extends OpenAPI {
 
   public void setSource(String classname) {
     this.source = classname;
+  }
+
+  public void addSecuritySchemes(SecurityScheme scheme) {
+    var components = getComponents();
+    if (components == null) {
+      components = new Components();
+      setComponents(components);
+    }
+    components.addSecuritySchemes(scheme.getName(), scheme);
   }
 
   @Override

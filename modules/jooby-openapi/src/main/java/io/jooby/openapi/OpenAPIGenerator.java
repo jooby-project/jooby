@@ -167,6 +167,7 @@ public class OpenAPIGenerator {
                 if (!doc.getExtensions().isEmpty()) {
                   info.setExtensions(doc.getExtensions());
                 }
+                doc.getSecuritySchemes().forEach(openapi::addSecuritySchemes);
                 doc.getServers().forEach(openapi::addServersItem);
                 doc.getContact().forEach(info::setContact);
                 doc.getLicense().forEach(info::setLicense);

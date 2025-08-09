@@ -16,8 +16,10 @@ import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.ResponseExt;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 public class MethodDoc extends JavaDocNode {
+  private List<SecurityRequirement> securityRequeriments;
   private String operationId;
   private Map<StatusCode, ResponseExt> throwList;
   private List<String> parameterTypes = null;
@@ -26,6 +28,7 @@ public class MethodDoc extends JavaDocNode {
     super(ctx, node, javadoc);
     throwList = JavaDocTag.throwList(this.javadoc);
     operationId = JavaDocTag.operationId(this.javadoc);
+    securityRequeriments = JavaDocTag.securityRequirement(this.javadoc);
   }
 
   MethodDoc(JavaDocParser ctx, DetailAST node, DetailNode javadoc) {
@@ -42,6 +45,10 @@ public class MethodDoc extends JavaDocNode {
 
   public void setOperationId(String operationId) {
     this.operationId = operationId;
+  }
+
+  public List<SecurityRequirement> getSecurityRequeriments() {
+    return securityRequeriments;
   }
 
   public List<String> getParameterTypes() {

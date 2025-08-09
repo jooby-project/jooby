@@ -48,6 +48,7 @@ public class JavaDocSetter {
     if (!doc.getExtensions().isEmpty()) {
       operation.setExtensions(doc.getExtensions());
     }
+    doc.getSecurityRequeriments().forEach(operation::addSecurityItem);
     doc.getTags().forEach(operation::addTag);
     // Parameters
     for (var parameterName : parameterNames) {

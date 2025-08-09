@@ -8,10 +8,13 @@ package io.jooby.internal.openapi.javadoc;
 import static io.jooby.internal.openapi.javadoc.JavaDocNode.getText;
 import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
 import static io.jooby.internal.openapi.javadoc.JavaDocStream.children;
+import static java.util.Optional.ofNullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
@@ -21,6 +24,7 @@ import io.jooby.StatusCode;
 import io.jooby.internal.openapi.ResponseExt;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.*;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 
@@ -31,6 +35,13 @@ public class JavaDocTag {
       CUSTOM_TAG.and(it -> it.getText().startsWith("@tag.") || it.getText().equals("@tag"));
   private static final Predicate<DetailNode> SERVER =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@server."));
+  private static final Predicate<DetailNode> SECURITY =
+      CUSTOM_TAG.and(
+          it -> it.getText().equals("@security") || it.getText().equals("@securityRequirement"));
+  private static final Predicate<DetailNode> SECURITY_REQUIREMENT =
+      CUSTOM_TAG.and(it -> it.getText().equals("@securityRequirement"));
+  private static final Predicate<DetailNode> SECURITY_SCHEME =
+      CUSTOM_TAG.and(it -> it.getText().startsWith("@securityScheme."));
   private static final Predicate<DetailNode> CONTACT =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@contact."));
   private static final Predicate<DetailNode> LICENSE =
@@ -41,6 +52,109 @@ public class JavaDocTag {
       CUSTOM_TAG.and(it -> it.getText().startsWith("@x-"));
   private static final Predicate<DetailNode> THROWS =
       it -> tree(it).anyMatch(javadocToken(JavadocTokenTypes.THROWS_LITERAL));
+
+  public static List<SecurityRequirement> securityRequirement(DetailNode node) {
+    return parse(node, SECURITY, null).stream()
+        .map(
+            hash ->
+                hash.containsKey("security")
+                    ? hash.get("security")
+                    : hash.get("securityRequirement"))
+        .map(Object::toString)
+        .map(String::trim)
+        .map(
+            value -> {
+              // look first space
+              var indexOf = value.indexOf(' ');
+              String key;
+              String scopes;
+              if (indexOf > 0) {
+                key = value.substring(0, indexOf).trim();
+                scopes = value.substring(indexOf + 1).trim();
+              } else {
+                key = value;
+                scopes = "";
+              }
+              if (scopes.startsWith("[") && scopes.endsWith("]")) {
+                scopes = scopes.substring(1, scopes.length() - 1);
+              }
+              var scopeList = Stream.of(scopes.split(",")).map(String::trim).toList();
+              var security = new SecurityRequirement();
+              security.addList(key, scopeList);
+              return security;
+            })
+        .toList();
+  }
+
+  public static List<SecurityScheme> securitySchemes(DetailNode node) {
+    return parse(node, SECURITY_SCHEME, "securityScheme").stream()
+        .map(
+            hash -> {
+              var item = new SecurityScheme();
+              item.setDescription((String) hash.get("description"));
+              item.setName((String) hash.get("name"));
+              ofNullable((String) hash.get("in"))
+                  .map(String::toUpperCase)
+                  .map(SecurityScheme.In::valueOf)
+                  .ifPresent(item::setIn);
+              ofNullable((String) hash.get("type"))
+                  .map(String::toUpperCase)
+                  .map(SecurityScheme.Type::valueOf)
+                  .ifPresent(item::setType);
+              item.setBearerFormat((String) hash.get("bearerFormat"));
+              item.setOpenIdConnectUrl((String) hash.get("openIdConnectUrl"));
+              item.setScheme((String) hash.get("scheme"));
+              var objectFlows = hash.get("flows");
+              if (objectFlows instanceof Map<?, ?> hashFlows) {
+                OAuthFlows flows = new OAuthFlows();
+                toOauthFlow("implicit", hashFlows, flows::setImplicit);
+                toOauthFlow("password", hashFlows, flows::setPassword);
+                toOauthFlow("authorizationCode", hashFlows, flows::setAuthorizationCode);
+                toOauthFlow("clientCredentials", hashFlows, flows::setClientCredentials);
+                item.setFlows(flows);
+              }
+              return item;
+            })
+        .toList();
+  }
+
+  private static void toOauthFlow(String path, Map<?, ?> flows, Consumer<OAuthFlow> consumer) {
+    var flowHash = flows.get(path);
+    if (flowHash instanceof Map hash) {
+      var oauthFlow = new OAuthFlow();
+      oauthFlow.setAuthorizationUrl((String) hash.get("authorizationUrl"));
+      oauthFlow.setTokenUrl((String) hash.get("tokenUrl"));
+      oauthFlow.setRefreshUrl((String) hash.get("refreshUrl"));
+      var scopesObject = hash.get("scopes");
+      List<String> scopeNames;
+      List<String> scopeDescriptions;
+      if (scopesObject instanceof Map<?, ?> scopesHash) {
+        scopeNames = ensureList(scopesHash.get("name"));
+        scopeDescriptions = ensureList(scopesHash.get("description"));
+      } else {
+        scopeNames = ensureList(scopesObject);
+        scopeDescriptions = List.of();
+      }
+      if (!scopeNames.isEmpty()) {
+        Scopes scopes = new Scopes();
+        for (int i = 0; i < scopeNames.size(); i++) {
+          var description = i < scopeDescriptions.size() ? scopeDescriptions.get(i) : "";
+          scopes.addString(scopeNames.get(i), description);
+        }
+        oauthFlow.setScopes(scopes);
+      }
+      consumer.accept(oauthFlow);
+    }
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static List<String> ensureList(Object value) {
+    if (value == null) return List.of();
+    if (value instanceof List list) {
+      return list.stream().map(Objects::toString).toList();
+    }
+    return List.of(value.toString());
+  }
 
   public static List<Server> servers(DetailNode node) {
     return openApiComponent(
@@ -109,6 +223,21 @@ public class JavaDocTag {
               });
     }
     return result;
+  }
+
+  private static List<Map<String, Object>> parse(
+      DetailNode node, Predicate<DetailNode> filter, String path) {
+    var values = new ArrayList<String>();
+    javaDocTag(
+        node,
+        filter,
+        (tag, value) -> {
+          values.add(tag.getText().substring(1));
+          values.add(value);
+        });
+    return ListToMapParser.parse(values).stream()
+        .map(hash -> path == null ? hash : (Map<String, Object>) hash.get(path))
+        .toList();
   }
 
   public static Map<StatusCode, ResponseExt> throwList(DetailNode node) {

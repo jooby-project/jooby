@@ -56,7 +56,6 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.servers.Servers;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.headers.Header;
@@ -117,11 +116,6 @@ public class OpenAPIParser {
 
   private static void securitySchemas(OpenAPIExt openapi, List<Map<String, Object>> schemas) {
     for (Map<String, Object> annotation : schemas) {
-      Components components = openapi.getComponents();
-      if (components == null) {
-        components = new Components();
-        openapi.setComponents(components);
-      }
       io.swagger.v3.oas.models.security.SecurityScheme scheme =
           new io.swagger.v3.oas.models.security.SecurityScheme();
 
@@ -141,7 +135,7 @@ public class OpenAPIParser {
       annotationList(annotation, "extensions", values -> extensions(values, scheme::addExtension));
       annotationValue(annotation, "flows", flows -> flows(flows, scheme::flows));
 
-      components.addSecuritySchemes(scheme.getName(), scheme);
+      openapi.addSecuritySchemes(scheme);
     }
   }
 

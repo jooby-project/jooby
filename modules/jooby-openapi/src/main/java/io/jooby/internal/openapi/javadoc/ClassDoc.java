@@ -20,6 +20,7 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.TokenUtil;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 public class ClassDoc extends JavaDocNode {
@@ -29,6 +30,7 @@ public class ClassDoc extends JavaDocNode {
   private final List<Server> servers;
   private final List<Contact> contact;
   private final List<License> license;
+  private final List<SecurityScheme> securitySchemes;
 
   public ClassDoc(JavaDocParser ctx, DetailAST node, DetailAST javaDoc) {
     super(ctx, node, javaDoc);
@@ -40,6 +42,11 @@ public class ClassDoc extends JavaDocNode {
     this.servers = JavaDocTag.servers(this.javadoc);
     this.contact = JavaDocTag.contacts(this.javadoc);
     this.license = JavaDocTag.license(this.javadoc);
+    this.securitySchemes = JavaDocTag.securitySchemes(this.javadoc);
+  }
+
+  public List<SecurityScheme> getSecuritySchemes() {
+    return securitySchemes;
   }
 
   public List<Server> getServers() {
