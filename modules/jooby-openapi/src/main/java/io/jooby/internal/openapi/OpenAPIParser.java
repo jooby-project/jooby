@@ -123,7 +123,8 @@ public class OpenAPIParser {
           annotation,
           "type",
           v -> scheme.setType(io.swagger.v3.oas.models.security.SecurityScheme.Type.valueOf(v)));
-      stringValue(annotation, "name", scheme::setName);
+      var name = stringValue(annotation, "name");
+      stringValue(annotation, "paramName", scheme::setName);
       stringValue(annotation, "description", scheme::setDescription);
       enumValue(
           annotation,
@@ -135,7 +136,10 @@ public class OpenAPIParser {
       annotationList(annotation, "extensions", values -> extensions(values, scheme::addExtension));
       annotationValue(annotation, "flows", flows -> flows(flows, scheme::flows));
 
-      openapi.addSecuritySchemes(scheme);
+      if (scheme.getName() == null || scheme.getName().trim().isEmpty()) {
+        scheme.setName(name);
+      }
+      openapi.addSecuritySchemes(name, scheme);
     }
   }
 

@@ -30,7 +30,7 @@ public class ClassDoc extends JavaDocNode {
   private final List<Server> servers;
   private final List<Contact> contact;
   private final List<License> license;
-  private final List<SecurityScheme> securitySchemes;
+  private final Map<String, SecurityScheme> securitySchemes;
 
   public ClassDoc(JavaDocParser ctx, DetailAST node, DetailAST javaDoc) {
     super(ctx, node, javaDoc);
@@ -45,7 +45,7 @@ public class ClassDoc extends JavaDocNode {
     this.securitySchemes = JavaDocTag.securitySchemes(this.javadoc);
   }
 
-  public List<SecurityScheme> getSecuritySchemes() {
+  public Map<String, SecurityScheme> getSecuritySchemes() {
     return securitySchemes;
   }
 

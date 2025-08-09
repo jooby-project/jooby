@@ -14,6 +14,7 @@ import io.jooby.Jooby;
  * @securityScheme.name myOauth2Security
  * @securityScheme.type oauth2
  * @securityScheme.in header
+ * @securityScheme.paramName X-Auth
  * @securityScheme.flows.implicit.authorizationUrl http://url.com/auth
  * @securityScheme.flows.implicit.scopes.name [write:pets, read:pets]
  * @securityScheme.flows.implicit.scopes.description [modify pets in your account, read your pets]

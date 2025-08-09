@@ -88,13 +88,16 @@ public class JavaDocTag {
         .toList();
   }
 
-  public static List<SecurityScheme> securitySchemes(DetailNode node) {
-    return parse(node, SECURITY_SCHEME, "securityScheme").stream()
-        .map(
+  public static Map<String, SecurityScheme> securitySchemes(DetailNode node) {
+    var result = new LinkedHashMap<String, SecurityScheme>();
+    parse(node, SECURITY_SCHEME, "securityScheme")
+        .forEach(
             hash -> {
               var item = new SecurityScheme();
               item.setDescription((String) hash.get("description"));
-              item.setName((String) hash.get("name"));
+              var name = (String) hash.get("name");
+              var paramName = (String) hash.getOrDefault("paramName", name);
+              item.setName(paramName);
               ofNullable((String) hash.get("in"))
                   .map(String::toUpperCase)
                   .map(SecurityScheme.In::valueOf)
@@ -115,9 +118,9 @@ public class JavaDocTag {
                 toOauthFlow("clientCredentials", hashFlows, flows::setClientCredentials);
                 item.setFlows(flows);
               }
-              return item;
-            })
-        .toList();
+              result.put(name, item);
+            });
+    return result;
   }
 
   private static void toOauthFlow(String path, Map<?, ?> flows, Consumer<OAuthFlow> consumer) {

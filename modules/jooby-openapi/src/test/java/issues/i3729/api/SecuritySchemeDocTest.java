@@ -53,7 +53,7 @@ public class SecuritySchemeDocTest {
             + "  securitySchemes:\n"
             + "    myOauth2Security:\n"
             + "      type: oauth2\n"
-            + "      name: myOauth2Security\n"
+            + "      name: X-Auth\n"
             + "      in: header\n"
             + "      flows:\n"
             + "        implicit:\n"

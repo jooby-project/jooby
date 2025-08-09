@@ -37,13 +37,13 @@ public class OpenAPIExt extends OpenAPI {
     this.source = classname;
   }
 
-  public void addSecuritySchemes(SecurityScheme scheme) {
+  public void addSecuritySchemes(String name, SecurityScheme scheme) {
     var components = getComponents();
     if (components == null) {
       components = new Components();
       setComponents(components);
     }
-    components.addSecuritySchemes(scheme.getName(), scheme);
+    components.addSecuritySchemes(name, scheme);
   }
 
   @Override

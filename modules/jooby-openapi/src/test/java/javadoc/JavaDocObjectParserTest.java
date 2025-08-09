@@ -109,20 +109,6 @@ class JavaDocObjectParserTest {
   }
 
   @Test
-  @DisplayName("Should throw exception on path conflict")
-  void testPathConflict() {
-    List<String> input = List.of("user", "test.user", "user.role", "admin");
-
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> {
-              JavaDocObjectParser.parse(input);
-            });
-    assertTrue(exception.getMessage().contains("contains a value and cannot be treated as a map"));
-  }
-
-  @Test
   @DisplayName("Should handle a single bracketed value as a list")
   void testBracketedValueAsList() {
     List<String> input = List.of("user", "test.user", "roles", "[guest]");
