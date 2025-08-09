@@ -12,8 +12,8 @@ import static java.util.Optional.ofNullable;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
@@ -31,8 +31,10 @@ import io.swagger.v3.oas.models.tags.Tag;
 public class JavaDocTag {
   private static final Predicate<DetailNode> CUSTOM_TAG =
       javadocToken(JavadocTokenTypes.CUSTOM_NAME);
+  private static final Predicate<DetailNode> TAG_SHORT =
+      CUSTOM_TAG.and(it -> it.getText().equals("@tag"));
   private static final Predicate<DetailNode> TAG =
-      CUSTOM_TAG.and(it -> it.getText().startsWith("@tag.") || it.getText().equals("@tag"));
+      CUSTOM_TAG.and(it -> it.getText().startsWith("@tag."));
   private static final Predicate<DetailNode> SERVER =
       CUSTOM_TAG.and(it -> it.getText().startsWith("@server."));
   private static final Predicate<DetailNode> SECURITY =
@@ -157,72 +159,41 @@ public class JavaDocTag {
   }
 
   public static List<Server> servers(DetailNode node) {
-    return openApiComponent(
-        node,
-        SERVER,
-        "server",
-        hash -> {
-          var server = new Server();
-          server.setDescription((String) hash.get("description"));
-          server.setUrl((String) hash.get("url"));
-          return server;
-        });
+    return parse(node, SERVER, "server").stream()
+        .map(
+            hash -> {
+              var server = new Server();
+              server.setDescription((String) hash.get("description"));
+              server.setUrl((String) hash.get("url"));
+              return server;
+            })
+        .toList();
   }
 
   public static List<Contact> contacts(DetailNode node) {
-    return openApiComponent(
-        node,
-        CONTACT,
-        "contact",
-        hash -> {
-          var item = new Contact();
-          item.setName((String) hash.get("name"));
-          item.setUrl((String) hash.get("url"));
-          item.setEmail((String) hash.get("email"));
-          return item;
-        });
+    return parse(node, CONTACT, "contact").stream()
+        .map(
+            hash -> {
+              var item = new Contact();
+              item.setName((String) hash.get("name"));
+              item.setUrl((String) hash.get("url"));
+              item.setEmail((String) hash.get("email"));
+              return item;
+            })
+        .toList();
   }
 
   public static List<License> license(DetailNode node) {
-    return openApiComponent(
-        node,
-        LICENSE,
-        "license",
-        hash -> {
-          var item = new License();
-          item.setName((String) hash.get("name"));
-          item.setUrl((String) hash.get("url"));
-          return item;
-        });
-  }
-
-  private static <T> List<T> openApiComponent(
-      DetailNode node, Predicate<DetailNode> filter, String path, Function<Map<?, ?>, T> mapper) {
-    var values = new ArrayList<String>();
-    javaDocTag(
-        node,
-        filter,
-        (tag, value) -> {
-          values.add(tag.getText().substring(1));
-          values.add(value);
-        });
-    var result = new ArrayList<T>();
-    if (!values.isEmpty()) {
-      var output = TinyYamlDocParser.parse(values);
-      var itemList = output.get(path);
-      if (!(itemList instanceof List<?>)) {
-        itemList = List.of(itemList);
-      }
-      //noinspection unchecked,rawtypes
-      ((List) itemList)
-          .forEach(
-              it -> {
-                if (it instanceof Map<?, ?> hash) {
-                  result.add(mapper.apply(hash));
-                }
-              });
-    }
-    return result;
+    return parse(node, LICENSE, "license").stream()
+        .map(
+            hash -> {
+              var item = new License();
+              item.setName((String) hash.get("name"));
+              item.setIdentifier((String) hash.get("identifier"));
+              item.setUrl((String) hash.get("url"));
+              return item;
+            })
+        .toList();
   }
 
   private static List<Map<String, Object>> parse(
@@ -235,7 +206,7 @@ public class JavaDocTag {
           values.add(tag.getText().substring(1));
           values.add(value);
         });
-    return ListToMapParser.parse(values).stream()
+    return JavaDocObjectParser.parse(values).stream()
         .map(hash -> path == null ? hash : (Map<String, Object>) hash.get(path))
         .toList();
   }
@@ -296,66 +267,33 @@ public class JavaDocTag {
   }
 
   public static Map<String, Object> extensions(DetailNode node) {
-    var values = new ArrayList<String>();
-    javaDocTag(
-        node,
-        EXTENSION,
-        (tag, value) -> {
-          // Strip '@'
-          values.add(tag.getText().substring(1));
-          values.add(value);
-        });
-    return TinyYamlDocParser.parse(values);
+    return parse(node, EXTENSION, null).stream().findFirst().orElse(Map.of());
   }
 
   public static List<Tag> tags(DetailNode node) {
-    var result = new ArrayList<Tag>();
-    var values = new ArrayList<String>();
-    javaDocTag(
-        node,
-        TAG,
-        (tag, value) -> {
-          if (tag.getText().equals("@tag")) {
-            // Process single line tag:
-            // - @tag Book. Book Operations
-            // - @tag Book
-            var dot = value.indexOf(".");
-            var tagName = value;
-            String tagDescription = null;
-            if (dot > 0) {
-              tagName = value.substring(0, dot);
-              if (dot + 1 < value.length()) {
-                tagDescription = value.substring(dot + 1).trim();
-                if (tagDescription.isBlank()) {
-                  tagDescription = null;
-                }
-              }
-            }
-            if (!tagName.trim().isEmpty()) {
-
-              result.add(createTag(tagName, tagDescription));
-            }
-          } else {
-            values.add(tag.getText().substring(1));
-            values.add(value);
-          }
-        });
-    if (!values.isEmpty()) {
-      var tagMap = TinyYamlDocParser.parse(values);
-      var tags = tagMap.get("tag");
-      if (!(tags instanceof List<?>)) {
-        tags = List.of(tags);
-      }
-      ((List) tags)
-          .forEach(
-              e -> {
-                if (e instanceof Map<?, ?> hash) {
-                  result.add(
-                      createTag((String) hash.get("name"), (String) hash.get("description")));
-                }
-              });
-    }
-    return result;
+    var tags =
+        parse(node, TAG_SHORT, null).stream()
+            .map(hash -> hash.get("tag").toString().trim())
+            .map(
+                value -> {
+                  // look first space
+                  var indexOf = value.indexOf('.');
+                  String name;
+                  String description;
+                  if (indexOf > 0) {
+                    name = value.substring(0, indexOf).trim();
+                    description = value.substring(indexOf + 1).trim();
+                  } else {
+                    name = value;
+                    description = null;
+                  }
+                  return createTag(name, description);
+                })
+            .collect(Collectors.toList());
+    parse(node, TAG, "tag").stream()
+        .map(hash -> createTag((String) hash.get("name"), (String) hash.get("description")))
+        .forEach(tags::add);
+    return tags;
   }
 
   private static Tag createTag(String tagName, String tagDescription) {

@@ -54,9 +54,7 @@ public class LibraryApi {
    *
    * @param query Book's param query.
    * @return Matching books.
-   * @x-badges.-name Beta
-   * @x-badges.position before
-   * @x-badges.color purple
+   * @x-badges [{name:Beta, position:before, color:purple}]
    */
   @GET
   public List<Book> query(@QueryParam BookQuery query) {

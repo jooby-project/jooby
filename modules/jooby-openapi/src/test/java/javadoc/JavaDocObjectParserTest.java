@@ -13,13 +13,13 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import io.jooby.internal.openapi.javadoc.ListToMapParser;
+import io.jooby.internal.openapi.javadoc.JavaDocObjectParser;
 
 /**
  * JUnit 5 test class for ListToMapParser. This class provides comprehensive tests for all specified
  * use cases, including structure augmentation by subsequent rows.
  */
-class ListToMapParserTest {
+class JavaDocObjectParserTest {
 
   @Test
   @DisplayName("Should correctly parse valid multi-row input")
@@ -54,7 +54,7 @@ class ListToMapParserTest {
                 "address", Map.of("country", "Argentina"),
                 "parents", List.of(Map.of("name", "Marta"), Map.of("name", "Dionisio"))));
 
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertEquals(expected, result);
   }
 
@@ -83,7 +83,7 @@ class ListToMapParserTest {
                 "address", Map.of("country", "Argentina"),
                 "status", "active"));
 
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertEquals(expected, result);
   }
 
@@ -100,7 +100,7 @@ class ListToMapParserTest {
             "50" // Mismatch: 2 names but only 1 age
             );
 
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertEquals(
         List.of(
             Map.of("parents", Map.of("name", "Ruly")),
@@ -117,7 +117,7 @@ class ListToMapParserTest {
         assertThrows(
             IllegalArgumentException.class,
             () -> {
-              ListToMapParser.parse(input);
+              JavaDocObjectParser.parse(input);
             });
     assertTrue(exception.getMessage().contains("contains a value and cannot be treated as a map"));
   }
@@ -128,7 +128,7 @@ class ListToMapParserTest {
     List<String> input = List.of("user", "test.user", "roles", "[guest]");
     List<Map<String, Object>> expected =
         List.of(Map.of("user", "test.user", "roles", List.of("guest")));
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertEquals(expected, result);
   }
 
@@ -138,7 +138,7 @@ class ListToMapParserTest {
     List<String> input = List.of("role", "admin", "tags", "java", "tags", "parser");
     List<Map<String, Object>> expected =
         List.of(Map.of("role", "admin", "tags", List.of("java", "parser")));
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertEquals(expected, result);
   }
 
@@ -146,7 +146,7 @@ class ListToMapParserTest {
   @DisplayName("Should return an empty list for empty input")
   void testEmptyInput() {
     List<String> input = List.of();
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertTrue(result.isEmpty());
   }
 
@@ -156,7 +156,7 @@ class ListToMapParserTest {
     List<String> input = List.of("name", "Edgar", "address.country", "Argentina");
     List<Map<String, Object>> expected =
         List.of(Map.of("name", "Edgar", "address", Map.of("country", "Argentina")));
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertEquals(expected, result);
   }
 
@@ -165,7 +165,7 @@ class ListToMapParserTest {
   void testInputWithOddNumberOfElements() {
     List<String> input = List.of("name", "Edgar", "status");
     List<Map<String, Object>> expected = List.of(Map.of("name", "Edgar"));
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertEquals(expected, result);
   }
 
@@ -193,7 +193,7 @@ class ListToMapParserTest {
                 "parents",
                 List.of(Map.of("name", "Ruly", "age", "50"), Map.of("name", "Rody", "age", "52"))));
 
-    List<Map<String, Object>> result = ListToMapParser.parse(input);
+    List<Map<String, Object>> result = JavaDocObjectParser.parse(input);
     assertEquals(expected, result);
   }
 }
