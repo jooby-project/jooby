@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 
 public class RequestBodyExt extends RequestBody {
 
+  @JsonIgnore private Object examples;
   @JsonIgnore private String javaType;
 
   @JsonIgnore private String contentType = MediaType.JSON;
@@ -33,5 +34,13 @@ public class RequestBodyExt extends RequestBody {
 
   public void setContentType(String contentType) {
     this.contentType = contentType;
+  }
+
+  public Object getExamples() {
+    return examples;
+  }
+
+  public void setExamples(Object examples) {
+    this.examples = examples;
   }
 }

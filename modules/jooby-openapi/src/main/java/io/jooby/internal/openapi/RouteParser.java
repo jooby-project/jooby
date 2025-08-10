@@ -144,14 +144,14 @@ public class RouteParser {
       }
 
       if (content.isEmpty()) {
-        io.swagger.v3.oas.models.media.MediaType mediaTypeObject =
-            new io.swagger.v3.oas.models.media.MediaType();
+        var mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
         String mediaType = operation.getProduces().stream().findFirst().orElse(MediaType.JSON);
         content.addMediaType(mediaType, mediaTypeObject);
       }
       if (isSuccessCode(statusCode)) {
-        for (io.swagger.v3.oas.models.media.MediaType mediaType : content.values()) {
-          Schema schema = mediaType.getSchema();
+        for (var mediaType : content.values()) {
+          Optional.ofNullable(response.getExamples()).ifPresent(mediaType::setExample);
+          var schema = mediaType.getSchema();
           if (schema == null) {
             mediaType.setSchema(defaultSchema);
           }
@@ -173,6 +173,11 @@ public class RouteParser {
         Content content = new Content();
         content.addMediaType(mediaTypeName, mediaType);
         requestBody.setContent(content);
+      }
+      if (requestBody.getExamples() != null) {
+        requestBody
+            .getContent()
+            .forEach((key, value) -> value.setExample(requestBody.getExamples()));
       }
     }
   }

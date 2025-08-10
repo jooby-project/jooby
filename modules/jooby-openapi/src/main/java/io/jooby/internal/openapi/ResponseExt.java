@@ -29,6 +29,7 @@ public class ResponseExt extends ApiResponse {
           "io.smallrye.mutiny.Uni",
           "io.smallrye.mutiny.Multi");
 
+  @JsonIgnore private Object examples;
   @JsonIgnore private List<String> javaTypes = new ArrayList<>();
 
   @JsonIgnore private String code;
@@ -82,6 +83,14 @@ public class ResponseExt extends ApiResponse {
 
   public void setCode(String code) {
     this.code = code;
+  }
+
+  public Object getExamples() {
+    return examples;
+  }
+
+  public void setExamples(Object examples) {
+    this.examples = examples;
   }
 
   @Override

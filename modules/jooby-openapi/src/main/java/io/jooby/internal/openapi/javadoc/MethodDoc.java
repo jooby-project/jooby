@@ -8,7 +8,6 @@ package io.jooby.internal.openapi.javadoc;
 import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
@@ -19,16 +18,20 @@ import io.jooby.internal.openapi.ResponseExt;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 public class MethodDoc extends JavaDocNode {
+  private Map<String, String> parameters;
   private List<SecurityRequirement> securityRequeriments;
   private String operationId;
   private Map<StatusCode, ResponseExt> throwList;
   private List<String> parameterTypes = null;
+  private String returnDoc;
 
   public MethodDoc(JavaDocParser ctx, DetailAST node, DetailAST javadoc) {
     super(ctx, node, javadoc);
     throwList = JavaDocTag.throwList(this.javadoc);
     operationId = JavaDocTag.operationId(this.javadoc);
     securityRequeriments = JavaDocTag.securityRequirement(this.javadoc);
+    parameters = JavaDocTag.getParametersDoc(this.javadoc);
+    returnDoc = JavaDocTag.getReturnDoc(this.javadoc);
   }
 
   MethodDoc(JavaDocParser ctx, DetailAST node, DetailNode javadoc) {
@@ -47,7 +50,7 @@ public class MethodDoc extends JavaDocNode {
     this.operationId = operationId;
   }
 
-  public List<SecurityRequirement> getSecurityRequeriments() {
+  public List<SecurityRequirement> getSecurityRequirements() {
     return securityRequeriments;
   }
 
@@ -94,43 +97,52 @@ public class MethodDoc extends JavaDocNode {
   }
 
   public String getParameterDoc(String name) {
-    return tree(javadoc)
-        // must be a tag
-        .filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG))
-        .filter(
-            it -> {
-              var children = children(it).toList();
-              return children.stream()
-                      .anyMatch(
-                          t ->
-                              t.getType() == JavadocTokenTypes.PARAM_LITERAL
-                                  && t.getText().equals("@param"))
-                  && children.stream().anyMatch(t -> t.getText().equals(name));
-            })
-        .findFirst()
-        .map(
-            it ->
-                getText(
-                    Stream.of(it.getChildren())
-                        .filter(e -> e.getType() == JavadocTokenTypes.DESCRIPTION)
-                        .flatMap(JavaDocStream::tree)
-                        .toList(),
-                    true))
-        .filter(it -> !it.isEmpty())
-        .orElse(null);
+    var doc = parameters.get(name);
+    return doc == null ? null : doc.replace(exampleCode(doc), "").trim();
+  }
+
+  public Object getParameterExample(String name) {
+    return toExamples(exampleCode(parameters.get(name)));
+  }
+
+  private String exampleCode(String text) {
+    if (text == null) {
+      return "";
+    }
+    var start = text.indexOf("`");
+    if (start == -1) {
+      return "";
+    }
+    var end = text.indexOf("`", start + 1);
+    if (end == -1) {
+      return "";
+    }
+    return text.substring(start, end + 1);
+  }
+
+  private Object toExamples(String text) {
+    var codeExample = exampleCode(text);
+    if (codeExample.isEmpty()) {
+      return null;
+    }
+    var clean = codeExample.substring(1, codeExample.length() - 1);
+    var result = JavaDocObjectParser.parseJson(clean);
+    if (result.equals(codeExample)) {
+      // Like a primitive/basic example
+      return List.of(result);
+    }
+    return result;
   }
 
   public String getReturnDoc() {
-    return tree(javadoc)
-        .filter(javadocToken(JavadocTokenTypes.RETURN_LITERAL))
-        .findFirst()
-        .flatMap(
-            it ->
-                tree(it.getParent())
-                    .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
-                    .findFirst())
-        .map(it -> getText(tree(it).toList(), true))
-        .orElse(null);
+    if (returnDoc != null) {
+      return returnDoc.replace(exampleCode(returnDoc), "").trim();
+    }
+    return null;
+  }
+
+  public Object getReturnExample() {
+    return toExamples(returnDoc);
   }
 
   public Map<StatusCode, ResponseExt> getThrows() {

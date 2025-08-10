@@ -66,8 +66,8 @@ public class LibraryApi {
    *
    * <p>Book can be created or updated.
    *
-   * @param book Book to create.
-   * @return Saved book.
+   * @param book Book to create. `{isbn: X01981, title: HarryPotter}`
+   * @return Saved book. `{id: generatedId, isbn: ...}`
    * @tag Author
    */
   @POST

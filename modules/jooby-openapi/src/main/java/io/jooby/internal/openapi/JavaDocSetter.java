@@ -48,7 +48,7 @@ public class JavaDocSetter {
     if (!doc.getExtensions().isEmpty()) {
       operation.setExtensions(doc.getExtensions());
     }
-    doc.getSecurityRequeriments().forEach(operation::addSecurityItem);
+    doc.getSecurityRequirements().forEach(operation::addSecurityItem);
     doc.getTags().forEach(operation::addTag);
     // Parameters
     for (var parameterName : parameterNames) {
@@ -63,9 +63,11 @@ public class JavaDocSetter {
         if (paramExt == null) {
           var body = operation.getRequestBody();
           if (body != null) {
+            body.setExamples(doc.getParameterExample(parameterName));
             body.setDescription(paramDoc);
           }
         } else {
+          paramExt.setExample(doc.getParameterExample(parameterName));
           paramExt.setDescription(paramDoc);
         }
       }
@@ -73,6 +75,7 @@ public class JavaDocSetter {
     // return types
     var defaultResponse = operation.getDefaultResponse();
     if (defaultResponse != null) {
+      defaultResponse.setExamples(doc.getReturnExample());
       defaultResponse.setDescription(doc.getReturnDoc());
     }
     for (var throwsDoc : doc.getThrows().values()) {

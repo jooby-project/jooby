@@ -54,6 +54,46 @@ public class JavaDocTag {
       CUSTOM_TAG.and(it -> it.getText().startsWith("@x-"));
   private static final Predicate<DetailNode> THROWS =
       it -> tree(it).anyMatch(javadocToken(JavadocTokenTypes.THROWS_LITERAL));
+  private static final Predicate<DetailNode> PARAM =
+      it -> tree(it).anyMatch(javadocToken(JavadocTokenTypes.PARAM_LITERAL));
+
+  public static Map<String, String> getParametersDoc(DetailNode node) {
+    var parameters = new LinkedHashMap<String, String>();
+    javaDocTag(
+        node,
+        PARAM,
+        (tag, value) -> {
+          children(tag)
+              .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+              .findFirst()
+              .map(DetailNode::getText)
+              .ifPresent(
+                  name -> {
+                    children(tag)
+                        .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                        .findFirst()
+                        .map(description -> JavaDocNode.getText(tree(description).toList(), true))
+                        .ifPresent(text -> parameters.put(name, text));
+                  });
+        });
+    return parameters;
+  }
+
+  public static String getReturnDoc(DetailNode node) {
+    var text = new StringBuilder();
+    javaDocTag(
+        node,
+        javadocToken(JavadocTokenTypes.RETURN_LITERAL),
+        (tag, value) -> {
+          children(tag.getParent())
+              .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+              .findFirst()
+              .map(description -> JavaDocNode.getText(tree(description).toList(), true))
+              .ifPresent(text::append);
+        });
+    var result = text.toString().trim();
+    return result.isEmpty() ? null : result;
+  }
 
   public static List<SecurityRequirement> securityRequirement(DetailNode node) {
     return parse(node, SECURITY, null).stream()

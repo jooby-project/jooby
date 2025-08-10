@@ -298,14 +298,14 @@ public class JavaDocObjectParser {
         // Case 3: Simple key-value pairs, possibly nested (e.g., "address.country").
         for (String path : pathsInGroup) {
           String value = pathValues.get(path).get(0);
-          setValue(resultMap, path, parseValue(value));
+          setValue(resultMap, path, parseJson(value));
         }
       }
     }
     return resultMap;
   }
 
-  private static Object parseValue(String value) {
+  public static Object parseJson(String value) {
     try {
       return new UnquotedJsonParser().parse(value);
     } catch (Exception ignored) {
