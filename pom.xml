@@ -70,14 +70,14 @@
     <jte.version>3.2.1</jte.version>
 
     <!-- data -->
-    <HikariCP.version>7.0.0</HikariCP.version>
+    <HikariCP.version>7.0.1</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
     <jdbi.version>3.49.5</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
     <graphql-java.version>24.2</graphql-java.version>
-    <lettuce.version>6.7.1.RELEASE</lettuce.version>
+    <lettuce.version>6.8.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
     <kafka.version>4.0.0</kafka.version>
     <caffeine.version>3.2.2</caffeine.version>
@@ -106,7 +106,7 @@
 
     <!-- Server -->
     <undertow.version>2.3.18.Final</undertow.version>
-    <jetty.version>12.0.23</jetty.version>
+    <jetty.version>12.0.24</jetty.version>
     <netty.version>4.2.3.Final</netty.version>
 
     <!--OpenAPI-->
@@ -126,7 +126,7 @@
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
     <jakarta.validation.version>3.1.1</jakarta.validation.version>
     <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-    <spotbugs-annotations.version>4.9.3</spotbugs-annotations.version>
+    <spotbugs-annotations.version>4.9.4</spotbugs-annotations.version>
 
     <!-- Misc -->
     <okhttp.version>5.1.0</okhttp.version>
@@ -150,7 +150,7 @@
     <jacoco.version>0.8.13</jacoco.version>
     <junit.version>5.13.4</junit.version>
     <rest-assured.version>5.5.5</rest-assured.version>
-    <assertj-core.version>3.27.3</assertj-core.version>
+    <assertj-core.version>3.27.4</assertj-core.version>
     <mockito.version>5.18.0</mockito.version>
     <maven.m2.repo>${user.home}${file.separator}.m2${file.separator}repository</maven.m2.repo>
     <mockito.agent>org${file.separator}mockito${file.separator}mockito-core${file.separator}${mockito.version}${file.separator}mockito-core-${mockito.version}.jar</mockito.agent>
