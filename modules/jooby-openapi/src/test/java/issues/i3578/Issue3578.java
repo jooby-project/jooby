@@ -16,6 +16,7 @@ import io.jooby.internal.openapi.OpenAPIExt;
 import io.jooby.internal.openapi.OpenApiTemplate;
 import io.jooby.openapi.OpenAPIResult;
 import io.jooby.openapi.OpenAPITest;
+import io.swagger.v3.oas.models.SpecVersion;
 
 public class Issue3578 {
 
@@ -140,9 +141,11 @@ public class Issue3578 {
   @Test
   public void parseParamWithoutIn() throws IOException {
     var out =
-        OpenApiTemplate.yaml.readValue(
-            Paths.get("src", "test", "resources", "issues", "i3578", "app3578.yaml").toFile(),
-            OpenAPIExt.class);
+        new OpenApiTemplate(SpecVersion.V30)
+            .yaml()
+            .readValue(
+                Paths.get("src", "test", "resources", "issues", "i3578", "app3578.yaml").toFile(),
+                OpenAPIExt.class);
     var op = out.getPaths().get("/api/pets/{id}").getDelete();
     assertNotNull(op);
     assertNotNull(op.getParameters());

@@ -73,9 +73,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.jooby.openapi.DebugOption;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
-import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
@@ -100,6 +98,8 @@ public class ParserContext {
   }
 
   private String mainClass;
+  private final ObjectMapper json;
+  private final ObjectMapper yaml;
   private final ModelConvertersExt converters;
   private final Type router;
   private final Map<Type, ClassNode> nodes;
@@ -110,23 +110,32 @@ public class ParserContext {
   private final JavaDocParser javadocParser;
 
   public ParserContext(
-      ClassSource source, Type router, JavaDocParser javadocParser, Set<DebugOption> debug) {
-    this(source, new HashMap<>(), router, javadocParser, debug);
+      ObjectMapper json,
+      ObjectMapper yaml,
+      ClassSource source,
+      Type router,
+      JavaDocParser javadocParser,
+      Set<DebugOption> debug) {
+    this(json, yaml, source, new HashMap<>(), router, javadocParser, debug);
   }
 
   private ParserContext(
+      ObjectMapper json,
+      ObjectMapper yaml,
       ClassSource source,
       Map<Type, ClassNode> nodes,
       Type router,
       JavaDocParser javadocParser,
       Set<DebugOption> debug) {
+    this.json = json;
+    this.yaml = yaml;
     this.router = router;
     this.source = source;
     this.debug = Optional.ofNullable(debug).orElse(Collections.emptySet());
     this.nodes = nodes;
     this.javadocParser = javadocParser;
 
-    List<ObjectMapper> mappers = asList(Json.mapper(), Yaml.mapper());
+    var mappers = List.of(json, yaml);
     jacksonModules(source.getClassLoader(), mappers);
     this.converters = new ModelConvertersExt();
     mappers.stream().map(ModelConverterExt::new).forEach(converters::addConverter);
@@ -413,7 +422,7 @@ public class ParserContext {
     }
     String json = "{\"type\":\"" + type + "\"}";
     try {
-      TypeLiteral literal = Json.mapper().readValue(json, TypeLiteral.class);
+      TypeLiteral literal = json().readValue(json, TypeLiteral.class);
       return schema(literal.type);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
@@ -512,6 +521,14 @@ public class ParserContext {
     return router;
   }
 
+  public ObjectMapper json() {
+    return json;
+  }
+
+  public ObjectMapper yaml() {
+    return yaml;
+  }
+
   public <T extends ClassVisitor> T createClassVisitor(Function<Integer, T> factory) {
     return factory.apply(Opcodes.ASM9);
   }
@@ -526,7 +543,7 @@ public class ParserContext {
   }
 
   public ParserContext newContext(Type router) {
-    return new ParserContext(source, nodes, router, javadocParser, debug);
+    return new ParserContext(json, yaml, source, nodes, router, javadocParser, debug);
   }
 
   public String getMainClass() {

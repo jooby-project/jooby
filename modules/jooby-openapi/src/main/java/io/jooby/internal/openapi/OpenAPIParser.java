@@ -36,8 +36,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.MediaType;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.extensions.Extension;
@@ -70,7 +70,7 @@ public class OpenAPIParser {
     Type type = Type.getObjectType(openapi.getSource().replace(".", "/"));
     ClassNode node = ctx.classNode(type);
 
-    rootOpenApiAnnotations(openapi, node);
+    rootOpenApiAnnotations(ctx.json(), openapi, node);
   }
 
   /**
@@ -80,17 +80,18 @@ public class OpenAPIParser {
    * @param openapi Open API.
    * @param node Main or controller class.
    */
-  private static void rootOpenApiAnnotations(OpenAPIExt openapi, ClassNode node) {
+  private static void rootOpenApiAnnotations(
+      ObjectMapper json, OpenAPIExt openapi, ClassNode node) {
     findAnnotationByType(node.visibleAnnotations, OpenAPIDefinition.class).stream()
         .findFirst()
-        .ifPresent(a -> definition(openapi, a));
+        .ifPresent(a -> definition(json, openapi, a));
 
     findAnnotationByType(node.visibleAnnotations, Servers.class).stream()
         .map(it -> annotationList(toMap(it), "value"))
-        .forEach(it -> servers(it, openapi::addServersItem));
+        .forEach(it -> servers(json, it, openapi::addServersItem));
     findAnnotationByType(node.visibleAnnotations, Server.class).stream()
         .findFirst()
-        .ifPresent(it -> servers(singletonList(toMap(it)), openapi::addServersItem));
+        .ifPresent(it -> servers(json, List.of(toMap(it)), openapi::addServersItem));
 
     findAnnotationByType(node.visibleAnnotations, SecurityRequirements.class).stream()
         .map(it -> annotationList(toMap(it), "value"))
@@ -101,23 +102,23 @@ public class OpenAPIParser {
 
     findAnnotationByType(node.visibleAnnotations, SecuritySchemes.class).stream()
         .map(it -> annotationList(toMap(it), "value"))
-        .forEach(it -> securitySchemas(openapi, it));
+        .forEach(it -> securitySchemas(json, openapi, it));
     findAnnotationByType(node.visibleAnnotations, SecurityScheme.class).stream()
         .findFirst()
-        .ifPresent(it -> securitySchemas(openapi, singletonList(toMap(it))));
+        .ifPresent(it -> securitySchemas(json, openapi, singletonList(toMap(it))));
 
     findAnnotationByType(node.visibleAnnotations, Extensions.class).stream()
         .map(it -> annotationList(toMap(it), "value"))
-        .forEach(it -> extensions(it, openapi::addExtension));
+        .forEach(it -> extensions(json, it, openapi::addExtension));
     findAnnotationByType(node.visibleAnnotations, Extension.class).stream()
         .findFirst()
-        .ifPresent(it -> extensions(singletonList(toMap(it)), openapi::addExtension));
+        .ifPresent(it -> extensions(json, List.of(toMap(it)), openapi::addExtension));
   }
 
-  private static void securitySchemas(OpenAPIExt openapi, List<Map<String, Object>> schemas) {
+  private static void securitySchemas(
+      ObjectMapper json, OpenAPIExt openapi, List<Map<String, Object>> schemas) {
     for (Map<String, Object> annotation : schemas) {
-      io.swagger.v3.oas.models.security.SecurityScheme scheme =
-          new io.swagger.v3.oas.models.security.SecurityScheme();
+      var scheme = new io.swagger.v3.oas.models.security.SecurityScheme();
 
       enumValue(
           annotation,
@@ -133,34 +134,37 @@ public class OpenAPIParser {
       stringValue(annotation, "scheme", scheme::scheme);
       stringValue(annotation, "bearerFormat", scheme::bearerFormat);
       stringValue(annotation, "openIdConnectUrl", scheme::openIdConnectUrl);
-      annotationList(annotation, "extensions", values -> extensions(values, scheme::addExtension));
-      annotationValue(annotation, "flows", flows -> flows(flows, scheme::flows));
+      annotationList(
+          annotation, "extensions", values -> extensions(json, values, scheme::addExtension));
+      annotationValue(annotation, "flows", flows -> flows(json, flows, scheme::flows));
 
       openapi.addSecuritySchemes(name, scheme);
     }
   }
 
   private static void flows(
+      ObjectMapper json,
       Map<String, Object> annotation,
       Consumer<io.swagger.v3.oas.models.security.OAuthFlows> consumer) {
     io.swagger.v3.oas.models.security.OAuthFlows flows =
         new io.swagger.v3.oas.models.security.OAuthFlows();
-    annotationValue(annotation, "implicit", value -> flow(value, flows::implicit));
-    annotationValue(annotation, "password", value -> flow(value, flows::password));
-    annotationValue(
-        annotation, "clientCredentials", value -> flow(value, flows::clientCredentials));
-    annotationValue(
-        annotation, "authorizationCode", value -> flow(value, flows::authorizationCode));
-    annotationList(annotation, "extensions", values -> extensions(values, flows::addExtension));
-
+    Map<String, Consumer<io.swagger.v3.oas.models.security.OAuthFlow>> flowMap =
+        Map.of(
+            "implicit", flows::implicit,
+            "password", flows::password,
+            "clientCredentials", flows::clientCredentials,
+            "authorizationCode", flows::authorizationCode);
+    flowMap.forEach(
+        (property, setter) ->
+            annotationValue(annotation, property, value -> flow(json, value, setter)));
     consumer.accept(flows);
   }
 
   private static void flow(
+      ObjectMapper json,
       Map<String, Object> annotation,
       Consumer<io.swagger.v3.oas.models.security.OAuthFlow> consumer) {
-    io.swagger.v3.oas.models.security.OAuthFlow flow =
-        new io.swagger.v3.oas.models.security.OAuthFlow();
+    var flow = new io.swagger.v3.oas.models.security.OAuthFlow();
     stringValue(annotation, "authorizationUrl", flow::authorizationUrl);
     stringValue(annotation, "tokenUrl", flow::tokenUrl);
     stringValue(annotation, "refreshUrl", flow::refreshUrl);
@@ -180,7 +184,8 @@ public class OpenAPIParser {
           }
           flow.setScopes(scopes);
         });
-    annotationList(annotation, "extensions", values -> extensions(values, flow::addExtension));
+    annotationList(
+        annotation, "extensions", values -> extensions(json, values, flow::addExtension));
 
     consumer.accept(flow);
   }
@@ -208,7 +213,7 @@ public class OpenAPIParser {
     /* SecurityScheme */
     var controller = operation.getController();
     if (controller != null) {
-      rootOpenApiAnnotations(openapi, controller);
+      rootOpenApiAnnotations(ctx.json(), openapi, controller);
     }
 
     /** Tags: */
@@ -217,10 +222,10 @@ public class OpenAPIParser {
 
     findAnnotationByType(annotations, Tags.class).stream()
         .map(it -> annotationList(toMap(it), "value"))
-        .forEach(a -> tags(a, operation::addTag));
+        .forEach(a -> tags(ctx.json(), a, operation::addTag));
     findAnnotationByType(annotations, Tag.class).stream()
         .findFirst()
-        .ifPresent(it -> tags(singletonList(toMap(it)), operation::addTag));
+        .ifPresent(it -> tags(ctx.json(), List.of(toMap(it)), operation::addTag));
 
     operation.setHidden(isHidden(annotations));
     operation.setDeprecated(isDeprecated(annotations));
@@ -298,6 +303,7 @@ public class OpenAPIParser {
   }
 
   private static void servers(
+      ObjectMapper json,
       List<Map<String, Object>> serverList,
       Consumer<io.swagger.v3.oas.models.servers.Server> consumer) {
     for (Map<String, Object> serverMap : serverList) {
@@ -317,7 +323,7 @@ public class OpenAPIParser {
               stringValue(varMap, "defaultValue", variable::setDefault);
               stringList(varMap, "allowableValues", variable::setEnum);
               annotationList(
-                  varMap, "extensions", values -> extensions(values, variable::addExtension));
+                  varMap, "extensions", values -> extensions(json, values, variable::addExtension));
               variables.put((String) varMap.get("name"), variable);
             }
             server.setVariables(variables);
@@ -326,13 +332,14 @@ public class OpenAPIParser {
     }
   }
 
-  private static void definition(OpenAPIExt openapi, AnnotationNode node) {
+  private static void definition(ObjectMapper json, OpenAPIExt openapi, AnnotationNode node) {
     Map<String, Object> annotation = toMap(node);
-    annotationValue(annotation, "info", info -> info(info, openapi::setInfo));
+    annotationValue(annotation, "info", info -> info(json, info, openapi::setInfo));
     // Tags
-    annotationList(annotation, "tags", tags -> tags(tags, openapi::addTagsItem));
+    annotationList(annotation, "tags", tags -> tags(json, tags, openapi::addTagsItem));
     // Server
-    annotationList(annotation, "servers", servers -> servers(servers, openapi::addServersItem));
+    annotationList(
+        annotation, "servers", servers -> servers(json, servers, openapi::addServersItem));
 
     // Security
     annotationList(
@@ -344,16 +351,18 @@ public class OpenAPIParser {
     annotationList(
         annotation,
         "extensions",
-        extensionList -> extensions(extensionList, openapi::addExtension));
+        extensionList -> extensions(json, extensionList, openapi::addExtension));
 
     annotationValue(
         annotation,
         "externalDocs",
-        value -> externalDocumentation(value, openapi::setExternalDocs));
+        value -> externalDocumentation(json, value, openapi::setExternalDocs));
   }
 
   private static void info(
-      Map<String, Object> annotation, Consumer<io.swagger.v3.oas.models.info.Info> consumer) {
+      ObjectMapper json,
+      Map<String, Object> annotation,
+      Consumer<io.swagger.v3.oas.models.info.Info> consumer) {
     io.swagger.v3.oas.models.info.Info info = new io.swagger.v3.oas.models.info.Info();
 
     stringValue(annotation, "title", info::setTitle);
@@ -385,20 +394,24 @@ public class OpenAPIParser {
         });
 
     annotationList(
-        annotation, "extensions", extensions -> extensions(extensions, info::addExtension));
+        annotation, "extensions", extensions -> extensions(json, extensions, info::addExtension));
 
     consumer.accept(info);
   }
 
   private static void tags(
-      List<Map<String, Object>> tags, Consumer<io.swagger.v3.oas.models.tags.Tag> consumer) {
+      ObjectMapper json,
+      List<Map<String, Object>> tags,
+      Consumer<io.swagger.v3.oas.models.tags.Tag> consumer) {
     for (Map<String, Object> tagMap : tags) {
       io.swagger.v3.oas.models.tags.Tag tag = new io.swagger.v3.oas.models.tags.Tag();
       stringValue(tagMap, "name", tag::setName);
       stringValue(tagMap, "description", tag::setDescription);
-      annotationList(tagMap, "extensions", values -> extensions(values, tag::addExtension));
+      annotationList(tagMap, "extensions", values -> extensions(json, values, tag::addExtension));
       annotationValue(
-          tagMap, "externalDocs", value -> externalDocumentation(value, tag::setExternalDocs));
+          tagMap,
+          "externalDocs",
+          value -> externalDocumentation(json, value, tag::setExternalDocs));
       consumer.accept(tag);
     }
   }
@@ -440,19 +453,23 @@ public class OpenAPIParser {
 
     stringList(annotation, "tags", tags -> tags.forEach(operation::addTagsItem));
 
-    annotationList(annotation, "servers", servers -> servers(servers, operation::addServersItem));
+    annotationList(
+        annotation, "servers", servers -> servers(ctx.json(), servers, operation::addServersItem));
 
     annotationList(
         annotation, "security", values -> securityRequirements(values, operation::addSecurityItem));
 
     annotationList(annotation, "parameters", values -> parameters(ctx, operation, values));
 
-    annotationList(annotation, "extensions", values -> extensions(values, operation::addExtension));
+    annotationList(
+        annotation,
+        "extensions",
+        values -> extensions(ctx.json(), values, operation::addExtension));
 
     annotationValue(
         annotation,
         "externalDocs",
-        value -> externalDocumentation(value, operation::setExternalDocs));
+        value -> externalDocumentation(ctx.json(), value, operation::setExternalDocs));
 
     requestBody(ctx, operation, toMap((AnnotationNode) annotation.get("requestBody")));
 
@@ -533,7 +550,9 @@ public class OpenAPIParser {
     arrayOrSchema(ctx, parameterMap).ifPresent(parameter::setSchema);
     examples(parameterMap, parameter::setExample, parameter::setExamples);
     annotationList(
-        parameterMap, "extensions", values -> extensions(values, parameter::addExtension));
+        parameterMap,
+        "extensions",
+        values -> extensions(ctx.json(), values, parameter::addExtension));
   }
 
   private static void examples(
@@ -600,7 +619,8 @@ public class OpenAPIParser {
     String defaultMediaType = operation.getProduces().stream().findFirst().orElse(MediaType.JSON);
     content(ctx, defaultMediaType, annotation).ifPresent(response::setContent);
 
-    annotationList(annotation, "extensions", values -> extensions(values, response::addExtension));
+    annotationList(
+        annotation, "extensions", values -> extensions(ctx.json(), values, response::addExtension));
   }
 
   @io.swagger.v3.oas.annotations.Operation(responses = @ApiResponse(content = @Content))
@@ -714,7 +734,9 @@ public class OpenAPIParser {
         .ifPresent(nullable -> schema.setNullable((Boolean) nullable));
 
     annotationValue(
-        annotation, "externalDocs", value -> externalDocumentation(value, schema::setExternalDocs));
+        annotation,
+        "externalDocs",
+        value -> externalDocumentation(ctx.json(), value, schema::setExternalDocs));
 
     return Optional.of(schema);
   }
@@ -741,19 +763,23 @@ public class OpenAPIParser {
   }
 
   private static void externalDocumentation(
-      Map<String, Object> annotation, Consumer<ExternalDocumentation> consumer) {
+      ObjectMapper json, Map<String, Object> annotation, Consumer<ExternalDocumentation> consumer) {
     if (!annotation.isEmpty()) {
       ExternalDocumentation doc = new ExternalDocumentation();
       stringValue(annotation, "description", doc::setDescription);
       stringValue(annotation, "url", doc::setUrl);
-      annotationList(annotation, "extensions", values -> extensions(values, doc::addExtension));
+      annotationList(
+          annotation, "extensions", values -> extensions(json, values, doc::addExtension));
       consumer.accept(doc);
     }
   }
 
   private static void extensions(
-      List<Map<String, Object>> extensions, BiConsumer<String, Object> consumer) {
+      ObjectMapper json,
+      List<Map<String, Object>> extensions,
+      BiConsumer<String, Object> consumer) {
     extensionMap(
+        json,
         extensions,
         map -> {
           for (Map.Entry<String, Object> e : map.entrySet()) {
@@ -763,7 +789,9 @@ public class OpenAPIParser {
   }
 
   private static void extensionMap(
-      List<Map<String, Object>> extensions, Consumer<Map<String, Object>> consumer) {
+      ObjectMapper json,
+      List<Map<String, Object>> extensions,
+      Consumer<Map<String, Object>> consumer) {
     Map<String, Object> map = new HashMap<>();
     for (Map<String, Object> extension : extensions) {
       String name = stringValueOrNull(extension, "name");
@@ -789,7 +817,7 @@ public class OpenAPIParser {
               }
               Object value = stringValue(property, "value");
               if (boolValue(property, "parseValue")) {
-                value = parse((String) value);
+                value = parse(json, (String) value);
               }
               scope.put(key, value);
             }
@@ -802,10 +830,9 @@ public class OpenAPIParser {
     return key.startsWith(prefix) ? key : prefix + key;
   }
 
-  private static Object parse(String value) {
+  private static Object parse(ObjectMapper json, String value) {
     try {
-      return Json.mapper()
-          .reader()
+      return json.reader()
           .withFeatures(ALLOW_UNQUOTED_FIELD_NAMES, ALLOW_SINGLE_QUOTES)
           .readTree(value);
     } catch (JsonProcessingException e) {

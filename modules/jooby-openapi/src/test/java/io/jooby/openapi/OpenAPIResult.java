@@ -8,6 +8,7 @@ package io.jooby.openapi;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.OpenAPIExt;
 import io.swagger.v3.core.util.Json;
@@ -17,9 +18,13 @@ import io.swagger.v3.parser.core.models.SwaggerParseResult;
 
 public class OpenAPIResult {
   public final OpenAPIExt openAPI;
+  private final ObjectMapper json;
+  private final ObjectMapper yaml;
   private RuntimeException failure;
 
-  public OpenAPIResult(OpenAPIExt openAPI) {
+  public OpenAPIResult(ObjectMapper json, ObjectMapper yaml, OpenAPIExt openAPI) {
+    this.json = json;
+    this.yaml = yaml;
     this.openAPI = openAPI;
   }
 
@@ -39,7 +44,7 @@ public class OpenAPIResult {
       throw failure;
     }
     try {
-      String yaml = Yaml.mapper().writeValueAsString(openAPI);
+      String yaml = this.yaml.writeValueAsString(openAPI);
       if (validate) {
         SwaggerParseResult result = new OpenAPIV3Parser().readContents(yaml);
         if (result.getMessages().isEmpty()) {
@@ -66,7 +71,7 @@ public class OpenAPIResult {
       throw failure;
     }
     try {
-      String json = Json.mapper().writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
+      String json = this.json.writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
       if (validate) {
         SwaggerParseResult result = new OpenAPIV3Parser().readContents(json);
         if (result.getMessages().isEmpty()) {
@@ -85,7 +90,7 @@ public class OpenAPIResult {
   }
 
   public static OpenAPIResult failure(RuntimeException failure) {
-    var result = new OpenAPIResult(null);
+    var result = new OpenAPIResult(Json.mapper(), Yaml.mapper(), null);
     result.failure = failure;
     return result;
   }
