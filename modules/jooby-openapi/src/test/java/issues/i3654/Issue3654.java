@@ -9,13 +9,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jooby.openapi.OpenAPIResult;
 import io.jooby.openapi.OpenAPITest;
+import io.swagger.v3.oas.models.SpecVersion;
 
 public class Issue3654 {
 
-  @OpenAPITest(value = App3654.class)
+  @OpenAPITest(value = App3654.class, version = SpecVersion.V31)
   public void shouldGenerateParamDocInRightOrder(OpenAPIResult result) {
     assertEquals(
-        "openapi: 3.0.1\n"
+        "openapi: 3.1.0\n"
             + "info:\n"
             + "  title: 3654 API\n"
             + "  description: 3654 API description\n"

@@ -104,7 +104,7 @@ class JavaDocObjectParserTest {
     assertEquals(
         List.of(
             Map.of("parents", Map.of("name", "Ruly")),
-            Map.of("parents", Map.of("name", "Rody", "age", "50"))),
+            Map.of("parents", Map.of("name", "Rody", "age", 50L))),
         result);
   }
 

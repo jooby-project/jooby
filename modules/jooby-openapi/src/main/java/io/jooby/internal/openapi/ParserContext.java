@@ -74,6 +74,7 @@ import io.jooby.StatusCode;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.jooby.openapi.DebugOption;
 import io.swagger.v3.core.util.RefUtils;
+import io.swagger.v3.oas.models.SpecVersion;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
@@ -97,6 +98,7 @@ public class ParserContext {
     public TypeLiteral() {}
   }
 
+  private final SpecVersion specVersion;
   private String mainClass;
   private final ObjectMapper json;
   private final ObjectMapper yaml;
@@ -110,16 +112,18 @@ public class ParserContext {
   private final JavaDocParser javadocParser;
 
   public ParserContext(
+      SpecVersion specVersion,
       ObjectMapper json,
       ObjectMapper yaml,
       ClassSource source,
       Type router,
       JavaDocParser javadocParser,
       Set<DebugOption> debug) {
-    this(json, yaml, source, new HashMap<>(), router, javadocParser, debug);
+    this(specVersion, json, yaml, source, new HashMap<>(), router, javadocParser, debug);
   }
 
   private ParserContext(
+      SpecVersion specVersion,
       ObjectMapper json,
       ObjectMapper yaml,
       ClassSource source,
@@ -127,6 +131,7 @@ public class ParserContext {
       Type router,
       JavaDocParser javadocParser,
       Set<DebugOption> debug) {
+    this.specVersion = specVersion;
     this.json = json;
     this.yaml = yaml;
     this.router = router;
@@ -135,9 +140,9 @@ public class ParserContext {
     this.nodes = nodes;
     this.javadocParser = javadocParser;
 
-    var mappers = List.of(json, yaml);
+    var mappers = List.of(json);
     jacksonModules(source.getClassLoader(), mappers);
-    this.converters = new ModelConvertersExt();
+    this.converters = new ModelConvertersExt(specVersion);
     mappers.stream().map(ModelConverterExt::new).forEach(converters::addConverter);
   }
 
@@ -245,10 +250,10 @@ public class ParserContext {
       return new StringSchema().format(type.getSimpleName().toLowerCase());
     }
     if (BigInteger.class == type) {
-      return new IntegerSchema().format(null);
+      return new IntegerSchema().format("int64");
     }
     if (BigDecimal.class == type) {
-      return new NumberSchema().format(null);
+      return new NumberSchema().format("decimal");
     }
     if (Date.class == type || LocalDate.class == type) {
       return new DateSchema();
@@ -349,6 +354,10 @@ public class ParserContext {
                                 });
                       } else {
                         value.setDescription(text);
+                        var example = javadoc.getPropertyExample(key);
+                        if (example != null) {
+                          value.setExample(example);
+                        }
                       }
                     });
               }
@@ -543,7 +552,7 @@ public class ParserContext {
   }
 
   public ParserContext newContext(Type router) {
-    return new ParserContext(json, yaml, source, nodes, router, javadocParser, debug);
+    return new ParserContext(specVersion, json, yaml, source, nodes, router, javadocParser, debug);
   }
 
   public String getMainClass() {

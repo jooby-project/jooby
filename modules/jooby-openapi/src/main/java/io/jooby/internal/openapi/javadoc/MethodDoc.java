@@ -105,38 +105,10 @@ public class MethodDoc extends JavaDocNode {
     return toExamples(exampleCode(parameters.get(name)));
   }
 
-  private String exampleCode(String text) {
-    if (text == null) {
-      return "";
-    }
-    var start = text.indexOf("`");
-    if (start == -1) {
-      return "";
-    }
-    var end = text.indexOf("`", start + 1);
-    if (end == -1) {
-      return "";
-    }
-    return text.substring(start, end + 1);
-  }
-
-  private Object toExamples(String text) {
-    var codeExample = exampleCode(text);
-    if (codeExample.isEmpty()) {
-      return null;
-    }
-    var clean = codeExample.substring(1, codeExample.length() - 1);
-    var result = JavaDocObjectParser.parseJson(clean);
-    if (result.equals(codeExample)) {
-      // Like a primitive/basic example
-      return List.of(result);
-    }
-    return result;
-  }
-
   public String getReturnDoc() {
     if (returnDoc != null) {
-      return returnDoc.replace(exampleCode(returnDoc), "").trim();
+      var result = returnDoc.replace(exampleCode(returnDoc), "").trim();
+      return result.isEmpty() ? null : result;
     }
     return null;
   }

@@ -295,7 +295,7 @@ public class JavaDocTag {
                               .findFirst())
                   .orElse(null);
           if (statusCode != null) {
-            if (text == null) {
+            if (text == null || text.trim().isEmpty()) {
               text = statusCode.reason();
             } else {
               text = statusCode.reason() + ": " + text;

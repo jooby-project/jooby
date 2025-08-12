@@ -229,7 +229,7 @@ public class ClassDoc extends JavaDocNode {
     return tree(node).anyMatch(tokens(TokenTypes.ENUM_DEF));
   }
 
-  public String getPropertyDoc(String name) {
+  private String propertyDoc(String name) {
     var getterDoc =
         Stream.of(name, getterName(name))
             .map(n -> methods.get(toMethodSignature(n, List.of())))
@@ -242,6 +242,15 @@ public class ClassDoc extends JavaDocNode {
       return field == null ? null : field.getText();
     }
     return getterDoc;
+  }
+
+  public String getPropertyDoc(String name) {
+    var doc = propertyDoc(name);
+    return doc == null ? null : doc.replace(exampleCode(doc), "").trim();
+  }
+
+  public Object getPropertyExample(String name) {
+    return toExamples(exampleCode(propertyDoc(name)));
   }
 
   private String getterName(String name) {

@@ -279,7 +279,11 @@ public class AnnotationParser {
                 doc -> {
                   JavaDocSetter.setPath(operationExt, doc);
                   var parameterNames =
-                      operationExt.getNode().parameters.stream().map(p -> p.name).toList();
+                      Optional.ofNullable(operationExt.getNode().parameters)
+                          .orElse(List.of())
+                          .stream()
+                          .map(p -> p.name)
+                          .toList();
                   var parameterTypes =
                       Stream.of(Type.getArgumentTypes(operationExt.getNode().desc))
                           .map(Type::getClassName)

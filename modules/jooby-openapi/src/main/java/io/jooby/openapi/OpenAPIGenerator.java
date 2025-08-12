@@ -22,10 +22,7 @@ import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
-import io.swagger.v3.core.util.Json;
-import io.swagger.v3.core.util.Json31;
-import io.swagger.v3.core.util.Yaml;
-import io.swagger.v3.core.util.Yaml31;
+import io.swagger.v3.core.util.*;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
@@ -183,7 +180,8 @@ public class OpenAPIGenerator {
     RouteParser routes = new RouteParser();
     var json = jsonMapper();
     var yaml = yamlMapper();
-    ParserContext ctx = new ParserContext(json, yaml, source, mainType, javadoc, debug);
+    ParserContext ctx =
+        new ParserContext(specVersion, json, yaml, source, mainType, javadoc, debug);
     List<OperationExt> operations = routes.parse(ctx, openapi);
 
     String contextPath = ContextPathParser.parse(ctx);
@@ -245,6 +243,11 @@ public class OpenAPIGenerator {
     globalTags.values().forEach(openapi::addTagsItem);
     openapi.setOperations(operations);
     openapi.setPaths(paths);
+
+    if (SpecVersion.V31 == openapi.getSpecVersion()) {
+      new OpenAPI30To31().process(openapi);
+      openapi.setJsonSchemaDialect(null);
+    }
 
     return openapi;
   }

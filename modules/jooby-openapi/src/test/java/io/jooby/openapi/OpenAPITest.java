@@ -14,6 +14,8 @@ import java.lang.annotation.Target;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import io.swagger.v3.oas.models.SpecVersion;
+
 @Target(METHOD)
 @Retention(RUNTIME)
 @Test
@@ -30,4 +32,6 @@ public @interface OpenAPITest {
   String excludes() default "";
 
   String templateName() default "";
+
+  SpecVersion version() default SpecVersion.V30;
 }

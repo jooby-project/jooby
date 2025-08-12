@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * A utility class to parse a list of strings into a nested map structure. It supports multiple data
@@ -31,6 +32,7 @@ public class JavaDocObjectParser {
 
     private String text;
     private int index = 0;
+    private static final Pattern WS = Pattern.compile("\\s");
 
     /**
      * Parses the given unquoted JSON-like string into a Map.
@@ -50,7 +52,8 @@ public class JavaDocObjectParser {
       } else if (text.startsWith("[") && text.endsWith("]")) {
         return parseArray();
       }
-      return input;
+      // generate a literal only for value without spaces
+      return WS.matcher(input).find() ? input : parseLiteral();
     }
 
     /**
@@ -146,7 +149,7 @@ public class JavaDocObjectParser {
      * Parses a literal value as a string. The literal ends at the next comma ',', closing brace
      * '}', or closing bracket ']'.
      */
-    private String parseLiteral() {
+    private Object parseLiteral() {
       int start = index;
       while (index < text.length()
           && text.charAt(index) != ','
@@ -154,7 +157,18 @@ public class JavaDocObjectParser {
           && text.charAt(index) != ']') {
         index++;
       }
-      return text.substring(start, index).trim();
+      var literal = text.substring(start, index).trim();
+      try {
+        return Long.parseLong(literal);
+      } catch (NumberFormatException ignored) {
+        try {
+          return Double.parseDouble(literal);
+        } catch (NumberFormatException ignored2) {
+          return "true".equals(literal)
+              ? Boolean.TRUE
+              : "false".equals(literal) ? Boolean.FALSE : literal;
+        }
+      }
     }
 
     // --- Utility Methods ---

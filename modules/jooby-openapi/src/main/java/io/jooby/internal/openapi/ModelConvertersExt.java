@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.core.converter.*;
 import io.swagger.v3.core.util.ReferenceTypeUtils;
+import io.swagger.v3.oas.models.SpecVersion;
 import io.swagger.v3.oas.models.media.Schema;
 
 public class ModelConvertersExt extends ModelConverters {
@@ -112,8 +113,8 @@ public class ModelConvertersExt extends ModelConverters {
     }
   }
 
-  public ModelConvertersExt() {
-    super(false);
+  public ModelConvertersExt(SpecVersion specVersion) {
+    super(specVersion == SpecVersion.V31);
   }
 
   @Override

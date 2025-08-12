@@ -98,6 +98,35 @@ public class JavaDocNode {
     return getText(JavaDocStream.forward(javadoc, JAVADOC_TAG).toList(), false);
   }
 
+  protected String exampleCode(String text) {
+    if (text == null) {
+      return "";
+    }
+    var start = text.indexOf("`");
+    if (start == -1) {
+      return "";
+    }
+    var end = text.indexOf("`", start + 1);
+    if (end == -1) {
+      return "";
+    }
+    return text.substring(start, end + 1);
+  }
+
+  protected Object toExamples(String text) {
+    var codeExample = exampleCode(text);
+    if (codeExample.isEmpty()) {
+      return null;
+    }
+    var clean = codeExample.substring(1, codeExample.length() - 1);
+    var result = JavaDocObjectParser.parseJson(clean);
+    if (result.equals(codeExample)) {
+      // Like a primitive/basic example
+      return List.of(result);
+    }
+    return result;
+  }
+
   protected static String getText(List<DetailNode> nodes, boolean stripLeading) {
     var builder = new StringBuilder();
     var visited = new HashSet<DetailNode>();
