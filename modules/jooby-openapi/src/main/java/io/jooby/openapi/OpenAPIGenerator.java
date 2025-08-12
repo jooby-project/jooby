@@ -442,6 +442,20 @@ public class OpenAPIGenerator {
     this.specVersion = specVersion;
   }
 
+  public void setSpecVersion(String version) {
+    if (specVersion != null) {
+      switch (version) {
+        case "v3.1", "v3.1.0", "3.1", "3.1.0":
+          setSpecVersion(SpecVersion.V31);
+        case "v3.0", "v3.0.0", "3.0", "3.0.0", "v3.0.1", "3.0.1":
+          setSpecVersion(SpecVersion.V30);
+        default:
+          throw new IllegalArgumentException(
+              "Invalid spec version: " + version + ". Supported version: [3.0.1, 3.1.0]");
+      }
+    }
+  }
+
   private String appname(String classname) {
     String name = classname;
     int i = name.lastIndexOf('.');

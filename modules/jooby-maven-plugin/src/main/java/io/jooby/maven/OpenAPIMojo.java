@@ -44,6 +44,9 @@ public class OpenAPIMojo extends BaseMojo {
   @Parameter(property = "openAPI.excludes")
   private String excludes;
 
+  @Parameter(property = "openAPI.specVersion")
+  private String specVersion;
+
   @Override
   protected void doExecute(@NonNull List<MavenProject> projects, @NonNull String mainClass)
       throws Exception {
@@ -61,6 +64,9 @@ public class OpenAPIMojo extends BaseMojo {
     getLog().debug("Source directories: " + sources);
 
     OpenAPIGenerator tool = new OpenAPIGenerator();
+    if (specVersion != null) {
+      tool.setSpecVersion(specVersion);
+    }
     tool.setClassLoader(classLoader);
     tool.setOutputDir(outputDir);
     tool.setSources(sources);
@@ -116,5 +122,13 @@ public class OpenAPIMojo extends BaseMojo {
    */
   public void setExcludes(@Nullable String excludes) {
     this.excludes = excludes;
+  }
+
+  public String getSpecVersion() {
+    return specVersion;
+  }
+
+  public void setSpecVersion(String specVersion) {
+    this.specVersion = specVersion;
   }
 }

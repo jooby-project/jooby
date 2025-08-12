@@ -35,6 +35,8 @@ public class OpenAPITask extends BaseTask {
 
   private String excludes;
 
+  private String specVersion;
+
   /**
    * Generate OpenAPI files from Jooby application.
    *
@@ -67,6 +69,7 @@ public class OpenAPITask extends BaseTask {
     tool.setClassLoader(classLoader);
     tool.setOutputDir(outputDir);
     tool.setSources(sources);
+    tool.setSpecVersion(specVersion);
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
 
@@ -155,6 +158,22 @@ public class OpenAPITask extends BaseTask {
    */
   public void setExcludes(@Nullable String excludes) {
     this.excludes = excludes;
+  }
+
+
+  /**
+   * Get the OpenAPI spec version. One of <code>3.0.1</code>, <code>3.1.0</code>.
+   *
+   * @return The OpenAPI spec version. One of <code>3.0.1</code>, <code>3.1.0</code>.
+   */
+  @Input
+  @org.gradle.api.tasks.Optional
+  public String getSpecVersion() {
+    return specVersion;
+  }
+
+  public void setSpecVersion(String specVersion) {
+    this.specVersion = specVersion;
   }
 
   private Optional<String> trim(String value) {
