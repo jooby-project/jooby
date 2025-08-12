@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -18,9 +17,8 @@ import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jooby.SneakyThrows;
-import io.swagger.v3.core.util.Json;
-import io.swagger.v3.core.util.ParameterDeserializer;
-import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.core.util.*;
+import io.swagger.v3.oas.models.SpecVersion;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
 public class OpenApiTemplate {
@@ -51,8 +49,23 @@ public class OpenApiTemplate {
     }
   }
 
-  public static final ObjectMapper yaml = override(Yaml.mapper());
-  private static final ObjectMapper json = override(Json.mapper());
+  private final ObjectMapper json;
+  private final ObjectMapper yaml;
+  private final SpecVersion version;
+
+  public OpenApiTemplate(SpecVersion version) {
+    this.json = override(version == SpecVersion.V30 ? Json.mapper() : Json31.mapper());
+    this.yaml = override(version == SpecVersion.V30 ? Yaml.mapper() : Yaml31.mapper());
+    this.version = version;
+  }
+
+  public ObjectMapper json() {
+    return json;
+  }
+
+  public ObjectMapper yaml() {
+    return yaml;
+  }
 
   private static ObjectMapper override(ObjectMapper mapper) {
     var partial = new PartialParameterDeserializer();
@@ -65,23 +78,29 @@ public class OpenApiTemplate {
     return mapper;
   }
 
-  public static Optional<OpenAPIExt> fromTemplate(
-      Path basedir, ClassLoader classLoader, String templateName) {
+  public OpenAPIExt fromTemplate(Path basedir, ClassLoader classLoader, String templateName) {
+    var openapi = createTemplate(basedir, classLoader, templateName);
+    openapi.setSpecVersion(version);
+    return openapi;
+  }
+
+  private OpenAPIExt createTemplate(Path basedir, ClassLoader classLoader, String templateName) {
     try {
+
       Path path = basedir.resolve("conf").resolve(templateName);
       boolean yamlExt = templateName.endsWith(".yaml") || templateName.endsWith(".yml");
       if (Files.exists(path)) {
         return yamlExt
-            ? Optional.of(yaml.readValue(path.toFile(), OpenAPIExt.class))
-            : Optional.of(json.readValue(path.toFile(), OpenAPIExt.class));
+            ? yaml.readValue(path.toFile(), OpenAPIExt.class)
+            : json.readValue(path.toFile(), OpenAPIExt.class);
       }
       URL resource = classLoader.getResource(templateName);
       if (resource != null) {
         return yamlExt
-            ? Optional.of(yaml.readValue(resource, OpenAPIExt.class))
-            : Optional.of(json.readValue(resource, OpenAPIExt.class));
+            ? yaml.readValue(resource, OpenAPIExt.class)
+            : json.readValue(resource, OpenAPIExt.class);
       }
-      return Optional.empty();
+      return new OpenAPIExt();
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }

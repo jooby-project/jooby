@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Router;
@@ -22,10 +23,13 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Json31;
 import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.core.util.Yaml31;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.SpecVersion;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
@@ -97,6 +101,8 @@ public class OpenAPIGenerator {
 
   private List<Path> sources;
 
+  private SpecVersion specVersion = SpecVersion.V30;
+
   /**
    * Export an {@link OpenAPI} model to the given format.
    *
@@ -149,7 +155,7 @@ public class OpenAPIGenerator {
 
     /* Create OpenAPI from template and make sure min required information is present: */
     OpenAPIExt openapi =
-        OpenApiTemplate.fromTemplate(basedir, classLoader, templateName).orElseGet(OpenAPIExt::new);
+        new OpenApiTemplate(specVersion).fromTemplate(basedir, classLoader, templateName);
 
     var mainType = TypeFactory.fromJavaName(classname);
     var javadoc = new JavaDocParser(sources);
@@ -175,7 +181,9 @@ public class OpenAPIGenerator {
     }
 
     RouteParser routes = new RouteParser();
-    ParserContext ctx = new ParserContext(source, mainType, javadoc, debug);
+    var json = jsonMapper();
+    var yaml = yamlMapper();
+    ParserContext ctx = new ParserContext(json, yaml, source, mainType, javadoc, debug);
     List<OperationExt> operations = routes.parse(ctx, openapi);
 
     String contextPath = ContextPathParser.parse(ctx);
@@ -241,6 +249,14 @@ public class OpenAPIGenerator {
     return openapi;
   }
 
+  ObjectMapper yamlMapper() {
+    return specVersion == SpecVersion.V30 ? Yaml.mapper() : Yaml31.mapper();
+  }
+
+  ObjectMapper jsonMapper() {
+    return specVersion == SpecVersion.V30 ? Json.mapper() : Json31.mapper();
+  }
+
   private boolean includes(String value) {
     return pattern(includes, value).orElse(true);
   }
@@ -282,7 +298,7 @@ public class OpenAPIGenerator {
    */
   public @NonNull String toYaml(@NonNull OpenAPI openAPI) {
     try {
-      return Yaml.mapper().writeValueAsString(openAPI);
+      return yamlMapper().writeValueAsString(openAPI);
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
@@ -296,7 +312,7 @@ public class OpenAPIGenerator {
    */
   public @NonNull String toJson(@NonNull OpenAPI openAPI) {
     try {
-      return Json.mapper().writer().withDefaultPrettyPrinter().writeValueAsString(openAPI);
+      return jsonMapper().writer().withDefaultPrettyPrinter().writeValueAsString(openAPI);
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
@@ -417,6 +433,10 @@ public class OpenAPIGenerator {
    */
   public void setOutputDir(@NonNull Path outputDir) {
     this.outputDir = outputDir;
+  }
+
+  public void setSpecVersion(SpecVersion specVersion) {
+    this.specVersion = specVersion;
   }
 
   private String appname(String classname) {

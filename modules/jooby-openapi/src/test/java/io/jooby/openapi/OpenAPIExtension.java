@@ -58,7 +58,7 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
     OpenAPIResult result;
     try {
       OpenAPIExt openAPI = (OpenAPIExt) tool.generate(classname);
-      result = new OpenAPIResult(openAPI);
+      result = new OpenAPIResult(tool.jsonMapper(), tool.yamlMapper(), openAPI);
     } catch (RuntimeException re) {
       result = OpenAPIResult.failure(re);
     }

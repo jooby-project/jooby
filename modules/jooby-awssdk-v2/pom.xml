@@ -12,7 +12,7 @@
   <name>jooby-awssdk-v2</name>
 
   <properties>
-    <aws.java.sdk.version>2.32.14</aws.java.sdk.version>
+    <aws.java.sdk.version>2.32.19</aws.java.sdk.version>
   </properties>
 
   <dependencyManagement>

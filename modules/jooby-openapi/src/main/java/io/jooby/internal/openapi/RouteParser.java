@@ -46,7 +46,6 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.annotation.OpenApiRegister;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
@@ -203,9 +202,9 @@ public class RouteParser {
           for (Object e : ref.schema.getProperties().entrySet()) {
             String name = (String) ((Map.Entry) e).getKey();
             Schema s = (Schema) ((Map.Entry) e).getValue();
-            var schemaMap = Json.mapper().convertValue(s, Map.class);
+            var schemaMap = ctx.json().convertValue(s, Map.class);
             schemaMap.remove("description");
-            var schemaNoDesc = Json.mapper().convertValue(schemaMap, Schema.class);
+            var schemaNoDesc = ctx.json().convertValue(schemaMap, Schema.class);
             ParameterExt p = new ParameterExt();
             p.setName(name);
             p.setIn(parameter.getIn());
