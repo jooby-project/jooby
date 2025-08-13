@@ -28,9 +28,9 @@ import java.lang.annotation.Target;
 public @interface HeaderParam {
 
   /**
-   * Parameter name.
+   * Parameter name. Defaults to method parameter name.
    *
-   * @return Parameter name.
+   * @return Parameter name. Defaults to method parameter name.
    */
-  String value() default "";
+  String name() default "";
 }

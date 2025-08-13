@@ -11,11 +11,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.MissingValueException;
 import io.jooby.value.Value;
+import io.jooby.value.ValueFactory;
 
 public class MissingValue implements Value {
+  private final ValueFactory factory;
   private final String name;
 
-  public MissingValue(String name) {
+  public MissingValue(ValueFactory factory, String name) {
+    this.factory = factory;
     this.name = name;
   }
 
@@ -26,7 +29,7 @@ public class MissingValue implements Value {
 
   @Override
   public @NonNull Value get(@NonNull String name) {
-    return this.name.equals(name) ? this : new MissingValue(this.name + "." + name);
+    return this.name.equals(name) ? this : new MissingValue(factory, this.name + "." + name);
   }
 
   @Override
@@ -41,7 +44,12 @@ public class MissingValue implements Value {
 
   @Override
   public @NonNull Value get(int index) {
-    return new MissingValue(this.name + "[" + index + "]");
+    return new MissingValue(factory, this.name + "[" + index + "]");
+  }
+
+  @Override
+  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+    return Value.value(factory, name, defaultValue);
   }
 
   @NonNull @Override

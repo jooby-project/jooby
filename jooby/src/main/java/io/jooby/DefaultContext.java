@@ -136,7 +136,7 @@ public interface DefaultContext extends Context {
     if (session != null) {
       return session.get(name);
     }
-    return Value.missing(name);
+    return Value.missing(getValueFactory(), name);
   }
 
   @Override
@@ -178,7 +178,9 @@ public interface DefaultContext extends Context {
   @Override
   default Value cookie(@NonNull String name) {
     String value = cookieMap().get(name);
-    return value == null ? Value.missing(name) : Value.value(getValueFactory(), name, value);
+    return value == null
+        ? Value.missing(getValueFactory(), name)
+        : Value.value(getValueFactory(), name, value);
   }
 
   /**
@@ -221,14 +223,14 @@ public interface DefaultContext extends Context {
         .map(source -> source.provider.apply(this, name))
         .filter(value -> !value.isMissing())
         .findFirst()
-        .orElseGet(() -> Value.missing(name));
+        .orElseGet(() -> Value.missing(getValueFactory(), name));
   }
 
   @Override
   default Value path(@NonNull String name) {
     String value = pathMap().get(name);
     return value == null
-        ? new MissingValue(name)
+        ? new MissingValue(getValueFactory(), name)
         : new SingleValue(getValueFactory(), name, UrlParser.decodePathSegment(value));
   }
 

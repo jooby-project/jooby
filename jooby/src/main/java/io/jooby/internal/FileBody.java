@@ -22,6 +22,7 @@ import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
+import io.jooby.value.Value;
 
 public class FileBody implements Body {
   private Context ctx;
@@ -39,6 +40,16 @@ public class FileBody implements Body {
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
+  }
+
+  @Override
+  public Value get(@NonNull String name) {
+    return new MissingValue(ctx.getValueFactory(), name);
+  }
+
+  @Override
+  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+    return Value.value(ctx.getValueFactory(), name, defaultValue);
   }
 
   @Override

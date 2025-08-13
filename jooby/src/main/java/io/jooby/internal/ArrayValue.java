@@ -60,13 +60,18 @@ public class ArrayValue implements Value {
     try {
       return list.get(index);
     } catch (IndexOutOfBoundsException x) {
-      return new MissingValue(name + "[" + index + "]");
+      return new MissingValue(factory, name + "[" + index + "]");
     }
   }
 
   @Override
   public @NonNull Value get(@NonNull String name) {
-    return new MissingValue(this.name + "." + name);
+    return new MissingValue(factory, this.name + "." + name);
+  }
+
+  @Override
+  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+    return Value.value(factory, this.name + "." + name, defaultValue);
   }
 
   @Override

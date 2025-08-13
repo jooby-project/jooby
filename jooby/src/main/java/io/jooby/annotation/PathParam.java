@@ -24,9 +24,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface PathParam {
   /**
-   * Path pattern. Default <code>/</code>.
+   * Parameter name. Defaults to method parameter name.
    *
-   * @return Path pattern. Default <code>/</code>.
+   * @return Parameter name. Defaults to method parameter name.
    */
-  String value() default "";
+  String name() default "";
 }

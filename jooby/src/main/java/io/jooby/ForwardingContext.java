@@ -120,6 +120,11 @@ public class ForwardingContext implements Context {
     }
 
     @Override
+    public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+      return delegate.getOrDefault(name, defaultValue);
+    }
+
+    @Override
     public int size() {
       return delegate.size();
     }
@@ -320,13 +325,18 @@ public class ForwardingContext implements Context {
     }
 
     @Override
-    public Value get(@NonNull int index) {
+    public Value get(int index) {
       return delegate.get(index);
     }
 
     @Override
     public Value get(@NonNull String name) {
       return delegate.get(name);
+    }
+
+    @Override
+    public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+      return delegate.getOrDefault(name, defaultValue);
     }
 
     @Override

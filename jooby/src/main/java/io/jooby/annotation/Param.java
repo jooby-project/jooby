@@ -28,9 +28,9 @@ import io.jooby.ParamSource;
 public @interface Param {
 
   /**
-   * Parameter name.
+   * Parameter name. Defaults to method parameter name.
    *
-   * @return Parameter name.
+   * @return Parameter name. Defaults to method parameter name.
    */
   String name() default "";
 

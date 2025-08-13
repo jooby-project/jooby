@@ -24,6 +24,7 @@ import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
+import io.jooby.value.Value;
 import io.netty.handler.codec.http.multipart.HttpData;
 
 public class NettyBody implements Body {
@@ -57,6 +58,16 @@ public class NettyBody implements Body {
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
+  }
+
+  @Override
+  public Value get(@NonNull String name) {
+    return Value.missing(ctx.getValueFactory(), name);
+  }
+
+  @Override
+  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+    return Value.value(ctx.getValueFactory(), name, defaultValue);
   }
 
   @Override

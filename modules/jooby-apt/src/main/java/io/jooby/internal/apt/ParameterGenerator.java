@@ -53,12 +53,7 @@ public enum ParameterGenerator {
   FlashParam("flash", BUILT_IN, "io.jooby.annotation.FlashParam"),
   FormParam("form", "io.jooby.annotation.FormParam", "jakarta.ws.rs.FormParam"),
   HeaderParam("header", BUILT_IN, "io.jooby.annotation.HeaderParam", "jakarta.ws.rs.HeaderParam"),
-  Lookup("lookup", "io.jooby.annotation.Param") {
-    @Override
-    protected Predicate<String> namePredicate() {
-      return AnnotationSupport.NAME;
-    }
-  },
+  Lookup("lookup", "io.jooby.annotation.Param"),
   PathParam("path", "io.jooby.annotation.PathParam", "jakarta.ws.rs.PathParam"),
   QueryParam("query", "io.jooby.annotation.QueryParam", "jakarta.ws.rs.QueryParam"),
   SessionParam("session", BUILT_IN, "io.jooby.annotation.SessionParam"),
@@ -188,13 +183,16 @@ public enum ParameterGenerator {
   };
 
   public String parameterName(AnnotationMirror annotation, String defaultParameterName) {
-    return findAnnotationValue(annotation, namePredicate()).stream()
+    return findAnnotationValue(annotation, namePredicate(annotation)).stream()
         .findFirst()
         .orElse(defaultParameterName);
   }
 
-  protected Predicate<String> namePredicate() {
-    return AnnotationSupport.VALUE;
+  protected Predicate<String> namePredicate(AnnotationMirror annotation) {
+    if (annotation.getAnnotationType().toString().startsWith("jakarta.ws.rs")) {
+      return AnnotationSupport.VALUE;
+    }
+    return AnnotationSupport.NAME;
   }
 
   public String toSourceCode(

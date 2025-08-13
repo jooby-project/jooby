@@ -45,6 +45,7 @@ public class ReflectiveBeanConverter implements Converter {
       "Ambiguous constructor found. Expecting a single constructor or only one annotated with "
           + Inject.class.getName();
 
+  private final ValueFactory factory;
   private final MethodHandles.Lookup lookup;
 
   /**
@@ -52,7 +53,8 @@ public class ReflectiveBeanConverter implements Converter {
    *
    * @param lookup Method handle lookup.
    */
-  public ReflectiveBeanConverter(MethodHandles.Lookup lookup) {
+  public ReflectiveBeanConverter(ValueFactory factory, MethodHandles.Lookup lookup) {
+    this.factory = factory;
     this.lookup = lookup;
   }
 
@@ -101,7 +103,7 @@ public class ReflectiveBeanConverter implements Converter {
       } else {
         constructor = selectConstructor(constructors);
       }
-      var args = inject(value, constructor, state::add);
+      var args = inject(factory, value, constructor, state::add);
       var setters = setters(rawType, value, state);
       Object instance;
       if (!allowEmptyBean && state.stream().allMatch(Value::isMissing)) {
@@ -154,7 +156,8 @@ public class ReflectiveBeanConverter implements Converter {
     }
   }
 
-  public static List<Object> inject(Value scope, Executable method, Consumer<Value> state) {
+  public static List<Object> inject(
+      ValueFactory factory, Value scope, Executable method, Consumer<Value> state) {
     var parameters = method.getParameters();
     if (parameters.length == 0) {
       return List.of();
@@ -165,7 +168,7 @@ public class ReflectiveBeanConverter implements Converter {
       var param = scope.get(name);
       var arg = value(parameter, scope, param);
       if (arg == null) {
-        state.accept(Value.missing(name));
+        state.accept(Value.missing(factory, name));
       } else {
         state.accept(param);
       }

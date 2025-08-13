@@ -20,7 +20,6 @@ import io.jooby.exception.MissingValueException;
 import io.jooby.internal.ByteArrayBody;
 import io.jooby.internal.FileBody;
 import io.jooby.internal.InputStreamBody;
-import io.jooby.internal.MissingValue;
 import io.jooby.value.Value;
 
 /**
@@ -59,11 +58,6 @@ public interface Body extends Value {
   }
 
   @Override
-  default Value get(@NonNull String name) {
-    return new MissingValue(name);
-  }
-
-  @Override
   default Iterator<Value> iterator() {
     return List.of((Value) this).iterator();
   }
@@ -73,7 +67,7 @@ public interface Body extends Value {
    *
    * @return Body as byte array.
    */
-  @NonNull byte[] bytes();
+  byte[] bytes();
 
   /**
    * True if body is on memory. False, indicates body is on file system. Body larger than {@link

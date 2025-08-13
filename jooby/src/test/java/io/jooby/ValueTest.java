@@ -5,8 +5,7 @@
  */
 package io.jooby;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -27,6 +26,8 @@ import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
 public class ValueTest {
+
+  private ValueFactory factory = new ValueFactory();
 
   @Test
   public void simpleQueryString() {
@@ -398,7 +399,7 @@ public class ValueTest {
     /** Single: */
     assertEquals(Arrays.asList("1"), Value.value(null, "a", "1").toList());
     /** Missing: */
-    assertEquals(Collections.emptyList(), Value.missing("a").toList());
+    assertEquals(Collections.emptyList(), Value.missing(factory, "a").toList());
   }
 
   @Test
@@ -413,6 +414,24 @@ public class ValueTest {
               "Cannot convert value: 'a', to: 'java.lang.String'");
           assertEquals(Optional.of("1"), queryString.get("a").get(0).toOptional());
           assertEquals(Optional.empty(), queryString.get("a").get(2).toOptional());
+        });
+  }
+
+  @Test
+  public void shouldUseDefaultValue() {
+    /** Hash: */
+    queryString(
+        "present=value",
+        queryString -> {
+          assertEquals(1, queryString.getOrDefault("number", "1").intValue());
+          assertEquals("value", queryString.getOrDefault("present", "1").value());
+          assertTrue(queryString.get("present").getOrDefault("bool", "true").booleanValue());
+        });
+    /** Array: */
+    queryString(
+        "a=1;a=2",
+        queryString -> {
+          assertEquals("3", queryString.get("a").getOrDefault("missing", "3").value());
         });
   }
 

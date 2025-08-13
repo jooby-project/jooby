@@ -23,6 +23,7 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
+import io.jooby.value.Value;
 
 public class InputStreamBody implements Body {
   private Context ctx;
@@ -73,6 +74,16 @@ public class InputStreamBody implements Body {
   @NonNull @Override
   public String value() {
     return value(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public Value get(@NonNull String name) {
+    return new MissingValue(ctx.getValueFactory(), name);
+  }
+
+  @Override
+  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+    return Value.value(ctx.getValueFactory(), name, defaultValue);
   }
 
   @Override

@@ -13,7 +13,7 @@ import io.jooby.annotation.QueryParam;
 @Path("/path")
 public class C3460 {
   @GET("/required-string-param")
-  public String requiredStringParam(@QueryParam("value") @NonNull String value) {
+  public String requiredStringParam(@QueryParam(name = "value") @NonNull String value) {
     return value;
   }
 }

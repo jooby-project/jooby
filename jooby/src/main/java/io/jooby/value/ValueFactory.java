@@ -50,7 +50,7 @@ public class ValueFactory {
    */
   public ValueFactory(@NonNull MethodHandles.Lookup lookup) {
     this.lookup = lookup;
-    this.fallback = new ReflectiveBeanConverter(lookup);
+    this.fallback = new ReflectiveBeanConverter(this, lookup);
     StandardConverter.register(this);
   }
 
@@ -73,7 +73,7 @@ public class ValueFactory {
    */
   public @NonNull ValueFactory lookup(@NonNull MethodHandles.Lookup lookup) {
     this.lookup = lookup;
-    this.fallback = new ReflectiveBeanConverter(lookup);
+    this.fallback = new ReflectiveBeanConverter(this, lookup);
     return this;
   }
 

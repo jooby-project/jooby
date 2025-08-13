@@ -28,9 +28,9 @@ import io.jooby.Session;
 public @interface SessionParam {
 
   /**
-   * Session attribute's name.
+   * Session attribute's name. Defaults to method parameter name.
    *
-   * @return Session attribute's name.
+   * @return Session attribute's name. Defaults to method parameter name.
    */
-  String value() default "";
+  String name() default "";
 }

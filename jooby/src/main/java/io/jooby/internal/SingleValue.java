@@ -44,7 +44,12 @@ public class SingleValue implements Value {
 
   @Override
   public @NonNull Value get(@NonNull String name) {
-    return new MissingValue(this.name + "." + name);
+    return new MissingValue(factory, this.name + "." + name);
+  }
+
+  @Override
+  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+    return Value.value(factory, this.name + "." + name, defaultValue);
   }
 
   @Override

@@ -15,6 +15,7 @@ import io.jooby.DefaultContext;
 import io.jooby.ForwardingContext;
 import io.jooby.MediaType;
 import io.jooby.WebSocketMessage;
+import io.jooby.value.Value;
 
 public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMessage {
 
@@ -56,6 +57,16 @@ public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMess
   public <T> T to(@NonNull Type type) {
     MediaType contentType = ctx.getRoute().getConsumes().get(0);
     return new WebSocketMessageBody(ctx, this).decode(type, contentType);
+  }
+
+  @Override
+  public Value get(@NonNull String name) {
+    return new MissingValue(ctx.getValueFactory(), name);
+  }
+
+  @Override
+  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+    return Value.value(ctx.getValueFactory(), name, defaultValue);
   }
 
   @Nullable @Override

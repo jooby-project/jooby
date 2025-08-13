@@ -92,7 +92,7 @@ public class MockSession implements Session {
   public Value get(@NonNull String name) {
     return Optional.ofNullable(data.get(name))
         .map(value -> Value.create(valueFactory, name, value))
-        .orElse(Value.missing(name));
+        .orElse(Value.missing(valueFactory, name));
   }
 
   @NonNull @Override

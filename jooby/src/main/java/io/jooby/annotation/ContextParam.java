@@ -28,9 +28,10 @@ import io.jooby.Context;
 public @interface ContextParam {
 
   /**
-   * Attribute's name. See {@link io.jooby.Context#getAttribute(String)}
+   * Attribute's name. See {@link io.jooby.Context#getAttribute(String)}. Defaults to method
+   * parameter name.
    *
-   * @return Attribute's name.
+   * @return Attribute's name. Defaults to method parameter name.
    */
-  String value() default "";
+  String name() default "";
 }

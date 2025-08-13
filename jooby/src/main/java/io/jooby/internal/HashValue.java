@@ -169,7 +169,16 @@ public class HashValue implements Value {
   public @NonNull Value get(@NonNull String name) {
     var value = hash.get(name);
     if (value == null) {
-      return new MissingValue(scope(name));
+      return new MissingValue(factory, scope(name));
+    }
+    return value;
+  }
+
+  @Override
+  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+    var value = hash.get(name);
+    if (value == null) {
+      return Value.value(factory, name, defaultValue);
     }
     return value;
   }

@@ -64,6 +64,15 @@ public interface Value extends Iterable<Value> {
   Value get(@NonNull String name);
 
   /**
+   * Get a value that matches the given name or fallback back to default value.
+   *
+   * @param name Field name.
+   * @param defaultValue Default Value.
+   * @return Field value.
+   */
+  Value getOrDefault(@NonNull String name, @NonNull String defaultValue);
+
+  /**
    * The number of values this one has. For single values size is <code>0</code>.
    *
    * @return Number of values. Mainly for array and hash values.
@@ -613,11 +622,12 @@ public interface Value extends Iterable<Value> {
   /**
    * Creates a missing value.
    *
+   * @param valueFactory Current context.
    * @param name Name of missing value.
    * @return Missing value.
    */
-  static Value missing(@NonNull String name) {
-    return new MissingValue(name);
+  static Value missing(@NonNull ValueFactory valueFactory, @NonNull String name) {
+    return new MissingValue(valueFactory, name);
   }
 
   /**
@@ -660,10 +670,10 @@ public interface Value extends Iterable<Value> {
   static Value create(
       @NonNull ValueFactory valueFactory, @NonNull String name, @Nullable List<String> values) {
     if (values == null || values.isEmpty()) {
-      return missing(name);
+      return missing(valueFactory, name);
     }
     if (values.size() == 1) {
-      return value(valueFactory, name, values.get(0));
+      return value(valueFactory, name, values.getFirst());
     }
     return new ArrayValue(valueFactory, name).add(values);
   }
@@ -682,7 +692,7 @@ public interface Value extends Iterable<Value> {
   static Value create(
       @NonNull ValueFactory valueFactory, @NonNull String name, @Nullable String value) {
     if (value == null) {
-      return missing(name);
+      return missing(valueFactory, name);
     }
     return value(valueFactory, name, value);
   }

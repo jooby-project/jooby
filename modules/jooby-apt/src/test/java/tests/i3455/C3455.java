@@ -14,7 +14,7 @@ import io.jooby.annotation.QueryParam;
 public class C3455 {
   @GET("/required\"-string-param")
   @Schema(description = "test\"ttttt")
-  public String requiredStringParam(@QueryParam("value\"") @NonNull String value) {
+  public String requiredStringParam(@QueryParam(name = "value\"") @NonNull String value) {
     return value;
   }
 }
