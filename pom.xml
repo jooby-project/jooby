@@ -106,8 +106,8 @@
 
     <!-- Server -->
     <undertow.version>2.3.18.Final</undertow.version>
-    <jetty.version>12.0.24</jetty.version>
-    <netty.version>4.2.3.Final</netty.version>
+    <jetty.version>12.0.25</jetty.version>
+    <netty.version>4.2.4.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.35</swagger.version>
@@ -130,7 +130,7 @@
 
     <!-- Misc -->
     <okhttp.version>5.1.0</okhttp.version>
-    <jsonwebtoken.version>0.12.6</jsonwebtoken.version>
+    <jsonwebtoken.version>0.12.7</jsonwebtoken.version>
     <pac4j.version>6.2.0</pac4j.version>
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
@@ -142,16 +142,16 @@
     <commons-io.version>2.20.0</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>2.2.0</kotlin.version>
+    <kotlin.version>2.2.10</kotlin.version>
     <kotlinx-coroutines-core.version>1.10.2</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.13</jacoco.version>
     <junit.version>5.13.4</junit.version>
-    <rest-assured.version>5.5.5</rest-assured.version>
+    <rest-assured.version>5.5.6</rest-assured.version>
     <assertj-core.version>3.27.4</assertj-core.version>
-    <mockito.version>5.18.0</mockito.version>
+    <mockito.version>5.19.0</mockito.version>
     <maven.m2.repo>${user.home}${file.separator}.m2${file.separator}repository</maven.m2.repo>
     <mockito.agent>org${file.separator}mockito${file.separator}mockito-core${file.separator}${mockito.version}${file.separator}mockito-core-${mockito.version}.jar</mockito.agent>
     <argLine>-javaagent:${maven.m2.repo}${file.separator}${mockito.agent}</argLine>
@@ -176,7 +176,7 @@
     <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.11.3</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.15.1</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.9.11</maven-plugin-api.version>
