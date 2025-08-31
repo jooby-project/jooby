@@ -131,12 +131,24 @@ public interface DefaultContext extends Context {
   }
 
   @Override
+  default Value flash(@NonNull String name, @NonNull String defaultValue) {
+    var value = flash(name);
+    return value.isMissing() ? Value.value(getValueFactory(), name, defaultValue) : value;
+  }
+
+  @Override
   default Value session(@NonNull String name) {
     Session session = sessionOrNull();
     if (session != null) {
       return session.get(name);
     }
     return Value.missing(getValueFactory(), name);
+  }
+
+  @Override
+  default Value session(@NonNull String name, @NonNull String defaultValue) {
+    var value = session(name);
+    return value.isMissing() ? Value.value(getValueFactory(), name, defaultValue) : value;
   }
 
   @Override
@@ -177,10 +189,14 @@ public interface DefaultContext extends Context {
 
   @Override
   default Value cookie(@NonNull String name) {
-    String value = cookieMap().get(name);
-    return value == null
-        ? Value.missing(getValueFactory(), name)
-        : Value.value(getValueFactory(), name, value);
+    var value = cookieMap().get(name);
+    return Value.create(getValueFactory(), name, value);
+  }
+
+  @Override
+  default Value cookie(@NonNull String name, @NonNull String defaultValue) {
+    var value = cookie(name);
+    return value.isMissing() ? Value.value(getValueFactory(), name, defaultValue) : value;
   }
 
   /**
@@ -254,6 +270,11 @@ public interface DefaultContext extends Context {
   }
 
   @Override
+  default Value query(@NonNull String name, @NonNull String defaultValue) {
+    return query().getOrDefault(name, defaultValue);
+  }
+
+  @Override
   default String queryString() {
     return query().queryString();
   }
@@ -271,6 +292,11 @@ public interface DefaultContext extends Context {
   @Override
   default Value header(@NonNull String name) {
     return header().get(name);
+  }
+
+  @Override
+  default Value header(@NonNull String name, @NonNull String defaultValue) {
+    return header().getOrDefault(name, defaultValue);
   }
 
   @Override

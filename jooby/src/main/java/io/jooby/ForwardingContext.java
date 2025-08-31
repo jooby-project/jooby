@@ -701,8 +701,18 @@ public class ForwardingContext implements Context {
   }
 
   @Override
+  public Value flash(@NonNull String name, @NonNull String defaultValue) {
+    return ctx.flash(name, defaultValue);
+  }
+
+  @Override
   public Value session(@NonNull String name) {
     return ctx.session(name);
+  }
+
+  @Override
+  public Value session(@NonNull String name, @NonNull String defaultValue) {
+    return ctx.session(name, defaultValue);
   }
 
   @Override
@@ -718,6 +728,11 @@ public class ForwardingContext implements Context {
   @Override
   public Value cookie(@NonNull String name) {
     return ctx.cookie(name);
+  }
+
+  @Override
+  public Value cookie(@NonNull String name, @NonNull String defaultValue) {
+    return ctx.cookie(name, defaultValue);
   }
 
   @Override
@@ -804,6 +819,11 @@ public class ForwardingContext implements Context {
   }
 
   @Override
+  public Value query(@NonNull String name, @NonNull String defaultValue) {
+    return ctx.query(name, defaultValue);
+  }
+
+  @Override
   public String queryString() {
     return ctx.queryString();
   }
@@ -826,6 +846,11 @@ public class ForwardingContext implements Context {
   @Override
   public Value header(@NonNull String name) {
     return ctx.header(name);
+  }
+
+  @Override
+  public Value header(@NonNull String name, @NonNull String defaultValue) {
+    return ctx.header(name, defaultValue);
   }
 
   @Override

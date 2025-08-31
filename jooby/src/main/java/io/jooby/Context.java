@@ -186,6 +186,15 @@ public interface Context extends Registry {
   Value flash(@NonNull String name);
 
   /**
+   * Get a flash attribute.
+   *
+   * @param name Attribute's name.
+   * @param defaultValue Default's value. Value won't be persisted to flash context.
+   * @return Flash attribute.
+   */
+  Value flash(@NonNull String name, @NonNull String defaultValue);
+
+  /**
    * Find a session or creates a new session.
    *
    * @return Session.
@@ -202,6 +211,16 @@ public interface Context extends Registry {
   Value session(@NonNull String name);
 
   /**
+   * Find a session attribute using the given name. If there is no session or attribute under that
+   * name a missing value is returned.
+   *
+   * @param name Attribute's name.
+   * @param defaultValue Default's value. Value won't be persisted to session context.
+   * @return Session's attribute or missing.
+   */
+  Value session(@NonNull String name, @NonNull String defaultValue);
+
+  /**
    * Find an existing session.
    *
    * @return Existing session or <code>null</code>.
@@ -215,6 +234,15 @@ public interface Context extends Registry {
    * @return Cookie value.
    */
   Value cookie(@NonNull String name);
+
+  /**
+   * Get a cookie matching the given name.
+   *
+   * @param name Cookie's name.
+   * @param defaultValue Default's value. Value won't be persisted to response context.
+   * @return Cookie value.
+   */
+  Value cookie(@NonNull String name, @NonNull String defaultValue);
 
   /**
    * Request cookies.
@@ -367,6 +395,25 @@ public interface Context extends Registry {
   Value query(@NonNull String name);
 
   /**
+   * Get a query parameter that matches the given name.
+   *
+   * <pre>{@code
+   * {
+   *   get("/search", ctx -> {
+   *     String q = ctx.query("q").value();
+   *     ...
+   *   });
+   *
+   * }
+   * }</pre>
+   *
+   * @param name Parameter name.
+   * @param defaultValue Default value.
+   * @return A query value.
+   */
+  Value query(@NonNull String name, @NonNull String defaultValue);
+
+  /**
    * Query string with the leading <code>?</code> or empty string. This is the raw query string,
    * without decoding it.
    *
@@ -416,6 +463,15 @@ public interface Context extends Registry {
    * @return A header value or missing value, never a <code>null</code> reference.
    */
   Value header(@NonNull String name);
+
+  /**
+   * Get a header that matches the given name.
+   *
+   * @param name Header name. Case insensitive.
+   * @param defaultValue Default value.
+   * @return A header value or missing value, never a <code>null</code> reference.
+   */
+  Value header(@NonNull String name, @NonNull String defaultValue);
 
   /**
    * Header as single-value map.

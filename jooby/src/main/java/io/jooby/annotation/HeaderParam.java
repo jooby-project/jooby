@@ -33,4 +33,11 @@ public @interface HeaderParam {
    * @return Parameter name. Defaults to method parameter name.
    */
   String name() default "";
+
+  /**
+   * Default value.
+   *
+   * @return Default value.
+   */
+  String value() default "";
 }
