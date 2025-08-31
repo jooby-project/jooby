@@ -129,7 +129,7 @@ public class Http2Test {
     Response.Builder builder = new Response.Builder();
     session.newStream(
         frame,
-        new Promise.Adapter<>(),
+        Promise.noop(),
         new Stream.Listener() {
           @Override
           public void onHeaders(final Stream stream, final HeadersFrame frame) {
