@@ -123,7 +123,7 @@ public class ModuleCompilerTest {
   public void routesWithParamLookup() throws Exception {
     new ProcessorRunner(new RouteWithParamLookup())
         .withRouter(
-            app -> {
+            (app, source) -> {
               MockRouter router = new MockRouter(app);
 
               Throwable t =

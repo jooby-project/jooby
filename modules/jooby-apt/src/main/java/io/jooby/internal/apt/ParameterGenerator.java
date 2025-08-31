@@ -326,6 +326,7 @@ public enum ParameterGenerator {
       boolean kt, AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
     if (BUILT_IN.stream().anyMatch(type::is)) {
       var paramSource = source(annotation);
+      var defaultValue = defaultValue(annotation);
       // look at named parameter
       if (type.isPrimitive()) {
         // like: .intValue
@@ -334,15 +335,27 @@ public enum ParameterGenerator {
             method,
             "(",
             CodeBlock.string(name),
-            paramSource,
+            paramSource.isEmpty() ? defaultValue : paramSource,
             ").",
             CodeBlock.type(kt, type.getName()).toLowerCase(),
             "Value()");
       } else if (type.is(String.class)) {
         var stringValue = nullable ? "valueOrNull" : "value";
-        // StringL: .value
+        if (paramSource.isEmpty() && !defaultValue.isEmpty()) {
+          // use non-null version bc there is a default value.
+          stringValue = "value";
+        }
+        // String: .value
         return CodeBlock.of(
-            "ctx.", method, "(", CodeBlock.string(name), paramSource, ").", stringValue, "()");
+            "ctx.",
+            method,
+            "(",
+            CodeBlock.string(name),
+            // Param Source doesn't support default value
+            paramSource.isEmpty() ? defaultValue : paramSource,
+            ").",
+            stringValue,
+            "()");
       } else {
         var toValue = nullable ? "toNullable" : "to";
         // Any other type: .to(UUID.class)
@@ -408,6 +421,14 @@ public enum ParameterGenerator {
           : sources.stream()
               .map(it -> "io.jooby.ParamSource." + it)
               .collect(joining(", ", ", ", ""));
+    }
+    return "";
+  }
+
+  protected String defaultValue(AnnotationMirror annotation) {
+    if (annotation.getAnnotationType().toString().startsWith("io.jooby.annotation")) {
+      var sources = findAnnotationValue(annotation, AnnotationSupport.VALUE);
+      return sources.isEmpty() ? "" : CodeBlock.of(", ", CodeBlock.string(sources.getFirst()));
     }
     return "";
   }
