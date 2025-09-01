@@ -246,6 +246,15 @@ public class RouterImpl implements Router {
     }
   }
 
+  private void configureContextAsService(boolean contextAsService) {
+    if (contextAsService) {
+      addPostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
+      getServices().put(Context.class, ContextAsServiceInitializer.INSTANCE);
+    } else {
+      removePostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
+    }
+  }
+
   @NonNull @Override
   public Route.Set domain(@NonNull String domain, @NonNull Runnable body) {
     return mount(domainPredicate(domain), body);
@@ -534,10 +543,13 @@ public class RouterImpl implements Router {
     }
   }
 
-  @NonNull public Router start(@NonNull Jooby app, @NonNull Server server) {
-    started = true;
+  public void initialize() {
     configureTrustProxy(routerOptions.isTrustProxy());
     configureContextAsService(routerOptions.isContextAsService());
+  }
+
+  @NonNull public Router start(@NonNull Jooby app, @NonNull Server server) {
+    started = true;
     var globalErrHandler = defineGlobalErrorHandler(app);
     if (err == null) {
       err = globalErrHandler;
@@ -608,13 +620,6 @@ public class RouterImpl implements Router {
     routeExecutor.clear();
     routeExecutor = null;
     return this;
-  }
-
-  private void configureContextAsService(boolean contextAsService) {
-    if (contextAsService) {
-      addPostDispatchInitializer(ContextAsServiceInitializer.INSTANCE);
-      getServices().put(Context.class, ContextAsServiceInitializer.INSTANCE);
-    }
   }
 
   /**

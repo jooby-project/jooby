@@ -905,6 +905,8 @@ public class Jooby implements Router, Registry {
 
     joobyRunHook(getClass().getClassLoader(), server);
 
+    router.initialize();
+
     for (Extension extension : lateExtensions) {
       try {
         extension.install(this);
