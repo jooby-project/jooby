@@ -90,16 +90,7 @@ class Chi implements RouteTree {
     }
 
     public boolean startsWith(String prefix) {
-      int len = prefix.length();
-      if (len <= length()) {
-        for (int i = 0; i < len; i++) {
-          if (base.charAt(i + startIndex) != prefix.charAt(i)) {
-            return false;
-          }
-        }
-        return true;
-      }
-      return false;
+      return base.regionMatches(false, this.startIndex, prefix, 0, prefix.length());
     }
   }
 
