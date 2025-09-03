@@ -11,6 +11,10 @@
   <artifactId>tests</artifactId>
   <name>tests</name>
 
+  <properties>
+    <jmh.version>1.37</jmh.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
@@ -134,11 +138,6 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.avaje</groupId>
-      <artifactId>avaje-validator-generator</artifactId>
-      <scope>test</scope>
-    </dependency>
     <!-- kotlin -->
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -260,14 +259,7 @@
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-core</artifactId>
-      <version>1.37</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openjdk.jmh</groupId>
-      <artifactId>jmh-generator-annprocess</artifactId>
-      <version>1.37</version>
+      <version>${jmh.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -293,6 +285,16 @@
                   <groupId>io.jooby</groupId>
                   <artifactId>jooby-apt</artifactId>
                   <version>${jooby.version}</version>
+                </annotationProcessorPath>
+                <annotationProcessorPath>
+                    <groupId>io.avaje</groupId>
+                    <artifactId>avaje-validator-generator</artifactId>
+                    <version>${avaje.validator.version}</version>
+                </annotationProcessorPath>
+                <annotationProcessorPath>
+                  <groupId>org.openjdk.jmh</groupId>
+                  <artifactId>jmh-generator-annprocess</artifactId>
+                  <version>${jmh.version}</version>
                 </annotationProcessorPath>
               </annotationProcessorPaths>
             </configuration>
@@ -381,5 +383,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

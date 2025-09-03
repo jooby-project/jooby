@@ -8,9 +8,11 @@ package examples;
 import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.MediaType.JSON;
 
+import java.util.List;
+
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
-import io.jooby.StatusCode;
+import io.jooby.StartupSummary;
 import io.jooby.netty.NettyServer;
 
 public class Performance extends Jooby {
@@ -20,6 +22,7 @@ public class Performance extends Jooby {
   {
     var outputFactory = getOutputFactory();
     var message = outputFactory.wrap(MESSAGE);
+    setStartupSummary(List.of(StartupSummary.VERBOSE));
     get(
         "/plaintext",
         ctx -> {
@@ -28,13 +31,12 @@ public class Performance extends Jooby {
 
     get("/json", ctx -> ctx.setResponseType(JSON).render(new Message(MESSAGE)));
 
-    get("/db", ctx -> ctx.send(StatusCode.OK));
-
-    get("/queries", ctx -> ctx.send(StatusCode.OK));
-
-    get("/fortunes", ctx -> ctx.send(StatusCode.OK));
-
-    get("/updates", ctx -> ctx.send(StatusCode.OK));
+    get(
+        "/debug",
+        ctx -> {
+          getLog().info("Info");
+          return ctx.send(message);
+        });
   }
 
   public static void main(final String[] args) {
