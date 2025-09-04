@@ -12,8 +12,8 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 public class NettyResponseEncoder extends HttpResponseEncoder {
   @Override
   protected void encodeHeaders(HttpHeaders headers, ByteBuf buf) {
-    if (headers instanceof HeadersMultiMap headersMultiMap) {
-      headersMultiMap.encode(buf);
+    if (headers.getClass() == HeadersMultiMap.class) {
+      ((HeadersMultiMap) headers).encode(buf);
     } else {
       super.encodeHeaders(headers, buf);
     }

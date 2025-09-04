@@ -490,10 +490,13 @@ public final class HeadersMultiMap extends HttpHeaders {
   }
 
   private static void writeAscii(ByteBuf buf, int offset, CharSequence value) {
-    if (value instanceof NettyString netty) {
-      buf.setBytes(offset, netty.bytes, 0, netty.bytes.length);
-    } else if (value instanceof AsciiString ascii) {
-      buf.setBytes(offset, ascii.array(), ascii.arrayOffset(), value.length());
+    var clazz = value.getClass();
+    if (clazz == NettyString.class) {
+      var nettyString = (NettyString) value;
+      buf.setBytes(offset, nettyString.bytes, 0, nettyString.bytes.length);
+    } else if (clazz == AsciiString.class) {
+      var asciiString = (AsciiString) value;
+      buf.setBytes(offset, asciiString.array(), asciiString.arrayOffset(), value.length());
     } else {
       buf.setCharSequence(offset, value, CharsetUtil.US_ASCII);
     }

@@ -27,6 +27,11 @@ public class NettyRequestDecoder extends HttpRequestDecoder {
         headersFactory);
   }
 
+  @Override
+  protected boolean isContentAlwaysEmpty(HttpMessage msg) {
+    return false;
+  }
+
   private static HttpMethod valueOf(String name) {
     // fast-path
     if (name == GET) {
@@ -42,15 +47,6 @@ public class NettyRequestDecoder extends HttpRequestDecoder {
       return HttpMethod.PUT;
     }
     // "slow"-path: ensure method is on upper case
-    return HttpMethod.valueOf(toUpperCase(name));
-  }
-
-  private static String toUpperCase(String name) {
-    for (int i = 0; i < name.length(); i++) {
-      if (Character.isLowerCase(name.charAt(i))) {
-        return name.toUpperCase();
-      }
-    }
-    return name;
+    return HttpMethod.valueOf(name.toUpperCase());
   }
 }

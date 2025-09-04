@@ -16,7 +16,10 @@ public class NettyDateService implements Runnable {
   private CharSequence date;
 
   public NettyDateService(ScheduledExecutorService scheduler) {
-    scheduler.scheduleAtFixedRate(this, 0, DATE_INTERVAL, TimeUnit.MILLISECONDS);
+    this.date =
+        new NettyString(
+            DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneOffset.UTC)));
+    scheduler.scheduleAtFixedRate(this, DATE_INTERVAL, DATE_INTERVAL, TimeUnit.MILLISECONDS);
   }
 
   public CharSequence date() {
