@@ -52,16 +52,13 @@ public class NettyServer extends Server.Base {
     System.setProperty("__server_.name", NAME);
   }
 
-  private static final int _50 = 50;
-
-  private static final int _100 = 100;
-
-  private EventLoopGroup acceptorloop;
-  private EventLoopGroup eventloop;
+  private NettyEventLoopGroup eventLoop;
   private ExecutorService worker;
 
   private List<Jooby> applications;
   private NettyOutputFactory outputFactory;
+  private boolean singleEventLoopGroup =
+      System.getProperty("io.netty.eventLoopGroup", "parent-child").equals("single");
 
   /**
    * Creates a server.
@@ -89,6 +86,18 @@ public class NettyServer extends Server.Base {
   }
 
   public NettyServer() {}
+
+  /**
+   * Configure netty to use a single event loop group. When true, the acceptor and eventLoop share
+   * the same {@link EventLoopGroup}. Default is <code>true</code>.
+   *
+   * @param value True for shared {@link EventLoopGroup}.
+   * @return This server.
+   */
+  public NettyServer setSingleEventLoopGroup(boolean value) {
+    this.singleEventLoopGroup = value;
+    return this;
+  }
 
   @Override
   public OutputFactory getOutputFactory() {
@@ -127,22 +136,14 @@ public class NettyServer extends Server.Base {
       var classLoader = applications.get(0).getClassLoader();
 
       var transport = NettyTransport.transport(classLoader);
-
-      /* Acceptor event-loop */
-      // this.acceptorloop = transport.createEventLoop(1, "acceptor", _50);
-
-      /* Event loop: processing connections, parsing messages and doing engine's internal work */
-      this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", _100);
-      this.acceptorloop = eventloop;
-      var dateService = new NettyDateService(eventloop);
+      eventLoop = new NettyEventLoopGroup(transport, singleEventLoopGroup, options.getIoThreads());
 
       var outputFactory = (NettyOutputFactory) getOutputFactory();
       var allocator = outputFactory.getAllocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {
-        var http =
-            newBootstrap(allocator, transport, newPipeline(options, null, dateService, http2));
+        var http = newBootstrap(allocator, transport, newPipeline(options, null, http2), eventLoop);
         http.bind(options.getHost(), options.getPort()).get();
       }
 
@@ -155,8 +156,7 @@ public class NettyServer extends Server.Base {
         var clientAuth = sslOptions.getClientAuth();
         var sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
         var https =
-            newBootstrap(
-                allocator, transport, newPipeline(options, sslContext, dateService, http2));
+            newBootstrap(allocator, transport, newPipeline(options, sslContext, http2), eventLoop);
         portInUse = options.getSecurePort();
         https.bind(options.getHost(), portInUse).get();
       } else if (options.isHttpsOnly()) {
@@ -177,9 +177,12 @@ public class NettyServer extends Server.Base {
   }
 
   private ServerBootstrap newBootstrap(
-      ByteBufAllocator allocator, NettyTransport transport, NettyPipeline factory) {
+      ByteBufAllocator allocator,
+      NettyTransport transport,
+      NettyPipeline factory,
+      NettyEventLoopGroup group) {
     return transport
-        .configure(acceptorloop, eventloop)
+        .configure(eventLoop.getParent(), eventLoop.getChild())
         .childHandler(factory)
         .childOption(ChannelOption.ALLOCATOR, allocator)
         .childOption(ChannelOption.SO_REUSEADDR, true)
@@ -194,8 +197,7 @@ public class NettyServer extends Server.Base {
     };
   }
 
-  private NettyPipeline newPipeline(
-      ServerOptions options, SslContext sslContext, NettyDateService dateService, boolean http2) {
+  private NettyPipeline newPipeline(ServerOptions options, SslContext sslContext, boolean http2) {
     var decoderConfig =
         new HttpDecoderConfig()
             .setMaxInitialLineLength(_4KB)
@@ -205,7 +207,6 @@ public class NettyServer extends Server.Base {
             .setTrailersFactory(HEADERS);
     return new NettyPipeline(
         sslContext,
-        dateService,
         decoderConfig,
         applications,
         options.getMaxRequestSize(),
@@ -222,9 +223,7 @@ public class NettyServer extends Server.Base {
     // only for jooby build where close events may take longer.
     NettyWebSocket.all.clear();
 
-    // required after Netty 4.2
-    shutdown(acceptorloop, 0);
-    shutdown(eventloop, 2);
+    eventLoop.shutdown();
     if (worker != null) {
       worker.shutdown();
       worker = null;

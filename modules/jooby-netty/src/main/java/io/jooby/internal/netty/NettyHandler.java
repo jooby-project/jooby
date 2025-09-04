@@ -39,13 +39,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private NettyContext context;
 
   public NettyHandler(
-      NettyDateService dateService,
+      NettyDateService serverDate,
       List<Jooby> applications,
       long maxRequestSize,
       int bufferSize,
       boolean defaultHeaders,
       boolean http2) {
-    this.serverDate = dateService;
+    this.serverDate = serverDate;
     this.applications = applications;
     this.ctxSelector = Context.Selector.create(applications);
     this.maxRequestSize = maxRequestSize;

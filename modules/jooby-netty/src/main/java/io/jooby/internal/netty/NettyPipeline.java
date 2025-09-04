@@ -6,6 +6,7 @@
 package io.jooby.internal.netty;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
 import io.jooby.Jooby;
@@ -20,7 +21,6 @@ import io.netty.handler.ssl.SslContext;
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private static final String H2_HANDSHAKE = "h2-handshake";
   private final SslContext sslContext;
-  private final NettyDateService serverDate;
   private final HttpDecoderConfig decoderConfig;
   private final List<Jooby> applications;
   private final long maxRequestSize;
@@ -32,7 +32,6 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
   public NettyPipeline(
       SslContext sslContext,
-      NettyDateService dateService,
       HttpDecoderConfig decoderConfig,
       List<Jooby> applications,
       long maxRequestSize,
@@ -42,7 +41,6 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       boolean expectContinue,
       Integer compressionLevel) {
     this.sslContext = sslContext;
-    this.serverDate = dateService;
     this.decoderConfig = decoderConfig;
     this.applications = applications;
     this.maxRequestSize = maxRequestSize;
@@ -53,9 +51,14 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     this.compressionLevel = compressionLevel;
   }
 
-  private NettyHandler createHandler() {
+  private NettyHandler createHandler(ScheduledExecutorService executor) {
     return new NettyHandler(
-        serverDate, applications, maxRequestSize, bufferSize, defaultHeaders, http2);
+        new NettyDateService(executor),
+        applications,
+        maxRequestSize,
+        bufferSize,
+        defaultHeaders,
+        http2);
   }
 
   @Override
@@ -79,7 +82,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
       p.addLast(H2_HANDSHAKE, handshake);
       additionalHandlers(p);
-      p.addLast("handler", createHandler());
+      p.addLast("handler", createHandler(ch.eventLoop()));
     } else {
       http11(p);
     }
@@ -121,6 +124,6 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     p.addLast("decoder", new NettyRequestDecoder(decoderConfig));
     p.addLast("encoder", new NettyResponseEncoder());
     additionalHandlers(p);
-    p.addLast("handler", createHandler());
+    p.addLast("handler", createHandler(p.channel().eventLoop()));
   }
 }
