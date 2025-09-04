@@ -5,35 +5,38 @@
  */
 package io.jooby.internal.netty;
 
-import java.nio.ByteBuffer;
+import static io.netty.buffer.Unpooled.wrappedBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
-public class NettyOutputStatic implements NettyByteBufRef {
-  private final ByteBuffer buffer;
+public class NettyOutputByteArrayStatic implements NettyByteBufRef {
+  private final byte[] bytes;
+  private final int offset;
+  private final int length;
   private final NettyString contentLength;
 
-  protected NettyOutputStatic(ByteBuffer buffer) {
-    this.buffer = buffer;
+  protected NettyOutputByteArrayStatic(byte[] bytes, int offset, int length) {
+    this.bytes = bytes;
+    this.offset = offset;
+    this.length = length;
     this.contentLength = new NettyString(Integer.toString(size()));
   }
 
   @Override
   public int size() {
-    return buffer.remaining();
+    return length - offset;
   }
 
   @NonNull public ByteBuf byteBuf() {
-    return Unpooled.wrappedBuffer(buffer);
+    return wrappedBuffer(bytes, offset, length);
   }
 
   @Override
   public void send(Context ctx) {
     if (ctx.getClass() == NettyContext.class) {
-      ((NettyContext) ctx).send(Unpooled.wrappedBuffer(buffer), contentLength);
+      ((NettyContext) ctx).send(wrappedBuffer(bytes, offset, length), contentLength);
     } else {
       ctx.send(asByteBuffer());
     }

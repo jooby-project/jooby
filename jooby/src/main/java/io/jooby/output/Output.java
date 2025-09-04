@@ -22,9 +22,9 @@ import io.jooby.SneakyThrows;
 public interface Output {
 
   /**
-   * A read-only view as {@link ByteBuffer}.
+   * A view as {@link ByteBuffer}.
    *
-   * @return A read-only byte buffer.
+   * @return A view as {@link ByteBuffer}.
    */
   ByteBuffer asByteBuffer();
 

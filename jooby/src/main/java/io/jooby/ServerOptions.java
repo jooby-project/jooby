@@ -76,12 +76,11 @@ public class ServerOptions {
 
   private static final String LOCAL_HOST = "0.0.0.0";
 
-  /** Number of available threads, but never smaller than <code>2</code>. */
+  /** Number of available io threads. Default is number of available processors */
   public static final int IO_THREADS =
       Integer.parseInt(
           System.getProperty(
-              "__server_.ioThreads",
-              Integer.toString(Runtime.getRuntime().availableProcessors() * 2)));
+              "__server_.ioThreads", Integer.toString(Runtime.getRuntime().availableProcessors())));
 
   private static final String SERVER_NAME = System.getProperty("__server_.name");
 
@@ -91,9 +90,7 @@ public class ServerOptions {
    */
   public static final int WORKER_THREADS =
       Integer.parseInt(
-          System.getProperty(
-              "__server_.workerThreads",
-              Integer.toString(IO_THREADS * 8)));
+          System.getProperty("__server_.workerThreads", Integer.toString(IO_THREADS * 8)));
 
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */
   private int port = SERVER_PORT;
@@ -146,7 +143,7 @@ public class ServerOptions {
    * @param conf Configuration object.
    * @return Server options.
    */
-  public static @NonNull Optional<ServerOptions> from(@NonNull Config conf) {
+  public static Optional<ServerOptions> from(@NonNull Config conf) {
     if (conf.hasPath("server")) {
       var options = new ServerOptions();
       if (conf.hasPath("server.port")) {
@@ -328,7 +325,7 @@ public class ServerOptions {
    * @param ioThreads Number of threads. Must be greater than <code>0</code>.
    * @return This options.
    */
-  public @NonNull ServerOptions setIoThreads(int ioThreads) {
+  public ServerOptions setIoThreads(int ioThreads) {
     this.ioThreads = ioThreads;
     return this;
   }

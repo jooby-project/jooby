@@ -58,7 +58,6 @@ public class NettyServer extends Server.Base {
 
   private EventLoopGroup acceptorloop;
   private EventLoopGroup eventloop;
-  private ScheduledExecutorService dateLoop;
   private ExecutorService worker;
 
   private List<Jooby> applications;
@@ -86,12 +85,12 @@ public class NettyServer extends Server.Base {
   /** Creates a server. */
   public NettyServer(@NonNull ServerOptions options) {
     super.setOptions(options);
+    options.setServer(NAME);
   }
 
-  public NettyServer() {
-  }
+  public NettyServer() {}
 
-  @NonNull @Override
+  @Override
   public OutputFactory getOutputFactory() {
     if (outputFactory == null) {
       outputFactory = new NettyOutputFactory(ByteBufAllocator.DEFAULT, getOptions().getOutput());
@@ -99,12 +98,12 @@ public class NettyServer extends Server.Base {
     return outputFactory;
   }
 
-  @NonNull @Override
+  @Override
   public String getName() {
     return NAME;
   }
 
-  @NonNull @Override
+  @Override
   public Server start(@NonNull Jooby... application) {
     // force options to be non-null
     var options = getOptions();
@@ -130,12 +129,12 @@ public class NettyServer extends Server.Base {
       var transport = NettyTransport.transport(classLoader);
 
       /* Acceptor event-loop */
-      this.acceptorloop = transport.createEventLoop(1, "acceptor", _50);
+      // this.acceptorloop = transport.createEventLoop(1, "acceptor", _50);
 
       /* Event loop: processing connections, parsing messages and doing engine's internal work */
       this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", _100);
-      this.dateLoop = Executors.newSingleThreadScheduledExecutor();
-      var dateService = new NettyDateService(dateLoop);
+      this.acceptorloop = eventloop;
+      var dateService = new NettyDateService(eventloop);
 
       var outputFactory = (NettyOutputFactory) getOutputFactory();
       var allocator = outputFactory.getAllocator();
@@ -217,7 +216,7 @@ public class NettyServer extends Server.Base {
         options.getCompressionLevel());
   }
 
-  @NonNull @Override
+  @Override
   public synchronized Server stop() {
     fireStop(applications);
     // only for jooby build where close events may take longer.
@@ -226,9 +225,6 @@ public class NettyServer extends Server.Base {
     // required after Netty 4.2
     shutdown(acceptorloop, 0);
     shutdown(eventloop, 2);
-    if (dateLoop != null) {
-      dateLoop.shutdown();
-    }
     if (worker != null) {
       worker.shutdown();
       worker = null;

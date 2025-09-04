@@ -20,7 +20,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
-import org.eclipse.jetty.util.ProcessorUtils;
 import org.eclipse.jetty.util.compression.CompressionPool;
 import org.eclipse.jetty.util.compression.DeflaterPool;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -51,9 +50,6 @@ public class JettyServer extends io.jooby.Server.Base {
   private static final int THREADS = 200;
 
   static {
-    int cpus = ProcessorUtils.availableProcessors();
-    var ioThreads = Math.max(1, Math.min(cpus / 2, THREADS / 16));
-    System.setProperty("__server_.ioThreads", ioThreads + "");
     System.setProperty("__server_.workerThreads", THREADS + "");
     System.setProperty("__server_.name", NAME);
   }
@@ -83,7 +79,14 @@ public class JettyServer extends io.jooby.Server.Base {
 
   public JettyServer() {}
 
-  @NonNull @Override
+  @Override
+  public JettyServer setOptions(@NonNull ServerOptions options) {
+    options.setServer(NAME);
+    super.setOptions(options);
+    return this;
+  }
+
+  @Override
   public OutputFactory getOutputFactory() {
     if (outputFactory == null) {
       this.outputFactory = OutputFactory.create(getOptions().getOutput());
@@ -91,7 +94,7 @@ public class JettyServer extends io.jooby.Server.Base {
     return outputFactory;
   }
 
-  @NonNull @Override
+  @Override
   public String getName() {
     return NAME;
   }
@@ -107,7 +110,7 @@ public class JettyServer extends io.jooby.Server.Base {
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public io.jooby.Server start(@NonNull Jooby... application) {
     // force options to be non-null
     var options = getOptions();

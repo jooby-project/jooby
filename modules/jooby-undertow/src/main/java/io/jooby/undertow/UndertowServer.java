@@ -64,19 +64,13 @@ public class UndertowServer extends Server.Base {
   private OutputFactory outputFactory;
 
   public UndertowServer(@NonNull ServerOptions options) {
+    options.setServer(NAME);
     setOptions(options);
   }
 
   public UndertowServer() {}
 
-  @NonNull @Override
-  public UndertowServer setOptions(@NonNull ServerOptions options) {
-    // default io threads
-    super.setOptions(options.setIoThreads(options.getIoThreads()));
-    return this;
-  }
-
-  @NonNull @Override
+  @Override
   public OutputFactory getOutputFactory() {
     if (outputFactory == null) {
       outputFactory = OutputFactory.create(getOptions().getOutput());

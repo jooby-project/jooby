@@ -86,18 +86,17 @@ public class NettyOutputFactory implements OutputFactory {
 
   @Override
   @NonNull public Output wrap(@NonNull ByteBuffer buffer) {
-    return new NettyOutputStatic(buffer.remaining(), () -> Unpooled.wrappedBuffer(buffer));
+    return new NettyOutputStatic(buffer);
   }
 
   @Override
   @NonNull public Output wrap(@NonNull byte[] bytes) {
-    return new NettyOutputStatic(bytes.length, () -> Unpooled.wrappedBuffer(bytes));
+    return wrap(bytes, 0, bytes.length);
   }
 
   @Override
   @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
-    return new NettyOutputStatic(
-        length - offset, () -> Unpooled.wrappedBuffer(bytes, offset, length));
+    return new NettyOutputByteArrayStatic(bytes, offset, length);
   }
 
   @Override

@@ -8,12 +8,13 @@ package examples;
 import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.MediaType.JSON;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.StartupSummary;
-import io.jooby.netty.NettyServer;
+import io.jooby.jetty.JettyServer;
 
 public class Performance extends Jooby {
 
@@ -21,8 +22,9 @@ public class Performance extends Jooby {
 
   {
     var outputFactory = getOutputFactory();
-    var message = outputFactory.wrap(MESSAGE);
+    var message = outputFactory.wrap(MESSAGE.getBytes(StandardCharsets.UTF_8));
     setStartupSummary(List.of(StartupSummary.VERBOSE));
+    getLog().info("processors {}", Runtime.getRuntime().availableProcessors());
     get(
         "/plaintext",
         ctx -> {
@@ -41,6 +43,6 @@ public class Performance extends Jooby {
 
   public static void main(final String[] args) {
     System.setProperty("io.netty.disableHttpHeadersValidation", "true");
-    runApp(args, new NettyServer(new ServerOptions().setPort(3001)), EVENT_LOOP, Performance::new);
+    runApp(args, new JettyServer(new ServerOptions()), EVENT_LOOP, Performance::new);
   }
 }

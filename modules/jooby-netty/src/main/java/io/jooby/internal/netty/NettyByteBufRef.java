@@ -24,7 +24,7 @@ public interface NettyByteBufRef extends Output {
 
   @Override
   @NonNull default ByteBuffer asByteBuffer() {
-    return byteBuf().slice().nioBuffer().asReadOnlyBuffer();
+    return byteBuf().slice().nioBuffer();
   }
 
   default void send(Context ctx) {

@@ -25,6 +25,7 @@ module io.jooby.netty {
   requires static io.netty.transport.classes.epoll;
   requires static io.netty.transport.classes.kqueue;
   requires static io.netty.transport.classes.io_uring;
+  requires java.desktop;
 
   provides Server with
       NettyServer;

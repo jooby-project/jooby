@@ -6,30 +6,30 @@
 package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
-import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.output.Output;
 
-public class StaticOutput implements Output {
+public class OutputByteArrayStatic implements Output {
+  private final byte[] bytes;
+  private final int offset;
+  private final int length;
 
-  private final int size;
-  private final Supplier<ByteBuffer> provider;
-
-  public StaticOutput(int size, Supplier<ByteBuffer> provider) {
-    this.size = size;
-    this.provider = provider;
+  public OutputByteArrayStatic(byte[] bytes, int offset, int length) {
+    this.bytes = bytes;
+    this.offset = offset;
+    this.length = length;
   }
 
-  public StaticOutput(ByteBuffer byteBuffer) {
-    this(byteBuffer.remaining(), () -> byteBuffer);
+  public OutputByteArrayStatic(byte[] bytes) {
+    this(bytes, 0, bytes.length);
   }
 
   @Override
   public int size() {
-    return size;
+    return length - offset;
   }
 
   @Override
@@ -39,8 +39,7 @@ public class StaticOutput implements Output {
 
   @Override
   public ByteBuffer asByteBuffer() {
-    var buffer = provider.get();
-    return buffer.slice().asReadOnlyBuffer();
+    return ByteBuffer.wrap(bytes, offset, length);
   }
 
   @Override
@@ -50,6 +49,6 @@ public class StaticOutput implements Output {
 
   @Override
   public void send(Context ctx) {
-    ctx.send(provider.get());
+    ctx.send(ByteBuffer.wrap(bytes, offset, length));
   }
 }

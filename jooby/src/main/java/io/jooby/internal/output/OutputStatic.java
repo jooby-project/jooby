@@ -11,10 +11,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.output.Output;
-import io.jooby.output.OutputFactory;
 
-/** This is part of {@link OutputFactory#getContextFactory()}. */
-public record WrappedOutput(ByteBuffer buffer) implements Output {
+public record OutputStatic(ByteBuffer buffer) implements Output {
 
   @Override
   public int size() {
@@ -38,6 +36,6 @@ public record WrappedOutput(ByteBuffer buffer) implements Output {
 
   @Override
   public void send(Context ctx) {
-    ctx.send(buffer);
+    ctx.send(buffer.slice());
   }
 }

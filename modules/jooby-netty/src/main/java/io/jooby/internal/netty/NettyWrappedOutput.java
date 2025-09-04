@@ -8,12 +8,7 @@ package io.jooby.internal.netty;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.buffer.ByteBuf;
 
-public class NettyWrappedOutput implements NettyByteBufRef {
-  private final ByteBuf buffer;
-
-  protected NettyWrappedOutput(ByteBuf buffer) {
-    this.buffer = buffer;
-  }
+public record NettyWrappedOutput(ByteBuf buffer) implements NettyByteBufRef {
 
   @Override
   public int size() {

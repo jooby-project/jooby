@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import io.jooby.SneakyThrows;
 import io.jooby.internal.output.CompositeOutput;
-import io.jooby.internal.output.StaticOutput;
+import io.jooby.internal.output.OutputStatic;
 
 public class OutputTest {
 
@@ -108,7 +108,7 @@ public class OutputTest {
   @Test
   public void wrapOutput() throws IOException {
     var bytes = "xxHello World!xx".getBytes(StandardCharsets.UTF_8);
-    var output = new StaticOutput(ByteBuffer.wrap(bytes, 2, bytes.length - 4));
+    var output = new OutputStatic(ByteBuffer.wrap(bytes, 2, bytes.length - 4));
     assertEquals("Hello World!", StandardCharsets.UTF_8.decode(output.asByteBuffer()).toString());
     assertEquals(12, output.size());
   }
