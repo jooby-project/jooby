@@ -67,7 +67,7 @@ public class Route {
      * @param next Next handler.
      * @return A new handler.
      */
-    @NonNull Handler apply(@NonNull Handler next);
+    Handler apply(Handler next);
 
     /**
      * Chain this filter with another and produces a new decorator.
@@ -75,8 +75,8 @@ public class Route {
      * @param next Next decorator.
      * @return A new decorator.
      */
-    @NonNull default Filter then(@NonNull Filter next) {
-      return h -> apply(next.apply(h));
+    default Filter then(@NonNull Filter next) {
+      return new ThenFilter(this, next);
     }
 
     /**
@@ -85,19 +85,28 @@ public class Route {
      * @param next Next handler.
      * @return A new handler.
      */
-    @NonNull default Handler then(@NonNull Handler next) {
-      return new Handler() {
-        @NonNull @Override
-        public Object apply(@NonNull Context ctx) throws Exception {
-          return Filter.this.apply(next).apply(ctx);
-        }
+    default Handler then(@NonNull Handler next) {
+      return new ThenHandler(this, next);
+    }
+  }
 
-        @Override
-        public void setRoute(Route route) {
-          Filter.this.setRoute(route);
-          next.setRoute(route);
-        }
-      };
+  private record ThenFilter(Filter filter, Filter next) implements Filter {
+    @Override
+    public Handler apply(@NonNull Handler handler) {
+      return new ThenHandler(filter, next.apply(handler));
+    }
+  }
+
+  private record ThenHandler(Filter filter, Handler next) implements Handler {
+    @Override
+    public Object apply(@NonNull Context ctx) throws Exception {
+      return filter.apply(next).apply(ctx);
+    }
+
+    @Override
+    public void setRoute(Route route) {
+      filter.setRoute(route);
+      next.setRoute(route);
     }
   }
 
@@ -109,7 +118,7 @@ public class Route {
    */
   public interface Before extends Filter {
 
-    default @NonNull @Override Handler apply(@NonNull Handler next) {
+    default @Override Handler apply(@NonNull Handler next) {
       return ctx -> {
         apply(ctx);
         return next.apply(ctx);
@@ -130,7 +139,7 @@ public class Route {
      * @param next Next decorator.
      * @return A new decorator.
      */
-    @NonNull default Before then(@NonNull Before next) {
+    default Before then(@NonNull Before next) {
       return ctx -> {
         apply(ctx);
         if (!ctx.isResponseStarted()) {
@@ -145,7 +154,7 @@ public class Route {
      * @param next Next handler.
      * @return A new handler.
      */
-    @NonNull default Handler then(@NonNull Handler next) {
+    default Handler then(@NonNull Handler next) {
       return ctx -> {
         apply(ctx);
         if (!ctx.isResponseStarted()) {
@@ -206,7 +215,7 @@ public class Route {
      * @param next Next filter.
      * @return A new filter.
      */
-    @NonNull default After then(@NonNull After next) {
+    default After then(@NonNull After next) {
       return (ctx, result, failure) -> {
         next.apply(ctx, result, failure);
         apply(ctx, result, failure);
@@ -277,7 +286,7 @@ public class Route {
      * @param next Next decorator.
      * @return A new handler.
      */
-    @NonNull default Handler then(@NonNull After next) {
+    default Handler then(@NonNull After next) {
       return ctx -> {
         Throwable cause = null;
         Object value = null;
@@ -525,7 +534,7 @@ public class Route {
    *
    * @return Path pattern.
    */
-  public @NonNull String getPattern() {
+  public String getPattern() {
     return pattern;
   }
 
@@ -534,7 +543,7 @@ public class Route {
    *
    * @return HTTP method.
    */
-  public @NonNull String getMethod() {
+  public String getMethod() {
     return method;
   }
 
@@ -543,7 +552,7 @@ public class Route {
    *
    * @return Path keys.
    */
-  public @NonNull List<String> getPathKeys() {
+  public List<String> getPathKeys() {
     return pathKeys;
   }
 
@@ -553,7 +562,7 @@ public class Route {
    * @param pathKeys Path keys or empty list.
    * @return This route.
    */
-  public @NonNull Route setPathKeys(@NonNull List<String> pathKeys) {
+  public Route setPathKeys(@NonNull List<String> pathKeys) {
     this.pathKeys = pathKeys;
     return this;
   }
@@ -563,7 +572,7 @@ public class Route {
    *
    * @return Route handler.
    */
-  public @NonNull Handler getHandler() {
+  public Handler getHandler() {
     return handler;
   }
 
@@ -572,7 +581,7 @@ public class Route {
    *
    * @return Route pipeline.
    */
-  public @NonNull Handler getPipeline() {
+  public Handler getPipeline() {
     if (pipeline == null) {
       pipeline = computePipeline();
     }
@@ -586,7 +595,7 @@ public class Route {
    * @param keys Path keys.
    * @return Path.
    */
-  public @NonNull String reverse(@NonNull Map<String, Object> keys) {
+  public String reverse(@NonNull Map<String, Object> keys) {
     return Router.reverse(getPattern(), keys);
   }
 
@@ -597,7 +606,7 @@ public class Route {
    * @param values Values.
    * @return Path.
    */
-  public @NonNull String reverse(Object... values) {
+  public String reverse(Object... values) {
     return Router.reverse(getPattern(), values);
   }
 
@@ -616,7 +625,7 @@ public class Route {
    * @param after After filter.
    * @return This route.
    */
-  public @NonNull Route setAfter(@NonNull After after) {
+  public Route setAfter(@NonNull After after) {
     this.after = after;
     return this;
   }
@@ -636,7 +645,7 @@ public class Route {
    * @param filter Filter.
    * @return This route.
    */
-  public @NonNull Route setFilter(@Nullable Filter filter) {
+  public Route setFilter(@Nullable Filter filter) {
     this.filter = filter;
     return this;
   }
@@ -647,7 +656,7 @@ public class Route {
    * @param pipeline Pipeline.
    * @return This routes.
    */
-  public @NonNull Route setPipeline(Route.Handler pipeline) {
+  public Route setPipeline(Route.Handler pipeline) {
     this.pipeline = pipeline;
     return this;
   }
@@ -657,7 +666,7 @@ public class Route {
    *
    * @return Route encoder.
    */
-  public @NonNull MessageEncoder getEncoder() {
+  public MessageEncoder getEncoder() {
     return encoder;
   }
 
@@ -667,7 +676,7 @@ public class Route {
    * @param encoder MessageEncoder.
    * @return This route.
    */
-  public @NonNull Route setEncoder(@NonNull MessageEncoder encoder) {
+  public Route setEncoder(@NonNull MessageEncoder encoder) {
     this.encoder = encoder;
     return this;
   }
@@ -703,7 +712,7 @@ public class Route {
    * @param nonBlocking True for non-blocking routes.
    * @return
    */
-  public @NonNull Route setNonBlocking(boolean nonBlocking) {
+  public Route setNonBlocking(boolean nonBlocking) {
     this.nonBlocking = nonBlocking;
     return this;
   }
@@ -714,7 +723,7 @@ public class Route {
    *
    * @return Immutable list of produce types.
    */
-  public @NonNull List<MediaType> getProduces() {
+  public List<MediaType> getProduces() {
     return produces;
   }
 
@@ -724,7 +733,7 @@ public class Route {
    * @param produces Produce types.
    * @return This route.
    */
-  public @NonNull Route produces(@NonNull MediaType... produces) {
+  public Route produces(@NonNull MediaType... produces) {
     return setProduces(Arrays.asList(produces));
   }
 
@@ -734,7 +743,7 @@ public class Route {
    * @param produces Produce types.
    * @return This route.
    */
-  public @NonNull Route setProduces(@NonNull Collection<MediaType> produces) {
+  public Route setProduces(@NonNull Collection<MediaType> produces) {
     if (!produces.isEmpty()) {
       if (this.produces == EMPTY_LIST) {
         this.produces = new ArrayList<>();
@@ -751,7 +760,7 @@ public class Route {
    *
    * @return Immutable list of consumed types.
    */
-  public @NonNull List<MediaType> getConsumes() {
+  public List<MediaType> getConsumes() {
     return consumes;
   }
 
@@ -761,7 +770,7 @@ public class Route {
    * @param consumes Consume types.
    * @return This route.
    */
-  public @NonNull Route consumes(@NonNull MediaType... consumes) {
+  public Route consumes(@NonNull MediaType... consumes) {
     return setConsumes(Arrays.asList(consumes));
   }
 
@@ -771,7 +780,7 @@ public class Route {
    * @param consumes Consume types.
    * @return This route.
    */
-  public @NonNull Route setConsumes(@NonNull Collection<MediaType> consumes) {
+  public Route setConsumes(@NonNull Collection<MediaType> consumes) {
     if (!consumes.isEmpty()) {
       if (this.consumes == EMPTY_LIST) {
         this.consumes = new ArrayList<>();
@@ -786,7 +795,7 @@ public class Route {
    *
    * @return Map of attributes set to the route.
    */
-  public @NonNull Map<String, Object> getAttributes() {
+  public Map<String, Object> getAttributes() {
     return attributes;
   }
 
@@ -808,7 +817,7 @@ public class Route {
    * @param attributes .
    * @return This route.
    */
-  public @NonNull Route setAttributes(@NonNull Map<String, Object> attributes) {
+  public Route setAttributes(@NonNull Map<String, Object> attributes) {
     this.attributes.putAll(attributes);
     return this;
   }
@@ -820,7 +829,7 @@ public class Route {
    * @param value attribute value
    * @return This route.
    */
-  public @NonNull Route setAttribute(@NonNull String name, @NonNull Object value) {
+  public Route setAttribute(@NonNull String name, @NonNull Object value) {
     if (this.attributes == EMPTY_MAP) {
       this.attributes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     }
@@ -836,7 +845,7 @@ public class Route {
    * @param contentType Media type.
    * @return MessageDecoder.
    */
-  public @NonNull MessageDecoder decoder(@NonNull MediaType contentType) {
+  public MessageDecoder decoder(@NonNull MediaType contentType) {
     return decoders.getOrDefault(contentType.getValue(), MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
   }
 
@@ -845,7 +854,7 @@ public class Route {
    *
    * @return Message decoders.
    */
-  public @NonNull Map<String, MessageDecoder> getDecoders() {
+  public Map<String, MessageDecoder> getDecoders() {
     return decoders;
   }
 
@@ -855,7 +864,7 @@ public class Route {
    * @param decoders message decoder.
    * @return This route.
    */
-  public @NonNull Route setDecoders(@NonNull Map<String, MessageDecoder> decoders) {
+  public Route setDecoders(@NonNull Map<String, MessageDecoder> decoders) {
     this.decoders = decoders;
     return this;
   }
@@ -893,7 +902,7 @@ public class Route {
    * @param enabled Enabled or disabled HTTP Options.
    * @return This route.
    */
-  public @NonNull Route setHttpOptions(boolean enabled) {
+  public Route setHttpOptions(boolean enabled) {
     addHttpMethod(enabled, Router.OPTIONS);
     return this;
   }
@@ -904,7 +913,7 @@ public class Route {
    * @param enabled Enabled or disabled HTTP TRACE.
    * @return This route.
    */
-  public @NonNull Route setHttpTrace(boolean enabled) {
+  public Route setHttpTrace(boolean enabled) {
     addHttpMethod(enabled, Router.TRACE);
     return this;
   }
@@ -915,7 +924,7 @@ public class Route {
    * @param enabled Enabled or disabled HTTP HEAD.
    * @return This route.
    */
-  public @NonNull Route setHttpHead(boolean enabled) {
+  public Route setHttpHead(boolean enabled) {
     addHttpMethod(enabled, Router.HEAD);
     this.httpHead = enabled;
     return this;
@@ -942,7 +951,7 @@ public class Route {
    * @param executorKey Executor key.
    * @return This route.
    */
-  public @NonNull Route setExecutorKey(@Nullable String executorKey) {
+  public Route setExecutorKey(@Nullable String executorKey) {
     this.executorKey = executorKey;
     return this;
   }
@@ -952,7 +961,7 @@ public class Route {
    *
    * @return Route tags.
    */
-  public @NonNull List<String> getTags() {
+  public List<String> getTags() {
     return tags;
   }
 
@@ -962,7 +971,7 @@ public class Route {
    * @param tags Tags.
    * @return This route.
    */
-  public @NonNull Route setTags(@NonNull List<String> tags) {
+  public Route setTags(@NonNull List<String> tags) {
     if (this.tags == EMPTY_LIST) {
       this.tags = new ArrayList<>();
     }
@@ -978,7 +987,7 @@ public class Route {
    * @param tag Tag.
    * @return This route.
    */
-  public @NonNull Route addTag(@NonNull String tag) {
+  public Route addTag(@NonNull String tag) {
     if (this.tags == EMPTY_LIST) {
       this.tags = new ArrayList<>();
     }
@@ -992,7 +1001,7 @@ public class Route {
    * @param tags Tags.
    * @return This route.
    */
-  public @NonNull Route tags(@NonNull String... tags) {
+  public Route tags(@NonNull String... tags) {
     return setTags(Arrays.asList(tags));
   }
 
@@ -1011,7 +1020,7 @@ public class Route {
    * @param summary Summary.
    * @return This route.
    */
-  public @NonNull Route summary(@Nullable String summary) {
+  public Route summary(@Nullable String summary) {
     return setSummary(summary);
   }
 
@@ -1021,7 +1030,7 @@ public class Route {
    * @param summary Summary.
    * @return This route.
    */
-  public @NonNull Route setSummary(@Nullable String summary) {
+  public Route setSummary(@Nullable String summary) {
     this.summary = summary;
     return this;
   }
@@ -1041,7 +1050,7 @@ public class Route {
    * @param description Description.
    * @return This route.
    */
-  public @NonNull Route setDescription(@Nullable String description) {
+  public Route setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
@@ -1052,7 +1061,7 @@ public class Route {
    * @param description Description.
    * @return This route.
    */
-  public @NonNull Route description(@Nullable String description) {
+  public Route description(@Nullable String description) {
     return setDescription(description);
   }
 
@@ -1094,7 +1103,7 @@ public class Route {
    * @param mvcMethod Mvc/controller method.
    * @return This route
    */
-  public @NonNull Route setMvcMethod(@Nullable MvcMethod mvcMethod) {
+  public Route setMvcMethod(@Nullable MvcMethod mvcMethod) {
     this.mvcMethod = mvcMethod;
     return this;
   }
@@ -1105,7 +1114,7 @@ public class Route {
    * @param mvcMethod Mvc/controller method.
    * @return This route
    */
-  public @NonNull Route mvcMethod(@Nullable MvcMethod mvcMethod) {
+  public Route mvcMethod(@Nullable MvcMethod mvcMethod) {
     return setMvcMethod(mvcMethod);
   }
 
@@ -1165,7 +1174,7 @@ public class Route {
      *
      * @return Sub-routes.
      */
-    public @NonNull List<Route> getRoutes() {
+    public List<Route> getRoutes() {
       return routes;
     }
 
@@ -1175,7 +1184,7 @@ public class Route {
      * @param routes Sub-routes.
      * @return This route.
      */
-    public @NonNull Set setRoutes(@NonNull List<Route> routes) {
+    public Set setRoutes(@NonNull List<Route> routes) {
       this.routes = routes;
       return this;
     }
@@ -1186,7 +1195,7 @@ public class Route {
      * @param produces Produce types.
      * @return This route.
      */
-    public @NonNull Set produces(@NonNull MediaType... produces) {
+    public Set produces(@NonNull MediaType... produces) {
       return setProduces(Arrays.asList(produces));
     }
 
@@ -1196,7 +1205,7 @@ public class Route {
      * @param produces Produce types.
      * @return This route.
      */
-    public @NonNull Set setProduces(@NonNull Collection<MediaType> produces) {
+    public Set setProduces(@NonNull Collection<MediaType> produces) {
       routes.forEach(
           it -> {
             if (it.getProduces().isEmpty()) {
@@ -1212,7 +1221,7 @@ public class Route {
      * @param consumes Consume types.
      * @return This route.
      */
-    public @NonNull Set consumes(@NonNull MediaType... consumes) {
+    public Set consumes(@NonNull MediaType... consumes) {
       return setConsumes(Arrays.asList(consumes));
     }
 
@@ -1222,7 +1231,7 @@ public class Route {
      * @param consumes Consume types.
      * @return This route.
      */
-    public @NonNull Set setConsumes(@NonNull Collection<MediaType> consumes) {
+    public Set setConsumes(@NonNull Collection<MediaType> consumes) {
       routes.forEach(
           it -> {
             if (it.getConsumes().isEmpty()) {
@@ -1238,7 +1247,7 @@ public class Route {
      * @param attributes .
      * @return This route.
      */
-    public @NonNull Set setAttributes(@NonNull Map<String, Object> attributes) {
+    public Set setAttributes(@NonNull Map<String, Object> attributes) {
       routes.forEach(it -> attributes.forEach((k, v) -> it.getAttributes().putIfAbsent(k, v)));
       return this;
     }
@@ -1250,7 +1259,7 @@ public class Route {
      * @param value attribute value
      * @return This route.
      */
-    public @NonNull Set setAttribute(@NonNull String name, @NonNull Object value) {
+    public Set setAttribute(@NonNull String name, @NonNull Object value) {
       routes.forEach(it -> it.getAttributes().putIfAbsent(name, value));
       return this;
     }
@@ -1267,7 +1276,7 @@ public class Route {
      * @param executorKey Executor key.
      * @return This route.
      */
-    public @NonNull Set setExecutorKey(@Nullable String executorKey) {
+    public Set setExecutorKey(@Nullable String executorKey) {
       routes.forEach(it -> it.setExecutorKey(ofNullable(it.getExecutorKey()).orElse(executorKey)));
       return this;
     }
@@ -1277,7 +1286,7 @@ public class Route {
      *
      * @return Route tags.
      */
-    public @NonNull List<String> getTags() {
+    public List<String> getTags() {
       return tags == null ? List.of() : tags;
     }
 
@@ -1287,7 +1296,7 @@ public class Route {
      * @param tags Tags.
      * @return This route.
      */
-    public @NonNull Set setTags(@NonNull List<String> tags) {
+    public Set setTags(@NonNull List<String> tags) {
       this.tags = tags;
       routes.forEach(it -> tags.forEach(it::addTag));
       return this;
@@ -1299,7 +1308,7 @@ public class Route {
      * @param tags Tags.
      * @return This route.
      */
-    public @NonNull Set tags(@NonNull String... tags) {
+    public Set tags(@NonNull String... tags) {
       return setTags(Arrays.asList(tags));
     }
 
@@ -1318,7 +1327,7 @@ public class Route {
      * @param summary Summary.
      * @return This route.
      */
-    public @NonNull Set summary(@Nullable String summary) {
+    public Set summary(@Nullable String summary) {
       return setSummary(summary);
     }
 
@@ -1328,7 +1337,7 @@ public class Route {
      * @param summary Summary.
      * @return This route.
      */
-    public @NonNull Set setSummary(@Nullable String summary) {
+    public Set setSummary(@Nullable String summary) {
       this.summary = summary;
       return this;
     }
@@ -1348,7 +1357,7 @@ public class Route {
      * @param description Description.
      * @return This route.
      */
-    public @NonNull Set setDescription(@Nullable String description) {
+    public Set setDescription(@Nullable String description) {
       this.description = description;
       return this;
     }
@@ -1359,7 +1368,7 @@ public class Route {
      * @param description Description.
      * @return This route.
      */
-    public @NonNull Set description(@Nullable String description) {
+    public Set description(@Nullable String description) {
       return setDescription(description);
     }
 

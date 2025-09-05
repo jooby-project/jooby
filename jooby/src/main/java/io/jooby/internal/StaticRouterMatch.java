@@ -41,6 +41,11 @@ public class StaticRouterMatch implements Router.Match {
     }
   }
 
+  @Override
+  public Object execute(@NonNull Context context) {
+    return execute(context, route.getPipeline());
+  }
+
   @NonNull @Override
   public Map<String, String> pathMap() {
     return Collections.emptyMap();
