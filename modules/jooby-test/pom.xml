@@ -11,6 +11,10 @@
   <artifactId>jooby-test</artifactId>
   <name>jooby-test</name>
 
+  <properties>
+    <Module-Name>io.jooby.test</Module-Name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
