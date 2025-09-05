@@ -1,35 +1,5 @@
-3.x
+4.x
 
-* MVC: QueryParam annotation vs PathParam try to figure it out them and make optional (update open api)
-* MVC: introduce BodyParam
-* MVC: Add *Param annotations a statusCode attribute
-* Add Response for script and MVC
-* map exception names to HTTP Status Code (Forbidden => 403, Unauthorized => 401, etc...)
-* review toString on Value API (removal of QueryStringValue?)
-* tests and coverage
-
-Jetty close exception:
-MvcTest#mvcDispatch
-```
-GET /method 500 Server Error
-java.io.IOException: Close org.eclipse.jetty.server.HttpConnection$SendCallback@1f1eae2a[PROCESSING][i=HTTP/1.1{s=200,h=3,cl=-1},cb=org.eclipse.jetty.server.HttpChannel$SendCallback@11d953b9] in state PROCESSING
-	at org.eclipse.jetty.util.IteratingCallback.close(IteratingCallback.java:428)
-	at org.eclipse.jetty.server.HttpConnection.onClose(HttpConnection.java:510)
-	at org.eclipse.jetty.io.SelectorManager.connectionClosed(SelectorManager.java:345)
-	at org.eclipse.jetty.io.ManagedSelector$DestroyEndPoint.run(ManagedSelector.java:967)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:806)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:938)
-	at java.lang.Thread.run(Thread.java:748)
-```
-
-FeaturedKotlinTest.coroutineNoSuspend:
-async:
-
-```
-	Suppressed: java.io.IOException: Close org.eclipse.jetty.server.HttpConnection$SendCallback@4b406dd7[PROCESSING][i=HTTP/1.1{s=200,h=3,cl=-1},cb=org.eclipse.jetty.server.HttpChannel$SendCallback@e42eadb] in state PROCESSING
-		at org.eclipse.jetty.util.IteratingCallback.close(IteratingCallback.java:428)
-		at org.eclipse.jetty.server.HttpConnection.onClose(HttpConnection.java:510)
-		at org.eclipse.jetty.io.SelectorManager.connectionClosed(SelectorManager.java:345)
-		at org.eclipse.jetty.io.ManagedSelector$DestroyEndPoint.run(ManagedSelector.java:967)
-		... 3 more
-```
+- review onComplete, the relationship with thread-locals variables. Where onComplete must run?? event-loop? separated thread? It depends on task
+- review save session, similar to previous point. It depends on the kind of session where must run
+- review requestCompleted, similar to previous point
