@@ -69,7 +69,9 @@ public class OpenAPITask extends BaseTask {
     tool.setClassLoader(classLoader);
     tool.setOutputDir(outputDir);
     tool.setSources(sources);
-    tool.setSpecVersion(specVersion);
+    if (specVersion != null) {
+      tool.setSpecVersion(specVersion);
+    }
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
 
