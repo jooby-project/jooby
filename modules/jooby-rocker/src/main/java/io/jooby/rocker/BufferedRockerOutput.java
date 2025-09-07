@@ -74,6 +74,6 @@ public class BufferedRockerOutput implements RockerOutput<BufferedRockerOutput> 
 
   static RockerOutputFactory<BufferedRockerOutput> factory(Charset charset, OutputFactory factory) {
     return (contentType, charsetName) ->
-        new BufferedRockerOutput(charset, contentType, factory.newComposite());
+        new BufferedRockerOutput(charset, contentType, factory.allocate());
   }
 }

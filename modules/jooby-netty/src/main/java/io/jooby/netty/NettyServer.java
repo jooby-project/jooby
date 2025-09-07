@@ -17,11 +17,7 @@ import java.util.concurrent.*;
 import javax.net.ssl.SSLContext;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Jooby;
-import io.jooby.Server;
-import io.jooby.ServerOptions;
-import io.jooby.SneakyThrows;
-import io.jooby.SslOptions;
+import io.jooby.*;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.netty.*;
 import io.jooby.output.OutputFactory;
@@ -36,6 +32,7 @@ import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -47,9 +44,15 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 public class NettyServer extends Server.Base {
 
   private static final String NAME = "netty";
+  private static final String LEAK_DETECTION = "io.netty.leakDetection.level";
 
   static {
     System.setProperty("__server_.name", NAME);
+    System.setProperty(
+        LEAK_DETECTION,
+        System.getProperty(LEAK_DETECTION, ResourceLeakDetector.Level.DISABLED.name()));
+    ResourceLeakDetector.setLevel(
+        ResourceLeakDetector.Level.valueOf(System.getProperty(LEAK_DETECTION)));
   }
 
   private NettyEventLoopGroup eventLoop;
@@ -208,7 +211,7 @@ public class NettyServer extends Server.Base {
     return new NettyPipeline(
         sslContext,
         decoderConfig,
-        applications,
+        Context.Selector.create(applications),
         options.getMaxRequestSize(),
         options.getOutput().getSize(),
         options.getDefaultHeaders(),

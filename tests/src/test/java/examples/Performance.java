@@ -43,10 +43,6 @@ public class Performance extends Jooby {
 
   public static void main(final String[] args) {
     System.setProperty("io.netty.disableHttpHeadersValidation", "true");
-    runApp(
-        args,
-        new NettyServer(new ServerOptions()).setSingleEventLoopGroup(true),
-        EVENT_LOOP,
-        Performance::new);
+    runApp(args, new NettyServer(new ServerOptions()), EVENT_LOOP, Performance::new);
   }
 }

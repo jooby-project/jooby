@@ -10,7 +10,6 @@ import static io.jooby.internal.netty.SlowPathChecks.*;
 import static io.netty.handler.codec.http.HttpUtil.isTransferEncodingChunked;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +26,8 @@ import io.netty.handler.timeout.IdleStateEvent;
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Logger log = LoggerFactory.getLogger(NettyServer.class);
   private final NettyDateService serverDate;
-  private final List<Jooby> applications;
   private Router router;
-  private final Context.Selector ctxSelector;
+  private final Context.Selector contextSelector;
   private final int bufferSize;
   private final boolean defaultHeaders;
   private final long maxRequestSize;
@@ -40,14 +38,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
   public NettyHandler(
       NettyDateService serverDate,
-      List<Jooby> applications,
+      Context.Selector contextSelector,
       long maxRequestSize,
       int bufferSize,
       boolean defaultHeaders,
       boolean http2) {
     this.serverDate = serverDate;
-    this.applications = applications;
-    this.ctxSelector = Context.Selector.create(applications);
+    this.contextSelector = contextSelector;
     this.maxRequestSize = maxRequestSize;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
@@ -59,7 +56,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (isHttpRequest(msg)) {
       var req = (HttpRequest) msg;
       var path = pathOnly(req.uri());
-      var app = ctxSelector.select(applications, path);
+      var app = contextSelector.select(path);
       this.router = app.getRouter();
 
       context = new NettyContext(ctx, req, app, path, bufferSize, http2);

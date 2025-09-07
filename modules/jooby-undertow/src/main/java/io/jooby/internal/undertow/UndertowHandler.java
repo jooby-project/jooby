@@ -6,7 +6,6 @@
 package io.jooby.internal.undertow;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import io.jooby.*;
 import io.undertow.io.Receiver;
@@ -20,16 +19,17 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
 
 public class UndertowHandler implements HttpHandler {
-  protected final List<Jooby> applications;
   private final long maxRequestSize;
   private final int bufferSize;
   private final boolean defaultHeaders;
   private final Context.Selector ctxSelector;
 
   public UndertowHandler(
-      List<Jooby> applications, int bufferSize, long maxRequestSize, boolean defaultHeaders) {
-    this.applications = applications;
-    this.ctxSelector = Context.Selector.create(applications);
+      Context.Selector contextSelector,
+      int bufferSize,
+      long maxRequestSize,
+      boolean defaultHeaders) {
+    this.ctxSelector = contextSelector;
     this.maxRequestSize = maxRequestSize;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
@@ -37,7 +37,7 @@ public class UndertowHandler implements HttpHandler {
 
   @Override
   public void handleRequest(HttpServerExchange exchange) throws Exception {
-    var router = ctxSelector.select(applications, exchange.getRequestPath());
+    var router = ctxSelector.select(exchange.getRequestPath());
     var context = new UndertowContext(exchange, router);
 
     /* default headers: */

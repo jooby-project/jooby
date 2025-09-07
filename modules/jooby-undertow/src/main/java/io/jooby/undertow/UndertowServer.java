@@ -16,11 +16,7 @@ import javax.net.ssl.SSLContext;
 import org.xnio.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Jooby;
-import io.jooby.Server;
-import io.jooby.ServerOptions;
-import io.jooby.SneakyThrows;
-import io.jooby.SslOptions;
+import io.jooby.*;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.undertow.UndertowHandler;
 import io.jooby.internal.undertow.UndertowWebSocket;
@@ -100,7 +96,7 @@ public class UndertowServer extends Server.Base {
 
       HttpHandler handler =
           new UndertowHandler(
-              this.applications,
+              Context.Selector.create(applications),
               getOptions().getOutput().getSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());

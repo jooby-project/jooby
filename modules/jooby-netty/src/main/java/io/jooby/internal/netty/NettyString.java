@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MediaType;
+import io.netty.util.AsciiString;
 
 public class NettyString implements CharSequence {
   static final CharSequence server = NettyString.of("N");
@@ -23,11 +24,13 @@ public class NettyString implements CharSequence {
   final byte[] bytes;
   private final String value;
   private final int hashCode;
+  private final int length;
 
   public NettyString(String value) {
     this.value = value;
-    this.hashCode = value.hashCode();
+    this.hashCode = AsciiString.hashCode(value);
     this.bytes = value.getBytes(StandardCharsets.US_ASCII);
+    this.length = value.length();
   }
 
   public static NettyString of(String value) {
@@ -36,7 +39,7 @@ public class NettyString implements CharSequence {
 
   @Override
   public int length() {
-    return value.length();
+    return length;
   }
 
   @Override

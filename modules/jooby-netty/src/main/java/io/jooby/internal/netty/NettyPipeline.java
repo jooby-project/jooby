@@ -5,11 +5,10 @@
  */
 package io.jooby.internal.netty;
 
-import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
-import io.jooby.Jooby;
+import io.jooby.Context;
 import io.jooby.internal.netty.http2.NettyHttp2Configurer;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundHandler;
@@ -22,7 +21,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private static final String H2_HANDSHAKE = "h2-handshake";
   private final SslContext sslContext;
   private final HttpDecoderConfig decoderConfig;
-  private final List<Jooby> applications;
+  private final Context.Selector contextSelector;
   private final long maxRequestSize;
   private final int bufferSize;
   private final boolean defaultHeaders;
@@ -33,7 +32,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   public NettyPipeline(
       SslContext sslContext,
       HttpDecoderConfig decoderConfig,
-      List<Jooby> applications,
+      Context.Selector contextSelector,
       long maxRequestSize,
       int bufferSize,
       boolean defaultHeaders,
@@ -42,7 +41,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       Integer compressionLevel) {
     this.sslContext = sslContext;
     this.decoderConfig = decoderConfig;
-    this.applications = applications;
+    this.contextSelector = contextSelector;
     this.maxRequestSize = maxRequestSize;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
@@ -54,7 +53,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private NettyHandler createHandler(ScheduledExecutorService executor) {
     return new NettyHandler(
         new NettyDateService(executor),
-        applications,
+        contextSelector,
         maxRequestSize,
         bufferSize,
         defaultHeaders,

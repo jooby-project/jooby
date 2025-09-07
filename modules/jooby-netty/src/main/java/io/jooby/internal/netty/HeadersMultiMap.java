@@ -80,7 +80,7 @@ public final class HeadersMultiMap extends HttpHeaders {
 
   public HeadersMultiMap add(CharSequence name, CharSequence value) {
     Objects.requireNonNull(value);
-    int h = AsciiString.hashCode(name);
+    int h = hashCode(name);
     int i = h & 0x0000000F;
     add0(h, i, name, value);
     return this;
@@ -102,7 +102,7 @@ public final class HeadersMultiMap extends HttpHeaders {
 
   @Override
   public HeadersMultiMap add(CharSequence name, Iterable values) {
-    int h = AsciiString.hashCode(name);
+    int h = hashCode(name);
     int i = h & 0x0000000F;
     for (Object vstr : values) {
       add0(h, i, name, toValidCharSequence(vstr));
@@ -118,7 +118,7 @@ public final class HeadersMultiMap extends HttpHeaders {
   @Override
   public HeadersMultiMap remove(CharSequence name) {
     Objects.requireNonNull(name, "name");
-    int h = AsciiString.hashCode(name);
+    int h = hashCode(name);
     int i = h & 0x0000000F;
     remove0(h, i, name);
     return this;
@@ -151,7 +151,7 @@ public final class HeadersMultiMap extends HttpHeaders {
   public HeadersMultiMap set(CharSequence name, Iterable values) {
     Objects.requireNonNull(values, "values");
 
-    int h = AsciiString.hashCode(name);
+    int h = hashCode(name);
     int i = h & 0x0000000F;
 
     remove0(h, i, name);
@@ -182,7 +182,7 @@ public final class HeadersMultiMap extends HttpHeaders {
 
   private boolean containsInternal(
       CharSequence name, CharSequence value, boolean equals, boolean ignoreCase) {
-    int h = AsciiString.hashCode(name);
+    int h = hashCode(name);
     int i = h & 0x0000000F;
     HeadersMultiMap.MapEntry e = entries[i];
     while (e != null) {
@@ -257,7 +257,7 @@ public final class HeadersMultiMap extends HttpHeaders {
   public List<String> getAll(CharSequence name) {
     Objects.requireNonNull(name, "name");
     LinkedList<String> values = null;
-    int h = AsciiString.hashCode(name);
+    int h = hashCode(name);
     int i = h & 0x0000000F;
     HeadersMultiMap.MapEntry e = entries[i];
     while (e != null) {
@@ -606,7 +606,7 @@ public final class HeadersMultiMap extends HttpHeaders {
   }
 
   private HeadersMultiMap set0(final CharSequence name, final CharSequence strVal) {
-    int h = AsciiString.hashCode(name);
+    int h = hashCode(name);
     int i = h & 0x0000000F;
     remove0(h, i, name);
     if (strVal != null) {
@@ -616,7 +616,7 @@ public final class HeadersMultiMap extends HttpHeaders {
   }
 
   private CharSequence get0(CharSequence name) {
-    int h = AsciiString.hashCode(name);
+    int h = hashCode(name);
     int i = h & 0x0000000F;
     HeadersMultiMap.MapEntry e = entries[i];
     CharSequence value = null;
@@ -628,5 +628,9 @@ public final class HeadersMultiMap extends HttpHeaders {
       e = e.next;
     }
     return value;
+  }
+
+  private int hashCode(CharSequence value) {
+    return value instanceof NettyString str ? str.hashCode() : AsciiString.hashCode(value);
   }
 }

@@ -50,14 +50,13 @@ public interface Context extends Registry {
     /**
      * Select an application base on context path prefix matching a provided path.
      *
-     * @param applications List of applications.
      * @param path Path to match.
      * @return Best match application.
      */
-    Jooby select(List<Jooby> applications, String path);
+    Jooby select(String path);
 
     static Selector create(List<Jooby> applications) {
-      return applications.size() == 1 ? single() : multiple();
+      return applications.size() == 1 ? single(applications.getFirst()) : multiple(applications);
     }
 
     /**
@@ -66,9 +65,9 @@ public interface Context extends Registry {
      *
      * @return Best match application.
      */
-    static Selector multiple() {
-      return (applications, path) -> {
-        var defaultApp = applications.get(0);
+    private static Selector multiple(List<Jooby> applications) {
+      return path -> {
+        var defaultApp = applications.getFirst();
         for (var app : applications) {
           var contextPath = app.getContextPath();
           if ("/".equals(contextPath)) {
@@ -81,8 +80,8 @@ public interface Context extends Registry {
       };
     }
 
-    private static Selector single() {
-      return (applications, path) -> applications.get(0);
+    private static Selector single(Jooby defaultApp) {
+      return path -> defaultApp;
     }
   }
 
