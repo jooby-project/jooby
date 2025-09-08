@@ -73,13 +73,13 @@
     <HikariCP.version>7.0.2</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
-    <ebean.version>17.0.0</ebean.version>
+    <ebean.version>17.0.1</ebean.version>
     <jdbi.version>3.49.5</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
     <graphql-java.version>24.2</graphql-java.version>
-    <lettuce.version>6.8.0.RELEASE</lettuce.version>
+    <lettuce.version>6.8.1.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
-    <kafka.version>4.0.0</kafka.version>
+    <kafka.version>4.1.0</kafka.version>
     <caffeine.version>3.2.2</caffeine.version>
 
     <config.version>1.4.4</config.version>
@@ -105,13 +105,13 @@
     <asm.version>9.8</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.18.Final</undertow.version>
+    <undertow.version>2.3.19.Final</undertow.version>
     <jetty.version>12.1.0</jetty.version>
-    <netty.version>4.2.4.Final</netty.version>
+    <netty.version>4.2.5.Final</netty.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.36</swagger.version>
-    <swagger-parser.version>2.1.32</swagger-parser.version>
+    <swagger-parser.version>2.1.33</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -135,7 +135,7 @@
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.788</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.791</aws-java-sdk.version>
     <camel.version>4.13.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -157,7 +157,7 @@
     <argLine>-javaagent:${maven.m2.repo}${file.separator}${mockito.agent}</argLine>
     <guava.version>33.4.8-jre</guava.version>
 
-    <compile-testing.version>0.21.0</compile-testing.version>
+    <compile-testing.version>0.22.0</compile-testing.version>
     <truth.version>1.4.4</truth.version>
 
     <!-- Gradle plugins -->
@@ -190,7 +190,7 @@
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <plexus-utils.version>4.0.2</plexus-utils.version>
     <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
-    <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
+    <versions-maven-plugin.version>2.19.0</versions-maven-plugin.version>
     <exec-maven-plugin.version>3.5.1</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
@@ -1421,7 +1421,7 @@
           <plugin>
             <groupId>com.rudikershaw.gitbuildhook</groupId>
             <artifactId>git-build-hook-maven-plugin</artifactId>
-            <version>3.5.0</version>
+            <version>3.6.0</version>
             <configuration>
               <installHooks>
                 <pre-commit>${pre-commit-hook}</pre-commit>
@@ -1647,7 +1647,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>versions-maven-plugin</artifactId>
-            <version>2.18.0</version>
+            <version>2.19.0</version>
             <executions>
               <execution>
                 <goals>
