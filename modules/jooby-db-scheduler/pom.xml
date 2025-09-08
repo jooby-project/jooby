@@ -22,7 +22,7 @@
     <dependency>
       <groupId>com.github.kagkarlsson</groupId>
       <artifactId>db-scheduler</artifactId>
-      <version>16.0.0</version>
+      <version>16.1.0</version>
     </dependency>
 
     <!-- Test dependencies -->
