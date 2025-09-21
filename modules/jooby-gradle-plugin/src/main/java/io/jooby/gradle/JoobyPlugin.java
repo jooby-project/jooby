@@ -20,6 +20,12 @@ import java.util.Map;
  */
 public class JoobyPlugin implements Plugin<Project> {
 
+  /**
+   * Configures all jooby tasks.
+   */
+  public JoobyPlugin() {
+  }
+
   @Override public void apply(Project project) {
     openAPI(project);
 

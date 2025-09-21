@@ -46,7 +46,9 @@ public class RunTask extends BaseTask {
     System.setProperty("jooby.useShutdownHook", "false");
   }
 
+  /** Run task. */
   public static final String RUN = "joobyRun";
+  /** Run task on test classpath. */
   public static final String TEST_RUN = "joobyTestRun";
 
   private ProjectConnection connection;
@@ -65,6 +67,11 @@ public class RunTask extends BaseTask {
   private Long waitTimeBeforeRestart;
 
   private Boolean useSingleClassLoader;
+
+  /**
+   * Creates a jooby run task.
+   */
+  public RunTask() {}
 
   /**
    * Run task.
@@ -88,7 +95,7 @@ public class RunTask extends BaseTask {
       String mainClass = Optional.ofNullable(this.mainClass)
           .orElseGet(() -> computeMainClassName(projects));
 
-      JoobyRunOptions config = new JoobyRunOptions();
+      var config = new JoobyRunOptions();
       config.setUseSingleClassLoader(useSingleClassLoader = Boolean.TRUE);
       config.setBasedir(current.getProjectDir().toPath());
       config.setMainClass(mainClass);
@@ -253,12 +260,22 @@ public class RunTask extends BaseTask {
     this.restartExtensions = restartExtensions;
   }
 
+  /**
+   * Run app using a single classloader. Default is: <code>false</code>.
+   *
+   * @return Run app using a single classloader. Default is: <code>false</code>.
+   */
   @Input
   @org.gradle.api.tasks.Optional
   public Boolean isUseSingleClassLoader() {
     return useSingleClassLoader;
   }
 
+  /**
+   * Run app using a single classloader. Default is: <code>false</code>.
+   *
+   * @param useSingleClassLoader Run app using a single classloader. Default is: <code>false</code>.
+   */
   public void setUseSingleClassLoader(Boolean useSingleClassLoader) {
     this.useSingleClassLoader = useSingleClassLoader;
   }

@@ -42,8 +42,13 @@ import org.gradle.api.tasks.SourceSetContainer;
  */
 public class BaseTask extends DefaultTask {
 
+  /** Constant for main class name. */
   protected static final String APP_CLASS_NAME = "mainClassName";
 
+  /**
+   * Default class for jooby tasks.
+   */
+  public BaseTask() {}
   /**
    * Available projects.
    *
@@ -107,6 +112,7 @@ public class BaseTask extends DefaultTask {
    * Project classes directory.
    *
    * @param project Project.
+   * @param useTestScope Whenever expand classpath to use test resources.
    * @return Classes directory.
    */
   protected @NonNull Path classes(@NonNull Project project, boolean useTestScope) {
@@ -171,6 +177,7 @@ public class BaseTask extends DefaultTask {
    * Source set.
    *
    * @param project Project.
+   * @param useTestScope Whenever expand classpath to use test resources.
    * @return SourceSet.
    */
   protected @NonNull List<SourceSet> sourceSet(@NonNull Project project, boolean useTestScope) {

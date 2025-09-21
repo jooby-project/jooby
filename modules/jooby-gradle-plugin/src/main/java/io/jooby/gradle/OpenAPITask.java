@@ -38,6 +38,11 @@ public class OpenAPITask extends BaseTask {
   private String specVersion;
 
   /**
+   * Creates an OpenAPI task.
+   */
+  public OpenAPITask() {}
+
+  /**
    * Generate OpenAPI files from Jooby application.
    *
    * @throws Throwable If something goes wrong.
@@ -174,12 +179,17 @@ public class OpenAPITask extends BaseTask {
     return specVersion;
   }
 
+  /**
+   * Set the spec version to use.
+   *
+   * @param specVersion Spec version. One of <code>3.0.1</code>, <code>3.1.0</code>.
+   */
   public void setSpecVersion(String specVersion) {
     this.specVersion = specVersion;
   }
 
   private Optional<String> trim(String value) {
-    if (value == null || value.trim().length() == 0) {
+    if (value == null || value.trim().isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(value.trim());
