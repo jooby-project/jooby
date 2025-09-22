@@ -8,11 +8,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        java-version: [21]
+        jre: [21]
 
         include:
           - os: ubuntu-latest
-            java-version: 25
+            jre: 25
 
     steps:
       - name: Checkout
