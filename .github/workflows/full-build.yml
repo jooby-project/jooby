@@ -11,7 +11,7 @@ jobs:
         jre: [21]
         os: [ubuntu-latest, windows-latest, macOS-latest]
         include:
-          - jre: 24
+          - jre: 25
             os: ubuntu-latest
 
     steps:
