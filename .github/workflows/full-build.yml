@@ -6,13 +6,13 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        jre: [21]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        java-version: [21]
+
         include:
-          - jre: 24
-            os: ubuntu-latest
+          - os: ubuntu-latest
+            java-version: 25
 
     steps:
       - name: Checkout
@@ -22,25 +22,17 @@ jobs:
         with:
           java-version: ${{ matrix.jre }}
           distribution: 'temurin'
-      - name: Cache Maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-          enableCrossOsArchive: true
-      - name: Install
-        run: mvn install -DskipTests -q -P gradlePlugin
+          cache: maven
       - name: Build
-        run: mvn package -P gradlePlugin
+        run: mvn -B package -P gradlePlugin
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
-      - name: Test Result
-        uses: mikepenz/action-junit-report@v5
-        if: failure()
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
         with:
-          check_name: JUnit ${{ matrix.kind }} ${{ matrix.jre }} ${{ matrix.os }}
-          report_paths: '*/target/*/TEST-*.xml'
+          name: JUnit Results (${{ matrix.os }} - Java ${{ matrix.java-version }})
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
