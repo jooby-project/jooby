@@ -29,10 +29,9 @@ jobs:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
-      - name: Publish Test Results
-        uses: dorny/test-reporter@v1
+      - name: Test Result
+        uses: mikepenz/action-junit-report@v5
         if: always()
         with:
-          name: JUnit Results (${{ matrix.os }} - Java ${{ matrix.java-version }})
-          path: target/surefire-reports/*.xml
-          reporter: java-junit
+          check_name: JUnit ${{ matrix.kind }} ${{ matrix.java-version }} ${{ matrix.os }}
+          report_paths: '*/target/*/TEST-*.xml'
