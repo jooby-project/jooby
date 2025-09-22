@@ -33,13 +33,13 @@ jobs:
             ${{ runner.os }}-maven-
           enableCrossOsArchive: true
       - name: Install
-        run: mvn clean install -DskipTests -q -B
+        run: mvn install -DskipTests -q -B
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
       - name: Build
-        run: mvn clean package
+        run: mvn package
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0

@@ -31,9 +31,9 @@ jobs:
             ${{ runner.os }}-maven-
           enableCrossOsArchive: true
       - name: Install
-        run: mvn clean install -DskipTests -q -P gradlePlugin
+        run: mvn install -DskipTests -q -P gradlePlugin
       - name: Build
-        run: mvn clean package -P gradlePlugin
+        run: mvn package -P gradlePlugin
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
