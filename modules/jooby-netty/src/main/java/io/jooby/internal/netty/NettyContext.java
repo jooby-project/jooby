@@ -93,7 +93,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private MediaType responseType;
   private Map<String, Object> attributes;
   private long contentLength = -1;
-  private boolean needsFlush;
   private Map<String, String> cookies;
   private Map<String, String> responseCookies;
   private Boolean resetHeadersOnError;
@@ -105,14 +104,17 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private String scheme;
   private int port;
   private boolean filesCreated;
+  private NettyHandler connection;
 
   public NettyContext(
+      NettyHandler connection,
       ChannelHandlerContext ctx,
       HttpRequest req,
       Router router,
       String path,
       int bufferSize,
       boolean http2) {
+    this.connection = connection;
     this.path = path;
     this.ctx = ctx;
     this.req = req;
@@ -581,23 +583,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       responseStarted = true;
       setHeaders.set(CONTENT_LENGTH, contentLength);
       var response = new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING);
-      if (ctx.channel().eventLoop().inEventLoop()) {
-        needsFlush = true;
-        ctx.write(response, promise(this));
-      } else {
-        ctx.writeAndFlush(response, promise(this));
-      }
+      connection.writeHttpObject(response, promise(this));
       return this;
     } finally {
       requestComplete();
-    }
-  }
-
-  public void flush() {
-    if (needsFlush) {
-      needsFlush = false;
-      ctx.flush();
-      destroy(null);
     }
   }
 
@@ -605,19 +594,23 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   public Context send(@NonNull ReadableByteChannel channel) {
     try {
       prepareChunked();
-      var rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
       int bufferSize = contentLength > 0 ? (int) contentLength : this.bufferSize;
-      ctx.channel()
-          .eventLoop()
-          .execute(
-              () -> {
-                // Headers
-                ctx.write(rsp, ctx.voidPromise());
-                // Body
-                ctx.write(new ChunkedNioStream(channel, bufferSize), ctx.voidPromise());
-                // Finish
-                ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-              });
+      connection.writeHttpChunk(
+          new DefaultHttpResponse(HTTP_1_1, status, setHeaders),
+          new ChunkedNioStream(channel, bufferSize),
+          EMPTY_LAST_CONTENT,
+          promise(this));
+      //      ctx.channel()
+      //          .eventLoop()
+      //          .execute(
+      //              () -> {
+      //                // Headers
+      //                ctx.write(rsp, ctx.voidPromise());
+      //                // Body
+      //                ctx.write(new ChunkedNioStream(channel, bufferSize), ctx.voidPromise());
+      //                // Finish
+      //                ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
+      //              });
       return this;
     } finally {
       requestComplete();
@@ -634,21 +627,23 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       long len = responseLength();
       ByteRange range = ByteRange.parse(req.headers().get(RANGE), len).apply(this);
       prepareChunked();
-      ChunkedStream chunkedStream = new ChunkedStream(range.apply(in), bufferSize);
-
-      var rsp = new DefaultHttpResponse(HTTP_1_1, status, setHeaders);
+      connection.writeHttpChunk(
+          new DefaultHttpResponse(HTTP_1_1, status, setHeaders),
+          new ChunkedStream(range.apply(in), bufferSize),
+          EMPTY_LAST_CONTENT,
+          promise(this));
       responseStarted = true;
-      ctx.channel()
-          .eventLoop()
-          .execute(
-              () -> {
-                // Headers
-                ctx.write(rsp, ctx.voidPromise());
-                // Body
-                ctx.write(chunkedStream, ctx.voidPromise());
-                // Finish
-                ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-              });
+      //      ctx.channel()
+      //          .eventLoop()
+      //          .execute(
+      //              () -> {
+      //                // Headers
+      //                ctx.write(rsp, ctx.voidPromise());
+      //                // Body
+      //                ctx.write(chunkedStream, ctx.voidPromise());
+      //                // Finish
+      //                ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
+      //              });
       return this;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
@@ -671,33 +666,39 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       if (preferChunked()) {
         prepareChunked();
 
-        HttpChunkedInput chunkedInput =
+        var chunkedInput =
             new HttpChunkedInput(
                 new ChunkedNioFile(file, range.getStart(), range.getEnd(), bufferSize));
 
-        ctx.channel()
-            .eventLoop()
-            .execute(
-                () -> {
-                  // Headers
-                  ctx.write(rsp, ctx.voidPromise());
-                  // Body
-                  ctx.writeAndFlush(chunkedInput, promise(this));
-                });
+        connection.writeHttpChunk(rsp, chunkedInput, promise(this));
+        //        ctx.channel()
+        //            .eventLoop()
+        //            .execute(
+        //                () -> {
+        //                  // Headers
+        //                  ctx.write(rsp, ctx.voidPromise());
+        //                  // Body
+        //                  ctx.writeAndFlush(chunkedInput, promise(this));
+        //                });
       } else {
-        ctx.channel()
-            .eventLoop()
-            .execute(
-                () -> {
-                  // Headers
-                  ctx.write(rsp, ctx.voidPromise());
-                  // Body
-                  ctx.write(
-                      new DefaultFileRegion(file, range.getStart(), range.getEnd()),
-                      ctx.voidPromise());
-                  // Finish
-                  ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-                });
+        connection.writeHttpChunk(
+            rsp,
+            new DefaultFileRegion(file, range.getStart(), range.getEnd()),
+            EMPTY_LAST_CONTENT,
+            promise(this));
+        //        ctx.channel()
+        //            .eventLoop()
+        //            .execute(
+        //                () -> {
+        //                  // Headers
+        //                  ctx.write(rsp, ctx.voidPromise());
+        //                  // Body
+        //                  ctx.write(
+        //                      new DefaultFileRegion(file, range.getStart(), range.getEnd()),
+        //                      ctx.voidPromise());
+        //                  // Finish
+        //                  ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
+        //                });
       }
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
@@ -743,12 +744,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       var rsp =
           new DefaultFullHttpResponse(
               HTTP_1_1, status, Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
-      if (ctx.channel().eventLoop().inEventLoop()) {
-        needsFlush = true;
-        ctx.write(rsp, promise(this));
-      } else {
-        ctx.writeAndFlush(rsp, promise(this));
-      }
+      connection.writeHttpObject(rsp, promise(this));
       return this;
     } finally {
       requestComplete();
@@ -758,6 +754,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   void requestComplete() {
     fireCompleteEvent();
     ifSaveSession();
+    destroy(null);
   }
 
   @Override
