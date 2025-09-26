@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import io.jooby.*;
 import io.jooby.netty.NettyServer;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
@@ -35,6 +34,9 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long chunkSize;
   private final boolean http2;
   private NettyContext context;
+  private boolean read;
+  private boolean flush;
+  private ChannelHandlerContext channelContext;
 
   public NettyHandler(
       NettyDateService serverDate,
@@ -52,14 +54,21 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
+  public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    this.channelContext = ctx;
+    super.handlerAdded(ctx);
+  }
+
+  @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
     if (isHttpRequest(msg)) {
+      this.read = true;
       var req = (HttpRequest) msg;
       var path = pathOnly(req.uri());
       var app = contextSelector.select(path);
       this.router = app.getRouter();
 
-      context = new NettyContext(ctx, req, app, path, bufferSize, http2);
+      context = new NettyContext(this, ctx, req, app, path, bufferSize, http2);
 
       if (defaultHeaders) {
         context.setHeaders.set(DATE, serverDate.date());
@@ -95,6 +104,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         release(chunk);
       }
     } else if (isHttpContent(msg)) {
+      this.read = true;
       var chunk = (HttpContent) msg;
       try {
         // when decoder == null, chunk is always a LastHttpContent.EMPTY, ignore it
@@ -118,6 +128,43 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
+  public void writeHttpObject(Object msg, ChannelPromise promise) {
+    if (this.channelContext.executor().inEventLoop()) {
+      if (this.read) {
+        this.flush = true;
+        this.channelContext.write(msg, promise);
+      } else {
+        this.channelContext.writeAndFlush(msg, promise);
+      }
+    } else {
+      this.channelContext.executor().execute(() -> writeHttpObject(msg, promise));
+    }
+  }
+
+  public void writeHttpChunk(Object header, Object body, Object last, ChannelPromise promise) {
+    if (this.channelContext.executor().inEventLoop()) {
+      // Headers
+      channelContext.write(header, channelContext.voidPromise());
+      // Body
+      channelContext.write(body, channelContext.voidPromise());
+      // Finish
+      channelContext.writeAndFlush(last, promise);
+    } else {
+      this.channelContext.executor().execute(() -> writeHttpChunk(header, body, last, promise));
+    }
+  }
+
+  public void writeHttpChunk(Object header, Object body, ChannelPromise promise) {
+    if (this.channelContext.executor().inEventLoop()) {
+      // Headers
+      channelContext.write(header, channelContext.voidPromise());
+      // Body + Last
+      channelContext.writeAndFlush(body, promise);
+    } else {
+      this.channelContext.executor().execute(() -> writeHttpChunk(header, body, promise));
+    }
+  }
+
   private void release(HttpContent ref) {
     if (ref.refCnt() > 0) {
       ref.release();
@@ -125,10 +172,18 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public void channelReadComplete(ChannelHandlerContext ctx) {
-    if (context != null) {
-      context.flush();
+  public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    if (this.read) {
+      this.read = false;
+      if (this.flush) {
+        this.flush = false;
+        ctx.flush();
+      }
     }
+    if (context != null) {
+      //      context.destroy(null);
+    }
+    super.channelReadComplete(ctx);
   }
 
   @Override
