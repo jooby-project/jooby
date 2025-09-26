@@ -11,7 +11,7 @@ import io.netty.channel.EventLoopGroup;
 import io.vertx.core.Vertx;
 import io.vertx.core.internal.VertxInternal;
 
-public record VertxEventLoopGroup(Vertx vertx, int nThreads) implements NettyEventLoopGroup {
+public record VertxEventLoopGroup(Vertx vertx) implements NettyEventLoopGroup {
 
   @Override
   public @NonNull EventLoopGroup getParent() {
@@ -20,7 +20,6 @@ public record VertxEventLoopGroup(Vertx vertx, int nThreads) implements NettyEve
 
   @Override
   public @NonNull EventLoopGroup getChild() {
-    // return new EventLoopGroupProxy (nThreads, ((VertxInternal) vertx).nettyEventLoopGroup());
     return ((VertxInternal) vertx).nettyEventLoopGroup();
   }
 

@@ -16,8 +16,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 
 public class VertxServer extends NettyServer {
-  private int nThreads;
-
   private Vertx vertx;
 
   public VertxServer(@NonNull Vertx vertx) {
@@ -32,8 +30,8 @@ public class VertxServer extends NettyServer {
 
   @Override
   public @NonNull Server start(@NonNull Jooby... applications) {
-    this.nThreads = getOptions().getIoThreads();
     if (this.vertx == null) {
+      var nThreads = getOptions().getIoThreads();
       var options =
           new VertxOptions().setPreferNativeTransport(true).setEventLoopPoolSize(nThreads);
       this.vertx = Vertx.vertx(options);
@@ -46,6 +44,6 @@ public class VertxServer extends NettyServer {
 
   @Nullable @Override
   protected NettyEventLoopGroup createEventLoopGroup() {
-    return new VertxEventLoopGroup(vertx, nThreads);
+    return new VertxEventLoopGroup(vertx);
   }
 }

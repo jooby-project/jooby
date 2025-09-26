@@ -10,6 +10,7 @@ import static io.jooby.MediaType.JSON;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.Jooby;
+import io.jooby.ServerOptions;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.vertx.VertxPgClient;
 import io.jooby.vertx.VertxServer;
@@ -72,6 +73,10 @@ public class VertxApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(args, new VertxServer(), EVENT_LOOP, VertxApp::new);
+    runApp(
+        args,
+        new VertxServer().setOptions(new ServerOptions().setIoThreads(2)),
+        EVENT_LOOP,
+        VertxApp::new);
   }
 }

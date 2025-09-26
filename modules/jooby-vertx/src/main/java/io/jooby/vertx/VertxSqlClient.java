@@ -22,7 +22,7 @@ public abstract class VertxSqlClient implements Extension {
   private static final BiConsumer<VertxPreparedStatement, PreparedStatement> NOOP =
       (name, stt) -> {};
 
-  private List<VertxPreparedStatement> preparedStatements = new ArrayList<>();
+  private final List<VertxPreparedStatement> preparedStatements = new ArrayList<>();
 
   private BiConsumer<VertxPreparedStatement, PreparedStatement> onPreparedStatement = NOOP;
 
