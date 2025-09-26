@@ -17,6 +17,7 @@ import java.util.concurrent.*;
 import javax.net.ssl.SSLContext;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.netty.*;
@@ -139,7 +140,11 @@ public class NettyServer extends Server.Base {
       var classLoader = applications.get(0).getClassLoader();
 
       var transport = NettyTransport.transport(classLoader);
-      eventLoop = new NettyEventLoopGroup(transport, singleEventLoopGroup, options.getIoThreads());
+      eventLoop = createEventLoopGroup();
+      if (eventLoop == null) {
+        eventLoop =
+            new NettyEventLoopGroupImpl(transport, singleEventLoopGroup, options.getIoThreads());
+      }
 
       var outputFactory = (NettyOutputFactory) getOutputFactory();
       var allocator = outputFactory.getAllocator();
@@ -179,13 +184,17 @@ public class NettyServer extends Server.Base {
     return this;
   }
 
+  protected @Nullable NettyEventLoopGroup createEventLoopGroup() {
+    return null;
+  }
+
   private ServerBootstrap newBootstrap(
       ByteBufAllocator allocator,
       NettyTransport transport,
       NettyPipeline factory,
       NettyEventLoopGroup group) {
     return transport
-        .configure(eventLoop.getParent(), eventLoop.getChild())
+        .configure(group.getParent(), group.getChild())
         .childHandler(factory)
         .childOption(ChannelOption.ALLOCATOR, allocator)
         .childOption(ChannelOption.SO_REUSEADDR, true)

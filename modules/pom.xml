@@ -26,6 +26,7 @@
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
     <module>jooby-undertow</module>
+    <module>jooby-vertx</module>
 
     <module>jooby-openapi</module>
     <module>jooby-swagger-ui</module>
