@@ -20,7 +20,6 @@ import io.netty.handler.codec.http.LastHttpContent;
 public class NettyOutputStream extends OutputStream {
   private final ByteBuf buffer;
   private final NettyContext ctx;
-  private final ChannelHandlerContext context;
   private final ChannelFutureListener closeListener;
   private HttpResponse headers;
   private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -29,7 +28,6 @@ public class NettyOutputStream extends OutputStream {
       NettyContext ctx, ChannelHandlerContext context, int bufferSize, HttpResponse headers) {
     this.ctx = ctx;
     this.buffer = context.alloc().heapBuffer(bufferSize, bufferSize);
-    this.context = context;
     this.headers = headers;
     this.closeListener = ctx;
   }
@@ -41,12 +39,6 @@ public class NettyOutputStream extends OutputStream {
 
   @Override
   public void write(byte[] src, int off, int len) {
-    write(src, off, len, null);
-  }
-
-  public void write(byte[] src, int off, int len, ChannelFutureListener callback) {
-    writeHeaders();
-
     int dataLengthLeftToWrite = len;
     int dataToWriteOffset = off;
     int spaceLeftInCurrentChunk;
@@ -55,14 +47,54 @@ public class NettyOutputStream extends OutputStream {
       buffer.writeBytes(src, dataToWriteOffset, spaceLeftInCurrentChunk);
       dataToWriteOffset = dataToWriteOffset + spaceLeftInCurrentChunk;
       dataLengthLeftToWrite = dataLengthLeftToWrite - spaceLeftInCurrentChunk;
-      flush(callback, null);
+      flush(false);
     }
     if (dataLengthLeftToWrite > 0) {
       buffer.writeBytes(src, dataToWriteOffset, dataLengthLeftToWrite);
     }
   }
 
-  private void writeHeaders() {
+  @Override
+  public void flush() throws IOException {
+    flush(false);
+  }
+
+  private void flush(boolean close) {
+    int chunkSize = buffer.readableBytes();
+    if (chunkSize > 0) {
+      ByteBuf chunk;
+      if (close) {
+        // don't copy on close
+        chunk = buffer;
+      } else {
+        // make a copy on flush
+        chunk = buffer.copy();
+      }
+      ctx.connection.write(
+          context -> {
+            writeHeaders(context);
+            context.write(new DefaultHttpContent(chunk), context.voidPromise());
+            if (close) {
+              context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(closeListener);
+            }
+          });
+      if (!close) {
+        // reset
+        buffer.clear();
+      }
+    } else {
+      ctx.connection.write(
+          context -> {
+            writeHeaders(context);
+            ChannelFuture future = context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+            if (close) {
+              future.addListener(closeListener);
+            }
+          });
+    }
+  }
+
+  private void writeHeaders(ChannelHandlerContext context) {
     if (headers != null) {
       context.write(headers, context.voidPromise());
       headers = null;
@@ -70,42 +102,10 @@ public class NettyOutputStream extends OutputStream {
   }
 
   @Override
-  public void flush() throws IOException {
-    flush(null, null);
-  }
-
-  private void flush(ChannelFutureListener callback, ChannelFutureListener listener) {
-    int chunkSize = buffer.readableBytes();
-    if (chunkSize > 0) {
-      if (listener != null) {
-        if (callback == null) {
-          context.write(new DefaultHttpContent(buffer.copy()), context.voidPromise());
-        } else {
-          context.write(new DefaultHttpContent(buffer.copy())).addListener(callback);
-        }
-        context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(listener);
-        buffer.release();
-      } else {
-        if (callback == null) {
-          context.write(new DefaultHttpContent(buffer.copy()), context.voidPromise());
-        } else {
-          context.write(new DefaultHttpContent(buffer.copy())).addListener(callback);
-        }
-        buffer.clear();
-      }
-    } else {
-      ChannelFuture future = context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-      if (listener != null) {
-        future.addListener(listener);
-      }
-    }
-  }
-
-  @Override
   public void close() {
     if (closed.compareAndSet(false, true)) {
       try {
-        flush(null, closeListener);
+        flush(true);
       } finally {
         ctx.requestComplete();
       }
