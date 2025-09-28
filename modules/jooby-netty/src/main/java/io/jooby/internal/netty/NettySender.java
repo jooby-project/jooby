@@ -21,9 +21,9 @@ public class NettySender implements Sender {
   private final NettyContext ctx;
   private final ChannelHandlerContext context;
 
-  public NettySender(NettyContext ctx, ChannelHandlerContext context) {
+  public NettySender(NettyContext ctx) {
     this.ctx = ctx;
-    this.context = context;
+    this.context = ctx.ctx;
   }
 
   @Override

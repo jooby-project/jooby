@@ -104,7 +104,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private String scheme;
   private int port;
   private boolean filesCreated;
-  private NettyHandler connection;
+  NettyHandler connection;
 
   public NettyContext(
       NettyHandler connection,
@@ -530,7 +530,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   public Sender responseSender() {
     prepareChunked();
     ctx.write(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
-    return new NettySender(this, ctx);
+    return new NettySender(this);
   }
 
   @NonNull @Override
@@ -583,7 +583,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       responseStarted = true;
       setHeaders.set(CONTENT_LENGTH, contentLength);
       var response = new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING);
-      connection.writeHttpObject(response, promise(this));
+      connection.writeMessage(response, promise(this));
       return this;
     } finally {
       requestComplete();
@@ -595,7 +595,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     try {
       prepareChunked();
       int bufferSize = contentLength > 0 ? (int) contentLength : this.bufferSize;
-      connection.writeHttpChunk(
+      connection.writeChunks(
           new DefaultHttpResponse(HTTP_1_1, status, setHeaders),
           new ChunkedNioStream(channel, bufferSize),
           EMPTY_LAST_CONTENT,
@@ -627,7 +627,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       long len = responseLength();
       ByteRange range = ByteRange.parse(req.headers().get(RANGE), len).apply(this);
       prepareChunked();
-      connection.writeHttpChunk(
+      connection.writeChunks(
           new DefaultHttpResponse(HTTP_1_1, status, setHeaders),
           new ChunkedStream(range.apply(in), bufferSize),
           EMPTY_LAST_CONTENT,
@@ -670,7 +670,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
             new HttpChunkedInput(
                 new ChunkedNioFile(file, range.getStart(), range.getEnd(), bufferSize));
 
-        connection.writeHttpChunk(rsp, chunkedInput, promise(this));
+        connection.writeChunks(rsp, chunkedInput, promise(this));
         //        ctx.channel()
         //            .eventLoop()
         //            .execute(
@@ -681,7 +681,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
         //                  ctx.writeAndFlush(chunkedInput, promise(this));
         //                });
       } else {
-        connection.writeHttpChunk(
+        connection.writeChunks(
             rsp,
             new DefaultFileRegion(file, range.getStart(), range.getEnd()),
             EMPTY_LAST_CONTENT,
@@ -744,7 +744,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       var rsp =
           new DefaultFullHttpResponse(
               HTTP_1_1, status, Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
-      connection.writeHttpObject(rsp, promise(this));
+      connection.writeMessage(rsp, promise(this));
       return this;
     } finally {
       requestComplete();
