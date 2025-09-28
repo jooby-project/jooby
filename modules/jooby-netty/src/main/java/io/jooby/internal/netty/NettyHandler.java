@@ -36,7 +36,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private NettyContext context;
   private boolean read;
   private boolean flush;
-  private ChannelHandlerContext channelContext;
+  ChannelHandlerContext channelContext;
 
   public NettyHandler(
       NettyDateService serverDate,
@@ -128,7 +128,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  public void writeHttpObject(Object msg, ChannelPromise promise) {
+  public void writeMessage(Object msg, ChannelPromise promise) {
     if (this.channelContext.executor().inEventLoop()) {
       if (this.read) {
         this.flush = true;
@@ -137,31 +137,40 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         this.channelContext.writeAndFlush(msg, promise);
       }
     } else {
-      this.channelContext.executor().execute(() -> writeHttpObject(msg, promise));
+      this.channelContext.executor().execute(() -> writeMessage(msg, promise));
     }
   }
 
-  public void writeHttpChunk(Object header, Object body, Object last, ChannelPromise promise) {
+  public void writeChunks(Object header, Object body, Object last, ChannelPromise promise) {
     if (this.channelContext.executor().inEventLoop()) {
       // Headers
-      channelContext.write(header, channelContext.voidPromise());
+      var voidPromise = channelContext.voidPromise();
+      channelContext.write(header, voidPromise);
       // Body
-      channelContext.write(body, channelContext.voidPromise());
+      channelContext.write(body, voidPromise);
       // Finish
       channelContext.writeAndFlush(last, promise);
     } else {
-      this.channelContext.executor().execute(() -> writeHttpChunk(header, body, last, promise));
+      this.channelContext.executor().execute(() -> writeChunks(header, body, last, promise));
     }
   }
 
-  public void writeHttpChunk(Object header, Object body, ChannelPromise promise) {
+  public void write(SneakyThrows.Consumer<ChannelHandlerContext> action) {
+    if (this.channelContext.executor().inEventLoop()) {
+      action.accept(this.channelContext);
+    } else {
+      this.channelContext.executor().execute(() -> write(action));
+    }
+  }
+
+  public void writeChunks(Object header, Object body, ChannelPromise promise) {
     if (this.channelContext.executor().inEventLoop()) {
       // Headers
       channelContext.write(header, channelContext.voidPromise());
       // Body + Last
       channelContext.writeAndFlush(body, promise);
     } else {
-      this.channelContext.executor().execute(() -> writeHttpChunk(header, body, promise));
+      this.channelContext.executor().execute(() -> writeChunks(header, body, promise));
     }
   }
 
