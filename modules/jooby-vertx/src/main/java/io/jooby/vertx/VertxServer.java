@@ -29,21 +29,28 @@ public class VertxServer extends NettyServer {
   public VertxServer() {}
 
   @Override
-  public @NonNull Server start(@NonNull Jooby... applications) {
+  public @NonNull Server init(Jooby application) {
     if (this.vertx == null) {
       var nThreads = getOptions().getIoThreads();
       var options =
           new VertxOptions().setPreferNativeTransport(true).setEventLoopPoolSize(nThreads);
       this.vertx = Vertx.vertx(options);
     }
-    for (var app : applications) {
-      app.getServices().put(Vertx.class, vertx);
-    }
-    return super.start(applications);
+    application.getServices().put(Vertx.class, vertx);
+    return super.init(application);
   }
 
   @Nullable @Override
   protected NettyEventLoopGroup createEventLoopGroup() {
     return new VertxEventLoopGroup(vertx);
+  }
+
+  @Override
+  public synchronized @NonNull Server stop() {
+    super.stop();
+    if (vertx != null) {
+      vertx.close().await();
+    }
+    return this;
   }
 }

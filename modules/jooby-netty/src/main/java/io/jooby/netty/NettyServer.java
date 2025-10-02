@@ -235,18 +235,14 @@ public class NettyServer extends Server.Base {
     // only for jooby build where close events may take longer.
     NettyWebSocket.all.clear();
 
-    eventLoop.shutdown();
+    if (eventLoop != null) {
+      eventLoop.shutdown();
+    }
     if (worker != null) {
       worker.shutdown();
       worker = null;
     }
     return this;
-  }
-
-  private void shutdown(EventLoopGroup eventLoopGroup, int quietPeriod) {
-    if (eventLoopGroup != null) {
-      eventLoopGroup.shutdownGracefully(quietPeriod, 15, TimeUnit.SECONDS);
-    }
   }
 
   private SslContext wrap(

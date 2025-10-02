@@ -58,7 +58,7 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-vertx</artifactId>
+      <artifactId>jooby-vertx-pg-client</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>

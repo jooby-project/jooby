@@ -8,34 +8,24 @@
     <artifactId>modules</artifactId>
     <version>4.0.7</version>
   </parent>
-  <artifactId>jooby-vertx</artifactId>
-  <name>jooby-vertx</name>
+  <artifactId>jooby-vertx-pg-client</artifactId>
+  <name>jooby-vertx-pg-client</name>
+
+  <properties>
+    <Module-Name>io.jooby.vertx.pgclient</Module-Name>
+  </properties>
 
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-netty</artifactId>
+      <artifactId>jooby-vertx-sql-client</artifactId>
       <version>${jooby.version}</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/io.vertx/vertx-core -->
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
-      <version>5.0.4</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-sql-client</artifactId>
-      <version>${vertx.version}</version>
     </dependency>
 
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-pg-client</artifactId>
-      <version>${vertx.version}</version>
-      <optional>true</optional>
+      <version>5.0.4</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -58,5 +48,22 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

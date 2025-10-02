@@ -25,6 +25,6 @@ public record VertxEventLoopGroup(Vertx vertx) implements NettyEventLoopGroup {
 
   @Override
   public void shutdown() {
-    vertx.close();
+    // NOOP
   }
 }

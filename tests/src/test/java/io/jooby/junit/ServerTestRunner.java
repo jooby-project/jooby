@@ -19,7 +19,6 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import io.jooby.*;
 import io.jooby.internal.MutedServer;
-import io.jooby.output.OutputFactory;
 import io.jooby.test.WebClient;
 
 public class ServerTestRunner {
@@ -86,8 +85,7 @@ public class ServerTestRunner {
     Server server = this.server.get(serverOptions);
     String applogger = null;
     try {
-      setServerOptions(Optional.ofNullable(serverOptions).orElse(server.getOptions()));
-      setOutputFactory(server.getOutputFactory());
+      setServer(server);
       setExecutionMode(Optional.ofNullable(executionMode).orElse(ExecutionMode.DEFAULT));
       System.setProperty("___app_name__", testName);
       System.setProperty("___server_name__", server.getName());
@@ -139,15 +137,14 @@ public class ServerTestRunner {
       } else {
         MutedServer.mute(server).stop();
       }
-      setOutputFactory(null);
+      setServer(null);
       setExecutionMode(null);
-      setServerOptions(null);
     }
   }
 
-  private void setServerOptions(ServerOptions options) {
+  private void setServer(Server options) {
     try {
-      var field = Jooby.class.getDeclaredField("SERVER_OPTIONS");
+      var field = Jooby.class.getDeclaredField("BOOT_SERVER");
       field.setAccessible(true);
       field.set(null, options);
     } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -160,16 +157,6 @@ public class ServerTestRunner {
       var field = Jooby.class.getDeclaredField("BOOT_EXECUTION_MODE");
       field.setAccessible(true);
       field.set(null, executionMode);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw SneakyThrows.propagate(e);
-    }
-  }
-
-  private static void setOutputFactory(OutputFactory bufferedOutputFactory) {
-    try {
-      var field = Jooby.class.getDeclaredField("OUTPUT_FACTORY");
-      field.setAccessible(true);
-      field.set(null, bufferedOutputFactory);
     } catch (NoSuchFieldException | IllegalAccessException e) {
       throw SneakyThrows.propagate(e);
     }
