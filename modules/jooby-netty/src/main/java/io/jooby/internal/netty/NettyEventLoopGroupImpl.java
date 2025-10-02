@@ -7,14 +7,15 @@ package io.jooby.internal.netty;
 
 import java.util.concurrent.TimeUnit;
 
+import io.jooby.netty.NettyEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 
-public class NettyEventLoopGroup {
+public class NettyEventLoopGroupImpl implements NettyEventLoopGroup {
   private final EventLoopGroup parent;
   private final EventLoopGroup child;
   private boolean closed;
 
-  public NettyEventLoopGroup(NettyTransport transport, boolean single, int ioThreads) {
+  public NettyEventLoopGroupImpl(NettyTransport transport, boolean single, int ioThreads) {
     child = transport.createEventLoop(ioThreads, "eventloop", 100);
     if (single) {
       parent = child;

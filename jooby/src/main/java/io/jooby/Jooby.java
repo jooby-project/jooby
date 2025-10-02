@@ -77,8 +77,7 @@ public class Jooby implements Router, Registry {
 
   private static Jooby owner;
   private static ExecutionMode BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
-  private static OutputFactory OUTPUT_FACTORY;
-  private static ServerOptions SERVER_OPTIONS;
+  private static Server BOOT_SERVER;
 
   private RouterImpl router;
 
@@ -125,10 +124,17 @@ public class Jooby implements Router, Registry {
       lateExtensions = new ArrayList<>();
       // NOTE: fallback to default, this is required for direct instance creation of class
       // app bootstrap always ensures server instance.
-      router.setOutputFactory(Optional.ofNullable(OUTPUT_FACTORY).orElseGet(OutputFactory::create));
-      router.setServerOptions(Optional.ofNullable(SERVER_OPTIONS).orElseGet(ServerOptions::new));
+      router.setOutputFactory(
+          Optional.ofNullable(BOOT_SERVER)
+              .map(Server::getOutputFactory)
+              .orElseGet(OutputFactory::create));
+      router.setServerOptions(
+          Optional.ofNullable(BOOT_SERVER).map(Server::getOptions).orElseGet(ServerOptions::new));
     } else {
       copyState(owner, this);
+    }
+    if (BOOT_SERVER != null) {
+      BOOT_SERVER.init(this);
     }
   }
 
@@ -874,7 +880,7 @@ public class Jooby implements Router, Registry {
    * @param server Server.
    * @return This application.
    */
-  public @NonNull Jooby start(@NonNull Server server) {
+  public Jooby start(@NonNull Server server) {
     Path tmpdir = getTmpdir();
     ensureTmpdir(tmpdir);
 
@@ -1301,14 +1307,12 @@ public class Jooby implements Router, Registry {
 
     Jooby app;
     try {
-      Jooby.OUTPUT_FACTORY = server.getOutputFactory();
-      Jooby.SERVER_OPTIONS = server.getOptions();
+      Jooby.BOOT_SERVER = server;
       Jooby.BOOT_EXECUTION_MODE = executionMode;
       app = provider.get();
     } finally {
       Jooby.BOOT_EXECUTION_MODE = executionMode;
-      Jooby.OUTPUT_FACTORY = null;
-      Jooby.SERVER_OPTIONS = null;
+      Jooby.BOOT_SERVER = null;
     }
 
     return app;

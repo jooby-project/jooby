@@ -97,8 +97,6 @@ public interface Server {
 
     private final AtomicBoolean stopping = new AtomicBoolean();
 
-    private boolean defaultOptions;
-
     protected void fireStart(@NonNull List<Jooby> applications, @NonNull Executor defaultWorker) {
       for (Jooby app : applications) {
         app.setDefaultWorker(defaultWorker).start(this);
@@ -141,7 +139,11 @@ public interface Server {
     }
   }
 
-  @NonNull OutputFactory getOutputFactory();
+  default Server init(Jooby application) {
+    return this;
+  }
+
+  OutputFactory getOutputFactory();
 
   /**
    * Set server options. This method should be called once, calling this method multiple times will
@@ -150,21 +152,21 @@ public interface Server {
    * @param options Server options.
    * @return This server.
    */
-  @NonNull Server setOptions(@NonNull ServerOptions options);
+  Server setOptions(@NonNull ServerOptions options);
 
   /**
    * Get server name.
    *
    * @return Server name.
    */
-  @NonNull String getName();
+  String getName();
 
   /**
    * Get server options.
    *
    * @return Server options.
    */
-  @NonNull ServerOptions getOptions();
+  ServerOptions getOptions();
 
   /**
    * Start an application.
@@ -172,7 +174,7 @@ public interface Server {
    * @param application Application to start.
    * @return This server.
    */
-  @NonNull Server start(@NonNull Jooby... application);
+  Server start(@NonNull Jooby... application);
 
   /**
    * Utility method to turn off odd logger. This helps to ensure same startup log lines across
@@ -182,7 +184,7 @@ public interface Server {
    *
    * @return Name of the logs we want to temporarily silent.
    */
-  default @NonNull List<String> getLoggerOff() {
+  default List<String> getLoggerOff() {
     return emptyList();
   }
 
@@ -191,7 +193,7 @@ public interface Server {
    *
    * @return Stop the server.
    */
-  @NonNull Server stop();
+  Server stop();
 
   /**
    * Add a connection lost predicate. On unexpected exception, this method allows to customize which

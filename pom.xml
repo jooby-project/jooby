@@ -108,6 +108,7 @@
     <undertow.version>2.3.19.Final</undertow.version>
     <jetty.version>12.1.1</jetty.version>
     <netty.version>4.2.6.Final</netty.version>
+    <vertx.version>5.0.4</vertx.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.37</swagger.version>

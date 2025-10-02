@@ -26,6 +26,7 @@
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
     <module>jooby-undertow</module>
+    <module>jooby-vertx</module>
 
     <module>jooby-openapi</module>
     <module>jooby-swagger-ui</module>
@@ -37,6 +38,11 @@
     <module>jooby-hibernate</module>
     <module>jooby-flyway</module>
     <module>jooby-ebean</module>
+
+    <module>jooby-vertx-sql-client</module>
+    <module>jooby-vertx-mysql-client</module>
+    <module>jooby-vertx-pg-client</module>
+
     <module>jooby-redis</module>
     <module>jooby-kafka</module>
     <module>jooby-caffeine</module>
