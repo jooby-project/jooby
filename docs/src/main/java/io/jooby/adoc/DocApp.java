@@ -7,18 +7,17 @@ package io.jooby.adoc;
 
 import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-import io.jooby.LoggingService;
-import io.jooby.Server;
+import io.jooby.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import io.jooby.Jooby;
-import io.jooby.ServerOptions;
 import io.methvin.watcher.DirectoryWatcher;
 
 public class DocApp extends Jooby {
@@ -32,11 +31,11 @@ public class DocApp extends Jooby {
     Path site = DocGenerator.basedir().resolve("asciidoc").resolve("site");
     assets("/*", site);
 
-    onStarted(() ->
+    onStarted(SneakyThrows.throwingRunnable(() ->
       getLog().info("Access to maven properties is available from ascii files. If you want to access to `${avaje.inject.version}` uses the `{avaje_inject_version}` syntax and make sure to set the `subs` attribute, like:\n\n" +
-              "[source, xml, role = \"primary\", subs=\"verbatim,attributes\"]\n" +
-              " .... {avaje_inject_version}\n")
-    );
+          "[source, xml, role = \"primary\", subs=\"verbatim,attributes\"]\n" +
+          " .... {avaje_inject_version}\n")
+    ));
   }
 
   public static void main(String[] args) throws Exception {

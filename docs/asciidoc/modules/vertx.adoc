@@ -1,0 +1,85 @@
+== Vertx
+
+https://vertx.io/[Vertx] Reactive applications on the JVM.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-vertx"]
+.
+
+2) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.vertx.VertxModule;
+
+{
+  install(new VertxModule());                         <1>
+
+  get("/{msg}", ctx -> {
+    var eb = require(EventBus.class);                 <2>
+
+    eventBus.publish("msg", ctx.path("msg").value()); <3>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.vertx.VertxModule
+
+{
+  install(VertxModule())                              <1>
+
+  get("/{msg}") {
+    val eb = require(EventBus.class);                 <2>
+
+    eventBus.publish("msg", ctx.path("msg").value()); <3>
+    ...
+  }
+}
+----
+
+<1> Install Vertx
+<2> Get EventBus or Vertx instance
+<3> Send message to `msg`
+
+=== Options
+
+Options can be provided manually or from application.conf properties:
+
+.Manually
+[source, java]
+----
+import io.jooby.vertx.VertxModule;
+
+{
+  install(new VertxModule(new VertxOptions()));
+}
+----
+
+.Properties
+
+.application.conf
+[source, properties]
+----
+vertx.eventLoopPoolSize=5
+vertx.workerPoolSize = 20
+vertx.blockedThreadCheckInterval=500
+vertx.maxEventLoopExecuteTime=2000
+...
+----
+
+[source, java]
+----
+import io.jooby.vertx.VertxModule;
+
+{
+  install(new VertxModule());
+}
+----

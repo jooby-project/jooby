@@ -38,6 +38,7 @@ Available modules are listed next.
 
 === Event Bus
   * link:/modules/camel[Camel]: Camel module for Jooby.
+  * link:/modules/vertx[Vertx]: Vertx module for Jooby.
 
 === JSON
    * link:/modules/gson[Gson]: Gson module for Jooby.

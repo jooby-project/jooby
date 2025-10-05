@@ -92,6 +92,8 @@ public class DocGenerator {
         asciidoctor.convertFile(
             asciidoc.resolve("index.adoc").toFile(),
             createOptions(asciidoc, outdir, version, null));
+        var index = outdir.resolve("index.html");
+        Files.writeString(index, hljs(Files.readString(index)));
         pb.step();
 
         Stream.of(treeDirs)
@@ -221,13 +223,18 @@ public class DocGenerator {
       indexlike = indexlike.resolve("index.html");
       Files.createDirectories(indexlike.getParent());
       Files.move(output, indexlike);
-      String content = Files.readString(indexlike)
+      String content = hljs(Files.readString(indexlike)
               .replace("js/", "../../js/")
-              .replace("images/", "../../images/");
+              .replace("images/", "../../images/"));
       Files.writeString(indexlike, content);
     } catch (IOException x) {
       throw new IllegalStateException(x);
     }
+  }
+
+  private static String hljs(String content) {
+    return content.replace(".highlightBlock", ".highlightElement")
+        .replace("hljs.initHighlighting.called = true", "hljs.configure({ignoreUnescapedHTML: true});hljs.initHighlighting.called = true");
   }
 
   private static Options createOptions(Path basedir, Path outdir, String version, String title)
@@ -254,7 +261,8 @@ public class DocGenerator {
     attributes.imagesDir("images");
     attributes.sourceHighlighter("highlightjs");
     attributes.attribute("highlightjsdir", "js");
-    attributes.attribute("highlightjs-theme", "agate");
+    // agate, tom-one-dark, tomorrow-night-bright, tokyo-night-dark
+    attributes.attribute("highlightjs-theme", "tomorrow-night-bright");
     attributes.attribute("favicon", "images/favicon96.png");
 
     // versions:
