@@ -13,9 +13,8 @@ import io.jooby.ServiceKey;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.*;
-import io.vertx.sqlclient.impl.SqlClientInternal;
 
-public abstract class VertxSqlClientModule<C extends SqlClient> implements Extension {
+public abstract class VertxSqlClientModule implements Extension {
   private final String name;
 
   public VertxSqlClientModule(@NonNull String name) {
@@ -42,10 +41,6 @@ public abstract class VertxSqlClientModule<C extends SqlClient> implements Exten
       registry.put(ServiceKey.key(Pool.class, name), pool);
       registry.putIfAbsent(Pool.class, pool);
     }
-    if (client instanceof SqlClientInternal sci) {
-      registry.put(ServiceKey.key(SqlClientInternal.class, name), sci);
-      registry.putIfAbsent(SqlClientInternal.class, sci);
-    }
     // Shutdown
     application.onStop(() -> client.close().await());
   }
@@ -54,5 +49,5 @@ public abstract class VertxSqlClientModule<C extends SqlClient> implements Exten
 
   protected abstract SqlConnectOptions fromUri(String uri);
 
-  protected abstract ClientBuilder<C> newBuilder();
+  protected abstract ClientBuilder<? extends SqlClient> newBuilder();
 }

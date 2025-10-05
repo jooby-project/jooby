@@ -14,6 +14,7 @@ import io.jooby.netty.NettyEventLoopGroup;
 import io.jooby.netty.NettyServer;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.eventbus.EventBus;
 
 public class VertxServer extends NettyServer {
   private Vertx vertx;
@@ -36,7 +37,9 @@ public class VertxServer extends NettyServer {
           new VertxOptions().setPreferNativeTransport(true).setEventLoopPoolSize(nThreads);
       this.vertx = Vertx.vertx(options);
     }
-    application.getServices().put(Vertx.class, vertx);
+    var registry = application.getServices();
+    registry.put(Vertx.class, vertx);
+    registry.put(EventBus.class, vertx.eventBus());
     return super.init(application);
   }
 

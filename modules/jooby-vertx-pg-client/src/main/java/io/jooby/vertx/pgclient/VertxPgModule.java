@@ -10,17 +10,21 @@ import java.util.function.Supplier;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.vertx.sqlclient.VertxSqlClientModule;
 import io.vertx.core.json.JsonObject;
-import io.vertx.pgclient.PgBuilder;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.sqlclient.*;
 
-public class VertxPgModule<C extends SqlClient> extends VertxSqlClientModule<C> {
+public class VertxPgModule extends VertxSqlClientModule {
 
-  private final Supplier<ClientBuilder<C>> builder;
+  private final Supplier<ClientBuilder<? extends SqlClient>> builder;
 
-  protected VertxPgModule(@NonNull String name, @NonNull Supplier<ClientBuilder<C>> builder) {
+  public VertxPgModule(
+      @NonNull String name, @NonNull Supplier<ClientBuilder<? extends SqlClient>> builder) {
     super(name);
     this.builder = builder;
+  }
+
+  public VertxPgModule(@NonNull Supplier<ClientBuilder<? extends SqlClient>> builder) {
+    this("db", builder);
   }
 
   @Override
@@ -34,31 +38,7 @@ public class VertxPgModule<C extends SqlClient> extends VertxSqlClientModule<C> 
   }
 
   @Override
-  protected ClientBuilder<C> newBuilder() {
+  protected ClientBuilder<? extends SqlClient> newBuilder() {
     return builder.get();
-  }
-
-  public static VertxPgModule<Pool> pool() {
-    return pool(new PoolOptions());
-  }
-
-  public static VertxPgModule<Pool> pool(PoolOptions options) {
-    return pool("db", options);
-  }
-
-  public static VertxPgModule<Pool> pool(String name) {
-    return pool(name, new PoolOptions());
-  }
-
-  public static VertxPgModule<Pool> pool(String name, PoolOptions options) {
-    return new VertxPgModule<>(name, () -> PgBuilder.pool().with(options));
-  }
-
-  public static VertxPgModule<SqlClient> client() {
-    return client("db");
-  }
-
-  public static VertxPgModule<SqlClient> client(String name) {
-    return new VertxPgModule<>(name, PgBuilder::client);
   }
 }

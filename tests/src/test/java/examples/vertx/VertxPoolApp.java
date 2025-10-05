@@ -5,14 +5,19 @@
  */
 package examples.vertx;
 
-import static io.jooby.MediaType.JSON;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import io.jooby.Jooby;
+import io.jooby.jackson.JacksonModule;
 import io.jooby.netty.NettyServer;
+import io.jooby.vertx.VertxFutureHandler;
 import io.jooby.vertx.VertxModule;
 import io.jooby.vertx.pgclient.VertxPgModule;
+import io.vertx.core.Promise;
+import io.vertx.pgclient.PgBuilder;
 import io.vertx.sqlclient.SqlClient;
 import io.vertx.sqlclient.Tuple;
 
@@ -31,31 +36,56 @@ public class VertxPoolApp extends Jooby {
                         .withValue("db.user", ConfigValueFactory.fromAnyRef("benchmarkdbuser"))
                         .withValue(
                             "db.password", ConfigValueFactory.fromAnyRef("benchmarkdbpass"))));
+
+    install(new JacksonModule());
     install(new VertxModule());
-    install(VertxPgModule.client());
+    install(new VertxPgModule(PgBuilder::pool));
+
+    use(new VertxFutureHandler());
 
     get(
         "/db",
         ctx -> {
-          require(SqlClient.class)
-              .preparedQuery("SELECT id, randomnumber from WORLD where id=$1")
+          var db = require(SqlClient.class);
+          return db.preparedQuery("SELECT id, randomnumber from WORLD where id=$1")
               .execute(Tuple.of(Util.boxedRandomWorld()))
-              .onComplete(
-                  rsp -> {
-                    if (rsp.succeeded()) {
-                      var rs = rsp.result().iterator();
-                      var row = rs.next();
-                      ctx.setResponseType(JSON)
-                          .send(Json.encode(new World(row.getInteger(0), row.getInteger(1))));
-                    } else {
-                      ctx.sendError(rsp.cause());
-                    }
+              .map(
+                  result -> {
+                    var row = result.iterator().next();
+                    return new World(row.getInteger(0), row.getInteger(1));
                   });
-          return ctx;
+        });
+
+    get(
+        "/queries",
+        ctx -> {
+          int queries = Util.queries(ctx);
+          var db = require(SqlClient.class);
+          Promise<List<World>> promise = Promise.promise();
+          var statement = db.preparedQuery("SELECT id, randomnumber from WORLD where id=$1");
+          var worlds = new ArrayList<World>(queries);
+          for (int i = 0; i < queries; i++) {
+            statement
+                .execute(Tuple.of(Util.boxedRandomWorld()))
+                .onComplete(
+                    ar -> {
+                      if (ar.succeeded()) {
+                        var rs = ar.result();
+                        worlds.add(
+                            new World(rs.iterator().next().getInteger(0), Util.boxedRandomWorld()));
+                        if (worlds.size() == queries) {
+                          promise.complete(worlds);
+                        }
+                      } else {
+                        promise.fail(ar.cause());
+                      }
+                    });
+          }
+          return promise;
         });
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     runApp(args, new NettyServer(), VertxPoolApp::new);
   }
 }

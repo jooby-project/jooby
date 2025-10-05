@@ -10,6 +10,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 
 public class VertxModule implements Extension {
@@ -39,6 +40,7 @@ public class VertxModule implements Extension {
     }
     var registry = application.getServices();
     registry.put(Vertx.class, vertx);
+    registry.put(EventBus.class, vertx.eventBus());
     application.onStop(() -> vertx.close().await());
   }
 }
