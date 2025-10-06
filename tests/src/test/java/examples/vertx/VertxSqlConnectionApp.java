@@ -24,7 +24,7 @@ import io.vertx.core.Handler;
 import io.vertx.sqlclient.*;
 import io.vertx.sqlclient.impl.SqlClientInternal;
 
-public class VertxApp extends Jooby {
+public class VertxSqlConnectionApp extends Jooby {
   private static final String SELECT_WORLD = "SELECT id, randomnumber from WORLD where id=$1";
   private static final String SELECT_FORTUNE = "SELECT id, message from FORTUNE";
 
@@ -182,6 +182,6 @@ public class VertxApp extends Jooby {
         args,
         new VertxServer().setOptions(new ServerOptions().setIoThreads(2)),
         EVENT_LOOP,
-        VertxApp::new);
+        VertxSqlConnectionApp::new);
   }
 }

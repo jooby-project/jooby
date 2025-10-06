@@ -8,4 +8,5 @@ module io.jooby.vertx {
   requires io.netty.transport;
   requires org.slf4j;
   requires static com.github.spotbugs.annotations;
+  requires jakarta.inject;
 }

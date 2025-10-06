@@ -33,7 +33,7 @@ public abstract class VertxSqlClientModule implements Extension {
       options = fromMap(new JsonObject(config.getObject(name).unwrapped()));
     }
 
-    var client = newBuilder().connectingTo(options).using(registry.getOrNull(Vertx.class)).build();
+    var client = newBuilder().connectingTo(options).using(registry.require(Vertx.class)).build();
 
     registry.put(ServiceKey.key(SqlClient.class, name), client);
     registry.putIfAbsent(SqlClient.class, client);

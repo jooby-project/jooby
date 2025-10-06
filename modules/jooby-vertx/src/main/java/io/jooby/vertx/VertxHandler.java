@@ -10,8 +10,9 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.buffer.Buffer;
 
-public class VertxFutureHandler implements Route.Filter {
+public class VertxHandler implements Route.Filter {
   @Override
   public @NonNull Route.Handler apply(Route.Handler next) {
     return ctx -> {
@@ -23,9 +24,19 @@ public class VertxFutureHandler implements Route.Filter {
         return futureResult(ctx, promise.future());
       } else if (result instanceof Future<?> future) {
         return futureResult(ctx, future);
+      } else if (result instanceof Buffer buffer) {
+        return bufferResult(ctx, buffer);
       }
       return result;
     };
+  }
+
+  public static Route.Filter vertx() {
+    return new VertxHandler();
+  }
+
+  private Context bufferResult(Context ctx, Buffer buffer) {
+    return ctx.render(buffer);
   }
 
   private static Context futureResult(Context ctx, Future<?> future) {
