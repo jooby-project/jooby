@@ -13,7 +13,7 @@ import com.typesafe.config.ConfigValueFactory;
 import io.jooby.Jooby;
 import io.jooby.jackson.JacksonModule;
 import io.jooby.netty.NettyServer;
-import io.jooby.vertx.VertxFutureHandler;
+import io.jooby.vertx.VertxHandler;
 import io.jooby.vertx.VertxModule;
 import io.jooby.vertx.pgclient.VertxPgModule;
 import io.vertx.core.Promise;
@@ -41,7 +41,7 @@ public class VertxPoolApp extends Jooby {
     install(new VertxModule());
     install(new VertxPgModule(PgBuilder::pool));
 
-    use(new VertxFutureHandler());
+    use(new VertxHandler());
 
     get(
         "/db",

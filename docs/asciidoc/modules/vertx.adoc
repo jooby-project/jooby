@@ -15,39 +15,56 @@ https://vertx.io/[Vertx] Reactive applications on the JVM.
 [source, java, role="primary"]
 ----
 import io.jooby.vertx.VertxModule;
-
+import static io.jooby.vertx.VertxHandler.vertx;
 {
-  install(new VertxModule());                         <1>
+  install(new VertxModule());                                         <1>
 
-  get("/{msg}", ctx -> {
-    var eb = require(EventBus.class);                 <2>
+  use(vertx());                                                       <2>
 
-    eventBus.publish("msg", ctx.path("msg").value()); <3>
+  get("/bus}", ctx -> {
+    var eb = require(EventBus.class);                                 <3>
+
+    eventBus.publish("msg", ctx.query("msg").value("Event Bus!"));    <4>
     ...
+  });
+  
+  get("/*filepath", ctx -> {
+    var fs = require(FileSytem.class);                                <5>
+    return fs.open(ctx.path("filepath").value(), new OpenOptions());  <6>
   });
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
-----
+---- 
 import io.jooby.vertx.VertxModule
 
 {
-  install(VertxModule())                              <1>
+  install(VertxModule())                                              <1>
 
-  get("/{msg}") {
-    val eb = require(EventBus.class);                 <2>
+  use(vertx())                                                        <2>
 
-    eventBus.publish("msg", ctx.path("msg").value()); <3>
+  get("/bus") {
+    val eb = require(EventBus::class)                                 <3>
+
+    eventBus.publish("msg", ctx.query("msg").value("Event Bus!"))     <4>
     ...
+  }
+
+  get("/*filepath") {
+    varl fs = require(FileSytem::class)                               <5>
+    fs.open(ctx.path("filepath").value(), OpenOptions())              <6>
   }
 }
 ----
 
 <1> Install Vertx
-<2> Get EventBus or Vertx instance
-<3> Send message to `msg`
+<2> Install vertx handler. Know how to render future, promise and buffer.
+<3> Get EventBus instance
+<4> Send message to `msg`
+<5> Get FileSystem
+<6> Open a possible large file and send it to client.
 
 === Options
 
@@ -59,11 +76,14 @@ Options can be provided manually or from application.conf properties:
 import io.jooby.vertx.VertxModule;
 
 {
-  install(new VertxModule(new VertxOptions()));
+  install(new VertxModule(new VertxOptions()
+    .setEventLoopSize(5)
+    .setWorkerPoolSize(20)
+    .setBlockedThreadCheckInterval(500)
+    .setMaxEventLoopExecuteTime(2000)
+  ));
 }
 ----
-
-.Properties
 
 .application.conf
 [source, properties]
@@ -83,3 +103,21 @@ import io.jooby.vertx.VertxModule;
   install(new VertxModule());
 }
 ----
+
+A clustered vertx instance can be provided at creation time:
+
+.Clustered
+[source, java]
+----
+import io.jooby.vertx.VertxModule;
+
+{
+  install(new VertxModule(options -> Vertx.builder()
+     .with(options)
+     .withClusteredManager(cm)
+     .buildClustered()
+  ));
+}
+----
+
+include::vertx-sql-client.adoc[]

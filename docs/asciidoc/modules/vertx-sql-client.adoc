@@ -1,0 +1,71 @@
+== Sql Client
+
+A https://github.com/eclipse-vertx/vertx-sql-client[reactive SQL Client]. Supported databases:
+
+- MySQL
+- PostgreSQL
+
+These modules require a Vertx instance available in the service registry.
+
+=== MySQL client
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-vertx-mysql-client"]
+.
+
+2) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.vertx.VertxModule;
+import io.jooby.vertx.VertxMySQLModule;
+import static io.jooby.vertx.VertxHandler.vertx;
+
+{
+  install(new VertxModule());                                                  <1>
+
+  use(vertx());                                                                <2>
+
+  get("/{id}", ctx -> {
+    var db = require(SqlClient.class);                                         <3>
+    return db.preparedQuery("SELECT id, randomnumber from WORLD where id=$1")  <4>
+        .execute(Tuple.of(ctx.path("id").longValue()))
+        .map(result -> {
+          var row = result.iterator().next();
+          return new World(row.getInteger(0), row.getInteger(1));
+        });
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+---- 
+import io.jooby.vertx.VertxModule
+import io.jooby.vertx.VertxMySQLModule
+import static io.jooby.vertx.VertxHandler.vertx
+
+{
+  install(VertxModule())                                                       <1>
+
+  use(vertx())                                                                 <2>
+
+  get("/{id}") {
+    val db = require(SqlClient::class)                                         <3>
+    db.preparedQuery("SELECT id, randomnumber from WORLD where id=$1")         <4>
+        .execute(Tuple.of(ctx.path("id").longValue()))
+        .map({ result ->
+          val row = result.iterator().next()
+          World(row.getInteger(0), row.getInteger(1))
+        })
+  }
+}
+----
+
+<1> Install Vertx
+<2> Install vertx handler. Render future, promise and buffer.
+<3> Get SQL client instance
+<4> Run a database query
+
