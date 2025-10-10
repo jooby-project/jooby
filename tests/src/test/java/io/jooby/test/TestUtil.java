@@ -6,7 +6,6 @@
 package io.jooby.test;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,8 +15,8 @@ import io.jooby.SneakyThrows;
 
 public class TestUtil {
 
-  public static final String _19kb =
-      readText(userdir("src", "test", "resources", "files", "19kb.txt"));
+  public static final Path File_19kb = userdir("src", "test", "resources", "files", "19kb.txt");
+  public static final String _19kb = readText(File_19kb);
 
   public static final String _16kb = _19kb.substring(0, ServerOptions._16KB);
 
@@ -25,13 +24,13 @@ public class TestUtil {
 
   private static String readText(Path file) {
     try {
-      return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
+      return Files.readString(file);
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
   }
 
-  private static Path userdir(String... segments) {
+  public static Path userdir(String... segments) {
     Path path = Paths.get(System.getProperty("user.dir"));
     for (String segment : segments) {
       path = path.resolve(segment);

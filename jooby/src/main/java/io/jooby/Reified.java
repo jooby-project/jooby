@@ -35,7 +35,9 @@ import io.jooby.internal.reflect.$Types;
  * @author Jesse Wilson
  */
 public class Reified<T> {
-  private final Class<? super T> rawType;
+  @SuppressWarnings("rawtypes")
+  private final Class rawType;
+
   private final Type type;
   private final int hashCode;
 
@@ -57,10 +59,9 @@ public class Reified<T> {
    *
    * @param type Generic type.
    */
-  @SuppressWarnings("unchecked")
   private Reified(Type type) {
     this.type = $Types.canonicalize(type);
-    this.rawType = (Class<? super T>) $Types.getRawType(this.type);
+    this.rawType = $Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
   }
 
@@ -69,6 +70,7 @@ public class Reified<T> {
    *
    * @param type Generic type.
    */
+  @SuppressWarnings("rawtypes")
   private Reified(Class type) {
     this.type = type;
     this.rawType = type;
@@ -96,7 +98,7 @@ public class Reified<T> {
    *
    * @return Returns the raw (non-generic) type for this type.
    */
-  public final @NonNull Class<? super T> getRawType() {
+  public final Class<? super T> getRawType() {
     return rawType;
   }
 
@@ -105,7 +107,7 @@ public class Reified<T> {
    *
    * @return Gets underlying {@code Type} instance.
    */
-  public final @NonNull Type getType() {
+  public final Type getType() {
     return type;
   }
 
@@ -130,7 +132,7 @@ public class Reified<T> {
    * @param type Source type.
    * @return Gets type literal for the given {@code Type} instance.
    */
-  public static @NonNull Reified<?> get(@NonNull Type type) {
+  public static Reified<?> get(@NonNull Type type) {
     return new Reified<>(type);
   }
 
@@ -140,7 +142,7 @@ public class Reified<T> {
    * @param type Type.
    * @return Raw type.
    */
-  public static @NonNull Class<?> rawType(@NonNull Type type) {
+  public static Class<?> rawType(@NonNull Type type) {
     if (type instanceof Class) {
       return (Class<?>) type;
     }
@@ -154,7 +156,7 @@ public class Reified<T> {
    * @param <T> Generic type.
    * @return Gets type literal for the given {@code Class} instance.
    */
-  public static @NonNull <T> Reified<T> get(@NonNull Class<T> type) {
+  public static <T> Reified<T> get(@NonNull Class<T> type) {
     return new Reified<>(type);
   }
 
@@ -165,8 +167,19 @@ public class Reified<T> {
    * @param <T> Item type.
    * @return A {@link List} type literal.
    */
-  public static @NonNull <T> Reified<List<T>> list(@NonNull Type type) {
-    return (Reified<List<T>>) getParameterized(List.class, type);
+  public static <T> Reified<List<T>> list(@NonNull Type type) {
+    return getParameterized(List.class, type);
+  }
+
+  /**
+   * Creates a {@link List} type literal.
+   *
+   * @param type Item type.
+   * @param <T> Item type.
+   * @return A {@link List} type literal.
+   */
+  public static <T> Reified<List<T>> list(@NonNull Reified<T> type) {
+    return getParameterized(List.class, type.getType());
   }
 
   /**
@@ -176,8 +189,19 @@ public class Reified<T> {
    * @param <T> Item type.
    * @return A {@link Set} type literal.
    */
-  public static @NonNull <T> Reified<Set<T>> set(@NonNull Type type) {
-    return (Reified<Set<T>>) getParameterized(Set.class, type);
+  public static <T> Reified<Set<T>> set(@NonNull Type type) {
+    return getParameterized(Set.class, type);
+  }
+
+  /**
+   * Creates a {@link Set} type literal.
+   *
+   * @param type Item type.
+   * @param <T> Item type.
+   * @return A {@link Set} type literal.
+   */
+  public static <T> Reified<Set<T>> set(@NonNull Reified<T> type) {
+    return getParameterized(Set.class, type.getType());
   }
 
   /**
@@ -187,8 +211,19 @@ public class Reified<T> {
    * @param <T> Item type.
    * @return A {@link Optional} type literal.
    */
-  public static @NonNull <T> Reified<Optional<T>> optional(@NonNull Type type) {
-    return (Reified<Optional<T>>) getParameterized(Optional.class, type);
+  public static <T> Reified<Optional<T>> optional(@NonNull Type type) {
+    return getParameterized(Optional.class, type);
+  }
+
+  /**
+   * Creates an {@link Optional} type literal.
+   *
+   * @param type Item type.
+   * @param <T> Item type.
+   * @return A {@link Optional} type literal.
+   */
+  public static <T> Reified<Optional<T>> optional(@NonNull Reified<T> type) {
+    return getParameterized(Optional.class, type.getType());
   }
 
   /**
@@ -200,8 +235,21 @@ public class Reified<T> {
    * @param <V> Key type.
    * @return A {@link Map} type literal.
    */
-  public static @NonNull <K, V> Reified<Map<K, V>> map(@NonNull Type key, @NonNull Type value) {
-    return (Reified<Map<K, V>>) getParameterized(Map.class, key, value);
+  public static <K, V> Reified<Map<K, V>> map(@NonNull Type key, @NonNull Type value) {
+    return getParameterized(Map.class, key, value);
+  }
+
+  /**
+   * Creates an {@link Map} type literal.
+   *
+   * @param key Key type.
+   * @param value Value type.
+   * @param <K> Key type.
+   * @param <V> Key type.
+   * @return A {@link Map} type literal.
+   */
+  public static <K, V> Reified<Map<K, V>> map(@NonNull Reified<K> key, @NonNull Reified<V> value) {
+    return getParameterized(Map.class, key.getType(), value.getType());
   }
 
   /**
@@ -211,8 +259,8 @@ public class Reified<T> {
    * @param <T> Item type.
    * @return A {@link CompletableFuture} type literal.
    */
-  public static @NonNull <T> Reified<CompletableFuture<T>> completableFuture(@NonNull Type type) {
-    return (Reified<CompletableFuture<T>>) getParameterized(CompletableFuture.class, type);
+  public static <T> Reified<CompletableFuture<T>> completableFuture(@NonNull Type type) {
+    return getParameterized(CompletableFuture.class, type);
   }
 
   /**
@@ -224,8 +272,22 @@ public class Reified<T> {
    * @return Gets type literal for the parameterized type represented by applying {@code
    *     typeArguments} to {@code rawType}.
    */
-  public static @NonNull Reified<?> getParameterized(
+  public static <T> Reified<T> getParameterized(
       @NonNull Type rawType, @NonNull Type... typeArguments) {
     return new Reified<>($Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
+  }
+
+  /**
+   * Gets type literal for the parameterized type represented by applying {@code typeArguments} to
+   * {@code rawType}.
+   *
+   * @param rawType Raw type.
+   * @param argument Parameter types.
+   * @return Gets type literal for the parameterized type represented by applying {@code
+   *     typeArguments} to {@code rawType}.
+   */
+  public static <T> Reified<T> getParameterized(
+      @NonNull Type rawType, @NonNull Reified<?> argument) {
+    return new Reified<>($Types.newParameterizedTypeWithOwner(null, rawType, argument.getType()));
   }
 }

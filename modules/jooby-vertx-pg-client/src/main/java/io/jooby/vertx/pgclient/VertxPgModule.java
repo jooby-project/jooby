@@ -10,9 +10,38 @@ import java.util.function.Supplier;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.vertx.sqlclient.VertxSqlClientModule;
 import io.vertx.core.json.JsonObject;
+import io.vertx.pgclient.PgBuilder;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.sqlclient.*;
 
+/**
+ * A reactive SQL Client for postgresql. See https://vertx.io/docs/vertx-pg-client/java/.
+ *
+ * <p>Define a connection string or explicit (key,value) pairs:
+ *
+ * <pre>{@code
+ * db = "postgresql://dbuser:secretpassword@localhost:5432/mydb"
+ * }</pre>
+ *
+ * <p>Key/value pairs:
+ *
+ * <pre>{@code
+ * db.host = localhost
+ * db.port = 5432
+ * db.database = mydb
+ * db.user = dbuser
+ * db.password = secretpassword
+ * }</pre>
+ *
+ * The default constructor creates a {@link PgBuilder#pool()}. To use the client version:
+ *
+ * <pre>{@code
+ * install(new VertxMySQLModule(PgBuilder::client));
+ * }</pre>
+ *
+ * @author edgar
+ * @since 4.0.8
+ */
 public class VertxPgModule extends VertxSqlClientModule {
 
   private final Supplier<ClientBuilder<? extends SqlClient>> builder;
@@ -25,6 +54,10 @@ public class VertxPgModule extends VertxSqlClientModule {
 
   public VertxPgModule(@NonNull Supplier<ClientBuilder<? extends SqlClient>> builder) {
     this("db", builder);
+  }
+
+  public VertxPgModule() {
+    this(PgBuilder::pool);
   }
 
   @Override

@@ -1,0 +1,71 @@
+==== {{sqlClient}}
+
+1) Add the dependency:
+
+[dependency, artifactId="{{artifactId}}"]
+.
+
+2) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.vertx.VertxServer;
+import io.jooby.vertx.{{moduleName}};
+import static io.jooby.vertx.VertxHandler.vertx;
+
+{
+  install(new {{moduleName}}());                           <2>
+  
+  use(vertx());                                                        <3>
+
+  get("/{id}", ctx -> {
+    var db = require(SqlClient.class);                                 <4>
+    return db.preparedQuery("SELECT id, name from World where id=$1")  <5>
+        .execute(Tuple.of(ctx.path("id").longValue()))
+        .map(result -> {
+          var row = result.iterator().next();
+          return new World(row.getInteger(0), row.getInteger(1));      <6>
+        });
+  });
+}
+
+public static void main(String[] args) {
+  runApp(args, new VertxServer(), EVENT_LOOP, MyApp::new);              <1>
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+---- 
+import io.jooby.vertx.VertxServer
+import io.jooby.vertx.{{moduleName}}
+import static io.jooby.vertx.VertxHandler.vertx
+
+{
+  install({{moduleName}}());                               <2>
+
+  use(vertx())                                                         <3>
+
+  get("/{id}") {
+    val db = require(SqlClient::class)                                 <4>
+    db.preparedQuery("SELECT id, name from World where id=$1")         <5>
+        .execute(Tuple.of(ctx.path("id").longValue()))
+        .map({ result ->
+          val row = result.iterator().next()
+          World(row.getInteger(0), row.getInteger(1))                  <6>
+        })
+  }
+}
+
+fun main(args: Array<String>) {
+  runApp(args, VertxServer(), EVENT_LOOP, ::MyApp)                     <1>
+}
+----
+
+<1> Install Vertx as web server
+<2> Install Sql connection client: {{sqlClient}
+<3> Install vertx handler. Render future, promise and buffer
+<4> Get SQL client instance, from Vertx event loop thread
+<5> Run a database query, from the same Vertx event loop thread
+<6> Run a database query, from the same Vertx event loop thread

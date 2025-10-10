@@ -139,7 +139,14 @@ public interface Server {
     }
   }
 
-  default Server init(Jooby application) {
+  default Server init(@NonNull Jooby application) {
+    var registry = application.getServices();
+    var options = getOptions();
+    options.setServer(getName());
+
+    registry.put(ServerOptions.class, options);
+    registry.put(Server.class, this);
+
     return this;
   }
 
@@ -274,15 +281,30 @@ public interface Server {
     if (servers.isEmpty()) {
       throw new StartupException("Server not found.");
     }
+    var index = 0;
     if (servers.size() > 1) {
-      var names =
-          servers.stream()
-              .map(it -> it.getClass().getSimpleName().toLowerCase())
-              .collect(Collectors.toList());
-      var log = LoggerFactory.getLogger(servers.get(0).getClass());
-      log.warn("Multiple servers found {}. Using: {}", names, names.get(0));
+      boolean warn = true;
+      if (servers.size() == 2) {
+        // Must be Netty and Vertx
+        var supported =
+            servers.stream()
+                .map(it -> it.getClass().getSimpleName())
+                .allMatch(it -> it.equals("NettyServer") || it.equals("VertxServer"));
+        if (supported) {
+          if (!servers.getFirst().getClass().getSimpleName().equals("VertxServer")) {
+            index = 1;
+          }
+          warn = false;
+        }
+        ;
+      }
+      if (warn) {
+        var names = servers.stream().map(Server::getName).collect(Collectors.toList());
+        var log = LoggerFactory.getLogger(servers.get(index).getClass());
+        log.warn("Multiple servers found {}. Using: {}", names, names.get(index));
+      }
     }
-    var server = servers.get(0);
+    var server = servers.get(index);
     return server.setOptions(options);
   }
 }

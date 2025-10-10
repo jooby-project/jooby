@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.reflect;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -14,10 +16,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * Static methods for working with types.
@@ -86,38 +85,24 @@ public final class $Types {
    * Returns a type that is functionally equal but not necessarily equal according to {@link
    * Object#equals(Object) Object.equals()}. The returned type is {@link java.io.Serializable}.
    */
-  public static Type canonicalize(Type type) {
-    if (type instanceof Class) {
-      Class<?> c = (Class<?>) type;
-      return c.isArray() ? new GenericArrayTypeImpl(canonicalize(c.getComponentType())) : c;
-
-    } else if (type instanceof ParameterizedType) {
-      ParameterizedType p = (ParameterizedType) type;
-      return new ParameterizedTypeImpl(
+  public static Type canonicalize(@NonNull Type type) {
+    return switch (type) {
+      case Class<?> c ->
+          c.isArray() ? new GenericArrayTypeImpl(canonicalize(c.getComponentType())) : c;
+      case ParameterizedType p -> new ParameterizedTypeImpl(
           p.getOwnerType(), p.getRawType(), p.getActualTypeArguments());
-
-    } else if (type instanceof GenericArrayType) {
-      GenericArrayType g = (GenericArrayType) type;
-      return new GenericArrayTypeImpl(g.getGenericComponentType());
-
-    } else if (type instanceof WildcardType) {
-      WildcardType w = (WildcardType) type;
-      return new WildcardTypeImpl(w.getUpperBounds(), w.getLowerBounds());
-
-    } else {
+      case GenericArrayType g -> new GenericArrayTypeImpl(g.getGenericComponentType());
+      case WildcardType w -> new WildcardTypeImpl(w.getUpperBounds(), w.getLowerBounds());
       // type is either serializable as-is or unsupported
-      return type;
-    }
+      default -> type;
+    };
   }
 
   public static Class<?> getRawType(Type type) {
     if (type instanceof Class<?>) {
       // type is a normal class.
       return (Class<?>) type;
-
-    } else if (type instanceof ParameterizedType) {
-      ParameterizedType parameterizedType = (ParameterizedType) type;
-
+    } else if (type instanceof ParameterizedType parameterizedType) {
       // I'm not exactly sure why getRawType() returns Type instead of Class.
       // Neal isn't either but suspects some pathological case related
       // to nested classes exists.
@@ -152,7 +137,7 @@ public final class $Types {
   }
 
   static boolean equal(Object a, Object b) {
-    return a == b || (a != null && a.equals(b));
+    return Objects.equals(a, b) || (a != null && a.equals(b));
   }
 
   /** Returns true if {@code a} and {@code b} are equal. */

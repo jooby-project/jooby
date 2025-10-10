@@ -2,6 +2,12 @@
 
 https://vertx.io/[Vertx] Reactive applications on the JVM.
 
+This module export the following services:
+
+- io.vertx.core.Vertx
+- io.vertx.core.eventbus.EventBus
+- io.vertx.core.file.FileSystem
+
 === Usage
 
 1) Add the dependency:
@@ -120,4 +126,132 @@ import io.jooby.vertx.VertxModule;
 }
 ----
 
-include::vertx-sql-client.adoc[]
+include::modules/vertx-sql-client.adoc[]
+
+== Vertx Server (Advanced)
+
+The javadoc:vertx.VertxServer[] allow you to share the Vertx acceptor and event loop groups within 
+the javadoc:netty.NettyServer[], so both vertx and netty web server implementation share the same
+resources. See https://vertx.io/docs/guides/advanced-vertx-guide/#integrating-netty[for more information].
+
+The vertx server must be manually provided at boot time (there is no service loader support for it):
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.vertx.VertxServer;
+
+{
+  get("/vertx", ctx -> {
+    return "Running from vertx event loop";
+  });
+}
+
+public static void main(String[] args) {
+  runApp(args, new VertxServer(), EVENT_LOOP, App::new);
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+---- 
+import io.jooby.vertx.VertxServer
+
+import io.jooby.vertx.VertxServer;
+
+{
+  get("/vertx") {
+    "Running from vertx event loop"
+  }
+}
+
+un main(args: Array<String>) {
+  runApp(args, VertxServer(), EVENT_LOOP, ::App)
+}
+----
+
+If you run multiple applications, they all share a single Vertx instance.
+
+[IMPORTANT]
+====
+*VertxModule must NOT be installed while running on VertxServer*
+====
+
+One of the main benefits of running on the VertxServer is to share/reuse the event loop threads.
+You can run non-blocking code on the Vertx event loop thread without context switch. A good example
+of this is to run within
+
+=== Sql Connection
+
+These modules exist as part of the performance tests required by https://www.techempower.com/benchmarks[Techempower].
+
+You are free to use them, but keep in mind they are for very specific kind of application.
+
+include::vertx-sql-connection.template[artifactId="jooby-vertx-mysql-client" sqlClient="MySQL" moduleName="VertxMySQLConnectionModule"]
+
+include::vertx-sql-connection.template[artifactId="jooby-vertx-pg-client" sqlClient="Postgres" moduleName="VertxPgConnectionModule"]
+
+
+==== How it works?
+
+There is an internal Verticle (one per IO threads) with a dedicated https://vertx.io/docs/apidocs/io/vertx/sqlclient/SqlConnection.html[SqlConnection]. This connection is only 
+accessible from a Vertx thread any attempt to access to the connection from a non Vertx thread
+will result in exception.
+
+Same applies for the https://vertx.io/docs/apidocs/io/vertx/sqlclient/PreparedStatement.html[PreparedStatement] / https://vertx.io/docs/apidocs/io/vertx/sqlclient/PreparedQuery.html[PreparedQuery] instances.
+
+.PreparedStatement example:
+[source,java]
+----
+import io.jooby.Reified;
+
+String SELECT_WORLD = "SELECT id, randomnumber from WORLD where id=$1";
+
+Reified<PreparedQuery<RowSet<Row>>> PreparedQueryType =
+    getParameterized(PreparedQuery.class, getParameterized(RowSet.class, Row.class));
+
+{
+  install(new VertxPgConnectionModule()
+     .preparedStatement(Map.of("selectWorld", List.of(SELECT_WORLD)))      <1>
+  );
+
+  use(vertx());                                                            <2>
+
+  var selectWorldQuery = ctx.require(PreparedQueryType, "selectWorld");    <3>
+  get("/world/{id}", ctx -> {
+    return selectWorldQuery.execute(Tuple.of(ctx.path("id").longValue()))
+          .map(
+              result -> {
+                var row = result.iterator().next();
+                return new World(row.getInteger(0), row.getInteger(1));
+              });
+  });
+}
+
+public static void main(String[] args) {
+  runApp(args, new VertxServer(), EVENT_LOOP, App::new);
+}
+----
+
+<1> Created a prepared statement. This is done when Verticle is deployed
+<2> Add Vertx handler, so it can render Future and Promise.
+<3> Get a reference to the prepared statement
+
+The line:
+
+    var selectWorldQuery = ctx.require(PreparedQueryType, "selectWorld");
+
+Allow you to get a reference/proxy to the prepared statement/query. The proxy will thrown an exception
+if you try to use from a non Vertx thread. The prepared statement is compiled when the Verticle
+is deployed (at application startup time).
+
+If you work with any of the dependency injection supported framework, you can inject the prepared
+statement like:
+
+[source,java]
+----
+@Inject
+public WorldRepository(@Named("selectWorld") PreparedQuery<RowSet<Row>> selectWorld) {
+  this.selectWorld = selectWorld;
+}
+----

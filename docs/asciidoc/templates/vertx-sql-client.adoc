@@ -1,0 +1,97 @@
+=== {{sqlClient}}
+
+1) Add the dependency:
+
+[dependency, artifactId="{{artifactId}}"]
+.
+
+2) Define connection string or key/value pairs details:
+
+.application.conf
+[source, properties]
+----
+db = {{sqlClient}}//dbuser:secretpassword@localhost:{{port}}/mydb
+----
+
+.application.conf
+[source, properties]
+----
+db.host = localhost
+db.port = {{port}}
+db.database = mydb
+db.user = dbuser
+db.password = secretpassword
+----
+
+3) Install
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.vertx.VertxModule;
+import io.jooby.vertx.{{moduleName}};
+import static io.jooby.vertx.VertxHandler.vertx;
+
+{
+  install(new VertxModule());                                          <1>
+  
+  install(new {{moduleName}}());                                     <2>
+  
+  use(vertx());                                                        <3>
+
+  get("/{id}", ctx -> {
+    var db = require(SqlClient.class);                                 <4>
+    return db.preparedQuery("SELECT id, name from World where id=$1")  <5>
+        .execute(Tuple.of(ctx.path("id").longValue()))
+        .map(result -> {
+          var row = result.iterator().next();
+          return new World(row.getInteger(0), row.getInteger(1));
+        });
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+---- 
+import io.jooby.vertx.VertxModule
+import io.jooby.vertx.{{moduleName}}
+import static io.jooby.vertx.VertxHandler.vertx
+
+{
+  install(VertxModule())                                               <1>
+
+  install({{moduleName}}());                                           <2>
+
+  use(vertx())                                                         <3>
+
+  get("/{id}") {
+    val db = require(SqlClient::class)                                 <4>
+    db.preparedQuery("SELECT id, name from World where id=$1")         <5>
+        .execute(Tuple.of(ctx.path("id").longValue()))
+        .map({ result ->
+          val row = result.iterator().next()
+          World(row.getInteger(0), row.getInteger(1))
+        })
+  }
+}
+----
+
+<1> Install Vertx
+<2> Install Sql Client: {{sqlClient}
+<3> Install vertx handler. Render future, promise and buffer
+<4> Get SQL client instance
+<5> Run a database query
+
+To use the client version of the driver:
+
+.Client
+[source, java]
+----
+
+{
+  ...
+  install(new {{moduleName}}({{builderName}}::client));
+  ...
+}
+----

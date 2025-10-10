@@ -12,6 +12,7 @@ public class JoobyExtensionRegistry implements ExtensionRegistry {
   @Override
   public void register(Asciidoctor asciidoctor) {
     asciidoctor.javaExtensionRegistry().block("dependency", DependencyProcessor.class);
+    asciidoctor.javaExtensionRegistry().includeProcessor(TemplateProcessor.class);
     asciidoctor.javaExtensionRegistry().inlineMacro("javadoc", JavadocProcessor.class);
     asciidoctor.javaExtensionRegistry().postprocessor(DocPostprocessor.class);
   }

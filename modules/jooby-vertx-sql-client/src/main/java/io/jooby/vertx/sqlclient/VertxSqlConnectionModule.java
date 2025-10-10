@@ -8,6 +8,7 @@ package io.jooby.vertx.sqlclient;
 import java.util.List;
 import java.util.Map;
 
+import com.typesafe.config.ConfigValueType;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.vertx.sqlclient.VertxPreparedQueryProxy;
@@ -17,23 +18,29 @@ import io.jooby.internal.vertx.sqlclient.VertxPreparedStatementProxyList;
 import io.vertx.core.Deployable;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.sqlclient.PreparedQuery;
-import io.vertx.sqlclient.PreparedStatement;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
+import io.vertx.core.json.JsonObject;
+import io.vertx.sqlclient.*;
 
 public abstract class VertxSqlConnectionModule implements Extension {
 
-  @SuppressWarnings("unchecked")
   private static final Reified<PreparedQuery<RowSet<Row>>> PreparedQueryType =
-      (Reified<PreparedQuery<RowSet<Row>>>)
-          Reified.getParameterized(
-              PreparedQuery.class, Reified.getParameterized(RowSet.class, Row.class).getType());
+      Reified.getParameterized(
+          PreparedQuery.class, Reified.getParameterized(RowSet.class, Row.class).getType());
 
   private static final Reified<List<PreparedQuery<RowSet<Row>>>> PreparedQueryTypeList =
       Reified.list(PreparedQueryType.getType());
 
   private Map<String, List<String>> preparedStatements = Map.of();
+
+  private final String name;
+
+  public VertxSqlConnectionModule(String name) {
+    this.name = name;
+  }
+
+  public VertxSqlConnectionModule() {
+    this("db");
+  }
 
   public VertxSqlConnectionModule prepare(@NonNull Map<String, List<String>> statements) {
     preparedStatements = statements;
@@ -41,8 +48,17 @@ public abstract class VertxSqlConnectionModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public final void install(@NonNull Jooby application) throws Exception {
     var registry = application.getServices();
+    var config = application.getConfig();
+    var configOptions = config.getValue(name);
+    SqlConnectOptions connectOptions;
+    if (configOptions.valueType() == ConfigValueType.STRING) {
+      connectOptions = fromUri(config.getString(name));
+    } else {
+      connectOptions = fromMap(new JsonObject(config.getObject(name).unwrapped()));
+    }
+
     // Allow to get a prepared statement reference, which only works from a Vert.x thread
     for (var name : preparedStatements.keySet()) {
       // Prepared statements
@@ -58,13 +74,23 @@ public abstract class VertxSqlConnectionModule implements Extension {
       registry.put(
           ServiceKey.key(PreparedQueryType, name), new VertxPreparedQueryProxy(name + ".query"));
     }
-    var instances = application.getServerOptions().getIoThreads();
     var vertx = registry.require(Vertx.class);
-    var options = new DeploymentOptions().setInstances(instances);
-    var connection = vertx.deployVerticle(() -> newSqlClient(preparedStatements), options);
+    var options =
+        new DeploymentOptions().setInstances(application.getServerOptions().getIoThreads());
+    var connection =
+        vertx.deployVerticle(() -> newSqlClient(connectOptions, preparedStatements), options);
+
+    install(application, name, connectOptions);
     // wait for success or fail
     connection.await();
   }
 
-  protected abstract Deployable newSqlClient(Map<String, List<String>> preparedStatements);
+  protected abstract void install(Jooby application, String key, SqlConnectOptions options);
+
+  protected abstract SqlConnectOptions fromMap(JsonObject config);
+
+  protected abstract SqlConnectOptions fromUri(String uri);
+
+  protected abstract Deployable newSqlClient(
+      SqlConnectOptions options, Map<String, List<String>> preparedStatements);
 }

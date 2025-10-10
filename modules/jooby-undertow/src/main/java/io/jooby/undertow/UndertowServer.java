@@ -60,7 +60,6 @@ public class UndertowServer extends Server.Base {
   private OutputFactory outputFactory;
 
   public UndertowServer(@NonNull ServerOptions options) {
-    options.setServer(NAME);
     setOptions(options);
   }
 
@@ -74,23 +73,18 @@ public class UndertowServer extends Server.Base {
     return outputFactory;
   }
 
-  @NonNull @Override
+  @Override
   public String getName() {
     return NAME;
   }
 
   @Override
-  public @NonNull Server start(@NonNull Jooby... application) {
+  public Server start(@NonNull Jooby... application) {
     // force options to be non-null
     var options = getOptions();
     var portInUse = options.getPort();
     try {
       this.applications = List.of(application);
-
-      for (var app : applications) {
-        app.getServices().put(ServerOptions.class, options);
-        app.getServices().put(Server.class, this);
-      }
 
       addShutdownHook();
 
@@ -185,7 +179,7 @@ public class UndertowServer extends Server.Base {
     }
   }
 
-  @NonNull @Override
+  @Override
   public List<String> getLoggerOff() {
     return List.of("org.xnio", "io.undertow", "org.jboss.threads");
   }
@@ -198,7 +192,7 @@ public class UndertowServer extends Server.Base {
     };
   }
 
-  @NonNull @Override
+  @Override
   public synchronized Server stop() {
     try {
       fireStop(applications);

@@ -1,4 +1,7 @@
-/** Reactor module */
+import io.jooby.Server;
+import io.jooby.vertx.VertxServer;
+
+/** Vertx module */
 module io.jooby.vertx {
   exports io.jooby.vertx;
 
@@ -9,4 +12,7 @@ module io.jooby.vertx {
   requires org.slf4j;
   requires static com.github.spotbugs.annotations;
   requires jakarta.inject;
+
+  provides Server with
+      VertxServer;
 }

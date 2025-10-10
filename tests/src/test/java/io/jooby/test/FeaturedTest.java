@@ -1762,7 +1762,12 @@ public class FeaturedTest {
             })
         .ready(
             client -> {
-              String serverHeader = String.valueOf(runner.getServer().charAt(0));
+              String serverHeader =
+                  Optional.of(runner.getServer())
+                      .filter("Vertx"::equals)
+                      // Vertx is Netty
+                      .map(server -> "N")
+                      .orElse(String.valueOf(runner.getServer().charAt(0)));
               client.get(
                   "/",
                   rsp -> {
@@ -4031,14 +4036,15 @@ public class FeaturedTest {
 
               app.get(
                   "/stream",
-                  ctx ->
-                      ctx.responseStream(
-                          text,
-                          out -> {
-                            IOUtils.copyLarge(
-                                new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)),
-                                out);
-                          }));
+                  ctx -> {
+                    return ctx.responseStream(
+                        text,
+                        out -> {
+                          IOUtils.copyLarge(
+                              new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)),
+                              out);
+                        });
+                  });
 
               app.get(
                   "/status",

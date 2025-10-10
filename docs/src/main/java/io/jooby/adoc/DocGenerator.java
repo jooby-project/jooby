@@ -91,7 +91,7 @@ public class DocGenerator {
 
         asciidoctor.convertFile(
             asciidoc.resolve("index.adoc").toFile(),
-            createOptions(asciidoc, outdir, version, null));
+            createOptions(asciidoc, outdir, version, null, asciidoc.resolve("index.adoc")));
         var index = outdir.resolve("index.html");
         Files.writeString(index, hljs(Files.readString(index)));
         pb.step();
@@ -209,7 +209,7 @@ public class DocGenerator {
           && !moduleName.equals("packaging")) {
         title += " module";
       }
-      Options options = createOptions(basedir, outdir, version, title);
+      Options options = createOptions(basedir, outdir, version, title, module);
 
       asciidoctor.convertFile(module.toFile(), options);
 
@@ -237,10 +237,11 @@ public class DocGenerator {
         .replace("hljs.initHighlighting.called = true", "hljs.configure({ignoreUnescapedHTML: true});hljs.initHighlighting.called = true");
   }
 
-  private static Options createOptions(Path basedir, Path outdir, String version, String title)
+  private static Options createOptions(Path basedir, Path outdir, String version, String title, Path docfile)
       throws IOException {
     var attributes = Attributes.builder();
 
+    attributes.attribute("docfile", docfile.toString());
     attributes.attribute("love", "&#9825;");
     attributes.attribute("docinfo", "shared");
     attributes.title(title == null ? "jooby: do more! more easily!!" : "jooby: " + title);
@@ -262,7 +263,7 @@ public class DocGenerator {
     attributes.sourceHighlighter("highlightjs");
     attributes.attribute("highlightjsdir", "js");
     // agate, tom-one-dark, tomorrow-night-bright, tokyo-night-dark
-    attributes.attribute("highlightjs-theme", "tomorrow-night-bright");
+    attributes.attribute("highlightjs-theme", "agate");
     attributes.attribute("favicon", "images/favicon96.png");
 
     // versions:

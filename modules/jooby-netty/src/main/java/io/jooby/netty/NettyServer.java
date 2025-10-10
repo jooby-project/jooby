@@ -85,8 +85,7 @@ public class NettyServer extends Server.Base {
 
   /** Creates a server. */
   public NettyServer(@NonNull ServerOptions options) {
-    super.setOptions(options);
-    options.setServer(NAME);
+    setOptions(options);
   }
 
   public NettyServer() {}
@@ -123,11 +122,6 @@ public class NettyServer extends Server.Base {
     var portInUse = options.getPort();
     try {
       this.applications = List.of(application);
-      /* Worker: Application blocking code */
-      if (worker == null) {
-        worker = newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
-      }
-      // Make sure context use same buffer factory
       for (var app : applications) {
         app.getServices().put(ServerOptions.class, options);
         app.getServices().put(Server.class, this);
@@ -135,16 +129,22 @@ public class NettyServer extends Server.Base {
 
       addShutdownHook();
 
-      fireStart(List.of(application), worker);
-
       var classLoader = applications.get(0).getClassLoader();
 
       var transport = NettyTransport.transport(classLoader);
+
       eventLoop = createEventLoopGroup();
       if (eventLoop == null) {
+        if (worker == null) {
+          worker =
+              newFixedThreadPool(options.getWorkerThreads(), new DefaultThreadFactory("worker"));
+        }
         eventLoop =
-            new NettyEventLoopGroupImpl(transport, singleEventLoopGroup, options.getIoThreads());
+            new NettyEventLoopGroupImpl(
+                transport, singleEventLoopGroup, options.getIoThreads(), worker);
       }
+
+      fireStart(List.of(application), eventLoop.worker());
 
       var outputFactory = (NettyOutputFactory) getOutputFactory();
       var allocator = outputFactory.getAllocator();
@@ -173,6 +173,7 @@ public class NettyServer extends Server.Base {
 
       fireReady(applications);
     } catch (InterruptedException x) {
+      Thread.currentThread().interrupt();
       throw SneakyThrows.propagate(x);
     } catch (ExecutionException x) {
       var cause = x.getCause();
@@ -194,7 +195,7 @@ public class NettyServer extends Server.Base {
       NettyPipeline factory,
       NettyEventLoopGroup group) {
     return transport
-        .configure(group.getParent(), group.getChild())
+        .configure(group.acceptor(), group.eventLoop())
         .childHandler(factory)
         .childOption(ChannelOption.ALLOCATOR, allocator)
         .childOption(ChannelOption.SO_REUSEADDR, true)
@@ -237,10 +238,6 @@ public class NettyServer extends Server.Base {
 
     if (eventLoop != null) {
       eventLoop.shutdown();
-    }
-    if (worker != null) {
-      worker.shutdown();
-      worker = null;
     }
     return this;
   }

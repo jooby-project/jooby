@@ -1,0 +1,9 @@
+== Sql Client
+
+A https://github.com/eclipse-vertx/vertx-sql-client[reactive SQL Client]. Supported databases:
+
+- MySQL
+
+These modules require a Vertx instance available in the service registry.
+
+include::vertx-sql-client.template[artifactId="jooby-vertx-mysql-client" sqlClient="MySQL" moduleName="VertxMySQLModule" builderName="MySQLBuilder"]

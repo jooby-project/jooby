@@ -10,37 +10,71 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.internal.vertx.VertxEventLoopGroup;
+import io.jooby.internal.vertx.VertxRegistry;
 import io.jooby.netty.NettyEventLoopGroup;
 import io.jooby.netty.NettyServer;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import io.vertx.core.eventbus.EventBus;
 
+/**
+ * Just a {@link NettyServer} server with a shared event loop group from <a
+ * href="https://vertx.io/">Vertx</a>.
+ *
+ * <p>The following services are accessible from application registry:
+ *
+ * <ul>
+ *   <li>{@link Vertx}
+ *   <li>{@link io.vertx.core.eventbus.EventBus}
+ *   <li>{@link io.vertx.core.file.FileSystem}
+ * </ul>
+ *
+ * @author edgar
+ * @since 4.0.8
+ */
 public class VertxServer extends NettyServer {
   private Vertx vertx;
 
+  /**
+   * Creates a new vertx server.
+   *
+   * @param vertx Use the provided vertx instance.
+   */
   public VertxServer(@NonNull Vertx vertx) {
     this.vertx = vertx;
   }
 
+  /**
+   * Creates a new vertx server.
+   *
+   * @param options Use the provided vertx options.
+   */
   public VertxServer(@NonNull VertxOptions options) {
     this(Vertx.vertx(options));
   }
 
+  /**
+   * Creates a new vertx server with prefer native transport on and event loop size matching the
+   * number of ioThreads from server options.
+   */
   public VertxServer() {}
 
   @Override
-  public @NonNull Server init(Jooby application) {
+  public Server init(@NonNull Jooby application) {
     if (this.vertx == null) {
       var nThreads = getOptions().getIoThreads();
       var options =
           new VertxOptions().setPreferNativeTransport(true).setEventLoopPoolSize(nThreads);
       this.vertx = Vertx.vertx(options);
     }
-    var registry = application.getServices();
-    registry.put(Vertx.class, vertx);
-    registry.put(EventBus.class, vertx.eventBus());
+
+    VertxRegistry.init(application.getServices(), vertx);
+
     return super.init(application);
+  }
+
+  @Override
+  public String getName() {
+    return "vertx";
   }
 
   @Nullable @Override
@@ -49,7 +83,7 @@ public class VertxServer extends NettyServer {
   }
 
   @Override
-  public synchronized @NonNull Server stop() {
+  public synchronized Server stop() {
     super.stop();
     if (vertx != null) {
       vertx.close().await();

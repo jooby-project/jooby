@@ -7,15 +7,15 @@ package examples.vertx;
 
 import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.MediaType.JSON;
+import static io.jooby.Reified.getParameterized;
 import static java.util.stream.IntStream.range;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-import io.jooby.Context;
-import io.jooby.Jooby;
-import io.jooby.Reified;
-import io.jooby.ServerOptions;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+import io.jooby.*;
 import io.jooby.guice.GuiceModule;
 import io.jooby.vertx.VertxServer;
 import io.jooby.vertx.pgclient.VertxPgConnectionModule;
@@ -28,34 +28,34 @@ public class VertxSqlConnectionApp extends Jooby {
   private static final String SELECT_WORLD = "SELECT id, randomnumber from WORLD where id=$1";
   private static final String SELECT_FORTUNE = "SELECT id, message from FORTUNE";
 
-  @SuppressWarnings("unchecked")
   private static final Reified<PreparedQuery<RowSet<Row>>> PreparedQueryType =
-      (Reified<PreparedQuery<RowSet<Row>>>)
-          Reified.getParameterized(
-              PreparedQuery.class, Reified.getParameterized(RowSet.class, Row.class).getType());
+      getParameterized(PreparedQuery.class, getParameterized(RowSet.class, Row.class));
 
   private static final Reified<List<PreparedQuery<RowSet<Row>>>> PreparedQueryTypeList =
-      Reified.list(PreparedQueryType.getType());
+      Reified.list(PreparedQueryType);
 
   private final PreparedQuery<RowSet<Row>> selectWorldQuery;
-  private final PreparedQuery<RowSet<Row>> selectFortuneQuery;
   private final List<PreparedQuery<RowSet<Row>>> updateWorldQuery;
   private final SqlClientInternal sqlClient;
 
   {
-    var pgOptions =
-        new io.vertx.pgclient.PgConnectOptions()
-            .setHost("localhost")
-            .setPort(5432)
-            .setDatabase("hello_world")
-            .setUser("benchmarkdbuser")
-            .setPassword("benchmarkdbpass");
+    getEnvironment()
+        .setConfig(
+            getConfig()
+                .withFallback(
+                    ConfigFactory.empty()
+                        .withValue("db.host", ConfigValueFactory.fromAnyRef("localhost"))
+                        .withValue("db.port", ConfigValueFactory.fromAnyRef(5432))
+                        .withValue("db.pipeliningLimit", ConfigValueFactory.fromAnyRef(16))
+                        .withValue("db.database", ConfigValueFactory.fromAnyRef("hello_world"))
+                        .withValue("db.user", ConfigValueFactory.fromAnyRef("benchmarkdbuser"))
+                        .withValue(
+                            "db.password", ConfigValueFactory.fromAnyRef("benchmarkdbpass"))));
 
-    install(new VertxPgConnectionModule(pgOptions).prepare(statements()));
+    install(new VertxPgConnectionModule().prepare(statements()));
     install(new GuiceModule());
 
     this.selectWorldQuery = require(PreparedQueryType, "selectWorld");
-    this.selectFortuneQuery = require(PreparedQueryType, "selectFortune");
     this.updateWorldQuery = require(PreparedQueryTypeList, "updateWorld");
     this.sqlClient = require(SqlClientInternal.class);
 

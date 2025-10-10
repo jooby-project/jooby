@@ -4,6 +4,7 @@ There are three server implementations:
 
 - javadoc:jetty.JettyServer[artifact=jooby-jetty]
 - javadoc:netty.NettyServer[artifact=jooby-netty]
+- javadoc:vertx.VertxServer[artifact=jooby-vertx]
 - javadoc:undertow.UndertowServer[artifact=jooby-undertow]
 
 Servers are automatically registered based on their presence on the project classpath.
@@ -22,6 +23,14 @@ To use Undertow, add the dependency:
 
 [dependency, artifactId="jooby-undertow"]
 .
+
+To use Vertx, add the dependency:
+
+[dependency, artifactId="jooby-vertx"]
+
+.
+
+The javadoc:vertx.VertxServer[] setup is fully described link:/modules/vertx#vertx-server-advanced[here].
 
 [IMPORTANT]
 ====
@@ -62,7 +71,7 @@ first setup wins.
 
 === Manual setup
 
-Servers are automatically loaded using `ServiceLoader` API. If you need to add it manually:
+Servers are automatically loaded using `ServiceLoader` API:
 
 .Server
 [source,java,role="primary"]

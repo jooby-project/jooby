@@ -5,22 +5,14 @@
  */
 package io.jooby.junit;
 
-import static java.util.stream.StreamSupport.stream;
-
-import java.util.ServiceLoader;
-
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.jetty.JettyServer;
 import io.jooby.netty.NettyServer;
 import io.jooby.undertow.UndertowServer;
+import io.jooby.vertx.VertxServer;
 
-public class ServerProvider {
-  private Class serverClass;
-
-  public ServerProvider(Class serverClass) {
-    this.serverClass = serverClass;
-  }
+public record ServerProvider(Class<?> serverClass) {
 
   public boolean matchesEventLoopThread(String threadName) {
     if (serverClass == JettyServer.class) {
@@ -32,6 +24,9 @@ public class ServerProvider {
     if (serverClass == UndertowServer.class) {
       return threadName.startsWith("worker I/O");
     }
+    if (serverClass == VertxServer.class) {
+      return threadName.startsWith("vert.x-");
+    }
     return false;
   }
 
@@ -40,14 +35,26 @@ public class ServerProvider {
   }
 
   public Server get(ServerOptions options) {
-    var server =
-        stream(ServiceLoader.load(Server.class).spliterator(), false)
-            .filter(s -> serverClass.isInstance(s))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Server not found: " + serverClass));
+    Server server = createServer(serverClass);
     if (options != null) {
       server.setOptions(options);
     }
     return server;
+  }
+
+  private Server createServer(Class<?> serverClass) {
+    if (serverClass == JettyServer.class) {
+      return new JettyServer();
+    }
+    if (serverClass == NettyServer.class) {
+      return new NettyServer();
+    }
+    if (serverClass == UndertowServer.class) {
+      return new UndertowServer();
+    }
+    if (serverClass == VertxServer.class) {
+      return new VertxServer();
+    }
+    throw new IllegalArgumentException("Server not found: " + serverClass);
   }
 }

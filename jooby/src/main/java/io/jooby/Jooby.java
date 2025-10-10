@@ -138,12 +138,12 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  @NonNull @Override
+  @Override
   public RouterOptions getRouterOptions() {
     return router.getRouterOptions();
   }
 
-  @NonNull public Jooby setRouterOptions(@NonNull RouterOptions options) {
+  public Jooby setRouterOptions(@NonNull RouterOptions options) {
     router.setRouterOptions(options);
     return this;
   }
@@ -1204,8 +1204,8 @@ public class Jooby implements Router, Registry {
     // TODO: Add new way to override server options mainly from system properties/environment
     //  variables. Probably by adding a new config file: server.conf
     // configMap.putAll(System.getenv());
-    var options = ServerOptions.from(ConfigFactory.parseMap(configMap)).orElse(null);
-    runApp(args, Server.loadServer(), options, executionMode, provider);
+    var options = ServerOptions.from(ConfigFactory.parseMap(configMap)).orElse(new ServerOptions());
+    runApp(args, Server.loadServer(options), options, executionMode, provider);
   }
 
   /**

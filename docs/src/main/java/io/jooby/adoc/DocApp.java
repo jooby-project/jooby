@@ -48,8 +48,7 @@ public class DocApp extends Jooby {
 
     DocGenerator.generate(basedir, false, Arrays.asList(args).contains("v1"), true);
 
-    Server server = Server.loadServer();
-    server.setOptions(new ServerOptions().setPort(4000));
+    Server server = Server.loadServer(new ServerOptions().setPort(4000));
 
     runApp(args, server, DocApp::new);
 

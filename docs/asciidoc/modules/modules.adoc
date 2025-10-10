@@ -26,6 +26,8 @@ Available modules are listed next.
    * link:/modules/jdbi[Jdbi]: Jdbi module.
    * link:/modules/kafka[Kafka]: Kafka module.
    * link:/modules/redis[Redis]: Redis module.
+   * link:/modules/vertx-mysql-client[Vertx mySQL client]: Vertx reactive mySQL client module.
+   * link:/modules/vertx-pg-client[Vertx Postgres client]: Vertx reactive Postgres client module.
 
 === Validation
    * link:/modules/avaje-validator[Avaje Validator]: Avaje Validator module.

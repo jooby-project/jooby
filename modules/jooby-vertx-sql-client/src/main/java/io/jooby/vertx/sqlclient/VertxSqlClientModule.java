@@ -24,9 +24,9 @@ public abstract class VertxSqlClientModule implements Extension {
   @Override
   public void install(@NonNull Jooby application) throws Exception {
     var registry = application.getServices();
-    SqlConnectOptions options;
     var config = application.getConfig();
     var configOptions = config.getValue(name);
+    SqlConnectOptions options;
     if (configOptions.valueType() == ConfigValueType.STRING) {
       options = fromUri(config.getString(name));
     } else {

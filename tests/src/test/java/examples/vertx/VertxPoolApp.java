@@ -10,11 +10,12 @@ import java.util.List;
 
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.jackson.JacksonModule;
-import io.jooby.netty.NettyServer;
 import io.jooby.vertx.VertxHandler;
 import io.jooby.vertx.VertxModule;
+import io.jooby.vertx.VertxServer;
 import io.jooby.vertx.pgclient.VertxPgModule;
 import io.vertx.core.Promise;
 import io.vertx.pgclient.PgBuilder;
@@ -86,6 +87,6 @@ public class VertxPoolApp extends Jooby {
   }
 
   public static void main(String[] args) throws InterruptedException {
-    runApp(args, new NettyServer(), VertxPoolApp::new);
+    runApp(args, new VertxServer(), ExecutionMode.EVENT_LOOP, VertxPoolApp::new);
   }
 }

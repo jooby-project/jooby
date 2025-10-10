@@ -8,7 +8,6 @@ package io.jooby.vertx.pgclient;
 import java.util.List;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.internal.vertx.pgclient.VertxPgConnectionProxy;
@@ -16,29 +15,64 @@ import io.jooby.internal.vertx.sqlclient.VertxSqlClientProvider;
 import io.jooby.internal.vertx.sqlclient.VertxSqlConnectionVerticle;
 import io.jooby.vertx.sqlclient.VertxSqlConnectionModule;
 import io.vertx.core.Deployable;
+import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgConnection;
+import io.vertx.sqlclient.SqlConnectOptions;
 import io.vertx.sqlclient.impl.SqlClientInternal;
 
+/**
+ * These modules exist as part of the performance tests required by <a
+ * href="https://www.techempower.com/benchmarks">Techempower</a>.
+ *
+ * <p>Define a connection string or explicit (key,value) pairs:
+ *
+ * <pre>{@code
+ * db = "postgresql://dbuser:secretpassword@localhost:5432/mydb"
+ * }</pre>
+ *
+ * <p>Key/value pairs:
+ *
+ * <pre>{@code
+ * db.host = localhost
+ * db.port = 5432
+ * db.database = mydb
+ * db.user = dbuser
+ * db.password = secretpassword
+ * }</pre>
+ *
+ * <p>There is an internal Verticle (one per IO threads) with a dedicated SqlConnection. This
+ * connection is only accessible from a Vertx thread any attempt to access to the connection from a
+ * non Vertx thread will result in exception.
+ *
+ * <p>Same applies for the {@link io.vertx.sqlclient.PreparedStatement}/{@link
+ * io.vertx.sqlclient.PreparedQuery} instances.
+ *
+ * @author edgar
+ * @since 4.0.8
+ */
 public class VertxPgConnectionModule extends VertxSqlConnectionModule {
 
-  private final PgConnectOptions options;
-  private final String name;
-
-  public VertxPgConnectionModule(String name, PgConnectOptions options) {
-    this.name = name;
-    this.options = options;
+  /**
+   * Creates a mysql connection using the provided name as key.
+   *
+   * @param name Name of the configuration property to read. Can be a connection uri or a json
+   *     object like.
+   */
+  public VertxPgConnectionModule(String name) {
+    super(name);
   }
 
-  public VertxPgConnectionModule(PgConnectOptions options) {
-    this("db", options);
+  /**
+   * Creates a mysql connection. On application configuration there must be a <code>db</code> entry.
+   */
+  public VertxPgConnectionModule() {
+    this("db");
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
-    super.install(application);
-
+  protected void install(Jooby application, String name, SqlConnectOptions options) {
     var registry = application.getServices();
     var pgConnection = new VertxPgConnectionProxy(options.getDatabase());
     var provider = new VertxSqlClientProvider(options.getDatabase());
@@ -50,7 +84,19 @@ public class VertxPgConnectionModule extends VertxSqlConnectionModule {
   }
 
   @Override
-  protected Deployable newSqlClient(Map<String, List<String>> preparedStatements) {
-    return new VertxSqlConnectionVerticle<>(PgConnection::connect, options, preparedStatements);
+  protected SqlConnectOptions fromMap(JsonObject config) {
+    return new PgConnectOptions(config);
+  }
+
+  @Override
+  protected SqlConnectOptions fromUri(String uri) {
+    return PgConnectOptions.fromUri(uri);
+  }
+
+  @Override
+  protected Deployable newSqlClient(
+      SqlConnectOptions options, Map<String, List<String>> preparedStatements) {
+    return new VertxSqlConnectionVerticle<>(
+        PgConnection::connect, (PgConnectOptions) options, preparedStatements);
   }
 }

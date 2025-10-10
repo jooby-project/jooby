@@ -2,6 +2,7 @@ package io.jooby.adoc;
 
 import static java.util.function.Predicate.not;
 
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.UUID;
 import org.asciidoctor.extension.Postprocessor;
@@ -27,8 +28,9 @@ public class DocPostprocessor extends Postprocessor {
       settings.indentAmount(0);
       settings.outline(false);
       return doc.outputSettings(settings).outerHtml();
-    } catch (NullPointerException x) {
-      throw new IllegalStateException("File: " + document.getDoctitle(), x);
+    } catch (RuntimeException x) {
+      x.addSuppressed(new IOException((String) document.getAttribute("docfile")));
+      throw x;
     }
   }
 

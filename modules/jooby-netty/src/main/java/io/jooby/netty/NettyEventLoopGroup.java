@@ -5,12 +5,32 @@
  */
 package io.jooby.netty;
 
+import java.util.concurrent.ExecutorService;
+
 import io.netty.channel.EventLoopGroup;
 
+/** Allow to customize netty event loop group and worker executor. */
 public interface NettyEventLoopGroup {
-  EventLoopGroup getParent();
+  /**
+   * Acceptor or parent event loop group.
+   *
+   * @return Acceptor or parent event loop group.
+   */
+  EventLoopGroup acceptor();
 
-  EventLoopGroup getChild();
+  /**
+   * IO or child event loop group.
+   *
+   * @return IO or child event loop group.
+   */
+  EventLoopGroup eventLoop();
+
+  /**
+   * Worker executor.
+   *
+   * @return Worker executor.
+   */
+  ExecutorService worker();
 
   void shutdown();
 }
