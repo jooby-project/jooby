@@ -5,13 +5,13 @@
  */
 package io.jooby.i3765;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
@@ -39,7 +39,8 @@ public class Issue3765 {
                   "/3765",
                   rsp -> {
                     assertEquals(200, rsp.code());
-                    assertEquals("56832", rsp.header("Content-Length"));
+                    // Unix vs Windows
+                    assertTrue(Set.of("56832", "56928").contains(rsp.header("Content-Length")));
                   });
               while (Files.exists(path)) {
                 Thread.sleep(10);
