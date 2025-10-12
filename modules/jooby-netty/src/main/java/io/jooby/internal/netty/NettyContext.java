@@ -169,6 +169,10 @@ public class NettyContext implements DefaultContext {
       this.streamId = req.headers().get(STREAM_ID);
       ifStreamId(this.streamId);
     }
+    if (!HttpUtil.isKeepAlive(req)) {
+      setHeaders.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
+      getOrCreateResponsePromise().addListener(ChannelFutureListener.CLOSE);
+    }
   }
 
   @NonNull @Override
