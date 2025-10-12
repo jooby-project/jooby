@@ -10,8 +10,6 @@ import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpResponse;
@@ -20,7 +18,6 @@ import io.netty.handler.codec.http.LastHttpContent;
 public class NettyOutputStream extends OutputStream {
   private final ByteBuf buffer;
   private final NettyContext ctx;
-  private final ChannelFutureListener closeListener;
   private HttpResponse headers;
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -29,7 +26,6 @@ public class NettyOutputStream extends OutputStream {
     this.ctx = ctx;
     this.buffer = context.alloc().heapBuffer(bufferSize, bufferSize);
     this.headers = headers;
-    this.closeListener = ctx;
   }
 
   @Override
@@ -75,7 +71,7 @@ public class NettyOutputStream extends OutputStream {
             writeHeaders(context);
             context.write(new DefaultHttpContent(chunk), context.voidPromise());
             if (close) {
-              context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(closeListener);
+              context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT, ctx.promise());
             }
           });
       if (!close) {
@@ -86,10 +82,8 @@ public class NettyOutputStream extends OutputStream {
       ctx.connection.write(
           context -> {
             writeHeaders(context);
-            ChannelFuture future = context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-            if (close) {
-              future.addListener(closeListener);
-            }
+            var promise = close ? ctx.promise() : context.voidPromise();
+            context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT, promise);
           });
     }
   }

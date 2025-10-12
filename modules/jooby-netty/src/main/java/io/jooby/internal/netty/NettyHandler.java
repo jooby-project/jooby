@@ -84,7 +84,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         if (contentLength > 0 || isTransferEncodingChunked(req)) {
           context.httpDataFactory = new DefaultHttpDataFactory(bufferSize);
           context.httpDataFactory.setBaseDir(app.getTmpdir().toString());
-          context.decoder = newDecoder(req, context.httpDataFactory);
+          context.setDecoder(newDecoder(req, context.httpDataFactory));
         } else {
           // no body, move on
           router.match(context).execute(context);

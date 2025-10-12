@@ -44,7 +44,7 @@ public class NettySender implements Sender {
 
   @Override
   public void close() {
-    context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ctx);
+    context.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT, ctx.promise());
     ctx.requestComplete();
   }
 
@@ -58,7 +58,7 @@ public class NettySender implements Sender {
         try {
           callback.onComplete(ctx, cause);
         } finally {
-          ctx.destroy(cause);
+          ctx.log(cause);
         }
       }
     };

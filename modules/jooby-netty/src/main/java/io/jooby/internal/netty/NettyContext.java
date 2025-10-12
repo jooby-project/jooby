@@ -14,7 +14,6 @@ import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
 import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
-import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -36,12 +35,13 @@ import java.util.stream.Stream;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 
+import org.slf4j.Logger;
+
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.Cookie;
-import io.jooby.FileUpload;
 import io.jooby.output.Output;
 import io.jooby.value.Value;
 import io.netty.buffer.ByteBuf;
@@ -66,22 +66,51 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.IllegalReferenceCountException;
 
-public class NettyContext implements DefaultContext, ChannelFutureListener {
+public class NettyContext implements DefaultContext {
 
-  private interface DeleteFileTask {
-    void delete() throws IOException;
+  private static class DestroyDecoder implements ChannelFutureListener {
 
-    static DeleteFileTask of(FileUpload file) {
-      return file::close;
+    private final Logger log;
+
+    private InterfaceHttpPostRequestDecoder decoder;
+
+    public DestroyDecoder(Logger log, InterfaceHttpPostRequestDecoder decoder) {
+      this.log = log;
+      this.decoder = decoder;
     }
 
-    static DeleteFileTask of(FileDownload file) {
-      return () -> {
-        var path = file.getFile();
-        if (path != null) {
-          Files.delete(path);
-        }
-      };
+    @Override
+    public void operationComplete(ChannelFuture future) {
+      try {
+        decoder.destroy();
+      } catch (IllegalReferenceCountException ex) {
+        log.trace("decoder was released already", ex);
+      } catch (Exception ex) {
+        log.debug("body decoder destroy resulted in exception", ex);
+      }
+      decoder = null;
+    }
+  }
+
+  private static class DeleteFileTask implements ChannelFutureListener {
+
+    private final Logger log;
+    private final String filePath;
+    private final SneakyThrows.Runnable deleteTask;
+
+    public DeleteFileTask(Logger log, String filePath, SneakyThrows.Runnable deleteTask) {
+      this.log = log;
+      this.filePath = filePath;
+      this.deleteTask = deleteTask;
+    }
+
+    @Override
+    public void operationComplete(ChannelFuture future) {
+      try {
+        deleteTask.run();
+      } catch (Exception ex) {
+        log.debug("deletion of {} resulted in exception", filePath, ex);
+      }
     }
   }
 
@@ -102,7 +131,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private boolean responseStarted;
   private QueryString query;
   private Formdata formdata;
-  private List<DeleteFileTask> files;
   private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
@@ -118,8 +146,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private String host;
   private String scheme;
   private int port;
-  private boolean filesCreated;
   NettyHandler connection;
+  private ChannelPromise responsePromise;
 
   public NettyContext(
       NettyHandler connection,
@@ -598,7 +626,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       responseStarted = true;
       setHeaders.set(CONTENT_LENGTH, contentLength);
       var response = new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING);
-      connection.writeMessage(response, promise(this));
+      connection.writeMessage(response, promise());
       return this;
     } finally {
       requestComplete();
@@ -614,7 +642,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           new DefaultHttpResponse(HTTP_1_1, status, setHeaders),
           new ChunkedNioStream(channel, bufferSize),
           EMPTY_LAST_CONTENT,
-          promise(this));
+          promise());
       return this;
     } finally {
       requestComplete();
@@ -624,7 +652,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   @Override
   public @NonNull Context send(@NonNull FileDownload file) {
     if (file.deleteOnComplete()) {
-      register(DeleteFileTask.of(file));
+      register(
+          new DeleteFileTask(
+              router.getLog(), file.getFile().toString(), () -> Files.delete(file.getFile())));
     }
     return DefaultContext.super.send(file);
   }
@@ -643,7 +673,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           new DefaultHttpResponse(HTTP_1_1, status, setHeaders),
           new ChunkedStream(range.apply(in), bufferSize),
           EMPTY_LAST_CONTENT,
-          promise(this));
+          promise());
       responseStarted = true;
       return this;
     } catch (Exception x) {
@@ -671,13 +701,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
             new HttpChunkedInput(
                 new ChunkedNioFile(file, range.getStart(), range.getEnd(), bufferSize));
 
-        connection.writeChunks(rsp, chunkedInput, promise(this));
+        connection.writeChunks(rsp, chunkedInput, promise());
       } else {
         connection.writeChunks(
             rsp,
             new DefaultFileRegion(file, range.getStart(), range.getEnd()),
             EMPTY_LAST_CONTENT,
-            promise(this));
+            promise());
       }
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
@@ -723,7 +753,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       var rsp =
           new DefaultFullHttpResponse(
               HTTP_1_1, status, Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
-      connection.writeMessage(rsp, promise(this));
+      connection.writeMessage(rsp, promise());
       return this;
     } finally {
       requestComplete();
@@ -733,18 +763,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   void requestComplete() {
     fireCompleteEvent();
     ifSaveSession();
-    destroy(null);
-  }
-
-  @Override
-  public void operationComplete(ChannelFuture future) {
-    try {
-      destroy(future.cause());
-    } finally {
-      if (!isKeepAlive(req)) {
-        future.channel().close();
-      }
-    }
   }
 
   private void fireCompleteEvent() {
@@ -765,56 +783,27 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return attributes == null ? null : (Session) attributes.get(Session.NAME);
   }
 
-  private ChannelPromise promise(ChannelFutureListener listener) {
-    if (pendingTasks()) {
-      return ctx.newPromise().addListener(listener);
-    }
-    return ctx.voidPromise();
+  public ChannelPromise promise() {
+    return responsePromise == null ? ctx.voidPromise() : responsePromise;
   }
 
-  private boolean pendingTasks() {
-    return getSession() != null || filesCreated || decoder != null || listeners != null;
+  public void setDecoder(InterfaceHttpPostRequestDecoder decoder) {
+    this.decoder = decoder;
+    responsePromise = getOrCreateResponsePromise();
+    responsePromise.addListener(new DestroyDecoder(router.getLog(), decoder));
   }
 
-  void destroy(Throwable cause) {
-    if (cause != null) {
-      if (Server.connectionLost(cause)) {
-        router
-            .getLog()
-            .debug(
-                "exception found while sending response {} {}",
-                getMethod(),
-                getRequestPath(),
-                cause);
-      } else {
-        router
-            .getLog()
-            .error(
-                "exception found while sending response {} {}",
-                getMethod(),
-                getRequestPath(),
-                cause);
-      }
-    }
-    if (files != null) {
-      for (var task : files) {
-        try {
-          task.delete();
-        } catch (Exception x) {
-          router.getLog().debug("file destroy resulted in exception", x);
-        }
-      }
-      files = null;
-    }
-    if (decoder != null) {
-      try {
-        decoder.destroy();
-      } catch (IllegalReferenceCountException ex) {
-        router.getLog().trace("decoder was released already", ex);
-      } catch (Exception ex) {
-        router.getLog().debug("body decoder destroy resulted in exception", ex);
-      }
-      decoder = null;
+  void log(Throwable cause) {
+    if (Server.connectionLost(cause)) {
+      router
+          .getLog()
+          .debug(
+              "exception found while sending response {} {}", getMethod(), getRequestPath(), cause);
+    } else {
+      router
+          .getLog()
+          .error(
+              "exception found while sending response {} {}", getMethod(), getRequestPath(), cause);
     }
   }
 
@@ -825,11 +814,15 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   private void register(DeleteFileTask deleteFileTask) {
-    filesCreated = true;
-    if (this.files == null) {
-      this.files = new ArrayList<>();
+    responsePromise = getOrCreateResponsePromise();
+    responsePromise.addListener(deleteFileTask);
+  }
+
+  private ChannelPromise getOrCreateResponsePromise() {
+    if (responsePromise == null) {
+      responsePromise = ctx.newPromise();
     }
-    this.files.add(deleteFileTask);
+    return responsePromise;
   }
 
   private void decodeForm(Formdata form) {
@@ -844,7 +837,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           var fileUpoad =
               new NettyFileUpload(
                   router.getTmpdir(), (io.netty.handler.codec.http.multipart.FileUpload) next);
-          register(DeleteFileTask.of(fileUpoad));
+          register(new DeleteFileTask(router.getLog(), fileUpoad.getFileName(), fileUpoad::close));
           form.put(next.getName(), fileUpoad);
         } else {
           form.put(next.getName(), next.getString(UTF_8));
