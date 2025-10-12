@@ -21,6 +21,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.io.content.InputStreamContentSource;
 import org.eclipse.jetty.server.Request;
@@ -51,31 +53,30 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Body;
+import io.jooby.*;
 import io.jooby.ByteRange;
-import io.jooby.CompletionListeners;
-import io.jooby.Context;
-import io.jooby.Cookie;
-import io.jooby.DefaultContext;
-import io.jooby.FileUpload;
-import io.jooby.Formdata;
-import io.jooby.MediaType;
-import io.jooby.QueryString;
-import io.jooby.Route;
-import io.jooby.Router;
-import io.jooby.Sender;
-import io.jooby.Server;
-import io.jooby.ServerSentEmitter;
-import io.jooby.Session;
-import io.jooby.SessionStore;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
-import io.jooby.WebSocket;
 import io.jooby.internal.jetty.http2.JettyHeaders;
 import io.jooby.output.Output;
 import io.jooby.value.Value;
 
 public class JettyContext implements DefaultContext, Callback {
+  private interface DeleteFileTask {
+    void delete() throws IOException;
+
+    static DeleteFileTask of(FileUpload file) {
+      return file::close;
+    }
+
+    static DeleteFileTask of(FileDownload file) {
+      return () -> {
+        var path = file.getFile();
+        if (path != null) {
+          Files.delete(path);
+        }
+      };
+    }
+  }
+
   private final int bufferSize;
   private final long maxRequestSize;
   Request request;
@@ -83,7 +84,7 @@ public class JettyContext implements DefaultContext, Callback {
 
   private QueryString query;
   private Formdata formdata;
-  private List<FileUpload> files;
+  private List<DeleteFileTask> files;
   private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes = new HashMap<>();
@@ -558,6 +559,14 @@ public class JettyContext implements DefaultContext, Callback {
     return sendStreamInternal(Channels.newInputStream(channel));
   }
 
+  @Override
+  public @NonNull Context send(@NonNull FileDownload file) {
+    if (file.deleteOnComplete()) {
+      register(DeleteFileTask.of(file));
+    }
+    return DefaultContext.super.send(file);
+  }
+
   @NonNull @Override
   public Context send(@NonNull InputStream in) {
     try {
@@ -582,7 +591,8 @@ public class JettyContext implements DefaultContext, Callback {
         stream = in;
       }
       responseStarted = true;
-      Content.copy(new InputStreamContentSource(stream), response, this);
+      Content.copy(
+          new InputStreamContentSource(stream, ByteBufferPool.SIZED_NON_POOLING), response, this);
       return this;
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
@@ -633,11 +643,11 @@ public class JettyContext implements DefaultContext, Callback {
 
   private void clearFiles() {
     if (files != null) {
-      for (FileUpload file : files) {
+      for (var file : files) {
         try {
-          file.close();
+          file.delete();
         } catch (Exception e) {
-          router.getLog().debug("file upload destroy resulted in exception", e);
+          router.getLog().debug("file destroy resulted in exception", e);
         }
       }
       files.clear();
@@ -708,11 +718,15 @@ public class JettyContext implements DefaultContext, Callback {
   }
 
   private FileUpload register(FileUpload upload) {
+    register(DeleteFileTask.of(upload));
+    return upload;
+  }
+
+  private void register(DeleteFileTask deleteFileTask) {
     if (files == null) {
       files = new ArrayList<>();
     }
-    files.add(upload);
-    return upload;
+    files.add(deleteFileTask);
   }
 
   private static void formParam(Request request, Formdata form) {

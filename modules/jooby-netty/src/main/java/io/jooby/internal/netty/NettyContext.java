@@ -22,16 +22,13 @@ import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.security.cert.Certificate;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -70,6 +67,24 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.IllegalReferenceCountException;
 
 public class NettyContext implements DefaultContext, ChannelFutureListener {
+
+  private interface DeleteFileTask {
+    void delete() throws IOException;
+
+    static DeleteFileTask of(FileUpload file) {
+      return file::close;
+    }
+
+    static DeleteFileTask of(FileDownload file) {
+      return () -> {
+        var path = file.getFile();
+        if (path != null) {
+          Files.delete(path);
+        }
+      };
+    }
+  }
+
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   private static final String STREAM_ID = "x-http2-stream-id";
 
@@ -87,7 +102,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private boolean responseStarted;
   private QueryString query;
   private Formdata formdata;
-  private List<FileUpload> files;
+  private List<DeleteFileTask> files;
   private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
@@ -600,21 +615,18 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           new ChunkedNioStream(channel, bufferSize),
           EMPTY_LAST_CONTENT,
           promise(this));
-      //      ctx.channel()
-      //          .eventLoop()
-      //          .execute(
-      //              () -> {
-      //                // Headers
-      //                ctx.write(rsp, ctx.voidPromise());
-      //                // Body
-      //                ctx.write(new ChunkedNioStream(channel, bufferSize), ctx.voidPromise());
-      //                // Finish
-      //                ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-      //              });
       return this;
     } finally {
       requestComplete();
     }
+  }
+
+  @Override
+  public @NonNull Context send(@NonNull FileDownload file) {
+    if (file.deleteOnComplete()) {
+      register(DeleteFileTask.of(file));
+    }
+    return DefaultContext.super.send(file);
   }
 
   @NonNull @Override
@@ -633,17 +645,6 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
           EMPTY_LAST_CONTENT,
           promise(this));
       responseStarted = true;
-      //      ctx.channel()
-      //          .eventLoop()
-      //          .execute(
-      //              () -> {
-      //                // Headers
-      //                ctx.write(rsp, ctx.voidPromise());
-      //                // Body
-      //                ctx.write(chunkedStream, ctx.voidPromise());
-      //                // Finish
-      //                ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-      //              });
       return this;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
@@ -671,34 +672,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
                 new ChunkedNioFile(file, range.getStart(), range.getEnd(), bufferSize));
 
         connection.writeChunks(rsp, chunkedInput, promise(this));
-        //        ctx.channel()
-        //            .eventLoop()
-        //            .execute(
-        //                () -> {
-        //                  // Headers
-        //                  ctx.write(rsp, ctx.voidPromise());
-        //                  // Body
-        //                  ctx.writeAndFlush(chunkedInput, promise(this));
-        //                });
       } else {
         connection.writeChunks(
             rsp,
             new DefaultFileRegion(file, range.getStart(), range.getEnd()),
             EMPTY_LAST_CONTENT,
             promise(this));
-        //        ctx.channel()
-        //            .eventLoop()
-        //            .execute(
-        //                () -> {
-        //                  // Headers
-        //                  ctx.write(rsp, ctx.voidPromise());
-        //                  // Body
-        //                  ctx.write(
-        //                      new DefaultFileRegion(file, range.getStart(), range.getEnd()),
-        //                      ctx.voidPromise());
-        //                  // Finish
-        //                  ctx.writeAndFlush(EMPTY_LAST_CONTENT, promise(this));
-        //                });
       }
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
@@ -818,11 +797,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       }
     }
     if (files != null) {
-      for (FileUpload file : files) {
+      for (var task : files) {
         try {
-          file.close();
+          task.delete();
         } catch (Exception x) {
-          router.getLog().debug("file upload destroy resulted in exception", x);
+          router.getLog().debug("file destroy resulted in exception", x);
         }
       }
       files = null;
@@ -845,13 +824,12 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
         this, ctx, bufferSize, new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
   }
 
-  private FileUpload register(FileUpload upload) {
+  private void register(DeleteFileTask deleteFileTask) {
     filesCreated = true;
     if (this.files == null) {
       this.files = new ArrayList<>();
     }
-    this.files.add(upload);
-    return upload;
+    this.files.add(deleteFileTask);
   }
 
   private void decodeForm(Formdata form) {
@@ -863,12 +841,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-          form.put(
-              next.getName(),
-              register(
-                  new NettyFileUpload(
-                      router.getTmpdir(),
-                      (io.netty.handler.codec.http.multipart.FileUpload) next)));
+          var fileUpoad =
+              new NettyFileUpload(
+                  router.getTmpdir(), (io.netty.handler.codec.http.multipart.FileUpload) next);
+          register(DeleteFileTask.of(fileUpoad));
+          form.put(next.getName(), fileUpoad);
         } else {
           form.put(next.getName(), next.getString(UTF_8));
         }

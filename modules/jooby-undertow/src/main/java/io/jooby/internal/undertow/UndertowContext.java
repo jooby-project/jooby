@@ -24,14 +24,9 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.security.cert.Certificate;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -40,23 +35,8 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.jooby.Body;
+import io.jooby.*;
 import io.jooby.ByteRange;
-import io.jooby.Context;
-import io.jooby.Cookie;
-import io.jooby.DefaultContext;
-import io.jooby.Formdata;
-import io.jooby.MediaType;
-import io.jooby.QueryString;
-import io.jooby.Route;
-import io.jooby.Router;
-import io.jooby.Server;
-import io.jooby.ServerSentEmitter;
-import io.jooby.Session;
-import io.jooby.SessionStore;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
-import io.jooby.WebSocket;
 import io.jooby.output.Output;
 import io.jooby.value.Value;
 import io.undertow.Handlers;
@@ -78,6 +58,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes;
+  private List<FileDownload> files;
   Body body;
   private MediaType responseType;
   private Map<String, String> cookies;
@@ -463,6 +444,17 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return send(ByteBuffer.wrap(data));
   }
 
+  @Override
+  public @NonNull Context send(@NonNull FileDownload file) {
+    if (file.deleteOnComplete()) {
+      if (files == null) {
+        files = new ArrayList<>();
+      }
+      files.add(file);
+    }
+    return DefaultContext.super.send(file);
+  }
+
   @NonNull @Override
   public Context send(@NonNull ReadableByteChannel channel) {
     ifSetChunked();
@@ -565,7 +557,25 @@ public class UndertowContext implements DefaultContext, IoCallback {
   @Override
   public void onComplete(HttpServerExchange exchange, Sender sender) {
     ifSaveSession();
+    clearFiles();
     sender.close(IoCallback.END_EXCHANGE);
+  }
+
+  private void clearFiles() {
+    if (files != null) {
+      for (FileDownload file : files) {
+        var path = file.getFile();
+        if (path != null) {
+          try {
+            Files.delete(path);
+          } catch (Exception e) {
+            router.getLog().debug("file destroy resulted in exception", e);
+          }
+        }
+      }
+      files.clear();
+      files = null;
+    }
   }
 
   @NonNull @Override

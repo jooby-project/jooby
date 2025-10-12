@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Represents a file download.
@@ -59,6 +60,10 @@ public class FileDownload {
   private final String contentDisposition;
 
   private final InputStream content;
+
+  private boolean deleteOnComplete;
+
+  private Path file;
 
   /**
    * Creates a new file attachment.
@@ -120,6 +125,7 @@ public class FileDownload {
    */
   public FileDownload(Mode mode, @NonNull Path file, @NonNull String fileName) throws IOException {
     this(mode, new FileInputStream(file.toFile()), fileName, Files.size(file));
+    this.file = file;
   }
 
   /**
@@ -131,6 +137,25 @@ public class FileDownload {
    */
   public FileDownload(Mode mode, @NonNull Path file) throws IOException {
     this(mode, file, file.getFileName().toString());
+    this.file = file;
+  }
+
+  /**
+   * True if the file will be deleted after sending to the client.
+   *
+   * @return True if the file will be deleted after sending to the client.
+   */
+  public boolean deleteOnComplete() {
+    return deleteOnComplete;
+  }
+
+  /**
+   * Get the underlying file or <code>null</code>.
+   *
+   * @return Get the underlying file or <code>null</code>.
+   */
+  public @Nullable Path getFile() {
+    return file;
   }
 
   /**
@@ -214,6 +239,21 @@ public class FileDownload {
   }
 
   /**
+   * Add support for delete file on complete when created from {@link #build(Path, String)} or
+   * {@link #build(Path)}.
+   */
+  public interface BuilderExt extends Builder {
+
+    /**
+     * Mark the file to be deleted once it send to the client. This options works on file created
+     * within a {@link Path} instance.
+     *
+     * @return This builder.
+     */
+    Builder deleteOnComplete();
+  }
+
+  /**
    * Creates a builder with the specified content which can be used to create a {@link FileDownload}
    * with any {@link Mode}.
    *
@@ -259,12 +299,25 @@ public class FileDownload {
    * @param fileName Filename.
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@NonNull Path file, @NonNull String fileName) {
-    return mode -> {
-      try {
-        return new FileDownload(mode, file, fileName);
-      } catch (IOException e) {
-        throw SneakyThrows.propagate(e);
+  public static BuilderExt build(@NonNull Path file, @NonNull String fileName) {
+    return new BuilderExt() {
+      private boolean deleteOnComplete;
+
+      @Override
+      public FileDownload build(Mode mode) {
+        try {
+          var output = new FileDownload(mode, file, fileName);
+          output.deleteOnComplete = deleteOnComplete;
+          return output;
+        } catch (IOException e) {
+          throw SneakyThrows.propagate(e);
+        }
+      }
+
+      @Override
+      public Builder deleteOnComplete() {
+        this.deleteOnComplete = true;
+        return this;
       }
     };
   }
@@ -276,13 +329,7 @@ public class FileDownload {
    * @param file File content.
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@NonNull Path file) {
-    return mode -> {
-      try {
-        return new FileDownload(mode, file);
-      } catch (IOException e) {
-        throw SneakyThrows.propagate(e);
-      }
-    };
+  public static BuilderExt build(@NonNull Path file) {
+    return build(file, file.getFileName().toString());
   }
 }
