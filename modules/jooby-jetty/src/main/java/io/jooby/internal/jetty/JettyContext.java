@@ -692,9 +692,9 @@ public class JettyContext implements DefaultContext, Callback {
 
   void responseDone() {
     try {
-      ifSaveSession();
-
       clearFiles();
+
+      ifSaveSession();
     } finally {
       if (listeners != null) {
         listeners.run(this);

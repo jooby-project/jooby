@@ -556,8 +556,8 @@ public class UndertowContext implements DefaultContext, IoCallback {
 
   @Override
   public void onComplete(HttpServerExchange exchange, Sender sender) {
-    ifSaveSession();
     clearFiles();
+    ifSaveSession();
     sender.close(IoCallback.END_EXCHANGE);
   }
 
