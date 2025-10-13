@@ -118,6 +118,9 @@ public class ServerOptions {
    */
   private int maxRequestSize = _10MB;
 
+  /** Max number of form fields. Default: <code>1000</code>. */
+  private int maxFormFields = 1000;
+
   /** The maximum size in bytes of a http request header. Default is <code>8kb</code> */
   private int maxHeaderSize = _8KB;
 
@@ -176,6 +179,9 @@ public class ServerOptions {
       }
       if (conf.hasPath("server.maxRequestSize")) {
         options.setMaxRequestSize((int) conf.getMemorySize("server.maxRequestSize").toBytes());
+      }
+      if (conf.hasPath("server.maxFormFields")) {
+        options.setMaxFormFields(conf.getInt("server.maxFormFields"));
       }
       if (conf.hasPath("server.workerThreads")) {
         options.setWorkerThreads(conf.getInt("server.workerThreads"));
@@ -423,8 +429,28 @@ public class ServerOptions {
    * @param maxRequestSize Max request size in bytes.
    * @return This options.
    */
-  public @NonNull ServerOptions setMaxRequestSize(int maxRequestSize) {
+  public ServerOptions setMaxRequestSize(int maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
+    return this;
+  }
+
+  /**
+   * Max number of form fields. Default: <code>1000</code>.
+   *
+   * @return Max number of form fields. Default: <code>1000</code>.
+   */
+  public int getMaxFormFields() {
+    return maxFormFields;
+  }
+
+  /**
+   * Set max number of form fields. Default: <code>1000</code>.
+   *
+   * @param maxFormFields Max number of form fields.
+   * @return Max number of form fields. Default: <code>1000</code>.
+   */
+  public ServerOptions setMaxFormFields(int maxFormFields) {
+    this.maxFormFields = maxFormFields;
     return this;
   }
 

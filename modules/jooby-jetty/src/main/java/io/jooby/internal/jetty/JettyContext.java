@@ -729,7 +729,7 @@ public class JettyContext implements DefaultContext, Callback {
     files.add(deleteFileTask);
   }
 
-  private static void formParam(Request request, Formdata form) {
+  private void formParam(Request request, Formdata form) {
     try {
       var params = Request.getParameters(request);
       for (Fields.Field param : params) {
@@ -742,7 +742,19 @@ public class JettyContext implements DefaultContext, Callback {
         }
       }
     } catch (Exception ex) {
-      throw SneakyThrows.propagate(ex);
+      if (ex instanceof IllegalStateException
+          && ex.getMessage() != null
+          && ex.getMessage().startsWith("form with too many")) {
+        this.setAttribute("__too_many_fields", ex);
+        try {
+          Route.FORM_DECODER_HANDLER.apply(this);
+        } catch (Exception cause) {
+          throw SneakyThrows.propagate(cause);
+        }
+        throw new JettyStopPipeline();
+      } else {
+        throw SneakyThrows.propagate(ex);
+      }
     }
   }
 }

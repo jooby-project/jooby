@@ -6,6 +6,7 @@
 package io.jooby.internal.undertow;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import io.jooby.*;
 import io.undertow.io.Receiver;
@@ -17,6 +18,7 @@ import io.undertow.server.handlers.form.FormParserFactory;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
+import io.undertow.util.ParameterLimitException;
 
 public class UndertowHandler implements HttpHandler {
   private final long maxRequestSize;
@@ -92,7 +94,11 @@ public class UndertowHandler implements HttpHandler {
           try {
             parser.parse(execute(router, context));
           } catch (Exception x) {
-            context.sendError(x, StatusCode.BAD_REQUEST);
+            var cause = Optional.ofNullable(x.getCause()).orElse(x);
+            if (cause instanceof ParameterLimitException) {
+              context.setAttribute("__too_many_fields", cause);
+            }
+            router.match(context).execute(context, Route.FORM_DECODER_HANDLER);
           }
         }
       } else {

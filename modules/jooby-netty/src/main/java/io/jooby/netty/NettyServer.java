@@ -223,6 +223,7 @@ public class NettyServer extends Server.Base {
         decoderConfig,
         Context.Selector.create(applications),
         options.getMaxRequestSize(),
+        options.getMaxFormFields(),
         options.getOutput().getSize(),
         options.getDefaultHeaders(),
         http2,

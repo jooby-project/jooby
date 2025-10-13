@@ -20,11 +20,7 @@ import java.util.stream.Stream;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.annotation.Transactional;
-import io.jooby.exception.MethodNotAllowedException;
-import io.jooby.exception.NotAcceptableException;
-import io.jooby.exception.NotFoundException;
-import io.jooby.exception.StatusCodeException;
-import io.jooby.exception.UnsupportedMediaType;
+import io.jooby.exception.*;
 import io.jooby.internal.RouterImpl;
 
 /**
@@ -356,6 +352,19 @@ public class Route {
                   .orElseGet(Collections::emptyList);
           return ctx.sendError(new MethodNotAllowedException(ctx.getMethod(), allow));
         }
+      };
+
+  /** Handler for body error decoder responses. */
+  public static final Handler FORM_DECODER_HANDLER =
+      ctx -> {
+        var tooManyFields = (Throwable) ctx.getAttributes().remove("__too_many_fields");
+        BadRequestException cause;
+        if (tooManyFields != null) {
+          cause = new BadRequestException("Too many form fields", tooManyFields);
+        } else {
+          cause = new BadRequestException("Failed to decode HTTP body");
+        }
+        return ctx.sendError(cause);
       };
 
   /** Handler for {@link StatusCode#REQUEST_ENTITY_TOO_LARGE} responses. */

@@ -37,6 +37,7 @@ public class Issue2806 {
 
               app.error(
                   (ctx, cause, code) -> {
+                    cause.printStackTrace();
                     Map map =
                         ImmutableMap.of(
                             "router", ctx.getRouter() != null, "route", ctx.getRoute() != null);

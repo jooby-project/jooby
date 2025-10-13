@@ -23,6 +23,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final HttpDecoderConfig decoderConfig;
   private final Context.Selector contextSelector;
   private final long maxRequestSize;
+  private final int maxFormFields;
   private final int bufferSize;
   private final boolean defaultHeaders;
   private final boolean http2;
@@ -34,6 +35,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       HttpDecoderConfig decoderConfig,
       Context.Selector contextSelector,
       long maxRequestSize,
+      int maxFormFields,
       int bufferSize,
       boolean defaultHeaders,
       boolean http2,
@@ -43,6 +45,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     this.decoderConfig = decoderConfig;
     this.contextSelector = contextSelector;
     this.maxRequestSize = maxRequestSize;
+    this.maxFormFields = maxFormFields;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
     this.http2 = http2;
@@ -55,6 +58,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
         new NettyDateService(executor),
         contextSelector,
         maxRequestSize,
+        maxFormFields,
         bufferSize,
         defaultHeaders,
         http2);

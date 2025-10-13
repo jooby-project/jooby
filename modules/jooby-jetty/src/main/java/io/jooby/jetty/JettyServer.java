@@ -110,10 +110,6 @@ public class JettyServer extends io.jooby.Server.Base {
     var portInUse = options.getPort();
     try {
       this.applications = List.of(application);
-      /* Set max request size attribute: */
-      System.setProperty(
-          "org.eclipse.jetty.server.Request.maxFormContentSize",
-          Long.toString(options.getMaxRequestSize()));
 
       addShutdownHook();
 
@@ -126,7 +122,7 @@ public class JettyServer extends io.jooby.Server.Base {
 
       var acceptors = 1;
       var selectors = options.getIoThreads();
-      this.server = new Server(threadPool);
+      server = new Server(threadPool);
       server.setStopAtShutdown(false);
 
       JettyHttp2Configurer http2 =
@@ -212,7 +208,8 @@ public class JettyServer extends io.jooby.Server.Base {
       }
 
       var context = new ContextHandler();
-
+      context.setAttribute(FormFields.MAX_FIELDS_ATTRIBUTE, options.getMaxFormFields());
+      context.setAttribute(FormFields.MAX_LENGTH_ATTRIBUTE, options.getMaxRequestSize());
       boolean webSockets =
           application[0].getRoutes().stream().anyMatch(it -> it.getMethod().equals(Router.WS));
 
