@@ -39,10 +39,14 @@ public class JettyHandler extends Handler.Abstract {
     if (defaultHeaders) {
       responseHeaders.put(HttpHeader.SERVER.asString(), "J");
     }
-    var context =
-        new JettyContext(
-            getInvocationType(), request, response, callback, router, bufferSize, maxRequestSize);
-    router.match(context).execute(context);
+    try {
+      var context =
+          new JettyContext(
+              getInvocationType(), request, response, callback, router, bufferSize, maxRequestSize);
+      router.match(context).execute(context);
+    } catch (JettyStopPipeline ignored) {
+      // handled already,
+    }
     return true;
   }
 }

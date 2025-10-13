@@ -109,7 +109,6 @@ public class RouterMatch implements Router.Match {
     }
     this.route = new Route(method, path, h);
     this.route.setEncoder(encoder);
-    //    this.route.setReturnType(Context.class);
     return this;
   }
 }

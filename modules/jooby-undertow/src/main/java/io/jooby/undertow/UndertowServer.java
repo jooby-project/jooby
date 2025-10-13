@@ -64,13 +64,13 @@ public class UndertowServer extends Server.Base {
     return new ServerOptions().setIoThreads(ServerOptions.IO_THREADS).setServer("utow");
   }
 
-  @NonNull @Override
+  @Override
   public String getName() {
     return "undertow";
   }
 
   @Override
-  public @NonNull Server start(@NonNull Jooby... application) {
+  public Server start(@NonNull Jooby... application) {
     // force options to be non-null
     var options = getOptions();
     var portInUse = options.getPort();
@@ -114,7 +114,7 @@ public class UndertowServer extends Server.Base {
                   .addAll(OptionMap.create(Options.WORKER_NAME, "worker"))
                   .getMap());
 
-      Undertow.Builder builder =
+      var builder =
           Undertow.builder()
               .setBufferSize(options.getBufferSize())
               /** Socket : */
@@ -123,6 +123,8 @@ public class UndertowServer extends Server.Base {
               // HTTP/1.1 is keep-alive by default, turn this option off
               .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
               .setServerOption(UndertowOptions.MAX_HEADER_SIZE, options.getMaxHeaderSize())
+              .setServerOption(UndertowOptions.MAX_PARAMETERS, options.getMaxFormFields())
+              .setServerOption(UndertowOptions.MAX_ENTITY_SIZE, (long) options.getMaxRequestSize())
               .setServerOption(UndertowOptions.ALLOW_EQUALS_IN_COOKIE_VALUE, true)
               .setServerOption(UndertowOptions.ALWAYS_SET_DATE, options.getDefaultHeaders())
               .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)

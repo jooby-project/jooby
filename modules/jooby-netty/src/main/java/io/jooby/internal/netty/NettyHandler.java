@@ -34,6 +34,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final int bufferSize;
   private final boolean defaultHeaders;
   private final long maxRequestSize;
+  private final int maxFormFields;
   private long contentLength;
   private long chunkSize;
   private final boolean http2;
@@ -43,6 +44,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       NettyDateService dateService,
       List<Jooby> applications,
       long maxRequestSize,
+      int maxFormFields,
       int bufferSize,
       boolean defaultHeaders,
       boolean http2) {
@@ -50,6 +52,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     this.applications = applications;
     this.ctxSelector = Context.Selector.create(applications);
     this.maxRequestSize = maxRequestSize;
+    this.maxFormFields = maxFormFields;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
     this.http2 = http2;
@@ -79,7 +82,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         if (contentLength > 0 || isTransferEncodingChunked(req)) {
           context.httpDataFactory = new DefaultHttpDataFactory(bufferSize);
           context.httpDataFactory.setBaseDir(app.getTmpdir().toString());
-          context.decoder = newDecoder(req, context.httpDataFactory);
+          context.decoder = newDecoder(req, context.httpDataFactory, maxFormFields);
         } else {
           // no body, move on
           router.match(context).execute(context);
@@ -90,10 +93,11 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       try {
         // when decoder == null, chunk is always a LastHttpContent.EMPTY, ignore it
         if (context.decoder != null) {
-          offer(context, chunk);
-          Router.Match route = router.match(context);
-          resetDecoderState(context, !route.matches());
-          route.execute(context);
+          if (offer(context, chunk)) {
+            Router.Match route = router.match(context);
+            resetDecoderState(context, !route.matches());
+            route.execute(context);
+          }
         }
       } finally {
         release(chunk);
@@ -172,14 +176,16 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  private void offer(NettyContext context, HttpContent chunk) {
+  private boolean offer(NettyContext context, HttpContent chunk) {
     try {
       context.decoder.offer(chunk);
-    } catch (HttpPostRequestDecoder.ErrorDataDecoderException
-        | HttpPostRequestDecoder.TooLongFormFieldException
-        | HttpPostRequestDecoder.TooManyFormFieldsException x) {
-      resetDecoderState(context, true);
-      context.sendError(x, StatusCode.BAD_REQUEST);
+      return true;
+    } catch (Exception x) {
+      if (x instanceof HttpPostRequestDecoder.TooManyFormFieldsException) {
+        context.setAttribute("__too_many_fields", x);
+      }
+      router.match(context).execute(context, Route.FORM_DECODER_HANDLER);
+      return false;
     }
   }
 
@@ -197,14 +203,16 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   }
 
   private static InterfaceHttpPostRequestDecoder newDecoder(
-      HttpRequest request, HttpDataFactory factory) {
+      HttpRequest request, HttpDataFactory factory, int maxFormFields) {
     String contentType = request.headers().get(HttpHeaderNames.CONTENT_TYPE);
     if (contentType != null) {
       String lowerContentType = contentType.toLowerCase();
       if (lowerContentType.startsWith(MediaType.MULTIPART_FORMDATA)) {
-        return new HttpPostMultipartRequestDecoder(factory, request, StandardCharsets.UTF_8);
+        return new HttpPostMultipartRequestDecoder(
+            factory, request, StandardCharsets.UTF_8, maxFormFields, -1);
       } else if (lowerContentType.startsWith(MediaType.FORM_URLENCODED)) {
-        return new HttpPostStandardRequestDecoder(factory, request, StandardCharsets.UTF_8);
+        return new HttpPostStandardRequestDecoder(
+            factory, request, StandardCharsets.UTF_8, maxFormFields, -1);
       }
     }
     return new HttpRawPostRequestDecoder(factory, request);

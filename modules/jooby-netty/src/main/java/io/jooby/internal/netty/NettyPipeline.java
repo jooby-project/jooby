@@ -24,6 +24,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final HttpDecoderConfig decoderConfig;
   private final List<Jooby> applications;
   private final long maxRequestSize;
+  private final int maxFormFields;
   private final int bufferSize;
   private final boolean defaultHeaders;
   private final boolean http2;
@@ -36,6 +37,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       HttpDecoderConfig decoderConfig,
       List<Jooby> applications,
       long maxRequestSize,
+      int maxFormFields,
       int bufferSize,
       boolean defaultHeaders,
       boolean http2,
@@ -46,6 +48,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     this.decoderConfig = decoderConfig;
     this.applications = applications;
     this.maxRequestSize = maxRequestSize;
+    this.maxFormFields = maxFormFields;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
     this.http2 = http2;
@@ -55,7 +58,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
   private NettyHandler createHandler() {
     return new NettyHandler(
-        serverDate, applications, maxRequestSize, bufferSize, defaultHeaders, http2);
+        serverDate, applications, maxRequestSize, maxFormFields, bufferSize, defaultHeaders, http2);
   }
 
   @Override
