@@ -26,7 +26,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
-import javax.tools.StandardLocation;
 
 import io.jooby.internal.apt.*;
 
@@ -68,7 +67,6 @@ public class JoobyProcessor extends AbstractProcessor {
 
   protected MvcContext context;
   private BiConsumer<Diagnostic.Kind, String> output;
-  private final Set<Object> processed = new HashSet<>();
 
   public JoobyProcessor(BiConsumer<Diagnostic.Kind, String> output) {
     this.output = output;
@@ -104,7 +102,8 @@ public class JoobyProcessor extends AbstractProcessor {
             context.add(router);
             var sourceCode = router.toSourceCode(null);
             var sourceLocation = router.getGeneratedFilename();
-            onGeneratedSource(toJavaFileObject(sourceLocation, sourceCode));
+            onGeneratedSource(
+                router.getGeneratedType(), toJavaFileObject(sourceLocation, sourceCode));
             context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
             router.getRoutes().forEach(it -> context.debug("   %s", it));
             writeSource(router, sourceLocation, sourceCode);
@@ -173,27 +172,7 @@ public class JoobyProcessor extends AbstractProcessor {
     };
   }
 
-  protected void onGeneratedSource(JavaFileObject source) {}
-
-  private void doServices(Filer filer, List<MvcRouter> routers) {
-    try {
-      var location = "META-INF/services/io.jooby.MvcFactory";
-      context.debug(location);
-
-      var resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
-      var content = new StringBuilder();
-      for (var router : routers) {
-        var classname = router.getGeneratedType();
-        context.debug("  %s", classname);
-        content.append(classname).append(System.lineSeparator());
-      }
-      try (var writer = new PrintWriter(resource.openOutputStream())) {
-        writer.println(content);
-      }
-    } catch (IOException cause) {
-      throw propagate(cause);
-    }
-  }
+  protected void onGeneratedSource(String className, JavaFileObject source) {}
 
   private Map<TypeElement, MvcRouter> buildRouteRegistry(
       Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -252,44 +231,40 @@ public class JoobyProcessor extends AbstractProcessor {
    */
   private void buildRouteRegistry(Map<TypeElement, MvcRouter> registry, TypeElement currentType) {
     for (TypeElement superType : context.superTypes(currentType)) {
-      if (processed.add(superType)) {
-        // collect all declared methods
-        superType.getEnclosedElements().stream()
-            .filter(ExecutableElement.class::isInstance)
-            .map(ExecutableElement.class::cast)
-            .forEach(
-                method -> {
-                  if (method.getModifiers().contains(Modifier.ABSTRACT)) {
-                    context.debug("ignoring abstract method: %s %s", superType, method);
-                  } else {
-                    method.getAnnotationMirrors().stream()
-                        .map(AnnotationMirror::getAnnotationType)
-                        .map(DeclaredType::asElement)
-                        .filter(TypeElement.class::isInstance)
-                        .map(TypeElement.class::cast)
-                        .filter(HttpMethod::hasAnnotation)
-                        .forEach(
-                            annotation -> {
-                              Stream.of(currentType, superType)
-                                  .distinct()
-                                  .forEach(
-                                      routerClass ->
-                                          registry
-                                              .computeIfAbsent(
-                                                  routerClass, type -> new MvcRouter(context, type))
-                                              .put(annotation, method));
-                            });
-                  }
-                });
-      } else {
-        if (!currentType.equals(superType)) {
-          // edge-case #1: when controller has no method and extends another class which has.
-          // edge-case #2: some odd usage a controller could be empty.
-          // See https://github.com/jooby-project/jooby/issues/3656
-          if (registry.containsKey(superType)) {
-            registry.computeIfAbsent(
-                currentType, key -> new MvcRouter(key, registry.get(superType)));
-          }
+      // collect all declared methods
+      superType.getEnclosedElements().stream()
+          .filter(ExecutableElement.class::isInstance)
+          .map(ExecutableElement.class::cast)
+          .forEach(
+              method -> {
+                if (method.getModifiers().contains(Modifier.ABSTRACT)) {
+                  context.debug("ignoring abstract method: %s %s", superType, method);
+                } else {
+                  method.getAnnotationMirrors().stream()
+                      .map(AnnotationMirror::getAnnotationType)
+                      .map(DeclaredType::asElement)
+                      .filter(TypeElement.class::isInstance)
+                      .map(TypeElement.class::cast)
+                      .filter(HttpMethod::hasAnnotation)
+                      .forEach(
+                          annotation -> {
+                            Stream.of(currentType, superType)
+                                .distinct()
+                                .forEach(
+                                    routerClass ->
+                                        registry
+                                            .computeIfAbsent(
+                                                routerClass, type -> new MvcRouter(context, type))
+                                            .put(annotation, method));
+                          });
+                }
+              });
+      if (!currentType.equals(superType)) {
+        // edge-case #1: when controller has no method and extends another class which has.
+        // edge-case #2: some odd usage a controller could be empty.
+        // See https://github.com/jooby-project/jooby/issues/3656
+        if (registry.containsKey(superType)) {
+          registry.computeIfAbsent(currentType, key -> new MvcRouter(key, registry.get(superType)));
         }
       }
     }

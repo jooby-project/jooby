@@ -7,6 +7,8 @@ package tests.i3786;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import io.jooby.apt.ProcessorRunner;
@@ -16,9 +18,10 @@ import io.jooby.test.MockRouter;
 public class Issue3786 {
   @Test
   public void shouldCheckBase() throws Exception {
-    new ProcessorRunner(new C3786())
+    new ProcessorRunner(List.of(new C3786(), new D3786()))
         .withRouter(
-            app -> {
+            C3786.class,
+            (app, source) -> {
               var router = new MockRouter(app);
               assertEquals("base", router.get("/inherited", new MockContext()).value());
               assertEquals(
@@ -30,14 +33,10 @@ public class Issue3786 {
               assertEquals(
                   "POST/inherited/childOnly",
                   router.post("/inherited/childOnly", new MockContext()).value());
-            });
-  }
-
-  @Test
-  public void shouldCheckOverride() throws Exception {
-    new ProcessorRunner(new D3786())
+            })
         .withRouter(
-            app -> {
+            D3786.class,
+            (app, source) -> {
               var router = new MockRouter(app);
               assertEquals("base", router.get("/overrideMethod", new MockContext()).value());
               assertEquals(
