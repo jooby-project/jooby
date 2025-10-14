@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import com.puppycrawl.tools.checkstyle.DetailAstImpl;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
-import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
+import com.puppycrawl.tools.checkstyle.api.JavadocCommentsTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.TokenUtil;
 import io.swagger.v3.oas.models.info.Contact;
@@ -63,15 +63,18 @@ public class ClassDoc extends JavaDocNode {
 
   public String getVersion() {
     return tree(javadoc)
-        .filter(javadocToken(JavadocTokenTypes.VERSION_LITERAL))
+        .filter(javadocToken(JavadocCommentsTokenTypes.VERSION_BLOCK_TAG))
         .findFirst()
         .flatMap(
             version ->
                 tree(version.getParent())
-                    .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                    .filter(javadocToken(JavadocCommentsTokenTypes.DESCRIPTION))
                     .findFirst()
                     .flatMap(
-                        it -> tree(it).filter(javadocToken(JavadocTokenTypes.TEXT)).findFirst())
+                        it ->
+                            tree(it)
+                                .filter(javadocToken(JavadocCommentsTokenTypes.TEXT))
+                                .findFirst())
                     .map(DetailNode::getText))
         .orElse(null);
   }
@@ -95,10 +98,10 @@ public class ClassDoc extends JavaDocNode {
     JavaDocTag.javaDocTag(
         javadoc,
         tag -> {
-          var isParam = tree(tag).anyMatch(javadocToken(JavadocTokenTypes.PARAM_LITERAL));
+          var isParam = tree(tag).anyMatch(javadocToken(JavadocCommentsTokenTypes.PARAM_BLOCK_TAG));
           var name =
               tree(tag)
-                  .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+                  .filter(javadocToken(JavadocCommentsTokenTypes.PARAMETER_NAME))
                   .findFirst()
                   .orElse(null);
           return isParam && name != null;
@@ -106,7 +109,7 @@ public class ClassDoc extends JavaDocNode {
         (tag, value) -> {
           var name =
               tree(tag)
-                  .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+                  .filter(javadocToken(JavadocCommentsTokenTypes.PARAMETER_NAME))
                   .findFirst()
                   .orElse(null);
           // name is never null bc previous filter
@@ -114,7 +117,7 @@ public class ClassDoc extends JavaDocNode {
           /* Virtual Field */
           var memberDoc =
               tree(tag)
-                  .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                  .filter(javadocToken(JavadocCommentsTokenTypes.DESCRIPTION))
                   .findFirst()
                   .orElse(EMPTY_NODE);
           var field =

@@ -15,13 +15,13 @@ import com.puppycrawl.tools.checkstyle.DetailNodeTreeStringPrinter;
 import com.puppycrawl.tools.checkstyle.JavadocDetailNodeParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
-import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
+import com.puppycrawl.tools.checkstyle.api.JavadocCommentsTokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.JavadocUtil;
 import io.swagger.v3.oas.models.tags.Tag;
 
 public class JavaDocNode {
   private static final Predicate<DetailNode> JAVADOC_TAG =
-      javadocToken(JavadocTokenTypes.JAVADOC_TAG);
+      javadocToken(JavadocCommentsTokenTypes.JAVADOC_BLOCK_TAG);
 
   protected final JavaDocParser context;
   protected final DetailAST node;
@@ -44,7 +44,7 @@ public class JavaDocNode {
   static DetailNode toJavaDocNode(DetailAST node) {
     return node == EMPTY_AST
         ? EMPTY_NODE
-        : new JavadocDetailNodeParser().parseJavadocAsDetailNode(node).getTree();
+        : new JavadocDetailNodeParser().parseJavadocComment(node).getTree();
   }
 
   public DetailAST getNode() {
@@ -58,7 +58,7 @@ public class JavaDocNode {
   public String getSummary() {
     var builder = new StringBuilder();
     for (var node : forward(javadoc, JAVADOC_TAG).toList()) {
-      if (node.getType() == JavadocTokenTypes.TEXT) {
+      if (node.getType() == JavadocCommentsTokenTypes.TEXT) {
         var text = node.getText();
         var trimmed = text.trim();
         if (trimmed.isEmpty()) {
@@ -68,7 +68,7 @@ public class JavaDocNode {
         } else {
           builder.append(text);
         }
-      } else if (node.getType() == JavadocTokenTypes.NEWLINE && !builder.isEmpty()) {
+      } else if (node.getType() == JavadocCommentsTokenTypes.NEWLINE && !builder.isEmpty()) {
         break;
       }
       var index = builder.indexOf(".");
@@ -132,16 +132,16 @@ public class JavaDocNode {
     var visited = new HashSet<DetailNode>();
     for (var node : nodes) {
       if (visited.add(node)) {
-        if (node.getType() == JavadocTokenTypes.TEXT) {
+        if (node.getType() == JavadocCommentsTokenTypes.TEXT) {
           var text = node.getText();
           if (stripLeading && Character.isWhitespace(text.charAt(0))) {
             builder.append(' ').append(text.stripLeading());
           } else {
             builder.append(text);
           }
-        } else if (node.getType() == JavadocTokenTypes.NEWLINE) {
-          var next = JavadocUtil.getNextSibling(node);
-          if (next != null && next.getType() != JavadocTokenTypes.LEADING_ASTERISK) {
+        } else if (node.getType() == JavadocCommentsTokenTypes.NEWLINE) {
+          var next = JavadocUtil.getNextSibling(node, JavadocCommentsTokenTypes.LEADING_ASTERISK);
+          if (next != null) { // && next.getType() != JavadocCommentsTokenTypes.LEADING_ASTERISK) {
             builder.append(next.getText());
             visited.add(next);
           }
@@ -159,7 +159,7 @@ public class JavaDocNode {
       new DetailNode() {
         @Override
         public int getType() {
-          return 0;
+          return JavadocCommentsTokenTypes.JAVADOC_CONTENT;
         }
 
         @Override
@@ -177,10 +177,10 @@ public class JavaDocNode {
           return 0;
         }
 
-        @Override
-        public DetailNode[] getChildren() {
-          return new DetailNode[0];
-        }
+        //        @Override
+        //        public DetailNode[] getChildren() {
+        //          return new DetailNode[0];
+        //        }
 
         @Override
         public DetailNode getParent() {
@@ -188,8 +188,18 @@ public class JavaDocNode {
         }
 
         @Override
-        public int getIndex() {
-          return JavadocTokenTypes.TEXT;
+        public DetailNode getNextSibling() {
+          return null;
+        }
+
+        @Override
+        public DetailNode getFirstChild() {
+          return null;
+        }
+
+        @Override
+        public DetailNode getPreviousSibling() {
+          return null;
         }
       };
 

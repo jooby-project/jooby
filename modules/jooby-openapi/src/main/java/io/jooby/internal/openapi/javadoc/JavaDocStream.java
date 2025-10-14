@@ -13,7 +13,6 @@ import java.util.stream.StreamSupport;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
-import com.puppycrawl.tools.checkstyle.utils.JavadocUtil;
 
 public final class JavaDocStream {
 
@@ -205,7 +204,7 @@ public final class JavaDocStream {
 
     static ASTNode<DetailNode> javadoc(DetailNode node) {
       return ast(
-          node, DetailNode::getParent, JavadocUtil::getFirstChild, JavadocUtil::getNextSibling);
+          node, DetailNode::getParent, DetailNode::getFirstChild, DetailNode::getNextSibling);
     }
 
     static <N> ASTNode<N> ast(

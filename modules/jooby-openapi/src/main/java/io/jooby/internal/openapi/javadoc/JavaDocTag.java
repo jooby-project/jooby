@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
+import com.puppycrawl.tools.checkstyle.api.JavadocCommentsTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.SneakyThrows.Consumer3;
@@ -30,7 +31,7 @@ import io.swagger.v3.oas.models.tags.Tag;
 
 public class JavaDocTag {
   private static final Predicate<DetailNode> CUSTOM_TAG =
-      javadocToken(JavadocTokenTypes.CUSTOM_NAME);
+      javadocToken(JavadocCommentsTokenTypes.CUSTOM_BLOCK_TAG);
   private static final Predicate<DetailNode> TAG_SHORT =
       CUSTOM_TAG.and(it -> it.getText().equals("@tag"));
   private static final Predicate<DetailNode> TAG =
@@ -261,23 +262,23 @@ public class JavaDocTag {
         (tag, text) -> {
           var statusCode =
               tree(tag)
-                  .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                  .filter(javadocToken(JavadocCommentsTokenTypes.DESCRIPTION))
                   .findFirst()
                   .flatMap(
                       it ->
                           tree(it)
-                              .filter(javadocToken(JavadocTokenTypes.HTML_TAG_NAME))
+                              .filter(javadocToken(JavadocCommentsTokenTypes.HTML_TAG_START))
                               .filter(tagName -> tagName.getText().equals("code"))
                               .flatMap(
                                   tagName ->
                                       backward(tagName)
-                                          .filter(javadocToken(JavadocTokenTypes.HTML_TAG))
+                                          .filter(javadocToken(JavadocCommentsTokenTypes.TAG_NAME))
                                           .findFirst()
                                           .stream())
                               .flatMap(
                                   htmlTag ->
                                       children(htmlTag)
-                                          .filter(javadocToken(JavadocTokenTypes.TEXT))
+                                          .filter(javadocToken(JavadocCommentsTokenTypes.TEXT))
                                           .findFirst()
                                           .stream())
                               .map(DetailNode::getText)
@@ -355,15 +356,16 @@ public class JavaDocTag {
       Predicate<DetailNode> filter,
       Consumer3<DetailNode, DetailNode, String> consumer) {
     if (tree != JavaDocNode.EMPTY_NODE) {
-      for (var tag : tree(tree).filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG)).toList()) {
+      for (var tag :
+          tree(tree).filter(javadocToken(JavadocCommentsTokenTypes.JAVADOC_BLOCK_TAG)).toList()) {
         var tagName = tree(tag).filter(filter).findFirst().orElse(null);
         if (tagName != null) {
           var tagValue =
               tree(tag)
-                  .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+                  .filter(javadocToken(JavadocCommentsTokenTypes.DESCRIPTION))
                   .findFirst()
                   .orElse(null);
-          var tagText = tagValue == null ? null : getText(List.of(tagValue.getChildren()), true);
+          var tagText = tagValue == null ? null : getText(List.of(), true);
           consumer.accept(tagName, tagValue, tagText);
         }
       }
