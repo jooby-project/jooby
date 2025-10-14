@@ -124,7 +124,6 @@ public class UndertowServer extends Server.Base {
               .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
               .setServerOption(UndertowOptions.MAX_HEADER_SIZE, options.getMaxHeaderSize())
               .setServerOption(UndertowOptions.MAX_PARAMETERS, options.getMaxFormFields())
-              .setServerOption(UndertowOptions.MAX_ENTITY_SIZE, (long) options.getMaxRequestSize())
               .setServerOption(UndertowOptions.ALLOW_EQUALS_IN_COOKIE_VALUE, true)
               .setServerOption(UndertowOptions.ALWAYS_SET_DATE, options.getDefaultHeaders())
               .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
