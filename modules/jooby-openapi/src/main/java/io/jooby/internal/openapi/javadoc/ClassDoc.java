@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import com.puppycrawl.tools.checkstyle.DetailAstImpl;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocCommentsTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.TokenUtil;
@@ -70,12 +69,7 @@ public class ClassDoc extends JavaDocNode {
                 tree(version.getParent())
                     .filter(javadocToken(JavadocCommentsTokenTypes.DESCRIPTION))
                     .findFirst()
-                    .flatMap(
-                        it ->
-                            tree(it)
-                                .filter(javadocToken(JavadocCommentsTokenTypes.TEXT))
-                                .findFirst())
-                    .map(DetailNode::getText))
+                    .map(it -> getText(children(it).toList(), true)))
         .orElse(null);
   }
 

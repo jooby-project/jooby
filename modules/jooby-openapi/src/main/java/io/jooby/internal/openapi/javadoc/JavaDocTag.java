@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocCommentsTokenTypes;
-import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
 import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.SneakyThrows.Consumer3;
 import io.jooby.StatusCode;
@@ -32,31 +31,22 @@ import io.swagger.v3.oas.models.tags.Tag;
 public class JavaDocTag {
   private static final Predicate<DetailNode> CUSTOM_TAG =
       javadocToken(JavadocCommentsTokenTypes.CUSTOM_BLOCK_TAG);
-  private static final Predicate<DetailNode> TAG_SHORT =
-      CUSTOM_TAG.and(it -> it.getText().equals("@tag"));
-  private static final Predicate<DetailNode> TAG =
-      CUSTOM_TAG.and(it -> it.getText().startsWith("@tag."));
-  private static final Predicate<DetailNode> SERVER =
-      CUSTOM_TAG.and(it -> it.getText().startsWith("@server."));
+  private static final Predicate<DetailNode> TAG_SHORT = it -> it.getText().equals("tag");
+  private static final Predicate<DetailNode> TAG = it -> it.getText().startsWith("tag.");
+  private static final Predicate<DetailNode> SERVER = it -> it.getText().startsWith("server.");
   private static final Predicate<DetailNode> SECURITY =
-      CUSTOM_TAG.and(
-          it -> it.getText().equals("@security") || it.getText().equals("@securityRequirement"));
-  private static final Predicate<DetailNode> SECURITY_REQUIREMENT =
-      CUSTOM_TAG.and(it -> it.getText().equals("@securityRequirement"));
+      it -> it.getText().equals("security") || it.getText().equals("securityRequirement");
   private static final Predicate<DetailNode> SECURITY_SCHEME =
-      CUSTOM_TAG.and(it -> it.getText().startsWith("@securityScheme."));
-  private static final Predicate<DetailNode> CONTACT =
-      CUSTOM_TAG.and(it -> it.getText().startsWith("@contact."));
-  private static final Predicate<DetailNode> LICENSE =
-      CUSTOM_TAG.and(it -> it.getText().startsWith("@license."));
+      it -> it.getText().startsWith("securityScheme.");
+  private static final Predicate<DetailNode> CONTACT = it -> it.getText().startsWith("contact.");
+  private static final Predicate<DetailNode> LICENSE = it -> it.getText().startsWith("license.");
   private static final Predicate<DetailNode> OPERATION_ID =
-      CUSTOM_TAG.and(it -> it.getText().equals("@operationId"));
-  private static final Predicate<DetailNode> EXTENSION =
-      CUSTOM_TAG.and(it -> it.getText().startsWith("@x-"));
+      it -> it.getText().equals("operationId");
+  private static final Predicate<DetailNode> EXTENSION = it -> it.getText().startsWith("x-");
   private static final Predicate<DetailNode> THROWS =
-      it -> tree(it).anyMatch(javadocToken(JavadocTokenTypes.THROWS_LITERAL));
+      it -> tree(it).anyMatch(javadocToken(JavadocCommentsTokenTypes.THROWS_BLOCK_TAG));
   private static final Predicate<DetailNode> PARAM =
-      it -> tree(it).anyMatch(javadocToken(JavadocTokenTypes.PARAM_LITERAL));
+      it -> tree(it).anyMatch(javadocToken(JavadocCommentsTokenTypes.PARAM_BLOCK_TAG));
 
   public static Map<String, String> getParametersDoc(DetailNode node) {
     var parameters = new LinkedHashMap<String, String>();
@@ -64,18 +54,17 @@ public class JavaDocTag {
         node,
         PARAM,
         (tag, value) -> {
-          children(tag)
-              .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+          tree(tag)
+              .filter(javadocToken(JavadocCommentsTokenTypes.PARAMETER_NAME))
               .findFirst()
               .map(DetailNode::getText)
               .ifPresent(
-                  name -> {
-                    children(tag)
-                        .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
-                        .findFirst()
-                        .map(description -> JavaDocNode.getText(tree(description).toList(), true))
-                        .ifPresent(text -> parameters.put(name, text));
-                  });
+                  name ->
+                      tree(tag)
+                          .filter(javadocToken(JavadocCommentsTokenTypes.DESCRIPTION))
+                          .findFirst()
+                          .map(description -> JavaDocNode.getText(tree(description).toList(), true))
+                          .ifPresent(text -> parameters.put(name, text)));
         });
     return parameters;
   }
@@ -84,10 +73,10 @@ public class JavaDocTag {
     var text = new StringBuilder();
     javaDocTag(
         node,
-        javadocToken(JavadocTokenTypes.RETURN_LITERAL),
+        javadocToken(JavadocCommentsTokenTypes.RETURN_BLOCK_TAG),
         (tag, value) -> {
-          children(tag.getParent())
-              .filter(javadocToken(JavadocTokenTypes.DESCRIPTION))
+          tree(tag.getParent())
+              .filter(javadocToken(JavadocCommentsTokenTypes.DESCRIPTION))
               .findFirst()
               .map(description -> JavaDocNode.getText(tree(description).toList(), true))
               .ifPresent(text::append);
@@ -246,7 +235,7 @@ public class JavaDocTag {
         node,
         filter,
         (tag, value) -> {
-          values.add(tag.getText().substring(1));
+          values.add(tag.getText()); // .substring(1));
           values.add(value);
         });
     return JavaDocObjectParser.parse(values).stream()
@@ -267,14 +256,14 @@ public class JavaDocTag {
                   .flatMap(
                       it ->
                           tree(it)
-                              .filter(javadocToken(JavadocCommentsTokenTypes.HTML_TAG_START))
                               .filter(tagName -> tagName.getText().equals("code"))
+                              .map(DetailNode::getParent)
+                              .map(DetailNode::getParent)
                               .flatMap(
-                                  tagName ->
-                                      backward(tagName)
-                                          .filter(javadocToken(JavadocCommentsTokenTypes.TAG_NAME))
-                                          .findFirst()
-                                          .stream())
+                                  start ->
+                                      children(start)
+                                          .filter(
+                                              javadocToken(JavadocCommentsTokenTypes.HTML_CONTENT)))
                               .flatMap(
                                   htmlTag ->
                                       children(htmlTag)
@@ -365,7 +354,7 @@ public class JavaDocTag {
                   .filter(javadocToken(JavadocCommentsTokenTypes.DESCRIPTION))
                   .findFirst()
                   .orElse(null);
-          var tagText = tagValue == null ? null : getText(List.of(), true);
+          var tagText = tagValue == null ? null : getText(children(tagValue).toList(), true);
           consumer.accept(tagName, tagValue, tagText);
         }
       }

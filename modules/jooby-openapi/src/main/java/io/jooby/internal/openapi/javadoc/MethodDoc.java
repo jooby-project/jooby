@@ -11,7 +11,7 @@ import java.util.*;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
-import com.puppycrawl.tools.checkstyle.api.JavadocTokenTypes;
+import com.puppycrawl.tools.checkstyle.api.JavadocCommentsTokenTypes;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.ResponseExt;
@@ -87,11 +87,11 @@ public class MethodDoc extends JavaDocNode {
   public List<String> getJavadocParameterNames() {
     return tree(javadoc)
         // must be a tag
-        .filter(javadocToken(JavadocTokenTypes.JAVADOC_TAG))
+        .filter(javadocToken(JavadocCommentsTokenTypes.JAVADOC_BLOCK_TAG))
         .flatMap(
             it ->
-                children(it)
-                    .filter(javadocToken(JavadocTokenTypes.PARAMETER_NAME))
+                tree(it)
+                    .filter(javadocToken(JavadocCommentsTokenTypes.PARAMETER_NAME))
                     .map(DetailNode::getText))
         .toList();
   }

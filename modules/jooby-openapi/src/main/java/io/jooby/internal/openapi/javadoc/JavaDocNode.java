@@ -16,7 +16,6 @@ import com.puppycrawl.tools.checkstyle.JavadocDetailNodeParser;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.DetailNode;
 import com.puppycrawl.tools.checkstyle.api.JavadocCommentsTokenTypes;
-import com.puppycrawl.tools.checkstyle.utils.JavadocUtil;
 import io.swagger.v3.oas.models.tags.Tag;
 
 public class JavaDocNode {
@@ -140,10 +139,11 @@ public class JavaDocNode {
             builder.append(text);
           }
         } else if (node.getType() == JavadocCommentsTokenTypes.NEWLINE) {
-          var next = JavadocUtil.getNextSibling(node, JavadocCommentsTokenTypes.LEADING_ASTERISK);
-          if (next != null) { // && next.getType() != JavadocCommentsTokenTypes.LEADING_ASTERISK) {
+          var next = node.getNextSibling();
+          if (next != null && next.getType() != JavadocCommentsTokenTypes.LEADING_ASTERISK) {
             builder.append(next.getText());
             visited.add(next);
+            //            visited.add(next.getNextSibling());
           }
         }
       }
