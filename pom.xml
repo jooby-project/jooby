@@ -74,7 +74,7 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
     <ebean.version>17.1.0</ebean.version>
-    <jdbi.version>3.49.5</jdbi.version>
+    <jdbi.version>3.49.6</jdbi.version>
     <flyway.version>11.8.2</flyway.version>
     <graphql-java.version>24.3</graphql-java.version>
     <lettuce.version>6.8.1.RELEASE</lettuce.version>
@@ -88,7 +88,7 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.18</logback-classic.version>
+    <logback-classic.version>1.5.19</logback-classic.version>
     <log4j.version>2.25.2</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
@@ -102,16 +102,16 @@
     <jboss-modules.version>2.2.0.Final</jboss-modules.version>
 
     <!-- ASM -->
-    <asm.version>9.8</asm.version>
+    <asm.version>9.9</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.19.Final</undertow.version>
-    <jetty.version>12.1.1</jetty.version>
+    <undertow.version>2.3.20.Final</undertow.version>
+    <jetty.version>12.1.2</jetty.version>
     <netty.version>4.2.6.Final</netty.version>
     <vertx.version>5.0.4</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.37</swagger.version>
+    <swagger.version>2.2.38</swagger.version>
     <swagger-parser.version>2.1.34</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
@@ -130,13 +130,13 @@
     <spotbugs-annotations.version>4.9.6</spotbugs-annotations.version>
 
     <!-- Misc -->
-    <okhttp.version>5.1.0</okhttp.version>
+    <okhttp.version>5.2.1</okhttp.version>
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
     <pac4j.version>6.2.0</pac4j.version>
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.0.1</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.791</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.792</aws-java-sdk.version>
     <camel.version>4.13.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -148,7 +148,7 @@
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
     <!-- Test dependencies -->
-    <jacoco.version>0.8.13</jacoco.version>
+    <jacoco.version>0.8.14</jacoco.version>
     <junit.version>6.0.0</junit.version>
     <rest-assured.version>5.5.6</rest-assured.version>
     <assertj-core.version>3.27.6</assertj-core.version>
@@ -174,7 +174,7 @@
     <maven-tiles-plugin.version>2.41</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <maven-core.version>3.9.11</maven-core.version>
-    <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
+    <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -192,7 +192,7 @@
     <plexus-utils.version>4.0.2</plexus-utils.version>
     <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.19.1</versions-maven-plugin.version>
-    <exec-maven-plugin.version>3.5.1</exec-maven-plugin.version>
+    <exec-maven-plugin.version>3.6.1</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
     <node.version>v20.11.0</node.version>
