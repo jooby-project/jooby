@@ -5,11 +5,13 @@
  */
 package io.jooby.netty;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 @Fork(5)
@@ -20,10 +22,16 @@ import io.netty.buffer.Unpooled;
 @State(Scope.Benchmark)
 public class ByteBufBench {
   private String string;
+  private byte[] bytes;
+  private ByteBuf buf;
+  private ByteBuffer buffer;
 
   @Setup
   public void setup() {
     string = "Hello World!";
+    bytes = string.getBytes(StandardCharsets.UTF_8);
+    buf = Unpooled.wrappedBuffer(bytes);
+    buffer = ByteBuffer.wrap(bytes);
   }
 
   @Benchmark
@@ -42,7 +50,27 @@ public class ByteBufBench {
   }
 
   @Benchmark
+  public void byteBufWrapper() {
+    Unpooled.wrappedBuffer(bytes);
+  }
+
+  @Benchmark
+  public void byteBufferWrapper() {
+    ByteBuffer.wrap(bytes);
+  }
+
+  @Benchmark
   public void stringUSAsciiBytes() {
     Unpooled.wrappedBuffer(string.getBytes(StandardCharsets.US_ASCII));
+  }
+
+  @Benchmark
+  public void bufferSlice() {
+    buffer.slice();
+  }
+
+  @Benchmark
+  public void byteBufSlice() {
+    buf.slice();
   }
 }
