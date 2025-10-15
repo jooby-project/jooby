@@ -48,7 +48,7 @@ public class ByteBufferedOutputFactory implements OutputFactory {
     }
   }
 
-  private OutputOptions options;
+  private final OutputOptions options;
 
   public ByteBufferedOutputFactory(OutputOptions options) {
     this.options = options;
@@ -57,12 +57,6 @@ public class ByteBufferedOutputFactory implements OutputFactory {
   @Override
   public OutputOptions getOptions() {
     return options;
-  }
-
-  @Override
-  public OutputFactory setOptions(@NonNull OutputOptions options) {
-    this.options = options;
-    return this;
   }
 
   @Override

@@ -5,11 +5,18 @@
  */
 package io.jooby.output;
 
+/**
+ * Configuration options for output buffers.
+ *
+ * @author edgar
+ * @since 4.0.0
+ */
 public class OutputOptions {
   private int size;
 
   private boolean directBuffers;
 
+  /** Creates a default options. */
   public OutputOptions() {
     long maxMemory = Runtime.getRuntime().maxMemory();
     // smaller than 64mb of ram we use 512b buffers
@@ -68,10 +75,21 @@ public class OutputOptions {
     return this;
   }
 
+  /**
+   * True when using direct buffers.
+   *
+   * @return True when using direct buffers.
+   */
   public boolean isDirectBuffers() {
     return directBuffers;
   }
 
+  /**
+   * Set to true for using direct buffers.
+   *
+   * @param directBuffers True for direct buffers.
+   * @return This options.
+   */
   public OutputOptions setDirectBuffers(boolean directBuffers) {
     this.directBuffers = directBuffers;
     return this;

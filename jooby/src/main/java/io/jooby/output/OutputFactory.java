@@ -37,9 +37,12 @@ public interface OutputFactory {
     return create(new OutputOptions());
   }
 
+  /**
+   * Configuration options.
+   *
+   * @return Configuration options.
+   */
   OutputOptions getOptions();
-
-  OutputFactory setOptions(@NonNull OutputOptions options);
 
   /**
    * Creates a new byte buffered output.

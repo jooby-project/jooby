@@ -150,6 +150,11 @@ public interface Server {
     return this;
   }
 
+  /**
+   * Output buffer required for using native/server buffers.
+   *
+   * @return Output buffer required for using native/server buffers.
+   */
   OutputFactory getOutputFactory();
 
   /**

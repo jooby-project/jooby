@@ -56,7 +56,7 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   private final ByteBufAllocator allocator;
-  private OutputOptions options;
+  private final OutputOptions options;
 
   public NettyOutputFactory(ByteBufAllocator allocator, OutputOptions options) {
     this.allocator = allocator;
@@ -70,12 +70,6 @@ public class NettyOutputFactory implements OutputFactory {
   @Override
   @NonNull public OutputOptions getOptions() {
     return options;
-  }
-
-  @Override
-  @NonNull public OutputFactory setOptions(@NonNull OutputOptions options) {
-    this.options = options;
-    return this;
   }
 
   @Override
