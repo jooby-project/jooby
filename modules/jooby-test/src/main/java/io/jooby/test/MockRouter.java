@@ -18,6 +18,7 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocket;
+import io.jooby.problem.ProblemDetailsHandler;
 
 /**
  * Utility class that allows us to execute routes using a {@link MockContext}.
@@ -74,6 +75,9 @@ public class MockRouter {
    * @param application Source application.
    */
   public MockRouter(@NonNull Jooby application) {
+    if (application.problemDetailsIsEnabled()) {
+      application.error(ProblemDetailsHandler.from(application.getConfig()));
+    }
     this.supplier = () -> application;
   }
 
