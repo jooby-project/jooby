@@ -12,9 +12,9 @@ public class Issue3787 {
   private final MockRouter router = new MockRouter(new Application()).setFullExecution(true);
 
   @Test
-  void test() {
+  void issue3787() {
     var ctx = new MockContext();
-    router.tryError(new Application.CustomException(), ctx); // throws java.lang.NullPointerException
+    router.tryError(new Application.CustomException(), ctx);
     assertEquals(StatusCode.BAD_REQUEST, ctx.getResponseCode());
   }
 }

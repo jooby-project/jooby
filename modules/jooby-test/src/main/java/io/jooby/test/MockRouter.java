@@ -472,6 +472,8 @@ public class MockRouter {
    */
   public void tryError(Throwable cause, Context ctx) {
     var app = supplier.get();
+    MockContext findContext = ctx instanceof MockContext ? (MockContext) ctx : newContext();
+    findContext.setRouter(app);
     var handler = app.getErrorHandler();
     handler.apply(ctx, cause, app.errorCode(cause));
   }
