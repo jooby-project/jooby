@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.output.CompositeOutput;
-import io.jooby.internal.output.OutputByteArrayStatic;
 import io.jooby.internal.output.OutputStatic;
 import io.jooby.internal.output.WrappedOutput;
 
@@ -34,7 +33,7 @@ public class ByteBufferedOutputFactory implements OutputFactory {
 
     @Override
     public Output wrap(@NonNull String value, @NonNull Charset charset) {
-      return new OutputByteArrayStatic(value.getBytes(charset));
+      return new WrappedOutput(ByteBuffer.wrap(value.getBytes(charset)));
     }
 
     @Override
@@ -81,12 +80,12 @@ public class ByteBufferedOutputFactory implements OutputFactory {
 
   @Override
   public Output wrap(@NonNull byte[] bytes) {
-    return new OutputByteArrayStatic(bytes);
+    return wrap(bytes, 0, bytes.length);
   }
 
   @Override
   public Output wrap(@NonNull byte[] bytes, int offset, int length) {
-    return new OutputByteArrayStatic(bytes, offset, length);
+    return new OutputStatic(ByteBuffer.wrap(bytes, offset, length));
   }
 
   @Override

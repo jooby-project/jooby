@@ -14,10 +14,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -34,12 +31,7 @@ import io.jooby.Server;
 import io.jooby.ServerSentMessage;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocketCloseStatus;
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
+import okhttp3.*;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
@@ -176,12 +168,16 @@ public class WebClient implements AutoCloseable {
     try {
       this.scheme = scheme;
       this.port = port;
+      Dispatcher dispatcher = new Dispatcher();
+      dispatcher.setMaxRequests(100); // Maximum 20 concurrent requests overall
+      dispatcher.setMaxRequestsPerHost(100);
       OkHttpClient.Builder builder =
           new OkHttpClient.Builder()
               .connectTimeout(5, TimeUnit.MINUTES)
               .writeTimeout(5, TimeUnit.MINUTES)
               .readTimeout(5, TimeUnit.MINUTES)
-              .followRedirects(followRedirects);
+              .followRedirects(followRedirects)
+              .dispatcher(dispatcher);
       if (scheme.equalsIgnoreCase("https")) {
         configureSelfSigned(builder);
       }
@@ -227,6 +223,32 @@ public class WebClient implements AutoCloseable {
 
   public Request get(String path) {
     return invoke("GET", path, null);
+  }
+
+  public void concurrent(String path, int concurrency, SneakyThrows.Consumer<Response> callback) {
+    var futures = new ArrayList<Future<String>>();
+    try (var executor = Executors.newFixedThreadPool(concurrency + 5)) {
+      for (var i = 0; i < concurrency; i++) {
+        futures.add(
+            executor.submit(
+                () -> {
+                  okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+                  req.url(scheme + "://localhost:" + port + path);
+                  new Request(req).execute(callback);
+                  return "OK";
+                }));
+      }
+      for (Future<String> future : futures) {
+        try {
+          var result = future.get();
+          if (!"OK".equals(result)) {
+            throw new IllegalStateException(result);
+          }
+        } catch (Exception e) {
+          SneakyThrows.propagate(e);
+        }
+      }
+    }
   }
 
   public ServerSentMessageIterator sse(String path) {

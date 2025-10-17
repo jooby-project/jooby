@@ -9,12 +9,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.netty.buffer.ByteBuf;
 
-public class NettyOutputByteArrayStaticNew implements NettyByteBufRef {
+public class NettyOutputUnsafeHeapByteBuf implements NettyByteBufRef {
   private final ByteBuf buf;
   private final NettyString contentLength;
   private final int length;
 
-  protected NettyOutputByteArrayStaticNew(byte[] bytes, int offset, int len) {
+  protected NettyOutputUnsafeHeapByteBuf(byte[] bytes, int offset, int len) {
     this.length = len - offset;
     this.buf = new NettyUnsafeHeapByteBuf(this.length, this.length);
     this.buf.writeBytes(bytes, offset, length);
@@ -33,7 +33,7 @@ public class NettyOutputByteArrayStaticNew implements NettyByteBufRef {
   @Override
   public void send(Context ctx) {
     if (ctx.getClass() == NettyContext.class) {
-      ((NettyContext) ctx).send(buf.slice(), contentLength);
+      ((NettyContext) ctx).send(buf.slice(0, length), contentLength);
     } else {
       ctx.send(asByteBuffer());
     }

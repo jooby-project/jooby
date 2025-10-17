@@ -90,7 +90,7 @@ public class NettyOutputFactory implements OutputFactory {
 
   @Override
   @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
-    return new NettyOutputByteArrayStatic(bytes, offset, length);
+    return new NettyOutputUnsafeHeapByteBuf(bytes, offset, length);
   }
 
   @Override

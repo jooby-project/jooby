@@ -37,8 +37,8 @@ public interface NettyByteBufRef extends Output {
   }
 
   static ByteBuf byteBuf(Output output) {
-    if (output instanceof NettyByteBufRef netty) {
-      return netty.byteBuf();
+    if (output instanceof NettyByteBufRef byteBuf) {
+      return byteBuf.byteBuf();
     } else {
       return Unpooled.wrappedBuffer(output.asByteBuffer());
     }

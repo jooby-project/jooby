@@ -12,13 +12,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.BufferedOutput;
 import io.netty.buffer.ByteBuf;
 
-public class NettyByteBufOutput implements BufferedOutput, NettyByteBufRef {
-
-  private final ByteBuf buffer;
-
-  protected NettyByteBufOutput(ByteBuf buffer) {
-    this.buffer = buffer;
-  }
+public record NettyByteBufOutput(ByteBuf buffer) implements BufferedOutput, NettyByteBufRef {
 
   @Override
   @NonNull public BufferedOutput write(byte b) {
