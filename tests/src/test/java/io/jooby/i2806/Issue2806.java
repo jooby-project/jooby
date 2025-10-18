@@ -5,9 +5,9 @@
  */
 package io.jooby.i2806;
 
+import static io.jooby.test.TestUtil._19kb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -22,9 +22,6 @@ public class Issue2806 {
 
   @ServerTest
   public void renderShouldWorkFromErrorHandlerWhenLargeRequestAreSent(ServerTestRunner runner) {
-    char[] chars = new char[19 * 1024];
-    Arrays.fill(chars, 'S');
-    String _19kb = new String(chars);
     runner
         .define(
             app -> {
@@ -43,20 +40,32 @@ public class Issue2806 {
                     ctx.render(map);
                   });
 
-              app.post("/2806", ctx -> ctx.body().value(""));
+              app.post(
+                  "/2806",
+                  ctx -> {
+                    return ctx.body().value("");
+                  });
 
               app.get("/2806", ctx -> ctx.body().value(""));
             })
         .ready(
             client -> {
               // Exceeds
-              client.post(
-                  "/2806",
-                  RequestBody.create(_19kb, MediaType.get("text/plain")),
-                  rsp -> {
-                    assertEquals(413, rsp.code());
-                    assertEquals("{\"router\":true,\"route\":true}", rsp.body().string());
-                  });
+              client
+                  .post("/2806", RequestBody.create(_19kb, MediaType.get("text/plain")))
+                  .execute(
+                      rsp -> {
+                        assertEquals(413, rsp.code());
+                        assertEquals("{\"router\":true,\"route\":true}", rsp.body().string());
+                      });
+
+              client
+                  .get("/2806")
+                  .execute(
+                      rsp -> {
+                        assertEquals(200, rsp.code());
+                        assertEquals("", rsp.body().string());
+                      });
             });
   }
 }

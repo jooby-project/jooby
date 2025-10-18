@@ -35,7 +35,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final boolean defaultHeaders;
   private final long maxRequestSize;
   private final int maxFormFields;
-  private long contentLength;
   private long chunkSize;
   private final boolean http2;
   private NettyContext context;
@@ -78,7 +77,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         router.match(context).execute(context);
       } else {
         // possibly body:
-        contentLength = contentLength(req);
+        long contentLength = contentLength(req);
         if (contentLength > 0 || isTransferEncodingChunked(req)) {
           context.httpDataFactory = new DefaultHttpDataFactory(bufferSize);
           context.httpDataFactory.setBaseDir(app.getTmpdir().toString());
@@ -87,20 +86,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
           // no body, move on
           router.match(context).execute(context);
         }
-      }
-    } else if (isLastHttpContent(msg)) {
-      var chunk = (HttpContent) msg;
-      try {
-        // when decoder == null, chunk is always a LastHttpContent.EMPTY, ignore it
-        if (context.decoder != null) {
-          if (offer(context, chunk)) {
-            Router.Match route = router.match(context);
-            resetDecoderState(context, !route.matches());
-            route.execute(context);
-          }
-        }
-      } finally {
-        release(chunk);
       }
     } else if (isHttpContent(msg)) {
       var chunk = (HttpContent) msg;
@@ -113,10 +98,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
             router.match(context).execute(context, Route.REQUEST_ENTITY_TOO_LARGE);
             return;
           }
-          offer(context, chunk);
+          if (offer(context, chunk) && isLastHttpContent(msg)) {
+            Router.Match route = router.match(context);
+            resetDecoderState(context, !route.matches());
+            route.execute(context);
+          }
         }
       } finally {
-        // must be released
         release(chunk);
       }
     } else if (isWebSocketFrame(msg)) {
@@ -191,7 +179,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
   private void resetDecoderState(NettyContext context, boolean destroy) {
     chunkSize = 0;
-    contentLength = -1;
     if (destroy && context.decoder != null) {
       var decoder = context.decoder;
       var httpDataFactory = context.httpDataFactory;

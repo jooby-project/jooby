@@ -14,10 +14,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -142,17 +139,46 @@ public class WebClient implements AutoCloseable {
 
   public class Request {
     private final okhttp3.Request.Builder req;
+    private SneakyThrows.Consumer<okhttp3.Request.Builder> configurer;
 
     public Request(okhttp3.Request.Builder req) {
       this.req = req;
     }
 
     public Request prepare(SneakyThrows.Consumer<okhttp3.Request.Builder> configurer) {
-      configurer.accept(req);
+      this.configurer = configurer;
       return this;
     }
 
     public void execute(SneakyThrows.Consumer<Response> callback) {
+      execute(1, callback);
+    }
+
+    public void execute(int concurrency, SneakyThrows.Consumer<Response> callback) {
+      if (configurer != null) {
+        configurer.accept(req);
+      }
+      if (concurrency > 1) {
+        var futures = new ArrayList<CompletableFuture<String>>();
+        for (var i = 0; i < concurrency; i++) {
+          futures.add(
+              CompletableFuture.supplyAsync(
+                  () -> {
+                    executeCall(callback);
+                    return "success";
+                  }));
+          try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+          } catch (CompletionException x) {
+            throw SneakyThrows.propagate(x.getCause());
+          }
+        }
+      } else {
+        executeCall(callback);
+      }
+    }
+
+    private void executeCall(SneakyThrows.Consumer<Response> callback) {
       okhttp3.Request r = req.build();
       try (Response rsp = client.newCall(r).execute()) {
         callback.accept(rsp);
