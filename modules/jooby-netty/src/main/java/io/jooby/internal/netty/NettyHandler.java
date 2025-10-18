@@ -181,9 +181,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         ctx.flush();
       }
     }
-    if (context != null) {
-      //      context.destroy(null);
-    }
     super.channelReadComplete(ctx);
   }
 
