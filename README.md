@@ -1,7 +1,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.jooby/jooby?label=stable)](https://central.sonatype.com/artifact/io.jooby/jooby)
 [![Javadoc](https://javadoc.io/badge/io.jooby/jooby.svg)](https://javadoc.io/doc/io.jooby/jooby/latest)
 [![Github](https://github.com/jooby-project/jooby/workflows/Full%20Build/badge.svg)](https://github.com/jooby-project/jooby/actions)
-[![Discord](https://img.shields.io/discord/1225457509909922015?label=discord)](https://discord.gg/nmfJmmrq)
+[![Discord](https://img.shields.io/discord/1225457509909922015?label=discord)](https://discord.gg/JmyxrKPvjY)
 [![Reproducible Builds](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jvm-repo-rebuild/reproducible-central/master/content/io/jooby/badge.json)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/io/jooby/README.md)
 ![GitHub Sponsors](https://img.shields.io/github/sponsors/jknack)
 
