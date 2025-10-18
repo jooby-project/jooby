@@ -15,8 +15,7 @@ import io.jooby.junit.ServerTestRunner;
 public class ConcurrentTest {
 
   @ServerTest
-  public void makeSureBufferWork(ServerTestRunner runner)
-      throws ExecutionException, InterruptedException {
+  public void makeSureBufferWork(ServerTestRunner runner) {
     var payload = "Hello World!";
     runner
         .define(
@@ -32,12 +31,7 @@ public class ConcurrentTest {
             })
         .ready(
             http -> {
-              http.concurrent(
-                  "/plaintext",
-                  20,
-                  rsp -> {
-                    assertEquals(payload, rsp.body().string());
-                  });
+              http.get("/plaintext").execute(50, rsp -> assertEquals(payload, rsp.body().string()));
             });
   }
 }

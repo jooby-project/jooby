@@ -134,17 +134,46 @@ public class WebClient implements AutoCloseable {
 
   public class Request {
     private final okhttp3.Request.Builder req;
+    private SneakyThrows.Consumer<okhttp3.Request.Builder> configurer;
 
     public Request(okhttp3.Request.Builder req) {
       this.req = req;
     }
 
     public Request prepare(SneakyThrows.Consumer<okhttp3.Request.Builder> configurer) {
-      configurer.accept(req);
+      this.configurer = configurer;
       return this;
     }
 
     public void execute(SneakyThrows.Consumer<Response> callback) {
+      execute(1, callback);
+    }
+
+    public void execute(int concurrency, SneakyThrows.Consumer<Response> callback) {
+      if (configurer != null) {
+        configurer.accept(req);
+      }
+      if (concurrency > 1) {
+        var futures = new ArrayList<CompletableFuture<String>>();
+        for (var i = 0; i < concurrency; i++) {
+          futures.add(
+              CompletableFuture.supplyAsync(
+                  () -> {
+                    executeCall(callback);
+                    return "success";
+                  }));
+          try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+          } catch (CompletionException x) {
+            throw SneakyThrows.propagate(x.getCause());
+          }
+        }
+      } else {
+        executeCall(callback);
+      }
+    }
+
+    private void executeCall(SneakyThrows.Consumer<Response> callback) {
       okhttp3.Request r = req.build();
       try (Response rsp = client.newCall(r).execute()) {
         callback.accept(rsp);
@@ -168,16 +197,12 @@ public class WebClient implements AutoCloseable {
     try {
       this.scheme = scheme;
       this.port = port;
-      Dispatcher dispatcher = new Dispatcher();
-      dispatcher.setMaxRequests(100); // Maximum 20 concurrent requests overall
-      dispatcher.setMaxRequestsPerHost(100);
       OkHttpClient.Builder builder =
           new OkHttpClient.Builder()
               .connectTimeout(5, TimeUnit.MINUTES)
               .writeTimeout(5, TimeUnit.MINUTES)
               .readTimeout(5, TimeUnit.MINUTES)
-              .followRedirects(followRedirects)
-              .dispatcher(dispatcher);
+              .followRedirects(followRedirects);
       if (scheme.equalsIgnoreCase("https")) {
         configureSelfSigned(builder);
       }
@@ -223,32 +248,6 @@ public class WebClient implements AutoCloseable {
 
   public Request get(String path) {
     return invoke("GET", path, null);
-  }
-
-  public void concurrent(String path, int concurrency, SneakyThrows.Consumer<Response> callback) {
-    var futures = new ArrayList<Future<String>>();
-    try (var executor = Executors.newFixedThreadPool(concurrency + 5)) {
-      for (var i = 0; i < concurrency; i++) {
-        futures.add(
-            executor.submit(
-                () -> {
-                  okhttp3.Request.Builder req = new okhttp3.Request.Builder();
-                  req.url(scheme + "://localhost:" + port + path);
-                  new Request(req).execute(callback);
-                  return "OK";
-                }));
-      }
-      for (Future<String> future : futures) {
-        try {
-          var result = future.get();
-          if (!"OK".equals(result)) {
-            throw new IllegalStateException(result);
-          }
-        } catch (Exception e) {
-          SneakyThrows.propagate(e);
-        }
-      }
-    }
   }
 
   public ServerSentMessageIterator sse(String path) {
