@@ -1011,18 +1011,6 @@ public interface Context extends Registry {
   Context dispatch(@NonNull Executor executor, @NonNull Runnable action);
 
   /**
-   * Tells context that response will be generated form a different thread. This operation is
-   * similar to {@link #dispatch(Runnable)} except there is no thread dispatching here.
-   *
-   * <p>This operation integrates easily with third-party libraries like rxJava or others.
-   *
-   * @param next Application code.
-   * @return This context.
-   * @throws Exception When detach operation fails.
-   */
-  Context detach(@NonNull Route.Handler next) throws Exception;
-
-  /**
    * Perform a websocket handsahke and upgrade a HTTP GET into a websocket protocol.
    *
    * <p>NOTE: This method is part of Public API, but shouldn't be used by client code.

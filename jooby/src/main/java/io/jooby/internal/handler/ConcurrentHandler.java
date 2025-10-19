@@ -15,7 +15,7 @@ import java.util.concurrent.Flow;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 
-public class ConcurrentHandler implements Route.Filter {
+public class ConcurrentHandler implements Route.Reactive {
 
   @NonNull @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
@@ -38,11 +38,11 @@ public class ConcurrentHandler implements Route.Filter {
                   after.apply(ctx, value, unwrap((Throwable) x));
                 }
                 if (x != null) {
-                  Throwable exception = unwrap((Throwable) x);
+                  Throwable exception = unwrap(x);
                   ctx.sendError(exception);
                 } else {
                   // See https://github.com/jooby-project/jooby/issues/3486
-                  if (!ctx.isResponseStarted() && value != ctx) {
+                  if (!ctx.isResponseStarted() && value != ctx && value != null) {
                     ctx.render(value);
                   }
                 }

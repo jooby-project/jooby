@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 public class Reactor {
 
   private static final Route.Filter REACTOR =
-      new Route.Filter() {
+      new Route.Reactive() {
 
         private void after(Context ctx, Object value, Throwable failure) {
           Route.After after = ctx.getRoute().getAfter();
@@ -38,14 +38,14 @@ public class Reactor {
           }
         }
 
-        @NonNull @Override
+        @Override
         public Route.Handler apply(@NonNull Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);
             if (ctx.isResponseStarted()) {
               // Return context to mark as handled
               return ctx;
-            } else if (result instanceof Flux flux) {
+            } else if (result instanceof Flux<?> flux) {
               flux.subscribe(toSubscriber(newSubscriber(ctx)));
               // Return context to mark as handled
               return ctx;
@@ -57,7 +57,6 @@ public class Reactor {
                         after(ctx, value, null);
                         // See https://github.com/jooby-project/jooby/issues/3486
                         if (!ctx.isResponseStarted() && value != ctx) {
-
                           // render:
                           ctx.render(value);
                         }

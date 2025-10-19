@@ -6,7 +6,6 @@
 package io.jooby.internal;
 
 import static io.jooby.internal.handler.DefaultHandler.DEFAULT;
-import static io.jooby.internal.handler.DetachHandler.DETACH;
 import static io.jooby.internal.handler.WorkerHandler.WORKER;
 
 import java.util.concurrent.Executor;
@@ -20,18 +19,10 @@ import io.jooby.internal.handler.PostDispatchInitializerHandler;
 public class Pipeline {
 
   public static Handler build(
-      boolean requiresDetach,
-      Route route,
-      ExecutionMode mode,
-      Executor executor,
-      ContextInitializer initializer) {
+      Route route, ExecutionMode mode, Executor executor, ContextInitializer initializer) {
     // Set default wrapper and blocking mode
     if (!route.isNonBlockingSet()) {
       route.setNonBlocking(isDefaultNonblocking(executor, mode));
-    }
-    Route.Filter wrapper = DEFAULT;
-    if (requiresDetach && route.isNonBlocking()) {
-      wrapper = DETACH.then(wrapper);
     }
 
     // Non-Blocking? Split pipeline Head+Handler let reactive call After pipeline
@@ -43,7 +34,7 @@ public class Pipeline {
       pipeline = route.getPipeline();
     }
     return dispatchHandler(
-        mode, executor, decorate(initializer, wrapper.then(pipeline)), route.isNonBlocking());
+        mode, executor, decorate(initializer, DEFAULT.then(pipeline)), route.isNonBlocking());
   }
 
   private static boolean isDefaultNonblocking(Executor executor, ExecutionMode mode) {

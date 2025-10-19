@@ -472,12 +472,6 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext detach(@NonNull Route.Handler next) throws Exception {
-    next.apply(this);
-    return this;
-  }
-
-  @Override
   public Map<String, Object> getAttributes() {
     return attributes;
   }

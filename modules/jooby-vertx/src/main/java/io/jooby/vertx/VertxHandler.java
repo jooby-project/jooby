@@ -8,7 +8,6 @@ package io.jooby.vertx;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.vertx.core.Future;
@@ -29,7 +28,7 @@ import io.vertx.core.file.AsyncFile;
  * @author edgar
  * @since 4.0.8
  */
-public class VertxHandler implements Route.Filter {
+public class VertxHandler implements Route.Reactive {
   private static class AsyncFileHandler {
     private final Context ctx;
     private final OutputStream out;
@@ -85,7 +84,7 @@ public class VertxHandler implements Route.Filter {
   }
 
   @Override
-  public @NonNull Route.Handler apply(Route.Handler next) {
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       var result = next.apply(ctx);
       if (ctx.isResponseStarted()) {

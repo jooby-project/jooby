@@ -106,6 +106,9 @@ public class Route {
     }
   }
 
+  /** Marker interface for reactive responses. */
+  public interface Reactive extends Filter {}
+
   /**
    * Decorates a handler and run logic before handler is executed.
    *
@@ -699,7 +702,7 @@ public class Route {
    *
    * @return Truth when route is non-blocking. False otherwise or <code>null</code> otherwise.
    */
-  @NonNull public boolean isNonBlocking() {
+  public boolean isNonBlocking() {
     return nonBlocking == Boolean.TRUE;
   }
 

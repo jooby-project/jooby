@@ -254,12 +254,6 @@ public class NettyContext implements DefaultContext {
   }
 
   @NonNull @Override
-  public Context detach(@NonNull Route.Handler next) throws Exception {
-    next.apply(this);
-    return this;
-  }
-
-  @NonNull @Override
   public QueryString query() {
     if (query == null) {
       String uri = req.uri();

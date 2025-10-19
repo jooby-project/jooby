@@ -26,8 +26,8 @@ import io.reactivex.rxjava3.disposables.Disposable;
 public class Reactivex {
 
   private static final Route.Filter RX =
-      new Route.Filter() {
-        @NonNull @Override
+      new Route.Reactive() {
+        @Override
         public Route.Handler apply(@NonNull Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);

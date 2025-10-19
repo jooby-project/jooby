@@ -592,10 +592,8 @@ public class RouterImpl implements Router {
             prependMediaType(route.getConsumes(), route.getFilter(), Route.SUPPORT_MEDIA_TYPE));
         route.setFilter(prependMediaType(route.getProduces(), route.getFilter(), Route.ACCEPT));
       }
-      boolean requiresDetach = server.getName().equals("undertow");
       Route.Handler pipeline =
-          Pipeline.build(
-              requiresDetach, route, forceMode(route, mode), executor, postDispatchInitializer);
+          Pipeline.build(route, forceMode(route, mode), executor, postDispatchInitializer);
       route.setPipeline(pipeline);
       /** Final render */
       route.setEncoder(encoder);

@@ -14,7 +14,7 @@ import java.util.List;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.StartupSummary;
-import io.jooby.jetty.JettyServer;
+import io.jooby.undertow.UndertowServer;
 
 public class Performance extends Jooby {
 
@@ -43,6 +43,6 @@ public class Performance extends Jooby {
 
   public static void main(final String[] args) {
     System.setProperty("io.netty.disableHttpHeadersValidation", "true");
-    runApp(args, new JettyServer(new ServerOptions()), EVENT_LOOP, Performance::new);
+    runApp(args, new UndertowServer(new ServerOptions()), EVENT_LOOP, Performance::new);
   }
 }

@@ -71,12 +71,14 @@ public class UndertowContext implements DefaultContext, IoCallback {
   private String remoteAddress;
   private String host;
   private int port;
+  private int bufferSize;
 
-  public UndertowContext(HttpServerExchange exchange, Router router) {
+  public UndertowContext(HttpServerExchange exchange, Router router, int bufferSize) {
     this.exchange = exchange;
     this.router = router;
     this.method = exchange.getRequestMethod().toString().toUpperCase();
     this.requestPath = exchange.getRequestPath();
+    this.bufferSize = bufferSize;
   }
 
   boolean isHttpGet() {
@@ -134,6 +136,9 @@ public class UndertowContext implements DefaultContext, IoCallback {
   @NonNull @Override
   public Context setRoute(Route route) {
     this.route = route;
+    if (this.route.isNonBlocking()) {
+      this.exchange.dispatch();
+    }
     return this;
   }
 
@@ -281,22 +286,6 @@ public class UndertowContext implements DefaultContext, IoCallback {
   public Context dispatch(@NonNull Executor executor, @NonNull Runnable action) {
     exchange.dispatch(executor, action);
     return this;
-  }
-
-  @NonNull @Override
-  public Context detach(@NonNull Route.Handler next) throws Exception {
-    exchange.dispatch(SameThreadExecutor.INSTANCE, detach(this, next));
-    return this;
-  }
-
-  private static Runnable detach(Context ctx, Route.Handler next) {
-    return () -> {
-      try {
-        next.apply(ctx);
-      } catch (Exception cause) {
-        ctx.sendError(cause);
-      }
-    };
   }
 
   @NonNull @Override
@@ -484,6 +473,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
 
   @NonNull @Override
   public Context send(@NonNull ByteBuffer data) {
+    ifUnDispatch(data);
     exchange.setResponseContentLength(data.remaining());
     exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(data.remaining()));
     exchange.getResponseSender().send(data, this);
@@ -649,6 +639,12 @@ public class UndertowContext implements DefaultContext, IoCallback {
     HeaderMap responseHeaders = exchange.getResponseHeaders();
     if (!responseHeaders.contains(Headers.CONTENT_LENGTH)) {
       exchange.getResponseHeaders().put(Headers.TRANSFER_ENCODING, Headers.CHUNKED.toString());
+    }
+  }
+
+  private void ifUnDispatch(ByteBuffer data) {
+    if (data.remaining() > bufferSize && exchange.isDispatched()) {
+      exchange.unDispatch();
     }
   }
 

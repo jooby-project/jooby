@@ -23,7 +23,7 @@ import io.smallrye.mutiny.Uni;
 public class Mutiny {
 
   private static final Route.Filter MUTINY =
-      new Route.Filter() {
+      new Route.Reactive() {
 
         private void after(Context ctx, Object value, Throwable failure) {
           Route.After after = ctx.getRoute().getAfter();

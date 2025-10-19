@@ -40,7 +40,7 @@ public class UndertowHandler implements HttpHandler {
   @Override
   public void handleRequest(HttpServerExchange exchange) throws Exception {
     var router = ctxSelector.select(exchange.getRequestPath());
-    var context = new UndertowContext(exchange, router);
+    var context = new UndertowContext(exchange, router, bufferSize);
 
     /* default headers: */
     HeaderMap responseHeaders = exchange.getResponseHeaders();

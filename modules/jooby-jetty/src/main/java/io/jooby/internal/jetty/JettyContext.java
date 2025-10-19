@@ -371,12 +371,6 @@ public class JettyContext implements DefaultContext, Callback {
   }
 
   @NonNull @Override
-  public Context detach(@NonNull Route.Handler next) throws Exception {
-    next.apply(this);
-    return this;
-  }
-
-  @NonNull @Override
   public Context upgrade(@NonNull WebSocket.Initializer handler) {
     try {
       responseStarted = true;

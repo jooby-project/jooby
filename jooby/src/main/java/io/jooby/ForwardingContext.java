@@ -1045,12 +1045,6 @@ public class ForwardingContext implements Context {
   }
 
   @Override
-  public Context detach(@NonNull Route.Handler next) throws Exception {
-    ctx.detach(next);
-    return this;
-  }
-
-  @Override
   public Context upgrade(@NonNull WebSocket.Initializer handler) {
     ctx.upgrade(handler);
     return this;
