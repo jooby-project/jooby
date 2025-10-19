@@ -14,10 +14,9 @@ import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.test.WebClient;
-import io.jooby.undertow.UndertowServer;
 
 public class Issue2462 {
-  @ServerTest(server = UndertowServer.class)
+  @ServerTest
   public void shouldSendMultipleMessageWithoutError(ServerTestRunner runner) {
     char[] array = new char[ServerOptions._16KB + 1024];
     Arrays.fill(array, 'A');
