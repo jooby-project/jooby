@@ -7,8 +7,8 @@ package io.jooby.internal.run;
 
 import static java.util.stream.Collectors.joining;
 import static org.jboss.modules.ResourceLoaderSpec.createResourceLoaderSpec;
-import static org.jboss.modules.ResourceLoaders.createJarResourceLoader;
-import static org.jboss.modules.ResourceLoaders.createPathResourceLoader;
+import static org.jboss.modules.ResourceLoaders.*;
+import static org.jboss.modules.filter.PathFilters.not;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
 
-import org.jboss.modules.DependencySpec;
-import org.jboss.modules.ModuleDependencySpecBuilder;
-import org.jboss.modules.ModuleFinder;
-import org.jboss.modules.ModuleSpec;
-import org.jboss.modules.PathUtils;
-import org.jboss.modules.ResourceLoaderSpec;
+import org.jboss.modules.*;
 import org.jboss.modules.filter.PathFilters;
 
 import io.jooby.run.JoobyRun;
@@ -73,8 +68,7 @@ public abstract class JoobyModuleFinder implements ModuleFinder {
     }
   }
 
-  public static ModuleSpec createModuleSpec(
-      String name, Set<Path> resources, Set<String> dependencies) {
+  public ModuleSpec createModuleSpec(String name, Set<Path> resources, Set<String> dependencies) {
     ModuleSpec.Builder builder = newModule(name, resources);
 
     // dependencies
@@ -90,7 +84,7 @@ public abstract class JoobyModuleFinder implements ModuleFinder {
     return builder.create();
   }
 
-  private static ModuleSpec.Builder newModule(String name, Set<Path> resources) {
+  private ModuleSpec.Builder newModule(String name, Set<Path> resources) {
     try {
       ModuleSpec.Builder builder = ModuleSpec.build(name);
       // Add all JDK classes
@@ -102,8 +96,20 @@ public abstract class JoobyModuleFinder implements ModuleFinder {
 
       for (Path path : resources) {
         if (Files.isDirectory(path)) {
-          builder.addResourceRoot(
-              ResourceLoaderSpec.createResourceLoaderSpec(createPathResourceLoader(path)));
+          var resourceLoader = createPathResourceLoader(path);
+          if (main.equals(name)) {
+            resourceLoader =
+                createFilteredResourceLoader(
+                    not(
+                        it ->
+                            // remove duplicated log configuration
+                            (it.startsWith("logback") || it.startsWith("log4j"))
+                                    && it.endsWith(".xml")
+                                // remove duplicated configuration
+                                || (it.startsWith("application") && it.endsWith(".conf"))),
+                    resourceLoader);
+          }
+          builder.addResourceRoot(ResourceLoaderSpec.createResourceLoaderSpec(resourceLoader));
         } else {
           builder.addResourceRoot(
               createResourceLoaderSpec(createJarResourceLoader(new JarFile(path.toFile()))));
@@ -117,7 +123,7 @@ public abstract class JoobyModuleFinder implements ModuleFinder {
 
   @Override
   public String toString() {
-    return "classes: "
+    return "main: "
         + classes.stream().map(Path::toString).collect(joining(File.pathSeparator))
         + "\nresources: "
         + resources.stream().map(Path::toString).collect(joining(File.pathSeparator))

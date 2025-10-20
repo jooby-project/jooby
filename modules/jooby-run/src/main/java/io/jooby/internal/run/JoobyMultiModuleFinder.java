@@ -16,7 +16,11 @@ import org.jboss.modules.ModuleSpec;
 /**
  * The new class loader since 3.x. It creates 3 modules with their own classloader:
  *
- * <p>- classes: project classes - resources: project resources - jars: project dependencies
+ * <ul>
+ *   <li>classes: project classes
+ *   <li>resources: project resources
+ *   <li>jars: project dependencies
+ * </ul>
  *
  * <p>This approach reduce memory footprint allowing fast restart.
  */
