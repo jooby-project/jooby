@@ -72,9 +72,9 @@
     <!-- data -->
     <HikariCP.version>6.3.3</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>6.6.22.Final</hibernate.version>
+    <hibernate.version>6.6.33.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
-    <jdbi.version>3.49.5</jdbi.version>
+    <jdbi.version>3.49.6</jdbi.version>
     <flyway.version>11.14.0</flyway.version>
     <graphql-java.version>24.1</graphql-java.version>
     <lettuce.version>6.7.1.RELEASE</lettuce.version>
@@ -82,13 +82,13 @@
     <kafka.version>4.0.0</kafka.version>
     <caffeine.version>3.2.2</caffeine.version>
 
-    <config.version>1.4.4</config.version>
+    <config.version>1.4.5</config.version>
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.19</logback-classic.version>
+    <logback-classic.version>1.5.20</logback-classic.version>
     <log4j.version>2.25.1</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
@@ -99,18 +99,18 @@
     <metrics.version>4.2.37</metrics.version>
 
     <!-- jboss modules -->
-    <jboss-modules.version>2.1.6.Final</jboss-modules.version>
+    <jboss-modules.version>2.2.0.Final</jboss-modules.version>
 
     <!-- ASM -->
-    <asm.version>9.8</asm.version>
+    <asm.version>9.9</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.18.Final</undertow.version>
+    <undertow.version>2.3.20.Final</undertow.version>
     <jetty.version>12.1.2</jetty.version>
-    <netty.version>4.2.6.Final</netty.version>
+    <netty.version>4.2.7.Final</netty.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.34</swagger.version>
+    <swagger.version>2.2.39</swagger.version>
     <swagger-parser.version>2.1.31</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
@@ -126,11 +126,11 @@
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
     <jakarta.validation.version>3.1.1</jakarta.validation.version>
     <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-    <spotbugs-annotations.version>4.9.6</spotbugs-annotations.version>
+    <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
 
     <!-- Misc -->
-    <okhttp.version>5.1.0</okhttp.version>
-    <jsonwebtoken.version>0.12.6</jsonwebtoken.version>
+    <okhttp.version>5.2.1</okhttp.version>
+    <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
     <pac4j.version>6.2.2</pac4j.version>
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
@@ -154,7 +154,7 @@
     <mockito.version>5.20.0</mockito.version>
     <guava.version>33.5.0-jre</guava.version>
 
-    <compile-testing.version>0.21.0</compile-testing.version>
+    <compile-testing.version>0.23.0</compile-testing.version>
     <truth.version>1.4.5</truth.version>
 
     <!-- Gradle plugins -->
