@@ -24,14 +24,6 @@ jobs:
           java-version: ${{ matrix.java_version }}
           distribution: 'temurin'
           cache: maven
-      - name: Cache Maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-          enableCrossOsArchive: true
       - name: Install
         run: mvn install -DskipTests -q -B
         env:

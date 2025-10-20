@@ -21,6 +21,8 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
           cache: maven
+      - name: Install
+        run: mvn clean install -DskipTests -q -P gradlePlugin
       - name: Build
         run: mvn -B package -P gradlePlugin
         env:
@@ -31,5 +33,5 @@ jobs:
         uses: mikepenz/action-junit-report@v5
         if: failure()
         with:
-          check_name: Test ${{ matrix.os }} ${{ matrix.java-version }} 
+          check_name: Test ${{ matrix.os }} ${{ matrix.java-version }}
           report_paths: '*/target/*/TEST-*.xml'
