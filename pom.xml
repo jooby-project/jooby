@@ -88,7 +88,7 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.19</logback-classic.version>
+    <logback-classic.version>1.5.20</logback-classic.version>
     <log4j.version>2.25.2</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
@@ -107,12 +107,12 @@
     <!-- Server -->
     <undertow.version>2.3.20.Final</undertow.version>
     <jetty.version>12.1.2</jetty.version>
-    <netty.version>4.2.6.Final</netty.version>
+    <netty.version>4.2.7.Final</netty.version>
     <vertx.version>5.0.4</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.38</swagger.version>
-    <swagger-parser.version>2.1.34</swagger-parser.version>
+    <swagger.version>2.2.39</swagger.version>
+    <swagger-parser.version>2.1.35</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -127,7 +127,7 @@
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
     <jakarta.validation.version>3.1.1</jakarta.validation.version>
     <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-    <spotbugs-annotations.version>4.9.6</spotbugs-annotations.version>
+    <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
 
     <!-- Misc -->
     <okhttp.version>5.2.1</okhttp.version>
@@ -192,7 +192,7 @@
     <plexus-utils.version>4.0.2</plexus-utils.version>
     <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.19.1</versions-maven-plugin.version>
-    <exec-maven-plugin.version>3.6.1</exec-maven-plugin.version>
+    <exec-maven-plugin.version>3.6.2</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
     <node.version>v20.11.0</node.version>
