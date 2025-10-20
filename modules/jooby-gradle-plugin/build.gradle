@@ -42,12 +42,14 @@ gradlePlugin {
       implementationClass = 'io.jooby.gradle.JoobyPlugin'
       displayName = 'Jooby Run plugin'
       tags = ['jooby', 'run']
+      description = 'Run/restart your application on code changes without exiting the JVM'
     }
     openAPI {
       id = 'io.jooby.openAPI'
       implementationClass = 'io.jooby.gradle.JoobyPlugin'
       displayName = 'Jooby OpenAPI plugin'
       tags = ['jooby', 'openAPI']
+      description = 'Generates an Open-API compatible output from your application'
     }
   }
 }
