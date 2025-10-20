@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>4.0.8</version>
+  <version>4.0.9</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -210,7 +210,7 @@
     <!--  Javadoc is too strict in 17, don't fail on error -->
     <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
-    <project.build.outputTimestamp>2025-10-20T13:19:30Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-10-20T20:41:52Z</project.build.outputTimestamp>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <pre-commit-hook>etc${file.separator}source${file.separator}formatter.sh</pre-commit-hook>
