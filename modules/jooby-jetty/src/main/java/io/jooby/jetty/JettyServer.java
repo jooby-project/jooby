@@ -26,7 +26,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.Invocable;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
-import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
+import org.eclipse.jetty.websocket.server.ServerWebSocketContainer;
 
 import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -248,13 +248,9 @@ public class JettyServer extends io.jooby.Server.Base {
                 ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
                 : TimeUnit.MINUTES.toMillis(5);
 
-        WebSocketUpgradeHandler.from(
-            server,
-            context,
-            container -> {
-              container.setMaxTextMessageSize(maxSize);
-              container.setIdleTimeout(Duration.ofMillis(timeout));
-            });
+        var container = ServerWebSocketContainer.ensure(server, context);
+        container.setMaxTextMessageSize(maxSize);
+        container.setIdleTimeout(Duration.ofMillis(timeout));
       }
       server.setHandler(context);
       server.start();

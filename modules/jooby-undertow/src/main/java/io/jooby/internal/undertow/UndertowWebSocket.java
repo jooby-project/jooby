@@ -326,9 +326,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
           conf.hasPath("websocket.idleTimeout")
               ? conf.getDuration("websocket.idleTimeout", TimeUnit.MILLISECONDS)
               : TimeUnit.MINUTES.toMillis(5);
-      if (timeout > 0) {
-        channel.setIdleTimeout(timeout);
-      }
+      channel.setIdleTimeout(timeout);
       if (onConnectCallback != null) {
         dispatch(webSocketTask(() -> onConnectCallback.onConnect(this), true));
       } else {
