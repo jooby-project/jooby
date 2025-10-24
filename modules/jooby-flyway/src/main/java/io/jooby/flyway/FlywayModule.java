@@ -5,14 +5,13 @@
  */
 package io.jooby.flyway;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.flywaydb.core.api.migration.JavaMigration;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
@@ -48,6 +47,7 @@ import io.jooby.ServiceKey;
 public class FlywayModule implements Extension {
 
   private final String name;
+  private List<JavaMigration> javaMigrations = List.of();
 
   /**
    * Creates a new Flyway module.
@@ -66,16 +66,30 @@ public class FlywayModule implements Extension {
     this("db");
   }
 
+  /**
+   * The manually added Java-based migrations. These are not Java-based migrations discovered
+   * through classpath scanning and instantiated by Flyway. Instead, these are manually added
+   * instances of JavaMigration. This is particularly useful when working with a dependencies, where
+   * you may want to instantiate the class and wire up its dependencies.
+   *
+   * @param migrations The manually added Java-based migrations. An empty array if none.
+   * @return This module.
+   */
+  public FlywayModule javaMigrations(@NonNull JavaMigration... migrations) {
+    this.javaMigrations = List.of(migrations);
+    return this;
+  }
+
   @Override
   public void install(@NonNull Jooby application) throws Exception {
     var environment = application.getEnvironment();
     var registry = application.getServices();
     var dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));
     if (dataSource == null) {
-      // TODO: replace with usage exception
       dataSource = registry.require(DataSource.class);
     }
     var configuration = new FluentConfiguration(environment.getClassLoader());
+    configuration.javaMigrations(javaMigrations.toArray(new JavaMigration[0]));
 
     var defaults = environment.getProperties("flyway");
     var overrides = environment.getProperties(name + ".flyway", "flyway");
