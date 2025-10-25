@@ -52,8 +52,6 @@ public class NettyServer extends Server.Base {
     System.setProperty(
         LEAK_DETECTION,
         System.getProperty(LEAK_DETECTION, ResourceLeakDetector.Level.DISABLED.name()));
-    ResourceLeakDetector.setLevel(
-        ResourceLeakDetector.Level.valueOf(System.getProperty(LEAK_DETECTION)));
   }
 
   private NettyEventLoopGroup eventLoop;
