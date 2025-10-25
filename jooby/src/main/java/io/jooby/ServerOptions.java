@@ -139,6 +139,17 @@ public class ServerOptions {
 
   private Boolean expectContinue;
 
+  /** Internal usage only. */
+  /*pakcage*/ boolean defaults;
+
+  /*package*/ ServerOptions(boolean defaults) {
+    this.defaults = defaults;
+  }
+
+  public ServerOptions() {
+    this(false);
+  }
+
   /**
    * Creates server options from config object. The configuration options must provided entries
    * like: <code>server.port</code>, <code>server.ioThreads</code>, etc...

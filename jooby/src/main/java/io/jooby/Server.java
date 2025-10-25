@@ -125,7 +125,7 @@ public interface Server {
       }
     }
 
-    private ServerOptions options = new ServerOptions();
+    private ServerOptions options = new ServerOptions(true);
 
     @Override
     public final ServerOptions getOptions() {

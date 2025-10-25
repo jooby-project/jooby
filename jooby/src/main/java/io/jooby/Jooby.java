@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.RegistryException;
@@ -1200,12 +1199,7 @@ public class Jooby implements Router, Registry {
       @NonNull String[] args,
       @NonNull ExecutionMode executionMode,
       @NonNull List<Supplier<Jooby>> provider) {
-    var configMap = new HashMap<>(parseArguments(args));
-    // TODO: Add new way to override server options mainly from system properties/environment
-    //  variables. Probably by adding a new config file: server.conf
-    // configMap.putAll(System.getenv());
-    var options = ServerOptions.from(ConfigFactory.parseMap(configMap)).orElse(new ServerOptions());
-    runApp(args, Server.loadServer(options), options, executionMode, provider);
+    runApp(args, Server.loadServer(), executionMode, provider);
   }
 
   /**
@@ -1233,26 +1227,9 @@ public class Jooby implements Router, Registry {
       @NonNull Server server,
       @NonNull ExecutionMode executionMode,
       @NonNull List<Supplier<Jooby>> provider) {
-    runApp(args, server, null, executionMode, provider);
-  }
-
-  /**
-   * Setup default environment, logging (logback or log4j2) and run application.
-   *
-   * @param args Application arguments.
-   * @param server Server.
-   * @param executionMode Default application execution mode. Can be overridden by application.
-   * @param provider Application provider.
-   */
-  private static void runApp(
-      @NonNull String[] args,
-      @NonNull Server server,
-      @Nullable ServerOptions options,
-      @NonNull ExecutionMode executionMode,
-      @NonNull List<Supplier<Jooby>> provider) {
-
     /* Dump command line as system properties. */
     parseArguments(args).forEach(System::setProperty);
+    ServerOptions appServerOptions = null;
     var apps = new ArrayList<Jooby>();
     var targetServer = server.getLoggerOff().isEmpty() ? server : MutedServer.mute(server);
     try {
@@ -1260,15 +1237,16 @@ public class Jooby implements Router, Registry {
         var app = createApp(server, executionMode, factory);
         /*
          When running a single app instance, there is no issue with server options.
-         When multiple apps pick first on the provided order.
+         When multiple apps pick first in the provided order.
         */
-        if (options == null) {
-          options = ServerOptions.from(app.getConfig()).orElse(null);
+        if (appServerOptions == null) {
+          appServerOptions = ServerOptions.from(app.getConfig()).orElse(null);
         }
         apps.add(app);
       }
-      if (options != null) {
-        server.setOptions(options);
+      // Override when there is something and server options were not set
+      if (server.getOptions().defaults && appServerOptions != null) {
+        server.setOptions(appServerOptions);
       }
       targetServer.start(apps.toArray(new Jooby[0]));
     } catch (Throwable startupError) {
