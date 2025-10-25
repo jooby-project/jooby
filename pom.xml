@@ -135,7 +135,7 @@
     <pac4j.version>6.2.2</pac4j.version>
     <quartz.version>2.5.0</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <bucket4j-core.version>8.0.1</bucket4j-core.version>
+    <bucket4j-core.version>8.15.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.792</aws-java-sdk.version>
     <camel.version>4.15.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -937,8 +937,8 @@
       </dependency>
 
       <dependency>
-        <groupId>com.github.vladimir-bukhtoyarov</groupId>
-        <artifactId>bucket4j-core</artifactId>
+        <groupId>com.bucket4j</groupId>
+        <artifactId>bucket4j_jdk17-core</artifactId>
         <version>${bucket4j-core.version}</version>
       </dependency>
 

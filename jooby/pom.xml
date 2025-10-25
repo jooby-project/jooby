@@ -38,8 +38,8 @@
 
     <!-- bucket4j -->
     <dependency>
-      <groupId>com.github.vladimir-bukhtoyarov</groupId>
-      <artifactId>bucket4j-core</artifactId>
+      <groupId>com.bucket4j</groupId>
+      <artifactId>bucket4j_jdk17-core</artifactId>
       <optional>true</optional>
     </dependency>
 
