@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 import org.eclipse.jetty.util.BufferUtil;
-import org.eclipse.jetty.util.StaticException;
+import org.eclipse.jetty.util.ConstantThrowable;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.exceptions.CloseException;
@@ -126,7 +126,7 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
   }
 
   @Override
-  public void onWebSocketClose(int statusCode, String reason) {
+  public void onWebSocketClose(int statusCode, String reason, Callback callback) {
     handleClose(
         WebSocketCloseStatus.valueOf(statusCode)
             .orElseGet(() -> new WebSocketCloseStatus(statusCode, reason)));
@@ -177,7 +177,7 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
 
   private boolean connectionLost(Throwable x) {
     return Server.connectionLost(x)
-        || (x instanceof StaticException && x.getMessage().equals("Closed"));
+        || (x instanceof ConstantThrowable && x.getMessage().equals("Closed"));
   }
 
   private boolean isTimeout(Throwable x) {
