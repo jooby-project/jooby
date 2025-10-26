@@ -22,7 +22,7 @@ class C3705 {
 
 class BeanScope {
   fun <T> get(type: Class<T>): T {
-    return type.newInstance()
+    return type.getDeclaredConstructor().newInstance()
   }
 }
 

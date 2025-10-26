@@ -24,13 +24,6 @@
       <artifactId>jstachio</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>io.jstach</groupId>
-      <artifactId>jstachio-apt</artifactId>
-      <scope>provided</scope>
-      <optional>true</optional>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -45,5 +38,23 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>io.jstach</groupId>
+              <artifactId>jstachio-apt</artifactId>
+              <version>${jstachio.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
