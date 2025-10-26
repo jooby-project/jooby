@@ -21,13 +21,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.Maven;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.DefaultDependencyResolutionRequest;
 import org.apache.maven.project.DependencyResolutionException;
@@ -63,9 +64,9 @@ public abstract class BaseMojo extends AbstractMojo {
   @Parameter(defaultValue = "${project}", required = true, readonly = true)
   protected MavenProject project;
 
-  @Component private Maven maven;
+  @Inject private Maven maven;
 
-  @Component private ProjectDependenciesResolver dependenciesResolver;
+  @Inject private ProjectDependenciesResolver dependenciesResolver;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
