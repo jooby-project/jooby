@@ -214,11 +214,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <pre-commit-hook>etc${file.separator}source${file.separator}formatter.sh</pre-commit-hook>
-
-    <sonar.projectKey>jooby-project_jooby</sonar.projectKey>
-    <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
-    <sonar.organization>jooby-project</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
   </properties>
 
   <dependencyManagement>

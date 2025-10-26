@@ -15,8 +15,7 @@
     <Module-Name>io.jooby.cli</Module-Name>
     <jline.version>3.30.6</jline.version>
     <picocli.version>4.7.7</picocli.version>
-    <!-- No argLine, make reproducible builds happy -->
-    <argLine/>
+    <cli.dependencies>${project.build.outputDirectory}${file.separator}dependencies.properties</cli.dependencies>
   </properties>
 
   <dependencies>
@@ -27,13 +26,11 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.github.jknack/handlebars -->
     <dependency>
       <groupId>com.github.jknack</groupId>
       <artifactId>handlebars</artifactId>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/info.picocli/picocli -->
     <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
@@ -105,7 +102,34 @@
             </goals>
             <phase>generate-resources</phase>
             <configuration>
-              <outputFile>${project.build.outputDirectory}${file.separator}dependencies.properties</outputFile>
+              <outputFile>${cli.dependencies}</outputFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Cleanup output from write-project-properties, required for reproducible builds (excludes argLine) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven-antrun-plugin.version}</version>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <loadfile property="filtered.dependencies" srcFile="${cli.dependencies}">
+                  <filterchain>
+                    <linecontains>
+                      <contains value=".version"/>
+                    </linecontains>
+                    <sortfilter/>
+                  </filterchain>
+                </loadfile>
+                <echo message="# dependencies:${line.separator}${filtered.dependencies}" file="${cli.dependencies}" />
+              </target>
             </configuration>
           </execution>
         </executions>
@@ -126,23 +150,6 @@
           <source>17</source>
           <target>17</target>
           <release>17</release>
-        </configuration>
-      </plugin>
-      <!-- sure-fire -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
-        <inherited>false</inherited>
-        <configuration>
-          <includes>
-            <include>**/*Test.java</include>
-            <include>**/*Tests.java</include>
-            <include>**/*Feature.java</include>
-            <include>**/*Issue*.java</include>
-          </includes>
-          <useModulePath>false</useModulePath>
-          <argLine>-javaagent:${maven.m2.repo}${file.separator}${mockito.agent}</argLine>
         </configuration>
       </plugin>
       <plugin>
