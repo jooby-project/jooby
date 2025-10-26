@@ -123,12 +123,26 @@
               <version>${picocli.version}</version>
             </path>
           </annotationProcessorPaths>
-          <compilerArgs>
-            <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
-          </compilerArgs>
-          <source>21</source>
-          <target>21</target>
-          <release>21</release>
+          <source>17</source>
+          <target>17</target>
+          <release>17</release>
+        </configuration>
+      </plugin>
+      <!-- sure-fire -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <inherited>false</inherited>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+            <include>**/*Feature.java</include>
+            <include>**/*Issue*.java</include>
+          </includes>
+          <useModulePath>false</useModulePath>
+          <argLine>-javaagent:${maven.m2.repo}${file.separator}${mockito.agent}</argLine>
         </configuration>
       </plugin>
       <plugin>
