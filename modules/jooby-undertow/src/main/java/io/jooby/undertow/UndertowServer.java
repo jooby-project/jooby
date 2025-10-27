@@ -59,10 +59,16 @@ public class UndertowServer extends Server.Base {
 
   private OutputFactory outputFactory;
 
+  /**
+   * Creates a web server.
+   *
+   * @param options Options.
+   */
   public UndertowServer(@NonNull ServerOptions options) {
     setOptions(options);
   }
 
+  /** Creates a web server. */
   public UndertowServer() {}
 
   @Override
