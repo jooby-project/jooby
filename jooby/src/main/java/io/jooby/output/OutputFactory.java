@@ -22,6 +22,7 @@ public interface OutputFactory {
   /**
    * Default output factory, backed by {@link ByteBuffer}.
    *
+   * @param options Output options.
    * @return Default output factory.
    */
   static OutputFactory create(@NonNull OutputOptions options) {

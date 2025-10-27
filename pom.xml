@@ -207,8 +207,6 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <maven.compiler.release>21</maven.compiler.release>
-    <!--  Javadoc is too strict in 17, don't fail on error -->
-    <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <project.build.outputTimestamp>2025-10-20T21:13:47Z</project.build.outputTimestamp>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1686,8 +1684,10 @@
             <configuration>
               <excludePackageNames>${javadoc.excludes}</excludePackageNames>
               <show>public</show>
-              <detectJavaApiLink>false</detectJavaApiLink>
+              <detectJavaApiLink>true</detectJavaApiLink>
               <release>${maven.compiler.release}</release>
+              <failOnWarnings>true</failOnWarnings>
+              <failOnError>true</failOnError>
             </configuration>
             <executions>
               <execution>

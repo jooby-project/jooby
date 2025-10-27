@@ -37,6 +37,7 @@ import io.jooby.value.ValueFactory;
  */
 public class ForwardingContext implements Context {
 
+  /** Delegate/forwarding body. */
   public static class ForwardingBody implements Body {
     protected final Body delegate;
 
@@ -317,6 +318,7 @@ public class ForwardingContext implements Context {
     }
   }
 
+  /** Forwarding/Delegate pattern over {@link Value}. */
   public static class ForwardingValue implements Value {
     protected final Value delegate;
 
@@ -557,6 +559,7 @@ public class ForwardingContext implements Context {
     }
   }
 
+  /** Forwarding/Delegate pattern over {@link QueryString}. */
   public static class ForwardingQueryString extends ForwardingValue implements QueryString {
     public ForwardingQueryString(QueryString queryString) {
       super(queryString);
@@ -573,6 +576,7 @@ public class ForwardingContext implements Context {
     }
   }
 
+  /** Forwarding/Delegate pattern over {@link Formdata}. */
   public static class ForwardingFormdata extends ForwardingValue implements Formdata {
     public ForwardingFormdata(Formdata delegate) {
       super(delegate);

@@ -15,6 +15,7 @@ import ch.qos.logback.classic.Level;
 import io.jooby.LoggingService;
 import io.jooby.SneakyThrows;
 
+/** Logback logging system. */
 public class LogbackService implements LoggingService {
   @Override
   public String getPropertyName() {

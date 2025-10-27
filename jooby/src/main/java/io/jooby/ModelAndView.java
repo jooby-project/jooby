@@ -18,6 +18,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  *
  * @since 2.0.0
  * @author edgar
+ * @param <T> Model type.
  */
 public class ModelAndView<T> {
 

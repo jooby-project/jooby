@@ -114,6 +114,8 @@ public class Cors {
   }
 
   /**
+   * True if any origin is accepted.
+   *
    * @return True if any origin is accepted.
    */
   public boolean anyOrigin() {
@@ -174,6 +176,8 @@ public class Cors {
   }
 
   /**
+   * List of allowed methods.
+   *
    * @return List of allowed methods.
    */
   public List<String> getMethods() {
@@ -202,6 +206,8 @@ public class Cors {
   }
 
   /**
+   * True if any header is allowed: <code>*</code>.
+   *
    * @return True if any header is allowed: <code>*</code>.
    */
   public boolean anyHeader() {
@@ -229,8 +235,16 @@ public class Cors {
   }
 
   /**
-   * @return List of allowed headers. Default are: <code>X-Requested-With</code>, <code>Content-Type
-   *     </code>, <code>Accept</code> and <code>Origin</code>.
+   * List of allowed headers. Default are:
+   *
+   * <ul>
+   *   <li><code>X-Requested-With</code>
+   *   <li><code>Content-Type</code>
+   *   <li><code>Accept</code>
+   *   <li><code>Origin</code>
+   * </ul>
+   *
+   * @return List of allowed headers.
    */
   public List<String> getHeaders() {
     return headers.values;
@@ -260,6 +274,8 @@ public class Cors {
   }
 
   /**
+   * List of exposed headers.
+   *
    * @return List of exposed headers.
    */
   public List<String> getExposedHeaders() {
@@ -288,6 +304,8 @@ public class Cors {
   }
 
   /**
+   * Preflight max age. How many seconds a client can cache a preflight request.
+   *
    * @return Preflight max age. How many seconds a client can cache a preflight request.
    */
   public Duration getMaxAge() {
@@ -322,7 +340,7 @@ public class Cors {
    * @param conf Configuration.
    * @return Cors options.
    */
-  public static @NonNull Cors from(@NonNull Config conf) {
+  public static Cors from(@NonNull Config conf) {
     Config cors = conf.hasPath("cors") ? conf.getConfig("cors") : conf;
     Cors options = new Cors();
     if (cors.hasPath("origin")) {

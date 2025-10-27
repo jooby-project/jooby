@@ -1085,6 +1085,7 @@ public class Jooby implements Router, Registry {
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
+   * @param server Web server.
    * @param provider Application provider.
    */
   public static void runApp(
@@ -1166,6 +1167,7 @@ public class Jooby implements Router, Registry {
    * Setup default environment, logging (logback or log4j2) and run application.
    *
    * @param args Application arguments.
+   * @param server Web server.
    * @param executionMode Default application execution mode. Can be overridden by application.
    * @param provider Application provider.
    */
@@ -1265,6 +1267,7 @@ public class Jooby implements Router, Registry {
   /**
    * Setup default environment, logging (logback or log4j2) and run application.
    *
+   * @param server Web server.
    * @param executionMode Application execution mode.
    * @param provider Application provider.
    * @return Application.

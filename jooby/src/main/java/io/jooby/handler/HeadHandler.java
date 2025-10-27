@@ -27,7 +27,11 @@ import io.jooby.internal.handler.DefaultHandler;
  * @since 2.0.4
  */
 public class HeadHandler implements Route.Filter {
-  @NonNull @Override
+
+  /** Default constructor. */
+  public HeadHandler() {}
+
+  @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getMethod().equals(Router.HEAD)) {

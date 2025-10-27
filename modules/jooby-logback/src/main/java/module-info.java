@@ -1,6 +1,7 @@
 import io.jooby.LoggingService;
 import io.jooby.logback.LogbackService;
 
+/** Logback logging system. */
 module io.jooby.logback {
   exports io.jooby.logback;
 

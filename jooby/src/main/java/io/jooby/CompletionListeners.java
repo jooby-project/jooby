@@ -20,6 +20,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 public class CompletionListeners {
   private List<Route.Complete> listeners;
 
+  /** Creates a new completion listener. */
+  public CompletionListeners() {}
+
   /**
    * Add a listener.
    *

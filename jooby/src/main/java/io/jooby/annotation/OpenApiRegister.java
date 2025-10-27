@@ -17,8 +17,8 @@ import java.lang.annotation.Target;
  * @OpenApiRegister({Controller1.class, Controller2.class})
  * public class App extends Jooby {
  *   ...
+ * }
  * }</pre>
- *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

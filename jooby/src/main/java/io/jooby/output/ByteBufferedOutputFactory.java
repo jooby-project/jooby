@@ -49,6 +49,11 @@ public class ByteBufferedOutputFactory implements OutputFactory {
 
   private final OutputOptions options;
 
+  /**
+   * Creates new byte buffered output.
+   *
+   * @param options Options.
+   */
   public ByteBufferedOutputFactory(OutputOptions options) {
     this.options = options;
   }

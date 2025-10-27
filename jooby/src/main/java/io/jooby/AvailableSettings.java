@@ -20,8 +20,6 @@ import java.util.function.Supplier;
  *   <li>via ENV variable, for example: <code>myprop=value java -jar myapp.jar</code>
  * </ul>
  *
- * <p>
- *
  * @since 3.0.0
  */
 public interface AvailableSettings {
@@ -45,8 +43,8 @@ public interface AvailableSettings {
   String LANG = "application.lang";
 
   /**
-   * Location of log configuration file. Used by {@link LogConfigurer} and setting up at application
-   * bootstrap time. You don't need to set this property.
+   * Location of log configuration file. Used by {@link LoggingService} and setting up at
+   * application bootstrap time. You don't need to set this property.
    */
   String LOG_FILE = "application.logfile";
 

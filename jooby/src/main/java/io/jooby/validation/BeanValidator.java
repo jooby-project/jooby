@@ -71,10 +71,21 @@ public interface BeanValidator {
     return bean;
   }
 
+  /**
+   * Validator as filter.
+   *
+   * @return Validator as filter.
+   */
   static Route.Filter validate() {
     return BeanValidator::validate;
   }
 
+  /**
+   * Validator as handler.
+   *
+   * @param next Next handler.
+   * @return A new handler.
+   */
   static Route.Handler validate(Route.Handler next) {
     return ctx -> {
       try {

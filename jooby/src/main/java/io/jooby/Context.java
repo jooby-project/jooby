@@ -55,6 +55,12 @@ public interface Context extends Registry {
      */
     Jooby select(String path);
 
+    /**
+     * Creates an application selector. Selection is done based on context path.
+     *
+     * @param applications List of applications.
+     * @return Selector.
+     */
     static Selector create(List<Jooby> applications) {
       return applications.size() == 1 ? single(applications.getFirst()) : multiple(applications);
     }
@@ -142,6 +148,11 @@ public interface Context extends Registry {
    */
   Router getRouter();
 
+  /**
+   * Context output factory.
+   *
+   * @return Context output factory.
+   */
   OutputFactory getOutputFactory();
 
   /**
@@ -174,6 +185,11 @@ public interface Context extends Registry {
    */
   @Nullable FlashMap flashOrNull();
 
+  /**
+   * Value factory.
+   *
+   * @return Value factory.
+   */
   ValueFactory getValueFactory();
 
   /**
@@ -1461,6 +1477,7 @@ public interface Context extends Registry {
    * @param ctx Originating context.
    * @param ws WebSocket.
    * @param binary True for sending binary message.
+   * @param callback Write callback.
    * @return Read only context.
    */
   static Context websocket(

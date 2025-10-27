@@ -62,16 +62,22 @@ public interface Asset extends AutoCloseable {
   }
 
   /**
+   * Asset size (in bytes) or <code>-1</code> if undefined.
+   *
    * @return Asset size (in bytes) or <code>-1</code> if undefined.
    */
   long getSize();
 
   /**
+   * The last modified date if possible or -1 when isn't.
+   *
    * @return The last modified date if possible or -1 when isn't.
    */
   long getLastModified();
 
   /**
+   * True if the asset is a directory (when possible).
+   *
    * @return True if the asset is a directory (when possible).
    */
   boolean isDirectory();
@@ -81,7 +87,7 @@ public interface Asset extends AutoCloseable {
    *
    * @return A weak e-tag.
    */
-  default @NonNull String getEtag() {
+  default String getEtag() {
     StringBuilder b = new StringBuilder(32);
     b.append("W/\"");
 
@@ -103,11 +109,15 @@ public interface Asset extends AutoCloseable {
   }
 
   /**
+   * Asset media type.
+   *
    * @return Asset media type.
    */
-  @NonNull MediaType getContentType();
+  MediaType getContentType();
 
   /**
+   * Asset content.
+   *
    * @return Asset content.
    */
   InputStream stream();

@@ -28,13 +28,16 @@ public class DefaultErrorHandler implements ErrorHandler {
 
   private final Set<Class> muteTypes = new HashSet<>();
 
+  /** Default error handler. */
+  public DefaultErrorHandler() {}
+
   /**
    * Generate a log.debug call if any of the status code error occurs as exception.
    *
    * @param statusCodes Status codes to mute.
    * @return This error handler.
    */
-  public @NonNull DefaultErrorHandler mute(@NonNull StatusCode... statusCodes) {
+  public DefaultErrorHandler mute(@NonNull StatusCode... statusCodes) {
     muteCodes.addAll(List.of(statusCodes));
     return this;
   }
@@ -45,7 +48,7 @@ public class DefaultErrorHandler implements ErrorHandler {
    * @param exceptionTypes Exception types to mute.
    * @return This error handler.
    */
-  public @NonNull DefaultErrorHandler mute(@NonNull Class<? extends Exception>... exceptionTypes) {
+  public DefaultErrorHandler mute(@NonNull Class<? extends Exception>... exceptionTypes) {
     muteTypes.addAll(List.of(exceptionTypes));
     return this;
   }

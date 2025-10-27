@@ -35,6 +35,9 @@ public class CacheControl {
   private boolean lastModified = true;
   private long maxAge = -1;
 
+  /** Creates a new cache control. */
+  public CacheControl() {}
+
   /**
    * Returns whether e-tag support is enabled.
    *

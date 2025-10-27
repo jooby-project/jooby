@@ -10,8 +10,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/** Used internally to annotation generated MVC controllers. */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Generated {
+  /**
+   * Target controller class.
+   *
+   * @return Target controller class.
+   */
   Class<?> value();
 }

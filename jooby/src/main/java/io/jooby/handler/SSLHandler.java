@@ -8,7 +8,6 @@ package io.jooby.handler;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.Router;
 import io.jooby.ServerOptions;
 
 /**
@@ -16,7 +15,7 @@ import io.jooby.ServerOptions;
  * call to the HTTPs version.
  *
  * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
- * please consider to set {@link Router#setTrustProxy(boolean)} option.
+ * please consider to set {@link io.jooby.RouterOptions#setTrustProxy(boolean)} option.
  *
  * @author edgar
  */
@@ -29,7 +28,7 @@ public class SSLHandler implements Route.Before {
    * Creates a SSLHandler and redirect non-HTTPS request to the given host and port.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link io.jooby.RouterOptions#setTrustProxy(boolean)} option.
    *
    * @param host Host to redirect.
    * @param port HTTP port.
@@ -43,7 +42,7 @@ public class SSLHandler implements Route.Before {
    * Creates a SSLHandler and redirect non-HTTPS request to the given host.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link io.jooby.RouterOptions#setTrustProxy(boolean)} option.
    *
    * @param host Host to redirect.
    */
@@ -56,7 +55,7 @@ public class SSLHandler implements Route.Before {
    * recreated from <code>Host</code> header or <code>X-Forwarded-Host</code>.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link io.jooby.RouterOptions#setTrustProxy(boolean)} option.
    *
    * @param port HTTPS port.
    */
@@ -70,7 +69,7 @@ public class SSLHandler implements Route.Before {
    * recreated from <code>Host</code> header.
    *
    * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-   * please consider to set {@link Router#setTrustProxy(boolean)} option.
+   * please consider to set {@link io.jooby.RouterOptions#setTrustProxy(boolean)} option.
    */
   public SSLHandler() {
     this(SECURE_PORT);

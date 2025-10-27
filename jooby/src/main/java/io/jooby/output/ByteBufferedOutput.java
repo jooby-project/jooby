@@ -30,6 +30,12 @@ public class ByteBufferedOutput implements BufferedOutput {
 
   private int writePosition;
 
+  /**
+   * Creates a new byte buffered output.
+   *
+   * @param direct True for direct buffer.
+   * @param capacity Buffer capacity.
+   */
   public ByteBufferedOutput(boolean direct, int capacity) {
     this.buffer = allocate(capacity, direct);
   }
@@ -45,12 +51,12 @@ public class ByteBufferedOutput implements BufferedOutput {
   }
 
   @Override
-  public @NonNull Iterator<ByteBuffer> iterator() {
+  public Iterator<ByteBuffer> iterator() {
     return List.of(asByteBuffer()).iterator();
   }
 
   @Override
-  public @NonNull ByteBuffer asByteBuffer() {
+  public ByteBuffer asByteBuffer() {
     return this.buffer.slice(this.readPosition, size()).asReadOnlyBuffer();
   }
 

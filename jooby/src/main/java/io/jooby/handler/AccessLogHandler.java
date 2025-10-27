@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.Router;
 
 /**
  * Access Log Handler.
@@ -31,7 +30,7 @@ import io.jooby.Router;
  * <p>Log incoming requested using the <a
  * href="https://en.wikipedia.org/wiki/Common_Log_Format">NCSA format</a> (a.k.a common log format).
  * If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
- * please consider to set {@link Router#setTrustProxy(boolean)} option.
+ * please consider to set {@link io.jooby.RouterOptions#setTrustProxy(boolean)} option.
  *
  * <h2>usage</h2>
  *
