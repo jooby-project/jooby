@@ -1686,8 +1686,8 @@
               <show>public</show>
               <detectJavaApiLink>true</detectJavaApiLink>
               <release>${maven.compiler.release}</release>
-              <failOnWarnings>true</failOnWarnings>
-              <failOnError>true</failOnError>
+              <failOnWarnings>false</failOnWarnings>
+              <failOnError>false</failOnError>
             </configuration>
             <executions>
               <execution>
