@@ -17,6 +17,10 @@ import io.jooby.SneakyThrows;
 
 /** Logback logging system. */
 public class LogbackService implements LoggingService {
+
+  /** Default constructor. */
+  public LogbackService() {}
+
   @Override
   public String getPropertyName() {
     return "logback.configurationFile";

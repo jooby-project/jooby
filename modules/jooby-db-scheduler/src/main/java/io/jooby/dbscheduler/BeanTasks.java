@@ -18,7 +18,11 @@ import io.jooby.Jooby;
 import io.jooby.Registry;
 import io.jooby.SneakyThrows;
 
-public class BeanTasks {
+/** Factory method for creating tasks from Java beans. */
+public final class BeanTasks {
+
+  private BeanTasks() {}
+
   /**
    * Scan for {@link Scheduled} annotated method and creates {@link Tasks#recurring(String,
    * Schedule)} tasks for each of them.

@@ -51,6 +51,9 @@ public class JoobyExtension
     System.setProperty("jooby.useShutdownHook", "false");
   }
 
+  /** Default constructor. */
+  public JoobyExtension() {}
+
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
     context

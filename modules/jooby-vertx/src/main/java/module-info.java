@@ -1,7 +1,7 @@
 import io.jooby.Server;
 import io.jooby.vertx.VertxServer;
 
-/** Vertx module */
+/** Vertx integration and Web Server */
 module io.jooby.vertx {
   exports io.jooby.vertx;
 

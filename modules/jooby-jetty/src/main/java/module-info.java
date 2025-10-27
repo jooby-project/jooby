@@ -6,7 +6,7 @@
 import io.jooby.Server;
 import io.jooby.jetty.JettyServer;
 
-/** Jetty module. */
+/** Jetty Web Server module. */
 module io.jooby.jetty {
   exports io.jooby.jetty;
 

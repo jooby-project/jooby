@@ -32,5 +32,6 @@ public interface NettyEventLoopGroup {
    */
   ExecutorService worker();
 
+  /** Close and release all the resources. */
   void shutdown();
 }

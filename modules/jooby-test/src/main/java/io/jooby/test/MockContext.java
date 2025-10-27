@@ -121,6 +121,9 @@ public class MockContext implements DefaultContext {
 
   private OutputFactory outputFactory = OutputFactory.create(OutputOptions.small());
 
+  /** Default constructor. */
+  public MockContext() {}
+
   @Override
   public String getMethod() {
     return method;
@@ -840,6 +843,11 @@ public class MockContext implements DefaultContext {
     return valueFactory;
   }
 
+  /**
+   * Set/Override value factory.
+   *
+   * @param valueFactory Value Factory.
+   */
   public void setValueFactory(ValueFactory valueFactory) {
     this.valueFactory = valueFactory;
   }

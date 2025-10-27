@@ -74,50 +74,109 @@ public class DbSchedulerModule implements Extension {
   private ScheduledExecutorService housekeeperExecutor;
   private JdbcCustomization jdbcCustomization;
 
+  /**
+   * Creates a new module.
+   *
+   * @param tasks Task to schedule.
+   */
   public DbSchedulerModule(@NonNull List<Task<?>> tasks) {
     this.tasks.addAll(tasks);
   }
 
+  /**
+   * Creates a new module.
+   *
+   * @param task Task to schedule.
+   * @param tail Tasks to schedule.
+   */
   public DbSchedulerModule(@NonNull Task<?> task, Task<?>... tail) {
     this(Stream.concat(Stream.of(task), Stream.of(tail)).toList());
   }
 
+  /**
+   * Add more task to schedule.
+   *
+   * @param tasks Tasks to schedule.
+   * @return This module.
+   */
   public DbSchedulerModule withTasks(@NonNull List<Task<?>> tasks) {
     this.tasks.addAll(tasks);
     return this;
   }
 
+  /**
+   * Set a stats registry.
+   *
+   * @param statsRegistry Stats registry.
+   * @return This module.
+   */
   public DbSchedulerModule withStatsRegistry(@NonNull StatsRegistry statsRegistry) {
     this.statsRegistry = statsRegistry;
     return this;
   }
 
+  /**
+   * Scheduler name.
+   *
+   * @param schedulerName Scheduler name.
+   * @return This module.
+   */
   public DbSchedulerModule withSchedulerName(@NonNull SchedulerName schedulerName) {
     this.schedulerName = schedulerName;
     return this;
   }
 
+  /**
+   * Set Task serializer.
+   *
+   * @param serializer Task serializer.
+   * @return This module.
+   */
   public DbSchedulerModule withSerializer(@NonNull Serializer serializer) {
     this.serializer = serializer;
     return this;
   }
 
+  /**
+   * Set task executor service.
+   *
+   * @param executorService Task executor service.
+   * @return This module.
+   */
   public DbSchedulerModule withExecutorService(@NonNull ExecutorService executorService) {
     this.executorService = executorService;
     return this;
   }
 
+  /**
+   * Set due executor service.
+   *
+   * @param dueExecutor Executor service.
+   * @return This module.
+   */
   public DbSchedulerModule withDueExecutor(@NonNull ExecutorService dueExecutor) {
     this.dueExecutor = dueExecutor;
     return this;
   }
 
+  /**
+   * Set cleanup executor service.
+   *
+   * @param housekeeperExecutor Executor service.
+   * @return This module.
+   */
   public DbSchedulerModule withHousekeeperExecutor(
       @NonNull ScheduledExecutorService housekeeperExecutor) {
     this.housekeeperExecutor = housekeeperExecutor;
     return this;
   }
 
+  /**
+   * Customize/configure jdbc calls.
+   *
+   * @param jdbcCustomization Customize/configure jdbc calls.
+   * @return This module.
+   */
   public DbSchedulerModule withJdbcCustomization(@NonNull JdbcCustomization jdbcCustomization) {
     this.jdbcCustomization = jdbcCustomization;
     return this;

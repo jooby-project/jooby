@@ -11,11 +11,6 @@
   <artifactId>jooby-openapi</artifactId>
   <name>jooby-openapi</name>
 
-  <properties>
-    <!-- shaded module-info.java makes javadoc plugin fails -->
-    <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>

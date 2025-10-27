@@ -18,7 +18,11 @@ import org.apache.logging.log4j.core.config.Configuration;
 import io.jooby.LoggingService;
 import io.jooby.SneakyThrows;
 
+/** Configure jooby to use log4j. */
 public class Log4jService implements LoggingService {
+  /** Default constructor. */
+  public Log4jService() {}
+
   @Override
   public String getPropertyName() {
     return "log4j.configurationFile";

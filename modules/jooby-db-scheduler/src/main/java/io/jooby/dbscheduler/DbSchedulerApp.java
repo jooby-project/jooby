@@ -18,8 +18,10 @@ import com.github.kagkarlsson.scheduler.task.TaskInstance;
 import io.jooby.Jooby;
 import io.jooby.exception.NotFoundException;
 
+/** Minimal app that exposes {@link Scheduler} operations as API endpoints. */
 public class DbSchedulerApp extends Jooby {
-  {
+  /** Default constructor. */
+  public DbSchedulerApp() {
     get(
         "/",
         ctx -> {

@@ -22,7 +22,7 @@ import io.jooby.SameSite;
  * Options to configure pac4j security, callback and logout actions.
  *
  * <p>If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
- * please consider to set {@link io.jooby.Router#setTrustProxy(boolean)} option.
+ * please consider to set {@link io.jooby.RouterOptions#setTrustProxy(boolean)} option.
  *
  * @author edgar
  * @since 2.4.0
@@ -73,24 +73,52 @@ public class Pac4jOptions extends Config {
     setSessionLogoutHandler(config.getSessionLogoutHandler());
   }
 
+  /** Default constructor. */
   public Pac4jOptions() {}
 
+  /**
+   * Creates a new options.
+   *
+   * @param clients Clients to use.
+   */
   public Pac4jOptions(Clients clients) {
     super(clients);
   }
 
+  /**
+   * Creates a new options.
+   *
+   * @param client Client to use.
+   */
   public Pac4jOptions(Client client) {
     super(client);
   }
 
-  public Pac4jOptions(List<Client> client) {
-    super(client);
+  /**
+   * Creates a new options.
+   *
+   * @param clients Clients to use.
+   */
+  public Pac4jOptions(List<Client> clients) {
+    super(clients);
   }
 
+  /**
+   * Creates a new options.
+   *
+   * @param callbackPath Callback path.
+   * @param client Client to use.
+   */
   public Pac4jOptions(String callbackPath, Client client) {
     super(callbackPath, client);
   }
 
+  /**
+   * Creates a new options.
+   *
+   * @param callbackPath Callback path.
+   * @param clients Clients to use.
+   */
   public Pac4jOptions(String callbackPath, List<Client> clients) {
     super(callbackPath, clients);
   }
@@ -101,7 +129,7 @@ public class Pac4jOptions extends Config {
    * @param config Config object.
    * @return Pac4j options.
    */
-  public static @NonNull Pac4jOptions from(@NonNull Config config) {
+  public static Pac4jOptions from(@NonNull Config config) {
     return config instanceof Pac4jOptions options ? options : new Pac4jOptions(config);
   }
 
@@ -121,7 +149,7 @@ public class Pac4jOptions extends Config {
    * @param defaultUrl Default url to redirect to after successful login.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setDefaultUrl(@Nullable String defaultUrl) {
+  public Pac4jOptions setDefaultUrl(@Nullable String defaultUrl) {
     this.defaultUrl = defaultUrl;
     return this;
   }
@@ -162,7 +190,7 @@ public class Pac4jOptions extends Config {
    * @param multiProfile Whether multi profiles are supported.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setMultiProfile(@Nullable Boolean multiProfile) {
+  public Pac4jOptions setMultiProfile(@Nullable Boolean multiProfile) {
     this.multiProfile = multiProfile;
     return this;
   }
@@ -182,7 +210,7 @@ public class Pac4jOptions extends Config {
    * @param renewSession whether the session must be renewed.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setRenewSession(@Nullable Boolean renewSession) {
+  public Pac4jOptions setRenewSession(@Nullable Boolean renewSession) {
     this.renewSession = renewSession;
     return this;
   }
@@ -202,7 +230,7 @@ public class Pac4jOptions extends Config {
    * @param defaultClient Default client to use.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setDefaultClient(@Nullable String defaultClient) {
+  public Pac4jOptions setDefaultClient(@Nullable String defaultClient) {
     this.defaultClient = defaultClient;
     return this;
   }
@@ -213,7 +241,7 @@ public class Pac4jOptions extends Config {
    *
    * @return Callback path, defaults to <code>/callback</code>.
    */
-  public @NonNull String getCallbackPath() {
+  public String getCallbackPath() {
     return callbackPath;
   }
 
@@ -223,7 +251,7 @@ public class Pac4jOptions extends Config {
    * @param callbackPath Callback path.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setCallbackPath(@NonNull String callbackPath) {
+  public Pac4jOptions setCallbackPath(@NonNull String callbackPath) {
     this.callbackPath = callbackPath;
     return this;
   }
@@ -234,7 +262,7 @@ public class Pac4jOptions extends Config {
    *
    * @return Logout path, defaults to <code>/logout</code>.
    */
-  public @NonNull String getLogoutPath() {
+  public String getLogoutPath() {
     return logoutPath;
   }
 
@@ -244,7 +272,7 @@ public class Pac4jOptions extends Config {
    * @param logoutPath Logout path.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setLogoutPath(@NonNull String logoutPath) {
+  public Pac4jOptions setLogoutPath(@NonNull String logoutPath) {
     this.logoutPath = logoutPath;
     return this;
   }
@@ -264,7 +292,7 @@ public class Pac4jOptions extends Config {
    * @param localLogout Logout option.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setLocalLogout(boolean localLogout) {
+  public Pac4jOptions setLocalLogout(boolean localLogout) {
     this.localLogout = localLogout;
     return this;
   }
@@ -284,7 +312,7 @@ public class Pac4jOptions extends Config {
    * @param centralLogout Central logout option.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setCentralLogout(boolean centralLogout) {
+  public Pac4jOptions setCentralLogout(boolean centralLogout) {
     this.centralLogout = centralLogout;
     return this;
   }
@@ -305,7 +333,7 @@ public class Pac4jOptions extends Config {
    * @param destroySession Destroy session option.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setDestroySession(boolean destroySession) {
+  public Pac4jOptions setDestroySession(boolean destroySession) {
     this.destroySession = destroySession;
     return this;
   }
@@ -327,7 +355,7 @@ public class Pac4jOptions extends Config {
    * @param sameSite Value for the 'SameSite' parameter or {@code null} to omit it.
    * @return This options.
    */
-  public @NonNull Pac4jOptions setCookieSameSite(@Nullable SameSite sameSite) {
+  public Pac4jOptions setCookieSameSite(@Nullable SameSite sameSite) {
     cookieSameSite = sameSite;
     return this;
   }
@@ -354,12 +382,12 @@ public class Pac4jOptions extends Config {
     return forceLogoutRoutes;
   }
 
-  public @NonNull Pac4jOptions setForceCallbackRoutes(boolean forceCallbackRoutes) {
+  public Pac4jOptions setForceCallbackRoutes(boolean forceCallbackRoutes) {
     this.forceCallbackRoutes = forceCallbackRoutes;
     return this;
   }
 
-  public @NonNull Pac4jOptions setForceLogoutRoutes(boolean forceLogoutRoutes) {
+  public Pac4jOptions setForceLogoutRoutes(boolean forceLogoutRoutes) {
     this.forceLogoutRoutes = forceLogoutRoutes;
     return this;
   }

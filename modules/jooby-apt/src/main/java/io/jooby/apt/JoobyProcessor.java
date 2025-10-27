@@ -29,6 +29,7 @@ import javax.tools.SimpleJavaFileObject;
 
 import io.jooby.internal.apt.*;
 
+/** Process jooby/jakarta annotation and generate source code from MVC controllers. */
 @SupportedOptions({
   DEBUG,
   INCREMENTAL,
@@ -39,19 +40,46 @@ import io.jooby.internal.apt.*;
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class JoobyProcessor extends AbstractProcessor {
+  /** Available options. */
   public interface Options {
+    /** Run code generator in debug mode. */
     String DEBUG = "jooby.debug";
+
+    /** Add custom prefix to generated class. Default: none/empty */
     String ROUTER_PREFIX = "jooby.routerPrefix";
+
+    /** Add custom suffix to generated class. Default: _ */
     String ROUTER_SUFFIX = "jooby.routerSuffix";
+
+    /** Gradle options to run in incremental mode. */
     String INCREMENTAL = "jooby.incremental";
+
+    /** Turn on/off generation of method metadata. */
     String MVC_METHOD = "jooby.mvcMethod";
+
+    /** Control which annotations are translated to route attributes. */
     String SKIP_ATTRIBUTE_ANNOTATIONS = "jooby.skipAttributeAnnotations";
 
+    /**
+     * Read a boolean option.
+     *
+     * @param environment Annotation processing environment.
+     * @param option Option's name.
+     * @param defaultValue Default value.
+     * @return Option's value.
+     */
     static boolean boolOpt(ProcessingEnvironment environment, String option, boolean defaultValue) {
       return Boolean.parseBoolean(
           environment.getOptions().getOrDefault(option, String.valueOf(defaultValue)));
     }
 
+    /**
+     * Read a string list option.
+     *
+     * @param environment Annotation processing environment.
+     * @param option Option's name.
+     * @return Option's value.
+     */
     static List<String> stringListOpt(ProcessingEnvironment environment, String option) {
       String value = string(environment, option, null);
       return value == null || value.isEmpty()
@@ -59,6 +87,14 @@ public class JoobyProcessor extends AbstractProcessor {
           : Stream.of(value.split(",")).filter(it -> !it.isBlank()).map(String::trim).toList();
     }
 
+    /**
+     * Read a string option.
+     *
+     * @param environment Annotation processing environment.
+     * @param option Option's name.
+     * @param defaultValue Default value.
+     * @return Option's value.
+     */
     static String string(ProcessingEnvironment environment, String option, String defaultValue) {
       String value = environment.getOptions().getOrDefault(option, defaultValue);
       return value == null || value.isEmpty() ? defaultValue : value;
@@ -68,10 +104,11 @@ public class JoobyProcessor extends AbstractProcessor {
   protected MvcContext context;
   private BiConsumer<Diagnostic.Kind, String> output;
 
-  public JoobyProcessor(BiConsumer<Diagnostic.Kind, String> output) {
+  JoobyProcessor(BiConsumer<Diagnostic.Kind, String> output) {
     this.output = output;
   }
 
+  /** Default constructor. */
   public JoobyProcessor() {}
 
   @Override

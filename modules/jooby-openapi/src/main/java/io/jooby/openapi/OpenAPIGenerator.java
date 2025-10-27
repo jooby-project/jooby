@@ -100,13 +100,16 @@ public class OpenAPIGenerator {
 
   private SpecVersion specVersion = SpecVersion.V30;
 
+  /** Default constructor. */
+  public OpenAPIGenerator() {}
+
   /**
    * Export an {@link OpenAPI} model to the given format.
    *
    * @param openAPI Model.
    * @param format Format.
-   * @throws IOException
    * @return Output file.
+   * @throws IOException If fails to process input.
    */
   public @NonNull Path export(@NonNull OpenAPI openAPI, @NonNull Format format) throws IOException {
     Path output;
@@ -367,6 +370,11 @@ public class OpenAPIGenerator {
     this.basedir = basedir;
   }
 
+  /**
+   * Where to find source code. Required for javadoc parsing.
+   *
+   * @param sources Source code location.
+   */
   public void setSources(@NonNull List<Path> sources) {
     this.sources = sources;
   }
@@ -438,10 +446,20 @@ public class OpenAPIGenerator {
     this.outputDir = outputDir;
   }
 
+  /**
+   * Set the desired spec output. Default is <code>3.1</code>.
+   *
+   * @param specVersion One of <code>3.0</code> or <code>3.1</code>.
+   */
   public void setSpecVersion(SpecVersion specVersion) {
     this.specVersion = specVersion;
   }
 
+  /**
+   * Set the desired spec output. Default is <code>3.1</code>.
+   *
+   * @param version One of <code>3.0</code> or <code>3.1</code>.
+   */
   public void setSpecVersion(String version) {
     if (specVersion != null) {
       switch (version) {
@@ -463,6 +481,6 @@ public class OpenAPIGenerator {
       name = name.substring(i + 1);
       name = name.replace("App", "").replace("Kt", "").trim();
     }
-    return name.length() == 0 ? "My App" : name;
+    return name.isEmpty() ? "My App" : name;
   }
 }

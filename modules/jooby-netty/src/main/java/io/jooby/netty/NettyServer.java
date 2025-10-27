@@ -65,6 +65,7 @@ public class NettyServer extends Server.Base {
   /**
    * Creates a server.
    *
+   * @param options Options.
    * @param worker Thread-pool to use.
    */
   public NettyServer(@NonNull ServerOptions options, @NonNull ExecutorService worker) {
@@ -81,11 +82,16 @@ public class NettyServer extends Server.Base {
     this.worker = worker;
   }
 
-  /** Creates a server. */
+  /**
+   * Creates a server.
+   *
+   * @param options Configuration options.
+   */
   public NettyServer(@NonNull ServerOptions options) {
     setOptions(options);
   }
 
+  /** Default constructor. */
   public NettyServer() {}
 
   /**

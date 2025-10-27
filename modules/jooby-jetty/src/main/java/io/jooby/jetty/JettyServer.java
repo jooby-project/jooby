@@ -64,19 +64,36 @@ public class JettyServer extends io.jooby.Server.Base {
 
   private Consumer<HttpConfiguration> httpConfigurer;
 
+  /**
+   * Creates a jetty web server.
+   *
+   * @param options Options.
+   * @param threadPool Custom thread pool.
+   */
   public JettyServer(@NonNull ServerOptions options, @NonNull QueuedThreadPool threadPool) {
     setOptions(options);
     this.threadPool = threadPool;
   }
 
+  /**
+   * Creates a jetty web server.
+   *
+   * @param threadPool Custom thread pool.
+   */
   public JettyServer(@NonNull QueuedThreadPool threadPool) {
     this.threadPool = threadPool;
   }
 
+  /**
+   * Creates a jetty web server.
+   *
+   * @param options Options.
+   */
   public JettyServer(@NonNull ServerOptions options) {
     setOptions(options);
   }
 
+  /** Creates a default jetty web server. */
   public JettyServer() {}
 
   @Override

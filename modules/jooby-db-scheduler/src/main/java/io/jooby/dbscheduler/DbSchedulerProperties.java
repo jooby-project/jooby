@@ -123,9 +123,9 @@ public class DbSchedulerProperties {
    *
    * If the path doesn't exists, it returns a default instance.
    *
-   * @param config
-   * @param path
-   * @return
+   * @param config Configuration.
+   * @param path Root path.
+   * @return Properties.
    */
   public static Optional<DbSchedulerProperties> from(Config config, String path) {
     if (config.hasPath(path)) {
@@ -279,10 +279,10 @@ public class DbSchedulerProperties {
 
   /**
    * Name of this scheduler-instance. The name is stored in the database when an execution is picked
-   * by a scheduler. Default <hostname>.
+   * by a scheduler. Default: <code>hostname</code>.
    *
    * @return Name of this scheduler-instance. The name is stored in the database when an execution
-   *     is picked by a scheduler. Default <hostname>.
+   *     is picked by a scheduler. Default <code>hostname</code>.
    */
   public String getSchedulerName() {
     return schedulerName;
@@ -290,7 +290,7 @@ public class DbSchedulerProperties {
 
   /**
    * Set name of this scheduler-instance. The name is stored in the database when an execution is
-   * picked by a scheduler. Default <hostname>.
+   * picked by a scheduler. Default <code>hostname</code>.
    *
    * @param schedulerName Scheduler's name.
    * @return This instance.
@@ -315,7 +315,7 @@ public class DbSchedulerProperties {
    *
    * @param tableName Name of the table used to track task-executions. Default <code>scheduled_tasks
    *     </code>.
-   * @return
+   * @return This module.
    */
   public DbSchedulerProperties setTableName(@NonNull String tableName) {
     this.tableName = tableName;

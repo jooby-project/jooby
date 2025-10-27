@@ -83,6 +83,9 @@ public class VertxHandler implements Route.Reactive {
     }
   }
 
+  /** Default constructor. */
+  public VertxHandler() {}
+
   @Override
   public Route.Handler apply(Route.Handler next) {
     return ctx -> {
@@ -101,6 +104,11 @@ public class VertxHandler implements Route.Reactive {
     };
   }
 
+  /**
+   * Handle vertx types like: {@link Future}, {@link Promise} {@link AsyncFile} and {@link Buffer}.
+   *
+   * @return Vertx filter.
+   */
   public static Route.Filter vertx() {
     return new VertxHandler();
   }

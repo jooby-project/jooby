@@ -20,6 +20,9 @@ import io.jooby.SslProvider;
 public class ConscryptSslProvider implements SslProvider {
   private static final String NAME = "Conscrypt";
 
+  /** Default constructor. */
+  public ConscryptSslProvider() {}
+
   @Override
   public String getName() {
     return NAME;

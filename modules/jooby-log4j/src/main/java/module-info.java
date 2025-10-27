@@ -1,6 +1,7 @@
 import io.jooby.LoggingService;
 import io.jooby.log4j.Log4jService;
 
+/** Log4j logging system. */
 module io.jooby.log4j {
   exports io.jooby.log4j;
 

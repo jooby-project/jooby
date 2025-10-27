@@ -13,11 +13,21 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules;
 import com.typesafe.config.ConfigException;
 
 /**
- * Parse {@link Schedule} from string expression. Supported values: - 0 0 1 * * ? (cron expression)
- * - 1m (fixed schedule) - 1h (fixed schedule) - 15s (fixed schedule) - DAILY|12:30,15:30 -
- * FIXED_DELAY|120s (must be expressed in seconds)
+ * Parse {@link Schedule} from string expression. Supported values:
+ *
+ * <ul>
+ *   <li>0 0 1 * * ? (cron expression)
+ *   <li>1m (fixed schedule)
+ *   <li>1h (fixed schedule)
+ *   <li>15s (fixed schedule)
+ *   <li>DAILY|12:30,15:30
+ *   <li>FIXED_DELAY|120s (must be expressed in seconds)
+ * </ul>
  */
-public class DbScheduleParser {
+public final class DbScheduleParser {
+
+  private DbScheduleParser() {}
+
   /**
    * Parse {@link Schedule} from string expression. Supported values: - 0 0 1 * * ? (cron
    * expression) - 1m (fixed schedule) - 1h (fixed schedule) - 15s (fixed schedule) -

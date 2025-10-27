@@ -58,12 +58,15 @@ public class MockResponse implements MockValue {
 
   private CountDownLatch latch = new CountDownLatch(1);
 
+  /** Default constructor. */
+  public MockResponse() {}
+
   /**
    * Response headers.
    *
    * @return Response headers.
    */
-  public @NonNull Map<String, Object> getHeaders() {
+  public Map<String, Object> getHeaders() {
     return headers == null ? Collections.emptyMap() : Collections.unmodifiableMap(headers);
   }
 
@@ -73,7 +76,7 @@ public class MockResponse implements MockValue {
    * @param headers Response headers.
    * @return This response.
    */
-  public @NonNull MockResponse setHeaders(@NonNull Map<String, Object> headers) {
+  public MockResponse setHeaders(@NonNull Map<String, Object> headers) {
     headers.forEach(this::setHeader);
     return this;
   }

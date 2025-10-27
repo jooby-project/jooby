@@ -24,9 +24,14 @@ public interface Pac4jContext extends WebContext {
    *
    * @return The underlying context.
    */
-  @NonNull Context getContext();
+  Context getContext();
 
-  @NonNull SessionStore getSessionStore();
+  /**
+   * Session store. Required for indirect clients.
+   *
+   * @return Session store.
+   */
+  SessionStore getSessionStore();
 
   /**
    * Wrap a Web context as pac4j context.
@@ -34,7 +39,7 @@ public interface Pac4jContext extends WebContext {
    * @param ctx Web context.
    * @return Pac4j web context.
    */
-  static @NonNull Pac4jContext create(@NonNull Context ctx) {
+  static Pac4jContext create(@NonNull Context ctx) {
     String key = Pac4jContext.class.getName();
     WebContextImpl impl = ctx.getAttribute(key);
     if (impl == null) {
