@@ -7,7 +7,6 @@ package io.jooby;
 
 import static java.util.Optional.ofNullable;
 
-import java.io.Serializable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -270,7 +269,7 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Handler extends Serializable, Aware {
+  public interface Handler extends Aware {
 
     /**
      * Execute application code.
