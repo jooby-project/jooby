@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.11.4</version>
+    <version>3.11.5</version>
   </parent>
   <artifactId>jooby-freemarker</artifactId>
   <name>jooby-freemarker</name>
