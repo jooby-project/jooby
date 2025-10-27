@@ -51,6 +51,11 @@ public class OutputOptions {
     return new OutputOptions().setDirectBuffers(false).setSize(512);
   }
 
+  /**
+   * Default options.
+   *
+   * @return Default options.
+   */
   public static OutputOptions defaults() {
     return new OutputOptions();
   }

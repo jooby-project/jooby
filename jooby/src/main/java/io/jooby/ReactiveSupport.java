@@ -21,6 +21,8 @@ public class ReactiveSupport {
 
   private static final Route.Filter CONCURRENT = new ConcurrentHandler();
 
+  private ReactiveSupport() {}
+
   /**
    * Creates a subscriber from web context.
    *
@@ -41,6 +43,12 @@ public class ReactiveSupport {
     return CONCURRENT;
   }
 
+  /**
+   * Handler for {@link CompletionStage} and {@link Flow.Publisher} result types.
+   *
+   * @param next Next handler in pipeline.
+   * @return A new wrapped route handler.
+   */
   public static Route.Handler concurrent(Route.Handler next) {
     return CONCURRENT.then(next);
   }

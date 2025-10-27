@@ -19,6 +19,7 @@ import io.jooby.problem.HttpProblem;
  * @author edgar
  */
 public class MethodNotAllowedException extends StatusCodeException {
+  /** List of allowed methods. */
   private final List<String> allow;
 
   /**
@@ -51,7 +52,7 @@ public class MethodNotAllowedException extends StatusCodeException {
   }
 
   @Override
-  public @NonNull HttpProblem toHttpProblem() {
+  public HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(
         statusCode,
         statusCode.reason(),

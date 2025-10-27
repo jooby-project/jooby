@@ -16,5 +16,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @since 3.4.2
  */
 public interface HttpProblemMappable {
+  /**
+   * Get a {@link HttpProblem} instance.
+   *
+   * @return A {@link HttpProblem} instance.
+   */
   @NonNull HttpProblem toHttpProblem();
 }

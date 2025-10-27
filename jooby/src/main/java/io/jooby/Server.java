@@ -127,6 +127,9 @@ public interface Server {
 
     private ServerOptions options = new ServerOptions(true);
 
+    /** Default constructor. */
+    public Base() {}
+
     @Override
     public final ServerOptions getOptions() {
       return options;
@@ -139,6 +142,12 @@ public interface Server {
     }
   }
 
+  /**
+   * Called once during application startup time.
+   *
+   * @param application Application being deployed.
+   * @return This instance.
+   */
   default Server init(@NonNull Jooby application) {
     var registry = application.getServices();
     var options = getOptions();

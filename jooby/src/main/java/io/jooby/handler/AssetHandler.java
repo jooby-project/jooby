@@ -32,12 +32,15 @@ public class AssetHandler implements Route.Handler {
 
   private final AssetSource[] sources;
 
+  /** Cache control defaults value. */
   private final CacheControl defaults = CacheControl.defaults();
 
   private String filekey;
 
+  /** File to fallback in case of not found matching path. */
   private String fallback;
 
+  /** Cache control function. */
   private Function<String, CacheControl> cacheControl = path -> defaults;
 
   private Function<Asset, MediaType> mediaTypeResolver = Asset::getContentType;

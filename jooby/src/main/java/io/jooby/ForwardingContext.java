@@ -41,6 +41,11 @@ public class ForwardingContext implements Context {
   public static class ForwardingBody implements Body {
     protected final Body delegate;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param body Underlying body.
+     */
     public ForwardingBody(Body body) {
       this.delegate = body;
     }
@@ -322,6 +327,11 @@ public class ForwardingContext implements Context {
   public static class ForwardingValue implements Value {
     protected final Value delegate;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param delegate Underlying value.
+     */
     public ForwardingValue(Value delegate) {
       this.delegate = delegate;
     }
@@ -561,6 +571,11 @@ public class ForwardingContext implements Context {
 
   /** Forwarding/Delegate pattern over {@link QueryString}. */
   public static class ForwardingQueryString extends ForwardingValue implements QueryString {
+    /**
+     * Creates a new instance.
+     *
+     * @param queryString Underlying query string.
+     */
     public ForwardingQueryString(QueryString queryString) {
       super(queryString);
     }
@@ -578,6 +593,11 @@ public class ForwardingContext implements Context {
 
   /** Forwarding/Delegate pattern over {@link Formdata}. */
   public static class ForwardingFormdata extends ForwardingValue implements Formdata {
+    /**
+     * Creates a new instance.
+     *
+     * @param delegate Underlying formdata.
+     */
     public ForwardingFormdata(Formdata delegate) {
       super(delegate);
     }
@@ -640,6 +660,11 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  /**
+   * Get the underlying context.
+   *
+   * @return Get the underlying context.
+   */
   public Context getDelegate() {
     return ctx;
   }

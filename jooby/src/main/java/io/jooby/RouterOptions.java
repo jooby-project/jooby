@@ -71,6 +71,9 @@ public class RouterOptions {
    */
   private boolean contextAsService;
 
+  /** Default constructor. */
+  public RouterOptions() {}
+
   /**
    * If enabled, allows to retrieve the {@link Context} object associated with the current request
    * via the service registry while the request is being processed.

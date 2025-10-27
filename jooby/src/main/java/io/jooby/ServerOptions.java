@@ -146,6 +146,7 @@ public class ServerOptions {
     this.defaults = defaults;
   }
 
+  /** Default constructor. */
   public ServerOptions() {
     this(false);
   }
@@ -240,7 +241,7 @@ public class ServerOptions {
    * @param server Name of the underlying server.
    * @return This options.
    */
-  public @NonNull ServerOptions setServer(@NonNull String server) {
+  public ServerOptions setServer(@NonNull String server) {
     this.server = server;
     return this;
   }
@@ -250,7 +251,7 @@ public class ServerOptions {
    *
    * @return Server name.
    */
-  public @NonNull String getServer() {
+  public String getServer() {
     return server;
   }
 
@@ -410,15 +411,26 @@ public class ServerOptions {
    * @param defaultHeaders True for enabled.
    * @return This options.
    */
-  public @NonNull ServerOptions setDefaultHeaders(boolean defaultHeaders) {
+  public ServerOptions setDefaultHeaders(boolean defaultHeaders) {
     this.defaultHeaders = defaultHeaders;
     return this;
   }
 
+  /**
+   * Output options. Control what type of buffer is used and default size.
+   *
+   * @return Output options. Control what type of buffer is used and default size.
+   */
   public OutputOptions getOutput() {
     return output;
   }
 
+  /**
+   * Set output options.
+   *
+   * @param output Options.
+   * @return This instance.
+   */
   public ServerOptions setOutput(@NonNull OutputOptions output) {
     this.output = output;
     return this;

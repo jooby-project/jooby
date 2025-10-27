@@ -98,5 +98,11 @@ public interface StartupSummary {
     };
   }
 
+  /**
+   * Log application summary.
+   *
+   * @param application Application.
+   * @param server Server.
+   */
   void log(Jooby application, Server server);
 }

@@ -22,7 +22,10 @@ import io.jooby.Router;
 public class TraceHandler implements Route.Filter {
   private static final String CRLF = "\r\n";
 
-  @NonNull @Override
+  /** Default constructor. */
+  public TraceHandler() {}
+
+  @Override
   public Route.Handler apply(@NonNull Route.Handler next) {
     return ctx -> {
       if (ctx.getMethod().equals(Router.TRACE)) {

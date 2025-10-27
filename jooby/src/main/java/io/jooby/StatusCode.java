@@ -923,6 +923,8 @@ public final class StatusCode {
   }
 
   /**
+   * Return the integer value of this status code.
+   *
    * @return Return the integer value of this status code.
    */
   public int value() {
@@ -930,13 +932,19 @@ public final class StatusCode {
   }
 
   /**
+   * Return the reason phrase of this status code.
+   *
    * @return the reason phrase of this status code.
    */
   public String reason() {
     return reason;
   }
 
-  /** Return a string representation of this status code. */
+  /**
+   * Return a string representation of this status code.
+   *
+   * @return Return a string representation of this status code.
+   */
   @Override
   public String toString() {
     return reason() + " (" + value + ")";

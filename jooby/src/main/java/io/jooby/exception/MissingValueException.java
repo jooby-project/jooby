@@ -15,6 +15,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @author edgar
  */
 public class MissingValueException extends BadRequestException {
+  /** Parameter/field name. */
   private final String name;
 
   /**

@@ -38,22 +38,13 @@ public class Usage extends RuntimeException {
     super(message);
   }
 
-  public static @NonNull Usage noSession() {
-    return new Usage("No session available. See https://jooby.io/#session-in-memory-session");
-  }
-
   /**
-   * Creates a mvc route missing exception.
+   * Occurs when trying to access a session which was not configured.
    *
-   * @param mvcRoute Mvc route.
-   * @return Usage exception.
+   * @return No session present error mesage.
    */
-  public static @NonNull Usage mvcRouterNotFound(@NonNull Class mvcRoute) {
-    return apt(
-        "Router not found: `"
-            + mvcRoute.getName()
-            + "`. Make sure Jooby annotation processor is configured properly.",
-        "router-not-found");
+  public static Usage noSession() {
+    return new Usage("No session available. See https://jooby.io/#session-in-memory-session");
   }
 
   /**
@@ -63,7 +54,7 @@ public class Usage extends RuntimeException {
    * @param parameter Parameter.
    * @return Usage exception.
    */
-  public static @NonNull Usage parameterNameNotPresent(@NonNull Parameter parameter) {
+  public static Usage parameterNameNotPresent(@NonNull Parameter parameter) {
     Executable executable = parameter.getDeclaringExecutable();
     int p = Stream.of(executable.getParameters()).toList().indexOf(parameter);
     String message =
@@ -73,9 +64,5 @@ public class Usage extends RuntimeException {
             + ProvisioningException.toString(parameter.getDeclaringExecutable())
             + ". Parameter's name is missing";
     return new Usage(message, "bean-converter-parameter-name-missing");
-  }
-
-  private static Usage apt(String message, String id) {
-    return new Usage(message, "annotation-processing-tool-" + id);
   }
 }

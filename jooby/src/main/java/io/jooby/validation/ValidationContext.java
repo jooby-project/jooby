@@ -26,7 +26,7 @@ import io.jooby.value.Value;
  */
 public class ValidationContext extends ForwardingContext {
 
-  public static class ValidatedValue extends ForwardingValue {
+  private static class ValidatedValue extends ForwardingValue {
     protected final Context ctx;
 
     public ValidatedValue(Context ctx, Value delegate) {
@@ -61,7 +61,7 @@ public class ValidationContext extends ForwardingContext {
     }
   }
 
-  public static class ValidatedBody extends ValidatedValue implements Body {
+  private static class ValidatedBody extends ValidatedValue implements Body {
     public ValidatedBody(Context ctx, Body body) {
       super(ctx, body);
     }
@@ -109,7 +109,7 @@ public class ValidationContext extends ForwardingContext {
     }
   }
 
-  public static class ValidatedQueryString extends ValidatedValue implements QueryString {
+  private static class ValidatedQueryString extends ValidatedValue implements QueryString {
     public ValidatedQueryString(Context ctx, QueryString delegate) {
       super(ctx, delegate);
     }
@@ -125,7 +125,7 @@ public class ValidationContext extends ForwardingContext {
     }
   }
 
-  public static class ValidatedFormdata extends ValidatedValue implements Formdata {
+  private static class ValidatedFormdata extends ValidatedValue implements Formdata {
     public ValidatedFormdata(Context ctx, Formdata delegate) {
       super(ctx, delegate);
     }

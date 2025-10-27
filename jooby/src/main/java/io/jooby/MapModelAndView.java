@@ -12,6 +12,7 @@ import java.util.Map;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
+/** A {@link ModelAndView} which uses a map as model. */
 public class MapModelAndView extends ModelAndView<Map<String, Object>> {
   /**
    * Creates a new model and view.

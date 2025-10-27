@@ -58,6 +58,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Path {
   /**
+   * Route path pattern.
+   *
    * @return Route path pattern.
    */
   String[] value();

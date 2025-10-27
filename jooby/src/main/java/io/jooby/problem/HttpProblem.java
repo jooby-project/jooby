@@ -333,56 +333,112 @@ public class HttpProblem extends RuntimeException {
 
     Builder() {}
 
+    /**
+     * URI type.
+     *
+     * @param type URI type.
+     * @return This builder.
+     */
     public Builder type(@Nullable final URI type) {
       this.type = type;
       return this;
     }
 
+    /**
+     * Error's title.
+     *
+     * @param title Error's title.
+     * @return This builder.
+     */
     public Builder title(final String title) {
       this.title = title;
       return this;
     }
 
+    /**
+     * Status Code.
+     *
+     * @param status Status Code.
+     * @return This builder.
+     */
     public Builder status(final StatusCode status) {
       this.status = status.value();
       return this;
     }
 
+    /**
+     * Error detail.
+     *
+     * @param detail Error detail.
+     * @return This builder.
+     */
     public Builder detail(@Nullable final String detail) {
       this.detail = detail;
       return this;
     }
 
+    /**
+     * Set instance URI.
+     *
+     * @param instance Instance URI.
+     * @return This builder.
+     */
     public Builder instance(@Nullable final URI instance) {
       this.instance = instance;
       return this;
     }
 
-    public Builder header(String headerName, Object value) {
-      headers.put(headerName, value);
+    /**
+     * Set a header value.
+     *
+     * @param name Header's name.
+     * @param value Headers' value.
+     * @return This builder.
+     */
+    public Builder header(String name, Object value) {
+      headers.put(name, value);
       return this;
     }
 
+    /**
+     * Add one the error.
+     *
+     * @param error Error to add.
+     * @return This builder.
+     */
     public Builder error(final Error error) {
       errors.add(error);
       return this;
     }
 
+    /**
+     * Add all the errors.
+     *
+     * @param errors Errors to add.
+     * @return This builder.
+     */
     public Builder errors(final List<? extends Error> errors) {
       this.errors.addAll(errors);
       return this;
     }
 
     /**
-     * @param key additional info parameter name
+     * Set a custom parameter.
+     *
+     * @param name additional info parameter name
      * @param value additional info parameter value
      * @return this for chaining
      */
-    public Builder param(final String key, @Nullable final Object value) {
-      parameters.put(key, value);
+    public Builder param(final String name, @Nullable final Object value) {
+      parameters.put(name, value);
       return this;
     }
 
+    /**
+     * Build a problem.
+     *
+     * @return A new problem.
+     */
     public HttpProblem build() {
       if (this.title == null || this.title.isEmpty() || this.title.isBlank()) {
         throw new RuntimeException("The problem 'title' should be specified");

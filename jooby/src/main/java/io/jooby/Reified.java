@@ -269,6 +269,7 @@ public class Reified<T> {
    *
    * @param rawType Raw type.
    * @param typeArguments Parameter types.
+   * @param <T> Target type.
    * @return Gets type literal for the parameterized type represented by applying {@code
    *     typeArguments} to {@code rawType}.
    */
@@ -283,6 +284,7 @@ public class Reified<T> {
    *
    * @param rawType Raw type.
    * @param argument Parameter types.
+   * @param <T> Target type.
    * @return Gets type literal for the parameterized type represented by applying {@code
    *     typeArguments} to {@code rawType}.
    */

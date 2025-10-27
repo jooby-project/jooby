@@ -27,10 +27,11 @@ public interface SessionStore {
   /** Default session timeout in minutes. */
   int DEFAULT_TIMEOUT = 30;
 
+  /** Default session, which is the same as no session installed. */
   SessionStore UNSUPPORTED =
       new SessionStore() {
 
-        @NonNull @Override
+        @Override
         public Session newSession(@NonNull Context ctx) {
           throw Usage.noSession();
         }

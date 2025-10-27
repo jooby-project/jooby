@@ -13,8 +13,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -253,6 +251,10 @@ public class Route {
     void apply(@NonNull Context ctx) throws Exception;
   }
 
+  /**
+   * Callback that allow to customize a route while the route pipeline is being created. The {@link
+   * #setRoute(Route)} is called once at application startup time.
+   */
   public interface Aware {
     /**
      * Allows a handler to listen for route metadata.
@@ -277,7 +279,7 @@ public class Route {
      * @return Route response.
      * @throws Exception If something goes wrong.
      */
-    @NonNull Object apply(@NonNull Context ctx) throws Exception;
+    Object apply(@NonNull Context ctx) throws Exception;
 
     /**
      * Chain this after decorator with next and produces a new decorator.
@@ -722,7 +724,7 @@ public class Route {
    * your application using {@link ExecutionMode#EVENT_LOOP}.
    *
    * @param nonBlocking True for non-blocking routes.
-   * @return
+   * @return This route.
    */
   public Route setNonBlocking(boolean nonBlocking) {
     this.nonBlocking = nonBlocking;
@@ -1176,6 +1178,11 @@ public class Route {
 
     private String description;
 
+    /**
+     * Set of routes.
+     *
+     * @param routes Routes.
+     */
     public Set(List<Route> routes) {
       this.routes = routes;
     }
@@ -1382,10 +1389,6 @@ public class Route {
      */
     public Set description(@Nullable String description) {
       return setDescription(description);
-    }
-
-    public void forEach(Predicate<Route> predicate, Consumer<? super Route> action) {
-      routes.stream().filter(predicate).forEach(action);
     }
 
     @Override

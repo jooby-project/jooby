@@ -83,6 +83,9 @@ public final class SslOptions implements java.io.Closeable {
 
   private SSLContext sslContext;
 
+  /** Default constructor. */
+  public SslOptions() {}
+
   /**
    * Certificate type. Default is {@link #PKCS12}.
    *

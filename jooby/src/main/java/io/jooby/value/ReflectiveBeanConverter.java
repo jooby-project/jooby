@@ -51,6 +51,7 @@ public class ReflectiveBeanConverter implements Converter {
   /**
    * Creates a new instance using a lookup.
    *
+   * @param factory Value factory.
    * @param lookup Method handle lookup.
    */
   public ReflectiveBeanConverter(ValueFactory factory, MethodHandles.Lookup lookup) {
@@ -156,7 +157,7 @@ public class ReflectiveBeanConverter implements Converter {
     }
   }
 
-  public static List<Object> inject(
+  private static List<Object> inject(
       ValueFactory factory, Value scope, Executable method, Consumer<Value> state) {
     var parameters = method.getParameters();
     if (parameters.length == 0) {

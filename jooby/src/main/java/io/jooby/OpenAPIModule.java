@@ -41,11 +41,11 @@ public class OpenAPIModule implements Extension {
 
   private static class OpenAPIAsset implements Asset {
 
-    private long lastModified;
+    private final long lastModified;
 
-    private byte[] content;
+    private final byte[] content;
 
-    private MediaType type;
+    private final MediaType type;
 
     OpenAPIAsset(MediaType type, byte[] content, long lastModified) {
       this.content = content;
@@ -68,7 +68,7 @@ public class OpenAPIModule implements Extension {
       return false;
     }
 
-    @NonNull @Override
+    @Override
     public MediaType getContentType() {
       return type;
     }
@@ -107,6 +107,12 @@ public class OpenAPIModule implements Extension {
     /** YAML. */
     YAML;
 
+    /**
+     * Find format based on files extension.
+     *
+     * @param filePath File name.
+     * @return File format.
+     */
     public static Format from(@NonNull String filePath) {
       for (Format value : values()) {
         if (filePath.endsWith("." + value.name().toLowerCase())) {

@@ -783,6 +783,13 @@ public class Jooby implements Router, Registry {
     return basePackage;
   }
 
+  /**
+   * Set the base package, it has no direct effect on how jooby works but some modules might use it
+   * for package scanning. Defaults is main application package.
+   *
+   * @param basePackage Application base package.
+   * @return This instance.
+   */
   public Jooby setBasePackage(@Nullable String basePackage) {
     this.basePackage = basePackage;
     return this;

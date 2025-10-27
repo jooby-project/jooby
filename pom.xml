@@ -203,6 +203,8 @@
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
     <javadoc.excludes>io.jooby.internal.*</javadoc.excludes>
+    <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+    <maven.javadoc.failOnWarnings>false</maven.javadoc.failOnWarnings>
 
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
@@ -1686,8 +1688,6 @@
               <show>public</show>
               <detectJavaApiLink>true</detectJavaApiLink>
               <release>${maven.compiler.release}</release>
-              <failOnWarnings>false</failOnWarnings>
-              <failOnError>false</failOnError>
             </configuration>
             <executions>
               <execution>
@@ -1717,27 +1717,6 @@
                 <id>attach-sources</id>
                 <goals>
                   <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <!-- Javadoc -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${maven-javadoc-plugin.version}</version>
-            <configuration>
-              <excludePackageNames>${javadoc.excludes}</excludePackageNames>
-              <show>public</show>
-              <detectJavaApiLink>false</detectJavaApiLink>
-              <release>${maven.compiler.release}</release>
-            </configuration>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
                 </goals>
               </execution>
             </executions>

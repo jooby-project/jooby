@@ -69,7 +69,7 @@ public interface Sender {
    * @param callback Callback.
    * @return This sender.
    */
-  @NonNull default Sender write(@NonNull String data, @NonNull Callback callback) {
+  default Sender write(@NonNull String data, @NonNull Callback callback) {
     return write(data, StandardCharsets.UTF_8, callback);
   }
 
@@ -81,7 +81,7 @@ public interface Sender {
    * @param callback Callback.
    * @return This sender.
    */
-  @NonNull default Sender write(@NonNull String data, @NonNull Charset charset, @NonNull Callback callback) {
+  default Sender write(@NonNull String data, @NonNull Charset charset, @NonNull Callback callback) {
     return write(data.getBytes(charset), callback);
   }
 
@@ -94,6 +94,13 @@ public interface Sender {
    */
   Sender write(@NonNull byte[] data, @NonNull Callback callback);
 
+  /**
+   * Write an output.
+   *
+   * @param output Data.
+   * @param callback Callback.
+   * @return This sender.
+   */
   Sender write(@NonNull Output output, @NonNull Callback callback);
 
   /** Close the sender. */

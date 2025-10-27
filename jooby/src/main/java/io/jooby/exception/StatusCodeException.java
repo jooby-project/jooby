@@ -18,7 +18,7 @@ import io.jooby.problem.HttpProblemMappable;
  * @since 2.0.0
  */
 public class StatusCodeException extends RuntimeException implements HttpProblemMappable {
-
+  /** The HTTP status code. */
   protected final StatusCode statusCode;
 
   /**

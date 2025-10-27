@@ -35,11 +35,22 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
   private static final String MUTE_TYPES_KEY = "muteTypes";
   private static final String LOG_4XX_ERRORS_KEY = "log4xxErrors";
 
+  /** Root config path constant. */
   public static final String ROOT_CONFIG_PATH = "problem.details";
+
+  /** Root config path constant for enabling/disabling. */
   public static final String ENABLED_KEY = ROOT_CONFIG_PATH + ".enabled";
 
   private boolean log4xxErrors;
 
+  /** Default constructor. */
+  public ProblemDetailsHandler() {}
+
+  /**
+   * Enabled logging of 4xx errors.
+   *
+   * @return This handler.
+   */
   public ProblemDetailsHandler log4xxErrors() {
     this.log4xxErrors = true;
     return this;

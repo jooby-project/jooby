@@ -62,6 +62,7 @@ public interface LoggingService {
    * @param classLoader Class loader to use.
    * @param names Actives environment names. Useful for choosing an environment specific logging
    *     configuration file.
+   * @return Location of logging configuration file or <code>null</code>.
    */
   static @Nullable String configure(@NonNull ClassLoader classLoader, @NonNull List<String> names) {
     // Supported well-know implementation
@@ -133,6 +134,12 @@ public interface LoggingService {
     return null;
   }
 
+  /**
+   * True when path contains one of: <code>target, build, bin</code> directories.
+   *
+   * @param path Path to test.
+   * @return True when path contains one of: <code>target, build, bin</code> directories.
+   */
   static boolean isBinary(Path path) {
     var bin = Set.of("target", "build", "bin");
     return StreamSupport.stream(path.spliterator(), false)

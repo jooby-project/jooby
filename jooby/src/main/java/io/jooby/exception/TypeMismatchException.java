@@ -17,6 +17,7 @@ import io.jooby.problem.HttpProblem;
  * @author edgar
  */
 public class TypeMismatchException extends BadRequestException {
+  /** Parameter/field name. */
   private final String name;
 
   /**

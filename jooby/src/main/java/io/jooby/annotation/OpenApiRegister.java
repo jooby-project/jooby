@@ -24,6 +24,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OpenApiRegister {
 
-  /** List of MVC controller class names to register for openapi generation */
+  /**
+   * List of MVC controller class names to register for openapi generation
+   *
+   * @return MVC controller classes.
+   */
   Class<?>[] value();
 }

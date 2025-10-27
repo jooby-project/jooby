@@ -37,11 +37,16 @@ public final class ServiceKey<T> {
    *
    * @return Resource type.
    */
-  public @NonNull Type getType() {
+  public Type getType() {
     return type;
   }
 
-  public @NonNull Class<T> getRawType() {
+  /**
+   * Raw type in case of parameterized type.
+   *
+   * @return Raw type in case of parameterized type.
+   */
+  public Class<T> getRawType() {
     return rawType;
   }
 
@@ -83,7 +88,7 @@ public final class ServiceKey<T> {
    * @param <T> Type.
    * @return A new resource key.
    */
-  public static @NonNull <T> ServiceKey<T> key(@NonNull Class<T> type) {
+  public static <T> ServiceKey<T> key(@NonNull Class<T> type) {
     return new ServiceKey<>(type, type, null);
   }
 
@@ -95,17 +100,32 @@ public final class ServiceKey<T> {
    * @param <T> Type.
    * @return A new resource key.
    */
-  public static @NonNull <T> ServiceKey<T> key(@NonNull Class<T> type, @NonNull String name) {
+  public static <T> ServiceKey<T> key(@NonNull Class<T> type, @NonNull String name) {
     return new ServiceKey<>(type, type, name);
   }
 
+  /**
+   * Creates a named resource key.
+   *
+   * @param type Resource type.
+   * @param name Resource name.
+   * @param <T> Type.
+   * @return A new resource key.
+   */
   @SuppressWarnings("unchecked")
-  public static @NonNull <T> ServiceKey<T> key(@NonNull Reified<T> type, @NonNull String name) {
+  public static <T> ServiceKey<T> key(@NonNull Reified<T> type, @NonNull String name) {
     return new ServiceKey<>(type.getType(), (Class<T>) type.getRawType(), name);
   }
 
+  /**
+   * Creates a resource key.
+   *
+   * @param type Resource type.
+   * @param <T> Type.
+   * @return A new resource key.
+   */
   @SuppressWarnings("unchecked")
-  public static @NonNull <T> ServiceKey<T> key(@NonNull Reified<T> type) {
+  public static <T> ServiceKey<T> key(@NonNull Reified<T> type) {
     return new ServiceKey<>(type.getType(), (Class<T>) type.getRawType(), null);
   }
 }

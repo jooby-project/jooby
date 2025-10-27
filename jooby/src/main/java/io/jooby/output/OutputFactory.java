@@ -64,6 +64,11 @@ public interface OutputFactory {
     return allocate(getOptions().isDirectBuffers(), size);
   }
 
+  /**
+   * Allocate a buffered output, using the default {@link #getOptions()}.
+   *
+   * @return A new buffered.
+   */
   default BufferedOutput allocate() {
     return allocate(getOptions().isDirectBuffers(), getOptions().getSize());
   }

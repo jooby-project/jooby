@@ -22,6 +22,12 @@ import jakarta.inject.Provider;
  */
 public interface ServiceRegistry extends Registry {
 
+  /**
+   * Map binder, allow to partially register map entries.
+   *
+   * @param <K> Map key.
+   * @param <V> Map value.
+   */
   class MapBinder<K, V> implements Provider<Map<K, V>> {
     private final Map<K, Provider<V>> services;
 
@@ -29,10 +35,24 @@ public interface ServiceRegistry extends Registry {
       this.services = new HashMap<>();
     }
 
+    /**
+     * Put a service into a map.
+     *
+     * @param key Key.
+     * @param service Service value.
+     * @return This binder.
+     */
     public MapBinder<K, V> put(K key, V service) {
       return put(key, () -> service);
     }
 
+    /**
+     * Put a service into a map.
+     *
+     * @param key Key.
+     * @param service Service value.
+     * @return This binder.
+     */
     public MapBinder<K, V> put(K key, Provider<V> service) {
       services.put(key, service);
       return this;
@@ -45,6 +65,11 @@ public interface ServiceRegistry extends Registry {
     }
   }
 
+  /**
+   * List/Set binder, allow to partially register service and fetch them all as list/set.
+   *
+   * @param <T> Item type.
+   */
   abstract class MultiBinder<T> implements Provider<Collection<T>> {
     protected final Collection<Provider<T>> services;
 
@@ -52,10 +77,22 @@ public interface ServiceRegistry extends Registry {
       this.services = services;
     }
 
+    /**
+     * Add a service to final list.
+     *
+     * @param service Service to add.
+     * @return This binder.
+     */
     public MultiBinder<T> add(T service) {
       return add(() -> service);
     }
 
+    /**
+     * Add a service to final list.
+     *
+     * @param service Service to add.
+     * @return This binder.
+     */
     public MultiBinder<T> add(Provider<T> service) {
       services.add(service);
       return this;
@@ -87,14 +124,14 @@ public interface ServiceRegistry extends Registry {
    *
    * @return Service keys.
    */
-  @NonNull Set<ServiceKey<?>> keySet();
+  Set<ServiceKey<?>> keySet();
 
   /**
    * Registered service entries.
    *
    * @return Service entries.
    */
-  @NonNull Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet();
+  Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet();
 
   /**
    * Retrieve a service/resource by key.
@@ -104,7 +141,7 @@ public interface ServiceRegistry extends Registry {
    * @return Service.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  default @NonNull <T> T get(@NonNull ServiceKey<T> key) {
+  default <T> T get(@NonNull ServiceKey<T> key) {
     T service = getOrNull(key);
     if (service == null) {
       throw new RegistryException("Service not found: " + key);
@@ -120,7 +157,7 @@ public interface ServiceRegistry extends Registry {
    * @return Service.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  default @NonNull <T> T get(@NonNull Class<T> type) {
+  default <T> T get(@NonNull Class<T> type) {
     return get(ServiceKey.key(type));
   }
 
@@ -132,7 +169,7 @@ public interface ServiceRegistry extends Registry {
    * @return Service.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  default @NonNull <T> T get(@NonNull Reified<T> type) {
+  default <T> T get(@NonNull Reified<T> type) {
     return get(ServiceKey.key(type));
   }
 
@@ -167,35 +204,78 @@ public interface ServiceRegistry extends Registry {
    */
   @Nullable <T> T getOrNull(@NonNull ServiceKey<T> key);
 
-  default @NonNull <T> MultiBinder<T> listOf(@NonNull Class<T> type) {
-    return multibinder(Reified.list(type), MultiBinder.list());
+  /**
+   * List binder. You can gradually add service of the same type and retrieve them all as list.
+   *
+   * @param type Type.
+   * @return A new list binder.
+   * @param <T> Service type.
+   */
+  default <T> MultiBinder<T> listOf(@NonNull Class<T> type) {
+    return multiBinder(Reified.list(type), MultiBinder.list());
   }
 
-  default @NonNull <T> MultiBinder<T> listOf(@NonNull Reified<T> type) {
-    return multibinder(Reified.list(type.getType()), MultiBinder.list());
+  /**
+   * List binder. You can gradually add service of the same type and retrieve them all as list.
+   *
+   * @param type Type.
+   * @return A new list binder.
+   * @param <T> Service type.
+   */
+  default <T> MultiBinder<T> listOf(@NonNull Reified<T> type) {
+    return multiBinder(Reified.list(type.getType()), MultiBinder.list());
   }
 
-  default @NonNull <T> MultiBinder<T> setOf(@NonNull Class<T> type) {
-    return multibinder(Reified.set(type), MultiBinder.set());
+  /**
+   * Set binder. You can gradually add service of the same type and retrieve them all as set.
+   *
+   * @param type Type.
+   * @return A new set binder.
+   * @param <T> Service type.
+   */
+  default <T> MultiBinder<T> setOf(@NonNull Class<T> type) {
+    return multiBinder(Reified.set(type), MultiBinder.set());
   }
 
-  default @NonNull <T> MultiBinder<T> setOf(@NonNull Reified<T> type) {
-    return multibinder(Reified.set(type.getType()), MultiBinder.set());
+  /**
+   * Set binder. You can gradually add service of the same type and retrieve them all as set.
+   *
+   * @param type Type.
+   * @return A new set binder.
+   * @param <T> Service type.
+   */
+  default <T> MultiBinder<T> setOf(@NonNull Reified<T> type) {
+    return multiBinder(Reified.set(type.getType()), MultiBinder.set());
   }
 
-  default @NonNull <K, V> MapBinder<K, V> mapOf(
-      @NonNull Class<K> keyType, @NonNull Class<V> valueType) {
-    return multibinder(Reified.map(keyType, valueType), new MapBinder<>());
+  /**
+   * Map binder. You can gradually put service of the same type and retrieve them all as map.
+   *
+   * @param keyType Key Type.
+   * @param valueType Service Type.
+   * @return A new map binder.
+   * @param <K> Key type.
+   * @param <V> Service type.
+   */
+  default <K, V> MapBinder<K, V> mapOf(@NonNull Class<K> keyType, @NonNull Class<V> valueType) {
+    return multiBinder(Reified.map(keyType, valueType), new MapBinder<>());
   }
 
-  default @NonNull <K, V> MapBinder<K, V> mapOf(
-      @NonNull Class<K> keyType, @NonNull Reified<V> valueType) {
-    return multibinder(Reified.map(keyType, valueType.getType()), new MapBinder<>());
+  /**
+   * Map binder. You can gradually put service of the same type and retrieve them all as map.
+   *
+   * @param keyType Key Type.
+   * @param valueType Service Type.
+   * @return A new map binder.
+   * @param <K> Key type.
+   * @param <V> Service type.
+   */
+  default <K, V> MapBinder<K, V> mapOf(@NonNull Class<K> keyType, @NonNull Reified<V> valueType) {
+    return multiBinder(Reified.map(keyType, valueType.getType()), new MapBinder<>());
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private @NonNull <P extends Provider> P multibinder(
-      @NonNull Reified reified, @NonNull P multibinder) {
+  private <P extends Provider> P multiBinder(@NonNull Reified reified, @NonNull P multibinder) {
     ServiceKey<?> key = ServiceKey.key(reified);
     var existing = putIfAbsent(key, multibinder);
     if (existing != null) {
@@ -326,15 +406,15 @@ public interface ServiceRegistry extends Registry {
    */
   @Nullable <T> T putIfAbsent(@NonNull ServiceKey<T> key, Provider<T> service);
 
-  default @NonNull @Override <T> T require(@NonNull Class<T> type) {
+  default @Override <T> T require(@NonNull Class<T> type) {
     return get(ServiceKey.key(type));
   }
 
-  default @NonNull @Override <T> T require(@NonNull Class<T> type, @NonNull String name) {
+  default @Override <T> T require(@NonNull Class<T> type, @NonNull String name) {
     return get(ServiceKey.key(type, name));
   }
 
-  default @NonNull @Override <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
+  default @Override <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
     return get(key);
   }
 

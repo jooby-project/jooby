@@ -31,7 +31,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 
+/** Collection of built-in/standard value converters. */
 public enum StandardConverter implements Converter {
+  /** Convert a value to string. */
   String {
     @Override
     protected void add(ValueFactory factory) {
@@ -43,6 +45,7 @@ public enum StandardConverter implements Converter {
       return value.valueOrNull();
     }
   },
+  /** Convert a value to int/Integer. */
   Int {
     @Override
     protected void add(ValueFactory factory) {
@@ -58,6 +61,7 @@ public enum StandardConverter implements Converter {
       return value.isMissing() ? null : value.intValue();
     }
   },
+  /** Convert a value to long/Long. */
   Long {
     @Override
     protected void add(ValueFactory factory) {
@@ -73,6 +77,7 @@ public enum StandardConverter implements Converter {
       return value.isMissing() ? null : value.longValue();
     }
   },
+  /** Convert a value to float/Float. */
   Float {
     @Override
     protected void add(ValueFactory factory) {
@@ -88,6 +93,7 @@ public enum StandardConverter implements Converter {
       return value.isMissing() ? null : value.floatValue();
     }
   },
+  /** Convert a value to double/Double. */
   Double {
     @Override
     protected void add(ValueFactory factory) {
@@ -103,6 +109,7 @@ public enum StandardConverter implements Converter {
       return value.isMissing() ? null : value.doubleValue();
     }
   },
+  /** Convert a value to boolean/Boolean. */
   Boolean {
     @Override
     protected void add(ValueFactory factory) {
@@ -118,6 +125,7 @@ public enum StandardConverter implements Converter {
       return value.isMissing() ? null : value.booleanValue();
     }
   },
+  /** Convert a value to byte/Byte. */
   Byte {
     @Override
     protected void add(ValueFactory factory) {
@@ -133,6 +141,7 @@ public enum StandardConverter implements Converter {
       return value.isMissing() ? null : value.byteValue();
     }
   },
+  /** Convert a value to BigDecimal. */
   BigDecimal {
     @Override
     protected void add(ValueFactory factory) {
@@ -144,6 +153,7 @@ public enum StandardConverter implements Converter {
       return new BigDecimal(value.value());
     }
   },
+  /** Convert a value to BigInteger. */
   BigInteger {
     @Override
     protected void add(ValueFactory factory) {
@@ -155,6 +165,7 @@ public enum StandardConverter implements Converter {
       return new BigInteger(value.value());
     }
   },
+  /** Convert a value to Charset. */
   Charset {
     @Override
     protected void add(ValueFactory factory) {
@@ -175,6 +186,7 @@ public enum StandardConverter implements Converter {
       };
     }
   },
+  /** Convert a value to Date. */
   Date {
     @Override
     protected void add(ValueFactory factory) {
@@ -193,6 +205,7 @@ public enum StandardConverter implements Converter {
       }
     }
   },
+  /** Convert a value to Duration. */
   Duration {
     @Override
     protected void add(ValueFactory factory) {
@@ -259,6 +272,7 @@ public enum StandardConverter implements Converter {
       }
     }
   },
+  /** Convert a value to Period. */
   Period {
     @Override
     protected void add(ValueFactory factory) {
@@ -326,6 +340,7 @@ public enum StandardConverter implements Converter {
       };
     }
   },
+  /** Convert a value to Instant. */
   Instant {
     @Override
     protected void add(ValueFactory factory) {
@@ -341,6 +356,7 @@ public enum StandardConverter implements Converter {
       }
     }
   },
+  /** Convert a value to LocalDate. */
   LocalDate {
     @Override
     protected void add(ValueFactory factory) {
@@ -359,6 +375,7 @@ public enum StandardConverter implements Converter {
       }
     }
   },
+  /** Convert a value to LocalDateTime. */
   LocalDateTime {
     @Override
     protected void add(ValueFactory factory) {
@@ -377,6 +394,7 @@ public enum StandardConverter implements Converter {
       }
     }
   },
+  /** Convert a value to StatusCode. */
   StatusCode {
     @Override
     protected void add(ValueFactory factory) {
@@ -388,6 +406,7 @@ public enum StandardConverter implements Converter {
       return io.jooby.StatusCode.valueOf(value.intValue());
     }
   },
+  /** Convert a value to TimeZone. */
   TimeZone {
     @Override
     protected void add(ValueFactory factory) {
@@ -399,6 +418,7 @@ public enum StandardConverter implements Converter {
       return java.util.TimeZone.getTimeZone(value.value());
     }
   },
+  /** Convert a value to URI. */
   URI {
     @Override
     protected void add(ValueFactory factory) {
@@ -418,6 +438,7 @@ public enum StandardConverter implements Converter {
       }
     }
   },
+  /** Convert a value to UUID. */
   UUID {
     @Override
     protected void add(ValueFactory factory) {
@@ -429,6 +450,7 @@ public enum StandardConverter implements Converter {
       return java.util.UUID.fromString(value.value());
     }
   },
+  /** Convert a value to ZoneId. */
   ZoneId {
     @Override
     protected void add(ValueFactory factory) {
@@ -454,6 +476,11 @@ public enum StandardConverter implements Converter {
 
   protected abstract void add(ValueFactory factory);
 
+  /**
+   * Add all the standard converter to a ValueFactory.
+   *
+   * @param factory Source value factory.
+   */
   public static void register(ValueFactory factory) {
     for (var converter : values()) {
       converter.add(factory);

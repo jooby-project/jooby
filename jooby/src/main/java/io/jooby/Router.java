@@ -65,11 +65,18 @@ public interface Router extends Registry {
     /**
      * Executes matched route.
      *
-     * @param context not null.
-     * @param pipeline Handler.
+     * @param context Web Context.
+     * @param pipeline Route pipeline.
+     * @return route response.
      */
     Object execute(@NonNull Context context, @NonNull Route.Handler pipeline);
 
+    /**
+     * Executes matched route.
+     *
+     * @param context Web Context.
+     * @return route response.
+     */
     default Object execute(@NonNull Context context) {
       return execute(context, route().getPipeline());
     }
@@ -202,10 +209,20 @@ public interface Router extends Registry {
    *
    * @return Application context path (a.k.a as base path).
    */
-  @NonNull String getContextPath();
+  String getContextPath();
 
+  /**
+   * True when router started.
+   *
+   * @return True when router started.
+   */
   boolean isStarted();
 
+  /**
+   * True when router stopped.
+   *
+   * @return True when router stopped.
+   */
   boolean isStopped();
 
   /**
@@ -450,9 +467,14 @@ public interface Router extends Registry {
    * @param worker Default worker thread pool.
    * @return This router.
    */
-  @NonNull Router setDefaultWorker(@NonNull Executor worker);
+  Router setDefaultWorker(@NonNull Executor worker);
 
-  @NonNull OutputFactory getOutputFactory();
+  /**
+   * Output factory.
+   *
+   * @return Output factory.
+   */
+  OutputFactory getOutputFactory();
 
   /**
    * Attach a filter to the route pipeline.
@@ -460,7 +482,7 @@ public interface Router extends Registry {
    * @param filter Filter.
    * @return This router.
    */
-  @NonNull Router use(@NonNull Route.Filter filter);
+  Router use(@NonNull Route.Filter filter);
 
   /**
    * Add a before route decorator to the route pipeline.
@@ -841,7 +863,7 @@ public interface Router extends Registry {
    *
    * @return Template for the flash cookie.
    */
-  @NonNull Cookie getFlashCookie();
+  Cookie getFlashCookie();
 
   /**
    * Sets a cookie used as a template to generate the flash cookie, allowing to customize the cookie
@@ -850,11 +872,22 @@ public interface Router extends Registry {
    * @param flashCookie The cookie template.
    * @return This router.
    */
-  @NonNull Router setFlashCookie(@NonNull Cookie flashCookie);
+  Router setFlashCookie(@NonNull Cookie flashCookie);
 
-  @NonNull ValueFactory getValueFactory();
+  /**
+   * Value factory.
+   *
+   * @return Value factory.
+   */
+  ValueFactory getValueFactory();
 
-  @NonNull Router setValueFactory(@NonNull ValueFactory valueFactory);
+  /**
+   * Set value factory, useful for custom value factory.
+   *
+   * @param valueFactory Value factory.
+   * @return This router.
+   */
+  Router setValueFactory(@NonNull ValueFactory valueFactory);
 
   /**
    * Ensure path start with a <code>/</code>(leading slash).
@@ -862,7 +895,7 @@ public interface Router extends Registry {
    * @param path Path to process.
    * @return Path with leading slash.
    */
-  static @NonNull String leadingSlash(@Nullable String path) {
+  static String leadingSlash(@Nullable String path) {
     if (path == null || path.length() == 0 || path.equals("/")) {
       return "/";
     }
