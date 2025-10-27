@@ -140,7 +140,7 @@ public class ServerOptions {
   private Boolean expectContinue;
 
   /** Internal usage only. */
-  /*pakcage*/ boolean defaults;
+  /*package*/ boolean defaults;
 
   /*package*/ ServerOptions(boolean defaults) {
     this.defaults = defaults;
