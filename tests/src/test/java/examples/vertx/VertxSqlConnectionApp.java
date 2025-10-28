@@ -23,7 +23,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.sqlclient.*;
 import io.vertx.sqlclient.impl.SqlClientInternal;
-import io.vertx.sqlclient.internal.SqlClientBase;
 
 public class VertxSqlConnectionApp extends Jooby {
   private static final String SELECT_WORLD = "SELECT id, randomnumber from WORLD where id=$1";
@@ -58,7 +57,7 @@ public class VertxSqlConnectionApp extends Jooby {
 
     this.selectWorldQuery = require(PreparedQueryType, "selectWorld");
     this.updateWorldQuery = require(PreparedQueryTypeList, "updateWorld");
-    this.sqlClient = require(SqlClientBase.class);
+    this.sqlClient = require(SqlClientInternal.class);
 
     onStarted(() -> require(DbController.class));
 
