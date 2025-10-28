@@ -15,7 +15,6 @@ import io.jooby.FileUpload;
 import io.jooby.Jooby;
 import io.jooby.Router;
 import io.jooby.ServiceRegistry;
-import io.jooby.kt.Kooby;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
@@ -26,8 +25,12 @@ import io.swagger.v3.oas.models.media.Schema;
 
 public class ModelConverterExt extends AbstractModelConverter {
 
-  private static final Set<Class<?>> IGNORE =
-      Set.of(Jooby.class, Kooby.class, ServiceRegistry.class, Router.class);
+  private static final Set<String> IGNORE =
+      Set.of(
+          Jooby.class.getName(),
+          "io.jooby.kt.Kooby",
+          ServiceRegistry.class.getName(),
+          Router.class.getName());
 
   public ModelConverterExt(ObjectMapper mapper) {
     super(mapper);
@@ -46,7 +49,7 @@ public class ModelConverterExt extends AbstractModelConverter {
       return new FileSchema();
     }
     // Skip base apps
-    if (IGNORE.contains(javaType.getRawClass())) {
+    if (IGNORE.contains(javaType.getRawClass().getName())) {
       return null;
     }
     return super.resolve(type, context, chain);

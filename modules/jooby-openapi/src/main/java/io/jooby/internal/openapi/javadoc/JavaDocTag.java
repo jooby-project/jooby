@@ -29,8 +29,6 @@ import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 
 public class JavaDocTag {
-  private static final Predicate<DetailNode> CUSTOM_TAG =
-      javadocToken(JavadocCommentsTokenTypes.CUSTOM_BLOCK_TAG);
   private static final Predicate<DetailNode> TAG_SHORT = it -> it.getText().equals("tag");
   private static final Predicate<DetailNode> TAG = it -> it.getText().startsWith("tag.");
   private static final Predicate<DetailNode> SERVER = it -> it.getText().startsWith("server.");
