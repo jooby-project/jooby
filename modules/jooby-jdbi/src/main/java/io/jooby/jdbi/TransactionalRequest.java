@@ -68,7 +68,7 @@ import io.jooby.annotation.Transactional;
  */
 public class TransactionalRequest implements Filter {
 
-  private ServiceKey<Jdbi> key;
+  private final ServiceKey<Jdbi> key;
 
   private boolean enabledByDefault = true;
 

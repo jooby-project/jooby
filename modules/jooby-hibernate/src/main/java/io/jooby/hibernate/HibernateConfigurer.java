@@ -22,6 +22,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  */
 public class HibernateConfigurer {
 
+  /** Default constructor. */
+  public HibernateConfigurer() {}
+
   /**
    * Hook into bootstrap registry and customize it.
    *

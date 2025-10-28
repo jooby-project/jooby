@@ -19,7 +19,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgConnection;
 import io.vertx.sqlclient.SqlConnectOptions;
-import io.vertx.sqlclient.impl.SqlClientInternal;
+import io.vertx.sqlclient.internal.SqlClientBase;
 
 /**
  * These modules exist as part of the performance tests required by <a
@@ -77,10 +77,10 @@ public class VertxPgConnectionModule extends VertxSqlConnectionModule {
     var pgConnection = new VertxPgConnectionProxy(options.getDatabase());
     var provider = new VertxSqlClientProvider(options.getDatabase());
     registry.put(ServiceKey.key(PgConnection.class, name), pgConnection);
-    registry.put(ServiceKey.key(SqlClientInternal.class, name), provider);
+    registry.put(ServiceKey.key(SqlClientBase.class, name), provider);
 
     registry.putIfAbsent(ServiceKey.key(PgConnection.class), pgConnection);
-    registry.putIfAbsent(ServiceKey.key(SqlClientInternal.class), provider);
+    registry.putIfAbsent(ServiceKey.key(SqlClientBase.class), provider);
   }
 
   @Override

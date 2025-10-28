@@ -1,3 +1,4 @@
+/** Open API module. */
 module io.jooby.openapi {
   exports io.jooby.openapi;
 
