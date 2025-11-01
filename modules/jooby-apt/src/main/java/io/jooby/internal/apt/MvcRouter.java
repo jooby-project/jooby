@@ -196,9 +196,7 @@ public class MvcRouter {
     // Inject could be at constructor or field level.
     var injectConstructor =
         constructors.stream().filter(hasInjectAnnotation()).findFirst().orElse(null);
-    var inject =
-        injectConstructor != null
-            || getTargetType().getEnclosedElements().stream().anyMatch(hasInjectAnnotation());
+    var inject = injectConstructor != null || hasInjectAnnotation(getTargetType());
     final var defaultConstructor =
         constructors.stream().filter(it -> it.getParameters().isEmpty()).findFirst().orElse(null);
     if (inject) {
@@ -304,6 +302,21 @@ public class MvcRouter {
     }
 
     return trimr(buffer).append(System.lineSeparator());
+  }
+
+  private boolean hasInjectAnnotation(TypeElement targetClass) {
+    var inject = false;
+    while (!inject && !targetClass.toString().equals("java.lang.Object")) {
+      // Look up at field/setter injection
+      inject = targetClass.getEnclosedElements().stream().anyMatch(hasInjectAnnotation());
+      targetClass =
+          (TypeElement)
+              context
+                  .getProcessingEnvironment()
+                  .getTypeUtils()
+                  .asElement(targetClass.getSuperclass());
+    }
+    return inject;
   }
 
   private static Predicate<Element> hasInjectAnnotation() {
