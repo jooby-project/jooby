@@ -15,8 +15,6 @@ import io.jooby.output.OutputFactory;
 
 public class Issue3653 {
 
-  private static final ServerOptions defaultOptions = new ServerOptions();
-
   private static class TestServer extends Server.Base {
 
     @NotNull @Override

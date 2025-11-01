@@ -276,7 +276,7 @@ public interface Server {
    * @return A server.
    */
   static Server loadServer() {
-    return loadServer(new ServerOptions());
+    return loadServer(new ServerOptions(true));
   }
 
   /**
