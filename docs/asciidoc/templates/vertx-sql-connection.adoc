@@ -2,7 +2,7 @@
 
 1) Add the dependency:
 
-[dependency, artifactId="{{artifactId}}"]
+[dependency, artifactId="jooby-vertx:Vertx Module, {{artifactId}}:{{sqlClient}} Client"]
 .
 
 2) Install
