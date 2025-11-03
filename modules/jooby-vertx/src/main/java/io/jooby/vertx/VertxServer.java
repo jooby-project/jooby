@@ -32,6 +32,12 @@ import io.vertx.core.VertxOptions;
  * @since 4.0.8
  */
 public class VertxServer extends NettyServer {
+  private static final String NAME = "vertx";
+
+  static {
+    System.setProperty("__server_.name", NAME);
+  }
+
   private Vertx vertx;
 
   /**
@@ -63,7 +69,11 @@ public class VertxServer extends NettyServer {
     if (this.vertx == null) {
       var nThreads = getOptions().getIoThreads();
       var options =
-          new VertxOptions().setPreferNativeTransport(true).setEventLoopPoolSize(nThreads);
+          new VertxOptions()
+              .setPreferNativeTransport(true)
+              .setEventLoopPoolSize(nThreads)
+              .setWorkerPoolSize(getOptions().getWorkerThreads());
+
       this.vertx = Vertx.vertx(options);
     }
 
@@ -74,7 +84,7 @@ public class VertxServer extends NettyServer {
 
   @Override
   public String getName() {
-    return "vertx";
+    return NAME;
   }
 
   @Nullable @Override

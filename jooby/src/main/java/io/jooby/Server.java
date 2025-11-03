@@ -292,29 +292,31 @@ public interface Server {
     if (servers.isEmpty()) {
       throw new StartupException("Server not found.");
     }
-    var index = 0;
+    Predicate<Server> vertxServer = it -> it.getClass().getSimpleName().equals("VertxServer");
+    Server server;
     if (servers.size() > 1) {
-      boolean warn = true;
-      if (servers.size() == 2) {
-        // Must be Netty and Vertx
-        var supported = new HashSet<String>();
-        supported.add("NettyServer");
-        supported.add("VertxServer");
-        servers.stream().map(it -> it.getClass().getSimpleName()).forEach(supported::remove);
-        if (supported.isEmpty()) {
-          if (!servers.getFirst().getClass().getSimpleName().equals("VertxServer")) {
-            index = 1;
-          }
-          warn = false;
-        }
+      boolean warn;
+      // Must be Netty and Vertx
+      var supported =
+          servers.stream().map(it -> it.getClass().getSimpleName()).collect(Collectors.toSet());
+      supported.remove("NettyServer");
+      supported.remove("VertxServer");
+      if (!supported.isEmpty()) {
+        // Never choose vertx when there is any other implementation.
+        vertxServer = vertxServer.negate();
+        warn = true;
+      } else {
+        warn = false;
       }
+      server = servers.stream().filter(vertxServer).findFirst().orElse(servers.getFirst());
       if (warn) {
         var names = servers.stream().map(Server::getName).collect(Collectors.toList());
-        var log = LoggerFactory.getLogger(servers.get(index).getClass());
-        log.warn("Multiple servers found {}. Using: {}", names, names.get(index));
+        var log = LoggerFactory.getLogger(server.getClass());
+        log.warn("Multiple servers found {}. Using: {}", names, server.getName());
       }
+    } else {
+      server = servers.getFirst();
     }
-    var server = servers.get(index);
     return server.setOptions(options);
   }
 }

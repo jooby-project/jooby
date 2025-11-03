@@ -12,6 +12,7 @@ module io.jooby.vertx {
   requires org.slf4j;
   requires static com.github.spotbugs.annotations;
   requires jakarta.inject;
+  requires io.netty.common;
 
   provides Server with
       VertxServer;
