@@ -18,21 +18,14 @@
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-vertx</artifactId>
+      <artifactId>jooby</artifactId>
       <version>${jooby.version}</version>
     </dependency>
 
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-sql-client</artifactId>
-      <version>5.0.5</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-pg-client</artifactId>
-      <version>5.0.5</version>
-      <optional>true</optional>
+      <version>${vertx.version}</version>
     </dependency>
 
     <!-- Test dependencies -->

@@ -14,10 +14,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.BindException;
 import java.nio.channels.ClosedChannelException;
-import java.util.List;
-import java.util.Optional;
-import java.util.ServiceLoader;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -300,17 +297,16 @@ public interface Server {
       boolean warn = true;
       if (servers.size() == 2) {
         // Must be Netty and Vertx
-        var supported =
-            servers.stream()
-                .map(it -> it.getClass().getSimpleName())
-                .allMatch(it -> it.equals("NettyServer") || it.equals("VertxServer"));
-        if (supported) {
+        var supported = new HashSet<String>();
+        supported.add("NettyServer");
+        supported.add("VertxServer");
+        servers.stream().map(it -> it.getClass().getSimpleName()).forEach(supported::remove);
+        if (supported.isEmpty()) {
           if (!servers.getFirst().getClass().getSimpleName().equals("VertxServer")) {
             index = 1;
           }
           warn = false;
         }
-        ;
       }
       if (warn) {
         var names = servers.stream().map(Server::getName).collect(Collectors.toList());
