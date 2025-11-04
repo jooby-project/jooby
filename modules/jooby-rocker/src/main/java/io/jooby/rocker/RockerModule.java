@@ -11,9 +11,12 @@ import java.nio.charset.StandardCharsets;
 import com.fizzed.rocker.RockerOutputFactory;
 import com.fizzed.rocker.runtime.RockerRuntime;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.ExecutionMode;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
+import io.jooby.internal.BufferedRockerOutputImpl;
+import io.jooby.internal.HeapRockerOutput;
 
 /**
  * Rocker module. It requires some build configuration setup which are documented in the web site.
@@ -25,6 +28,7 @@ import io.jooby.ServiceRegistry;
 public class RockerModule implements Extension {
   private Boolean reloading;
   private final Charset charset;
+  private Boolean reuseBuffer;
 
   public RockerModule(@NonNull Charset charset) {
     this.charset = charset;
@@ -40,8 +44,21 @@ public class RockerModule implements Extension {
    * @param reloading True for turning on.
    * @return This module.
    */
-  public @NonNull RockerModule reloading(boolean reloading) {
+  public RockerModule reloading(boolean reloading) {
     this.reloading = reloading;
+    return this;
+  }
+
+  /**
+   * Allow simple reuse of raw byte buffers. It is usually used through <code>ThreadLocal</code>
+   * variable pointing to instance of {@link io.jooby.output.BufferedOutput}.
+   *
+   * @param reuseBuffer True for reuse the buffer. Enabled by default when running in {@link
+   *     ExecutionMode#EVENT_LOOP}.
+   * @return This module.
+   */
+  public RockerModule reuseBuffer(boolean reuseBuffer) {
+    this.reuseBuffer = reuseBuffer;
     return this;
   }
 
@@ -53,7 +70,14 @@ public class RockerModule implements Extension {
         this.reloading == null
             ? (env.isActive("dev") && runtime.isReloadingPossible())
             : this.reloading;
-    var factory = BufferedRockerOutput.factory(charset, application.getOutputFactory());
+    var reuseBuffer =
+        this.reuseBuffer == null
+            ? application.getExecutionMode() == ExecutionMode.EVENT_LOOP
+            : this.reuseBuffer;
+    RockerOutputFactory<BufferedRockerOutput> factory =
+        reuseBuffer
+            ? HeapRockerOutput.factory(charset, application.getOutputFactory())
+            : BufferedRockerOutputImpl.factory(charset, application.getOutputFactory());
     runtime.setReloading(reloading);
     // renderer
     application.encoder(new RockerMessageEncoder(factory));

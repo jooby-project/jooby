@@ -13,12 +13,8 @@ import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
 import io.jooby.output.Output;
 
-class RockerMessageEncoder implements MessageEncoder {
-  private final RockerOutputFactory<BufferedRockerOutput> factory;
-
-  RockerMessageEncoder(RockerOutputFactory<BufferedRockerOutput> factory) {
-    this.factory = factory;
-  }
+record RockerMessageEncoder(RockerOutputFactory<BufferedRockerOutput> factory)
+    implements MessageEncoder {
 
   @Override
   public Output encode(@NonNull Context ctx, @NonNull Object value) {
@@ -26,7 +22,7 @@ class RockerMessageEncoder implements MessageEncoder {
       var output = template.render(factory);
       ctx.setResponseLength(output.getByteLength());
       ctx.setDefaultResponseType(MediaType.html);
-      return output.asOutput();
+      return output.toOutput();
     }
     return null;
   }
