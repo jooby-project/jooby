@@ -322,7 +322,7 @@ Programmatic configuration is supported by providing your own `Scheduler`:
 ==== Disable Jobs at Startup
 
 Another nice feature of Quartz module is the ability to turn on/off jobs at start-up time. The turn
-on/off job is implementing by pausing (job off) and then resume (job ob) operations of scheduler.
+on/off job is implementing by pausing (job off) and then resume (job on) operations of scheduler.
 
 .Pausing Job at startup time
 [source, properties]
