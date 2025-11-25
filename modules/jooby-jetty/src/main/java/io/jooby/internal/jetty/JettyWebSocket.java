@@ -238,6 +238,21 @@ public class JettyWebSocket
   }
 
   @NonNull @Override
+  public WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendMessage(
+        (remote, writeCallback) ->
+            remote.sendPing(ByteBuffer.wrap(message.getBytes(UTF_8)), writeCallback),
+        new WriteCallbackAdaptor(this, callback));
+  }
+
+  @NonNull @Override
+  public WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(
+        (remote, writeCallback) -> remote.sendPing(message, writeCallback),
+        new WriteCallbackAdaptor(this, callback));
+  }
+
+  @NonNull @Override
   public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->

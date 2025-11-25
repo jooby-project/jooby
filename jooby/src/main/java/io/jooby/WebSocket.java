@@ -207,6 +207,65 @@ public interface WebSocket {
   void forEach(SneakyThrows.Consumer<WebSocket> callback);
 
   /**
+   * Send a ping message to client.
+   *
+   * @param message Text Message.
+   * @return This websocket.
+   */
+  default WebSocket sendPing(@NonNull String message) {
+    return sendPing(message, WriteCallback.NOOP);
+  }
+
+  /**
+   * Send a ping message to client.
+   *
+   * @param message Text Message.
+   * @param callback Write callback.
+   * @return This websocket.
+   */
+  WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback);
+
+  /**
+   * Send a ping message to client.
+   *
+   * @param message Text Message.
+   * @return This websocket.
+   */
+  default WebSocket sendPing(@NonNull byte[] message) {
+    return sendPing(message, WriteCallback.NOOP);
+  }
+
+  /**
+   * Send a ping message to client.
+   *
+   * @param message Text Message.
+   * @param callback Write callback.
+   * @return This websocket.
+   */
+  default WebSocket sendPing(byte[] message, @NonNull WriteCallback callback) {
+    return sendPing(ByteBuffer.wrap(message), callback);
+  }
+
+  /**
+   * Send a ping message to client.
+   *
+   * @param message Text message.
+   * @return This instance.
+   */
+  default WebSocket sendPing(@NonNull ByteBuffer message) {
+    return sendPing(message, WriteCallback.NOOP);
+  }
+
+  /**
+   * Send a ping message to client.
+   *
+   * @param message Text message.
+   * @param callback Write callback.
+   * @return This instance.
+   */
+  WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
+
+  /**
    * Send a text message to client.
    *
    * @param message Text Message.
