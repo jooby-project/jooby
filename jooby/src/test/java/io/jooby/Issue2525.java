@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.UrlParser;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
@@ -26,7 +26,7 @@ public class Issue2525 {
 
   public class VC2525 implements Converter {
     @Override
-    public Object convert(@NotNull Type type, @NotNull Value value, @NotNull ConversionHint hint) {
+    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
       return new MyID2525(value.value());
     }
   }

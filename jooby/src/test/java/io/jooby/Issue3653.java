@@ -5,34 +5,34 @@
  */
 package io.jooby;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.OutputFactory;
 
 public class Issue3653 {
 
   private static class TestServer extends Server.Base {
 
-    @NotNull @Override
+    @NonNull @Override
     public OutputFactory getOutputFactory() {
       return null;
     }
 
-    @NotNull @Override
+    @NonNull @Override
     public String getName() {
       return "Test";
     }
 
-    @NotNull @Override
-    public Server start(@NotNull Jooby... application) {
+    @NonNull @Override
+    public Server start(@NonNull Jooby... application) {
       return this;
     }
 
-    @NotNull @Override
+    @NonNull @Override
     public Server stop() {
       return this;
     }
