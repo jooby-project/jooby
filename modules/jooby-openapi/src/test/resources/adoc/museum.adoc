@@ -1,0 +1,18 @@
+= RESTful Notes API Guide
+Jooby Doc;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+[[overview]]
+= Overview
+
+[[overview_http_verbs]]
+== HTTP verbs
+
+${ operation("POST", "/museum-hours") | curl }
+
+Response:
