@@ -313,6 +313,14 @@ public class WebClient implements AutoCloseable {
     blockingWebSocket.close();
   }
 
+  public WebSocket webSocket(String path, WebSocketListener listener) {
+    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+    req.url("ws://localhost:" + port + path);
+    setRequestHeaders(req);
+    okhttp3.Request r = req.build();
+    return client.newWebSocket(r, listener);
+  }
+
   public Request options(String path) {
     return invoke("OPTIONS", path, null);
   }

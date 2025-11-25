@@ -47,7 +47,7 @@ public class WebSocketTest {
   }
 
   @ServerTest
-  public void webSocketRecieveByteMessage(ServerTestRunner runner) {
+  public void webSocketReceiveByteMessage(ServerTestRunner runner) {
     runner
         .define(
             app -> {

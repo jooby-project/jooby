@@ -8,7 +8,6 @@ package io.jooby.internal.jetty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.ReadPendingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +35,8 @@ import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 import io.jooby.output.Output;
 
-public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, WebSocket {
+public class JettyWebSocket
+    implements Session.Listener.AutoDemanding, WebSocketConfigurer, WebSocket {
 
   private static class WriteCallbackAdaptor implements org.eclipse.jetty.websocket.api.Callback {
 
@@ -75,11 +75,7 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
 
     @Override
     public void succeed() {
-      try {
-        callback.operationComplete(ws, null);
-      } finally {
-        ws.demand();
-      }
+      callback.operationComplete(ws, null);
     }
   }
 
@@ -138,14 +134,11 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
       open.set(true);
       this.session = session;
       addSession(this);
-      demand();
       if (onConnectCallback != null) {
         onConnectCallback.onConnect(this);
       }
     } catch (Throwable x) {
       onWebSocketError(x);
-    } finally {
-      demand();
     }
   }
 
@@ -215,14 +208,6 @@ public class JettyWebSocket implements Session.Listener, WebSocketConfigurer, We
   @NonNull @Override
   public Context getContext() {
     return Context.readOnly(ctx);
-  }
-
-  private void demand() {
-    try {
-      session.demand();
-    } catch (ReadPendingException cause) {
-      ctx.getRouter().getLog().debug("Websocket resulted in exception: {}", path, cause);
-    }
   }
 
   @NonNull @Override
