@@ -34,16 +34,17 @@ import io.jooby.WebSocketCloseStatus;
 import io.jooby.WebSocketConfigurer;
 import io.jooby.WebSocketMessage;
 import io.jooby.output.Output;
-import io.undertow.websockets.core.AbstractReceiveListener;
-import io.undertow.websockets.core.BufferedBinaryMessage;
-import io.undertow.websockets.core.BufferedTextMessage;
-import io.undertow.websockets.core.CloseMessage;
-import io.undertow.websockets.core.WebSocketCallback;
-import io.undertow.websockets.core.WebSocketChannel;
-import io.undertow.websockets.core.WebSockets;
+import io.undertow.websockets.core.*;
 
 public class UndertowWebSocket extends AbstractReceiveListener
     implements WebSocketConfigurer, WebSocket {
+
+  enum FrameType {
+    TEXT,
+    BINARY,
+    PING,
+    PONG;
+  }
 
   private static class WriteCallbackAdaptor implements WebSocketCallback<Void> {
 
@@ -89,7 +90,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
 
   private static class WebSocketOutputCallback implements WebSocketCallback<Void> {
     private final Iterator<ByteBuffer> it;
-    private final boolean binary;
+    private final FrameType type;
     private final WebSocketChannel channel;
     private final UndertowWebSocket ws;
     private final WriteCallback cb;
@@ -98,11 +99,11 @@ public class UndertowWebSocket extends AbstractReceiveListener
         UndertowWebSocket ws,
         WebSocketChannel channel,
         WriteCallback callback,
-        boolean binary,
+        FrameType type,
         Output buffer) {
       this.ws = ws;
       this.channel = channel;
-      this.binary = binary;
+      this.type = type;
       this.cb = callback;
       this.it = buffer.iterator();
     }
@@ -112,11 +113,7 @@ public class UndertowWebSocket extends AbstractReceiveListener
         try {
           var buffer = it.next();
           WebSocketCallback<Void> callback = it.hasNext() ? this : new WriteCallbackAdaptor(ws, cb);
-          if (binary) {
-            WebSockets.sendBinary(buffer, channel, callback);
-          } else {
-            WebSockets.sendText(buffer, channel, callback);
-          }
+          UndertowWebSocket.sendMessage(ws, buffer, type, callback);
         } catch (Throwable x) {
           ws.onError(channel, x);
         }
@@ -208,39 +205,52 @@ public class UndertowWebSocket extends AbstractReceiveListener
   }
 
   @NonNull @Override
+  public WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendMessage(
+        ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), FrameType.PING, callback);
+  }
+
+  @NonNull @Override
+  public WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(message, FrameType.PING, callback);
+  }
+
+  @NonNull @Override
   public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
-    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), false, callback);
+    return sendMessage(
+        ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), FrameType.TEXT, callback);
   }
 
   @NonNull @Override
   public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
-    return sendMessage(message, false, callback);
+    return sendMessage(message, FrameType.TEXT, callback);
   }
 
   @NonNull @Override
   public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
-    return sendMessage(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), true, callback);
+    return sendMessage(
+        ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), FrameType.BINARY, callback);
   }
 
   @NonNull @Override
   public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
-    return sendMessage(message, true, callback);
+    return sendMessage(message, FrameType.BINARY, callback);
   }
 
   @NonNull @Override
   public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
-    return sendMessage(message, false, callback);
+    return sendMessage(message, FrameType.TEXT, callback);
   }
 
   @NonNull @Override
   public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
-    return sendMessage(message, true, callback);
+    return sendMessage(message, FrameType.BINARY, callback);
   }
 
-  private WebSocket sendMessage(Output buffer, boolean binary, WriteCallback callback) {
+  private WebSocket sendMessage(Output buffer, FrameType type, WriteCallback callback) {
     if (isOpen()) {
       try {
-        new WebSocketOutputCallback(this, channel, callback, binary, buffer).send();
+        new WebSocketOutputCallback(this, channel, callback, type, buffer).send();
       } catch (Throwable x) {
         onError(channel, x);
       }
@@ -250,21 +260,36 @@ public class UndertowWebSocket extends AbstractReceiveListener
     return this;
   }
 
-  private WebSocket sendMessage(ByteBuffer buffer, boolean binary, WriteCallback callback) {
-    if (isOpen()) {
+  private WebSocket sendMessage(ByteBuffer buffer, FrameType type, WriteCallback callback) {
+
+    return UndertowWebSocket.sendMessage(
+        this, buffer, type, new WriteCallbackAdaptor(this, callback));
+  }
+
+  static WebSocket sendMessage(
+      UndertowWebSocket ws, ByteBuffer buffer, FrameType type, WebSocketCallback<Void> callback) {
+    if (ws.isOpen()) {
       try {
-        if (binary) {
-          WebSockets.sendBinary(buffer, channel, new WriteCallbackAdaptor(this, callback));
+        if (type == FrameType.BINARY) {
+          WebSockets.sendBinary(buffer, ws.channel, callback);
+        } else if (type == FrameType.TEXT) {
+          WebSockets.sendText(buffer, ws.channel, callback);
+        } else if (type == FrameType.PING) {
+          WebSockets.sendPing(buffer, ws.channel, callback);
+        } else if (type == FrameType.PONG) {
+          WebSockets.sendPong(buffer, ws.channel, callback);
         } else {
-          WebSockets.sendText(buffer, channel, new WriteCallbackAdaptor(this, callback));
+          throw new IllegalStateException("Unknown frame type: " + type);
         }
+
       } catch (Throwable x) {
-        onError(channel, x);
+        ws.onError(ws.channel, x);
       }
     } else {
-      onError(channel, new IllegalStateException("Attempt to send a message on closed web socket"));
+      ws.onError(
+          ws.channel, new IllegalStateException("Attempt to send a message on closed web socket"));
     }
-    return this;
+    return ws;
   }
 
   @NonNull @Override

@@ -7,8 +7,6 @@ package io.jooby.test;
 
 import java.lang.reflect.Type;
 
-import org.jetbrains.annotations.NotNull;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Converter;
@@ -17,7 +15,7 @@ import io.jooby.value.Value;
 public class MyValueBeanConverter implements Converter {
 
   @Override
-  public Object convert(@NotNull Type type, @NotNull Value value, @NonNull ConversionHint hint) {
+  public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
     MyValue result = new MyValue();
     result.setString(value.get("string").value());
     return result;

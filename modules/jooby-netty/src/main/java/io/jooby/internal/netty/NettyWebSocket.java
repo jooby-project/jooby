@@ -169,9 +169,12 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
   }
 
   private WebSocket sendMessage(ByteBuf buffer, boolean binary, WriteCallback callback) {
+    return sendMessage(
+        binary ? new BinaryWebSocketFrame(buffer) : new TextWebSocketFrame(buffer), callback);
+  }
+
+  private WebSocket sendMessage(WebSocketFrame frame, WriteCallback callback) {
     if (isOpen()) {
-      WebSocketFrame frame =
-          binary ? new BinaryWebSocketFrame(buffer) : new TextWebSocketFrame(buffer);
       netty
           .ctx
           .channel()
@@ -215,6 +218,18 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
             .debug("Broadcast of: {} resulted in exception", netty.getRequestPath(), cause);
       }
     }
+  }
+
+  @NonNull @Override
+  public WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendMessage(
+        new PingWebSocketFrame(Unpooled.wrappedBuffer(message.getBytes(StandardCharsets.UTF_8))),
+        callback);
+  }
+
+  @Override
+  public WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendMessage(new PingWebSocketFrame(Unpooled.wrappedBuffer(message)), callback);
   }
 
   @Override

@@ -7,8 +7,7 @@ package issues.i2968;
 
 import java.util.function.Function;
 
-import org.jetbrains.annotations.NotNull;
-
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -23,7 +22,7 @@ public class C2968_ implements Extension {
   }
 
   @Override
-  public void install(@NotNull Jooby app) throws Exception {
+  public void install(@NonNull Jooby app) throws Exception {
     app.get("/hello", this::hello);
   }
 

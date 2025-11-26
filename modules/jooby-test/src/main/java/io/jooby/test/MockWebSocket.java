@@ -76,7 +76,17 @@ public class MockWebSocket implements WebSocket {
     callback.accept(this);
   }
 
-  @NonNull @Override
+  @Override
+  public WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback) {
+    return sendObject(message, callback);
+  }
+
+  @Override
+  public WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+    return sendObject(message, callback);
+  }
+
+  @Override
   public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
     return sendObject(message, callback);
   }

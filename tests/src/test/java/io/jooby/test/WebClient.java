@@ -23,10 +23,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Server;
 import io.jooby.ServerSentMessage;
 import io.jooby.SneakyThrows;
@@ -54,18 +52,18 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+    public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
       opened.countDown();
     }
 
     @Override
-    public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+    public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
       closed.set(true);
     }
 
     @Override
     public void onFailure(
-        @NotNull WebSocket webSocket, @NotNull Throwable e, @Nullable Response response) {
+        @NonNull WebSocket webSocket, @NonNull Throwable e, @Nullable Response response) {
       if (!Server.connectionLost(e)) {
         System.err.println("Unexpected web socket error: " + testName);
         e.printStackTrace();
@@ -73,7 +71,7 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+    public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
       messages.offer(text);
     }
 
@@ -91,7 +89,7 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+    public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
       super.onClosing(webSocket, code, reason);
     }
   }
@@ -261,16 +259,16 @@ public class WebClient implements AutoCloseable {
             req.build(),
             new EventSourceListener() {
               @Override
-              public void onClosed(@NotNull EventSource eventSource) {
+              public void onClosed(@NonNull EventSource eventSource) {
                 eventSource.cancel();
               }
 
               @Override
               public void onEvent(
-                  @NotNull EventSource eventSource,
+                  @NonNull EventSource eventSource,
                   @Nullable String id,
                   @Nullable String type,
-                  @NotNull String data) {
+                  @NonNull String data) {
                 // retry is not part of public API
                 ServerSentMessage message = new ServerSentMessage(data).setId(id).setEvent(type);
                 messages.offer(message);
@@ -278,14 +276,14 @@ public class WebClient implements AutoCloseable {
 
               @Override
               public void onFailure(
-                  @NotNull EventSource eventSource,
+                  @NonNull EventSource eventSource,
                   @Nullable Throwable t,
                   @Nullable Response response) {
                 super.onFailure(eventSource, t, response);
               }
 
               @Override
-              public void onOpen(@NotNull EventSource eventSource, @NotNull Response response) {
+              public void onOpen(@NonNull EventSource eventSource, @NonNull Response response) {
                 super.onOpen(eventSource, response);
               }
             });
@@ -311,6 +309,14 @@ public class WebClient implements AutoCloseable {
     BlockingWebSocket blockingWebSocket = new BlockingWebSocket(webSocket, listener);
     consumer.accept(blockingWebSocket);
     blockingWebSocket.close();
+  }
+
+  public WebSocket webSocket(String path, WebSocketListener listener) {
+    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+    req.url("ws://localhost:" + port + path);
+    setRequestHeaders(req);
+    okhttp3.Request r = req.build();
+    return client.newWebSocket(r, listener);
   }
 
   public Request options(String path) {
