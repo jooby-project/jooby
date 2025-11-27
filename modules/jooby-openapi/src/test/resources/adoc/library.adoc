@@ -13,6 +13,6 @@ Jooby Doc;
 [[overview_http_verbs]]
 == HTTP verbs
 
-${ operation("POST", "/museum-hours") | curl }
+${ operation("GET", "/api/library/{isbn}") | curl("-i") }
 
 Response:

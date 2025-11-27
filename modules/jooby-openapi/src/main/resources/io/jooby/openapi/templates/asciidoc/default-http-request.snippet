@@ -1,8 +1,8 @@
 [source,http,options="nowrap"]
 ----
-{{method}} {{path}} HTTP/1.1
-{{#headers}}
-{{name}}: {{value}}
-{{/headers}}
-{{requestBody}}
+${method} ${path} HTTP/1.1
+{% for h in headers %}
+${name}: ${value}
+{% endfor %}
+${requestBody}
 ----

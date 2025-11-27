@@ -26,14 +26,7 @@ import io.pebbletemplates.pebble.tokenParser.TokenParser;
 public class AsciiDocGenerator {
 
   public static String generate(OpenAPIExt openAPI, Path index) throws IOException {
-    var snippetResolver = new SnippetResolver(index.getParent().resolve("snippet"));
-    var engine =
-        newEngine(
-            new OpenApiSupport(Map.of("openapi", openAPI, "snippetResolver", snippetResolver)),
-            "${",
-            "}");
-    snippetResolver.setEngine(engine);
-
+    var engine = newEngine(openAPI, index.getParent());
     var template = engine.getTemplate(index.toAbsolutePath().toString());
     var writer = new StringWriter();
     var context = new HashMap<String, Object>();
@@ -41,15 +34,25 @@ public class AsciiDocGenerator {
     return writer.toString();
   }
 
-  private static PebbleEngine newEngine(OpenApiSupport extension, String start, String end) {
+  private static PebbleEngine newEngine(OpenAPIExt openAPI, Path baseDir) {
+    var snippetResolver = new SnippetResolver(baseDir.resolve("snippet"));
+    var engine =
+        newEngine(
+            new OpenApiSupport(Map.of("openapi", openAPI, "snippetResolver", snippetResolver)));
+    snippetResolver.setEngine(engine);
+    return newEngine(
+        new OpenApiSupport(Map.of("openapi", openAPI, "snippetResolver", snippetResolver)));
+  }
+
+  private static PebbleEngine newEngine(OpenApiSupport extension) {
     // 1. Define the custom syntax using a builder
     return new PebbleEngine.Builder()
         .extension(extension)
         .autoEscaping(false)
         .syntax(
             new Syntax.Builder()
-                .setPrintOpenDelimiter(start)
-                .setPrintCloseDelimiter(end)
+                .setPrintOpenDelimiter("${")
+                .setPrintCloseDelimiter("}")
                 .setEnableNewLineTrimming(false)
                 .build())
         .build();

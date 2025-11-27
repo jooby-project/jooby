@@ -1,8 +1,6 @@
 /** Open API module. */
 module io.jooby.openapi {
   exports io.jooby.openapi;
-  exports io.jooby.internal.openapi to
-      com.fasterxml.jackson.databind;
 
   requires io.jooby;
   requires static com.github.spotbugs.annotations;
@@ -21,4 +19,5 @@ module io.jooby.openapi {
   requires org.objectweb.asm.util;
   requires io.pebbletemplates;
   requires jdk.jshell;
+  requires com.google.common;
 }
