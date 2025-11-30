@@ -45,20 +45,20 @@ public class ScriptLibrary extends Jooby {
           /*
            * Author by Id.
            *
-           * @param id ID.
+           * @param id Author ID.
            * @return An author
            * @tag Author. Oxxx
            * @operationId author
            */
           get(
-              "/{id}",
+              "/author/{id}",
               ctx -> {
                 var id = ctx.path("id").value();
                 return new Author();
               });
 
           /*
-           * Query books.
+           * Query books. By using advanced filters.
            *
            * @param query Book's param query.
            * @return Matching books.

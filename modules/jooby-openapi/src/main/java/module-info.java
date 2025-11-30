@@ -17,4 +17,8 @@ module io.jooby.openapi {
   requires org.objectweb.asm;
   requires org.objectweb.asm.tree;
   requires org.objectweb.asm.util;
+  requires io.pebbletemplates;
+  requires jdk.jshell;
+  requires com.google.common;
+  requires org.checkerframework.checker.qual;
 }

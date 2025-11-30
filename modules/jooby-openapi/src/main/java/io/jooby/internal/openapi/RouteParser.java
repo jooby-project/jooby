@@ -164,12 +164,11 @@ public class RouteParser {
     if (requestBody != null) {
       if (requestBody.getContent() == null) {
         // default content
-        io.swagger.v3.oas.models.media.MediaType mediaType =
-            new io.swagger.v3.oas.models.media.MediaType();
+        var mediaType = new io.swagger.v3.oas.models.media.MediaType();
         mediaType.setSchema(ctx.schema(requestBody.getJavaType()));
         String mediaTypeName =
             operation.getConsumes().stream().findFirst().orElseGet(requestBody::getContentType);
-        Content content = new Content();
+        var content = new Content();
         content.addMediaType(mediaTypeName, mediaType);
         requestBody.setContent(content);
       }

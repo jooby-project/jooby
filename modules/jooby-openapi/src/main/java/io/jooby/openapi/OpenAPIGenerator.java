@@ -58,6 +58,13 @@ public class OpenAPIGenerator {
       public String toString(OpenAPIGenerator tool, OpenAPI result) {
         return tool.toYaml(result);
       }
+    },
+
+    ADOC {
+      @Override
+      public String toString(OpenAPIGenerator tool, OpenAPI result) {
+        return tool.toYaml(result);
+      }
     };
 
     /**
@@ -305,6 +312,32 @@ public class OpenAPIGenerator {
   public @NonNull String toYaml(@NonNull OpenAPI openAPI) {
     try {
       return yamlMapper().writeValueAsString(openAPI);
+    } catch (IOException x) {
+      throw SneakyThrows.propagate(x);
+    }
+  }
+
+  /**
+   * Generates an adoc version of the given model.
+   *
+   * @param openAPI Model.
+   * @return YAML content.
+   */
+  public @NonNull String toAdoc(@NonNull OpenAPI openAPI) {
+    try {
+      return AsciiDocGenerator.generate(
+          (OpenAPIExt) openAPI,
+          java.nio.file.Paths.get(
+              "Users",
+              "edgar",
+              "Source",
+              "jooby",
+              "modules",
+              "jooby-openapi",
+              "src",
+              "test",
+              "resources",
+              "adoc"));
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
