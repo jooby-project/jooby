@@ -18,6 +18,12 @@
       <version>${jooby.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>net.datafaker</groupId>
+      <artifactId>datafaker</artifactId>
+      <version>2.5.3</version>
+    </dependency>
+
     <!-- JAXRS -->
     <dependency>
       <groupId>jakarta.ws.rs</groupId>

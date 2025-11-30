@@ -1,4 +1,4 @@
-= RESTful Notes API Guide
+= ${info.title}
 Jooby Doc;
 :doctype: book
 :icons: font
@@ -7,12 +7,27 @@ Jooby Doc;
 :toclevels: 4
 :sectlinks:
 
-[[overview]]
-= Overview
+== Introduction
 
-[[overview_http_verbs]]
-== HTTP verbs
+${info.description}
 
-${ operation("GET", "/api/library/{isbn}") | curl("-i") }
+== Support
 
-Response:
+Write your questions at ${info.contact.email}
+
+[[overview_operations]]
+== Operations
+
+=== List Books
+{% set listBooks = operation("GET", "/api/library") %}
+${listBooks.summary} ${listBooks.description}
+
+${ listBooks | curl }
+
+=== Find a book by ISBN
+
+{% set bookByISBN = operation("GET", "/api/library/{isbn}") %}
+${ bookByISBN | curl("-i") }
+${ bookByISBN | statusCode(200) }
+${ bookByISBN | statusCode(400) }
+${ bookByISBN | statusCode(404) }

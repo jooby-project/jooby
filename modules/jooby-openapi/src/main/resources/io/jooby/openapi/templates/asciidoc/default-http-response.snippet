@@ -1,8 +1,8 @@
 [source,http,options="nowrap"]
 ----
-HTTP/1.1 {{statusCode}} {{statusReason}}
-{{#headers}}
-{{name}}: {{value}}
-{{/headers}}
-{{responseBody}}
+HTTP/1.1 ${statusCode} ${statusReason}
+{% for h in headers -%}
+${h.key}: ${h.value}
+{% endfor -%}
+${responseBody -}
 ----

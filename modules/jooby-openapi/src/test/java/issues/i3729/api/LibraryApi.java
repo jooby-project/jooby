@@ -51,7 +51,7 @@ public class LibraryApi {
   }
 
   /**
-   * Query books.
+   * Query books. By using advanced filters.
    *
    * @param query Book's param query.
    * @return Matching books.

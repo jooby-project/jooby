@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jooby.internal.openapi.asciidoc.Filters;
 import io.jooby.internal.openapi.asciidoc.Functions;
@@ -22,6 +23,12 @@ import io.pebbletemplates.pebble.lexer.Syntax;
 import io.pebbletemplates.pebble.operator.BinaryOperator;
 import io.pebbletemplates.pebble.operator.UnaryOperator;
 import io.pebbletemplates.pebble.tokenParser.TokenParser;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Json31;
+import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.core.util.Yaml31;
+import io.swagger.v3.oas.models.SpecVersion;
+import io.swagger.v3.oas.models.servers.Server;
 
 public class AsciiDocGenerator {
 
@@ -34,14 +41,33 @@ public class AsciiDocGenerator {
     return writer.toString();
   }
 
-  private static PebbleEngine newEngine(OpenAPIExt openAPI, Path baseDir) {
+  @SuppressWarnings("unchecked")
+  private static PebbleEngine newEngine(OpenAPIExt openapi, Path baseDir) {
+    var json = (openapi.getSpecVersion() == SpecVersion.V30 ? Json.mapper() : Json31.mapper());
+    var yaml = (openapi.getSpecVersion() == SpecVersion.V30 ? Yaml.mapper() : Yaml31.mapper());
     var snippetResolver = new SnippetResolver(baseDir.resolve("snippet"));
-    var engine =
-        newEngine(
-            new OpenApiSupport(Map.of("openapi", openAPI, "snippetResolver", snippetResolver)));
+    var serverUrl =
+        Optional.ofNullable(openapi.getServers())
+            .map(List::getFirst)
+            .map(Server::getUrl)
+            .orElse("");
+    var openapiRoot = json.convertValue(openapi, Map.class);
+    openapiRoot.put(
+        "internal",
+        Map.of(
+            "openapi",
+            openapi,
+            "resolver",
+            snippetResolver,
+            "serverUrl",
+            serverUrl,
+            "json",
+            json,
+            "yaml",
+            yaml));
+    var engine = newEngine(new OpenApiSupport(openapiRoot));
     snippetResolver.setEngine(engine);
-    return newEngine(
-        new OpenApiSupport(Map.of("openapi", openAPI, "snippetResolver", snippetResolver)));
+    return engine;
   }
 
   private static PebbleEngine newEngine(OpenApiSupport extension) {
@@ -67,7 +93,7 @@ public class AsciiDocGenerator {
 
     @Override
     public Map<String, Filter> getFilters() {
-      return Filters.fn();
+      return Filters.allFilters();
     }
 
     @Override

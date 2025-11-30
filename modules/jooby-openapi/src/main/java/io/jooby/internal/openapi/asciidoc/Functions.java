@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.jooby.internal.openapi.OpenAPIExt;
 import io.pebbletemplates.pebble.error.PebbleException;
 import io.pebbletemplates.pebble.extension.Function;
 import io.pebbletemplates.pebble.template.EvaluationContext;
@@ -36,7 +35,7 @@ public enum Functions implements Function {
           namedArgs.put("id", value);
         }
         namedArgs.putIfAbsent("pattern", (String) args.get("pattern"));
-        OpenAPIExt openApi = (OpenAPIExt) context.getVariable("openapi");
+        var openApi = InternalContext.openApi(context);
         var operationId = namedArgs.get("id");
         if (operationId == null) {
           var method = namedArgs.get("method");

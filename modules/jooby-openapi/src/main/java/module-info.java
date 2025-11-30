@@ -20,4 +20,5 @@ module io.jooby.openapi {
   requires io.pebbletemplates;
   requires jdk.jshell;
   requires com.google.common;
+  requires org.checkerframework.checker.qual;
 }

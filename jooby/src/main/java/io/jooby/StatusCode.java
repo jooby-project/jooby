@@ -917,9 +917,27 @@ public final class StatusCode {
 
   private final String reason;
 
+  private final transient boolean unknown;
+
   private StatusCode(final int value, final String reason) {
     this.value = value;
     this.reason = reason;
+    this.unknown = false;
+  }
+
+  private StatusCode(final int value) {
+    this.value = value;
+    this.reason = Integer.toString(value);
+    this.unknown = true;
+  }
+
+  /**
+   * True for custom status code.
+   *
+   * @return True for custom status code.
+   */
+  public boolean isUnknown() {
+    return unknown;
   }
 
   /**
@@ -971,129 +989,68 @@ public final class StatusCode {
    * @throws IllegalArgumentException if this enum has no constant for the specified numeric value
    */
   public static StatusCode valueOf(final int statusCode) {
-    switch (statusCode) {
-      case CONTINUE_CODE:
-        return CONTINUE;
-      case SWITCHING_PROTOCOLS_CODE:
-        return SWITCHING_PROTOCOLS;
-      case PROCESSING_CODE:
-        return PROCESSING;
-      case CHECKPOINT_CODE:
-        return CHECKPOINT;
-      case OK_CODE:
-        return OK;
-      case CREATED_CODE:
-        return CREATED;
-      case ACCEPTED_CODE:
-        return ACCEPTED;
-      case NON_AUTHORITATIVE_INFORMATION_CODE:
-        return NON_AUTHORITATIVE_INFORMATION;
-      case NO_CONTENT_CODE:
-        return NO_CONTENT;
-      case RESET_CONTENT_CODE:
-        return RESET_CONTENT;
-      case PARTIAL_CONTENT_CODE:
-        return PARTIAL_CONTENT;
-      case MULTI_STATUS_CODE:
-        return MULTI_STATUS;
-      case ALREADY_REPORTED_CODE:
-        return ALREADY_REPORTED;
-      case IM_USED_CODE:
-        return IM_USED;
-      case MULTIPLE_CHOICES_CODE:
-        return MULTIPLE_CHOICES;
-      case MOVED_PERMANENTLY_CODE:
-        return MOVED_PERMANENTLY;
-      case FOUND_CODE:
-        return FOUND;
-      case SEE_OTHER_CODE:
-        return SEE_OTHER;
-      case NOT_MODIFIED_CODE:
-        return NOT_MODIFIED;
-      case USE_PROXY_CODE:
-        return USE_PROXY;
-      case TEMPORARY_REDIRECT_CODE:
-        return TEMPORARY_REDIRECT;
-      case RESUME_INCOMPLETE_CODE:
-        return RESUME_INCOMPLETE;
-      case BAD_REQUEST_CODE:
-        return BAD_REQUEST;
-      case UNAUTHORIZED_CODE:
-        return UNAUTHORIZED;
-      case PAYMENT_REQUIRED_CODE:
-        return PAYMENT_REQUIRED;
-      case FORBIDDEN_CODE:
-        return FORBIDDEN;
-      case NOT_FOUND_CODE:
-        return NOT_FOUND;
-      case METHOD_NOT_ALLOWED_CODE:
-        return METHOD_NOT_ALLOWED;
-      case NOT_ACCEPTABLE_CODE:
-        return NOT_ACCEPTABLE;
-      case PROXY_AUTHENTICATION_REQUIRED_CODE:
-        return PROXY_AUTHENTICATION_REQUIRED;
-      case REQUEST_TIMEOUT_CODE:
-        return REQUEST_TIMEOUT;
-      case CONFLICT_CODE:
-        return CONFLICT;
-      case GONE_CODE:
-        return GONE;
-      case LENGTH_REQUIRED_CODE:
-        return LENGTH_REQUIRED;
-      case PRECONDITION_FAILED_CODE:
-        return PRECONDITION_FAILED;
-      case REQUEST_ENTITY_TOO_LARGE_CODE:
-        return REQUEST_ENTITY_TOO_LARGE;
-      case REQUEST_URI_TOO_LONG_CODE:
-        return REQUEST_URI_TOO_LONG;
-      case UNSUPPORTED_MEDIA_TYPE_CODE:
-        return UNSUPPORTED_MEDIA_TYPE;
-      case REQUESTED_RANGE_NOT_SATISFIABLE_CODE:
-        return REQUESTED_RANGE_NOT_SATISFIABLE;
-      case EXPECTATION_FAILED_CODE:
-        return EXPECTATION_FAILED;
-      case I_AM_A_TEAPOT_CODE:
-        return I_AM_A_TEAPOT;
-      case UNPROCESSABLE_ENTITY_CODE:
-        return UNPROCESSABLE_ENTITY;
-      case LOCKED_CODE:
-        return LOCKED;
-      case FAILED_DEPENDENCY_CODE:
-        return FAILED_DEPENDENCY;
-      case UPGRADE_REQUIRED_CODE:
-        return UPGRADE_REQUIRED;
-      case PRECONDITION_REQUIRED_CODE:
-        return PRECONDITION_REQUIRED;
-      case TOO_MANY_REQUESTS_CODE:
-        return TOO_MANY_REQUESTS;
-      case REQUEST_HEADER_FIELDS_TOO_LARGE_CODE:
-        return REQUEST_HEADER_FIELDS_TOO_LARGE;
-      case SERVER_ERROR_CODE:
-        return SERVER_ERROR;
-      case NOT_IMPLEMENTED_CODE:
-        return NOT_IMPLEMENTED;
-      case BAD_GATEWAY_CODE:
-        return BAD_GATEWAY;
-      case SERVICE_UNAVAILABLE_CODE:
-        return SERVICE_UNAVAILABLE;
-      case GATEWAY_TIMEOUT_CODE:
-        return GATEWAY_TIMEOUT;
-      case HTTP_VERSION_NOT_SUPPORTED_CODE:
-        return HTTP_VERSION_NOT_SUPPORTED;
-      case VARIANT_ALSO_NEGOTIATES_CODE:
-        return VARIANT_ALSO_NEGOTIATES;
-      case INSUFFICIENT_STORAGE_CODE:
-        return INSUFFICIENT_STORAGE;
-      case LOOP_DETECTED_CODE:
-        return LOOP_DETECTED;
-      case BANDWIDTH_LIMIT_EXCEEDED_CODE:
-        return BANDWIDTH_LIMIT_EXCEEDED;
-      case NOT_EXTENDED_CODE:
-        return NOT_EXTENDED;
-      case NETWORK_AUTHENTICATION_REQUIRED_CODE:
-        return NETWORK_AUTHENTICATION_REQUIRED;
-      default:
-        return new StatusCode(statusCode, Integer.toString(statusCode));
-    }
+    return switch (statusCode) {
+      case CONTINUE_CODE -> CONTINUE;
+      case SWITCHING_PROTOCOLS_CODE -> SWITCHING_PROTOCOLS;
+      case PROCESSING_CODE -> PROCESSING;
+      case CHECKPOINT_CODE -> CHECKPOINT;
+      case OK_CODE -> OK;
+      case CREATED_CODE -> CREATED;
+      case ACCEPTED_CODE -> ACCEPTED;
+      case NON_AUTHORITATIVE_INFORMATION_CODE -> NON_AUTHORITATIVE_INFORMATION;
+      case NO_CONTENT_CODE -> NO_CONTENT;
+      case RESET_CONTENT_CODE -> RESET_CONTENT;
+      case PARTIAL_CONTENT_CODE -> PARTIAL_CONTENT;
+      case MULTI_STATUS_CODE -> MULTI_STATUS;
+      case ALREADY_REPORTED_CODE -> ALREADY_REPORTED;
+      case IM_USED_CODE -> IM_USED;
+      case MULTIPLE_CHOICES_CODE -> MULTIPLE_CHOICES;
+      case MOVED_PERMANENTLY_CODE -> MOVED_PERMANENTLY;
+      case FOUND_CODE -> FOUND;
+      case SEE_OTHER_CODE -> SEE_OTHER;
+      case NOT_MODIFIED_CODE -> NOT_MODIFIED;
+      case USE_PROXY_CODE -> USE_PROXY;
+      case TEMPORARY_REDIRECT_CODE -> TEMPORARY_REDIRECT;
+      case RESUME_INCOMPLETE_CODE -> RESUME_INCOMPLETE;
+      case BAD_REQUEST_CODE -> BAD_REQUEST;
+      case UNAUTHORIZED_CODE -> UNAUTHORIZED;
+      case PAYMENT_REQUIRED_CODE -> PAYMENT_REQUIRED;
+      case FORBIDDEN_CODE -> FORBIDDEN;
+      case NOT_FOUND_CODE -> NOT_FOUND;
+      case METHOD_NOT_ALLOWED_CODE -> METHOD_NOT_ALLOWED;
+      case NOT_ACCEPTABLE_CODE -> NOT_ACCEPTABLE;
+      case PROXY_AUTHENTICATION_REQUIRED_CODE -> PROXY_AUTHENTICATION_REQUIRED;
+      case REQUEST_TIMEOUT_CODE -> REQUEST_TIMEOUT;
+      case CONFLICT_CODE -> CONFLICT;
+      case GONE_CODE -> GONE;
+      case LENGTH_REQUIRED_CODE -> LENGTH_REQUIRED;
+      case PRECONDITION_FAILED_CODE -> PRECONDITION_FAILED;
+      case REQUEST_ENTITY_TOO_LARGE_CODE -> REQUEST_ENTITY_TOO_LARGE;
+      case REQUEST_URI_TOO_LONG_CODE -> REQUEST_URI_TOO_LONG;
+      case UNSUPPORTED_MEDIA_TYPE_CODE -> UNSUPPORTED_MEDIA_TYPE;
+      case REQUESTED_RANGE_NOT_SATISFIABLE_CODE -> REQUESTED_RANGE_NOT_SATISFIABLE;
+      case EXPECTATION_FAILED_CODE -> EXPECTATION_FAILED;
+      case I_AM_A_TEAPOT_CODE -> I_AM_A_TEAPOT;
+      case UNPROCESSABLE_ENTITY_CODE -> UNPROCESSABLE_ENTITY;
+      case LOCKED_CODE -> LOCKED;
+      case FAILED_DEPENDENCY_CODE -> FAILED_DEPENDENCY;
+      case UPGRADE_REQUIRED_CODE -> UPGRADE_REQUIRED;
+      case PRECONDITION_REQUIRED_CODE -> PRECONDITION_REQUIRED;
+      case TOO_MANY_REQUESTS_CODE -> TOO_MANY_REQUESTS;
+      case REQUEST_HEADER_FIELDS_TOO_LARGE_CODE -> REQUEST_HEADER_FIELDS_TOO_LARGE;
+      case SERVER_ERROR_CODE -> SERVER_ERROR;
+      case NOT_IMPLEMENTED_CODE -> NOT_IMPLEMENTED;
+      case BAD_GATEWAY_CODE -> BAD_GATEWAY;
+      case SERVICE_UNAVAILABLE_CODE -> SERVICE_UNAVAILABLE;
+      case GATEWAY_TIMEOUT_CODE -> GATEWAY_TIMEOUT;
+      case HTTP_VERSION_NOT_SUPPORTED_CODE -> HTTP_VERSION_NOT_SUPPORTED;
+      case VARIANT_ALSO_NEGOTIATES_CODE -> VARIANT_ALSO_NEGOTIATES;
+      case INSUFFICIENT_STORAGE_CODE -> INSUFFICIENT_STORAGE;
+      case LOOP_DETECTED_CODE -> LOOP_DETECTED;
+      case BANDWIDTH_LIMIT_EXCEEDED_CODE -> BANDWIDTH_LIMIT_EXCEEDED;
+      case NOT_EXTENDED_CODE -> NOT_EXTENDED;
+      case NETWORK_AUTHENTICATION_REQUIRED_CODE -> NETWORK_AUTHENTICATION_REQUIRED;
+      default -> new StatusCode(statusCode);
+    };
   }
 }
