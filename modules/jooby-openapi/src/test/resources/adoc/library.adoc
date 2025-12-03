@@ -24,6 +24,10 @@ ${listBooks.summary} ${listBooks.description}
 
 ${ listBooks | curl }
 
+==== Request Fields
+
+${ listBooks | queryParameters }
+
 === Find a book by ISBN
 
 {% set bookByISBN = operation("GET", "/api/library/{isbn}") %}
@@ -31,3 +35,7 @@ ${ bookByISBN | curl("-i") }
 ${ bookByISBN | statusCode(200) }
 ${ bookByISBN | statusCode(400) }
 ${ bookByISBN | statusCode(404) }
+
+==== Response Fields
+
+${ bookByISBN | responseFields }

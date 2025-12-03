@@ -21,6 +21,7 @@ public class Book {
   /** Publication date. Format mm-dd-yyyy. */
   LocalDate publicationDate;
 
+  /** Book's content. */
   String text;
 
   /** Book type. */

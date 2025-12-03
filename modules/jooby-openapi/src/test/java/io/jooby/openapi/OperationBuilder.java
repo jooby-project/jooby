@@ -44,6 +44,14 @@ public class OperationBuilder {
     return parameter(Map.of("form", mapOf(name)));
   }
 
+  public OperationBuilder path(String... name) {
+    return parameter(Map.of("path", mapOf(name)));
+  }
+
+  public OperationBuilder cookie(String... name) {
+    return parameter(Map.of("cookie", mapOf(name)));
+  }
+
   private static Map<String, String> mapOf(String... values) {
     Map<String, String> map = new LinkedHashMap<>();
     for (var value : values) {

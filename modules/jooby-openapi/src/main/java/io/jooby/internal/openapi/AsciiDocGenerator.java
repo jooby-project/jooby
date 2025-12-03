@@ -38,7 +38,7 @@ public class AsciiDocGenerator {
     var writer = new StringWriter();
     var context = new HashMap<String, Object>();
     template.evaluate(writer, context);
-    return writer.toString();
+    return writer.toString().trim();
   }
 
   @SuppressWarnings("unchecked")
@@ -52,19 +52,10 @@ public class AsciiDocGenerator {
             .map(Server::getUrl)
             .orElse("");
     var openapiRoot = json.convertValue(openapi, Map.class);
+    openapiRoot.put("openapi", openapi);
     openapiRoot.put(
         "internal",
-        Map.of(
-            "openapi",
-            openapi,
-            "resolver",
-            snippetResolver,
-            "serverUrl",
-            serverUrl,
-            "json",
-            json,
-            "yaml",
-            yaml));
+        Map.of("resolver", snippetResolver, "serverUrl", serverUrl, "json", json, "yaml", yaml));
     var engine = newEngine(new OpenApiSupport(openapiRoot));
     snippetResolver.setEngine(engine);
     return engine;

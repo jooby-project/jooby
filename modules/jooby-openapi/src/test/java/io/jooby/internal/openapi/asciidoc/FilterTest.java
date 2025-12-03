@@ -74,6 +74,135 @@ public class FilterTest {
   }
 
   @Test
+  public void requestParams() {
+    // Query parameter
+    assertEquals(
+        """
+        |===
+        |Parameter|Type|Description
+
+        |`+bar+`
+        |`+string+`
+        |
+
+        |`+foo+`
+        |`+string+`
+        |
+
+        |===
+        """,
+        queryParameters.apply(
+            operation("GET", "/api/library/{isbn}").query("foo", "bar").build(),
+            args(),
+            template(),
+            evaluationContext(),
+            1));
+    // Path parameter
+    assertEquals(
+        """
+        |===
+        |Parameter|Type|Description
+
+        |`+isbn+`
+        |`+string+`
+        |
+
+        |===
+        """,
+        pathParameters.apply(
+            operation("GET", "/api/library/{isbn}").path("isbn").build(),
+            args(),
+            template(),
+            evaluationContext(),
+            1));
+
+    // Cookie parameter
+    assertEquals(
+        """
+        |===
+        |Parameter|Description
+
+        |`+single-sign-on+`
+        |
+
+        |===
+        """,
+        cookieParameters.apply(
+            operation("GET", "/api/library/{isbn}").cookie("single-sign-on").build(),
+            args(),
+            template(),
+            evaluationContext(),
+            1));
+
+    // Form
+    assertEquals(
+        """
+        |===
+        |Parameter|Type|Description
+
+        |`+file+`
+        |`+binary+`
+        |
+
+        |`+name+`
+        |`+string+`
+        |
+
+        |===
+        """,
+        formParameters.apply(
+            operation("POST", "/api/library")
+                .parameter(Map.of("form", mapOf("name", "string", "file", "binary")))
+                .consumes("multipart/form-data")
+                .build(),
+            args(),
+            template(),
+            evaluationContext(),
+            1));
+
+    // All them
+    assertEquals(
+        """
+        |===
+        |Parameter|Type|Description
+
+        |`+active+`
+        |`+true+`
+        |
+
+        |`+file+`
+        |`+binary+`
+        |
+
+        |`+isbn+`
+        |`+string+`
+        |
+
+        |`+name+`
+        |`+string+`
+        |
+
+        |===
+        """,
+        requestParameters.apply(
+            operation("POST", "/api/library")
+                .parameter(
+                    Map.of(
+                        "form",
+                        mapOf("name", "string", "file", "binary"),
+                        "path",
+                        Map.of("isbn", "string"),
+                        "query",
+                        Map.of("active", "true")))
+                .consumes("multipart/form-data")
+                .build(),
+            args(),
+            template(),
+            evaluationContext(),
+            1));
+  }
+
+  @Test
   public void curl() {
     assertEquals(
         """
@@ -376,6 +505,129 @@ public class FilterTest {
         ----
         """,
         httpResponse.apply(
+            operation("POST", "/api/library")
+                .produces("application/json")
+                .response(new Book(), StatusCode.CREATED, "application/json")
+                .response(new BookError(), StatusCode.BAD_REQUEST, "application/json")
+                .build(),
+            args("400"),
+            template(),
+            evaluationContext(),
+            1));
+  }
+
+  @Test
+  public void responseFields() {
+    assertEquals(
+        """
+        |===
+        |Path|Type|Description
+
+        |`+isbn+`
+        |`+string+`
+        |
+
+        |`+title+`
+        |`+string+`
+        |
+
+        |`+publicationDate+`
+        |`+date+`
+        |
+
+        |`+text+`
+        |`+string+`
+        |
+
+        |`+type+`
+        |`+string+`
+        |
+
+        |`+authors+`
+        |`+[]+`
+        |
+
+        |`+image+`
+        |`+binary+`
+        |
+
+        |===
+        """,
+        responseFields.apply(
+            operation("POST", "/api/library")
+                .produces("application/json")
+                .response(new Book(), StatusCode.CREATED, "application/json")
+                .build(),
+            args(),
+            template(),
+            evaluationContext(),
+            1));
+
+    assertEquals(
+        """
+        |===
+        |Path|Type|Description
+
+        |`+isbn+`
+        |`+string+`
+        |
+
+        |`+title+`
+        |`+string+`
+        |
+
+        |`+publicationDate+`
+        |`+date+`
+        |
+
+        |`+text+`
+        |`+string+`
+        |
+
+        |`+type+`
+        |`+string+`
+        |
+
+        |`+authors+`
+        |`+[]+`
+        |
+
+        |`+image+`
+        |`+binary+`
+        |
+
+        |===
+        """,
+        responseFields.apply(
+            operation("POST", "/api/library")
+                .produces("application/json")
+                .response(new Book(), StatusCode.CREATED, "application/json")
+                .build(),
+            args(),
+            template(),
+            evaluationContext(),
+            1));
+
+    assertEquals(
+        """
+        |===
+        |Path|Type|Description
+
+        |`+path+`
+        |`+string+`
+        |
+
+        |`+message+`
+        |`+string+`
+        |
+
+        |`+code+`
+        |`+int32+`
+        |
+
+        |===
+        """,
+        responseFields.apply(
             operation("POST", "/api/library")
                 .produces("application/json")
                 .response(new Book(), StatusCode.CREATED, "application/json")

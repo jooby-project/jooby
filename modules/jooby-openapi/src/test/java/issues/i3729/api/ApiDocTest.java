@@ -53,6 +53,26 @@ public class ApiDocTest {
         ----
 
 
+        ==== Request Fields
+
+        |===
+        |Parameter|Type|Description
+
+        |`+author+`
+        |`+string+`
+        |Book's author. Optional.
+
+        |`+isbn+`
+        |`+array+`
+        |Book's isbn. Optional.
+
+        |`+title+`
+        |`+string+`
+        |Book's title.
+
+        |===
+
+
         === Find a book by ISBN
 
 
@@ -97,7 +117,45 @@ public class ApiDocTest {
         }
         ----
 
-        """,
+
+        ==== Response Fields
+
+        |===
+        |Path|Type|Description
+
+        |`+isbn+`
+        |`+string+`
+        |Book ISBN. Method.
+
+        |`+title+`
+        |`+string+`
+        |Book's title.
+
+        |`+publicationDate+`
+        |`+date+`
+        |Publication date. Format mm-dd-yyyy.
+
+        |`+text+`
+        |`+string+`
+        |Book's content.
+
+        |`+type+`
+        |`+string+`
+        |Book type.
+          - Fiction: Fiction books are based on imaginary characters and events, while non-fiction books are based o n real people and events.
+          - NonFiction: Non-fiction genres include biography, autobiography, history, self-help, and true crime.
+
+        |`+authors+`
+        |`+[]+`
+        |
+
+        |`+image+`
+        |`+binary+`
+        |
+
+        |===
+        """
+            .trim(),
         result.toAsciiDoc(CurrentDir.basedir("src", "test", "resources", "adoc", "library.adoc")));
   }
 
@@ -315,6 +373,7 @@ public class ApiDocTest {
                   format: date
                 text:
                   type: string
+                  description: Book's content.
                 type:
                   type: string
                   description: |-

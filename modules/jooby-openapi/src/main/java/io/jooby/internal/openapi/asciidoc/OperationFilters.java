@@ -7,12 +7,16 @@ package io.jooby.internal.openapi.asciidoc;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.*;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.OperationExt;
@@ -160,10 +164,26 @@ public enum OperationFilters implements Filter {
       snippetContext.put("headers", snippetContext.get("requestHeaders"));
       return resolver.apply(id(), snippetContext);
     }
-
+  },
+  requestFields {
     @Override
-    protected String id() {
-      return "http-request";
+    protected Object doApply(
+        SnippetResolver resolver,
+        OperationExt operation,
+        Map<String, Object> snippetContext,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws Exception {
+      /* Body */
+      List<Map<String, String>> fields = List.of();
+      if (operation.getRequestBody() != null) {
+        var schema = schema(context, operation.getRequestBody());
+        fields = schemaToTable(schema);
+      }
+      snippetContext.put("fields", fields);
+      return resolver.apply(id(), snippetContext);
     }
   },
   httpResponse {
@@ -180,14 +200,8 @@ public enum OperationFilters implements Filter {
       /* Body */
       var requestBodyString = "";
       var statusCode = findStatusCode(args);
-      ResponseExt response;
-      if (statusCode != null) {
-        response = (ResponseExt) operation.getResponses().get(Integer.toString(statusCode.value()));
-        if (response == null) {
-          throw new IllegalArgumentException("No response: " + statusCode.value());
-        }
-      } else {
-        response = operation.getDefaultResponse();
+      var response = responseByStatusCode(operation, statusCode);
+      if (statusCode == null) {
         statusCode = StatusCode.valueOf(Integer.parseInt(response.getCode()));
       }
       var json = InternalContext.json(context);
@@ -201,10 +215,100 @@ public enum OperationFilters implements Filter {
       snippetContext.put("headers", snippetContext.get("responseHeaders"));
       return resolver.apply(id(), snippetContext);
     }
-
+  },
+  responseFields {
     @Override
-    protected String id() {
-      return "http-response";
+    protected Object doApply(
+        SnippetResolver resolver,
+        OperationExt operation,
+        Map<String, Object> snippetContext,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws Exception {
+      /* Body */
+      var statusCode = findStatusCode(args);
+      var response = responseByStatusCode(operation, statusCode);
+      var schema = schema(context, response);
+      snippetContext.put("fields", schemaToTable(schema));
+      return resolver.apply(id(), snippetContext);
+    }
+  },
+  formParameters {
+    @Override
+    protected Object doApply(
+        SnippetResolver resolver,
+        OperationExt operation,
+        Map<String, Object> snippetContext,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws Exception {
+      snippetContext.put("parameters", parametersToTable(operation, p -> "form".equals(p.getIn())));
+      return resolver.apply(id(), snippetContext);
+    }
+  },
+  queryParameters {
+    @Override
+    protected Object doApply(
+        SnippetResolver resolver,
+        OperationExt operation,
+        Map<String, Object> snippetContext,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws Exception {
+      snippetContext.put(
+          "parameters", parametersToTable(operation, p -> "query".equals(p.getIn())));
+      return resolver.apply(id(), snippetContext);
+    }
+  },
+  pathParameters {
+    @Override
+    protected Object doApply(
+        SnippetResolver resolver,
+        OperationExt operation,
+        Map<String, Object> snippetContext,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws Exception {
+      snippetContext.put("parameters", parametersToTable(operation, p -> "path".equals(p.getIn())));
+      return resolver.apply(id(), snippetContext);
+    }
+  },
+  cookieParameters {
+    @Override
+    protected Object doApply(
+        SnippetResolver resolver,
+        OperationExt operation,
+        Map<String, Object> snippetContext,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws Exception {
+      snippetContext.put("cookies", parametersToTable(operation, p -> "cookie".equals(p.getIn())));
+      return resolver.apply(id(), snippetContext);
+    }
+  },
+  requestParameters {
+    @Override
+    protected Object doApply(
+        SnippetResolver resolver,
+        OperationExt operation,
+        Map<String, Object> snippetContext,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws Exception {
+      snippetContext.put("parameters", parametersToTable(operation, p -> true));
+      return resolver.apply(id(), snippetContext);
     }
   },
   schema {
@@ -256,7 +360,7 @@ public enum OperationFilters implements Filter {
         int lineNumber)
         throws Exception {
       var statusCode = findStatusCode(args);
-      var response = operation.getResponses().get(Integer.toString(statusCode.value()));
+      var response = responseByStatusCode(operation, statusCode, null);
       if (response == null) {
         throw new IllegalArgumentException("No response for: " + statusCode);
       }
@@ -285,8 +389,8 @@ public enum OperationFilters implements Filter {
     }
   };
 
-  protected String id() {
-    return name();
+  protected final String id() {
+    return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, name());
   }
 
   @Override
@@ -329,6 +433,25 @@ public enum OperationFilters implements Filter {
     }
   }
 
+  protected ResponseExt responseByStatusCode(
+      OperationExt operation, @Nullable StatusCode statusCode) {
+    return responseByStatusCode(operation, statusCode, operation.getDefaultResponse());
+  }
+
+  protected ResponseExt responseByStatusCode(
+      OperationExt operation, @Nullable StatusCode statusCode, ResponseExt defaultResponse) {
+    ResponseExt response;
+    if (statusCode != null) {
+      response = (ResponseExt) operation.getResponses().get(Integer.toString(statusCode.value()));
+      if (response == null) {
+        throw new IllegalArgumentException("No response: " + statusCode.value());
+      }
+    } else {
+      response = defaultResponse;
+    }
+    return response;
+  }
+
   protected Map<String, Object> newSnippetContext(String serverUrl, OperationExt operation) {
     Map<String, Object> map = new HashMap<>();
     map.put("pattern", operation.getPattern());
@@ -353,8 +476,10 @@ public enum OperationFilters implements Filter {
       operation.getConsumes().forEach(value -> requestHeaders.put("Content-Type", value));
     }
 
-    map.put("requestHeaders", requestHeaders.entries());
-    map.put("responseHeaders", responseHeaders.entries());
+    Function<Map.Entry<String, String>, Map<String, String>> mapper =
+        e -> Map.of("name", e.getKey(), "value", e.getValue());
+    map.put("requestHeaders", requestHeaders.entries().stream().map(mapper).toList());
+    map.put("responseHeaders", responseHeaders.entries().stream().map(mapper).toList());
     return map;
   }
 
@@ -369,6 +494,44 @@ public enum OperationFilters implements Filter {
       }
     }
     return null;
+  }
+
+  protected List<Map<String, String>> schemaToTable(Schema<?> schema) {
+    List<Map<String, String>> fields = new ArrayList<>();
+    SchemaData.from(schema)
+        .forEach(
+            (name, type) -> {
+              var field = new LinkedHashMap<String, String>();
+              field.put("name", name);
+              field.put("type", type.toString());
+              var property = schema.getProperties().get(name);
+              if (property != null) {
+                field.put("description", property.getDescription());
+              }
+              fields.add(field);
+            });
+    return fields;
+  }
+
+  protected List<Map<String, String>> parametersToTable(
+      OperationExt operation, Predicate<Parameter> predicate) {
+    List<Map<String, String>> fields = new ArrayList<>();
+    var parameters =
+        Optional.ofNullable(operation.getParameters()).orElse(List.of()).stream()
+            .filter(predicate)
+            .sorted(Comparator.comparing(Parameter::getName))
+            .toList();
+    parameters.forEach(
+        it -> {
+          var schema = it.getSchema();
+          var field = new LinkedHashMap<String, String>();
+          field.put("name", it.getName());
+          field.put("type", SchemaData.shemaType(schema));
+          field.put("description", it.getDescription());
+          field.put("in", it.getIn());
+          fields.add(field);
+        });
+    return fields;
   }
 
   protected Schema<?> schema(EvaluationContext context, Object input) {

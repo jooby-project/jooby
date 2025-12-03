@@ -1,10 +1,8 @@
-.+{{path}}+
 |===
-|Parameter|Description
-
-{{#parameters}}
-|{{#tableCellContent}}`+{{name}}+`{{/tableCellContent}}
-|{{#tableCellContent}}{{description}}{{/tableCellContent}}
-
-{{/parameters}}
+|Parameter|Type|Description
+{% for parameter in parameters %}
+|`+${parameter.name}+`
+|`+${parameter.type}+`
+|${parameter.description}
+{% endfor %}
 |===

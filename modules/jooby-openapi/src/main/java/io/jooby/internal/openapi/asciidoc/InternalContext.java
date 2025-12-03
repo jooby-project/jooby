@@ -24,7 +24,7 @@ public class InternalContext {
   }
 
   public static OpenAPIExt openApi(EvaluationContext context) {
-    return internal(context, "openapi");
+    return (OpenAPIExt) context.getVariable("openapi");
   }
 
   public static SnippetResolver resolver(EvaluationContext context) {

@@ -32,7 +32,9 @@ public enum Filters implements Filter {
         throws PebbleException {
       try {
         var json = InternalContext.json(context);
-        return json.writer().withDefaultPrettyPrinter().writeValueAsString(input);
+        return "[source,json]\n----\n"
+            + json.writer().withDefaultPrettyPrinter().writeValueAsString(input)
+            + "\n----";
       } catch (JsonProcessingException e) {
         throw new PebbleException(
             e, "Could not convert to JSON: " + input, lineNumber, self.getName());
@@ -56,7 +58,9 @@ public enum Filters implements Filter {
         throws PebbleException {
       try {
         var yaml = InternalContext.yaml(context);
-        return yaml.writer().withDefaultPrettyPrinter().writeValueAsString(input);
+        return "[source,yaml]\n----\n"
+            + yaml.writer().withDefaultPrettyPrinter().writeValueAsString(input)
+            + "----";
       } catch (JsonProcessingException e) {
         throw new PebbleException(
             e, "Could not convert to YAML: " + input, lineNumber, self.getName());
@@ -70,7 +74,7 @@ public enum Filters implements Filter {
       functions.put(value.name(), value);
     }
     for (var value : OperationFilters.values()) {
-      functions.put(value.id(), value);
+      functions.put(value.name(), value);
     }
     return functions;
   }

@@ -1,9 +1,7 @@
 |===
-|Name|Description
-
-{{#headers}}
-|{{#tableCellContent}}`+{{name}}+`{{/tableCellContent}}
-|{{#tableCellContent}}{{description}}{{/tableCellContent}}
-
-{{/headers}}
+|Parameter|Description
+{% for header in headers %}
+|`+${header.name}+`
+|${header.description}
+{% endfor %}
 |===
