@@ -5,11 +5,13 @@
  */
 package io.jooby.openapi;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.SneakyThrows;
+import io.jooby.internal.openapi.AsciiDocGenerator;
 import io.jooby.internal.openapi.OpenAPIExt;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
@@ -84,6 +86,33 @@ public class OpenAPIResult {
                 + json);
       }
       return json;
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
+    }
+  }
+
+  public String toAsciiDoc(Path index) {
+    return toAsciiDoc(index, false);
+  }
+
+  public String toAsciiDoc(Path index, boolean validate) {
+    if (failure != null) {
+      throw failure;
+    }
+    try {
+      String json = this.json.writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
+      if (validate) {
+        SwaggerParseResult result = new OpenAPIV3Parser().readContents(json);
+        if (result.getMessages().isEmpty()) {
+          return json;
+        }
+        throw new IllegalStateException(
+            "Invalid OpenAPI specification:\n\t- "
+                + result.getMessages().stream().collect(Collectors.joining("\n\t- ")).trim()
+                + "\n\n"
+                + json);
+      }
+      return AsciiDocGenerator.generate(openAPI, index);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

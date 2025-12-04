@@ -21,14 +21,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import io.jooby.*;
-import io.jooby.annotation.ContextParam;
-import io.jooby.annotation.CookieParam;
-import io.jooby.annotation.FormParam;
-import io.jooby.annotation.GET;
-import io.jooby.annotation.HeaderParam;
-import io.jooby.annotation.Path;
-import io.jooby.annotation.PathParam;
-import io.jooby.annotation.QueryParam;
+import io.jooby.annotation.*;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -314,6 +307,7 @@ public class AnnotationParser {
     return methods;
   }
 
+  @SuppressWarnings("unchecked")
   private static List<OperationExt> routerMethod(
       ParserContext ctx, String prefix, ClassNode classNode, MethodNode method) {
 
@@ -330,11 +324,33 @@ public class AnnotationParser {
         operation.setOperationId(method.name);
         Optional.ofNullable(requestBody.get()).ifPresent(operation::setRequestBody);
 
+        mediaType(classNode, method, produces(), operation::addProduces);
+        mediaType(classNode, method, consumes(), operation::addConsumes);
+
         result.add(operation);
       }
     }
 
     return result;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static void mediaType(
+      ClassNode classNode, MethodNode method, List<String> types, Consumer<String> consumer) {
+    mediaType(classNode, method, types).stream()
+        .map(AsmUtils::toMap)
+        .map(it -> it.get("value"))
+        .filter(Objects::nonNull)
+        .map(List.class::cast)
+        .flatMap(List::stream)
+        .distinct()
+        .forEach(it -> consumer.accept(it.toString()));
+  }
+
+  public static List<AnnotationNode> mediaType(
+      ClassNode classNode, MethodNode method, List<String> types) {
+    var result = findAnnotationByType(method.visibleAnnotations, types);
+    return result.isEmpty() ? findAnnotationByType(classNode.visibleAnnotations, types) : result;
   }
 
   private static ResponseExt returnTypes(MethodNode method) {
@@ -602,6 +618,14 @@ public class AnnotationParser {
     annotationTypes.addAll(
         httpMethod(jakarta.ws.rs.GET.class.getPackage().getName(), jakarta.ws.rs.Path.class));
     return annotationTypes;
+  }
+
+  private static List<String> produces() {
+    return List.of(Produces.class.getName(), jakarta.ws.rs.Produces.class.getName());
+  }
+
+  private static List<String> consumes() {
+    return List.of(Consumes.class.getName(), jakarta.ws.rs.Consumes.class.getName());
   }
 
   private static List<String> httpMethod(String pkg, Class pathType) {

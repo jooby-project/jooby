@@ -8,6 +8,8 @@ package issues.i3729.api;
 import java.time.LocalDate;
 import java.util.Set;
 
+import io.jooby.FileUpload;
+
 /** Book model. */
 public class Book {
   /** Book ISBN. */
@@ -19,12 +21,15 @@ public class Book {
   /** Publication date. Format mm-dd-yyyy. */
   LocalDate publicationDate;
 
+  /** Book's content. */
   String text;
 
   /** Book type. */
   Type type = Type.Fiction;
 
   Set<Author> authors;
+
+  FileUpload image;
 
   /**
    * Book ISBN. Method.
@@ -77,5 +82,13 @@ public class Book {
 
   public void setAuthors(Set<Author> authors) {
     this.authors = authors;
+  }
+
+  public FileUpload getImage() {
+    return image;
+  }
+
+  public void setImage(FileUpload image) {
+    this.image = image;
   }
 }

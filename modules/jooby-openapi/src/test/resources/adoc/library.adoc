@@ -1,0 +1,43 @@
+= ${info.title}
+Jooby Doc;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+== Introduction
+
+${info.description}
+
+== Support
+
+Write your questions at ${info.contact.email}
+
+[[overview_operations]]
+== Operations
+
+=== List Books
+{% set listBooks = operation("GET", "/api/library") %}
+${listBooks.summary} ${listBooks.description}
+
+${ listBooks | curl }
+
+==== Request Fields
+
+${ listBooks | queryParameters }
+
+=== Find a book by ISBN
+{% set bookByISBN = operation("GET", "/api/library/{isbn}") %}
+${ bookByISBN | curl("-i") }
+
+${ bookByISBN | statusCode(200) }
+
+${ bookByISBN | statusCode(400) }
+
+${ bookByISBN | statusCode(404) }
+
+==== Response Fields
+
+${ bookByISBN | responseFields }

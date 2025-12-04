@@ -1,0 +1,8 @@
+|===
+|Parameter|Type|Description
+{% for parameter in parameters %}
+|`+${parameter.name}+`
+|`+${parameter.type}+`
+|${parameter.description}
+{% endfor %}
+|===
